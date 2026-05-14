@@ -8,50 +8,7 @@
    - Environments: .env.local
 
  ✓ Starting...
- ✓ Ready in 2.6s
- ○ Compiling /sell ...
- ✓ Compiled /sell in 3.7s (868 modules)
- GET / 200 in 1460ms
- GET / 200 in 4665ms
- GET / 200 in 4666ms
- GET /sell 200 in 4668ms
- GET / 200 in 4681ms
- GET / 200 in 97ms
- GET / 200 in 114ms
- GET / 200 in 130ms
- GET / 200 in 148ms
- ○ Compiling /profile ...
- ✓ Compiled /profile in 1501ms (909 modules)
- GET /profile 200 in 1834ms
- GET / 200 in 843ms
- GET / 200 in 855ms
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 570ms (914 modules)
- ○ Compiling /privacy ...
- ✓ Compiled /privacy in 566ms (931 modules)
- GET /privacy 200 in 688ms
- GET / 200 in 419ms
- GET /privacy 200 in 36ms
- ○ Compiling /terms ...
- ✓ Compiled /terms in 579ms (946 modules)
- GET /terms 200 in 691ms
- GET /profile 200 in 48ms
- ○ Compiling /my-listings ...
- ✓ Compiled /my-listings in 793ms (973 modules)
- GET /my-listings 200 in 929ms
- ✓ Compiled in 2.7s (978 modules)
- GET / 200 in 269ms
- GET / 200 in 283ms
- GET / 200 in 75ms
- GET / 200 in 394ms
- ✓ Compiled in 1578ms (978 modules)
- GET / 200 in 228ms
- GET / 200 in 243ms
- GET / 200 in 79ms
- GET / 200 in 389ms
- GET /my-listings 200 in 98ms
- ✓ Compiled in 4.9s (978 modules)
- GET / 200 in 477ms
- GET / 200 in 469ms
- GET /my-listings 200 in 489ms
- GET / 200 in 574ms
+ ✓ Ready in 2.2s
+ ○ Compiling / ...
+ ✓ Compiled / in 1601ms (853 modules)
+ GET / 200 in 2328ms

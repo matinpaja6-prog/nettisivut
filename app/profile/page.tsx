@@ -878,7 +878,7 @@ export default function ProfilePage() {
           firebaseAuth,
           recaptchaContainer,
           {
-            size: "invisible"
+            size: "normal"
           }
         );
 

@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, LockKeyhole, Mail, X } from "lucide-react";
+import { ArrowLeft, Check, LockKeyhole, Mail, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { BirthDateField } from "@/app/components/BirthDateField";
 import { applyLocale, useLanguage, type Locale } from "@/lib/i18n";
@@ -655,6 +655,10 @@ export default function AuthPage() {
 
   return (
     <main className="auth-page simple-auth-page">
+      <Link href="/" className="auth-back-home">
+        <ArrowLeft size={17} />
+        <span>Takaisin sivulle</span>
+      </Link>
       <section className="simple-auth auth-centered">
         {recoveryMode ? (
           <form

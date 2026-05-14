@@ -70,7 +70,7 @@ import {
 import { applyLocale, isLocale, translateCategory } from "@/lib/i18n";
 import CategoryDrawer from "./components/CategoryDrawer";
 import LanguageSwitcher from "./components/LanguageSwitcher";
-import { ArrowDownUp, Menu } from "lucide-react";
+import { ListFilter, Menu } from "lucide-react";
 
 type Locale = "fi" | "en" | "sv" | "no" | "et";
 
@@ -2403,6 +2403,18 @@ export default function Home() {
                   </button>
                 ))}
 
+                <button
+                  type="button"
+                  className={`${styles.categoryPill} ${styles.mobileCategoryMenuPill}`}
+                  onClick={() => {
+                    setDrawerOpenStep(0);
+                    setDrawerOpen(true);
+                  }}
+                >
+                  <ListFilter size={16} />
+                  <span>Kategoriat</span>
+                </button>
+
                 {user && garageVehicles.length > 0 && (
                   <div ref={garageDropdownRef} className={styles.garagePillWrap}>
                     <button
@@ -2530,7 +2542,7 @@ export default function Home() {
                   onClick={() => setSortSheetOpen(true)}
                   aria-label={t.sort}
                 >
-                  <ArrowDownUp size={16} />
+                  <ListFilter size={16} />
                 </button>
                 </div>
               </div>
@@ -2609,7 +2621,7 @@ export default function Home() {
               onClick={() => setSortSheetOpen(true)}
               aria-label={t.sort}
             >
-              <ArrowDownUp size={16} />
+              <ListFilter size={16} />
             </button>
           </div>
         )}
