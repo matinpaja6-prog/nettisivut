@@ -1,0 +1,26 @@
+
+> kauppapaikka@0.1.0 dev
+> next dev --hostname 0.0.0.0 --port 3000
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3000
+   - Network:      http://0.0.0.0:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1673ms
+ ○ Compiling / ...
+ ✓ Compiled / in 3.4s (866 modules)
+ GET / 200 in 4032ms
+ ✓ Compiled /listing/[id] in 442ms (860 modules)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1427ms (1206 modules)
+ GET /listing/9fc52cf0-c743-4bc6-93b5-c1ab4322ff51 500 in 2696ms
+ GET /listing/9fc52cf0-c743-4bc6-93b5-c1ab4322ff51 500 in 637ms
+ GET /listing/52e44ea6-2736-4f35-af61-027e87515817 500 in 563ms
+ GET /listing/3163380f-d4c6-45c5-8a08-c81e3575b82d 500 in 576ms
+ GET /listing/3163380f-d4c6-45c5-8a08-c81e3575b82d 500 in 576ms
+ GET /listing/3163380f-d4c6-45c5-8a08-c81e3575b82d 500 in 579ms
+ GET /listing/52e44ea6-2736-4f35-af61-027e87515817 200 in 257ms
+ GET / 200 in 280ms
+ GET / 200 in 65ms

@@ -1,0 +1,1976 @@
+
+> kauppapaikka@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3000
+   - Network:      http://25.21.178.88:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.5s
+ ○ Compiling /auth ...
+ ✓ Compiled /auth in 3.6s (809 modules)
+ GET /auth 200 in 4157ms
+ ○ Compiling / ...
+ ✓ Compiled / in 989ms (870 modules)
+ GET / 200 in 1164ms
+ GET / 200 in 39ms
+ ✓ Compiled in 858ms (884 modules)
+ GET / 200 in 94ms
+ ○ Compiling /listing/[id] ...
+ ✓ Compiled /listing/[id] in 2.3s (885 modules)
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 2684ms
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 75ms
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 51ms
+ ✓ Compiled in 813ms (895 modules)
+ GET / 200 in 133ms
+ GET /listing/8d263633-9e2a-477c-8a07-5216e099a282 200 in 73ms
+ GET /listing/8d263633-9e2a-477c-8a07-5216e099a282 200 in 68ms
+ ✓ Compiled in 1002ms (895 modules)
+ GET / 200 in 113ms
+ ✓ Compiled /_not-found in 260ms (890 modules)
+ GET /category-sub/sahko.jpg 404 in 668ms
+ GET /category-sub/sytytys.jpg 404 in 666ms
+ GET /category-sub/sytytys.jpg 404 in 88ms
+ GET /category-sub/sahko.jpg 404 in 81ms
+ GET /category-sub/sahko.jpg 404 in 84ms
+ GET /category-sub/sahko.jpg 404 in 153ms
+ GET /category-sub/sytytys.jpg 404 in 150ms
+ GET /category-sub/sytytys.jpg 404 in 66ms
+ GET /category-sub/sahko.jpg 404 in 58ms
+ GET /category-sub/sahko.jpg 404 in 55ms
+ GET /auth 200 in 51ms
+ GET / 200 in 156ms
+ ○ Compiling /sell ...
+ ✓ Compiled /sell in 1188ms (903 modules)
+ GET /sell 200 in 1386ms
+ GET /sell 200 in 36ms
+ GET /category-sub/s%C3%A4hko.png 404 in 407ms
+ ○ Compiling /api/price-suggestion ...
+ ✓ Compiled /api/price-suggestion in 971ms (964 modules)
+ GET /api/price-suggestion?category=S%C3%A4hk%C3%B6j%C3%A4rjestelm%C3%A4t&subcategory=Valot&engine_model=Rotax+850+E-TEC&engine_cc=850&year=2017 200 in 1619ms
+ ✓ Compiled /api/moderate-listing in 438ms (918 modules)
+ POST /api/moderate-listing 200 in 544ms
+ ○ Compiling /api/search-alerts/notify ...
+ ✓ Compiled /api/search-alerts/notify in 718ms (975 modules)
+ GET / 200 in 1047ms
+ POST /api/search-alerts/notify 200 in 1303ms
+ ✓ Compiled /_not-found in 316ms (980 modules)
+ GET /category-sub/sahko.jpg 404 in 816ms
+ GET /category-sub/sytytys.jpg 404 in 821ms
+ GET /category-sub/sahko.jpg 404 in 66ms
+ GET /category-sub/sahko.jpg 404 in 64ms
+ GET /sell 200 in 51ms
+ ✓ Compiled in 1085ms (913 modules)
+ GET /sell 200 in 226ms
+ ✓ Compiled in 872ms (913 modules)
+ GET /sell 200 in 144ms
+ ✓ Compiled in 997ms (913 modules)
+ GET /sell 200 in 224ms
+ ✓ Compiled in 845ms (913 modules)
+ GET /sell 200 in 122ms
+ ✓ Compiled in 829ms (913 modules)
+ GET /sell 200 in 121ms
+ ○ Compiling /profile ...
+ ✓ Compiled /profile in 1056ms (946 modules)
+ GET /profile 200 in 1266ms
+ ✓ Compiled /messages in 314ms (961 modules)
+ GET /messages 200 in 421ms
+ ✓ Compiled /_not-found in 296ms (966 modules)
+ GET /arctic-parts-logo.jpg 404 in 755ms
+ GET /messages 200 in 490ms
+ GET /profile 200 in 107ms
+ GET /arctic-parts-logo.jpg 404 in 78ms
+ ✓ Compiled in 974ms (958 modules)
+ ✓ Compiled in 972ms (972 modules)
+ GET / 200 in 200ms
+ ✓ Compiled in 841ms (967 modules)
+ GET / 200 in 147ms
+ ✓ Compiled in 1427ms (963 modules)
+ GET / 200 in 168ms
+ ✓ Compiled in 915ms (967 modules)
+ GET / 200 in 197ms
+ GET /sell 200 in 52ms
+ ✓ Compiled in 931ms (963 modules)
+ GET /sell 200 in 122ms
+ GET /profile 200 in 50ms
+ ✓ Compiled in 828ms (953 modules)
+ ✓ Compiled in 912ms (967 modules)
+ GET / 200 in 169ms
+ ○ Compiling /api/translate-listing ...
+ ✓ Compiled /api/translate-listing in 656ms (1015 modules)
+ POST /api/translate-listing 200 in 7817ms
+ POST /api/translate-listing 200 in 6583ms
+ ✓ Compiled in 845ms (1029 modules)
+ GET /?lang=fi 200 in 198ms
+ ✓ Compiled in 1518ms (1025 modules)
+ GET /?lang=fi 200 in 258ms
+ ✓ Compiled in 1045ms (953 modules)
+ ✓ Compiled in 959ms (963 modules)
+ GET /?lang=fi 200 in 271ms
+ GET /?lang=fi 200 in 387ms
+ ✓ Compiled in 1216ms (963 modules)
+ GET /?lang=fi 200 in 237ms
+ ✓ Compiled in 1122ms (963 modules)
+ GET /?lang=fi 200 in 182ms
+ GET /?lang=fi 200 in 401ms
+ ✓ Compiled in 939ms (963 modules)
+ GET /?lang=fi 200 in 161ms
+ ○ Compiling /my-listings ...
+ ✓ Compiled /my-listings in 1268ms (979 modules)
+ GET /my-listings 200 in 1451ms
+ ✓ Compiled in 1001ms (989 modules)
+ GET /my-listings 200 in 111ms
+ GET /messages 200 in 80ms
+ ✓ Compiled /_not-found in 470ms (984 modules)
+ GET /arctic-parts-logo.jpg 404 in 927ms
+ GET /messages 200 in 493ms
+ GET /messages 200 in 35ms
+ GET /arctic-parts-logo.jpg 404 in 93ms
+ ✓ Compiled /search-alerts in 465ms (999 modules)
+ GET /search-alerts 200 in 579ms
+ ✓ Compiled in 973ms (955 modules)
+ ✓ Compiled in 1063ms (969 modules)
+ GET /my-listings 200 in 193ms
+ GET /my-listings 200 in 315ms
+ GET /messages 200 in 60ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 599ms (960 modules)
+ GET /arctic-parts-logo.jpg 404 in 1127ms
+ GET /messages 200 in 530ms
+ ✓ Compiled / in 243ms (566 modules)
+ GET / 200 in 383ms
+ GET / 200 in 38ms
+ ✓ Compiled in 486ms (983 modules)
+ ✓ Compiled in 1121ms (997 modules)
+ GET / 200 in 130ms
+ GET / 200 in 322ms
+ ✓ Compiled /listing/[id] in 346ms (565 modules)
+ GET /listing/5f7d95dd-69d7-4db2-8a49-ae6c376df332 200 in 597ms
+ GET /listing/5f7d95dd-69d7-4db2-8a49-ae6c376df332 200 in 40ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 60ms
+ ✓ Compiled in 1039ms (978 modules)
+ ✓ Compiled in 1032ms (992 modules)
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 206ms
+ ✓ Compiled in 976ms (992 modules)
+ GET / 200 in 135ms
+ GET /profile 200 in 54ms
+ GET / 200 in 33ms
+ ✓ Compiled /api/translate-listing in 506ms (620 modules)
+ GET /my-listings 200 in 99ms
+ GET /profile 200 in 50ms
+ POST /api/translate-listing 200 in 7595ms
+ POST /api/translate-listing 200 in 8874ms
+ ○ Compiling /sell ...
+ ✓ Compiled /sell in 766ms (627 modules)
+ GET /sell 200 in 976ms
+ GET /sell 200 in 46ms
+ GET / 200 in 60ms
+ ✓ Compiled in 1302ms (1047 modules)
+ ✓ Compiled in 1080ms (1047 modules)
+ ✓ Compiled in 996ms (1061 modules)
+ GET / 200 in 181ms
+ ✓ Compiled in 450ms (978 modules)
+ GET / 200 in 568ms
+ ✓ Compiled in 992ms (992 modules)
+ GET / 200 in 262ms
+ ✓ Compiled in 904ms (992 modules)
+ GET / 200 in 181ms
+ GET / 200 in 356ms
+ ✓ Compiled in 1107ms (992 modules)
+ GET / 200 in 226ms
+ ✓ Compiled in 1076ms (992 modules)
+ GET / 200 in 201ms
+ ✓ Compiled in 792ms (992 modules)
+ GET / 200 in 113ms
+ ✓ Compiled in 943ms (971 modules)
+ GET / 200 in 128ms
+ ✓ Compiled in 647ms (978 modules)
+ GET / 200 in 185ms
+ ✓ Compiled in 1189ms (988 modules)
+ GET / 200 in 118ms
+ GET /my-listings 200 in 63ms
+ ✓ Compiled in 1142ms (992 modules)
+ GET /my-listings 200 in 211ms
+ ○ Compiling /saved ...
+ ✓ Compiled /saved in 1271ms (987 modules)
+ GET /saved 200 in 1412ms
+ ○ Compiling /rewards ...
+ ✓ Compiled /rewards in 1136ms (1007 modules)
+ GET /rewards 200 in 1324ms
+ GET /rewards 200 in 326ms
+ ✓ Compiled in 982ms (977 modules)
+ ✓ Compiled in 1100ms (991 modules)
+ GET /rewards 200 in 428ms
+ GET /rewards 200 in 773ms
+ ✓ Compiled /saved in 225ms (552 modules)
+ GET /saved 200 in 368ms
+ GET /saved 200 in 127ms
+ GET /my-listings 200 in 62ms
+ GET / 200 in 63ms
+ ○ Compiling /sell ...
+ ✓ Compiled /sell in 667ms (558 modules)
+ GET /sell 200 in 887ms
+ GET /sell 200 in 172ms
+ ✓ Compiled in 475ms (989 modules)
+ ✓ Compiled in 954ms (1003 modules)
+ GET / 200 in 136ms
+ ○ Compiling /profile ...
+ ✓ Compiled /profile in 538ms (570 modules)
+ GET /profile 200 in 734ms
+ GET /profile 200 in 36ms
+ GET /my-listings 200 in 51ms
+ ✓ Compiled in 537ms (1001 modules)
+ ○ Compiling /garage ...
+ ✓ Compiled /garage in 748ms (1010 modules)
+ GET /garage 200 in 878ms
+ ✓ Compiled /_not-found in 420ms (1015 modules)
+ GET /arctic-parts-logo.jpg 404 in 865ms
+ GET /garage 200 in 465ms
+ ✓ Compiled in 816ms (996 modules)
+ GET /garage 200 in 205ms
+ ✓ Compiled in 1162ms (991 modules)
+ GET / 200 in 251ms
+ GET /my-listings 200 in 55ms
+ ✓ Compiled /profile in 320ms (567 modules)
+ GET /profile 200 in 549ms
+ GET /profile 200 in 38ms
+ ✓ Compiled in 759ms (1011 modules)
+ GET /profile 200 in 114ms
+ ○ Compiling /seller/[id] ...
+ ✓ Compiled /seller/[id] in 1150ms (1013 modules)
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 2328ms
+ ✓ Compiled in 1258ms (993 modules)
+ GET /profile 200 in 208ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 200ms
+ ✓ Compiled in 919ms (980 modules)
+ GET /profile 200 in 191ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 186ms
+ ✓ Compiled / in 271ms (560 modules)
+ GET / 200 in 396ms
+ GET /profile 200 in 132ms
+ GET / 200 in 70ms
+ ✓ Compiled in 1139ms (1005 modules)
+ GET / 200 in 373ms
+ GET /profile 200 in 373ms
+ ✓ Compiled /listing/[id] in 215ms (560 modules)
+ GET /listing/1f229e69-e276-482f-b86c-8f66f1fd3e20 200 in 361ms
+ GET /profile 200 in 158ms
+ GET /listing/1f229e69-e276-482f-b86c-8f66f1fd3e20 200 in 75ms
+ ✓ Compiled in 825ms (1001 modules)
+ GET /profile 200 in 154ms
+ GET /listing/1f229e69-e276-482f-b86c-8f66f1fd3e20 200 in 150ms
+ ○ Compiling /my-listings ...
+ ✓ Compiled /my-listings in 670ms (564 modules)
+ GET /my-listings 200 in 789ms
+ GET /profile 200 in 158ms
+ GET /my-listings 200 in 76ms
+ ✓ Compiled in 1162ms (1012 modules)
+ GET /profile 200 in 130ms
+ GET /my-listings 200 in 132ms
+ ✓ Compiled in 1142ms (1010 modules)
+ GET / 200 in 291ms
+ GET /profile 200 in 291ms
+ ○ Compiling /sell ...
+ ✓ Compiled /sell in 531ms (565 modules)
+ GET /sell 200 in 643ms
+ GET /profile 200 in 133ms
+ GET /sell 200 in 67ms
+ GET /my-listings 200 in 45ms
+ ○ Compiling /messages ...
+ ✓ Compiled /messages in 552ms (574 modules)
+ GET /messages 200 in 673ms
+ GET /profile 200 in 137ms
+ GET /messages 200 in 71ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 666ms (1017 modules)
+ GET /arctic-parts-logo.jpg 404 in 1021ms
+ GET /messages 200 in 436ms
+ GET /profile 200 in 437ms
+ ✓ Compiled /garage in 288ms (581 modules)
+ GET /garage 200 in 398ms
+ GET /profile 200 in 121ms
+ GET /garage 200 in 70ms
+ GET /arctic-parts-logo.jpg 404 in 197ms
+ GET /my-listings 200 in 57ms
+ GET /profile 200 in 36ms
+ GET /messages 200 in 38ms
+ GET /arctic-parts-logo.jpg 404 in 72ms
+ GET /profile 200 in 34ms
+ GET /arctic-parts-logo.jpg 404 in 93ms
+ ✓ Compiled in 1013ms (1021 modules)
+ GET / 200 in 232ms
+ GET /profile 200 in 237ms
+ GET /my-listings 200 in 52ms
+ GET /profile 200 in 28ms
+ ✓ Compiled in 1829ms (1007 modules)
+ GET /profile 200 in 153ms
+ GET /profile 200 in 104ms
+ GET / 200 in 354ms
+ ✓ Compiled in 1369ms (993 modules)
+ GET /garage 200 in 113ms
+ ✓ Compiled /_not-found in 321ms (998 modules)
+ GET /arctic-parts-logo.jpg 404 in 569ms
+ GET /profile 200 in 320ms
+ GET /garage 200 in 321ms
+ ✓ Compiled in 683ms (998 modules)
+ GET / 200 in 89ms
+ GET /profile 200 in 54ms
+ ✓ Compiled /seller/[id] in 425ms (565 modules)
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 919ms
+ GET /profile 200 in 450ms
+ GET /profile 200 in 47ms
+ ✓ Compiled in 872ms (1021 modules)
+ GET /profile 200 in 204ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 176ms
+ GET /profile 200 in 106ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 70ms
+ ✓ Compiled in 907ms (986 modules)
+ GET /profile 200 in 191ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 191ms
+ GET /profile 200 in 117ms
+ ✓ Compiled in 977ms (986 modules)
+ GET /profile 200 in 184ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 180ms
+ GET /profile 200 in 103ms
+ ✓ Compiled in 854ms (986 modules)
+ GET /profile 200 in 292ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 303ms
+ GET /profile 200 in 198ms
+ ✓ Compiled in 1052ms (986 modules)
+ GET /profile 200 in 176ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 175ms
+ GET /profile 200 in 110ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 267ms
+ ✓ Compiled in 1200ms (986 modules)
+ GET /profile 200 in 323ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 327ms
+ GET /profile 200 in 185ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 228ms
+ ✓ Compiled in 855ms (986 modules)
+ GET /profile 200 in 183ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 184ms
+ GET /profile 200 in 122ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 197ms
+ ✓ Compiled in 1199ms (986 modules)
+ GET /profile 200 in 191ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 191ms
+ GET /profile 200 in 110ms
+ ○ Compiling / ...
+ ✓ Compiled / in 698ms (564 modules)
+ GET / 200 in 821ms
+ GET /profile 200 in 211ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 209ms
+ GET / 200 in 148ms
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 51ms
+ ✓ Compiled in 931ms (1016 modules)
+ GET /profile 200 in 337ms
+ GET /listing/845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 325ms
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 326ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd?returnTo=%2Flisting%2F845d0a46-87ef-424e-ba3f-442fa87f19da 200 in 72ms
+ ✓ Compiled / in 912ms (972 modules)
+ ✓ Compiled (1002 modules)
+ GET / 200 in 885ms
+ ✓ Compiled in 975ms (1016 modules)
+ GET /profile 200 in 632ms
+ GET / 200 in 643ms
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 644ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 890ms (1007 modules)
+ GET /category-sub/iskunvaimentimet.jpg 404 in 1009ms
+ GET /category-sub/alusta.jpg 404 in 1410ms
+ GET /category-sub/tukivarret.jpg 404 in 1412ms
+ GET /category-sub/telasto.jpg 404 in 1609ms
+ GET / 200 in 654ms
+ GET /profile 200 in 195ms
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 146ms
+ ✓ Compiled in 1046ms (1006 modules)
+ GET / 200 in 260ms
+ GET /profile 200 in 261ms
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 256ms
+ GET / 200 in 31ms
+ ✓ Compiled in 1398ms (1001 modules)
+ GET / 200 in 304ms
+ GET /profile 200 in 311ms
+ GET / 200 in 162ms
+ ✓ Compiled /my-listings in 225ms (564 modules)
+ GET /my-listings 200 in 345ms
+ GET / 200 in 173ms
+ GET /profile 200 in 175ms
+ GET /my-listings 200 in 127ms
+ ○ Compiling /shop ...
+ ✓ Compiled /shop in 740ms (1015 modules)
+ GET /shop 200 in 868ms
+ ✓ Compiled /rewards in 330ms (571 modules)
+ GET /rewards 200 in 505ms
+ GET / 200 in 261ms
+ GET /profile 200 in 264ms
+ GET /rewards 200 in 172ms
+ ✓ Compiled in 1336ms (1010 modules)
+ ✓ Compiled in 472ms (1010 modules)
+ GET / 200 in 84ms
+ ✓ Compiled in 494ms (1010 modules)
+ ✓ Compiled in 873ms (1010 modules)
+ ✓ Compiled /saved in 367ms (571 modules)
+ GET /saved 200 in 562ms
+ GET / 200 in 254ms
+ GET /profile 200 in 257ms
+ GET /saved 200 in 121ms
+ ○ Compiling /garage ...
+ ✓ Compiled /garage in 1106ms (577 modules)
+ GET /garage 200 in 1259ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1068ms (1027 modules)
+ GET /arctic-parts-logo.jpg 404 in 1452ms
+ GET / 200 in 505ms
+ GET /profile 200 in 507ms
+ GET /garage 200 in 508ms
+ GET /my-listings 200 in 55ms
+ GET /arctic-parts-logo.jpg 404 in 76ms
+ GET / 200 in 36ms
+ ✓ Compiled in 1530ms (1017 modules)
+ GET / 200 in 332ms
+ GET /profile 200 in 346ms
+ GET / 200 in 177ms
+ ✓ Compiled in 187ms (445 modules)
+ ✓ Compiled in 1205ms (1012 modules)
+ GET / 200 in 215ms
+ GET /profile 200 in 223ms
+ GET / 200 in 102ms
+ GET / 200 in 353ms
+ ✓ Compiled /_not-found in 393ms (1003 modules)
+ GET /category-sub/jaahdytys.jpg 404 in 767ms
+ GET /category-sub/polttoaine.jpg 404 in 767ms
+ GET / 200 in 460ms
+ GET /profile 200 in 465ms
+ GET / 200 in 102ms
+ GET / 200 in 66ms
+ GET /category-sub/jaahdytys.jpg 404 in 202ms
+ GET /category-sub/polttoaine.jpg 404 in 201ms
+ GET /category-sub/moottorit.jpg 404 in 154ms
+ GET /category-sub/kytkimet.jpg 404 in 154ms
+ GET /category-sub/variaattorit.jpg 404 in 156ms
+ GET /category-sub/voimansiirto.jpg 404 in 135ms
+ GET /category-sub/kytkimet.jpg 404 in 69ms
+ ✓ Compiled in 969ms (1017 modules)
+ GET / 200 in 191ms
+ GET /profile 200 in 196ms
+ GET / 200 in 102ms
+ GET / 200 in 53ms
+ GET /category-sub/tukivarret.jpg 404 in 373ms
+ GET /category-sub/alusta.jpg 404 in 386ms
+ GET /category-sub/telasto.jpg 404 in 390ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 368ms
+ GET /category-sub/alusta.jpg 404 in 67ms
+ GET /category-sub/tukivarret.jpg 404 in 83ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 118ms
+ ✓ Compiled in 1896ms (1017 modules)
+ GET / 200 in 193ms
+ GET /profile 200 in 201ms
+ GET / 200 in 102ms
+ GET / 200 in 50ms
+ GET /category-sub/telasto.jpg 404 in 476ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 474ms
+ GET /category-sub/tukivarret.jpg 404 in 476ms
+ GET /category-sub/alusta.jpg 404 in 479ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 118ms
+ GET /category-sub/tukivarret.jpg 404 in 118ms
+ GET / 200 in 150ms
+ GET /category-sub/tukivarret.jpg 404 in 298ms
+ GET /category-sub/alusta.jpg 404 in 301ms
+ GET /category-sub/telasto.jpg 404 in 307ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 125ms
+ GET /category-sub/alusta.jpg 404 in 89ms
+ GET /category-sub/tukivarret.jpg 404 in 84ms
+ GET /category-sub/telasto.jpg 404 in 90ms
+ GET /category-sub/alusta.jpg 404 in 94ms
+ GET / 200 in 142ms
+ GET /category-sub/tukivarret.jpg 404 in 263ms
+ GET /category-sub/alusta.jpg 404 in 266ms
+ GET /category-sub/telasto.jpg 404 in 277ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 109ms
+ GET /category-sub/alusta.jpg 404 in 91ms
+ GET /category-sub/tukivarret.jpg 404 in 90ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 91ms
+ ✓ Compiled in 1571ms (998 modules)
+ ✓ Compiled in 575ms (998 modules)
+ ✓ Compiled in 1324ms (998 modules)
+ ✓ Compiled in 1484ms (998 modules)
+ ✓ Compiled in 1643ms (998 modules)
+ GET / 200 in 428ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 904ms (1003 modules)
+ GET /category-sub/moottorit.jpg 404 in 1609ms
+ GET /category-sub/voimansiirto.jpg 404 in 1602ms
+ GET /category-sub/variaattorit.jpg 404 in 1605ms
+ GET /category-sub/kytkimet.jpg 404 in 1609ms
+ GET /category-sub/variaattorit.jpg 404 in 69ms
+ GET /category-sub/kytkimet.jpg 404 in 70ms
+ GET /category-sub/voimansiirto.jpg 404 in 69ms
+ GET /category-sub/ohjaus.jpg 404 in 229ms
+ GET /category-sub/jarrut.jpg 404 in 233ms
+ GET /category-sub/hallintalaitteet.jpg 404 in 236ms
+ GET /category-sub/hallintalaitteet.jpg 404 in 68ms
+ GET /category-sub/ohjaus.jpg 404 in 95ms
+ GET /category-sub/tukivarret.jpg 404 in 341ms
+ GET /category-sub/alusta.jpg 404 in 350ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 339ms
+ GET /category-sub/sytytys.jpg 404 in 167ms
+ GET /category-sub/sahko.jpg 404 in 171ms
+ GET /category-sub/sahko.jpg 404 in 91ms
+ GET /category-sub/jaahdytys.jpg 404 in 163ms
+ GET /category-sub/polttoaine.jpg 404 in 162ms
+ GET /category-sub/jaahdytys.jpg 404 in 89ms
+ ✓ Compiled in 1076ms (1003 modules)
+ ✓ Compiled in 610ms (1003 modules)
+ ✓ Compiled in 677ms (1003 modules)
+ ✓ Compiled in 1001ms (998 modules)
+ ✓ Compiled in 1762ms (1008 modules)
+ GET / 200 in 300ms
+ GET /profile 200 in 309ms
+ GET / 200 in 133ms
+ GET / 200 in 63ms
+ GET / 200 in 55ms
+ GET / 200 in 51ms
+ ✓ Compiled in 1037ms (1008 modules)
+ GET / 200 in 176ms
+ GET /profile 200 in 189ms
+ GET / 200 in 85ms
+ GET / 200 in 75ms
+ GET / 200 in 70ms
+ GET / 200 in 50ms
+ ○ Compiling /listing/[id] ...
+ ✓ Compiled /listing/[id] in 2.2s (561 modules)
+ GET /listing/904e9d2f-4ae4-415a-8256-6b220446e375 200 in 2388ms
+ GET / 200 in 301ms
+ GET /profile 200 in 308ms
+ GET /listing/904e9d2f-4ae4-415a-8256-6b220446e375 200 in 195ms
+ GET / 200 in 100ms
+ GET / 200 in 72ms
+ GET / 200 in 57ms
+ ✓ Compiled in 1484ms (1000 modules)
+ GET /profile 200 in 96ms
+ GET /profile 200 in 29ms
+ GET /profile 200 in 30ms
+ GET /my-listings 200 in 54ms
+ ○ Compiling /messages ...
+ ✓ Compiled /messages in 702ms (564 modules)
+ GET /messages 200 in 811ms
+ GET / 200 in 197ms
+ GET /profile 200 in 225ms
+ GET /messages 200 in 172ms
+ GET / 200 in 85ms
+ GET / 200 in 63ms
+ GET / 200 in 47ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 976ms (1014 modules)
+ GET /arctic-parts-logo.jpg 404 in 1660ms
+ ✓ Compiled in 935ms (1008 modules)
+ ○ Compiling /messages/[id] ...
+ ✓ Compiled /messages/[id] in 2.1s (1025 modules)
+ GET /messages/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed?conversation=11aff97b-a5b6-48b5-9bd0-5f07bb8ba4e8 200 in 3419ms
+ GET /messages/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed?conversation=11aff97b-a5b6-48b5-9bd0-5f07bb8ba4e8 200 in 91ms
+ GET /arctic-parts-logo.jpg 404 in 233ms
+ GET /profile 200 in 52ms
+ GET /my-listings 200 in 49ms
+ ○ Compiling /garage ...
+ ✓ Compiled /garage in 848ms (575 modules)
+ GET /garage 200 in 951ms
+ GET /arctic-parts-logo.jpg 404 in 206ms
+ ○ Compiling /saved ...
+ ✓ Compiled /saved in 1961ms (581 modules)
+ GET /saved 200 in 2103ms
+ ✓ Compiled /rewards in 485ms (593 modules)
+ GET /rewards 200 in 923ms
+ GET / 200 in 499ms
+ GET /profile 200 in 524ms
+ GET /rewards 200 in 256ms
+ GET / 200 in 171ms
+ ✓ Compiled in 2.3s (1049 modules)
+ GET / 200 in 2393ms
+ GET / 200 in 43ms
+ GET / 200 in 40ms
+ ○ Compiling /shop ...
+ ✓ Compiled /shop in 1362ms (597 modules)
+ GET /shop 200 in 1500ms
+ GET / 200 in 218ms
+ GET /profile 200 in 223ms
+ GET /shop 200 in 169ms
+ GET / 200 in 96ms
+ GET / 200 in 76ms
+ GET / 200 in 56ms
+ GET /rewards 200 in 47ms
+ GET /rewards 200 in 33ms
+ ○ Compiling /auth ...
+ ✓ Compiled /auth in 1020ms (605 modules)
+ GET /auth 200 in 1154ms
+ GET / 200 in 221ms
+ GET /profile 200 in 253ms
+ GET /auth 200 in 190ms
+ GET / 200 in 105ms
+ GET / 200 in 75ms
+ GET / 200 in 60ms
+ GET /auth 200 in 331ms
+ ✓ Compiled in 1513ms (1027 modules)
+ ✓ Compiled in 2s (1015 modules)
+ GET /auth 200 in 109ms
+ GET / 200 in 131ms
+ GET /profile 200 in 131ms
+ GET / 200 in 102ms
+ GET / 200 in 53ms
+ GET / 200 in 49ms
+ GET / 200 in 264ms
+ GET /profile 200 in 28ms
+ GET / 200 in 39ms
+ ✓ Compiled in 2.3s (1019 modules)
+ GET / 200 in 353ms
+ GET /profile 200 in 344ms
+ GET / 200 in 116ms
+ GET / 200 in 65ms
+ GET / 200 in 62ms
+ GET / 200 in 52ms
+ ✓ Compiled /my-listings in 254ms (568 modules)
+ GET /my-listings 200 in 427ms
+ GET / 200 in 217ms
+ GET /profile 200 in 246ms
+ GET /my-listings 200 in 159ms
+ GET / 200 in 99ms
+ GET / 200 in 69ms
+ GET / 200 in 50ms
+ GET / 200 in 29ms
+ GET /profile 200 in 32ms
+ ○ Compiling /seller/[id] ...
+ ✓ Compiled /seller/[id] in 1679ms (570 modules)
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 2139ms
+ GET / 200 in 447ms
+ GET /profile 200 in 452ms
+ GET /profile 200 in 110ms
+ GET / 200 in 115ms
+ GET / 200 in 74ms
+ GET / 200 in 65ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 126ms
+ GET / 200 in 27ms
+ ✓ Compiled in 892ms (452 modules)
+ ✓ Compiled in 172ms (452 modules)
+ ✓ Compiled in 154ms (452 modules)
+ ✓ Compiled in 153ms (452 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1280ms (1015 modules)
+ GET /category-sub/polttoaine.jpg 404 in 1708ms
+ GET /category-sub/jaahdytys.jpg 404 in 1738ms
+ GET / 200 in 637ms
+ GET /profile 200 in 652ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 252ms
+ GET / 200 in 237ms
+ GET /profile 200 in 117ms
+ GET / 200 in 100ms
+ GET / 200 in 70ms
+ GET / 200 in 50ms
+ ✓ Compiled in 1864ms (1010 modules)
+ ✓ Compiled in 1888ms (1024 modules)
+ GET /profile 200 in 292ms
+ GET / 200 in 305ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 306ms
+ GET /profile 200 in 220ms
+ GET / 200 in 118ms
+ GET / 200 in 68ms
+ GET / 200 in 59ms
+ GET / 200 in 55ms
+ ✓ Compiled in 1601ms (1024 modules)
+ GET / 200 in 299ms
+ GET /profile 200 in 320ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 318ms
+ GET / 200 in 256ms
+ GET /profile 200 in 120ms
+ GET / 200 in 103ms
+ GET / 200 in 88ms
+ GET / 200 in 53ms
+ ✓ Compiled in 974ms (1024 modules)
+ GET /profile 200 in 216ms
+ GET / 200 in 222ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 222ms
+ GET /profile 200 in 190ms
+ GET / 200 in 92ms
+ GET / 200 in 67ms
+ GET / 200 in 58ms
+ GET / 200 in 42ms
+ GET /profile 200 in 32ms
+ ✓ Compiled in 873ms (1024 modules)
+ GET / 200 in 271ms
+ GET /profile 200 in 278ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 319ms
+ GET / 200 in 232ms
+ GET /profile 200 in 135ms
+ GET / 200 in 155ms
+ GET /profile 200 in 159ms
+ GET / 200 in 99ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 285ms
+ ✓ Compiled in 2.4s (1020 modules)
+ GET /profile 200 in 212ms
+ GET / 200 in 215ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 225ms
+ GET /profile 200 in 159ms
+ GET / 200 in 159ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 176ms
+ GET /profile 200 in 153ms
+ GET / 200 in 153ms
+ GET / 200 in 88ms
+ ✓ Compiled in 2.3s (1010 modules)
+ ✓ Compiled in 1744ms (1024 modules)
+ GET /profile 200 in 398ms
+ GET / 200 in 405ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 404ms
+ GET /profile 200 in 333ms
+ GET / 200 in 184ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 248ms
+ GET /profile 200 in 202ms
+ GET / 200 in 165ms
+ GET / 200 in 90ms
+ GET /profile 200 in 40ms
+ ✓ Compiled in 813ms (1024 modules)
+ GET / 200 in 313ms
+ GET /profile 200 in 328ms
+ GET /profile 200 in 331ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 359ms
+ GET / 200 in 197ms
+ GET /profile 200 in 133ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 155ms
+ GET / 200 in 127ms
+ GET / 200 in 82ms
+ ✓ Compiled in 1817ms (1010 modules)
+ GET /profile 200 in 66ms
+ GET /my-listings 200 in 47ms
+ GET /my-listings 200 in 33ms
+ ✓ Compiled in 1197ms (1024 modules)
+ GET / 200 in 340ms
+ GET /profile 200 in 353ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 356ms
+ GET / 200 in 257ms
+ GET /profile 200 in 265ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 180ms
+ GET / 200 in 164ms
+ GET /profile 200 in 169ms
+ GET / 200 in 146ms
+ GET /profile 200 in 37ms
+ ○ Compiling /garage ...
+ ✓ Compiled /garage in 1459ms (564 modules)
+ GET /garage 200 in 1604ms
+ GET / 200 in 334ms
+ GET /profile 200 in 340ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 343ms
+ GET /garage 200 in 303ms
+ GET / 200 in 220ms
+ GET /profile 200 in 227ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 156ms
+ GET / 200 in 154ms
+ GET /profile 200 in 179ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1278ms (1021 modules)
+ GET /arctic-parts-logo.jpg 404 in 1647ms
+ GET /garage 200 in 568ms
+ GET / 200 in 574ms
+ GET /profile 200 in 582ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 259ms
+ GET / 200 in 99ms
+ GET /profile 200 in 103ms
+ GET / 200 in 136ms
+ GET /profile 200 in 136ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 133ms
+ ○ Compiling /saved ...
+ ✓ Compiled /saved in 891ms (571 modules)
+ GET /saved 200 in 1013ms
+ GET / 200 in 275ms
+ GET /profile 200 in 279ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 285ms
+ GET /saved 200 in 251ms
+ GET / 200 in 185ms
+ GET /profile 200 in 189ms
+ GET / 200 in 143ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 138ms
+ GET /profile 200 in 127ms
+ ✓ Compiled in 1929ms (1027 modules)
+ ✓ Compiled in 1326ms (1041 modules)
+ GET / 200 in 300ms
+ GET /profile 200 in 334ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 338ms
+ GET / 200 in 199ms
+ GET /profile 200 in 206ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 212ms
+ GET / 200 in 151ms
+ GET /profile 200 in 156ms
+ GET / 200 in 113ms
+ ✓ Compiled in 1899ms (1029 modules)
+ GET /profile 200 in 112ms
+ ✓ Compiled in 984ms (1026 modules)
+ GET /profile 200 in 297ms
+ GET / 200 in 303ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 305ms
+ GET /profile 200 in 267ms
+ GET / 200 in 148ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 152ms
+ GET /profile 200 in 123ms
+ GET / 200 in 116ms
+ GET /profile 200 in 93ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 336ms
+ ✓ Compiled in 1188ms (1026 modules)
+ GET / 200 in 360ms
+ GET /profile 200 in 393ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 395ms
+ GET / 200 in 355ms
+ GET /profile 200 in 211ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 244ms
+ GET / 200 in 178ms
+ GET /profile 200 in 189ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 188ms
+ GET /profile 200 in 157ms
+ ✓ Compiled in 751ms (1026 modules)
+ GET / 200 in 244ms
+ GET /profile 200 in 264ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 265ms
+ GET / 200 in 252ms
+ GET /profile 200 in 158ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 186ms
+ GET / 200 in 166ms
+ GET /profile 200 in 157ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 174ms
+ GET /profile 200 in 185ms
+ GET / 200 in 37ms
+ ✓ Compiled in 2.4s (1012 modules)
+ ✓ Compiled in 2.2s (1026 modules)
+ GET / 200 in 332ms
+ GET /profile 200 in 346ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 376ms
+ GET / 200 in 264ms
+ GET /profile 200 in 273ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 211ms
+ GET / 200 in 200ms
+ GET /profile 200 in 184ms
+ GET / 200 in 144ms
+ GET /profile 200 in 138ms
+ ✓ Compiled in 979ms (1026 modules)
+ ○ Compiling /sell ...
+ ✓ Compiled /sell in 2.5s (566 modules)
+ GET /sell 200 in 3011ms
+ GET / 200 in 2959ms
+ GET /profile 200 in 2969ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 2950ms
+ GET / 200 in 174ms
+ GET /sell 200 in 199ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 225ms
+ GET /profile 200 in 242ms
+ GET / 200 in 210ms
+ GET /sell 200 in 190ms
+ GET /profile 200 in 186ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 228ms
+ GET / 200 in 225ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 188ms
+ GET /profile 200 in 158ms
+ GET /sell 200 in 152ms
+ GET /sell 200 in 137ms
+ GET / 200 in 154ms
+ GET /profile 200 in 178ms
+ GET / 200 in 140ms
+ GET /profile 200 in 126ms
+ GET /profile 200 in 105ms
+ GET /profile 200 in 49ms
+ GET /profile 200 in 38ms
+ GET /profile 200 in 278ms
+ GET / 200 in 29ms
+ GET /my-listings 200 in 52ms
+ GET / 200 in 31ms
+ GET /profile 200 in 47ms
+ ✓ Compiled in 881ms (1025 modules)
+ GET /profile 200 in 294ms
+ GET / 200 in 303ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 337ms
+ GET /profile 200 in 240ms
+ GET / 200 in 162ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 162ms
+ GET /profile 200 in 121ms
+ GET / 200 in 131ms
+ GET /profile 200 in 86ms
+ GET /profile 200 in 63ms
+ ✓ Compiled in 2.5s (1011 modules)
+ ✓ Compiled in 1758ms (1011 modules)
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 372ms
+ GET / 200 in 50ms
+ GET /profile 200 in 48ms
+ ✓ Compiled in 1257ms (1025 modules)
+ GET / 200 in 539ms
+ GET /profile 200 in 547ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 566ms
+ GET / 200 in 356ms
+ GET /profile 200 in 369ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 259ms
+ GET / 200 in 230ms
+ GET /profile 200 in 247ms
+ GET / 200 in 195ms
+ GET /profile 200 in 164ms
+ GET /profile 200 in 97ms
+ ✓ Compiled in 3.2s (1011 modules)
+ ✓ Compiled in 1833ms (1021 modules)
+ GET /profile 200 in 321ms
+ GET / 200 in 330ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 357ms
+ GET /profile 200 in 255ms
+ GET / 200 in 146ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 154ms
+ GET /profile 200 in 135ms
+ GET / 200 in 137ms
+ GET /profile 200 in 144ms
+ GET / 200 in 158ms
+ GET /profile 200 in 131ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 2.1s (1016 modules)
+ GET /category-sub/telasto.jpg 404 in 2694ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 2654ms
+ GET /category-sub/tukivarret.jpg 404 in 2684ms
+ GET /category-sub/alusta.jpg 404 in 2686ms
+ GET /profile 200 in 837ms
+ GET / 200 in 275ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 263ms
+ GET /profile 200 in 270ms
+ GET / 200 in 234ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 185ms
+ GET /profile 200 in 143ms
+ GET / 200 in 144ms
+ GET /profile 200 in 166ms
+ GET / 200 in 133ms
+ GET /profile 200 in 106ms
+ GET /profile 200 in 34ms
+ GET /profile 200 in 30ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 145ms
+ ✓ Compiled in 2.7s (1016 modules)
+ GET / 200 in 80ms
+ GET /profile 200 in 59ms
+ ✓ Compiled in 2s (1011 modules)
+ GET /profile 200 in 138ms
+ ✓ Compiled in 2.4s (1025 modules)
+ GET /profile 200 in 286ms
+ GET / 200 in 301ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 304ms
+ GET /profile 200 in 299ms
+ GET / 200 in 171ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 176ms
+ GET /profile 200 in 148ms
+ GET / 200 in 137ms
+ GET /profile 200 in 96ms
+ GET /profile 200 in 92ms
+ GET /profile 200 in 79ms
+ GET /profile 200 in 57ms
+ GET /sell 200 in 51ms
+ GET /sell 200 in 39ms
+ ✓ Compiled /_not-found in 481ms (1016 modules)
+ GET /category-sub/s%C3%A4hko.png 404 in 879ms
+ GET /profile 200 in 660ms
+ GET / 200 in 680ms
+ GET /sell 200 in 686ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 376ms
+ GET /profile 200 in 344ms
+ GET / 200 in 254ms
+ GET /profile 200 in 234ms
+ GET / 200 in 229ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 234ms
+ GET /profile 200 in 188ms
+ GET /profile 200 in 78ms
+ GET /profile 200 in 70ms
+ GET /profile 200 in 33ms
+ ✓ Compiled in 2.9s (1016 modules)
+ ✓ Compiled in 2.5s (1025 modules)
+ GET /profile 200 in 312ms
+ GET / 200 in 319ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 369ms
+ GET /profile 200 in 248ms
+ GET / 200 in 233ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 213ms
+ GET /profile 200 in 149ms
+ GET / 200 in 152ms
+ GET /profile 200 in 119ms
+ GET /profile 200 in 93ms
+ GET /profile 200 in 100ms
+ GET /profile 200 in 62ms
+ GET / 200 in 29ms
+ GET /my-listings 200 in 61ms
+ GET / 200 in 29ms
+ GET /profile 200 in 34ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 355ms
+ GET / 200 in 39ms
+ GET / 200 in 162ms
+ ✓ Compiled in 3.9s (1011 modules)
+ GET /profile 200 in 1193ms
+ GET / 200 in 49ms
+ GET /profile 200 in 36ms
+ ✓ Compiled in 463ms (1011 modules)
+ ✓ Compiled in 2.6s (1011 modules)
+ ✓ Compiled in 1053ms (1025 modules)
+ GET / 200 in 321ms
+ GET /profile 200 in 333ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 359ms
+ GET / 200 in 246ms
+ GET /profile 200 in 172ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 193ms
+ GET / 200 in 194ms
+ GET /profile 200 in 174ms
+ GET / 200 in 150ms
+ GET /profile 200 in 188ms
+ GET /profile 200 in 126ms
+ GET /profile 200 in 76ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 515ms (1016 modules)
+ GET /category-sub/tukivarret.jpg 404 in 1152ms
+ GET /category-sub/telasto.jpg 404 in 1180ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 1151ms
+ GET /category-sub/alusta.jpg 404 in 1172ms
+ GET / 200 in 772ms
+ GET /profile 200 in 206ms
+ GET / 200 in 306ms
+ GET /profile 200 in 251ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 267ms
+ GET / 200 in 246ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 160ms
+ GET /profile 200 in 181ms
+ GET / 200 in 139ms
+ GET /profile 200 in 120ms
+ GET /profile 200 in 161ms
+ GET /profile 200 in 122ms
+ GET /profile 200 in 28ms
+ GET /profile 200 in 29ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 151ms
+ GET / 200 in 31ms
+ GET /profile 200 in 49ms
+ ✓ Compiled in 5.5s (1030 modules)
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 6036ms
+ GET / 200 in 609ms
+ GET /profile 200 in 619ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 619ms
+ GET / 200 in 140ms
+ GET /profile 200 in 191ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 186ms
+ GET / 200 in 131ms
+ GET /profile 200 in 143ms
+ GET /profile 200 in 93ms
+ GET /profile 200 in 71ms
+ GET /profile 200 in 81ms
+ GET /profile 200 in 95ms
+ GET /profile 200 in 95ms
+ GET / 200 in 49ms
+ ✓ Compiled in 2.3s (1025 modules)
+ GET / 200 in 318ms
+ GET /profile 200 in 319ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 345ms
+ GET / 200 in 261ms
+ GET /profile 200 in 161ms
+ GET / 200 in 201ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 217ms
+ GET /profile 200 in 173ms
+ GET / 200 in 156ms
+ GET /profile 200 in 162ms
+ GET /profile 200 in 103ms
+ GET /profile 200 in 116ms
+ GET /profile 200 in 93ms
+ GET /profile 200 in 50ms
+ GET /profile 200 in 31ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 217ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 117ms
+ ✓ Compiled in 914ms (1025 modules)
+ GET /profile 200 in 276ms
+ GET / 200 in 330ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 337ms
+ GET /profile 200 in 258ms
+ GET / 200 in 184ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 181ms
+ GET /profile 200 in 194ms
+ GET / 200 in 241ms
+ GET /profile 200 in 167ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 179ms
+ GET /profile 200 in 109ms
+ GET /profile 200 in 122ms
+ GET /profile 200 in 102ms
+ GET /profile 200 in 82ms
+ GET /profile 200 in 62ms
+ GET / 200 in 51ms
+ GET /profile 200 in 31ms
+ GET /sell 200 in 52ms
+ ✓ Compiled in 3.5s (1011 modules)
+ ✓ Compiled in 1045ms (1025 modules)
+ GET / 200 in 345ms
+ GET /profile 200 in 358ms
+ GET /sell 200 in 361ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 384ms
+ GET / 200 in 284ms
+ GET /profile 200 in 122ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 194ms
+ GET / 200 in 187ms
+ GET /profile 200 in 193ms
+ GET /profile 200 in 83ms
+ GET /profile 200 in 75ms
+ GET /profile 200 in 63ms
+ GET /profile 200 in 62ms
+ GET /profile 200 in 57ms
+ GET /profile 200 in 45ms
+ GET /profile 200 in 31ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 249ms
+ ✓ Compiled in 1986ms (1025 modules)
+ GET / 200 in 231ms
+ GET /profile 200 in 242ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 248ms
+ GET / 200 in 225ms
+ GET /profile 200 in 126ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 126ms
+ GET / 200 in 122ms
+ GET /profile 200 in 120ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 113ms
+ GET /profile 200 in 83ms
+ GET /profile 200 in 62ms
+ GET /profile 200 in 58ms
+ GET /profile 200 in 48ms
+ GET /profile 200 in 44ms
+ GET /profile 200 in 44ms
+ GET /profile 200 in 37ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 233ms
+ GET / 200 in 33ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1890ms (1016 modules)
+ GET /category-sub/telasto.jpg 404 in 2436ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 2417ms
+ GET /category-sub/tukivarret.jpg 404 in 2441ms
+ GET /category-sub/alusta.jpg 404 in 2443ms
+ GET / 200 in 222ms
+ GET /profile 200 in 223ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 251ms
+ GET / 200 in 212ms
+ GET /profile 200 in 201ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 130ms
+ GET / 200 in 123ms
+ GET /profile 200 in 127ms
+ ✓ Compiled in 1152ms (1030 modules)
+ GET / 200 in 1327ms
+ GET /profile 200 in 1343ms
+ GET / 200 in 214ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 230ms
+ GET /profile 200 in 210ms
+ GET / 200 in 226ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 162ms
+ GET /profile 200 in 155ms
+ GET / 200 in 128ms
+ GET /profile 200 in 127ms
+ GET / 200 in 127ms
+ GET /profile 200 in 113ms
+ GET /profile 200 in 63ms
+ GET /profile 200 in 40ms
+ GET /profile 200 in 38ms
+ GET /profile 200 in 50ms
+ GET /profile 200 in 50ms
+ GET /profile 200 in 61ms
+ GET /profile 200 in 46ms
+ GET /profile 200 in 41ms
+ GET /profile 200 in 44ms
+ GET /profile 200 in 43ms
+ GET /profile 200 in 41ms
+ GET /profile 200 in 43ms
+ GET / 200 in 190ms
+ GET /profile 200 in 57ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 130ms
+ GET /profile 200 in 33ms
+ GET /profile 200 in 119ms
+ ○ Compiling /auth ...
+ ✓ Compiled /auth in 3.5s (566 modules)
+ GET / 200 in 372ms
+ GET /auth 200 in 3682ms
+ GET / 200 in 344ms
+ GET /profile 200 in 351ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 380ms
+ GET / 200 in 189ms
+ GET /profile 200 in 84ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 151ms
+ GET / 200 in 147ms
+ GET /profile 200 in 174ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 116ms
+ GET /profile 200 in 106ms
+ GET /profile 200 in 67ms
+ GET /profile 200 in 70ms
+ GET /profile 200 in 51ms
+ GET /profile 200 in 59ms
+ GET /profile 200 in 60ms
+ GET /profile 200 in 55ms
+ GET /profile 200 in 31ms
+ GET / 200 in 40ms
+ GET /profile 200 in 28ms
+ ✓ Compiled in 2.4s (1011 modules)
+ ✓ Compiled in 1583ms (1011 modules)
+ GET /profile 200 in 314ms
+ ✓ Compiled /auth in 221ms (566 modules)
+ GET /auth 200 in 321ms
+ GET / 200 in 52ms
+ GET /profile 200 in 41ms
+ GET /profile 200 in 30ms
+ ✓ Compiled in 954ms (1019 modules)
+ GET /profile 200 in 320ms
+ GET / 200 in 324ms
+ GET /profile 200 in 334ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 360ms
+ GET / 200 in 225ms
+ GET /profile 200 in 211ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 188ms
+ GET / 200 in 181ms
+ GET /profile 200 in 165ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 122ms
+ GET /profile 200 in 114ms
+ GET /profile 200 in 93ms
+ GET /profile 200 in 153ms
+ GET /profile 200 in 128ms
+ GET /profile 200 in 137ms
+ GET /profile 200 in 66ms
+ GET /profile 200 in 55ms
+ GET /profile 200 in 52ms
+ ○ Compiling /shop ...
+ ✓ Compiled /rewards in 2.4s (564 modules)
+ ✓ Compiled in 1ms (574 modules)
+ ✓ Compiled in 2ms (574 modules)
+ ✓ Compiled in 1ms (574 modules)
+ GET /shop 200 in 4046ms
+ GET /rewards 200 in 2928ms
+ GET / 200 in 2055ms
+ GET /profile 200 in 2054ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 2055ms
+ GET / 200 in 116ms
+ GET /profile 200 in 148ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 180ms
+ GET / 200 in 151ms
+ GET /profile 200 in 164ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 179ms
+ GET / 200 in 156ms
+ GET /profile 200 in 192ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 173ms
+ GET / 200 in 142ms
+ GET /profile 200 in 119ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 146ms
+ GET / 200 in 168ms
+ GET /profile 200 in 191ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 141ms
+ GET /profile 200 in 89ms
+ GET /profile 200 in 79ms
+ GET /profile 200 in 74ms
+ GET /profile 200 in 42ms
+ GET /profile 200 in 47ms
+ GET /profile 200 in 56ms
+ GET /profile 200 in 59ms
+ GET /profile 200 in 50ms
+ GET /profile 200 in 57ms
+ GET /profile 200 in 53ms
+ GET /profile 200 in 58ms
+ GET /profile 200 in 80ms
+ GET /profile 200 in 72ms
+ GET /profile 200 in 45ms
+ ✓ Compiled in 3.6s (1027 modules)
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 337ms
+ GET / 200 in 48ms
+ ○ Compiling /my-listings ...
+ ✓ Compiled /my-listings in 3.4s (566 modules)
+ GET /my-listings 200 in 4042ms
+ GET / 200 in 218ms
+ GET /profile 200 in 219ms
+ ✓ Compiled /rewards in 375ms (577 modules)
+ ✓ Compiled in 0ms (577 modules)
+ GET /my-listings 200 in 813ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 839ms
+ ✓ Compiled in 0ms (577 modules)
+ ✓ Compiled in 1ms (577 modules)
+ GET / 200 in 1333ms
+ GET /rewards 200 in 1550ms
+ ✓ Compiled in 1ms (577 modules)
+ GET /profile 200 in 1316ms
+ ✓ Compiled in 1ms (577 modules)
+ GET /my-listings 200 in 1342ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 1323ms
+ ✓ Compiled in 0ms (577 modules)
+ GET /profile 200 in 1378ms
+ ✓ Compiled in 1ms (577 modules)
+ GET / 200 in 1302ms
+ ✓ Compiled in 1ms (577 modules)
+ GET /profile 200 in 1275ms
+ ✓ Compiled in 0ms (577 modules)
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 1261ms
+ GET /profile 200 in 516ms
+ GET /profile 200 in 659ms
+ GET /profile 200 in 61ms
+ GET /profile 200 in 49ms
+ GET /profile 200 in 54ms
+ GET /profile 200 in 56ms
+ GET /profile 200 in 55ms
+ GET /profile 200 in 44ms
+ ✓ Compiled in 1587ms (1044 modules)
+ GET /profile 200 in 270ms
+ GET /profile 200 in 276ms
+ GET / 200 in 281ms
+ GET /rewards 200 in 282ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 306ms
+ GET /profile 200 in 206ms
+ GET / 200 in 170ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 195ms
+ GET /profile 200 in 170ms
+ GET / 200 in 155ms
+ GET /seller/6c87ce84-aa12-428d-9616-3dc2060efa4b 200 in 152ms
+ GET /profile 200 in 152ms
+ GET /profile 200 in 94ms
+ GET /profile 200 in 110ms
+ GET /profile 200 in 121ms
+ GET /profile 200 in 88ms
+ GET /profile 200 in 70ms
+ GET /profile 200 in 48ms
+ GET /profile 200 in 360ms
+ GET /auth 200 in 63ms
+ GET / 200 in 112ms
+ GET /auth 200 in 33ms
+ GET /auth 200 in 27ms
+ GET /auth 200 in 34ms
+ GET /auth 200 in 28ms
+ GET /auth 200 in 33ms
+ GET /auth 200 in 30ms
+ GET /auth 200 in 34ms
+ GET /auth 200 in 30ms
+ GET /auth 200 in 31ms
+ GET /auth 200 in 25ms
+ GET /auth 200 in 24ms
+ GET /auth 200 in 27ms
+ GET /auth 200 in 1393ms
+ GET /auth 200 in 1023ms
+ GET / 200 in 147ms
+ ○ Compiling /api/translate-listing ...
+ ✓ Compiled /api/translate-listing in 2s (618 modules)
+ GET /auth 200 in 91ms
+ POST /api/translate-listing 200 in 4000ms
+ POST /api/translate-listing 200 in 3854ms
+ GET / 200 in 295ms
+ ✓ Compiled in 4s (1009 modules)
+ GET / 200 in 281ms
+ GET / 200 in 34ms
+ GET / 200 in 31ms
+ GET / 200 in 327ms
+ ○ Compiling /sell ...
+ ✓ Compiled /sell in 1005ms (563 modules)
+ GET /sell 200 in 1152ms
+ ○ Compiling /listing/[id] ...
+ ✓ Compiled /listing/[id] in 3.8s (1037 modules)
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 3198ms
+ GET / 200 in 334ms
+ GET /profile 200 in 340ms
+ GET /auth 200 in 343ms
+ GET /auth 200 in 346ms
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 267ms
+ GET /profile 200 in 115ms
+ GET /auth 200 in 164ms
+ GET /auth 200 in 207ms
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 157ms
+ GET /profile 200 in 207ms
+ GET /auth 200 in 182ms
+ GET /auth 200 in 155ms
+ GET /profile 200 in 161ms
+ GET /auth 200 in 121ms
+ GET /profile 200 in 86ms
+ GET /profile 200 in 72ms
+ GET /profile 200 in 54ms
+ GET /profile 200 in 54ms
+ GET /profile 200 in 53ms
+ GET /profile 200 in 44ms
+ GET /auth 200 in 41ms
+ GET / 200 in 322ms
+ ✓ Compiled in 3.3s (1003 modules)
+ ✓ Compiled in 588ms (1003 modules)
+ ✓ Compiled in 881ms (1003 modules)
+ ✓ Compiled in 4s (1003 modules)
+ ✓ Compiled in 1726ms (1013 modules)
+ GET / 200 in 158ms
+ GET /auth 200 in 177ms
+ GET / 200 in 182ms
+ GET /profile 200 in 186ms
+ GET /auth 200 in 140ms
+ GET /profile 200 in 117ms
+ GET /auth 200 in 107ms
+ GET /profile 200 in 110ms
+ GET /auth 200 in 106ms
+ GET /profile 200 in 130ms
+ GET /auth 200 in 133ms
+ GET /profile 200 in 128ms
+ GET /auth 200 in 83ms
+ GET /profile 200 in 103ms
+ GET /auth 200 in 103ms
+ GET /profile 200 in 76ms
+ GET /profile 200 in 51ms
+ GET /profile 200 in 45ms
+ GET /profile 200 in 32ms
+ ✓ Compiled in 960ms (1013 modules)
+ GET / 200 in 229ms
+ GET /profile 200 in 302ms
+ GET / 200 in 303ms
+ GET /auth 200 in 310ms
+ GET /profile 200 in 158ms
+ GET /auth 200 in 142ms
+ GET /profile 200 in 147ms
+ GET /auth 200 in 148ms
+ GET /profile 200 in 136ms
+ GET /auth 200 in 152ms
+ GET /profile 200 in 148ms
+ GET /auth 200 in 127ms
+ GET /profile 200 in 123ms
+ GET /auth 200 in 138ms
+ GET /profile 200 in 142ms
+ GET /auth 200 in 148ms
+ GET /profile 200 in 124ms
+ GET /profile 200 in 92ms
+ GET /profile 200 in 60ms
+ ✓ Compiled in 8.7s (1003 modules)
+ ✓ Compiled in 4.6s (1017 modules)
+ GET / 200 in 618ms
+ GET / 200 in 620ms
+ GET /auth 200 in 643ms
+ GET /profile 200 in 651ms
+ GET /auth 200 in 204ms
+ GET /profile 200 in 219ms
+ GET /auth 200 in 232ms
+ GET /profile 200 in 234ms
+ GET /auth 200 in 250ms
+ GET /profile 200 in 192ms
+ GET /auth 200 in 211ms
+ GET /profile 200 in 256ms
+ GET /auth 200 in 226ms
+ GET /profile 200 in 179ms
+ GET /auth 200 in 169ms
+ GET /profile 200 in 126ms
+ GET /profile 200 in 75ms
+ GET /profile 200 in 73ms
+ GET /profile 200 in 57ms
+ GET / 200 in 327ms
+ GET / 200 in 174ms
+ GET /auth 200 in 41ms
+ GET /auth 500 in 460ms
+ ○ Compiling /_error ...
+ GET / 500 in 10021ms
+ GET /auth 500 in 6962ms
+ GET / 500 in 2582ms
+ GET / 200 in 1485ms
+ GET /profile 500 in 1511ms
+ GET / 500 in 1543ms
+ GET /auth 500 in 1544ms
+ GET /profile 500 in 93ms
+ GET / 500 in 120ms
+ GET /auth 500 in 120ms
+ GET /auth 500 in 89ms
+ GET /profile 500 in 86ms
+ GET /auth 500 in 84ms
+ GET /auth 500 in 87ms
+ GET /profile 500 in 88ms
+ GET /auth 500 in 79ms
+ GET /profile 500 in 68ms
+ GET /auth 500 in 93ms
+ GET /profile 500 in 102ms
+ GET /profile 500 in 93ms
+ GET /auth 500 in 85ms
+ GET /profile 500 in 72ms
+ GET /auth 500 in 85ms
+ GET /profile 500 in 96ms
+ GET /profile 500 in 85ms
+ GET /auth 500 in 108ms
+ GET /auth 500 in 83ms
+ GET /profile 500 in 114ms
+ GET /auth 500 in 167ms
+ GET /auth 500 in 218ms
+ GET /profile 500 in 119ms
+ GET /auth 500 in 110ms
+ GET /profile 500 in 123ms
+ GET /auth 500 in 123ms
+ GET /profile 500 in 126ms
+ GET /auth 500 in 162ms
+ GET /profile 500 in 150ms
+ GET /profile 500 in 113ms
+ GET /profile 500 in 102ms
+ GET /profile 500 in 91ms
+ GET /profile 500 in 83ms
+ GET /profile 500 in 47ms
+ GET /profile 500 in 74ms
+ GET /profile 500 in 70ms
+ GET /profile 500 in 148ms
+ GET /profile 500 in 134ms
+ GET /profile 500 in 77ms
+ GET /profile 500 in 84ms
+ GET /profile 500 in 125ms
+ GET /profile 500 in 130ms
+ GET /auth 500 in 68ms
+ GET / 200 in 1420ms
+ GET /profile 500 in 1443ms
+ GET /auth 500 in 1486ms
+ GET / 500 in 121ms
+ GET / 500 in 159ms
+ GET /profile 500 in 140ms
+ GET /auth 500 in 179ms
+ GET / 500 in 158ms
+ GET /profile 200 in 92ms
+ GET /auth 500 in 161ms
+ GET /profile 500 in 137ms
+ GET /auth 500 in 75ms
+ GET /profile 500 in 81ms
+ GET /auth 500 in 79ms
+ GET /profile 500 in 89ms
+ GET /auth 500 in 81ms
+ GET /profile 500 in 82ms
+ GET /profile 500 in 79ms
+ GET /profile 500 in 51ms
+ GET /profile 500 in 59ms
+ GET /profile 500 in 71ms
+ GET /profile 500 in 71ms
+ GET / 500 in 25ms
+ GET / 500 in 25ms
+ ✓ Compiled /_error in 6.2s (1349 modules)
+ GET /profile 200 in 6081ms
+ GET / 200 in 5754ms
+ GET /auth 200 in 6861ms
+ GET / 200 in 848ms
+ GET /profile 200 in 863ms
+ GET / 200 in 296ms
+ GET /auth 200 in 286ms
+ GET /profile 200 in 235ms
+ GET /auth 200 in 429ms
+ GET /profile 200 in 416ms
+ GET /auth 200 in 418ms
+ GET /profile 200 in 292ms
+ GET /auth 200 in 300ms
+ GET /profile 200 in 285ms
+ GET /auth 200 in 297ms
+ GET /profile 200 in 206ms
+ GET /profile 200 in 115ms
+ GET /profile 200 in 124ms
+ GET /profile 200 in 134ms
+ GET /profile 200 in 121ms
+ GET /listing/640d32a5-6dcc-4dcb-ba6b-4afe514ab3ed 200 in 58ms
+ ✓ Compiled /admin in 2.8s (1349 modules)
+ ✓ Compiled in 3.3s (625 modules)
+ GET /admin 200 in 4890ms
+ GET /profile 200 in 6987ms
+ GET /profile 200 in 80ms
+ GET /admin 200 in 26ms
+ ✓ Compiled in 1660ms (1365 modules)
+ ✓ Compiled in 672ms (1365 modules)
+ ✓ Compiled in 2.3s (1379 modules)
+ GET / 200 in 330ms
+ GET /admin 200 in 324ms
+ GET / 200 in 325ms
+ GET /profile 200 in 337ms
+ GET /auth 200 in 340ms
+ GET /profile 200 in 103ms
+ GET /auth 200 in 106ms
+ GET /profile 200 in 92ms
+ GET /auth 200 in 148ms
+ GET /profile 200 in 160ms
+ GET /auth 200 in 145ms
+ GET /profile 200 in 154ms
+ GET /auth 200 in 129ms
+ GET /profile 200 in 112ms
+ GET /auth 200 in 91ms
+ GET /profile 200 in 58ms
+ GET /profile 200 in 50ms
+ GET /profile 200 in 50ms
+ GET /profile 200 in 42ms
+ ✓ Compiled in 2.8s (1379 modules)
+ GET / 200 in 290ms
+ GET / 200 in 283ms
+ GET /admin 200 in 299ms
+ GET /profile 200 in 298ms
+ GET /auth 200 in 301ms
+ GET /profile 200 in 112ms
+ GET /auth 200 in 120ms
+ GET /profile 200 in 119ms
+ GET /auth 200 in 122ms
+ GET /profile 200 in 126ms
+ GET /auth 200 in 108ms
+ GET /profile 200 in 118ms
+ GET /auth 200 in 108ms
+ GET /profile 200 in 115ms
+ GET /auth 200 in 100ms
+ GET /profile 200 in 97ms
+ GET /profile 200 in 102ms
+ GET /profile 200 in 75ms
+ GET /profile 200 in 41ms
+ GET /profile 200 in 24ms
+ GET /profile 200 in 285ms
+ GET /profile 200 in 27ms
+ GET /profile 200 in 26ms
+ GET /profile 200 in 46ms
+ GET /profile 200 in 29ms
+ ○ Compiling /my-listings ...
+ ✓ Compiled /my-listings in 3s (764 modules)
+ ✓ Compiled in 0ms (764 modules)
+ ✓ Compiled in 0ms (764 modules)
+ ✓ Compiled in 1ms (764 modules)
+ GET /profile 200 in 1264ms
+ GET /profile 200 in 2273ms
+ ✓ Compiled in 1ms (764 modules)
+ GET / 200 in 1686ms
+ GET /auth 200 in 1690ms
+ GET /admin 200 in 1695ms
+ ✓ Compiled in 0ms (764 modules)
+ ✓ Compiled in 0ms (764 modules)
+ ✓ Compiled in 0ms (764 modules)
+ GET /profile 200 in 1266ms
+ ✓ Compiled in 0ms (764 modules)
+ GET /auth 200 in 1142ms
+ ✓ Compiled in 0ms (764 modules)
+ ✓ Compiled in 0ms (764 modules)
+ ✓ Compiled in 0ms (764 modules)
+ GET /profile 200 in 1170ms
+ ✓ Compiled in 0ms (764 modules)
+ GET /auth 200 in 1181ms
+ ✓ Compiled in 0ms (764 modules)
+ ✓ Compiled in 0ms (764 modules)
+ ✓ Compiled in 0ms (764 modules)
+ GET /profile 200 in 1134ms
+ ✓ Compiled in 0ms (764 modules)
+ GET /auth 200 in 1131ms
+ ✓ Compiled in 1ms (764 modules)
+ ✓ Compiled in 1ms (764 modules)
+ ✓ Compiled in 0ms (764 modules)
+ GET /profile 200 in 1015ms
+ ✓ Compiled in 1ms (764 modules)
+ GET /auth 200 in 964ms
+ ✓ Compiled in 0ms (764 modules)
+ ✓ Compiled in 1ms (764 modules)
+ ✓ Compiled in 1ms (764 modules)
+ GET /profile 200 in 963ms
+ ✓ Compiled in 0ms (764 modules)
+ GET /auth 200 in 950ms
+ GET /profile 200 in 501ms
+ GET /profile 200 in 42ms
+ GET /profile 200 in 42ms
+ GET /profile 200 in 39ms
+ GET / 200 in 880ms
+ GET /profile 200 in 724ms
+ GET /my-listings 200 in 58ms
+ GET /admin 200 in 243ms
+ GET / 200 in 129ms
+ GET /auth 200 in 45ms
+ GET / 200 in 94ms
+ GET / 200 in 32ms
+ GET /my-listings 200 in 36ms
+ GET /profile 200 in 30ms
+ ○ Compiling /seller/[id] ...
+ ✓ Compiled /seller/[id] in 2.8s (767 modules)
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 3292ms
+ GET /profile 200 in 470ms
+ GET /profile 200 in 468ms
+ GET / 200 in 479ms
+ GET / 200 in 484ms
+ GET /auth 200 in 491ms
+ GET /profile 200 in 242ms
+ GET /auth 200 in 139ms
+ GET /profile 200 in 131ms
+ GET /auth 200 in 140ms
+ GET /profile 200 in 132ms
+ GET /auth 200 in 114ms
+ GET /profile 200 in 132ms
+ GET /auth 200 in 115ms
+ GET /profile 200 in 118ms
+ GET /auth 200 in 100ms
+ GET /profile 200 in 97ms
+ GET /profile 200 in 68ms
+ GET /profile 200 in 59ms
+ GET /profile 200 in 46ms
+ GET / 200 in 24ms
+ GET /admin 200 in 52ms
+ ✓ Compiled in 3.3s (1378 modules)
+ GET /profile 200 in 253ms
+ GET /profile 200 in 250ms
+ GET /auth 200 in 264ms
+ GET /admin 200 in 268ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 289ms
+ GET /profile 200 in 209ms
+ GET /auth 200 in 137ms
+ GET /auth 200 in 65ms
+ GET /auth 200 in 61ms
+ GET /auth 200 in 44ms
+ ✓ Compiled in 2.4s (1378 modules)
+ GET /profile 200 in 257ms
+ GET /profile 200 in 262ms
+ GET /admin 200 in 269ms
+ GET /auth 200 in 271ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 273ms
+ GET /profile 200 in 124ms
+ GET /auth 200 in 110ms
+ GET /auth 200 in 84ms
+ GET /auth 200 in 73ms
+ GET /auth 200 in 41ms
+ GET /admin 200 in 265ms
+ ✓ Compiled in 2.4s (1378 modules)
+ GET /profile 200 in 287ms
+ GET /profile 200 in 296ms
+ GET /admin 200 in 309ms
+ GET /auth 200 in 310ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 334ms
+ GET /profile 200 in 222ms
+ GET /auth 200 in 130ms
+ GET /auth 200 in 78ms
+ GET /auth 200 in 76ms
+ GET /auth 200 in 73ms
+ ✓ Compiled in 4.3s (1363 modules)
+ GET /profile 200 in 260ms
+ GET /profile 200 in 264ms
+ GET /auth 200 in 271ms
+ GET /admin 200 in 276ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 281ms
+ GET /profile 200 in 109ms
+ GET /auth 200 in 102ms
+ GET /auth 200 in 76ms
+ GET /auth 200 in 52ms
+ GET /auth 200 in 35ms
+ ✓ Compiled in 2.3s (1377 modules)
+ GET /profile 200 in 286ms
+ GET /profile 200 in 295ms
+ GET /auth 200 in 303ms
+ GET /admin 200 in 310ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 310ms
+ GET /profile 200 in 235ms
+ GET /auth 200 in 112ms
+ GET /auth 200 in 61ms
+ GET /auth 200 in 57ms
+ GET /auth 200 in 52ms
+ ✓ Compiled in 2.2s (1373 modules)
+ GET /profile 200 in 250ms
+ GET /profile 200 in 263ms
+ GET /auth 200 in 260ms
+ GET /admin 200 in 266ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 273ms
+ GET /profile 200 in 210ms
+ GET /auth 200 in 123ms
+ GET /auth 200 in 66ms
+ GET /auth 200 in 52ms
+ GET /auth 200 in 40ms
+ ✓ Compiled in 2.3s (1377 modules)
+ GET /profile 200 in 475ms
+ GET /profile 200 in 498ms
+ GET /auth 200 in 510ms
+ GET /admin 200 in 528ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 588ms
+ GET /profile 200 in 600ms
+ GET /auth 200 in 955ms
+ GET /auth 200 in 773ms
+ GET /auth 200 in 72ms
+ GET /auth 200 in 48ms
+ ✓ Compiled in 1385ms (1377 modules)
+ GET /profile 200 in 445ms
+ GET /profile 200 in 451ms
+ GET /auth 200 in 456ms
+ GET /admin 200 in 468ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 458ms
+ GET /profile 200 in 348ms
+ GET /auth 200 in 155ms
+ GET /auth 200 in 107ms
+ GET /auth 200 in 78ms
+ GET / 200 in 393ms
+ ✓ Compiled in 1898ms (613 modules)
+ ○ Compiling /sell ...
+ ✓ Compiled /sell in 6.1s (757 modules)
+ GET /sell 200 in 6255ms
+ GET /auth 200 in 455ms
+ GET /profile 200 in 461ms
+ GET /profile 200 in 468ms
+ GET /sell 200 in 353ms
+ GET /admin 200 in 487ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 500ms
+ GET /profile 200 in 329ms
+ GET /auth 200 in 248ms
+ GET /sell 200 in 165ms
+ GET /auth 200 in 186ms
+ GET /sell 200 in 200ms
+ GET /auth 200 in 180ms
+ GET /sell 200 in 137ms
+ GET /sell 200 in 59ms
+ GET /sell 200 in 105ms
+ GET /sell 200 in 87ms
+ ✓ Compiled in 1146ms (1384 modules)
+ GET /profile 200 in 388ms
+ GET /profile 200 in 405ms
+ GET /auth 200 in 401ms
+ GET /admin 200 in 404ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 415ms
+ GET /sell 200 in 417ms
+ GET /profile 200 in 176ms
+ GET /auth 200 in 139ms
+ GET /auth 200 in 206ms
+ GET /auth 200 in 85ms
+ ○ Compiling /garage ...
+ ✓ Compiled /garage in 1225ms (763 modules)
+ GET /garage 200 in 1372ms
+ GET /auth 200 in 323ms
+ GET /profile 200 in 328ms
+ GET /admin 200 in 330ms
+ GET /profile 200 in 334ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 335ms
+ GET /garage 200 in 283ms
+ GET /auth 200 in 185ms
+ GET /profile 200 in 107ms
+ GET /auth 200 in 97ms
+ GET /auth 200 in 47ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 560ms (1381 modules)
+ GET /arctic-parts-logo.jpg 404 in 892ms
+ GET /profile 200 in 648ms
+ GET /profile 200 in 655ms
+ GET /garage 200 in 663ms
+ GET /auth 200 in 667ms
+ GET /admin 200 in 673ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 403ms
+ GET /profile 200 in 317ms
+ GET /auth 200 in 178ms
+ GET /auth 200 in 53ms
+ GET /auth 200 in 39ms
+ GET / 200 in 65ms
+ ○ Compiling /my-listings ...
+ ✓ Compiled /my-listings in 1576ms (777 modules)
+ GET /my-listings 200 in 1731ms
+ GET /auth 200 in 341ms
+ GET /profile 200 in 347ms
+ GET /admin 200 in 350ms
+ GET /profile 200 in 353ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 359ms
+ GET /my-listings 200 in 293ms
+ GET /profile 200 in 177ms
+ GET /auth 200 in 97ms
+ GET /auth 200 in 55ms
+ GET /auth 200 in 45ms
+ GET /admin 200 in 40ms
+ GET / 200 in 253ms
+ GET /auth 200 in 33ms
+ GET / 200 in 108ms
+ GET /profile 200 in 1543ms
+ GET /sell 200 in 1398ms
+ GET /profile 200 in 35ms
+ ✓ Compiled in 3.4s (1380 modules)
+ GET /profile 200 in 406ms
+ GET /profile 200 in 416ms
+ GET /auth 200 in 421ms
+ GET /admin 200 in 427ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 425ms
+ GET /profile 200 in 355ms
+ GET /auth 200 in 187ms
+ GET /profile 200 in 174ms
+ GET /auth 200 in 141ms
+ GET /auth 200 in 82ms
+ ✓ Compiled /my-listings in 410ms (770 modules)
+ GET /my-listings 200 in 534ms
+ GET / 200 in 84ms
+ GET /my-listings 200 in 36ms
+ ✓ Compiled in 813ms (1393 modules)
+ GET /profile 200 in 486ms
+ GET /profile 200 in 505ms
+ GET /auth 200 in 507ms
+ GET /my-listings 200 in 515ms
+ GET /admin 200 in 522ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 530ms
+ GET /profile 200 in 462ms
+ GET /auth 200 in 218ms
+ GET /auth 200 in 165ms
+ GET /auth 200 in 157ms
+ GET /admin 200 in 32ms
+ GET / 200 in 360ms
+ GET / 200 in 52ms
+ GET /my-listings 200 in 38ms
+ GET / 200 in 32ms
+ ✓ Compiled in 3.1s (1387 modules)
+ GET / 200 in 123ms
+ ○ Compiling /api/translate-listing ...
+ ✓ Compiled /api/translate-listing in 4.7s (812 modules)
+ ✓ Compiled /sell in 325ms (819 modules)
+ GET /sell 200 in 490ms
+ POST /api/translate-listing 200 in 12120ms
+ ✓ Compiled in 2.9s (1418 modules)
+ GET / 200 in 129ms
+ ○ Compiling /my-listings ...
+ ✓ Compiled /my-listings in 1245ms (757 modules)
+ GET /my-listings 200 in 1540ms
+ GET /sell 200 in 339ms
+ ○ Compiling /admin ...
+ ✓ Compiled /admin in 3.4s (770 modules)
+ GET /admin 200 in 4256ms
+ ✓ Compiled in 5.5s (1360 modules)
+ GET / 200 in 125ms
+ ✓ Compiled in 540ms (1360 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 2.5s (1365 modules)
+ GET /category-sub/telasto.jpg 404 in 2978ms
+ GET /category-sub/tukivarret.jpg 404 in 2974ms
+ GET /category-sub/alusta.jpg 404 in 2979ms
+ GET /category-sub/iskunvaimentimet.jpg 404 in 2957ms
+ ✓ Compiled in 2.1s (1379 modules)
+ GET / 200 in 89ms
+ GET /sell 200 in 50ms
+ GET /sell 200 in 1936ms
+ ○ Compiling /garage ...
+ ✓ Compiled /garage in 3.6s (753 modules)
+ GET /garage 200 in 3830ms
+ GET /garage 200 in 43ms
+ GET /garage 200 in 33ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1633ms (1371 modules)
+ GET /arctic-parts-logo.jpg 404 in 2009ms
+ ✓ Compiled in 2.6s (617 modules)
+ ○ Compiling /profile ...
+ ✓ Compiled /profile in 4.4s (1348 modules)
+ ✓ Compiled (1371 modules)
+ GET /profile 200 in 3848ms
+ GET /profile 200 in 30ms
+ GET /garage 200 in 42ms
+ GET /arctic-parts-logo.jpg 404 in 297ms
+ ○ Compiling /my-listings ...
+ ✓ Compiled /my-listings in 2.6s (1390 modules)
+ GET /my-listings 200 in 2751ms
+ GET /my-listings 200 in 35ms
+ GET /my-listings 200 in 29ms
+ GET /my-listings 200 in 30ms
+ ✓ Compiled in 647ms (1376 modules)
+ ○ Compiling /messages ...
+ ✓ Compiled /messages in 2.3s (738 modules)
+ GET /messages 200 in 2398ms
+ GET /messages 200 in 42ms
+ GET /arctic-parts-logo.jpg 404 in 211ms
+ ○ Compiling /saved ...
+ ✓ Compiled /saved in 1528ms (744 modules)
+ GET /saved 200 in 1642ms
+ GET /saved 200 in 956ms
+ ✓ Compiled in 2.1s (1371 modules)
+ GET /saved 200 in 82ms
+ ✓ Compiled /rewards in 382ms (756 modules)
+ GET /rewards 200 in 482ms
+ GET /rewards 200 in 43ms
+ ✓ Compiled /shop in 340ms (759 modules)
+ GET /shop 200 in 425ms
+ GET /shop 200 in 49ms
+ GET /rewards 200 in 37ms
+ GET /saved 200 in 42ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.7s (772 modules)
+ GET / 200 in 2848ms
+ ✓ Compiled in 4.3s (1368 modules)
+ GET / 500 in 811ms
+ GET / 500 in 80ms
+ GET / 500 in 549ms
+ GET / 500 in 64ms
+ ✓ Compiled in 363ms (613 modules)
+ ✓ Compiled in 342ms (623 modules)
+ ✓ Compiled in 3.8s (1354 modules)
+ ✓ Compiled in 545ms (1354 modules)
+ ✓ Compiled in 579ms (1354 modules)
+ ✓ Compiled in 4.3s (1368 modules)
+ GET / 500 in 663ms
+ GET / 500 in 54ms
+ GET / 500 in 502ms
+ GET / 500 in 47ms
+ ✓ Compiled in 5.6s (1364 modules)
+ ✓ Compiled in 2.4s (613 modules)
+ GET / 500 in 751ms
+ GET / 500 in 45ms
+ GET / 500 in 594ms
+ GET / 500 in 45ms
+ ✓ Compiled in 2.9s (1364 modules)
+ ✓ Compiled in 3s (1364 modules)
+ ✓ Compiled in 3.1s (1364 modules)
+ GET / 500 in 630ms
+ GET / 500 in 38ms

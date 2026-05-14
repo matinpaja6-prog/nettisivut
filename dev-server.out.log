@@ -1,0 +1,402 @@
+
+> kauppapaikka@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3000
+   - Network:      http://25.21.178.88:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1706ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1244ms (803 modules)
+ GET / 200 in 1989ms
+ ○ Compiling /profile ...
+ ✓ Compiled /profile in 902ms (860 modules)
+ GET /profile 200 in 1059ms
+ ✓ Compiled /seller/[id] in 296ms (872 modules)
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 1121ms
+ GET / 200 in 64ms
+ ○ Compiling /listing/[id] ...
+ ✓ Compiled /listing/[id] in 661ms (885 modules)
+ GET /listing/55eec084-d00f-4c14-990b-1cffb16e652a 200 in 1238ms
+ GET /listing/55eec084-d00f-4c14-990b-1cffb16e652a 200 in 39ms
+ ✓ Compiled in 457ms (887 modules)
+ ✓ Compiled in 989ms (901 modules)
+ GET /profile 200 in 153ms
+ GET /listing/55eec084-d00f-4c14-990b-1cffb16e652a 200 in 150ms
+ GET /seller/476010c3-3c89-4c8b-a292-b194ae82cd3a 200 in 196ms
+ GET / 200 in 48ms
+ GET /seller/476010c3-3c89-4c8b-a292-b194ae82cd3a 200 in 29ms
+ GET / 200 in 20ms
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 30ms
+ GET /seller/1988fcd7-de06-45cb-b6b0-ab5cfc09cf63 200 in 37ms
+ GET /profile 200 in 20ms
+ ✓ Compiled in 652ms (887 modules)
+ GET / 200 in 126ms
+ ✓ Compiled in 579ms (897 modules)
+ GET /profile 200 in 190ms
+ GET /seller/476010c3-3c89-4c8b-a292-b194ae82cd3a 200 in 221ms
+ GET / 200 in 91ms
+ ✓ Compiled in 360ms (897 modules)
+ GET /profile 200 in 149ms
+ GET / 200 in 149ms
+ GET / 200 in 312ms
+ GET /listing/80525c28-7be1-47e7-9ff4-7596a8b1f62b 200 in 45ms
+ GET / 200 in 74ms
+ ✓ Compiled in 700ms (887 modules)
+ ✓ Compiled in 439ms (901 modules)
+ GET /profile 200 in 192ms
+ GET / 200 in 194ms
+ GET / 200 in 194ms
+ GET /listing/55eec084-d00f-4c14-990b-1cffb16e652a 200 in 354ms
+ GET /seller/476010c3-3c89-4c8b-a292-b194ae82cd3a 200 in 41ms
+ GET /listing/059fd939-53b4-4b2d-9dd4-de82cfe6879e 200 in 28ms
+ GET /listing/059fd939-53b4-4b2d-9dd4-de82cfe6879e 200 in 64ms
+ GET /listing/059fd939-53b4-4b2d-9dd4-de82cfe6879e 200 in 68ms
+ GET / 200 in 22ms
+ GET /seller/476010c3-3c89-4c8b-a292-b194ae82cd3a 200 in 36ms
+ GET / 200 in 22ms
+ ○ Compiling /sell ...
+ ✓ Compiled /sell in 849ms (902 modules)
+ GET /sell 200 in 1007ms
+ ✓ Compiled in 537ms (912 modules)
+ GET /profile 200 in 253ms
+ GET /sell 200 in 253ms
+ GET /listing/55eec084-d00f-4c14-990b-1cffb16e652a 200 in 245ms
+ ✓ Compiled in 535ms (912 modules)
+ GET /profile 200 in 148ms
+ GET /sell 200 in 149ms
+ ✓ Compiled in 535ms (912 modules)
+ GET /sell 200 in 183ms
+ GET /profile 200 in 183ms
+ GET / 200 in 333ms
+ GET / 200 in 64ms
+ ✓ Compiled in 705ms (912 modules)
+ GET /profile 200 in 199ms
+ GET /sell 200 in 200ms
+ GET / 200 in 201ms
+ ✓ Compiled in 418ms (912 modules)
+ GET /sell 200 in 203ms
+ GET / 200 in 206ms
+ GET /profile 200 in 207ms
+ ✓ Compiled in 578ms (912 modules)
+ GET / 200 in 207ms
+ GET /profile 200 in 207ms
+ GET /sell 200 in 208ms
+ ✓ Compiled in 578ms (912 modules)
+ GET /profile 200 in 182ms
+ GET /sell 200 in 183ms
+ GET / 200 in 184ms
+ ✓ Compiled in 580ms (912 modules)
+ GET /profile 200 in 193ms
+ GET / 200 in 195ms
+ GET /sell 200 in 192ms
+ ✓ Compiled /api/moderate-listing in 335ms (922 modules)
+ POST /api/moderate-listing 200 in 491ms
+ ✓ Compiled /api/translate-listing in 294ms (925 modules)
+ POST /api/translate-listing 200 in 7347ms
+ ○ Compiling /api/search-alerts/notify ...
+ ✓ Compiled /api/search-alerts/notify in 630ms (968 modules)
+ POST /api/search-alerts/notify 500 in 777ms
+ POST /api/translate-listing 200 in 5887ms
+ POST /api/search-alerts/notify 500 in 12ms
+ POST /api/translate-listing 200 in 6468ms
+ POST /api/search-alerts/notify 500 in 16ms
+ POST /api/translate-listing 200 in 6131ms
+ POST /api/search-alerts/notify 500 in 13ms
+ POST /api/translate-listing 200 in 6944ms
+ POST /api/search-alerts/notify 500 in 12ms
+ POST /api/translate-listing 200 in 6822ms
+ POST /api/search-alerts/notify 500 in 11ms
+ POST /api/translate-listing 200 in 4841ms
+ POST /api/search-alerts/notify 500 in 10ms
+ POST /api/translate-listing 200 in 6552ms
+ POST /api/search-alerts/notify 500 in 12ms
+ ✓ Compiled in 840ms (968 modules)
+ POST /api/translate-listing 200 in 5413ms
+ POST /api/search-alerts/notify 500 in 115ms
+ ✓ Compiled in 465ms (966 modules)
+ POST /api/translate-listing 200 in 5736ms
+ POST /api/search-alerts/notify 500 in 72ms
+ POST /api/translate-listing 200 in 4690ms
+ POST /api/search-alerts/notify 500 in 11ms
+ POST /api/translate-listing 200 in 5767ms
+ POST /api/search-alerts/notify 500 in 10ms
+ POST /api/translate-listing 200 in 5465ms
+ POST /api/search-alerts/notify 500 in 11ms
+ POST /api/translate-listing 200 in 5532ms
+ POST /api/search-alerts/notify 500 in 9ms
+ POST /api/translate-listing 200 in 4663ms
+ POST /api/search-alerts/notify 500 in 10ms
+ POST /api/translate-listing 200 in 6242ms
+ POST /api/search-alerts/notify 500 in 10ms
+ ✓ Compiled in 486ms (966 modules)
+ POST /api/translate-listing 200 in 5094ms
+ POST /api/search-alerts/notify 500 in 82ms
+ ✓ Compiled in 367ms (966 modules)
+ POST /api/translate-listing 200 in 5917ms
+ POST /api/search-alerts/notify 500 in 80ms
+ ✓ Compiled in 533ms (966 modules)
+ POST /api/translate-listing 200 in 6906ms
+ POST /api/search-alerts/notify 500 in 73ms
+ ✓ Compiled in 302ms (966 modules)
+ POST /api/translate-listing 200 in 6343ms
+ POST /api/search-alerts/notify 500 in 111ms
+ POST /api/translate-listing 200 in 4696ms
+ POST /api/search-alerts/notify 500 in 12ms
+ POST /api/translate-listing 200 in 5389ms
+ POST /api/search-alerts/notify 500 in 12ms
+ POST /api/translate-listing 200 in 5017ms
+ POST /api/search-alerts/notify 500 in 16ms
+ GET / 200 in 110ms
+ ✓ Compiled in 473ms (966 modules)
+ GET /listing/971f5a34-6057-4179-ac57-608e332bf6db 200 in 109ms
+ GET / 200 in 37ms
+ ○ Compiling /my-listings ...
+ ✓ Compiled /my-listings in 565ms (979 modules)
+ GET /my-listings 200 in 655ms
+ ✓ Compiled in 522ms (907 modules)
+ ✓ Compiled in 390ms (907 modules)
+ GET / 200 in 163ms
+ ✓ Compiled in 432ms (907 modules)
+ ✓ Compiled in 406ms (907 modules)
+ GET /sell 200 in 108ms
+ GET / 200 in 32ms
+ GET /sell 200 in 20ms
+ GET / 200 in 17ms
+ GET /sell 200 in 19ms
+ GET /sell 200 in 305ms
+ ✓ Compiled in 859ms (907 modules)
+ ✓ Compiled in 513ms (921 modules)
+ GET / 200 in 224ms
+ GET /sell 200 in 234ms
+ GET /profile 200 in 235ms
+ GET / 200 in 19ms
+ GET /my-listings 200 in 32ms
+ GET /my-listings 200 in 291ms
+ ✓ Compiled /api/translate-listing in 313ms (547 modules)
+ ✓ Compiled in 805ms (927 modules)
+ POST /api/translate-listing 200 in 5391ms
+ POST /api/translate-listing 200 in 8784ms
+ POST /api/translate-listing 200 in 4643ms
+ POST /api/translate-listing 200 in 5425ms
+ POST /api/translate-listing 200 in 7590ms
+ POST /api/translate-listing 200 in 4968ms
+ POST /api/translate-listing 200 in 5661ms
+ ✓ Compiled in 663ms (927 modules)
+ ✓ Compiled in 421ms (927 modules)
+ GET / 200 in 107ms
+ ✓ Compiled in 423ms (927 modules)
+ ✓ Compiled in 622ms (907 modules)
+ GET / 200 in 661ms
+ GET / 200 in 662ms
+ ✓ Compiled in 390ms (907 modules)
+ GET / 200 in 669ms
+ GET / 200 in 675ms
+ ✓ Compiled /api/translate-listing in 171ms (547 modules)
+ ✓ Compiled in 480ms (927 modules)
+ POST /api/translate-listing 200 in 6099ms
+ ✓ Compiled /listing in 411ms (936 modules)
+ GET /listing 200 in 582ms
+ POST /api/translate-listing 200 in 4862ms
+ GET / 200 in 38ms
+ POST /api/translate-listing 200 in 6076ms
+ POST /api/translate-listing 200 in 5833ms
+ POST /api/translate-listing 200 in 5230ms
+ POST /api/translate-listing 200 in 6415ms
+ ✓ Compiled in 822ms (928 modules)
+ POST /api/translate-listing 200 in 6262ms
+ POST /api/translate-listing 200 in 5393ms
+ POST /api/translate-listing 200 in 5932ms
+ POST /api/translate-listing 200 in 5009ms
+ POST /api/translate-listing 200 in 5964ms
+ POST /api/translate-listing 200 in 5151ms
+ POST /api/translate-listing 200 in 5924ms
+ ✓ Compiled in 408ms (928 modules)
+ POST /api/translate-listing 200 in 5515ms
+ POST /api/translate-listing 200 in 6107ms
+ POST /api/translate-listing 200 in 5838ms
+ POST /api/translate-listing 200 in 7734ms
+ ✓ Compiled in 358ms (928 modules)
+ POST /api/translate-listing 200 in 4568ms
+ POST /api/translate-listing 200 in 5304ms
+ POST /api/translate-listing 200 in 5514ms
+ POST /api/translate-listing 200 in 6380ms
+ POST /api/translate-listing 200 in 5451ms
+ POST /api/translate-listing 200 in 5534ms
+ POST /api/translate-listing 200 in 6346ms
+ ✓ Compiled /listing/[id] in 214ms (553 modules)
+ GET /listing/260f9143-5e13-48a0-a7c3-832143f14aa7 200 in 362ms
+ GET / 200 in 34ms
+ ○ Compiling /messages ...
+ ✓ Compiled /messages in 670ms (939 modules)
+ GET /messages 200 in 779ms
+ GET / 200 in 30ms
+ GET /profile 200 in 40ms
+ ✓ Compiled /seller/[id] in 451ms (532 modules)
+ GET /seller/bf497b03-f591-4824-aafe-7bbf97176dcd 200 in 1010ms
+ GET /profile 200 in 505ms
+ GET / 200 in 533ms
+ GET /profile 200 in 52ms
+ ✓ Compiled in 256ms (387 modules)
+ ✓ Compiled in 144ms (387 modules)
+ ✓ Compiled in 126ms (387 modules)
+ GET / 200 in 22ms
+ ✓ Compiled /api/translate-listing in 147ms (546 modules)
+ ✓ Compiled /sell in 261ms (555 modules)
+ GET /sell 200 in 457ms
+ POST /api/translate-listing 200 in 6808ms
+ ✓ Compiled in 520ms (935 modules)
+ ✓ Compiled in 552ms (935 modules)
+ GET / 200 in 118ms
+ GET /profile 200 in 33ms
+ GET / 200 in 18ms
+ ✓ Compiled in 745ms (915 modules)
+ ✓ Compiled in 649ms (915 modules)
+ ✓ Compiled in 147ms (387 modules)
+ ✓ Compiled in 107ms (387 modules)
+ GET / 200 in 166ms
+ ✓ Compiled /my-listings in 379ms (536 modules)
+ GET /my-listings 200 in 537ms
+ ✓ Compiled in 403ms (915 modules)
+ ✓ Compiled in 402ms (915 modules)
+ ✓ Compiled in 352ms (915 modules)
+ ✓ Compiled in 591ms (917 modules)
+ ✓ Compiled in 452ms (931 modules)
+ GET / 200 in 238ms
+ GET / 200 in 239ms
+ GET /my-listings 200 in 240ms
+ GET /profile 200 in 241ms
+ GET / 200 in 21ms
+ GET / 200 in 288ms
+ GET /profile 200 in 19ms
+ GET / 200 in 19ms
+ GET /sell 200 in 34ms
+ GET / 200 in 19ms
+ ✓ Compiled /api/translate-listing in 327ms (549 modules)
+ POST /api/translate-listing 200 in 5407ms
+ POST /api/translate-listing 200 in 4636ms
+ POST /api/translate-listing 200 in 6590ms
+ POST /api/translate-listing 200 in 5436ms
+ POST /api/translate-listing 200 in 5741ms
+ POST /api/translate-listing 200 in 5502ms
+ POST /api/translate-listing 200 in 6254ms
+ POST /api/translate-listing 200 in 5102ms
+ POST /api/translate-listing 200 in 6223ms
+ POST /api/translate-listing 200 in 5454ms
+ POST /api/translate-listing 200 in 6380ms
+ POST /api/translate-listing 200 in 5526ms
+ POST /api/translate-listing 200 in 5610ms
+ POST /api/translate-listing 200 in 5470ms
+ POST /api/translate-listing 200 in 5684ms
+ POST /api/translate-listing 200 in 4889ms
+ POST /api/translate-listing 200 in 5640ms
+ POST /api/translate-listing 200 in 6341ms
+ POST /api/translate-listing 200 in 6591ms
+ POST /api/translate-listing 200 in 5054ms
+ POST /api/translate-listing 200 in 6426ms
+ POST /api/translate-listing 200 in 4617ms
+ POST /api/translate-listing 200 in 6372ms
+ POST /api/translate-listing 200 in 4647ms
+ GET / 200 in 88ms
+ POST /api/translate-listing 200 in 6712ms
+ POST /api/translate-listing 200 in 5796ms
+ POST /api/translate-listing 200 in 5987ms
+ POST /api/translate-listing 200 in 5320ms
+ POST /api/translate-listing 200 in 5931ms
+ POST /api/translate-listing 200 in 5414ms
+ POST /api/translate-listing 200 in 5435ms
+ ✓ Compiled /listing/[id] in 421ms (557 modules)
+ GET /listing/941d40d7-d92b-481c-a454-bcae49566bd7 200 in 609ms
+ GET / 200 in 254ms
+ GET / 200 in 255ms
+ GET /listing/941d40d7-d92b-481c-a454-bcae49566bd7 200 in 121ms
+ GET / 200 in 70ms
+ POST /api/translate-listing 200 in 5357ms
+ POST /api/translate-listing 200 in 5960ms
+ GET / 200 in 17ms
+ POST /api/translate-listing 200 in 4720ms
+ GET /seller/476010c3-3c89-4c8b-a292-b194ae82cd3a 200 in 36ms
+ POST /api/translate-listing 200 in 4626ms
+ GET / 200 in 16ms
+ POST /api/translate-listing 200 in 5575ms
+ POST /api/translate-listing 200 in 6299ms
+ POST /api/translate-listing 200 in 4696ms
+ POST /api/translate-listing 200 in 5109ms
+ POST /api/translate-listing 200 in 4752ms
+ POST /api/translate-listing 200 in 5040ms
+ GET /my-listings 200 in 28ms
+ POST /api/translate-listing 200 in 5375ms
+ POST /api/translate-listing 200 in 5641ms
+ GET /my-listings 200 in 260ms
+ GET / 200 in 19ms
+ GET / 200 in 77ms
+ POST /api/translate-listing 200 in 5286ms
+ ✓ Compiled in 544ms (920 modules)
+ GET / 200 in 391ms
+ GET /sell 200 in 35ms
+ ✓ Compiled in 150ms (388 modules)
+ ○ Compiling /auth ...
+ ✓ Compiled /auth in 655ms (913 modules)
+ GET /auth 200 in 859ms
+ GET / 200 in 33ms
+ ✓ Compiled /shop in 475ms (932 modules)
+ GET /shop 200 in 596ms
+ ✓ Compiled in 95ms (401 modules)
+ ✓ Compiled /rewards in 398ms (948 modules)
+ GET /rewards 200 in 491ms
+ ✓ Compiled in 506ms (938 modules)
+ ✓ Compiled in 262ms (921 modules)
+ GET / 200 in 362ms
+   Reload env: .env.local
+ ✓ Compiled in 4.3s (944 modules)
+ GET / 200 in 482ms
+ GET /rewards 200 in 491ms
+ GET / 200 in 640ms
+ GET / 200 in 2243ms
+ GET / 200 in 2686ms
+ GET /rewards 200 in 1897ms
+ GET / 200 in 175ms
+ GET / 200 in 253ms
+ GET / 200 in 92ms
+ ✓ Compiled /_not-found in 445ms (926 modules)
+ GET / 404 in 787ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1277ms (1272 modules)
+ GET / 200 in 868ms
+ GET / 200 in 870ms
+ GET /rewards 200 in 871ms
+ GET / 200 in 57ms
+ GET / 500 in 1939ms
+ GET /rewards 200 in 210ms
+ GET / 200 in 195ms
+ GET / 200 in 213ms
+ GET / 200 in 79ms
+ GET / 200 in 60ms
+ GET / 200 in 45ms
+ GET / 200 in 242ms
+ ✓ Compiled /auth in 395ms (718 modules)
+ GET /auth 200 in 506ms
+ GET / 200 in 241ms
+   Reload env: .env.local
+ ✓ Compiled in 3.9s (1292 modules)
+ GET / 200 in 2458ms
+ GET / 200 in 407ms
+ GET / 200 in 408ms
+ GET /rewards 200 in 409ms
+ GET / 200 in 43ms
+ GET / 200 in 32ms
+ ✓ Compiled /api/translate-listing in 231ms (730 modules)
+ POST /api/translate-listing 200 in 6212ms
+ GET / 200 in 318ms
+ POST /api/translate-listing 200 in 5276ms
+ POST /api/translate-listing 200 in 4475ms
+ POST /api/translate-listing 200 in 5791ms
+ POST /api/translate-listing 200 in 4841ms
+ POST /api/translate-listing 200 in 5954ms
+ POST /api/translate-listing 200 in 5409ms
+ POST /api/translate-listing 200 in 6179ms
+ POST /api/translate-listing 200 in 4857ms
+ POST /api/translate-listing 200 in 5063ms

@@ -1,0 +1,1364 @@
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\pietu\Desktop\uusi työ\.next\cache\webpack\client-development\0.pack.gz_' -> 'C:\Users\pietu\Desktop\uusi työ\.next\cache\webpack\client-development\0.pack.gz'
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js:160:7799)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js:160:7853) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js:160:7799)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js:160:7853) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\pietu\Desktop\uusi työ\.next\cache\webpack\client-development\0.pack.gz_' -> 'C:\Users\pietu\Desktop\uusi työ\.next\cache\webpack\client-development\0.pack.gz'
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26242)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26296) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/auth'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26242)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26296) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/auth'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\server\vendor-chunks\next.js'
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:414:47)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:417:3) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\server\\vendor-chunks\\next.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26242)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26296) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/auth'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26242)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26296) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/auth'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26242)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26296) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/auth'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26242)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js:2:26296) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/auth'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\auth\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\pietu\Desktop\uusi työ\.next\cache\webpack\client-development\3.pack.gz_' -> 'C:\Users\pietu\Desktop\uusi työ\.next\cache\webpack\client-development\3.pack.gz'
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\pietu\Desktop\uusi työ\.next\cache\webpack\server-development\13.pack.gz_' -> 'C:\Users\pietu\Desktop\uusi työ\.next\cache\webpack\server-development\13.pack.gz'
+ ⨯ Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\server\vendor-chunks\next.js'
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\sell\page.js:467:47)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\sell\page.js:470:3) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\server\\vendor-chunks\\next.js',
+  page: '/sell'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\server\vendor-chunks\next.js'
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\sell\page.js:467:47)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\sell\page.js:470:3) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\server\\vendor-chunks\\next.js',
+  page: '/sell'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [Error: Cannot find module './vendor-chunks/@supabase.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\dev\static-paths-worker.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/seller/709b3c4a-c212-40ff-87de-6ee557a1788f'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: Cannot find module './vendor-chunks/@supabase.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\dev\static-paths-worker.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/seller/709b3c4a-c212-40ff-87de-6ee557a1788f'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [Error: Cannot find module './vendor-chunks/@supabase.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\dev\static-paths-worker.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/seller/476010c3-3c89-4c8b-a292-b194ae82cd3a'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: Cannot find module './vendor-chunks/@supabase.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\dev\static-paths-worker.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/seller/476010c3-3c89-4c8b-a292-b194ae82cd3a'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\garage\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\garage\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\garage\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\garage\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\garage\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\garage\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\garage\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\garage\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\garage\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\garage\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8108)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:2:8161) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js:243:7799)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js:243:7853) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+Error: Cannot find module './331.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js:243:7799)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js:243:7853) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\server\vendor-chunks\next.js'
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:414:47)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\app\_not-found\page.js:417:3) {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\server\\vendor-chunks\\next.js'
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [Error: Cannot find module './vendor-chunks/@supabase.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\dev\static-paths-worker.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/seller/709b3c4a-c212-40ff-87de-6ee557a1788f'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: Cannot find module './vendor-chunks/@supabase.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\dev\static-paths-worker.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/seller/709b3c4a-c212-40ff-87de-6ee557a1788f'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [Error: Cannot find module './vendor-chunks/@supabase.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\dev\static-paths-worker.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/seller/476010c3-3c89-4c8b-a292-b194ae82cd3a'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[Error: Cannot find module './vendor-chunks/@supabase.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\dev\static-paths-worker.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/seller/476010c3-3c89-4c8b-a292-b194ae82cd3a'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\seller\[id]\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[TypeError: Cannot read properties of undefined (reading '/_app')]
+ ⨯ [TypeError: Cannot read properties of undefined (reading '/_app')]
+[TypeError: Cannot read properties of undefined (reading '/_app')]

@@ -1,0 +1,532 @@
+ ⨯ ./app/components/UniversalTopbar.tsx
+Error:   [31mx[0m Expected ',', got ';'
+    ,-[[36;1;4mC:\Users\pietu\Desktop\uusi työ\app\components\UniversalTopbar.tsx[0m:72:1]
+ [2m69[0m |       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "?");
+ [2m70[0m |       getCurrentUserIsAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
+ [2m71[0m |     });
+ [2m72[0m |   }, [];
+    : [35;1m       ^[0m
+ [2m73[0m | 
+ [2m74[0m |   useEffect(() => {
+ [2m75[0m |     if (!supabase || !userId) {
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/UniversalTopbar.tsx
+./app/layout.tsx
+ ⨯ ./app/components/UniversalTopbar.tsx
+Error:   [31mx[0m Expected ',', got ';'
+    ,-[[36;1;4mC:\Users\pietu\Desktop\uusi työ\app\components\UniversalTopbar.tsx[0m:72:1]
+ [2m69[0m |       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "?");
+ [2m70[0m |       getCurrentUserIsAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
+ [2m71[0m |     });
+ [2m72[0m |   }, [];
+    : [35;1m       ^[0m
+ [2m73[0m | 
+ [2m74[0m |   useEffect(() => {
+ [2m75[0m |     if (!supabase || !userId) {
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/UniversalTopbar.tsx
+./app/layout.tsx
+ ⨯ ./app/components/UniversalTopbar.tsx
+Error:   [31mx[0m Expected ',', got ';'
+    ,-[[36;1;4mC:\Users\pietu\Desktop\uusi työ\app\components\UniversalTopbar.tsx[0m:72:1]
+ [2m69[0m |       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "?");
+ [2m70[0m |       getCurrentUserIsAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
+ [2m71[0m |     });
+ [2m72[0m |   }, [];
+    : [35;1m       ^[0m
+ [2m73[0m | 
+ [2m74[0m |   useEffect(() => {
+ [2m75[0m |     if (!supabase || !userId) {
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/UniversalTopbar.tsx
+./app/layout.tsx
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\pietu\Desktop\uusi työ\.next\cache\webpack\client-development-fallback\0.pack.gz_' -> 'C:\Users\pietu\Desktop\uusi työ\.next\cache\webpack\client-development-fallback\0.pack.gz'
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⨯ ./app/components/UniversalTopbar.tsx
+Error:   [31mx[0m Expected ',', got ';'
+    ,-[[36;1;4mC:\Users\pietu\Desktop\uusi työ\app\components\UniversalTopbar.tsx[0m:72:1]
+ [2m69[0m |       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "?");
+ [2m70[0m |       getCurrentUserIsAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
+ [2m71[0m |     });
+ [2m72[0m |   }, [];
+    : [35;1m       ^[0m
+ [2m73[0m | 
+ [2m74[0m |   useEffect(() => {
+ [2m75[0m |     if (!supabase || !userId) {
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/components/UniversalTopbar.tsx
+./app/layout.tsx
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json',
+  page: '/'
+}
+ ⨯ Error: Cannot find module './611.js'
+Require stack:
+- C:\Users\pietu\Desktop\uusi työ\.next\server\webpack-runtime.js
+- C:\Users\pietu\Desktop\uusi työ\.next\server\app\page.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\require.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\load-components.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\utils.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\options.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\swc\index.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\build\next-config-ts\transpile-config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\config.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\next.js
+- C:\Users\pietu\Desktop\uusi työ\node_modules\next\dist\server\lib\start-server.js
+    at <unknown> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:325)
+    at Object.<anonymous> (C:\Users\pietu\Desktop\uusi työ\.next\server\pages\_document.js:1:371) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\pietu\Desktop\uusi työ\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\pietu\\Desktop\\uusi työ\\.next\\routes-manifest.json'
+}
