@@ -40,7 +40,9 @@ export default function UniversalTopbar() {
 
   useEffect(() => {
     if (!supabase) return;
-    supabase.auth.getUser().then(async ({ data }) => {
+    const client = supabase;
+
+    client.auth.getUser().then(async ({ data }) => {
       const nextUserId = data?.user?.id ?? null;
       setUserId(nextUserId);
 
@@ -50,7 +52,7 @@ export default function UniversalTopbar() {
         return;
       }
 
-      const { data: profile } = await supabase
+      const { data: profile } = await client
         .from("profiles")
         .select("avatar_url,is_completed,account_type,first_name,last_name,full_name,name,company_name,business_id,email,phone,address,postal_code,city,country,birth_date,phone_verified_at")
         .eq("id", nextUserId)
@@ -76,13 +78,15 @@ export default function UniversalTopbar() {
       return;
     }
 
+    const activeUserId = userId;
+    const client = supabase;
     let cancelled = false;
 
     async function refreshNotifications() {
       const [{ data: reviews }, { data: alerts }, { data: conversations }] = await Promise.all([
-        getPendingPurchaseReviewRequests(userId),
-        getAlertNotifications(userId),
-        getConversationSummaries(userId),
+        getPendingPurchaseReviewRequests(activeUserId),
+        getAlertNotifications(activeUserId),
+        getConversationSummaries(activeUserId),
       ]);
 
       if (cancelled) return;
@@ -92,7 +96,7 @@ export default function UniversalTopbar() {
       try { lastRead = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}"); } catch { /* ok */ }
       const unread = (conversations ?? []).filter((conversation) => {
         const message = conversation.last_message;
-        if (!message || message.sender_id === userId) return false;
+        if (!message || message.sender_id === activeUserId) return false;
         return new Date(message.created_at).getTime() > (lastRead[conversation.id] ?? 0);
       });
 
@@ -104,11 +108,11 @@ export default function UniversalTopbar() {
 
     refreshNotifications();
     const interval = window.setInterval(refreshNotifications, 30000);
-    const messagesChannel = supabase
+    const messagesChannel = client
       .channel("universal-topbar-notifications")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` },
+        { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${activeUserId}` },
         refreshNotifications
       )
       .subscribe();
@@ -122,7 +126,7 @@ export default function UniversalTopbar() {
       cancelled = true;
       window.clearInterval(interval);
       window.removeEventListener("review-request-dismissed", onReviewDismissed);
-      supabase?.removeChannel(messagesChannel);
+      client.removeChannel(messagesChannel);
     };
   }, [userId]);
 
