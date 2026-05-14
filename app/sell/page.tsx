@@ -1448,13 +1448,13 @@ function SellPageContent() {
     if (preset.id === "whole") return vehicleCardData[form.vehicleType]?.img || "/vehicles/all.png";
     if (preset.id === "engine") return categoryMainVisuals["Moottori & voimansiirto"];
     if (preset.id === "variator" || preset.id === "drive") return subCategoryVisuals.Variaattorit;
-    if (preset.id === "track" || preset.id === "chassis") return categoryMainVisuals["Alusta & telasto"];
-    if (preset.id === "controls") return categoryMainVisuals["Ohjaus & hallintalaitteet"];
+    if (preset.id === "track" || preset.id === "chassis") return subCategoryVisuals.Alusta;
+    if (preset.id === "controls") return subCategoryVisuals.Jarrut;
     if (preset.id === "suspension") return subCategoryVisuals.Iskunvaimentimet;
     if (preset.id === "electric") return categoryMainVisuals["Sähköjärjestelmät"];
     if (preset.id === "fuel") return categoryMainVisuals["Jäähdytys & polttoaine"];
     if (preset.id === "exhaust") return categoryMainVisuals.Pakoputkisto;
-    if (preset.id === "fairings") return categoryMainVisuals["Runko & katteet"];
+    if (preset.id === "fairings") return subCategoryVisuals.Katteet;
     return "/parts-blue-bg.svg";
   }
 
@@ -1489,7 +1489,7 @@ function SellPageContent() {
         key: `${form.vehicleType}:custom`,
         label: "Muut tuotteet",
         desc: "Yksittäin lisätyt osat",
-        visual: "/parts-blue-bg.svg",
+        visual: subCategoryVisuals.Sukset,
         parts: customParts
       });
     }

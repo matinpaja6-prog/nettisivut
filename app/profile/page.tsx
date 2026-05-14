@@ -498,6 +498,8 @@ export default function ProfilePage() {
     phoneVerificationCount < 2;
   const phoneAttemptsLeft =
     Math.max(0, 2 - phoneVerificationCount);
+  const visibleProfileId =
+    profile?.public_id || (user?.id ? `ID ${user.id.slice(0, 8)}` : "");
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [status, setStatus] = useState("");
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -1243,9 +1245,11 @@ export default function ProfilePage() {
                   ? (profile.full_name || `${profile.first_name} ${profile.last_name}`.trim())
                   : "—"}
               </div>
-              <div className="pf-user-id">
-                {profile?.public_id || profileText.noId}
-              </div>
+              {visibleProfileId && (
+                <div className="pf-user-id">
+                  {visibleProfileId}
+                </div>
+              )}
               {profile?.account_type === "company" && (
                 <div className="pf-company-badge">{profileText.companyAccount}</div>
               )}

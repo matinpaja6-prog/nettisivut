@@ -344,17 +344,10 @@ export default function UniversalTopbar() {
         </button>
       ) : null}
       <nav className="universal-topbar-actions" aria-label="Pikatoiminnot">
-        {guestLocked ? (
-          <button type="button" className="universal-create-button" disabled aria-disabled="true">
-            <Plus size={17} aria-hidden="true" />
-            <strong>Luo ilmoitus</strong>
-          </button>
-        ) : (
-          <Link href="/sell" className="universal-create-button">
-            <Plus size={17} aria-hidden="true" />
-            <strong>Luo ilmoitus</strong>
-          </Link>
-        )}
+        <Link href="/sell" className="universal-create-button">
+          <Plus size={17} aria-hidden="true" />
+          <strong>Luo ilmoitus</strong>
+        </Link>
         <div className="universal-notification-wrap" ref={notificationMenuRef}>
           <button
             type="button"

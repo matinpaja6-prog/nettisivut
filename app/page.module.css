@@ -6981,8 +6981,34 @@
 
   .mobileSortBtn,
   .allListingsSortBtn {
-    border-radius: 32px 10px 32px 10px !important;
-    height: 56px !important;
-    width: 96px !important;
+    background:
+      linear-gradient(180deg, rgba(31, 30, 38, 0.98), rgba(17, 16, 23, 0.98)) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 999px !important;
+    box-shadow:
+      0 18px 36px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    gap: 8px !important;
+    height: 66px !important;
+    min-width: 132px !important;
+    width: 132px !important;
+  }
+
+  .mobileSortBtn svg,
+  .allListingsSortBtn svg {
+    height: 31px !important;
+    stroke-width: 2.4 !important;
+    width: 31px !important;
+  }
+
+  .mobileSortArrow {
+    border-bottom: 3px solid currentColor;
+    border-right: 3px solid currentColor;
+    display: inline-block;
+    height: 13px;
+    margin-left: -2px;
+    transform: rotate(45deg);
+    width: 13px;
   }
 }

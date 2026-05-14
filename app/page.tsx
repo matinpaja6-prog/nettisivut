@@ -82,6 +82,7 @@ const translations = {
     myListings: "Omat ilmoitukset",
     messages: "Viestit",
     savedListings: "Tallennetut ilmoitukset",
+    login: "Kirjaudu",
     signOut: "Kirjaudu ulos",
     heroTitle: "Arctic Parts",
     heroSubtitle: "Nopea haku. Laaja valikoima. Luotettavat myyjät.",
@@ -156,6 +157,7 @@ const translations = {
     myListings: "My listings",
     messages: "Messages",
     savedListings: "Saved listings",
+    login: "Log in",
     signOut: "Log out",
     heroTitle: "Vehicle parts that move you forward.",
     heroSubtitle: "Fast search. Wide selection. Trusted sellers.",
@@ -230,6 +232,7 @@ const translations = {
     myListings: "Mina annonser",
     messages: "Meddelanden",
     savedListings: "Sparade annonser",
+    login: "Logga in",
     signOut: "Logga ut",
     heroTitle: "Fordonsdelar som tar dig framåt.",
     heroSubtitle: "Snabb sökning. Brett utbud. Pålitliga säljare.",
@@ -304,6 +307,7 @@ const translations = {
     myListings: "Mine annonser",
     messages: "Meldinger",
     savedListings: "Lagrede annonser",
+    login: "Logg inn",
     signOut: "Logg ut",
     heroTitle: "Kjøretøydeler som tar deg videre.",
     heroSubtitle: "Raskt søk. Stort utvalg. Pålitelige selgere.",
@@ -378,6 +382,7 @@ const translations = {
     myListings: "Minu kuulutused",
     messages: "Sõnumid",
     savedListings: "Salvestatud kuulutused",
+    login: "Logi sisse",
     signOut: "Logi välja",
     heroTitle: "Sõidukiosad, mis viivad sind edasi.",
     heroSubtitle: "Kiire otsing. Lai valik. Usaldusväärsed müüjad.",
@@ -2033,16 +2038,15 @@ export default function Home() {
               <span className={styles.topButtonLabel}>{t.createListing}</span>
             </Link>
           ) : (
-            <button
-              type="button"
-              className={`${styles.topButton} ${styles.topButtonSolid} ${styles.topButtonDisabled}`}
-              disabled
-              title={t.loginToCreateListing}
+            <Link
+              href="/auth"
+              className={`${styles.topButton} ${styles.topButtonSolid}`}
+              title={t.login}
               suppressHydrationWarning
             >
-              <Plus size={14} />
-              <span className={styles.topButtonLabel}>{t.createListing}</span>
-            </button>
+              <LockKeyhole size={14} />
+              <span className={styles.topButtonLabel}>{t.login}</span>
+            </Link>
           )}
 
           {user ? (
@@ -2543,6 +2547,7 @@ export default function Home() {
                   aria-label={t.sort}
                 >
                   <ListFilter size={16} />
+                  <span className={styles.mobileSortArrow} aria-hidden="true" />
                 </button>
                 </div>
               </div>
@@ -2622,6 +2627,7 @@ export default function Home() {
               aria-label={t.sort}
             >
               <ListFilter size={16} />
+              <span className={styles.mobileSortArrow} aria-hidden="true" />
             </button>
           </div>
         )}

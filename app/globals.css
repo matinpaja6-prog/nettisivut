@@ -27512,11 +27512,11 @@ body .simple-auth-page .account-type-card span {
 body .simple-auth-page .account-type-card.active,
 body .simple-auth-page .account-type-card:hover {
   background:
-    linear-gradient(135deg, #ff9a24 0%, #ff7418 100%) !important;
-  border-color: #ffb66d !important;
+    linear-gradient(180deg, rgba(14, 38, 60, 0.94), rgba(8, 26, 44, 0.96)) !important;
+  border-color: #ff7418 !important;
   box-shadow:
-    0 16px 32px rgba(255, 116, 24, 0.28),
-    0 0 0 1px rgba(255, 204, 144, 0.34),
+    0 16px 32px rgba(255, 116, 24, 0.14),
+    0 0 0 1px rgba(255, 204, 144, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
 }
 
@@ -27524,7 +27524,12 @@ body .simple-auth-page .account-type-card.active strong,
 body .simple-auth-page .account-type-card.active span,
 body .simple-auth-page .account-type-card:hover strong,
 body .simple-auth-page .account-type-card:hover span {
-  color: #071827 !important;
+  color: #ffffff !important;
+}
+
+body .simple-auth-page .account-type-card.active span,
+body .simple-auth-page .account-type-card:hover span {
+  color: #d7e6f2 !important;
 }
 
 body .simple-auth-page .auth-tabs {
@@ -29917,4 +29922,42 @@ body .sell-container .part-card-remove:hover {
 
 body .sell-container .part-card-remove:hover svg {
   color: #ffb15a !important;
+}
+
+/* Mobile profile phone row: center the number and actions. */
+@media (max-width: 640px) {
+  body .pf-page .pf-field:has(.pf-phone-row) {
+    text-align: center !important;
+  }
+
+  body .pf-page .pf-field:has(.pf-phone-row) > label,
+  body .pf-page .pf-phone-help {
+    display: block !important;
+    text-align: center !important;
+  }
+
+  body .pf-page .pf-phone-row {
+    align-items: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    justify-content: center !important;
+    margin-inline: auto !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body .pf-page .pf-phone-card {
+    align-items: center !important;
+    justify-content: center !important;
+    margin-inline: auto !important;
+    text-align: center !important;
+  }
+
+  body .pf-page .pf-phone-actions {
+    display: flex !important;
+    justify-content: center !important;
+    margin-inline: auto !important;
+    width: 100% !important;
+  }
 }
