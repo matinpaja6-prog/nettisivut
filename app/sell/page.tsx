@@ -705,6 +705,9 @@ function SellPageContent() {
   const [expandedParts, setExpandedParts] =
     useState<Record<string, boolean>>({}); 
 
+  const [expandedPartGroups, setExpandedPartGroups] =
+    useState<Record<string, boolean>>({});
+
   const [customPart, setCustomPart] =
     useState("");
 
@@ -1437,7 +1440,65 @@ function SellPageContent() {
       )
       .filter((preset) => preset.id === "whole" || preset.parts.length > 0);
 
-  function applyPreset(parts: string[]) {
+  function presetGroupKey(preset: Preset) {
+    return `${form.vehicleType}:${preset.id}`;
+  }
+
+  function getPresetVisual(preset: Preset) {
+    if (preset.id === "whole") return vehicleCardData[form.vehicleType]?.img || "/vehicles/all.png";
+    if (preset.id === "engine") return categoryMainVisuals["Moottori & voimansiirto"];
+    if (preset.id === "variator" || preset.id === "drive") return subCategoryVisuals.Variaattorit;
+    if (preset.id === "track" || preset.id === "chassis") return categoryMainVisuals["Alusta & telasto"];
+    if (preset.id === "controls") return categoryMainVisuals["Ohjaus & hallintalaitteet"];
+    if (preset.id === "suspension") return subCategoryVisuals.Iskunvaimentimet;
+    if (preset.id === "electric") return categoryMainVisuals["Sähköjärjestelmät"];
+    if (preset.id === "fuel") return categoryMainVisuals["Jäähdytys & polttoaine"];
+    if (preset.id === "exhaust") return categoryMainVisuals.Pakoputkisto;
+    if (preset.id === "fairings") return categoryMainVisuals["Runko & katteet"];
+    return "/parts-blue-bg.svg";
+  }
+
+  const selectedPartGroups = (() => {
+    const assigned = new Set<string>();
+    const groups: Array<{ key: string; label: string; desc: string; visual: string; parts: string[] }> = [];
+
+    partPresets
+      .filter((preset) => preset.id !== "whole")
+      .forEach((preset) => {
+        const parts = selectedParts.filter((part) => {
+          const lower = part.toLowerCase();
+          if (assigned.has(lower)) return false;
+          return preset.parts.some((presetPart) => presetPart.toLowerCase() === lower);
+        });
+
+        if (parts.length > 0) {
+          parts.forEach((part) => assigned.add(part.toLowerCase()));
+          groups.push({
+            key: presetGroupKey(preset),
+            label: preset.label,
+            desc: preset.desc,
+            visual: getPresetVisual(preset),
+            parts
+          });
+        }
+      });
+
+    const customParts = selectedParts.filter((part) => !assigned.has(part.toLowerCase()));
+    if (customParts.length > 0) {
+      groups.push({
+        key: `${form.vehicleType}:custom`,
+        label: "Muut tuotteet",
+        desc: "Yksittäin lisätyt osat",
+        visual: "/parts-blue-bg.svg",
+        parts: customParts
+      });
+    }
+
+    return groups;
+  })();
+
+  function applyPreset(preset: Preset) {
+    const parts = preset.parts;
     setSelectedParts((prev) => {
       const allAdded = parts.every((p) =>
         prev.some((existing) => existing.toLowerCase() === p.toLowerCase())
@@ -1450,6 +1511,22 @@ function SellPageContent() {
         (p) => !prev.some((existing) => existing.toLowerCase() === p.toLowerCase())
       );
       additions.forEach((p) => setExpandedParts((e) => ({ ...e, [p]: false })));
+      setExpandedPartGroups((prevGroups) => {
+        if (preset.id === "whole") {
+          const next = { ...prevGroups };
+          partPresets
+            .filter((item) => item.id !== "whole")
+            .forEach((item) => {
+              next[presetGroupKey(item)] = false;
+            });
+          return next;
+        }
+
+        return {
+          ...prevGroups,
+          [presetGroupKey(preset)]: true
+        };
+      });
       return [...prev, ...additions];
     });
   }
@@ -1846,9 +1923,10 @@ function SellPageContent() {
         setPartImages((prev) => cleanupKeys(prev) as typeof prev);
         setPartTitles((prev) => cleanupKeys(prev) as typeof prev);
         setPartDescriptions((prev) => cleanupKeys(prev) as typeof prev);
-        setPartNumbers((prev) => cleanupKeys(prev) as typeof prev);
-        setPartConditions((prev) => cleanupKeys(prev) as typeof prev);
-        setExpandedParts((prev) => cleanupKeys(prev) as typeof prev);
+      setPartNumbers((prev) => cleanupKeys(prev) as typeof prev);
+      setPartConditions((prev) => cleanupKeys(prev) as typeof prev);
+      setExpandedParts((prev) => cleanupKeys(prev) as typeof prev);
+      setExpandedPartGroups((prev) => ({ ...prev }));
       }
 
       let successCount = 0;
@@ -1942,6 +2020,7 @@ function SellPageContent() {
       setPartNumbers({});
       setPartConditions({});
       setExpandedParts({});
+      setExpandedPartGroups({});
       setCustomPart("");
       setImages([]);
       const skipMsg = skippedCount > 0 ? ` (${skippedCount} tyhjää ohitettu)` : "";
@@ -2364,10 +2443,12 @@ function SellPageContent() {
                       type="button"
                       disabled={locked}
                       className={cardClass}
-                      onClick={() => applyPreset(preset.parts)}
+                      onClick={() => applyPreset(preset)}
                       title={allAdded ? t.sellPresetRemove : t.sellPresetAdd}
                     >
-                      <span className="preset-emoji">{preset.emoji}</span>
+                      <span className="preset-emoji">
+                        <img src={getPresetVisual(preset)} alt="" />
+                      </span>
                       <div className="preset-text">
                         <strong>{preset.label}</strong>
                         <span>{preset.desc}</span>
@@ -2593,7 +2674,30 @@ function SellPageContent() {
 
                   {selectedParts.length > 0 ? (
                     <div className="part-cards">
-                      {selectedParts.map((part) => (
+                      {selectedPartGroups.map((group) => {
+                        const groupOpen = expandedPartGroups[group.key] ?? false;
+
+                        return (
+                          <section key={group.key} className={`part-group ${groupOpen ? "open" : ""}`}>
+                            <button
+                              type="button"
+                              className="part-group-toggle"
+                              onClick={() => setExpandedPartGroups((prev) => ({ ...prev, [group.key]: !(prev[group.key] ?? false) }))}
+                            >
+                              <span className="part-group-visual">
+                                <img src={group.visual} alt="" />
+                              </span>
+                              <span className="part-group-text">
+                                <strong>{group.label}</strong>
+                                <small>{group.desc}</small>
+                              </span>
+                              <span className="part-group-count">{group.parts.length} tuotetta</span>
+                              <span className="part-group-action">{groupOpen ? "Sulje" : "Avaa"}</span>
+                            </button>
+
+                            {groupOpen && (
+                              <div className="part-group-items">
+                                {group.parts.map((part) => (
                         <div key={part} className="part-card">
                           <div className="part-card-header">
                             <div className="part-card-label">
@@ -2704,7 +2808,12 @@ function SellPageContent() {
                             </div>
                           )}
                         </div>
-                      ))}
+                                ))}
+                              </div>
+                            )}
+                          </section>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="multi-product-empty">

@@ -27511,11 +27511,20 @@ body .simple-auth-page .account-type-card span {
 
 body .simple-auth-page .account-type-card.active,
 body .simple-auth-page .account-type-card:hover {
-  border-color: #ff7418 !important;
+  background:
+    linear-gradient(135deg, #ff9a24 0%, #ff7418 100%) !important;
+  border-color: #ffb66d !important;
   box-shadow:
-    0 16px 32px rgba(255, 116, 24, 0.22),
+    0 16px 32px rgba(255, 116, 24, 0.28),
     0 0 0 1px rgba(255, 204, 144, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+body .simple-auth-page .account-type-card.active strong,
+body .simple-auth-page .account-type-card.active span,
+body .simple-auth-page .account-type-card:hover strong,
+body .simple-auth-page .account-type-card:hover span {
+  color: #071827 !important;
 }
 
 body .simple-auth-page .auth-tabs {
@@ -29679,4 +29688,233 @@ body .pf-page .pf-topbar {
       linear-gradient(180deg, rgba(2, 12, 24, 0.54) 0%, rgba(3, 17, 32, 0.78) 54%, rgba(3, 17, 32, 0.92) 100%),
       url("/keuliminen1.png") 42% top / auto 100svh fixed no-repeat !important;
   }
+}
+
+/* Multi-listing preset cards: clearer image-led cards and grouped part accordions. */
+body .sell-container #sell-step-category .preset-grid,
+body .sell-container .preset-grid {
+  gap: 14px !important;
+}
+
+body .sell-container #sell-step-category .preset-card,
+body .sell-container .preset-card {
+  background:
+    linear-gradient(145deg, rgba(10, 42, 68, 0.88), rgba(5, 23, 42, 0.94)) !important;
+  border: 1px solid rgba(255, 137, 24, 0.72) !important;
+  border-radius: 12px !important;
+  grid-template-columns: 58px minmax(0, 1fr) auto !important;
+  min-height: 78px !important;
+  padding: 12px !important;
+}
+
+body .sell-container #sell-step-category .preset-card:hover,
+body .sell-container #sell-step-category .preset-card.added,
+body .sell-container .preset-card:hover,
+body .sell-container .preset-card.added {
+  background:
+    linear-gradient(145deg, rgba(255, 137, 24, 0.16), rgba(9, 42, 68, 0.94)) !important;
+  border-color: rgba(255, 169, 72, 0.96) !important;
+}
+
+body .sell-container .preset-emoji {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: 52px !important;
+  overflow: visible !important;
+  width: 52px !important;
+}
+
+body .sell-container .preset-emoji img {
+  display: block !important;
+  filter: drop-shadow(0 10px 14px rgba(0, 8, 20, 0.34)) saturate(1.08) !important;
+  height: 52px !important;
+  object-fit: contain !important;
+  width: 52px !important;
+}
+
+body .sell-container .preset-text strong {
+  color: #ffffff !important;
+  font-size: 14px !important;
+}
+
+body .sell-container .preset-text span {
+  color: rgba(220, 235, 246, 0.82) !important;
+}
+
+body .sell-container .part-cards {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+body .sell-container .part-group {
+  background:
+    linear-gradient(180deg, rgba(8, 31, 52, 0.78), rgba(5, 20, 38, 0.86)) !important;
+  border: 1px solid rgba(82, 150, 196, 0.36) !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
+
+body .sell-container .part-group.open {
+  border-color: rgba(255, 137, 24, 0.72) !important;
+  box-shadow: 0 14px 30px rgba(0, 8, 20, 0.18) !important;
+}
+
+body .sell-container .part-group-toggle {
+  align-items: center !important;
+  background:
+    linear-gradient(135deg, rgba(12, 50, 80, 0.98), rgba(6, 27, 48, 0.98)) !important;
+  border: 0 !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto auto !important;
+  min-height: 74px !important;
+  padding: 12px !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+body .sell-container .part-group-visual {
+  align-items: center !important;
+  display: inline-flex !important;
+  height: 50px !important;
+  justify-content: center !important;
+  width: 50px !important;
+}
+
+body .sell-container .part-group-visual img {
+  display: block !important;
+  filter: drop-shadow(0 10px 14px rgba(0, 8, 20, 0.34)) saturate(1.08) !important;
+  height: 50px !important;
+  object-fit: contain !important;
+  width: 50px !important;
+}
+
+body .sell-container .part-group-text {
+  display: grid !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+}
+
+body .sell-container .part-group-text strong {
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+}
+
+body .sell-container .part-group-text small {
+  color: rgba(218, 234, 246, 0.78) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body .sell-container .part-group-count,
+body .sell-container .part-group-action {
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  white-space: nowrap !important;
+}
+
+body .sell-container .part-group-count {
+  background: rgba(73, 199, 216, 0.14) !important;
+  color: #a8eff8 !important;
+  padding: 7px 10px !important;
+}
+
+body .sell-container .part-group-action {
+  background: linear-gradient(135deg, #ff9a24, #ff7418) !important;
+  color: #ffffff !important;
+  padding: 7px 12px !important;
+}
+
+body .sell-container .part-group-items {
+  display: grid !important;
+  gap: 10px !important;
+  padding: 10px !important;
+}
+
+body .sell-container .part-group-items .part-card {
+  margin: 0 !important;
+}
+
+@media (max-width: 760px) {
+  body .sell-container .part-group-toggle {
+    grid-template-columns: 44px minmax(0, 1fr) auto !important;
+  }
+
+  body .sell-container .part-group-count {
+    display: none !important;
+  }
+
+  body .sell-container .part-group-action {
+    padding-inline: 10px !important;
+  }
+}
+
+/* Final multi-part card button cleanup: no boxed edit/remove backgrounds. */
+body .sell-container .part-card-header {
+  background:
+    linear-gradient(135deg, rgba(8, 31, 52, 0.92), rgba(4, 18, 34, 0.94)) !important;
+}
+
+body .sell-container .part-card-header-actions {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  gap: 10px !important;
+}
+
+body .sell-container .part-card-toggle {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: rgba(211, 232, 244, 0.82) !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+
+body .sell-container .part-card-toggle:hover {
+  color: #ffffff !important;
+  text-decoration: underline !important;
+  transform: none !important;
+}
+
+body .sell-container .part-card-remove {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #ff8a1c !important;
+  display: inline-flex !important;
+  height: auto !important;
+  justify-content: center !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+}
+
+body .sell-container .part-card-remove svg {
+  color: #ff8a1c !important;
+  height: 16px !important;
+  stroke-width: 3 !important;
+  width: 16px !important;
+}
+
+body .sell-container .part-card-remove:hover {
+  color: #ffb15a !important;
+  transform: scale(1.08) !important;
+}
+
+body .sell-container .part-card-remove:hover svg {
+  color: #ffb15a !important;
 }
