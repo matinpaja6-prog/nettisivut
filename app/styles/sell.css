@@ -10213,3 +10213,191 @@ body .sell-container .sell-total-estimate {
     margin-top: 38px !important;
   }
 }
+/* Create listing: polished vehicle/detail fields. */
+body .sell-container #sell-step-vehicle .sell-grid-3,
+body .sell-container #sell-step-vehicle .sell-grid-2 {
+  align-items: start !important;
+  gap: 26px 34px !important;
+}
+
+body .sell-container #sell-step-vehicle .sell-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+body .sell-container #sell-step-vehicle .sell-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+body .sell-container #sell-step-vehicle .field-stack {
+  background:
+    radial-gradient(220px 100px at 100% 0%, rgba(126, 197, 240, 0.08), transparent 70%),
+    linear-gradient(145deg, rgba(7, 31, 54, 0.56), rgba(3, 18, 34, 0.42)) !important;
+  border: 1px solid rgba(126, 197, 240, 0.14) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 12px 24px rgba(0, 8, 20, 0.08) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 9px !important;
+  min-height: 118px !important;
+  padding: 14px !important;
+}
+
+body .sell-container #sell-step-vehicle .field-label {
+  align-items: center !important;
+  color: rgba(219, 237, 248, 0.9) !important;
+  display: flex !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  justify-content: space-between !important;
+  letter-spacing: 0 !important;
+  line-height: 1.2 !important;
+  min-height: 18px !important;
+  text-shadow: 0 1px 8px rgba(0, 8, 18, 0.18) !important;
+}
+
+body .sell-container #sell-step-vehicle input:not([type="file"]):not([type="checkbox"]):not([type="radio"]),
+body .sell-container #sell-step-vehicle select {
+  appearance: auto !important;
+  background:
+    linear-gradient(180deg, rgba(236, 246, 252, 0.98), rgba(207, 223, 235, 0.98)) !important;
+  border: 1px solid rgba(222, 239, 250, 0.74) !important;
+  border-radius: 11px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 10px 20px rgba(0, 8, 20, 0.1) !important;
+  color: #071827 !important;
+  font-size: 14px !important;
+  font-weight: 850 !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  outline: none !important;
+  padding: 0 16px !important;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease !important;
+  width: 100% !important;
+}
+
+body .sell-container #sell-step-vehicle select:disabled,
+body .sell-container #sell-step-vehicle input:disabled {
+  background:
+    linear-gradient(180deg, rgba(177, 195, 207, 0.92), rgba(145, 166, 181, 0.92)) !important;
+  border-color: rgba(191, 213, 228, 0.32) !important;
+  box-shadow: none !important;
+  color: rgba(7, 24, 39, 0.84) !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+body .sell-container #sell-step-vehicle input:not([type="file"]):not([type="checkbox"]):not([type="radio"])::placeholder {
+  color: rgba(34, 55, 70, 0.62) !important;
+  font-weight: 800 !important;
+}
+
+body .sell-container #sell-step-vehicle input:not([type="file"]):not([type="checkbox"]):not([type="radio"]):focus,
+body .sell-container #sell-step-vehicle select:focus {
+  border-color: rgba(255, 154, 36, 0.78) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 154, 36, 0.18),
+    0 16px 30px rgba(0, 8, 20, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82) !important;
+  transform: translateY(-1px) !important;
+}
+
+body .sell-container #sell-step-vehicle .sell-model-helper,
+body .sell-container #sell-step-vehicle .field-hint {
+  color: rgba(207, 226, 240, 0.68) !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  line-height: 1.35 !important;
+  margin: 0 !important;
+}
+
+body .sell-container #sell-step-vehicle input[style],
+body .sell-container #sell-step-vehicle button[style] {
+  margin-top: 0 !important;
+}
+
+@media (max-width: 900px) {
+  body .sell-container #sell-step-vehicle .sell-grid-3,
+  body .sell-container #sell-step-vehicle .sell-grid-2 {
+    gap: 14px !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  body .sell-container #sell-step-vehicle .field-stack {
+    min-height: 0 !important;
+    padding: 12px !important;
+  }
+}
+
+/* Create listing: leaf part buttons must be plain buttons, no image background. */
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf,
+body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf,
+body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-card.is-leaf {
+  align-items: center !important;
+  background:
+    radial-gradient(180px 80px at 100% 0%, rgba(126, 197, 240, 0.08), transparent 70%),
+    linear-gradient(145deg, rgba(9, 38, 63, 0.96), rgba(4, 20, 38, 0.99)) !important;
+  background-image:
+    radial-gradient(180px 80px at 100% 0%, rgba(126, 197, 240, 0.08), transparent 70%),
+    linear-gradient(145deg, rgba(9, 38, 63, 0.96), rgba(4, 20, 38, 0.99)) !important;
+  border: 1px solid rgba(126, 197, 240, 0.34) !important;
+  border-radius: 12px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 10px 20px rgba(0, 8, 20, 0.14) !important;
+  display: flex !important;
+  justify-content: center !important;
+  min-height: 58px !important;
+  overflow: hidden !important;
+  padding: 10px 12px !important;
+  text-align: center !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-thumb,
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-thumb img,
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf > img,
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf > svg,
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf::before,
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf::after,
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-text::before,
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-text::after {
+  display: none !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-text {
+  align-items: center !important;
+  background: transparent !important;
+  display: flex !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+  text-align: center !important;
+  width: 100% !important;
+  z-index: 1 !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-text strong {
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  line-height: 1.12 !important;
+  overflow-wrap: anywhere !important;
+  text-align: center !important;
+  text-shadow: none !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf.active {
+  background:
+    radial-gradient(180px 80px at 100% 0%, rgba(255, 218, 184, 0.18), transparent 70%),
+    linear-gradient(145deg, rgba(255, 154, 36, 0.98), rgba(255, 112, 24, 0.98)) !important;
+  border-color: rgba(255, 232, 204, 0.86) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.52),
+    0 12px 22px rgba(255, 112, 24, 0.16) !important;
+}

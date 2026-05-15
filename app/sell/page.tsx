@@ -5,6 +5,7 @@ import {
   FormEvent,
   Suspense,
   useEffect,
+  useMemo,
   useState
 } from "react";
 
@@ -695,9 +696,6 @@ function SellPageContent() {
   const [selectedParts, setSelectedParts] =
     useState<string[]>([]);
 
-  const [selectedPresetIds, setSelectedPresetIds] =
-    useState<string[]>([]);
-
   const [selectedSubGroup, setSelectedSubGroup] = useState("");
 
   const [partPrices, setPartPrices] =
@@ -839,7 +837,6 @@ function SellPageContent() {
       }
       setSelectedSubGroup("");
       setSelectedParts([]);
-      setSelectedPresetIds([]);
       setPartPrices({});
       setPartImages({});
       setPartTitles({});
@@ -959,6 +956,7 @@ function SellPageContent() {
         setPartImages((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setPartTitles((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setPartDescriptions((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
+        setPartNumbers((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setPartConditions((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setExpandedParts((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         return prev.filter((item) => item.toLowerCase() !== part.toLowerCase());
@@ -1487,6 +1485,36 @@ function SellPageContent() {
       )
       .filter((preset) => preset.parts.length > 0);
 
+  const effectiveSelectedParts = useMemo(() => {
+    const parts = new Map<string, string>();
+
+    selectedParts.forEach((part) => {
+      parts.set(part.toLowerCase(), part);
+    });
+
+    return Array.from(parts.values());
+  }, [selectedParts]);
+
+  const readyToPublishParts = useMemo(
+    () => effectiveSelectedParts.filter((part) => partPrices[part] || form.price),
+    [effectiveSelectedParts, form.price, partPrices]
+  );
+
+  const effectiveSelectedPartKeySet = useMemo(
+    () => new Set(effectiveSelectedParts.map((part) => part.toLowerCase())),
+    [effectiveSelectedParts]
+  );
+
+  const publishListingCount =
+    listingMode === "multiple"
+      ? effectiveSelectedParts.length
+      : 1;
+
+  const readyPublishListingCount =
+    listingMode === "multiple"
+      ? readyToPublishParts.length
+      : 1;
+
   function getPresetVisual(preset: Preset) {
     if (preset.id === "whole") return vehicleCardData[form.vehicleType]?.img || "/vehicles/all.png";
     if (preset.id === "engine") return categoryMainVisuals["Moottori & voimansiirto"];
@@ -1504,7 +1532,7 @@ function SellPageContent() {
   const selectedPartGroups = (() => {
     const groups = new Map<string, { key: string; label: string; desc: string; visual: string; parts: string[] }>();
 
-    selectedParts.forEach((part) => {
+    effectiveSelectedParts.forEach((part) => {
       const segments = part.split(" / ").filter(Boolean);
       const category = segments[0] || "Muut tuotteet";
       const group = segments[1] || category;
@@ -1532,7 +1560,6 @@ function SellPageContent() {
 
   function applyPreset(preset: Preset) {
     const parts = preset.parts;
-    const presetMarkedAdded = selectedPresetIds.includes(preset.id);
     const removePartData = (removedParts: string[]) => {
       const removedLower = new Set(removedParts.map((part) => part.toLowerCase()));
       const cleanRecord = <T,>(record: Record<string, T>) =>
@@ -1556,41 +1583,46 @@ function SellPageContent() {
       });
     };
 
-    setSelectedParts((prev) => {
-      const allAdded =
-        presetMarkedAdded ||
-        parts.every((p) =>
-          prev.some((existing) => existing.toLowerCase() === p.toLowerCase())
-        );
-      if (allAdded) {
-        const lower = parts.map((p) => p.toLowerCase());
-        const removedParts = prev.filter((existing) =>
-          lower.includes(existing.toLowerCase())
-        );
-        removePartData(removedParts);
-        setSelectedPresetIds((current) => current.filter((id) => id !== preset.id));
-        return prev.filter((existing) => !lower.includes(existing.toLowerCase()));
-      }
-      const additions = parts.filter(
-        (p) => !prev.some((existing) => existing.toLowerCase() === p.toLowerCase())
+    const selectedLower = effectiveSelectedPartKeySet;
+    const allAdded =
+      parts.every((part) => selectedLower.has(part.toLowerCase()));
+
+    if (allAdded) {
+      const presetLower = new Set(parts.map((part) => part.toLowerCase()));
+      const removedParts = parts;
+
+      removePartData(removedParts);
+      setSelectedParts((current) =>
+        current.filter((part) => !presetLower.has(part.toLowerCase()))
       );
-      if (additions.length === 0) {
-        return prev;
-      }
-      additions.forEach((p) => setExpandedParts((e) => ({ ...e, [p]: false })));
-      if (preset.id !== "whole") {
-        setExpandedPartGroups((groups) => {
-          const next = { ...groups };
-          additions.forEach((part) => {
-            next[partGroupKey(part)] = true;
-          });
-          return next;
+      return;
+    }
+
+    const additions = parts.filter((part) => !selectedLower.has(part.toLowerCase()));
+    if (additions.length === 0) return;
+
+    setExpandedParts((current) => {
+      const next = { ...current };
+      additions.forEach((part) => {
+        next[part] = false;
+      });
+      return next;
+    });
+
+    if (preset.id !== "whole") {
+      setExpandedPartGroups((current) => {
+        const next = { ...current };
+        additions.forEach((part) => {
+          next[partGroupKey(part)] = true;
         });
-      }
-      setSelectedPresetIds((current) =>
-        current.includes(preset.id) ? current : [...current, preset.id]
-      );
-      return [...prev, ...additions];
+        return next;
+      });
+    }
+
+    setSelectedParts((current) => {
+      const currentLower = new Set(current.map((part) => part.toLowerCase()));
+      const missing = parts.filter((part) => !currentLower.has(part.toLowerCase()));
+      return missing.length > 0 ? [...current, ...missing] : current;
     });
   }
 
@@ -1733,7 +1765,8 @@ function SellPageContent() {
 
   const publishLocked =
     locked ||
-    !phoneVerified;
+    !phoneVerified ||
+    (listingMode === "multiple" && publishListingCount === 0);
 
   /* =========================
      IMAGE UPLOAD
@@ -1938,7 +1971,7 @@ function SellPageContent() {
 
     }
 
-    if (listingMode === "multiple" && selectedParts.length === 0) {
+    if (listingMode === "multiple" && effectiveSelectedParts.length === 0) {
 
       setStatus(t.sellSelectOnePart);
 
@@ -1948,7 +1981,7 @@ function SellPageContent() {
 
     const plannedListingCount =
       listingMode === "multiple"
-        ? selectedParts.filter((p) => partPrices[p] || form.price).length
+        ? readyPublishListingCount
         : 1;
 
     const dbExtras = await getProfileExtraSlots(user.id);
@@ -2011,10 +2044,10 @@ function SellPageContent() {
 
     if (listingMode === "multiple") {
       // Only publish parts that have a price set (per-part or default)
-      const partsToPublish = selectedParts.filter(
+      const partsToPublish = effectiveSelectedParts.filter(
         (p) => partPrices[p] || form.price
       );
-      const skippedCount = selectedParts.length - partsToPublish.length;
+      const skippedCount = effectiveSelectedParts.length - partsToPublish.length;
 
       if (partsToPublish.length === 0) {
         setStatus(t.sellSetPriceRequired);
@@ -2564,15 +2597,12 @@ function SellPageContent() {
               <span className="field-label">{t.sellQuickPick}</span>
               <div className="preset-grid">
                 {partPresets.map((preset) => {
-                  const selectedPartKeys = new Set(
-                    selectedParts.map((part) => part.toLowerCase())
-                  );
                   const allAdded =
                     preset.parts.length > 0 &&
-                    preset.parts.every((p) => selectedPartKeys.has(p.toLowerCase()));
-                  const presetAdded = allAdded || selectedPresetIds.includes(preset.id);
+                    preset.parts.every((p) => effectiveSelectedPartKeySet.has(p.toLowerCase()));
+                  const presetAdded = allAdded;
                   const newCount = preset.parts.filter((p) =>
-                    !selectedPartKeys.has(p.toLowerCase())
+                    !effectiveSelectedPartKeySet.has(p.toLowerCase())
                   ).length;
                   const partial = !presetAdded && newCount < preset.parts.length;
                   const cardClass = ["preset-card", presetAdded ? "added" : "", partial ? "partial" : ""].filter(Boolean).join(" ");
@@ -2798,7 +2828,7 @@ function SellPageContent() {
                       <strong>{t.sellListingProducts}</strong>
                       <span>{t.sellAddAllParts}</span>
                     </div>
-                    <small>{selectedParts.length} {t.sellProductsCount}</small>
+                    <small>{publishListingCount} {t.sellProductsCount}</small>
                   </div>
 
                   <div className="multi-product-add">
@@ -2820,7 +2850,7 @@ function SellPageContent() {
                     </button>
                   </div>
 
-                  {selectedParts.length > 0 ? (
+                  {publishListingCount > 0 ? (
                     <div className="part-group-list">
                       {selectedPartGroups.map((group) => {
                         const groupOpen = expandedPartGroups[group.key] ?? false;
@@ -2855,7 +2885,7 @@ function SellPageContent() {
                         <div key={part} className={`part-card ${isPartExpanded ? "is-expanded" : "is-collapsed"}`}>
                           <div className="part-card-header">
                             <div className="part-card-label">
-                              <span className="part-card-index">{selectedParts.indexOf(part) + 1}</span>
+                              <span className="part-card-index">{effectiveSelectedParts.indexOf(part) + 1}</span>
                               <div className="part-card-title-group">
                                 {part.split(" / ").length > 1 && (
                                   <span className="part-card-category">
@@ -3150,12 +3180,12 @@ function SellPageContent() {
         </>)}
 
         {/* ── Total estimate (multiple mode) ── */}
-        {listingMode === "multiple" && selectedParts.length > 0 && (() => {
-          const total = selectedParts.reduce((sum, p) => {
+        {listingMode === "multiple" && publishListingCount > 0 && (() => {
+          const total = effectiveSelectedParts.reduce((sum, p) => {
             const price = partPrices[p] ? Number(partPrices[p]) : (form.price ? Number(form.price) : 0);
             return sum + price;
           }, 0);
-          const ready = selectedParts.filter((p) => partPrices[p] || form.price).length;
+          const ready = readyPublishListingCount;
           return total > 0 ? (
             <div className="sell-total-estimate">
               <span>{t.sellTotalEstimate} ({ready} {t.sellPartsCount}):</span>
@@ -3170,7 +3200,7 @@ function SellPageContent() {
           <button type="submit" className="sell-submit-btn" disabled={publishLocked}>
             <Check size={18} />
             {listingMode === "multiple"
-              ? `${t.publish} ${selectedParts.length}`
+              ? `${t.publish} ${publishListingCount}`
               : t.publish}
           </button>
         </div>
