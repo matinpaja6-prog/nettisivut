@@ -32783,3 +32783,172 @@ body .listing-detail-page .contact-card .phone-number:hover {
     font-size: clamp(20px, 6vw, 27px) !important;
   }
 }
+
+/* Desktop listing detail: match the same image-backed Arctic background as the mobile flow. */
+@media (min-width: 761px) {
+  body:has(.listing-detail-page) {
+    background:
+      linear-gradient(180deg, rgba(2, 12, 24, 0.58) 0%, rgba(3, 17, 32, 0.82) 46%, rgba(3, 17, 32, 0.95) 100%),
+      url("/keuliminen.png") center top / cover fixed no-repeat !important;
+  }
+
+  body .listing-detail-page {
+    background:
+      linear-gradient(180deg, rgba(2, 12, 24, 0.58) 0%, rgba(3, 17, 32, 0.82) 46%, rgba(3, 17, 32, 0.95) 100%),
+      url("/keuliminen.png") center top / cover fixed no-repeat !important;
+    isolation: isolate !important;
+    min-height: 100svh !important;
+    position: relative !important;
+  }
+
+  body .listing-detail-page::before {
+    background:
+      linear-gradient(90deg, rgba(2, 12, 24, 0.84) 0%, rgba(2, 12, 24, 0.42) 42%, rgba(2, 12, 24, 0.78) 100%),
+      linear-gradient(180deg, rgba(255, 137, 24, 0.1) 0%, transparent 26%) !important;
+    content: "" !important;
+    inset: 0 !important;
+    pointer-events: none !important;
+    position: fixed !important;
+    z-index: -1 !important;
+  }
+
+  body .listing-detail-page .topbar,
+  body .listing-detail-page .main,
+  body .listing-detail-page .description-card,
+  body .listing-detail-page .seller-card,
+  body .listing-detail-page .contact-card {
+    background:
+      linear-gradient(145deg, rgba(8, 35, 61, 0.5) 0%, rgba(4, 20, 38, 0.62) 100%) !important;
+    backdrop-filter: blur(12px) saturate(1.18) !important;
+    border-color: rgba(211, 232, 244, 0.24) !important;
+    box-shadow:
+      0 22px 48px rgba(0, 8, 20, 0.26),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+  }
+
+  body .listing-detail-page .title-row h1,
+  body .listing-detail-page .description-card h2,
+  body .listing-detail-page .contact-card h3,
+  body .listing-detail-page .listing-fact-grid strong {
+    color: #ffffff !important;
+  }
+
+  body .listing-detail-page .sub-info,
+  body .listing-detail-page .listing-id,
+  body .listing-detail-page .description-card p {
+    color: rgba(226, 239, 248, 0.84) !important;
+  }
+
+  body .listing-detail-page .listing-kicker span,
+  body .listing-detail-page .listing-fact-grid span {
+    background: rgba(4, 18, 34, 0.56) !important;
+    border-color: rgba(126, 197, 240, 0.22) !important;
+    color: #e6f1fb !important;
+  }
+
+  body .listing-detail-page .listing-section-toggle {
+    background:
+      linear-gradient(135deg, rgba(13, 54, 84, 0.9), rgba(6, 26, 48, 0.92)) !important;
+    border-color: rgba(126, 197, 240, 0.2) !important;
+    color: #ffffff !important;
+  }
+
+  body .listing-detail-page .listing-section-toggle svg {
+    color: #ff9a24 !important;
+  }
+
+  body .listing-detail-page .listing-section-content {
+    background:
+      linear-gradient(180deg, rgba(5, 24, 44, 0.62), rgba(3, 14, 27, 0.72)) !important;
+  }
+
+  body .listing-detail-page .price-display,
+  body .listing-detail-page .price-display * {
+    color: #ffffff !important;
+    text-shadow: 0 2px 12px rgba(0, 8, 20, 0.38) !important;
+  }
+}
+
+/* Mobile create-listing category cards: full-bleed image cards with fully readable labels. */
+@media (max-width: 640px) {
+  body .sell-container #sell-step-category .sell-category-card,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch {
+    aspect-ratio: auto !important;
+    background: rgba(3, 17, 32, 0.92) !important;
+    display: grid !important;
+    min-height: 188px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    position: relative !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card::before,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch::before,
+  body .sell-container #sell-step-category .sell-category-card-image::after,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-thumb::after {
+    display: none !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card::after,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch::after {
+    background:
+      linear-gradient(180deg, rgba(0, 8, 18, 0.02) 0%, rgba(0, 8, 18, 0.18) 42%, rgba(0, 8, 18, 0.88) 100%) !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-image,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-thumb {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    grid-area: 1 / 1 !important;
+    height: 100% !important;
+    inset: 0 !important;
+    min-height: 100% !important;
+    position: absolute !important;
+    width: 100% !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-image img,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-thumb img {
+    height: 100% !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-body,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-text {
+    align-self: end !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    grid-area: 1 / 1 !important;
+    min-height: 0 !important;
+    padding: 0 8px 11px !important;
+    position: relative !important;
+    width: 100% !important;
+    z-index: 2 !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-body strong,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-text strong {
+    color: #ffffff !important;
+    display: block !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    line-height: 1.08 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    overflow-wrap: normal !important;
+    text-overflow: clip !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.86) !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    -webkit-line-clamp: unset !important;
+    -webkit-box-orient: initial !important;
+  }
+}
