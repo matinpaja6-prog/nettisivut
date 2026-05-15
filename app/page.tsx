@@ -1050,13 +1050,23 @@ export default function Home() {
     router.push(`/listing/${listingId}`);
   }, [router, saveHomeReturnState]);
 
+  const handleSortChange = useCallback((value: string) => {
+    if (value === "recommendations") {
+      setRecommendationsMode(true);
+      setSort("Osuvimmat ensin");
+    } else if (sortValues.includes(value as SortValue)) {
+      setRecommendationsMode(false);
+      setSort(value as SortValue);
+    }
+
+    setCurrentPage(1);
+  }, []);
+
   useEffect(() => {
     try {
       if (sessionStorage.getItem(HOME_RETURN_PENDING_KEY) !== "1") return;
 
       const raw = sessionStorage.getItem(HOME_RETURN_STATE_KEY);
-      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
-
       if (!raw) return;
 
       const saved = JSON.parse(raw) as {
@@ -1077,6 +1087,8 @@ export default function Home() {
         currentPage?: number;
         scrollY?: number;
       };
+
+      if (saved.garageFilterId && garageVehicles.length === 0) return;
 
       setQuery(saved.query ?? "");
       setCategory(saved.category ?? "");
@@ -1101,6 +1113,8 @@ export default function Home() {
       if (typeof saved.scrollY === "number") {
         window.setTimeout(() => window.scrollTo(0, saved.scrollY || 0), 0);
       }
+
+      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
     } catch {
       sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
     }
@@ -2628,16 +2642,12 @@ export default function Home() {
                 <div className={styles.recoActions}>
                   <label className={styles.recoSortControl} aria-label={t.sort}>
                     <select
-                      value="recommendations-current"
-                      onChange={(e) => {
-                        setRecommendationsMode(false);
-                        setSort(e.target.value as SortValue);
-                        setCurrentPage(1);
-                      }}
+                      value={recommendationsEnabled ? "recommendations" : sort}
+                      onChange={(e) => handleSortChange(e.target.value)}
                     >
-                      <option value="recommendations-current" hidden>
-                        {sortLabel(sort)}
-                      </option>
+                    {canShowRecommendations ? (
+                      <option value="recommendations">{t.relevance}</option>
+                    ) : null}
                     {sortValues.map((value) => (
                         <option key={value} value={value}>
                           {sortLabel(value)}
@@ -2645,7 +2655,7 @@ export default function Home() {
                       ))}
                     </select>
                     <span className={styles.sortSelectFace} aria-hidden="true">
-                      {sortLabel(sort)}
+                      {recommendationsEnabled ? t.relevance : sortLabel(sort)}
                     </span>
                   </label>
                 <button
@@ -2805,32 +2815,20 @@ export default function Home() {
               <div className={styles.listingToolbar}>
                 <label className={styles.sectionSortControl}>
                   <select
-                    value={sort}
-                    onChange={(e) => {
-                      if (e.target.value === "recommendations") {
-                        setRecommendationsMode(true);
-                        setSort("Osuvimmat ensin");
-                      } else {
-                        setRecommendationsMode(false);
-                        setSort(e.target.value as SortValue);
-                      }
-                      setCurrentPage(1);
-                    }}
+                    value={recommendationsEnabled ? "recommendations" : sort}
+                    onChange={(e) => handleSortChange(e.target.value)}
                   >
-                    <option value={sort} hidden>
-                      {sortLabel(sort)}
-                    </option>
-                    {canShowRecommendations && !recommendationsEnabled ? (
-                      <option value="recommendations">Palaa suosituksiin</option>
+                    {canShowRecommendations ? (
+                      <option value="recommendations">{recommendationsEnabled ? t.relevance : "Palaa suosituksiin"}</option>
                     ) : null}
-                    {sortValues.filter((value) => value !== sort).map((value) => (
+                    {sortValues.map((value) => (
                       <option key={value} value={value}>
                         {sortLabel(value)}
                       </option>
                     ))}
                   </select>
                   <span className={styles.sortSelectFace} aria-hidden="true">
-                    {sortLabel(sort)}
+                    {recommendationsEnabled ? t.relevance : sortLabel(sort)}
                   </span>
                 </label>
               </div>
@@ -3060,11 +3058,12 @@ export default function Home() {
               <span className={styles.filtersLabel}>{t.sort}</span>
               <select
                 className={styles.select}
-                value={sort}
-                onChange={(e) =>
-                  setSort(e.target.value as SortValue)
-                }
+                value={recommendationsEnabled ? "recommendations" : sort}
+                onChange={(e) => handleSortChange(e.target.value)}
               >
+                {canShowRecommendations ? (
+                  <option value="recommendations">{t.relevance}</option>
+                ) : null}
                 {sortValues.map((value) => (
                   <option key={value} value={value}>
                     {sortLabel(value)}
@@ -3303,7 +3302,7 @@ export default function Home() {
             <button
               type="button"
               className={`${styles.mobileSortOption} ${styles.mobileSortOptionRestore}`}
-              onClick={() => { setRecommendationsMode(true); setSort("Osuvimmat ensin"); setCurrentPage(1); setSortSheetOpen(false); }}
+              onClick={() => { handleSortChange("recommendations"); setSortSheetOpen(false); }}
             >
               <span className={styles.mobileSortRadio}>
                 {recommendationsMode && sort === "Osuvimmat ensin" && <span className={styles.mobileSortRadioDot} />}
@@ -3311,18 +3310,17 @@ export default function Home() {
               Palaa suosituksiin
             </button>
             {sortValues
-              .filter((value) => !(value === sort && (!recommendationsMode || value !== "Osuvimmat ensin")))
               .map((value) => {
               const label = sortLabel(value);
               return (
                 <button
                   key={value}
                   type="button"
-                  className={`${styles.mobileSortOption}${sort === value ? ` ${styles.mobileSortOptionActive}` : ""}`}
-                  onClick={() => { setRecommendationsMode(false); setSort(value); setCurrentPage(1); setSortSheetOpen(false); }}
+                  className={`${styles.mobileSortOption}${!recommendationsEnabled && sort === value ? ` ${styles.mobileSortOptionActive}` : ""}`}
+                  onClick={() => { handleSortChange(value); setSortSheetOpen(false); }}
                 >
                   <span className={styles.mobileSortRadio}>
-                    {sort === value && <span className={styles.mobileSortRadioDot} />}
+                    {!recommendationsEnabled && sort === value && <span className={styles.mobileSortRadioDot} />}
                   </span>
                   {label}
                 </button>
