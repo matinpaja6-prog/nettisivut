@@ -1990,6 +1990,8 @@ export default function Home() {
     recommendationsMode &&
     sort === "Osuvimmat ensin";
 
+  const activeSortSelectValue = recommendationsEnabled ? "recommendations" : sort;
+
   const showRecoSection =
     recommendationsEnabled &&
     currentPage === 1;
@@ -2642,8 +2644,9 @@ export default function Home() {
                 <div className={styles.recoActions}>
                   <label className={styles.recoSortControl} aria-label={t.sort}>
                     <select
-                      value={recommendationsEnabled ? "recommendations" : sort}
+                      value={activeSortSelectValue}
                       onChange={(e) => handleSortChange(e.target.value)}
+                      onInput={(e) => handleSortChange(e.currentTarget.value)}
                     >
                     {canShowRecommendations ? (
                       <option value="recommendations">{t.relevance}</option>
@@ -2815,8 +2818,9 @@ export default function Home() {
               <div className={styles.listingToolbar}>
                 <label className={styles.sectionSortControl}>
                   <select
-                    value={recommendationsEnabled ? "recommendations" : sort}
+                    value={activeSortSelectValue}
                     onChange={(e) => handleSortChange(e.target.value)}
+                    onInput={(e) => handleSortChange(e.currentTarget.value)}
                   >
                     {canShowRecommendations ? (
                       <option value="recommendations">{recommendationsEnabled ? t.relevance : "Palaa suosituksiin"}</option>
@@ -3058,8 +3062,9 @@ export default function Home() {
               <span className={styles.filtersLabel}>{t.sort}</span>
               <select
                 className={styles.select}
-                value={recommendationsEnabled ? "recommendations" : sort}
+                value={activeSortSelectValue}
                 onChange={(e) => handleSortChange(e.target.value)}
+                onInput={(e) => handleSortChange(e.currentTarget.value)}
               >
                 {canShowRecommendations ? (
                   <option value="recommendations">{t.relevance}</option>

@@ -30814,6 +30814,73 @@ body .sell-container #sell-step-category .sell-subcategory-card-list.compact .se
   }
 }
 
+/* Create listing mobile: leaf cards without photos should match the clean blue selection buttons. */
+@media (max-width: 640px) {
+  body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-card.is-leaf {
+    align-items: center !important;
+    aspect-ratio: auto !important;
+    background:
+      radial-gradient(120px 62px at 100% 0%, rgba(255, 154, 36, 0.12), transparent 70%),
+      linear-gradient(145deg, rgba(13, 50, 78, 0.94), rgba(6, 25, 45, 0.98)) !important;
+    border: 1px solid rgba(126, 197, 240, 0.34) !important;
+    border-radius: 12px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 10px 20px rgba(0, 8, 20, 0.14) !important;
+    display: flex !important;
+    justify-content: center !important;
+    min-height: 68px !important;
+    overflow: hidden !important;
+    padding: 10px 8px !important;
+    text-align: center !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-card.is-leaf::before,
+  body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-card.is-leaf::after,
+  body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-card.is-leaf .sell-subcategory-text::before,
+  body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-card.is-leaf .sell-subcategory-text::after {
+    display: none !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-card.is-leaf .sell-subcategory-text {
+    align-self: center !important;
+    background: transparent !important;
+    display: block !important;
+    grid-area: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-card.is-leaf .sell-subcategory-text strong {
+    color: #ffffff !important;
+    display: block !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    line-height: 1.12 !important;
+    overflow: visible !important;
+    overflow-wrap: anywhere !important;
+    text-align: center !important;
+    text-shadow: none !important;
+    white-space: normal !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-card.is-leaf.active,
+  body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-card.is-leaf:hover,
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf.active,
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf:hover {
+    background:
+      radial-gradient(120px 62px at 100% 0%, rgba(255, 214, 170, 0.22), transparent 70%),
+      linear-gradient(145deg, rgba(255, 154, 36, 0.96), rgba(255, 112, 24, 0.98)) !important;
+    border-color: rgba(255, 232, 204, 0.82) !important;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.54),
+      0 12px 22px rgba(255, 112, 24, 0.16) !important;
+  }
+}
+
 /* Desktop listing final polish: clean heading, readable info panels and fixed image ratio. */
 @media (min-width: 1101px) {
   body .listing-detail-page .layout {

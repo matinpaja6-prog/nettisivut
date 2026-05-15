@@ -948,14 +948,16 @@ function SellPageContent() {
 
   function togglePart(part: string) {
     setSelectedParts((prev) => {
-      if (prev.includes(part)) {
-        setPartPrices((p) => { const n = { ...p }; delete n[part]; return n; });
-        setPartImages((p) => { const n = { ...p }; delete n[part]; return n; });
-        setPartTitles((p) => { const n = { ...p }; delete n[part]; return n; });
-        setPartDescriptions((p) => { const n = { ...p }; delete n[part]; return n; });
-        setPartConditions((p) => { const n = { ...p }; delete n[part]; return n; });
-        setExpandedParts((p) => { const n = { ...p }; delete n[part]; return n; });
-        return prev.filter((item) => item !== part);
+      const existingPart = prev.find((item) => item.toLowerCase() === part.toLowerCase());
+      if (existingPart) {
+        const partToRemove = existingPart;
+        setPartPrices((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
+        setPartImages((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
+        setPartTitles((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
+        setPartDescriptions((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
+        setPartConditions((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
+        setExpandedParts((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
+        return prev.filter((item) => item.toLowerCase() !== part.toLowerCase());
       }
       setExpandedParts((p) => ({ ...p, [part]: true }));
       setExpandedPartGroups((p) => ({ ...p, [partGroupKey(part)]: true }));
@@ -2551,13 +2553,14 @@ function SellPageContent() {
               <span className="field-label">{t.sellQuickPick}</span>
               <div className="preset-grid">
                 {partPresets.map((preset) => {
+                  const selectedPartKeys = new Set(
+                    selectedParts.map((part) => part.toLowerCase())
+                  );
                   const allAdded =
                     preset.parts.length > 0 &&
-                    preset.parts.every((p) =>
-                      selectedParts.some((s) => s.toLowerCase() === p.toLowerCase())
-                    );
+                    preset.parts.every((p) => selectedPartKeys.has(p.toLowerCase()));
                   const newCount = preset.parts.filter((p) =>
-                    !selectedParts.some((s) => s.toLowerCase() === p.toLowerCase())
+                    !selectedPartKeys.has(p.toLowerCase())
                   ).length;
                   const partial = !allAdded && newCount < preset.parts.length;
                   const cardClass = ["preset-card", allAdded ? "added" : "", partial ? "partial" : ""].filter(Boolean).join(" ");
@@ -2648,7 +2651,7 @@ function SellPageContent() {
                     const hasChildren = children.length > 0;
                     const isGroupLeafSelected = !hasChildren && (
                       listingMode === "multiple"
-                        ? selectedParts.includes(partKey(form.category, group))
+                        ? selectedParts.some((part) => part.toLowerCase() === partKey(form.category, group).toLowerCase())
                         : form.subcategory === group
                     );
                     const cardState =
@@ -2710,7 +2713,7 @@ function SellPageContent() {
                           const leafLabel = sub.includes(" / ") ? sub.split(" / ").slice(1).join(" / ") : sub;
                           const isSelected =
                             listingMode === "multiple"
-                              ? selectedParts.includes(partKey(form.category, sub))
+                              ? selectedParts.some((part) => part.toLowerCase() === partKey(form.category, sub).toLowerCase())
                               : form.subcategory === sub;
                           return (
                             <button
@@ -2746,7 +2749,7 @@ function SellPageContent() {
                     {subcategories.map((sub) => {
                       const isSelected =
                         listingMode === "multiple"
-                          ? selectedParts.includes(partKey(form.category, sub))
+                          ? selectedParts.some((part) => part.toLowerCase() === partKey(form.category, sub).toLowerCase())
                           : form.subcategory === sub;
 
                       return (
