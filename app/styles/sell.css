@@ -8604,11 +8604,9 @@ body .sell-container .preset-card {
     linear-gradient(145deg, rgba(10, 42, 68, 0.88), rgba(5, 23, 42, 0.94)) !important;
   border: 1px solid rgba(255, 137, 24, 0.88) !important;
   border-radius: 12px !important;
-  cursor: pointer !important;
   grid-template-columns: 58px minmax(0, 1fr) auto !important;
   min-height: 78px !important;
   padding: 12px !important;
-  user-select: none !important;
 }
 
 body .sell-container #sell-step-category .preset-card:hover,
@@ -8618,39 +8616,6 @@ body .sell-container .preset-card.added {
   background:
     linear-gradient(145deg, rgba(255, 137, 24, 0.16), rgba(9, 42, 68, 0.94)) !important;
   border-color: rgba(255, 169, 72, 0.96) !important;
-}
-
-body .sell-container #sell-step-category .preset-card[aria-disabled="true"],
-body .sell-container .preset-card[aria-disabled="true"] {
-  cursor: not-allowed !important;
-  opacity: 0.58 !important;
-}
-
-body .sell-container #sell-step-category .preset-card .preset-count,
-body .sell-container .preset-card .preset-count {
-  align-items: center !important;
-  appearance: none !important;
-  background: linear-gradient(145deg, #ff9d2e, #ff7017) !important;
-  border: 0 !important;
-  border-radius: 999px !important;
-  color: #ffffff !important;
-  cursor: pointer !important;
-  display: inline-flex !important;
-  font: inherit !important;
-  font-size: 12px !important;
-  font-weight: 950 !important;
-  justify-content: center !important;
-  line-height: 1 !important;
-  min-height: 30px !important;
-  padding: 8px 13px !important;
-  position: relative !important;
-  white-space: nowrap !important;
-  z-index: 20 !important;
-}
-
-body .sell-container #sell-step-category .preset-card.added .preset-count,
-body .sell-container .preset-card.added .preset-count {
-  background: linear-gradient(145deg, #ff7e1b, #e9560f) !important;
 }
 
 body .sell-container .preset-emoji {
@@ -8767,7 +8732,6 @@ body .sell-container .part-group {
   border: 1px solid rgba(82, 150, 196, 0.36) !important;
   border-radius: 16px !important;
   overflow: hidden !important;
-  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease !important;
 }
 
 body .sell-container .part-group.open {
@@ -8850,28 +8814,13 @@ body .sell-container .part-group-count {
 body .sell-container .part-group-action {
   background: linear-gradient(135deg, #ff9a24, #ff7418) !important;
   color: #ffffff !important;
-  cursor: pointer !important;
   padding: 7px 12px !important;
-  position: relative !important;
-  z-index: 4 !important;
 }
 
 body .sell-container .part-group-items {
-  animation: sellPartGroupReveal 180ms ease both !important;
   display: grid !important;
   gap: 10px !important;
   padding: 10px !important;
-}
-
-@keyframes sellPartGroupReveal {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 body .sell-container .part-group-items .part-card {
@@ -10451,37 +10400,4 @@ body .sell-container #sell-step-category .sell-subcategory-card.is-leaf.active {
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.52),
     0 12px 22px rgba(255, 112, 24, 0.16) !important;
-}
-
-/* Create listing: selected part cards show an orange status dot only when active. */
-body .sell-container #sell-step-category .sell-subcategory-card .sell-selection-dot {
-  background:
-    radial-gradient(circle at 35% 30%, #fff2dd 0 13%, transparent 14%),
-    linear-gradient(145deg, #ffad3d, #ff6f14) !important;
-  border: 2px solid rgba(255, 244, 228, 0.92) !important;
-  border-radius: 999px !important;
-  box-shadow:
-    0 0 0 4px rgba(255, 126, 25, 0.14),
-    0 8px 18px rgba(255, 112, 20, 0.34) !important;
-  display: none !important;
-  height: 16px !important;
-  pointer-events: none !important;
-  position: absolute !important;
-  right: 16px !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  width: 16px !important;
-  z-index: 5 !important;
-}
-
-body .sell-container #sell-step-category .sell-subcategory-card.active .sell-selection-dot {
-  display: block !important;
-}
-
-body .sell-container #sell-step-category .sell-subcategory-card.is-branch.active .sell-selection-dot {
-  right: 44px !important;
-}
-
-body .sell-container #sell-step-category .sell-subcategory-card:not(.active) .sell-selection-dot {
-  display: none !important;
 }
