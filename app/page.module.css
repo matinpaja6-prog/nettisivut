@@ -7104,3 +7104,28 @@
     width: 13px;
   }
 }
+
+/* Final seller strip cleanup: no gray seller capsule on listing cards. */
+.sellerRow,
+.sellerLink {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.sellerRow {
+  padding-top: 8px !important;
+}
+
+.sellerLink {
+  border-radius: 0 !important;
+}
+
+.sellerText,
+.sellerText strong,
+.sellerText small,
+.sellerSubName {
+  background: transparent !important;
+}

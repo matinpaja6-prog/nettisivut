@@ -31,6 +31,7 @@ import { trackListingView, setRecoUserId } from "@/lib/recommendations";
 import {
   getSavedListingIds,
   getListingById,
+  getListingDisplayNumber,
   incrementListingView,
   saveListing,
   supabase,
@@ -292,6 +293,9 @@ export default function ListingPage() {
   const [isLoggedIn, setIsLoggedIn] =
     useState(false);
 
+  const [listingDisplayNumber, setListingDisplayNumber] =
+    useState<number | null>(null);
+
   useEffect(() => {
     if (!supabase) {
       return;
@@ -334,6 +338,8 @@ export default function ListingPage() {
 
   useEffect(() => {
     let mounted = true;
+
+    setListingDisplayNumber(null);
 
     const fallback =
       fallbackListings.find(
@@ -420,6 +426,28 @@ export default function ListingPage() {
       setActiveImage(gallery[0]);
     }
   }, [gallery]);
+
+  useEffect(() => {
+    if (!listing) return;
+
+    let mounted = true;
+
+    getListingDisplayNumber(listing.created_at)
+      .then((number) => {
+        if (mounted) {
+          setListingDisplayNumber(number);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setListingDisplayNumber(null);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [listing]);
 
   useEffect(() => {
     if (!listing) return;
@@ -611,12 +639,6 @@ export default function ListingPage() {
             <div className="title-row">
 
               <div className="title-left">
-                <div className="listing-kicker">
-                  <span>{listing.condition ? translateConditionLabel(listing.condition) : ui.forSale}</span>
-                  <span>{listing.category ? translateCategory(locale, listing.category) : ui.part}</span>
-                  {listingPartNumber ? <span>OEM {listingPartNumber}</span> : null}
-                </div>
-
                 <h1>{listingText.title}</h1>
 
                 <div className="sub-info">
@@ -641,9 +663,15 @@ export default function ListingPage() {
                   </span>
 
                   <span className="listing-id">
-                    ID {listing.id}
+                    ID {listingDisplayNumber ?? "..."}
                   </span>
 
+                </div>
+
+                <div className="listing-kicker">
+                  <span>{listing.condition ? translateConditionLabel(listing.condition) : ui.forSale}</span>
+                  <span>{listing.category ? translateCategory(locale, listing.category) : ui.part}</span>
+                  {listingPartNumber ? <span>OEM {listingPartNumber}</span> : null}
                 </div>
 
               </div>
@@ -991,7 +1019,7 @@ export default function ListingPage() {
           display: flex;
           gap: 8px;
           flex-wrap: wrap;
-          margin-bottom: 12px;
+          margin: 18px 0 0;
         }
 
         .listing-kicker span {
@@ -1330,16 +1358,16 @@ export default function ListingPage() {
         }
 
         .seller-card-link {
-          border: 1px solid rgba(201, 247, 255, 0.2);
+          border: 1px solid rgba(201, 247, 255, 0.16);
           border-radius: 18px;
-          background: rgba(255, 255, 255, 0.08);
+          background: transparent;
           color: inherit;
           text-decoration: none;
           transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
         }
 
         .seller-card-link:hover {
-          background: rgba(255, 255, 255, 0.14);
+          background: rgba(201, 247, 255, 0.08);
           border-color: rgba(201, 247, 255, 0.34);
           transform: translateY(-1px);
         }

@@ -711,6 +711,9 @@ function SellPageContent() {
   const [images, setImages] =
     useState<string[]>([]);
 
+  const [previewImage, setPreviewImage] =
+    useState<string | null>(null);
+
   const [status, setStatus] =
     useState("");
 
@@ -2610,8 +2613,14 @@ function SellPageContent() {
 
                   {selectedParts.length > 0 ? (
                     <div className="part-cards part-cards-flat">
-                      {selectedParts.map((part) => (
-                        <div key={part} className="part-card">
+                      {selectedParts.map((part) => {
+                        const isPartExpanded = expandedParts[part] ?? false;
+                        const partPrice = partPrices[part]?.trim();
+                        const partNumber = partNumbers[part]?.trim();
+                        const partImageCount = partImages[part]?.length ?? 0;
+
+                        return (
+                        <div key={part} className={`part-card ${isPartExpanded ? "is-expanded" : "is-collapsed"}`}>
                           <div className="part-card-header">
                             <div className="part-card-label">
                               <span className="part-card-index">{selectedParts.indexOf(part) + 1}</span>
@@ -2624,6 +2633,13 @@ function SellPageContent() {
                                 <span className="part-card-name">
                                   {translateCategory(locale, part.split(" / ").pop() || part)}
                                 </span>
+                                {!isPartExpanded && (partPrice || partNumber || partImageCount > 0) ? (
+                                  <span className="part-card-summary">
+                                    {partPrice ? <small>{partPrice} €</small> : null}
+                                    {partNumber ? <small>{partNumber}</small> : null}
+                                    {partImageCount > 0 ? <small>{partImageCount} kuvaa</small> : null}
+                                  </span>
+                                ) : null}
                               </div>
                             </div>
                             <div className="part-card-header-actions">
@@ -2640,6 +2656,7 @@ function SellPageContent() {
                             </div>
                           </div>
 
+                          {isPartExpanded && (
                           <div className="part-card-quick">
                             <input
                               type="number"
@@ -2680,15 +2697,28 @@ function SellPageContent() {
                             </label>
                             {partImages[part]?.map((img, idx) => (
                               <span key={idx} className="part-img-thumb">
-                                <img src={img} alt={`kuva ${idx + 1}`} />
-                                <button type="button" onClick={() => removePartImage(part, idx)}>
+                                <button
+                                  type="button"
+                                  className="part-img-preview-btn"
+                                  onClick={() => setPreviewImage(img)}
+                                  aria-label={`Avaa kuva ${idx + 1}`}
+                                >
+                                  <img src={img} alt={`kuva ${idx + 1}`} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="part-img-remove"
+                                  onClick={() => removePartImage(part, idx)}
+                                  aria-label={`Poista kuva ${idx + 1}`}
+                                >
                                   <X size={10} />
                                 </button>
                               </span>
                             ))}
                           </div>
+                          )}
 
-                              {expandedParts[part] && (
+                          {isPartExpanded && (
                             <div className="part-card-details">
                               <label className="field-stack">
                                 <span className="field-label">{t.title}</span>
@@ -2721,7 +2751,8 @@ function SellPageContent() {
                             </div>
                           )}
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="multi-product-empty">
@@ -2883,6 +2914,28 @@ function SellPageContent() {
         </div>
 
         </>)}
+
+        {previewImage && (
+          <div className="part-image-preview-modal" role="dialog" aria-modal="true" aria-label="Kuvan esikatselu">
+            <button
+              type="button"
+              className="part-image-preview-backdrop"
+              onClick={() => setPreviewImage(null)}
+              aria-label="Sulje kuvan esikatselu"
+            />
+            <div className="part-image-preview-panel">
+              <img src={previewImage} alt="Tuotekuva isona" />
+              <button
+                type="button"
+                className="part-image-preview-close"
+                onClick={() => setPreviewImage(null)}
+                aria-label="Sulje"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+        )}
       </form>
       </div>
     </main>

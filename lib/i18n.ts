@@ -348,7 +348,7 @@ export const translations = {
     sellProductsCount: "tuotetta",
     sellAddCustomPartPh: "Lisää oma tuote, esim. kytkin",
     sellAddBtn: "Lisää",
-    sellCollapse: "▲ Pienennä",
+    sellCollapse: "▲ Supista",
     sellExpand: "▼ Muokkaa",
     sellTypicalPriceHint: "Tyypillinen hinta",
     sellAddImageTitle: "Lisää kuva",

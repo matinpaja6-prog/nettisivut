@@ -524,6 +524,27 @@ export async function incrementListingView(
 
 }
 
+export async function getListingDisplayNumber(createdAt?: string | null) {
+  if (!supabase || !createdAt) {
+    return null;
+  }
+
+  try {
+    const { count, error } = await supabase
+      .from("listings")
+      .select("id", { count: "exact", head: true })
+      .lte("created_at", createdAt);
+
+    if (error) {
+      return null;
+    }
+
+    return count ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getListingsBySeller(
   sellerId: string
 ) {
