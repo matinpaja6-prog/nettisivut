@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./styles/header.css";
+import "./styles/home.css";
+import "./styles/seller.css";
+import "./styles/workspace.css";
+import "./styles/chrome.css";
 import "./styles/auth.css";
 import "./styles/garage.css";
 import "./styles/legal.css";
