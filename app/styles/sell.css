@@ -10425,6 +10425,34 @@ body .sell-container .preset-card .preset-count {
   white-space: nowrap !important;
 }
 
+body .sell-container #sell-step-category .preset-toggle-card .preset-action-pill,
+body .sell-container .preset-toggle-card .preset-action-pill {
+  pointer-events: none !important;
+  flex: 0 0 auto !important;
+  align-self: center !important;
+  justify-self: end !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 66px !important;
+  min-height: 32px !important;
+  padding: 8px 13px !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  font-size: 0.78rem !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  background: linear-gradient(145deg, #ff9d2e, #ff7017) !important;
+  box-shadow: 0 10px 22px rgba(255, 112, 24, 0.22) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28) !important;
+}
+
+body .sell-container #sell-step-category .preset-toggle-card.added .preset-action-pill,
+body .sell-container .preset-toggle-card.added .preset-action-pill {
+  background: linear-gradient(145deg, #f56d18, #d94b0b) !important;
+}
+
 body .sell-container #sell-step-category .preset-card:not(.added):hover,
 body .sell-container .preset-card:not(.added):hover {
   background:

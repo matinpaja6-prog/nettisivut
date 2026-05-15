@@ -696,8 +696,8 @@ function SellPageContent() {
   const [selectedParts, setSelectedParts] =
     useState<string[]>([]);
 
-  const [selectedPresetIds, setSelectedPresetIds] =
-    useState<string[]>([]);
+  const [activePresetMap, setActivePresetMap] =
+    useState<Record<string, boolean>>({});
 
   const [selectedSubGroup, setSelectedSubGroup] = useState("");
 
@@ -823,7 +823,7 @@ function SellPageContent() {
   function resetPartSelection() {
     setSelectedSubGroup("");
     setSelectedParts([]);
-    setSelectedPresetIds([]);
+    setActivePresetMap({});
     setPartPrices({});
     setPartImages({});
     setPartTitles({});
@@ -861,7 +861,7 @@ function SellPageContent() {
       form,
       listingMode,
       selectedParts,
-      selectedPresetIds,
+      activePresetIds: Object.keys(activePresetMap).filter((id) => activePresetMap[id]),
       partPrices,
       partTitles,
       partDescriptions,
@@ -878,7 +878,7 @@ function SellPageContent() {
         localStorage.setItem(DRAFT_KEY, JSON.stringify(withoutImages));
       } catch {}
     }
-  }, [form, listingMode, selectedParts, selectedPresetIds, partPrices, partTitles, partDescriptions, partNumbers, partConditions, images, partImages]);
+  }, [form, listingMode, selectedParts, activePresetMap, partPrices, partTitles, partDescriptions, partNumbers, partConditions, images, partImages]);
 
   const currentCategories =
     vehicleTypeCategories[form.vehicleType] ?? vehicleTypeCategories.Moottorikelkka;
@@ -1585,9 +1585,9 @@ function SellPageContent() {
     };
   }
 
-  function applyPreset(preset: Preset) {
+  function togglePresetCard(preset: Preset) {
     const parts = preset.parts;
-    const presetIsSelected = selectedPresetIds.includes(preset.id);
+    const presetIsSelected = Boolean(activePresetMap[preset.id]);
     const removePartData = (removedParts: string[]) => {
       const removedLower = new Set(removedParts.map((part) => part.toLowerCase()));
       const cleanRecord = <T,>(record: Record<string, T>) =>
@@ -1615,7 +1615,11 @@ function SellPageContent() {
       getPresetMatch(preset, effectiveSelectedParts);
 
     if (presetIsSelected) {
-      setSelectedPresetIds((current) => current.filter((id) => id !== preset.id));
+      setActivePresetMap((current) => {
+        const next = { ...current };
+        delete next[preset.id];
+        return next;
+      });
       removePartData([...parts, ...selectedPresetParts]);
       setSelectedParts((current) =>
         current.filter((part) =>
@@ -1629,9 +1633,7 @@ function SellPageContent() {
     const currentLower = new Set(effectiveSelectedParts.map((part) => part.toLowerCase()));
     const additions = parts.filter((part) => !currentLower.has(part.toLowerCase()));
 
-    setSelectedPresetIds((current) =>
-      current.includes(preset.id) ? current : [...current, preset.id]
-    );
+    setActivePresetMap((current) => ({ ...current, [preset.id]: true }));
 
     if (additions.length === 0) return;
 
@@ -1660,8 +1662,8 @@ function SellPageContent() {
     });
   }
 
-  function isPresetActive(preset: Preset) {
-    return selectedPresetIds.includes(preset.id);
+  function isPresetCardActive(preset: Preset) {
+    return Boolean(activePresetMap[preset.id]);
   }
 
   /* =========================
@@ -2627,8 +2629,8 @@ function SellPageContent() {
               <span className="field-label">{t.sellQuickPick}</span>
               <div className="preset-grid">
                 {partPresets.map((preset) => {
-                  const presetAdded = isPresetActive(preset);
-                  const cardClass = ["preset-card", presetAdded ? "added" : ""].filter(Boolean).join(" ");
+                  const presetAdded = isPresetCardActive(preset);
+                  const cardClass = ["preset-card", "preset-toggle-card", presetAdded ? "added" : ""].filter(Boolean).join(" ");
                   return (
                     <button
                       key={preset.id}
@@ -2639,7 +2641,7 @@ function SellPageContent() {
                       data-preset-active={presetAdded ? "true" : "false"}
                       data-no-auto-translate=""
                       aria-pressed={presetAdded}
-                      onClick={() => applyPreset(preset)}
+                      onClick={() => togglePresetCard(preset)}
                       title={presetAdded ? t.sellPresetRemove : t.sellPresetAdd}
                     >
                       <span className="preset-emoji">
@@ -2649,6 +2651,9 @@ function SellPageContent() {
                         <strong>{preset.label}</strong>
                         <span>{preset.desc}</span>
                       </div>
+                      <span className="preset-action-pill" aria-hidden="true">
+                        {presetAdded ? t.sellPresetRemoveLabel : t.sellPresetAddLabel}
+                      </span>
                     </button>
                   );
                 })}
