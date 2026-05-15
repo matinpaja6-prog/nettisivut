@@ -696,12 +696,6 @@ function SellPageContent() {
   const [selectedParts, setSelectedParts] =
     useState<string[]>([]);
 
-  const [selectedPresetIds, setSelectedPresetIds] =
-    useState<string[]>([]);
-
-  const [presetButtonStates, setPresetButtonStates] =
-    useState<Record<string, boolean>>({});
-
   const [selectedSubGroup, setSelectedSubGroup] = useState("");
 
   const [partPrices, setPartPrices] =
@@ -843,8 +837,6 @@ function SellPageContent() {
       }
       setSelectedSubGroup("");
       setSelectedParts([]);
-      setSelectedPresetIds([]);
-      setPresetButtonStates({});
       setPartPrices({});
       setPartImages({});
       setPartTitles({});
@@ -967,21 +959,6 @@ function SellPageContent() {
         setPartNumbers((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setPartConditions((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setExpandedParts((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
-        setSelectedPresetIds((current) =>
-          current.filter((id) => {
-            const preset = partPresets.find((item) => item.id === id);
-            return !preset?.parts.some((presetPart) => presetPart.toLowerCase() === partToRemove.toLowerCase());
-          })
-        );
-        setPresetButtonStates((current) => {
-          const next = { ...current };
-          partPresets.forEach((preset) => {
-            if (preset.parts.some((presetPart) => presetPart.toLowerCase() === partToRemove.toLowerCase())) {
-              next[preset.id] = false;
-            }
-          });
-          return next;
-        });
         return prev.filter((item) => item.toLowerCase() !== part.toLowerCase());
       }
       setExpandedParts((p) => ({ ...p, [part]: true }));
@@ -1581,7 +1558,7 @@ function SellPageContent() {
     return Array.from(groups.values());
   })();
 
-  function applyPreset(preset: Preset) {
+  function getPresetMatch(preset: Preset, sourceParts: string[]) {
     const parts = preset.parts;
     const presetGroupKeys = new Set(parts.map((part) => partGroupKey(part).toLowerCase()));
     const canUseGroupFallback =
@@ -1590,6 +1567,22 @@ function SellPageContent() {
         otherPreset.id === preset.id ||
         !otherPreset.parts.some((part) => presetGroupKeys.has(partGroupKey(part).toLowerCase()))
       );
+    const presetLower = new Set(parts.map((part) => part.toLowerCase()));
+    const selectedPresetParts = sourceParts.filter((part) =>
+      presetLower.has(part.toLowerCase()) ||
+      (canUseGroupFallback && presetGroupKeys.has(partGroupKey(part).toLowerCase()))
+    );
+
+    return {
+      canUseGroupFallback,
+      presetGroupKeys,
+      presetLower,
+      selectedPresetParts
+    };
+  }
+
+  function applyPreset(preset: Preset) {
+    const parts = preset.parts;
     const removePartData = (removedParts: string[]) => {
       const removedLower = new Set(removedParts.map((part) => part.toLowerCase()));
       const cleanRecord = <T,>(record: Record<string, T>) =>
@@ -1613,79 +1606,46 @@ function SellPageContent() {
       });
     };
 
-    const presetLower = new Set(parts.map((part) => part.toLowerCase()));
-    const selectedLower = new Set(selectedParts.map((part) => part.toLowerCase()));
-    const selectedPresetParts = selectedParts.filter((part) =>
-      presetLower.has(part.toLowerCase()) ||
-      (canUseGroupFallback && presetGroupKeys.has(partGroupKey(part).toLowerCase()))
-    );
-    const presetAlreadyAdded =
-      presetButtonStates[preset.id] === true ||
-      selectedPresetIds.includes(preset.id) ||
-      parts.some((part) => selectedLower.has(part.toLowerCase())) ||
-      selectedPresetParts.length > 0;
+    setSelectedParts((current) => {
+      const { canUseGroupFallback, presetGroupKeys, presetLower, selectedPresetParts } =
+        getPresetMatch(preset, current);
+      const presetAlreadyAdded = selectedPresetParts.length > 0;
 
-    if (presetAlreadyAdded) {
-      setPresetButtonStates((current) => ({ ...current, [preset.id]: false }));
-      removePartData([...parts, ...selectedPresetParts]);
-      setSelectedPresetIds((current) => current.filter((id) => id !== preset.id));
-      setSelectedParts((current) =>
-        current.filter((part) =>
+      if (presetAlreadyAdded) {
+        removePartData([...parts, ...selectedPresetParts]);
+        return current.filter((part) =>
           !presetLower.has(part.toLowerCase()) &&
           !(canUseGroupFallback && presetGroupKeys.has(partGroupKey(part).toLowerCase()))
-        )
-      );
-      return;
-    }
+        );
+      }
 
-    setPresetButtonStates((current) => ({ ...current, [preset.id]: true }));
-    setSelectedPresetIds((current) =>
-      current.includes(preset.id) ? current : [...current, preset.id]
-    );
+      const currentLower = new Set(current.map((part) => part.toLowerCase()));
+      const additions = parts.filter((part) => !currentLower.has(part.toLowerCase()));
 
-    setExpandedParts((expanded) => {
-      const next = { ...expanded };
-      parts.forEach((part) => {
-        next[part] = false;
-      });
-      return next;
-    });
-
-    if (preset.id !== "whole") {
-      setExpandedPartGroups((groups) => {
-        const next = { ...groups };
-        parts.forEach((part) => {
-          next[partGroupKey(part)] = true;
+      setExpandedParts((expanded) => {
+        const next = { ...expanded };
+        additions.forEach((part) => {
+          next[part] = false;
         });
         return next;
       });
-    }
 
-    setSelectedParts((current) => {
-      const currentLower = new Set(current.map((part) => part.toLowerCase()));
-      const additions = parts.filter((part) => !currentLower.has(part.toLowerCase()));
+      if (preset.id !== "whole") {
+        setExpandedPartGroups((groups) => {
+          const next = { ...groups };
+          additions.forEach((part) => {
+            next[partGroupKey(part)] = true;
+          });
+          return next;
+        });
+      }
+
       return additions.length > 0 ? [...current, ...additions] : current;
     });
   }
 
   function isPresetActive(preset: Preset) {
-    if (presetButtonStates[preset.id] !== undefined) {
-      return presetButtonStates[preset.id];
-    }
-
-    const presetGroupKeys = new Set(preset.parts.map((part) => partGroupKey(part).toLowerCase()));
-    const canUseGroupFallback =
-      presetGroupKeys.size === 1 &&
-      partPresets.every((otherPreset) =>
-        otherPreset.id === preset.id ||
-        !otherPreset.parts.some((part) => presetGroupKeys.has(partGroupKey(part).toLowerCase()))
-      );
-    return (
-      selectedPresetIds.includes(preset.id) ||
-      preset.parts.some((part) => effectiveSelectedPartKeySet.has(part.toLowerCase())) ||
-      (canUseGroupFallback &&
-        effectiveSelectedParts.some((part) => presetGroupKeys.has(partGroupKey(part).toLowerCase())))
-    );
+    return getPresetMatch(preset, effectiveSelectedParts).selectedPresetParts.length > 0;
   }
 
   /* =========================
@@ -2119,8 +2079,6 @@ function SellPageContent() {
       // Auto-remove parts without a price from the UI so they don't reappear
       if (skippedCount > 0) {
         setSelectedParts(partsToPublish);
-        setSelectedPresetIds([]);
-        setPresetButtonStates({});
         const cleanupKeys = (obj: Record<string, unknown>) => {
           const next: Record<string, unknown> = {};
           for (const k of partsToPublish) {
@@ -2221,8 +2179,6 @@ function SellPageContent() {
       setForm(emptyListing);
       setListingMode("single");
       setSelectedParts([]);
-      setSelectedPresetIds([]);
-      setPresetButtonStates({});
       setPartPrices({});
       setPartImages({});
       setPartTitles({});
@@ -2412,7 +2368,7 @@ function SellPageContent() {
               type="button"
               disabled={locked}
               className={listingMode === "single" ? "sell-mode-card active" : "sell-mode-card"}
-              onClick={() => { setListingMode("single"); setSelectedParts([]); setSelectedPresetIds([]); setPresetButtonStates({}); setExpandedPartGroups({}); setTimeout(() => goToWizardStep("sell-step-vehicle"), 80); }}
+              onClick={() => { setListingMode("single"); setSelectedParts([]); setExpandedPartGroups({}); setTimeout(() => goToWizardStep("sell-step-vehicle"), 80); }}
             >
               <span className="sell-mode-icon">
                 <Package size={24} />
