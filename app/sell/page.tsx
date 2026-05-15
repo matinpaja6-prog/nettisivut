@@ -695,6 +695,9 @@ function SellPageContent() {
   const [selectedParts, setSelectedParts] =
     useState<string[]>([]);
 
+  const [selectedPresetIds, setSelectedPresetIds] =
+    useState<string[]>([]);
+
   const [selectedSubGroup, setSelectedSubGroup] = useState("");
 
   const [partPrices, setPartPrices] =
@@ -836,6 +839,7 @@ function SellPageContent() {
       }
       setSelectedSubGroup("");
       setSelectedParts([]);
+      setSelectedPresetIds([]);
       setPartPrices({});
       setPartImages({});
       setPartTitles({});
@@ -1483,6 +1487,24 @@ function SellPageContent() {
       )
       .filter((preset) => preset.parts.length > 0);
 
+  useEffect(() => {
+    setSelectedPresetIds((current) => {
+      const selectedPartKeys = new Set(selectedParts.map((part) => part.toLowerCase()));
+      const next = current.filter((id) => {
+        const preset = partPresets.find((item) => item.id === id);
+        return Boolean(
+          preset &&
+          preset.parts.length > 0 &&
+          preset.parts.every((part) => selectedPartKeys.has(part.toLowerCase()))
+        );
+      });
+
+      return next.length === current.length && next.every((id, index) => id === current[index])
+        ? current
+        : next;
+    });
+  }, [partPresets, selectedParts]);
+
   function getPresetVisual(preset: Preset) {
     if (preset.id === "whole") return vehicleCardData[form.vehicleType]?.img || "/vehicles/all.png";
     if (preset.id === "engine") return categoryMainVisuals["Moottori & voimansiirto"];
@@ -1528,6 +1550,7 @@ function SellPageContent() {
 
   function applyPreset(preset: Preset) {
     const parts = preset.parts;
+    const presetMarkedAdded = selectedPresetIds.includes(preset.id);
     const removePartData = (removedParts: string[]) => {
       const removedLower = new Set(removedParts.map((part) => part.toLowerCase()));
       const cleanRecord = <T,>(record: Record<string, T>) =>
@@ -1552,15 +1575,18 @@ function SellPageContent() {
     };
 
     setSelectedParts((prev) => {
-      const allAdded = parts.every((p) =>
-        prev.some((existing) => existing.toLowerCase() === p.toLowerCase())
-      );
+      const allAdded =
+        presetMarkedAdded ||
+        parts.every((p) =>
+          prev.some((existing) => existing.toLowerCase() === p.toLowerCase())
+        );
       if (allAdded) {
         const lower = parts.map((p) => p.toLowerCase());
         const removedParts = prev.filter((existing) =>
           lower.includes(existing.toLowerCase())
         );
         removePartData(removedParts);
+        setSelectedPresetIds((current) => current.filter((id) => id !== preset.id));
         return prev.filter((existing) => !lower.includes(existing.toLowerCase()));
       }
       const additions = parts.filter(
@@ -1579,6 +1605,9 @@ function SellPageContent() {
           return next;
         });
       }
+      setSelectedPresetIds((current) =>
+        current.includes(preset.id) ? current : [...current, preset.id]
+      );
       return [...prev, ...additions];
     });
   }
@@ -2559,11 +2588,12 @@ function SellPageContent() {
                   const allAdded =
                     preset.parts.length > 0 &&
                     preset.parts.every((p) => selectedPartKeys.has(p.toLowerCase()));
+                  const presetAdded = allAdded || selectedPresetIds.includes(preset.id);
                   const newCount = preset.parts.filter((p) =>
                     !selectedPartKeys.has(p.toLowerCase())
                   ).length;
-                  const partial = !allAdded && newCount < preset.parts.length;
-                  const cardClass = ["preset-card", allAdded ? "added" : "", partial ? "partial" : ""].filter(Boolean).join(" ");
+                  const partial = !presetAdded && newCount < preset.parts.length;
+                  const cardClass = ["preset-card", presetAdded ? "added" : "", partial ? "partial" : ""].filter(Boolean).join(" ");
                   return (
                     <button
                       key={preset.id}
@@ -2571,7 +2601,7 @@ function SellPageContent() {
                       disabled={locked}
                       className={cardClass}
                       onClick={() => applyPreset(preset)}
-                      title={allAdded ? t.sellPresetRemove : t.sellPresetAdd}
+                      title={presetAdded ? t.sellPresetRemove : t.sellPresetAdd}
                     >
                       <span className="preset-emoji">
                         <img src={getPresetVisual(preset)} alt="" />
@@ -2581,7 +2611,7 @@ function SellPageContent() {
                         <span>{preset.desc}</span>
                       </div>
                       <span className="preset-count">
-                        {allAdded ? t.sellPresetRemoveLabel : t.sellPresetAddLabel}
+                        {presetAdded ? t.sellPresetRemoveLabel : t.sellPresetAddLabel}
                       </span>
                     </button>
                   );
