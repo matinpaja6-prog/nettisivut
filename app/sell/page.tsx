@@ -1596,7 +1596,8 @@ function SellPageContent() {
     const presetLower = new Set(parts.map((part) => part.toLowerCase()));
     const presetAlreadyAdded =
       selectedPresetIds.includes(preset.id) ||
-      parts.every((part) => effectiveSelectedPartKeySet.has(part.toLowerCase()));
+      parts.some((part) => effectiveSelectedPartKeySet.has(part.toLowerCase())) ||
+      parts.some((part) => expandedPartGroups[partGroupKey(part)]);
 
     if (presetAlreadyAdded) {
       removePartData(parts);
@@ -2609,10 +2610,16 @@ function SellPageContent() {
               <span className="field-label">{t.sellQuickPick}</span>
               <div className="preset-grid">
                 {partPresets.map((preset) => {
-                  const allAdded =
-                    preset.parts.length > 0 &&
-                    preset.parts.every((p) => effectiveSelectedPartKeySet.has(p.toLowerCase()));
-                  const presetAdded = selectedPresetIds.includes(preset.id) || allAdded;
+                  const selectedCount = preset.parts.filter((p) =>
+                    effectiveSelectedPartKeySet.has(p.toLowerCase())
+                  ).length;
+                  const presetGroupOpen = preset.parts.some((p) =>
+                    expandedPartGroups[partGroupKey(p)]
+                  );
+                  const presetAdded =
+                    selectedPresetIds.includes(preset.id) ||
+                    selectedCount > 0 ||
+                    presetGroupOpen;
                   const newCount = preset.parts.filter((p) =>
                     !effectiveSelectedPartKeySet.has(p.toLowerCase())
                   ).length;
