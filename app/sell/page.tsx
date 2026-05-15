@@ -919,6 +919,16 @@ function SellPageContent() {
         )
       : null;
 
+  const directSubcategoryGroup =
+    form.category &&
+    currentSubcategoryGroups &&
+    Object.keys(currentSubcategoryGroups).length === 1 &&
+    currentSubcategoryGroups[form.category]?.length > 0
+      ? form.category
+      : "";
+
+  const activeSubcategoryGroup = selectedSubGroup || directSubcategoryGroup;
+
   function getSubCategoryVisual(name: string) {
     const leafName = name.includes(" / ") ? name.split(" / ").pop() || name : name;
     return (
@@ -1512,6 +1522,8 @@ function SellPageContent() {
       ? effectiveSelectedParts.length
       : 1;
 
+  const submitButtonListingCount = publishListingCount;
+
   const readyPublishListingCount =
     listingMode === "multiple"
       ? readyToPublishParts.length
@@ -2009,7 +2021,7 @@ function SellPageContent() {
 
     const plannedListingCount =
       listingMode === "multiple"
-        ? readyPublishListingCount
+        ? publishListingCount
         : 1;
 
     const dbExtras = await getProfileExtraSlots(user.id);
@@ -2703,73 +2715,86 @@ function SellPageContent() {
           {/* ── Sub-group navigation (3-level) ── */}
           {form.category && currentSubcategoryGroups ? (
             <>
-              <div className="field-stack">
-                <span className="field-label">{listingMode === "multiple" ? t.sellSelectProducts : t.detailedPart}</span>
-                <div className="sell-subcategory-card-list">
-                  {Object.entries(currentSubcategoryGroups).map(([group, children]) => {
-                    const hasChildren = children.length > 0;
-                    const isGroupLeafSelected = !hasChildren && (
-                      listingMode === "multiple"
-                        ? selectedParts.some((part) => part.toLowerCase() === partKey(form.category, group).toLowerCase())
-                        : form.subcategory === group
-                    );
-                    const cardState =
-                      selectedSubGroup === group
-                        ? "active"
-                        : isGroupLeafSelected
-                        ? "active"
-                        : "";
-                    const cardClass = [
-                      "sell-subcategory-card",
-                      hasChildren ? "is-branch" : "is-leaf",
-                      cardState
-                    ].filter(Boolean).join(" ");
+              {!directSubcategoryGroup && (
+                <div className="field-stack">
+                  <span className="field-label">{listingMode === "multiple" ? t.sellSelectProducts : t.detailedPart}</span>
+                  <div className="sell-subcategory-card-list">
+                    {Object.entries(currentSubcategoryGroups).map(([group, children]) => {
+                      const hasChildren = children.length > 0;
+                      const isGroupLeafSelected = !hasChildren && (
+                        listingMode === "multiple"
+                          ? selectedParts.some((part) => part.toLowerCase() === partKey(form.category, group).toLowerCase())
+                          : form.subcategory === group
+                      );
+                      const cardState =
+                        selectedSubGroup === group
+                          ? "active"
+                          : isGroupLeafSelected
+                          ? "active"
+                          : "";
+                      const cardClass = [
+                        "sell-subcategory-card",
+                        hasChildren ? "is-branch" : "is-leaf",
+                        cardState
+                      ].filter(Boolean).join(" ");
 
-                    return (
-                          <button
-                            key={group}
-                            type="button"
-                            disabled={locked}
-                            className={cardClass}
-                            onClick={() => {
-                              if (hasChildren) {
-                                setSelectedSubGroup(selectedSubGroup === group ? "" : group);
+                      return (
+                        <button
+                          key={group}
+                          type="button"
+                          disabled={locked}
+                          className={cardClass}
+                          onClick={() => {
+                            if (hasChildren) {
+                              setSelectedSubGroup(selectedSubGroup === group ? "" : group);
+                            } else {
+                              setSelectedSubGroup("");
+                              if (listingMode === "multiple") {
+                                togglePart(partKey(form.category, group));
                               } else {
-                                setSelectedSubGroup("");
-                                if (listingMode === "multiple") {
-                                  togglePart(partKey(form.category, group));
-                                } else {
-                                  setForm({
-                                    ...form,
-                                    subcategory: form.subcategory === group ? "" : group
-                                  });
-                                }
+                                setForm({
+                                  ...form,
+                                  subcategory: form.subcategory === group ? "" : group
+                                });
                               }
-                            }}
-                          >
-                            {getSubCategoryVisual(group) && (
-                              <span className="sell-subcategory-thumb">
-                                <img src={getSubCategoryVisual(group)} alt="" />
-                              </span>
-                            )}
-                            <span className="sell-subcategory-text">
-                              <strong>{translateCategory(locale, group)}</strong>
+                            }
+                          }}
+                        >
+                          {getSubCategoryVisual(group) && (
+                            <span className="sell-subcategory-thumb">
+                              <img src={getSubCategoryVisual(group)} alt="" />
                             </span>
-                            <span className="sell-selection-dot" aria-hidden="true" />
-                            {hasChildren && <ChevronRight size={18} />}
-                          </button>
-                        );
-                      })}
-                    </div>
+                          )}
+                          <span className="sell-subcategory-text">
+                            <strong>{translateCategory(locale, group)}</strong>
+                          </span>
+                          <span className="sell-selection-dot" aria-hidden="true" />
+                          {hasChildren && <ChevronRight size={18} />}
+                        </button>
+                      );
+                    })}
                   </div>
-                  {selectedSubGroup && (currentSubcategoryGroups[selectedSubGroup]?.length ?? 0) > 0 && (
+                </div>
+              )}
+                  {activeSubcategoryGroup && (currentSubcategoryGroups[activeSubcategoryGroup]?.length ?? 0) > 0 && (
                     <div className="field-stack subgroup-items">
                       <span className="field-label" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <button type="button" className="chip-back-btn" onClick={() => setSelectedSubGroup("")}>← Takaisin</button>
-                        <span>{translateCategory(locale, selectedSubGroup)}</span>
+                        <button
+                          type="button"
+                          className="chip-back-btn"
+                          onClick={() => {
+                            if (directSubcategoryGroup) {
+                              setForm({ ...form, category: "", subcategory: "" });
+                            }
+                            setSelectedSubGroup("");
+                          }}
+                        >
+                          ← Takaisin
+                        </button>
+                        <span>{translateCategory(locale, activeSubcategoryGroup)}</span>
                       </span>
                       <div className="sell-subcategory-card-list compact">
-                        {currentSubcategoryGroups[selectedSubGroup].map((sub) => {
+                        {currentSubcategoryGroups[activeSubcategoryGroup].map((sub) => {
                           const leafLabel = sub.includes(" / ") ? sub.split(" / ").slice(1).join(" / ") : sub;
                           const isSelected =
                             listingMode === "multiple"
@@ -2890,9 +2915,6 @@ function SellPageContent() {
                                 <small>{group.desc}</small>
                               </span>
                               <span className="part-group-count">{group.parts.length} tuotetta</span>
-                              <span className="part-group-action" aria-hidden="true">
-                                {groupOpen ? "Sulje" : "Avaa"}
-                              </span>
                             </button>
 
                             {groupOpen && (
@@ -3222,7 +3244,7 @@ function SellPageContent() {
           <button type="submit" className="sell-submit-btn" disabled={publishLocked}>
             <Check size={18} />
             {listingMode === "multiple"
-              ? `${t.publish} ${publishListingCount}`
+              ? `${t.publish} ${submitButtonListingCount}`
               : t.publish}
           </button>
         </div>
