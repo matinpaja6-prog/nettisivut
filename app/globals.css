@@ -30471,20 +30471,23 @@ body .sell-container .part-image-preview-close {
     display: grid !important;
     gap: 7px !important;
     grid-template-columns: 1fr !important;
-    grid-template-rows: 86px auto !important;
+    grid-template-rows: 1fr !important;
     justify-items: center !important;
-    min-height: 132px !important;
-    overflow: visible !important;
-    padding: 9px !important;
+    min-height: 102px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    position: relative !important;
     text-align: center !important;
   }
 
   body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-thumb {
-    border-radius: 10px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
     display: flex !important;
-    height: 86px !important;
+    grid-area: 1 / 1 !important;
+    height: 100% !important;
     margin: 0 !important;
-    min-height: 86px !important;
+    min-height: 102px !important;
     overflow: hidden !important;
     width: 100% !important;
   }
@@ -30496,19 +30499,27 @@ body .sell-container .part-image-preview-close {
   }
 
   body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-text {
+    align-self: end !important;
+    background:
+      linear-gradient(180deg, transparent, rgba(0, 8, 20, 0.94)) !important;
     display: block !important;
+    grid-area: 1 / 1 !important;
     margin: 0 !important;
     max-width: 100% !important;
     min-width: 0 !important;
     overflow: visible !important;
-    text-align: center !important;
+    padding: 28px 7px 8px !important;
+    position: relative !important;
+    text-align: left !important;
     width: 100% !important;
+    z-index: 1 !important;
   }
 
   body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-text strong {
     color: #ffffff !important;
     display: block !important;
-    font-size: 12px !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
     line-height: 1.15 !important;
     max-width: 100% !important;
     overflow: visible !important;
@@ -30519,6 +30530,210 @@ body .sell-container .part-image-preview-close {
 
   body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) .sell-subcategory-card > svg {
     display: none !important;
+  }
+}
+
+/* Mobile leaf category cards: smaller clean buttons, no center marker line. */
+@media (max-width: 640px) {
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact {
+    gap: 9px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf {
+    align-items: center !important;
+    background:
+      radial-gradient(120px 62px at 100% 0%, rgba(255, 154, 36, 0.12), transparent 70%),
+      linear-gradient(145deg, rgba(13, 50, 78, 0.94), rgba(6, 25, 45, 0.98)) !important;
+    border: 1px solid rgba(126, 197, 240, 0.3) !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    justify-content: center !important;
+    min-height: 54px !important;
+    padding: 10px 8px !important;
+    text-align: center !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf.active,
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf:hover {
+    background:
+      radial-gradient(120px 62px at 100% 0%, rgba(255, 154, 36, 0.2), transparent 70%),
+      linear-gradient(145deg, rgba(18, 58, 86, 0.96), rgba(8, 30, 52, 0.98)) !important;
+    border-color: rgba(255, 154, 36, 0.72) !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-text {
+    display: block !important;
+    width: 100% !important;
+  }
+
+body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-text strong {
+    color: #ffffff !important;
+    display: block !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    line-height: 1.15 !important;
+    overflow-wrap: anywhere !important;
+    text-align: center !important;
+    white-space: normal !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-text::after,
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf::before {
+    display: none !important;
+  }
+}
+
+/* Final listing image behavior: show product photos without harsh cropping. */
+body .listing-detail-page .image-wrapper {
+  background:
+    radial-gradient(520px 220px at 50% 0%, rgba(126, 197, 240, 0.12), transparent 70%),
+    linear-gradient(145deg, rgba(4, 18, 34, 0.98), rgba(2, 10, 20, 0.98)) !important;
+}
+
+body .listing-detail-page .main-img-button {
+  align-items: center !important;
+  aspect-ratio: 16 / 10 !important;
+  display: flex !important;
+  justify-content: center !important;
+  max-height: 620px !important;
+  min-height: 360px !important;
+  overflow: hidden !important;
+  width: 100% !important;
+}
+
+@media (min-width: 1101px) {
+  body .listing-detail-page .main {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  body .listing-detail-page .title-row {
+    background:
+      radial-gradient(420px 160px at 100% 0%, rgba(255, 154, 36, 0.1), transparent 70%),
+      linear-gradient(145deg, rgba(7, 35, 60, 0.96), rgba(4, 18, 34, 0.98)) !important;
+    border: 1px solid rgba(126, 197, 240, 0.24) !important;
+    border-radius: 14px !important;
+    margin-bottom: 12px !important;
+    padding: 18px 20px !important;
+  }
+
+  body .listing-detail-page .title-row h1 {
+    color: #ffffff !important;
+  }
+
+  body .listing-detail-page .title-row .sub-info {
+    display: none !important;
+  }
+
+  body .listing-detail-page .listing-kicker span {
+    background: rgba(255, 154, 36, 0.12) !important;
+    border-color: rgba(255, 154, 36, 0.35) !important;
+    color: #ffd2a1 !important;
+  }
+
+  body .listing-detail-page .desktop-image-meta {
+    color: rgba(226, 239, 248, 0.86) !important;
+    display: flex !important;
+    margin: 0 2px 8px !important;
+  }
+
+  body .listing-detail-page .desktop-image-meta strong {
+    color: #ffffff !important;
+  }
+
+  body .listing-detail-page .image-wrapper {
+    border-color: rgba(126, 197, 240, 0.2) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 18px 44px rgba(0, 8, 20, 0.28) !important;
+  }
+
+  body .listing-detail-page .main-img-button {
+    aspect-ratio: 16 / 9 !important;
+    max-height: 680px !important;
+    min-height: 520px !important;
+  }
+
+  body .listing-detail-page .main-img {
+    max-height: 680px !important;
+  }
+
+  body .listing-detail-page .image-badge {
+    background: rgba(5, 18, 32, 0.78) !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
+    color: #ffffff !important;
+    left: 16px !important;
+  }
+
+  body .listing-detail-page .thumbs {
+    display: flex !important;
+    gap: 6px !important;
+    margin-top: 8px !important;
+  }
+
+  body .listing-detail-page .thumbs img {
+    border-radius: 2px !important;
+    height: 62px !important;
+    object-fit: cover !important;
+    width: 86px !important;
+  }
+
+  body .listing-detail-page .price-actions-row {
+    margin-top: 12px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  body .listing-detail-page .desktop-image-meta {
+    display: none !important;
+  }
+}
+
+body .listing-detail-page .main-img {
+  height: 100% !important;
+  max-height: 620px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  width: 100% !important;
+}
+
+body .listing-detail-page .listing-image-preview-panel {
+  align-items: center !important;
+  display: flex !important;
+  justify-content: center !important;
+  max-height: 92vh !important;
+  max-width: 92vw !important;
+}
+
+body .listing-detail-page .listing-image-preview-panel img {
+  height: auto !important;
+  max-height: 92vh !important;
+  max-width: 92vw !important;
+  object-fit: contain !important;
+  width: auto !important;
+}
+
+@media (max-width: 760px) {
+  body .listing-detail-page .main-img-button {
+    aspect-ratio: 4 / 3 !important;
+    max-height: 430px !important;
+    min-height: 250px !important;
+  }
+
+  body .listing-detail-page .main-img {
+    height: 100% !important;
+    max-height: 430px !important;
+    object-fit: contain !important;
+    width: 100% !important;
+  }
+
+  body .listing-detail-page .listing-image-preview-panel,
+  body .listing-detail-page .listing-image-preview-panel img {
+    max-height: 90vh !important;
+    max-width: 94vw !important;
   }
 }
 
@@ -30577,6 +30792,67 @@ body .sell-container .part-image-preview-close {
     margin-left: auto !important;
     margin-right: auto !important;
     width: 100% !important;
+  }
+}
+
+/* Final mobile sell products alignment: keep all whole-vehicle groups visible and centered. */
+@media (max-width: 640px) {
+  body .sell-container #sell-step-category,
+  body .sell-container #sell-step-category .part-presets,
+  body .sell-container #sell-step-category .preset-grid,
+  body .sell-container .part-presets,
+  body .sell-container .preset-grid,
+  body .sell-container .multi-products-box,
+  body .sell-container .part-group-list,
+  body .sell-container .part-group,
+  body .sell-container .part-group-items {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  body .sell-container .multi-products-box {
+    box-sizing: border-box !important;
+    margin: 16px auto 0 !important;
+    max-width: 330px !important;
+    padding: 16px !important;
+    width: 100% !important;
+  }
+
+  body .sell-container .multi-products-head {
+    align-items: center !important;
+    justify-items: center !important;
+    text-align: center !important;
+  }
+
+  body .sell-container .multi-products-head div,
+  body .sell-container .multi-products-head span {
+    margin-inline: auto !important;
+    text-align: center !important;
+  }
+
+  body .sell-container .multi-products-head small {
+    justify-self: center !important;
+  }
+
+  body .sell-container .multi-product-add,
+  body .sell-container .part-group-list {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 300px !important;
+    width: 100% !important;
+  }
+
+  body .sell-container .part-group-toggle {
+    grid-template-columns: 48px minmax(0, 1fr) auto !important;
+    min-height: 78px !important;
+    padding: 10px 10px 10px 12px !important;
+  }
+
+  body .sell-container .part-group-text strong,
+  body .sell-container .part-group-text small {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 }
 
@@ -31301,5 +31577,201 @@ body .listing-detail-page .listing-section-content.is-collapsed {
     border: 0 !important;
     border-radius: 0 !important;
     padding: 4px 16px 12px !important;
+  }
+}
+
+/* Final mobile listing polish: dark Arctic accordions, full image, cleaner actions. */
+@media (max-width: 760px) {
+  body .listing-detail-page .mobile-listing-id {
+    display: block !important;
+  }
+
+  body .listing-detail-page .sub-info .listing-id,
+  body .listing-detail-page .sub-info .dot:last-of-type {
+    display: none !important;
+  }
+
+  body .listing-detail-page .image-wrapper {
+    background: rgba(4, 18, 34, 0.92) !important;
+    border-color: rgba(255, 154, 36, 0.32) !important;
+    overflow: hidden !important;
+    touch-action: pan-y !important;
+  }
+
+  body .listing-detail-page .main-img-button {
+    display: block !important;
+    height: 100% !important;
+    line-height: 0 !important;
+    touch-action: pan-y !important;
+    width: 100% !important;
+  }
+
+  body .listing-detail-page .main-img {
+    border-radius: 0 !important;
+    display: block !important;
+    height: clamp(260px, 72vw, 360px) !important;
+    min-height: 260px !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    width: 100% !important;
+  }
+
+  body .listing-detail-page .price-actions-row {
+    margin-bottom: 8px !important;
+    padding: 12px 18px 14px !important;
+  }
+
+  body .listing-detail-page .image-actions {
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+  }
+
+  body .listing-detail-page .image-actions .icon-btn {
+    display: none !important;
+  }
+
+  body .listing-detail-page .listing-kicker {
+    display: none !important;
+  }
+
+  body .listing-detail-page .description-card {
+    background:
+      radial-gradient(260px 120px at 100% 0%, rgba(255, 154, 36, 0.13), transparent 72%),
+      linear-gradient(145deg, rgba(7, 35, 60, 0.98), rgba(4, 18, 34, 0.99)) !important;
+    border: 1px solid rgba(255, 154, 36, 0.28) !important;
+    border-radius: 10px !important;
+    box-shadow:
+      0 16px 34px rgba(0, 8, 20, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    overflow: hidden !important;
+  }
+
+  body .listing-detail-page .listing-section-toggle {
+    background:
+      linear-gradient(135deg, rgba(13, 54, 84, 0.98), rgba(6, 26, 48, 0.98)) !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(126, 197, 240, 0.18) !important;
+    border-radius: 0 !important;
+    color: #ffffff !important;
+    min-height: 48px !important;
+    padding: 14px 16px !important;
+  }
+
+  body .listing-detail-page .listing-section-toggle[aria-expanded="false"] {
+    border-bottom: 0 !important;
+  }
+
+  body .listing-detail-page .listing-section-toggle svg {
+    color: #ff9a24 !important;
+  }
+
+  body .listing-detail-page .listing-extra-card .listing-section-content,
+  body .listing-detail-page .listing-facts-card .listing-section-content {
+    background:
+      linear-gradient(180deg, rgba(5, 24, 44, 0.92), rgba(3, 14, 27, 0.96)) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  body .listing-detail-page .listing-fact-grid {
+    padding: 6px 16px 12px !important;
+  }
+
+  body .listing-detail-page .listing-fact-grid span {
+    border-bottom-color: rgba(126, 197, 240, 0.15) !important;
+    color: #ffffff !important;
+    gap: 12px !important;
+  }
+
+  body .listing-detail-page .listing-fact-grid strong {
+    color: rgba(126, 197, 240, 0.88) !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+  }
+
+  body .listing-detail-page .listing-extra-card p {
+    color: rgba(226, 239, 248, 0.9) !important;
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+    padding: 15px 16px 17px !important;
+  }
+
+  body .listing-detail-page .seller-card,
+  body .listing-detail-page .contact-card {
+    background:
+      radial-gradient(260px 120px at 100% 0%, rgba(255, 154, 36, 0.12), transparent 74%),
+      linear-gradient(145deg, rgba(7, 35, 60, 0.98), rgba(4, 18, 34, 0.99)) !important;
+    border-color: rgba(255, 154, 36, 0.25) !important;
+  }
+
+  body .listing-detail-page .seller-profile-btn {
+    background:
+      linear-gradient(135deg, rgba(255, 154, 36, 0.95), rgba(255, 112, 24, 0.95)) !important;
+    border: 1px solid rgba(255, 218, 184, 0.5) !important;
+    box-shadow: 0 10px 22px rgba(255, 112, 24, 0.18) !important;
+    color: #ffffff !important;
+  }
+
+  body .listing-detail-page .seller-employee-name {
+    background: rgba(4, 18, 34, 0.72) !important;
+    border-color: rgba(126, 197, 240, 0.24) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  }
+
+  body .listing-detail-page .listing-image-preview {
+    padding: 14px !important;
+  }
+
+  body .listing-detail-page .listing-image-preview-panel {
+    border-radius: 12px !important;
+    max-height: 88vh !important;
+    touch-action: pan-y !important;
+  }
+
+  body .listing-detail-page .listing-image-preview-panel img {
+    max-height: 88vh !important;
+    object-fit: contain !important;
+    touch-action: pan-y !important;
+  }
+}
+
+/* Absolute final mobile deepest category buttons: names must be readable. */
+@media (max-width: 640px) {
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact {
+    display: grid !important;
+    gap: 9px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100% !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf {
+    align-items: center !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    justify-content: center !important;
+    min-height: 58px !important;
+    padding: 10px 8px !important;
+    width: 100% !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-text {
+    display: block !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-text strong {
+    display: block !important;
+    font-size: 10.5px !important;
+    line-height: 1.18 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    overflow-wrap: anywhere !important;
+    text-align: center !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-break: normal !important;
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import type { TouchEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -17,7 +18,8 @@ import {
   LockKeyhole,
   Share2,
   UserRound,
-  X
+  X,
+  ZoomIn
 } from "lucide-react";
 
 import {
@@ -318,6 +320,12 @@ export default function ListingPage() {
   const [listingDisplayNumber, setListingDisplayNumber] =
     useState<number | null>(null);
 
+  const swipeStartXRef =
+    useRef<number | null>(null);
+
+  const swipeMovedRef =
+    useRef(false);
+
   useEffect(() => {
     if (!previewImage) return;
 
@@ -468,6 +476,46 @@ export default function ListingPage() {
       setActiveImage(gallery[0]);
     }
   }, [gallery]);
+
+  const activeImageIndex =
+    activeImage ? gallery.indexOf(activeImage) : -1;
+
+  const switchGalleryImage = (direction: 1 | -1) => {
+    if (gallery.length < 2) return;
+
+    const currentIndex =
+      activeImageIndex >= 0 ? activeImageIndex : 0;
+    const nextIndex =
+      (currentIndex + direction + gallery.length) % gallery.length;
+    const nextImage = gallery[nextIndex];
+
+    setActiveImage(nextImage);
+
+    if (previewImage) {
+      setPreviewImage(nextImage);
+    }
+  };
+
+  const startImageSwipe = (event: TouchEvent) => {
+    swipeStartXRef.current =
+      event.touches[0]?.clientX ?? null;
+  };
+
+  const finishImageSwipe = (event: TouchEvent) => {
+    const startX = swipeStartXRef.current;
+
+    if (startX === null) return;
+
+    const endX = event.changedTouches[0]?.clientX ?? startX;
+    const distance = endX - startX;
+
+    swipeStartXRef.current = null;
+
+    if (Math.abs(distance) < 38) return;
+
+    swipeMovedRef.current = true;
+    switchGalleryImage(distance < 0 ? 1 : -1);
+  };
 
   useEffect(() => {
     if (!listing) return;
@@ -732,13 +780,34 @@ export default function ListingPage() {
 
             {/* IMAGE */}
 
+            <div className="desktop-image-meta">
+              <span>
+                {ui.updated} {formatDate(listing.created_at, locale)}
+              </span>
+              <span className="dot">•</span>
+              <span className="desktop-meta-location">
+                {listing.location}
+                <MapPin size={15} />
+              </span>
+              <strong>ID {listingDisplayNumber ?? "..."}</strong>
+            </div>
+
             <div className="image-wrapper">
 
               {activeImage && (
                 <button
                   type="button"
                   className="main-img-button"
-                  onClick={() => setPreviewImage(activeImage)}
+                  onClick={() => {
+                    if (swipeMovedRef.current) {
+                      swipeMovedRef.current = false;
+                      return;
+                    }
+
+                    setPreviewImage(activeImage);
+                  }}
+                  onTouchStart={startImageSwipe}
+                  onTouchEnd={finishImageSwipe}
                   aria-label="Avaa kuva suurempana"
                 >
                   <img
@@ -752,6 +821,17 @@ export default function ListingPage() {
               <div className="image-badge">
                 {gallery.length} {gallery.length === 1 ? ui.imageSingular : ui.imagePlural}
               </div>
+
+              {activeImage && (
+                <button
+                  type="button"
+                  className="image-zoom-button"
+                  onClick={() => setPreviewImage(activeImage)}
+                  aria-label="Avaa kuva suurempana"
+                >
+                  <ZoomIn size={20} />
+                </button>
+              )}
             </div>
 
             {/* PRICE + ACTIONS ROW */}
@@ -1033,7 +1113,12 @@ export default function ListingPage() {
             aria-label="Sulje kuvan esikatselu"
           />
           <div className="listing-image-preview-panel">
-            <img src={previewImage} alt={listingText.title} />
+            <img
+              src={previewImage}
+              alt={listingText.title}
+              onTouchStart={startImageSwipe}
+              onTouchEnd={finishImageSwipe}
+            />
             <button
               type="button"
               className="listing-image-preview-close"
@@ -1234,6 +1319,30 @@ export default function ListingPage() {
           background: #e2e8f0;
         }
 
+        .desktop-image-meta {
+          align-items: center;
+          color: rgba(11, 26, 58, 0.72);
+          display: flex;
+          font-size: 15px;
+          font-weight: 750;
+          gap: 10px;
+          margin: 0 4px 10px;
+        }
+
+        .desktop-image-meta strong {
+          color: #071827;
+          font-size: 16px;
+          font-weight: 950;
+          margin-left: auto;
+          white-space: nowrap;
+        }
+
+        .desktop-meta-location {
+          align-items: center;
+          display: inline-flex;
+          gap: 5px;
+        }
+
         .image-wrapper::after {
           content: "";
           position: absolute;
@@ -1273,6 +1382,23 @@ export default function ListingPage() {
           font-size: 13px;
           font-weight: 950;
           backdrop-filter: blur(10px);
+        }
+
+        .image-zoom-button {
+          align-items: center;
+          background: rgba(5, 18, 32, 0.72);
+          border: 1px solid rgba(255, 255, 255, 0.26);
+          border-radius: 999px;
+          color: #ffffff;
+          cursor: pointer;
+          display: inline-flex;
+          height: 40px;
+          justify-content: center;
+          position: absolute;
+          right: 14px;
+          top: 14px;
+          width: 40px;
+          z-index: 3;
         }
 
         .price-actions-row {

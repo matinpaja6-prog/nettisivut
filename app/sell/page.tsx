@@ -1663,18 +1663,55 @@ function SellPageContent() {
      IMAGE UPLOAD
   ========================= */
 
+  const imageFileAccept =
+    "image/jpeg,image/png,image/webp,image/gif,image/avif,image/heic,image/heif";
+
+  const videoBlockedStatus =
+    "Videoita ei voi julkaista myynti-ilmoitukseen. Valitse kuvatiedosto.";
+
+  function isAllowedImageFile(file: File) {
+    const allowedTypes =
+      new Set([
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+        "image/avif",
+        "image/heic",
+        "image/heif"
+      ]);
+    const allowedExtensions =
+      /\.(jpe?g|png|webp|gif|avif|heic|heif)$/i;
+
+    if (file.type.startsWith("video/")) {
+      return false;
+    }
+
+    if (file.type) {
+      return allowedTypes.has(file.type);
+    }
+
+    return allowedExtensions.test(file.name);
+  }
+
+  function hasVideoMediaSource(values: string[]) {
+    return values.some((value) =>
+      value.startsWith("data:video/") ||
+      value.startsWith("blob:video/") ||
+      /\.(mp4|mov|m4v|webm|avi|mkv)(?:$|[?#])/i.test(value)
+    );
+  }
+
   function handleImageUpload(
     file: File | undefined
   ) {
 
     if (!file) return;
 
-    if (
-      !file.type.startsWith("image/")
-    ) {
+    if (!isAllowedImageFile(file)) {
 
       setStatus(
-        "Valitse kuvatiedosto."
+        videoBlockedStatus
       );
 
       return;
@@ -1713,8 +1750,8 @@ function SellPageContent() {
 
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setStatus(t.selectImageFile);
+    if (!isAllowedImageFile(file)) {
+      setStatus(videoBlockedStatus);
       return;
     }
 
@@ -1884,6 +1921,14 @@ function SellPageContent() {
     ].filter(Boolean);
 
     const baseDescription = form.description.trim();
+
+    if (
+      hasVideoMediaSource(images) ||
+      Object.values(partImages).some((partImageList) => hasVideoMediaSource(partImageList))
+    ) {
+      setStatus(videoBlockedStatus);
+      return;
+    }
 
     if (listingMode === "multiple") {
       // Only publish parts that have a price set (per-part or default)
@@ -2761,7 +2806,7 @@ function SellPageContent() {
                               ) : null}
                               <input
                                 type="file"
-                                accept="image/*"
+                                accept={imageFileAccept}
                                 style={{ display: "none" }}
                                 onChange={(e) => handlePartImageUpload(part, e.target.files?.[0])}
                               />
@@ -2936,7 +2981,7 @@ function SellPageContent() {
             <ImagePlus size={28} />
             <strong>{t.uploadImages}</strong>
             <span>PNG, JPG, WEBP</span>
-            <input type="file" accept="image/*" disabled={locked} onChange={(e) => handleImageUpload(e.target.files?.[0])} />
+            <input type="file" accept={imageFileAccept} disabled={locked} onChange={(e) => handleImageUpload(e.target.files?.[0])} />
           </label>
           {images.length > 0 && (
             <div className="image-grid">

@@ -347,6 +347,7 @@ export async function getListings() {
       "original_language",
       "translations",
       "part_number",
+      "image_urls",
       "company_name",
       "seller_avatar_url",
       "seller_email",

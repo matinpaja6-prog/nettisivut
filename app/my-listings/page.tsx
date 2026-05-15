@@ -426,8 +426,24 @@ export default function MyListingsPage() {
   function handleListingImageUpload(file: File | undefined) {
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setStatus(t.selectImageFile);
+    const allowedImageTypes =
+      new Set([
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+        "image/avif",
+        "image/heic",
+        "image/heif"
+      ]);
+    const allowedImageExtension =
+      /\.(jpe?g|png|webp|gif|avif|heic|heif)$/i;
+
+    if (
+      file.type.startsWith("video/") ||
+      (file.type ? !allowedImageTypes.has(file.type) : !allowedImageExtension.test(file.name))
+    ) {
+      setStatus("Videoita ei voi julkaista myynti-ilmoitukseen. Valitse kuvatiedosto.");
       return;
     }
 
@@ -487,6 +503,18 @@ export default function MyListingsPage() {
     setStatus(pageText.saving);
 
     const nextImages = listingForm.image_urls.filter(Boolean);
+
+    if (
+      nextImages.some((value) =>
+        value.startsWith("data:video/") ||
+        value.startsWith("blob:video/") ||
+        /\.(mp4|mov|m4v|webm|avi|mkv)(?:$|[?#])/i.test(value)
+      )
+    ) {
+      setStatus("Videoita ei voi julkaista myynti-ilmoitukseen. Valitse kuvatiedosto.");
+      return;
+    }
+
     const nextMainImage =
       nextImages[0] ||
       listingForm.image_url ||
@@ -1382,7 +1410,7 @@ export default function MyListingsPage() {
                             <span>PNG, JPG, WEBP</span>
                             <input
                               type="file"
-                              accept="image/*"
+                              accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/heic,image/heif"
                               onChange={(event) => {
                                 handleListingImageUpload(event.target.files?.[0]);
                                 event.currentTarget.value = "";

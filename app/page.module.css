@@ -7178,7 +7178,7 @@
   .listingToolbar {
     grid-column: 1 !important;
     grid-row: auto !important;
-    justify-content: flex-start !important;
+    justify-content: flex-end !important;
     margin: 0 !important;
     width: 100% !important;
   }

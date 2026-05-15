@@ -27,9 +27,6 @@ const fallbackCardImage =
 
 function safeImageSrc(src: string | undefined | null) {
   if (!src) return fallbackCardImage;
-  if (src.startsWith("data:image/") && src.length > 250_000) {
-    return fallbackCardImage;
-  }
   return src;
 }
 
