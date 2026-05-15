@@ -1583,46 +1583,38 @@ function SellPageContent() {
       });
     };
 
-    const selectedLower = effectiveSelectedPartKeySet;
-    const allAdded =
-      parts.every((part) => selectedLower.has(part.toLowerCase()));
-
-    if (allAdded) {
+    setSelectedParts((current) => {
+      const currentLower = new Set(current.map((part) => part.toLowerCase()));
       const presetLower = new Set(parts.map((part) => part.toLowerCase()));
-      const removedParts = parts;
+      const allAdded = parts.every((part) => currentLower.has(part.toLowerCase()));
 
-      removePartData(removedParts);
-      setSelectedParts((current) =>
-        current.filter((part) => !presetLower.has(part.toLowerCase()))
-      );
-      return;
-    }
+      if (allAdded) {
+        removePartData(parts);
+        return current.filter((part) => !presetLower.has(part.toLowerCase()));
+      }
 
-    const additions = parts.filter((part) => !selectedLower.has(part.toLowerCase()));
-    if (additions.length === 0) return;
+      const additions = parts.filter((part) => !currentLower.has(part.toLowerCase()));
+      if (additions.length === 0) return current;
 
-    setExpandedParts((current) => {
-      const next = { ...current };
-      additions.forEach((part) => {
-        next[part] = false;
-      });
-      return next;
-    });
-
-    if (preset.id !== "whole") {
-      setExpandedPartGroups((current) => {
-        const next = { ...current };
+      setExpandedParts((expanded) => {
+        const next = { ...expanded };
         additions.forEach((part) => {
-          next[partGroupKey(part)] = true;
+          next[part] = false;
         });
         return next;
       });
-    }
 
-    setSelectedParts((current) => {
-      const currentLower = new Set(current.map((part) => part.toLowerCase()));
-      const missing = parts.filter((part) => !currentLower.has(part.toLowerCase()));
-      return missing.length > 0 ? [...current, ...missing] : current;
+      if (preset.id !== "whole") {
+        setExpandedPartGroups((groups) => {
+          const next = { ...groups };
+          additions.forEach((part) => {
+            next[partGroupKey(part)] = true;
+          });
+          return next;
+        });
+      }
+
+      return [...current, ...additions];
     });
   }
 
