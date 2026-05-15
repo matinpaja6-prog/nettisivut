@@ -10403,6 +10403,28 @@ body .sell-container #sell-step-category .sell-subcategory-card.is-leaf.active {
 }
 
 /* Keep preset hover visually separate from the real selected state. */
+body .sell-container #sell-step-category .preset-card,
+body .sell-container .preset-card {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 100% !important;
+  border-style: solid !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  font: inherit !important;
+}
+
+body .sell-container #sell-step-category .preset-card:disabled,
+body .sell-container .preset-card:disabled {
+  cursor: not-allowed !important;
+}
+
+body .sell-container #sell-step-category .preset-card .preset-count,
+body .sell-container .preset-card .preset-count {
+  pointer-events: none !important;
+  white-space: nowrap !important;
+}
+
 body .sell-container #sell-step-category .preset-card:not(.added):hover,
 body .sell-container .preset-card:not(.added):hover {
   background:

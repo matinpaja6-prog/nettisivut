@@ -1606,41 +1606,48 @@ function SellPageContent() {
       });
     };
 
-    setSelectedParts((current) => {
-      const { canUseGroupFallback, presetGroupKeys, presetLower, selectedPresetParts } =
-        getPresetMatch(preset, current);
-      const presetAlreadyAdded = selectedPresetParts.length > 0;
+    const { canUseGroupFallback, presetGroupKeys, presetLower, selectedPresetParts } =
+      getPresetMatch(preset, effectiveSelectedParts);
+    const presetAlreadyAdded = selectedPresetParts.length > 0;
 
-      if (presetAlreadyAdded) {
-        removePartData([...parts, ...selectedPresetParts]);
-        return current.filter((part) =>
+    if (presetAlreadyAdded) {
+      removePartData([...parts, ...selectedPresetParts]);
+      setSelectedParts((current) =>
+        current.filter((part) =>
           !presetLower.has(part.toLowerCase()) &&
           !(canUseGroupFallback && presetGroupKeys.has(partGroupKey(part).toLowerCase()))
-        );
-      }
+        )
+      );
+      return;
+    }
 
-      const currentLower = new Set(current.map((part) => part.toLowerCase()));
-      const additions = parts.filter((part) => !currentLower.has(part.toLowerCase()));
+    const currentLower = new Set(effectiveSelectedParts.map((part) => part.toLowerCase()));
+    const additions = parts.filter((part) => !currentLower.has(part.toLowerCase()));
 
-      setExpandedParts((expanded) => {
-        const next = { ...expanded };
+    if (additions.length === 0) return;
+
+    setExpandedParts((expanded) => {
+      const next = { ...expanded };
+      additions.forEach((part) => {
+        next[part] = false;
+      });
+      return next;
+    });
+
+    if (preset.id !== "whole") {
+      setExpandedPartGroups((groups) => {
+        const next = { ...groups };
         additions.forEach((part) => {
-          next[part] = false;
+          next[partGroupKey(part)] = true;
         });
         return next;
       });
+    }
 
-      if (preset.id !== "whole") {
-        setExpandedPartGroups((groups) => {
-          const next = { ...groups };
-          additions.forEach((part) => {
-            next[partGroupKey(part)] = true;
-          });
-          return next;
-        });
-      }
-
-      return additions.length > 0 ? [...current, ...additions] : current;
+    setSelectedParts((current) => {
+      const selectedLower = new Set(current.map((part) => part.toLowerCase()));
+      const missingParts = additions.filter((part) => !selectedLower.has(part.toLowerCase()));
+      return missingParts.length > 0 ? [...current, ...missingParts] : current;
     });
   }
 
@@ -2625,24 +2632,16 @@ function SellPageContent() {
                   ).length;
                   const partial = !presetAdded && newCount < preset.parts.length;
                   const cardClass = ["preset-card", presetAdded ? "added" : "", partial ? "partial" : ""].filter(Boolean).join(" ");
-                  const handlePresetClick = () => {
-                    if (!locked) applyPreset(preset);
-                  };
                   return (
-                    <div
+                    <button
                       key={preset.id}
-                      role="button"
-                      tabIndex={locked ? -1 : 0}
-                      aria-disabled={locked}
+                      type="button"
+                      disabled={locked}
                       className={cardClass}
-                      onClick={handlePresetClick}
-                      onKeyDown={(event) => {
-                        if (locked) return;
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          applyPreset(preset);
-                        }
-                      }}
+                      data-preset-id={preset.id}
+                      data-preset-active={presetAdded ? "true" : "false"}
+                      aria-pressed={presetAdded}
+                      onClick={() => applyPreset(preset)}
                       title={presetAdded ? t.sellPresetRemove : t.sellPresetAdd}
                     >
                       <span className="preset-emoji">
@@ -2652,18 +2651,13 @@ function SellPageContent() {
                         <strong>{preset.label}</strong>
                         <span>{preset.desc}</span>
                       </div>
-                      <button
-                        type="button"
+                      <span
                         className="preset-count"
-                        disabled={locked}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          applyPreset(preset);
-                        }}
+                        aria-hidden="true"
                       >
                         {presetAdded ? t.sellPresetRemoveLabel : t.sellPresetAddLabel}
-                      </button>
-                    </div>
+                      </span>
+                    </button>
                   );
                 })}
               </div>
