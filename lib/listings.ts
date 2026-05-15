@@ -324,8 +324,6 @@ export function isVehiclePartAllowed(
 ) {
   const normalizedVehicle = normalizeVehicleType(vehicleType);
 
-  if (normalizedVehicle === "Moottorikelkka") return true;
-
   const snowmobileOnly =
     subcategory.startsWith("Telasto /") ||
     subcategory === "Kokonainen telasto" ||
