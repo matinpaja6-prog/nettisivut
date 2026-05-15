@@ -10772,3 +10772,233 @@ body .sell-container .part-group-action {
     font-size: 0.82rem !important;
   }
 }
+
+/* Mobile readability: keep labels visible and avoid clipped words. */
+@media (max-width: 720px) {
+  body .sell-container #sell-step-category .sell-category-card-list,
+  body .sell-container #sell-step-category .sell-subcategory-card-list:not(.compact) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch {
+    min-height: 106px !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 10px !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-body,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-text {
+    padding: 14px 28px 12px 12px !important;
+    align-items: flex-end !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-body strong,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-text strong {
+    max-width: 100% !important;
+    display: block !important;
+    color: #fff !important;
+    font-size: clamp(0.68rem, 3.55vw, 0.94rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: 0 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    hyphens: manual !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-arrow,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch > svg {
+    right: 8px !important;
+    width: 18px !important;
+    height: 18px !important;
+    padding: 1px !important;
+    background: rgba(2, 15, 28, 0.34) !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-leaf {
+    min-height: 48px !important;
+    padding: 10px 30px 10px 12px !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf .sell-subcategory-text strong,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-text strong {
+    font-size: clamp(0.68rem, 3.2vw, 0.86rem) !important;
+    line-height: 1.05 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    hyphens: manual !important;
+  }
+
+  body .sell-container .part-group-toggle {
+    min-height: 72px !important;
+    grid-template-columns: 44px minmax(0, 1fr) auto !important;
+    gap: 10px !important;
+    padding: 10px 12px !important;
+  }
+
+  body .sell-container .part-group-visual {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+  }
+
+  body .sell-container .part-group-text {
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  body .sell-container .part-group-text strong,
+  body .sell-container .part-group-text small {
+    display: block !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    hyphens: manual !important;
+  }
+
+  body .sell-container .part-group-text strong {
+    font-size: 0.92rem !important;
+    line-height: 1.08 !important;
+  }
+
+  body .sell-container .part-group-text small {
+    font-size: 0.72rem !important;
+    line-height: 1.12 !important;
+  }
+
+  body .sell-container .part-group-count {
+    align-self: center !important;
+    white-space: nowrap !important;
+    font-size: 0.72rem !important;
+    padding: 8px 10px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  body .sell-container #sell-step-category .sell-category-card-body strong,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-text strong {
+    font-size: 0.72rem !important;
+  }
+
+  body .sell-container .part-group-toggle {
+    grid-template-columns: 40px minmax(0, 1fr) !important;
+  }
+
+  body .sell-container .part-group-count {
+    grid-column: 2 !important;
+    justify-self: start !important;
+    margin-top: 4px !important;
+  }
+}
+
+/* Mobile: force sell category labels onto a single clean line. */
+@media (max-width: 720px) {
+  body .sell-container #sell-step-category .sell-category-card-body,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-text {
+    padding: 12px 24px 12px 10px !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-body strong,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-text strong,
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf .sell-subcategory-text strong,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-text strong {
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+    hyphens: none !important;
+    line-height: 1.05 !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-body strong,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-text strong {
+    font-size: clamp(0.6rem, 3.05vw, 0.82rem) !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf .sell-subcategory-text strong,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-text strong {
+    font-size: clamp(0.58rem, 2.9vw, 0.78rem) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  body .sell-container #sell-step-category .sell-category-card-body strong,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-text strong {
+    font-size: 0.6rem !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf .sell-subcategory-text strong,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-text strong {
+    font-size: 0.58rem !important;
+  }
+}
+
+/* Selected product groups: add breathing room and a clear open/close pill. */
+body .sell-container .part-group-list {
+  margin-top: 18px !important;
+}
+
+body .sell-container .part-group-toggle {
+  grid-template-columns: 52px minmax(0, 1fr) auto auto !important;
+}
+
+body .sell-container .part-group-action {
+  pointer-events: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 64px !important;
+  min-height: 34px !important;
+  padding: 8px 14px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(145deg, #ff9d2e, #ff7017) !important;
+  border: 1px solid rgba(255, 226, 190, 0.72) !important;
+  color: #fff !important;
+  font-size: 0.78rem !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  box-shadow: 0 10px 22px rgba(255, 112, 24, 0.2) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28) !important;
+}
+
+@media (max-width: 720px) {
+  body .sell-container .part-group-list {
+    margin-top: 16px !important;
+  }
+
+  body .sell-container .part-group-toggle {
+    grid-template-columns: 44px minmax(0, 1fr) auto !important;
+  }
+
+  body .sell-container .part-group-count {
+    display: none !important;
+  }
+
+  body .sell-container .part-group-action {
+    min-width: 58px !important;
+    min-height: 32px !important;
+    padding: 8px 12px !important;
+    font-size: 0.74rem !important;
+  }
+}

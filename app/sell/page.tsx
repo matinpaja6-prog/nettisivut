@@ -2915,6 +2915,9 @@ function SellPageContent() {
                                 <small>{group.desc}</small>
                               </span>
                               <span className="part-group-count">{group.parts.length} tuotetta</span>
+                              <span className="part-group-action" aria-hidden="true">
+                                {groupOpen ? "Sulje" : "Avaa"}
+                              </span>
                             </button>
 
                             {groupOpen && (
