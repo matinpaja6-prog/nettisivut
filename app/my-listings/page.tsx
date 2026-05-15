@@ -391,6 +391,10 @@ export default function MyListingsPage() {
   async function handleSignOut() {
     setProfileMenu(false);
     setUser(null);
+    try {
+      sessionStorage.removeItem("home_return_state_v1");
+      sessionStorage.removeItem("home_return_pending_v1");
+    } catch {}
     await signOut();
     if (typeof window !== "undefined") window.location.href = "/";
   }

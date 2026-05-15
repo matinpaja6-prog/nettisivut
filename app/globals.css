@@ -3562,6 +3562,62 @@ body .own-listing-location-pair {
   }
 }
 
+/* Create listing: image-backed part tiles and true toggle-off state. */
+body .sell-container #sell-step-category .sell-subcategory-card .sell-subcategory-thumb {
+  display: block !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-thumb {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: block !important;
+  inset: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 0 !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-thumb img {
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  opacity: 0.7 !important;
+  width: 100% !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-subcategory-text {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf::after {
+  background:
+    linear-gradient(180deg, rgba(0, 8, 18, 0.02) 0%, rgba(0, 8, 18, 0.24) 48%, rgba(0, 8, 18, 0.9) 100%) !important;
+  content: "" !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  z-index: 1 !important;
+}
+
+@media (max-width: 640px) {
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf {
+    background:
+      linear-gradient(145deg, rgba(9, 41, 67, 0.96), rgba(5, 24, 43, 0.98)) !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf:not(.active):not(:hover) {
+    border-color: rgba(207, 226, 240, 0.36) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 10px 20px rgba(0, 8, 20, 0.14) !important;
+  }
+}
+
 @media (max-width: 600px) {
   .own-listing-card {
     grid-template-columns: 100px 1fr;

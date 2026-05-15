@@ -1458,7 +1458,10 @@ function SellPageContent() {
     return Boolean(
       category &&
       subcategory &&
-      currentCategories[category]?.includes(subcategory) &&
+      (
+        currentCategories[category]?.includes(subcategory) ||
+        Boolean(subcategoryGroups[category]?.[subcategory])
+      ) &&
       isVehiclePartAllowed(vehicleType, category, subcategory)
     );
   }
@@ -1469,16 +1472,14 @@ function SellPageContent() {
   const partPresets: Preset[] =
     basePartPresets
       .map((preset) =>
-        preset.id === "whole"
-          ? preset
-          : {
-              ...preset,
-              parts: preset.parts.filter((part) =>
-                isPresetPartAllowed(form.vehicleType, part)
-              )
-            }
+        ({
+          ...preset,
+          parts: preset.parts.filter((part) =>
+            isPresetPartAllowed(form.vehicleType, part)
+          )
+        })
       )
-      .filter((preset) => preset.id === "whole" || preset.parts.length > 0);
+      .filter((preset) => preset.parts.length > 0);
 
   function getPresetVisual(preset: Preset) {
     if (preset.id === "whole") return vehicleCardData[form.vehicleType]?.img || "/vehicles/all.png";
@@ -1563,6 +1564,9 @@ function SellPageContent() {
       const additions = parts.filter(
         (p) => !prev.some((existing) => existing.toLowerCase() === p.toLowerCase())
       );
+      if (additions.length === 0) {
+        return prev;
+      }
       additions.forEach((p) => setExpandedParts((e) => ({ ...e, [p]: false })));
       if (preset.id !== "whole") {
         setExpandedPartGroups((groups) => {
@@ -2681,7 +2685,7 @@ function SellPageContent() {
                               }
                             }}
                           >
-                            {hasChildren && (
+                            {getSubCategoryVisual(group) && (
                               <span className="sell-subcategory-thumb">
                                 <img src={getSubCategoryVisual(group)} alt="" />
                               </span>

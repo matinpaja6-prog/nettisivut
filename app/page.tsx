@@ -74,6 +74,9 @@ import { ListFilter, Menu } from "lucide-react";
 
 type Locale = "fi" | "en" | "sv" | "no" | "et";
 
+const HOME_RETURN_STATE_KEY = "home_return_state_v1";
+const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
+
 const translations = {
   fi: {
     createListing: "Luo ilmoitus",
@@ -997,6 +1000,112 @@ export default function Home() {
 
   const t = translations[locale];
 
+  const saveHomeReturnState = useCallback(() => {
+    try {
+      sessionStorage.setItem(
+        HOME_RETURN_STATE_KEY,
+        JSON.stringify({
+          query,
+          category,
+          subcategory,
+          vehicleType,
+          selectedBrand,
+          modelQuery,
+          yearQuery,
+          engineCcQuery,
+          engineModelQuery,
+          minPrice,
+          maxPrice,
+          sort,
+          recommendationsMode,
+          garageFilterId: garageFilter?.id ?? "",
+          currentPage,
+          scrollY: window.scrollY
+        })
+      );
+      sessionStorage.setItem(HOME_RETURN_PENDING_KEY, "1");
+    } catch {
+      // Session storage can be unavailable in private/browser-restricted contexts.
+    }
+  }, [
+    category,
+    currentPage,
+    engineCcQuery,
+    engineModelQuery,
+    garageFilter?.id,
+    maxPrice,
+    minPrice,
+    modelQuery,
+    query,
+    recommendationsMode,
+    selectedBrand,
+    sort,
+    subcategory,
+    vehicleType,
+    yearQuery
+  ]);
+
+  const openListing = useCallback((listingId: string) => {
+    saveHomeReturnState();
+    router.push(`/listing/${listingId}`);
+  }, [router, saveHomeReturnState]);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(HOME_RETURN_PENDING_KEY) !== "1") return;
+
+      const raw = sessionStorage.getItem(HOME_RETURN_STATE_KEY);
+      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
+
+      if (!raw) return;
+
+      const saved = JSON.parse(raw) as {
+        query?: string;
+        category?: string;
+        subcategory?: string;
+        vehicleType?: VehicleFilter;
+        selectedBrand?: string;
+        modelQuery?: string;
+        yearQuery?: string;
+        engineCcQuery?: string;
+        engineModelQuery?: string;
+        minPrice?: number;
+        maxPrice?: number;
+        sort?: SortValue;
+        recommendationsMode?: boolean;
+        garageFilterId?: string;
+        currentPage?: number;
+        scrollY?: number;
+      };
+
+      setQuery(saved.query ?? "");
+      setCategory(saved.category ?? "");
+      setSubcategory(saved.subcategory ?? "");
+      setVehicleType(saved.vehicleType ?? "");
+      setSelectedBrand(saved.selectedBrand ?? "Kaikki");
+      setModelQuery(saved.modelQuery ?? "");
+      setYearQuery(saved.yearQuery ?? "");
+      setEngineCcQuery(saved.engineCcQuery ?? "");
+      setEngineModelQuery(saved.engineModelQuery ?? "");
+      setMinPrice(typeof saved.minPrice === "number" ? saved.minPrice : 0);
+      setMaxPrice(typeof saved.maxPrice === "number" ? saved.maxPrice : 100000);
+      setSort(saved.sort ?? "Osuvimmat ensin");
+      setRecommendationsMode(saved.recommendationsMode ?? true);
+      setCurrentPage(typeof saved.currentPage === "number" ? saved.currentPage : 1);
+      setGarageFilter(
+        saved.garageFilterId
+          ? garageVehicles.find((vehicle) => vehicle.id === saved.garageFilterId) ?? null
+          : null
+      );
+
+      if (typeof saved.scrollY === "number") {
+        window.setTimeout(() => window.scrollTo(0, saved.scrollY || 0), 0);
+      }
+    } catch {
+      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
+    }
+  }, [garageVehicles]);
+
   useEffect(() => {
     const media = window.matchMedia("(max-width: 720px)");
     const syncCompactSearch = () => setCompactHeroSearch(media.matches);
@@ -1241,6 +1350,10 @@ export default function Home() {
   async function handleSignOut() {
     setUser(null);
     setProfileMenu(false);
+    try {
+      sessionStorage.removeItem(HOME_RETURN_STATE_KEY);
+      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
+    } catch {}
     await signOut().finally(() => {
       router.refresh();
     });
@@ -2560,11 +2673,11 @@ export default function Home() {
                         role="link"
                         tabIndex={0}
                         aria-label={`${t.openListing} ${listingText.title}`}
-                        onClick={() => router.push(`/listing/${listing.id}`)}
+                        onClick={() => openListing(listing.id)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
-                            router.push(`/listing/${listing.id}`);
+                            openListing(listing.id);
                           }
                         }}
                       >
@@ -2764,11 +2877,11 @@ export default function Home() {
                     role="link"
                     tabIndex={0}
                     aria-label={`${t.openListing} ${listingText.title}`}
-                    onClick={() => router.push(`/listing/${listing.id}`)}
+                    onClick={() => openListing(listing.id)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
-                        router.push(`/listing/${listing.id}`);
+                        openListing(listing.id);
                       }
                     }}
                   >

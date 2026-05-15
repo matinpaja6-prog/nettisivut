@@ -1105,6 +1105,10 @@ export default function ProfilePage() {
         return;
       }
 
+      try {
+        sessionStorage.removeItem("home_return_state_v1");
+        sessionStorage.removeItem("home_return_pending_v1");
+      } catch {}
       await supabase.auth.signOut();
       router.replace("/");
     } catch (error) {
