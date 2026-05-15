@@ -285,6 +285,17 @@ function readSavedListingIds() {
   }
 }
 
+function formatLocation(value: string | null | undefined) {
+  return (value || "")
+    .split(",")
+    .map((part) => {
+      const trimmed = part.trim();
+      return trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : "";
+    })
+    .filter(Boolean)
+    .join(", ");
+}
+
 export default function ListingPage() {
   const params = useParams<{ id: string }>();
   const { locale } = useLanguage();
@@ -709,6 +720,7 @@ export default function ListingPage() {
       .map((value) => value?.trim())
       .filter(Boolean)
       .join(" ");
+  const listingLocation = formatLocation(listing.location);
   const listingText = (() => {
     if (locale === "fi") return baseListingText;
     const leaf = listing.subcategory?.split("/").map((p) => p.trim()).filter(Boolean).at(-1);
@@ -766,7 +778,7 @@ export default function ListingPage() {
                   </span>
 
                   <span className="location">
-                    {listing.location}
+                    {listingLocation}
                     <MapPin size={14} />
                   </span>
 
@@ -799,7 +811,7 @@ export default function ListingPage() {
               </span>
               <span className="dot">•</span>
               <span className="desktop-meta-location">
-                {listing.location}
+                {listingLocation}
                 <MapPin size={15} />
               </span>
               <strong>ID {listingDisplayNumber ?? "..."}</strong>
@@ -868,6 +880,22 @@ export default function ListingPage() {
                 >
                   <ZoomIn size={20} />
                 </button>
+              )}
+
+              {gallery.length > 1 && (
+                <div className="mobile-image-thumbs" aria-label="Ilmoituksen kuvat">
+                  {gallery.map((url, index) => (
+                    <button
+                      key={`${url}-mobile-${index}`}
+                      type="button"
+                      className={activeImage === url ? "active" : ""}
+                      onClick={() => setActiveImage(url)}
+                      aria-label={`Kuva ${index + 1}/${gallery.length}`}
+                    >
+                      <img src={url} alt="" />
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
 
@@ -979,7 +1007,7 @@ export default function ListingPage() {
                 </span>
                 <span>
                   <strong>{ui.location}</strong>
-                  {listing.location || ui.notSpecified}
+                  {listingLocation || ui.notSpecified}
                 </span>
               </div>
 
@@ -1052,8 +1080,8 @@ export default function ListingPage() {
                     </div>
                   )}
 
-                  {listing.location && (
-                    <div className="seller-location">{listing.location}</div>
+                  {listingLocation && (
+                    <div className="seller-location">{listingLocation}</div>
                   )}
 
                 </div>

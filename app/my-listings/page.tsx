@@ -73,6 +73,26 @@ import {
   type Listing
 } from "@/lib/listings";
 
+function splitLocation(value: string | null | undefined) {
+  const parts = (value || "").split(",").map((part) => part.trim()).filter(Boolean);
+
+  if (parts.length >= 2) {
+    return {
+      city: parts.slice(0, -1).join(", "),
+      country: parts.at(-1) || "Suomi"
+    };
+  }
+
+  return {
+    city: value || "",
+    country: "Suomi"
+  };
+}
+
+function buildLocation(city: string, country: string) {
+  return [city.trim(), country.trim()].filter(Boolean).join(", ");
+}
+
 function getErrorMessage(error: unknown) {
 
   if (!error) return "Tuntematon virhe.";
@@ -201,6 +221,8 @@ export default function MyListingsPage() {
       subcategory: "",
       part_number: "",
       location: "",
+      location_country: "Suomi",
+      location_city: "",
       condition: "Hyvä",
       description: "",
       image_url: "",
@@ -407,6 +429,7 @@ export default function MyListingsPage() {
         ].filter(Boolean)
       )
     );
+    const locationParts = splitLocation(listing.location);
 
     setListingForm({
       title: listing.title,
@@ -415,6 +438,8 @@ export default function MyListingsPage() {
       subcategory: listing.subcategory ?? "",
       part_number: listing.part_number ?? "",
       location: listing.location,
+      location_country: locationParts.country,
+      location_city: locationParts.city,
       condition: listing.condition,
       description: listing.description,
       image_url: listingImages[0] ?? "",
@@ -519,6 +544,8 @@ export default function MyListingsPage() {
       nextImages[0] ||
       listingForm.image_url ||
       fallbackListingImage;
+    const nextLocation =
+      buildLocation(listingForm.location_city, listingForm.location_country) || listingForm.location;
 
     const { data, error } =
       await updateListing(
@@ -531,7 +558,7 @@ export default function MyListingsPage() {
           category: listingForm.category,
           subcategory: listingForm.subcategory,
           part_number: listingForm.part_number.trim() || null,
-          location: listingForm.location,
+          location: nextLocation,
           condition: listingForm.condition,
           description: listingForm.description,
           image_url: nextMainImage,
@@ -1391,17 +1418,34 @@ export default function MyListingsPage() {
                           )}
                         </select>
 
-                        <input
-                          className="own-listing-location-input"
-                          value={listingForm.location}
-                          onChange={(event) =>
-                            setListingForm({
-                              ...listingForm,
-                              location: event.target.value
-                            })
-                          }
-                          placeholder={t.location}
-                        />
+                        <div className="own-listing-location-pair">
+                          <input
+                            className="own-listing-location-input"
+                            value={listingForm.location_country}
+                            onChange={(event) => {
+                              const location_country = event.target.value;
+                              setListingForm({
+                                ...listingForm,
+                                location_country,
+                                location: buildLocation(listingForm.location_city, location_country)
+                              });
+                            }}
+                            placeholder="Maa"
+                          />
+                          <input
+                            className="own-listing-location-input"
+                            value={listingForm.location_city}
+                            onChange={(event) => {
+                              const location_city = event.target.value;
+                              setListingForm({
+                                ...listingForm,
+                                location_city,
+                                location: buildLocation(location_city, listingForm.location_country)
+                              });
+                            }}
+                            placeholder="Kaupunki"
+                          />
+                        </div>
 
                         <div className="own-listing-image-editor">
                           <label className="upload-box own-listing-upload-box">

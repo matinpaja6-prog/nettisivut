@@ -78,6 +78,8 @@ const emptyListing = {
   subcategory: "",
   partNumber: "",
   location: "",
+  locationCountry: "Suomi",
+  locationCity: "",
   condition: "Hyvä",
   description: ""
 };
@@ -177,11 +179,15 @@ const vehicleBrands: Record<string, string[]> = {
 };
 
 const engineCcOptions: Record<string, string[]> = {
-  Moottorikelkka: ["250", "440", "500", "550", "600", "650", "700", "800", "850", "900", "1100", "1200"],
+  Moottorikelkka: ["250", "440", "500", "550", "600", "650", "700", "800", "850", "900", "1000", "1100", "1200"],
   Mönkijä:        ["250", "300", "350", "400", "420", "450", "500", "520", "570", "650", "660", "680", "700", "800", "850", "900", "1000"],
   Motocross:      ["50", "65", "85", "105", "125", "144", "150", "200", "250", "300", "350", "390", "400", "430", "450", "480", "500", "530"],
   Mopo:           ["50", "65", "70", "80", "90", "125", "200"]
 };
+
+function buildLocation(city: string, country: string) {
+  return [city.trim(), country.trim()].filter(Boolean).join(", ");
+}
 
 type ModelEngineData = { engineCc: string; engineModel: string };
 const brandModelEngineMap: Record<string, Record<string, Record<string, ModelEngineData>>> = {
@@ -819,6 +825,8 @@ function SellPageContent() {
         if (d.form) {
           setForm({
             ...d.form,
+            locationCountry: d.form.locationCountry ?? "Suomi",
+            locationCity: d.form.locationCity ?? d.form.location ?? "",
             category: "",
             subcategory: ""
           });
@@ -1643,8 +1651,9 @@ function SellPageContent() {
 
         setForm((prev) => ({
           ...prev,
-          location:
-            data.city || ""
+          location: buildLocation(data.city || "", data.country || "Suomi"),
+          locationCity: data.city || "",
+          locationCountry: data.country || "Suomi"
         }));
 
       }
@@ -1864,6 +1873,9 @@ function SellPageContent() {
 
     }
 
+    const listingLocation =
+      buildLocation(form.locationCity, form.locationCountry) || form.location;
+
     const phoneOk =
       phoneVerified;
 
@@ -1944,7 +1956,7 @@ function SellPageContent() {
           title: form.title,
           description: form.description,
           price: Number(form.price),
-          location: form.location,
+          location: listingLocation,
         }),
       });
       if (modRes.ok) {
@@ -2041,7 +2053,7 @@ function SellPageContent() {
           category: partCategory || form.category,
           subcategory: partSubcategory || form.subcategory,
           part_number: partNumber,
-          location: form.location,
+          location: listingLocation,
           condition: partCondition,
           description: partDesc,
           image_url: thisImageUrl,
@@ -2131,7 +2143,7 @@ function SellPageContent() {
         category: form.category,
         subcategory: form.subcategory,
         part_number: form.partNumber.trim() || null,
-        location: form.location,
+        location: listingLocation,
         condition: form.condition,
         description: baseDescription,
         image_url: imageUrl,
@@ -2980,8 +2992,36 @@ function SellPageContent() {
           )}
           <div className="sell-grid-2">
             <label className="field-stack">
-              <span className="field-label">{t.location}</span>
-              <input placeholder="esim. Oulu" value={form.location} disabled={locked} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+              <span className="field-label">{t.authCountry}</span>
+              <input
+                placeholder="esim. Suomi"
+                value={form.locationCountry}
+                disabled={locked}
+                onChange={(e) => {
+                  const locationCountry = e.target.value;
+                  setForm({
+                    ...form,
+                    locationCountry,
+                    location: buildLocation(form.locationCity, locationCountry)
+                  });
+                }}
+              />
+            </label>
+            <label className="field-stack">
+              <span className="field-label">{t.authCity}</span>
+              <input
+                placeholder="esim. Oulu"
+                value={form.locationCity}
+                disabled={locked}
+                onChange={(e) => {
+                  const locationCity = e.target.value;
+                  setForm({
+                    ...form,
+                    locationCity,
+                    location: buildLocation(locationCity, form.locationCountry)
+                  });
+                }}
+              />
             </label>
             <label className="field-stack">
               <span className="field-label">{t.sellCondition}</span>
