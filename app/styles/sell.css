@@ -8604,9 +8604,11 @@ body .sell-container .preset-card {
     linear-gradient(145deg, rgba(10, 42, 68, 0.88), rgba(5, 23, 42, 0.94)) !important;
   border: 1px solid rgba(255, 137, 24, 0.88) !important;
   border-radius: 12px !important;
+  cursor: pointer !important;
   grid-template-columns: 58px minmax(0, 1fr) auto !important;
   min-height: 78px !important;
   padding: 12px !important;
+  user-select: none !important;
 }
 
 body .sell-container #sell-step-category .preset-card:hover,
@@ -8616,6 +8618,39 @@ body .sell-container .preset-card.added {
   background:
     linear-gradient(145deg, rgba(255, 137, 24, 0.16), rgba(9, 42, 68, 0.94)) !important;
   border-color: rgba(255, 169, 72, 0.96) !important;
+}
+
+body .sell-container #sell-step-category .preset-card[aria-disabled="true"],
+body .sell-container .preset-card[aria-disabled="true"] {
+  cursor: not-allowed !important;
+  opacity: 0.58 !important;
+}
+
+body .sell-container #sell-step-category .preset-card .preset-count,
+body .sell-container .preset-card .preset-count {
+  align-items: center !important;
+  appearance: none !important;
+  background: linear-gradient(145deg, #ff9d2e, #ff7017) !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font: inherit !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  min-height: 30px !important;
+  padding: 8px 13px !important;
+  position: relative !important;
+  white-space: nowrap !important;
+  z-index: 20 !important;
+}
+
+body .sell-container #sell-step-category .preset-card.added .preset-count,
+body .sell-container .preset-card.added .preset-count {
+  background: linear-gradient(145deg, #ff7e1b, #e9560f) !important;
 }
 
 body .sell-container .preset-emoji {

@@ -2625,13 +2625,24 @@ function SellPageContent() {
                   ).length;
                   const partial = !presetAdded && newCount < preset.parts.length;
                   const cardClass = ["preset-card", presetAdded ? "added" : "", partial ? "partial" : ""].filter(Boolean).join(" ");
+                  const handlePresetClick = () => {
+                    if (!locked) applyPreset(preset);
+                  };
                   return (
-                    <button
+                    <div
                       key={preset.id}
-                      type="button"
-                      disabled={locked}
+                      role="button"
+                      tabIndex={locked ? -1 : 0}
+                      aria-disabled={locked}
                       className={cardClass}
-                      onClick={() => applyPreset(preset)}
+                      onClick={handlePresetClick}
+                      onKeyDown={(event) => {
+                        if (locked) return;
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          applyPreset(preset);
+                        }
+                      }}
                       title={presetAdded ? t.sellPresetRemove : t.sellPresetAdd}
                     >
                       <span className="preset-emoji">
@@ -2641,10 +2652,18 @@ function SellPageContent() {
                         <strong>{preset.label}</strong>
                         <span>{preset.desc}</span>
                       </div>
-                      <span className="preset-count">
+                      <button
+                        type="button"
+                        className="preset-count"
+                        disabled={locked}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          applyPreset(preset);
+                        }}
+                      >
                         {presetAdded ? t.sellPresetRemoveLabel : t.sellPresetAddLabel}
-                      </span>
-                    </button>
+                      </button>
+                    </div>
                   );
                 })}
               </div>
