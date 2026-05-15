@@ -66,6 +66,7 @@ const listingUiText = {
     partNumber: "Varaosanumero",
     brand: "Merkki",
     model: "Malli",
+    brandModel: "Merkki ja malli",
     year: "Vuosimalli",
     condition: "Kunto",
     location: "Sijainti",
@@ -104,6 +105,7 @@ const listingUiText = {
     partNumber: "Part number",
     brand: "Brand",
     model: "Model",
+    brandModel: "Brand and model",
     year: "Year",
     condition: "Condition",
     location: "Location",
@@ -142,6 +144,7 @@ const listingUiText = {
     partNumber: "Artikelnummer",
     brand: "Märke",
     model: "Modell",
+    brandModel: "Märke och modell",
     year: "Årsmodell",
     condition: "Skick",
     location: "Plats",
@@ -180,6 +183,7 @@ const listingUiText = {
     partNumber: "Delenummer",
     brand: "Merke",
     model: "Modell",
+    brandModel: "Merke og modell",
     year: "Årsmodell",
     condition: "Tilstand",
     location: "Sted",
@@ -218,6 +222,7 @@ const listingUiText = {
     partNumber: "Varuosanumber",
     brand: "Mark",
     model: "Mudel",
+    brandModel: "Mark ja mudel",
     year: "Aasta",
     condition: "Seisukord",
     location: "Asukoht",
@@ -696,6 +701,11 @@ export default function ListingPage() {
     value ? conditionLabels[locale][value] ?? value : ui.notSpecified;
   const translateVehicleTypeLabel = (value: string | null | undefined) =>
     value ? vehicleTypeMap[locale]?.[value] ?? value : ui.notSpecified;
+  const listingBrandModel =
+    [listing.brand, listing.model]
+      .map((value) => value?.trim())
+      .filter(Boolean)
+      .join(" ");
   const listingText = (() => {
     if (locale === "fi") return baseListingText;
     const leaf = listing.subcategory?.split("/").map((p) => p.trim()).filter(Boolean).at(-1);
@@ -927,16 +937,10 @@ export default function ListingPage() {
                     {listingPartNumber}
                   </span>
                 )}
-                {listing.brand && (
+                {listingBrandModel && (
                   <span>
-                    <strong>{ui.brand}</strong>
-                    {listing.brand}
-                  </span>
-                )}
-                {listing.model && (
-                  <span>
-                    <strong>{ui.model}</strong>
-                    {listing.model}
+                    <strong>{ui.brandModel}</strong>
+                    {listingBrandModel}
                   </span>
                 )}
                 {listing.year && (

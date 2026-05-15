@@ -33088,3 +33088,326 @@ body .sell-container .part-card-details .field-stack {
   border-radius: 0 !important;
   box-shadow: none !important;
 }
+
+/* Mobile listing gallery: show all listing images as small selectable thumbs. */
+@media (max-width: 760px) {
+  body .listing-detail-page .thumbs {
+    display: flex !important;
+    gap: 8px !important;
+    margin: 8px 0 0 !important;
+    order: 2 !important;
+    overflow-x: auto !important;
+    padding: 0 2px 8px !important;
+    scrollbar-width: thin !important;
+    width: 100% !important;
+  }
+
+  body .listing-detail-page .thumbs img {
+    aspect-ratio: 1 / 1 !important;
+    background: rgba(4, 18, 34, 0.82) !important;
+    border: 1px solid rgba(126, 197, 240, 0.32) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 16px rgba(0, 8, 20, 0.18) !important;
+    cursor: pointer !important;
+    display: block !important;
+    flex: 0 0 48px !important;
+    height: 48px !important;
+    object-fit: cover !important;
+    opacity: 0.78 !important;
+    padding: 0 !important;
+    width: 48px !important;
+  }
+
+  body .listing-detail-page .thumbs img.active {
+    border-color: rgba(255, 154, 36, 0.96) !important;
+    box-shadow:
+      0 0 0 1px rgba(255, 154, 36, 0.36),
+      0 10px 18px rgba(255, 112, 24, 0.16) !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Profile phone number: clean mobile/desktop field with a neat verification badge. */
+body .pf-page .pf-phone-card {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(238, 247, 252, 0.98), rgba(205, 222, 234, 0.98)) !important;
+  border: 1px solid rgba(207, 226, 240, 0.82) !important;
+  border-radius: 10px !important;
+  box-shadow:
+    0 10px 22px rgba(0, 8, 20, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+  display: flex !important;
+  gap: 8px !important;
+  min-height: 48px !important;
+  overflow: hidden !important;
+  padding: 8px 10px 8px 14px !important;
+}
+
+body .pf-page .pf-phone-number {
+  color: #071827 !important;
+  flex: 1 1 auto !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+body .pf-page .pf-verified,
+body .pf-page .pf-unverified,
+body .pf-page .pf-locked-badge {
+  border-radius: 999px !important;
+  flex: 0 0 auto !important;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  padding: 6px 9px !important;
+  white-space: nowrap !important;
+}
+
+body .pf-page .pf-verified {
+  background: rgba(34, 197, 94, 0.13) !important;
+  border: 1px solid rgba(34, 197, 94, 0.42) !important;
+  color: #15803d !important;
+}
+
+body .pf-page .pf-unverified {
+  background: rgba(255, 154, 36, 0.15) !important;
+  border: 1px solid rgba(255, 154, 36, 0.5) !important;
+  color: #9a3412 !important;
+}
+
+@media (max-width: 640px) {
+  body .pf-page .pf-phone-row {
+    align-items: stretch !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin-inline: auto !important;
+    width: min(100%, 280px) !important;
+  }
+
+  body .pf-page .pf-phone-card {
+    border-radius: 10px !important;
+    display: grid !important;
+    gap: 6px !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    min-height: 0 !important;
+    padding: 10px 12px !important;
+    width: 100% !important;
+  }
+
+  body .pf-page .pf-phone-number {
+    font-size: 14px !important;
+    max-width: 100% !important;
+    text-align: center !important;
+  }
+}
+
+/* Mobile legal pages: keep long privacy/terms titles fully visible. */
+@media (max-width: 760px) {
+  body .legal-page .legal-shell {
+    overflow: hidden !important;
+    padding-top: 10px !important;
+    width: min(100% - 18px, 1120px) !important;
+  }
+
+  body .legal-page .legal-hero {
+    box-sizing: border-box !important;
+    gap: 18px !important;
+    overflow: hidden !important;
+    padding: 22px 20px !important;
+    width: 100% !important;
+  }
+
+  body .legal-page .legal-hero > div:first-child {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  body .legal-page .legal-hero h1 {
+    display: block !important;
+    font-size: clamp(30px, 9.2vw, 38px) !important;
+    line-height: 1.02 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    overflow-wrap: anywhere !important;
+    text-wrap: balance !important;
+    white-space: normal !important;
+    word-break: normal !important;
+  }
+
+  body .legal-page .legal-hero p {
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  body .legal-page .legal-hero-card {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Create listing: move the multiple-parts total estimate lower on desktop and mobile. */
+body .sell-container .sell-total-estimate {
+  margin-top: 30px !important;
+}
+
+@media (max-width: 640px) {
+  body .sell-container .sell-total-estimate {
+    margin-top: 38px !important;
+  }
+}
+
+/* Listing detail: remove the orange sheet lines around the listing content. */
+body .listing-detail-page .main {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body .listing-detail-page .main::before,
+body .listing-detail-page .main::after {
+  display: none !important;
+}
+
+/* Listing detail: unified desktop sheet so corners and background transitions stay clean. */
+@media (min-width: 761px) {
+  body .listing-detail-page .main {
+    background:
+      radial-gradient(700px 260px at 82% 0%, rgba(126, 197, 240, 0.1), transparent 72%),
+      linear-gradient(180deg, rgba(5, 24, 44, 0.92), rgba(3, 15, 29, 0.96)) !important;
+    border: 1px solid rgba(126, 197, 240, 0.28) !important;
+    border-radius: 16px !important;
+    box-shadow:
+      0 24px 54px rgba(0, 8, 20, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    overflow: hidden !important;
+  }
+
+  body .listing-detail-page .image-wrapper,
+  body .listing-detail-page .main-img-button {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+  }
+
+  body .listing-detail-page .main-img {
+    border-radius: 0 !important;
+    display: block !important;
+  }
+
+  body .listing-detail-page .image-badge {
+    bottom: 14px !important;
+    left: 18px !important;
+  }
+
+  body .listing-detail-page .price-actions-row {
+    background:
+      linear-gradient(180deg, rgba(5, 26, 48, 0.88), rgba(4, 20, 38, 0.92)) !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(126, 197, 240, 0.18) !important;
+    border-radius: 0 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+    margin: 0 !important;
+    padding: 16px 26px 16px 22px !important;
+  }
+
+  body .listing-detail-page .thumbs {
+    background:
+      linear-gradient(180deg, rgba(4, 20, 38, 0.92), rgba(4, 18, 34, 0.94)) !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(126, 197, 240, 0.18) !important;
+    margin: 0 !important;
+    padding: 12px 22px 24px !important;
+  }
+
+  body .listing-detail-page .thumbs img {
+    background: rgba(2, 10, 20, 0.6) !important;
+    border: 1px solid rgba(126, 197, 240, 0.34) !important;
+    border-radius: 8px !important;
+    height: 56px !important;
+    width: 72px !important;
+  }
+
+  body .listing-detail-page .description-card {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .listing-detail-page .listing-facts-card,
+  body .listing-detail-page .listing-extra-card {
+    border-bottom: 1px solid rgba(126, 197, 240, 0.16) !important;
+  }
+
+  body .listing-detail-page .listing-extra-card {
+    border-bottom: 0 !important;
+  }
+
+  body .listing-detail-page .listing-section-toggle {
+    background:
+      linear-gradient(180deg, rgba(13, 54, 84, 0.82), rgba(8, 36, 60, 0.84)) !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(126, 197, 240, 0.18) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    min-height: 58px !important;
+    padding: 18px 22px !important;
+  }
+
+  body .listing-detail-page .listing-section-toggle[aria-expanded="false"] {
+    border-bottom: 0 !important;
+  }
+
+  body .listing-detail-page .listing-section-content {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body .listing-detail-page .listing-fact-grid {
+    background:
+      linear-gradient(180deg, rgba(3, 16, 31, 0.36), rgba(3, 14, 27, 0.42)) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .listing-detail-page .listing-fact-grid span {
+    background: transparent !important;
+    border-color: rgba(126, 197, 240, 0.14) !important;
+  }
+
+body .listing-detail-page .listing-extra-card p {
+    background:
+      linear-gradient(180deg, rgba(3, 16, 31, 0.32), rgba(3, 14, 27, 0.38)) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 20px 22px 24px !important;
+  }
+}
+
+/* Listing image preview: keep the fullscreen image above the universal topbar. */
+body .listing-detail-page .listing-image-preview {
+  inset: 0 !important;
+  position: fixed !important;
+  z-index: 200000 !important;
+}
+
+body:has(.listing-image-preview) .universal-app-topbar {
+  z-index: 1 !important;
+}

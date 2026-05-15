@@ -816,17 +816,26 @@ function SellPageContent() {
       const saved = localStorage.getItem(DRAFT_KEY);
       if (saved) {
         const d = JSON.parse(saved);
-        if (d.form) setForm(d.form);
+        if (d.form) {
+          setForm({
+            ...d.form,
+            category: "",
+            subcategory: ""
+          });
+        }
         if (d.listingMode) setListingMode(d.listingMode);
-        if (d.selectedParts) setSelectedParts(d.selectedParts);
-        if (d.partPrices) setPartPrices(d.partPrices);
-        if (d.partTitles) setPartTitles(d.partTitles);
-        if (d.partDescriptions) setPartDescriptions(d.partDescriptions);
-        if (d.partNumbers) setPartNumbers(d.partNumbers);
-        if (d.partConditions) setPartConditions(d.partConditions);
         if (d.images) setImages(d.images);
-        if (d.partImages) setPartImages(d.partImages);
       }
+      setSelectedSubGroup("");
+      setSelectedParts([]);
+      setPartPrices({});
+      setPartImages({});
+      setPartTitles({});
+      setPartDescriptions({});
+      setPartNumbers({});
+      setPartConditions({});
+      setExpandedParts({});
+      setExpandedPartGroups({});
     } catch {}
   }, []);
 
@@ -3102,10 +3111,7 @@ function SellPageContent() {
           <button type="submit" className="sell-submit-btn" disabled={publishLocked}>
             <Check size={18} />
             {listingMode === "multiple"
-              ? (() => {
-                  const ready = selectedParts.filter((p) => partPrices[p] || form.price).length;
-                  return `${t.publish} ${ready}`;
-                })()
+              ? `${t.publish} ${selectedParts.length}`
               : t.publish}
           </button>
         </div>
