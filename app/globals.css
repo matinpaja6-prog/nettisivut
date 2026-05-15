@@ -33411,3 +33411,82 @@ body .listing-detail-page .listing-image-preview {
 body:has(.listing-image-preview) .universal-app-topbar {
   z-index: 1 !important;
 }
+
+/* Listing gallery controls: compact image count and side arrows. */
+body .listing-detail-page .image-badge {
+  background: rgba(3, 14, 27, 0.76) !important;
+  border: 1px solid rgba(207, 226, 240, 0.52) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 22px rgba(0, 8, 20, 0.28) !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  left: 12px !important;
+  min-height: 26px !important;
+  padding: 0 8px !important;
+  top: 12px !important;
+  bottom: auto !important;
+}
+
+body .listing-detail-page .gallery-arrow,
+body .listing-detail-page .listing-image-preview-arrow {
+  align-items: center !important;
+  background: rgba(3, 14, 27, 0.64) !important;
+  border: 1px solid rgba(207, 226, 240, 0.42) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 12px 24px rgba(0, 8, 20, 0.28) !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 42px !important;
+  justify-content: center !important;
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease !important;
+  width: 42px !important;
+  z-index: 4 !important;
+}
+
+body .listing-detail-page .gallery-arrow:hover,
+body .listing-detail-page .listing-image-preview-arrow:hover {
+  background: rgba(255, 154, 36, 0.92) !important;
+  border-color: rgba(255, 218, 184, 0.82) !important;
+}
+
+body .listing-detail-page .gallery-arrow-left,
+body .listing-detail-page .listing-image-preview-arrow-left {
+  left: 12px !important;
+}
+
+body .listing-detail-page .gallery-arrow-right,
+body .listing-detail-page .listing-image-preview-arrow-right {
+  right: 12px !important;
+}
+
+@media (max-width: 760px) {
+  body .listing-detail-page .image-badge {
+    border-radius: 7px !important;
+    font-size: 12px !important;
+    left: 10px !important;
+    min-height: 22px !important;
+    padding: 0 7px !important;
+    top: 10px !important;
+  }
+
+  body .listing-detail-page .gallery-arrow,
+  body .listing-detail-page .listing-image-preview-arrow {
+    height: 34px !important;
+    width: 34px !important;
+  }
+
+  body .listing-detail-page .gallery-arrow-left,
+  body .listing-detail-page .listing-image-preview-arrow-left {
+    left: 8px !important;
+  }
+
+  body .listing-detail-page .gallery-arrow-right,
+  body .listing-detail-page .listing-image-preview-arrow-right {
+    right: 8px !important;
+  }
+}

@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 
 import {
   ArrowLeft,
+  ChevronLeft,
   ChevronDown,
   ChevronRight,
   ChevronUp,
@@ -484,6 +485,8 @@ export default function ListingPage() {
 
   const activeImageIndex =
     activeImage ? gallery.indexOf(activeImage) : -1;
+  const activeImageNumber =
+    activeImageIndex >= 0 ? activeImageIndex + 1 : 1;
 
   const switchGalleryImage = (direction: 1 | -1) => {
     if (gallery.length < 2) return;
@@ -832,8 +835,29 @@ export default function ListingPage() {
               )}
 
               <div className="image-badge">
-                {gallery.length} {gallery.length === 1 ? ui.imageSingular : ui.imagePlural}
+                {activeImageNumber}/{gallery.length}
               </div>
+
+              {gallery.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    className="gallery-arrow gallery-arrow-left"
+                    onClick={() => switchGalleryImage(-1)}
+                    aria-label="Edellinen kuva"
+                  >
+                    <ChevronLeft size={22} />
+                  </button>
+                  <button
+                    type="button"
+                    className="gallery-arrow gallery-arrow-right"
+                    onClick={() => switchGalleryImage(1)}
+                    aria-label="Seuraava kuva"
+                  >
+                    <ChevronRight size={22} />
+                  </button>
+                </>
+              )}
 
               {activeImage && (
                 <button
@@ -1129,6 +1153,26 @@ export default function ListingPage() {
               onTouchStart={startImageSwipe}
               onTouchEnd={finishImageSwipe}
             />
+            {gallery.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="listing-image-preview-arrow listing-image-preview-arrow-left"
+                  onClick={() => switchGalleryImage(-1)}
+                  aria-label="Edellinen kuva"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <button
+                  type="button"
+                  className="listing-image-preview-arrow listing-image-preview-arrow-right"
+                  onClick={() => switchGalleryImage(1)}
+                  aria-label="Seuraava kuva"
+                >
+                  <ChevronRight size={24} />
+                </button>
+              </>
+            )}
             <button
               type="button"
               className="listing-image-preview-close"
