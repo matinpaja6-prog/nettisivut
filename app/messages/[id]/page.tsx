@@ -1522,17 +1522,22 @@ export default function ChatPage() {
 
           border-radius: 20px;
 
-          background:
-            rgba(4, 25, 43, 0.64);
+          background: transparent;
 
           border:
-            1px solid rgba(132, 190, 213, 0.22);
+            1px solid transparent;
 
           text-decoration: none;
           color: inherit;
 
-          box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+          box-shadow: none;
+        }
+
+        .seller:hover,
+        .seller:focus-visible {
+          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(132, 190, 213, 0.18);
+          outline: 0;
         }
 
         .avatar {

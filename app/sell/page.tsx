@@ -705,6 +705,9 @@ function SellPageContent() {
   const [expandedParts, setExpandedParts] =
     useState<Record<string, boolean>>({}); 
 
+  const [expandedPartGroups, setExpandedPartGroups] =
+    useState<Record<string, boolean>>({});
+
   const [customPart, setCustomPart] =
     useState("");
 
@@ -899,6 +902,10 @@ function SellPageContent() {
     return `${category} / ${part}`;
   }
 
+  function partGroupKey(part: string) {
+    return part.split(" / ").filter(Boolean)[0] || "Muut tuotteet";
+  }
+
   function displayPart(part: string) {
     const segments = part.split(" / ").filter(Boolean);
 
@@ -920,6 +927,7 @@ function SellPageContent() {
         return prev.filter((item) => item !== part);
       }
       setExpandedParts((p) => ({ ...p, [part]: true }));
+      setExpandedPartGroups((p) => ({ ...p, [partGroupKey(part)]: true }));
       return [...prev, part];
     });
   }
@@ -934,6 +942,7 @@ function SellPageContent() {
     setSelectedParts((prev) => {
       if (prev.some((item) => item.toLowerCase() === key.toLowerCase())) return prev;
       setExpandedParts((p) => ({ ...p, [key]: true }));
+      setExpandedPartGroups((p) => ({ ...p, [partGroupKey(key)]: true }));
       return [...prev, key];
     });
     setCustomPart("");
@@ -1454,6 +1463,35 @@ function SellPageContent() {
     return "/parts-blue-bg.svg";
   }
 
+  const selectedPartGroups = (() => {
+    const groups = new Map<string, { key: string; label: string; desc: string; visual: string; parts: string[] }>();
+
+    selectedParts.forEach((part) => {
+      const segments = part.split(" / ").filter(Boolean);
+      const category = segments[0] || "Muut tuotteet";
+      const group = segments[1] || category;
+      const key = category;
+      const existing = groups.get(key);
+
+      if (existing) {
+        existing.parts.push(part);
+        return;
+      }
+
+      groups.set(key, {
+        key,
+        label: translateCategory(locale, category),
+        desc: group === category
+          ? "Avaa tämän ryhmän tuotteet"
+          : translateCategory(locale, group),
+        visual: categoryMainVisuals[category] || getSubCategoryVisual(group),
+        parts: [part]
+      });
+    });
+
+    return Array.from(groups.values());
+  })();
+
   function applyPreset(preset: Preset) {
     const parts = preset.parts;
     setSelectedParts((prev) => {
@@ -1468,6 +1506,15 @@ function SellPageContent() {
         (p) => !prev.some((existing) => existing.toLowerCase() === p.toLowerCase())
       );
       additions.forEach((p) => setExpandedParts((e) => ({ ...e, [p]: false })));
+      if (preset.id !== "whole") {
+        setExpandedPartGroups((groups) => {
+          const next = { ...groups };
+          additions.forEach((part) => {
+            next[partGroupKey(part)] = true;
+          });
+          return next;
+        });
+      }
       return [...prev, ...additions];
     });
   }
@@ -1960,6 +2007,7 @@ function SellPageContent() {
       setPartNumbers({});
       setPartConditions({});
       setExpandedParts({});
+      setExpandedPartGroups({});
       setCustomPart("");
       setImages([]);
       const skipMsg = skippedCount > 0 ? ` (${skippedCount} tyhjää ohitettu)` : "";
@@ -2141,7 +2189,7 @@ function SellPageContent() {
               type="button"
               disabled={locked}
               className={listingMode === "single" ? "sell-mode-card active" : "sell-mode-card"}
-              onClick={() => { setListingMode("single"); setSelectedParts([]); setTimeout(() => goToWizardStep("sell-step-vehicle"), 80); }}
+              onClick={() => { setListingMode("single"); setSelectedParts([]); setExpandedPartGroups({}); setTimeout(() => goToWizardStep("sell-step-vehicle"), 80); }}
             >
               <span className="sell-mode-icon">
                 <Package size={24} />
@@ -2612,8 +2660,31 @@ function SellPageContent() {
                   </div>
 
                   {selectedParts.length > 0 ? (
-                    <div className="part-cards part-cards-flat">
-                      {selectedParts.map((part) => {
+                    <div className="part-group-list">
+                      {selectedPartGroups.map((group) => {
+                        const groupOpen = expandedPartGroups[group.key] ?? false;
+
+                        return (
+                          <section key={group.key} className={`part-group ${groupOpen ? "open" : ""}`}>
+                            <button
+                              type="button"
+                              className="part-group-toggle"
+                              onClick={() => setExpandedPartGroups((prev) => ({ ...prev, [group.key]: !(prev[group.key] ?? false) }))}
+                            >
+                              <span className="part-group-visual">
+                                <img src={group.visual} alt="" />
+                              </span>
+                              <span className="part-group-text">
+                                <strong>{group.label}</strong>
+                                <small>{group.desc}</small>
+                              </span>
+                              <span className="part-group-count">{group.parts.length} tuotetta</span>
+                              <span className="part-group-action">{groupOpen ? "Sulje" : "Avaa"}</span>
+                            </button>
+
+                            {groupOpen && (
+                              <div className="part-cards part-cards-flat part-group-items">
+                      {group.parts.map((part) => {
                         const isPartExpanded = expandedParts[part] ?? false;
                         const partPrice = partPrices[part]?.trim();
                         const partNumber = partNumbers[part]?.trim();
@@ -2751,6 +2822,11 @@ function SellPageContent() {
                             </div>
                           )}
                         </div>
+                        );
+                      })}
+                              </div>
+                            )}
+                          </section>
                         );
                       })}
                     </div>

@@ -6,7 +6,9 @@ import { useParams } from "next/navigation";
 
 import {
   ArrowLeft,
+  ChevronDown,
   ChevronRight,
+  ChevronUp,
   Mail,
   MapPin,
   ShieldCheck,
@@ -14,7 +16,8 @@ import {
   Heart,
   LockKeyhole,
   Share2,
-  UserRound
+  UserRound,
+  X
 } from "lucide-react";
 
 import {
@@ -54,6 +57,8 @@ const listingUiText = {
     saved: "Tallennettu",
     save: "Tallenna",
     description: "Kuvaus",
+    basicInfo: "Perustiedot",
+    additionalInfo: "Lisätiedot",
     noDescription: "Ei kuvausta.",
     vehicle: "Ajoneuvo",
     partNumber: "Varaosanumero",
@@ -90,6 +95,8 @@ const listingUiText = {
     saved: "Saved",
     save: "Save",
     description: "Description",
+    basicInfo: "Basic information",
+    additionalInfo: "Additional details",
     noDescription: "No description.",
     vehicle: "Vehicle",
     partNumber: "Part number",
@@ -126,6 +133,8 @@ const listingUiText = {
     saved: "Sparad",
     save: "Spara",
     description: "Beskrivning",
+    basicInfo: "Grunduppgifter",
+    additionalInfo: "Tilläggsinformation",
     noDescription: "Ingen beskrivning.",
     vehicle: "Fordon",
     partNumber: "Artikelnummer",
@@ -162,6 +171,8 @@ const listingUiText = {
     saved: "Lagret",
     save: "Lagre",
     description: "Beskrivelse",
+    basicInfo: "Grunnopplysninger",
+    additionalInfo: "Tilleggsinformasjon",
     noDescription: "Ingen beskrivelse.",
     vehicle: "Kjøretøy",
     partNumber: "Delenummer",
@@ -198,6 +209,8 @@ const listingUiText = {
     saved: "Salvestatud",
     save: "Salvesta",
     description: "Kirjeldus",
+    basicInfo: "Põhiandmed",
+    additionalInfo: "Lisainfo",
     noDescription: "Kirjeldus puudub.",
     vehicle: "Sõiduk",
     partNumber: "Varuosanumber",
@@ -278,6 +291,15 @@ export default function ListingPage() {
   const [activeImage, setActiveImage] =
     useState<string | null>(null);
 
+  const [previewImage, setPreviewImage] =
+    useState<string | null>(null);
+
+  const [basicInfoOpen, setBasicInfoOpen] =
+    useState(true);
+
+  const [additionalInfoOpen, setAdditionalInfoOpen] =
+    useState(true);
+
   const [showPhone, setShowPhone] =
     useState(false);
 
@@ -295,6 +317,26 @@ export default function ListingPage() {
 
   const [listingDisplayNumber, setListingDisplayNumber] =
     useState<number | null>(null);
+
+  useEffect(() => {
+    if (!previewImage) return;
+
+    const previousOverflow = document.body.style.overflow;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setPreviewImage(null);
+      }
+    }
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [previewImage]);
 
   useEffect(() => {
     if (!supabase) {
@@ -617,6 +659,11 @@ export default function ListingPage() {
     const tVehicle = vehicleTypeMap[locale]?.[listing.vehicle_type ?? ""] ?? listing.vehicle_type ?? "";
     return { ...baseListingText, title: `${tLeaf} - ${tVehicle}`.trim() };
   })();
+  const listingDescription =
+    (listingText.description || "")
+      .replace(/^(?:Ajoneuvo:[^\n]*\n?)?(?:Merkki:[^\n]*\n?)?(?:Malli:[^\n]*\n?)?(?:Vuosimalli:[^\n]*\n?)?/i, "")
+      .replace(/Ajoneuvo:\s*\S+\s+Merkki:\s*[^\s]+(?:\s+\S+)?\s+Malli:\s*[^\s]+(?:\s+\S+)*?\s+Vuosimalli:\s*\d+\s*/i, "")
+      .trim() || ui.noDescription;
 
   return (
     <main className="page listing-detail-page">
@@ -639,6 +686,10 @@ export default function ListingPage() {
             <div className="title-row">
 
               <div className="title-left">
+                <span className="mobile-listing-id">
+                  ID {listingDisplayNumber ?? "..."}
+                </span>
+
                 <h1>{listingText.title}</h1>
 
                 <div className="sub-info">
@@ -684,11 +735,18 @@ export default function ListingPage() {
             <div className="image-wrapper">
 
               {activeImage && (
-                <img
-                  src={activeImage}
-                  className="main-img"
-                  alt={listingText.title}
-                />
+                <button
+                  type="button"
+                  className="main-img-button"
+                  onClick={() => setPreviewImage(activeImage)}
+                  aria-label="Avaa kuva suurempana"
+                >
+                  <img
+                    src={activeImage}
+                    className="main-img"
+                    alt={listingText.title}
+                  />
+                </button>
               )}
 
               <div className="image-badge">
@@ -757,22 +815,21 @@ export default function ListingPage() {
 
             </div>
 
-            {/* DESCRIPTION */}
+            {/* DETAILS */}
 
-            <div className="description-card">
+            <div className="description-card listing-facts-card">
 
-              <h2>{ui.description}</h2>
+              <button
+                type="button"
+                className="listing-section-toggle"
+                aria-expanded={basicInfoOpen}
+                onClick={() => setBasicInfoOpen((open) => !open)}
+              >
+                <span>{ui.basicInfo}</span>
+                {basicInfoOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </button>
 
-              <p>
-                {(() => {
-                  // Strip legacy "Ajoneuvo: ... Merkki: ... Malli: ... Vuosimalli: ..." prefix
-                  const desc = listingText.description || "";
-                  return desc
-                    .replace(/^(?:Ajoneuvo:[^\n]*\n?)?(?:Merkki:[^\n]*\n?)?(?:Malli:[^\n]*\n?)?(?:Vuosimalli:[^\n]*\n?)?/i, "")
-                    .replace(/Ajoneuvo:\s*\S+\s+Merkki:\s*[^\s]+(?:\s+\S+)?\s+Malli:\s*[^\s]+(?:\s+\S+)*?\s+Vuosimalli:\s*\d+\s*/i, "")
-                    .trim() || ui.noDescription;
-                })()}
-              </p>
+              <div className={basicInfoOpen ? "listing-section-content" : "listing-section-content is-collapsed"}>
 
               <div className="listing-fact-grid">
                 {listing.vehicle_type && (
@@ -813,6 +870,26 @@ export default function ListingPage() {
                   <strong>{ui.location}</strong>
                   {listing.location || ui.notSpecified}
                 </span>
+              </div>
+
+              </div>
+
+            </div>
+
+            <div className="description-card listing-extra-card">
+
+              <button
+                type="button"
+                className="listing-section-toggle"
+                aria-expanded={additionalInfoOpen}
+                onClick={() => setAdditionalInfoOpen((open) => !open)}
+              >
+                <span>{ui.additionalInfo}</span>
+                {additionalInfoOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </button>
+
+              <div className={additionalInfoOpen ? "listing-section-content" : "listing-section-content is-collapsed"}>
+                <p>{listingDescription}</p>
               </div>
 
             </div>
@@ -941,6 +1018,33 @@ export default function ListingPage() {
         </section>
 
       </div>
+
+      {previewImage && (
+        <div
+          className="listing-image-preview"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Kuvan esikatselu"
+        >
+          <button
+            type="button"
+            className="listing-image-preview-backdrop"
+            onClick={() => setPreviewImage(null)}
+            aria-label="Sulje kuvan esikatselu"
+          />
+          <div className="listing-image-preview-panel">
+            <img src={previewImage} alt={listingText.title} />
+            <button
+              type="button"
+              className="listing-image-preview-close"
+              onClick={() => setPreviewImage(null)}
+              aria-label="Sulje"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
 
@@ -1117,6 +1221,10 @@ export default function ListingPage() {
           font-weight: 750;
         }
 
+        .mobile-listing-id {
+          display: none;
+        }
+
         .image-wrapper {
           overflow: hidden;
           border-radius: 24px;
@@ -1132,6 +1240,21 @@ export default function ListingPage() {
           inset: 0;
           pointer-events: none;
           box-shadow: inset 0 -90px 80px rgba(6, 26, 46, 0.18);
+        }
+
+        .main-img-button {
+          background: transparent;
+          border: 0;
+          cursor: zoom-in;
+          display: block;
+          margin: 0;
+          padding: 0;
+          width: 100%;
+        }
+
+        .main-img-button:focus-visible {
+          outline: 3px solid rgba(255, 154, 36, 0.82);
+          outline-offset: -6px;
         }
 
         .image-badge {
@@ -1171,6 +1294,61 @@ export default function ListingPage() {
           height: clamp(360px, 48vw, 560px);
           object-fit: cover;
           display: block;
+        }
+
+        .listing-image-preview {
+          align-items: center;
+          display: flex;
+          inset: 0;
+          justify-content: center;
+          padding: 22px;
+          position: fixed;
+          z-index: 9999;
+        }
+
+        .listing-image-preview-backdrop {
+          background: rgba(0, 8, 20, 0.82);
+          border: 0;
+          cursor: zoom-out;
+          inset: 0;
+          position: absolute;
+        }
+
+        .listing-image-preview-panel {
+          background: rgba(5, 20, 38, 0.96);
+          border: 1px solid rgba(255, 154, 36, 0.64);
+          border-radius: 18px;
+          box-shadow: 0 28px 86px rgba(0, 8, 20, 0.62);
+          max-height: min(86vh, 820px);
+          max-width: min(94vw, 1120px);
+          overflow: hidden;
+          position: relative;
+          z-index: 1;
+        }
+
+        .listing-image-preview-panel img {
+          display: block;
+          max-height: min(86vh, 820px);
+          max-width: min(94vw, 1120px);
+          object-fit: contain;
+          width: 100%;
+        }
+
+        .listing-image-preview-close {
+          align-items: center;
+          background: linear-gradient(135deg, #ff9a24, #ef4444);
+          border: 1px solid rgba(255, 218, 184, 0.82);
+          border-radius: 999px;
+          box-shadow: 0 12px 24px rgba(0, 8, 20, 0.34);
+          color: #ffffff;
+          cursor: pointer;
+          display: inline-flex;
+          height: 40px;
+          justify-content: center;
+          position: absolute;
+          right: 12px;
+          top: 12px;
+          width: 40px;
         }
 
         .thumbs {
@@ -1254,12 +1432,30 @@ export default function ListingPage() {
             inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
-        .description-card h2 {
-          margin-top: 0;
+        .listing-section-toggle {
+          align-items: center;
+          background: transparent;
+          border: 0;
+          color: #0f172a;
+          cursor: pointer;
+          display: flex;
+          font: inherit;
           font-size: 1.5rem;
           font-weight: 800;
-          color: #0f172a;
-          letter-spacing: -0.02em;
+          justify-content: space-between;
+          letter-spacing: 0;
+          margin: 0;
+          padding: 0;
+          text-align: left;
+          width: 100%;
+        }
+
+        .listing-section-toggle svg {
+          flex: 0 0 auto;
+        }
+
+        .listing-section-content.is-collapsed {
+          display: none;
         }
 
         .description-card p {
@@ -1267,6 +1463,8 @@ export default function ListingPage() {
           line-height: 1.7;
           font-size: 16px;
           font-weight: 500;
+          margin-bottom: 0;
+          white-space: pre-line;
         }
 
         .listing-fact-grid {

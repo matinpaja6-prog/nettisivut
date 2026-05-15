@@ -1719,3 +1719,55 @@
     color: #ffb66d !important;
   }
 }
+
+/* Mobile range tabs: keep every option inside the management header. */
+@media (max-width: 640px) {
+  .header {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    width: 100% !important;
+  }
+
+  .statsRange {
+    box-sizing: border-box !important;
+    display: grid !important;
+    gap: 4px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    justify-self: stretch !important;
+    margin: 8px auto 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    padding: 4px !important;
+    width: 100% !important;
+  }
+
+  .statsRangeBtn {
+    align-items: center !important;
+    border-radius: 10px !important;
+    display: inline-flex !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    min-height: 34px !important;
+    min-width: 0 !important;
+    padding: 0 6px !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .statsRange {
+    gap: 3px !important;
+    padding: 3px !important;
+  }
+
+  .statsRangeBtn {
+    font-size: 11px !important;
+    padding: 0 4px !important;
+  }
+}
