@@ -6735,6 +6735,98 @@
   }
 }
 
+/* Final mobile recommendation sort pill: compact, polished, and clear of the title. */
+@media (max-width: 768px) {
+  .sectionHead {
+    align-items: start !important;
+    column-gap: 10px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    margin-bottom: 12px !important;
+    padding: 10px 4px 0 !important;
+  }
+
+  .sectionHead .recoHeading,
+  .sectionHead .recoHeadingText {
+    min-width: 0 !important;
+  }
+
+  .sectionHead .recoTitle {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    padding-right: 0 !important;
+  }
+
+  .listingToolbar {
+    display: flex !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    justify-content: flex-end !important;
+    margin-left: 0 !important;
+    min-width: 0 !important;
+    position: static !important;
+    width: auto !important;
+  }
+
+  .sectionSortControl,
+  .recoSortControl {
+    border-radius: 999px !important;
+    display: inline-grid !important;
+    min-height: 38px !important;
+    width: auto !important;
+  }
+
+  .sectionSortControl select,
+  .recoSortControl select {
+    cursor: pointer !important;
+    height: 100% !important;
+    inset: 0 !important;
+    min-height: 38px !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    width: 100% !important;
+    z-index: 2 !important;
+  }
+
+  .sectionSortControl .sortSelectFace,
+  .recoSortControl .sortSelectFace {
+    background:
+      radial-gradient(90px 48px at 100% 0%, rgba(255, 154, 36, 0.28), transparent 70%),
+      linear-gradient(145deg, rgba(9, 39, 65, 0.96), rgba(4, 20, 38, 0.98)) !important;
+    border: 1px solid rgba(255, 154, 36, 0.72) !important;
+    border-radius: 999px !important;
+    box-shadow:
+      0 12px 24px rgba(0, 8, 20, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    height: 38px !important;
+    letter-spacing: 0 !important;
+    max-width: 136px !important;
+    min-width: 118px !important;
+    overflow: hidden !important;
+    padding: 0 27px 0 12px !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .sectionSortControl .sortSelectFace::after,
+  .recoSortControl .sortSelectFace::after {
+    border-bottom: 2px solid currentColor !important;
+    border-right: 2px solid currentColor !important;
+    content: "" !important;
+    display: block !important;
+    height: 7px !important;
+    opacity: 0.86 !important;
+    position: absolute !important;
+    right: 12px !important;
+    top: 13px !important;
+    transform: rotate(45deg) !important;
+    width: 7px !important;
+  }
+}
+
 @media (max-width: 520px) {
   .cardsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
