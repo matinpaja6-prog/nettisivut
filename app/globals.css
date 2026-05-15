@@ -32609,3 +32609,177 @@ body .listing-detail-page .listing-image-preview-panel > img {
     object-fit: contain !important;
   }
 }
+
+/* Final mobile sell category cleanup: no gray side slab, clean final categories. */
+@media (max-width: 640px) {
+  body .sell-container #sell-step-category .sell-category-card,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch {
+    background:
+      linear-gradient(180deg, rgba(6, 26, 45, 0.18), rgba(3, 14, 27, 0.76)) !important;
+    border-color: rgba(207, 226, 240, 0.34) !important;
+    overflow: hidden !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card::before,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch::before {
+    display: none !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card::after,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch::after {
+    background:
+      linear-gradient(180deg, rgba(0, 8, 18, 0.02) 0%, rgba(0, 8, 18, 0.18) 42%, rgba(0, 8, 18, 0.82) 100%) !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-arrow,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch > svg {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #ff9a24 !important;
+    height: 28px !important;
+    padding: 0 !important;
+    right: 12px !important;
+    top: 12px !important;
+    width: 28px !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-body,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-text {
+    padding: 0 12px 14px !important;
+    text-align: left !important;
+  }
+
+  body .sell-container #sell-step-category .sell-category-card-body strong,
+  body .sell-container #sell-step-category .sell-subcategory-card.is-branch .sell-subcategory-text strong {
+    font-size: clamp(16px, 5vw, 22px) !important;
+    line-height: 1.02 !important;
+    max-width: calc(100% - 4px) !important;
+    -webkit-line-clamp: 3 !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact {
+    align-items: stretch !important;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf {
+    align-items: center !important;
+    aspect-ratio: auto !important;
+    background:
+      linear-gradient(145deg, rgba(9, 41, 67, 0.96), rgba(5, 24, 43, 0.98)) !important;
+    border: 1px solid rgba(207, 226, 240, 0.3) !important;
+    border-radius: 12px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 10px 20px rgba(0, 8, 20, 0.14) !important;
+    display: flex !important;
+    justify-content: center !important;
+    min-height: 54px !important;
+    overflow: hidden !important;
+    padding: 8px 9px !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf::before,
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf::after,
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-text::before,
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-text::after {
+    display: none !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-text {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-text strong {
+    color: #ffffff !important;
+    display: block !important;
+    font-size: clamp(11px, 3.2vw, 13px) !important;
+    font-weight: 900 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.12 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    overflow-wrap: anywhere !important;
+    text-align: center !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-break: normal !important;
+  }
+
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf.active,
+  body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf:hover {
+    background:
+      linear-gradient(145deg, rgba(255, 154, 36, 0.94), rgba(255, 112, 24, 0.96)) !important;
+    border-color: rgba(255, 218, 184, 0.72) !important;
+  }
+}
+
+/* Listing contact phone: orange call action on desktop and mobile. */
+body .listing-detail-page .contact-card .phone-btn,
+body .listing-detail-page .contact-card .phone-number {
+  align-items: center !important;
+  background:
+    radial-gradient(160px 70px at 100% 0%, rgba(255, 218, 184, 0.28), transparent 72%),
+    linear-gradient(135deg, #ff9a24 0%, #ff7418 100%) !important;
+  border: 1px solid rgba(255, 218, 184, 0.72) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    0 14px 30px rgba(255, 112, 24, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  font-size: clamp(18px, 3vw, 22px) !important;
+  font-weight: 950 !important;
+  gap: 10px !important;
+  justify-content: center !important;
+  letter-spacing: 0 !important;
+  min-height: 58px !important;
+  padding: 14px 18px !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  text-shadow: 0 1px 10px rgba(120, 38, 0, 0.24) !important;
+  width: 100% !important;
+}
+
+body .listing-detail-page .contact-card .phone-btn svg {
+  color: #ffffff !important;
+  height: 22px !important;
+  width: 22px !important;
+}
+
+body .listing-detail-page .contact-card .phone-number {
+  font-size: clamp(20px, 4vw, 26px) !important;
+  overflow-wrap: anywhere !important;
+}
+
+body .listing-detail-page .contact-card .phone-btn:hover,
+body .listing-detail-page .contact-card .phone-number:hover {
+  background:
+    radial-gradient(160px 70px at 100% 0%, rgba(255, 232, 204, 0.34), transparent 72%),
+    linear-gradient(135deg, #ffad3d 0%, #ff8120 100%) !important;
+  border-color: rgba(255, 232, 204, 0.86) !important;
+  transform: translateY(-1px) !important;
+}
+
+@media (max-width: 640px) {
+  body .listing-detail-page .contact-card .phone-btn,
+  body .listing-detail-page .contact-card .phone-number {
+    border-radius: 13px !important;
+    font-size: 21px !important;
+    min-height: 60px !important;
+    padding: 13px 14px !important;
+  }
+
+  body .listing-detail-page .contact-card .phone-number {
+    font-size: clamp(20px, 6vw, 27px) !important;
+  }
+}
