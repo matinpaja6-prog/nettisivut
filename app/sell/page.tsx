@@ -696,6 +696,9 @@ function SellPageContent() {
   const [selectedParts, setSelectedParts] =
     useState<string[]>([]);
 
+  const [selectedPresetIds, setSelectedPresetIds] =
+    useState<string[]>([]);
+
   const [selectedSubGroup, setSelectedSubGroup] = useState("");
 
   const [partPrices, setPartPrices] =
@@ -837,6 +840,7 @@ function SellPageContent() {
       }
       setSelectedSubGroup("");
       setSelectedParts([]);
+      setSelectedPresetIds([]);
       setPartPrices({});
       setPartImages({});
       setPartTitles({});
@@ -959,6 +963,12 @@ function SellPageContent() {
         setPartNumbers((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setPartConditions((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setExpandedParts((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
+        setSelectedPresetIds((current) =>
+          current.filter((id) => {
+            const preset = partPresets.find((item) => item.id === id);
+            return !preset?.parts.some((presetPart) => presetPart.toLowerCase() === partToRemove.toLowerCase());
+          })
+        );
         return prev.filter((item) => item.toLowerCase() !== part.toLowerCase());
       }
       setExpandedParts((p) => ({ ...p, [part]: true }));
@@ -1583,38 +1593,46 @@ function SellPageContent() {
       });
     };
 
-    setSelectedParts((current) => {
-      const currentLower = new Set(current.map((part) => part.toLowerCase()));
-      const presetLower = new Set(parts.map((part) => part.toLowerCase()));
-      const allAdded = parts.every((part) => currentLower.has(part.toLowerCase()));
+    const presetLower = new Set(parts.map((part) => part.toLowerCase()));
+    const presetAlreadyAdded =
+      selectedPresetIds.includes(preset.id) ||
+      parts.every((part) => effectiveSelectedPartKeySet.has(part.toLowerCase()));
 
-      if (allAdded) {
-        removePartData(parts);
-        return current.filter((part) => !presetLower.has(part.toLowerCase()));
-      }
+    if (presetAlreadyAdded) {
+      removePartData(parts);
+      setSelectedPresetIds((current) => current.filter((id) => id !== preset.id));
+      setSelectedParts((current) =>
+        current.filter((part) => !presetLower.has(part.toLowerCase()))
+      );
+      return;
+    }
 
-      const additions = parts.filter((part) => !currentLower.has(part.toLowerCase()));
-      if (additions.length === 0) return current;
+    setSelectedPresetIds((current) =>
+      current.includes(preset.id) ? current : [...current, preset.id]
+    );
 
-      setExpandedParts((expanded) => {
-        const next = { ...expanded };
-        additions.forEach((part) => {
-          next[part] = false;
+    setExpandedParts((expanded) => {
+      const next = { ...expanded };
+      parts.forEach((part) => {
+        next[part] = false;
+      });
+      return next;
+    });
+
+    if (preset.id !== "whole") {
+      setExpandedPartGroups((groups) => {
+        const next = { ...groups };
+        parts.forEach((part) => {
+          next[partGroupKey(part)] = true;
         });
         return next;
       });
+    }
 
-      if (preset.id !== "whole") {
-        setExpandedPartGroups((groups) => {
-          const next = { ...groups };
-          additions.forEach((part) => {
-            next[partGroupKey(part)] = true;
-          });
-          return next;
-        });
-      }
-
-      return [...current, ...additions];
+    setSelectedParts((current) => {
+      const currentLower = new Set(current.map((part) => part.toLowerCase()));
+      const additions = parts.filter((part) => !currentLower.has(part.toLowerCase()));
+      return additions.length > 0 ? [...current, ...additions] : current;
     });
   }
 
@@ -2049,6 +2067,7 @@ function SellPageContent() {
       // Auto-remove parts without a price from the UI so they don't reappear
       if (skippedCount > 0) {
         setSelectedParts(partsToPublish);
+        setSelectedPresetIds([]);
         const cleanupKeys = (obj: Record<string, unknown>) => {
           const next: Record<string, unknown> = {};
           for (const k of partsToPublish) {
@@ -2149,6 +2168,7 @@ function SellPageContent() {
       setForm(emptyListing);
       setListingMode("single");
       setSelectedParts([]);
+      setSelectedPresetIds([]);
       setPartPrices({});
       setPartImages({});
       setPartTitles({});
@@ -2338,7 +2358,7 @@ function SellPageContent() {
               type="button"
               disabled={locked}
               className={listingMode === "single" ? "sell-mode-card active" : "sell-mode-card"}
-              onClick={() => { setListingMode("single"); setSelectedParts([]); setExpandedPartGroups({}); setTimeout(() => goToWizardStep("sell-step-vehicle"), 80); }}
+              onClick={() => { setListingMode("single"); setSelectedParts([]); setSelectedPresetIds([]); setExpandedPartGroups({}); setTimeout(() => goToWizardStep("sell-step-vehicle"), 80); }}
             >
               <span className="sell-mode-icon">
                 <Package size={24} />
@@ -2592,7 +2612,7 @@ function SellPageContent() {
                   const allAdded =
                     preset.parts.length > 0 &&
                     preset.parts.every((p) => effectiveSelectedPartKeySet.has(p.toLowerCase()));
-                  const presetAdded = allAdded;
+                  const presetAdded = selectedPresetIds.includes(preset.id) || allAdded;
                   const newCount = preset.parts.filter((p) =>
                     !effectiveSelectedPartKeySet.has(p.toLowerCase())
                   ).length;
@@ -2730,6 +2750,7 @@ function SellPageContent() {
                             <span className="sell-subcategory-text">
                               <strong>{translateCategory(locale, group)}</strong>
                             </span>
+                            <span className="sell-selection-dot" aria-hidden="true" />
                             {hasChildren && <ChevronRight size={18} />}
                           </button>
                         );
@@ -2769,6 +2790,7 @@ function SellPageContent() {
                               <span className="sell-subcategory-text">
                                 <strong>{translateCategory(locale, leafLabel)}</strong>
                               </span>
+                              <span className="sell-selection-dot" aria-hidden="true" />
                             </button>
                           );
                         })}
@@ -2806,6 +2828,7 @@ function SellPageContent() {
                           <span className="sell-subcategory-text">
                             <strong>{translateCategory(locale, sub)}</strong>
                           </span>
+                          <span className="sell-selection-dot" aria-hidden="true" />
                         </button>
                       );
                     })}

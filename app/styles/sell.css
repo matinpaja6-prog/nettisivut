@@ -10401,3 +10401,36 @@ body .sell-container #sell-step-category .sell-subcategory-card.is-leaf.active {
     0 0 0 1px rgba(255, 255, 255, 0.52),
     0 12px 22px rgba(255, 112, 24, 0.16) !important;
 }
+
+/* Create listing: selected part cards show an orange status dot only when active. */
+body .sell-container #sell-step-category .sell-subcategory-card .sell-selection-dot {
+  background:
+    radial-gradient(circle at 35% 30%, #fff2dd 0 13%, transparent 14%),
+    linear-gradient(145deg, #ffad3d, #ff6f14) !important;
+  border: 2px solid rgba(255, 244, 228, 0.92) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 0 0 4px rgba(255, 126, 25, 0.14),
+    0 8px 18px rgba(255, 112, 20, 0.34) !important;
+  display: none !important;
+  height: 16px !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  right: 16px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 16px !important;
+  z-index: 5 !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.active .sell-selection-dot {
+  display: block !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-branch.active .sell-selection-dot {
+  right: 44px !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card:not(.active) .sell-selection-dot {
+  display: none !important;
+}
