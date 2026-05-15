@@ -1635,11 +1635,11 @@ function SellPageContent() {
     const currentLower = new Set(effectiveSelectedParts.map((part) => part.toLowerCase()));
     const additions = parts.filter((part) => !currentLower.has(part.toLowerCase()));
 
-    if (additions.length === 0) return;
-
     setSelectedPresetIds((current) =>
       current.includes(preset.id) ? current : [...current, preset.id]
     );
+
+    if (additions.length === 0) return;
 
     setExpandedParts((expanded) => {
       const next = { ...expanded };

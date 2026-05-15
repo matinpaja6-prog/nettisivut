@@ -10443,21 +10443,25 @@ body .sell-container .preset-card:not(.added):hover::before {
 body .sell-container #sell-step-category .preset-card.added,
 body .sell-container .preset-card.added {
   background:
-    linear-gradient(145deg, rgba(255, 137, 24, 0.16), rgba(9, 42, 68, 0.94)) !important;
-  border-color: rgba(255, 169, 72, 0.96) !important;
+    linear-gradient(145deg, rgba(22, 163, 74, 0.22), rgba(9, 42, 68, 0.94)) !important;
+  border-color: rgba(74, 222, 128, 0.95) !important;
   box-shadow:
-    0 18px 36px rgba(255, 107, 22, 0.16),
-    inset 0 1px 0 rgba(255, 220, 188, 0.18) !important;
+    0 18px 36px rgba(22, 163, 74, 0.22),
+    inset 0 1px 0 rgba(187, 247, 208, 0.22) !important;
 }
 
 body .sell-container #sell-step-category .preset-card:not(.added) .preset-count,
 body .sell-container .preset-card:not(.added) .preset-count {
   background: linear-gradient(145deg, #ff9d2e, #ff7017) !important;
+  border-color: rgba(255, 198, 138, 0.72) !important;
+  color: #ffffff !important;
 }
 
 body .sell-container #sell-step-category .preset-card.added .preset-count,
 body .sell-container .preset-card.added .preset-count {
-  background: linear-gradient(145deg, #f56d18, #d94b0b) !important;
+  background: linear-gradient(145deg, #16a34a, #15803d) !important;
+  border-color: rgba(187, 247, 208, 0.72) !important;
+  color: #ffffff !important;
 }
 
 /* Full-image category and product cards on the sell page. */
