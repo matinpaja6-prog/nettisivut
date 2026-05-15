@@ -820,6 +820,20 @@ function SellPageContent() {
 
   const DRAFT_KEY = "sell_draft_v1";
 
+  function resetPartSelection() {
+    setSelectedSubGroup("");
+    setSelectedParts([]);
+    setSelectedPresetIds([]);
+    setPartPrices({});
+    setPartImages({});
+    setPartTitles({});
+    setPartDescriptions({});
+    setPartNumbers({});
+    setPartConditions({});
+    setExpandedParts({});
+    setExpandedPartGroups({});
+  }
+
   useEffect(() => {
     if (hasUrlParams) return;
     try {
@@ -838,17 +852,7 @@ function SellPageContent() {
         if (d.listingMode) setListingMode(d.listingMode);
         if (d.images) setImages(d.images);
       }
-      setSelectedSubGroup("");
-      setSelectedParts([]);
-      setSelectedPresetIds([]);
-      setPartPrices({});
-      setPartImages({});
-      setPartTitles({});
-      setPartDescriptions({});
-      setPartNumbers({});
-      setPartConditions({});
-      setExpandedParts({});
-      setExpandedPartGroups({});
+      resetPartSelection();
     } catch {}
   }, []);
 
@@ -857,6 +861,7 @@ function SellPageContent() {
       form,
       listingMode,
       selectedParts,
+      selectedPresetIds,
       partPrices,
       partTitles,
       partDescriptions,
@@ -873,7 +878,7 @@ function SellPageContent() {
         localStorage.setItem(DRAFT_KEY, JSON.stringify(withoutImages));
       } catch {}
     }
-  }, [form, listingMode, selectedParts, partPrices, partTitles, partDescriptions, partNumbers, partConditions, images, partImages]);
+  }, [form, listingMode, selectedParts, selectedPresetIds, partPrices, partTitles, partDescriptions, partNumbers, partConditions, images, partImages]);
 
   const currentCategories =
     vehicleTypeCategories[form.vehicleType] ?? vehicleTypeCategories.Moottorikelkka;
@@ -2198,16 +2203,7 @@ function SellPageContent() {
       try { localStorage.removeItem(DRAFT_KEY); } catch {}
       setForm(emptyListing);
       setListingMode("single");
-      setSelectedParts([]);
-      setSelectedPresetIds([]);
-      setPartPrices({});
-      setPartImages({});
-      setPartTitles({});
-      setPartDescriptions({});
-      setPartNumbers({});
-      setPartConditions({});
-      setExpandedParts({});
-      setExpandedPartGroups({});
+      resetPartSelection();
       setCustomPart("");
       setImages([]);
       const skipMsg = skippedCount > 0 ? ` (${skippedCount} tyhjää ohitettu)` : "";
@@ -2389,7 +2385,7 @@ function SellPageContent() {
               type="button"
               disabled={locked}
               className={listingMode === "single" ? "sell-mode-card active" : "sell-mode-card"}
-              onClick={() => { setListingMode("single"); setSelectedParts([]); setSelectedPresetIds([]); setExpandedPartGroups({}); setTimeout(() => goToWizardStep("sell-step-vehicle"), 80); }}
+              onClick={() => { setListingMode("single"); resetPartSelection(); setTimeout(() => goToWizardStep("sell-step-vehicle"), 80); }}
             >
               <span className="sell-mode-icon">
                 <Package size={24} />
@@ -2800,6 +2796,7 @@ function SellPageContent() {
                       <div className="sell-subcategory-card-list compact">
                         {currentSubcategoryGroups[selectedSubGroup].map((sub) => {
                           const leafLabel = sub.includes(" / ") ? sub.split(" / ").slice(1).join(" / ") : sub;
+                          const leafImage = getSubCategoryVisual(leafLabel) || getSubCategoryVisual(sub);
                           const isSelected =
                             listingMode === "multiple"
                               ? selectedParts.some((part) => part.toLowerCase() === partKey(form.category, sub).toLowerCase())
@@ -2821,6 +2818,11 @@ function SellPageContent() {
                                 }
                               }}
                             >
+                              {leafImage && (
+                                <span className="sell-subcategory-thumb">
+                                  <img src={leafImage} alt="" />
+                                </span>
+                              )}
                               <span className="sell-subcategory-text">
                                 <strong>{translateCategory(locale, leafLabel)}</strong>
                               </span>
@@ -2837,6 +2839,7 @@ function SellPageContent() {
                   <span className="field-label">{listingMode === "multiple" ? t.sellSelectProducts : t.detailedPart}</span>
                   <div className="sell-subcategory-card-list compact">
                     {subcategories.map((sub) => {
+                      const leafImage = getSubCategoryVisual(sub);
                       const isSelected =
                         listingMode === "multiple"
                           ? selectedParts.some((part) => part.toLowerCase() === partKey(form.category, sub).toLowerCase())
@@ -2859,6 +2862,11 @@ function SellPageContent() {
                             });
                           }}
                         >
+                          {leafImage && (
+                            <span className="sell-subcategory-thumb">
+                              <img src={leafImage} alt="" />
+                            </span>
+                          )}
                           <span className="sell-subcategory-text">
                             <strong>{translateCategory(locale, sub)}</strong>
                           </span>
