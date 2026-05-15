@@ -8767,6 +8767,7 @@ body .sell-container .part-group {
   border: 1px solid rgba(82, 150, 196, 0.36) !important;
   border-radius: 16px !important;
   overflow: hidden !important;
+  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease !important;
 }
 
 body .sell-container .part-group.open {
@@ -8849,13 +8850,28 @@ body .sell-container .part-group-count {
 body .sell-container .part-group-action {
   background: linear-gradient(135deg, #ff9a24, #ff7418) !important;
   color: #ffffff !important;
+  cursor: pointer !important;
   padding: 7px 12px !important;
+  position: relative !important;
+  z-index: 4 !important;
 }
 
 body .sell-container .part-group-items {
+  animation: sellPartGroupReveal 180ms ease both !important;
   display: grid !important;
   gap: 10px !important;
   padding: 10px !important;
+}
+
+@keyframes sellPartGroupReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 body .sell-container .part-group-items .part-card {

@@ -1594,10 +1594,10 @@ function SellPageContent() {
     };
 
     const presetLower = new Set(parts.map((part) => part.toLowerCase()));
+    const selectedLower = new Set(selectedParts.map((part) => part.toLowerCase()));
     const presetAlreadyAdded =
       selectedPresetIds.includes(preset.id) ||
-      parts.some((part) => effectiveSelectedPartKeySet.has(part.toLowerCase())) ||
-      parts.some((part) => expandedPartGroups[partGroupKey(part)]);
+      parts.some((part) => selectedLower.has(part.toLowerCase()));
 
     if (presetAlreadyAdded) {
       removePartData(parts);
@@ -1635,6 +1635,13 @@ function SellPageContent() {
       const additions = parts.filter((part) => !currentLower.has(part.toLowerCase()));
       return additions.length > 0 ? [...current, ...additions] : current;
     });
+  }
+
+  function isPresetActive(preset: Preset) {
+    return (
+      selectedPresetIds.includes(preset.id) ||
+      preset.parts.some((part) => effectiveSelectedPartKeySet.has(part.toLowerCase()))
+    );
   }
 
   /* =========================
@@ -2610,16 +2617,7 @@ function SellPageContent() {
               <span className="field-label">{t.sellQuickPick}</span>
               <div className="preset-grid">
                 {partPresets.map((preset) => {
-                  const selectedCount = preset.parts.filter((p) =>
-                    effectiveSelectedPartKeySet.has(p.toLowerCase())
-                  ).length;
-                  const presetGroupOpen = preset.parts.some((p) =>
-                    expandedPartGroups[partGroupKey(p)]
-                  );
-                  const presetAdded =
-                    selectedPresetIds.includes(preset.id) ||
-                    selectedCount > 0 ||
-                    presetGroupOpen;
+                  const presetAdded = isPresetActive(preset);
                   const newCount = preset.parts.filter((p) =>
                     !effectiveSelectedPartKeySet.has(p.toLowerCase())
                   ).length;
@@ -2911,7 +2909,24 @@ function SellPageContent() {
                                 <small>{group.desc}</small>
                               </span>
                               <span className="part-group-count">{group.parts.length} tuotetta</span>
-                              <span className="part-group-action">{groupOpen ? "Sulje" : "Avaa"}</span>
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                className="part-group-action"
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  event.stopPropagation();
+                                  setExpandedPartGroups((prev) => ({ ...prev, [group.key]: !groupOpen }));
+                                }}
+                                onKeyDown={(event) => {
+                                  if (event.key !== "Enter" && event.key !== " ") return;
+                                  event.preventDefault();
+                                  event.stopPropagation();
+                                  setExpandedPartGroups((prev) => ({ ...prev, [group.key]: !groupOpen }));
+                                }}
+                              >
+                                {groupOpen ? "Sulje" : "Avaa"}
+                              </span>
                             </button>
 
                             {groupOpen && (
