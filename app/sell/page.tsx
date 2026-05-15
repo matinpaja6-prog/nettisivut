@@ -68,6 +68,7 @@ const emptyListing = {
   brand: "",
   brandOther: "",
   model: "",
+  modelOther: "",
   year: "",
   engineCc: "",
   engineCcOther: "",
@@ -793,6 +794,7 @@ function SellPageContent() {
         ...prev,
         brand: make || prev.brand,
         model: model || prev.model,
+        modelOther: "",
         year: year || prev.year,
         vehicleType: vehicleType || prev.vehicleType
       }));
@@ -897,6 +899,12 @@ function SellPageContent() {
 
   const brandOptions =
     vehicleBrands[form.vehicleType] || [];
+
+  const modelOptions =
+    Object.keys(brandModelEngineMap[form.vehicleType]?.[form.brand] ?? {});
+
+  const resolvedModel =
+    form.model === "muu" ? (form.modelOther || "").trim() : form.model;
 
   function partKey(category: string, part: string) {
     return `${category} / ${part}`;
@@ -1494,12 +1502,39 @@ function SellPageContent() {
 
   function applyPreset(preset: Preset) {
     const parts = preset.parts;
+    const removePartData = (removedParts: string[]) => {
+      const removedLower = new Set(removedParts.map((part) => part.toLowerCase()));
+      const cleanRecord = <T,>(record: Record<string, T>) =>
+        Object.fromEntries(
+          Object.entries(record).filter(([key]) => !removedLower.has(key.toLowerCase()))
+        ) as Record<string, T>;
+
+      setPartPrices((current) => cleanRecord(current));
+      setPartImages((current) => cleanRecord(current));
+      setPartTitles((current) => cleanRecord(current));
+      setPartDescriptions((current) => cleanRecord(current));
+      setPartNumbers((current) => cleanRecord(current));
+      setPartConditions((current) => cleanRecord(current));
+      setExpandedParts((current) => cleanRecord(current));
+      setExpandedPartGroups((current) => {
+        const next = { ...current };
+        removedParts.forEach((part) => {
+          delete next[partGroupKey(part)];
+        });
+        return next;
+      });
+    };
+
     setSelectedParts((prev) => {
       const allAdded = parts.every((p) =>
         prev.some((existing) => existing.toLowerCase() === p.toLowerCase())
       );
       if (allAdded) {
         const lower = parts.map((p) => p.toLowerCase());
+        const removedParts = prev.filter((existing) =>
+          lower.includes(existing.toLowerCase())
+        );
+        removePartData(removedParts);
         return prev.filter((existing) => !lower.includes(existing.toLowerCase()));
       }
       const additions = parts.filter(
@@ -1837,7 +1872,7 @@ function SellPageContent() {
       const autoTitleParts = [
         form.subcategory || form.category,
         form.brand,
-        form.model,
+        resolvedModel,
         form.year
       ].filter((part) => typeof part === "string" && part.trim().length > 0);
 
@@ -1916,7 +1951,7 @@ function SellPageContent() {
     const vehicleDetails = [
       form.vehicleType,
       form.brand,
-      form.model,
+      resolvedModel,
       form.year
     ].filter(Boolean);
 
@@ -2002,7 +2037,7 @@ function SellPageContent() {
           seller_email: profile.email || user.email || "",
           seller_phone: listingSellerPhone,
           brand: form.brand,
-          model: form.model || null,
+          model: resolvedModel || null,
           year: form.year || null,
           engine_cc: (form.engineCc === "muu" ? form.engineCcOther : form.engineCc) || null,
           engine_model: (form.engineModel === "muu" ? form.engineModelOther : form.engineModel) || null
@@ -2092,7 +2127,7 @@ function SellPageContent() {
         seller_email: profile.email || user.email || "",
         seller_phone: listingSellerPhone,
         brand: form.brand,
-        model: form.model || null,
+        model: resolvedModel || null,
         year: form.year || null,
         engine_cc: (form.engineCc === "muu" ? form.engineCcOther : form.engineCc) || null,
         engine_model: (form.engineModel === "muu" ? form.engineModelOther : form.engineModel) || null
@@ -2284,6 +2319,7 @@ function SellPageContent() {
                         brand: "",
                         brandOther: "",
                         model: "",
+                        modelOther: "",
                         engineCc: "",
                         engineCcOther: "",
                         engineModel: "",
@@ -2311,7 +2347,7 @@ function SellPageContent() {
           <div className="sell-grid-3">
             <label className="field-stack">
               <span className="field-label">{t.brand}</span>
-              <select value={form.brand} disabled={locked} onChange={(e) => setForm({ ...form, brand: e.target.value, brandOther: "", model: "", engineCc: "", engineCcOther: "", engineModel: "", engineModelOther: "" })}>
+              <select value={form.brand} disabled={locked} onChange={(e) => setForm({ ...form, brand: e.target.value, brandOther: "", model: "", modelOther: "", engineCc: "", engineCcOther: "", engineModel: "", engineModelOther: "" })}>
                 <option value="">{t.selectBrand}</option>
                 {brandOptions.map((b) => <option key={b} value={b}>{b}</option>)}
                 <option value="muu">{t.sellOtherOption}</option>
@@ -2328,33 +2364,56 @@ function SellPageContent() {
             </label>
             <label className="field-stack">
               <span className="field-label">{t.model}</span>
-              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                <input
-                  list={`mdl-${form.vehicleType}-${form.brand}`}
-                  placeholder="esim. Rave RE 600"
-                  value={form.model}
-                  disabled={locked}
-                  style={{ paddingRight: form.model ? 28 : undefined }}
-                  onChange={(e) => {
-                    const m = e.target.value;
-                    const eng = brandModelEngineMap[form.vehicleType]?.[form.brand]?.[m];
-                    setForm({ ...form, model: m, ...(eng ? { engineCc: eng.engineCc, engineModel: eng.engineModel } : {}) });
-                  }}
-                />
-                {form.model && !locked && (
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, model: "", engineCc: "", engineCcOther: "", engineModel: "", engineModelOther: "" })}
-                    style={{ position: "absolute", right: 8, background: "none", border: "none", cursor: "pointer", fontSize: 14, color: "#94a3b8", lineHeight: 1, padding: 0 }}
-                    title={t.sellClearField}
-                  >✕</button>
-                )}
-              </div>
-              <datalist id={`mdl-${form.vehicleType}-${form.brand}`}>
-                {Object.keys(brandModelEngineMap[form.vehicleType]?.[form.brand] ?? {}).map((m) => (
-                  <option key={m} value={m} />
+              <select
+                value={form.model}
+                disabled={locked || !form.brand}
+                onChange={(e) => {
+                  const m = e.target.value;
+                  const eng = brandModelEngineMap[form.vehicleType]?.[form.brand]?.[m];
+                  setForm({
+                    ...form,
+                    model: m,
+                    modelOther: "",
+                    engineCc: eng ? eng.engineCc : "",
+                    engineCcOther: "",
+                    engineModel: eng ? eng.engineModel : "",
+                    engineModelOther: ""
+                  });
+                }}
+              >
+                <option value="">
+                  {form.brand ? "Valitse malli" : "Valitse merkki ensin"}
+                </option>
+                {modelOptions.map((m) => (
+                  <option key={m} value={m}>{m}</option>
                 ))}
-              </datalist>
+                {form.model && form.model !== "muu" && !modelOptions.includes(form.model) && (
+                  <option value={form.model}>{form.model}</option>
+                )}
+                <option value="muu">{t.sellOtherOption}</option>
+              </select>
+              {form.model === "muu" && (
+                <input
+                  placeholder="Kirjoita malli"
+                  value={form.modelOther || ""}
+                  disabled={locked}
+                  onChange={(e) => setForm({ ...form, modelOther: e.target.value })}
+                  style={{ marginTop: 6 }}
+                />
+              )}
+              {form.model && !locked && (
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, model: "", modelOther: "", engineCc: "", engineCcOther: "", engineModel: "", engineModelOther: "" })}
+                  style={{ alignSelf: "flex-start", background: "rgba(255, 154, 36, 0.12)", border: "1px solid rgba(255, 154, 36, 0.34)", borderRadius: 999, color: "#ffb45f", cursor: "pointer", fontSize: 12, fontWeight: 800, lineHeight: 1, marginTop: 6, padding: "7px 10px" }}
+                  title={t.sellClearField}
+                >
+                  Tyhjennä
+                </button>
+              )}
+              <span className="sell-model-helper">
+                Oman mallin voi kirjoittaa vasta, kun valitset listasta “Muu”.
+              </span>
             </label>
             <label className="field-stack">
               <span className="field-label">{t.year}</span>
@@ -2839,7 +2898,7 @@ function SellPageContent() {
                               <label className="field-stack">
                                 <span className="field-label">{t.title}</span>
                                 <input
-                                  placeholder={`esim. ${(part.split(" / ")[1] || part)} - ${[form.brand, form.model, form.year].filter(Boolean).join(" ")}`}
+                                  placeholder={`esim. ${(part.split(" / ")[1] || part)} - ${[form.brand, resolvedModel, form.year].filter(Boolean).join(" ")}`}
                                   value={partTitles[part] || ""}
                                   onChange={(e) => setPartTitles((prev) => ({ ...prev, [part]: e.target.value }))}
                                 />

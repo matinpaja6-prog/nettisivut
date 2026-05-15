@@ -2569,6 +2569,9 @@ export default function Home() {
                         }}
                       >
                         <div className={`${styles.cardImage} ${styles.listingCardImage}`}>
+                          <span className={styles.cardImageBlur} aria-hidden="true">
+                            <img src={listingImageSrc(listing)} alt="" loading="lazy" referrerPolicy="no-referrer" />
+                          </span>
                           <img
                             src={listingImageSrc(listing)}
                             alt={listingText.title}
@@ -2771,6 +2774,9 @@ export default function Home() {
                   >
 
                     <div className={`${styles.cardImage} ${styles.listingCardImage}`}>
+                      <span className={styles.cardImageBlur} aria-hidden="true">
+                        <img src={listingImageSrc(listing)} alt="" loading="lazy" referrerPolicy="no-referrer" />
+                      </span>
                       <img
                         src={listingImageSrc(listing)}
                         alt={listingText.title}

@@ -810,6 +810,9 @@ export default function ListingPage() {
                   onTouchEnd={finishImageSwipe}
                   aria-label="Avaa kuva suurempana"
                 >
+                  <span className="listing-image-soft-bg" aria-hidden="true">
+                    <img src={activeImage} alt="" />
+                  </span>
                   <img
                     src={activeImage}
                     className="main-img"
@@ -1113,6 +1116,9 @@ export default function ListingPage() {
             aria-label="Sulje kuvan esikatselu"
           />
           <div className="listing-image-preview-panel">
+            <span className="listing-image-preview-bg" aria-hidden="true">
+              <img src={previewImage} alt="" />
+            </span>
             <img
               src={previewImage}
               alt={listingText.title}
