@@ -1593,6 +1593,14 @@ function SellPageContent() {
   function applyPreset(preset: Preset) {
     const parts = preset.parts;
     const presetIsSelected = selectedPresetIds.includes(preset.id);
+    console.log("[PRESET CLICK]", {
+      id: preset.id,
+      label: preset.label,
+      partsCount: parts.length,
+      presetIsSelected,
+      currentSelectedPresetIds: selectedPresetIds,
+      currentSelectedPartsCount: effectiveSelectedParts.length
+    });
     const removePartData = (removedParts: string[]) => {
       const removedLower = new Set(removedParts.map((part) => part.toLowerCase()));
       const cleanRecord = <T,>(record: Record<string, T>) =>
