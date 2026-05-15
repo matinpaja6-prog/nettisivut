@@ -14,6 +14,7 @@ import "./styles/saved.css";
 import "./styles/sell.css";
 import "./styles/listing-detail.css";
 import "./styles/profile.css";
+import "./styles/shop.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";

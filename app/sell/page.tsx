@@ -1487,24 +1487,6 @@ function SellPageContent() {
       )
       .filter((preset) => preset.parts.length > 0);
 
-  useEffect(() => {
-    setSelectedPresetIds((current) => {
-      const selectedPartKeys = new Set(selectedParts.map((part) => part.toLowerCase()));
-      const next = current.filter((id) => {
-        const preset = partPresets.find((item) => item.id === id);
-        return Boolean(
-          preset &&
-          preset.parts.length > 0 &&
-          preset.parts.every((part) => selectedPartKeys.has(part.toLowerCase()))
-        );
-      });
-
-      return next.length === current.length && next.every((id, index) => id === current[index])
-        ? current
-        : next;
-    });
-  }, [partPresets, selectedParts]);
-
   function getPresetVisual(preset: Preset) {
     if (preset.id === "whole") return vehicleCardData[form.vehicleType]?.img || "/vehicles/all.png";
     if (preset.id === "engine") return categoryMainVisuals["Moottori & voimansiirto"];

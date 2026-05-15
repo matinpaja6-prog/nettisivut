@@ -1,0 +1,43 @@
+/* Shop page overrides that must load after the broad legacy sell.css rules. */
+
+body .shop-workspace .shop-small-links {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  display: flex !important;
+  justify-content: center !important;
+  margin: 14px auto 0 !important;
+  padding: 0 !important;
+}
+
+body .shop-workspace .shop-small-links a {
+  align-items: center !important;
+  background:
+    linear-gradient(135deg, #ff9a24 0%, #ff7a1a 56%, #ec5c00 100%) !important;
+  border: 1px solid rgba(255, 218, 184, 0.66) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 14px 30px rgba(255, 111, 18, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  gap: 8px !important;
+  justify-content: center !important;
+  min-height: 44px !important;
+  padding: 0 17px !important;
+  text-decoration: none !important;
+  width: fit-content !important;
+}
+
+body .shop-workspace .shop-small-links a:hover {
+  background:
+    linear-gradient(135deg, #ffb14a 0%, #ff8428 56%, #f46408 100%) !important;
+  border-color: rgba(255, 232, 210, 0.82) !important;
+  transform: translateY(-1px) !important;
+}
+
+body .shop-workspace .shop-small-links a svg {
+  flex: 0 0 auto !important;
+}
