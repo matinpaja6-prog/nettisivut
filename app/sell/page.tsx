@@ -970,8 +970,7 @@ function SellPageContent() {
         setExpandedParts((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         return prev.filter((item) => item.toLowerCase() !== part.toLowerCase());
       }
-      setExpandedParts((p) => ({ ...p, [part]: true }));
-      setExpandedPartGroups((p) => ({ ...p, [partGroupKey(part)]: true }));
+      setExpandedParts((p) => ({ ...p, [part]: false }));
       return [...prev, part];
     });
   }
@@ -985,8 +984,7 @@ function SellPageContent() {
 
     setSelectedParts((prev) => {
       if (prev.some((item) => item.toLowerCase() === key.toLowerCase())) return prev;
-      setExpandedParts((p) => ({ ...p, [key]: true }));
-      setExpandedPartGroups((p) => ({ ...p, [partGroupKey(key)]: true }));
+      setExpandedParts((p) => ({ ...p, [key]: false }));
       return [...prev, key];
     });
     setCustomPart("");
@@ -1644,16 +1642,6 @@ function SellPageContent() {
       });
       return next;
     });
-
-    if (preset.id !== "whole") {
-      setExpandedPartGroups((groups) => {
-        const next = { ...groups };
-        additions.forEach((part) => {
-          next[partGroupKey(part)] = true;
-        });
-        return next;
-      });
-    }
 
     setSelectedParts((current) => {
       const selectedLower = new Set(current.map((part) => part.toLowerCase()));
@@ -2783,7 +2771,6 @@ function SellPageContent() {
                       <div className="sell-subcategory-card-list compact">
                         {currentSubcategoryGroups[selectedSubGroup].map((sub) => {
                           const leafLabel = sub.includes(" / ") ? sub.split(" / ").slice(1).join(" / ") : sub;
-                          const leafImage = getSubCategoryVisual(leafLabel) || getSubCategoryVisual(sub);
                           const isSelected =
                             listingMode === "multiple"
                               ? selectedParts.some((part) => part.toLowerCase() === partKey(form.category, sub).toLowerCase())
@@ -2805,11 +2792,6 @@ function SellPageContent() {
                                 }
                               }}
                             >
-                              {leafImage && (
-                                <span className="sell-subcategory-thumb">
-                                  <img src={leafImage} alt="" />
-                                </span>
-                              )}
                               <span className="sell-subcategory-text">
                                 <strong>{translateCategory(locale, leafLabel)}</strong>
                               </span>
@@ -2826,7 +2808,6 @@ function SellPageContent() {
                   <span className="field-label">{listingMode === "multiple" ? t.sellSelectProducts : t.detailedPart}</span>
                   <div className="sell-subcategory-card-list compact">
                     {subcategories.map((sub) => {
-                      const leafImage = getSubCategoryVisual(sub);
                       const isSelected =
                         listingMode === "multiple"
                           ? selectedParts.some((part) => part.toLowerCase() === partKey(form.category, sub).toLowerCase())
@@ -2849,11 +2830,6 @@ function SellPageContent() {
                             });
                           }}
                         >
-                          {leafImage && (
-                            <span className="sell-subcategory-thumb">
-                              <img src={leafImage} alt="" />
-                            </span>
-                          )}
                           <span className="sell-subcategory-text">
                             <strong>{translateCategory(locale, sub)}</strong>
                           </span>
@@ -2914,22 +2890,7 @@ function SellPageContent() {
                                 <small>{group.desc}</small>
                               </span>
                               <span className="part-group-count">{group.parts.length} tuotetta</span>
-                              <span
-                                role="button"
-                                tabIndex={0}
-                                className="part-group-action"
-                                onClick={(event) => {
-                                  event.preventDefault();
-                                  event.stopPropagation();
-                                  setExpandedPartGroups((prev) => ({ ...prev, [group.key]: !groupOpen }));
-                                }}
-                                onKeyDown={(event) => {
-                                  if (event.key !== "Enter" && event.key !== " ") return;
-                                  event.preventDefault();
-                                  event.stopPropagation();
-                                  setExpandedPartGroups((prev) => ({ ...prev, [group.key]: !groupOpen }));
-                                }}
-                              >
+                              <span className="part-group-action" aria-hidden="true">
                                 {groupOpen ? "Sulje" : "Avaa"}
                               </span>
                             </button>
