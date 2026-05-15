@@ -1509,11 +1509,6 @@ function SellPageContent() {
     [effectiveSelectedParts, form.price, partPrices]
   );
 
-  const effectiveSelectedPartKeySet = useMemo(
-    () => new Set(effectiveSelectedParts.map((part) => part.toLowerCase())),
-    [effectiveSelectedParts]
-  );
-
   const publishListingCount =
     listingMode === "multiple"
       ? effectiveSelectedParts.length
@@ -1618,9 +1613,8 @@ function SellPageContent() {
 
     const { canUseGroupFallback, presetGroupKeys, presetLower, selectedPresetParts } =
       getPresetMatch(preset, effectiveSelectedParts);
-    const presetAlreadyAdded = presetIsSelected || selectedPresetParts.length > 0;
 
-    if (presetAlreadyAdded) {
+    if (presetIsSelected) {
       setSelectedPresetIds((current) => current.filter((id) => id !== preset.id));
       removePartData([...parts, ...selectedPresetParts]);
       setSelectedParts((current) =>
@@ -1667,10 +1661,7 @@ function SellPageContent() {
   }
 
   function isPresetActive(preset: Preset) {
-    return (
-      selectedPresetIds.includes(preset.id) ||
-      getPresetMatch(preset, effectiveSelectedParts).selectedPresetParts.length > 0
-    );
+    return selectedPresetIds.includes(preset.id);
   }
 
   /* =========================
@@ -2637,11 +2628,7 @@ function SellPageContent() {
               <div className="preset-grid">
                 {partPresets.map((preset) => {
                   const presetAdded = isPresetActive(preset);
-                  const newCount = preset.parts.filter((p) =>
-                    !effectiveSelectedPartKeySet.has(p.toLowerCase())
-                  ).length;
-                  const partial = !presetAdded && newCount < preset.parts.length;
-                  const cardClass = ["preset-card", presetAdded ? "added" : "", partial ? "partial" : ""].filter(Boolean).join(" ");
+                  const cardClass = ["preset-card", presetAdded ? "added" : ""].filter(Boolean).join(" ");
                   return (
                     <button
                       key={preset.id}
@@ -2662,12 +2649,6 @@ function SellPageContent() {
                         <strong>{preset.label}</strong>
                         <span>{preset.desc}</span>
                       </div>
-                      <span
-                        className="preset-count"
-                        aria-hidden="true"
-                      >
-                        {presetAdded ? t.sellPresetRemoveLabel : t.sellPresetAddLabel}
-                      </span>
                     </button>
                   );
                 })}
