@@ -1,5 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./styles/auth.css";
+import "./styles/garage.css";
+import "./styles/legal.css";
+import "./styles/messages.css";
+import "./styles/my-listings.css";
+import "./styles/saved.css";
+import "./styles/sell.css";
+import "./styles/listing-detail.css";
+import "./styles/profile.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";

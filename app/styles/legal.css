@@ -1,0 +1,78 @@
+/* Extracted from app/globals.css. Keep imported after globals.css to preserve override behavior. */
+
+
+.privacy-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  color: #334155;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  line-height: 1.5;
+}
+
+.privacy-checkbox-row input[type="checkbox"] {
+  width: 17px !important;
+  height: 17px !important;
+  min-width: 17px !important;
+  flex-shrink: 0 !important;
+  display: inline-block !important;
+  accent-color: #64748b;
+  cursor: pointer;
+}
+
+.privacy-checkbox-label {
+  display: inline !important;
+  font-size: 13.5px;
+  color: #334155;
+  line-height: 1.5;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.privacy-link {
+  color: #64748b;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.terms-content h2 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 28px 0 8px;
+  padding-top: 4px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.terms-content p, .terms-content ul {
+  color: #475569;
+  line-height: 1.7;
+  margin: 0 0 10px;
+}
+
+.terms-content ul {
+  padding-left: 20px;
+}
+
+.terms-content a {
+  color: #64748b;
+  text-decoration: underline;
+}
+
+body .terms-page .legal-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 760px) {
+
+  body .legal-page .legal-summary,
+  body .terms-page .legal-summary,
+  body .legal-page .legal-content {
+    grid-template-columns: 1fr;
+  }
+}

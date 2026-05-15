@@ -1,0 +1,2405 @@
+/* Extracted from app/globals.css. Keep imported after globals.css to preserve override behavior. */
+
+
+.auth-page {
+  min-height: 100vh;
+}
+
+.auth-topbar {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  padding: 18px clamp(20px, 5vw, 72px);
+}
+
+.auth-topbar .brand {
+  margin-right: 14px;
+}
+
+.auth-topbar .language-switcher {
+  margin-left: auto;
+}
+
+.auth-topbar .language-switcher + .arctic-topbar-logo,
+.pf-topbar .language-switcher + .arctic-topbar-logo {
+  margin-left: 12px;
+}
+
+.auth-hero {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 0.85fr) minmax(360px, 1fr);
+  padding: 34px clamp(20px, 5vw, 72px) 56px;
+}
+
+.auth-hero-copy {
+  background:
+    linear-gradient(90deg, rgba(16, 32, 28, 0.82), rgba(16, 32, 28, 0.42)),
+    url("https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?auto=format&fit=crop&w=1500&q=80");
+  background-position: center;
+  background-size: cover;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 620px;
+  padding: clamp(28px, 5vw, 52px);
+}
+
+.auth-hero-copy .eyebrow {
+  color: #f5d37a;
+}
+
+.auth-hero-copy h1 {
+  font-size: clamp(2.8rem, 6vw, 5.8rem);
+  letter-spacing: 0;
+  line-height: 0.92;
+  margin: 12px 0 18px;
+}
+
+.auth-hero-copy p {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 1.08rem;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 560px;
+}
+
+.hero-search,
+.filters,
+.listing-card,
+.sell-section,
+.auth-card,
+.auth-info,
+.profile-form {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+select,
+.listing-form input,
+.listing-form textarea,
+.auth-card input,
+.profile-form input {
+  background: #f7f7f4;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  min-height: 48px;
+  outline: 0;
+  padding: 0 12px;
+  width: 100%;
+}
+
+.sell-workspace,
+.profile-workspace,
+.seller-public,
+.simple-auth {
+  display: grid;
+  gap: 22px;
+  margin: 28px clamp(20px, 5vw, 72px);
+}
+
+.sell-workspace h1,
+.profile-workspace h1,
+.simple-auth-copy h1,
+.seller-profile-card h1 {
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 8px 0 0;
+}
+
+.simple-auth {
+  align-items: start;
+  grid-template-columns: minmax(260px, 420px) minmax(320px, 520px);
+  justify-content: center;
+  padding: 28px 0 48px;
+}
+
+.simple-auth.auth-centered {
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  min-height: calc(100vh - 96px);
+  padding: 0 0 48px;
+}
+
+.simple-auth.auth-centered > .simple-card {
+  width: min(520px, calc(100vw - 40px));
+}
+
+.simple-auth-copy {
+  background: var(--surface-strong);
+  border-radius: 8px;
+  color: white;
+  min-height: 420px;
+  padding: clamp(24px, 4vw, 42px);
+}
+
+.simple-auth-copy .eyebrow {
+  color: #f5d37a;
+}
+
+.simple-auth-copy p {
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.65;
+}
+
+.profile-completion-card {
+  gap: 18px;
+  padding: clamp(22px, 4vw, 34px);
+  width: min(800px, calc(100vw - 40px));
+}
+
+.profile-completion-head {
+  display: grid;
+  gap: 6px;
+}
+
+.profile-completion-head h1 {
+  font-size: clamp(1.85rem, 3vw, 2.6rem);
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0;
+}
+
+.profile-completion-card .profile-alert {
+  background: #eef4ef;
+  border-color: #c8ddce;
+  color: var(--green-dark);
+}
+
+.profile-completion-card .registration-fields {
+  gap: 16px 12px;
+}
+
+.account-type-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.pre-register-choice {
+  display: grid;
+  gap: 10px;
+}
+
+.pre-register-choice > span {
+  color: #374151;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.account-type-picker.compact .account-type-card {
+  min-height: 78px;
+  padding: 13px !important;
+}
+
+.account-type-card {
+  align-items: flex-start !important;
+  background: #f6fbfd !important;
+  border: 1.5px solid rgba(100, 116, 139, 0.14) !important;
+  border-radius: 14px !important;
+  color: #0b1a3a !important;
+  cursor: pointer;
+  display: grid !important;
+  gap: 4px !important;
+  justify-content: stretch !important;
+  min-height: 92px;
+  padding: 16px !important;
+  text-align: left;
+}
+
+.account-type-card strong {
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.account-type-card span {
+  color: #526175;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.account-type-card.active {
+  background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%) !important;
+  border-color: rgba(100, 116, 139, 0.48) !important;
+  box-shadow: 0 10px 28px rgba(100, 116, 139, 0.12);
+}
+
+.account-type-locked {
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(232, 251, 255, 0.94), rgba(255, 255, 255, 0.96));
+  box-shadow: 0 12px 30px rgba(100, 116, 139, 0.1);
+  display: grid;
+  gap: 5px;
+  padding: 16px;
+}
+
+.account-type-locked span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.account-type-locked strong {
+  color: #061a2e;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.account-type-locked p {
+  color: #526175;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.profile-completion-card label {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.profile-completion-card input,
+.profile-completion-card select {
+  background: #fbfbf8;
+}
+
+.profile-completion-card input:focus {
+  background: white;
+  border-color: rgba(31, 122, 90, 0.55);
+  box-shadow: 0 0 0 3px rgba(31, 122, 90, 0.12);
+}
+
+.profile-completion-card button[type="submit"] {
+  min-height: 48px;
+}
+
+.profile-completion-card .secondary-button {
+  min-height: 46px;
+}
+
+.profile-finalize-card .profile-completion-head {
+  justify-items: center;
+  text-align: center;
+}
+
+.profile-finalize-card > .profile-alert,
+.profile-finalize-card .account-type-locked {
+  justify-content: center;
+  text-align: center;
+}
+
+.profile-finalize-card .registration-fields {
+  width: 100%;
+}
+
+.phone-field-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(150px, 180px) minmax(0, 1fr);
+  width: 100%;
+}
+
+.phone-field-row input,
+.phone-field-row select {
+  min-width: 0;
+}
+
+.email-confirm-card {
+  align-items: center;
+  align-self: center;
+  justify-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 720px;
+  padding: clamp(28px, 5vw, 46px) !important;
+  text-align: center;
+  width: min(720px, calc(100vw - 80px)) !important;
+}
+
+.email-confirm-card .profile-completion-head {
+  justify-items: center;
+  max-width: 560px;
+}
+
+.email-confirm-card .profile-completion-head h1 {
+  font-size: clamp(2rem, 5vw, 3.3rem);
+}
+
+.email-confirm-icon {
+  align-items: center;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.9), transparent 42%),
+    linear-gradient(145deg, #f1f5f9 0%, #94a3b8 48%, #64748b 100%);
+  border: 1px solid rgba(241, 245, 249, 0.84);
+  border-radius: 22px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.68),
+    0 18px 42px rgba(100, 116, 139, 0.2);
+  color: #061a2e;
+  display: grid;
+  height: 76px;
+  justify-items: center;
+  width: 76px;
+}
+
+.email-confirm-card .profile-alert {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+  justify-content: center;
+  justify-items: center;
+  max-width: 640px;
+  padding: 16px 18px;
+  text-align: center;
+  width: 100%;
+}
+
+.email-confirm-card .profile-alert svg {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.email-confirm-card .profile-alert span {
+  max-width: 520px;
+}
+
+.email-confirm-card .secondary-button {
+  background: #ffffff !important;
+  min-width: min(100%, 360px);
+  padding: 0 20px;
+}
+
+.password-reset-card {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f8fbf9 100%);
+  border-radius: 18px;
+  gap: 18px;
+  padding: clamp(24px, 4vw, 34px);
+}
+
+.password-reset-head {
+  display: grid;
+  gap: 8px;
+}
+
+.password-reset-head h1 {
+  font-size: clamp(1.9rem, 4vw, 2.7rem);
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0;
+}
+
+.password-reset-head p {
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.password-reset-card input {
+  border-radius: 14px;
+  min-height: 54px;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.password-reset-card input:focus {
+  background: white;
+  border-color: rgba(31, 122, 90, 0.6);
+  box-shadow: 0 0 0 4px rgba(31, 122, 90, 0.12);
+}
+
+.auth-modal-backdrop {
+  align-items: center;
+  background: rgba(17, 24, 39, 0.38);
+  backdrop-filter: blur(6px);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 50;
+}
+
+.auth-modal {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.22);
+  display: grid;
+  gap: 16px;
+  max-width: 430px;
+  padding: 26px;
+  position: relative;
+  width: min(100%, 430px);
+}
+
+.auth-modal label {
+  display: grid;
+  gap: 8px;
+  font-weight: 800;
+}
+
+.auth-modal input {
+  background: #f7f7f4;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--text);
+  min-height: 52px;
+  outline: 0;
+  padding: 0 13px;
+}
+
+.auth-modal input:focus {
+  background: white;
+  border-color: rgba(31, 122, 90, 0.6);
+  box-shadow: 0 0 0 4px rgba(31, 122, 90, 0.12);
+}
+
+.auth-modal button[type="submit"] {
+  align-items: center;
+  background: var(--green);
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  display: flex;
+  font-weight: 900;
+  gap: 8px;
+  justify-content: center;
+  min-height: 48px;
+}
+
+.auth-modal-close {
+  align-items: center;
+  background: #f7f7f4;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text);
+  display: flex;
+  height: 34px;
+  justify-content: center;
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 34px;
+}
+
+.auth-modal .password-reset-head h2 {
+  font-size: 1.7rem;
+  letter-spacing: 0;
+  line-height: 1.05;
+  margin: 0;
+  padding-right: 36px;
+}
+
+.registration-fields {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.sell-section,
+.auth-section {
+  display: grid;
+  gap: 22px;
+  margin: 28px clamp(20px, 5vw, 72px);
+  padding: clamp(22px, 4vw, 36px);
+}
+
+.auth-section {
+  background: #eef4ef;
+  border: 1px solid #d7e5d9;
+}
+
+.auth-grid {
+  align-items: stretch;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 460px) minmax(280px, 1fr);
+}
+
+.auth-grid.single {
+  align-content: start;
+  grid-template-columns: 1fr;
+}
+
+.auth-card,
+.profile-form,
+.listing-form {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-card {
+  padding: 20px;
+}
+
+.auth-tabs {
+  background: #f7f7f4;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  grid-template-columns: 1fr 1fr;
+  padding: 5px;
+}
+
+.auth-tabs button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--muted);
+  font-weight: 850;
+  min-height: 40px;
+}
+
+.auth-tabs button.active {
+  background: var(--surface-strong);
+  color: white;
+}
+
+.auth-card button,
+.google-button {
+  align-items: center;
+  border: 0;
+  border-radius: 8px;
+  display: flex;
+  font-weight: 850;
+  gap: 8px;
+  justify-content: center;
+  min-height: 46px;
+}
+
+.auth-card button[type="submit"] {
+  background: var(--green);
+  color: white;
+}
+
+.auth-card .google-button {
+  background: white;
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+
+.auth-info {
+  background: var(--surface-strong);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px;
+}
+
+.auth-info h3 {
+  font-size: 1.7rem;
+  letter-spacing: 0;
+  margin: 16px 0 10px;
+}
+
+.auth-info p {
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.listing-form label,
+.auth-card label,
+.profile-form label {
+  display: grid;
+  gap: 8px;
+}
+
+@media (max-width: 980px) {
+  .hero,
+  .auth-hero,
+  .marketplace-topbar,
+  .simple-auth,
+  .market-grid,
+  .listing-grid,
+  .review-form {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-hero-copy {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 720px) {
+
+  .quick-stats,
+  .listing-form,
+  .registration-fields,
+  .account-type-picker,
+  .auth-grid,
+  .profile-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.auth-topbar,
+.topbar,
+.garage-topbar,
+.pf-topbar,
+.sa-topbar {
+  background: rgba(247, 253, 255, 0.82) !important;
+  border: 1px solid rgba(9, 48, 76, 0.12) !important;
+  border-radius: 0 0 22px 22px !important;
+  box-shadow: 0 18px 60px rgba(5, 24, 46, 0.08) !important;
+  color: var(--text) !important;
+}
+
+.hero-search,
+.filters,
+.listing-card,
+.sell-section,
+.auth-card,
+.auth-info,
+.profile-form,
+.simple-card,
+.profile-workspace,
+.messages-shell,
+.conversation-card,
+.own-listing-card,
+.listing-detail-card,
+.review-card,
+.garage-form,
+.garage-empty,
+.garage-vehicle-card,
+.garage-parts-panel,
+.garage-part-card,
+.garage-login-prompt,
+.sa-form-card,
+.sa-card,
+.sa-empty,
+.pf-sidebar,
+.pf-user-card,
+.pf-section,
+.pf-login-prompt,
+.delete-listing-modal,
+.review-gate-card,
+.fc-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 253, 255, 0.94)) !important;
+  border: 1px solid rgba(100, 116, 139, 0.16) !important;
+  border-radius: 18px !important;
+  box-shadow: var(--shadow) !important;
+  color: var(--text) !important;
+}
+
+.chip.active,
+.auth-tabs button.active,
+.garage-class-btn.selected,
+.garage-vehicle-card.selected,
+.pf-nav-active,
+.sa-card-has-notif,
+.sa-tag-blue,
+.listing-detail-category {
+  background: rgba(148, 163, 184, 0.18) !important;
+  border-color: rgba(100, 116, 139, 0.32) !important;
+  color: #374151 !important;
+}
+
+@media (max-width: 720px) {
+  .auth-topbar,
+  .garage-topbar,
+  .pf-topbar,
+  .sa-topbar {
+    border-radius: 0 0 18px 18px !important;
+  }
+
+  .phone-field-row {
+    grid-template-columns: minmax(122px, 0.45fr) minmax(0, 1fr);
+  }
+}
+
+:where(.auth-topbar, .topbar, .garage-topbar, .pf-topbar, .sa-topbar) {
+  background: rgba(15, 21, 32, 0.82) !important;
+  border-color: rgba(148, 163, 184, 0.18) !important;
+  color: #ffffff !important;
+}
+
+:where(.chip.active, .auth-tabs button.active, .garage-class-btn.selected, .garage-vehicle-card.selected, .pf-nav-active, .sa-card-has-notif, .sa-tag-blue, .listing-detail-category) {
+  background: rgba(255, 107, 22, 0.14) !important;
+  border-color: rgba(255, 107, 22, 0.38) !important;
+  color: #9a3b00 !important;
+}
+
+body .seller-page.auth-page {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(148, 163, 184, 0.18), transparent 34%),
+    linear-gradient(135deg, #061827 0%, #092747 52%, #07111d 100%) !important;
+}
+
+body .seller-page .auth-topbar {
+  background: rgba(3, 19, 38, 0.86) !important;
+  border: 1px solid rgba(126, 197, 240, 0.24) !important;
+  box-shadow: 0 18px 44px rgba(0, 10, 24, 0.22) !important;
+}
+
+body .seller-page.auth-page {
+  background:
+    linear-gradient(180deg, #061827 0%, #0b355f 48%, #07111d 100%) !important;
+}
+
+body .seller-page .auth-topbar {
+  background: rgba(6, 24, 39, 0.92) !important;
+  border: 1px solid rgba(126, 197, 240, 0.24) !important;
+  box-shadow: 0 18px 44px rgba(0, 10, 24, 0.28) !important;
+}
+
+:where(.auth-topbar, .topbar, .garage-topbar, .pf-topbar, .sa-topbar, .profile-topbar, .sell-topbar) {
+  background: rgba(3, 19, 38, 0.78) !important;
+  border-color: rgba(126, 197, 240, 0.22) !important;
+  color: #ffffff !important;
+  box-shadow: 0 18px 44px rgba(0, 10, 24, 0.2) !important;
+}
+
+:where(.back-link, .secondary-link, .garage-back, .pf-back, .sa-back, .auth-secondary-button, .language-switcher button) {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: rgba(126, 197, 240, 0.38) !important;
+  color: #061a2e !important;
+}
+
+:where(.chip.active, .auth-tabs button.active, .garage-class-btn.selected, .garage-vehicle-card.selected, .pf-nav-active, .sa-card-has-notif, .sa-tag-blue, .listing-detail-category, .category-chip.active, .filter-chip.active) {
+  background: rgba(255, 107, 22, 0.15) !important;
+  border-color: rgba(255, 107, 22, 0.44) !important;
+  color: #9a3b00 !important;
+}
+
+:where(
+  .top-search,
+  .profile-button,
+  .language-switcher-menu,
+  .hero-actions,
+  .hero-search,
+  .filters,
+  .listing-card,
+  .sell-workspace,
+  .profile-workspace,
+  .auth-card,
+  .auth-info,
+  .profile-form,
+  .profile-completion-card,
+  .account-type-card,
+  .account-type-locked,
+  .simple-card,
+  .delete-listing-modal,
+  .modal,
+  .garage-form,
+  .garage-empty,
+  .garage-vehicle-card,
+  .garage-parts-panel,
+  .garage-part-card,
+  .garage-login-prompt,
+  .sa-form-card,
+  .sa-card,
+  .sa-empty,
+  .pf-sidebar,
+  .pf-user-card,
+  .pf-section,
+  .pf-login-prompt,
+  .pf-phone-card,
+  .pf-locked,
+  .sa-edit-panel,
+  .messages-card,
+  .conversation-card,
+  .messages-empty,
+  .shop-card,
+  .rewards-card,
+  .point-package-card,
+  .cash-shop-card,
+  .bn-sheet,
+  .bn-notif-panel,
+  .bottom-nav,
+  .payment-ready-note,
+  [class*="summaryCard"],
+  [class*="panel"],
+  [class*="modal"],
+  [class*="userRow"],
+  [class*="listingMgmtCard"],
+  [class*="bannedIpRow"],
+  [class*="pageHeadEmail"],
+  [class*="ghostBtn"],
+  [class*="notifBtn"],
+  [class*="userPill"],
+  [class*="sortControl"],
+  [class*="sectionSortControl"],
+  [class*="recoSortControl"],
+  [class*="paginationButton"]:not([class*="Active"]),
+  [class*="loadMoreButton"],
+  [class*="mobileSortBtn"],
+  [class*="allListingsSortBtn"],
+  [class*="favoriteButton"],
+  [class*="notificationButton"],
+  [class*="flagLanguageButton"],
+  [class*="topButtonSolid"],
+  [class*="heroSearch"]:not([class*="Button"]):not([class*="Icon"]):not([class*="Input"]),
+  [class*="filterChip"],
+  [class*="pageBtn"]:not([class*="Active"])
+) {
+  background: var(--neutral-white-surface-soft) !important;
+  border-color: rgba(60, 130, 200, 0.2) !important;
+}
+
+:where(
+  .hero-copy p,
+  .auth-hero-copy p,
+  .messages-page .messages-hero-lead,
+  .messages-page .conversation-main p,
+  .site-footer,
+  .site-footer a,
+  [class*="cardMetaRow"],
+  [class*="sellerText"] small,
+  [class*="sellerSubName"],
+  [class*="resultsCount"]
+) {
+  color: var(--neutral-white-text-soft) !important;
+}
+
+.seller-page.auth-page {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(148, 163, 184, 0.12), transparent 34%),
+    linear-gradient(135deg, #061827 0%, #092747 52%, #07111d 100%) !important;
+}
+
+.seller-page .auth-topbar {
+  background: linear-gradient(180deg, #b9c3ce 0%, #9faaB8 100%) !important;
+  border: 1px solid rgba(102, 118, 134, 0.55) !important;
+  box-shadow: 0 16px 36px rgba(0, 10, 24, 0.28) !important;
+}
+
+.rewards-page,
+.auth-page:has(.rewards-hero) {
+  color: #f1f5f9 !important;
+}
+
+body .seller-page.auth-page {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(148, 163, 184, 0.18), transparent 34%),
+    linear-gradient(135deg, #061827 0%, #092747 52%, #07111d 100%) !important;
+}
+
+body:has(.shop-workspace) .auth-page {
+  background:
+    radial-gradient(circle at 14% 0%, rgba(148, 163, 184, 0.18), transparent 34%),
+    linear-gradient(135deg, #031322 0%, #071f38 48%, #031322 100%) !important;
+}
+
+body:has(.shop-workspace) .auth-topbar {
+  background:
+    linear-gradient(180deg, rgba(8, 35, 61, 0.98), rgba(4, 22, 40, 0.98)) !important;
+  border-bottom: 1px solid rgba(255, 154, 36, 0.28) !important;
+  box-shadow: 0 16px 42px rgba(0, 8, 22, 0.28) !important;
+}
+
+body:has(.shop-workspace) .auth-topbar .back-link {
+  background: rgba(232, 251, 255, 0.92) !important;
+  border: 1px solid rgba(255, 154, 36, 0.32) !important;
+  color: #06415f !important;
+  font-weight: 950 !important;
+}
+
+.auth-topbar .language-switcher,
+.pf-topbar .language-switcher,
+.messages-topbar .language-switcher,
+.garage-topbar .language-switcher,
+.sa-topbar .language-switcher {
+  margin-left: auto !important;
+}
+
+body .seller-page.auth-page {
+  background:
+    linear-gradient(135deg, #020d18 0%, #06223c 48%, #0b4b7a 100%) !important;
+  color: #eef8fc !important;
+  min-height: 100vh !important;
+}
+
+body .seller-page .auth-topbar {
+  background: rgba(2, 13, 28, 0.92) !important;
+  border: 1px solid rgba(126, 197, 240, 0.22) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 22px 54px rgba(0, 8, 22, 0.3) !important;
+  max-width: min(1220px, calc(100vw - 40px)) !important;
+}
+
+@media (max-width: 980px) {
+  body .seller-page .auth-topbar,
+  body .seller-page .sp-wrap {
+    max-width: min(100% - 24px, 760px) !important;
+  }
+}
+
+body .seller-page.auth-page {
+  background:
+    radial-gradient(900px 420px at 8% -8%, rgba(64, 216, 255, 0.14), transparent 62%),
+    radial-gradient(760px 380px at 96% 0%, rgba(255, 122, 26, 0.1), transparent 62%),
+    linear-gradient(180deg, #061a2e 0%, #03182d 58%, #020e1c 100%) !important;
+}
+
+body :where(.auth-topbar, .garage-topbar, .sa-topbar, .saved-topbar, .messages-topbar) {
+  background: rgba(10, 31, 50, 0.76) !important;
+  border: 1px solid var(--ap-line) !important;
+  border-radius: 20px !important;
+  box-shadow: var(--ap-shadow) !important;
+  backdrop-filter: blur(12px) saturate(1.08) !important;
+}
+
+body :where(
+  .auth-card,
+  .simple-card,
+  .profile-alert,
+  .messages-stat-card,
+  .messages-state-card,
+  .messages-empty,
+  .conversation-card,
+  .garage-form,
+  .garage-empty,
+  .garage-vehicle-card,
+  .garage-parts-panel,
+  .garage-part-card,
+  .sa-form-card,
+  .sa-card,
+  .sa-edit-panel,
+  .sa-matches,
+  .sa-empty,
+  .rewards-card,
+  .slot-shop-card,
+  .cash-shop-card,
+  .listing-card,
+  .seller-listing-card,
+  .review-card,
+  .sp-trust-breakdown,
+  .sp-tabs,
+  .sp-empty,
+  .sell-section,
+  .sell-section-mode,
+  .sell-submit-bar,
+  .company-seller-selector,
+  .listing-slot-alert,
+  .listing-slot-banner,
+  .seller-card,
+  .description-card,
+  .contact-card,
+  .legal-card,
+  .pf-card,
+  .pf-panel,
+  .pf-section,
+  .pf-company-sellers-section,
+  .messages-area,
+  .chat-card,
+  .seller,
+  .conversation-panel,
+  .legal-page section,
+  article
+) {
+  background:
+    radial-gradient(360px 160px at 100% 0%, rgba(255, 154, 36, 0.07), transparent 72%),
+    linear-gradient(145deg, var(--ap-panel-2) 0%, var(--ap-panel) 100%) !important;
+  border-color: var(--ap-line) !important;
+  color: var(--ap-ice-strong) !important;
+  box-shadow:
+    0 16px 38px rgba(0, 10, 24, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+body :where(
+  .sell-mode-card.active,
+  .vehicle-card.active,
+  .preset-card.added,
+  .sell-category-card.active,
+  .sell-subcategory-card.active,
+  .company-seller-checkbox.is-checked,
+  .garage-vehicle-card.selected,
+  .sp-tab.active,
+  .auth-tabs button.active
+) {
+  background:
+    linear-gradient(145deg, rgba(255, 122, 26, 0.22), rgba(38, 57, 74, 0.94)) !important;
+  border-color: rgba(255, 154, 36, 0.72) !important;
+  box-shadow:
+    0 14px 32px rgba(255, 122, 26, 0.14),
+    inset 3px 0 0 var(--ap-orange) !important;
+}
+
+body .seller-page.auth-page,
+body .seller-page {
+  background:
+    radial-gradient(820px 360px at 18% -8%, rgba(120, 150, 170, 0.16), transparent 64%),
+    radial-gradient(680px 320px at 100% 0%, rgba(255, 122, 26, 0.08), transparent 62%),
+    linear-gradient(180deg, #061724 0%, #081d2d 42%, #07131f 100%) !important;
+  color: #e6f1fb !important;
+}
+
+body .seller-page .auth-topbar {
+  background: rgba(30, 49, 62, 0.78) !important;
+  border: 1px solid rgba(207, 226, 240, 0.22) !important;
+  box-shadow:
+    0 16px 40px rgba(0, 10, 24, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+  backdrop-filter: blur(12px) saturate(1.04) !important;
+}
+
+body :where(
+  .auth-topbar,
+  .pf-topbar,
+  .garage-topbar,
+  .sa-topbar,
+  .saved-topbar,
+  .messages-topbar
+) {
+  background:
+    linear-gradient(145deg, rgba(218, 233, 244, 0.76), rgba(133, 160, 181, 0.68)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.42) !important;
+  box-shadow: 0 16px 36px rgba(0, 14, 28, 0.22) !important;
+  backdrop-filter: blur(12px) saturate(1.08) !important;
+}
+
+body :where(
+  .auth-card,
+  .auth-info,
+  .profile-workspace,
+  .profile-alert,
+  .garage-card,
+  .garage-form,
+  .garage-vehicle-card,
+  .sa-form-card,
+  .sa-card,
+  .saved-card,
+  .saved-empty,
+  .rewards-card,
+  .slot-shop-card,
+  .cash-shop-card,
+  .messages-stat-card,
+  .messages-empty,
+  .conversation-card,
+  .listing-detail-card,
+  .seller-mini-card,
+  .contact-card,
+  .description-card,
+  .review-gate-card,
+  .company-seller-card,
+  .company-seller-add,
+  .pf-section,
+  .pf-sidebar,
+  .pf-user-card,
+  .pf-nav,
+  [class*="statCard"],
+  [class*="summaryCard"],
+  [class*="panel"],
+  [class*="row"],
+  [class*="tableCard"],
+  [class*="userCard"],
+  [class*="listingMgmtCard"],
+  [class*="notificationMenu"],
+  [class*="profileMenu"]
+) {
+  background: var(--ap-graphite) !important;
+  border-color: var(--ap-ice-border) !important;
+  color: #f7fbff !important;
+  box-shadow:
+    0 18px 44px rgba(0, 10, 24, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+@media (max-width: 760px) {
+  body :where(
+    .auth-topbar,
+    .pf-topbar,
+    .garage-topbar,
+    .sa-topbar,
+    .saved-topbar,
+    .messages-topbar
+  ) {
+    border-radius: 18px !important;
+  }
+}
+
+body .simple-auth-page .auth-centered {
+  align-items: start !important;
+  display: grid !important;
+  min-height: calc(100vh - 120px) !important;
+  padding: clamp(14px, 3vw, 24px) 16px 104px !important;
+  place-items: start center !important;
+}
+
+body .simple-auth-page .auth-topbar {
+  min-height: 76px !important;
+}
+
+body .simple-auth-page .auth-brand-mark {
+  align-items: center !important;
+  color: #061827 !important;
+  display: inline-flex !important;
+  gap: 8px !important;
+  font-size: 16px !important;
+  font-weight: 950 !important;
+  text-decoration: none !important;
+}
+
+body .simple-auth-page .auth-brand-mark span {
+  align-items: center !important;
+  background: linear-gradient(135deg, #ff9a24, #ff7418) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 22px rgba(255, 116, 24, 0.2) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  font-size: 13px !important;
+  height: 34px !important;
+  justify-content: center !important;
+  width: 34px !important;
+}
+
+body .simple-auth-page .auth-brand-mark strong {
+  color: #ff7418 !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) {
+  width: min(520px, calc(100vw - 32px)) !important;
+  padding: clamp(16px, 3vw, 24px) !important;
+  background:
+    radial-gradient(420px 180px at 100% 0%, rgba(255, 154, 36, 0.075), transparent 70%),
+    linear-gradient(180deg, rgba(243, 248, 252, 0.98), rgba(221, 234, 243, 0.96)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.72) !important;
+  border-radius: 22px !important;
+  box-shadow:
+    0 24px 58px rgba(0, 12, 26, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.74) !important;
+  color: #061827 !important;
+}
+
+body .simple-auth-page .auth-tabs {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 6px !important;
+  padding: 6px !important;
+  background: linear-gradient(145deg, rgba(10, 35, 53, 0.92), rgba(29, 45, 56, 0.92)) !important;
+  border: 1px solid rgba(7, 24, 39, 0.18) !important;
+  border-radius: 16px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+body .simple-auth-page .auth-tabs button {
+  min-height: 46px !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: rgba(226, 239, 248, 0.66) !important;
+  font-weight: 950 !important;
+}
+
+body .simple-auth-page .auth-tabs button.active {
+  background:
+    linear-gradient(180deg, rgba(242, 248, 252, 0.98), rgba(196, 212, 224, 0.96)) !important;
+  border-color: rgba(255, 255, 255, 0.78) !important;
+  color: #061827 !important;
+  box-shadow:
+    0 10px 22px rgba(0, 12, 26, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.76) !important;
+}
+
+body .simple-auth-page .auth-card label {
+  color: #34495a !important;
+  display: grid !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+body .simple-auth-page .auth-card input {
+  min-height: 48px !important;
+  padding: 0 14px !important;
+  border-radius: 12px !important;
+  background:
+    linear-gradient(180deg, #dce8f2 0%, #bfcedb 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.72) !important;
+  color: #061827 !important;
+  font-weight: 850 !important;
+  box-shadow:
+    0 10px 22px rgba(0, 12, 26, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62) !important;
+}
+
+body .simple-auth-page .auth-card input::placeholder {
+  color: rgba(6, 24, 39, 0.5) !important;
+}
+
+body .simple-auth-page .auth-card input:focus {
+  border-color: rgba(255, 148, 35, 0.78) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 148, 35, 0.16),
+    0 12px 26px rgba(0, 12, 26, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+body .simple-auth-page .auth-card button[type="submit"] {
+  min-height: 48px !important;
+  border-radius: 14px !important;
+  background:
+    linear-gradient(135deg, #071827 0%, #243443 54%, #7b8797 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 30px rgba(7, 24, 39, 0.22) !important;
+}
+
+body .simple-auth-page .google-button,
+body .simple-auth-page .text-button {
+  min-height: 46px !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(128, 148, 164, 0.28) !important;
+  color: #061827 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.64) !important;
+}
+
+body .simple-auth-page .text-button {
+  background: rgba(231, 241, 248, 0.74) !important;
+  color: #334155 !important;
+}
+
+body .simple-auth-page .google-button:hover,
+body .simple-auth-page .text-button:hover {
+  border-color: rgba(255, 148, 35, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+body .simple-auth-page .form-note {
+  color: #334155 !important;
+  font-weight: 800 !important;
+}
+
+@media (max-width: 640px) {
+  body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) {
+    border-radius: 18px !important;
+    gap: 12px !important;
+    padding: 14px !important;
+  }
+
+  body .simple-auth-page .auth-tabs button,
+  body .simple-auth-page .auth-card button[type="submit"],
+  body .simple-auth-page .google-button,
+  body .simple-auth-page .text-button {
+    min-height: 42px !important;
+  }
+
+  body .simple-auth-page .auth-card input {
+    min-height: 44px !important;
+  }
+}
+
+body .simple-auth-page .profile-finalize-card {
+  width: min(1054px, calc(100vw - 56px)) !important;
+  max-width: 1054px !important;
+  gap: 22px !important;
+  padding: clamp(34px, 4.2vw, 48px) !important;
+  background:
+    radial-gradient(760px 320px at 100% 0%, rgba(255, 255, 255, 0.75), transparent 72%),
+    linear-gradient(180deg, rgba(247, 250, 253, 0.98), rgba(226, 237, 246, 0.97)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.82) !important;
+  border-radius: 24px !important;
+  box-shadow:
+    0 30px 70px rgba(0, 12, 35, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  color: #09213f !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-completion-head {
+  gap: 8px !important;
+  justify-items: start !important;
+  text-align: left !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-completion-topline {
+  align-items: center !important;
+  display: flex !important;
+  gap: 12px !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+}
+
+body .simple-auth-page .profile-finalize-card .eyebrow {
+  width: fit-content !important;
+  padding: 7px 12px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 120, 18, 0.08) !important;
+  border: 1px solid rgba(255, 120, 18, 0.42) !important;
+  color: #ff6f0f !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.05em !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-select {
+  align-items: center !important;
+  display: inline-flex !important;
+  gap: 8px !important;
+  color: #476077 !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-select select {
+  min-height: 36px !important;
+  width: auto !important;
+  min-width: 146px !important;
+  padding: 0 34px 0 12px !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(242, 247, 251, 0.96)) !important;
+  color: #09213f !important;
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", system-ui, sans-serif !important;
+  box-shadow: 0 10px 22px rgba(9, 33, 63, 0.08) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-completion-head h1 {
+  color: #09213f !important;
+  font-size: clamp(42px, 5.2vw, 58px) !important;
+  line-height: 0.98 !important;
+  text-shadow: none !important;
+}
+
+body .simple-auth-page .profile-finalize-card > .profile-alert {
+  justify-content: flex-start !important;
+  min-height: 64px !important;
+  padding: 14px 18px !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(128, 148, 164, 0.18) !important;
+  border-radius: 14px !important;
+  color: #183557 !important;
+  text-align: left !important;
+  box-shadow: 0 16px 36px rgba(9, 33, 63, 0.08) !important;
+}
+
+body .simple-auth-page .profile-finalize-card > .profile-alert svg {
+  align-items: center !important;
+  background: #ff7a18 !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
+  height: 34px !important;
+  padding: 8px !important;
+  width: 34px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .account-type-locked {
+  justify-content: start !important;
+  min-height: 160px !important;
+  padding: 32px !important;
+  background:
+    radial-gradient(440px 190px at 100% 50%, rgba(255, 122, 24, 0.24), transparent 70%),
+    linear-gradient(135deg, #153f75 0%, #0b2d58 46%, #082346 100%) !important;
+  border: 1px solid rgba(255, 122, 24, 0.52) !important;
+  border-radius: 14px !important;
+  color: #ffffff !important;
+  text-align: left !important;
+  box-shadow:
+    0 22px 46px rgba(9, 33, 63, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .account-type-locked span {
+  color: rgba(221, 237, 248, 0.74) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .account-type-locked strong {
+  color: #ffffff !important;
+  font-size: 27px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .account-type-locked p {
+  color: rgba(238, 247, 253, 0.9) !important;
+  font-size: 17px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .registration-fields {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 24px 34px !important;
+}
+
+body .simple-auth-page .profile-finalize-card label,
+body .simple-auth-page .profile-finalize-card .date-field {
+  color: #123866 !important;
+  display: grid !important;
+  gap: 8px !important;
+  font-size: 16px !important;
+  font-weight: 950 !important;
+}
+
+body .simple-auth-page .profile-finalize-card input,
+body .simple-auth-page .profile-finalize-card select,
+body .simple-auth-page .profile-finalize-card .date-field-control {
+  min-height: 68px !important;
+  border-radius: 14px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 253, 0.95)) !important;
+  border: 1px solid rgba(128, 148, 164, 0.18) !important;
+  color: #09213f !important;
+  font-size: 18px !important;
+  font-weight: 850 !important;
+  box-shadow:
+    0 16px 34px rgba(9, 33, 63, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+}
+
+body .simple-auth-page .profile-finalize-card input:focus,
+body .simple-auth-page .profile-finalize-card select:focus,
+body .simple-auth-page .profile-finalize-card .date-field-control:focus-within {
+  border-color: rgba(255, 148, 35, 0.78) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 148, 35, 0.16),
+    0 12px 26px rgba(0, 12, 26, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row {
+  grid-template-columns: minmax(210px, 242px) minmax(0, 1fr) !important;
+  gap: 8px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .date-field-control {
+  grid-template-columns: auto minmax(70px, 0.62fr) minmax(140px, 1.2fr) minmax(108px, 0.9fr) !important;
+  padding: 0 18px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .date-field-control select {
+  min-height: 44px !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+body .simple-auth-page .profile-finalize-card .privacy-checkbox-row {
+  align-items: center !important;
+  gap: 12px !important;
+  min-height: 80px !important;
+  padding: 16px 18px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(247, 250, 253, 0.92)) !important;
+  border: 1px solid rgba(128, 148, 164, 0.18) !important;
+  border-radius: 14px !important;
+  color: #09213f !important;
+  box-shadow: 0 16px 34px rgba(9, 33, 63, 0.08) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .privacy-checkbox-row input[type="checkbox"] {
+  accent-color: #ff7a18 !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 22px rgba(255, 122, 24, 0.16) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .privacy-checkbox-label,
+body .simple-auth-page .profile-finalize-card .privacy-link {
+  color: #09213f !important;
+  font-size: 17px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .privacy-link {
+  color: #ff6f0f !important;
+}
+
+body .simple-auth-page .profile-finalize-card button[type="submit"],
+body .simple-auth-page .profile-finalize-card .secondary-button {
+  min-height: 62px !important;
+  border-radius: 14px !important;
+  font-size: 18px !important;
+}
+
+body .simple-auth-page .profile-finalize-card button[type="submit"] {
+  background:
+    linear-gradient(135deg, #ff991f 0%, #ff7a18 52%, #ff650b 100%) !important;
+  border: 1px solid rgba(255, 217, 178, 0.7) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 18px 36px rgba(255, 111, 15, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+}
+
+body .simple-auth-page .profile-finalize-card button[type="submit"]:disabled {
+  opacity: 0.56 !important;
+}
+
+body .simple-auth-page .profile-finalize-card .secondary-button {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(241, 246, 250, 0.88)) !important;
+  border: 1px solid rgba(128, 148, 164, 0.18) !important;
+  color: #09213f !important;
+  box-shadow: 0 14px 30px rgba(9, 33, 63, 0.08) !important;
+}
+
+@media (max-width: 760px) {
+  body .simple-auth-page .profile-finalize-card {
+    gap: 12px !important;
+    padding: 14px !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card .registration-fields {
+    grid-template-columns: 1fr !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card .phone-field-row,
+  body .simple-auth-page .profile-finalize-card .date-field-control {
+    grid-template-columns: 1fr !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card .profile-completion-topline {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card .profile-completion-head h1 {
+    font-size: 34px !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card input,
+  body .simple-auth-page .profile-finalize-card select,
+  body .simple-auth-page .profile-finalize-card .date-field-control {
+    min-height: 52px !important;
+    font-size: 16px !important;
+  }
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row {
+  align-items: stretch !important;
+  display: grid !important;
+  grid-template-columns: minmax(138px, 168px) minmax(0, 1fr) !important;
+  gap: 0 !important;
+  min-height: 68px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(128, 148, 164, 0.18) !important;
+  border-radius: 14px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 253, 0.95)) !important;
+  box-shadow:
+    0 16px 34px rgba(9, 33, 63, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row select,
+body .simple-auth-page .profile-finalize-card .phone-field-row input {
+  min-height: 68px !important;
+  height: 100% !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row select {
+  border-right: 1px solid rgba(128, 148, 164, 0.2) !important;
+  font-size: 15px !important;
+  padding-left: 16px !important;
+  padding-right: 26px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row input {
+  padding-left: 18px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row:focus-within {
+  border-color: rgba(255, 148, 35, 0.78) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 148, 35, 0.16),
+    0 12px 26px rgba(0, 12, 26, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+@media (max-width: 760px) {
+  body .simple-auth-page .profile-finalize-card .phone-field-row {
+    grid-template-columns: minmax(118px, 38%) minmax(0, 1fr) !important;
+    min-height: 52px !important;
+  }
+
+body .simple-auth-page .profile-finalize-card .phone-field-row select,
+body .simple-auth-page .profile-finalize-card .phone-field-row input {
+    min-height: 52px !important;
+  }
+}
+
+body .simple-auth-page {
+  background:
+    linear-gradient(180deg, #061424 0%, #07192c 100%) !important;
+  min-height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+body .simple-auth-page .auth-centered {
+  background: transparent !important;
+  min-height: auto !important;
+  padding-bottom: 10px !important;
+}
+
+body .simple-auth-page .profile-finalize-card {
+  margin-bottom: 0 !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-select {
+  position: relative !important;
+  z-index: 20 !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-menu {
+  position: relative !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-button,
+body .simple-auth-page .profile-finalize-card .profile-language-options button {
+  align-items: center !important;
+  display: flex !important;
+  gap: 9px !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-button {
+  min-height: 36px !important;
+  padding: 0 34px 0 12px !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #eef5fb 100%) !important;
+  border: 1px solid rgba(255, 122, 24, 0.48) !important;
+  box-shadow:
+    0 10px 22px rgba(9, 33, 63, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+  color: #09213f !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-button::after {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #09213f;
+  content: "";
+  position: absolute;
+  right: 13px;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-button strong {
+  color: #09213f !important;
+  line-height: 1 !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-flag {
+  border-radius: 3px !important;
+  box-shadow: 0 0 0 1px rgba(9, 33, 63, 0.16) !important;
+  display: block !important;
+  flex: 0 0 auto !important;
+  height: 14px !important;
+  object-fit: cover !important;
+  width: 20px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-options {
+  background: #ffffff !important;
+  border: 1px solid rgba(128, 148, 164, 0.22) !important;
+  border-radius: 13px !important;
+  box-shadow: 0 18px 44px rgba(9, 33, 63, 0.22) !important;
+  min-width: 166px !important;
+  overflow: hidden !important;
+  padding: 6px !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: calc(100% + 7px) !important;
+  z-index: 22 !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-options button {
+  justify-content: flex-start !important;
+  min-height: 34px !important;
+  width: 100% !important;
+  padding: 0 10px !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #09213f !important;
+  cursor: pointer !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-options button:hover,
+body .simple-auth-page .profile-finalize-card .profile-language-options button.active {
+  background: rgba(255, 122, 24, 0.1) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-language-backdrop {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  cursor: default !important;
+  inset: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  position: fixed !important;
+  z-index: 19 !important;
+}
+
+body .simple-auth-page .profile-finalize-card input,
+body .simple-auth-page .profile-finalize-card select,
+body .simple-auth-page .profile-finalize-card .date-field-control {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f2f7fb 100%) !important;
+  border-color: rgba(47, 76, 103, 0.3) !important;
+  box-shadow:
+    0 12px 26px rgba(9, 33, 63, 0.11),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.84) !important;
+}
+
+body .simple-auth-page .profile-finalize-card input::placeholder {
+  color: rgba(9, 33, 63, 0.44) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row {
+  grid-template-columns: 78px minmax(0, 1fr) !important;
+  border-color: rgba(47, 76, 103, 0.3) !important;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f2f7fb 100%) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row select {
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  padding-left: 10px !important;
+  padding-right: 12px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row input {
+  padding-left: 14px !important;
+}
+
+@media (max-width: 760px) {
+  body .simple-auth-page .auth-centered {
+    padding-bottom: 10px !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card .phone-field-row {
+    grid-template-columns: 74px minmax(0, 1fr) !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card .profile-language-options {
+    left: 0 !important;
+    right: auto !important;
+  }
+}
+
+body:has(.simple-auth-page) .site-footer {
+  display: none !important;
+  margin-top: 0 !important;
+}
+
+body:has(.simple-auth-page) {
+  background:
+    linear-gradient(180deg, #061424 0%, #07192c 100%) !important;
+  overflow-x: hidden !important;
+}
+
+body:has(.simple-auth-page) .universal-app-topbar,
+body:has(.simple-auth-page) .bottom-nav,
+body:has(.adminPage) .universal-app-topbar,
+body:has(.adminShell) .universal-app-topbar {
+  display: none !important;
+}
+
+body:has(.simple-auth-page) {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(47, 128, 237, 0.22), transparent 32%),
+    radial-gradient(circle at 82% 8%, rgba(255, 132, 24, 0.12), transparent 28%),
+    linear-gradient(180deg, #041323 0%, #071c30 58%, #04111f 100%) !important;
+  min-height: 100vh !important;
+  overflow-x: hidden !important;
+}
+
+body:has(.simple-auth-page) .site-footer,
+body:has(.simple-auth-page) footer {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+body .simple-auth-page {
+  align-items: center !important;
+  background:
+    radial-gradient(circle at 48% 20%, rgba(56, 150, 205, 0.12), transparent 36%),
+    linear-gradient(180deg, rgba(4, 19, 35, 0.98), rgba(4, 17, 31, 1)) !important;
+  display: flex !important;
+  justify-content: center !important;
+  min-height: 100vh !important;
+  overflow: hidden !important;
+  padding: clamp(24px, 5vh, 56px) 16px !important;
+}
+
+body .simple-auth-page > .auth-topbar {
+  display: none !important;
+}
+
+body .simple-auth-page .auth-centered {
+  min-height: auto !important;
+  padding: 0 !important;
+  place-items: center !important;
+  width: 100% !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) {
+  background:
+    radial-gradient(420px 180px at 100% 0%, rgba(47, 128, 237, 0.26), transparent 70%),
+    linear-gradient(180deg, rgba(18, 48, 73, 0.98), rgba(8, 27, 45, 0.98)) !important;
+  border: 1px solid rgba(128, 183, 220, 0.42) !important;
+  border-radius: 24px !important;
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) label,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) .eyebrow,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) h1,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) h2,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) p {
+  color: #e8f4ff !important;
+}
+
+body .simple-auth-page .auth-tabs {
+  background:
+    linear-gradient(135deg, rgba(5, 31, 52, 0.96), rgba(34, 58, 74, 0.96)) !important;
+  border-radius: 17px !important;
+}
+
+body .simple-auth-page .auth-tabs button.active {
+  background:
+    linear-gradient(135deg, #1f73e0 0%, #0d55c8 100%) !important;
+  border-color: rgba(159, 202, 255, 0.72) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 14px 28px rgba(31, 115, 224, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+body .simple-auth-page .auth-card button[type="submit"] {
+  background:
+    linear-gradient(135deg, #1f73e0 0%, #0c54c7 58%, #083a91 100%) !important;
+  border-color: rgba(152, 197, 255, 0.56) !important;
+  box-shadow:
+    0 16px 34px rgba(31, 115, 224, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+body .simple-auth-page .auth-card button[type="submit"]:hover {
+  filter: brightness(1.05) !important;
+  transform: translateY(-1px) !important;
+}
+
+body:has(.universal-app-topbar) :where(
+  .auth-topbar,
+  .pf-topbar,
+  .garage-topbar,
+  .sa-topbar,
+  .saved-topbar,
+  .legal-topbar,
+  .messages-topbar,
+  header.topbar
+) {
+  display: none !important;
+}
+
+body .simple-auth-page .profile-finalize-card.profile-ready-card {
+  align-items: center !important;
+  gap: 16px !important;
+  justify-items: center !important;
+  max-width: 640px !important;
+  min-height: 0 !important;
+  padding: 30px !important;
+  text-align: center !important;
+  width: min(640px, calc(100vw - 32px)) !important;
+}
+
+body .simple-auth-page .profile-ready-card .profile-completion-head {
+  justify-items: center !important;
+  text-align: center !important;
+}
+
+body .simple-auth-page .profile-ready-card .profile-completion-topline {
+  justify-content: center !important;
+}
+
+body .simple-auth-page .profile-ready-card .profile-completion-head h1 {
+  font-size: clamp(36px, 6vw, 50px) !important;
+  margin: 0 !important;
+}
+
+body .simple-auth-page .profile-ready-card > .profile-alert {
+  justify-content: center !important;
+  max-width: 100% !important;
+  min-height: 54px !important;
+  padding: 12px 16px !important;
+  width: 100% !important;
+}
+
+body .simple-auth-page .profile-ready-card .primary-action,
+body .simple-auth-page .profile-ready-card .secondary-button {
+  min-height: 50px !important;
+  width: min(100%, 360px) !important;
+}
+
+body .simple-auth-page .profile-ready-card .profile-language-select {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  body .simple-auth-page {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: calc(100svh - 64px) !important;
+  }
+
+  body .simple-auth-page .auth-centered {
+    align-items: center !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    justify-content: center !important;
+    min-height: 0 !important;
+    padding: 18px 12px 96px !important;
+    width: 100% !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card.profile-ready-card {
+    margin: 0 auto !important;
+    max-width: 320px !important;
+    padding: 28px 18px !important;
+    width: min(320px, calc(100vw - 44px)) !important;
+  }
+
+  body .simple-auth-page .profile-ready-card .profile-completion-head h1 {
+    font-size: 36px !important;
+    line-height: 0.98 !important;
+  }
+}
+
+html:has(.simple-auth-page),
+body:has(.simple-auth-page) {
+  background: #041323 !important;
+  min-height: 100dvh !important;
+  overflow-x: hidden !important;
+}
+
+body:has(.simple-auth-page) .universal-app-topbar,
+body:has(.simple-auth-page) .bottom-nav,
+body:has(.simple-auth-page) .site-footer,
+body:has(.simple-auth-page) footer,
+body:has(.admin-page) .universal-app-topbar,
+body:has(.admin-page) .bottom-nav,
+body:has(.adminPage) .universal-app-topbar,
+body:has(.adminShell) .universal-app-topbar,
+body:has(.adminPage) .bottom-nav,
+body:has(.adminShell) .bottom-nav {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+
+body .simple-auth-page {
+  isolation: isolate !important;
+  min-height: 100dvh !important;
+  padding: clamp(28px, 6vh, 72px) 16px !important;
+  position: relative !important;
+  background:
+    radial-gradient(720px 360px at 50% 16%, rgba(45, 132, 217, 0.22), transparent 66%),
+    linear-gradient(180deg, #06192d 0%, #041323 58%, #030d19 100%) !important;
+}
+
+body .simple-auth-page .auth-back-home {
+  align-items: center !important;
+  background:
+    linear-gradient(135deg, #ff9a24 0%, #ff7418 100%) !important;
+  border: 1px solid rgba(255, 218, 184, 0.86) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 14px 30px rgba(255, 107, 22, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  gap: 7px !important;
+  left: max(16px, env(safe-area-inset-left)) !important;
+  min-height: 40px !important;
+  padding: 0 15px 0 12px !important;
+  position: fixed !important;
+  text-decoration: none !important;
+  top: max(14px, env(safe-area-inset-top)) !important;
+  z-index: 5 !important;
+}
+
+body .simple-auth-page .auth-back-home svg {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  display: block !important;
+  padding: 0 !important;
+}
+
+body .simple-auth-page .auth-back-home svg *,
+body .simple-auth-page .auth-back-home path,
+body .simple-auth-page .auth-back-home line {
+  background: transparent !important;
+}
+
+body .simple-auth-page::before {
+  background:
+    linear-gradient(180deg, rgba(3, 13, 25, 0) 0%, rgba(3, 13, 25, 0.86) 72%, #030d19 100%) !important;
+  content: "" !important;
+  inset: auto 0 0 !important;
+  height: 34vh !important;
+  pointer-events: none !important;
+  position: fixed !important;
+  z-index: -1 !important;
+}
+
+body .simple-auth-page .auth-centered {
+  min-height: 0 !important;
+  padding: 0 !important;
+  place-items: center !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) {
+  background:
+    radial-gradient(520px 220px at 96% 0%, rgba(46, 137, 224, 0.24), transparent 70%),
+    linear-gradient(180deg, rgba(18, 48, 73, 0.98), rgba(8, 27, 45, 0.98)) !important;
+  border: 2px solid rgba(255, 130, 24, 0.92) !important;
+  border-radius: 26px !important;
+  box-shadow:
+    0 34px 80px rgba(0, 6, 18, 0.44),
+    0 0 0 1px rgba(255, 184, 92, 0.28),
+    0 0 28px rgba(255, 116, 24, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  gap: 16px !important;
+  padding: 26px !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) label,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) .eyebrow,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) h1,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) h2,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card) p {
+  color: #e8f4ff !important;
+}
+
+body .simple-auth-page .pre-register-choice > span {
+  color: #ffd7b0 !important;
+}
+
+body .simple-auth-page .account-type-picker.compact {
+  gap: 12px !important;
+}
+
+body .simple-auth-page .account-type-card {
+  background:
+    linear-gradient(180deg, rgba(14, 38, 60, 0.94), rgba(8, 26, 44, 0.96)) !important;
+  border: 1.5px solid rgba(255, 130, 24, 0.86) !important;
+  box-shadow:
+    0 12px 26px rgba(0, 8, 18, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+body .simple-auth-page .account-type-card strong {
+  color: #ffffff !important;
+}
+
+body .simple-auth-page .account-type-card span {
+  color: #d7e6f2 !important;
+}
+
+body .simple-auth-page .account-type-card.active,
+body .simple-auth-page .account-type-card:hover {
+  background:
+    linear-gradient(180deg, rgba(14, 38, 60, 0.94), rgba(8, 26, 44, 0.96)) !important;
+  border-color: #ff7418 !important;
+  box-shadow:
+    0 16px 32px rgba(255, 116, 24, 0.14),
+    0 0 0 1px rgba(255, 204, 144, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+body .simple-auth-page .account-type-card.active strong,
+body .simple-auth-page .account-type-card.active span,
+body .simple-auth-page .account-type-card:hover strong,
+body .simple-auth-page .account-type-card:hover span {
+  color: #ffffff !important;
+}
+
+body .simple-auth-page .account-type-card.active span,
+body .simple-auth-page .account-type-card:hover span {
+  color: #d7e6f2 !important;
+}
+
+body .simple-auth-page .auth-tabs {
+  background:
+    linear-gradient(135deg, rgba(7, 32, 53, 0.96), rgba(37, 61, 78, 0.96)) !important;
+  border: 1px solid rgba(141, 184, 215, 0.2) !important;
+  border-radius: 18px !important;
+  padding: 6px !important;
+}
+
+body .simple-auth-page .auth-tabs button {
+  border-radius: 13px !important;
+  color: rgba(226, 239, 248, 0.72) !important;
+}
+
+body .simple-auth-page .auth-tabs button:not(.active) {
+  color: #ff8a1c !important;
+}
+
+body .simple-auth-page .auth-tabs button.active {
+  background:
+    linear-gradient(135deg, #2387f2 0%, #0d61d8 58%, #09429f 100%) !important;
+  border-color: rgba(173, 216, 255, 0.68) !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 0 rgba(0, 21, 56, 0.34) !important;
+  box-shadow:
+    0 15px 30px rgba(22, 104, 224, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+body .simple-auth-page .auth-tabs button:not(.active) {
+  color: #ff8a1c !important;
+}
+
+body .simple-auth-page .auth-card button[type="submit"] {
+  background:
+    linear-gradient(135deg, #2387f2 0%, #0d61d8 58%, #09429f 100%) !important;
+  border: 1px solid rgba(173, 216, 255, 0.62) !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  box-shadow:
+    0 16px 36px rgba(22, 104, 224, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+}
+
+body .simple-auth-page .google-button,
+body .simple-auth-page .text-button {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(234, 243, 250, 0.9)) !important;
+  border-color: rgba(133, 159, 179, 0.26) !important;
+}
+
+body .simple-auth-page .google-button {
+  background:
+    linear-gradient(135deg, #ff9a24 0%, #ff7418 100%) !important;
+  border-color: rgba(255, 218, 184, 0.86) !important;
+  color: #071827 !important;
+  box-shadow:
+    0 14px 28px rgba(255, 116, 24, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34) !important;
+}
+
+body .simple-auth-page .google-button svg,
+body .simple-auth-page .google-button strong {
+  color: #071827 !important;
+}
+
+body .simple-auth-page .google-button {
+  background:
+    linear-gradient(135deg, #ff9a24 0%, #ff7418 100%) !important;
+  border-color: rgba(255, 218, 184, 0.86) !important;
+  color: #071827 !important;
+  box-shadow:
+    0 14px 28px rgba(255, 116, 24, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34) !important;
+}
+
+body .simple-auth-page .google-button svg,
+body .simple-auth-page .google-button strong {
+  color: #071827 !important;
+}
+
+body .seller-page,
+body .seller-page.auth-page {
+  background:
+    radial-gradient(900px 360px at 18% -8%, rgba(255, 255, 255, 0.45), transparent 62%),
+    radial-gradient(760px 360px at 100% 0%, rgba(255, 154, 36, 0.14), transparent 64%),
+    linear-gradient(180deg, #d9e8f3 0%, #bfd5e6 45%, #9fbdd1 100%) !important;
+  color: #09213f !important;
+}
+
+body .seller-page,
+body .seller-page.auth-page {
+  background:
+    radial-gradient(900px 360px at 14% -8%, rgba(224, 244, 255, 0.24), transparent 62%),
+    radial-gradient(760px 360px at 100% 0%, rgba(255, 122, 26, 0.15), transparent 64%),
+    linear-gradient(180deg, rgba(26, 64, 91, 0.9) 0%, rgba(12, 39, 61, 0.96) 55%, rgba(7, 24, 39, 0.98) 100%),
+    url("/hero-bg.png") center top / cover fixed !important;
+  color: #e6f1fb !important;
+}
+
+body .simple-auth-page .profile-completion-card:not(.profile-finalize-card) {
+  background:
+    radial-gradient(460px 180px at 100% 0%, rgba(255, 154, 36, 0.09), transparent 72%),
+    linear-gradient(145deg, rgba(52, 82, 104, 0.96), rgba(25, 53, 75, 0.98)) !important;
+  border: 1px solid rgba(207, 226, 240, 0.3) !important;
+  border-radius: 24px !important;
+  box-shadow:
+    0 30px 70px rgba(0, 8, 20, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  color: #f7fbff !important;
+  display: grid !important;
+  gap: 18px !important;
+  max-width: 560px !important;
+  padding: 28px !important;
+  width: min(560px, calc(100vw - 32px)) !important;
+}
+
+body .simple-auth-page .profile-completion-card:not(.profile-finalize-card) .profile-completion-head {
+  display: grid !important;
+  gap: 10px !important;
+  text-align: left !important;
+}
+
+body .simple-auth-page .profile-completion-card:not(.profile-finalize-card) .eyebrow {
+  background: rgba(255, 154, 36, 0.16) !important;
+  border: 1px solid rgba(255, 154, 36, 0.42) !important;
+  border-radius: 999px !important;
+  color: #ffd2a1 !important;
+  display: inline-flex !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.04em !important;
+  padding: 7px 11px !important;
+  text-transform: uppercase !important;
+  width: fit-content !important;
+}
+
+body .simple-auth-page .profile-completion-card:not(.profile-finalize-card) h1 {
+  color: #ffffff !important;
+  font-size: clamp(30px, 5vw, 42px) !important;
+  line-height: 1.04 !important;
+  margin: 0 !important;
+  text-shadow: 0 2px 12px rgba(0, 8, 20, 0.3) !important;
+}
+
+body .simple-auth-page .profile-completion-card:not(.profile-finalize-card) .profile-alert {
+  align-items: center !important;
+  background:
+    linear-gradient(145deg, rgba(67, 96, 114, 0.86), rgba(45, 73, 93, 0.9)) !important;
+  border: 1px solid rgba(207, 226, 240, 0.24) !important;
+  border-radius: 16px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+  color: #e6f1fb !important;
+  display: flex !important;
+  font-size: 15px !important;
+  font-weight: 850 !important;
+  gap: 12px !important;
+  min-height: 56px !important;
+  padding: 12px 14px !important;
+}
+
+body .simple-auth-page .profile-completion-card:not(.profile-finalize-card) .profile-alert svg {
+  background: linear-gradient(135deg, #ff9a24 0%, #ff7a18 100%) !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
+  flex: 0 0 auto !important;
+  height: 28px !important;
+  padding: 6px !important;
+  width: 28px !important;
+}
+
+body .simple-auth-page .profile-finalize-card.profile-ready-card {
+  background:
+    radial-gradient(560px 220px at 100% 0%, rgba(255, 154, 36, 0.08), transparent 72%),
+    linear-gradient(145deg, rgba(54, 82, 101, 0.98), rgba(26, 55, 78, 0.98)) !important;
+  border: 1px solid rgba(255, 154, 36, 0.34) !important;
+  box-shadow:
+    0 30px 70px rgba(0, 8, 20, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  color: #f7fbff !important;
+}
+
+body .simple-auth-page .profile-ready-card .eyebrow {
+  background: rgba(255, 154, 36, 0.12) !important;
+  border-color: rgba(255, 154, 36, 0.48) !important;
+  color: #ffd2a1 !important;
+}
+
+body .simple-auth-page .profile-ready-card .profile-completion-head h1 {
+  color: #ffffff !important;
+  text-shadow: 0 2px 12px rgba(0, 8, 20, 0.3) !important;
+}
+
+body .simple-auth-page .profile-ready-card > .profile-alert {
+  background:
+    linear-gradient(145deg, rgba(67, 96, 114, 0.9), rgba(45, 73, 93, 0.92)) !important;
+  border: 1px solid rgba(255, 154, 36, 0.28) !important;
+  color: #e6f1fb !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+}
+
+body .simple-auth-page .profile-ready-card > .profile-alert svg {
+  background: linear-gradient(135deg, #ff9a24 0%, #ff7a18 100%) !important;
+  color: #ffffff !important;
+}
+
+body .simple-auth-page .profile-ready-card .primary-action,
+body .simple-auth-page .profile-ready-card .secondary-button {
+  border: 1px solid rgba(255, 154, 36, 0.32) !important;
+}
+
+body .simple-auth-page .profile-ready-card .primary-action {
+  background: linear-gradient(145deg, rgba(7, 24, 39, 0.96), rgba(64, 87, 109, 0.96)) !important;
+  color: #ffffff !important;
+}
+
+body .simple-auth-page .profile-ready-card .secondary-button {
+  background: rgba(226, 239, 248, 0.92) !important;
+  color: #071827 !important;
+}
+
+body .simple-auth-page:has(.profile-finalize-card),
+body .simple-auth-page:has(.profile-completion-card:not(.email-confirm-card)) {
+  background:
+    linear-gradient(180deg, rgba(2, 12, 24, 0.56) 0%, rgba(3, 17, 32, 0.78) 50%, rgba(3, 17, 32, 0.92) 100%),
+    url("/keuliminen1.png") center top / cover fixed no-repeat !important;
+  min-height: 100svh !important;
+}
+
+body .simple-auth-page:has(.profile-finalize-card) .auth-centered,
+body .simple-auth-page:has(.profile-completion-card:not(.email-confirm-card)) .auth-centered {
+  background: transparent !important;
+}
+
+@media (max-width: 640px) {
+
+  body .seller-page,
+  body .seller-page.auth-page {
+    overflow-x: hidden !important;
+  }
+
+  body .seller-page .auth-topbar {
+    border-radius: 0 0 22px 22px !important;
+    box-sizing: border-box !important;
+    margin-inline: auto !important;
+    max-width: calc(100vw - 2px) !important;
+    overflow: hidden !important;
+    padding: 12px 14px !important;
+  }
+}

@@ -1,0 +1,496 @@
+/* Extracted from app/globals.css. Keep imported after globals.css to preserve override behavior. */
+
+
+.brand,
+.garage-brand,
+.pf-brand,
+.sa-brand {
+  color: var(--navy) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+}
+
+.brand-mark,
+.garage-brand-mark,
+.pf-brand-mark,
+.sa-brand-mark,
+.garage-heading-icon,
+.pf-avatar,
+.sa-hero-icon,
+.seller-avatar,
+.review-gate-icon {
+  background:
+    linear-gradient(145deg, #f1f5f9 0%, #94a3b8 45%, #0a4462 100%) !important;
+  border: 1px solid rgba(241, 245, 249, 0.8) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 12px 28px rgba(100, 116, 139, 0.2) !important;
+  color: #061a2e !important;
+}
+
+.back-link,
+.secondary-link,
+.garage-back,
+.pf-back,
+.sa-back {
+  background: rgba(255, 255, 255, 0.78) !important;
+  border: 1px solid rgba(100, 116, 139, 0.2) !important;
+  border-radius: 999px !important;
+  color: #0a516d !important;
+  min-height: 40px !important;
+  padding: 0 14px !important;
+}
+
+.eyebrow,
+.panel-title,
+.filtersLabel,
+.field-label,
+.sa-field label,
+.garage-field label,
+.pf-field label {
+  color: #64748b !important;
+}
+
+.secondary-button,
+.google-button,
+.text-button,
+.garage-back-step,
+.sa-edit-btn,
+.sa-delete-btn,
+.danger-button,
+.pf-inline-btn,
+.review-gate-close,
+.delete-listing-modal-actions button {
+  border-radius: 14px !important;
+  border: 1px solid rgba(100, 116, 139, 0.2) !important;
+}
+
+.price-row strong,
+.listing-detail-summary > strong,
+.garage-part-price,
+.sa-notif-price,
+.own-listing-content strong {
+  color: #64748b !important;
+}
+
+@media (max-width: 720px) {
+
+  .section-heading,
+  .garage-heading,
+  .sa-hero {
+    border-radius: 18px !important;
+  }
+}
+
+:where(.back-link, .secondary-link, .garage-back, .pf-back, .sa-back) {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(148, 163, 184, 0.36) !important;
+  color: #1e2536 !important;
+}
+
+:where(
+  input,
+  select,
+  textarea,
+  .search-row,
+  .input-with-icon,
+  .pf-readonly-value,
+  .garage-field input,
+  .garage-field select,
+  .sa-field input,
+  .sa-field select,
+  .pf-field input,
+  .pf-phone-edit input,
+  .rewards-link-row input,
+  [class*="searchInput"],
+  [class*="sortNative"]
+) {
+  background-color: var(--neutral-white-surface) !important;
+  border-color: rgba(126, 197, 240, 0.38) !important;
+}
+
+.garage-page {
+  color: #f1f5f9 !important;
+}
+
+.garage-form {
+  background:
+    radial-gradient(600px 200px at 6% 0%, rgba(148, 163, 184, 0.1), transparent 64%),
+    linear-gradient(160deg, rgba(6, 28, 56, 0.98) 0%, rgba(3, 15, 32, 0.99) 100%) !important;
+  border: 1px solid rgba(126, 197, 240, 0.26) !important;
+  border-radius: 26px !important;
+  box-shadow:
+    0 28px 72px rgba(0, 8, 22, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+}
+
+.garage-form h3 {
+  color: #ffffff !important;
+}
+
+.garage-form-hint {
+  color: rgba(180, 210, 232, 0.72) !important;
+}
+
+.garage-class-btn {
+  background:
+    linear-gradient(160deg, rgba(6, 28, 58, 0.96) 0%, rgba(3, 15, 34, 0.98) 100%) !important;
+  border: 1px solid rgba(126, 197, 240, 0.24) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 28px rgba(0, 8, 22, 0.24) !important;
+  color: #e8f4fb !important;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease !important;
+}
+
+.garage-class-btn:hover {
+  background:
+    linear-gradient(160deg, rgba(20, 30, 48, 0.98) 0%, rgba(10, 18, 32, 0.99) 100%) !important;
+  border-color: rgba(255, 154, 60, 0.48) !important;
+  box-shadow: 0 16px 40px rgba(0, 8, 22, 0.32) !important;
+  transform: translateY(-2px) !important;
+}
+
+.garage-class-icon {
+  background: linear-gradient(145deg, rgba(148, 163, 184, 0.22), rgba(6, 60, 100, 0.7)) !important;
+  border: 1px solid rgba(126, 197, 240, 0.36) !important;
+  box-shadow: none !important;
+}
+
+.garage-back-step {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border-color: rgba(126, 197, 240, 0.28) !important;
+  color: #93d4f8 !important;
+}
+
+.garage-back-step:hover {
+  color: #ffffff !important;
+  border-color: rgba(126, 197, 240, 0.52) !important;
+}
+
+.garage-selected-class {
+  background: rgba(148, 163, 184, 0.1) !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
+  color: #93d4f8 !important;
+}
+
+.garage-field label {
+  color: rgba(100, 188, 230, 0.9) !important;
+}
+
+.garage-field input,
+.garage-field select {
+  background: rgba(3, 14, 30, 0.92) !important;
+  border: 1px solid rgba(100, 160, 210, 0.3) !important;
+  border-radius: 14px !important;
+  color: #f0f6fb !important;
+}
+
+.garage-field input:focus,
+.garage-field select:focus {
+  border-color: rgba(255, 154, 60, 0.68) !important;
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.11) !important;
+  outline: none !important;
+}
+
+.garage-field input::placeholder {
+  color: rgba(148, 180, 210, 0.42) !important;
+}
+
+.garage-vehicle-card {
+  background:
+    radial-gradient(400px 160px at 90% 0%, rgba(148, 163, 184, 0.12), transparent 70%),
+    linear-gradient(160deg, rgba(6, 28, 58, 0.97) 0%, rgba(3, 15, 34, 0.99) 100%) !important;
+  border: 1px solid rgba(126, 197, 240, 0.24) !important;
+  border-radius: 24px !important;
+  box-shadow:
+    0 22px 60px rgba(0, 8, 22, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+.garage-vehicle-card::before {
+  background: linear-gradient(180deg, #ff9a3c, #e85a00) !important;
+}
+
+.garage-vehicle-card.selected {
+  border-color: rgba(255, 154, 60, 0.44) !important;
+  box-shadow:
+    0 26px 68px rgba(0, 8, 22, 0.36),
+    0 0 0 1px rgba(255, 154, 60, 0.22) !important;
+}
+
+.garage-vehicle-icon {
+  background: linear-gradient(145deg, rgba(148, 163, 184, 0.18), rgba(30, 41, 59, 0.7)) !important;
+  border: 1px solid rgba(126, 197, 240, 0.32) !important;
+  box-shadow: none !important;
+  color: #c8efff !important;
+}
+
+.garage-vehicle-type {
+  color: #94a3b8 !important;
+}
+
+.garage-vehicle-nickname {
+  color: rgba(180, 210, 232, 0.7) !important;
+}
+
+.garage-vehicle-name {
+  color: #ffffff !important;
+}
+
+.garage-vehicle-year {
+  color: rgba(180, 210, 232, 0.72) !important;
+}
+
+.garage-vehicle-class-tag {
+  background: rgba(148, 163, 184, 0.1) !important;
+  border-color: rgba(148, 163, 184, 0.26) !important;
+  color: #7dd8ff !important;
+}
+
+.garage-vehicle-arrow {
+  background: rgba(148, 163, 184, 0.1) !important;
+  color: #7dd8ff !important;
+}
+
+.garage-vehicle-delete {
+  background: rgba(220, 38, 38, 0.08) !important;
+  border-color: rgba(220, 38, 38, 0.24) !important;
+  color: #f87171 !important;
+}
+
+.garage-vehicle-delete:hover {
+  background: rgba(220, 38, 38, 0.18) !important;
+  border-color: rgba(220, 38, 38, 0.44) !important;
+}
+
+.garage-parts-panel {
+  background:
+    linear-gradient(160deg, rgba(3, 18, 40, 0.98) 0%, rgba(2, 10, 24, 0.99) 100%) !important;
+  border: 1px solid rgba(255, 154, 60, 0.36) !important;
+  border-top: none !important;
+  box-shadow: 0 22px 60px rgba(0, 8, 22, 0.28) !important;
+}
+
+.garage-parts-header h3 {
+  color: #ffffff !important;
+}
+
+.garage-parts-loading,
+.garage-parts-empty {
+  color: rgba(180, 210, 232, 0.64) !important;
+}
+
+.garage-part-card {
+  background:
+    linear-gradient(160deg, rgba(6, 28, 58, 0.97) 0%, rgba(3, 15, 34, 0.99) 100%) !important;
+  border: 1px solid rgba(126, 197, 240, 0.22) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 10px 28px rgba(0, 8, 22, 0.22) !important;
+}
+
+.garage-part-card:hover {
+  border-color: rgba(126, 197, 240, 0.42) !important;
+  box-shadow: 0 18px 44px rgba(0, 8, 22, 0.32) !important;
+}
+
+.garage-part-category {
+  color: #94a3b8 !important;
+}
+
+.garage-part-title {
+  color: #ffffff !important;
+}
+
+.garage-part-meta {
+  color: rgba(148, 180, 210, 0.62) !important;
+}
+
+.garage-part-price {
+  color: #ffffff !important;
+}
+
+.garage-empty {
+  background:
+    linear-gradient(160deg, rgba(6, 26, 52, 0.94) 0%, rgba(3, 14, 30, 0.97) 100%) !important;
+  border: 1px dashed rgba(126, 197, 240, 0.24) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 14px 40px rgba(0, 8, 22, 0.2) !important;
+  color: rgba(180, 210, 232, 0.66) !important;
+}
+
+.garage-form-error {
+  color: #fca5a5 !important;
+}
+
+.garage-add-btn {
+  background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%) !important;
+  border: 1px solid rgba(255, 210, 168, 0.72) !important;
+  box-shadow:
+    0 14px 30px rgba(255, 107, 22, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.garage-add-btn:hover {
+  background: linear-gradient(135deg, #ffb84e 0%, #ff8c30 48%, #f06800 100%) !important;
+  filter: brightness(1.07) !important;
+  transform: translateY(-1px) !important;
+}
+
+.garage-login-prompt {
+  background:
+    linear-gradient(160deg, rgba(6, 26, 52, 0.96) 0%, rgba(3, 14, 30, 0.98) 100%) !important;
+  border: 1px solid rgba(126, 197, 240, 0.24) !important;
+  border-radius: 16px !important;
+  color: rgba(203, 219, 236, 0.86) !important;
+}
+
+.garage-field label,
+.sa-field label {
+  color: rgba(120, 215, 168, 0.88) !important;
+}
+
+.garage-field input,
+.garage-field select,
+.sa-field input,
+.sa-field select {
+  background: rgba(2, 18, 13, 0.96) !important;
+  border: 1px solid rgba(28, 140, 98, 0.52) !important;
+  color: #e8f9f3 !important;
+}
+
+.garage-field input:focus,
+.garage-field select:focus,
+.sa-field input:focus,
+.sa-field select:focus {
+  border-color: rgba(30, 218, 148, 0.8) !important;
+  box-shadow: 0 0 0 3px rgba(26, 195, 125, 0.13) !important;
+  outline: none !important;
+}
+
+.garage-field input::placeholder,
+.sa-field input::placeholder {
+  color: rgba(100, 195, 150, 0.42) !important;
+}
+
+body .garage-vehicle-card {
+  background:
+    radial-gradient(400px 160px at 90% 0%, rgba(148, 163, 184, 0.08), transparent 70%),
+    linear-gradient(160deg, rgba(10, 22, 44, 0.97) 0%, rgba(5, 13, 28, 0.99) 100%) !important;
+  border: 1px solid rgba(100, 170, 220, 0.22) !important;
+  box-shadow:
+    0 20px 56px rgba(0, 6, 18, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+body .garage-vehicle-card.selected {
+  border-color: rgba(255, 154, 60, 0.46) !important;
+  box-shadow:
+    0 24px 64px rgba(0, 6, 18, 0.38),
+    0 0 0 1px rgba(255, 154, 60, 0.22) !important;
+}
+
+body .sa-field input,
+body .sa-field select,
+body .garage-field input,
+body .garage-field select,
+body .garage-custom-make-input,
+body .pf-field input,
+body .pf-field select,
+body .pf-field textarea,
+body .pf-phone-edit input,
+body .company-seller-add input,
+body .company-seller-edit input {
+  background: linear-gradient(180deg, #d5e1ec 0%, #b9c8d6 100%) !important;
+  border: 1px solid rgba(226, 239, 248, 0.5) !important;
+  color: #071827 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58) !important;
+}
+
+body .sa-field input::placeholder,
+body .garage-field input::placeholder,
+body .pf-field input::placeholder,
+body .pf-field textarea::placeholder,
+body .company-seller-add input::placeholder,
+body .company-seller-edit input::placeholder {
+  color: rgba(7, 24, 39, 0.62) !important;
+}
+
+body .sa-field input:focus,
+body .sa-field select:focus,
+body .garage-field input:focus,
+body .garage-field select:focus,
+body .pf-field input:focus,
+body .pf-field select:focus,
+body .pf-field textarea:focus,
+body .company-seller-add input:focus,
+body .company-seller-edit input:focus {
+  border-color: rgba(255, 154, 36, 0.82) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 122, 26, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62) !important;
+}
+
+body .sa-delete-btn,
+body .garage-vehicle-delete,
+body .company-seller-delete,
+body .pf-nav-danger {
+  color: #ffd0c7 !important;
+  border-color: rgba(255, 126, 100, 0.34) !important;
+}
+
+body :where(
+  .pf-section-head,
+  .garage-section-head,
+  .sa-section-title,
+  .rewards-card-head,
+  .section-heading,
+  [class*="panelTopbar"],
+  [class*="tableHeader"]
+) {
+  border-color: rgba(255, 148, 35, 0.36) !important;
+}
+
+body :where(
+  .pf-section-head::before,
+  .garage-section-head::before,
+  .section-heading::before
+) {
+  background: linear-gradient(180deg, #ff9a24, #ff7418) !important;
+}
+
+body .garage-page .garage-field input,
+body .garage-page .garage-field select,
+body .garage-page .garage-custom-make-input {
+  background: rgba(4, 18, 34, 0.82) !important;
+  border: 1px solid rgba(126, 197, 240, 0.32) !important;
+  color: #ffffff !important;
+  caret-color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+body .garage-page .garage-field input:focus,
+body .garage-page .garage-field select:focus,
+body .garage-page .garage-custom-make-input:focus {
+  background: rgba(4, 18, 34, 0.92) !important;
+  border-color: rgba(255, 154, 36, 0.78) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 122, 24, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  color: #ffffff !important;
+  outline: 0 !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+body .garage-page .garage-field input::placeholder,
+body .garage-page .garage-custom-make-input::placeholder {
+  color: rgba(226, 241, 250, 0.48) !important;
+  -webkit-text-fill-color: rgba(226, 241, 250, 0.48) !important;
+}
+
+body .garage-page .garage-field input:-webkit-autofill,
+body .garage-page .garage-field input:-webkit-autofill:hover,
+body .garage-page .garage-field input:-webkit-autofill:focus {
+  box-shadow: 0 0 0 1000px rgba(4, 18, 34, 0.92) inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+}

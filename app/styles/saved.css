@@ -1,0 +1,408 @@
+/* Extracted from app/globals.css. Keep imported after globals.css to preserve override behavior. */
+
+
+.saved-page {
+  color: #f1f5f9 !important;
+}
+
+.saved-page .saved-topbar {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.saved-page .saved-back {
+  align-items: center;
+  background: rgba(203, 213, 225, 0.08) !important;
+  border: 1px solid rgba(126, 197, 240, 0.28) !important;
+  border-radius: 11px !important;
+  color: #e6eef7 !important;
+  display: inline-flex;
+  font-weight: 900 !important;
+  gap: 10px;
+  padding: 10px 16px !important;
+  text-decoration: none !important;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease !important;
+}
+
+.saved-page .saved-back:hover {
+  background: rgba(148, 163, 184, 0.14) !important;
+  border-color: rgba(148, 163, 184, 0.5) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+.saved-page .saved-hero {
+  align-items: center;
+  background:
+    radial-gradient(680px 220px at 8% 0%, rgba(148, 163, 184, 0.14), transparent 66%),
+    radial-gradient(520px 220px at 100% 0%, rgba(255, 122, 31, 0.14), transparent 66%),
+    linear-gradient(135deg, rgba(8, 31, 57, 0.98) 0%, rgba(4, 18, 36, 0.98) 100%) !important;
+  border: 1px solid rgba(126, 197, 240, 0.32) !important;
+  border-radius: 20px !important;
+  box-shadow:
+    0 24px 60px rgba(0, 10, 24, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  display: flex;
+  gap: 18px;
+  margin-bottom: 26px !important;
+  padding: 22px 28px !important;
+}
+
+.saved-page .saved-hero-icon {
+  align-items: center;
+  background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%);
+  border: 1px solid rgba(255, 210, 168, 0.82);
+  border-radius: 16px;
+  box-shadow:
+    0 14px 30px rgba(255, 107, 22, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36);
+  color: #ffffff;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 54px;
+  justify-content: center;
+  width: 54px;
+}
+
+.saved-page .saved-hero-icon svg {
+  fill: currentColor;
+}
+
+.saved-page .saved-hero-copy h1 {
+  color: #ffffff !important;
+  font-size: clamp(24px, 2vw, 34px) !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.01em !important;
+  margin: 0 !important;
+  text-shadow: 0 8px 24px rgba(0, 10, 24, 0.4);
+}
+
+.saved-page .saved-hero-copy p {
+  color: rgba(203, 213, 225, 0.82) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  margin: 4px 0 0 !important;
+}
+
+.saved-page [class*="emptyState"] {
+  align-items: center !important;
+  background:
+    radial-gradient(520px 200px at 50% 0%, rgba(148, 163, 184, 0.08), transparent 70%),
+    linear-gradient(180deg, rgba(5, 27, 52, 0.96) 0%, rgba(3, 19, 38, 0.96) 100%) !important;
+  border: 1px dashed rgba(126, 197, 240, 0.32) !important;
+  border-radius: 20px !important;
+  box-shadow:
+    0 22px 52px rgba(0, 10, 24, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  color: rgba(216, 226, 236, 0.88) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  padding: 40px 28px !important;
+  text-align: center !important;
+}
+
+.saved-page [class*="emptyState"] strong {
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 950 !important;
+}
+
+.saved-page [class*="emptyState"] span {
+  color: rgba(203, 213, 225, 0.78) !important;
+  font-size: 14.5px !important;
+}
+
+.saved-page [class*="emptyState"] [class*="menuLink"] {
+  align-items: center;
+  background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%) !important;
+  border: 1px solid rgba(255, 210, 168, 0.82) !important;
+  border-radius: 11px !important;
+  box-shadow:
+    0 14px 30px rgba(255, 107, 22, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32) !important;
+  color: #ffffff !important;
+  display: inline-flex;
+  font-weight: 950 !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+  padding: 10px 18px !important;
+  text-decoration: none !important;
+  transition: filter 160ms ease, transform 160ms ease !important;
+}
+
+.saved-page [class*="emptyState"] [class*="menuLink"]:hover {
+  filter: brightness(1.06) !important;
+  transform: translateY(-1px) !important;
+}
+
+.saved-page [class*="cardsGrid"] {
+  gap: 18px !important;
+}
+
+@media (max-width: 720px) {
+  .saved-page .saved-hero {
+    padding: 18px 18px !important;
+  }
+
+  .saved-page .saved-hero-icon {
+    height: 44px;
+    width: 44px;
+  }
+}
+
+body .sa-topbar,
+body .saved-page .saved-topbar,
+body .garage-topbar,
+body .pf-topbar,
+body .sa-hero,
+body .saved-page .saved-hero,
+body .garage-heading,
+body .garage-toolbar,
+body .garage-form,
+body .garage-empty,
+body .garage-parts-panel,
+body .pf-sidebar,
+body .pf-user-card,
+body .pf-nav,
+body .pf-section,
+body .pf-login-prompt,
+body .pf-save-bar,
+body .pf-company-sellers-section,
+body .company-seller-card,
+body .company-seller-add,
+body .company-seller-empty,
+body .company-seller-footer,
+body .sa-form-card,
+body .sa-card,
+body .sa-empty,
+body .sa-edit-panel,
+body .sa-matches,
+body .saved-page [class*="emptyState"] {
+  background:
+    radial-gradient(520px 210px at 100% 0%, rgba(255, 154, 36, 0.08), transparent 72%),
+    linear-gradient(145deg, rgba(54, 82, 101, 0.96) 0%, rgba(30, 63, 86, 0.97) 100%) !important;
+  border: 1px solid rgba(207, 226, 240, 0.26) !important;
+  box-shadow:
+    0 18px 42px rgba(0, 10, 24, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+  color: #e6f1fb !important;
+}
+
+body .saved-page [class*="card"],
+body .garage-class-btn,
+body .garage-vehicle-card,
+body .garage-part-card,
+body .garage-selected-class,
+body .garage-login-prompt,
+body .pf-nav-item,
+body .pf-phone-card,
+body .pf-readonly-value,
+body .pf-locked,
+body .pf-modal-backdrop .pf-phone-modal,
+body .pf-modal-backdrop .pf-delete-modal,
+body .company-seller-edit,
+body .sa-notif-item,
+body .sa-tag,
+body .sa-toggle,
+body .sa-card-icon,
+body .sa-notif-list {
+  background:
+    linear-gradient(145deg, rgba(67, 96, 114, 0.97) 0%, rgba(45, 73, 93, 0.97) 100%) !important;
+  border-color: rgba(207, 226, 240, 0.24) !important;
+  color: #e6f1fb !important;
+}
+
+body .saved-page [class*="cardBody"] {
+  background:
+    radial-gradient(260px 120px at 90% 0%, rgba(255, 154, 36, 0.08), transparent 72%),
+    linear-gradient(145deg, rgba(54, 82, 101, 0.98), rgba(35, 62, 82, 0.98)) !important;
+  border-top: 1px solid rgba(207, 226, 240, 0.18) !important;
+}
+
+body .saved-page [class*="card"]:hover,
+body .garage-class-btn:hover,
+body .garage-vehicle-card:hover,
+body .garage-part-card:hover,
+body .pf-nav-item:hover,
+body .company-seller-card:hover,
+body .sa-card:hover,
+body .sa-notif-item:hover {
+  border-color: rgba(255, 154, 36, 0.58) !important;
+  box-shadow:
+    0 18px 40px rgba(0, 10, 24, 0.24),
+    0 0 0 1px rgba(255, 154, 36, 0.14) !important;
+}
+
+body .garage-class-btn.selected,
+body .garage-vehicle-card.selected,
+body .pf-nav-item.pf-nav-active,
+body .pf-nav-active,
+body .sa-card-has-notif,
+body .sa-tag-blue,
+body .saved-page [class*="favoriteButtonActive"] {
+  background:
+    linear-gradient(145deg, rgba(255, 122, 26, 0.23), rgba(50, 77, 96, 0.96)) !important;
+  border-color: rgba(255, 154, 36, 0.72) !important;
+  box-shadow:
+    0 12px 28px rgba(255, 122, 26, 0.13),
+    inset 3px 0 0 #ff7a1a !important;
+  color: #ffffff !important;
+}
+
+body .sa-new-btn,
+body .sa-save-btn,
+body .sa-search-btn,
+body .garage-add-btn,
+body .garage-save-btn,
+body .garage-login-btn,
+body .pf-topbar-cta,
+body .pf-save-btn,
+body .pf-form button[type="submit"],
+body .pf-inline-btn.verify,
+body .company-seller-add-btn,
+body .saved-page [class*="menuLink"] {
+  background: linear-gradient(135deg, #ff9a24 0%, #ff7a1a 54%, #ec5c00 100%) !important;
+  border-color: rgba(255, 218, 184, 0.62) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 14px 30px rgba(255, 111, 18, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+}
+
+body .sa-edit-btn,
+body .sa-delete-btn,
+body .garage-back-step,
+body .garage-vehicle-delete,
+body .pf-inline-btn,
+body .company-seller-small-btn,
+body .saved-page .saved-back,
+body .garage-back,
+body .sa-back,
+body .pf-back {
+  background: rgba(23, 51, 72, 0.74) !important;
+  border: 1px solid rgba(207, 226, 240, 0.24) !important;
+  color: #e6f1fb !important;
+}
+
+body .sa-hero-icon,
+body .saved-page .saved-hero-icon,
+body .garage-heading-icon,
+body .garage-class-icon,
+body .garage-vehicle-icon,
+body .pf-avatar,
+body .pf-brand-icon,
+body .company-seller-avatar,
+body .sa-card-icon {
+  background:
+    radial-gradient(circle at 28% 20%, rgba(255, 255, 255, 0.34), transparent 34%),
+    linear-gradient(135deg, #ff9a24 0%, #ff7a1a 100%) !important;
+  border-color: rgba(255, 218, 184, 0.42) !important;
+  color: #ffffff !important;
+}
+
+body .garage-part-price,
+body .sa-notif-price,
+body .saved-page [class*="cardPrice"],
+body .pf-status,
+body .company-seller-limit {
+  color: #ffd2a1 !important;
+}
+
+body .sa-hero h1,
+body .saved-page .saved-hero-copy h1,
+body .garage-heading h1,
+body .pf-section-head h2,
+body .pf-user-name,
+body .company-seller-card strong,
+body .company-seller-footer strong,
+body .saved-page [class*="cardTitle"] {
+  color: #ffffff !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.28) !important;
+}
+
+body .sa-hero p,
+body .saved-page .saved-hero-copy p,
+body .garage-heading p,
+body .garage-toolbar-copy span,
+body .pf-section-head p,
+body .pf-user-id,
+body .pf-phone-help,
+body .company-seller-card span,
+body .company-seller-footer,
+body .saved-page [class*="cardMetaRow"],
+body .saved-page [class*="sellerText"] small {
+  color: #cfe2f1 !important;
+}
+
+body .saved-page [class*="badge"],
+body .garage-vehicle-class-tag,
+body .garage-vehicle-year,
+body .pf-company-badge,
+body .pf-verified,
+body .sa-tag-green {
+  background: rgba(255, 122, 26, 0.16) !important;
+  border: 1px solid rgba(255, 154, 36, 0.38) !important;
+  color: #ffd2a1 !important;
+}
+
+body .universal-return-button,
+body :where(.back-link, .pf-back, .garage-back, .sa-back, .saved-back) {
+  align-items: center !important;
+  background:
+    radial-gradient(120px 48px at 20% 0%, rgba(255, 255, 255, 0.72), transparent 62%),
+    linear-gradient(135deg, #f8fcff 0%, #d9e7f2 58%, #b9cadd 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 14px 30px rgba(0, 8, 20, 0.26),
+    0 0 0 1px rgba(126, 197, 240, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  color: #061827 !important;
+  display: inline-flex !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  gap: 8px !important;
+  min-height: 44px !important;
+  padding: 0 16px 0 9px !important;
+  text-decoration: none !important;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease,
+    filter 0.16s ease !important;
+  white-space: nowrap !important;
+}
+
+body .universal-return-button svg,
+body :where(.back-link, .pf-back, .garage-back, .sa-back, .saved-back) svg {
+  background:
+    linear-gradient(135deg, rgba(7, 24, 39, 0.88), rgba(54, 75, 91, 0.94)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 999px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+  flex: 0 0 auto !important;
+  height: 24px !important;
+  padding: 5px !important;
+  width: 24px !important;
+}
+
+body .universal-return-button:hover,
+body .universal-return-button:focus-visible,
+body :where(.back-link, .pf-back, .garage-back, .sa-back, .saved-back):hover,
+body :where(.back-link, .pf-back, .garage-back, .sa-back, .saved-back):focus-visible {
+  border-color: rgba(255, 154, 36, 0.62) !important;
+  box-shadow:
+    0 16px 34px rgba(0, 8, 20, 0.3),
+    0 0 0 3px rgba(255, 154, 36, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.94) !important;
+  color: #061827 !important;
+  filter: brightness(1.04) !important;
+  outline: none !important;
+  transform: translateY(-1px) !important;
+}

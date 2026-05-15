@@ -1,0 +1,870 @@
+/* Extracted from app/globals.css. Keep imported after globals.css to preserve override behavior. */
+
+
+:where(.auth-page, .messages-page, .garage-page, .pf-page, .sa-page, .simple-auth-page, .shop-page, .seller-page, .profile-page) {
+  background:
+    radial-gradient(760px 340px at 95% 0%, rgba(255, 107, 22, 0.08), transparent 58%),
+    linear-gradient(180deg, #0d1f3c 0%, #162d4e 360px, #1a3460 100%) !important;
+  color: var(--ui-text) !important;
+}
+
+.pf-page {
+  background: transparent !important;
+  color: #f1f5f9 !important;
+  padding-bottom: 48px !important;
+}
+
+body .pf-page {
+  background:
+    radial-gradient(900px 420px at 12% -10%, rgba(64, 216, 255, 0.12), transparent 60%),
+    radial-gradient(760px 360px at 96% 0%, rgba(255, 122, 26, 0.1), transparent 62%),
+    linear-gradient(180deg, #061a2e 0%, #03182d 58%, #020e1c 100%) !important;
+  color: #f1f5f9 !important;
+}
+
+body > main.page,
+body .pf-page,
+body .listing-page,
+body .saved-page,
+body .privacy-page,
+body .terms-page {
+  background:
+    radial-gradient(900px 380px at 12% -10%, rgba(222, 242, 255, 0.24), transparent 64%),
+    radial-gradient(760px 360px at 100% 0%, rgba(255, 122, 26, 0.14), transparent 62%),
+    linear-gradient(180deg, rgba(12, 42, 66, 0.86) 0%, rgba(8, 29, 48, 0.94) 52%, rgba(6, 21, 36, 0.97) 100%),
+    url("/hero-bg.png") center top / cover fixed !important;
+  color: var(--ap-ice-strong) !important;
+  min-height: 100vh !important;
+}
+
+body .sa-page,
+body .saved-page,
+body .garage-page,
+body .pf-page {
+  min-height: 100vh !important;
+  background:
+    radial-gradient(900px 360px at 14% -8%, rgba(224, 244, 255, 0.24), transparent 62%),
+    radial-gradient(760px 360px at 100% 0%, rgba(255, 122, 26, 0.15), transparent 64%),
+    linear-gradient(180deg, rgba(26, 64, 91, 0.9) 0%, rgba(12, 39, 61, 0.96) 55%, rgba(7, 24, 39, 0.98) 100%),
+    url("/hero-bg.png") center top / cover fixed !important;
+  color: #e6f1fb !important;
+}
+
+body .pf-page .pf-sidebar {
+  position: static !important;
+  top: auto !important;
+}
+
+body .pf-page .pf-field:has(.pf-phone-row) {
+  grid-column: 1 / -1 !important;
+}
+
+body .pf-page .pf-phone-row {
+  align-items: stretch !important;
+  display: grid !important;
+  gap: 10px !important;
+  grid-template-columns: minmax(320px, 1fr) auto !important;
+}
+
+body .pf-page .pf-phone-card {
+  background: transparent !important;
+  border: 1px solid rgba(126, 197, 240, 0.34) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  justify-content: flex-start !important;
+  min-height: 50px !important;
+  overflow: visible !important;
+  padding: 0 12px !important;
+}
+
+body .pf-page .pf-phone-number {
+  color: #ffffff !important;
+  flex: 0 0 auto !important;
+  font-size: 15px !important;
+  letter-spacing: 0 !important;
+  max-width: none !important;
+  min-width: max-content !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+body .pf-page .pf-verified,
+body .pf-page .pf-unverified,
+body .pf-page .pf-locked-badge {
+  background: transparent !important;
+  border: 1px solid rgba(255, 154, 36, 0.5) !important;
+  color: #ffd2a1 !important;
+  margin-left: auto !important;
+}
+
+body .pf-page .pf-phone-actions {
+  align-items: stretch !important;
+  display: flex !important;
+  gap: 8px !important;
+}
+
+body .pf-page .pf-phone-actions .pf-inline-btn {
+  min-width: 92px !important;
+}
+
+@media (max-width: 760px) {
+  body .pf-page .pf-phone-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  body .pf-page .pf-phone-card {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding: 12px !important;
+  }
+
+  body .pf-page .pf-verified,
+  body .pf-page .pf-unverified,
+  body .pf-page .pf-locked-badge {
+    margin-left: 0 !important;
+  }
+}
+
+body .pf-page .pf-phone-row {
+  align-items: stretch !important;
+  display: grid !important;
+  gap: 8px !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+body .pf-page .pf-phone-card {
+  align-items: center !important;
+  display: flex !important;
+  gap: 10px !important;
+  min-height: 48px !important;
+  padding: 8px 10px 8px 14px !important;
+  border-radius: 12px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(232, 241, 248, 0.94)) !important;
+  border: 1px solid rgba(128, 148, 164, 0.24) !important;
+  box-shadow:
+    0 10px 22px rgba(9, 33, 63, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  color: #09213f !important;
+}
+
+body .pf-page .pf-phone-number {
+  color: #09213f !important;
+  flex: 1 1 auto !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body .pf-page .pf-verified,
+body .pf-page .pf-unverified,
+body .pf-page .pf-locked-badge {
+  align-items: center !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  min-height: 26px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+}
+
+body .pf-page .pf-verified {
+  background: rgba(255, 122, 24, 0.12) !important;
+  border: 1px solid rgba(255, 122, 24, 0.45) !important;
+  color: #a44800 !important;
+}
+
+body .pf-page .pf-unverified {
+  background: rgba(234, 179, 8, 0.12) !important;
+  border: 1px solid rgba(234, 179, 8, 0.36) !important;
+  color: #854d0e !important;
+}
+
+body .pf-page .pf-locked-badge {
+  background: rgba(15, 23, 42, 0.08) !important;
+  border: 1px solid rgba(15, 23, 42, 0.18) !important;
+  color: #334155 !important;
+}
+
+body .pf-page .pf-phone-actions {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+body .pf-page .pf-phone-actions .pf-inline-btn,
+body .pf-page .pf-inline-btn {
+  min-height: 48px !important;
+  padding: 0 16px !important;
+  border-radius: 12px !important;
+  background:
+    linear-gradient(145deg, rgba(20, 42, 58, 0.96), rgba(8, 24, 39, 0.98)) !important;
+  border: 1px solid rgba(207, 226, 240, 0.24) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 22px rgba(0, 10, 24, 0.18) !important;
+}
+
+body .pf-page .pf-inline-btn.verify {
+  background: linear-gradient(135deg, #ff991f, #ff7418) !important;
+  border-color: rgba(255, 213, 166, 0.45) !important;
+}
+
+body .pf-page .pf-section#osoite .pf-fields {
+  gap: 16px !important;
+  padding-top: 0 !important;
+}
+
+body .pf-page .pf-section#osoite .pf-field {
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+body .pf-page .pf-section#osoite .pf-field label,
+body .pf-page .pf-fields label {
+  color: #dbeafe !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+}
+
+body .pf-page .pf-section#osoite .pf-field input,
+body .pf-page .pf-section#osoite .pf-field select,
+body .pf-page .pf-field input:not([disabled]),
+body .pf-page .pf-field select,
+body .pf-page .pf-field textarea {
+  min-height: 48px !important;
+  padding: 0 14px !important;
+  border-radius: 12px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(232, 241, 248, 0.94)) !important;
+  border: 1px solid rgba(128, 148, 164, 0.24) !important;
+  color: #09213f !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  box-shadow:
+    0 10px 22px rgba(9, 33, 63, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+body .pf-page .pf-section#osoite .pf-field input:focus,
+body .pf-page .pf-field input:not([disabled]):focus,
+body .pf-page .pf-field select:focus,
+body .pf-page .pf-field textarea:focus {
+  border-color: rgba(255, 148, 35, 0.78) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 148, 35, 0.16),
+    0 12px 26px rgba(0, 12, 26, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+@media (max-width: 760px) {
+  body .pf-page .pf-phone-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  body .pf-page .pf-phone-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+body .pf-page .pf-field:has(.pf-phone-row) {
+  grid-column: 1 / -1 !important;
+}
+
+body .pf-page .pf-phone-row {
+  align-items: center !important;
+  display: grid !important;
+  gap: 8px !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+body .pf-page .pf-phone-card {
+  align-items: center !important;
+  background: transparent !important;
+  border: 1px solid rgba(126, 197, 240, 0.34) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  display: flex !important;
+  gap: 10px !important;
+  min-height: 42px !important;
+  overflow: visible !important;
+  padding: 0 10px 0 12px !important;
+}
+
+body .pf-page .pf-phone-number {
+  color: #ffffff !important;
+  flex: 1 1 auto !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+body .pf-page .pf-unverified,
+body .pf-page .pf-verified,
+body .pf-page .pf-locked-badge {
+  background: rgba(255, 154, 36, 0.08) !important;
+  border: 1px solid rgba(255, 154, 36, 0.42) !important;
+  border-radius: 999px !important;
+  color: #ffd2a1 !important;
+  flex: 0 0 auto !important;
+  font-size: 10px !important;
+  min-height: 24px !important;
+  padding: 0 9px !important;
+}
+
+body .pf-page .pf-phone-actions {
+  align-items: center !important;
+  display: flex !important;
+  gap: 6px !important;
+}
+
+body .pf-page .pf-phone-actions .pf-inline-btn,
+body .pf-page .pf-inline-btn {
+  border-radius: 10px !important;
+  font-size: 12px !important;
+  min-height: 42px !important;
+  min-width: 76px !important;
+  padding: 0 12px !important;
+}
+
+body .pf-page .pf-phone-actions .pf-inline-btn.verify {
+  min-width: 82px !important;
+}
+
+@media (max-width: 760px) {
+  body .pf-page .pf-phone-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  body .pf-page .pf-phone-actions {
+    justify-content: stretch !important;
+  }
+
+  body .pf-page .pf-phone-actions .pf-inline-btn {
+    flex: 1 1 auto !important;
+  }
+}
+
+body .pf-page .pf-field:has(.pf-phone-row) {
+  grid-column: auto !important;
+  max-width: 560px !important;
+}
+
+body .pf-page .pf-phone-row {
+  align-items: center !important;
+  display: inline-grid !important;
+  gap: 6px !important;
+  grid-template-columns: minmax(210px, 330px) auto !important;
+  max-width: 100% !important;
+  width: auto !important;
+}
+
+body .pf-page .pf-phone-card {
+  background: transparent !important;
+  border: 1px solid rgba(126, 197, 240, 0.34) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  min-height: 40px !important;
+  padding: 0 9px 0 12px !important;
+}
+
+body .pf-page .pf-phone-number {
+  color: #ffffff !important;
+  font-size: 14px !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+body .pf-page .pf-unverified,
+body .pf-page .pf-verified,
+body .pf-page .pf-locked-badge {
+  background: transparent !important;
+  border: 1px solid rgba(255, 154, 36, 0.42) !important;
+  box-shadow: none !important;
+  font-size: 10px !important;
+  min-height: 22px !important;
+  padding: 0 8px !important;
+}
+
+body .pf-page .pf-phone-actions {
+  gap: 6px !important;
+}
+
+body .pf-page .pf-phone-actions .pf-inline-btn {
+  border-radius: 9px !important;
+  font-size: 12px !important;
+  min-height: 40px !important;
+  min-width: 68px !important;
+  padding: 0 11px !important;
+}
+
+body .pf-page .pf-phone-actions .pf-inline-btn.verify {
+  min-width: 76px !important;
+}
+
+body .pf-page .pf-phone-help {
+  max-width: 560px !important;
+}
+
+@media (max-width: 760px) {
+  body .pf-page .pf-field:has(.pf-phone-row) {
+    max-width: none !important;
+  }
+
+  body .pf-page .pf-phone-row {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+}
+
+body .pf-page .pf-phone-row,
+body .pf-page .pf-phone-card,
+body .pf-page .pf-phone-card::before,
+body .pf-page .pf-phone-card::after {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+body .pf-page .pf-phone-card {
+  border-color: rgba(126, 197, 240, 0.34) !important;
+}
+
+body .pf-page .pf-phone-number {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+body .pf-page .pf-section#osoite {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 760px !important;
+  width: min(760px, 100%) !important;
+}
+
+body .pf-page .pf-section#osoite .pf-section-head {
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 18px 22px !important;
+  text-align: center !important;
+}
+
+body .pf-page .pf-section#osoite .pf-fields {
+  display: grid !important;
+  gap: 14px !important;
+  grid-template-columns: repeat(2, minmax(0, 260px)) !important;
+  justify-content: center !important;
+  padding: 18px 22px 22px !important;
+}
+
+body .pf-page .pf-section#osoite .pf-field {
+  align-items: stretch !important;
+  max-width: 260px !important;
+  width: 100% !important;
+}
+
+body .pf-page .pf-section#osoite .pf-field-wide {
+  grid-column: 1 / -1 !important;
+  justify-self: center !important;
+  max-width: 540px !important;
+}
+
+body .pf-page .pf-section#osoite .pf-field input,
+body .pf-page .pf-section#osoite .pf-field select {
+  min-height: 44px !important;
+}
+
+@media (max-width: 720px) {
+  body .pf-page .pf-section#osoite {
+    max-width: 100% !important;
+  }
+
+  body .pf-page .pf-section#osoite .pf-fields {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body .pf-page .pf-section#osoite .pf-field,
+  body .pf-page .pf-section#osoite .pf-field-wide {
+    max-width: none !important;
+  }
+}
+
+body .pf-page .pf-avatar {
+  height: 76px !important;
+  width: 76px !important;
+}
+
+body .pf-page .pf-field:has(.pf-phone-row) {
+  max-width: 470px !important;
+}
+
+body .pf-page .pf-phone-row {
+  align-items: center !important;
+  display: inline-grid !important;
+  gap: 8px !important;
+  grid-template-columns: minmax(0, 260px) auto !important;
+  width: auto !important;
+}
+
+body .pf-page .pf-phone-card {
+  align-items: center !important;
+  background: linear-gradient(180deg, #ffffff 0%, #eef5fb 100%) !important;
+  background-color: #ffffff !important;
+  background-image: linear-gradient(180deg, #ffffff 0%, #eef5fb 100%) !important;
+  border: 1px solid rgba(207, 226, 240, 0.9) !important;
+  border-radius: 10px !important;
+  box-shadow:
+    0 10px 22px rgba(0, 8, 20, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82) !important;
+  display: flex !important;
+  gap: 8px !important;
+  min-height: 42px !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding: 0 8px 0 12px !important;
+}
+
+body .pf-page .pf-phone-number {
+  background: transparent !important;
+  color: #071827 !important;
+  display: block !important;
+  flex: 1 1 auto !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body .pf-page .pf-unverified,
+body .pf-page .pf-verified,
+body .pf-page .pf-locked-badge {
+  flex: 0 0 auto !important;
+}
+
+body .pf-page .pf-verified {
+  background: rgba(34, 197, 94, 0.12) !important;
+  border: 1px solid rgba(34, 197, 94, 0.46) !important;
+  color: #16a34a !important;
+  font-weight: 950 !important;
+}
+
+body .pf-page .pf-phone-actions .pf-inline-btn {
+  min-height: 42px !important;
+}
+
+@media (max-width: 760px) {
+  body .pf-page .pf-field:has(.pf-phone-row) {
+    max-width: none !important;
+  }
+
+  body .pf-page .pf-phone-row {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+}
+
+body .pf-page .pf-field:has(.pf-phone-row) {
+  grid-column: 1 / -1 !important;
+  max-width: none !important;
+  width: 100% !important;
+}
+
+body .pf-page .pf-phone-row {
+  display: grid !important;
+  gap: 10px !important;
+  grid-template-columns: minmax(max-content, 1fr) auto !important;
+  max-width: 760px !important;
+  width: 100% !important;
+}
+
+body .pf-page .pf-phone-card {
+  min-width: max-content !important;
+  overflow: visible !important;
+}
+
+body .pf-page .pf-phone-number {
+  flex: 0 0 auto !important;
+  max-width: none !important;
+  min-width: max-content !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+body .pf-page {
+  background:
+    linear-gradient(180deg, rgba(2, 12, 24, 0.46) 0%, rgba(3, 17, 32, 0.68) 48%, rgba(3, 17, 32, 0.86) 100%),
+    url("/keuliminen1.png") center top / cover fixed no-repeat !important;
+  min-height: 100svh !important;
+}
+
+body .pf-page .pf-sidebar,
+body .pf-page .pf-section,
+body .pf-page .pf-user-card {
+  background:
+    linear-gradient(145deg, rgba(12, 48, 76, 0.62), rgba(5, 24, 43, 0.74)) !important;
+  backdrop-filter: blur(12px) saturate(1.12) !important;
+  border-color: rgba(211, 232, 244, 0.28) !important;
+}
+
+body .pf-page .pf-topbar {
+  background: rgba(4, 20, 38, 0.68) !important;
+  backdrop-filter: blur(14px) saturate(1.12) !important;
+}
+
+@media (max-width: 760px) {
+  body .pf-page {
+    background:
+      linear-gradient(180deg, rgba(2, 12, 24, 0.54) 0%, rgba(3, 17, 32, 0.78) 54%, rgba(3, 17, 32, 0.92) 100%),
+      url("/keuliminen1.png") 42% top / auto 100svh fixed no-repeat !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body .pf-page .pf-field:has(.pf-phone-row) {
+    text-align: center !important;
+  }
+
+  body .pf-page .pf-field:has(.pf-phone-row) > label,
+  body .pf-page .pf-phone-help {
+    display: block !important;
+    text-align: center !important;
+  }
+
+  body .pf-page .pf-phone-row {
+    align-items: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    justify-content: center !important;
+    margin-inline: auto !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body .pf-page .pf-phone-card {
+    align-items: center !important;
+    justify-content: center !important;
+    margin-inline: auto !important;
+    text-align: center !important;
+  }
+
+  body .pf-page .pf-phone-actions {
+    display: flex !important;
+    justify-content: center !important;
+    margin-inline: auto !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body .pf-page .pf-field:has(.pf-phone-row) {
+    align-items: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin-inline: auto !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  body .pf-page .pf-field:has(.pf-phone-row) > label {
+    color: rgba(232, 242, 250, 0.92) !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.1 !important;
+    text-align: center !important;
+  }
+
+  body .pf-page .pf-phone-row {
+    align-items: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    justify-content: center !important;
+    margin-inline: auto !important;
+    width: 100% !important;
+  }
+
+  body .pf-page .pf-phone-card {
+    align-items: center !important;
+    background:
+      radial-gradient(120px 60px at 20% 0%, rgba(255, 154, 36, 0.2), transparent 70%),
+      linear-gradient(135deg, rgba(7, 31, 53, 0.96), rgba(4, 18, 34, 0.98)) !important;
+    border: 1px solid rgba(255, 154, 36, 0.36) !important;
+    border-radius: 999px !important;
+    box-shadow:
+      0 12px 26px rgba(0, 8, 20, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+    display: inline-flex !important;
+    gap: 8px !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    padding: 7px 9px 7px 13px !important;
+    width: auto !important;
+  }
+
+  body .pf-page .pf-phone-number {
+    color: #ffffff !important;
+    flex: 0 1 auto !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    max-width: 150px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body .pf-page .pf-verified,
+  body .pf-page .pf-unverified,
+  body .pf-page .pf-locked-badge {
+    border-radius: 999px !important;
+    flex: 0 0 auto !important;
+    font-size: 10px !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    padding: 6px 9px !important;
+    white-space: nowrap !important;
+  }
+
+  body .pf-page .pf-verified {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+    border: 1px solid rgba(34, 197, 94, 0.5) !important;
+    color: #15803d !important;
+  }
+
+  body .pf-page .pf-phone-help {
+    margin-top: 0 !important;
+    max-width: 260px !important;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body .pf-page .pf-save-bar {
+    align-items: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 330px !important;
+    padding: 18px !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  body .pf-page .pf-save-btn {
+    justify-content: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 220px !important;
+    min-width: 164px !important;
+    width: auto !important;
+  }
+
+  body .pf-page .pf-status {
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+  }
+}
+
+body .pf-page .pf-phone-card {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(238, 247, 252, 0.98), rgba(205, 222, 234, 0.98)) !important;
+  border: 1px solid rgba(207, 226, 240, 0.82) !important;
+  border-radius: 10px !important;
+  box-shadow:
+    0 10px 22px rgba(0, 8, 20, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+  display: flex !important;
+  gap: 8px !important;
+  min-height: 48px !important;
+  overflow: hidden !important;
+  padding: 8px 10px 8px 14px !important;
+}
+
+body .pf-page .pf-phone-number {
+  color: #071827 !important;
+  flex: 1 1 auto !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+body .pf-page .pf-verified,
+body .pf-page .pf-unverified,
+body .pf-page .pf-locked-badge {
+  border-radius: 999px !important;
+  flex: 0 0 auto !important;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  padding: 6px 9px !important;
+  white-space: nowrap !important;
+}
+
+body .pf-page .pf-verified {
+  background: rgba(34, 197, 94, 0.13) !important;
+  border: 1px solid rgba(34, 197, 94, 0.42) !important;
+  color: #15803d !important;
+}
+
+body .pf-page .pf-unverified {
+  background: rgba(255, 154, 36, 0.15) !important;
+  border: 1px solid rgba(255, 154, 36, 0.5) !important;
+  color: #9a3412 !important;
+}
+
+@media (max-width: 640px) {
+  body .pf-page .pf-phone-row {
+    align-items: stretch !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin-inline: auto !important;
+    width: min(100%, 280px) !important;
+  }
+
+  body .pf-page .pf-phone-card {
+    border-radius: 10px !important;
+    display: grid !important;
+    gap: 6px !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    min-height: 0 !important;
+    padding: 10px 12px !important;
+    width: 100% !important;
+  }
+
+  body .pf-page .pf-phone-number {
+    font-size: 14px !important;
+    max-width: 100% !important;
+    text-align: center !important;
+  }
+}
