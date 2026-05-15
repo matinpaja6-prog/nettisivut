@@ -160,7 +160,13 @@ const subCategoryVisuals: Record<string, string> = {
   "Runko & katteet": "/category-main/runko-katteet.png",
   Runko: "/category-sub/runko.png",
   Katteet: "/category-sub/katteet.png",
-  Sivukatteet: "/category-sub/katteet.png"
+  "Kokonainen katesarja": "/category-sub/katteet.png",
+  "Kuomut & konepellit": "/category-sub/katteet.png",
+  Sivukatteet: "/category-sub/katteet.png",
+  Etupuskurit: "/category-main/runko-katteet.png",
+  Takapuskurit: "/category-main/runko-katteet.png",
+  "Istuimet & penkit": "/category-main/runko-katteet.png",
+  Tuulilasit: "/category-sub/katteet.png"
 };
 
 const vehicleBrands: Record<string, string[]> = {
@@ -2520,9 +2526,11 @@ function SellPageContent() {
               <span className="field-label">{t.sellQuickPick}</span>
               <div className="preset-grid">
                 {partPresets.map((preset) => {
-                  const allAdded = preset.parts.every((p) =>
-                    selectedParts.some((s) => s.toLowerCase() === p.toLowerCase())
-                  );
+                  const allAdded =
+                    preset.parts.length > 0 &&
+                    preset.parts.every((p) =>
+                      selectedParts.some((s) => s.toLowerCase() === p.toLowerCase())
+                    );
                   const newCount = preset.parts.filter((p) =>
                     !selectedParts.some((s) => s.toLowerCase() === p.toLowerCase())
                   ).length;
@@ -2545,7 +2553,7 @@ function SellPageContent() {
                         <span>{preset.desc}</span>
                       </div>
                       <span className="preset-count">
-                        {allAdded ? t.sellPresetRemoveLabel : newCount === 0 ? t.sellPresetIncluded : `+${newCount}`}
+                        {allAdded ? t.sellPresetRemoveLabel : t.sellPresetAddLabel}
                       </span>
                     </button>
                   );
@@ -2644,7 +2652,10 @@ function SellPageContent() {
                                 if (listingMode === "multiple") {
                                   togglePart(partKey(form.category, group));
                                 } else {
-                                  setForm({ ...form, subcategory: group });
+                                  setForm({
+                                    ...form,
+                                    subcategory: form.subcategory === group ? "" : group
+                                  });
                                 }
                               }
                             }}
@@ -2686,7 +2697,10 @@ function SellPageContent() {
                                 if (listingMode === "multiple") {
                                   togglePart(partKey(form.category, sub));
                                 } else {
-                                  setForm({ ...form, subcategory: sub });
+                                  setForm({
+                                    ...form,
+                                    subcategory: form.subcategory === sub ? "" : sub
+                                  });
                                 }
                               }}
                             >
@@ -2721,7 +2735,10 @@ function SellPageContent() {
                               togglePart(partKey(form.category, sub));
                               return;
                             }
-                            setForm({ ...form, subcategory: sub });
+                            setForm({
+                              ...form,
+                              subcategory: form.subcategory === sub ? "" : sub
+                            });
                           }}
                         >
                           <span className="sell-subcategory-text">

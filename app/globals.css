@@ -32952,3 +32952,139 @@ body .listing-detail-page .contact-card .phone-number:hover {
     -webkit-box-orient: initial !important;
   }
 }
+
+/* Desktop listing sheet: no separate title slab, thin orange lines around the whole sheet. */
+@media (min-width: 761px) {
+  body .listing-detail-page .main {
+    border: 1px solid rgba(255, 154, 36, 0.62) !important;
+    border-radius: 14px !important;
+    box-shadow:
+      0 22px 48px rgba(0, 8, 20, 0.28),
+      inset 0 0 0 1px rgba(255, 154, 36, 0.18),
+      inset 0 1px 0 rgba(255, 218, 184, 0.16) !important;
+    overflow: hidden !important;
+    position: relative !important;
+  }
+
+  body .listing-detail-page .main::before,
+  body .listing-detail-page .main::after {
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 154, 36, 0.78) 16%, rgba(255, 154, 36, 0.78) 84%, transparent 100%) !important;
+    content: "" !important;
+    height: 1px !important;
+    left: 16px !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    right: 16px !important;
+    z-index: 4 !important;
+  }
+
+  body .listing-detail-page .main::before {
+    top: 12px !important;
+  }
+
+  body .listing-detail-page .main::after {
+    bottom: 12px !important;
+  }
+
+  body .listing-detail-page .title-row,
+  body .listing-detail-page .title-left,
+  body .listing-detail-page .title-row h1 {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body .listing-detail-page .title-row {
+    margin: 0 0 10px !important;
+    padding: 0 !important;
+  }
+
+  body .listing-detail-page .title-row h1 {
+    padding: 0 !important;
+  }
+}
+
+/* Sell form step headings: no badge/box background, number nudged left. */
+body .sell-container .sell-section-header {
+  align-items: baseline !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  gap: 2px !important;
+  margin: 0 0 22px -8px !important;
+  padding: 0 !important;
+}
+
+body .sell-container .sell-section-header::before,
+body .sell-container .sell-section-header::after {
+  display: none !important;
+}
+
+body .sell-container .sell-section-header .sell-step,
+body .sell-container #sell-step-mode .sell-step,
+body .sell-container #sell-step-vehicle .sell-step,
+body .sell-container #sell-step-category .sell-step,
+body .sell-container #sell-step-location .sell-step,
+body .sell-container #sell-step-seller .sell-step,
+body .sell-container #sell-step-images .sell-step,
+body .sell-container #sell-step-description .sell-step {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #bdf7ff !important;
+  display: inline-block !important;
+  height: auto !important;
+  line-height: 1 !important;
+  margin: 0 0 0 -4px !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  transform: translateX(-4px) !important;
+  width: auto !important;
+}
+
+body .sell-container .sell-section-header h2 {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Expanded sell part cards: keep details on the same surface as the top fields. */
+body .sell-container .part-card.is-expanded {
+  background:
+    radial-gradient(320px 160px at 100% 0%, rgba(255, 137, 24, 0.12), transparent 70%),
+    linear-gradient(145deg, rgba(8, 36, 60, 0.94), rgba(4, 20, 38, 0.96)) !important;
+}
+
+body .sell-container .part-card.is-expanded .part-card-details,
+body .sell-container .part-card-details {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+body .sell-container .part-card-details .field-stack {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
