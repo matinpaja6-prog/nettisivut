@@ -1570,6 +1570,13 @@ function SellPageContent() {
 
   function applyPreset(preset: Preset) {
     const parts = preset.parts;
+    const presetGroupKeys = new Set(parts.map((part) => partGroupKey(part).toLowerCase()));
+    const canUseGroupFallback =
+      presetGroupKeys.size === 1 &&
+      partPresets.every((otherPreset) =>
+        otherPreset.id === preset.id ||
+        !otherPreset.parts.some((part) => presetGroupKeys.has(partGroupKey(part).toLowerCase()))
+      );
     const removePartData = (removedParts: string[]) => {
       const removedLower = new Set(removedParts.map((part) => part.toLowerCase()));
       const cleanRecord = <T,>(record: Record<string, T>) =>
@@ -1595,15 +1602,23 @@ function SellPageContent() {
 
     const presetLower = new Set(parts.map((part) => part.toLowerCase()));
     const selectedLower = new Set(selectedParts.map((part) => part.toLowerCase()));
+    const selectedPresetParts = selectedParts.filter((part) =>
+      presetLower.has(part.toLowerCase()) ||
+      (canUseGroupFallback && presetGroupKeys.has(partGroupKey(part).toLowerCase()))
+    );
     const presetAlreadyAdded =
       selectedPresetIds.includes(preset.id) ||
-      parts.some((part) => selectedLower.has(part.toLowerCase()));
+      parts.some((part) => selectedLower.has(part.toLowerCase())) ||
+      selectedPresetParts.length > 0;
 
     if (presetAlreadyAdded) {
-      removePartData(parts);
+      removePartData([...parts, ...selectedPresetParts]);
       setSelectedPresetIds((current) => current.filter((id) => id !== preset.id));
       setSelectedParts((current) =>
-        current.filter((part) => !presetLower.has(part.toLowerCase()))
+        current.filter((part) =>
+          !presetLower.has(part.toLowerCase()) &&
+          !(canUseGroupFallback && presetGroupKeys.has(partGroupKey(part).toLowerCase()))
+        )
       );
       return;
     }
@@ -1638,9 +1653,18 @@ function SellPageContent() {
   }
 
   function isPresetActive(preset: Preset) {
+    const presetGroupKeys = new Set(preset.parts.map((part) => partGroupKey(part).toLowerCase()));
+    const canUseGroupFallback =
+      presetGroupKeys.size === 1 &&
+      partPresets.every((otherPreset) =>
+        otherPreset.id === preset.id ||
+        !otherPreset.parts.some((part) => presetGroupKeys.has(partGroupKey(part).toLowerCase()))
+      );
     return (
       selectedPresetIds.includes(preset.id) ||
-      preset.parts.some((part) => effectiveSelectedPartKeySet.has(part.toLowerCase()))
+      preset.parts.some((part) => effectiveSelectedPartKeySet.has(part.toLowerCase())) ||
+      (canUseGroupFallback &&
+        effectiveSelectedParts.some((part) => presetGroupKeys.has(partGroupKey(part).toLowerCase())))
     );
   }
 
