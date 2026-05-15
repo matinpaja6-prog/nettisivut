@@ -1544,7 +1544,7 @@ function SellPageContent() {
   }
 
   const selectedPartGroups = (() => {
-    const groups = new Map<string, { key: string; label: string; desc: string; visual: string; parts: string[] }>();
+    const groups = new Map<string, { key: string; label: string; visual: string; parts: string[] }>();
 
     effectiveSelectedParts.forEach((part) => {
       const segments = part.split(" / ").filter(Boolean);
@@ -1561,9 +1561,6 @@ function SellPageContent() {
       groups.set(key, {
         key,
         label: translateCategory(locale, category),
-        desc: group === category
-          ? "Avaa tämän ryhmän tuotteet"
-          : translateCategory(locale, group),
         visual: categoryMainVisuals[category] || getSubCategoryVisual(group),
         parts: [part]
       });
@@ -2902,23 +2899,25 @@ function SellPageContent() {
 
                         return (
                           <section key={group.key} className={`part-group ${groupOpen ? "open" : ""}`}>
-                            <button
-                              type="button"
+                            <div
                               className="part-group-toggle"
-                              onClick={() => setExpandedPartGroups((prev) => ({ ...prev, [group.key]: !(prev[group.key] ?? false) }))}
                             >
                               <span className="part-group-visual">
                                 <img src={group.visual} alt="" />
                               </span>
                               <span className="part-group-text">
                                 <strong>{group.label}</strong>
-                                <small>{group.desc}</small>
                               </span>
                               <span className="part-group-count">{group.parts.length} tuotetta</span>
-                              <span className="part-group-action" aria-hidden="true">
+                              <button
+                                type="button"
+                                className="part-group-action"
+                                aria-expanded={groupOpen}
+                                onClick={() => setExpandedPartGroups((prev) => ({ ...prev, [group.key]: !(prev[group.key] ?? false) }))}
+                              >
                                 {groupOpen ? "Sulje" : "Avaa"}
-                              </span>
-                            </button>
+                              </button>
+                            </div>
 
                             {groupOpen && (
                               <div className="part-cards part-cards-flat part-group-items">
