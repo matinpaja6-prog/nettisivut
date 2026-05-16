@@ -803,6 +803,12 @@ export default function Home() {
   }, [router, saveHomeReturnState]);
 
   const handleSortChange = useCallback((value: string) => {
+    try {
+      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
+    } catch {
+      // Session storage can be unavailable in private/browser-restricted contexts.
+    }
+
     if (value === "recommendations") {
       setRecommendationsMode(true);
       setSort("Osuvimmat ensin");
@@ -840,7 +846,7 @@ export default function Home() {
         scrollY?: number;
       };
 
-      if (saved.garageFilterId && garageVehicles.length === 0) return;
+      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
 
       setQuery(saved.query ?? "");
       setCategory(saved.category ?? "");
@@ -857,7 +863,7 @@ export default function Home() {
       setRecommendationsMode(saved.recommendationsMode ?? true);
       setCurrentPage(typeof saved.currentPage === "number" ? saved.currentPage : 1);
       setGarageFilter(
-        saved.garageFilterId
+        saved.garageFilterId && garageVehicles.length > 0
           ? garageVehicles.find((vehicle) => vehicle.id === saved.garageFilterId) ?? null
           : null
       );
@@ -865,8 +871,6 @@ export default function Home() {
       if (typeof saved.scrollY === "number") {
         window.setTimeout(() => window.scrollTo(0, saved.scrollY || 0), 0);
       }
-
-      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
     } catch {
       sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
     }
