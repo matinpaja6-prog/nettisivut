@@ -7694,3 +7694,53 @@
     top: 8px !important;
   }
 }
+
+/* Place the listing board over the hero image. */
+.mainGrid {
+  background:
+    linear-gradient(180deg, transparent 0 138px, #e9f7fb 138px, #f7fdff 46%, #f7fdff 100%) !important;
+  margin-top: clamp(-232px, -16vw, -176px) !important;
+  padding-top: clamp(136px, 11vw, 170px) !important;
+  position: relative !important;
+  z-index: 30020 !important;
+}
+
+.mainGrid > .container {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.sectionHead {
+  margin-top: clamp(-118px, -8.5vw, -86px) !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.featuredPanel {
+  margin-top: -18px !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+@media (max-width: 900px) {
+  .mainGrid {
+    background:
+      linear-gradient(180deg, transparent 0 88px, #e9f7fb 88px, #f7fdff 46%, #f7fdff 100%) !important;
+    margin-top: -104px !important;
+    padding-top: 104px !important;
+  }
+
+  .sectionHead {
+    margin-top: -64px !important;
+  }
+
+  .featuredPanel {
+    margin-top: -8px !important;
+  }
+}
+
+@media (min-width: 901px) {
+  .heroInner {
+    transform: translateY(clamp(-188px, -13vh, -132px)) !important;
+  }
+}
