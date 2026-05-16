@@ -7607,3 +7607,77 @@
   position: relative !important;
   z-index: 1 !important;
 }
+
+/* Header dropdowns must stay above the hero image and its overlay. */
+.topbar,
+.topActions,
+.topbarProfileWrap,
+.notificationWrap,
+.topbarLangWrap,
+.languageMenuWrap {
+  isolation: isolate !important;
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 40000 !important;
+}
+
+.profileMenu,
+.notificationMenu,
+.languageDropdown {
+  position: fixed !important;
+  transform: translateZ(0) !important;
+  z-index: 40050 !important;
+}
+
+/* Final hero content placement: centered and slightly higher on desktop. */
+@media (min-width: 901px) {
+  .hero {
+    align-items: center !important;
+    justify-items: center !important;
+    padding-bottom: clamp(72px, 8vh, 110px) !important;
+  }
+
+  .heroInner {
+    left: auto !important;
+    right: auto !important;
+    justify-self: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    transform: translateY(clamp(-52px, -4.4vh, -28px)) !important;
+    width: min(980px, calc(100vw - 92px)) !important;
+  }
+
+  .heroSearch {
+    max-width: min(760px, 100%) !important;
+  }
+
+  .categoryRowWrap,
+  .categoryRow {
+    max-width: min(1040px, 100%) !important;
+  }
+}
+
+/* Keep recommendation sort inside the panel instead of touching the hero image. */
+@media (min-width: 900px) {
+  .recoSection {
+    padding-top: 16px !important;
+  }
+
+  .recoHead {
+    align-items: center !important;
+    min-height: 58px !important;
+    padding-top: 0 !important;
+  }
+
+  .recoActions {
+    align-self: center !important;
+    margin-top: 0 !important;
+    transform: translateY(0) !important;
+  }
+
+  .recoSortControl,
+  .recoSortControl .sortSelectFace {
+    position: relative !important;
+    top: 0 !important;
+  }
+}

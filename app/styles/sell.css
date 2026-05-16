@@ -11132,3 +11132,65 @@ body .sell-container .part-group-action svg {
     font-size: 0.88rem !important;
   }
 }
+
+/* Final product selection state: selected buttons stay dark, only the ring and dot turn orange. */
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf.active,
+body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf.active {
+  background:
+    radial-gradient(150px 82px at 100% 0%, rgba(255, 143, 24, 0.12), transparent 72%),
+    linear-gradient(145deg, rgba(9, 37, 61, 0.98), rgba(3, 16, 31, 0.99)) !important;
+  border-color: rgba(255, 143, 24, 0.98) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 143, 24, 0.22),
+    0 12px 22px rgba(255, 112, 24, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf.active .sell-subcategory-text,
+body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf.active .sell-subcategory-text {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf .sell-selection-dot,
+body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf .sell-selection-dot {
+  display: block !important;
+  background: rgba(7, 29, 48, 0.96) !important;
+  border: 1px solid rgba(126, 197, 240, 0.56) !important;
+  box-shadow: none !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-card.is-leaf.active .sell-selection-dot,
+body .sell-container #sell-step-category .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf.active .sell-selection-dot {
+  background: linear-gradient(145deg, #ff9d2e, #ff7017) !important;
+  border-color: rgba(255, 232, 204, 0.94) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 127, 24, 0.16),
+    0 0 15px rgba(255, 112, 24, 0.36) !important;
+}
+
+body .sell-container #sell-step-category .subgroup-items .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf {
+  min-height: 58px !important;
+  padding: 12px 42px 12px 14px !important;
+}
+
+body .sell-container #sell-step-category .subgroup-items .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf .sell-subcategory-text {
+  position: static !important;
+  width: 100% !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+body .sell-container #sell-step-category .subgroup-items .sell-subcategory-card-list.compact .sell-subcategory-card.is-leaf .sell-subcategory-text strong {
+  display: block !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  hyphens: none !important;
+  font-size: 0.92rem !important;
+  line-height: 1.14 !important;
+}
