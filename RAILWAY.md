@@ -50,9 +50,16 @@ cd "C:\Users\pietu\Desktop\uusi työ"
 npm run lint
 npm run build
 git add .
-git commit -m "Update listing and sell UI"
+git commit -m "Fix Railway deploy config"
 git push origin main
+```
+
+Railway deployaa automaattisesti GitHub-pushista, jos projekti on yhdistetty GitHubiin.
+
+Jos haluat ajaa deployn käsin:
+
+```powershell
 railway up
 ```
 
-Jos Railway deployaa automaattisesti GitHubista, jätä viimeinen `railway up` pois.
+Jos Railway näyttää edelleen `Deployment failed during build process`, avaa `View logs` ja kopioi punaiset virherivit.
