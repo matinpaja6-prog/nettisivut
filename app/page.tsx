@@ -33,7 +33,6 @@ import {
   fallbackListings,
   formatPrice,
   getListingPartNumber,
-  normalizeVehicleType,
   type Listing
 } from "@/lib/listings";
 import { getLocalizedListingText } from "@/lib/listing-translations";
@@ -466,361 +465,33 @@ const sortValues = [
 
 type SortValue = typeof sortValues[number];
 
+type VehicleFilter = "" | "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopot";
+type VehicleType = Exclude<VehicleFilter, "">;
+
 const SEEN_REVIEW_REQUESTS_STORAGE_KEY = "seenPurchaseReviewRequests";
 
-const categoryTranslations: Record<Locale, Record<string, string>> = {
-  fi: {},
-  en: {
-    Moottori: "Engine",
-    "Voimansiirto": "Drivetrain",
-    "Voimansiirron osat": "Drivetrain parts",
-    Alusta: "Chassis",
-    Sähkö: "Electrical",
-    Sisusta: "Interior",
-    Runko: "Frame",
-    "Runko & katteet": "Frame & panels",
-    "Telaston osat": "Track system parts",
-    "Jousituksen osat": "Suspension parts",
-    "Ohjauksen osat": "Steering parts",
-    "Sähkö osat": "Electrical parts",
-    Polttoainejärjestelmä: "Fuel system",
-    Jarrut: "Brakes",
-    Ohjaamo: "Cockpit",
-    Sytytys: "Ignition",
-    Suodattimet: "Filters",
-    Tiivisteet: "Gaskets",
-    Hihnat: "Belts",
-    Ketjut: "Chains",
-    Variaattori: "Variator",
-    Variaattorit: "Variators",
-    Iskunvaimentimet: "Shock absorbers",
-    Laakerit: "Bearings",
-    Ohjausnivelet: "Steering joints",
-    Akku: "Battery",
-    Akut: "Batteries",
-    Valot: "Lights",
-    Johdotus: "Wiring",
-    Johdotukset: "Wiring",
-    "Öljyt & suodattimet": "Oils & filters",
-    Jäähdytys: "Cooling",
-    Anturit: "Sensors",
-    Penkit: "Seats",
-    Matot: "Mats",
-    Elektroniikka: "Electronics",
-    Sylinteri: "Cylinder",
-    Kaasutin: "Carburetor",
-    Rattaat: "Sprockets",
-    Kytkin: "Clutch",
-    Katteet: "Panels",
-    Ohjaustanko: "Handlebar",
-    Männät: "Pistons",
-    Kannet: "Heads",
-    Kampiakseli: "Crankshaft",
-    Kiinnitykset: "Mounts",
-    Puolat: "Coils",
-    "CDI-boksit": "CDI boxes",
-    Jouset: "Springs",
-    Ketjukotelot: "Chaincases",
-    Hammasrattaat: "Gears",
-    Telastopalkit: "Track rails",
-    Telamatot: "Tracks",
-    Telapyörät: "Bogey wheels",
-    Nivelosat: "Joint parts",
-    Ohjaustangot: "Handlebars",
-    Tankopehmusteet: "Handlebar pads",
-    "Tangon laakerit": "Handlebar bearings",
-    Staattorit: "Stators",
-    Kaasuttimet: "Carburetors",
-    Suuttimet: "Jets",
-    Polttoainepumput: "Fuel pumps",
-    Tuulilasit: "Windshields",
-    Sivukatteet: "Side panels",
-    Takakatteet: "Rear panels",
-    Jarrulevyt: "Brake discs",
-    Jarrupalat: "Brake pads",
-    Istuimet: "Seats",
-    Mittaristot: "Dashboards",
-    Käsisuojat: "Hand guards",
-    Ohjaus: "Steering"
-  },
-  sv: {
-    Moottori: "Motor",
-    Voimansiirto: "Drivlina",
-    "Voimansiirron osat": "Drivlinedelar",
-    Alusta: "Chassi",
-    Sähkö: "El",
-    Sisusta: "Interiör",
-    Runko: "Ram",
-    "Runko & katteet": "Ram & kåpor",
-    Jarrut: "Bromsar",
-    Sytytys: "Tändning",
-    Suodattimet: "Filter",
-    Tiivisteet: "Packningar",
-    Hihnat: "Remmar",
-    Ketjut: "Kedjor",
-    Variaattori: "Variator",
-    Iskunvaimentimet: "Stötdämpare",
-    Laakerit: "Lager",
-    Akku: "Batteri",
-    Valot: "Lampor",
-    Johdotus: "Kablage",
-    Jäähdytys: "Kylning",
-    Anturit: "Sensorer",
-    Penkit: "Säten",
-    Matot: "Mattor",
-    Elektroniikka: "Elektronik",
-    Sylinteri: "Cylinder",
-    Kaasutin: "Förgasare",
-    Rattaat: "Drev",
-    Kytkin: "Koppling",
-    Katteet: "Kåpor",
-    Ohjaustanko: "Styre",
-    Ohjaus: "Styrning"
-  },
-  no: {
-    Moottori: "Motor",
-    Voimansiirto: "Drivverk",
-    "Voimansiirron osat": "Drivverksdeler",
-    Alusta: "Understell",
-    Sähkö: "Elektrisk",
-    Sisusta: "Interiør",
-    Runko: "Ramme",
-    "Runko & katteet": "Ramme & deksler",
-    Jarrut: "Bremser",
-    Sytytys: "Tenning",
-    Suodattimet: "Filtre",
-    Tiivisteet: "Pakninger",
-    Hihnat: "Reimer",
-    Ketjut: "Kjeder",
-    Variaattori: "Variator",
-    Iskunvaimentimet: "Støtdempere",
-    Laakerit: "Lagre",
-    Akku: "Batteri",
-    Valot: "Lys",
-    Johdotus: "Ledninger",
-    Jäähdytys: "Kjøling",
-    Anturit: "Sensorer",
-    Penkit: "Seter",
-    Matot: "Matter",
-    Elektroniikka: "Elektronikk",
-    Sylinteri: "Sylinder",
-    Kaasutin: "Forgasser",
-    Rattaat: "Drev",
-    Kytkin: "Clutch",
-    Katteet: "Deksler",
-    Ohjaustanko: "Styre",
-    Ohjaus: "Styring"
-  },
-  et: {}
-};
+const partsCategories = categories;
 
-/* ======================================================
-   CATEGORIES
-====================================================== */
-
-const partsCategories = Object.fromEntries(
-  Object.entries(categories).filter(([key]) => key !== "Kaikki")
-) as Record<string, readonly string[]>;
-
-type VehicleType = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopot";
-type VehicleFilter = VehicleType | "";
-
-const vehiclePills: Array<{ label: string; type: VehicleFilter }> = [
-  { label: "Kaikki", type: "" },
-  { label: "Moottorikelkat", type: "Moottorikelkka" },
-  { label: "Mönkijät", type: "Mönkijä" },
-  { label: "Motocross", type: "Motocross" },
-  { label: "Mopot", type: "Mopot" }
-];
-
-const vehicleCategories: Record<VehicleType, Record<string, readonly string[]>> = {
-  Moottorikelkka: partsCategories,
+const vehicleCategories = {
+  Moottorikelkka: buildVehicleCategories("Moottorikelkka"),
   Mönkijä: buildVehicleCategories("Mönkijä"),
   Motocross: buildVehicleCategories("Motocross"),
-  Mopot: buildVehicleCategories("Mopo")
-};
+  Mopot: buildVehicleCategories("Mopot")
+} satisfies Record<Exclude<VehicleFilter, "">, Record<string, readonly string[]>>;
 
-const vehicleBrands: Record<VehicleType, string[]> = {
-  Moottorikelkka: ["Kaikki", "Lynx", "Ski-Doo", "Polaris", "Arctic Cat"],
-  Mönkijä: ["Kaikki", "Can-Am", "Polaris", "Yamaha", "Honda", "CFMOTO"],
-  Motocross: ["Kaikki", "KTM", "Yamaha", "Honda", "Kawasaki", "Husqvarna", "Suzuki", "GasGas", "Beta", "Sherco", "TM"],
-  Mopot: ["Kaikki", "Yamaha", "Honda", "Derbi", "Rieju", "KTM", "Aprilia"]
+const vehicleBrands: Record<Exclude<VehicleFilter, "">, string[]> = {
+  Moottorikelkka: ["Kaikki", "Ski-Doo", "Lynx", "Polaris", "Arctic Cat", "Yamaha", "Muu"],
+  Mönkijä: ["Kaikki", "Can-Am", "Polaris", "Yamaha", "Honda", "CFMoto", "TGB", "Suzuki", "Kawasaki", "Muu"],
+  Motocross: ["Kaikki", "KTM", "Husqvarna", "Honda", "Yamaha", "Kawasaki", "Suzuki", "GasGas", "Beta", "TM", "Muu"],
+  Mopot: ["Kaikki", "Yamaha", "Derbi", "Rieju", "Aprilia", "Peugeot", "MBK", "Honda", "KTM", "Muu"]
 };
 
 const modelPlaceholders: Record<VehicleType, string> = {
-  Moottorikelkka: "e.g. Lynx 600",
-  Mönkijä: "e.g. Can-Am Outlander",
-  Motocross: "e.g. YZ 250 / CRF 450",
-  Mopot: "e.g. Yamaha DT"
+  Moottorikelkka: "esim. Rave, MXZ, Summit",
+  Mönkijä: "esim. Outlander, Sportsman",
+  Motocross: "esim. SX-F, YZ, CRF",
+  Mopot: "esim. Aerox, Derbi, BW's"
 };
-
-function normalizeCategoryMatch(value?: string | null) {
-  const normalized = (value ?? "").trim().toLowerCase();
-
-  if (normalized === "moottori") return "moottori & voimansiirto";
-  if (normalized === "sähkö") return "sähköjärjestelmät";
-  if (normalized === "pakoputki") return "pakoputkisto";
-  if (normalized === "alusta" || normalized === "jousitus") return "alusta & telasto";
-  if (normalized === "runko") return "runko & katteet";
-
-  return normalized;
-}
-
-function normalizeSubcategoryMatch(value?: string | null) {
-  const leaf = (value ?? "")
-    .split("/")
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .at(-1)
-    ?.toLowerCase() ?? "";
-
-  const singulars: Record<string, string> = {
-    sylinteri: "sylinterit",
-    mäntä: "männät",
-    tiiviste: "laakerit & tiivisteet",
-    kaasutin: "kaasuttimet",
-    sytytys: "sytytyspuolat",
-    akku: "akut",
-    valo: "valot",
-    johdotus: "johtosarjat",
-    ohjaustanko: "ohjaustangot",
-    jarrut: "jarrupalat",
-    kytkin: "kytkin kitit",
-    variaattori: "variaattori kitit",
-    hihnat: "variaattorin hihnat",
-    ketjut: "ketjut & hihnat",
-    äänenvaimennin: "äänenvaimentimet"
-  };
-
-  return singulars[leaf] ?? leaf;
-}
-
-function normalizeSearchText(value?: string | null) {
-  return (value ?? "")
-    .toString()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[’'`´.]/g, "")
-    .replace(/[^a-z0-9åäö]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function compactSearchText(value?: string | null) {
-  return normalizeSearchText(value).replace(/\s+/g, "");
-}
-
-function textMatchesSearch(haystack: string, needle: string) {
-  const normalizedNeedle = normalizeSearchText(needle);
-
-  if (!normalizedNeedle) return true;
-
-  const normalizedHaystack = normalizeSearchText(haystack);
-
-  return (
-    normalizedHaystack.includes(normalizedNeedle) ||
-    compactSearchText(normalizedHaystack).includes(compactSearchText(normalizedNeedle))
-  );
-}
-
-function allSearchWordsMatch(haystack: string, needle: string) {
-  return normalizeSearchText(needle)
-    .split(" ")
-    .filter(Boolean)
-    .every((word) => textMatchesSearch(haystack, word));
-}
-
-function brandMatchesListing(
-  selectedBrand: string,
-  listing: Listing,
-  listingText: { title: string; description: string }
-) {
-  if (selectedBrand === "Kaikki") return true;
-
-  if (listing.brand?.trim()) {
-    return textMatchesSearch(listing.brand, selectedBrand);
-  }
-
-  const haystack = [
-    listing.model ?? "",
-    listing.title,
-    listing.description,
-    listingText.title,
-    listingText.description
-  ].join(" ");
-
-  if (textMatchesSearch(haystack, selectedBrand)) {
-    return true;
-  }
-
-  return false;
-}
-
-function listingMatchesVehicleType(
-  listing: Listing,
-  listingText: { title: string; description: string },
-  selectedVehicleType: string
-) {
-  if (!selectedVehicleType) return true;
-
-  const selected = normalizeVehicleType(selectedVehicleType);
-  const stored = normalizeVehicleType(listing.vehicle_type ?? "");
-
-  // If the listing has an explicit, known vehicle type, it is authoritative –
-  // never allow fuzzy text/cc heuristics to pull it into the wrong category.
-  const knownVehicleTypes = ["Mopo", "Motocross", "Moottorikelkka", "Mönkijä"];
-  if (stored && knownVehicleTypes.includes(stored)) {
-    return stored === selected;
-  }
-
-  const haystack = [
-    listing.vehicle_type ?? "",
-    listing.title,
-    listingText.title,
-    listing.description,
-    listingText.description,
-    listing.brand ?? "",
-    listing.model ?? "",
-    listing.engine_cc ?? ""
-  ].join(" ");
-
-  if (selected === "Mopo") {
-    // Exclude obvious motocross/snowmobile/ATV leaks when inferring by cc.
-    if (
-      textMatchesSearch(haystack, "motocross") ||
-      textMatchesSearch(haystack, "moottorikelkka") ||
-      textMatchesSearch(haystack, "kelkka") ||
-      textMatchesSearch(haystack, "snowmobile") ||
-      textMatchesSearch(haystack, "mönkijä") ||
-      textMatchesSearch(haystack, "atv")
-    ) {
-      return false;
-    }
-
-    const cc = Number(String(listing.engine_cc ?? "").replace(/[^\d.]/g, ""));
-    return (
-      textMatchesSearch(haystack, "mopo") ||
-      textMatchesSearch(haystack, "moped") ||
-      textMatchesSearch(haystack, "bws") ||
-      (cc > 0 && cc <= 50)
-    );
-  }
-
-  if (selected === "Moottorikelkka") {
-    return textMatchesSearch(haystack, "moottorikelkka") || textMatchesSearch(haystack, "kelkka") || textMatchesSearch(haystack, "snowmobile");
-  }
-
-  if (selected === "Mönkijä") {
-    return textMatchesSearch(haystack, "mönkijä") || textMatchesSearch(haystack, "atv") || textMatchesSearch(haystack, "outlander") || textMatchesSearch(haystack, "sportsman");
-  }
-
-  if (selected === "Motocross") {
-    return textMatchesSearch(haystack, "motocross") || textMatchesSearch(haystack, "yz") || textMatchesSearch(haystack, "crf") || textMatchesSearch(haystack, "sx");
-  }
-
-  return false;
-}
 
 const fallbackCardImage =
   "data:image/svg+xml;utf8," +
@@ -841,6 +512,87 @@ function listingImageSrc(listing: Listing) {
     null;
 
   return safeImageSrc(firstStoredImage);
+}
+
+function textMatchesSearch(value: string | undefined | null, query: string) {
+  const normalize = (text: string) =>
+    text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+
+  const haystack = normalize(value ?? "");
+  const needles = normalize(query)
+    .split(/\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  return needles.every((needle) => haystack.includes(needle));
+}
+
+const allSearchWordsMatch = textMatchesSearch;
+
+function normalizeCategoryMatch(value: string | undefined | null) {
+  return (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+const normalizeSubcategoryMatch = normalizeCategoryMatch;
+
+function brandMatchesListing(
+  selectedBrand: string,
+  listing: Listing,
+  listingText: { title: string; description: string }
+) {
+  if (!selectedBrand || selectedBrand === "Kaikki") return true;
+
+  return (
+    textMatchesSearch(listing.brand ?? "", selectedBrand) ||
+    textMatchesSearch(listing.model ?? "", selectedBrand) ||
+    textMatchesSearch(listingText.title, selectedBrand) ||
+    textMatchesSearch(listingText.description, selectedBrand)
+  );
+}
+
+function listingMatchesVehicleType(
+  listing: Listing,
+  listingText: { title: string; description: string },
+  selected: VehicleFilter
+) {
+  if (!selected) return true;
+  if (listing.vehicle_type === selected) return true;
+
+  const haystack = [
+    listing.vehicle_type ?? "",
+    listing.title,
+    listingText.title,
+    listing.description,
+    listingText.description,
+    listing.brand ?? "",
+    listing.model ?? "",
+    listing.engine_cc ?? ""
+  ].join(" ");
+
+  if (selected === "Mopot") {
+    if (
+      textMatchesSearch(haystack, "motocross") ||
+      textMatchesSearch(haystack, "moottorikelkka") ||
+      textMatchesSearch(haystack, "kelkka") ||
+      textMatchesSearch(haystack, "snowmobile") ||
+      textMatchesSearch(haystack, "mönkijä") ||
+      textMatchesSearch(haystack, "atv")
+    ) {
+      return false;
+    }
+
+    const cc = Number(String(listing.engine_cc ?? "").replace(/[^\d.]/g, ""));
+    return textMatchesSearch(haystack, "mopo") || textMatchesSearch(haystack, "moped") || (cc > 0 && cc <= 50);
+  }
+
+  return textMatchesSearch(haystack, selected);
 }
 
 function normalizeLocation(value: string) {
@@ -1138,7 +890,7 @@ export default function Home() {
 
     window.addEventListener("open-category-drawer", openCategoryDrawerFromTopbar);
     return () => window.removeEventListener("open-category-drawer", openCategoryDrawerFromTopbar);
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -1200,6 +952,17 @@ export default function Home() {
       ? t.cars
       : t.mopeds;
   }, [t]);
+
+  const vehiclePills = useMemo<Array<{ type: VehicleFilter; label: string }>>(
+    () => [
+      { type: "", label: vehicleTypeLabel("") },
+      { type: "Moottorikelkka", label: vehicleTypeLabel("Moottorikelkka") },
+      { type: "Mönkijä", label: vehicleTypeLabel("Mönkijä") },
+      { type: "Motocross", label: vehicleTypeLabel("Motocross") },
+      { type: "Mopot", label: vehicleTypeLabel("Mopot") }
+    ],
+    [vehicleTypeLabel]
+  );
 
   function clearListingFilters() {
     setQuery("");
@@ -1700,7 +1463,7 @@ export default function Home() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [router]);
 
   /* ======================================================
      CLOSE PROFILE MENU
@@ -2646,7 +2409,6 @@ export default function Home() {
                     <select
                       value={activeSortSelectValue}
                       onChange={(e) => handleSortChange(e.target.value)}
-                      onInput={(e) => handleSortChange(e.currentTarget.value)}
                     >
                     {canShowRecommendations ? (
                       <option value="recommendations">{t.relevance}</option>
@@ -2820,7 +2582,6 @@ export default function Home() {
                   <select
                     value={activeSortSelectValue}
                     onChange={(e) => handleSortChange(e.target.value)}
-                    onInput={(e) => handleSortChange(e.currentTarget.value)}
                   >
                     {canShowRecommendations ? (
                       <option value="recommendations">{recommendationsEnabled ? t.relevance : "Palaa suosituksiin"}</option>
@@ -3064,7 +2825,6 @@ export default function Home() {
                 className={styles.select}
                 value={activeSortSelectValue}
                 onChange={(e) => handleSortChange(e.target.value)}
-                onInput={(e) => handleSortChange(e.currentTarget.value)}
               >
                 {canShowRecommendations ? (
                   <option value="recommendations">{t.relevance}</option>

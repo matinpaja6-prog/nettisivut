@@ -10,11 +10,8 @@ import {
   ArrowUp,
   Award,
   Bell,
-  Calendar,
   Car,
   Check,
-  ChevronDown,
-  ClipboardList,
   DoorOpen,
   Edit3,
   Eye,
@@ -24,8 +21,6 @@ import {
   Home,
   ImageIcon,
   ImagePlus,
-  LayoutGrid,
-  List as ListIcon,
   LockKeyhole,
   Mail,
   MessageCircle,
@@ -274,11 +269,8 @@ export default function MyListingsPage() {
   const [activeTab, setActiveTab] =
     useState<"all" | "active" | "hidden" | "sold">("all");
 
-  const [sortOrder, setSortOrder] =
+  const [sortOrder] =
     useState<"newest" | "oldest" | "price-desc" | "price-asc" | "views">("newest");
-
-  const [viewMode, setViewMode] =
-    useState<"list" | "grid">("list");
 
   const [conversationCount, setConversationCount] =
     useState(0);
@@ -852,12 +844,6 @@ export default function MyListingsPage() {
 
   }
 
-  const activeListingsValue =
-    listings.reduce((sum, listing) => sum + (Number(listing.price) || 0), 0);
-
-  const currentMonthKey =
-    new Date().toISOString().slice(0, 7);
-
   const totalViews = useMemo(
     () => listings.reduce((sum, l) => sum + (Number(l.view_count) || 0), 0),
     [listings]
@@ -898,8 +884,14 @@ export default function MyListingsPage() {
     0
   ), [soldInRange]);
 
-  const visibleListings = listings.filter((l) => !l.is_hidden);
-  const hiddenListings = listings.filter((l) => !!l.is_hidden);
+  const visibleListings = useMemo(
+    () => listings.filter((l) => !l.is_hidden),
+    [listings]
+  );
+  const hiddenListings = useMemo(
+    () => listings.filter((l) => !!l.is_hidden),
+    [listings]
+  );
 
   const tabCounts = {
     all: listings.length,
@@ -940,7 +932,7 @@ export default function MyListingsPage() {
       }
     });
     return sorted;
-  }, [activeTab, listings, sortOrder]);
+  }, [activeTab, hiddenListings, listings, sortOrder, visibleListings]);
 
   function formatDateFi(value?: string | null) {
     if (!value) return "";
@@ -954,14 +946,6 @@ export default function MyListingsPage() {
     { key: "active",  label: "Aktiiviset", count: tabCounts.active },
     { key: "hidden",  label: "Piilotetut", count: tabCounts.hidden },
   ];
-
-  const sortLabels: Record<typeof sortOrder, string> = {
-    newest: "Uusimmat ensin",
-    oldest: "Vanhimmat ensin",
-    "price-desc": "Hinta: korkein",
-    "price-asc": "Hinta: matalin",
-    views: "Eniten katseluja"
-  };
 
   const pääsivuLabel = { fi: "Pääsivu", en: "Home", sv: "Hem", no: "Hjem", et: "Avaleht" }[locale];
   const cancelLabel = { fi: "Peruuta", en: "Cancel", sv: "Avbryt", no: "Avbryt", et: "Tühista" }[locale];

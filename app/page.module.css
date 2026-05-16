@@ -7484,3 +7484,126 @@
     transform: rotate(45deg) !important;
   }
 }
+
+/* Final garage menu layering: let Oma Talli open above the listing panel. */
+.heroWrap {
+  overflow: visible !important;
+  z-index: 20 !important;
+}
+
+.heroWrap > .container,
+.heroInner,
+.categoryRowWrap {
+  z-index: 13000 !important;
+}
+
+.garagePillWrap {
+  isolation: isolate !important;
+  z-index: 13020 !important;
+}
+
+.garagePillWrap:has(.garageDropdown) {
+  z-index: 13040 !important;
+}
+
+.garageDropdown {
+  z-index: 13060 !important;
+}
+
+/* Final sort pill: slimmer and cleaner. */
+.mobileSortBtn,
+.allListingsSortBtn,
+.sectionSortControl .sortSelectFace,
+.recoSortControl .sortSelectFace {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(11, 35, 56, 0.98), rgba(5, 18, 34, 0.98)) !important;
+  border: 1px solid rgba(255, 154, 36, 0.72) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 10px 22px rgba(0, 8, 20, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  font-size: 0.76rem !important;
+  font-weight: 950 !important;
+  height: 40px !important;
+  justify-content: center !important;
+  letter-spacing: 0 !important;
+  min-height: 40px !important;
+  min-width: 150px !important;
+  padding: 0 34px 0 16px !important;
+  width: auto !important;
+}
+
+.mobileSortBtn,
+.allListingsSortBtn {
+  display: inline-flex !important;
+  gap: 8px !important;
+  position: relative !important;
+}
+
+.mobileSortArrow {
+  border-bottom: 2px solid currentColor !important;
+  border-right: 2px solid currentColor !important;
+  height: 8px !important;
+  margin-left: 4px !important;
+  margin-top: -3px !important;
+  opacity: 0.86 !important;
+  transform: rotate(45deg) !important;
+  width: 8px !important;
+}
+
+.sectionSortControl .sortSelectFace::after,
+.recoSortControl .sortSelectFace::after {
+  border-bottom-width: 2px !important;
+  border-right-width: 2px !important;
+  height: 8px !important;
+  right: 15px !important;
+  top: 14px !important;
+  width: 8px !important;
+}
+
+.mobileSortBtn:hover,
+.allListingsSortBtn:hover,
+.sectionSortControl:hover .sortSelectFace,
+.recoSortControl:hover .sortSelectFace {
+  background:
+    linear-gradient(180deg, rgba(15, 45, 69, 0.99), rgba(7, 24, 42, 0.99)) !important;
+  border-color: rgba(255, 190, 112, 0.94) !important;
+  box-shadow:
+    0 12px 26px rgba(0, 8, 20, 0.28),
+    0 0 0 3px rgba(255, 154, 36, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Keep Oma Talli dropdown above the listing panel even when the panel overlaps the hero. */
+.heroWrap {
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 30000 !important;
+}
+
+.heroWrap > .container,
+.heroInner,
+.categoryRowWrap {
+  position: relative !important;
+  z-index: 30010 !important;
+}
+
+.garagePillWrap,
+.garagePillWrap:has(.garageDropdown) {
+  position: relative !important;
+  z-index: 30030 !important;
+}
+
+.garageDropdown {
+  z-index: 30040 !important;
+}
+
+.mainGrid,
+.mainGrid > .container,
+.featuredPanel,
+.sectionHead {
+  position: relative !important;
+  z-index: 1 !important;
+}

@@ -172,14 +172,6 @@ function normalizePhoneNumber(value: string) {
   return `+358${compact}`;
 }
 
-type GrecaptchaWindow =
-  Window &
-  typeof globalThis & {
-    grecaptcha?: {
-      reset: (widgetId?: number) => void;
-    };
-  };
-
 export default function ProfilePage() {
   const router = useRouter();
   const { locale, t } = useLanguage();
@@ -788,24 +780,6 @@ export default function ProfilePage() {
     setPhoneStatus("");
     setPhoneCodeSent(false);
     setPhoneEditing(false);
-  }
-
-  function resetRecaptchaWidget() {
-    const widgetId =
-      recaptchaWidgetIdRef.current;
-
-    if (typeof window === "undefined" || widgetId === null) {
-      return;
-    }
-
-    try {
-      (window as GrecaptchaWindow).grecaptcha?.reset(widgetId);
-    } catch {
-      try { recaptchaRef.current?.clear(); } catch { /* ignore */ }
-      recaptchaRef.current = null;
-      recaptchaWidgetIdRef.current = null;
-      try { if (recaptchaHostRef.current) recaptchaHostRef.current.innerHTML = ""; } catch { /* ignore */ }
-    }
   }
 
   async function sendPhoneCode(

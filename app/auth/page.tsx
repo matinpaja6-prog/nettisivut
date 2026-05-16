@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, LockKeyhole, Mail, X } from "lucide-react";
@@ -230,7 +230,7 @@ export default function AuthPage() {
   }, []);
 
   // Try to award referral points when a logged-in user lands here with pending code
-  async function tryClaimReferral(userId: string) {
+  const tryClaimReferral = useCallback(async (userId: string) => {
     if (typeof window === "undefined") return;
     let code: string | null = null;
     try {
@@ -262,7 +262,7 @@ export default function AuthPage() {
     } else {
       console.error("[Referral] Failed to award points:", result.error);
     }
-  }
+  }, [t.authReferralSuccess]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -306,7 +306,7 @@ export default function AuthPage() {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [t.authPasswordRecovery, tryClaimReferral]);
 
   useEffect(() => {
     if (!user) {

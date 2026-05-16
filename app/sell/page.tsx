@@ -15,7 +15,9 @@ import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Check,
+  ChevronDown,
   ChevronRight,
+  ChevronUp,
   ImagePlus,
   LockKeyhole,
   Package,
@@ -854,7 +856,7 @@ function SellPageContent() {
       }
       resetPartSelection();
     } catch {}
-  }, []);
+  }, [hasUrlParams]);
 
   useEffect(() => {
     const draft = {
@@ -874,7 +876,9 @@ function SellPageContent() {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     } catch {
       try {
-        const { images: _i, partImages: _pi, ...withoutImages } = draft;
+        const { images, partImages, ...withoutImages } = draft;
+        void images;
+        void partImages;
         localStorage.setItem(DRAFT_KEY, JSON.stringify(withoutImages));
       } catch {}
     }
@@ -955,15 +959,6 @@ function SellPageContent() {
 
   function partGroupKey(part: string) {
     return part.split(" / ").filter(Boolean)[0] || "Muut tuotteet";
-  }
-
-  function displayPart(part: string) {
-    const segments = part.split(" / ").filter(Boolean);
-
-    if (segments.length === 0) return part;
-    if (segments.length === 1) return translateCategory(locale, segments[0]);
-
-    return segments.map((s) => translateCategory(locale, s)).join(" / ");
   }
 
   function togglePart(part: string) {
@@ -1466,13 +1461,6 @@ function SellPageContent() {
     ]
   };
 
-  const wholePresetByVehicle: Record<string, Preset> = {
-    Moottorikelkka: buildWholePreset("Moottorikelkka", "Koko kelkka", "🛷"),
-    Mönkijä: buildWholePreset("Mönkijä", "Koko mönkijä", "🚜"),
-    Motocross: buildWholePreset("Motocross", "Koko pyörä", "🏍️"),
-    Mopo: buildWholePreset("Mopo", "Koko mopo", "🛵")
-  };
-
   function isPresetPartAllowed(vehicleType: string, part: string) {
     const [category, ...rest] = part.split(" / ");
     const subcategory = rest.join(" / ");
@@ -1521,8 +1509,6 @@ function SellPageContent() {
     listingMode === "multiple"
       ? effectiveSelectedParts.length
       : 1;
-
-  const submitButtonListingCount = publishListingCount;
 
   const readyPublishListingCount =
     listingMode === "multiple"
@@ -2913,9 +2899,10 @@ function SellPageContent() {
                                 type="button"
                                 className="part-group-action"
                                 aria-expanded={groupOpen}
+                                aria-label={groupOpen ? "Sulje tuotteet" : "Avaa tuotteet"}
                                 onClick={() => setExpandedPartGroups((prev) => ({ ...prev, [group.key]: !(prev[group.key] ?? false) }))}
                               >
-                                {groupOpen ? "Sulje" : "Avaa"}
+                                {groupOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                               </button>
                             </div>
 
@@ -3245,9 +3232,7 @@ function SellPageContent() {
           {status && <p className={status.includes("julkaistu") ? "sell-status-ok" : "sell-status-err"}>{status}</p>}
           <button type="submit" className="sell-submit-btn" disabled={publishLocked}>
             <Check size={18} />
-            {listingMode === "multiple"
-              ? `${t.publish} ${submitButtonListingCount}`
-              : t.publish}
+            {t.publish}
           </button>
         </div>
 

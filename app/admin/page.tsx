@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 
 import {
-  adminAddPoints,
   adminAdjustPhoneVerifications,
   adminAdjustListingSlots,
   adminBanIp,
@@ -463,24 +462,6 @@ export default function AdminPage() {
     }
     showOk(delta > 0 ? "Vahvistuspaikkoja lisätty." : "Vahvistuspaikkoja poistettu.");
     setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, extra_phone_verifications: data ?? u.extra_phone_verifications } : u));
-  };
-
-  const handleAdjustListingSlots = async (user: AdminProfileRow, delta: number) => {
-    const { data, error } = await adminAdjustListingSlots(user.id, delta);
-    if (error) {
-      const errObj = error as { message?: string };
-      showError(`Ilmoituspaikkojen säätö: ${errObj?.message || "epäonnistui"}`);
-      return;
-    }
-    showOk(delta > 0 ? "Ilmoituspaikkoja lisätty." : "Ilmoituspaikkoja poistettu.");
-    setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, extra_listing_slots: data ?? u.extra_listing_slots } : u));
-  };
-
-  const handleAddPoints = async (user: AdminProfileRow, delta: number) => {
-    const { data, error } = await adminAddPoints(user.id, delta);
-    if (error) { showError("Pisteiden muutos epäonnistui."); return; }
-    showOk("Pisteet päivitetty.");
-    setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, points: data ?? u.points } : u));
   };
 
   const handleUpdateProfile = async (user: AdminProfileRow, updates: Record<string, string>) => {
@@ -1269,8 +1250,6 @@ function ListingsPanel({
   vehicle: string;
   onVehicleChange: (v: string) => void;
 }) {
-  const KNOWN_VEHICLES = ["Mopot", "Moottorikelkka", "Mönkijä", "Motocross"] as const;
-
   function normalizeVehicle(v?: string | null): string {
     const s = (v ?? "").trim().toLowerCase();
     if (!s) return "";
@@ -1281,12 +1260,12 @@ function ListingsPanel({
     return v ?? "";
   }
 
-  function vehicleBucket(v?: string | null): string {
+  const vehicleBucket = useCallback((v?: string | null): string => {
     const norm = normalizeVehicle(v);
     if (!norm) return "Muut";
-    if ((KNOWN_VEHICLES as readonly string[]).includes(norm)) return norm;
+    if (["Mopot", "Moottorikelkka", "Mönkijä", "Motocross"].includes(norm)) return norm;
     return "Muut";
-  }
+  }, []);
 
   const vehicleCounts = useMemo(() => {
     const counts: Record<string, number> = {
@@ -1302,7 +1281,7 @@ function ListingsPanel({
       counts[bucket] = (counts[bucket] ?? 0) + 1;
     });
     return counts;
-  }, [listings]);
+  }, [listings, vehicleBucket]);
 
   const filtered = useMemo(() => {
     let arr = listings;
@@ -1312,7 +1291,7 @@ function ListingsPanel({
       arr = arr.filter((l) => vehicleBucket(l.vehicle_type) === vehicle);
     }
     return arr;
-  }, [listings, status, vehicle]);
+  }, [listings, status, vehicle, vehicleBucket]);
 
   const counts = {
     all: listings.length,
@@ -1439,7 +1418,6 @@ function ListingsPanel({
             <div key={listing.id} className={styles.listingMgmtCard}>
               <div className={styles.listingMgmtImg}>
                 {imgUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={imgUrl} alt={listing.title || ""} />
                 ) : (
                   <div style={{ display: "grid", placeItems: "center", height: "100%", color: "#94a3b8" }}>

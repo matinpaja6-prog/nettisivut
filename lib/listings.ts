@@ -2,15 +2,12 @@ import type { LucideIcon } from "lucide-react";
 
 import {
   Snowflake,
-  Disc,
   Cog,
   Wrench,
   Gauge,
   Zap,
   Fuel,
   PanelsTopLeft,
-  CarFront,
-  Armchair,
   Tag
 } from "lucide-react";
 

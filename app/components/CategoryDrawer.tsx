@@ -2,14 +2,7 @@
 import { useState, useEffect, type ReactNode } from "react";
 import { displayCategoryForVehicle, subcategoryGroups } from "@/lib/listings";
 import { useLanguage, translateCategory } from "@/lib/i18n";
-import {
-  X, ChevronRight, Wrench,
-  Settings2, Zap, Thermometer, Droplets, Shield, Activity,
-  Navigation, Circle, MoreHorizontal, Search, Check,
-  Battery, Box, Boxes, Cable, CircleDot, Cog, Component,
-  Cylinder, Disc3, Fan, Fuel, Gauge, Layers, Nut, Package,
-  Snowflake
-} from "lucide-react";
+import { X, ChevronRight, Search, Check } from "lucide-react";
 
 /* ── types ─────────────────────────────────────────── */
 export type VehicleType = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopot";
@@ -41,143 +34,15 @@ interface Props {
   partsCategories: Record<string, readonly string[]>;
 }
 
-/* ── icon maps ──────────────────────────────────────── */
-const categoryIcons: Record<string, ReactNode> = {
-  "Moottori & voimansiirto": <Settings2 size={20} />,
-  Moottori:              <Wrench size={20} />,
-  Voimansiirto:          <Settings2 size={20} />,
-  "Voimansiirron osat":  <Settings2 size={20} />,
-  "Alusta & telasto":    <Activity size={20} />,
-  Telasto:               <Circle size={20} />,
-  "Telaston osat":       <Circle size={20} />,
-  Jousitus:              <Activity size={20} />,
-  "Jousituksen osat":    <Activity size={20} />,
-  "Ohjaus & hallintalaitteet": <Navigation size={20} />,
-  Ohjaus:                <Navigation size={20} />,
-  "Ohjauksen osat":      <Navigation size={20} />,
-  Sähköjärjestelmät:     <Zap size={20} />,
-  Sähkö:                 <Zap size={20} />,
-  "Sähkö osat":          <Zap size={20} />,
-  "Jäähdytys & polttoaine": <Droplets size={20} />,
-  Jäähdytys:             <Thermometer size={20} />,
-  Polttoaine:            <Droplets size={20} />,
-  Polttoainejärjestelmä: <Droplets size={20} />,
-  Pakoputkisto:          <Wrench size={20} />,
-  Runko:                 <Shield size={20} />,
-  "Runko & katteet":     <Shield size={20} />,
-  Jarrut:                <Circle size={20} />,
-  Alusta:                <Activity size={20} />,
-  Sisusta:               <Shield size={20} />,
-  Muut:                  <MoreHorizontal size={20} />,
-};
-
-const defaultPartIcon = <Package size={20} />;
-
-const partIcons: Record<string, ReactNode> = {
-  "Kokonainen moottori": <Cog size={20} />,
-  "Kokonainen voimansiirto": <Settings2 size={20} />,
-  Moottorit: <Cog size={20} />,
-  Sylinterit: <Cylinder size={20} />,
-  "Sylinterin kannet": <Layers size={20} />,
-  Männät: <CircleDot size={20} />,
-  Kampiakselit: <Gauge size={20} />,
-  "Moottorin lohkot": <Box size={20} />,
-  "Laakerit & tiivisteet": <Nut size={20} />,
-  Kytkimet: <Disc3 size={20} />,
-  "Kokonainen kytkin": <Disc3 size={20} />,
-  "Kytkin kitit": <Boxes size={20} />,
-  Jouset: <Activity size={20} />,
-  Painovarret: <Gauge size={20} />,
-  Variaattorit: <Disc3 size={20} />,
-  "Kokonainen variaattori": <Disc3 size={20} />,
-  "Variaattori kitit": <Component size={20} />,
-  "Variaattorin hihnat": <Cable size={20} />,
-  Ketjukotelot: <Box size={20} />,
-  "Ketjut & hihnat": <Cable size={20} />,
-  "Kokonainen telasto": <Snowflake size={20} />,
-  "Kokonainen alusta": <Activity size={20} />,
-  Telasto: <Snowflake size={20} />,
-  Etupukit: <Activity size={20} />,
-  Takapukit: <Activity size={20} />,
-  Liukurungot: <Layers size={20} />,
-  "Tela- ja kääntöpyörät": <CircleDot size={20} />,
-  Tukivarret: <Navigation size={20} />,
-  "Oikea ylä": <Navigation size={20} />,
-  "Oikea ala": <Navigation size={20} />,
-  "Vasen ylä": <Navigation size={20} />,
-  "Vasen ala": <Navigation size={20} />,
-  "Olka-akselit": <Navigation size={20} />,
-  Vetoakselit: <Gauge size={20} />,
-  Telamatot: <Layers size={20} />,
-  Iskunvaimentimet: <Activity size={20} />,
-  "Kokonainen iskunvaimennussarja": <Activity size={20} />,
-  Etuiskunvaimentimet: <Activity size={20} />,
-  "Telaston iskunvaimentimet": <Activity size={20} />,
-  "Kokonainen ohjaus": <Navigation size={20} />,
-  Ohjaustangot: <Navigation size={20} />,
-  Käsisuojat: <Shield size={20} />,
-  "Tangon korokepalat": <Layers size={20} />,
-  Kaasukahvat: <Gauge size={20} />,
-  Kaasuvaijerit: <Cable size={20} />,
-  "Kokonainen jarrujärjestelmä": <CircleDot size={20} />,
-  Levyt: <Disc3 size={20} />,
-  "Jarrusatulat & letkut": <CircleDot size={20} />,
-  "Kahvat & puristimet": <Navigation size={20} />,
-  Jarrupalat: <Layers size={20} />,
-  Ohjausakselit: <Navigation size={20} />,
-  Raidetangot: <Navigation size={20} />,
-  "Muut ohjauksen osat": <Package size={20} />,
-  Sukset: <Snowflake size={20} />,
-  "Kokonainen sukset": <Snowflake size={20} />,
-  Ohjainraudat: <Layers size={20} />,
-  Suksikumit: <Layers size={20} />,
-  "Kokonainen sähköjärjestelmä": <Zap size={20} />,
-  "Staattorit & vauhtipyörät": <Disc3 size={20} />,
-  Triggerit: <Zap size={20} />,
-  Akut: <Battery size={20} />,
-  Sytytyspuolat: <Zap size={20} />,
-  "ECU & ohjainyksiköt": <Box size={20} />,
-  Johtosarjat: <Cable size={20} />,
-  Valot: <Zap size={20} />,
-  Anturit: <Gauge size={20} />,
-  Mittaristot: <Gauge size={20} />,
-  "Kytkimet & katkaisijat": <Zap size={20} />,
-  "Kokonainen jäähdytysjärjestelmä": <Thermometer size={20} />,
-  "Kokonainen polttoainejärjestelmä": <Fuel size={20} />,
-  Jäähdyttimet: <Fan size={20} />,
-  Vesipumput: <Droplets size={20} />,
-  Letkut: <Cable size={20} />,
-  Polttoainepumput: <Fuel size={20} />,
-  Kaasuttimet: <Fuel size={20} />,
-  Ruiskutusjärjestelmät: <Fuel size={20} />,
-  "Polttoainesäiliöt & tankit": <Fuel size={20} />,
-  "Kokonainen pakoputkisto": <Wrench size={20} />,
-  Alkukäyrät: <Wrench size={20} />,
-  "Pakosarjat & Y-haarat": <Wrench size={20} />,
-  Äänenvaimentimet: <Wrench size={20} />,
-  Resonanssiputket: <Wrench size={20} />,
-  "Kokonainen runko": <Shield size={20} />,
-  "Kokonainen katesarja": <Layers size={20} />,
-  Tunnelit: <Shield size={20} />,
-  Keskirunko: <Shield size={20} />,
-  Eturunko: <Shield size={20} />,
-  "Kuomut & konepellit": <Layers size={20} />,
-  Sivukatteet: <Layers size={20} />,
-  Etupuskurit: <Shield size={20} />,
-  Takapuskurit: <Shield size={20} />,
-  "Istuimet & penkit": <Box size={20} />,
-  Tuulilasit: <Shield size={20} />,
-};
-
-function leafName(value: string) {
-  return value.split(" / ").map((part) => part.trim()).filter(Boolean).at(-1) ?? value;
-}
-
 function normalizeIconText(value: string) {
   return value
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
+}
+
+function leafName(value: string) {
+  return value.split(" / ").map((part) => part.trim()).filter(Boolean).at(-1) ?? value;
 }
 
 type PartPictureKind =
@@ -477,43 +342,6 @@ function PartPicture({ kind }: { kind: PartPictureKind }) {
       <rect x="1.5" y="1.5" width="73" height="55" rx="11" fill="none" stroke="rgba(203,213,225,.38)" strokeWidth="1.5" />
     </svg>
   );
-}
-
-function getPartIcon(...values: Array<string | undefined>) {
-  return <PartPicture kind={getPartPictureKind(...values)} />;
-
-  const candidates = values
-    .filter((value): value is string => Boolean(value))
-    .flatMap((value) => [value, leafName(value)]);
-
-  for (const candidate of candidates) {
-    const directIcon = partIcons[candidate] ?? categoryIcons[candidate];
-    if (directIcon) return directIcon;
-  }
-
-  const text = normalizeIconText(candidates.join(" "));
-
-  if (text.includes("sylinter") && text.includes("kann")) return <Layers size={20} />;
-  if (text.includes("sylinter")) return <Cylinder size={20} />;
-  if (text.includes("manna") || text.includes("manta")) return <CircleDot size={20} />;
-  if (text.includes("kampiaksel")) return <Gauge size={20} />;
-  if (text.includes("lohko")) return <Box size={20} />;
-  if (text.includes("laaker") || text.includes("tiivist") || text.includes("mutter")) return <Nut size={20} />;
-  if (text.includes("variaattor") || text.includes("kytkin") || text.includes("levy") || text.includes("vauhtipyor")) return <Disc3 size={20} />;
-  if (text.includes("hihna") || text.includes("ketju") || text.includes("vaijeri") || text.includes("letku") || text.includes("johtosarja")) return <Cable size={20} />;
-  if (text.includes("telasto") || text.includes("suksi") || text.includes("telamatto")) return <Snowflake size={20} />;
-  if (text.includes("tukivarsi") || text.includes("ohjaus") || text.includes("raidetanko") || text.includes("aksel")) return <Navigation size={20} />;
-  if (text.includes("jarru")) return <CircleDot size={20} />;
-  if (text.includes("akku")) return <Battery size={20} />;
-  if (text.includes("sahko") || text.includes("sytytys") || text.includes("valo") || text.includes("trigger")) return <Zap size={20} />;
-  if (text.includes("mittar") || text.includes("anturi")) return <Gauge size={20} />;
-  if (text.includes("jaahd") || text.includes("vesipumppu")) return <Thermometer size={20} />;
-  if (text.includes("polttoaine") || text.includes("kaasutin") || text.includes("ruiskutus")) return <Fuel size={20} />;
-  if (text.includes("pakoput") || text.includes("alkukayra") || text.includes("pakosarja") || text.includes("aanenvaim") || text.includes("resonanssi")) return <Wrench size={20} />;
-  if (text.includes("runko") || text.includes("puskuri") || text.includes("tuulilasi")) return <Shield size={20} />;
-  if (text.includes("kate") || text.includes("kuomu") || text.includes("tunneli")) return <Layers size={20} />;
-
-  return defaultPartIcon;
 }
 
 function partPictureClass(...values: Array<string | undefined>) {

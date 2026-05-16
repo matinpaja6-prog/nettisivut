@@ -180,10 +180,25 @@ export default function RewardsPage() {
     setClaimMessage(null);
     const result = await claimQuest(questId);
     if (result.success) {
+      setQuestProgress((prev) => {
+        if (!prev || prev.claimed.includes(questId)) return prev;
+        return {
+          ...prev,
+          claimed: [...prev.claimed, questId]
+        };
+      });
+      setPoints((prev) => prev + (result.points ?? 0));
       setClaimMessage(rw.claimSuccess(result.points ?? 0));
     } else if (result.error === "not_completed") {
       setClaimMessage(rw.notCompleted(result.progress ?? 0, result.required ?? 1));
     } else if (result.error === "already_claimed") {
+      setQuestProgress((prev) => {
+        if (!prev || prev.claimed.includes(questId)) return prev;
+        return {
+          ...prev,
+          claimed: [...prev.claimed, questId]
+        };
+      });
       setClaimMessage(rw.alreadyClaimed);
     } else {
       setClaimMessage(rw.claimError(result.error ?? ""));

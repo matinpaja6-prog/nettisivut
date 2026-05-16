@@ -406,3 +406,136 @@ body :where(.back-link, .pf-back, .garage-back, .sa-back, .saved-back):focus-vis
   outline: none !important;
   transform: translateY(-1px) !important;
 }
+
+/* Saved listings: compact marketplace cards without bottom profile text. */
+body .saved-page [class*="cardsGrid"] {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)) !important;
+  gap: 18px !important;
+}
+
+body .saved-page [class*="card"] {
+  background: #08243c !important;
+  border: 1px solid rgba(126, 197, 240, 0.28) !important;
+  border-radius: 13px !important;
+  box-shadow: 0 16px 34px rgba(0, 8, 20, 0.24) !important;
+  overflow: hidden !important;
+}
+
+body .saved-page [class*="cardImage"],
+body .saved-page [class*="listingCardImage"] {
+  aspect-ratio: 1 / 1 !important;
+  background: #061827 !important;
+  border: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+body .saved-page [class*="cardImage"] img,
+body .saved-page [class*="listingCardImage"] img {
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+body .saved-page [class*="favoriteButton"] {
+  background: linear-gradient(135deg, #ff9a24 0%, #ff7418 100%) !important;
+  border: 2px solid rgba(255, 232, 205, 0.9) !important;
+  box-shadow: 0 10px 22px rgba(255, 112, 24, 0.34) !important;
+  color: #ffffff !important;
+  height: 36px !important;
+  right: 8px !important;
+  top: 8px !important;
+  width: 36px !important;
+}
+
+body .saved-page [class*="cardBody"] {
+  background: #08243c !important;
+  border: 0 !important;
+  display: grid !important;
+  gap: 7px !important;
+  padding: 9px 10px 10px !important;
+}
+
+body .saved-page [class*="badgeRow"],
+body .saved-page [class*="sellerRow"] {
+  display: none !important;
+}
+
+body .saved-page [class*="cardPrice"] {
+  background: rgba(126, 197, 240, 0.08) !important;
+  border: 0 !important;
+  color: #ffd19a !important;
+  font-size: 1.18rem !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 4px 6px !important;
+}
+
+body .saved-page [class*="cardTitle"] {
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 3 !important;
+  background: rgba(126, 197, 240, 0.08) !important;
+  color: #ffffff !important;
+  display: -webkit-box !important;
+  font-size: 0.78rem !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.05 !important;
+  margin: 0 !important;
+  min-height: 2.2em !important;
+  overflow: hidden !important;
+  padding: 5px 6px !important;
+  text-overflow: clip !important;
+}
+
+body .saved-page [class*="cardMetaRow"] {
+  background: rgba(126, 197, 240, 0.08) !important;
+  border: 0 !important;
+  color: rgba(226, 241, 250, 0.84) !important;
+  display: flex !important;
+  font-size: 0.68rem !important;
+  font-weight: 900 !important;
+  gap: 4px !important;
+  margin: 0 !important;
+  min-height: 20px !important;
+  overflow: hidden !important;
+  padding: 3px 6px !important;
+  white-space: nowrap !important;
+}
+
+body .saved-page [class*="cardMetaRow"] span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+body .saved-page [class*="cardMetaRow"] svg {
+  flex: 0 0 auto !important;
+  height: 12px !important;
+  width: 12px !important;
+}
+
+@media (max-width: 640px) {
+  body .saved-page [class*="cardsGrid"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+  }
+
+  body .saved-page [class*="cardBody"] {
+    padding: 8px !important;
+  }
+
+  body .saved-page [class*="cardPrice"] {
+    font-size: 1.05rem !important;
+  }
+
+  body .saved-page [class*="cardTitle"] {
+    font-size: 0.72rem !important;
+  }
+}

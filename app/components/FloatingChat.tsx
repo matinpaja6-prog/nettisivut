@@ -85,8 +85,6 @@ export default function FloatingChat() {
   const { locale, t } = useLanguage();
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Älä renderöi admin-sivulla
-  const isAdmin = pathname?.startsWith("/admin");
   const [open, setOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [activeConv, setActiveConv] = useState<ConversationSummary | null>(null);
@@ -212,7 +210,7 @@ export default function FloatingChat() {
   }
 
   /* --- don't render if not logged in --- */
-  if (!userId) return null;
+  if (!userId || pathname?.startsWith("/admin")) return null;
 
   /* ======================================================
      UI

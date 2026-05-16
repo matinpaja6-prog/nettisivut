@@ -494,3 +494,57 @@ body .garage-page .garage-field input:-webkit-autofill:focus {
   box-shadow: 0 0 0 1000px rgba(4, 18, 34, 0.92) inset !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* Oma Talli vehicle card: keep year and matching-parts action cleanly stacked. */
+body .garage-page .garage-vehicle-details {
+  align-items: flex-start !important;
+}
+
+body .garage-page .garage-vehicle-meta {
+  align-items: flex-start !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  margin-top: 1px !important;
+}
+
+body .garage-page .garage-vehicle-year {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  display: block !important;
+  font-size: 0.9rem !important;
+  font-weight: 950 !important;
+  line-height: 1.05 !important;
+  padding: 0 !important;
+}
+
+body .garage-page .garage-vehicle-class-tag {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #ffd19a !important;
+  display: inline-flex !important;
+  font-size: 0.78rem !important;
+  font-weight: 950 !important;
+  line-height: 1.1 !important;
+  padding: 0 !important;
+  text-shadow: 0 1px 8px rgba(255, 122, 24, 0.22) !important;
+}
+
+@media (max-width: 640px) {
+  body .garage-page .garage-vehicle-meta {
+    gap: 4px !important;
+  }
+
+  body .garage-page .garage-vehicle-year {
+    font-size: 0.86rem !important;
+  }
+
+  body .garage-page .garage-vehicle-class-tag {
+    font-size: 0.76rem !important;
+  }
+}

@@ -1002,6 +1002,133 @@ body .own-listing-edit {
   }
 }
 
+/* Own listings mobile editor: full-width form instead of a squeezed listing row. */
+@media (max-width: 640px) {
+  body .my-listings-workspace [class*="row"]:has(> .own-listing-edit) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 10px !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+  }
+
+  body .my-listings-workspace .own-listing-edit,
+  body .own-listing-edit {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin: 0 !important;
+    padding: 16px !important;
+    overflow: visible !important;
+  }
+
+  body .my-listings-workspace .own-listing-edit::before,
+  body .own-listing-edit::before {
+    content: "Muokkaa ilmoitusta";
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    justify-self: start !important;
+    min-height: 32px !important;
+    padding: 0 13px !important;
+    border: 1px solid rgba(255, 177, 95, 0.72) !important;
+    border-radius: 999px !important;
+    background: linear-gradient(135deg, rgba(255, 154, 36, 0.28), rgba(255, 112, 24, 0.16)) !important;
+    color: #fff4e6 !important;
+    font-size: 0.76rem !important;
+    font-weight: 950 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+  }
+
+  body .my-listings-workspace .own-listing-title-fields,
+  body .own-listing-title-fields,
+  body .my-listings-workspace .own-listing-location-pair,
+  body .own-listing-location-pair,
+  body .my-listings-workspace .own-listing-image-editor,
+  body .own-listing-image-editor,
+  body .my-listings-workspace .own-listing-actions,
+  body .own-listing-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body .my-listings-workspace .own-listing-edit input:not([type="file"]),
+  body .my-listings-workspace .own-listing-edit select,
+  body .my-listings-workspace .own-listing-edit textarea,
+  body .own-listing-edit input:not([type="file"]),
+  body .own-listing-edit select,
+  body .own-listing-edit textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 50px !important;
+    box-sizing: border-box !important;
+    border-radius: 14px !important;
+    padding: 0 14px !important;
+    font-size: 0.94rem !important;
+    font-weight: 850 !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+  }
+
+  body .my-listings-workspace .own-listing-edit textarea,
+  body .own-listing-edit textarea {
+    min-height: 116px !important;
+    padding: 14px !important;
+    resize: vertical !important;
+  }
+
+  body .my-listings-workspace .own-listing-upload-box,
+  body .own-listing-upload-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 112px !important;
+    box-sizing: border-box !important;
+    border-radius: 16px !important;
+    padding: 18px 14px !important;
+    text-align: center !important;
+  }
+
+  body .my-listings-workspace .own-listing-image-grid,
+  body .own-listing-image-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  body .my-listings-workspace .own-listing-img-box,
+  body .own-listing-img-box {
+    aspect-ratio: 1 / 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body .my-listings-workspace .own-listing-img-box img,
+  body .own-listing-img-box img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  body .my-listings-workspace .own-listing-actions button,
+  body .own-listing-actions button {
+    width: 100% !important;
+    min-height: 46px !important;
+    justify-content: center !important;
+  }
+}
+
 @media (min-width: 900px) {
 
   body .seller-page .sp-empty,
