@@ -29,6 +29,19 @@ body .listing-detail-page .mobile-image-thumbs {
   display: none !important;
 }
 
+@media (min-width: 761px) {
+  body .listing-detail-page .container {
+    max-width: 1740px !important;
+    padding-left: clamp(28px, 3vw, 46px) !important;
+    padding-right: clamp(28px, 3vw, 46px) !important;
+  }
+
+  body .listing-detail-page .layout {
+    grid-template-columns: minmax(0, 1fr) minmax(310px, 350px) !important;
+    gap: 28px !important;
+  }
+}
+
 @media (max-width: 760px) {
   body .listing-detail-page .image-wrapper {
     padding-bottom: 0 !important;
@@ -2961,6 +2974,26 @@ body .listing-detail-page .main::after {
     overflow: hidden !important;
   }
 
+  body .listing-detail-page .title-row {
+    min-height: 112px !important;
+    padding: 26px 30px 22px !important;
+  }
+
+  body .listing-detail-page .title-left {
+    min-width: 0 !important;
+    padding-right: 18px !important;
+  }
+
+  body .listing-detail-page .title-row h1 {
+    line-height: 1.12 !important;
+    margin: 0 0 12px !important;
+    max-width: calc(100% - 20px) !important;
+  }
+
+  body .listing-detail-page .sub-info {
+    padding-left: 2px !important;
+  }
+
   body .listing-detail-page .image-wrapper,
   body .listing-detail-page .main-img-button {
     background: transparent !important;
@@ -2968,6 +3001,11 @@ body .listing-detail-page .main::after {
     border-radius: 0 !important;
     box-shadow: none !important;
     overflow: hidden !important;
+  }
+
+  body .listing-detail-page .image-wrapper {
+    padding-left: 28px !important;
+    padding-right: 28px !important;
   }
 
   body .listing-detail-page .main-img {
@@ -2988,7 +3026,8 @@ body .listing-detail-page .main::after {
     border-radius: 0 !important;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
     margin: 0 !important;
-    padding: 16px 26px 16px 22px !important;
+    min-height: 84px !important;
+    padding: 20px 32px 20px 28px !important;
   }
 
   body .listing-detail-page .thumbs {
@@ -2997,7 +3036,8 @@ body .listing-detail-page .main::after {
     border: 0 !important;
     border-bottom: 1px solid rgba(126, 197, 240, 0.18) !important;
     margin: 0 !important;
-    padding: 12px 22px 24px !important;
+    min-height: 92px !important;
+    padding: 16px 28px 26px !important;
   }
 
   body .listing-detail-page .thumbs img {
@@ -3034,7 +3074,7 @@ body .listing-detail-page .main::after {
     border-radius: 0 !important;
     box-shadow: none !important;
     min-height: 58px !important;
-    padding: 18px 22px !important;
+    padding: 20px 28px !important;
   }
 
   body .listing-detail-page .listing-section-toggle[aria-expanded="false"] {
@@ -3060,6 +3100,8 @@ body .listing-detail-page .main::after {
   body .listing-detail-page .listing-fact-grid span {
     background: transparent !important;
     border-color: rgba(126, 197, 240, 0.14) !important;
+    min-height: 96px !important;
+    padding: 20px 24px !important;
   }
 
 body .listing-detail-page .listing-extra-card p {
@@ -3068,7 +3110,7 @@ body .listing-detail-page .listing-extra-card p {
     border: 0 !important;
     border-radius: 0 !important;
     margin: 0 !important;
-    padding: 20px 22px 24px !important;
+    padding: 22px 28px 28px !important;
   }
 }
 

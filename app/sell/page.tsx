@@ -896,6 +896,29 @@ function SellPageContent() {
     );
   }
 
+  function renderPartOptionLabel(label: string) {
+    const translated = translateCategory(locale, label);
+    const splitLabels: Record<string, string[]> = {
+      "Kokonainen jäähdytysjärjestelmä": ["Kokonainen jäähdytys", "järjestelmä"],
+      "Kokonainen polttoainejärjestelmä": ["Kokonainen polttoaine", "järjestelmä"],
+      "Polttoainesäiliöt & tankit": ["Polttoainesäiliöt", "& tankit"],
+      "Ruiskutusjärjestelmät": ["Ruiskutus", "järjestelmät"]
+    };
+    const lines = splitLabels[translated];
+
+    if (!lines) return translated;
+
+    return (
+      <span className="sell-subcategory-label-stack">
+        {lines.map((line) => (
+          <span key={line} className="sell-subcategory-label-line">
+            {line}
+          </span>
+        ))}
+      </span>
+    );
+  }
+
   const subcategories =
     currentCategories[form.category] || [];
 
@@ -2801,7 +2824,7 @@ function SellPageContent() {
                               }}
                             >
                               <span className="sell-subcategory-text">
-                                <strong>{translateCategory(locale, leafLabel)}</strong>
+                                <strong>{renderPartOptionLabel(leafLabel)}</strong>
                               </span>
                               <span className="sell-selection-dot" aria-hidden="true" />
                             </button>
@@ -2839,7 +2862,7 @@ function SellPageContent() {
                           }}
                         >
                           <span className="sell-subcategory-text">
-                            <strong>{translateCategory(locale, sub)}</strong>
+                            <strong>{renderPartOptionLabel(sub)}</strong>
                           </span>
                           <span className="sell-selection-dot" aria-hidden="true" />
                         </button>

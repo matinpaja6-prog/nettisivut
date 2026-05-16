@@ -11194,3 +11194,20 @@ body .sell-container #sell-step-category .subgroup-items .sell-subcategory-card-
   font-size: 0.92rem !important;
   line-height: 1.14 !important;
 }
+
+body .sell-container #sell-step-category .sell-subcategory-label-stack {
+  display: grid !important;
+  gap: 1px !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+body .sell-container #sell-step-category .sell-subcategory-label-line {
+  display: block !important;
+  max-width: 100% !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}

@@ -574,12 +574,13 @@ body:has(.universal-app-topbar) {
 
 body .universal-app-topbar {
   left: 0 !important;
+  overflow: visible !important;
   position: relative !important;
   right: 0 !important;
   top: auto !important;
   transform: none !important;
   width: 100% !important;
-  z-index: 9000 !important;
+  z-index: 90000 !important;
 }
 
 body .language-switcher::after {
@@ -611,8 +612,10 @@ body .universal-app-topbar .universal-create-button:disabled:hover {
     border-radius: 0 0 16px 16px !important;
     gap: 8px !important;
     min-height: 62px !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     padding: 8px 10px !important;
+    position: relative !important;
+    z-index: 90000 !important;
   }
 
   body .universal-topbar-actions {
@@ -670,4 +673,18 @@ body .universal-app-topbar .universal-create-button:disabled:hover {
 
 body:has(.listing-image-preview) .universal-app-topbar {
   z-index: 1 !important;
+}
+
+/* Keep shared header dropdowns above the home hero image. */
+body .universal-profile-menu-wrap,
+body .universal-notification-wrap {
+  isolation: isolate !important;
+  position: relative !important;
+  z-index: 90100 !important;
+}
+
+body .universal-profile-menu,
+body .universal-notification-menu,
+body [data-global-language-menu] {
+  z-index: 90200 !important;
 }

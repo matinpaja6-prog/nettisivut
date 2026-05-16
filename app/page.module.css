@@ -7634,7 +7634,7 @@
   .hero {
     align-items: center !important;
     justify-items: center !important;
-    padding-bottom: clamp(72px, 8vh, 110px) !important;
+    padding-bottom: clamp(96px, 10vh, 140px) !important;
   }
 
   .heroInner {
@@ -7643,8 +7643,8 @@
     justify-self: center !important;
     margin-left: auto !important;
     margin-right: auto !important;
-    transform: translateY(clamp(-52px, -4.4vh, -28px)) !important;
-    width: min(980px, calc(100vw - 92px)) !important;
+    transform: translateY(clamp(-86px, -6.2vh, -48px)) !important;
+    width: min(980px, calc(100vw - 120px)) !important;
   }
 
   .heroSearch {
@@ -7655,6 +7655,19 @@
   .categoryRow {
     max-width: min(1040px, 100%) !important;
   }
+}
+
+/* Header must sit above the hero photo and its overlay on the home page. */
+.topbar {
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 91000 !important;
+}
+
+.profileMenu,
+.notificationMenu,
+.languageDropdown {
+  z-index: 91200 !important;
 }
 
 /* Keep recommendation sort inside the panel instead of touching the hero image. */
