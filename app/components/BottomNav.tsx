@@ -15,6 +15,7 @@ import {
   type ConversationSummary,
   type PurchaseReviewRequest,
 } from "@/lib/supabase";
+import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage } from "@/lib/i18n";
 
 const LOCALES = [
@@ -199,8 +200,12 @@ export default function BottomNav() {
                 <Link href="/garage"     className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Car size={18} />{t.garageTitle}</Link>
                 <Link href="/messages"   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Mail size={18} />{t.messages}</Link>
                 <Link href="/saved"      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Heart size={18} />{t.savedListings}</Link>
-                <Link href="/rewards"    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Award size={18} />{t.rewards}</Link>
-                <Link href="/shop"      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Store size={18} />{t.shop}</Link>
+                {FEATURE_FLAGS.rewardsAndShop ? (
+                  <>
+                    <Link href="/rewards"    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Award size={18} />{t.rewards}</Link>
+                    <Link href="/shop"      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Store size={18} />{t.shop}</Link>
+                  </>
+                ) : null}
                 <div className="bn-sheet-divider" />
                 <div className="bn-sheet-lang">
                   {LOCALES.map((loc) => (

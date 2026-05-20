@@ -293,7 +293,7 @@ export default function RequiredReviewGate() {
           height: 58px;
           border-radius: 18px;
           background: #dbeafe;
-          color: #1d4ed8;
+          color: #ff7a1a;
           display: grid;
           place-items: center;
         }
@@ -336,9 +336,9 @@ export default function RequiredReviewGate() {
         }
 
         .review-gate-stars button.active {
-          background: #eff6ff;
+          background: rgba(255, 122, 26, 0.14);
           border-color: #bfdbfe;
-          color: #1d4ed8;
+          color: #ff7a1a;
         }
 
         .review-gate-card label {
@@ -381,7 +381,7 @@ export default function RequiredReviewGate() {
           height: 46px;
           border-radius: 14px;
           border: 0;
-          background: #1d4ed8;
+          background: #ff7a1a;
           color: #ffffff;
           font-weight: 950;
           cursor: pointer;

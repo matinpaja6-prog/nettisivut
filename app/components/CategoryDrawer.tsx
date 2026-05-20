@@ -2,10 +2,17 @@
 import { useState, useEffect, type ReactNode } from "react";
 import { displayCategoryForVehicle, subcategoryGroups } from "@/lib/listings";
 import { useLanguage, translateCategory } from "@/lib/i18n";
-import { X, ChevronRight, Search, Check } from "lucide-react";
+import {
+  X, ChevronRight, ChevronLeft, Wrench,
+  Settings2, Zap, Thermometer, Droplets, Shield, Activity,
+  Navigation, Circle, MoreHorizontal, Search, Check,
+  Battery, Box, Boxes, Cable, CircleDot, Cog, Component,
+  Cylinder, Disc3, Fan, Fuel, Gauge, Layers, Nut, Package,
+  Snowflake
+} from "lucide-react";
 
 /* ── types ─────────────────────────────────────────── */
-export type VehicleType = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopot";
+export type VehicleType = string;
 
 interface Props {
   isOpen: boolean;
@@ -29,9 +36,141 @@ interface Props {
     category: string;
     subcategory: string;
   }) => void;
-  vehicleBrands: Record<VehicleType, string[]>;
-  vehicleCategories: Record<VehicleType, Record<string, readonly string[]>>;
+  vehicleBrands: Record<string, string[]>;
+  vehicleCategories: Record<string, Record<string, readonly string[]>>;
   partsCategories: Record<string, readonly string[]>;
+}
+
+/* ── icon maps ──────────────────────────────────────── */
+const categoryIcons: Record<string, ReactNode> = {
+  "Moottori & voimansiirto": <Settings2 size={20} />,
+  Moottori:              <Wrench size={20} />,
+  Voimansiirto:          <Settings2 size={20} />,
+  "Voimansiirron osat":  <Settings2 size={20} />,
+  "Alusta & telasto":    <Activity size={20} />,
+  Telasto:               <Circle size={20} />,
+  "Telaston osat":       <Circle size={20} />,
+  Jousitus:              <Activity size={20} />,
+  "Jousituksen osat":    <Activity size={20} />,
+  "Ohjaus & hallintalaitteet": <Navigation size={20} />,
+  Ohjaus:                <Navigation size={20} />,
+  "Ohjauksen osat":      <Navigation size={20} />,
+  Sähköjärjestelmät:     <Zap size={20} />,
+  Sähkö:                 <Zap size={20} />,
+  "Sähkö osat":          <Zap size={20} />,
+  "Jäähdytys & polttoaine": <Droplets size={20} />,
+  Jäähdytys:             <Thermometer size={20} />,
+  Polttoaine:            <Droplets size={20} />,
+  Polttoainejärjestelmä: <Droplets size={20} />,
+  Pakoputkisto:          <Wrench size={20} />,
+  Runko:                 <Shield size={20} />,
+  "Runko & katteet":     <Shield size={20} />,
+  Jarrut:                <Circle size={20} />,
+  Alusta:                <Activity size={20} />,
+  Sisusta:               <Shield size={20} />,
+  Muut:                  <MoreHorizontal size={20} />,
+};
+
+const defaultPartIcon = <Package size={20} />;
+
+const partIcons: Record<string, ReactNode> = {
+  "Kokonainen moottori": <Cog size={20} />,
+  "Kokonainen voimansiirto": <Settings2 size={20} />,
+  Moottorit: <Cog size={20} />,
+  Sylinterit: <Cylinder size={20} />,
+  "Sylinterin kannet": <Layers size={20} />,
+  Männät: <CircleDot size={20} />,
+  Kampiakselit: <Gauge size={20} />,
+  "Moottorin lohkot": <Box size={20} />,
+  "Laakerit & tiivisteet": <Nut size={20} />,
+  Kytkimet: <Disc3 size={20} />,
+  "Kokonainen kytkin": <Disc3 size={20} />,
+  "Kytkin kitit": <Boxes size={20} />,
+  Jouset: <Activity size={20} />,
+  Painovarret: <Gauge size={20} />,
+  Variaattorit: <Disc3 size={20} />,
+  "Kokonainen variaattori": <Disc3 size={20} />,
+  "Variaattori kitit": <Component size={20} />,
+  "Variaattorin hihnat": <Cable size={20} />,
+  Ketjukotelot: <Box size={20} />,
+  "Ketjut & hihnat": <Cable size={20} />,
+  "Kokonainen telasto": <Snowflake size={20} />,
+  "Kokonainen alusta": <Activity size={20} />,
+  Telasto: <Snowflake size={20} />,
+  Etupukit: <Activity size={20} />,
+  Takapukit: <Activity size={20} />,
+  Liukurungot: <Layers size={20} />,
+  "Tela- ja kääntöpyörät": <CircleDot size={20} />,
+  Tukivarret: <Navigation size={20} />,
+  "Oikea ylä": <Navigation size={20} />,
+  "Oikea ala": <Navigation size={20} />,
+  "Vasen ylä": <Navigation size={20} />,
+  "Vasen ala": <Navigation size={20} />,
+  "Olka-akselit": <Navigation size={20} />,
+  Vetoakselit: <Gauge size={20} />,
+  Telamatot: <Layers size={20} />,
+  Iskunvaimentimet: <Activity size={20} />,
+  "Kokonainen iskunvaimennussarja": <Activity size={20} />,
+  Etuiskunvaimentimet: <Activity size={20} />,
+  "Telaston iskunvaimentimet": <Activity size={20} />,
+  "Kokonainen ohjaus": <Navigation size={20} />,
+  Ohjaustangot: <Navigation size={20} />,
+  Käsisuojat: <Shield size={20} />,
+  "Tangon korokepalat": <Layers size={20} />,
+  Kaasukahvat: <Gauge size={20} />,
+  Kaasuvaijerit: <Cable size={20} />,
+  "Kokonainen jarrujärjestelmä": <CircleDot size={20} />,
+  Levyt: <Disc3 size={20} />,
+  "Jarrusatulat & letkut": <CircleDot size={20} />,
+  "Kahvat & puristimet": <Navigation size={20} />,
+  Jarrupalat: <Layers size={20} />,
+  Ohjausakselit: <Navigation size={20} />,
+  Raidetangot: <Navigation size={20} />,
+  "Muut ohjauksen osat": <Package size={20} />,
+  Sukset: <Snowflake size={20} />,
+  "Kokonainen sukset": <Snowflake size={20} />,
+  Ohjainraudat: <Layers size={20} />,
+  Suksikumit: <Layers size={20} />,
+  "Kokonainen sähköjärjestelmä": <Zap size={20} />,
+  "Staattorit & vauhtipyörät": <Disc3 size={20} />,
+  Triggerit: <Zap size={20} />,
+  Akut: <Battery size={20} />,
+  Sytytyspuolat: <Zap size={20} />,
+  "ECU & ohjainyksiköt": <Box size={20} />,
+  Johtosarjat: <Cable size={20} />,
+  Valot: <Zap size={20} />,
+  Anturit: <Gauge size={20} />,
+  Mittaristot: <Gauge size={20} />,
+  "Kytkimet & katkaisijat": <Zap size={20} />,
+  "Kokonainen jäähdytysjärjestelmä": <Thermometer size={20} />,
+  "Kokonainen polttoainejärjestelmä": <Fuel size={20} />,
+  Jäähdyttimet: <Fan size={20} />,
+  Vesipumput: <Droplets size={20} />,
+  Letkut: <Cable size={20} />,
+  Polttoainepumput: <Fuel size={20} />,
+  Kaasuttimet: <Fuel size={20} />,
+  Ruiskutusjärjestelmät: <Fuel size={20} />,
+  "Polttoainesäiliöt & tankit": <Fuel size={20} />,
+  "Kokonainen pakoputkisto": <Wrench size={20} />,
+  Alkukäyrät: <Wrench size={20} />,
+  "Pakosarjat & Y-haarat": <Wrench size={20} />,
+  Äänenvaimentimet: <Wrench size={20} />,
+  Resonanssiputket: <Wrench size={20} />,
+  "Kokonainen runko": <Shield size={20} />,
+  "Kokonainen katesarja": <Layers size={20} />,
+  Tunnelit: <Shield size={20} />,
+  Keskirunko: <Shield size={20} />,
+  Eturunko: <Shield size={20} />,
+  "Kuomut & konepellit": <Layers size={20} />,
+  Sivukatteet: <Layers size={20} />,
+  Etupuskurit: <Shield size={20} />,
+  Takapuskurit: <Shield size={20} />,
+  "Istuimet & penkit": <Box size={20} />,
+  Tuulilasit: <Shield size={20} />,
+};
+
+function leafName(value: string) {
+  return value.split(" / ").map((part) => part.trim()).filter(Boolean).at(-1) ?? value;
 }
 
 function normalizeIconText(value: string) {
@@ -39,10 +178,6 @@ function normalizeIconText(value: string) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
-}
-
-function leafName(value: string) {
-  return value.split(" / ").map((part) => part.trim()).filter(Boolean).at(-1) ?? value;
 }
 
 type PartPictureKind =
@@ -55,11 +190,13 @@ type PartPictureKind =
   | "block"
   | "bearing"
   | "clutch"
+  | "variator"
   | "belt"
   | "wheel"
   | "track"
   | "suspension"
   | "steering"
+  | "controls"
   | "brake"
   | "ski"
   | "electric"
@@ -87,12 +224,14 @@ function getPartPictureKind(...values: Array<string | undefined>): PartPictureKi
   if (text.includes("kampiaksel")) return "crank";
   if (text.includes("lohko")) return "block";
   if (text.includes("laaker") || text.includes("tiivist")) return "bearing";
-  if (text.includes("kytkin") || text.includes("variaattor") || text.includes("vauhtipyor")) return "clutch";
+  if (text.includes("variaattor")) return "variator";
+  if (text.includes("kytkin") || text.includes("vauhtipyor")) return "clutch";
+  if (text.includes("hallintalait") || text.includes("kaasukahva") || text.includes("kaasuvaijeri")) return "controls";
   if (text.includes("hihna") || text.includes("ketju") || text.includes("vaijeri") || text.includes("letku") || text.includes("johtosarja")) return "belt";
   if (text.includes("rengas") || text.includes("renkaat") || text.includes("vanne") || text.includes("vanteet") || text.includes("vanneset")) return "wheel";
   if (text.includes("telasto") || text.includes("telamatto") || text.includes("liukurunko")) return "track";
   if (text.includes("iskunvaim") || text.includes("jous") || text.includes("tukivarsi") || text.includes("olka-aksel") || text.includes("vetoaksel") || text.includes("alusta")) return "suspension";
-  if (text.includes("ohjaus") || text.includes("hallintalait") || text.includes("raidetanko") || text.includes("kaasukahva") || text.includes("korokepala")) return "steering";
+  if (text.includes("ohjaus") || text.includes("ohjaustanko") || text.includes("raidetanko") || text.includes("kasisuoj") || text.includes("korokepala")) return "steering";
   if (text.includes("jarru") || text.includes("levy") || text.includes("satula")) return "brake";
   if (text.includes("suksi") || text.includes("ohjainrauta") || text.includes("suksikumi")) return "ski";
   if (text.includes("akku")) return "battery";
@@ -188,6 +327,15 @@ function PartPicture({ kind }: { kind: PartPictureKind }) {
         ))}
       </>
     ),
+    variator: (
+      <>
+        <circle cx="23" cy="32" r="13" {...common} fill="none" />
+        <circle cx="43" cy="32" r="13" {...common} fill="none" />
+        <circle cx="23" cy="32" r="4" fill="#071827" />
+        <circle cx="43" cy="32" r="4" fill="#071827" />
+        <path d="M23 19c8 0 13 5 20 0M23 45c8 0 13-5 20 0" {...common} fill="none" />
+      </>
+    ),
     belt: (
       <>
         <path d="M16 24c5-8 27-8 32 0 5 9-4 20-16 20S11 33 16 24z" {...common} fill="none" />
@@ -223,6 +371,13 @@ function PartPicture({ kind }: { kind: PartPictureKind }) {
       <>
         <path d="M14 40l36-18-14 34-6-16z" {...common} fill="none" />
         <path d="M30 40l8-7" {...common} fill="none" />
+      </>
+    ),
+    controls: (
+      <>
+        <rect x="15" y="24" width="34" height="16" rx="8" {...common} fill="none" />
+        <circle cx="24" cy="32" r="4" fill="#071827" />
+        <path d="M34 28h9M34 36h7" {...common} fill="none" />
       </>
     ),
     brake: (
@@ -344,8 +499,60 @@ function PartPicture({ kind }: { kind: PartPictureKind }) {
   );
 }
 
+function getPartIcon(...values: Array<string | undefined>) {
+  return <PartPicture kind={getPartPictureKind(...values)} />;
+
+  const candidates = values
+    .filter((value): value is string => Boolean(value))
+    .flatMap((value) => [value, leafName(value)]);
+
+  for (const candidate of candidates) {
+    const directIcon = partIcons[candidate] ?? categoryIcons[candidate];
+    if (directIcon) return directIcon;
+  }
+
+  const text = normalizeIconText(candidates.join(" "));
+
+  if (text.includes("sylinter") && text.includes("kann")) return <Layers size={20} />;
+  if (text.includes("sylinter")) return <Cylinder size={20} />;
+  if (text.includes("manna") || text.includes("manta")) return <CircleDot size={20} />;
+  if (text.includes("kampiaksel")) return <Gauge size={20} />;
+  if (text.includes("lohko")) return <Box size={20} />;
+  if (text.includes("laaker") || text.includes("tiivist") || text.includes("mutter")) return <Nut size={20} />;
+  if (text.includes("variaattor") || text.includes("kytkin") || text.includes("levy") || text.includes("vauhtipyor")) return <Disc3 size={20} />;
+  if (text.includes("hihna") || text.includes("ketju") || text.includes("vaijeri") || text.includes("letku") || text.includes("johtosarja")) return <Cable size={20} />;
+  if (text.includes("telasto") || text.includes("suksi") || text.includes("telamatto")) return <Snowflake size={20} />;
+  if (text.includes("tukivarsi") || text.includes("ohjaus") || text.includes("raidetanko") || text.includes("aksel")) return <Navigation size={20} />;
+  if (text.includes("jarru")) return <CircleDot size={20} />;
+  if (text.includes("akku")) return <Battery size={20} />;
+  if (text.includes("sahko") || text.includes("sytytys") || text.includes("valo") || text.includes("trigger")) return <Zap size={20} />;
+  if (text.includes("mittar") || text.includes("anturi")) return <Gauge size={20} />;
+  if (text.includes("jaahd") || text.includes("vesipumppu")) return <Thermometer size={20} />;
+  if (text.includes("polttoaine") || text.includes("kaasutin") || text.includes("ruiskutus")) return <Fuel size={20} />;
+  if (text.includes("pakoput") || text.includes("alkukayra") || text.includes("pakosarja") || text.includes("aanenvaim") || text.includes("resonanssi")) return <Wrench size={20} />;
+  if (text.includes("runko") || text.includes("puskuri") || text.includes("tuulilasi")) return <Shield size={20} />;
+  if (text.includes("kate") || text.includes("kuomu") || text.includes("tunneli")) return <Layers size={20} />;
+
+  return defaultPartIcon;
+}
+
 function partPictureClass(...values: Array<string | undefined>) {
   return `cd-thumb-${getPartPictureKind(...values)}`;
+}
+
+const mainCategoryPhotoSlugs: Record<string, string> = {
+  "Moottori & voimansiirto": "moottori-voimansiirto",
+  "Alusta & telasto": "alusta-telasto",
+  "Ohjaus & hallintalaitteet": "ohjaus-hallintalaitteet",
+  "Sähköjärjestelmät": "sahkojarjestelmat",
+  "Jäähdytys & polttoaine": "jaahdytys-polttoaine",
+  "Pakoputkisto": "pakoputkisto",
+  "Runko & katteet": "runko-katteet",
+};
+
+function mainCategoryPhotoClass(category: string): string {
+  const slug = mainCategoryPhotoSlugs[category];
+  return slug ? `cd-main-${slug}` : "";
 }
 
 const subGroupSlugs: Record<string, string> = {
@@ -376,6 +583,25 @@ function subGroupClass(group: string): string {
   return slug ? `cd-subgrp-${slug}` : "";
 }
 
+function removeDynamicGroupChild(
+  dynamicMap: Map<string, string[]>,
+  child: string
+) {
+  const slashIdx = child.indexOf(" / ");
+  if (slashIdx === -1) return;
+
+  const dynamicGroup = child.slice(0, slashIdx).trim();
+  const children = dynamicMap.get(dynamicGroup);
+  if (!children) return;
+
+  const remaining = children.filter((item) => item !== child);
+  if (remaining.length > 0) {
+    dynamicMap.set(dynamicGroup, remaining);
+  } else {
+    dynamicMap.delete(dynamicGroup);
+  }
+}
+
 /* ── component ──────────────────────────────────────── */
 const CC_OPTIONS: Record<string, string[]> = {
   Moottorikelkka: ["250", "300", "400", "440", "500", "550", "600", "650", "700", "800", "850", "900", "1000", "1200+"],
@@ -384,6 +610,10 @@ const CC_OPTIONS: Record<string, string[]> = {
   Mopot:          ["50", "65", "80", "90", "100", "110", "125", "150"],
 };
 const DEFAULT_CC_OPTIONS = ["250", "300", "400", "500", "600", "700", "800", "1000", "1200+"];
+const YEAR_OPTIONS = Array.from(
+  { length: new Date().getFullYear() + 1 - 1980 },
+  (_, index) => String(new Date().getFullYear() - index)
+);
 
 const VEHICLE_PHOTOS: Record<CategoryStartKind, string> = {
   Moottorikelkka: "/vehicles/moottorikelkka.png",
@@ -430,7 +660,7 @@ const ENGINE_MODELS: Record<string, Record<string, string[]>> = {
   }
 };
 
-type CategoryStartKind = VehicleType | "all";
+type CategoryStartKind = string;
 
 function VehicleTileImage({ kind }: { kind: CategoryStartKind }) {
   return (
@@ -593,7 +823,8 @@ export default function CategoryDrawer({
       setCat("");
       setSubGroup("");
       setSub("");
-      setStep(openAtStep ?? 3);
+      // Default: start by asking the vehicle (step 0). Caller can override.
+      setStep(openAtStep ?? 0);
     }
   }, [isOpen, initVehicle, initBrand, initModel, initYear, initCc, initEngineModel, openAtStep]);
 
@@ -605,10 +836,9 @@ export default function CategoryDrawer({
     onClose();
   }
 
-  function applyLeaf(nextSub: string, nextSubGroup = subGroup) {
-    const nextValue = sub === nextSub ? "" : nextSub;
+  function applyFinalCategory(nextSub: string, nextSubGroup = subGroup) {
     setSubGroup(nextSubGroup);
-    setSub(nextValue);
+    setSub(nextSub);
     onApply({
       vehicleType: vehicle,
       brand,
@@ -617,7 +847,7 @@ export default function CategoryDrawer({
       engineCc: engineCc === "muu" ? engineCcOther : engineCc,
       engineModel: engineModel === "muu" ? engineModelOther : engineModel,
       category: cat,
-      subcategory: nextValue,
+      subcategory: nextSub
     });
     onClose();
   }
@@ -628,6 +858,35 @@ export default function CategoryDrawer({
     onClose();
   }
 
+  function goBack() {
+    if (step === 5) {
+      setSub("");
+      if (subGroup && currentSubcategoryGroups) {
+        setSubGroup("");
+        setStep(4);
+        return;
+      }
+      setStep(3);
+      return;
+    }
+
+    if (step === 4) {
+      setCat("");
+      setSubGroup("");
+      setSub("");
+      setStep(3);
+      return;
+    }
+
+    if (step === 3) {
+      setCat("");
+      setSubGroup("");
+      setSub("");
+    }
+
+    setStep(Math.max(0, step - 1));
+  }
+
   const cats = vehicle
     ? (vehicleCategories[vehicle as VehicleType] ?? partsCategories)
     : partsCategories;
@@ -635,28 +894,60 @@ export default function CategoryDrawer({
   const subs: readonly string[] = cat ? (cats[cat] ?? []) : [];
   function getFilteredSubcategoryGroups(categoryName: string) {
     const categorySubs = cats[categoryName] ?? [];
-    const groups = subcategoryGroups[categoryName];
+    const baseGroups = subcategoryGroups[categoryName];
 
-    if (!groups) return null;
+    // Build dynamic groups by parsing "Group / Leaf" pattern from the
+    // dynamic taxonomy data. This ensures admin-added leaves show up even
+    // if they aren't in the hardcoded `subcategoryGroups`.
+    const dynamicMap = new Map<string, string[]>();
+    const standalone: string[] = [];
+    for (const sub of categorySubs) {
+      const slashIdx = sub.indexOf(" / ");
+      if (slashIdx !== -1) {
+        const groupName = sub.slice(0, slashIdx).trim();
+        const arr = dynamicMap.get(groupName) ?? [];
+        arr.push(sub);
+        dynamicMap.set(groupName, arr);
+      } else {
+        standalone.push(sub);
+      }
+    }
 
-    return Object.fromEntries(
-      Object.entries(groups)
-        .map(([group, children]) => {
-          const allowedChildren = children.filter((child) => categorySubs.includes(child));
-          const isGroupAllowed = children.length === 0 && categorySubs.includes(group);
-
-          if (children.length > 0 && allowedChildren.length > 0) {
-            return [group, allowedChildren];
-          }
-
-          if (isGroupAllowed) {
-            return [group, []];
-          }
-
-          return null;
-        })
-        .filter((entry): entry is [string, string[]] => Boolean(entry))
-    );
+    // Merge with hardcoded order/grouping when available.
+    const result: Record<string, string[]> = {};
+    if (baseGroups) {
+      for (const [group, children] of Object.entries(baseGroups)) {
+        const allowedChildren = children.filter((c) => categorySubs.includes(c));
+        const dynamicExtras = (dynamicMap.get(group) ?? []).filter(
+          (c) => !allowedChildren.includes(c)
+        );
+        const merged = [...allowedChildren, ...dynamicExtras];
+        const isGroupAllowed = children.length === 0 && categorySubs.includes(group);
+        if (merged.length > 0) {
+          result[group] = merged;
+        } else if (isGroupAllowed) {
+          result[group] = [];
+        }
+        for (const child of merged) {
+          removeDynamicGroupChild(dynamicMap, child);
+        }
+        // Mark same-named groups as consumed so leftover dynamic groups don't duplicate.
+        dynamicMap.delete(group);
+      }
+    }
+    // Append any remaining dynamic groups not in hardcoded baseGroups.
+    for (const [group, children] of dynamicMap.entries()) {
+      if (children.length > 0) result[group] = children;
+    }
+    // Only show standalone leaves on this level for categories without a
+    // grouped taxonomy. Grouped categories should first show only real
+    // navigation groups; the leaf choices appear after the group is opened.
+    if (!baseGroups) {
+      for (const leaf of standalone) {
+        if (!result[leaf]) result[leaf] = [];
+      }
+    }
+    return Object.keys(result).length > 0 ? result : null;
   }
   const startText = {
     fi: {
@@ -764,7 +1055,8 @@ export default function CategoryDrawer({
       )}
 
       {/* Drawer */}
-      <aside className={`cd-drawer${isOpen ? " cd-drawer-open" : ""}`} aria-label="Kategoriaselain">
+      {isOpen && (
+      <aside className="cd-drawer cd-drawer-open" aria-label="Kategoriaselain">
 
         {/* Header */}
         <div className="cd-header">
@@ -773,16 +1065,28 @@ export default function CategoryDrawer({
             className="cd-filter-submit"
             onClick={apply}
             aria-label={t.cdShowResults}
+            title={t.cdShowResults}
           >
-            <span className="cd-logo"><Search size={18} /></span>
-            <span className="cd-title">{t.cdFilter}</span>
+            <Settings2 size={17} />
           </button>
+          {step > 0 && (
+            <button
+              type="button"
+              className="cd-back"
+              onClick={goBack}
+              aria-label="Takaisin"
+              title="Takaisin"
+            >
+              <ChevronLeft size={18} />
+            </button>
+          )}
           <button
             type="button"
             className="cd-close"
             onPointerDown={closeDrawer}
             onClick={closeDrawer}
             aria-label="Sulje"
+            title="Sulje"
           >
             <X size={18} />
           </button>
@@ -930,7 +1234,7 @@ export default function CategoryDrawer({
                       />
                       {model && <button className="cd-clear-x" onClick={() => setModel("")}>✕</button>}
                       {brand && vehicle && BRAND_MODELS[vehicle]?.[brand] && modelOpen && (
-                        <button className="cd-clear-x" style={{ color: "#3b82f6" }} onClick={() => setModelOpen(false)}>←</button>
+                        <button className="cd-clear-x" style={{ color: "#ff7a1a" }} onClick={() => setModelOpen(false)}>←</button>
                       )}
                     </div>
                   )}
@@ -938,16 +1242,16 @@ export default function CategoryDrawer({
                 <div className="cd-extra-row">
                   <div className="cd-extra-field">
                     <label className="cd-field-label">{t.year}</label>
-                    <div className="cd-search-row">
-                      <input
-                        className="cd-input"
-                        placeholder={t.yearPlaceholder}
-                        maxLength={4}
-                        value={year}
-                        onChange={e => setYear(e.target.value.replace(/\D/g, ""))}
-                      />
-                      {year && <button className="cd-clear-x" onClick={() => setYear("")}>✕</button>}
-                    </div>
+                    <select
+                      className="cd-cc-select"
+                      value={year}
+                      onChange={e => setYear(e.target.value)}
+                    >
+                      <option value="">{t.all}</option>
+                      {YEAR_OPTIONS.map((yearOption) => (
+                        <option key={yearOption} value={yearOption}>{yearOption}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
                 <div className="cd-extra-field" style={{ padding: "0 18px 12px" }}>
@@ -1011,7 +1315,7 @@ export default function CategoryDrawer({
               {Object.keys(cats).map(c => (
                 <li key={c}>
                   <button
-                    className={`cd-category-photo-card ${partPictureClass(c)}${cat === c ? " cd-category-photo-active" : ""}`}
+                    className={`cd-category-photo-card ${partPictureClass(c)} ${mainCategoryPhotoClass(c)}${cat === c ? " cd-category-photo-active" : ""}`}
                     onClick={() => {
                       setCat(c); setSub(""); setSubGroup("");
                       const groups = getFilteredSubcategoryGroups(c);
@@ -1046,12 +1350,9 @@ export default function CategoryDrawer({
                       </button>
                     ) : (
                       <button
-                        className={`cd-item cd-item-leaf${sub === group ? " cd-item-active" : ""}`}
-                        onClick={() => applyLeaf(group, "")}
+                        className={`cd-item cd-item-leaf cd-final-leaf-item${sub === group ? " cd-item-active" : ""}`}
+                        onClick={() => applyFinalCategory(group, "")}
                       >
-                        <span className="cd-icon-sm cd-thumb" aria-hidden="true">
-                          <PartPicture kind={getPartPictureKind(group, cat)} />
-                        </span>
                         <span className="cd-label">{translateCategory(locale, group)}</span>
                         {sub === group ? <Check size={15} className="cd-check" /> : <ChevronRight size={15} className="cd-arrow" />}
                       </button>
@@ -1064,19 +1365,16 @@ export default function CategoryDrawer({
 
           {/* Step 5: Leaf items under selected sub-group */}
           {step === 5 && cat && subGroup && (
-            <ul className="cd-list">
+            <ul className="cd-list cd-sub-group-list cd-final-leaf-list">
               {(currentSubcategoryGroups?.[subGroup] ?? subs).map(s => {
                 const translatedFull = translateCategory(locale, s);
                 const leafLabel = translatedFull.includes(" / ") ? translatedFull.split(" / ").slice(1).join(" / ") : translatedFull;
                 return (
                   <li key={s}>
                     <button
-                      className={`cd-item cd-item-leaf${sub === s ? " cd-item-active" : ""}`}
-                      onClick={() => applyLeaf(s)}
+                      className={`cd-item cd-item-leaf cd-final-leaf-item${sub === s ? " cd-item-active" : ""}`}
+                      onClick={() => applyFinalCategory(s)}
                     >
-                      <span className="cd-icon-sm cd-thumb" aria-hidden="true">
-                        <PartPicture kind={getPartPictureKind(s, subGroup, cat)} />
-                      </span>
                       <span className="cd-label">{leafLabel}</span>
                       {sub === s ? <Check size={15} className="cd-check" /> : <ChevronRight size={15} className="cd-arrow" />}
                     </button>
@@ -1088,16 +1386,13 @@ export default function CategoryDrawer({
 
           {/* Step 5 fallback: Flat subcategories (no groups) */}
           {step === 5 && cat && !subGroup && (
-            <ul className="cd-list">
+            <ul className="cd-list cd-sub-group-list cd-final-leaf-list">
               {subs.map(s => (
                 <li key={s}>
                   <button
-                    className={`cd-item cd-item-leaf${sub === s ? " cd-item-active" : ""}`}
-                    onClick={() => applyLeaf(s, "")}
+                    className={`cd-item cd-item-leaf cd-final-leaf-item${sub === s ? " cd-item-active" : ""}`}
+                    onClick={() => applyFinalCategory(s, "")}
                   >
-                    <span className="cd-icon-sm cd-thumb" aria-hidden="true">
-                      <PartPicture kind={getPartPictureKind(s, cat)} />
-                    </span>
                     <span className="cd-label">{translateCategory(locale, s)}</span>
                     {sub === s ? <Check size={15} className="cd-check" /> : <ChevronRight size={15} className="cd-arrow" />}
                   </button>
@@ -1108,6 +1403,7 @@ export default function CategoryDrawer({
         </div>
 
       </aside>
+      )}
 
       <style>{`
         .cd-backdrop {
@@ -1163,14 +1459,14 @@ export default function CategoryDrawer({
         .cd-crumb-sep { color: #cbd5e1; flex-shrink: 0; }
         .cd-crumb-btn {
           border: none; background: none; cursor: pointer; padding: 3px 6px;
-          border-radius: 6px; font-size: 12px; font-weight: 700; color: #3b82f6;
+          border-radius: 6px; font-size: 12px; font-weight: 700; color: #ff7a1a;
           transition: background .12s;
         }
-        .cd-crumb-btn:hover { background: #eff6ff; }
+        .cd-crumb-btn:hover { background: rgba(255, 122, 26, 0.14); }
         .cd-crumb-current { color: #0f172a; cursor: default; }
         .cd-crumb-current:hover { background: transparent; }
         .cd-crumb-item { display: inline-flex; align-items: center; gap: 1px;
-          background: #eff6ff; border-radius: 7px; padding: 0 2px 0 0; }
+          background: rgba(255, 122, 26, 0.14); border-radius: 7px; padding: 0 2px 0 0; }
         .cd-crumb-x {
           border: none; background: none; cursor: pointer; padding: 2px 4px;
           font-size: 10px; color: #94a3b8; line-height: 1; border-radius: 5px;
@@ -1186,7 +1482,7 @@ export default function CategoryDrawer({
           color: #1e293b; transition: background .15s;
         }
         .cd-item:hover { background: #f8fafc; }
-        .cd-item-active { background: #eff6ff; color: #1d4ed8; }
+        .cd-item-active { background: rgba(255, 122, 26, 0.14); color: #ff8a24; }
         .cd-icon {
           width: 36px; height: 36px; border-radius: 10px;
           background: #f1f5f9; display: grid; place-items: center;
@@ -1213,7 +1509,7 @@ export default function CategoryDrawer({
           font-size: 14px; font-weight: 700; display: flex; align-items: center;
           justify-content: center; gap: 6px;
         }
-        .cd-next-btn:hover { background: #1d4ed8; }
+        .cd-next-btn:hover { background: #ff8a24; }
         .cd-footer {
           display: flex; gap: 10px; padding: 14px 18px;
           border-top: 1px solid #e8edf5; background: #f8fafc;
@@ -1227,7 +1523,7 @@ export default function CategoryDrawer({
           flex: 2; padding: 11px; border-radius: 10px; border: none;
           background: #2563eb; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;
         }
-        .cd-apply:hover { background: #1d4ed8; }
+        .cd-apply:hover { background: #ff8a24; }
         .cd-step-hint {
           font-size: 11px; color: #94a3b8; padding: 10px 18px 4px;
           font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
@@ -1261,7 +1557,7 @@ export default function CategoryDrawer({
           border-radius: 10px; font-size: 13px; font-weight: 600;
           color: #0f172a; background: #fff; outline: none; cursor: pointer;
         }
-        .cd-cc-select:focus { border-color: #3b82f6; }
+        .cd-cc-select:focus { border-color: #ff7a1a; }
         .cd-model-chips {
           display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px;
         }
@@ -1270,8 +1566,8 @@ export default function CategoryDrawer({
           border: 1.5px solid #e2e8f0; background: #fff; color: #334155;
           cursor: pointer; transition: all .14s; white-space: nowrap;
         }
-        .cd-model-chip:hover { border-color: #93c5fd; color: #1d4ed8; background: #eff6ff; }
-        .cd-model-chip-active { border-color: #3b82f6 !important; background: #eff6ff !important; color: #1d4ed8 !important; }
+        .cd-model-chip:hover { border-color: #93c5fd; color: #ff8a24; background: rgba(255, 122, 26, 0.14); }
+        .cd-model-chip-active { border-color: #ff7a1a !important; background: rgba(255, 122, 26, 0.14) !important; color: #ff8a24 !important; }
         .cd-model-chip-muu { border-style: dashed; color: #64748b; }
         .cd-drawer {
           background:
@@ -1992,6 +2288,7 @@ export default function CategoryDrawer({
           --cd-category-photo: url("/category-sub/rengas.png");
         }
         .cd-category-photo-card.cd-thumb-steering,
+        .cd-category-photo-card.cd-thumb-controls,
         .cd-category-photo-card.cd-thumb-brake {
           --cd-category-photo: url("/category-main/ohjaus-hallintalaitteet.png");
         }
@@ -1999,9 +2296,11 @@ export default function CategoryDrawer({
         .cd-category-photo-card.cd-thumb-battery {
           --cd-category-photo: url("/category-main/sahkojarjestelmat.png");
         }
-        .cd-category-photo-card.cd-thumb-cooling,
+        .cd-category-photo-card.cd-thumb-cooling {
+          --cd-category-photo: url("/category-sub/jaahdytys.png");
+        }
         .cd-category-photo-card.cd-thumb-fuel {
-          --cd-category-photo: url("/category-main/jaahdytys-polttoaine.png");
+          --cd-category-photo: url("/category-sub/polttoaine.png");
         }
         .cd-category-photo-card.cd-thumb-exhaust {
           --cd-category-photo: url("/category-main/pakoputkisto.png");
@@ -2146,63 +2445,66 @@ export default function CategoryDrawer({
         .cd-sub-group-list .cd-category-photo-title {
           font-size: 19px !important;
         }
-        /* Sub-group image slots — put images in public/category-sub/ (.jpg or .png both work) */
+        /* Sub-group image slots — point each subgroup at its dedicated PNG. */
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-moottorit {
-          --cd-category-photo: url("/category-sub/moottorit.jpg"), url("/category-sub/moottorit.png");
+          --cd-category-photo: url("/category-sub/moottorit.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-kytkimet {
-          --cd-category-photo: url("/category-sub/kytkimet.jpg"), url("/category-sub/kytkimet.png");
+          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-variaattorit {
-          --cd-category-photo: url("/category-sub/variaattorit.jpg"), url("/category-sub/variaattorit.png");
+          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-voimansiirto {
-          --cd-category-photo: url("/category-sub/voimansiirto.jpg"), url("/category-sub/voimansiirto.png");
+          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-telasto {
-          --cd-category-photo: url("/category-sub/telasto.jpg"), url("/category-sub/telasto.png");
+          --cd-category-photo: url("/category-sub/telasto.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-alusta {
-          --cd-category-photo: url("/category-sub/alusta.jpg"), url("/category-sub/alusta.png");
+          --cd-category-photo: url("/category-sub/alusta.png") !important;
+        }
+        .cd-sub-group-list .cd-category-photo-card.cd-subgrp-renkaat-vanteet {
+          --cd-category-photo: url("/category-sub/rengas.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-tukivarret {
-          --cd-category-photo: url("/category-sub/tukivarret.jpg"), url("/category-sub/tukivarret.png");
+          --cd-category-photo: url("/category-sub/tukivarret.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-iskunvaimentimet {
-          --cd-category-photo: url("/category-sub/iskunvaimentimet.jpg"), url("/category-sub/iskunvaimentimet.png");
+          --cd-category-photo: url("/category-sub/iskunvaimentimet.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-ohjaus {
-          --cd-category-photo: url("/category-sub/ohjaus.jpg"), url("/category-sub/ohjaus.png");
+          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-hallintalaitteet {
-          --cd-category-photo: url("/category-sub/hallintalaitteet.jpg"), url("/category-sub/hallintalaitteet.png");
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-jarrut {
-          --cd-category-photo: url("/category-sub/jarrut.jpg"), url("/category-sub/jarrut.png");
+          --cd-category-photo: url("/category-sub/jarrut.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-sukset {
-          --cd-category-photo: url("/category-sub/sukset.jpg"), url("/category-sub/sukset.png");
+          --cd-category-photo: url("/category-sub/sukset.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-sahko {
-          --cd-category-photo: url("/category-sub/sahko.jpg"), url("/category-sub/sahko.png");
+          --cd-category-photo: url("/category-sub/sahko.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-sytytys {
-          --cd-category-photo: url("/category-sub/sytytys.jpg"), url("/category-sub/sytytys.png");
+          --cd-category-photo: url("/category-sub/sytytys.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-jaahdytys {
-          --cd-category-photo: url("/category-sub/jaahdytys.jpg"), url("/category-sub/jaahdytys.png");
+          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-polttoaine {
-          --cd-category-photo: url("/category-sub/polttoaine.jpg"), url("/category-sub/polttoaine.png");
+          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-pakoputkisto {
-          --cd-category-photo: url("/category-sub/pakoputkisto.jpg"), url("/category-sub/pakoputkisto.png");
+          --cd-category-photo: url("/category-sub/putkisto.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-runko {
-          --cd-category-photo: url("/category-sub/runko.jpg"), url("/category-sub/runko.png");
+          --cd-category-photo: url("/category-sub/runko.png") !important;
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-katteet {
-          --cd-category-photo: url("/category-sub/katteet.jpg"), url("/category-sub/katteet.png");
+          --cd-category-photo: url("/category-sub/katteet.png") !important;
         }
 
         /* Final category drawer cleanup: no grey slabs, and vehicle fields stay white. */
@@ -2334,6 +2636,691 @@ export default function CategoryDrawer({
             right: -18px !important;
             transform: scale(2.36) rotate(-5deg) !important;
           }
+        }
+
+        /* Final placement: keep the drawer below the app topbar and remove the stray filter pill. */
+        .cd-backdrop {
+          top: var(--topbar-h, 72px) !important;
+          z-index: 980 !important;
+        }
+
+        .cd-drawer {
+          top: var(--topbar-h, 72px) !important;
+          bottom: 0 !important;
+          height: calc(100dvh - var(--topbar-h, 72px)) !important;
+          z-index: 990 !important;
+          border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
+        }
+
+        .cd-header {
+          align-items: center !important;
+          background: transparent !important;
+          border: 0 !important;
+          display: flex !important;
+          gap: 8px !important;
+          justify-content: flex-start !important;
+          left: 16px !important;
+          min-height: 46px !important;
+          padding: 0 !important;
+          pointer-events: none !important;
+          position: absolute !important;
+          right: 16px !important;
+          top: 10px !important;
+          z-index: 3020 !important;
+        }
+
+        .cd-body {
+          inset: auto !important;
+          position: relative !important;
+          padding-top: 58px !important;
+          width: auto !important;
+        }
+
+        .cd-category-photo-list {
+          padding-top: 92px !important;
+        }
+
+        .cd-filter-submit {
+          align-items: center !important;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 100%) !important;
+          border: 1px solid rgba(255, 224, 194, 0.78) !important;
+          border-radius: 999px !important;
+          box-shadow: 0 12px 24px rgba(255, 107, 22, 0.24) !important;
+          color: #ffffff !important;
+          display: inline-flex !important;
+          flex: 0 0 34px !important;
+          height: 34px !important;
+          justify-content: center !important;
+          max-width: 34px !important;
+          min-height: 34px !important;
+          min-width: 34px !important;
+          padding: 0 !important;
+          pointer-events: auto !important;
+          margin-right: 4px !important;
+          width: 34px !important;
+        }
+
+        .cd-close {
+          align-items: center !important;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 100%) !important;
+          border: 1px solid rgba(255, 224, 194, 0.78) !important;
+          border-radius: 999px !important;
+          box-shadow: 0 12px 24px rgba(255, 107, 22, 0.22) !important;
+          color: #ffffff !important;
+          display: inline-flex !important;
+          flex: 0 0 34px !important;
+          height: 34px !important;
+          justify-content: center !important;
+          margin-left: auto !important;
+          max-width: 34px !important;
+          min-height: 34px !important;
+          min-width: 34px !important;
+          padding: 0 !important;
+          pointer-events: auto !important;
+          position: relative !important;
+          width: 34px !important;
+          z-index: 21 !important;
+        }
+
+        .cd-back {
+          align-items: center !important;
+          background: rgba(8, 22, 36, 0.78) !important;
+          border: 1px solid rgba(216, 226, 236, 0.32) !important;
+          border-radius: 999px !important;
+          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.32) !important;
+          color: #ffffff !important;
+          cursor: pointer !important;
+          display: inline-flex !important;
+          flex: 0 0 34px !important;
+          height: 34px !important;
+          justify-content: center !important;
+          max-width: 34px !important;
+          margin-right: 0 !important;
+          min-height: 34px !important;
+          min-width: 34px !important;
+          padding: 0 !important;
+          pointer-events: auto !important;
+          position: relative !important;
+          width: 34px !important;
+          z-index: 21 !important;
+          transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .cd-back:hover {
+          background: rgba(255, 122, 31, 0.92) !important;
+          border-color: rgba(255, 210, 168, 0.78) !important;
+        }
+
+        .cd-crumbs {
+          align-items: flex-start !important;
+          background: rgba(4, 16, 31, 0.9) !important;
+          border: 1px solid rgba(151, 178, 205, 0.18) !important;
+          border-radius: 12px !important;
+          box-shadow: none !important;
+          display: flex !important;
+          flex-wrap: wrap !important;
+          gap: 6px !important;
+          margin: 58px 12px 0 !important;
+          overflow: visible !important;
+          padding: 10px !important;
+          scrollbar-width: none !important;
+          position: relative !important;
+          z-index: 25 !important;
+          white-space: normal !important;
+        }
+
+        .cd-crumbs::-webkit-scrollbar {
+          display: none !important;
+        }
+
+        .cd-crumb-seg,
+        .cd-crumb-item {
+          align-items: center !important;
+          display: inline-flex !important;
+          flex: 0 0 auto !important;
+        }
+
+        .cd-crumb-item {
+          background: rgba(13, 31, 49, 0.96) !important;
+          border: 1px solid rgba(151, 178, 205, 0.28) !important;
+          border-radius: 10px !important;
+          gap: 2px !important;
+          min-height: 30px !important;
+          padding: 0 5px 0 9px !important;
+        }
+
+        .cd-crumb-btn {
+          background: transparent !important;
+          border: 0 !important;
+          color: rgba(226, 235, 244, 0.92) !important;
+          cursor: pointer !important;
+          font-size: 12px !important;
+          font-weight: 800 !important;
+          min-height: 0 !important;
+          padding: 0 !important;
+          white-space: nowrap !important;
+        }
+
+        .cd-crumb-btn:hover,
+        .cd-crumb-current:hover {
+          background: transparent !important;
+          color: #ffffff !important;
+        }
+
+        .cd-crumb-current {
+          color: #ffffff !important;
+        }
+
+        .cd-crumb-x {
+          align-items: center !important;
+          background: rgba(151, 178, 205, 0.13) !important;
+          border: 1px solid rgba(151, 178, 205, 0.28) !important;
+          border-radius: 999px !important;
+          color: rgba(226, 244, 255, 0.86) !important;
+          cursor: pointer !important;
+          display: inline-flex !important;
+          font-size: 11px !important;
+          font-weight: 900 !important;
+          height: 22px !important;
+          justify-content: center !important;
+          margin-left: 5px !important;
+          min-height: 22px !important;
+          padding: 0 !important;
+          width: 22px !important;
+        }
+
+        .cd-crumb-x:hover {
+          background: rgba(239, 68, 68, 0.9) !important;
+          border-color: rgba(255, 190, 190, 0.72) !important;
+          color: #ffffff !important;
+        }
+
+        .cd-crumb-sep {
+          color: rgba(151, 178, 205, 0.5) !important;
+          flex: 0 0 auto !important;
+          margin: 0 2px !important;
+        }
+
+        .cd-drawer:has(.cd-crumbs) .cd-body {
+          padding-top: 14px !important;
+        }
+
+        .cd-drawer:has(.cd-crumbs) .cd-category-photo-list {
+          padding-top: 18px !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-cylinder,
+        .cd-list .cd-category-photo-card.cd-thumb-head,
+        .cd-list .cd-category-photo-card.cd-thumb-piston,
+        .cd-list .cd-category-photo-card.cd-thumb-crank,
+        .cd-list .cd-category-photo-card.cd-thumb-block,
+        .cd-list .cd-category-photo-card.cd-thumb-bearing {
+          --cd-category-photo: url("/category-sub/moottorit.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-clutch {
+          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-variator {
+          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-belt {
+          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-track {
+          --cd-category-photo: url("/category-sub/telasto.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-wheel {
+          --cd-category-photo: url("/category-sub/rengas.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-suspension {
+          --cd-category-photo: url("/category-sub/alusta.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-steering {
+          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-controls {
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-brake {
+          --cd-category-photo: url("/category-sub/jarrut.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-ski {
+          --cd-category-photo: url("/category-sub/sukset.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-electric,
+        .cd-list .cd-category-photo-card.cd-thumb-battery {
+          --cd-category-photo: url("/category-sub/sahko.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-cooling {
+          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-fuel {
+          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-exhaust {
+          --cd-category-photo: url("/category-sub/putkisto.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-body,
+        .cd-list .cd-category-photo-card.cd-thumb-glass {
+          --cd-category-photo: url("/category-sub/katteet.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-thumb-frame,
+        .cd-list .cd-category-photo-card.cd-thumb-seat {
+          --cd-category-photo: url("/category-sub/runko.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-main-moottori-voimansiirto {
+          --cd-category-photo: url("/category-main/moottori-voimansiirto.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-main-alusta-telasto {
+          --cd-category-photo: url("/category-main/alusta-telasto.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-main-ohjaus-hallintalaitteet {
+          --cd-category-photo: url("/category-main/ohjaus-hallintalaitteet.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-main-sahkojarjestelmat {
+          --cd-category-photo: url("/category-main/sahkojarjestelmat.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-main-jaahdytys-polttoaine {
+          --cd-category-photo: url("/category-main/jaahdytys-polttoaine.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-main-pakoputkisto {
+          --cd-category-photo: url("/category-main/pakoputkisto.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card.cd-main-runko-katteet {
+          --cd-category-photo: url("/category-main/runko-katteet.png") !important;
+        }
+
+        .cd-list .cd-category-photo-card {
+          background:
+            linear-gradient(135deg, #223445 0%, #071827 100%) !important;
+          border-color: rgba(173, 186, 201, 0.28) !important;
+          color: #ffffff !important;
+        }
+
+        .cd-list .cd-category-photo-card::before {
+          background: var(--cd-category-photo) !important;
+          background-position: right center !important;
+          background-repeat: no-repeat !important;
+          background-size: cover !important;
+          content: "" !important;
+          display: block !important;
+          filter: brightness(1.42) contrast(1.08) saturate(1.06) !important;
+          inset: 0 !important;
+          opacity: 0.94 !important;
+          position: absolute !important;
+          transform: scale(1.025) !important;
+          z-index: 0 !important;
+        }
+
+        .cd-list .cd-category-photo-card::after {
+          background:
+            linear-gradient(90deg, rgba(2, 12, 26, 0.82) 0%, rgba(2, 12, 26, 0.42) 48%, rgba(2, 12, 26, 0.14) 100%),
+            linear-gradient(180deg, rgba(2, 12, 26, 0.02) 0%, rgba(2, 12, 26, 0.32) 100%) !important;
+          z-index: 1 !important;
+        }
+
+        .cd-list .cd-category-photo-card:hover,
+        .cd-list .cd-category-photo-card.cd-category-photo-active {
+          border-color: rgba(255, 164, 90, 0.9) !important;
+          color: #ffffff !important;
+        }
+
+        .cd-leaf-photo-list {
+          gap: 8px !important;
+          padding: 10px 12px 14px !important;
+        }
+
+        .cd-leaf-photo-list .cd-category-photo-card {
+          align-items: center !important;
+          background:
+            var(--cd-category-photo),
+            linear-gradient(180deg, rgba(12, 28, 44, 0.96), rgba(7, 18, 31, 0.98)) !important;
+          background-position: center !important;
+          background-size: cover !important;
+          border-color: rgba(151, 178, 205, 0.24) !important;
+          box-shadow: none !important;
+          min-height: 62px !important;
+          padding: 10px 14px !important;
+        }
+
+        .cd-leaf-photo-list .cd-category-photo-card::before {
+          background:
+            linear-gradient(90deg, rgba(2, 12, 26, 0.78), rgba(2, 12, 26, 0.18)),
+            var(--cd-category-photo) !important;
+          background-position: center !important;
+          background-size: cover !important;
+          content: "" !important;
+          display: block !important;
+          inset: 0 !important;
+          opacity: 0.86 !important;
+          position: absolute !important;
+          z-index: 0 !important;
+        }
+
+        .cd-leaf-photo-list .cd-category-photo-card::after {
+          background: linear-gradient(90deg, rgba(2, 12, 26, 0.82), rgba(2, 12, 26, 0.26)) !important;
+          z-index: 1 !important;
+        }
+
+        .cd-leaf-photo-list .cd-category-photo-title {
+          background: transparent !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          font-size: 15px !important;
+          line-height: 1.1 !important;
+          min-height: 0 !important;
+          padding: 0 !important;
+          position: relative !important;
+          z-index: 2 !important;
+        }
+
+        .cd-final-leaf-list {
+          display: grid !important;
+          gap: 8px !important;
+          padding: 10px 12px 14px !important;
+        }
+
+        .cd-final-leaf-item {
+          align-items: center !important;
+          background:
+            linear-gradient(180deg, rgba(8, 25, 41, 0.98), rgba(5, 17, 30, 0.98)) !important;
+          border: 1px solid rgba(151, 178, 205, 0.28) !important;
+          border-radius: 8px !important;
+          box-shadow: none !important;
+          display: grid !important;
+          grid-template-columns: minmax(0, 1fr) auto !important;
+          min-height: 43px !important;
+          padding: 0 14px !important;
+        }
+
+        .cd-final-leaf-item::before {
+          display: none !important;
+          content: none !important;
+        }
+
+        .cd-final-leaf-item .cd-label {
+          color: #ffffff !important;
+          font-size: 13px !important;
+          font-weight: 900 !important;
+          line-height: 1.15 !important;
+          min-width: 0 !important;
+          overflow-wrap: anywhere !important;
+        }
+
+        .cd-final-leaf-item .cd-arrow,
+        .cd-final-leaf-item .cd-check {
+          justify-self: end !important;
+          margin: 0 !important;
+        }
+
+        .cd-final-leaf-item:hover,
+        .cd-final-leaf-item.cd-item-active {
+          background:
+            linear-gradient(180deg, rgba(15, 35, 52, 0.98), rgba(8, 23, 37, 0.98)) !important;
+          border-color: rgba(255, 122, 24, 0.95) !important;
+        }
+
+        .cd-close {
+          align-items: center !important;
+          display: inline-flex !important;
+          justify-content: center !important;
+          margin-left: auto !important;
+          position: relative !important;
+          z-index: 5 !important;
+        }
+
+        body:has(.cd-drawer-open) .bottom-nav {
+          display: none !important;
+        }
+
+        body:has(.cd-drawer-open) .universal-app-topbar {
+          left: 0 !important;
+          opacity: 1 !important;
+          position: fixed !important;
+          right: 0 !important;
+          top: 0 !important;
+          transform: none !important;
+          visibility: visible !important;
+          width: 100% !important;
+          z-index: 1100 !important;
+        }
+
+        @media (max-width: 520px) {
+          .cd-backdrop {
+            top: 0 !important;
+            z-index: 3000 !important;
+          }
+
+          .cd-drawer {
+            border-top: 0 !important;
+            top: 0 !important;
+            height: 100dvh !important;
+            z-index: 3010 !important;
+          }
+
+          .cd-header {
+            padding-top: max(10px, env(safe-area-inset-top)) !important;
+            right: 14px !important;
+            top: max(10px, env(safe-area-inset-top)) !important;
+          }
+        }
+
+        @media (max-width: 720px) {
+          .cd-backdrop {
+            inset: 0 !important;
+            top: 0 !important;
+            z-index: 3000 !important;
+          }
+
+          .cd-drawer {
+            border-radius: 0 !important;
+            border-top: 0 !important;
+            inset: 0 !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            max-width: 100vw !important;
+            top: 0 !important;
+            width: 100vw !important;
+            z-index: 3010 !important;
+          }
+
+          .cd-body {
+            padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+            padding-top: calc(58px + env(safe-area-inset-top)) !important;
+          }
+
+          .cd-header {
+            align-items: center !important;
+            background: rgba(4, 16, 31, 0.78) !important;
+            border: 1px solid rgba(151, 178, 205, 0.18) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 14px 34px rgba(0, 8, 22, 0.26) !important;
+            display: flex !important;
+            gap: 8px !important;
+            left: 12px !important;
+            padding: 8px !important;
+            right: 12px !important;
+            top: max(8px, env(safe-area-inset-top)) !important;
+            width: auto !important;
+          }
+
+          .cd-header .cd-filter-submit,
+          .cd-header .cd-back,
+          .cd-header .cd-close {
+            flex: 0 0 34px !important;
+            height: 34px !important;
+            margin: 0 !important;
+            min-height: 34px !important;
+            min-width: 34px !important;
+            width: 34px !important;
+          }
+
+          .cd-header .cd-close {
+            margin-left: auto !important;
+          }
+
+          .cd-drawer .cd-crumbs {
+            margin-top: calc(66px + env(safe-area-inset-top)) !important;
+          }
+
+          .cd-drawer:has(.cd-crumbs) .cd-body {
+            padding-top: 8px !important;
+          }
+
+          body:has(.cd-drawer-open) .universal-app-topbar,
+          body:has(.cd-drawer-open) .heroWrap,
+          body:has(.cd-drawer-open) .topbar,
+          body:has(.cd-drawer-open) .bottom-nav,
+          body:has(.cd-drawer-open) .floating-chat,
+          body:has(.cd-drawer-open) .fc-button {
+            pointer-events: none !important;
+          }
+        }
+
+        /* Final exact image map: exact category wins over generic part-kind guesses. */
+        .cd-category-photo-card.cd-subgrp-moottorit {
+          --cd-category-photo: url("/category-sub/moottorit.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-kytkimet {
+          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-variaattorit {
+          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-voimansiirto {
+          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-telasto {
+          --cd-category-photo: url("/category-sub/telasto.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-alusta {
+          --cd-category-photo: url("/category-sub/alusta.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-renkaat-vanteet {
+          --cd-category-photo: url("/category-sub/rengas.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-tukivarret {
+          --cd-category-photo: url("/category-sub/tukivarret.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-iskunvaimentimet {
+          --cd-category-photo: url("/category-sub/iskunvaimentimet.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-ohjaus {
+          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-hallintalaitteet {
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-jarrut {
+          --cd-category-photo: url("/category-sub/jarrut.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-sukset {
+          --cd-category-photo: url("/category-sub/sukset.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-sahko {
+          --cd-category-photo: url("/category-sub/sahko.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-sytytys {
+          --cd-category-photo: url("/category-sub/sytytys.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-jaahdytys {
+          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-polttoaine {
+          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-pakoputkisto {
+          --cd-category-photo: url("/category-sub/putkisto.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-runko {
+          --cd-category-photo: url("/category-sub/runko.png") !important;
+        }
+        .cd-category-photo-card.cd-subgrp-katteet {
+          --cd-category-photo: url("/category-sub/katteet.png") !important;
+        }
+
+        /* Same image lock with stronger specificity for every drawer/page. */
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-moottorit {
+          --cd-category-photo: url("/category-sub/moottorit.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-kytkimet {
+          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-variaattorit {
+          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-voimansiirto {
+          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-telasto {
+          --cd-category-photo: url("/category-sub/telasto.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-alusta {
+          --cd-category-photo: url("/category-sub/alusta.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-renkaat-vanteet {
+          --cd-category-photo: url("/category-sub/rengas.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-tukivarret {
+          --cd-category-photo: url("/category-sub/tukivarret.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-iskunvaimentimet {
+          --cd-category-photo: url("/category-sub/iskunvaimentimet.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-ohjaus {
+          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-hallintalaitteet {
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-jarrut {
+          --cd-category-photo: url("/category-sub/jarrut.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-sukset {
+          --cd-category-photo: url("/category-sub/sukset.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-sahko {
+          --cd-category-photo: url("/category-sub/sahko.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-sytytys {
+          --cd-category-photo: url("/category-sub/sytytys.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-jaahdytys {
+          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-polttoaine {
+          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-pakoputkisto {
+          --cd-category-photo: url("/category-sub/putkisto.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-runko {
+          --cd-category-photo: url("/category-sub/runko.png") !important;
+        }
+        .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-katteet {
+          --cd-category-photo: url("/category-sub/katteet.png") !important;
         }
       `}</style>
     </>

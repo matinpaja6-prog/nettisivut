@@ -6,6 +6,7 @@ import {
   Suspense,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from "react";
 
@@ -20,11 +21,9 @@ import {
   ChevronUp,
   ImagePlus,
   LockKeyhole,
-  Package,
   Phone,
   Plus,
   UserRound,
-  Wrench,
   X
 } from "lucide-react";
 
@@ -49,16 +48,18 @@ import {
   LISTING_SLOT_STORAGE_EVENT,
   getListingSlotLimit
 } from "@/lib/listing-slots";
+import { FEATURE_FLAGS } from "@/lib/feature-flags";
 
 import {
-  buildVehicleCategories,
-  categories,
   conditions,
   displayCategoryForVehicle,
-  isVehiclePartAllowed,
-  subcategoryGroups
 } from "@/lib/listings";
 import { translateCategory, useLanguage } from "@/lib/i18n";
+import {
+  buildSubcategoryGroupsForVehicle,
+  buildVehicleCategoriesFromTaxonomy
+} from "@/lib/taxonomy";
+import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 
 /* =========================
    FORM DEFAULT
@@ -121,7 +122,21 @@ const categoryMainVisuals: Record<string, string> = {
   "Sähköjärjestelmät": "/category-main/sahkojarjestelmat.png",
   "Jäähdytys & polttoaine": "/category-main/jaahdytys-polttoaine.png",
   "Pakoputkisto": "/category-main/pakoputkisto.png",
-  "Runko & katteet": "/category-main/runko-katteet.png"
+  "Runko & katteet": "/category-main/runko-katteet.png",
+  "Runko & kw": "/category-sub/runko.png"
+};
+
+const categoryCardVisuals: Record<string, string> = {
+  "Moottori & voimansiirto": "/category-sub/moottorit.png",
+  "Alusta & telasto": "/category-sub/alusta.png",
+  "Renkaat & vanteet": "/category-sub/rengas.png",
+  "Renkaat, vanteet & alusta": "/category-sub/rengas.png",
+  "Ohjaus & hallintalaitteet": "/category-sub/ohjaus.png",
+  "Sähköjärjestelmät": "/category-sub/sahko.png",
+  "Jäähdytys & polttoaine": "/category-sub/jaahdytys.png",
+  Pakoputkisto: "/category-sub/putkisto.png",
+  "Runko & katteet": "/category-sub/runko.png",
+  "Runko & kw": "/category-sub/runko.png"
 };
 
 const subCategoryVisuals: Record<string, string> = {
@@ -132,7 +147,7 @@ const subCategoryVisuals: Record<string, string> = {
   "Variaattorin hihnat": "/category-sub/voimansiirto.png",
   Ketjukotelot: "/category-sub/voimansiirto.png",
   "Ketjut & hihnat": "/category-sub/voimansiirto.png",
-  "Alusta & telasto": "/category-main/alusta-telasto.png",
+  "Alusta & telasto": "/category-sub/alusta.png",
   Alusta: "/category-sub/alusta.png",
   Telasto: "/category-sub/telasto.png",
   Tukivarret: "/category-sub/tukivarret.png",
@@ -150,29 +165,34 @@ const subCategoryVisuals: Record<string, string> = {
   Hallintalaitteet: "/category-sub/Hallintalaitteet.png",
   "Kaasukahvat": "/category-sub/Hallintalaitteet.png",
   "Kaasuvaijerit": "/category-sub/Hallintalaitteet.png",
-  Sähköjärjestelmät: "/category-main/sahkojarjestelmat.png",
+  Sähköjärjestelmät: "/category-sub/sahko.png",
   "Sähkö": "/category-sub/sahko.png",
   Sytytys: "/category-sub/sytytys.png",
-  Valot: "/category-sub/sähko.png",
-  Anturit: "/category-sub/sähko.png",
-  "Jäähdytys & polttoaine": "/category-main/jaahdytys-polttoaine.png",
+  Valot: "/category-sub/sahko.png",
+  Anturit: "/category-sub/sahko.png",
+  "Jäähdytys & polttoaine": "/category-sub/jaahdytys.png",
   Jäähdytys: "/category-sub/jaahdytys.png",
   Jäähdyttimet: "/category-sub/jaahdytys.png",
   Polttoainejärjestelmä: "/category-sub/polttoaine.png",
   Polttoainepumput: "/category-sub/polttoaine.png",
   Kaasuttimet: "/category-sub/polttoaine.png",
-  "Pakoputkisto": "/category-main/pakoputkisto.png",
-  "Runko & katteet": "/category-main/runko-katteet.png",
+  "Pakoputkisto": "/category-sub/putkisto.png",
+  "Runko & katteet": "/category-sub/runko.png",
+  "Runko & kw": "/category-sub/runko.png",
   Runko: "/category-sub/runko.png",
   Katteet: "/category-sub/katteet.png",
   "Kokonainen katesarja": "/category-sub/katteet.png",
   "Kuomut & konepellit": "/category-sub/katteet.png",
   Sivukatteet: "/category-sub/katteet.png",
-  Etupuskurit: "/category-main/runko-katteet.png",
-  Takapuskurit: "/category-main/runko-katteet.png",
-  "Istuimet & penkit": "/category-main/runko-katteet.png",
+  Etupuskurit: "/category-sub/runko.png",
+  Takapuskurit: "/category-sub/runko.png",
+  "Istuimet & penkit": "/category-sub/runko.png",
   Tuulilasit: "/category-sub/katteet.png"
 };
+
+function getCategoryCardVisual(category: string) {
+  return categoryCardVisuals[category] || subCategoryVisuals[category] || categoryMainVisuals[category] || "/parts-blue-bg.svg";
+}
 
 const vehicleBrands: Record<string, string[]> = {
   Moottorikelkka: ["Lynx", "Ski-Doo", "Polaris", "Arctic Cat", "Yamaha"],
@@ -624,15 +644,6 @@ const brandEngineModels: Record<string, Record<string, string[]>> = {
   }
 };
 
-const vehicleTypeCategories: Record<string, Record<string, string[]>> = {
-  Moottorikelkka: Object.fromEntries(
-    Object.entries(categories).filter(([key]) => key !== "Kaikki")
-  ) as unknown as Record<string, string[]>,
-  Mönkijä: buildVehicleCategories("Mönkijä") as Record<string, string[]>,
-  Motocross: buildVehicleCategories("Motocross") as Record<string, string[]>,
-  Mopo: buildVehicleCategories("Mopo") as Record<string, string[]>
-};
-
 /* =========================
    HELPERS
 ========================= */
@@ -666,6 +677,38 @@ function getErrorMessage(error: unknown) {
 
 }
 
+const LISTING_CREATE_TIMEOUT_MS = 25000;
+
+type CreateListingPayload = Parameters<typeof createListing>[0];
+type CreateListingResult = Awaited<ReturnType<typeof createListing>>;
+
+async function createListingWithTimeout(
+  listing: CreateListingPayload,
+  timeoutMs = LISTING_CREATE_TIMEOUT_MS
+): Promise<CreateListingResult> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  const timeoutResult = new Promise<CreateListingResult>((resolve) => {
+    timeoutId = setTimeout(() => {
+      resolve({
+        data: null,
+        error: new Error(
+          "Julkaisu aikakatkaistiin. Tarkista omista ilmoituksista, tallentuiko ilmoitus, ja yritä tarvittaessa uudelleen."
+        )
+      });
+    }, timeoutMs);
+  });
+
+  try {
+    return await Promise.race([
+      createListing(listing),
+      timeoutResult
+    ]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+}
+
 /* =========================
    PAGE
 ========================= */
@@ -683,6 +726,42 @@ function SellPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // ===== Dynamic taxonomy from admin (overrides hardcoded constants) =====
+  const taxonomy = useTaxonomy();
+  const vehicleOptions = useMemo(
+    () => taxonomy.vehicles.map((v) => v.key),
+    [taxonomy]
+  );
+  const vehicleCardData: Record<string, { desc: string; img: string }> = useMemo(() => {
+    const out: Record<string, { desc: string; img: string }> = {};
+    for (const v of taxonomy.vehicles) {
+      out[v.key] = {
+        desc: v.desc || "",
+        img: v.image || "/vehicles/all.png"
+      };
+    }
+    return out;
+  }, [taxonomy]);
+  const vehicleBrands: Record<string, string[]> = useMemo(() => {
+    const out: Record<string, string[]> = {};
+    for (const v of taxonomy.vehicles) out[v.key] = [...v.brands];
+    return out;
+  }, [taxonomy]);
+  const vehicleTypeCategories: Record<string, Record<string, string[]>> = useMemo(() => {
+    const out: Record<string, Record<string, string[]>> = {};
+    for (const v of taxonomy.vehicles) {
+      out[v.key] = buildVehicleCategoriesFromTaxonomy(taxonomy, v.key);
+    }
+    return out;
+  }, [taxonomy]);
+  const vehicleSubcategoryGroups: Record<string, Record<string, Record<string, string[]>>> = useMemo(() => {
+    const out: Record<string, Record<string, Record<string, string[]>>> = {};
+    for (const v of taxonomy.vehicles) {
+      out[v.key] = buildSubcategoryGroupsForVehicle(taxonomy, v.key);
+    }
+    return out;
+  }, [taxonomy]);
+
   const [user, setUser] =
     useState<User | null>(null);
 
@@ -693,15 +772,19 @@ function SellPageContent() {
     useState(emptyListing);
 
   const [listingMode, setListingMode] =
-    useState<"" | "single" | "multiple">("single");
+    useState<"" | "single" | "multiple">("");
 
   const [selectedParts, setSelectedParts] =
     useState<string[]>([]);
 
-  const [activePresetMap, setActivePresetMap] =
-    useState<Record<string, boolean>>({});
+  const [customPartName, setCustomPartName] =
+    useState("");
+
+  const [selectedPresetIds, setSelectedPresetIds] =
+    useState<string[]>([]);
 
   const [selectedSubGroup, setSelectedSubGroup] = useState("");
+  const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
 
   const [partPrices, setPartPrices] =
     useState<Record<string, string>>({});
@@ -726,9 +809,6 @@ function SellPageContent() {
 
   const [expandedPartGroups, setExpandedPartGroups] =
     useState<Record<string, boolean>>({});
-
-  const [customPart, setCustomPart] =
-    useState("");
 
   const [images, setImages] =
     useState<string[]>([]);
@@ -822,20 +902,6 @@ function SellPageContent() {
 
   const DRAFT_KEY = "sell_draft_v1";
 
-  function resetPartSelection() {
-    setSelectedSubGroup("");
-    setSelectedParts([]);
-    setActivePresetMap({});
-    setPartPrices({});
-    setPartImages({});
-    setPartTitles({});
-    setPartDescriptions({});
-    setPartNumbers({});
-    setPartConditions({});
-    setExpandedParts({});
-    setExpandedPartGroups({});
-  }
-
   useEffect(() => {
     if (hasUrlParams) return;
     try {
@@ -851,19 +917,27 @@ function SellPageContent() {
             subcategory: ""
           });
         }
-        if (d.listingMode) setListingMode(d.listingMode);
         if (d.images) setImages(d.images);
       }
-      resetPartSelection();
+      setSelectedSubGroup("");
+      setSelectedParts([]);
+      setSelectedPresetIds([]);
+      setPartPrices({});
+      setPartImages({});
+      setPartTitles({});
+      setPartDescriptions({});
+      setPartNumbers({});
+      setPartConditions({});
+      setExpandedParts({});
+      setExpandedPartGroups({});
     } catch {}
-  }, [hasUrlParams]);
+  }, []);
 
   useEffect(() => {
     const draft = {
       form,
       listingMode,
       selectedParts,
-      activePresetIds: Object.keys(activePresetMap).filter((id) => activePresetMap[id]),
       partPrices,
       partTitles,
       partDescriptions,
@@ -876,13 +950,11 @@ function SellPageContent() {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     } catch {
       try {
-        const { images, partImages, ...withoutImages } = draft;
-        void images;
-        void partImages;
+        const { images: _i, partImages: _pi, ...withoutImages } = draft;
         localStorage.setItem(DRAFT_KEY, JSON.stringify(withoutImages));
       } catch {}
     }
-  }, [form, listingMode, selectedParts, activePresetMap, partPrices, partTitles, partDescriptions, partNumbers, partConditions, images, partImages]);
+  }, [form, listingMode, selectedParts, partPrices, partTitles, partDescriptions, partNumbers, partConditions, images, partImages]);
 
   const currentCategories =
     vehicleTypeCategories[form.vehicleType] ?? vehicleTypeCategories.Moottorikelkka;
@@ -896,31 +968,10 @@ function SellPageContent() {
     );
   }
 
-  function renderPartOptionLabel(label: string) {
-    const translated = translateCategory(locale, label);
-    const splitLabels: Record<string, string[]> = {
-      "Kokonainen jäähdytysjärjestelmä": ["Kokonainen jäähdytys", "järjestelmä"],
-      "Kokonainen polttoainejärjestelmä": ["Kokonainen polttoaine", "järjestelmä"],
-      "Polttoainesäiliöt & tankit": ["Polttoainesäiliöt", "& tankit"],
-      "Ruiskutusjärjestelmät": ["Ruiskutus", "järjestelmät"]
-    };
-    const lines = splitLabels[translated];
-
-    if (!lines) return translated;
-
-    return (
-      <span className="sell-subcategory-label-stack">
-        {lines.map((line) => (
-          <span key={line} className="sell-subcategory-label-line">
-            {line}
-          </span>
-        ))}
-      </span>
-    );
-  }
-
   const subcategories =
     currentCategories[form.category] || [];
+
+  const subcategoryGroups = vehicleSubcategoryGroups[form.vehicleType] ?? {};
 
   const currentSubcategoryGroups =
     form.category && subcategoryGroups[form.category]
@@ -946,15 +997,13 @@ function SellPageContent() {
         )
       : null;
 
-  const directSubcategoryGroup =
-    form.category &&
-    currentSubcategoryGroups &&
-    Object.keys(currentSubcategoryGroups).length === 1 &&
-    currentSubcategoryGroups[form.category]?.length > 0
-      ? form.category
-      : "";
-
-  const activeSubcategoryGroup = selectedSubGroup || directSubcategoryGroup;
+  const currentSubcategoryEntries = currentSubcategoryGroups
+    ? Object.entries(currentSubcategoryGroups)
+    : [];
+  const skipsSinglePassthroughGroup =
+    currentSubcategoryEntries.length === 1 &&
+    currentSubcategoryEntries[0][0] === form.category &&
+    currentSubcategoryEntries[0][1].length > 0;
 
   function getSubCategoryVisual(name: string) {
     const leafName = name.includes(" / ") ? name.split(" / ").pop() || name : name;
@@ -973,6 +1022,71 @@ function SellPageContent() {
   const modelOptions =
     Object.keys(brandModelEngineMap[form.vehicleType]?.[form.brand] ?? {});
 
+  function chooseBrand(value: string) {
+    setForm({
+      ...form,
+      brand: value,
+      brandOther: "",
+      model: "",
+      modelOther: "",
+      engineCc: "",
+      engineCcOther: "",
+      engineModel: "",
+      engineModelOther: ""
+    });
+    setBrandPickerOpen(false);
+    setModelPickerOpen(false);
+    if (value && value !== "muu") {
+      window.setTimeout(() => {
+        document.getElementById("sell-field-model")?.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
+        setModelPickerOpen(true);
+      }, 160);
+    }
+  }
+
+  function chooseModel(value: string) {
+    const eng = brandModelEngineMap[form.vehicleType]?.[form.brand]?.[value];
+    setForm({
+      ...form,
+      model: value,
+      modelOther: "",
+      engineCc: eng ? eng.engineCc : "",
+      engineCcOther: "",
+      engineModel: eng ? eng.engineModel : "",
+      engineModelOther: ""
+    });
+    setModelPickerOpen(false);
+    if (value && value !== "muu") {
+      setTimeout(() => {
+        document.getElementById("sell-field-year")?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest"
+        });
+      }, 80);
+    }
+  }
+
+  function chooseEngineCc(value: string) {
+    setForm({
+      ...form,
+      engineCc: value,
+      engineCcOther: ""
+    });
+    setEngineCcPickerOpen(false);
+  }
+
+  function chooseEngineModel(value: string) {
+    setForm({
+      ...form,
+      engineModel: value,
+      engineModelOther: ""
+    });
+    setEngineModelPickerOpen(false);
+  }
+
   const resolvedModel =
     form.model === "muu" ? (form.modelOther || "").trim() : form.model;
 
@@ -984,6 +1098,58 @@ function SellPageContent() {
     return part.split(" / ").filter(Boolean)[0] || "Muut tuotteet";
   }
 
+  function displayPart(part: string) {
+    const segments = part.split(" / ").filter(Boolean);
+
+    if (segments.length === 0) return part;
+    if (segments.length === 1) return translateCategory(locale, segments[0]);
+
+    return segments.map((s) => translateCategory(locale, s)).join(" / ");
+  }
+
+  function getPartDisplayGroup(category: string, subcategoryPath: string) {
+    const first = subcategoryPath.split(" / ").filter(Boolean)[0] || category;
+
+    if (category === "Ohjaus & hallintalaitteet") {
+      if (first === "Ohjaus" || first === "Kokonainen ohjaus" || first === "Ohjaustangot" || first === "Käsisuojat" || first === "Tangon korokepalat" || first === "Sukset") {
+        return "Ohjaus";
+      }
+      return "Hallintalaitteet";
+    }
+
+    if (category === "Jäähdytys & polttoaine") {
+      if (first === "Kokonainen jäähdytysjärjestelmä" || first === "Jäähdyttimet" || first === "Vesipumput" || first === "Letkut") {
+        return "Jäähdytys";
+      }
+      return "Polttoaine";
+    }
+
+    if (category === "Runko & katteet") {
+      if (first === "Kokonainen runko" || first === "Tunnelit") {
+        return "Runko";
+      }
+      return "Katteet";
+    }
+
+    if (category === "Alusta & telasto") {
+      if (first === "Kokonainen telasto" || first === "Telasto" || first === "Telamatot") {
+        return "Telasto";
+      }
+      return "Alusta";
+    }
+
+    if (category === "Moottori & voimansiirto") {
+      if (first === "Variaattorit") {
+        return "Variaattorit";
+      }
+      if (first === "Variaattorin hihnat" || first === "Kokonainen voimansiirto" || first === "Ketjukotelot" || first === "Ketjut & hihnat") {
+        return "Voimansiirto";
+      }
+    }
+
+    return category;
+  }
+
   function togglePart(part: string) {
     setSelectedParts((prev) => {
       const existingPart = prev.find((item) => item.toLowerCase() === part.toLowerCase());
@@ -993,29 +1159,54 @@ function SellPageContent() {
         setPartImages((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setPartTitles((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setPartDescriptions((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
-        setPartNumbers((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setPartConditions((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         setExpandedParts((p) => { const n = { ...p }; delete n[partToRemove]; return n; });
         return prev.filter((item) => item.toLowerCase() !== part.toLowerCase());
       }
-      setExpandedParts((p) => ({ ...p, [part]: false }));
+      setExpandedParts((p) => ({ ...p, [part]: true }));
+      setExpandedPartGroups((p) => ({ ...p, [partGroupKey(part)]: true }));
       return [...prev, part];
     });
   }
 
-  function addCustomPart() {
-    const value = customPart.trim();
+  function removePartGroup(parts: string[]) {
+    const removedLower = new Set(parts.map((part) => part.toLowerCase()));
+    const cleanRecord = <T,>(record: Record<string, T>) =>
+      Object.fromEntries(
+        Object.entries(record).filter(([key]) => !removedLower.has(key.toLowerCase()))
+      ) as Record<string, T>;
 
-    if (!value) return;
-
-    const key = partKey(form.category, value);
-
-    setSelectedParts((prev) => {
-      if (prev.some((item) => item.toLowerCase() === key.toLowerCase())) return prev;
-      setExpandedParts((p) => ({ ...p, [key]: false }));
-      return [...prev, key];
+    setSelectedParts((prev) =>
+      prev.filter((part) => !removedLower.has(part.toLowerCase()))
+    );
+    setPartPrices((current) => cleanRecord(current));
+    setPartImages((current) => cleanRecord(current));
+    setPartTitles((current) => cleanRecord(current));
+    setPartDescriptions((current) => cleanRecord(current));
+    setPartNumbers((current) => cleanRecord(current));
+    setPartConditions((current) => cleanRecord(current));
+    setExpandedParts((current) => cleanRecord(current));
+    setExpandedPartGroups((current) => {
+      const next = { ...current };
+      parts.forEach((part) => {
+        delete next[partGroupKey(part)];
+      });
+      return next;
     });
-    setCustomPart("");
+  }
+
+  function addCustomPart() {
+    const name = customPartName.trim();
+    if (!name) return;
+    const category = form.category || "Oma tuote";
+    const customPart = `${category} / ${name}`;
+    const exists = selectedParts.some((part) => part.toLowerCase() === customPart.toLowerCase());
+    if (!exists) {
+      setSelectedParts((prev) => [...prev, customPart]);
+      setExpandedParts((prev) => ({ ...prev, [customPart]: true }));
+      setExpandedPartGroups((prev) => ({ ...prev, [partGroupKey(customPart)]: true }));
+    }
+    setCustomPartName("");
   }
 
   type Preset = { id: string; emoji: string; label: string; desc: string; parts: string[] };
@@ -1053,7 +1244,7 @@ function SellPageContent() {
           "Moottori & voimansiirto / Kytkimet / Jouset",
           "Moottori & voimansiirto / Kytkimet / Painovarret"
         ] },
-      { id: "variator", emoji: "⚙️", label: "Variaattori-setti", desc: "Kokonainen variaattori, hihnat, ketjukotelo",
+      { id: "variator", emoji: "⚙️", label: "Voimansiirto", desc: "Variaattorit, hihnat, ketjukotelo",
         parts: [
           "Moottori & voimansiirto / Variaattorit / Kokonainen variaattori",
           "Moottori & voimansiirto / Variaattorit / Variaattori kitit",
@@ -1170,7 +1361,7 @@ function SellPageContent() {
           "Moottori & voimansiirto / Kytkimet / Jouset",
           "Moottori & voimansiirto / Kytkimet / Painovarret"
         ] },
-      { id: "variator", emoji: "⚙️", label: "Variaattori-setti", desc: "Kokonainen variaattori, hihnat, voimansiirto",
+      { id: "variator", emoji: "⚙️", label: "Voimansiirto", desc: "Variaattorit, hihnat, voimansiirto",
         parts: [
           "Moottori & voimansiirto / Variaattorit / Kokonainen variaattori",
           "Moottori & voimansiirto / Variaattorit / Variaattori kitit",
@@ -1180,7 +1371,7 @@ function SellPageContent() {
           "Moottori & voimansiirto / Ketjukotelot",
           "Moottori & voimansiirto / Ketjut & hihnat"
         ] },
-      { id: "chassis", emoji: "🛞", label: "Alusta & tukivarret", desc: "Kokonainen alusta, tukivarret, olka- ja vetoakselit",
+      { id: "chassis", emoji: "🛞", label: "Alusta & telasto", desc: "Alusta, telasto, tukivarret ja akselit",
         parts: [
           "Alusta & telasto / Kokonainen telasto",
           "Alusta & telasto / Telasto / Etupukit",
@@ -1208,7 +1399,7 @@ function SellPageContent() {
           "Alusta & telasto / Iskunvaimentimet / Takaiskunvaimentimet",
           "Alusta & telasto / Jouset"
         ] },
-      { id: "controls", emoji: "🕹️", label: "Ohjaus & jarrut", desc: "Kokonainen ohjaus, tangot, kaasu, jarrut",
+      { id: "controls", emoji: "🕹️", label: "Ohjaus & hallintalaitteet", desc: "Ohjaus, hallintalaitteet ja jarrut",
         parts: [
           "Ohjaus & hallintalaitteet / Kokonainen ohjaus",
           "Ohjaus & hallintalaitteet / Ohjaustangot",
@@ -1300,7 +1491,7 @@ function SellPageContent() {
           "Alusta & telasto / Iskunvaimentimet / Takaiskunvaimentimet",
           "Alusta & telasto / Jouset"
         ] },
-      { id: "chassis", emoji: "🛞", label: "Renkaat, vanteet & alusta", desc: "Renkaat, vanteet, alusta ja akselit",
+      { id: "chassis", emoji: "🛞", label: "Alusta & telasto", desc: "Alusta, telasto, renkaat ja akselit",
         parts: [
           "Alusta & telasto / Kokonainen alusta",
           "Alusta & telasto / Renkaat & vanteet / Renkaat",
@@ -1315,7 +1506,7 @@ function SellPageContent() {
           "Alusta & telasto / Olka-akselit",
           "Alusta & telasto / Vetoakselit"
         ] },
-      { id: "controls", emoji: "🕹️", label: "Ohjaus & jarrut", desc: "Kokonainen ohjaus, tangot, kaasu, jarrut",
+      { id: "controls", emoji: "🕹️", label: "Ohjaus & hallintalaitteet", desc: "Ohjaus, hallintalaitteet ja jarrut",
         parts: [
           "Ohjaus & hallintalaitteet / Kokonainen ohjaus",
           "Ohjaus & hallintalaitteet / Ohjaustangot",
@@ -1346,7 +1537,7 @@ function SellPageContent() {
           "Sähköjärjestelmät / Mittaristot",
           "Sähköjärjestelmät / Kytkimet & katkaisijat"
         ] },
-      { id: "fuel", emoji: "⛽", label: "Polttoaine & jäähdytys", desc: "Kaasuttimet, jäähdyttimet, pumput",
+      { id: "fuel", emoji: "⛽", label: "Jäähdytys & polttoaine", desc: "Jäähdyttimet, kaasuttimet ja pumput",
         parts: [
           "Jäähdytys & polttoaine / Kokonainen jäähdytysjärjestelmä",
           "Jäähdytys & polttoaine / Kokonainen polttoainejärjestelmä",
@@ -1392,7 +1583,7 @@ function SellPageContent() {
           "Moottori & voimansiirto / Kytkimet / Jouset",
           "Moottori & voimansiirto / Kytkimet / Painovarret"
         ] },
-      { id: "variator", emoji: "⚙️", label: "Variaattori-setti", desc: "Kokonainen variaattori, hihnat, voimansiirto",
+      { id: "variator", emoji: "⚙️", label: "Voimansiirto", desc: "Variaattorit, hihnat, voimansiirto",
         parts: [
           "Moottori & voimansiirto / Variaattorit / Kokonainen variaattori",
           "Moottori & voimansiirto / Variaattorit / Variaattori kitit",
@@ -1409,7 +1600,7 @@ function SellPageContent() {
           "Alusta & telasto / Iskunvaimentimet / Takaiskunvaimentimet",
           "Alusta & telasto / Jouset"
         ] },
-      { id: "chassis", emoji: "🛞", label: "Renkaat, vanteet & alusta", desc: "Renkaat, vanteet, alusta ja akselit",
+      { id: "chassis", emoji: "🛞", label: "Alusta & telasto", desc: "Alusta, telasto, renkaat ja akselit",
         parts: [
           "Alusta & telasto / Kokonainen alusta",
           "Alusta & telasto / Renkaat & vanteet / Renkaat",
@@ -1421,7 +1612,7 @@ function SellPageContent() {
           "Alusta & telasto / Vetoakselit",
           "Alusta & telasto / Jouset"
         ] },
-      { id: "controls", emoji: "🕹️", label: "Ohjaus & jarrut", desc: "Kokonainen ohjaus, tangot, kaasu, jarrut",
+      { id: "controls", emoji: "🕹️", label: "Ohjaus & hallintalaitteet", desc: "Ohjaus, hallintalaitteet ja jarrut",
         parts: [
           "Ohjaus & hallintalaitteet / Kokonainen ohjaus",
           "Ohjaus & hallintalaitteet / Ohjaustangot",
@@ -1452,7 +1643,7 @@ function SellPageContent() {
           "Sähköjärjestelmät / Mittaristot",
           "Sähköjärjestelmät / Kytkimet & katkaisijat"
         ] },
-      { id: "fuel", emoji: "⛽", label: "Polttoaine & kaasuttimet", desc: "Kaasuttimet, polttoainejärjestelmä, jäähdytys",
+      { id: "fuel", emoji: "⛽", label: "Jäähdytys & polttoaine", desc: "Jäähdyttimet, kaasuttimet ja pumput",
         parts: [
           "Jäähdytys & polttoaine / Kokonainen polttoainejärjestelmä",
           "Jäähdytys & polttoaine / Kokonainen jäähdytysjärjestelmä",
@@ -1493,16 +1684,44 @@ function SellPageContent() {
       (
         currentCategories[category]?.includes(subcategory) ||
         Boolean(subcategoryGroups[category]?.[subcategory])
-      ) &&
-      isVehiclePartAllowed(vehicleType, category, subcategory)
+      )
     );
   }
 
   const basePartPresets =
     partPresetsByVehicle[form.vehicleType] ?? partPresetsByVehicle.Moottorikelkka;
 
+  const clutchPreset: Preset = {
+    id: "clutch",
+    emoji: "⚙️",
+    label: "Kytkinpaketti",
+    desc: "Kytkin, kytkin kitit, jouset ja painovarret",
+    parts: [
+      "Moottori & voimansiirto / Kytkimet / Kokonainen kytkin",
+      "Moottori & voimansiirto / Kytkimet / Kytkin kitit",
+      "Moottori & voimansiirto / Kytkimet / Jouset",
+      "Moottori & voimansiirto / Kytkimet / Painovarret"
+    ]
+  };
+
+  const cleanedBasePartPresets = basePartPresets.flatMap((preset) => {
+    if (preset.id !== "engine") return [preset];
+
+    const engineOnlyPreset = {
+      ...preset,
+      desc: "Moottorin runko ja sisäosat ilman kytkintä",
+      parts: preset.parts.filter((part) => !part.includes(" / Kytkimet / "))
+    };
+
+    if (basePartPresets.some((item) => item.id === clutchPreset.id)) {
+      return [engineOnlyPreset];
+    }
+
+    return [engineOnlyPreset, clutchPreset];
+  });
+
   const partPresets: Preset[] =
-    basePartPresets
+    cleanedBasePartPresets
       .map((preset) =>
         ({
           ...preset,
@@ -1513,97 +1732,258 @@ function SellPageContent() {
       )
       .filter((preset) => preset.parts.length > 0);
 
-  const effectiveSelectedParts = useMemo(() => {
-    const parts = new Map<string, string>();
+  useEffect(() => {
+    setSelectedPresetIds((current) => {
+      const selectedPartKeys = new Set(selectedParts.map((part) => part.toLowerCase()));
+      const next = current.filter((id) => {
+        const preset = partPresets.find((item) => item.id === id);
+        return Boolean(
+          preset &&
+          preset.parts.length > 0 &&
+          preset.parts.every((part) => selectedPartKeys.has(part.toLowerCase()))
+        );
+      });
 
-    selectedParts.forEach((part) => {
-      parts.set(part.toLowerCase(), part);
+      return next.length === current.length && next.every((id, index) => id === current[index])
+        ? current
+        : next;
     });
-
-    return Array.from(parts.values());
-  }, [selectedParts]);
-
-  const readyToPublishParts = useMemo(
-    () => effectiveSelectedParts.filter((part) => partPrices[part] || form.price),
-    [effectiveSelectedParts, form.price, partPrices]
-  );
-
-  const publishListingCount =
-    listingMode === "multiple"
-      ? effectiveSelectedParts.length
-      : 1;
-
-  const readyPublishListingCount =
-    listingMode === "multiple"
-      ? readyToPublishParts.length
-      : 1;
+  }, [partPresets, selectedParts]);
 
   function getPresetVisual(preset: Preset) {
     if (preset.id === "whole") return vehicleCardData[form.vehicleType]?.img || "/vehicles/all.png";
-    if (preset.id === "engine") return categoryMainVisuals["Moottori & voimansiirto"];
-    if (preset.id === "variator" || preset.id === "drive") return subCategoryVisuals.Variaattorit;
-    if (preset.id === "track" || preset.id === "chassis") return subCategoryVisuals.Alusta;
-    if (preset.id === "controls") return subCategoryVisuals.Jarrut;
-    if (preset.id === "suspension") return subCategoryVisuals.Iskunvaimentimet;
-    if (preset.id === "electric") return categoryMainVisuals["Sähköjärjestelmät"];
-    if (preset.id === "fuel") return categoryMainVisuals["Jäähdytys & polttoaine"];
-    if (preset.id === "exhaust") return categoryMainVisuals.Pakoputkisto;
-    if (preset.id === "fairings") return subCategoryVisuals.Katteet;
+    if (preset.id === "engine") return "/category-sub/moottorit.png";
+    if (preset.id === "clutch") return "/category-sub/kytkimet.png";
+    if (preset.id === "variator" || preset.id === "drive") return "/category-sub/voimansiirto.png";
+    if (preset.id === "track" || preset.id === "chassis") return "/category-sub/alusta.png";
+    if (preset.id === "controls") return "/category-sub/ohjaus.png";
+    if (preset.id === "suspension") return "/category-sub/iskunvaimentimet.png";
+    if (preset.id === "electric") return "/category-sub/sahko.png";
+    if (preset.id === "fuel") return "/category-sub/polttoaine.png";
+    if (preset.id === "exhaust") return "/category-sub/putkisto.png";
+    if (preset.id === "fairings") return "/category-sub/runko.png";
     return "/parts-blue-bg.svg";
   }
 
-  const selectedPartGroups = (() => {
-    const groups = new Map<string, { key: string; label: string; visual: string; parts: string[] }>();
+  type SelectedPartSubgroup = {
+    key: string;
+    label: string;
+    desc: string;
+    visual: string;
+    parts: string[];
+  };
 
-    effectiveSelectedParts.forEach((part) => {
+  type SelectedPartGroup = SelectedPartSubgroup & {
+    subgroups: SelectedPartSubgroup[];
+  };
+
+  const selectedPartGroups = (() => {
+    const groups = new Map<string, SelectedPartGroup>();
+
+    selectedParts.forEach((part) => {
       const segments = part.split(" / ").filter(Boolean);
       const category = segments[0] || "Muut tuotteet";
-      const group = segments[1] || category;
+      const subcategoryPath = segments.slice(1).join(" / ");
+      const group = subcategoryPath ? getPartDisplayGroup(category, subcategoryPath) : category;
       const key = category;
+      const subgroupKey = group === category ? category : `${category} / ${group}`;
       const existing = groups.get(key);
 
       if (existing) {
         existing.parts.push(part);
+        const subgroup = existing.subgroups.find((item) => item.key === subgroupKey);
+        if (subgroup) {
+          subgroup.parts.push(part);
+        } else {
+          existing.subgroups.push({
+            key: subgroupKey,
+            label: translateCategory(locale, group),
+            desc: translateCategory(locale, category),
+            visual: subCategoryVisuals[group] || categoryCardVisuals[group] || getSubCategoryVisual(group),
+            parts: [part]
+          });
+        }
         return;
       }
 
       groups.set(key, {
         key,
         label: translateCategory(locale, category),
-        visual: categoryMainVisuals[category] || getSubCategoryVisual(group),
-        parts: [part]
+        desc: group === category
+          ? "Avaa tämän ryhmän tuotteet"
+          : translateCategory(locale, group),
+        visual: categoryCardVisuals[category] || subCategoryVisuals[category] || getSubCategoryVisual(category),
+        parts: [part],
+        subgroups: [{
+          key: subgroupKey,
+          label: translateCategory(locale, group),
+          desc: translateCategory(locale, category),
+          visual: subCategoryVisuals[group] || categoryCardVisuals[group] || getSubCategoryVisual(group),
+          parts: [part]
+        }]
       });
     });
 
     return Array.from(groups.values());
   })();
 
-  function getPresetMatch(preset: Preset, sourceParts: string[]) {
-    const parts = preset.parts;
-    const presetGroupKeys = new Set(parts.map((part) => partGroupKey(part).toLowerCase()));
-    const canUseGroupFallback =
-      presetGroupKeys.size === 1 &&
-      partPresets.every((otherPreset) =>
-        otherPreset.id === preset.id ||
-        !otherPreset.parts.some((part) => presetGroupKeys.has(partGroupKey(part).toLowerCase()))
-      );
-    const presetLower = new Set(parts.map((part) => part.toLowerCase()));
-    const selectedPresetParts = sourceParts.filter((part) =>
-      presetLower.has(part.toLowerCase()) ||
-      (canUseGroupFallback && presetGroupKeys.has(partGroupKey(part).toLowerCase()))
-    );
+  function renderPartCards(parts: string[]) {
+    return (
+      <div className="part-cards part-cards-flat part-group-items">
+        {parts.map((part) => {
+          const isPartExpanded = expandedParts[part] ?? false;
+          const partPrice = partPrices[part]?.trim();
+          const partNumber = partNumbers[part]?.trim();
+          const partImageCount = partImages[part]?.length ?? 0;
 
-    return {
-      canUseGroupFallback,
-      presetGroupKeys,
-      presetLower,
-      selectedPresetParts
-    };
+          return (
+            <div key={part} className={`part-card ${isPartExpanded ? "is-expanded" : "is-collapsed"}`}>
+              <div className="part-card-header">
+                <div className="part-card-label">
+                  <span className="part-card-index">{selectedParts.indexOf(part) + 1}</span>
+                  <div className="part-card-title-group">
+                    {part.split(" / ").length > 1 && (
+                      <span className="part-card-category">
+                        {part.split(" / ").slice(0, -1).map(s => translateCategory(locale, s)).join(" › ")}
+                      </span>
+                    )}
+                    <span className="part-card-name">
+                      {translateCategory(locale, part.split(" / ").pop() || part)}
+                    </span>
+                    {!isPartExpanded && (partPrice || partNumber || partImageCount > 0) ? (
+                      <span className="part-card-summary">
+                        {partPrice ? <small>{partPrice} €</small> : null}
+                        {partNumber ? <small>{partNumber}</small> : null}
+                        {partImageCount > 0 ? <small>{partImageCount} kuvaa</small> : null}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="part-card-header-actions">
+                  <button
+                    type="button"
+                    className="part-card-toggle"
+                    onClick={() => setExpandedParts((p) => ({ ...p, [part]: !p[part] }))}
+                    aria-label={expandedParts[part] ? t.sellCollapse : t.sellExpand}
+                    title={expandedParts[part] ? t.sellCollapse : t.sellExpand}
+                  >
+                    {expandedParts[part] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                  </button>
+                  <button type="button" className="part-card-remove" onClick={() => togglePart(part)} aria-label={`Poista ${part}`}>
+                    <X size={13} />
+                  </button>
+                </div>
+              </div>
+
+              {isPartExpanded && (
+                <div className="part-card-quick">
+                  <input
+                    type="number"
+                    min="1"
+                    className="part-price-input"
+                    placeholder={`Hinta (€)${form.price ? ` — oletus ${form.price}€` : ""}`}
+                    value={partPrices[part] || ""}
+                    onChange={(e) => setPartPrices((prev) => ({ ...prev, [part]: normalizePriceInput(e.target.value) }))}
+                  />
+                  <input
+                    className="part-number-input"
+                    placeholder="Varaosanumero"
+                    value={partNumbers[part] || ""}
+                    onChange={(e) => setPartNumbers((prev) => ({ ...prev, [part]: e.target.value }))}
+                  />
+                  {partSuggestions[part] && partSuggestions[part]!.count >= 5 && (
+                    <div
+                      className="part-price-hint"
+                      title={`${partSuggestions[part]!.count} ${t.sellSalesCount} · ${t.sellPriceRange} ${partSuggestions[part]!.min}–${partSuggestions[part]!.max} € · ${t.sellAverage} ${partSuggestions[part]!.avg} €`}
+                    >
+                      <span>💡</span>
+                      <span>{t.sellTypicalPriceHint}</span>
+                      <strong>{partSuggestions[part]!.q1}–{partSuggestions[part]!.q3} €</strong>
+                      <small>{partSuggestions[part]!.count} {t.sellSalesCount}</small>
+                      <small>{t.sellPriceRange} {partSuggestions[part]!.min}–{partSuggestions[part]!.max} €</small>
+                    </div>
+                  )}
+                  <label className="part-img-upload" title={t.sellAddImageTitle}>
+                    <ImagePlus size={14} />
+                    {partImages[part]?.length ? (
+                      <span className="part-img-count">{partImages[part].length}</span>
+                    ) : null}
+                    <input
+                      type="file"
+                      accept={imageFileAccept}
+                      multiple
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        handlePartImageUpload(part, e.target.files);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                  {partImages[part]?.map((img, idx) => (
+                    <span key={idx} className="part-img-thumb">
+                      <button
+                        type="button"
+                        className="part-img-preview-btn"
+                        onClick={() => setPreviewImage(img)}
+                        aria-label={`Avaa kuva ${idx + 1}`}
+                      >
+                        <img src={img} alt={`kuva ${idx + 1}`} />
+                      </button>
+                      <button
+                        type="button"
+                        className="part-img-remove"
+                        onClick={() => removePartImage(part, idx)}
+                        aria-label={`Poista kuva ${idx + 1}`}
+                      >
+                        <X size={10} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {isPartExpanded && (
+                <div className="part-card-details">
+                  <label className="field-stack">
+                    <span className="field-label">{t.title}</span>
+                    <input
+                      placeholder={`esim. ${(part.split(" / ")[1] || part)} - ${[form.brand, resolvedModel, form.year].filter(Boolean).join(" ")}`}
+                      value={partTitles[part] || ""}
+                      onChange={(e) => setPartTitles((prev) => ({ ...prev, [part]: e.target.value }))}
+                    />
+                  </label>
+                  <label className="field-stack">
+                    <span className="field-label">{t.sellCondition}</span>
+                    <select
+                      value={partConditions[part] || form.condition}
+                      onChange={(e) => setPartConditions((prev) => ({ ...prev, [part]: e.target.value }))}
+                    >
+                      {conditions.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="field-stack">
+                    <span className="field-label">{t.sellPartNotes}</span>
+                    <textarea
+                      rows={2}
+                      placeholder={t.sellPartNotesPh}
+                      value={partDescriptions[part] || ""}
+                      onChange={(e) => setPartDescriptions((prev) => ({ ...prev, [part]: e.target.value }))}
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
   }
 
-  function togglePresetCard(preset: Preset) {
+  function applyPreset(preset: Preset) {
     const parts = preset.parts;
-    const presetIsSelected = Boolean(activePresetMap[preset.id]);
+    const presetMarkedAdded = selectedPresetIds.includes(preset.id);
     const removePartData = (removedParts: string[]) => {
       const removedLower = new Set(removedParts.map((part) => part.toLowerCase()));
       const cleanRecord = <T,>(record: Record<string, T>) =>
@@ -1627,49 +2007,42 @@ function SellPageContent() {
       });
     };
 
-    const { canUseGroupFallback, presetGroupKeys, presetLower, selectedPresetParts } =
-      getPresetMatch(preset, effectiveSelectedParts);
-
-    if (presetIsSelected) {
-      setActivePresetMap((current) => {
-        const next = { ...current };
-        delete next[preset.id];
-        return next;
-      });
-      removePartData([...parts, ...selectedPresetParts]);
-      setSelectedParts((current) =>
-        current.filter((part) =>
-          !presetLower.has(part.toLowerCase()) &&
-          !(canUseGroupFallback && presetGroupKeys.has(partGroupKey(part).toLowerCase()))
-        )
+    setSelectedParts((prev) => {
+      const allAdded =
+        presetMarkedAdded ||
+        parts.every((p) =>
+          prev.some((existing) => existing.toLowerCase() === p.toLowerCase())
+        );
+      if (allAdded) {
+        const lower = parts.map((p) => p.toLowerCase());
+        const removedParts = prev.filter((existing) =>
+          lower.includes(existing.toLowerCase())
+        );
+        removePartData(removedParts);
+        setSelectedPresetIds((current) => current.filter((id) => id !== preset.id));
+        return prev.filter((existing) => !lower.includes(existing.toLowerCase()));
+      }
+      const additions = parts.filter(
+        (p) => !prev.some((existing) => existing.toLowerCase() === p.toLowerCase())
       );
-      return;
-    }
-
-    const currentLower = new Set(effectiveSelectedParts.map((part) => part.toLowerCase()));
-    const additions = parts.filter((part) => !currentLower.has(part.toLowerCase()));
-
-    setActivePresetMap((current) => ({ ...current, [preset.id]: true }));
-
-    if (additions.length === 0) return;
-
-    setExpandedParts((expanded) => {
-      const next = { ...expanded };
-      additions.forEach((part) => {
-        next[part] = false;
-      });
-      return next;
+      if (additions.length === 0) {
+        return prev;
+      }
+      additions.forEach((p) => setExpandedParts((e) => ({ ...e, [p]: false })));
+      if (preset.id !== "whole") {
+        setExpandedPartGroups((groups) => {
+          const next = { ...groups };
+          additions.forEach((part) => {
+            next[partGroupKey(part)] = true;
+          });
+          return next;
+        });
+      }
+      setSelectedPresetIds((current) =>
+        current.includes(preset.id) ? current : [...current, preset.id]
+      );
+      return [...prev, ...additions];
     });
-
-    setSelectedParts((current) => {
-      const selectedLower = new Set(current.map((part) => part.toLowerCase()));
-      const missingParts = additions.filter((part) => !selectedLower.has(part.toLowerCase()));
-      return missingParts.length > 0 ? [...current, ...missingParts] : current;
-    });
-  }
-
-  function isPresetCardActive(preset: Preset) {
-    return Boolean(activePresetMap[preset.id]);
   }
 
   /* =========================
@@ -1809,10 +2182,42 @@ function SellPageContent() {
     profile?.phone ||
     null;
 
+  const minimumListingPrice = 1;
+
+  const normalizePriceInput = (value: string) => {
+    if (value.trim() === "") return "";
+    const numeric = Number(value);
+    if (Number.isFinite(numeric) && numeric < minimumListingPrice) return String(minimumListingPrice);
+    return value;
+  };
+
+  const normalizePriceForSubmit = (value: string | number | null | undefined) => {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric >= minimumListingPrice
+      ? numeric
+      : minimumListingPrice;
+  };
+
+  const hasPositivePrice = (value: string | null | undefined) =>
+    Number(value) >= minimumListingPrice;
+
+  const defaultPriceReady =
+    hasPositivePrice(form.price);
+
+  const publishableParts =
+    listingMode === "multiple"
+      ? selectedParts.filter((part) => hasPositivePrice(partPrices[part]) || defaultPriceReady)
+      : [];
+
+  const publishPriceReady =
+    listingMode === "multiple"
+      ? publishableParts.length > 0
+      : defaultPriceReady;
+
   const publishLocked =
     locked ||
     !phoneVerified ||
-    (listingMode === "multiple" && publishListingCount === 0);
+    !publishPriceReady;
 
   /* =========================
      IMAGE UPLOAD
@@ -1857,72 +2262,107 @@ function SellPageContent() {
     );
   }
 
-  function handleImageUpload(
-    file: File | undefined
-  ) {
+  function readFileAsDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
 
-    if (!file) return;
+      reader.onerror = () => reject(reader.error ?? new Error("Kuvan lukeminen epäonnistui."));
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result === "string") resolve(result);
+        else reject(new Error("Kuvan lukeminen epäonnistui."));
+      };
 
-    if (!isAllowedImageFile(file)) {
+      reader.readAsDataURL(file);
+    });
+  }
 
-      setStatus(
-        videoBlockedStatus
-      );
+  function loadImageElement(src: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
 
-      return;
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("Kuvan käsittely epäonnistui."));
+      img.src = src;
+    });
+  }
 
+  async function prepareListingImage(file: File): Promise<string> {
+    const originalDataUrl = await readFileAsDataUrl(file);
+
+    if (file.type === "image/gif" || file.type === "image/avif" || file.type === "image/heic" || file.type === "image/heif") {
+      return originalDataUrl;
     }
 
-    const reader =
-      new FileReader();
+    try {
+      const image = await loadImageElement(originalDataUrl);
+      const maxSide = 1400;
+      const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+      const width = Math.max(1, Math.round(image.naturalWidth * scale));
+      const height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
 
-    reader.onload = () => {
+      if (!context) return originalDataUrl;
 
-      const result =
-        reader.result;
+      canvas.width = width;
+      canvas.height = height;
+      context.drawImage(image, 0, 0, width, height);
 
-      if (
-        typeof result === "string"
-      ) {
+      const optimized = canvas.toDataURL("image/jpeg", 0.78);
 
-        setImages((prev) => [
-          ...prev,
-          result
-        ]);
+      return optimized.length < originalDataUrl.length ? optimized : originalDataUrl;
+    } catch {
+      return originalDataUrl;
+    }
+  }
 
+  function handleImageUpload(
+    files: FileList | File[] | File | undefined | null
+  ) {
+    if (!files) return;
+    const list: File[] = files instanceof File
+      ? [files]
+      : Array.from(files);
+    let blocked = false;
+    for (const file of list) {
+      if (!isAllowedImageFile(file)) {
+        blocked = true;
+        continue;
       }
-
-    };
-
-    reader.readAsDataURL(file);
-
+      void prepareListingImage(file)
+        .then((result) => {
+          setImages((prev) => [...prev, result]);
+        })
+        .catch(() => setStatus("Kuvan lisääminen epäonnistui."));
+    }
+    if (blocked) setStatus(videoBlockedStatus);
   }
 
   function handlePartImageUpload(
     part: string,
-    file: File | undefined
+    files: FileList | File[] | File | undefined | null
   ) {
-
-    if (!file) return;
-
-    if (!isAllowedImageFile(file)) {
-      setStatus(videoBlockedStatus);
-      return;
-    }
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      const result = reader.result;
-      if (typeof result === "string") {
-        setPartImages((prev) => ({
-          ...prev,
-          [part]: [...(prev[part] || []), result]
-        }));
+    if (!files) return;
+    const list: File[] = files instanceof File
+      ? [files]
+      : Array.from(files);
+    let blocked = false;
+    for (const file of list) {
+      if (!isAllowedImageFile(file)) {
+        blocked = true;
+        continue;
       }
-    };
-
-    reader.readAsDataURL(file);
+      void prepareListingImage(file)
+        .then((result) => {
+          setPartImages((prev) => ({
+            ...prev,
+            [part]: [...(prev[part] || []), result]
+          }));
+        })
+        .catch(() => setStatus("Kuvan lisääminen epäonnistui."));
+    }
+    if (blocked) setStatus(videoBlockedStatus);
 
   }
 
@@ -2009,7 +2449,7 @@ function SellPageContent() {
 
     }
 
-    if (listingMode === "single" && !form.price) {
+    if (listingMode === "single" && !hasPositivePrice(form.price)) {
 
       setStatus(t.sellEnterPrice);
 
@@ -2017,7 +2457,7 @@ function SellPageContent() {
 
     }
 
-    if (listingMode === "multiple" && effectiveSelectedParts.length === 0) {
+    if (listingMode === "multiple" && selectedParts.length === 0) {
 
       setStatus(t.sellSelectOnePart);
 
@@ -2025,22 +2465,32 @@ function SellPageContent() {
 
     }
 
+    if (
+      listingMode === "multiple" &&
+      publishableParts.length === 0
+    ) {
+      setStatus(t.sellSetPriceRequired);
+      return;
+    }
+
     const plannedListingCount =
       listingMode === "multiple"
-        ? publishListingCount
+        ? publishableParts.length
         : 1;
 
-    const dbExtras = await getProfileExtraSlots(user.id);
-    const slotLimit = getListingSlotLimit(user.id, undefined, dbExtras);
-    const { data: activeListings } = await getListingSlotUsage(user.id);
+    if (FEATURE_FLAGS.listingSlots) {
+      const dbExtras = await getProfileExtraSlots(user.id);
+      const slotLimit = getListingSlotLimit(user.id, undefined, dbExtras);
+      const { data: activeListings } = await getListingSlotUsage(user.id);
 
-    if (activeListings + plannedListingCount > slotLimit) {
-      setListingSlotUsed(activeListings);
-      setListingSlotLimit(slotLimit);
-      setStatus(
-        `Ilmoituspaikat täynnä: käytössä ${activeListings}/${slotLimit}. Tämä julkaisu tarvitsee ${plannedListingCount} paikkaa. Osta lisää Kaupasta.`
-      );
-      return;
+      if (activeListings + plannedListingCount > slotLimit) {
+        setListingSlotUsed(activeListings);
+        setListingSlotLimit(slotLimit);
+        setStatus(
+          `Ilmoituspaikat täynnä: käytössä ${activeListings}/${slotLimit}. Tämä julkaisu tarvitsee ${plannedListingCount} paikkaa. Osta lisää Kaupasta.`
+        );
+        return;
+      }
     }
 
     // ── Moderation check ──────────────────────────────────────────────────────
@@ -2051,7 +2501,7 @@ function SellPageContent() {
         body: JSON.stringify({
           title: form.title,
           description: form.description,
-          price: Number(form.price),
+          price: normalizePriceForSubmit(form.price),
           location: listingLocation,
         }),
       });
@@ -2089,11 +2539,8 @@ function SellPageContent() {
     }
 
     if (listingMode === "multiple") {
-      // Only publish parts that have a price set (per-part or default)
-      const partsToPublish = effectiveSelectedParts.filter(
-        (p) => partPrices[p] || form.price
-      );
-      const skippedCount = effectiveSelectedParts.length - partsToPublish.length;
+      const partsToPublish = publishableParts;
+      const skippedCount = selectedParts.length - partsToPublish.length;
 
       if (partsToPublish.length === 0) {
         setStatus(t.sellSetPriceRequired);
@@ -2133,7 +2580,7 @@ function SellPageContent() {
           vehicleDetails.length > 0 ? vehicleDetails.join(" ") : ""
         ].filter(Boolean).join(" - ");
         const partTitle = partTitles[part]?.trim() || autoTitle;
-        const partPrice = partPrices[part] ? Number(partPrices[part]) : Number(form.price);
+        const partPrice = normalizePriceForSubmit(partPrices[part] || form.price);
         const partNumber = partNumbers[part]?.trim() || null;
         const thisImages = partImages[part]?.length ? partImages[part] : images;
         const thisImageUrl = thisImages[0] || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3";
@@ -2167,30 +2614,26 @@ function SellPageContent() {
         } as Parameters<typeof createListing>[0];
       };
 
-      const BATCH_SIZE = 25;
-      for (let batchStart = 0; batchStart < partsToPublish.length; batchStart += BATCH_SIZE) {
-        const batch = partsToPublish.slice(batchStart, batchStart + BATCH_SIZE);
-        setStatus(`${t.sellPublishing} ${Math.min(batchStart + batch.length, partsToPublish.length)}/${partsToPublish.length}`);
+      for (let partIndex = 0; partIndex < partsToPublish.length; partIndex++) {
+        const part = partsToPublish[partIndex];
+        setStatus(`${t.sellPublishing} ${partIndex + 1}/${partsToPublish.length}`);
 
-        const results = await Promise.all(
-          batch.map((part) => createListing(buildPayload(part)))
-        );
+        const res = await createListingWithTimeout(buildPayload(part));
 
-        results.forEach((res, idx) => {
-          if (res.error && isSupabaseConfigured) {
-            failCount++;
-            const e = (res.error || {}) as Record<string, unknown>;
-            lastErrMsg =
-              (typeof e.message === "string" && e.message) ||
-              (typeof e.details === "string" && e.details) ||
-              (typeof e.code === "string" && e.code) ||
-              (typeof e.hint === "string" && e.hint) ||
-              String(res.error);
-            console.error(`createListing error (part ${batchStart + idx + 1}):`, e);
-          } else {
-            successCount++;
-          }
-        });
+        if (res.error && isSupabaseConfigured) {
+          failCount++;
+          const e = (res.error || {}) as Record<string, unknown>;
+          lastErrMsg =
+            (typeof e.message === "string" && e.message) ||
+            (typeof e.details === "string" && e.details) ||
+            (typeof e.code === "string" && e.code) ||
+            (typeof e.hint === "string" && e.hint) ||
+            String(res.error);
+          console.error(`createListing error (part ${partIndex + 1}):`, e);
+          break;
+        } else {
+          successCount++;
+        }
       }
 
       if (failCount > 0 && lastErrMsg) {
@@ -2202,8 +2645,15 @@ function SellPageContent() {
       try { localStorage.removeItem(DRAFT_KEY); } catch {}
       setForm(emptyListing);
       setListingMode("single");
-      resetPartSelection();
-      setCustomPart("");
+      setSelectedParts([]);
+      setPartPrices({});
+      setPartImages({});
+      setPartTitles({});
+      setPartDescriptions({});
+      setPartNumbers({});
+      setPartConditions({});
+      setExpandedParts({});
+      setExpandedPartGroups({});
       setImages([]);
       const skipMsg = skippedCount > 0 ? ` (${skippedCount} tyhjää ohitettu)` : "";
       setListingSlotUsed((prev) => prev + successCount);
@@ -2222,11 +2672,11 @@ function SellPageContent() {
       : form.title;
 
     const { error } =
-      await createListing({
+      await createListingWithTimeout({
         seller_id: user.id,
         title: listingTitle,
         original_language: locale,
-        price: Number(form.price),
+        price: normalizePriceForSubmit(form.price),
         vehicle_type: form.vehicleType,
         category: form.category,
         subcategory: form.subcategory,
@@ -2263,59 +2713,246 @@ function SellPageContent() {
      UI
   ========================= */
 
-  const hasCategorySelection =
-    listingMode === "multiple"
-      ? selectedParts.length > 0 || Boolean(form.category)
-      : Boolean(form.category || form.subcategory);
-  const hasListingImages =
-    images.length > 0 ||
-    Object.values(partImages).some((partImageList) => partImageList.length > 0);
-  const activeWizardStep = hasListingImages ? 4 : hasCategorySelection ? 3 : 1;
-  const typeStepTarget =
-    profile?.account_type === "company" ? "sell-step-seller" : "sell-step-mode";
-  const imagesStepTarget = listingMode === "single" ? "sell-step-images" : "sell-step-category";
   const listingSlotsLabel = t.sellSlotsUsed.replace(/:\s*$/, "");
-  const wizardSteps = [
-    { number: 1, label: t.vehicleDetails, target: "sell-step-vehicle" },
-    { number: 2, label: t.conditionAndLocation, target: "sell-step-location" },
-    { number: 3, label: t.sellListingType, target: typeStepTarget },
-    { number: 4, label: t.images, target: imagesStepTarget },
-    { number: 5, label: t.description, target: "sell-step-description" }
-  ];
+
+  // ===== Wizard step definitions =====
+  type WizardStepId =
+    | "mode"
+    | "vehicle"
+    | "category"
+    | "location"
+    | "seller"
+    | "images"
+    | "description"
+    | "publish";
+
+  const wizardStepDefs = useMemo(() => {
+    const arr: { id: WizardStepId; label: string }[] = [
+      { id: "mode", label: t.sellListingType },
+      { id: "vehicle", label: t.vehicleDetails },
+      { id: "category", label: listingMode === "multiple" ? t.sellSelectPartsTitle : t.categoryAndPart },
+      { id: "location", label: t.conditionAndLocation }
+    ];
+    if (profile?.account_type === "company") {
+      arr.push({ id: "seller", label: t.sellListingSeller });
+    }
+    if (listingMode === "single") {
+      arr.push({ id: "images", label: t.images });
+      arr.push({ id: "description", label: t.description });
+    }
+    arr.push({ id: "publish", label: t.publish });
+    return arr;
+  }, [listingMode, profile?.account_type, t]);
+
+  const [currentStep, setCurrentStep] = useState<WizardStepId>("mode");
+  const brandPickerRef = useRef<HTMLDivElement | null>(null);
+  const modelPickerRef = useRef<HTMLDivElement | null>(null);
+  const engineCcPickerRef = useRef<HTMLDivElement | null>(null);
+  const engineModelPickerRef = useRef<HTMLDivElement | null>(null);
+  const [brandPickerOpen, setBrandPickerOpen] = useState(false);
+  const [modelPickerOpen, setModelPickerOpen] = useState(false);
+  const [engineCcPickerOpen, setEngineCcPickerOpen] = useState(false);
+  const [engineModelPickerOpen, setEngineModelPickerOpen] = useState(false);
+
+  // Auto-correct currentStep if the active step disappears (e.g. mode change).
+  useEffect(() => {
+    if (!wizardStepDefs.some((s) => s.id === currentStep)) {
+      setCurrentStep(wizardStepDefs[0]?.id ?? "mode");
+    }
+  }, [wizardStepDefs, currentStep]);
+
+  useEffect(() => {
+    function closeSmoothPickers(event: MouseEvent) {
+      if (!brandPickerRef.current?.contains(event.target as Node)) {
+        setBrandPickerOpen(false);
+      }
+      if (!modelPickerRef.current?.contains(event.target as Node)) {
+        setModelPickerOpen(false);
+      }
+      if (!engineCcPickerRef.current?.contains(event.target as Node)) {
+        setEngineCcPickerOpen(false);
+      }
+      if (!engineModelPickerRef.current?.contains(event.target as Node)) {
+        setEngineModelPickerOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", closeSmoothPickers);
+    return () => document.removeEventListener("mousedown", closeSmoothPickers);
+  }, []);
+
+  const currentStepIndex = Math.max(
+    0,
+    wizardStepDefs.findIndex((s) => s.id === currentStep)
+  );
+
+  // Map legacy element IDs -> step ids so existing handlers keep working.
+  const STEP_ID_MAP: Record<string, WizardStepId> = {
+    "sell-step-mode": "mode",
+    "sell-step-vehicle": "vehicle",
+    "sell-field-brand": "vehicle",
+    "sell-field-model": "vehicle",
+    "sell-field-year": "vehicle",
+    "sell-step-category": "category",
+    "sell-field-subcategory": "category",
+    "sell-field-subleaf": "category",
+    "sell-step-location": "location",
+    "sell-step-seller": "seller",
+    "sell-step-images": "images",
+    "sell-step-description": "description",
+    "sell-step-publish": "publish"
+  };
 
   function goToWizardStep(targetId: string) {
-    const target =
-      document.getElementById(targetId) ??
-      document.getElementById("sell-step-mode");
-    if (!target) return;
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    const stepId = STEP_ID_MAP[targetId];
+    const isStepRoot = targetId.startsWith("sell-step-");
+    if (stepId && stepId !== currentStep) {
+      setCurrentStep(stepId);
+      // Scroll to top of main panel after switching step.
+      requestAnimationFrame(() => {
+        document.querySelector(".sell-main-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      // Then focus the original sub-target if it exists in the new step.
+      window.setTimeout(() => {
+        document.getElementById(targetId)?.scrollIntoView({
+          behavior: "smooth",
+          block: isStepRoot ? "start" : "nearest"
+        });
+      }, 250);
+      return;
+    }
+    document.getElementById(targetId)?.scrollIntoView({
+      behavior: "smooth",
+      block: isStepRoot ? "start" : "nearest"
+    });
+  }
+
+  function scrollToSubleafMenu() {
+    window.setTimeout(() => {
+      const target = document.getElementById("sell-field-subleaf");
+      if (!target) return;
+      const top =
+        target.getBoundingClientRect().top +
+        window.scrollY -
+        (window.innerWidth <= 720 ? 88 : 96);
+      window.scrollTo({
+        top: Math.max(0, top),
+        behavior: "smooth"
+      });
+    }, 180);
+  }
+
+  function scrollToSubcategoryMenu() {
+    window.setTimeout(() => {
+      const target = document.getElementById("sell-field-subcategory");
+      if (!target) return;
+      const top =
+        target.getBoundingClientRect().top +
+        window.scrollY -
+        (window.innerWidth <= 720 ? 84 : 96);
+      window.scrollTo({
+        top: Math.max(0, top),
+        behavior: "smooth"
+      });
+    }, 180);
+  }
+
+  function scrollToCategoryPicker() {
+    window.setTimeout(() => {
+      const target = document.querySelector(".category-picker-block");
+      if (!(target instanceof HTMLElement)) return;
+      const top =
+        target.getBoundingClientRect().top +
+        window.scrollY -
+        (window.innerWidth <= 720 ? 84 : 96);
+      window.scrollTo({
+        top: Math.max(0, top),
+        behavior: "smooth"
+      });
+    }, 80);
+  }
+
+  function closeSubleafMenu() {
+    setSelectedSubGroup("");
+    window.setTimeout(() => {
+      const target = document.getElementById("sell-field-subcategory");
+      if (!target) return;
+      const top =
+        target.getBoundingClientRect().top +
+        window.scrollY -
+        (window.innerWidth <= 720 ? 132 : 96);
+      window.scrollTo({
+        top: Math.max(0, top),
+        behavior: "smooth"
+      });
+    }, 80);
+  }
+
+  function gotoStepById(id: WizardStepId) {
+    setCurrentStep(id);
+    requestAnimationFrame(() => {
+      document.querySelector(".sell-main-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  function goNextStep() {
+    const next = wizardStepDefs[currentStepIndex + 1];
+    if (next) gotoStepById(next.id);
+  }
+  function goPrevStep() {
+    const prev = wizardStepDefs[currentStepIndex - 1];
+    if (prev) gotoStepById(prev.id);
+  }
+
+  function WizardNav({
+    onPrev,
+    onNext,
+    nextLabel
+  }: {
+    onPrev: (() => void) | null;
+    onNext: (() => void) | null;
+    nextLabel: string;
+  }) {
+    return (
+      <div className="sell-wizard-nav">
+        {onPrev ? (
+          <button type="button" className="sell-wizard-nav-prev" onClick={onPrev}>
+            <ArrowLeft size={16} /> Edellinen
+          </button>
+        ) : <span />}
+        {onNext ? (
+          <button
+            type="button"
+            className="sell-wizard-nav-next"
+            onClick={onNext}
+          >
+            {nextLabel} <ChevronRight size={16} />
+          </button>
+        ) : null}
+      </div>
+    );
   }
 
   return (
-    <main className="sell-container">
+    <main className={`sell-container sell-current-${currentStep}`}>
       <aside className="sell-sidebar" aria-label="Ilmoituksen vaiheet">
-        <Link href="/" className="back-link">
-          <ArrowLeft size={16} />
-          {t.back}
-        </Link>
-
-        <nav className={`sell-wizard-stepper sell-wizard-stepper-clickable is-step-${activeWizardStep}`} aria-label="Ilmoituksen vaiheet">
-          {wizardSteps.map((step) => {
+        <nav className={`sell-wizard-stepper sell-wizard-stepper-clickable is-step-${currentStepIndex + 1}`} aria-label="Ilmoituksen vaiheet">
+          {wizardStepDefs.map((step, idx) => {
             const stateClass =
-              step.number === activeWizardStep
+              idx === currentStepIndex
                 ? " is-active"
-                : step.number < activeWizardStep
+                : idx < currentStepIndex
                 ? " is-done"
                 : "";
             return (
               <button
-                key={step.number}
+                key={step.id}
                 type="button"
                 className={`sell-wizard-step${stateClass}`}
-                onClick={() => goToWizardStep(step.target)}
-                aria-current={step.number === activeWizardStep ? "step" : undefined}
+                onClick={() => gotoStepById(step.id)}
+                aria-current={idx === currentStepIndex ? "step" : undefined}
               >
-                <span>{step.number}</span>
+                <span>{idx + 1}</span>
                 <strong>{step.label}</strong>
               </button>
             );
@@ -2330,16 +2967,15 @@ function SellPageContent() {
           <h1>{t.createListing}</h1>
           <p>{t.sellCreateSubtitle}</p>
         </div>
-        <Link href="/" className="sell-wordmark" aria-label="Arctic Parts">
-          <span>Arctic</span><strong>Parts</strong>
-        </Link>
-        <div className="section-heading-slots">
-          <span className="slot-count">{listingSlotUsed} / {listingSlotLimit}</span>
-          <span className="slot-label">{listingSlotsLabel}</span>
-          <div className="slot-bar">
-            <div className="slot-bar-fill" style={{ width: `${Math.min(100, (listingSlotUsed / listingSlotLimit) * 100)}%` }} />
+        {FEATURE_FLAGS.listingSlots ? (
+          <div className="section-heading-slots">
+            <span className="slot-count">{listingSlotUsed} / {listingSlotLimit}</span>
+            <span className="slot-label">{listingSlotsLabel}</span>
+            <div className="slot-bar">
+              <div className="slot-bar-fill" style={{ width: `${Math.min(100, (listingSlotUsed / listingSlotLimit) * 100)}%` }} />
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
 
       {locked ? (
@@ -2350,7 +2986,7 @@ function SellPageContent() {
       ) : null}
 
       {!locked && profile?.account_type !== "company" && !phoneVerified ? (
-        <div className="profile-alert">
+        <div className="profile-alert sell-phone-alert">
           <LockKeyhole size={18} />
           <span>
             {t.sellVerifyPhone}
@@ -2362,7 +2998,7 @@ function SellPageContent() {
       ) : null}
 
       {!locked && profile?.account_type === "company" && !phoneVerified ? (
-        <div className="profile-alert">
+        <div className="profile-alert sell-phone-alert">
           <LockKeyhole size={18} />
           <span>
             {t.sellVerifyCompanyPhone}
@@ -2376,40 +3012,59 @@ function SellPageContent() {
 
       <form id="sell-listing-form" onSubmit={handleSubmit} className="sell-form">
 
-        {/* ── Step 0: Mode ── */}
-        <div className="sell-section sell-section-mode" id="sell-step-mode">
-          <p className="sell-section-question">{t.sellWhatSelling}</p>
-          <div className="sell-mode-grid">
+        {/* ── Step: Mode ── */}
+        {currentStep === "mode" && (
+        <div className="sell-section" id="sell-step-mode">
+          <div className="sell-section-header">
+            <span className="sell-step">1</span>
+            <h2>{t.sellListingType}</h2>
+          </div>
+          <div className="sell-listing-type-toggle" role="group" aria-label={t.sellListingType}>
             <button
               type="button"
-              disabled={locked}
-              className={listingMode === "single" ? "sell-mode-card active" : "sell-mode-card"}
-              onClick={() => { setListingMode("single"); resetPartSelection(); setTimeout(() => goToWizardStep("sell-step-vehicle"), 80); }}
+              className={listingMode === "single" ? "active" : ""}
+              aria-pressed={listingMode === "single"}
+              onClick={() => {
+                setListingMode("single");
+                setTimeout(() => goToWizardStep("sell-step-vehicle"), 80);
+              }}
             >
-              <span className="sell-mode-icon">
-                <Package size={24} />
+              <span className="sell-listing-type-check">
+                <Check size={14} />
               </span>
-              <strong>{t.sellSingleProduct}</strong>
-              <span>{t.sellSingleDesc}</span>
+              <span>
+                <strong>Yksittäinen ilmoitus</strong>
+                <small>Yksi osa, oma hinta ja kuvat</small>
+              </span>
             </button>
             <button
               type="button"
-              disabled={locked}
-              className={listingMode === "multiple" ? "sell-mode-card active" : "sell-mode-card"}
-              onClick={() => { setListingMode("multiple"); setTimeout(() => goToWizardStep("sell-step-vehicle"), 80); }}
+              className={listingMode === "multiple" ? "active" : ""}
+              aria-pressed={listingMode === "multiple"}
+              onClick={() => {
+                setListingMode("multiple");
+                setTimeout(() => goToWizardStep("sell-step-vehicle"), 80);
+              }}
             >
-              <span className="sell-mode-icon">
-                <Wrench size={24} />
+              <span className="sell-listing-type-check">
+                <Check size={14} />
               </span>
-              <strong>{t.sellMultipleProducts}</strong>
-              <span>{t.sellMultipleDesc}</span>
+              <span>
+                <strong>Multi-ilmoitus</strong>
+                <small>Lisää monta osaa samalla kertaa</small>
+              </span>
             </button>
           </div>
+          <WizardNav
+            onPrev={null}
+            onNext={listingMode ? goNextStep : null}
+            nextLabel="Seuraava"
+          />
         </div>
+        )}
 
-        {listingMode && (<>
-
-        {/* ── Step 1: Vehicle ── */}
+        {/* ── Step: Vehicle ── */}
+        {currentStep === "vehicle" && (<>
         <div className="sell-section" id="sell-step-vehicle">
           <div className="sell-section-header">
             <span className="sell-step">1</span>
@@ -2443,6 +3098,17 @@ function SellPageContent() {
                         subcategory: ""
                       });
                       setSelectedSubGroup("");
+                      setBrandPickerOpen(false);
+                      setTimeout(() => {
+                        goToWizardStep("sell-step-vehicle");
+                        setBrandPickerOpen(true);
+                        if (window.matchMedia("(max-width: 720px)").matches) {
+                          document.getElementById("sell-field-brand")?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                          });
+                        }
+                      }, 120);
                     }}
                   >
                     <div className="vehicle-card-img">
@@ -2460,13 +3126,49 @@ function SellPageContent() {
           </div>
 
           <div className="sell-grid-3">
-            <label className="field-stack">
+            <div className="field-stack" id="sell-field-brand">
               <span className="field-label">{t.brand}</span>
-              <select value={form.brand} disabled={locked} onChange={(e) => setForm({ ...form, brand: e.target.value, brandOther: "", model: "", modelOther: "", engineCc: "", engineCcOther: "", engineModel: "", engineModelOther: "" })}>
-                <option value="">{t.selectBrand}</option>
-                {brandOptions.map((b) => <option key={b} value={b}>{b}</option>)}
-                <option value="muu">{t.sellOtherOption}</option>
-              </select>
+              <div ref={brandPickerRef} className={`smooth-select ${brandPickerOpen ? "is-open" : ""}`}>
+                <button
+                  type="button"
+                  className="smooth-select-trigger"
+                  disabled={locked}
+                  aria-haspopup="listbox"
+                  aria-expanded={brandPickerOpen}
+                  onClick={() => setBrandPickerOpen((open) => !open)}
+                >
+                  <span>{form.brand ? (form.brand === "muu" ? t.sellOtherOption : form.brand) : t.selectBrand}</span>
+                  <ChevronDown size={18} />
+                </button>
+                {brandPickerOpen && (
+                  <div className="smooth-select-menu" role="listbox">
+                    <button
+                      type="button"
+                      className={!form.brand ? "active" : ""}
+                      onClick={() => chooseBrand("")}
+                    >
+                      {t.selectBrand}
+                    </button>
+                    {brandOptions.map((b) => (
+                      <button
+                        key={b}
+                        type="button"
+                        className={form.brand === b ? "active" : ""}
+                        onClick={() => chooseBrand(b)}
+                      >
+                        {b}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      className={form.brand === "muu" ? "active" : ""}
+                      onClick={() => chooseBrand("muu")}
+                    >
+                      {t.sellOtherOption}
+                    </button>
+                  </div>
+                )}
+              </div>
               {form.brand === "muu" && (
                 <input
                   placeholder={t.sellTypeBrand}
@@ -2476,37 +3178,67 @@ function SellPageContent() {
                   style={{ marginTop: 6 }}
                 />
               )}
-            </label>
-            <label className="field-stack">
+            </div>
+            <div className="field-stack" id="sell-field-model">
               <span className="field-label">{t.model}</span>
-              <select
-                value={form.model}
-                disabled={locked || !form.brand}
-                onChange={(e) => {
-                  const m = e.target.value;
-                  const eng = brandModelEngineMap[form.vehicleType]?.[form.brand]?.[m];
-                  setForm({
-                    ...form,
-                    model: m,
-                    modelOther: "",
-                    engineCc: eng ? eng.engineCc : "",
-                    engineCcOther: "",
-                    engineModel: eng ? eng.engineModel : "",
-                    engineModelOther: ""
-                  });
-                }}
-              >
-                <option value="">
-                  {form.brand ? "Valitse malli" : "Valitse merkki ensin"}
-                </option>
-                {modelOptions.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-                {form.model && form.model !== "muu" && !modelOptions.includes(form.model) && (
-                  <option value={form.model}>{form.model}</option>
+              <div ref={modelPickerRef} className={`smooth-select ${modelPickerOpen ? "is-open" : ""}`}>
+                <button
+                  type="button"
+                  className="smooth-select-trigger"
+                  disabled={locked || !form.brand}
+                  aria-haspopup="listbox"
+                  aria-expanded={modelPickerOpen}
+                  onClick={() => setModelPickerOpen((open) => !open)}
+                >
+                  <span>
+                    {form.model
+                      ? form.model === "muu"
+                        ? t.sellOtherOption
+                        : form.model
+                      : form.brand
+                      ? "Valitse malli"
+                      : "Valitse merkki ensin"}
+                  </span>
+                  <ChevronDown size={18} />
+                </button>
+                {modelPickerOpen && (
+                  <div className="smooth-select-menu" role="listbox">
+                    <button
+                      type="button"
+                      className={!form.model ? "active" : ""}
+                      onClick={() => chooseModel("")}
+                    >
+                      {form.brand ? "Valitse malli" : "Valitse merkki ensin"}
+                    </button>
+                    {modelOptions.map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        className={form.model === m ? "active" : ""}
+                        onClick={() => chooseModel(m)}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                    {form.model && form.model !== "muu" && !modelOptions.includes(form.model) && (
+                      <button
+                        type="button"
+                        className="active"
+                        onClick={() => chooseModel(form.model)}
+                      >
+                        {form.model}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className={form.model === "muu" ? "active" : ""}
+                      onClick={() => chooseModel("muu")}
+                    >
+                      {t.sellOtherOption}
+                    </button>
+                  </div>
                 )}
-                <option value="muu">{t.sellOtherOption}</option>
-              </select>
+              </div>
               {form.model === "muu" && (
                 <input
                   placeholder="Kirjoita malli"
@@ -2520,32 +3252,80 @@ function SellPageContent() {
                 <button
                   type="button"
                   onClick={() => setForm({ ...form, model: "", modelOther: "", engineCc: "", engineCcOther: "", engineModel: "", engineModelOther: "" })}
-                  style={{ alignSelf: "flex-start", background: "rgba(255, 154, 36, 0.12)", border: "1px solid rgba(255, 154, 36, 0.34)", borderRadius: 999, color: "#ffb45f", cursor: "pointer", fontSize: 12, fontWeight: 800, lineHeight: 1, marginTop: 6, padding: "7px 10px" }}
+                  className="sell-inline-clear-btn"
                   title={t.sellClearField}
                 >
                   Tyhjennä
                 </button>
               )}
-              <span className="sell-model-helper">
-                Oman mallin voi kirjoittaa vasta, kun valitset listasta “Muu”.
-              </span>
-            </label>
-            <label className="field-stack">
+            </div>
+            <label className="field-stack" id="sell-field-year">
               <span className="field-label">{t.year}</span>
-              <input type="number" placeholder={t.yearPlaceholder} value={form.year} disabled={locked} onChange={(e) => setForm({ ...form, year: e.target.value })} />
+              <input
+                type="number"
+                placeholder={t.yearPlaceholder}
+                value={form.year}
+                disabled={locked}
+                onChange={(e) => setForm({ ...form, year: e.target.value })}
+                onBlur={(e) => {
+                  if (e.target.value.trim().length >= 2) {
+                    setTimeout(() => goToWizardStep("sell-step-category"), 80);
+                  }
+                }}
+              />
             </label>
           </div>
 
           <div className="sell-grid-2">
-            <label className="field-stack">
+            <div className="field-stack">
               <span className="field-label">{t.sellEngineSize}</span>
-              <select value={form.engineCc} disabled={locked} onChange={(e) => setForm({ ...form, engineCc: e.target.value, engineCcOther: "" })}>
-                <option value="">{t.sellSelectCc}</option>
-                {(engineCcOptions[form.vehicleType] ?? []).map((cc) => (
-                  <option key={cc} value={cc}>{cc} cc</option>
-                ))}
-                <option value="muu">{t.sellOtherOption}</option>
-              </select>
+              <div ref={engineCcPickerRef} className={`smooth-select ${engineCcPickerOpen ? "is-open" : ""}`}>
+                <button
+                  type="button"
+                  className="smooth-select-trigger"
+                  disabled={locked}
+                  aria-haspopup="listbox"
+                  aria-expanded={engineCcPickerOpen}
+                  onClick={() => setEngineCcPickerOpen((open) => !open)}
+                >
+                  <span>
+                    {form.engineCc
+                      ? form.engineCc === "muu"
+                        ? t.sellOtherOption
+                        : `${form.engineCc} cc`
+                      : t.sellSelectCc}
+                  </span>
+                  <ChevronDown size={18} />
+                </button>
+                {engineCcPickerOpen && (
+                  <div className="smooth-select-menu" role="listbox">
+                    <button
+                      type="button"
+                      className={!form.engineCc ? "active" : ""}
+                      onClick={() => chooseEngineCc("")}
+                    >
+                      {t.sellSelectCc}
+                    </button>
+                    {(engineCcOptions[form.vehicleType] ?? []).map((cc) => (
+                      <button
+                        key={cc}
+                        type="button"
+                        className={form.engineCc === cc ? "active" : ""}
+                        onClick={() => chooseEngineCc(cc)}
+                      >
+                        {cc} cc
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      className={form.engineCc === "muu" ? "active" : ""}
+                      onClick={() => chooseEngineCc("muu")}
+                    >
+                      {t.sellOtherOption}
+                    </button>
+                  </div>
+                )}
+              </div>
               {form.engineCc === "muu" && (
                 <input
                   type="number"
@@ -2556,16 +3336,58 @@ function SellPageContent() {
                   style={{ marginTop: 6 }}
                 />
               )}
-            </label>
-            <label className="field-stack">
+            </div>
+            <div className="field-stack">
               <span className="field-label">{t.sellEngineType}</span>
-              <select value={form.engineModel} disabled={locked || !form.brand} onChange={(e) => setForm({ ...form, engineModel: e.target.value, engineModelOther: "" })}>
-                <option value="">{form.brand ? t.sellSelectEngine : t.sellSelectBrandFirst}</option>
-                {(brandEngineModels[form.vehicleType]?.[form.brand === "muu" ? "" : form.brand] ?? []).map((m: string) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-                <option value="muu">{t.sellOtherOption}</option>
-              </select>
+              <div ref={engineModelPickerRef} className={`smooth-select ${engineModelPickerOpen ? "is-open" : ""}`}>
+                <button
+                  type="button"
+                  className="smooth-select-trigger"
+                  disabled={locked || !form.brand}
+                  aria-haspopup="listbox"
+                  aria-expanded={engineModelPickerOpen}
+                  onClick={() => setEngineModelPickerOpen((open) => !open)}
+                >
+                  <span>
+                    {form.engineModel
+                      ? form.engineModel === "muu"
+                        ? t.sellOtherOption
+                        : form.engineModel
+                      : form.brand
+                      ? t.sellSelectEngine
+                      : t.sellSelectBrandFirst}
+                  </span>
+                  <ChevronDown size={18} />
+                </button>
+                {engineModelPickerOpen && (
+                  <div className="smooth-select-menu" role="listbox">
+                    <button
+                      type="button"
+                      className={!form.engineModel ? "active" : ""}
+                      onClick={() => chooseEngineModel("")}
+                    >
+                      {form.brand ? t.sellSelectEngine : t.sellSelectBrandFirst}
+                    </button>
+                    {(brandEngineModels[form.vehicleType]?.[form.brand === "muu" ? "" : form.brand] ?? []).map((m: string) => (
+                      <button
+                        key={m}
+                        type="button"
+                        className={form.engineModel === m ? "active" : ""}
+                        onClick={() => chooseEngineModel(m)}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      className={form.engineModel === "muu" ? "active" : ""}
+                      onClick={() => chooseEngineModel("muu")}
+                    >
+                      {t.sellOtherOption}
+                    </button>
+                  </div>
+                )}
+              </div>
               {form.engineModel === "muu" && (
                 <input
                   placeholder={t.sellTypeEngine}
@@ -2575,7 +3397,7 @@ function SellPageContent() {
                   style={{ marginTop: 6 }}
                 />
               )}
-            </label>
+            </div>
           </div>
 
           {listingMode === "single" ? (
@@ -2586,7 +3408,7 @@ function SellPageContent() {
               </label>
               <label className="field-stack">
                 <span className="field-label">{t.price} (€) <span className="field-required">*</span></span>
-                <input type="number" placeholder="0" value={form.price} disabled={locked} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+                <input type="number" min="1" placeholder="1" value={form.price} disabled={locked} onChange={(e) => setForm({ ...form, price: normalizePriceInput(e.target.value) })} />
                 {priceSuggestion && (
                   <div className="price-suggestion">
                     <span className="price-suggestion-icon">💡</span>
@@ -2617,13 +3439,18 @@ function SellPageContent() {
             </div>
           ) : (
             <label className="field-stack">
-              <span className="field-label">{t.sellDefaultPriceLabel} <span className="field-hint">— {t.sellDefaultPriceHint}</span></span>
-              <input type="number" placeholder="esim. 50" value={form.price} disabled={locked} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+              <span className="field-label">{t.sellDefaultPriceLabel}</span>
+              <input type="number" min="1" placeholder="esim. 50" value={form.price} disabled={locked} onChange={(e) => setForm({ ...form, price: normalizePriceInput(e.target.value) })} />
             </label>
           )}
         </div>
 
-        {/* ── Step 2: Category / Parts ── */}
+        {/* End of Vehicle step */}
+        <WizardNav onPrev={goPrevStep} onNext={goNextStep} nextLabel="Seuraava" />
+        </>)}
+
+        {/* ── Step: Category / Parts ── */}
+        {currentStep === "category" && (<>
         <div className="sell-section" id="sell-step-category">
           <div className="sell-section-header">
             <span className="sell-step">2</span>
@@ -2635,19 +3462,26 @@ function SellPageContent() {
               <span className="field-label">{t.sellQuickPick}</span>
               <div className="preset-grid">
                 {partPresets.map((preset) => {
-                  const presetAdded = isPresetCardActive(preset);
-                  const cardClass = ["preset-card", "preset-toggle-card", presetAdded ? "added" : ""].filter(Boolean).join(" ");
+                  const selectedPartKeys = new Set(
+                    selectedParts.map((part) => part.toLowerCase())
+                  );
+                  const allAdded =
+                    preset.parts.length > 0 &&
+                    preset.parts.every((p) => selectedPartKeys.has(p.toLowerCase()));
+                  const presetAdded = allAdded || selectedPresetIds.includes(preset.id);
+                  const newCount = preset.parts.filter((p) =>
+                    !selectedPartKeys.has(p.toLowerCase())
+                  ).length;
+                  const partial = !presetAdded && newCount < preset.parts.length;
+                  const cardClass = ["preset-card", presetAdded ? "added" : "", partial ? "partial" : ""].filter(Boolean).join(" ");
                   return (
                     <button
                       key={preset.id}
                       type="button"
                       disabled={locked}
                       className={cardClass}
-                      data-preset-id={preset.id}
-                      data-preset-active={presetAdded ? "true" : "false"}
-                      data-no-auto-translate=""
                       aria-pressed={presetAdded}
-                      onClick={() => togglePresetCard(preset)}
+                      onClick={() => applyPreset(preset)}
                       title={presetAdded ? t.sellPresetRemove : t.sellPresetAdd}
                     >
                       <span className="preset-emoji">
@@ -2656,8 +3490,9 @@ function SellPageContent() {
                       <div className="preset-text">
                         <strong>{preset.label}</strong>
                         <span>{preset.desc}</span>
+                        <small>{preset.parts.length} osaa paketissa</small>
                       </div>
-                      <span className="preset-action-pill" aria-hidden="true">
+                      <span className="preset-count">
                         {presetAdded ? t.sellPresetRemoveLabel : t.sellPresetAddLabel}
                       </span>
                     </button>
@@ -2667,19 +3502,75 @@ function SellPageContent() {
             </div>
           )}
 
-          <div className="field-stack">
-            <span className="field-label" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span>{listingMode === "multiple" ? t.sellOrSelectOne : t.mainCategory}</span>
+          {listingMode === "multiple" && (
+            <div className="multi-custom-add">
+              <div className="multi-custom-copy">
+                <strong>Lisää itse</strong>
+                <span>Kirjoita oma tuote, jos sitä ei löydy valmiista kategorioista.</span>
+              </div>
+              <div className="multi-custom-controls">
+                <input
+                  value={customPartName}
+                  disabled={locked}
+                  onChange={(event) => setCustomPartName(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      addCustomPart();
+                    }
+                  }}
+                  placeholder="esim. Öljysäiliö, johtosarja, kytkin..."
+                />
+                <button
+                  type="button"
+                  disabled={locked || !customPartName.trim()}
+                  onClick={addCustomPart}
+                >
+                  <Plus size={16} />
+                  Lisää
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className={`field-stack category-picker-block ${listingMode === "single" ? "is-always-open" : ""}`}>
+            <div
+              className={`category-picker-toggle ${(categoryPickerOpen || listingMode === "single") ? "is-open" : ""}`}
+              role={listingMode === "single" ? undefined : "button"}
+              tabIndex={listingMode === "single" ? undefined : 0}
+              onClick={listingMode === "single" ? undefined : () => setCategoryPickerOpen((open) => !open)}
+              onKeyDown={listingMode === "single" ? undefined : (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setCategoryPickerOpen((open) => !open);
+                }
+              }}
+              aria-expanded={listingMode === "single" ? undefined : categoryPickerOpen}
+            >
+              <span className="category-picker-toggle-main">
+                <strong>Yksittäinen kategoria</strong>
+                <small>{form.category ? displayCategory(form.category) : "Valitse tuotteen pääkategoria"}</small>
+              </span>
+              {listingMode !== "single" && (
+                <span className="category-picker-toggle-action" aria-hidden="true">
+                  {categoryPickerOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </span>
+              )}
+            </div>
+            {form.category && (
+            <span className="field-label sell-category-selected-row" style={{ display: "flex", alignItems: "center", gap: 8 }}>
               {form.category && (
                 <button type="button" className="chip-clear-btn" onClick={() => { setForm({ ...form, category: "", subcategory: "" }); setSelectedSubGroup(""); }}>
                   {displayCategory(form.category)} ✕
                 </button>
               )}
             </span>
+            )}
+            {(categoryPickerOpen || listingMode === "single") && (
             <div className="sell-category-card-list">
               {currentCategoryNames.map((item) => {
                 const isActive = form.category === item;
-                const image = categoryMainVisuals[item] || "/parts-blue-bg.svg";
+                const image = getCategoryCardVisual(item);
 
                 return (
                   <button
@@ -2691,17 +3582,21 @@ function SellPageContent() {
                       if (form.category === item) {
                         setForm({ ...form, category: "", subcategory: "" });
                         setSelectedSubGroup("");
+                        setCategoryPickerOpen(false);
                       } else {
                         setForm({ ...form, category: item, subcategory: "" });
+                        setCategoryPickerOpen(false);
                         const rawGroups = subcategoryGroups[item];
                         if (rawGroups) {
                           const entries = Object.entries(rawGroups);
                           if (entries.length === 1 && entries[0][0] === item && (entries[0][1] as string[]).length > 0) {
                             setSelectedSubGroup(item);
+                            scrollToSubleafMenu();
                             return;
                           }
                         }
                         setSelectedSubGroup("");
+                        scrollToSubcategoryMenu();
                       }
                     }}
                   >
@@ -2716,16 +3611,20 @@ function SellPageContent() {
                 );
               })}
             </div>
+            )}
           </div>
 
           {/* ── Sub-group navigation (3-level) ── */}
           {form.category && currentSubcategoryGroups ? (
             <>
-              {!directSubcategoryGroup && (
-                <div className="field-stack">
-                  <span className="field-label">{listingMode === "multiple" ? t.sellSelectProducts : t.detailedPart}</span>
+              {!skipsSinglePassthroughGroup && (
+                <div className="field-stack" id="sell-field-subcategory">
+                  <span className="field-label sell-subcategory-head">
+                    <button type="button" className="chip-back-btn sell-mobile-category-back" onClick={scrollToCategoryPicker}>← Takaisin</button>
+                    <span>{listingMode === "multiple" ? t.sellSelectProducts : t.detailedPart}</span>
+                  </span>
                   <div className="sell-subcategory-card-list">
-                    {Object.entries(currentSubcategoryGroups).map(([group, children]) => {
+                    {currentSubcategoryEntries.map(([group, children]) => {
                       const hasChildren = children.length > 0;
                       const isGroupLeafSelected = !hasChildren && (
                         listingMode === "multiple"
@@ -2745,62 +3644,47 @@ function SellPageContent() {
                       ].filter(Boolean).join(" ");
 
                       return (
-                        <button
-                          key={group}
-                          type="button"
-                          disabled={locked}
-                          className={cardClass}
-                          onClick={() => {
-                            if (hasChildren) {
-                              setSelectedSubGroup(selectedSubGroup === group ? "" : group);
-                            } else {
-                              setSelectedSubGroup("");
-                              if (listingMode === "multiple") {
-                                togglePart(partKey(form.category, group));
-                              } else {
-                                setForm({
-                                  ...form,
-                                  subcategory: form.subcategory === group ? "" : group
-                                });
-                              }
-                            }
-                          }}
-                        >
-                          {getSubCategoryVisual(group) && (
-                            <span className="sell-subcategory-thumb">
-                              <img src={getSubCategoryVisual(group)} alt="" />
-                            </span>
-                          )}
-                          <span className="sell-subcategory-text">
-                            <strong>{translateCategory(locale, group)}</strong>
-                          </span>
-                          <span className="sell-selection-dot" aria-hidden="true" />
-                          {hasChildren && <ChevronRight size={18} />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                            <button
+                              key={group}
+                              type="button"
+                              disabled={locked}
+                              className={cardClass}
+                              onClick={() => {
+                                if (hasChildren) {
+                                  const next = selectedSubGroup === group ? "" : group;
+                                  setSelectedSubGroup(next);
+                                  if (next) scrollToSubleafMenu();
+                                } else {
+                                  setSelectedSubGroup("");
+                                  if (listingMode === "multiple") {
+                                    togglePart(partKey(form.category, group));
+                                  } else {
+                                    setForm({
+                                      ...form,
+                                      subcategory: form.subcategory === group ? "" : group
+                                    });
+                                  }
+                                }
+                              }}
+                            >
+                              <span className="sell-subcategory-text">
+                                <strong>{translateCategory(locale, group)}</strong>
+                              </span>
+                              {hasChildren && <ChevronRight size={18} />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
               )}
-                  {activeSubcategoryGroup && (currentSubcategoryGroups[activeSubcategoryGroup]?.length ?? 0) > 0 && (
-                    <div className="field-stack subgroup-items">
+                  {selectedSubGroup && (currentSubcategoryGroups[selectedSubGroup]?.length ?? 0) > 0 && (
+                    <div className="field-stack subgroup-items" id="sell-field-subleaf">
                       <span className="field-label" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <button
-                          type="button"
-                          className="chip-back-btn"
-                          onClick={() => {
-                            if (directSubcategoryGroup) {
-                              setForm({ ...form, category: "", subcategory: "" });
-                            }
-                            setSelectedSubGroup("");
-                          }}
-                        >
-                          ← Takaisin
-                        </button>
-                        <span>{translateCategory(locale, activeSubcategoryGroup)}</span>
+                        <button type="button" className="chip-back-btn" onClick={closeSubleafMenu}>← Takaisin</button>
+                        <span>{translateCategory(locale, selectedSubGroup)}</span>
                       </span>
                       <div className="sell-subcategory-card-list compact">
-                        {currentSubcategoryGroups[activeSubcategoryGroup].map((sub) => {
+                        {currentSubcategoryGroups[selectedSubGroup].map((sub) => {
                           const leafLabel = sub.includes(" / ") ? sub.split(" / ").slice(1).join(" / ") : sub;
                           const isSelected =
                             listingMode === "multiple"
@@ -2824,9 +3708,8 @@ function SellPageContent() {
                               }}
                             >
                               <span className="sell-subcategory-text">
-                                <strong>{renderPartOptionLabel(leafLabel)}</strong>
+                                <strong>{translateCategory(locale, leafLabel)}</strong>
                               </span>
-                              <span className="sell-selection-dot" aria-hidden="true" />
                             </button>
                           );
                         })}
@@ -2835,7 +3718,7 @@ function SellPageContent() {
                   )}
                 </>
               ) : subcategories.length > 0 ? (
-                <div className="field-stack">
+                <div className="field-stack" id="sell-field-subcategory">
                   <span className="field-label">{listingMode === "multiple" ? t.sellSelectProducts : t.detailedPart}</span>
                   <div className="sell-subcategory-card-list compact">
                     {subcategories.map((sub) => {
@@ -2862,9 +3745,8 @@ function SellPageContent() {
                           }}
                         >
                           <span className="sell-subcategory-text">
-                            <strong>{renderPartOptionLabel(sub)}</strong>
+                            <strong>{translateCategory(locale, sub)}</strong>
                           </span>
-                          <span className="sell-selection-dot" aria-hidden="true" />
                         </button>
                       );
                     })}
@@ -2872,221 +3754,97 @@ function SellPageContent() {
                 </div>
               ) : null}
 
-              {listingMode === "multiple" ? (
-                <div className="multi-products-box">
-                  <div className="multi-products-head">
-                    <div>
-                      <strong>{t.sellListingProducts}</strong>
-                      <span>{t.sellAddAllParts}</span>
-                    </div>
-                    <small>{publishListingCount} {t.sellProductsCount}</small>
-                  </div>
-
-                  <div className="multi-product-add">
-                    <input
-                      value={customPart}
-                      disabled={locked}
-                      placeholder={t.sellAddCustomPartPh}
-                      onChange={(event) => setCustomPart(event.target.value)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          addCustomPart();
-                        }
-                      }}
-                    />
-                    <button type="button" disabled={locked} onClick={addCustomPart}>
-                      <Plus size={16} />
-                      {t.sellAddBtn}
-                    </button>
-                  </div>
-
-                  {publishListingCount > 0 ? (
-                    <div className="part-group-list">
+              {listingMode === "multiple" && selectedParts.length > 0 ? (
+                <div className="part-group-list">
                       {selectedPartGroups.map((group) => {
                         const groupOpen = expandedPartGroups[group.key] ?? false;
 
                         return (
                           <section key={group.key} className={`part-group ${groupOpen ? "open" : ""}`}>
-                            <div
-                              className="part-group-toggle"
-                            >
-                              <span className="part-group-visual">
-                                <img src={group.visual} alt="" />
-                              </span>
-                              <span className="part-group-text">
-                                <strong>{group.label}</strong>
-                              </span>
-                              <span className="part-group-count">{group.parts.length} tuotetta</span>
+                            <div className="part-group-toggle">
                               <button
                                 type="button"
-                                className="part-group-action"
-                                aria-expanded={groupOpen}
-                                aria-label={groupOpen ? "Sulje tuotteet" : "Avaa tuotteet"}
+                                className="part-group-main"
                                 onClick={() => setExpandedPartGroups((prev) => ({ ...prev, [group.key]: !(prev[group.key] ?? false) }))}
                               >
-                                {groupOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                              </button>
-                            </div>
-
-                            {groupOpen && (
-                              <div className="part-cards part-cards-flat part-group-items">
-                      {group.parts.map((part) => {
-                        const isPartExpanded = expandedParts[part] ?? false;
-                        const partPrice = partPrices[part]?.trim();
-                        const partNumber = partNumbers[part]?.trim();
-                        const partImageCount = partImages[part]?.length ?? 0;
-
-                        return (
-                        <div key={part} className={`part-card ${isPartExpanded ? "is-expanded" : "is-collapsed"}`}>
-                          <div className="part-card-header">
-                            <div className="part-card-label">
-                              <span className="part-card-index">{effectiveSelectedParts.indexOf(part) + 1}</span>
-                              <div className="part-card-title-group">
-                                {part.split(" / ").length > 1 && (
-                                  <span className="part-card-category">
-                                    {part.split(" / ").slice(0, -1).map(s => translateCategory(locale, s)).join(" › ")}
-                                  </span>
-                                )}
-                                <span className="part-card-name">
-                                  {translateCategory(locale, part.split(" / ").pop() || part)}
+                                <span className="part-group-text">
+                                  <strong>{group.label}</strong>
+                                  <small>{group.desc}</small>
                                 </span>
-                                {!isPartExpanded && (partPrice || partNumber || partImageCount > 0) ? (
-                                  <span className="part-card-summary">
-                                    {partPrice ? <small>{partPrice} €</small> : null}
-                                    {partNumber ? <small>{partNumber}</small> : null}
-                                    {partImageCount > 0 ? <small>{partImageCount} kuvaa</small> : null}
-                                  </span>
-                                ) : null}
-                              </div>
-                            </div>
-                            <div className="part-card-header-actions">
+                                <span className="part-group-count">{group.parts.length} tuotetta</span>
+                                <span className="part-group-action">{groupOpen ? "Sulje" : "Avaa"}</span>
+                              </button>
                               <button
                                 type="button"
-                                className="part-card-toggle"
-                                onClick={() => setExpandedParts((p) => ({ ...p, [part]: !p[part] }))}
+                                className="part-group-remove"
+                                onClick={() => removePartGroup(group.parts)}
+                                aria-label={`Poista ${group.label}`}
+                                title={`Poista ${group.label}`}
                               >
-                                {expandedParts[part] ? t.sellCollapse : t.sellExpand}
-                              </button>
-                              <button type="button" className="part-card-remove" onClick={() => togglePart(part)} aria-label={`Poista ${part}`}>
-                                <X size={13} />
+                                <X size={14} />
                               </button>
                             </div>
-                          </div>
 
-                          {isPartExpanded && (
-                          <div className="part-card-quick">
-                            <input
-                              type="number"
-                              className="part-price-input"
-                              placeholder={`Hinta (€)${form.price ? ` — oletus ${form.price}€` : ""}`}
-                              value={partPrices[part] || ""}
-                              onChange={(e) => setPartPrices((prev) => ({ ...prev, [part]: e.target.value }))}
-                            />
-                            <input
-                              className="part-number-input"
-                              placeholder="Varaosanumero"
-                              value={partNumbers[part] || ""}
-                              onChange={(e) => setPartNumbers((prev) => ({ ...prev, [part]: e.target.value }))}
-                            />
-                            {partSuggestions[part] && partSuggestions[part]!.count >= 5 && (
-                              <div
-                                className="part-price-hint"
-                                title={`${partSuggestions[part]!.count} ${t.sellSalesCount} · ${t.sellPriceRange} ${partSuggestions[part]!.min}–${partSuggestions[part]!.max} € · ${t.sellAverage} ${partSuggestions[part]!.avg} €`}
-                              >
-                                <span>💡</span>
-                                <span>{t.sellTypicalPriceHint}</span>
-                                <strong>{partSuggestions[part]!.q1}–{partSuggestions[part]!.q3} €</strong>
-                                <small>{partSuggestions[part]!.count} {t.sellSalesCount}</small>
-                                <small>{t.sellPriceRange} {partSuggestions[part]!.min}–{partSuggestions[part]!.max} €</small>
-                              </div>
-                            )}
-                            <label className="part-img-upload" title={t.sellAddImageTitle}>
-                              <ImagePlus size={14} />
-                              {partImages[part]?.length ? (
-                                <span className="part-img-count">{partImages[part].length}</span>
-                              ) : null}
-                              <input
-                                type="file"
-                                accept={imageFileAccept}
-                                style={{ display: "none" }}
-                                onChange={(e) => handlePartImageUpload(part, e.target.files?.[0])}
-                              />
-                            </label>
-                            {partImages[part]?.map((img, idx) => (
-                              <span key={idx} className="part-img-thumb">
-                                <button
-                                  type="button"
-                                  className="part-img-preview-btn"
-                                  onClick={() => setPreviewImage(img)}
-                                  aria-label={`Avaa kuva ${idx + 1}`}
-                                >
-                                  <img src={img} alt={`kuva ${idx + 1}`} />
-                                </button>
-                                <button
-                                  type="button"
-                                  className="part-img-remove"
-                                  onClick={() => removePartImage(part, idx)}
-                                  aria-label={`Poista kuva ${idx + 1}`}
-                                >
-                                  <X size={10} />
-                                </button>
-                              </span>
-                            ))}
-                          </div>
-                          )}
+                            {groupOpen && (() => {
+                              const hasSubgroups =
+                                group.subgroups.length > 1 ||
+                                group.subgroups.some((subgroup) => subgroup.key !== group.key);
 
-                          {isPartExpanded && (
-                            <div className="part-card-details">
-                              <label className="field-stack">
-                                <span className="field-label">{t.title}</span>
-                                <input
-                                  placeholder={`esim. ${(part.split(" / ")[1] || part)} - ${[form.brand, resolvedModel, form.year].filter(Boolean).join(" ")}`}
-                                  value={partTitles[part] || ""}
-                                  onChange={(e) => setPartTitles((prev) => ({ ...prev, [part]: e.target.value }))}
-                                />
-                              </label>
-                              <label className="field-stack">
-                                <span className="field-label">{t.sellCondition}</span>
-                                <select
-                                  value={partConditions[part] || form.condition}
-                                  onChange={(e) => setPartConditions((prev) => ({ ...prev, [part]: e.target.value }))}
-                                >
-                                  {conditions.map((c) => (
-                                    <option key={c} value={c}>{c}</option>
-                                  ))}
-                                </select>
-                              </label>
-                              <label className="field-stack">
-                                <span className="field-label">{t.sellPartNotes}</span>
-                                <textarea
-                                  rows={2}
-                                  placeholder={t.sellPartNotesPh}
-                                  value={partDescriptions[part] || ""}
-                                  onChange={(e) => setPartDescriptions((prev) => ({ ...prev, [part]: e.target.value }))}
-                                />
-                              </label>
-                            </div>
-                          )}
-                        </div>
-                        );
-                      })}
-                              </div>
-                            )}
+                              if (!hasSubgroups) {
+                                return renderPartCards(group.parts);
+                              }
+
+                              return (
+                                <div className="part-subgroup-list">
+                                  {group.subgroups.map((subgroup) => {
+                                    const subgroupOpen = expandedPartGroups[subgroup.key] ?? false;
+
+                                    return (
+                                      <section key={subgroup.key} className={`part-subgroup ${subgroupOpen ? "open" : ""}`}>
+                                        <div className="part-subgroup-toggle">
+                                          <button
+                                            type="button"
+                                            className="part-subgroup-main"
+                                            onClick={() => setExpandedPartGroups((prev) => ({ ...prev, [subgroup.key]: !(prev[subgroup.key] ?? false) }))}
+                                          >
+                                            <span className="part-group-text">
+                                              <strong>{subgroup.label}</strong>
+                                              <small>{subgroup.desc}</small>
+                                            </span>
+                                            <span className="part-group-count">{subgroup.parts.length} tuotetta</span>
+                                            <span className="part-group-action">{subgroupOpen ? "Sulje" : "Avaa"}</span>
+                                          </button>
+                                          <button
+                                            type="button"
+                                            className="part-group-remove"
+                                            onClick={() => removePartGroup(subgroup.parts)}
+                                            aria-label={`Poista ${subgroup.label}`}
+                                            title={`Poista ${subgroup.label}`}
+                                          >
+                                            <X size={14} />
+                                          </button>
+                                        </div>
+
+                                        {subgroupOpen && renderPartCards(subgroup.parts)}
+                                      </section>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()}
                           </section>
                         );
                       })}
-                    </div>
-                  ) : (
-                    <p className="multi-product-empty">
-                      {t.sellNoProducts}
-                    </p>
-                  )}
                 </div>
               ) : null}
         </div>
 
-        {/* ── Step 3: Location & Condition ── */}
+        {/* End of Category step */}
+        <WizardNav onPrev={goPrevStep} onNext={goNextStep} nextLabel="Seuraava" />
+        </>)}
+
+        {/* ── Step: Location ── */}
+        {currentStep === "location" && (<>
         <div className="sell-section" id="sell-step-location">
           <div className="sell-section-header">
             <span className="sell-step">3</span>
@@ -3137,7 +3895,15 @@ function SellPageContent() {
           </div>
         </div>
 
-        {profile?.account_type === "company" && (
+        {/* End of Location step */}
+        <WizardNav
+          onPrev={goPrevStep}
+          onNext={currentStepIndex < wizardStepDefs.length - 1 ? goNextStep : null}
+          nextLabel="Seuraava"
+        />
+        </>)}
+
+        {currentStep === "seller" && profile?.account_type === "company" && (
           <div className="sell-section company-seller-selector" id="sell-step-seller">
             <div className="sell-section-header">
               <span className="sell-step">4</span>
@@ -3200,66 +3966,143 @@ function SellPageContent() {
           </div>
         )}
 
-        {listingMode === "single" && (<>
-        {/* ── Step 4: Images ── */}
+        {currentStep === "seller" && profile?.account_type === "company" && (
+          <div style={{ marginTop: -8 }}>
+            <WizardNav
+              onPrev={goPrevStep}
+              onNext={currentStepIndex < wizardStepDefs.length - 1 ? goNextStep : null}
+              nextLabel="Seuraava"
+            />
+          </div>
+        )}
+
+        {/* ── Step: Images (single only) ── */}
+        {currentStep === "images" && listingMode === "single" && (<>
           <div className="sell-section" id="sell-step-images">
           <div className="sell-section-header">
             <span className="sell-step">4</span>
             <h2>{t.images}</h2>
           </div>
-          <label className="upload-box">
-            <ImagePlus size={28} />
+          <label className="upload-box upload-box-pretty">
+            <ImagePlus size={32} />
             <strong>{t.uploadImages}</strong>
-            <span>PNG, JPG, WEBP</span>
-            <input type="file" accept={imageFileAccept} disabled={locked} onChange={(e) => handleImageUpload(e.target.files?.[0])} />
+            <span>PNG, JPG, WEBP — voit valita useita kerralla</span>
+            <input
+              type="file"
+              accept={imageFileAccept}
+              multiple
+              disabled={locked}
+              onChange={(e) => {
+                handleImageUpload(e.target.files);
+                e.target.value = "";
+              }}
+            />
           </label>
           {images.length > 0 && (
             <div className="image-grid">
               {images.map((img, index) => (
                 <div key={index} className="img-box">
-                  <img src={img} alt={`Kuva ${index + 1}`} />
-                  <button type="button" onClick={() => removeImage(index)}>✕</button>
+                  <button
+                    type="button"
+                    className="image-open-btn"
+                    onClick={() => setPreviewImage(img)}
+                    aria-label={`Avaa kuva ${index + 1}`}
+                  >
+                    <img src={img} alt={`Kuva ${index + 1}`} />
+                  </button>
+                  <button
+                    type="button"
+                    className="image-remove-btn"
+                    onClick={() => removeImage(index)}
+                    aria-label={`Poista kuva ${index + 1}`}
+                  >
+                    ✕
+                  </button>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* ── Step 5: Description ── */}
+        {/* End of Images step */}
+        <WizardNav onPrev={goPrevStep} onNext={goNextStep} nextLabel="Seuraava" />
+        </>)}
+
+        {/* ── Step: Description (single only) ── */}
+        {currentStep === "description" && listingMode === "single" && (
         <div className="sell-section" id="sell-step-description">
           <div className="sell-section-header">
             <span className="sell-step">5</span>
             <h2>{t.description}</h2>
           </div>
           <textarea placeholder={t.description} value={form.description} disabled={locked} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          <WizardNav onPrev={goPrevStep} onNext={goNextStep} nextLabel="Seuraava" />
         </div>
-        </>)}
+        )}
+
+        {/* ── Step: Publish ── */}
+        {currentStep === "publish" && (
+          <div className="sell-section sell-publish-section" id="sell-step-publish">
+            <div className="sell-section-header">
+              <span className="sell-step">{currentStepIndex + 1}</span>
+              <h2>{t.publish}</h2>
+            </div>
+            <div className="sell-publish-summary">
+              <div>
+                <span>Tyyppi</span>
+                <strong>{listingMode === "multiple" ? "Multi-ilmoitus" : "Yksittäinen ilmoitus"}</strong>
+              </div>
+              <div>
+                <span>Ajoneuvo</span>
+                <strong>{[form.vehicleType, form.brand, resolvedModel, form.year].filter(Boolean).join(" ") || "-"}</strong>
+              </div>
+              <div>
+                <span>Tuotteet</span>
+                <strong>{listingMode === "multiple" ? `${publishableParts.length} / ${selectedParts.length} tuotetta` : (form.title || form.subcategory || "-")}</strong>
+              </div>
+              <div>
+                <span>Sijainti</span>
+                <strong>{form.location || buildLocation(form.locationCity, form.locationCountry) || "-"}</strong>
+              </div>
+            </div>
+            {!phoneVerified && (
+              <p className="sell-publish-warning">Vahvista puhelinnumero ennen julkaisua.</p>
+            )}
+            <WizardNav onPrev={goPrevStep} onNext={null} nextLabel="Seuraava" />
+          </div>
+        )}
 
         {/* ── Total estimate (multiple mode) ── */}
-        {listingMode === "multiple" && publishListingCount > 0 && (() => {
-          const total = effectiveSelectedParts.reduce((sum, p) => {
+        {currentStep === "publish" && listingMode === "multiple" && selectedParts.length > 0 && (() => {
+          const total = publishableParts.reduce((sum, p) => {
             const price = partPrices[p] ? Number(partPrices[p]) : (form.price ? Number(form.price) : 0);
             return sum + price;
           }, 0);
-          const ready = readyPublishListingCount;
+          const ready = publishableParts.length;
           return total > 0 ? (
             <div className="sell-total-estimate">
-              <span>{t.sellTotalEstimate} ({ready} {t.sellPartsCount}):</span>
+              <span className="sell-total-estimate-icon" aria-hidden="true">€</span>
+              <span className="sell-total-estimate-copy">
+                <span>{t.sellTotalEstimate}</span>
+                <small>{ready} {t.sellPartsCount}</small>
+              </span>
               <strong>{total.toLocaleString("fi-FI")} €</strong>
             </div>
           ) : null;
         })()}
 
-        {/* ── Submit ── */}
-        <div className="sell-submit-bar" id="sell-step-publish">
+        {/* ── Submit (only on last step) ── */}
+        {currentStep === "publish" && (
+        <div className="sell-submit-bar" id="sell-publish-fixed">
           {status && <p className={status.includes("julkaistu") ? "sell-status-ok" : "sell-status-err"}>{status}</p>}
           <button type="submit" className="sell-submit-btn" disabled={publishLocked}>
             <Check size={18} />
-            {t.publish}
+            {listingMode === "multiple"
+              ? `${t.publish} ${publishableParts.length}`
+              : t.publish}
           </button>
         </div>
-
-        </>)}
+        )}
 
         {previewImage && (
           <div className="part-image-preview-modal" role="dialog" aria-modal="true" aria-label="Kuvan esikatselu">

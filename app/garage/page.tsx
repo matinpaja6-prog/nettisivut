@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import {
-  ArrowLeft,
   Car,
   ChevronDown,
   ChevronRight,
@@ -182,22 +181,6 @@ export default function GaragePage() {
 
   return (
     <main className="garage-page">
-
-      <header className="garage-topbar">
-        <Link href="/" className="garage-back">
-          <ArrowLeft size={16} />
-          {t.garageHome}
-        </Link>
-        <img
-          className="arctic-topbar-logo"
-          src="/arctic-parts-logo.jpg"
-          alt="Arctic Parts"
-          onError={(event) => {
-            event.currentTarget.style.display = "none";
-          }}
-        />
-      </header>
-
       <div className="garage-container">
 
         <div className="garage-heading">
@@ -501,52 +484,6 @@ export default function GaragePage() {
           font-size: 15px;
         }
 
-        .garage-topbar {
-          height: 66px;
-          padding: 0 clamp(18px, 4vw, 48px);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          position: sticky;
-          top: 0;
-          z-index: 20;
-          background: linear-gradient(180deg, rgba(8,28,74,0.62), rgba(8,28,74,0));
-          backdrop-filter: blur(10px);
-        }
-
-        .garage-brand {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-weight: 900;
-          font-size: 15px;
-          color: #ffffff;
-          letter-spacing: -0.02em;
-        }
-
-        .garage-brand-mark {
-          width: 30px;
-          height: 30px;
-          border-radius: 10px;
-          display: grid;
-          place-items: center;
-          background: rgba(255,255,255,0.18);
-          border: 1px solid rgba(255,255,255,0.22);
-          color: #ffffff;
-        }
-
-        .garage-back {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 14px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.8);
-          transition: color 0.2s;
-        }
-
-        .garage-back:hover { color: #ffffff; }
-
         .garage-container {
           max-width: 1120px;
           margin: 0 auto;
@@ -660,14 +597,14 @@ export default function GaragePage() {
           margin-left: auto;
           padding: 10px 22px;
           border-radius: 12px;
-          background: #1d4ed8;
+          background: #ff8a24;
           color: white;
           font-weight: 700;
           font-size: 14px;
           transition: background 0.2s;
         }
 
-        .garage-login-btn:hover { background: #1e40af; }
+        .garage-login-btn:hover { background: #e65c00; }
 
         .garage-toolbar {
           display: flex;
@@ -719,7 +656,7 @@ export default function GaragePage() {
         }
 
         .garage-add-btn:hover {
-          background: #1e40af;
+          background: #e65c00;
           transform: translateY(-1px);
         }
 
@@ -844,7 +781,7 @@ export default function GaragePage() {
         }
 
         .garage-field select:focus {
-          border-color: #3b82f6;
+          border-color: #ff7a1a;
           background: white;
         }
 
@@ -884,7 +821,7 @@ export default function GaragePage() {
         }
 
         .garage-field input:focus {
-          border-color: #3b82f6;
+          border-color: #ff7a1a;
           background: white;
         }
 
@@ -908,7 +845,7 @@ export default function GaragePage() {
           box-shadow: 0 16px 34px rgba(255,107,22,0.24) !important;
         }
 
-        .garage-save-btn:hover:not(:disabled) { background: #1e40af; }
+        .garage-save-btn:hover:not(:disabled) { background: #e65c00; }
         .garage-save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .garage-empty {
@@ -940,12 +877,13 @@ export default function GaragePage() {
           display: flex;
           align-items: center;
           background:
-            radial-gradient(360px 160px at 92% 0%, rgba(64,216,255,0.2), transparent 70%),
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(233,247,252,0.94)) !important;
-          border: 1px solid rgba(126, 197, 240, 0.28) !important;
+            radial-gradient(420px 180px at 88% 0%, rgba(255,122,26,0.18), transparent 68%),
+            radial-gradient(360px 160px at 12% 0%, rgba(64,216,255,0.12), transparent 70%),
+            linear-gradient(135deg, rgba(14,31,49,0.98), rgba(7,17,29,0.98)) !important;
+          border: 1px solid rgba(126, 197, 240, 0.22) !important;
           border-radius: 24px !important;
           padding: 20px 22px;
-          box-shadow: 0 26px 74px rgba(2,18,38,0.22) !important;
+          box-shadow: 0 26px 74px rgba(0,7,18,0.34), inset 0 1px 0 rgba(255,255,255,0.06) !important;
           transition: transform 0.18s, box-shadow 0.2s, border-color 0.2s;
           position: relative;
           overflow: hidden;
@@ -958,21 +896,22 @@ export default function GaragePage() {
           top: 0;
           bottom: 0;
           width: 5px;
-          background: linear-gradient(180deg, #6ed2e4, #087995);
+          background: linear-gradient(180deg, #ff9a3d, #ff6b16);
         }
 
         .garage-vehicle-card.selected {
-          border-color: rgba(8,121,149,0.48);
+          border-color: rgba(255,122,26,0.52) !important;
           border-bottom-left-radius: 0;
           border-bottom-right-radius: 0;
-          box-shadow: 0 28px 78px rgba(5,24,46,0.16);
+          box-shadow: 0 28px 78px rgba(0,7,18,0.4), 0 0 0 1px rgba(255,122,26,0.14) !important;
           border-bottom-left-radius: 0 !important;
           border-bottom-right-radius: 0 !important;
         }
 
         .garage-vehicle-card:hover {
           transform: translateY(-2px);
-          box-shadow: 0 30px 86px rgba(5,24,46,0.16);
+          border-color: rgba(255,122,26,0.42) !important;
+          box-shadow: 0 30px 86px rgba(0,7,18,0.42), 0 0 0 1px rgba(255,122,26,0.12) !important;
         }
 
         .garage-vehicle-info {
@@ -987,13 +926,13 @@ export default function GaragePage() {
           width: 58px;
           height: 58px;
           border-radius: 18px !important;
-          background: linear-gradient(145deg, #e8fbff, #b8eef7);
+          background: linear-gradient(145deg, rgba(3,12,24,0.92), rgba(16,35,55,0.96));
           display: grid;
           place-items: center;
-          color: #061a2e;
+          color: #ffffff;
           flex-shrink: 0;
-          border: 1px solid rgba(8,121,149,0.16);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 14px 26px rgba(8,121,149,0.14);
+          border: 1px solid rgba(151,178,205,0.2);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 26px rgba(0,7,18,0.28);
           overflow: hidden;
         }
 
@@ -1011,7 +950,7 @@ export default function GaragePage() {
         .garage-vehicle-type {
           width: fit-content;
           font-size: 11px;
-          color: #087995;
+          color: #ffb45f;
           font-weight: 950;
           letter-spacing: 0.08em;
           text-transform: uppercase;
@@ -1020,7 +959,7 @@ export default function GaragePage() {
         .garage-vehicle-nickname {
           font-size: 12px;
           font-weight: 900;
-          color: #455d70;
+          color: rgba(226,244,255,0.66);
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
@@ -1028,7 +967,7 @@ export default function GaragePage() {
         .garage-vehicle-name {
           font-size: 19px;
           font-weight: 950;
-          color: #061a2e;
+          color: #ffffff;
           letter-spacing: -0.02em;
         }
 
@@ -1041,39 +980,40 @@ export default function GaragePage() {
 
         .garage-vehicle-year {
           font-size: 13px;
-          color: #547083;
+          color: rgba(226,244,255,0.72);
           font-weight: 800;
         }
 
         .garage-vehicle-class-tag {
           font-size: 11px;
           font-weight: 900;
-          background: rgba(218,249,255,0.72);
-          color: #087995;
+          background: rgba(255,122,26,0.14);
+          color: #ffd1a3;
           border-radius: 999px;
           padding: 4px 10px;
-          border: 1px solid rgba(8,121,149,0.18);
+          border: 1px solid rgba(255,122,26,0.32);
         }
 
         .garage-vehicle-arrow {
           margin-left: auto;
           margin-right: 12px;
-          color: #087995;
+          color: #ffb45f;
           width: 34px;
           height: 34px;
           border-radius: 999px;
           display: grid;
           place-items: center;
-          background: rgba(218,249,255,0.62);
+          background: rgba(255,122,26,0.12);
+          border: 1px solid rgba(255,122,26,0.24);
         }
 
         .garage-vehicle-delete {
           width: 34px;
           height: 34px;
           border-radius: 12px;
-          border: 1px solid rgba(220,38,38,0.15);
-          background: rgba(255,255,255,0.78);
-          color: #dc2626;
+          border: 1px solid rgba(255,113,113,0.24);
+          background: rgba(220,38,38,0.1);
+          color: #ff8c8c;
           display: grid;
           place-items: center;
           cursor: pointer;
@@ -1082,30 +1022,33 @@ export default function GaragePage() {
         }
 
         .garage-vehicle-delete:hover {
-          background: rgba(220,38,38,0.12);
-          border-color: rgba(220,38,38,0.3);
+          background: rgba(220,38,38,0.18);
+          border-color: rgba(255,113,113,0.42);
+          color: #ffffff;
         }
 
         .garage-parts-panel {
-          background: rgba(247,253,255,0.78);
-          border: 1px solid rgba(8,121,149,0.44);
+          background:
+            radial-gradient(520px 210px at 100% 0%, rgba(255,122,26,0.11), transparent 70%),
+            linear-gradient(145deg, rgba(13,29,46,0.96), rgba(7,17,29,0.98)) !important;
+          border: 1px solid rgba(255,122,26,0.34);
           border-top: none;
           border-bottom-left-radius: 16px;
           border-bottom-right-radius: 16px;
           padding: 24px;
-          box-shadow: 0 24px 70px rgba(5,24,46,0.08);
+          box-shadow: 0 24px 70px rgba(0,7,18,0.32);
         }
 
         .garage-parts-header h3 {
           margin: 0 0 20px;
           font-size: 15px;
           font-weight: 700;
-          color: #0f172a;
+          color: #ffffff;
         }
 
         .garage-parts-loading,
         .garage-parts-empty {
-          color: #64748b;
+          color: rgba(226,244,255,0.7);
           font-size: 14px;
           padding: 20px 0;
           text-align: center;
@@ -1150,7 +1093,7 @@ export default function GaragePage() {
         .garage-part-category {
           font-size: 11px;
           font-weight: 600;
-          color: #3b82f6;
+          color: #ff7a1a;
           text-transform: uppercase;
           letter-spacing: 0.04em;
         }

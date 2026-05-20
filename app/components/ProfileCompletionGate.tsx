@@ -115,8 +115,8 @@ export default function ProfileCompletionGate() {
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(11, 26, 58, 0.85)",
-        backdropFilter: "blur(6px)",
+        background: "rgba(1, 5, 12, 0.78)",
+        backdropFilter: "blur(12px) saturate(1.05)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -126,33 +126,51 @@ export default function ProfileCompletionGate() {
     >
       <div
         style={{
-          background: "white",
-          borderRadius: 18,
-          padding: 28,
+          background:
+            "radial-gradient(420px 220px at 100% 0%, rgba(255, 122, 26, 0.14), transparent 72%), linear-gradient(145deg, rgba(13, 29, 46, 0.98), rgba(7, 17, 29, 0.99))",
+          border: "1px solid rgba(255, 122, 26, 0.38)",
+          borderRadius: 8,
+          padding: 30,
           maxWidth: 420,
           textAlign: "center",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.3)"
+          boxShadow: "0 30px 80px rgba(0, 7, 18, 0.52), inset 0 1px 0 rgba(255,255,255,0.06)",
+          color: "#f4f8fc"
         }}
       >
-        <LockKeyhole size={36} style={{ color: "#087995", marginBottom: 12 }} />
-        <h2 style={{ margin: "0 0 8px", fontSize: 20, fontWeight: 900 }}>
+        <span
+          style={{
+            width: 54,
+            height: 54,
+            margin: "0 auto 14px",
+            borderRadius: 999,
+            display: "grid",
+            placeItems: "center",
+            color: "#fff",
+            background: "linear-gradient(135deg, #ff9d2e 0%, #ff7a1a 58%, #e65c00 100%)",
+            boxShadow: "0 16px 36px rgba(255, 122, 26, 0.28), inset 0 1px 0 rgba(255,255,255,0.18)"
+          }}
+        >
+          <LockKeyhole size={28} />
+        </span>
+        <h2 style={{ margin: "0 0 8px", fontSize: 22, fontWeight: 950, color: "#fff" }}>
           Viimeistele profiilisi
         </h2>
-        <p style={{ margin: "0 0 18px", color: "#64748b", fontSize: 14, lineHeight: 1.5 }}>
+        <p style={{ margin: "0 0 20px", color: "rgba(215, 226, 238, 0.82)", fontSize: 14, lineHeight: 1.5 }}>
           Täytä profiilisi tiedot ennen kuin voit jatkaa palvelun käyttöä.
         </p>
         <button
           type="button"
           onClick={() => router.replace("/auth")}
           style={{
-            background: "linear-gradient(135deg, #065f75 0%, #087995 100%)",
+            background: "linear-gradient(135deg, #ff9d2e 0%, #ff7a1a 58%, #e65c00 100%)",
             color: "white",
-            border: "none",
-            borderRadius: 10,
+            border: "1px solid rgba(255, 218, 184, 0.7)",
+            borderRadius: 8,
             padding: "12px 22px",
-            fontWeight: 800,
+            fontWeight: 950,
             fontSize: 14,
-            cursor: "pointer"
+            cursor: "pointer",
+            boxShadow: "0 16px 36px rgba(255, 122, 26, 0.26), inset 0 1px 0 rgba(255,255,255,0.16)"
           }}
         >
           Jatka profiiliin

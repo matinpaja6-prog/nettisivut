@@ -39,32 +39,29 @@ export default function MessageBubble({
         .other {
           max-width: 360px;
 
-          border-radius: 18px;
+          border-radius: 14px;
 
-          padding: 12px 14px;
+          padding: 10px 13px;
 
           border: 1px solid;
 
-          box-shadow:
-            0 14px 30px rgba(0, 0, 0, 0.18);
+          box-shadow: none;
 
           overflow: hidden;
         }
 
         .own {
-          background:
-            linear-gradient(135deg, #ff9b24, #ff6b0a);
-          border-color: rgba(255, 190, 118, 0.7);
-          border-bottom-right-radius: 6px;
+          background: #ff7a1a;
+          border-color: #ff7a1a;
+          border-bottom-right-radius: 5px;
           color: #ffffff;
         }
 
         .other {
-          background:
-            linear-gradient(180deg, rgba(225, 239, 248, 0.98), rgba(190, 211, 225, 0.98));
-          border-color: rgba(255, 255, 255, 0.56);
-          border-bottom-left-radius: 6px;
-          color: #071f34;
+          background: #ffffff;
+          border-color: #e2e8f0;
+          border-bottom-left-radius: 5px;
+          color: #0f172a;
         }
 
         p {
@@ -74,7 +71,7 @@ export default function MessageBubble({
           line-height: 1.5;
 
           color: inherit;
-          font-weight: 750;
+          font-weight: 650;
 
           padding: 2px 4px;
         }
@@ -85,7 +82,7 @@ export default function MessageBubble({
 
           display: block;
 
-          border-radius: 16px;
+          border-radius: 12px;
 
           object-fit: cover;
         }

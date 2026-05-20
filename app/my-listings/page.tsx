@@ -1,38 +1,31 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import OptimizedListingImage from "@/app/components/OptimizedListingImage";
 import { translateCategory, useLanguage } from "@/lib/i18n";
-import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 
 import {
   ArrowUp,
-  Award,
-  Bell,
-  Car,
+  Calendar,
   Check,
-  DoorOpen,
+  ChevronDown,
+  ClipboardList,
   Edit3,
   Eye,
   EyeOff,
-  ArrowLeft,
-  Heart,
-  Home,
   ImageIcon,
   ImagePlus,
+  LayoutGrid,
+  List as ListIcon,
   LockKeyhole,
-  Mail,
   MessageCircle,
   MoreVertical,
   Phone,
-  Plus,
   Search,
-  Store,
   Tag,
   TrendingUp,
   Trash2,
-  UserRound,
   X
 } from "lucide-react";
 
@@ -42,14 +35,12 @@ import {
   createPurchaseReviewRequest,
   deleteListing,
   findReviewBuyerByPhone,
-  getConversationSummaries,
+  getConversationCountForUser,
   getListingBuyerCandidates,
   getListingsBySeller,
-  getCurrentUserIsAdmin,
   getMyListingMessageCounts,
   recordSoldListing,
   setListingHidden,
-  signOut,
   supabase,
   updateListing,
   type ListingBuyerCandidate,
@@ -58,15 +49,15 @@ import {
 } from "@/lib/supabase";
 
 import styles from "./my-listings.module.css";
-import topStyles from "../page.module.css";
 
 import {
-  categories,
   conditions,
   formatPrice,
   getListingPartNumber,
   type Listing
 } from "@/lib/listings";
+import { buildVehicleCategoriesFromTaxonomy, categoriesAsRecord } from "@/lib/taxonomy";
+import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 
 function splitLocation(value: string | null | undefined) {
   const parts = (value || "").split(",").map((part) => part.trim()).filter(Boolean);
@@ -109,8 +100,50 @@ function getErrorMessage(error: unknown) {
 const fallbackListingImage =
   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3";
 
+const myListingsCachePrefix = "arcticparts:my-listings:";
+
+function myListingsCacheKey(userId: string) {
+  return `${myListingsCachePrefix}${userId}`;
+}
+
+function readCachedMyListings(userId: string) {
+  if (typeof window === "undefined") return [];
+
+  try {
+    const raw = window.localStorage.getItem(myListingsCacheKey(userId));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed as Listing[];
+  } catch {
+    return [];
+  }
+}
+
+function writeCachedMyListings(userId: string, nextListings: Listing[]) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(
+      myListingsCacheKey(userId),
+      JSON.stringify(nextListings.slice(0, 80))
+    );
+  } catch {
+    // Cache is only a speed boost, so storage failures can be ignored.
+  }
+}
+
 export default function MyListingsPage() {
   const { locale, t } = useLanguage();
+  const taxonomy = useTaxonomy();
+  const allCategories = useMemo(() => categoriesAsRecord(taxonomy), [taxonomy]);
+  const categoriesByVehicle = useMemo(() => {
+    const out: Record<string, Record<string, string[]>> = {};
+    for (const vehicle of taxonomy.vehicles) {
+      out[vehicle.key] = buildVehicleCategoriesFromTaxonomy(taxonomy, vehicle.key);
+    }
+    return out;
+  }, [taxonomy]);
   const pageText = {
     management: {
       fi: "Ilmoitusten hallinta",
@@ -202,6 +235,9 @@ export default function MyListingsPage() {
   const [listings, setListings] =
     useState<Listing[]>([]);
 
+  const [listingsCacheReady, setListingsCacheReady] =
+    useState(false);
+
   const [status, setStatus] =
     useState("");
 
@@ -223,6 +259,9 @@ export default function MyListingsPage() {
       image_url: "",
       image_urls: [] as string[]
     });
+
+  const [previewImage, setPreviewImage] =
+    useState<string | null>(null);
 
   const [deleteTarget, setDeleteTarget] =
     useState<Listing | null>(null);
@@ -269,8 +308,11 @@ export default function MyListingsPage() {
   const [activeTab, setActiveTab] =
     useState<"all" | "active" | "hidden" | "sold">("all");
 
-  const [sortOrder] =
+  const [sortOrder, setSortOrder] =
     useState<"newest" | "oldest" | "price-desc" | "price-asc" | "views">("newest");
+
+  const [viewMode, setViewMode] =
+    useState<"list" | "grid">("list");
 
   const [conversationCount, setConversationCount] =
     useState(0);
@@ -278,22 +320,11 @@ export default function MyListingsPage() {
   const [openMenuId, setOpenMenuId] =
     useState<string | null>(null);
 
-  const [profileMenu, setProfileMenu] =
-    useState(false);
-
-  const [isAdmin, setIsAdmin] =
-    useState(false);
-
   const [statsRange, setStatsRange] =
     useState<"1d" | "7d" | "30d" | "all">("7d");
 
   const [messageCounts, setMessageCounts] =
     useState<Record<string, ListingMessageCount>>({});
-
-  const profileButtonRef = useRef<HTMLButtonElement | null>(null);
-  const profileMenuRef = useRef<HTMLDivElement | null>(null);
-  const [profileMenuPos, setProfileMenuPos] =
-    useState<{ top: number; right: number } | null>(null);
 
   useEffect(() => {
 
@@ -314,82 +345,62 @@ export default function MyListingsPage() {
 
     if (!user) return;
 
+    let cancelled = false;
+    const cachedListings = readCachedMyListings(user.id);
+
+    if (cachedListings.length > 0) {
+      setListings(cachedListings.filter((l) => !l.is_sold));
+      setListingsCacheReady(true);
+    } else {
+      setListingsCacheReady(false);
+    }
+
     getListingsBySeller(user.id)
       .then(({ data }) => {
-        setListings((data ?? []).filter((l) => !l.is_sold));
+        if (cancelled) return;
+        const activeListings = (data ?? []).filter((l) => !l.is_sold);
+        setListings(activeListings);
+        setListingsCacheReady(true);
+        writeCachedMyListings(user.id, activeListings);
       })
       .catch(() => {
+        if (cancelled) return;
         setListings([]);
+        setListingsCacheReady(true);
       });
 
-    getConversationSummaries(user.id)
-      .then(({ data }) => {
-        setConversationCount((data ?? []).length);
+    getConversationCountForUser(user.id)
+      .then(({ count }) => {
+        if (cancelled) return;
+        setConversationCount(count);
       })
-      .catch(() => setConversationCount(0));
+      .catch(() => {
+        if (!cancelled) setConversationCount(0);
+      });
 
     getMyListingMessageCounts()
       .then(({ data }) => {
+        if (cancelled) return;
         const map: Record<string, ListingMessageCount> = {};
         (data ?? []).forEach((row) => {
           map[row.listing_id] = row;
         });
         setMessageCounts(map);
       })
-      .catch(() => setMessageCounts({}));
+      .catch(() => {
+        if (!cancelled) setMessageCounts({});
+      });
 
-    getCurrentUserIsAdmin()
-      .then((result) => {
-        if (typeof result === "boolean") setIsAdmin(result);
-        else if (result && typeof result === "object" && "data" in result)
-          setIsAdmin(!!(result as { data?: boolean }).data);
-      })
-      .catch(() => setIsAdmin(false));
+    return () => {
+      cancelled = true;
+    };
 
   }, [user]);
 
-  // Close profile menu on outside click
   useEffect(() => {
-    if (!profileMenu) return;
-    function handleClick(event: MouseEvent) {
-      const target = event.target as Node;
-      if (
-        profileMenuRef.current?.contains(target) ||
-        profileButtonRef.current?.contains(target)
-      ) {
-        return;
-      }
-      setProfileMenu(false);
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [profileMenu]);
-
-  function toggleProfileMenu() {
-    if (profileMenu) {
-      setProfileMenu(false);
-      return;
-    }
-    const rect = profileButtonRef.current?.getBoundingClientRect();
-    if (rect) {
-      setProfileMenuPos({
-        top: rect.bottom + 8,
-        right: window.innerWidth - rect.right
-      });
-    }
-    setProfileMenu(true);
-  }
-
-  async function handleSignOut() {
-    setProfileMenu(false);
-    setUser(null);
-    try {
-      sessionStorage.removeItem("home_return_state_v1");
-      sessionStorage.removeItem("home_return_pending_v1");
-    } catch {}
-    await signOut();
-    if (typeof window !== "undefined") window.location.href = "/";
-  }
+    if (!user || !listingsCacheReady) return;
+    writeCachedMyListings(user.id, listings);
+  }, [listings, listingsCacheReady, user]);
 
   async function toggleListingHidden(listing: Listing) {
     const next = !listing.is_hidden;
@@ -509,6 +520,22 @@ export default function MyListingsPage() {
 
   }
 
+  function hasMinimumListingPrice(value: string | number | null | undefined) {
+    return Number(value) >= 1;
+  }
+
+  function normalizeListingPriceInput(value: string) {
+    if (value.trim() === "") return "";
+    const numeric = Number(value);
+    if (Number.isFinite(numeric) && numeric < 1) return "1";
+    return value;
+  }
+
+  function normalizeListingPriceForSave(value: string | number | null | undefined) {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric >= 1 ? numeric : 1;
+  }
+
   async function saveListing() {
 
     if (!editingListingId) return;
@@ -522,6 +549,11 @@ export default function MyListingsPage() {
     if (!currentListing) return;
 
     setStatus(pageText.saving);
+
+    if (!hasMinimumListingPrice(listingForm.price)) {
+      setStatus("Hinnan pitää olla vähintään 1 €.");
+      return;
+    }
 
     const nextImages = listingForm.image_urls.filter(Boolean);
 
@@ -550,7 +582,7 @@ export default function MyListingsPage() {
           title: listingForm.title,
           original_language: currentListing.original_language || locale,
           translations: null,
-          price: Number(listingForm.price),
+          price: normalizeListingPriceForSave(listingForm.price),
           category: listingForm.category,
           subcategory: listingForm.subcategory,
           part_number: listingForm.part_number.trim() || null,
@@ -844,6 +876,12 @@ export default function MyListingsPage() {
 
   }
 
+  const activeListingsValue =
+    listings.reduce((sum, listing) => sum + (Number(listing.price) || 0), 0);
+
+  const currentMonthKey =
+    new Date().toISOString().slice(0, 7);
+
   const totalViews = useMemo(
     () => listings.reduce((sum, l) => sum + (Number(l.view_count) || 0), 0),
     [listings]
@@ -884,14 +922,8 @@ export default function MyListingsPage() {
     0
   ), [soldInRange]);
 
-  const visibleListings = useMemo(
-    () => listings.filter((l) => !l.is_hidden),
-    [listings]
-  );
-  const hiddenListings = useMemo(
-    () => listings.filter((l) => !!l.is_hidden),
-    [listings]
-  );
+  const visibleListings = listings.filter((l) => !l.is_hidden);
+  const hiddenListings = listings.filter((l) => !!l.is_hidden);
 
   const tabCounts = {
     all: listings.length,
@@ -932,7 +964,7 @@ export default function MyListingsPage() {
       }
     });
     return sorted;
-  }, [activeTab, hiddenListings, listings, sortOrder, visibleListings]);
+  }, [activeTab, listings, sortOrder]);
 
   function formatDateFi(value?: string | null) {
     if (!value) return "";
@@ -947,89 +979,17 @@ export default function MyListingsPage() {
     { key: "hidden",  label: "Piilotetut", count: tabCounts.hidden },
   ];
 
-  const pääsivuLabel = { fi: "Pääsivu", en: "Home", sv: "Hem", no: "Hjem", et: "Avaleht" }[locale];
-  const cancelLabel = { fi: "Peruuta", en: "Cancel", sv: "Avbryt", no: "Avbryt", et: "Tühista" }[locale];
+  const sortLabels: Record<typeof sortOrder, string> = {
+    newest: "Uusimmat ensin",
+    oldest: "Vanhimmat ensin",
+    "price-desc": "Hinta: korkein",
+    "price-asc": "Hinta: matalin",
+    views: "Eniten katseluja"
+  };
 
   return (
 
     <main className={styles.page}>
-
-      <div className={`${topStyles.heroWrap} ${styles.slimHero}`}>
-        <div className={`${topStyles.container} ${topStyles.topbar}`}>
-          <Link
-            href="/"
-            className={topStyles.topButton}
-            aria-label={cancelLabel}
-          >
-            <ArrowLeft size={14} />
-            <span className={topStyles.topButtonLabel}>{cancelLabel}</span>
-          </Link>
-          <div style={{ flex: 1 }} />
-          <div className={topStyles.topActions} suppressHydrationWarning>
-            {user ? (
-              <Link
-                href="/sell"
-                className={`${topStyles.topButton} ${topStyles.topButtonSolid}`}
-              >
-                <Plus size={14} />
-                <span className={topStyles.topButtonLabel}>{t.createListing}</span>
-              </Link>
-            ) : (
-              <button
-                type="button"
-                className={`${topStyles.topButton} ${topStyles.topButtonSolid}`}
-                disabled
-                suppressHydrationWarning
-              >
-                <Plus size={14} />
-                <span className={topStyles.topButtonLabel}>{t.createListing}</span>
-              </button>
-            )}
-
-            <Link
-              href="/messages"
-              className={`${topStyles.notificationButton} ${styles.topbarGrayButton}`}
-              aria-label={t.messages}
-            >
-              <Bell size={17} />
-              {conversationCount > 0 && (
-                <span className={topStyles.notificationBadge}>
-                  {conversationCount > 9 ? "9+" : conversationCount}
-                </span>
-              )}
-            </Link>
-
-            {user ? (
-              <div
-                className={topStyles.topbarProfileWrap}
-                style={{ position: "relative", zIndex: 9999 }}
-              >
-                <button
-                  ref={profileButtonRef}
-                  onClick={toggleProfileMenu}
-                  className={`${topStyles.topButton} ${topStyles.topButtonSolid} ${styles.topbarGrayButton} ${styles.topbarGrayProfile}`}
-                  aria-haspopup="menu"
-                  aria-expanded={profileMenu}
-                  type="button"
-                >
-                  <UserRound size={14} />
-                  <span className={topStyles.topButtonLabel}>{t.profile}</span>
-                </button>
-              </div>
-            ) : (
-              <Link
-                href="/auth"
-                className={`${topStyles.topButton} ${topStyles.topbarProfileWrap} ${styles.topbarGrayButton} ${styles.topbarGrayProfile}`}
-              >
-                <LockKeyhole size={14} />
-                {t.profile}
-              </Link>
-            )}
-
-            <LanguageSwitcher />
-          </div>
-        </div>
-      </div>
 
       <header className={styles.header}>
 
@@ -1061,54 +1021,6 @@ export default function MyListingsPage() {
         )}
 
       </header>
-
-      {profileMenu && profileMenuPos && typeof window !== "undefined" &&
-        createPortal(
-          <div
-            ref={profileMenuRef}
-            className={styles.profileMenu}
-            role="menu"
-            style={{ top: profileMenuPos.top, right: profileMenuPos.right }}
-          >
-            <Link href="/profile" className={styles.profileMenuLink} role="menuitem" onClick={() => setProfileMenu(false)}>
-              <UserRound size={16} /> {t.editProfile}
-            </Link>
-            <Link href="/" className={styles.profileMenuLink} role="menuitem" onClick={() => setProfileMenu(false)}>
-              <Home size={16} /> {pääsivuLabel}
-            </Link>
-            <Link href="/garage" className={styles.profileMenuLink} role="menuitem" onClick={() => setProfileMenu(false)}>
-              <Car size={16} /> {t.garageTitle}
-            </Link>
-            <Link href="/messages" className={styles.profileMenuLink} role="menuitem" onClick={() => setProfileMenu(false)}>
-              <Mail size={16} /> {t.messages}
-            </Link>
-            <Link href="/saved" className={styles.profileMenuLink} role="menuitem" onClick={() => setProfileMenu(false)}>
-              <Heart size={16} /> {t.savedListings}
-            </Link>
-            <Link href="/search-alerts" className={styles.profileMenuLink} role="menuitem" onClick={() => setProfileMenu(false)}>
-              <Bell size={16} /> {t.saTitle}
-            </Link>
-            <Link href="/rewards" className={styles.profileMenuLink} role="menuitem" onClick={() => setProfileMenu(false)}>
-              <Award size={16} /> {t.rewards}
-            </Link>
-            <Link href="/shop" className={styles.profileMenuLink} role="menuitem" onClick={() => setProfileMenu(false)}>
-              <Store size={16} /> {t.shop}
-            </Link>
-            {isAdmin && (
-              <Link href="/admin" className={styles.profileMenuLink} role="menuitem" onClick={() => setProfileMenu(false)}>
-                <LockKeyhole size={16} /> Admin
-              </Link>
-            )}
-            <button
-              type="button"
-              className={styles.profileMenuSignOut}
-              onClick={handleSignOut}
-            >
-              <DoorOpen size={16} /> {t.signOut}
-            </button>
-          </div>,
-          document.body
-        )}
 
       {user && (
         <>
@@ -1221,7 +1133,12 @@ export default function MyListingsPage() {
 
           </div>
 
-          {filteredListings.length === 0 ? (
+          {!listingsCacheReady && listings.length === 0 ? (
+            <div className={styles.emptyState}>
+              <Tag size={28} />
+              <span>Ladataan omia ilmoituksia...</span>
+            </div>
+          ) : filteredListings.length === 0 ? (
             <div className={styles.emptyState}>
               <Tag size={28} />
               <span>{pageText.noListings}</span>
@@ -1235,10 +1152,12 @@ export default function MyListingsPage() {
                 const editing =
                   editingListingId === listing.id;
 
+                const listingCategories =
+                  (listing.vehicle_type && categoriesByVehicle[listing.vehicle_type]) ||
+                  allCategories;
+
                 const subcategories =
-                  categories[
-                    listingForm.category as keyof typeof categories
-                  ] ?? [];
+                  listingCategories[listingForm.category] ?? [];
 
                 const imageCount =
                   (listing.image_urls?.length ?? 0) || (listing.image_url ? 1 : 0);
@@ -1278,204 +1197,265 @@ export default function MyListingsPage() {
                     {editing ? (
 
                       <div className="own-listing-edit">
+                        <div className="own-listing-edit-head">
+                          <div>
+                            <span>Muokkaa ilmoitusta</span>
+                            <strong>{listing.title}</strong>
+                          </div>
+                          <small>Tallenna muutokset vasta kun tiedot näyttävät oikeilta.</small>
+                        </div>
 
                         {(() => {
                           const sepIdx = listingForm.title.indexOf(" - ");
                           const partName = sepIdx >= 0 ? listingForm.title.slice(0, sepIdx) : listingForm.title;
                           const lockedSuffix = sepIdx >= 0 ? listingForm.title.slice(sepIdx + 3) : "";
                           return (
-                            <div className="own-listing-title-fields">
-                              <input
-                                className="own-listing-title-input"
-                                value={partName}
-                                onChange={(event) =>
-                                  setListingForm({
-                                    ...listingForm,
-                                    title: lockedSuffix
-                                      ? `${event.target.value} - ${lockedSuffix}`
-                                      : event.target.value
-                                  })
-                                }
-                                placeholder={t.title}
-                              />
-                              {lockedSuffix && (
-                                <input
-                                  className="own-listing-locked-input"
-                                  value={lockedSuffix}
-                                  readOnly
-                                  disabled
-                                  aria-label="Merkki, malli ja vuosimalli (ei muokattavissa)"
-                                />
-                              )}
+                            <div className="own-listing-section">
+                              <span className="own-listing-section-title">Perustiedot</span>
+                              <div className="own-listing-title-fields">
+                                <label className="own-listing-field">
+                                  <span>Otsikko</span>
+                                  <input
+                                    className="own-listing-title-input"
+                                    value={partName}
+                                    onChange={(event) =>
+                                      setListingForm({
+                                        ...listingForm,
+                                        title: lockedSuffix
+                                          ? `${event.target.value} - ${lockedSuffix}`
+                                          : event.target.value
+                                      })
+                                    }
+                                    placeholder={t.title}
+                                  />
+                                </label>
+                                {lockedSuffix && (
+                                  <label className="own-listing-field">
+                                    <span>Ajoneuvo</span>
+                                    <input
+                                      className="own-listing-locked-input"
+                                      value={lockedSuffix}
+                                      readOnly
+                                      disabled
+                                      aria-label="Merkki, malli ja vuosimalli (ei muokattavissa)"
+                                    />
+                                  </label>
+                                )}
+                              </div>
+
+                              <div className="own-listing-title-fields">
+                                <label className="own-listing-field own-listing-price-field">
+                                  <span>Hinta</span>
+                                  <div className="own-listing-price-wrap">
+                                    <input
+                                      className="own-listing-price-input"
+                                      type="number"
+                                      min="1"
+                                      step="1"
+                                      value={listingForm.price}
+                                      onChange={(event) =>
+                                        setListingForm({
+                                          ...listingForm,
+                                          price: normalizeListingPriceInput(event.target.value)
+                                        })
+                                      }
+                                      placeholder="1"
+                                    />
+                                    <b>€</b>
+                                  </div>
+                                </label>
+                                <label className="own-listing-field">
+                                  <span>Varaosanumero</span>
+                                  <input
+                                    className="own-listing-part-input"
+                                    value={listingForm.part_number}
+                                    onChange={(event) =>
+                                      setListingForm({
+                                        ...listingForm,
+                                        part_number: event.target.value
+                                      })
+                                    }
+                                    placeholder="OEM-numero, jos tiedossa"
+                                  />
+                                </label>
+                              </div>
                             </div>
                           );
                         })()}
 
-                        <input
-                          className="own-listing-price-input"
-                          type="number"
-                          value={listingForm.price}
-                          onChange={(event) =>
-                            setListingForm({
-                              ...listingForm,
-                              price: event.target.value
-                            })
-                          }
-                          placeholder={t.price}
-                        />
-
-                        <input
-                          className="own-listing-part-input"
-                          value={listingForm.part_number}
-                          onChange={(event) =>
-                            setListingForm({
-                              ...listingForm,
-                              part_number: event.target.value
-                            })
-                          }
-                          placeholder="Varaosanumero / OEM-numero"
-                        />
-
-                        <select
-                          value={listingForm.category}
-                          onChange={(event) =>
-                            setListingForm({
-                              ...listingForm,
-                              category: event.target.value,
-                              subcategory: ""
-                            })
-                          }
-                        >
-                          {Object.keys(categories)
-                            .filter(
-                              (category) =>
-                                category !== "Kaikki"
-                            )
-                            .map((category) => (
-                              <option
-                                key={category}
-                                value={category}
+                        <div className="own-listing-section">
+                          <span className="own-listing-section-title">Luokittelu ja kunto</span>
+                          <div className="own-listing-grid-3">
+                            <label className="own-listing-field">
+                              <span>Kategoria</span>
+                              <select
+                                value={listingForm.category}
+                                onChange={(event) =>
+                                  setListingForm({
+                                    ...listingForm,
+                                    category: event.target.value,
+                                    subcategory: ""
+                                  })
+                                }
                               >
-                                {translateCategory(locale, category)}
-                              </option>
-                            ))}
-                        </select>
+                                {Object.keys(listingCategories)
+                                  .map((category) => (
+                                    <option
+                                      key={category}
+                                      value={category}
+                                    >
+                                      {translateCategory(locale, category)}
+                                    </option>
+                                  ))}
+                              </select>
+                            </label>
 
-                        <select
-                          value={listingForm.subcategory}
-                          onChange={(event) =>
-                            setListingForm({
-                              ...listingForm,
-                              subcategory: event.target.value
-                            })
-                          }
-                        >
-                          <option value="">
-                            {pageText.noSubcategory}
-                          </option>
-                          {subcategories.map(
-                            (subcategory) => (
-                              <option
-                                key={subcategory}
-                                value={subcategory}
+                            <label className="own-listing-field">
+                              <span>Alakategoria</span>
+                              <select
+                                value={listingForm.subcategory}
+                                onChange={(event) =>
+                                  setListingForm({
+                                    ...listingForm,
+                                    subcategory: event.target.value
+                                  })
+                                }
                               >
-                                {translateCategory(locale, subcategory)}
-                              </option>
-                            )
-                          )}
-                        </select>
+                                <option value="">
+                                  {pageText.noSubcategory}
+                                </option>
+                                {subcategories.map(
+                                  (subcategory) => (
+                                    <option
+                                      key={subcategory}
+                                      value={subcategory}
+                                    >
+                                      {translateCategory(locale, subcategory)}
+                                    </option>
+                                  )
+                                )}
+                              </select>
+                            </label>
 
-                        <select
-                          value={listingForm.condition}
-                          onChange={(event) =>
-                            setListingForm({
-                              ...listingForm,
-                              condition: event.target.value
-                            })
-                          }
-                        >
-                          {conditions.map(
-                            (condition) => (
-                              <option
-                                key={condition}
-                                value={condition}
+                            <label className="own-listing-field">
+                              <span>Kunto</span>
+                              <select
+                                value={listingForm.condition}
+                                onChange={(event) =>
+                                  setListingForm({
+                                    ...listingForm,
+                                    condition: event.target.value
+                                  })
+                                }
                               >
-                                {condition}
-                              </option>
-                            )
-                          )}
-                        </select>
-
-                        <div className="own-listing-location-pair">
-                          <input
-                            className="own-listing-location-input"
-                            value={listingForm.location_country}
-                            onChange={(event) => {
-                              const location_country = event.target.value;
-                              setListingForm({
-                                ...listingForm,
-                                location_country,
-                                location: buildLocation(listingForm.location_city, location_country)
-                              });
-                            }}
-                            placeholder="Maa"
-                          />
-                          <input
-                            className="own-listing-location-input"
-                            value={listingForm.location_city}
-                            onChange={(event) => {
-                              const location_city = event.target.value;
-                              setListingForm({
-                                ...listingForm,
-                                location_city,
-                                location: buildLocation(location_city, listingForm.location_country)
-                              });
-                            }}
-                            placeholder="Kaupunki"
-                          />
-                        </div>
-
-                        <div className="own-listing-image-editor">
-                          <label className="upload-box own-listing-upload-box">
-                            <ImagePlus size={24} />
-                            <strong>Lisää kuva</strong>
-                            <span>PNG, JPG, WEBP</span>
-                            <input
-                              type="file"
-                              accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/heic,image/heif"
-                              onChange={(event) => {
-                                handleListingImageUpload(event.target.files?.[0]);
-                                event.currentTarget.value = "";
-                              }}
-                            />
-                          </label>
-
-                          <div className="image-grid own-listing-image-grid">
-                            {listingForm.image_urls.map((img, index) => (
-                              <div key={`${img}-${index}`} className="img-box own-listing-img-box">
-                                <img src={img} alt={`Kuva ${index + 1}`} />
-                                <button
-                                  type="button"
-                                  aria-label="Poista kuva"
-                                  onClick={() => removeListingImage(index)}
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            ))}
+                                {conditions.map(
+                                  (condition) => (
+                                    <option
+                                      key={condition}
+                                      value={condition}
+                                    >
+                                      {condition}
+                                    </option>
+                                  )
+                                )}
+                              </select>
+                            </label>
                           </div>
                         </div>
 
-                        <textarea
-                          value={listingForm.description}
-                          onChange={(event) =>
-                            setListingForm({
-                              ...listingForm,
-                              description: event.target.value
-                            })
-                          }
-                          placeholder={t.description}
-                        />
+                        <div className="own-listing-section">
+                          <span className="own-listing-section-title">Sijainti</span>
+                          <div className="own-listing-location-pair">
+                            <label className="own-listing-field">
+                              <span>Maa</span>
+                              <input
+                                className="own-listing-location-input"
+                                value={listingForm.location_country}
+                                onChange={(event) => {
+                                  const location_country = event.target.value;
+                                  setListingForm({
+                                    ...listingForm,
+                                    location_country,
+                                    location: buildLocation(listingForm.location_city, location_country)
+                                  });
+                                }}
+                                placeholder="Maa"
+                              />
+                            </label>
+                            <label className="own-listing-field">
+                              <span>Kaupunki</span>
+                              <input
+                                className="own-listing-location-input"
+                                value={listingForm.location_city}
+                                onChange={(event) => {
+                                  const location_city = event.target.value;
+                                  setListingForm({
+                                    ...listingForm,
+                                    location_city,
+                                    location: buildLocation(location_city, listingForm.location_country)
+                                  });
+                                }}
+                                placeholder="Kaupunki"
+                              />
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="own-listing-section">
+                          <span className="own-listing-section-title">Kuvat</span>
+                          <div className="own-listing-image-editor">
+                            <label className="upload-box own-listing-upload-box">
+                              <ImagePlus size={24} />
+                              <strong>Lisää kuva</strong>
+                              <span>PNG, JPG, WEBP</span>
+                              <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/heic,image/heif"
+                                onChange={(event) => {
+                                  handleListingImageUpload(event.target.files?.[0]);
+                                  event.currentTarget.value = "";
+                                }}
+                              />
+                            </label>
+
+                            <div className="image-grid own-listing-image-grid">
+                              {listingForm.image_urls.map((img, index) => (
+                                <div key={`${img}-${index}`} className="img-box own-listing-img-box">
+                                  <button
+                                    type="button"
+                                    className="image-open-btn"
+                                    onClick={() => setPreviewImage(img)}
+                                    aria-label={`Avaa kuva ${index + 1}`}
+                                  >
+                                    <img src={img} alt={`Kuva ${index + 1}`} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="image-remove-btn"
+                                    aria-label="Poista kuva"
+                                    onClick={() => removeListingImage(index)}
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        <label className="own-listing-field own-listing-description-field">
+                          <span>Kuvaus</span>
+                          <textarea
+                            value={listingForm.description}
+                            onChange={(event) =>
+                              setListingForm({
+                                ...listingForm,
+                                description: event.target.value
+                              })
+                            }
+                            placeholder="Kerro osan kunnosta, sopivuudesta ja mahdollisista vioista."
+                          />
+                        </label>
 
                         <div className="own-listing-actions">
 
@@ -1504,10 +1484,11 @@ export default function MyListingsPage() {
                       <>
                         <div className={styles.rowMedia}>
                           <div className={styles.rowImageWrap}>
-                            <img
+                            <OptimizedListingImage
                               className={styles.rowImage}
                               src={listing.image_url}
                               alt={listing.title}
+                              sizes="96px"
                             />
                             {imageCount > 0 && (
                               <span className={styles.photoCount}>
@@ -1640,6 +1621,28 @@ export default function MyListingsPage() {
         </section>
       )}
 
+      {previewImage && (
+        <div className="part-image-preview-modal" role="dialog" aria-modal="true" aria-label="Kuvan esikatselu">
+          <button
+            type="button"
+            className="part-image-preview-backdrop"
+            onClick={() => setPreviewImage(null)}
+            aria-label="Sulje kuvan esikatselu"
+          />
+          <div className="part-image-preview-panel">
+            <img src={previewImage} alt="Tuotekuva isona" />
+            <button
+              type="button"
+              className="part-image-preview-close"
+              onClick={() => setPreviewImage(null)}
+              aria-label="Sulje"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {deleteTarget && (
 
         <div className="delete-listing-modal-backdrop">
@@ -1711,7 +1714,6 @@ export default function MyListingsPage() {
                   placeholder={`Pyyntihinta oli ${deleteTarget?.price ?? ""} €`}
                   value={soldPrice}
                   onChange={(e) => setSoldPrice(e.target.value)}
-                  style={{ marginTop: 6, width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: "0.95rem" }}
                 />
               </div>
             )}

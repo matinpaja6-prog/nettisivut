@@ -6,6 +6,7 @@ import { ArrowLeft, Award, Check, CheckCircle2, Copy, Gift, ListChecks, LockKeyh
 import type { User } from "@supabase/supabase-js";
 import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 import { useLanguage } from "@/lib/i18n";
+import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import {
   claimQuest,
   getListingSlotUsage,
@@ -113,6 +114,29 @@ const QUESTS: QuestDef[] = [
 ];
 
 export default function RewardsPage() {
+  if (!FEATURE_FLAGS.rewardsAndShop) {
+    return <RewardsDisabledPage />;
+  }
+
+  return <RewardsEnabledPage />;
+}
+
+function RewardsDisabledPage() {
+  const { t } = useLanguage();
+  return (
+    <main className="profile-workspace rewards-page">
+      <section className="profile-card rewards-card">
+        <Link href="/" className="profile-back-link">
+          <ArrowLeft size={16} />
+          {t.back}
+        </Link>
+        <h1>Palkinnot eivät ole tällä hetkellä käytössä.</h1>
+      </section>
+    </main>
+  );
+}
+
+function RewardsEnabledPage() {
   const { locale, t } = useLanguage();
   const qtr = QUEST_TR[locale] ?? QUEST_TR.fi;
   const rw = {

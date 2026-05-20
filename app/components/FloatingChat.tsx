@@ -78,13 +78,20 @@ function markRead(convId: string, userId?: string | null) {
    COMPONENT
 ====================================================== */
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function FloatingChat() {
   const pathname = usePathname();
+  const router = useRouter();
   const { locale, t } = useLanguage();
   const [userId, setUserId] = useState<string | null>(null);
 
+  // Älä renderöi admin-sivulla
+  const isAdmin = pathname?.startsWith("/admin");
+  const isAuthPage = pathname?.startsWith("/auth");
+  const isLegalPage =
+    pathname?.startsWith("/privacy") ||
+    pathname?.startsWith("/terms");
   const [open, setOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [activeConv, setActiveConv] = useState<ConversationSummary | null>(null);
@@ -94,13 +101,21 @@ export default function FloatingChat() {
   const [unread, setUnread] = useState(0);
   const [hiddenConvs, setHiddenConvs] = useState<string[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [authChecked, setAuthChecked] = useState(false);
 
   /* --- auth --- */
   useEffect(() => {
-    if (!supabase) return;
-    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+    if (!supabase) {
+      setAuthChecked(true);
+      return;
+    }
+    supabase.auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id ?? null);
+      setAuthChecked(true);
+    });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setUserId(session?.user?.id ?? null);
+      setAuthChecked(true);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -115,7 +130,13 @@ export default function FloatingChat() {
 
   useEffect(() => {
     if (userId) loadConversations();
-    else { setConversations([]); setUnread(0); }
+    else {
+      setOpen(false);
+      setActiveConv(null);
+      setConversations([]);
+      setMessages([]);
+      setUnread(0);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
@@ -204,13 +225,20 @@ export default function FloatingChat() {
   useEffect(() => { setHiddenConvs(getHidden()); }, []);
 
   function dismissConv(e: React.MouseEvent, convId: string) {
+    e.preventDefault();
     e.stopPropagation();
     addHidden(convId);
-    setHiddenConvs(prev => [...prev, convId]);
+    setHiddenConvs(prev => prev.includes(convId) ? prev : [...prev, convId]);
   }
 
-  /* --- don't render if not logged in --- */
-  if (!userId || pathname?.startsWith("/admin")) return null;
+  function handleToggleChat() {
+    setOpen((currentOpen) => {
+      if (!currentOpen && userId) void loadConversations();
+      return !currentOpen;
+    });
+  }
+
+  if (isAdmin || isAuthPage || isLegalPage) return null;
 
   /* ======================================================
      UI
@@ -219,13 +247,15 @@ export default function FloatingChat() {
     <>
       {/* floating button */}
       <button
-        className="fc-btn"
-        onClick={() => { setOpen((o) => !o); if (!open) loadConversations(); }}
+        type="button"
+        className="rebuilt-chat-button"
         aria-label={t.messages}
+        data-chat-open={open ? "true" : "false"}
+        onClick={handleToggleChat}
       >
         <MessageCircle size={22} />
         {unread > 0 && (
-          <span className="fc-badge">{unread > 9 ? "9+" : unread}</span>
+          <span className="rebuilt-chat-badge">{unread > 9 ? "9+" : unread}</span>
         )}
       </button>
 
@@ -234,16 +264,16 @@ export default function FloatingChat() {
         <div className="fc-panel">
           {/* header */}
           <div className="fc-header">
-            {activeConv ? (
+            {userId && activeConv ? (
               <button className="fc-back" onClick={() => setActiveConv(null)}>
                 <ChevronLeft size={18} />
               </button>
             ) : null}
             <span className="fc-title">
-              {activeConv ? getOtherName(activeConv, userId, t.messages) : t.messages}
+              {userId && activeConv ? getOtherName(activeConv, userId, t.messages) : t.messages}
             </span>
             <div className="fc-header-actions">
-              {!activeConv && (
+              {userId && !activeConv && (
                 <Link href="/messages" className="fc-all-link" onClick={() => setOpen(false)}>
                   {t.all ?? "All"}
                 </Link>
@@ -254,8 +284,21 @@ export default function FloatingChat() {
             </div>
           </div>
 
+          {!userId && (
+            <div className="fc-login-state">
+              <MessageCircle size={24} />
+              <strong>{authChecked ? t.login : "Ladataan..."}</strong>
+              <span>{authChecked ? "Kirjaudu sisään nähdäksesi viestit." : "Tarkistetaan kirjautumista."}</span>
+              {authChecked && (
+                <button type="button" onClick={() => router.push("/auth")}>
+                  {t.login}
+                </button>
+              )}
+            </div>
+          )}
+
           {/* conversation list */}
-          {!activeConv && (
+          {userId && !activeConv && (
             <div className="fc-list">
               {conversations.length === 0 ? (
                 <p className="fc-empty">{t.noMessages ?? "No messages yet."}</p>
@@ -297,8 +340,10 @@ export default function FloatingChat() {
                         {isUnread && <span className="fc-unread-dot" />}
                       </button>
                       <button
+                        type="button"
                         className="fc-conv-dismiss"
                         onClick={(e) => dismissConv(e, c.id)}
+                        aria-label="Poista keskustelu ilmoituksista"
                         title={t.hide ?? "Hide"}
                       >
                         <X size={12} />
@@ -311,7 +356,7 @@ export default function FloatingChat() {
           )}
 
           {/* messages view */}
-          {activeConv && (
+          {userId && activeConv && (
             <>
               {activeConv.listing && (
                 <Link
@@ -363,29 +408,33 @@ export default function FloatingChat() {
       )}
 
       <style>{`
-        .fc-btn {
+        .rebuilt-chat-button {
           position: fixed !important;
           bottom: 28px !important;
           right: 28px !important;
-          width: 58px !important;
-          height: 58px !important;
+          min-width: 0 !important;
+          width: 46px !important;
+          height: 46px !important;
           border-radius: 50% !important;
           background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 52%, #e65300 100%) !important;
           color: white !important;
-          border: none !important;
+          border: 1px solid rgba(255, 220, 190, 0.72) !important;
           cursor: pointer !important;
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
+          padding: 0 !important;
           box-shadow: 0 8px 26px rgba(255,107,22,0.46), 0 2px 8px rgba(0,0,0,0.18) !important;
-          z-index: 9999 !important;
+          pointer-events: auto !important;
+          isolation: isolate !important;
+          z-index: 2147483647 !important;
           transition: transform 0.15s, box-shadow 0.15s !important;
         }
-        .fc-btn:hover {
-          transform: scale(1.1) !important;
+        .rebuilt-chat-button:hover {
+          transform: translateY(-2px) !important;
           box-shadow: 0 12px 36px rgba(255,107,22,0.56) !important;
         }
-        .fc-badge {
+        .rebuilt-chat-badge {
           position: absolute;
           top: -4px;
           right: -4px;
@@ -416,7 +465,9 @@ export default function FloatingChat() {
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          z-index: 9998;
+          pointer-events: auto;
+          isolation: isolate !important;
+          z-index: 2147483646 !important;
         }
         .fc-header {
           display: flex;
@@ -449,7 +500,7 @@ export default function FloatingChat() {
         .fc-all-link {
           font-size: 12px;
           font-weight: 700;
-          color: #3b82f6;
+          color: #ff7a1a;
         }
         .fc-close {
           background: none;
@@ -464,10 +515,61 @@ export default function FloatingChat() {
           flex: 1;
         }
         .fc-empty {
-          padding: 24px;
+          align-items: center;
+          display: grid;
+          justify-items: center;
+          min-height: 150px;
+          padding: 28px 24px;
           text-align: center;
           color: #94a3b8;
           font-size: 14px;
+        }
+        .fc-empty::before {
+          content: "💬";
+          align-items: center;
+          background: rgba(255, 122, 26, 0.12);
+          border: 1px solid rgba(255, 122, 26, 0.34);
+          border-radius: 999px;
+          color: #ff7a1a;
+          display: inline-flex;
+          font-size: 22px;
+          height: 52px;
+          justify-content: center;
+          margin-bottom: 10px;
+          width: 52px;
+        }
+        .fc-login-state {
+          align-items: center;
+          display: grid;
+          gap: 10px;
+          justify-items: center;
+          padding: 30px 22px;
+          text-align: center;
+        }
+        .fc-login-state svg {
+          color: #ff7a1a;
+        }
+        .fc-login-state strong {
+          color: #0f172a;
+          font-size: 16px;
+          font-weight: 900;
+        }
+        .fc-login-state span {
+          color: #64748b;
+          font-size: 13px;
+          font-weight: 650;
+          line-height: 1.35;
+        }
+        .fc-login-state button {
+          background: linear-gradient(135deg, #ff9a24, #ff6b16);
+          border: 0;
+          border-radius: 10px;
+          color: #ffffff;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 900;
+          min-height: 38px;
+          padding: 0 18px;
         }
         .fc-conv-row {
           display: flex;
@@ -511,7 +613,7 @@ export default function FloatingChat() {
           position: relative;
         }
         .fc-conv-item:hover { background: #f8fafc; }
-        .fc-conv-unread { background: #eff6ff; }
+        .fc-conv-unread { background: rgba(255, 122, 26, 0.14); }
         .fc-conv-unread:hover { background: #dbeafe; }
         .fc-conv-avatar {
           width: 38px;
@@ -567,7 +669,7 @@ export default function FloatingChat() {
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: #3b82f6;
+          background: #ff7a1a;
         }
         .fc-listing-bar {
           display: flex;
@@ -644,12 +746,12 @@ export default function FloatingChat() {
           outline: none;
           transition: border-color 0.15s;
         }
-        .fc-input:focus { border-color: #3b82f6; }
+        .fc-input:focus { border-color: #ff7a1a; }
         .fc-send {
           width: 36px;
           height: 36px;
           border-radius: 10px;
-          background: #1d4ed8;
+          background: #ff8a24;
           color: white;
           border: none;
           cursor: pointer;
@@ -663,11 +765,41 @@ export default function FloatingChat() {
         .fc-send:disabled { background: #94a3b8; cursor: not-allowed; }
 
         @media (max-width: 768px) {
-          .fc-btn {
+          .rebuilt-chat-button {
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+            display: flex !important;
+            height: 44px !important;
+            min-width: 44px !important;
+            padding: 0 !important;
+            right: 14px !important;
+            width: 44px !important;
+            z-index: 2147483647 !important;
+          }
+
+          .rebuilt-chat-label {
             display: none !important;
           }
+
+          .rebuilt-chat-button svg {
+            height: 18px !important;
+            width: 18px !important;
+          }
+
+          .rebuilt-chat-badge {
+            min-width: 17px !important;
+            height: 17px !important;
+            font-size: 10px !important;
+            top: -4px !important;
+            right: -4px !important;
+          }
+
           .fc-panel {
-            display: none !important;
+            bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+            display: flex !important;
+            max-height: min(420px, calc(100dvh - 92px)) !important;
+            right: 12px !important;
+            width: min(320px, calc(100vw - 24px)) !important;
+            z-index: 2147483646 !important;
           }
         }
 

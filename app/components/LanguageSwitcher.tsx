@@ -14,13 +14,39 @@ const LOCALES = [
 
 function Flag({ iso }: { iso: string }) {
   return (
-    <img
-      src={`https://flagcdn.com/24x18/${iso}.png`}
-      width={22}
-      height={16}
-      alt=""
-      style={{ borderRadius: 3, objectFit: "cover", flexShrink: 0, display: "block", pointerEvents: "none" }}
-    />
+    <span
+      aria-hidden="true"
+      style={{
+        alignItems: "center",
+        background: "#ffffff",
+        border: "1px solid rgba(5, 11, 20, 0.08)",
+        borderRadius: 4,
+        boxSizing: "border-box",
+        display: "inline-flex",
+        flexShrink: 0,
+        height: 18,
+        justifyContent: "center",
+        overflow: "hidden",
+        pointerEvents: "none",
+        width: 24
+      }}
+    >
+      <img
+        src={`https://flagcdn.com/24x18/${iso}.png`}
+        width={24}
+        height={18}
+        alt=""
+        style={{
+          background: "#ffffff",
+          border: 0,
+          borderRadius: 0,
+          display: "block",
+          height: 18,
+          objectFit: "cover",
+          width: 24
+        }}
+      />
+    </span>
   );
 }
 
@@ -29,11 +55,49 @@ export default function LanguageSwitcher() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [dropPos, setDropPos] = useState({ top: 0, right: 0 });
 
   useEffect(() => { setMounted(true); }, []);
 
   const current = LOCALES.find((l) => l.code === locale) ?? LOCALES[0];
+
+  function updateDropPosition() {
+    if (!btnRef.current || typeof window === "undefined") return;
+    const rect = btnRef.current.getBoundingClientRect();
+    setDropPos({
+      top: rect.bottom + 14,
+      right: Math.max(8, window.innerWidth - rect.right)
+    });
+  }
+
+  useEffect(() => {
+    if (!open || typeof window === "undefined") return;
+
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (btnRef.current?.contains(target) || menuRef.current?.contains(target)) return;
+      setOpen(false);
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+
+    updateDropPosition();
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", updateDropPosition);
+    window.addEventListener("scroll", updateDropPosition, true);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", updateDropPosition);
+      window.removeEventListener("scroll", updateDropPosition, true);
+    };
+  }, [open]);
 
   function pick(code: string) {
     if (!isLocale(code)) return;
@@ -47,33 +111,26 @@ export default function LanguageSwitcher() {
   }
 
   function openDropdown() {
-    if (btnRef.current) {
-      const rect = btnRef.current.getBoundingClientRect();
-      setDropPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
-    }
+    updateDropPosition();
     setOpen((o) => !o);
   }
 
   const dropdown = mounted && open ? createPortal(
-    <>
       <div
-        style={{ position: "fixed", inset: 0, zIndex: 999998 }}
-        onClick={() => setOpen(false)}
-        aria-hidden="true"
-      />
-      <div
+        ref={menuRef}
         role="listbox"
         style={{
           position: "fixed",
           top: dropPos.top,
           right: dropPos.right,
           background: "#ffffff",
-          borderRadius: 12,
-          boxShadow: "0 18px 48px rgba(15,23,42,0.22)",
-          padding: "6px 0",
-          minWidth: 152,
+          border: 0,
+          borderRadius: 16,
+          boxShadow: "none",
+          padding: 6,
+          minWidth: 160,
           zIndex: 999999,
-          overflow: "hidden",
+          overflow: "visible",
           pointerEvents: "all"
         }}
       >
@@ -89,14 +146,15 @@ export default function LanguageSwitcher() {
               alignItems: "center",
               gap: 10,
               width: "100%",
-              padding: "9px 14px",
-              background: l.code === locale ? "rgba(255,107,22,0.09)" : "transparent",
-              border: 0,
+              padding: "9px 12px",
+              background: "#ffffff",
+              border: l.code === locale ? "2px solid #ff7a1a" : "2px solid transparent",
+              borderRadius: l.code === locale ? 999 : 0,
               cursor: "pointer",
               textAlign: "left",
               fontWeight: l.code === locale ? 800 : 600,
               fontSize: 13,
-              color: "#0b1a3a",
+              color: "#050b14",
               pointerEvents: "all"
             }}
           >
@@ -104,8 +162,7 @@ export default function LanguageSwitcher() {
             {l.label}
           </button>
         ))}
-      </div>
-    </>,
+      </div>,
     document.body
   ) : null;
 

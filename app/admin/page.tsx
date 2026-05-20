@@ -11,13 +11,18 @@ import {
   ClipboardList,
   Euro,
   Eye,
+  FolderTree,
   LogOut,
+  Palette,
   ShieldCheck,
   Trash2,
   UserCog,
   Users,
   X
 } from "lucide-react";
+
+import AppearancePanel from "./AppearancePanel";
+import CategoriesPanel from "./CategoriesPanel";
 
 import {
   adminAdjustPhoneVerifications,
@@ -46,7 +51,7 @@ import { BASE_LISTING_SLOT_LIMIT } from "@/lib/listing-slots";
 
 import styles from "./admin.module.css";
 
-type TabKey = "overview" | "users" | "listings" | "bans";
+type TabKey = "overview" | "users" | "listings" | "bans" | "appearance" | "categories";
 
 type AdminListing = {
   id: string;
@@ -492,7 +497,9 @@ export default function AdminPage() {
     { key: "overview", label: "Yleiskatsaus", icon: Eye },
     { key: "users", label: "Käyttäjät", icon: Users },
     { key: "listings", label: "Ilmoitukset", icon: ClipboardList },
-    { key: "bans", label: "Bannit", icon: Ban }
+    { key: "bans", label: "Bannit", icon: Ban },
+    { key: "appearance", label: "Ulkoasu", icon: Palette },
+    { key: "categories", label: "Kategoriat", icon: FolderTree }
   ], []);
 
   async function handleSignOut() {
@@ -701,6 +708,22 @@ export default function AdminPage() {
                 onStatusChange={setListingStatus}
                 vehicle={listingVehicle}
                 onVehicleChange={setListingVehicle}
+              />
+            )}
+
+            {activeTab === "appearance" && (
+              <AppearancePanel
+                onToastAction={(kind: "ok" | "err", text: string) =>
+                  kind === "ok" ? showOk(text) : showError(text)
+                }
+              />
+            )}
+
+            {activeTab === "categories" && (
+              <CategoriesPanel
+                onToastAction={(kind: "ok" | "err", text: string) =>
+                  kind === "ok" ? showOk(text) : showError(text)
+                }
               />
             )}
 

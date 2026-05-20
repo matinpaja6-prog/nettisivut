@@ -1,0 +1,156 @@
+/* Listing detail and product surfaces */
+.listing-detail-page,
+.saved-topbar,
+.garage-page,
+.messages-page,
+.legal-shell,
+.pf-page,
+.auth-page,
+.sa-page {
+  min-height: 100vh;
+}
+
+.listing-detail-page .container,
+.listing-detail-page .wrapper {
+  width: min(1500px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 26px 0 50px;
+}
+
+.listing-detail-page .layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  gap: 22px;
+}
+
+.listing-detail-page .main,
+.listing-detail-page .side,
+.listing-facts-card,
+.listing-extra-card,
+.description-card {
+  display: grid;
+  gap: 14px;
+}
+
+.listing-detail-page .gallery,
+.listing-detail-page .info-card,
+.listing-detail-page .seller-card,
+.listing-detail-page .description-card,
+.listing-facts-card,
+.listing-extra-card {
+  background:
+    radial-gradient(500px 230px at 100% 0%, rgba(255, 122, 26, 0.11), transparent 70%),
+    linear-gradient(145deg, rgba(13, 29, 46, 0.96), rgba(7, 17, 29, 0.98));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+.listing-detail-page .hero-image,
+.listing-detail-page .main-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: #06111f;
+}
+
+.listing-detail-page .thumbs,
+.mobile-image-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px;
+}
+
+.listing-detail-page .thumbs img,
+.mobile-image-thumbs img {
+  width: 72px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+}
+
+.listing-fact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.listing-fact-grid span {
+  display: grid;
+  gap: 4px;
+  min-height: 76px;
+  padding: 14px;
+  border-right: 1px solid rgba(151, 178, 205, 0.12);
+  border-bottom: 1px solid rgba(151, 178, 205, 0.12);
+}
+
+.listing-section-toggle {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  background: rgba(13, 29, 46, 0.76);
+  color: #fff;
+  font-weight: 950;
+}
+
+.listing-section-content,
+.listing-extra-card p,
+.description-card p {
+  padding: 16px;
+  color: var(--soft);
+}
+
+.image-badge,
+.part-img-count,
+.fc-listing-price,
+.sa-notif-price,
+.garage-part-price,
+.rewards-points-badge,
+.quest-points,
+.sa-tag,
+.garage-vehicle-class-tag,
+.pf-company-badge,
+.quest-claimed-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  min-height: 24px;
+  padding: 0 9px;
+  background: rgba(255, 122, 26, 0.15);
+  border: 1px solid rgba(255, 122, 26, 0.28);
+  color: #9fd1ff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.gallery-arrow,
+.listing-image-preview-arrow,
+.part-image-preview-close {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: rgba(3, 12, 24, 0.7);
+  border: 1px solid var(--line);
+  color: #fff;
+}
+
+.listing-image-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(1, 5, 12, 0.92);
+}
+
+body:has(.listing-image-preview) .universal-app-topbar {
+  z-index: 1;
+}

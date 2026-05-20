@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, BadgeCheck, FileText, Handshake } from "lucide-react";
+import { BadgeCheck, FileText, Handshake } from "lucide-react";
 import { useLanguage, type Locale } from "@/lib/i18n";
 
 const termsCopy: Record<Locale, {
@@ -105,25 +105,32 @@ export default function TermsPage() {
   const icons = [FileText, Handshake, BadgeCheck];
 
   return (
-    <main className="terms-page legal-page">
-      <header className="legal-topbar">
-        <Link className="legal-back" href="/"><ArrowLeft size={18} /><span>{copy.back}</span></Link>
-        <div className="legal-brand"><span>AP</span><strong>Arctic Parts</strong></div>
-      </header>
-      <article className="legal-shell">
-        <section className="legal-hero">
-          <div><span className="legal-eyebrow">{copy.eyebrow}</span><h1>{copy.title}</h1><p>{copy.updated}</p></div>
-          <Link href="/privacy" className="legal-hero-link">{copy.privacy}</Link>
+    <main className="terms-page terms-clean-page">
+      <article className="terms-shell">
+        <section className="terms-hero">
+          <div className="terms-hero-copy">
+            <h1>{copy.title}</h1>
+            <p>{copy.updated}</p>
+            <div className="terms-actions">
+              <Link href="/privacy" className="terms-privacy-link">{copy.privacy}</Link>
+            </div>
+          </div>
         </section>
-        <section className="legal-summary" aria-label={copy.summaryLabel}>
+        <section className="terms-summary" aria-label={copy.summaryLabel}>
           {copy.summary.map((item, i) => {
             const Icon = icons[i];
-            return <div key={item.title}><Icon size={20} /><strong>{item.title}</strong><span>{item.text}</span></div>;
+            return (
+              <div key={item.title} className="terms-summary-item">
+                <Icon size={20} />
+                <strong>{item.title}</strong>
+                <span>{item.text}</span>
+              </div>
+            );
           })}
         </section>
-        <div className="legal-content">
+        <div className="terms-content">
           {copy.sections.map((section) => (
-            <section key={section.title}>
+            <section key={section.title} className="terms-section">
               <h2>{section.title}</h2>
               {section.body.map((text) => <p key={text}>{text}</p>)}
               {section.bullets && <ul>{section.bullets.map((item) => <li key={item}>{item}</li>)}</ul>}
@@ -131,6 +138,204 @@ export default function TermsPage() {
           ))}
         </div>
       </article>
+
+      <style>{`
+        .terms-clean-page {
+          background:
+            radial-gradient(760px 360px at 12% 0%, rgba(255, 122, 26, 0.12), transparent 66%),
+            linear-gradient(180deg, #030914 0%, #06101d 46%, #020712 100%) !important;
+          color: #f4f8fc;
+          min-height: 100vh;
+          overflow-x: hidden;
+        }
+
+        .terms-clean-page .terms-shell {
+          background: transparent !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          display: grid;
+          gap: 34px;
+          margin: 0 auto;
+          max-width: 1120px;
+          padding: clamp(34px, 5vw, 72px) clamp(22px, 4vw, 44px) 82px;
+          width: 100%;
+        }
+
+        .terms-clean-page .terms-hero {
+          border-bottom: 1px solid rgba(151, 178, 205, 0.18);
+          padding-bottom: 30px;
+        }
+
+        .terms-clean-page .terms-hero-copy {
+          min-width: 0;
+        }
+
+        .terms-clean-page .terms-eyebrow {
+          background: rgba(255, 122, 26, 0.14) !important;
+          border: 1px solid rgba(255, 122, 26, 0.34) !important;
+          border-radius: 999px;
+          color: #ffb45f !important;
+          display: inline-flex;
+          font-size: 12px;
+          font-weight: 950;
+          margin-bottom: 14px;
+          padding: 6px 10px;
+          width: fit-content;
+        }
+
+        .terms-clean-page h1 {
+          color: #fff !important;
+          font-size: clamp(48px, 7vw, 82px);
+          letter-spacing: 0;
+          line-height: 0.95;
+          margin: 0;
+          overflow-wrap: anywhere;
+        }
+
+        .terms-clean-page .terms-hero p {
+          color: rgba(215, 226, 238, 0.72) !important;
+          font-size: 14px;
+          font-weight: 850;
+          margin: 14px 0 0;
+        }
+
+        .terms-clean-page .terms-actions {
+          align-items: center;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-top: 24px;
+        }
+
+        .terms-clean-page .terms-privacy-link,
+        .terms-clean-page .terms-back {
+          align-items: center;
+          background: rgba(15, 33, 53, 0.86) !important;
+          border: 1px solid rgba(255, 122, 26, 0.32) !important;
+          border-radius: 8px !important;
+          color: #f4f8fc !important;
+          display: inline-flex;
+          gap: 8px;
+          box-shadow: none !important;
+          font-weight: 950;
+          min-height: 42px;
+          padding: 0 14px;
+          text-decoration: none;
+        }
+
+        .terms-clean-page .terms-back {
+          border-color: rgba(151, 178, 205, 0.2) !important;
+        }
+
+        .terms-clean-page .terms-summary {
+          background: transparent !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          display: grid;
+          gap: 22px;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          padding: 0 !important;
+          width: 100%;
+        }
+
+        .terms-clean-page .terms-summary-item {
+          background: linear-gradient(135deg, rgba(13, 30, 48, 0.74), rgba(8, 18, 31, 0.42)) !important;
+          border: 1px solid rgba(151, 178, 205, 0.14) !important;
+          border-radius: 12px;
+          box-shadow: none !important;
+          display: grid;
+          gap: 8px;
+          min-width: 0;
+          padding: 18px;
+          overflow: visible;
+        }
+
+        .terms-clean-page .terms-summary-item svg {
+          color: #ff9d2e;
+          flex: 0 0 auto;
+        }
+
+        .terms-clean-page .terms-summary-item strong {
+          color: #fff;
+          font-size: 15px;
+          font-weight: 950;
+          line-height: 1.2;
+          min-width: 0;
+          overflow-wrap: anywhere;
+        }
+
+        .terms-clean-page .terms-summary-item span {
+          color: rgba(215, 226, 238, 0.72);
+          font-size: 13px;
+          line-height: 1.55;
+          min-width: 0;
+          overflow-wrap: anywhere;
+          white-space: normal;
+        }
+
+        .terms-clean-page .terms-content {
+          background: transparent !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          display: grid;
+          gap: 0;
+        }
+
+        .terms-clean-page .terms-section {
+          background: transparent !important;
+          border: 0 !important;
+          border-top: 1px solid rgba(151, 178, 205, 0.16) !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          color: #f4f8fc !important;
+          display: grid;
+          gap: 12px;
+          min-width: 0;
+          padding: 26px 0 !important;
+        }
+
+        .terms-clean-page .terms-section h2 {
+          color: #fff !important;
+          font-size: clamp(20px, 3vw, 28px);
+          font-weight: 950;
+          letter-spacing: 0;
+          line-height: 1.1;
+          margin: 0;
+          overflow-wrap: anywhere;
+        }
+
+        .terms-clean-page .terms-section p,
+        .terms-clean-page .terms-section li {
+          color: rgba(215, 226, 238, 0.78) !important;
+          font-size: 15px;
+          line-height: 1.72;
+          max-width: 78ch;
+          margin: 0;
+          overflow-wrap: anywhere;
+          white-space: normal;
+        }
+
+        .terms-clean-page .terms-section ul {
+          display: grid;
+          gap: 8px;
+          margin: 2px 0 0;
+          padding-left: 22px;
+        }
+
+        .terms-clean-page .terms-section li::marker {
+          color: #ff9d2e;
+        }
+
+        @media (max-width: 900px) {
+          .terms-clean-page .terms-summary {
+            grid-template-columns: 1fr;
+          }
+
+          .terms-clean-page .terms-summary-item {
+            padding: 16px;
+          }
+        }
+      `}</style>
     </main>
   );
 }

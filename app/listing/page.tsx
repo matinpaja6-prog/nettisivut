@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { Heart, MapPin, Tag, UserRound } from "lucide-react";
 import LanguageSwitcher from "@/app/components/LanguageSwitcher";
+import OptimizedListingImage, { fallbackListingImage } from "@/app/components/OptimizedListingImage";
 import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 
@@ -19,11 +20,7 @@ import { getListings } from "@/lib/supabase";
 
 import homeStyles from "../page.module.css";
 
-const fallbackCardImage =
-  "data:image/svg+xml;utf8," +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dbeafe"/><stop offset="1" stop-color="#bfdbfe"/></linearGradient></defs><rect width="1200" height="700" fill="url(#g)"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#1e3a8a" font-family="Segoe UI,Arial,sans-serif" font-size="36">Kuva ei saatavilla</text></svg>`
-  );
+const fallbackCardImage = fallbackListingImage;
 
 function safeImageSrc(src: string | undefined | null) {
   if (!src) return fallbackCardImage;
@@ -217,17 +214,9 @@ export default function ListingsIndexPage() {
               >
 
                 <div className={`${homeStyles.cardImage} ${homeStyles.listingCardImage}`}>
-                  <img
+                  <OptimizedListingImage
                     src={listingImageSrc(listing)}
                     alt={getListingTitle(listing)}
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                    onError={(event) => {
-                      const img = event.currentTarget;
-                      console.warn("Listing image failed to load:", img.src);
-                      img.onerror = null;
-                      img.src = fallbackCardImage;
-                    }}
                   />
                   <button
                     onClick={(e) => toggleFavorite(e, listing.id)}

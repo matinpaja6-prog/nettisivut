@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, PointerEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -198,13 +198,27 @@ export default function ProfilePage() {
     birthDate: { fi: "Syntymäaika", en: "Date of birth", sv: "Födelsedatum", no: "Fødselsdato", et: "Sünnikuupäev" }[locale],
     publicProfile: { fi: "Julkinen myyjäprofiili", en: "Public seller profile", sv: "Offentlig säljarprofil", no: "Offentlig selgerprofil", et: "Avalik müüja profiil" }[locale],
     publicHelp: {
-      fi: "Julkisesti näytetään nimi, ID, kaupunki ja maa.",
-      en: "Name, ID, city and country are shown publicly.",
-      sv: "Namn, ID, stad och land visas offentligt.",
-      no: "Navn, ID, by og land vises offentlig.",
-      et: "Nimi, ID, linn ja riik näidatakse avalikult."
+      fi: "Julkisesti näytetään nimi, ID, kaupunki, maa ja oma esittely.",
+      en: "Name, ID, city, country and your intro are shown publicly.",
+      sv: "Namn, ID, stad, land och din presentation visas offentligt.",
+      no: "Navn, ID, by, land og introduksjonen din vises offentlig.",
+      et: "Avalikult kuvatakse nimi, ID, linn, riik ja sinu tutvustus."
     }[locale],
     publicName: { fi: "Julkinen nimi", en: "Public name", sv: "Offentligt namn", no: "Offentlig navn", et: "Avalik nimi" }[locale],
+    publicBio: {
+      fi: "Tietoa myyjästä",
+      en: "About seller",
+      sv: "Om säljaren",
+      no: "Om selgeren",
+      et: "Müüja info"
+    }[locale],
+    publicBioPlaceholder: {
+      fi: "Kerro lyhyesti itsestäsi, kokemuksesta, yrityksestä tai miten toimit ostajien kanssa.",
+      en: "Briefly tell buyers about yourself, your experience, company or how you work with buyers.",
+      sv: "Berätta kort om dig själv, erfarenhet, företag eller hur du arbetar med köpare.",
+      no: "Fortell kort om deg selv, erfaring, bedrift eller hvordan du jobber med kjøpere.",
+      et: "Kirjelda lühidalt ennast, kogemust, ettevõtet või kuidas ostjatega suhtled."
+    }[locale],
     noId: { fi: "Ei ID:tä", en: "No ID", sv: "Inget ID", no: "Ingen ID", et: "ID puudub" }[locale],
     city: { fi: "Kaupunki", en: "City", sv: "Stad", no: "By", et: "Linn" }[locale],
     country: { fi: "Maa", en: "Country", sv: "Land", no: "Land", et: "Riik" }[locale],
@@ -496,7 +510,12 @@ export default function ProfilePage() {
   const [status, setStatus] = useState("");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarCropFile, setAvatarCropFile] = useState<File | null>(null);
+  const [avatarCropPreview, setAvatarCropPreview] = useState<string | null>(null);
+  const [avatarZoom, setAvatarZoom] = useState(1.12);
+  const [avatarOffset, setAvatarOffset] = useState({ x: 0, y: 0 });
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const avatarDragRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const [phoneEditing, setPhoneEditing] = useState(false);
   const [phoneDraft, setPhoneDraft] = useState("");
   const [phoneCode, setPhoneCode] = useState("");
@@ -540,6 +559,11 @@ export default function ProfilePage() {
   const [deleteModalOpen, setDeleteModalOpen] =
     useState(false);
 
+  useEffect(() => {
+    return () => {
+      if (avatarCropPreview) URL.revokeObjectURL(avatarCropPreview);
+    };
+  }, [avatarCropPreview]);
 
   useEffect(() => {
 
@@ -641,7 +665,8 @@ export default function ProfilePage() {
       company_name: profile.company_name,
       business_id: profile.business_id,
       company_website: profile.company_website,
-      billing_email: profile.billing_email
+      billing_email: profile.billing_email,
+      bio: profile.bio
     });
     if (error) { setStatus(getErrorMessage(error)); return; }
     setProfile(data);
@@ -1091,19 +1116,113 @@ export default function ProfilePage() {
     }
   }
 
-  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function resetAvatarCrop() {
+    if (avatarCropPreview) URL.revokeObjectURL(avatarCropPreview);
+    setAvatarCropFile(null);
+    setAvatarCropPreview(null);
+    setAvatarZoom(1.12);
+    setAvatarOffset({ x: 0, y: 0 });
+    avatarDragRef.current = null;
+    if (avatarInputRef.current) {
+      avatarInputRef.current.value = "";
+    }
+  }
+
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !user) return;
     if (!file.type.startsWith("image/")) { setStatus(t.selectImageFile); return; }
     if (file.size > 4 * 1024 * 1024) { setStatus(t.imageTooLarge); return; }
+    if (avatarCropPreview) URL.revokeObjectURL(avatarCropPreview);
+    setAvatarCropFile(file);
+    setAvatarCropPreview(URL.createObjectURL(file));
+    setAvatarZoom(1.12);
+    setAvatarOffset({ x: 0, y: 0 });
+    setStatus("");
+  }
+
+  function startAvatarDrag(event: PointerEvent<HTMLDivElement>) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    avatarDragRef.current = {
+      x: event.clientX,
+      y: event.clientY,
+      ox: avatarOffset.x,
+      oy: avatarOffset.y
+    };
+  }
+
+  function moveAvatarDrag(event: PointerEvent<HTMLDivElement>) {
+    const drag = avatarDragRef.current;
+    if (!drag) return;
+    const nextX = Math.max(-90, Math.min(90, drag.ox + event.clientX - drag.x));
+    const nextY = Math.max(-90, Math.min(90, drag.oy + event.clientY - drag.y));
+    setAvatarOffset({ x: nextX, y: nextY });
+  }
+
+  function endAvatarDrag(event: PointerEvent<HTMLDivElement>) {
+    if (avatarDragRef.current) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    avatarDragRef.current = null;
+  }
+
+  async function createCroppedAvatarFile(file: File) {
+    const imageUrl = URL.createObjectURL(file);
+    try {
+      const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(t.imageUploadFailed));
+        img.src = imageUrl;
+      });
+
+      const outputSize = 640;
+      const previewSize = 260;
+      const canvas = document.createElement("canvas");
+      canvas.width = outputSize;
+      canvas.height = outputSize;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error(t.imageUploadFailed);
+
+      ctx.fillStyle = "#071827";
+      ctx.fillRect(0, 0, outputSize, outputSize);
+      const coverScale = Math.max(outputSize / image.naturalWidth, outputSize / image.naturalHeight) * avatarZoom;
+      const drawWidth = image.naturalWidth * coverScale;
+      const drawHeight = image.naturalHeight * coverScale;
+      const offsetScale = outputSize / previewSize;
+      const dx = (outputSize - drawWidth) / 2 + avatarOffset.x * offsetScale;
+      const dy = (outputSize - drawHeight) / 2 + avatarOffset.y * offsetScale;
+      ctx.drawImage(image, dx, dy, drawWidth, drawHeight);
+
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", 0.9)
+      );
+      if (!blob) throw new Error(t.imageUploadFailed);
+      return new File([blob], "avatar.jpg", { type: "image/jpeg" });
+    } finally {
+      URL.revokeObjectURL(imageUrl);
+    }
+  }
+
+  async function saveCroppedAvatar() {
+    if (!avatarCropFile || !user) return;
     setAvatarUploading(true);
     setStatus("");
-    const { url, error } = await uploadAvatar(user.id, file);
+    const croppedFile = await createCroppedAvatarFile(avatarCropFile).catch((error) => {
+      setStatus(getErrorMessage(error));
+      return null;
+    });
+    if (!croppedFile) {
+      setAvatarUploading(false);
+      return;
+    }
+    const { url, error } = await uploadAvatar(user.id, croppedFile);
     setAvatarUploading(false);
     if (error) { setStatus(t.imageUploadFailed); return; }
     if (url) {
       setAvatarUrl(url + "?t=" + Date.now());
       setStatus(t.avatarUpdated);
+      resetAvatarCrop();
       setTimeout(() => setStatus(""), 3000);
     }
   }
@@ -1494,11 +1613,14 @@ export default function ProfilePage() {
                     </div>
                     <div className="pf-field pf-field-wide">
                       <label>{profileText.website}</label>
-                      <input
-                        value={profile.company_website ?? ""}
-                        onChange={e => setProfile({ ...profile, company_website: e.target.value })}
-                        placeholder="https://yritys.fi"
-                      />
+                      <div className="pf-website-input">
+                        <span aria-hidden="true">https://</span>
+                        <input
+                          value={profile.company_website ?? ""}
+                          onChange={e => setProfile({ ...profile, company_website: e.target.value })}
+                          placeholder="yritys.fi"
+                        />
+                      </div>
                     </div>
                   </div>
                 </section>
@@ -1583,24 +1705,30 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="company-seller-add">
-                    <label>
-                      {profileText.sellerName}
-                      <input
-                        value={sellerDraft.name}
-                        disabled={companySellers.length >= 8}
-                        onChange={(event) => setSellerDraft({ ...sellerDraft, name: event.target.value })}
-                        placeholder="esim. Pertti"
-                      />
-                    </label>
-                    <label>
-                      {profileText.phoneNumber}
-                      <input
-                        value={sellerDraft.phone}
-                        disabled={companySellers.length >= 8}
-                        onChange={(event) => setSellerDraft({ ...sellerDraft, phone: event.target.value })}
-                        placeholder="+358401234567"
-                      />
-                    </label>
+                    <div className="company-seller-add-head">
+                      <strong>{profileText.addSeller}</strong>
+                      <span>{companySellers.length} / 8</span>
+                    </div>
+                    <div className="company-seller-add-fields">
+                      <label>
+                        {profileText.sellerName}
+                        <input
+                          value={sellerDraft.name}
+                          disabled={companySellers.length >= 8}
+                          onChange={(event) => setSellerDraft({ ...sellerDraft, name: event.target.value })}
+                          placeholder="esim. Pertti"
+                        />
+                      </label>
+                      <label>
+                        {profileText.phoneNumber}
+                        <input
+                          value={sellerDraft.phone}
+                          disabled={companySellers.length >= 8}
+                          onChange={(event) => setSellerDraft({ ...sellerDraft, phone: event.target.value })}
+                          placeholder="+358401234567"
+                        />
+                      </label>
+                    </div>
                     <button
                       type="button"
                       className="company-seller-add-btn"
@@ -1646,6 +1774,19 @@ export default function ProfilePage() {
                       <Hash size={16} />
                       <span>{profile.public_id || profileText.noId}</span>
                     </div>
+                  </div>
+                  <div className="pf-field pf-field-wide">
+                    <label>{profileText.publicBio}</label>
+                    <textarea
+                      value={profile.bio ?? ""}
+                      maxLength={600}
+                      rows={5}
+                      onChange={e => setProfile({ ...profile, bio: e.target.value })}
+                      placeholder={profileText.publicBioPlaceholder}
+                    />
+                    <span className="pf-phone-help">
+                      {(profile.bio ?? "").length}/600
+                    </span>
                   </div>
                 </div>
               </section>
@@ -1882,6 +2023,74 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {avatarCropPreview && (
+        <div
+          className="pf-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Muokkaa profiilikuvaa"
+        >
+          <div className="pf-phone-modal pf-avatar-crop-modal">
+            <button
+              type="button"
+              className="pf-modal-close"
+              onClick={resetAvatarCrop}
+              disabled={avatarUploading}
+              aria-label="Sulje"
+            >
+              ×
+            </button>
+            <h2>Muokkaa profiilikuvaa</h2>
+            <p>Zoomaa ja raahaa kuva sopivaan kohtaan.</p>
+            <div
+              className="pf-avatar-crop-frame"
+              onPointerDown={startAvatarDrag}
+              onPointerMove={moveAvatarDrag}
+              onPointerUp={endAvatarDrag}
+              onPointerCancel={endAvatarDrag}
+            >
+              <img
+                src={avatarCropPreview}
+                alt=""
+                draggable={false}
+                style={{
+                  transform: `translate(calc(-50% + ${avatarOffset.x}px), calc(-50% + ${avatarOffset.y}px)) scale(${avatarZoom})`
+                }}
+              />
+            </div>
+            <label className="pf-avatar-zoom">
+              <span>Zoom</span>
+              <input
+                type="range"
+                min="1"
+                max="2.5"
+                step="0.01"
+                value={avatarZoom}
+                onChange={(event) => setAvatarZoom(Number(event.target.value))}
+              />
+            </label>
+            <div className="pf-avatar-crop-actions">
+              <button
+                type="button"
+                className="pf-inline-btn secondary"
+                onClick={resetAvatarCrop}
+                disabled={avatarUploading}
+              >
+                Peruuta
+              </button>
+              <button
+                type="button"
+                className="pf-inline-btn verify"
+                onClick={saveCroppedAvatar}
+                disabled={avatarUploading}
+              >
+                {avatarUploading ? "Tallennetaan..." : "Tallenna kuva"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style>{`
         .pf-page { min-height: 100vh; background: #f8fafc; }
 
@@ -1910,7 +2119,7 @@ export default function ProfilePage() {
         .pf-brand-mark {
           width: 30px;
           height: 30px;
-          background: #1d4ed8;
+          background: #ff8a24;
           border-radius: 8px;
           display: flex;
           align-items: center;
@@ -1971,30 +2180,42 @@ export default function ProfilePage() {
         .pf-avatar-upload {
           position: relative;
           cursor: pointer;
+          overflow: visible;
+        }
+        .pf-avatar > img,
+        .pf-avatar > .profile-avatar-initial {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+        }
+        .pf-avatar > img {
+          object-fit: cover;
+          display: block;
         }
         .pf-avatar-remove {
           position: absolute;
           top: -7px;
           right: -7px;
           z-index: 3;
-          width: 22px;
-          height: 22px;
-          border: 1px solid rgba(255, 255, 255, 0.78);
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(255, 255, 255, 0.94);
           border-radius: 999px;
-          background: linear-gradient(180deg, #ffffff, #e7eef5);
-          color: #071827;
+          background: linear-gradient(135deg, #ff9a24, #ff6b16);
+          color: #ffffff;
           display: grid;
           place-items: center;
-          font-size: 17px;
+          font-size: 13px;
           font-weight: 950;
           line-height: 1;
-          box-shadow: 0 8px 18px rgba(0, 8, 22, 0.28);
+          box-shadow: 0 8px 18px rgba(255, 122, 26, 0.32), 0 0 0 2px rgba(8, 20, 34, 0.95);
           cursor: pointer;
         }
         .pf-avatar-remove:hover {
-          background: #ff7a18;
-          border-color: rgba(255, 188, 118, 0.9);
+          background: linear-gradient(135deg, #ffad42, #ff7a1a);
+          border-color: #ffffff;
           color: #ffffff;
+          transform: scale(1.05);
         }
         .pf-avatar-overlay {
           position: absolute;
@@ -2011,6 +2232,57 @@ export default function ProfilePage() {
         .pf-avatar-upload:hover .pf-avatar-overlay,
         .pf-avatar-loading .pf-avatar-overlay {
           opacity: 1;
+        }
+        .pf-avatar-crop-modal {
+          max-width: 420px;
+          text-align: center;
+        }
+        .pf-avatar-crop-frame {
+          width: 260px;
+          height: 260px;
+          margin: 18px auto 16px;
+          border-radius: 50%;
+          border: 3px solid #ff7a1a;
+          background: #071827;
+          box-shadow: 0 18px 42px rgba(0, 8, 22, 0.28), 0 0 0 999px rgba(0, 0, 0, 0.03) inset;
+          cursor: grab;
+          overflow: hidden;
+          position: relative;
+          touch-action: none;
+          user-select: none;
+        }
+        .pf-avatar-crop-frame:active {
+          cursor: grabbing;
+        }
+        .pf-avatar-crop-frame img {
+          height: 100%;
+          left: 50%;
+          object-fit: cover;
+          pointer-events: none;
+          position: absolute;
+          top: 50%;
+          transform-origin: center;
+          width: 100%;
+        }
+        .pf-avatar-zoom {
+          display: grid;
+          gap: 8px;
+          margin: 0 0 16px;
+          text-align: left;
+        }
+        .pf-avatar-zoom span {
+          color: #0f172a;
+          font-size: 13px;
+          font-weight: 850;
+        }
+        .pf-avatar-zoom input {
+          accent-color: #ff7a1a;
+          width: 100%;
+        }
+        .pf-avatar-crop-actions {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
         }
         .pf-user-name {
           font-size: 14px;
@@ -2047,7 +2319,7 @@ export default function ProfilePage() {
           transition: background 0.12s, color 0.12s;
         }
         .pf-nav-item:hover { background: #f8fafc; color: #0f172a; }
-        .pf-nav-active { border-left-color: #3b82f6; color: #1d4ed8; background: #eff6ff; }
+        .pf-nav-active { border-left-color: #ff7a1a; color: #ff8a24; background: rgba(255, 122, 26, 0.14); }
         .pf-nav-button {
           border-bottom: 0;
           border-right: 0;
@@ -2082,7 +2354,7 @@ export default function ProfilePage() {
           text-align: center;
         }
         .pf-login-prompt a {
-          background: #1d4ed8;
+          background: #ff8a24;
           color: white;
           padding: 8px 20px;
           border-radius: 10px;
@@ -2159,7 +2431,7 @@ export default function ProfilePage() {
           width: 100%;
         }
         .pf-field input:focus {
-          border-color: #3b82f6;
+          border-color: #ff7a1a;
           background: white;
           box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
         }
@@ -2278,7 +2550,7 @@ export default function ProfilePage() {
 
         .pf-inline-btn {
           align-items: center;
-          background: linear-gradient(135deg, #2563eb, #1d4ed8);
+          background: linear-gradient(135deg, #2563eb, #ff8a24);
           border: 0;
           border-radius: 12px;
           box-shadow: 0 10px 24px rgba(37, 99, 235, 0.24);
@@ -2367,7 +2639,7 @@ export default function ProfilePage() {
           align-items: center;
           background: #e8f0ff;
           border-radius: 18px;
-          color: #1d4ed8;
+          color: #ff8a24;
           display: inline-flex;
           height: 58px;
           justify-content: center;
@@ -2391,10 +2663,10 @@ export default function ProfilePage() {
         }
 
         .pf-modal-note {
-          background: #eff6ff;
+          background: rgba(255, 122, 26, 0.14);
           border: 1px solid #bfdbfe;
           border-radius: 12px;
-          color: #1d4ed8;
+          color: #ff8a24;
           display: block;
           font-size: 12px;
           font-weight: 950;
@@ -2527,7 +2799,7 @@ export default function ProfilePage() {
           gap: 8px;
           height: 42px;
           padding: 0 22px;
-          background: #1d4ed8;
+          background: #ff8a24;
           color: white;
           border: none;
           border-radius: 11px;
@@ -2536,7 +2808,7 @@ export default function ProfilePage() {
           cursor: pointer;
           transition: background 0.15s;
         }
-        .pf-save-btn:hover { background: #1e40af; }
+        .pf-save-btn:hover { background: #e65c00; }
         .pf-status {
           font-size: 13px;
           color: #22c55e;
@@ -2554,6 +2826,33 @@ export default function ProfilePage() {
           .pf-field { border-right: none; }
           .pf-field:nth-child(even) { border-right: none; }
           .pf-sidebar { flex-direction: column; }
+          .pf-phone-row {
+            align-items: stretch;
+            grid-template-columns: 1fr;
+            max-width: none;
+            width: 100%;
+          }
+          .pf-phone-card {
+            align-items: flex-start;
+            display: grid;
+            gap: 8px;
+            grid-template-columns: 1fr;
+            justify-items: start;
+            min-height: 58px;
+            padding: 10px 12px;
+          }
+          .pf-phone-number {
+            font-size: 13px;
+            width: 100%;
+          }
+          .pf-phone-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: 100%;
+          }
+          .pf-phone-actions .pf-inline-btn {
+            width: 100%;
+          }
           .pf-delete-code-row { grid-template-columns: 1fr; }
           .pf-delete-modal-actions > * { width: 100%; }
         }

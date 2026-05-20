@@ -788,16 +788,21 @@ export async function recordSoldListing(
     }
 
     const soldAt = new Date().toISOString();
+    const soldTitle =
+      listing.title?.trim() ||
+      listing.subcategory?.trim() ||
+      listing.category?.trim() ||
+      "Poistettu ilmoitus";
 
-    // Store only the minimum required data. Everything except the price is
-    // dropped to honour user privacy once a listing is sold.
+    // Store only the minimum required data. Keep a generic non-empty title so
+    // older databases where sold_listings.title is still NOT NULL can accept it.
     const insertResult = await supabase
       .from("sold_listings")
       .insert({
         listing_id: listing.id,
         seller_id: user.id,
         buyer_id: buyerId ?? null,
-        title: null,
+        title: soldTitle,
         price: listing.price,
         sold_price: soldPrice,
         vehicle_type: null,
@@ -1427,7 +1432,9 @@ export async function signInWithEmail(
 
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(
+  intent: "login" | "register" = "login"
+) {
 
   if (!supabase) {
 
@@ -1452,7 +1459,7 @@ export async function signInWithGoogle() {
           redirectTo:
             typeof window !==
             "undefined"
-              ? window.location.origin
+              ? `${window.location.origin}/auth?oauth=${intent}`
               : undefined
 
         }
@@ -2191,6 +2198,7 @@ export async function updateEditableProfile(
     | "business_id"
     | "company_website"
     | "billing_email"
+    | "bio"
   >
 ) {
 
@@ -3032,6 +3040,37 @@ export async function getConversationSummaries(
 
   }
 
+}
+
+export async function getConversationCountForUser(
+  userId: string
+): Promise<{
+  count: number;
+  error: unknown;
+}> {
+  if (!supabase) {
+    return {
+      count: 0,
+      error: null
+    };
+  }
+
+  try {
+    const { count, error } = await supabase
+      .from("conversations")
+      .select("id", { count: "exact", head: true })
+      .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
+
+    return {
+      count: count ?? 0,
+      error
+    };
+  } catch (error) {
+    return {
+      count: 0,
+      error
+    };
+  }
 }
 
 /* =========================

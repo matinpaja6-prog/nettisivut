@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -28,17 +28,13 @@ import {
   type SearchAlert
 } from "@/lib/supabase";
 import type { Listing } from "@/lib/listings";
-import { categories, type Category } from "@/lib/listings";
 import { useLanguage } from "@/lib/i18n";
-
-const VEHICLE_TYPES = ["Moottorikelkka", "Mönkijä", "Auto", "Mopo"];
-
-const VEHICLE_BRANDS: Record<string, string[]> = {
-  Moottorikelkka: ["Arctic Cat", "Lynx", "Polaris", "Ski-Doo", "Yamaha"],
-  Mönkijä:        ["Can-Am", "CFMOTO", "Honda", "Kawasaki", "Polaris", "Yamaha"],
-  Auto:           ["Audi", "BMW", "Ford", "Mercedes-Benz", "Toyota", "Volkswagen", "Volvo"],
-  Mopo:           ["Aprilia", "Derbi", "Honda", "Husqvarna", "KTM", "Rieju", "Yamaha"]
-};
+import {
+  buildVehicleCategoriesFromTaxonomy,
+  categoriesAsRecord,
+  vehicleBrandsRecord
+} from "@/lib/taxonomy";
+import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 
 const CONDITIONS = ["Uusi", "Erinomainen", "Hyvä", "Tyydyttävä"];
 const CUR_YEAR = new Date().getFullYear();
@@ -58,6 +54,20 @@ const EMPTY_FORM = {
 
 export default function SearchAlertsPage() {
   const { t } = useLanguage();
+  const taxonomy = useTaxonomy();
+  const vehicleTypes = useMemo(
+    () => taxonomy.vehicles.map((vehicle) => vehicle.key),
+    [taxonomy]
+  );
+  const vehicleBrands = useMemo(() => vehicleBrandsRecord(taxonomy), [taxonomy]);
+  const allCategories = useMemo(() => categoriesAsRecord(taxonomy), [taxonomy]);
+  const categoriesByVehicle = useMemo(() => {
+    const out: Record<string, Record<string, string[]>> = {};
+    for (const vehicle of taxonomy.vehicles) {
+      out[vehicle.key] = buildVehicleCategoriesFromTaxonomy(taxonomy, vehicle.key);
+    }
+    return out;
+  }, [taxonomy]);
   const [userId, setUserId] = useState<string | null>(null);
   const [alerts, setAlerts] = useState<SearchAlert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -167,6 +177,10 @@ export default function SearchAlertsPage() {
   const [editForm, setEditForm] = useState(EMPTY_FORM);
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState("");
+  const formCategories =
+    (form.vehicle_type && categoriesByVehicle[form.vehicle_type]) || allCategories;
+  const editCategories =
+    (editForm.vehicle_type && categoriesByVehicle[editForm.vehicle_type]) || allCategories;
 
   function startEdit(alert: SearchAlert) {
     setEditingId(alert.id);
@@ -284,7 +298,7 @@ export default function SearchAlertsPage() {
                   onChange={e => { setForm({ ...form, vehicle_type: e.target.value, category: "", brand: "" }); setError(""); }}
                 >
                   <option value="">{t.saAllClasses}</option>
-                  {VEHICLE_TYPES.map(v => <option key={v} value={v}>{v}</option>)}
+                  {vehicleTypes.map(v => <option key={v} value={v}>{v}</option>)}
                 </select>
               </div>
               <div className="sa-field">
@@ -294,12 +308,11 @@ export default function SearchAlertsPage() {
                   onChange={e => { setForm({ ...form, category: e.target.value, subcategory: "" }); setError(""); }}
                 >
                   <option value="">{t.saAllCategories}</option>
-                  {Object.keys(categories)
-                    .filter(k => k !== "Kaikki")
+                  {Object.keys(formCategories)
                     .map(k => <option key={k} value={k}>{k}</option>)}
                 </select>
               </div>
-              {form.category && (categories[form.category as Category] as readonly string[]).length > 0 && (
+              {form.category && (formCategories[form.category] ?? []).length > 0 && (
                 <div className="sa-field">
                   <label>Alakategoria</label>
                   <select
@@ -307,7 +320,7 @@ export default function SearchAlertsPage() {
                     onChange={e => updateFormField("subcategory", e.target.value)}
                   >
                     <option value="">Kaikki</option>
-                    {(categories[form.category as Category] as readonly string[]).map(s => (
+                    {(formCategories[form.category] ?? []).map(s => (
                       <option key={s} value={s}>{s}</option>
                     ))}
                   </select>
@@ -315,13 +328,13 @@ export default function SearchAlertsPage() {
               )}
               <div className="sa-field">
                 <label>{t.saBrand}</label>
-                {form.vehicle_type && VEHICLE_BRANDS[form.vehicle_type] ? (
+                {form.vehicle_type && vehicleBrands[form.vehicle_type] ? (
                   <select
                     value={form.brand}
                     onChange={e => updateFormField("brand", e.target.value)}
                   >
                     <option value="">{t.saAllClasses.replace("luokat", "merkit").replace("klasser", "märken").replace("classes", "brands").replace("klasser", "merker")}</option>
-                    {VEHICLE_BRANDS[form.vehicle_type].map(b => <option key={b} value={b}>{b}</option>)}
+                    {vehicleBrands[form.vehicle_type].filter((b) => b !== "Kaikki").map(b => <option key={b} value={b}>{b}</option>)}
                   </select>
                 ) : (
                   <input
@@ -489,22 +502,22 @@ export default function SearchAlertsPage() {
                         <label>{t.saVehicleClass}</label>
                         <select value={editForm.vehicle_type} onChange={e => setEditForm({...editForm, vehicle_type: e.target.value, category: "", brand: ""})}>
                           <option value="">{t.saAllClasses}</option>
-                          {VEHICLE_TYPES.map(v => <option key={v} value={v}>{v}</option>)}
+                          {vehicleTypes.map(v => <option key={v} value={v}>{v}</option>)}
                         </select>
                       </div>
                       <div className="sa-field">
                         <label>{t.saCategory}</label>
                         <select value={editForm.category} onChange={e => setEditForm({...editForm, category: e.target.value, subcategory: ""})}>
                           <option value="">{t.saAllCategories}</option>
-                          {Object.keys(categories).filter(k => k !== "Kaikki").map(k => <option key={k} value={k}>{k}</option>)}
+                          {Object.keys(editCategories).map(k => <option key={k} value={k}>{k}</option>)}
                         </select>
                       </div>
-                      {editForm.category && (categories[editForm.category as Category] as readonly string[]).length > 0 && (
+                      {editForm.category && (editCategories[editForm.category] ?? []).length > 0 && (
                         <div className="sa-field">
                           <label>Alakategoria</label>
                           <select value={editForm.subcategory} onChange={e => setEditForm({...editForm, subcategory: e.target.value})}>
                             <option value="">Kaikki</option>
-                            {(categories[editForm.category as Category] as readonly string[]).map(s => (
+                            {(editCategories[editForm.category] ?? []).map(s => (
                               <option key={s} value={s}>{s}</option>
                             ))}
                           </select>
@@ -512,13 +525,13 @@ export default function SearchAlertsPage() {
                       )}
                       <div className="sa-field">
                         <label>{t.saBrand}</label>
-                        {editForm.vehicle_type && VEHICLE_BRANDS[editForm.vehicle_type] ? (
+                        {editForm.vehicle_type && vehicleBrands[editForm.vehicle_type] ? (
                           <select
                             value={editForm.brand}
                             onChange={e => setEditForm({...editForm, brand: e.target.value})}
                           >
                             <option value="">— Kaikki merkit —</option>
-                            {VEHICLE_BRANDS[editForm.vehicle_type].map(b => <option key={b} value={b}>{b}</option>)}
+                            {vehicleBrands[editForm.vehicle_type].filter((b) => b !== "Kaikki").map(b => <option key={b} value={b}>{b}</option>)}
                           </select>
                         ) : (
                           <input value={editForm.brand} placeholder={t.saBrandPlaceholder} onChange={e => setEditForm({...editForm, brand: e.target.value})} />
@@ -614,7 +627,7 @@ export default function SearchAlertsPage() {
         .sa-brand-mark {
           width: 28px;
           height: 28px;
-          background: #1d4ed8;
+          background: #ff8a24;
           border-radius: 7px;
           display: flex;
           align-items: center;
@@ -675,7 +688,7 @@ export default function SearchAlertsPage() {
           color: #64748b;
           margin: 0;
         }
-        .sa-hero p strong { color: #1d4ed8; }
+        .sa-hero p strong { color: #ff8a24; }
         .sa-new-btn {
           margin-left: auto;
           flex-shrink: 0;
@@ -684,7 +697,7 @@ export default function SearchAlertsPage() {
           gap: 7px;
           height: 40px;
           padding: 0 18px;
-          background: #1d4ed8;
+          background: #ff8a24;
           color: white;
           border: none;
           border-radius: 11px;
@@ -694,14 +707,14 @@ export default function SearchAlertsPage() {
           transition: background 0.15s;
           white-space: nowrap;
         }
-        .sa-new-btn:hover { background: #1e40af; }
+        .sa-new-btn:hover { background: #e65c00; }
         .sa-new-btn-cancel { background: #64748b; }
         .sa-new-btn-cancel:hover { background: #475569; }
 
         /* Form card */
         .sa-form-card {
           background: white;
-          border: 1.5px solid #3b82f6;
+          border: 1.5px solid #ff7a1a;
           border-radius: 20px;
           padding: 24px;
           box-shadow: 0 4px 20px rgba(59,130,246,0.1);
@@ -748,7 +761,7 @@ export default function SearchAlertsPage() {
         }
         .sa-field input:focus,
         .sa-field select:focus {
-          border-color: #3b82f6;
+          border-color: #ff7a1a;
           background: white;
           box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
         }
@@ -770,7 +783,7 @@ export default function SearchAlertsPage() {
           gap: 8px;
           height: 42px;
           padding: 0 22px;
-          background: #1d4ed8;
+          background: #ff8a24;
           color: white;
           border: none;
           border-radius: 11px;
@@ -779,7 +792,7 @@ export default function SearchAlertsPage() {
           cursor: pointer;
           transition: background 0.15s;
         }
-        .sa-save-btn:hover { background: #1e40af; }
+        .sa-save-btn:hover { background: #e65c00; }
         .sa-save-btn:disabled { background: #94a3b8; cursor: not-allowed; }
         .sa-form-note {
           font-size: 12px;
@@ -836,7 +849,7 @@ export default function SearchAlertsPage() {
           width: 40px;
           height: 40px;
           border-radius: 11px;
-          background: #eff6ff;
+          background: rgba(255, 122, 26, 0.14);
           color: #2563eb;
           display: flex;
           align-items: center;
@@ -865,7 +878,7 @@ export default function SearchAlertsPage() {
           padding: 3px 9px;
           border-radius: 999px;
         }
-        .sa-tag-blue { background: #dbeafe; color: #1d4ed8; }
+        .sa-tag-blue { background: #dbeafe; color: #ff8a24; }
         .sa-tag-purple { background: #ede9fe; color: #6d28d9; }
         .sa-tag-gray { background: #f1f5f9; color: #475569; }
         .sa-tag-green { background: #dcfce7; color: #15803d; }
@@ -921,10 +934,10 @@ export default function SearchAlertsPage() {
           gap: 6px;
           height: 30px;
           padding: 0 12px;
-          background: #eff6ff;
+          background: rgba(255, 122, 26, 0.14);
           border: 1px solid #bfdbfe;
           border-radius: 8px;
-          color: #1d4ed8;
+          color: #ff8a24;
           font-size: 12px;
           font-weight: 700;
           cursor: pointer;
@@ -977,7 +990,7 @@ export default function SearchAlertsPage() {
           border-color: #bfdbfe;
           background: #f0f7ff;
         }
-        .sa-card-has-notif .sa-card-icon { background: #dbeafe; color: #1d4ed8; }
+        .sa-card-has-notif .sa-card-icon { background: #dbeafe; color: #ff8a24; }
         .sa-notif-list {
           grid-column: 1 / -1;
           margin-top: 10px;
@@ -992,7 +1005,7 @@ export default function SearchAlertsPage() {
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.05em;
-          color: #3b82f6;
+          color: #ff7a1a;
           margin-bottom: 4px;
         }
         .sa-notif-item {
@@ -1026,7 +1039,7 @@ export default function SearchAlertsPage() {
         .sa-notif-price {
           font-size: 13px;
           font-weight: 800;
-          color: #1d4ed8;
+          color: #ff8a24;
         }
         /* Make card layout full-width when it has notifications */
         .sa-card-has-notif { flex-wrap: wrap; }

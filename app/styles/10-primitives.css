@@ -1,0 +1,263 @@
+/* Shared primitives */
+.wrapper,
+.container,
+.garage-container,
+.legal-content,
+.footer-inner,
+.messages-shell,
+.profile-workspace,
+.sa-page,
+.pf-content {
+  width: min(var(--container), calc(100vw - 32px));
+  margin-inline: auto;
+}
+
+.eyebrow,
+.legal-eyebrow,
+.rewards-muted,
+.field-hint,
+.form-note,
+.delete-muted,
+.garage-form-hint,
+.company-seller-hint,
+.sell-section-hint,
+.sa-form-note {
+  color: var(--muted);
+}
+
+.primary-action,
+.secondary-button,
+.danger-button,
+.text-button,
+.back-link,
+.garage-add-btn,
+.garage-save-btn,
+.garage-login-btn,
+.sa-save-btn,
+.sa-search-btn,
+.rewards-primary-btn,
+.rewards-secondary-btn,
+.quest-action,
+.quest-claim-btn,
+.slot-plan-buy,
+.pf-save-btn,
+.pf-inline-btn,
+.pf-topbar-cta,
+.messages-empty-cta,
+.fc-btn,
+.fc-send,
+.send,
+.attach,
+.google-button,
+.auth-back-home,
+.auth-modal-close,
+.review-gate-close,
+.delete-listing-modal-actions button,
+.sell-submit-btn,
+.chip-back-btn,
+.chip-clear-btn,
+.company-seller-add-btn,
+.company-seller-small-btn,
+.company-seller-edit,
+.company-seller-delete,
+.part-card-toggle,
+.part-card-remove,
+.part-group-toggle,
+.part-img-upload,
+.part-img-preview-btn,
+.part-img-remove {
+  align-items: center;
+  border-radius: var(--radius);
+  display: inline-flex;
+  gap: 9px;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.primary-action,
+.garage-save-btn,
+.sa-save-btn,
+.sa-search-btn,
+.rewards-primary-btn,
+.quest-claim-btn,
+.slot-plan-buy,
+.pf-save-btn,
+.pf-topbar-cta,
+.messages-empty-cta,
+.fc-send,
+.send,
+.sell-submit-btn,
+.company-seller-add-btn {
+  background: linear-gradient(135deg, var(--orange-2), var(--orange) 58%, #e65c00);
+  border: 1px solid rgba(255, 210, 165, 0.58);
+  box-shadow: 0 16px 34px rgba(255, 122, 26, 0.22);
+  color: #fff;
+  font-weight: 900;
+}
+
+.secondary-button,
+.rewards-secondary-btn,
+.text-button,
+.back-link,
+.garage-login-btn,
+.fc-btn,
+.attach,
+.google-button,
+.chip-back-btn,
+.chip-clear-btn,
+.company-seller-small-btn,
+.part-card-toggle,
+.part-img-upload,
+.part-img-preview-btn {
+  background: rgba(16, 35, 55, 0.88);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-weight: 800;
+}
+
+.danger-button,
+.danger,
+.company-seller-delete,
+.part-card-remove,
+.part-img-remove,
+.pf-delete-btn,
+.sa-delete-btn,
+.conversation-delete {
+  background: rgba(255, 95, 109, 0.12);
+  border: 1px solid rgba(255, 95, 109, 0.28);
+  color: #ffb5bd;
+}
+
+.primary-action:hover,
+.secondary-button:hover,
+.text-button:hover,
+.back-link:hover,
+.sell-submit-btn:hover,
+.garage-save-btn:hover,
+.sa-save-btn:hover,
+.sa-search-btn:hover,
+.rewards-primary-btn:hover,
+.rewards-secondary-btn:hover,
+.fc-send:hover,
+.send:hover,
+.company-seller-add-btn:hover {
+  transform: translateY(-1px);
+}
+
+.simple-card,
+.auth-card,
+.profile-alert,
+.listing-slot-alert,
+.listing-slot-banner,
+.sell-section,
+.section-heading,
+.company-seller-selector,
+.sell-submit-bar,
+.multi-products-box,
+.part-card,
+.company-seller-card,
+.company-seller-checkbox,
+.selected-company-seller-card,
+.company-seller-missing,
+.upload-box,
+.img-box,
+.garage-form,
+.garage-empty,
+.garage-login-prompt,
+.garage-parts-panel,
+.garage-vehicle-wrap,
+.garage-part-card,
+.messages-hero,
+.messages-stat-card,
+.messages-empty,
+.messages-state-card,
+.conversation-card,
+.fc-panel,
+.legal-hero-card,
+.legal-summary,
+.rewards-card,
+.quest-list,
+.slot-plan-card,
+.point-package-card,
+.shop-hero,
+.sa-hero,
+.sa-form-card,
+.sa-card-body,
+.sa-empty,
+.pf-section,
+.pf-sidebar,
+.pf-user-card,
+.pf-phone-card,
+.pf-modal,
+.delete-listing-modal,
+.review-gate-card,
+.auth-modal {
+  background:
+    radial-gradient(640px 260px at 100% 0%, rgba(255, 122, 26, 0.12), transparent 70%),
+    linear-gradient(145deg, rgba(13, 29, 46, 0.96), rgba(7, 17, 29, 0.98));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  color: var(--text);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select,
+textarea,
+.date-field-control,
+.delete-buyer-select {
+  width: 100%;
+  min-height: 44px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(151, 178, 205, 0.25);
+  background: rgba(3, 12, 24, 0.72);
+  color: var(--text);
+  outline: none;
+  padding: 0 13px;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+textarea {
+  min-height: 112px;
+  padding-block: 12px;
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(201, 213, 226, 0.56);
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.date-field-control:focus-within {
+  border-color: rgba(255, 154, 36, 0.82);
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.16);
+  background: rgba(4, 16, 30, 0.9);
+}
+
+.field-stack,
+.garage-field,
+.pf-field,
+.sa-field,
+.date-field {
+  display: grid;
+  gap: 8px;
+}
+
+.field-label,
+.garage-field label,
+.pf-field label,
+.sa-field label,
+.delete-reason-options label {
+  color: #edf5ff;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.field-required {
+  color: var(--orange-2);
+}

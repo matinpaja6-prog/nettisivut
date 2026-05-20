@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Award, Bell, Car, ChevronDown, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Star, Store, User, X } from "lucide-react";
+import { ArrowLeft, Award, Bell, Car, ChevronDown, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Star, Store, UserRound, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -20,16 +20,19 @@ import {
   type PurchaseReviewRequest,
   type UserProfile,
 } from "@/lib/supabase";
+import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage } from "@/lib/i18n";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
 const CHAT_LAST_READ_STORAGE_KEY = "chatLastRead";
+const HIDDEN_CHAT_CONVERSATIONS_STORAGE_KEY = "chatHiddenConvs";
 
 export default function UniversalTopbar() {
   const router = useRouter();
   const pathname = usePathname() || "/";
   const { t } = useLanguage();
+  const ownProfileLabel = "Oma profiili";
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -38,6 +41,7 @@ export default function UniversalTopbar() {
   const [reviewRequests, setReviewRequests] = useState<PurchaseReviewRequest[]>([]);
   const [alertNotifications, setAlertNotifications] = useState<AlertNotification[]>([]);
   const [unreadConversations, setUnreadConversations] = useState<ConversationSummary[]>([]);
+  const [hiddenConversationIds, setHiddenConversationIds] = useState<Set<string>>(new Set());
   const [seenNotificationKeys, setSeenNotificationKeys] = useState<Set<string>>(new Set());
   const [isAdmin, setIsAdmin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
@@ -103,6 +107,7 @@ export default function UniversalTopbar() {
   useEffect(() => {
     if (!userId) {
       setSeenNotificationKeys(new Set());
+      setHiddenConversationIds(new Set());
       return;
     }
 
@@ -112,6 +117,14 @@ export default function UniversalTopbar() {
       setSeenNotificationKeys(new Set(Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === "string") : []));
     } catch {
       setSeenNotificationKeys(new Set());
+    }
+
+    try {
+      const storedHidden = localStorage.getItem(HIDDEN_CHAT_CONVERSATIONS_STORAGE_KEY);
+      const parsedHidden = storedHidden ? JSON.parse(storedHidden) : [];
+      setHiddenConversationIds(new Set(Array.isArray(parsedHidden) ? parsedHidden.filter((value): value is string => typeof value === "string") : []));
+    } catch {
+      setHiddenConversationIds(new Set());
     }
   }, [userId]);
 
@@ -141,6 +154,7 @@ export default function UniversalTopbar() {
       const unread = (conversations ?? []).filter((conversation) => {
         const message = conversation.last_message;
         if (!message || message.sender_id === activeUserId) return false;
+        if (hiddenConversationIds.has(conversation.id)) return false;
         return new Date(message.created_at).getTime() > (lastRead[conversation.id] ?? 0);
       });
 
@@ -172,7 +186,7 @@ export default function UniversalTopbar() {
       window.removeEventListener("review-request-dismissed", onReviewDismissed);
       client.removeChannel(messagesChannel);
     };
-  }, [userId]);
+  }, [hiddenConversationIds, userId]);
 
   useEffect(() => {
     if (!notificationOpen) return;
@@ -241,20 +255,25 @@ export default function UniversalTopbar() {
   const guestLocked = !authChecked || !userId;
   const hideUniversalTopbar =
     pathname.startsWith("/auth") ||
-    pathname.startsWith("/admin");
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/privacy");
 
   function openCategories() {
     window.dispatchEvent(new CustomEvent("open-category-drawer"));
   }
 
   function goBack() {
-    if (guestLocked) return;
     if (typeof window !== "undefined" && window.history.length > 1) {
       router.back();
       return;
     }
 
     router.push("/");
+  }
+
+  function isActiveRoute(href: string) {
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.startsWith(`${href}/`);
   }
 
   function toggleNotifications() {
@@ -308,15 +327,63 @@ export default function UniversalTopbar() {
     });
   }
 
+  function dismissConversationNotification(conversation: ConversationSummary) {
+    const lastMessageAt = conversation.last_message?.created_at
+      ? new Date(conversation.last_message.created_at).getTime() + 1
+      : Date.now();
+    const readAt = Math.max(Date.now(), lastMessageAt);
+
+    setUnreadConversations((prev) => prev.filter((item) => item.id !== conversation.id));
+    setHiddenConversationIds((prev) => {
+      const next = new Set(prev);
+      next.add(conversation.id);
+      try {
+        localStorage.setItem(HIDDEN_CHAT_CONVERSATIONS_STORAGE_KEY, JSON.stringify([...next]));
+      } catch {
+        /* ok */
+      }
+      return next;
+    });
+
+    try {
+      const lastRead = JSON.parse(localStorage.getItem(CHAT_LAST_READ_STORAGE_KEY) ?? "{}") as Record<string, number>;
+      lastRead[conversation.id] = readAt;
+      localStorage.setItem(CHAT_LAST_READ_STORAGE_KEY, JSON.stringify(lastRead));
+    } catch {
+      /* ok */
+    }
+
+    if (userId) {
+      void markConversationRead(conversation.id, userId, readAt);
+    }
+  }
+
   if (hideUniversalTopbar) {
     return null;
+  }
+
+  if (pathname.startsWith("/terms")) {
+    return (
+      <header className="universal-app-topbar universal-terms-topbar">
+        <button type="button" className="universal-return-button" onClick={goBack}>
+          <ArrowLeft size={16} aria-hidden="true" />
+          <strong>Takaisin</strong>
+        </button>
+      </header>
+    );
   }
 
   if (guestLocked) {
     return (
       <header className="universal-app-topbar">
+        {!isHomePage ? (
+          <button type="button" className="universal-return-button" onClick={goBack}>
+            <ArrowLeft size={16} aria-hidden="true" />
+            <strong>Takaisin</strong>
+          </button>
+        ) : null}
         <nav className="universal-topbar-actions universal-topbar-actions-guest" aria-label="Pikatoiminnot">
-          <Link href="/auth" className="universal-profile-button universal-login-button">
+          <Link href="/auth" className={`rebuilt-login-button${isActiveRoute("/auth") ? " is-active" : ""}`}>
             <span className="universal-profile-avatar" aria-hidden="true">
               <LockKeyhole size={17} />
             </span>
@@ -344,7 +411,7 @@ export default function UniversalTopbar() {
         </button>
       ) : null}
       <nav className="universal-topbar-actions" aria-label="Pikatoiminnot">
-        <Link href="/sell" className="universal-create-button">
+        <Link href="/sell" className={`universal-create-button${isActiveRoute("/sell") ? " is-active" : ""}`}>
           <Plus size={17} aria-hidden="true" />
           <strong>Luo ilmoitus</strong>
         </Link>
@@ -402,7 +469,11 @@ export default function UniversalTopbar() {
                           type="button"
                           className="universal-notif-dismiss"
                           title="Poista"
-                          onClick={(e) => { e.stopPropagation(); setUnreadConversations(prev => prev.filter(c => c.id !== conversation.id)); }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dismissConversationNotification(conversation);
+                          }}
                         ><X size={11} /></button>
                       </div>
                     );
@@ -484,10 +555,22 @@ export default function UniversalTopbar() {
         <div className="universal-profile-menu-wrap" ref={profileMenuRef}>
           <button
             type="button"
-            className={`universal-profile-button${profileOpen ? " is-open" : ""}`}
+            className={`rebuilt-profile-button${profileOpen ? " is-open" : ""}`}
             aria-haspopup="menu"
             aria-expanded={profileOpen}
-            onClick={() => setProfileOpen((open) => !open)}
+            onPointerDown={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              setNotificationOpen(false);
+              setProfileOpen((open) => !open);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setNotificationOpen(false);
+                setProfileOpen((open) => !open);
+              }
+            }}
           >
             <span className="universal-profile-avatar" aria-hidden="true">
               {avatarUrl ? (
@@ -505,33 +588,37 @@ export default function UniversalTopbar() {
               {userId ? (
                 <>
                   {!isHomePage ? (
-                    <Link href="/" className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <Link href="/" className={`universal-profile-menu-link${isActiveRoute("/") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                       <Home size={16} /> {t.home}
                     </Link>
                   ) : null}
-                  <Link href="/profile" className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <User size={16} /> {t.editProfile}
+                  <Link href="/profile" className={`universal-profile-menu-link${isActiveRoute("/profile") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <UserRound size={16} /> {ownProfileLabel}
                   </Link>
-                  <Link href="/my-listings" className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Link href="/my-listings" className={`universal-profile-menu-link${isActiveRoute("/my-listings") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <ClipboardList size={16} /> {t.myListings}
                   </Link>
-                  <Link href="/garage" className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Link href="/garage" className={`universal-profile-menu-link${isActiveRoute("/garage") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <Car size={16} /> {t.garageTitle}
                   </Link>
-                  <Link href="/messages" className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Link href="/messages" className={`universal-profile-menu-link${isActiveRoute("/messages") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <Mail size={16} /> {t.messages}
                   </Link>
-                  <Link href="/saved" className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Link href="/saved" className={`universal-profile-menu-link${isActiveRoute("/saved") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <Heart size={16} /> {t.savedListings}
                   </Link>
-                  <Link href="/rewards" className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Award size={16} /> {t.rewards}
-                  </Link>
-                  <Link href="/shop" className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Store size={16} /> {t.shop}
-                  </Link>
+                  {FEATURE_FLAGS.rewardsAndShop ? (
+                    <>
+                      <Link href="/rewards" className={`universal-profile-menu-link${isActiveRoute("/rewards") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                        <Award size={16} /> {t.rewards}
+                      </Link>
+                      <Link href="/shop" className={`universal-profile-menu-link${isActiveRoute("/shop") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                        <Store size={16} /> {t.shop}
+                      </Link>
+                    </>
+                  ) : null}
                   {isAdmin && (
-                    <Link href="/admin" className="universal-profile-menu-link admin" role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <Link href="/admin" className={`universal-profile-menu-link admin${isActiveRoute("/admin") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                       <Menu size={16} /> Admin
                     </Link>
                   )}

@@ -1,0 +1,223 @@
+/* Account, admin-adjacent and utility pages */
+.auth-page,
+.simple-auth-page,
+.messages-page,
+.garage-page,
+.legal-shell,
+.profile-workspace,
+.sa-page,
+.pf-page {
+  padding: 28px 0 56px;
+}
+
+.auth-card,
+.simple-card {
+  width: min(520px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.auth-tabs,
+.account-type-picker,
+.pf-nav,
+.garage-class-grid,
+.delete-reason-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.auth-tabs button,
+.pf-nav-item,
+.garage-class-btn,
+.delete-reason-options label {
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  background: rgba(16, 35, 55, 0.72);
+  border: 1px solid var(--line);
+  color: var(--soft);
+}
+
+.auth-tabs button.active,
+.pf-nav-active,
+.garage-class-btn.active,
+.delete-reason-options label:has(input:checked) {
+  color: #fff;
+  border-color: rgba(255, 122, 26, 0.72);
+  background: rgba(255, 122, 26, 0.12);
+}
+
+.messages-hero,
+.saved-hero,
+.legal-hero,
+.rewards-hero,
+.shop-hero,
+.sa-hero,
+.garage-heading,
+.pf-topbar {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.messages-stats,
+.garage-parts-grid,
+.garage-vehicles,
+.rewards-hero-stats,
+.rewards-history,
+.shop-small-links,
+.sa-layout,
+.pf-layout,
+.company-seller-list {
+  display: grid;
+  gap: 14px;
+}
+
+.messages-stats,
+.rewards-hero-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.garage-parts-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.sa-layout,
+.pf-layout {
+  grid-template-columns: 320px minmax(0, 1fr);
+}
+
+.pf-form,
+.sa-form-card,
+.garage-form,
+.company-seller-card,
+.company-seller-add,
+.review-gate-card,
+.delete-listing-modal,
+.auth-modal,
+.pf-phone-modal {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.pf-modal-backdrop,
+.delete-listing-modal-backdrop,
+.part-image-preview-backdrop,
+.auth-modal-backdrop,
+.review-gate {
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.pf-modal,
+.delete-listing-modal,
+.auth-modal,
+.review-gate-card,
+.part-image-preview-modal {
+  width: min(560px, calc(100vw - 32px));
+}
+
+.legal-hero-card,
+.legal-summary,
+.legal-content section,
+.rewards-card,
+.sa-form-card,
+.sa-card-body,
+.pf-section,
+.pf-sidebar,
+.messages-stat-card,
+.conversation-card,
+.garage-part-card,
+.garage-vehicle-wrap {
+  padding: 18px;
+}
+
+.legal-content h1,
+.legal-content h2,
+.messages-hero h1,
+.saved-hero h1,
+.rewards-hero h1,
+.shop-hero h1,
+.sa-hero h1,
+.garage-heading h1,
+.pf-topbar h1 {
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+.legal-content p,
+.messages-hero p,
+.saved-hero p,
+.rewards-hero p,
+.shop-hero p,
+.sa-hero p,
+.garage-heading p,
+.pf-topbar p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.garage-part-card,
+.conversation-card,
+.sa-notif-item,
+.fc-listing-bar {
+  overflow: hidden;
+}
+
+.garage-part-img,
+.conversation-image,
+.fc-listing-img,
+.sa-notif-img {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+}
+
+.garage-part-body,
+.conversation-main,
+.sa-card-body,
+.fc-conv-info,
+.fc-listing-bar {
+  display: grid;
+  gap: 7px;
+}
+
+.garage-part-title,
+.conversation-title-row,
+.sa-notif-title,
+.fc-listing-title {
+  color: #fff;
+  font-weight: 950;
+}
+
+.garage-part-meta,
+.conversation-head,
+.fc-conv-last,
+.sa-card-label,
+.sa-card-tags,
+.rewards-history-date {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.quest-progress,
+.slot-shop-meter,
+.quest-progress-bar {
+  width: 100%;
+}
+
+.quest-progress-bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(3, 12, 24, 0.76);
+}
+
+.quest-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--green));
+}

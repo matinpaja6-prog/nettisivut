@@ -1,0 +1,440 @@
+/* Responsive */
+@media (max-width: 1100px) {
+  .sell-container,
+  .listing-detail-page .layout,
+  .sa-layout,
+  .pf-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sell-sidebar {
+    position: static;
+  }
+
+  .sell-mode-grid,
+  .vehicle-card-list,
+  .preset-grid,
+  .sell-category-card-list,
+  .sell-subcategory-card-list.compact,
+  .garage-parts-grid,
+  .footer-links-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .universal-app-topbar {
+    min-height: 58px !important;
+    padding: 6px 10px !important;
+  }
+
+  .universal-topbar-actions {
+    gap: 7px !important;
+    justify-content: flex-end !important;
+    width: 100% !important;
+  }
+
+  /* Force horizontal flex layout — topbar actions row must NEVER be column. */
+  .universal-topbar-actions,
+  .universal-topbar-actions-guest {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+  }
+
+  .universal-create-button,
+  .universal-profile-button,
+  .universal-icon-button,
+  .universal-category-button,
+  .universal-notification-button,
+  .universal-return-button {
+    align-items: center !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    flex: 0 0 40px !important;
+    height: 40px !important;
+    justify-content: center !important;
+    max-height: 40px !important;
+    max-width: 40px !important;
+    min-height: 40px !important;
+    min-width: 40px !important;
+    padding: 0 !important;
+    width: 40px !important;
+  }
+  /* Piilota napin sisäinen "Takaisin"-teksti puhelimessa - vain nuoli näkyy. */
+  .universal-return-button strong {
+    display: none !important;
+  }
+  /* Värjää nuoli oranssiksi, läpinäkyvä tausta. */
+  .universal-return-button {
+    background: transparent !important;
+    border: 0 !important;
+    color: var(--orange, #ff7a1a) !important;
+    box-shadow: none !important;
+  }
+  .universal-return-button > svg {
+    color: var(--orange, #ff7a1a) !important;
+    width: 22px !important;
+    height: 22px !important;
+  }
+  /* "Luo ilmoitus" -nappi pyöreäksi pluskuvakkeena. */
+  .universal-create-button {
+    border-radius: 999px !important;
+  }
+  .universal-create-button > svg,
+  .universal-profile-button > svg,
+  .universal-icon-button > svg,
+  .universal-category-button > svg,
+  .universal-notification-button > svg {
+    flex: 0 0 auto !important;
+  }
+  /* Profiilinapin avatar-pallo + chevron: pakota kompaktiksi. */
+  .universal-profile-button .profile-avatar,
+  .universal-profile-button .profile-avatar-initial {
+    width: 24px !important;
+    height: 24px !important;
+    flex: 0 0 24px !important;
+  }
+  /* Profiilinapissa piilotetaan chevron mobiililla, tilaa ei ole. */
+  .universal-profile-button > svg.lucide-chevron-down,
+  .universal-profile-button .lucide-chevron-down {
+    display: none !important;
+  }
+
+  .universal-profile-menu-wrap {
+    position: static !important;
+  }
+
+  .universal-profile-menu {
+    left: 10px !important;
+    right: 10px !important;
+    top: 58px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 76px) !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+  }
+
+  .universal-profile-menu-link {
+    min-height: 38px !important;
+    padding: 0 10px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --topbar-h: 62px;
+  }
+
+  body {
+    padding-bottom: 78px;
+  }
+
+  .wrapper,
+  .container,
+  .garage-container,
+  .legal-content,
+  .footer-inner,
+  .messages-shell,
+  .profile-workspace,
+  .sa-page,
+  .pf-content,
+  .sell-container,
+  .listing-detail-page .container,
+  .listing-detail-page .wrapper {
+    width: min(100% - 24px, var(--container));
+  }
+
+  .universal-app-topbar {
+    grid-template-columns: auto 1fr auto;
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .arctic-topbar-logo img {
+    height: 38px;
+  }
+
+  .universal-category-button span,
+  .universal-create-button span,
+  .universal-return-button span,
+  .universal-profile-button span:not(.profile-avatar-initial) {
+    display: none;
+  }
+
+  .universal-category-button,
+  .universal-create-button,
+  .universal-return-button,
+  .universal-profile-button {
+    width: 42px;
+    padding: 0;
+  }
+
+  .sell-grid-2,
+  .sell-grid-3,
+  .garage-form-grid,
+  .sa-form-grid,
+  .pf-fields,
+  .sell-mode-grid,
+  .vehicle-card-list,
+  .preset-grid,
+  .sell-category-card-list,
+  .sell-subcategory-card-list,
+  .sell-subcategory-card-list.compact,
+  .company-seller-checkbox-list,
+  .point-package-grid,
+  .slot-plan-grid,
+  .messages-stats,
+  .rewards-hero-stats,
+  .garage-parts-grid,
+  .footer-links-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vehicle-card {
+    grid-template-columns: 78px minmax(0, 1fr) auto;
+  }
+
+  .sell-category-card {
+    grid-template-columns: 78px minmax(0, 1fr) 28px;
+  }
+
+  .category-picker-toggle {
+    min-height: 52px;
+    padding: 9px 11px;
+  }
+
+  .category-picker-toggle-main strong {
+    font-size: 13px;
+  }
+
+  .category-picker-toggle-action {
+    font-size: 11px;
+    min-height: 30px;
+    padding-inline: 9px;
+  }
+
+  .sell-subcategory-card.is-leaf {
+    min-height: 50px;
+    padding: 10px 12px 10px 40px;
+  }
+
+  .sell-subcategory-card.is-leaf::before {
+    left: 14px;
+  }
+
+  .section-heading,
+  .messages-hero,
+  .saved-hero,
+  .legal-hero,
+  .rewards-hero,
+  .shop-hero,
+  .sa-hero,
+  .garage-heading,
+  .pf-topbar,
+  .footer-bottom,
+  .sell-submit-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sell-listing-type-toggle {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
+
+  .sell-container.sell-current-mode {
+    padding-top: 10px;
+  }
+
+  .sell-container.sell-current-mode .sell-sidebar,
+  .sell-container.sell-current-mode .section-heading {
+    display: none;
+  }
+
+  .listing-fact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cd-body {
+    inset: 10px;
+    width: auto;
+  }
+
+  .bottom-nav {
+    display: grid;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .universal-profile-menu-wrap {
+    position: static !important;
+  }
+
+  .universal-profile-menu {
+    left: 10px !important;
+    right: 10px !important;
+    top: 58px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 76px) !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+  }
+
+  /* ─── Multi-listing per-part card cleanup ─── */
+  .part-card {
+    padding: 12px !important;
+    gap: 10px !important;
+  }
+  .part-card-header {
+    align-items: center !important;
+    gap: 8px !important;
+  }
+  /* Avaa/Sulje toggle: pelkkä oranssi nuoli, ei taustaa eikä kehystä */
+  .part-card-toggle {
+    background: transparent !important;
+    border: 0 !important;
+    color: var(--orange, #ff7a1a) !important;
+    min-height: 28px !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+  }
+  .part-card-toggle:hover {
+    background: rgba(255, 122, 26, 0.12) !important;
+  }
+  /* Poisto: pelkkä oranssi X, ei taustaa eikä kehystä */
+  .part-card-remove {
+    background: transparent !important;
+    border: 0 !important;
+    color: var(--orange, #ff7a1a) !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+  }
+  .part-card-remove:hover {
+    background: rgba(255, 122, 26, 0.14) !important;
+    color: #fff !important;
+  }
+
+  /* Image upload + thumbnails compact row */
+  .part-card-quick {
+    gap: 8px !important;
+  }
+  .part-img-upload {
+    min-height: 38px !important;
+    width: 38px !important;
+    min-width: 38px !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+    position: relative !important;
+  }
+  .part-img-count {
+    position: absolute !important;
+    top: -6px !important;
+    right: -6px !important;
+    background: var(--orange, #ff7a1a) !important;
+    color: #0a0a0a !important;
+    font-weight: 900 !important;
+    border-radius: 999px !important;
+    min-width: 18px !important;
+    height: 18px !important;
+    font-size: 11px !important;
+    display: grid !important;
+    place-items: center !important;
+    padding: 0 4px !important;
+  }
+  /* Thumbnails grid: each thumb has small X in corner, no big red square */
+  .part-img-thumb {
+    width: 66px !important;
+    height: 66px !important;
+    border-radius: 10px !important;
+    position: relative !important;
+    overflow: visible !important;
+  }
+  .part-img-thumb img {
+    border-radius: 10px;
+  }
+  .part-img-preview-btn {
+    background: transparent !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: block !important;
+  }
+  .part-img-preview-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .part-img-remove {
+    position: absolute !important;
+    top: -6px !important;
+    right: -6px !important;
+    width: 20px !important;
+    min-width: 20px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    background: rgba(15, 22, 35, 0.92) !important;
+    border: 1px solid rgba(255, 95, 109, 0.5) !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+    z-index: 2 !important;
+  }
+  .part-img-remove:hover {
+    background: rgba(255, 60, 60, 0.95) !important;
+  }
+}
+
+/* ─── Takaisin-pilli (sell-sivun alaryhmänäkymässä) ─── */
+.chip-back-btn {
+  background: transparent !important;
+  border: 1px solid rgba(255, 122, 26, 0.45) !important;
+  color: var(--orange, #ff7a1a) !important;
+  font-weight: 800 !important;
+  font-size: 12px !important;
+  min-height: 28px !important;
+  padding: 4px 12px 4px 10px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  box-shadow: none !important;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.chip-back-btn:hover {
+  background: rgba(255, 122, 26, 0.14) !important;
+  border-color: var(--orange, #ff7a1a) !important;
+  color: #fff !important;
+}
+.chip-back-btn:active {
+  transform: translateY(1px);
+}

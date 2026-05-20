@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage, type Locale } from "@/lib/i18n";
 
 const footerText = {
@@ -118,8 +120,17 @@ const footerText = {
 
 export default function Footer() {
   const { locale } = useLanguage();
+  const pathname = usePathname();
   const year = new Date().getFullYear();
   const text = footerText[locale];
+
+  const hideFooter =
+    pathname?.startsWith("/auth") ||
+    pathname?.startsWith("/profile") ||
+    pathname?.startsWith("/privacy") ||
+    pathname?.startsWith("/terms");
+
+  if (hideFooter) return null;
 
   return (
     <footer className="site-footer">
@@ -159,7 +170,7 @@ export default function Footer() {
               <li><Link href="/">{text.home}</Link></li>
               <li><Link href="/sell">{text.sell}</Link></li>
               <li><Link href="/garage">{text.garage}</Link></li>
-              <li><Link href="/rewards">{text.rewards}</Link></li>
+              {FEATURE_FLAGS.rewardsAndShop ? <li><Link href="/rewards">{text.rewards}</Link></li> : null}
             </ul>
           </div>
 

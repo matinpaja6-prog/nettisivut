@@ -4,15 +4,16 @@ import type { TouchEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import OptimizedListingImage from "@/app/components/OptimizedListingImage";
 
 import {
-  ArrowLeft,
   ChevronLeft,
   ChevronDown,
   ChevronRight,
   ChevronUp,
   Mail,
   MapPin,
+  Globe2,
   ShieldCheck,
   Phone,
   Heart,
@@ -38,6 +39,7 @@ import {
   getSavedListingIds,
   getListingById,
   getListingDisplayNumber,
+  getListings,
   incrementListingView,
   saveListing,
   supabase,
@@ -251,6 +253,23 @@ const conditionLabels: Record<Locale, Record<string, string>> = {
   et: { Hyvä: "Hea", Uusi: "Uus", "Kuin uusi": "Nagu uus", Tyydyttävä: "Rahuldav", Heikko: "Kehv" }
 };
 
+function normalizeComparable(value: string | null | undefined) {
+  return (value ?? "").trim().toLowerCase();
+}
+
+function getSimilarListingScore(current: Listing, candidate: Listing) {
+  let score = 0;
+
+  if (normalizeComparable(current.subcategory) && normalizeComparable(current.subcategory) === normalizeComparable(candidate.subcategory)) score += 5;
+  if (normalizeComparable(current.category) && normalizeComparable(current.category) === normalizeComparable(candidate.category)) score += 3;
+  if (normalizeComparable(current.vehicle_type) && normalizeComparable(current.vehicle_type) === normalizeComparable(candidate.vehicle_type)) score += 2;
+  if (normalizeComparable(current.brand) && normalizeComparable(current.brand) === normalizeComparable(candidate.brand)) score += 1;
+  if (normalizeComparable(current.model) && normalizeComparable(current.model) === normalizeComparable(candidate.model)) score += 1;
+  if (normalizeComparable(current.year) && normalizeComparable(current.year) === normalizeComparable(candidate.year)) score += 1;
+
+  return score;
+}
+
 const dateLocales: Record<Locale, string> = {
   fi: "fi-FI",
   en: "en-US",
@@ -314,16 +333,19 @@ export default function ListingPage() {
     useState<string | null>(null);
 
   const [basicInfoOpen, setBasicInfoOpen] =
-    useState(true);
+    useState(false);
 
   const [additionalInfoOpen, setAdditionalInfoOpen] =
-    useState(true);
+    useState(false);
 
   const [showPhone, setShowPhone] =
     useState(false);
 
   const [sellerPhone, setSellerPhone] =
     useState("");
+
+  const [sellerWebsite, setSellerWebsite] =
+    useState<string | null>(null);
 
   const [phoneLoading, setPhoneLoading] =
     useState(false);
@@ -336,6 +358,9 @@ export default function ListingPage() {
 
   const [listingDisplayNumber, setListingDisplayNumber] =
     useState<number | null>(null);
+
+  const [similarListings, setSimilarListings] =
+    useState<Listing[]>([]);
 
   const swipeStartXRef =
     useRef<number | null>(null);
@@ -446,6 +471,79 @@ export default function ListingPage() {
   }, [params.id]);
 
   useEffect(() => {
+    if (!supabase || !listing?.seller_id) {
+      setSellerWebsite(null);
+      return;
+    }
+
+    let mounted = true;
+
+    async function loadSellerWebsite() {
+      try {
+        const { data } = await supabase!
+          .from("profiles")
+          .select("company_website")
+          .eq("id", listing!.seller_id)
+          .maybeSingle<{ company_website?: string | null }>();
+
+        if (!mounted) return;
+        setSellerWebsite(data?.company_website?.trim() || null);
+      } catch {
+        if (mounted) setSellerWebsite(null);
+      }
+    }
+
+    void loadSellerWebsite();
+
+    return () => {
+      mounted = false;
+    };
+  }, [listing?.seller_id]);
+
+  useEffect(() => {
+    if (!listing) {
+      setSimilarListings([]);
+      return;
+    }
+
+    const currentListing = listing;
+    let mounted = true;
+
+    async function loadSimilarListings() {
+      const { data } = await getListings();
+      const source = data.length > 0 ? data : fallbackListings;
+
+      const ranked = source
+        .filter((candidate) =>
+          candidate.id !== currentListing.id &&
+          !candidate.is_sold &&
+          !candidate.is_hidden
+        )
+        .map((candidate) => ({
+          candidate,
+          score: getSimilarListingScore(currentListing, candidate)
+        }))
+        .filter(({ score }) => score >= 5)
+        .sort((a, b) => {
+          if (b.score !== a.score) return b.score - a.score;
+          return new Date(b.candidate.created_at).getTime() - new Date(a.candidate.created_at).getTime();
+        })
+        .slice(0, 4)
+        .map(({ candidate }) => candidate);
+
+      if (mounted) {
+        setSimilarListings(ranked);
+      }
+    }
+
+    void loadSimilarListings();
+
+    return () => {
+      mounted = false;
+    };
+  }, [listing]);
+
+  useEffect(() => {
     if (!params.id) {
       return;
     }
@@ -478,14 +576,18 @@ export default function ListingPage() {
   const gallery = useMemo(() => {
     if (!listing) return [];
 
-    return Array.from(
-      new Set(
-        [
-          listing.image_url,
-          ...(listing.image_urls ?? [])
-        ].filter(Boolean)
-      )
-    );
+    const seen = new Set<string>();
+    return [
+      listing.image_url,
+      ...(listing.image_urls ?? [])
+    ]
+      .filter(Boolean)
+      .filter((url) => {
+        const normalized = String(url).split("?")[0].trim();
+        if (!normalized || seen.has(normalized)) return false;
+        seen.add(normalized);
+        return true;
+      }) as string[];
   }, [listing]);
 
   useEffect(() => {
@@ -701,6 +803,20 @@ export default function ListingPage() {
     companySellerNames.includes(",") ? ui.sellers : ui.seller;
   const sellerInitial =
     (sellerDisplayName || "M").trim().slice(0, 1).toUpperCase();
+  const sellerWebsiteUrl = (() => {
+    const trimmed = sellerWebsite?.trim();
+    if (!trimmed) return null;
+    const href = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    try {
+      const url = new URL(href);
+      return {
+        href: url.toString(),
+        label: url.hostname.replace(/^www\./i, "")
+      };
+    } catch {
+      return null;
+    }
+  })();
 
   const vehicleTypeMap: Record<Locale, Record<string, string>> = {
     fi: {},
@@ -740,14 +856,6 @@ export default function ListingPage() {
 
   return (
     <main className="page listing-detail-page">
-
-      <header className="topbar">
-        <Link href="/" className="back">
-          <ArrowLeft size={18} />
-          {ui.back}
-        </Link>
-      </header>
-
       <div className="container">
 
         <section className="layout">
@@ -760,43 +868,11 @@ export default function ListingPage() {
 
               <div className="title-left">
                 <span className="mobile-listing-id">
-                  ID {listingDisplayNumber ?? "..."}
+                  <span>ID {listingDisplayNumber ?? "..."}</span>
+                  <strong>{formatPrice(listing.price)}</strong>
                 </span>
 
                 <h1>{listingText.title}</h1>
-
-                <div className="sub-info">
-
-                  {ui.updated}{" "}
-                  {formatDate(
-                    listing.created_at,
-                    locale
-                  )}
-
-                  <span className="dot">
-                    •
-                  </span>
-
-                  <span className="location">
-                    {listingLocation}
-                    <MapPin size={14} />
-                  </span>
-
-                  <span className="dot">
-                    •
-                  </span>
-
-                  <span className="listing-id">
-                    ID {listingDisplayNumber ?? "..."}
-                  </span>
-
-                </div>
-
-                <div className="listing-kicker">
-                  <span>{listing.condition ? translateConditionLabel(listing.condition) : ui.forSale}</span>
-                  <span>{listing.category ? translateCategory(locale, listing.category) : ui.part}</span>
-                  {listingPartNumber ? <span>OEM {listingPartNumber}</span> : null}
-                </div>
 
               </div>
 
@@ -836,12 +912,19 @@ export default function ListingPage() {
                   aria-label="Avaa kuva suurempana"
                 >
                   <span className="listing-image-soft-bg" aria-hidden="true">
-                    <img src={activeImage} alt="" />
+                    <OptimizedListingImage
+                      src={activeImage}
+                      alt=""
+                      decorative
+                      sizes="(max-width: 900px) 100vw, 760px"
+                    />
                   </span>
-                  <img
+                  <OptimizedListingImage
                     src={activeImage}
                     className="main-img"
                     alt={listingText.title}
+                    priority
+                    sizes="(max-width: 900px) 100vw, 760px"
                   />
                 </button>
               )}
@@ -882,6 +965,33 @@ export default function ListingPage() {
                 </button>
               )}
 
+              <div className="mobile-image-actions">
+                <button
+                  onClick={shareListing}
+                  className="icon-btn"
+                  title={ui.share}
+                >
+                  <Share2 size={20} />
+                </button>
+
+                <button
+                  onClick={toggleSave}
+                  className={`icon-btn ${
+                    saved ? "icon-saved" : ""
+                  }`}
+                  title={saved ? ui.saved : ui.save}
+                >
+                  <Heart
+                    size={20}
+                    fill={
+                      saved
+                        ? "currentColor"
+                        : "none"
+                    }
+                  />
+                </button>
+              </div>
+
               {gallery.length > 1 && (
                 <div className="mobile-image-thumbs" aria-label="Ilmoituksen kuvat">
                   {gallery.map((url, index) => (
@@ -892,7 +1002,12 @@ export default function ListingPage() {
                       onClick={() => setActiveImage(url)}
                       aria-label={`Kuva ${index + 1}/${gallery.length}`}
                     >
-                      <img src={url} alt="" />
+                      <OptimizedListingImage
+                        src={url}
+                        alt=""
+                        decorative
+                        sizes="72px"
+                      />
                     </button>
                   ))}
                 </div>
@@ -935,28 +1050,6 @@ export default function ListingPage() {
                 </button>
 
               </div>
-
-            </div>
-
-            {/* THUMBS */}
-
-            <div className="thumbs">
-
-              {gallery.map((url) => (
-                <img
-                  key={url}
-                  src={url}
-                  alt=""
-                  onClick={() =>
-                    setActiveImage(url)
-                  }
-                  className={
-                    activeImage === url
-                      ? "active"
-                      : ""
-                  }
-                />
-              ))}
 
             </div>
 
@@ -1043,14 +1136,6 @@ export default function ListingPage() {
 
             <div className="seller-card">
 
-              <div className="seller-card-header">
-                <div className="seller-card-label">{ui.seller}</div>
-                <Link href={sellerHref} className="seller-profile-btn">
-                  {ui.viewProfile}
-                  <ChevronRight size={14} />
-                </Link>
-              </div>
-
               <Link
                 href={sellerHref}
                 className="seller-card-body seller-card-link"
@@ -1064,6 +1149,8 @@ export default function ListingPage() {
                 </div>
 
                 <div className="seller-info">
+
+                  <div className="seller-card-label">{ui.seller}</div>
 
                   <div className="seller-name-row">
                     <strong>{sellerDisplayName}</strong>
@@ -1084,10 +1171,20 @@ export default function ListingPage() {
                     <div className="seller-location">{listingLocation}</div>
                   )}
 
+                  {sellerWebsiteUrl && (
+                    <span className="seller-website">
+                      <Globe2 size={13} />
+                      {sellerWebsiteUrl.label}
+                    </span>
+                  )}
+
                 </div>
 
-                <ChevronRight className="seller-card-arrow" size={18} />
+              </Link>
 
+              <Link href={sellerHref} className="seller-profile-btn">
+                {ui.viewProfile}
+                <ChevronRight size={14} />
               </Link>
 
             </div>
@@ -1156,6 +1253,41 @@ export default function ListingPage() {
 
         </section>
 
+        {similarListings.length > 0 && (
+          <section className="similar-listings-section" aria-label="Samanlaisia tuotteita myynnissä">
+            <div className="similar-listings-head">
+              <span>{ui.forSale}</span>
+              <h2>Samanlaisia tuotteita</h2>
+            </div>
+            <div className="similar-listings-grid">
+              {similarListings.map((item) => {
+                const itemText = getLocalizedListingText(item, locale);
+                return (
+                  <Link key={item.id} href={`/listing/${item.id}`} className="similar-listing-card">
+                    <span className="similar-listing-image">
+                      <OptimizedListingImage
+                        src={item.image_url}
+                        alt=""
+                        decorative
+                        sizes="140px"
+                      />
+                    </span>
+                    <span className="similar-listing-body">
+                      <strong>{formatPrice(item.price)}</strong>
+                      <span className="similar-listing-title">{itemText.title}</span>
+                      <span className="similar-listing-meta">
+                        {formatLocation(item.location)}
+                        <span>•</span>
+                        {formatDate(item.created_at, locale)}
+                      </span>
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
       </div>
 
       {previewImage && (
@@ -1172,12 +1304,11 @@ export default function ListingPage() {
             aria-label="Sulje kuvan esikatselu"
           />
           <div className="listing-image-preview-panel">
-            <span className="listing-image-preview-bg" aria-hidden="true">
-              <img src={previewImage} alt="" />
-            </span>
-            <img
+            <OptimizedListingImage
               src={previewImage}
               alt={listingText.title}
+              priority
+              sizes="96vw"
               onTouchStart={startImageSwipe}
               onTouchEnd={finishImageSwipe}
             />
@@ -1222,36 +1353,6 @@ export default function ListingPage() {
             radial-gradient(ellipse 700px 400px at 90% 5%, rgba(34, 211, 238, 0.13), transparent 58%),
             radial-gradient(ellipse 600px 600px at 50% 80%, rgba(3, 105, 161, 0.12), transparent 65%),
             linear-gradient(160deg, #0b1a2f 0%, #0d2240 40%, #071526 100%);
-        }
-
-        .topbar {
-          padding: 18px clamp(18px, 4vw, 52px);
-          background: rgba(11, 26, 47, 0.72);
-          border-bottom: 1px solid rgba(14, 165, 233, 0.18);
-          backdrop-filter: blur(18px);
-          box-shadow: 0 16px 50px rgba(0, 8, 24, 0.28);
-        }
-
-        .back {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          color: #7dd3fc;
-          text-decoration: none;
-          font-weight: 850;
-          font-size: 16px;
-          min-height: 42px;
-          padding: 0 15px;
-          border-radius: 999px;
-          border: 1px solid rgba(14, 165, 233, 0.28);
-          background: rgba(14, 165, 233, 0.08);
-          transition: background 0.15s, border-color 0.15s;
-        }
-
-        .back:hover {
-          background: rgba(14, 165, 233, 0.16);
-          border-color: rgba(14, 165, 233, 0.5);
-          color: #bae6fd;
         }
 
         .container {
@@ -1392,6 +1493,11 @@ export default function ListingPage() {
           display: none;
         }
 
+        .mobile-listing-id strong,
+        .mobile-image-actions {
+          display: none;
+        }
+
         .image-wrapper {
           overflow: hidden;
           border-radius: 24px;
@@ -1524,8 +1630,8 @@ export default function ListingPage() {
 
         .listing-image-preview-panel {
           background: rgba(5, 20, 38, 0.96);
-          border: 1px solid rgba(255, 154, 36, 0.64);
-          border-radius: 18px;
+          border: 1px solid rgba(151, 178, 205, 0.28);
+          border-radius: 12px;
           box-shadow: 0 28px 86px rgba(0, 8, 20, 0.62);
           max-height: min(86vh, 820px);
           max-width: min(94vw, 1120px);
@@ -1544,19 +1650,23 @@ export default function ListingPage() {
 
         .listing-image-preview-close {
           align-items: center;
-          background: linear-gradient(135deg, #ff9a24, #ef4444);
-          border: 1px solid rgba(255, 218, 184, 0.82);
-          border-radius: 999px;
-          box-shadow: 0 12px 24px rgba(0, 8, 20, 0.34);
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
           color: #ffffff;
           cursor: pointer;
           display: inline-flex;
-          height: 40px;
+          height: 26px;
           justify-content: center;
           position: absolute;
-          right: 12px;
-          top: 12px;
-          width: 40px;
+          right: 10px;
+          top: 8px;
+          width: 26px;
+        }
+
+        .listing-image-preview-close:hover {
+          color: #ffb45f;
         }
 
         .thumbs {
@@ -2012,6 +2122,1014 @@ export default function ListingPage() {
             justify-content: center;
           }
 
+        }
+
+        /* Final listing detail skin: match main page, keep portrait photos fully visible. */
+        .page {
+          background:
+            radial-gradient(760px 320px at 88% -8%, rgba(255, 122, 26, 0.12), transparent 62%),
+            radial-gradient(680px 300px at 8% 0%, rgba(64, 216, 255, 0.08), transparent 68%),
+            #0b1118 !important;
+          color: #f4f8fc !important;
+        }
+
+        .container {
+          width: min(1320px, calc(100vw - 32px)) !important;
+          max-width: none !important;
+          padding: clamp(18px, 3vw, 34px) 0 88px !important;
+        }
+
+        .layout {
+          grid-template-columns: minmax(0, 1fr) minmax(280px, 330px) !important;
+          gap: 18px !important;
+        }
+
+        .main {
+          background:
+            radial-gradient(680px 260px at 100% 0%, rgba(255, 122, 26, 0.1), transparent 70%),
+            linear-gradient(145deg, rgba(13, 29, 46, 0.96), rgba(7, 17, 29, 0.98)) !important;
+          border: 1px solid rgba(151, 178, 205, 0.2) !important;
+          border-radius: 20px !important;
+          box-shadow: 0 24px 70px rgba(0, 7, 18, 0.34), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+          padding: clamp(18px, 3vw, 28px) !important;
+        }
+
+        .title-row {
+          margin-bottom: 18px !important;
+        }
+
+        .title-row h1 {
+          color: #ffffff !important;
+          font-size: clamp(1.55rem, 2.4vw, 2.15rem) !important;
+          font-weight: 950 !important;
+          line-height: 1.12 !important;
+        }
+
+        .sub-info,
+        .desktop-image-meta,
+        .listing-id {
+          color: rgba(226, 244, 255, 0.68) !important;
+          font-size: 13px !important;
+        }
+
+        .desktop-image-meta strong {
+          color: #ffb45f !important;
+        }
+
+        .listing-kicker span {
+          background: rgba(255, 122, 26, 0.12) !important;
+          border-color: rgba(255, 122, 26, 0.3) !important;
+          color: #ffd1a3 !important;
+        }
+
+        .image-wrapper {
+          background: #06111f !important;
+          border: 1px solid rgba(151, 178, 205, 0.2) !important;
+          border-radius: 18px !important;
+          box-shadow: 0 18px 54px rgba(0, 7, 18, 0.28) !important;
+        }
+
+        .main-img-button {
+          position: relative !important;
+          min-height: clamp(360px, 52vw, 620px) !important;
+          overflow: hidden !important;
+          background: #06111f !important;
+        }
+
+        .listing-image-soft-bg {
+          position: absolute !important;
+          inset: 0 !important;
+          display: block !important;
+          overflow: hidden !important;
+          pointer-events: none !important;
+        }
+
+        .listing-image-soft-bg img {
+          width: 100% !important;
+          height: 100% !important;
+          display: block !important;
+          object-fit: cover !important;
+          filter: blur(22px) saturate(0.85) brightness(0.56) !important;
+          transform: scale(1.08) !important;
+          opacity: 0.8 !important;
+        }
+
+        .listing-image-soft-bg::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: rgba(3, 12, 24, 0.28);
+        }
+
+        .main-img {
+          position: relative !important;
+          z-index: 1 !important;
+          width: 100% !important;
+          height: clamp(360px, 52vw, 620px) !important;
+          object-fit: contain !important;
+          object-position: center center !important;
+          background: transparent !important;
+        }
+
+        .image-wrapper::after {
+          z-index: 2 !important;
+          box-shadow: inset 0 -90px 80px rgba(0, 7, 18, 0.22) !important;
+        }
+
+        .image-badge,
+        .gallery-arrow,
+        .image-zoom-button {
+          z-index: 4 !important;
+        }
+
+        .image-badge {
+          background: rgba(3, 12, 24, 0.72) !important;
+          border-color: rgba(151, 178, 205, 0.24) !important;
+          color: #ffffff !important;
+        }
+
+        .price-actions-row {
+          align-items: center !important;
+          margin-top: 16px !important;
+        }
+
+        .price-display {
+          color: #ffffff !important;
+          font-size: clamp(1.8rem, 3vw, 2.35rem) !important;
+          font-weight: 950 !important;
+        }
+
+        .icon-btn {
+          background: rgba(12, 28, 46, 0.86) !important;
+          border-color: rgba(151, 178, 205, 0.22) !important;
+          color: #f4f8fc !important;
+          box-shadow: none !important;
+        }
+
+        .icon-btn.icon-saved {
+          background: rgba(255, 122, 26, 0.16) !important;
+          border-color: rgba(255, 122, 26, 0.48) !important;
+          color: #ffb45f !important;
+        }
+
+        .thumbs {
+          display: flex !important;
+          gap: 10px !important;
+          margin-top: 14px !important;
+          overflow-x: auto !important;
+          padding-bottom: 2px !important;
+        }
+
+        .thumbs img,
+        .mobile-image-thumbs img {
+          width: 82px !important;
+          height: 64px !important;
+          flex: 0 0 auto !important;
+          border: 2px solid rgba(151, 178, 205, 0.2) !important;
+          border-radius: 12px !important;
+          background: #06111f !important;
+          object-fit: contain !important;
+          padding: 2px !important;
+        }
+
+        .thumbs img.active,
+        .mobile-image-thumbs button.active img {
+          border-color: rgba(255, 122, 26, 0.72) !important;
+          box-shadow: 0 0 0 2px rgba(255, 122, 26, 0.16) !important;
+        }
+
+        .description-card,
+        .listing-facts-card,
+        .listing-extra-card,
+        .contact-card,
+        .seller-card {
+          background:
+            radial-gradient(520px 220px at 100% 0%, rgba(255, 122, 26, 0.1), transparent 70%),
+            linear-gradient(145deg, rgba(13, 29, 46, 0.96), rgba(7, 17, 29, 0.98)) !important;
+          border: 1px solid rgba(151, 178, 205, 0.2) !important;
+          border-radius: 18px !important;
+          box-shadow: 0 18px 46px rgba(0, 7, 18, 0.28), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+          color: #f4f8fc !important;
+        }
+
+        .description-card {
+          margin-top: 18px !important;
+          padding: 0 !important;
+          overflow: hidden !important;
+        }
+
+        .listing-section-toggle {
+          min-height: 58px !important;
+          padding: 0 18px !important;
+          background: rgba(3, 12, 24, 0.22) !important;
+          border: 0 !important;
+          color: #ffffff !important;
+          font-size: 1rem !important;
+          font-weight: 950 !important;
+        }
+
+        .listing-section-content {
+          padding: 16px 18px 18px !important;
+        }
+
+        .description-card p {
+          color: rgba(226, 244, 255, 0.74) !important;
+          font-size: 14px !important;
+          font-weight: 700 !important;
+          line-height: 1.65 !important;
+          margin: 0 !important;
+        }
+
+        .listing-fact-grid {
+          gap: 10px !important;
+          margin: 0 !important;
+        }
+
+        .listing-fact-grid span {
+          min-height: 74px !important;
+          background: rgba(3, 12, 24, 0.38) !important;
+          border: 1px solid rgba(151, 178, 205, 0.16) !important;
+          border-radius: 14px !important;
+          color: rgba(226, 244, 255, 0.82) !important;
+        }
+
+        .listing-fact-grid strong {
+          color: #ffb45f !important;
+          font-size: 11px !important;
+          letter-spacing: 0.06em !important;
+        }
+
+        .seller-card {
+          overflow: hidden !important;
+          padding: 0 !important;
+        }
+
+        .seller-profile-btn {
+          background: rgba(255, 122, 26, 0.14) !important;
+          border-color: rgba(255, 122, 26, 0.34) !important;
+          color: #ffd1a3 !important;
+          box-shadow: none !important;
+        }
+
+        .contact-card {
+          padding: 18px !important;
+        }
+
+        .contact-card h3 {
+          color: #ffffff !important;
+          font-size: 16px !important;
+          margin-bottom: 14px !important;
+        }
+
+        .message-btn,
+        .phone-btn,
+        .login-contact {
+          min-height: 50px !important;
+          height: auto !important;
+          border-radius: 12px !important;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%) !important;
+          border-color: rgba(255, 210, 165, 0.58) !important;
+          box-shadow: 0 16px 34px rgba(255, 122, 26, 0.22) !important;
+          font-size: 14px !important;
+        }
+
+        @media (max-width: 1100px) {
+          .layout {
+            grid-template-columns: 1fr !important;
+          }
+
+          .sidebar {
+            position: static !important;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .container {
+            width: min(100% - 24px, 1320px) !important;
+            padding-top: 14px !important;
+          }
+
+          .main {
+            display: flex !important;
+            flex-direction: column !important;
+            padding: 14px !important;
+            border-radius: 18px !important;
+          }
+
+          .image-wrapper {
+            order: 1 !important;
+            margin-bottom: 14px !important;
+          }
+
+          .title-row {
+            order: 2 !important;
+            margin-bottom: 8px !important;
+          }
+
+          .desktop-image-meta {
+            order: 3 !important;
+            margin: 0 0 14px !important;
+          }
+
+          .price-actions-row {
+            order: 4 !important;
+            margin-top: 8px !important;
+            margin-bottom: 14px !important;
+          }
+
+          .thumbs {
+            order: 5 !important;
+            margin-top: 0 !important;
+            margin-bottom: 16px !important;
+          }
+
+          .listing-facts-card {
+            order: 6 !important;
+          }
+
+          .listing-extra-card {
+            order: 7 !important;
+          }
+
+          .mobile-listing-id {
+            align-items: center !important;
+            color: rgba(226, 244, 255, 0.74) !important;
+            display: flex !important;
+            font-size: 13px !important;
+            font-weight: 900 !important;
+            justify-content: space-between !important;
+            gap: 12px !important;
+            margin-bottom: 6px !important;
+            width: 100% !important;
+          }
+
+          .mobile-listing-id strong {
+            color: #ffffff !important;
+            display: inline-flex !important;
+            flex: 0 0 auto !important;
+            font-size: 1.15rem !important;
+            font-weight: 950 !important;
+            line-height: 1 !important;
+          }
+
+          .title-row h1 {
+            font-size: 1.45rem !important;
+          }
+
+          .sub-info,
+          .desktop-image-meta {
+            gap: 7px !important;
+            font-size: 12px !important;
+          }
+
+          .desktop-image-meta {
+            align-items: center !important;
+            border-bottom: 1px solid rgba(151, 178, 205, 0.22) !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
+            line-height: 1.35 !important;
+            padding-bottom: 12px !important;
+          }
+
+          .desktop-image-meta strong {
+            display: none !important;
+          }
+
+          .image-badge {
+            bottom: auto !important;
+            left: 10px !important;
+            min-height: 28px !important;
+            padding: 0 8px !important;
+            top: 10px !important;
+          }
+
+          .mobile-image-actions {
+            bottom: 12px !important;
+            display: flex !important;
+            gap: 10px !important;
+            position: absolute !important;
+            right: 12px !important;
+            z-index: 5 !important;
+          }
+
+          .mobile-image-actions .icon-btn {
+            backdrop-filter: blur(10px) !important;
+            background: rgba(3, 12, 24, 0.76) !important;
+            border-color: rgba(255, 255, 255, 0.28) !important;
+            border-radius: 999px !important;
+            height: 42px !important;
+            width: 42px !important;
+          }
+
+          .main-img-button,
+          .main-img {
+            height: min(72vh, 520px) !important;
+            min-height: 340px !important;
+          }
+
+          .price-actions-row {
+            display: none !important;
+          }
+
+          .image-actions {
+            width: 100% !important;
+            justify-content: space-between !important;
+          }
+
+          .price-display {
+            font-size: 2rem !important;
+          }
+
+          .listing-fact-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+
+        /* Sidebar final polish: force the contact links to render as real buttons. */
+        .listing-detail-page .sidebar {
+          background:
+            radial-gradient(280px 180px at 100% 0%, rgba(255, 122, 26, 0.1), transparent 72%),
+            linear-gradient(180deg, rgba(13, 28, 45, 0.96), rgba(7, 20, 34, 0.96)) !important;
+          border: 1px solid rgba(151, 178, 205, 0.22) !important;
+          border-radius: 18px !important;
+          box-shadow: 0 18px 48px rgba(0, 6, 16, 0.22) !important;
+          display: grid !important;
+          gap: 22px !important;
+          padding: 22px !important;
+        }
+
+        .listing-detail-page .seller-card,
+        .listing-detail-page .contact-card {
+          background: transparent !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          overflow: visible !important;
+        }
+
+        .listing-detail-page .seller-card {
+          padding: 0 !important;
+        }
+
+        .listing-detail-page .seller-card-header {
+          justify-content: flex-start !important;
+          padding: 0 !important;
+        }
+
+        .listing-detail-page .seller-card-label {
+          background: transparent !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          color: #ffb45f !important;
+          display: block !important;
+          font-size: 11px !important;
+          font-weight: 950 !important;
+          letter-spacing: 0.08em !important;
+          line-height: 1 !important;
+          margin: 3px 0 7px !important;
+          padding: 0 !important;
+          transform: translateY(4px) !important;
+        }
+
+        .listing-detail-page .seller-card-body {
+          align-items: center !important;
+          display: grid !important;
+          grid-template-columns: 64px minmax(0, 1fr) !important;
+          gap: 12px !important;
+          margin: 16px 0 0 !important;
+          min-height: 96px !important;
+          padding: 0 !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          background: transparent !important;
+        }
+
+        .listing-detail-page .seller-profile-btn {
+          align-items: center !important;
+          background:
+            linear-gradient(180deg, rgba(17, 39, 61, 0.98), rgba(8, 24, 42, 0.98)) !important;
+          border: 1px solid rgba(255, 122, 26, 0.42) !important;
+          border-radius: 13px !important;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+          color: #ffffff !important;
+          display: flex !important;
+          font-size: 14px !important;
+          font-weight: 950 !important;
+          gap: 8px !important;
+          height: 46px !important;
+          justify-content: center !important;
+          margin: 8px 0 0 !important;
+          padding: 0 14px !important;
+          text-decoration: none !important;
+          width: 100% !important;
+        }
+
+        .listing-detail-page .seller-profile-btn svg {
+          color: #ffb45f !important;
+          height: 16px !important;
+          width: 16px !important;
+        }
+
+        .listing-detail-page .seller-profile-btn:hover {
+          border-color: rgba(255, 154, 36, 0.72) !important;
+          filter: brightness(1.05) !important;
+          transform: translateY(-1px) !important;
+        }
+
+        .listing-detail-page .seller-avatar-detail {
+          width: 64px !important;
+          height: 64px !important;
+          border-radius: 18px !important;
+          border: 1px solid rgba(255, 122, 26, 0.34) !important;
+          box-shadow: 0 14px 28px rgba(0, 7, 18, 0.22) !important;
+          background: rgba(3, 12, 24, 0.54) !important;
+        }
+
+        .listing-detail-page .seller-avatar-img {
+          border-radius: 18px !important;
+          object-fit: cover !important;
+        }
+
+        .listing-detail-page .seller-name-row strong {
+          color: #ffffff !important;
+          display: block !important;
+          font-size: 17px !important;
+          font-weight: 950 !important;
+          max-width: 100% !important;
+          white-space: normal !important;
+        }
+
+        .listing-detail-page .seller-card .verified-chip {
+          background: transparent !important;
+          border: 0 !important;
+          color: #4ade80 !important;
+          padding: 0 !important;
+        }
+
+        .listing-detail-page .seller-card .verified-chip svg {
+          color: #22c55e !important;
+          filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.28)) !important;
+        }
+
+        .listing-detail-page .seller-location {
+          color: rgba(226, 244, 255, 0.72) !important;
+          font-size: 13px !important;
+          font-weight: 850 !important;
+        }
+
+        .listing-detail-page .seller-website {
+          align-items: center !important;
+          color: #7dd3fc !important;
+          display: inline-flex !important;
+          font-size: 13px !important;
+          font-weight: 900 !important;
+          gap: 6px !important;
+          margin-top: 6px !important;
+          max-width: 100% !important;
+        }
+
+        .listing-detail-page .seller-website svg {
+          color: #ffb45f !important;
+          flex: 0 0 auto !important;
+        }
+
+        .listing-detail-page .seller-card-arrow {
+          color: #ffb45f !important;
+        }
+
+        .listing-detail-page .contact-card {
+          display: grid !important;
+          gap: 10px !important;
+          margin-top: 4px !important;
+          padding: 0 !important;
+        }
+
+        .listing-detail-page .contact-card h3 {
+          color: #ffffff !important;
+          font-size: 17px !important;
+          font-weight: 950 !important;
+          line-height: 1.15 !important;
+          margin: 0 0 2px !important;
+        }
+
+        .listing-detail-page .contact-card .message-btn,
+        .listing-detail-page .contact-card .phone-btn,
+        .listing-detail-page .contact-card .login-contact,
+        .listing-detail-page .contact-card .phone-number {
+          align-items: center !important;
+          border-radius: 13px !important;
+          box-sizing: border-box !important;
+          display: flex !important;
+          gap: 9px !important;
+          height: 54px !important;
+          justify-content: center !important;
+          margin: 0 !important;
+          min-height: 54px !important;
+          padding: 0 16px !important;
+          text-align: center !important;
+          text-decoration: none !important;
+          width: 100% !important;
+        }
+
+        .listing-detail-page .contact-card .message-btn {
+          background:
+            linear-gradient(180deg, rgba(20, 42, 64, 0.96), rgba(10, 27, 45, 0.96)) !important;
+          border: 1px solid rgba(151, 178, 205, 0.36) !important;
+          color: #ffffff !important;
+          font-size: 14px !important;
+          font-weight: 950 !important;
+          box-shadow:
+            0 10px 24px rgba(0, 6, 16, 0.18),
+            inset 0 1px 0 rgba(255,255,255,0.06) !important;
+        }
+
+        .listing-detail-page .contact-card .phone-btn,
+        .listing-detail-page .contact-card .login-contact {
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%) !important;
+          border: 1px solid rgba(255, 210, 165, 0.62) !important;
+          color: #ffffff !important;
+          font-size: 14px !important;
+          font-weight: 950 !important;
+          box-shadow: 0 16px 34px rgba(255, 122, 26, 0.22) !important;
+        }
+
+        .listing-detail-page .contact-card .message-btn svg,
+        .listing-detail-page .contact-card .phone-btn svg,
+        .listing-detail-page .contact-card .login-contact svg,
+        .listing-detail-page .contact-card .phone-number svg {
+          flex: 0 0 auto !important;
+          height: 18px !important;
+          width: 18px !important;
+        }
+
+        .listing-detail-page .contact-card .message-btn:hover,
+        .listing-detail-page .contact-card .phone-btn:hover,
+        .listing-detail-page .contact-card .login-contact:hover {
+          filter: brightness(1.05) !important;
+          transform: translateY(-1px) !important;
+        }
+
+        .similar-listings-section {
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          margin: 30px 0 72px;
+          padding: 0;
+        }
+
+        .similar-listings-head {
+          align-items: baseline;
+          background: transparent;
+          border-bottom: 1px solid rgba(255, 122, 26, 0.62);
+          display: grid;
+          gap: 12px;
+          grid-template-columns: auto 1fr;
+          margin: 0;
+          padding: 16px 18px;
+        }
+
+        .similar-listings-head span {
+          color: #ffb45f;
+          font-size: 11px;
+          font-weight: 950;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+
+        .similar-listings-head h2 {
+          color: #ffffff;
+          font-size: 20px;
+          font-weight: 950;
+          justify-self: end;
+          line-height: 1.1;
+          margin: 0;
+        }
+
+        .similar-listings-grid {
+          display: grid;
+          gap: 0;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          padding: 16px 0 0;
+        }
+
+        .similar-listing-card {
+          background: transparent;
+          border: 0;
+          border-left: 1px solid rgba(255, 122, 26, 0.62);
+          border-radius: 0;
+          color: #ffffff;
+          display: grid;
+          grid-template-rows: 158px 1fr;
+          overflow: hidden;
+          padding: 0 14px;
+          text-decoration: none;
+          transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .similar-listing-card:first-child {
+          border-left: 0;
+          padding-left: 0;
+        }
+
+        .similar-listing-card:last-child {
+          padding-right: 0;
+        }
+
+        .similar-listing-card:hover {
+          border-color: rgba(255, 184, 93, 0.95);
+          box-shadow: none;
+          transform: translateY(-2px);
+        }
+
+        .similar-listing-image {
+          background: #06111f;
+          border: 1px solid rgba(255, 122, 26, 0.26);
+          display: block;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .similar-listing-image::after {
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          content: "";
+          inset: 0;
+          pointer-events: none;
+          position: absolute;
+        }
+
+        .similar-listing-image img {
+          display: block;
+          height: 100%;
+          object-fit: cover;
+          width: 100%;
+        }
+
+        .similar-listing-body {
+          display: grid;
+          gap: 8px;
+          padding: 14px;
+          min-height: 136px;
+        }
+
+        .similar-listing-body strong {
+          color: #ffffff;
+          font-size: 23px;
+          font-weight: 950;
+          line-height: 1;
+        }
+
+        .similar-listing-title {
+          color: #ffffff;
+          display: -webkit-box;
+          font-size: 14px;
+          font-weight: 950;
+          line-height: 1.18;
+          overflow: hidden;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+        }
+
+        .similar-listing-meta {
+          align-items: center;
+          color: rgba(226, 244, 255, 0.68);
+          display: flex;
+          flex-wrap: wrap;
+          gap: 7px;
+          font-size: 12px;
+          font-weight: 800;
+        }
+
+        @media (max-width: 640px) {
+          .listing-detail-page .seller-card-body {
+            grid-template-columns: 58px minmax(0, 1fr) !important;
+          }
+
+          .listing-detail-page .sidebar {
+            padding: 18px !important;
+          }
+
+          .listing-detail-page .seller-avatar-detail {
+            width: 58px !important;
+            height: 58px !important;
+          }
+
+          .similar-listings-section {
+            margin: 22px 0 48px;
+          }
+
+          .similar-listings-head {
+            align-items: flex-start;
+            display: grid;
+            gap: 6px;
+            grid-template-columns: 1fr;
+            padding: 14px;
+          }
+
+          .similar-listings-head h2 {
+            justify-self: start;
+          }
+
+          .similar-listings-grid {
+            gap: 10px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            padding: 14px 0 0;
+          }
+
+          .similar-listing-card,
+          .similar-listing-card:first-child,
+          .similar-listing-card:last-child {
+            border-left: 0;
+            padding: 0;
+          }
+
+          .similar-listing-card:nth-child(odd) {
+            border-right: 1px solid rgba(255, 122, 26, 0.62);
+            padding-right: 10px;
+          }
+
+          .similar-listing-card:nth-child(even) {
+            padding-left: 10px;
+          }
+
+          .similar-listing-card {
+            grid-template-columns: 1fr;
+            grid-template-rows: 118px 1fr;
+            min-height: 250px;
+          }
+
+          .similar-listing-image {
+            border-bottom: 1px solid rgba(255, 122, 26, 0.42);
+            border-right: 0;
+          }
+
+          .similar-listing-body {
+            gap: 6px;
+            min-height: 132px;
+            padding: 10px;
+          }
+
+          .similar-listing-body strong {
+            font-size: 20px;
+          }
+
+          .similar-listing-title {
+            font-size: 12px;
+          }
+
+          .similar-listing-meta {
+            font-size: 10px;
+            gap: 5px;
+          }
+        }
+
+        /* Final gallery arrow placement: centered on both sides of the image. */
+        .listing-detail-page .image-wrapper .gallery-arrow {
+          align-items: center !important;
+          background: rgba(3, 12, 24, 0.76) !important;
+          border: 1px solid rgba(151, 178, 205, 0.28) !important;
+          border-radius: 999px !important;
+          color: #ffffff !important;
+          cursor: pointer !important;
+          display: inline-flex !important;
+          height: 46px !important;
+          justify-content: center !important;
+          padding: 0 !important;
+          position: absolute !important;
+          top: 50% !important;
+          transform: translateY(-50%) !important;
+          width: 46px !important;
+          z-index: 6 !important;
+        }
+
+        .listing-detail-page .image-wrapper .gallery-arrow-left {
+          left: 18px !important;
+        }
+
+        .listing-detail-page .image-wrapper .gallery-arrow-right {
+          right: 18px !important;
+        }
+
+        .listing-detail-page .image-wrapper .gallery-arrow:hover {
+          background: rgba(255, 122, 26, 0.92) !important;
+          border-color: rgba(255, 208, 164, 0.8) !important;
+        }
+
+        @media (max-width: 640px) {
+          .listing-detail-page .image-wrapper .gallery-arrow {
+            height: 38px !important;
+            top: 44% !important;
+            width: 38px !important;
+          }
+
+          .listing-detail-page .image-wrapper .gallery-arrow-left {
+            left: 10px !important;
+          }
+
+          .listing-detail-page .image-wrapper .gallery-arrow-right {
+            right: 10px !important;
+          }
+
+          .listing-detail-page .mobile-image-thumbs {
+            gap: 6px !important;
+            padding: 7px 8px !important;
+          }
+
+          .listing-detail-page .mobile-image-thumbs button {
+            height: 54px !important;
+            min-width: 42px !important;
+            width: 42px !important;
+          }
+
+          .listing-detail-page .mobile-image-thumbs img {
+            border-radius: 7px !important;
+            height: 54px !important;
+            padding: 1px !important;
+            width: 42px !important;
+          }
+        }
+
+        /* Final similar listings image lock: every card keeps the same image size. */
+        .listing-detail-page .similar-listing-card {
+          grid-template-rows: 168px minmax(132px, auto) !important;
+          min-height: 0 !important;
+        }
+
+        .listing-detail-page .similar-listing-image {
+          aspect-ratio: 16 / 10 !important;
+          display: block !important;
+          height: 168px !important;
+          max-height: 168px !important;
+          min-height: 168px !important;
+          overflow: hidden !important;
+          position: relative !important;
+          width: 100% !important;
+        }
+
+        .listing-detail-page .similar-listing-image img {
+          display: block !important;
+          height: 100% !important;
+          inset: 0 !important;
+          object-fit: cover !important;
+          object-position: center !important;
+          position: absolute !important;
+          width: 100% !important;
+        }
+
+        .listing-detail-page .listing-image-preview-arrow {
+          align-items: center !important;
+          background: rgba(3, 12, 24, 0.78) !important;
+          border: 1px solid rgba(151, 178, 205, 0.28) !important;
+          border-radius: 999px !important;
+          color: #ffffff !important;
+          cursor: pointer !important;
+          display: inline-flex !important;
+          height: 46px !important;
+          justify-content: center !important;
+          padding: 0 !important;
+          position: absolute !important;
+          top: 50% !important;
+          transform: translateY(-50%) !important;
+          width: 46px !important;
+          z-index: 3 !important;
+        }
+
+        .listing-detail-page .listing-image-preview-arrow-left {
+          left: 14px !important;
+        }
+
+        .listing-detail-page .listing-image-preview-arrow-right {
+          right: 14px !important;
+        }
+
+        .listing-detail-page .listing-image-preview-arrow:hover {
+          background: rgba(255, 122, 26, 0.92) !important;
+          border-color: rgba(255, 208, 164, 0.8) !important;
+        }
+
+        @media (max-width: 640px) {
+          .listing-detail-page .similar-listing-card {
+            grid-template-rows: 118px minmax(132px, auto) !important;
+          }
+
+          .listing-detail-page .similar-listing-image {
+            height: 118px !important;
+            max-height: 118px !important;
+            min-height: 118px !important;
+          }
+
+          .listing-detail-page .listing-image-preview-arrow {
+            height: 38px !important;
+            width: 38px !important;
+          }
+
+          .listing-detail-page .listing-image-preview-arrow-left {
+            left: 8px !important;
+          }
+
+          .listing-detail-page .listing-image-preview-arrow-right {
+            right: 8px !important;
+          }
         }
 
       `}</style>

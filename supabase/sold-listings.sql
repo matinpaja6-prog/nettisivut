@@ -35,6 +35,12 @@ create policy "Sellers can read own sold listings"
   on public.sold_listings for select
   using (auth.uid() = seller_id);
 
+drop policy if exists "Admins can read sold listings" on public.sold_listings;
+create policy "Admins can read sold listings"
+  on public.sold_listings for select
+  to authenticated
+  using (public.is_admin(auth.uid()));
+
 drop policy if exists "Sellers can insert own sold listings" on public.sold_listings;
 create policy "Sellers can insert own sold listings"
   on public.sold_listings for insert

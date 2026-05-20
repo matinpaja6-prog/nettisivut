@@ -174,16 +174,12 @@ export default function AutoTranslate() {
   );
 
   const translatePage = useCallback(async () => {
+    if (locale === "fi") return;
     if (translating.current) return;
     translating.current = true;
 
     try {
       const { textNodes, attrs, texts } = collect();
-
-      if (locale === "fi") {
-        applyTranslations(textNodes, attrs);
-        return;
-      }
 
       const missing = texts.filter((text) => !translationCache.current.has(text));
 
@@ -210,6 +206,11 @@ export default function AutoTranslate() {
   }, [applyTranslations, collect, locale, saveCache]);
 
   useEffect(() => {
+    if (locale === "fi") {
+      originalTextNodes.current = new WeakMap();
+      return;
+    }
+
     function scheduleTranslate() {
       if (pendingRequest.current) {
         window.clearTimeout(pendingRequest.current);

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import styles from "./page.module.css";
@@ -24,17 +25,23 @@ import {
   Search,
   Settings2,
   Store,
-  UserRound
+  UserRound,
+  X
 } from "lucide-react";
 
 import {
-  buildVehicleCategories,
-  categories,
   fallbackListings,
   formatPrice,
   getListingPartNumber,
+  normalizeVehicleType,
   type Listing
 } from "@/lib/listings";
+import {
+  buildVehicleCategoriesFromTaxonomy,
+  categoriesAsRecord,
+  vehicleBrandsRecord
+} from "@/lib/taxonomy";
+import { useTaxonomy } from "./components/TaxonomyProvider";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 
 import { buildRecoProfile, getRecommendedListings, setRecoUserId } from "@/lib/recommendations";
@@ -67,9 +74,14 @@ import {
   type UserPreferenceProfile
 } from "@/lib/supabase";
 import { applyLocale, isLocale, translateCategory } from "@/lib/i18n";
-import CategoryDrawer from "./components/CategoryDrawer";
 import LanguageSwitcher from "./components/LanguageSwitcher";
+import OptimizedListingImage, { fallbackListingImage } from "./components/OptimizedListingImage";
 import { ListFilter, Menu } from "lucide-react";
+
+const CategoryDrawer = dynamic(() => import("./components/CategoryDrawer"), {
+  ssr: false,
+  loading: () => null
+});
 
 type Locale = "fi" | "en" | "sv" | "no" | "et";
 
@@ -148,6 +160,7 @@ const translations = {
     sellParts: "Myy osia",
     forYou: "Sinulle suosituksia",
     basedOnBrowsing: "Selaamasi perusteella",
+    newBadge: "Uusi",
     allListings: "Kaikki ilmoitukset",
     selectedVehicle: "Valittu ajoneuvo",
     openCategories: "Avaa kategoriat"
@@ -223,6 +236,7 @@ const translations = {
     sellParts: "Sell parts",
     forYou: "Recommendations for you",
     basedOnBrowsing: "Based on your browsing",
+    newBadge: "New",
     allListings: "All listings",
     selectedVehicle: "Selected vehicle",
     openCategories: "Open categories"
@@ -298,6 +312,7 @@ const translations = {
     sellParts: "Sälj delar",
     forYou: "Rekommendationer för dig",
     basedOnBrowsing: "Baserat på ditt bläddring",
+    newBadge: "Ny",
     allListings: "Alla annonser",
     selectedVehicle: "Valt fordon",
     openCategories: "Öppna kategorier"
@@ -373,6 +388,7 @@ const translations = {
     sellParts: "Selg deler",
     forYou: "Anbefalinger for deg",
     basedOnBrowsing: "Basert på din søking",
+    newBadge: "Ny",
     allListings: "Alle annonser",
     selectedVehicle: "Valgt kjøretøy",
     openCategories: "Åpne kategorier"
@@ -448,6 +464,7 @@ const translations = {
     sellParts: "Müü osi",
     forYou: "Soovitused sulle",
     basedOnBrowsing: "Põhineb sirvimisajaloole",
+    newBadge: "Uus",
     allListings: "Kõik kuulutused",
     selectedVehicle: "Valitud sõiduk",
     openCategories: "Ava kategooriad"
@@ -465,105 +482,289 @@ const sortValues = [
 
 type SortValue = typeof sortValues[number];
 
-type VehicleFilter = "" | "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopot";
-type VehicleType = Exclude<VehicleFilter, "">;
-
 const SEEN_REVIEW_REQUESTS_STORAGE_KEY = "seenPurchaseReviewRequests";
 
-const partsCategories = categories;
-
-const vehicleCategories = {
-  Moottorikelkka: buildVehicleCategories("Moottorikelkka"),
-  Mönkijä: buildVehicleCategories("Mönkijä"),
-  Motocross: buildVehicleCategories("Motocross"),
-  Mopot: buildVehicleCategories("Mopot")
-} satisfies Record<Exclude<VehicleFilter, "">, Record<string, readonly string[]>>;
-
-const vehicleBrands: Record<Exclude<VehicleFilter, "">, string[]> = {
-  Moottorikelkka: ["Kaikki", "Ski-Doo", "Lynx", "Polaris", "Arctic Cat", "Yamaha", "Muu"],
-  Mönkijä: ["Kaikki", "Can-Am", "Polaris", "Yamaha", "Honda", "CFMoto", "TGB", "Suzuki", "Kawasaki", "Muu"],
-  Motocross: ["Kaikki", "KTM", "Husqvarna", "Honda", "Yamaha", "Kawasaki", "Suzuki", "GasGas", "Beta", "TM", "Muu"],
-  Mopot: ["Kaikki", "Yamaha", "Derbi", "Rieju", "Aprilia", "Peugeot", "MBK", "Honda", "KTM", "Muu"]
+const categoryTranslations: Record<Locale, Record<string, string>> = {
+  fi: {},
+  en: {
+    Moottori: "Engine",
+    "Voimansiirto": "Drivetrain",
+    "Voimansiirron osat": "Drivetrain parts",
+    Alusta: "Chassis",
+    Sähkö: "Electrical",
+    Sisusta: "Interior",
+    Runko: "Frame",
+    "Runko & katteet": "Frame & panels",
+    "Telaston osat": "Track system parts",
+    "Jousituksen osat": "Suspension parts",
+    "Ohjauksen osat": "Steering parts",
+    "Sähkö osat": "Electrical parts",
+    Polttoainejärjestelmä: "Fuel system",
+    Jarrut: "Brakes",
+    Ohjaamo: "Cockpit",
+    Sytytys: "Ignition",
+    Suodattimet: "Filters",
+    Tiivisteet: "Gaskets",
+    Hihnat: "Belts",
+    Ketjut: "Chains",
+    Variaattori: "Variator",
+    Variaattorit: "Variators",
+    Iskunvaimentimet: "Shock absorbers",
+    Laakerit: "Bearings",
+    Ohjausnivelet: "Steering joints",
+    Akku: "Battery",
+    Akut: "Batteries",
+    Valot: "Lights",
+    Johdotus: "Wiring",
+    Johdotukset: "Wiring",
+    "Öljyt & suodattimet": "Oils & filters",
+    Jäähdytys: "Cooling",
+    Anturit: "Sensors",
+    Penkit: "Seats",
+    Matot: "Mats",
+    Elektroniikka: "Electronics",
+    Sylinteri: "Cylinder",
+    Kaasutin: "Carburetor",
+    Rattaat: "Sprockets",
+    Kytkin: "Clutch",
+    Katteet: "Panels",
+    Ohjaustanko: "Handlebar",
+    Männät: "Pistons",
+    Kannet: "Heads",
+    Kampiakseli: "Crankshaft",
+    Kiinnitykset: "Mounts",
+    Puolat: "Coils",
+    "CDI-boksit": "CDI boxes",
+    Jouset: "Springs",
+    Ketjukotelot: "Chaincases",
+    Hammasrattaat: "Gears",
+    Telastopalkit: "Track rails",
+    Telamatot: "Tracks",
+    Telapyörät: "Bogey wheels",
+    Nivelosat: "Joint parts",
+    Ohjaustangot: "Handlebars",
+    Tankopehmusteet: "Handlebar pads",
+    "Tangon laakerit": "Handlebar bearings",
+    Staattorit: "Stators",
+    Kaasuttimet: "Carburetors",
+    Suuttimet: "Jets",
+    Polttoainepumput: "Fuel pumps",
+    Tuulilasit: "Windshields",
+    Sivukatteet: "Side panels",
+    Takakatteet: "Rear panels",
+    Jarrulevyt: "Brake discs",
+    Jarrupalat: "Brake pads",
+    Istuimet: "Seats",
+    Mittaristot: "Dashboards",
+    Käsisuojat: "Hand guards",
+    Ohjaus: "Steering"
+  },
+  sv: {
+    Moottori: "Motor",
+    Voimansiirto: "Drivlina",
+    "Voimansiirron osat": "Drivlinedelar",
+    Alusta: "Chassi",
+    Sähkö: "El",
+    Sisusta: "Interiör",
+    Runko: "Ram",
+    "Runko & katteet": "Ram & kåpor",
+    Jarrut: "Bromsar",
+    Sytytys: "Tändning",
+    Suodattimet: "Filter",
+    Tiivisteet: "Packningar",
+    Hihnat: "Remmar",
+    Ketjut: "Kedjor",
+    Variaattori: "Variator",
+    Iskunvaimentimet: "Stötdämpare",
+    Laakerit: "Lager",
+    Akku: "Batteri",
+    Valot: "Lampor",
+    Johdotus: "Kablage",
+    Jäähdytys: "Kylning",
+    Anturit: "Sensorer",
+    Penkit: "Säten",
+    Matot: "Mattor",
+    Elektroniikka: "Elektronik",
+    Sylinteri: "Cylinder",
+    Kaasutin: "Förgasare",
+    Rattaat: "Drev",
+    Kytkin: "Koppling",
+    Katteet: "Kåpor",
+    Ohjaustanko: "Styre",
+    Ohjaus: "Styrning"
+  },
+  no: {
+    Moottori: "Motor",
+    Voimansiirto: "Drivverk",
+    "Voimansiirron osat": "Drivverksdeler",
+    Alusta: "Understell",
+    Sähkö: "Elektrisk",
+    Sisusta: "Interiør",
+    Runko: "Ramme",
+    "Runko & katteet": "Ramme & deksler",
+    Jarrut: "Bremser",
+    Sytytys: "Tenning",
+    Suodattimet: "Filtre",
+    Tiivisteet: "Pakninger",
+    Hihnat: "Reimer",
+    Ketjut: "Kjeder",
+    Variaattori: "Variator",
+    Iskunvaimentimet: "Støtdempere",
+    Laakerit: "Lagre",
+    Akku: "Batteri",
+    Valot: "Lys",
+    Johdotus: "Ledninger",
+    Jäähdytys: "Kjøling",
+    Anturit: "Sensorer",
+    Penkit: "Seter",
+    Matot: "Matter",
+    Elektroniikka: "Elektronikk",
+    Sylinteri: "Sylinder",
+    Kaasutin: "Forgasser",
+    Rattaat: "Drev",
+    Kytkin: "Clutch",
+    Katteet: "Deksler",
+    Ohjaustanko: "Styre",
+    Ohjaus: "Styring"
+  },
+  et: {}
 };
 
-const modelPlaceholders: Record<VehicleType, string> = {
-  Moottorikelkka: "esim. Rave, MXZ, Summit",
-  Mönkijä: "esim. Outlander, Sportsman",
-  Motocross: "esim. SX-F, YZ, CRF",
-  Mopot: "esim. Aerox, Derbi, BW's"
+/* ======================================================
+   CATEGORIES
+====================================================== */
+
+// Vehicle types are dynamic via taxonomy. Keep VehicleType permissive.
+type VehicleType = string;
+type VehicleFilter = string;
+
+const modelPlaceholders: Record<string, string> = {
+  Moottorikelkka: "e.g. Lynx 600",
+  Mönkijä: "e.g. Can-Am Outlander",
+  Motocross: "e.g. YZ 250 / CRF 450",
+  Mopot: "e.g. Yamaha DT",
+  Mopo: "e.g. Yamaha DT"
 };
 
-const fallbackCardImage =
-  "data:image/svg+xml;utf8," +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dbeafe"/><stop offset="1" stop-color="#bfdbfe"/></linearGradient></defs><rect width="1200" height="700" fill="url(#g)"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#1e3a8a" font-family="Segoe UI,Arial,sans-serif" font-size="36">Kuva ei saatavilla</text></svg>`
-  );
+function normalizeCategoryMatch(value?: string | null) {
+  const normalized = (value ?? "").trim().toLowerCase();
 
-function safeImageSrc(src: string | undefined | null) {
-  if (!src) return fallbackCardImage;
+  if (normalized === "moottori") return "moottori & voimansiirto";
+  if (normalized === "sähkö") return "sähköjärjestelmät";
+  if (normalized === "pakoputki") return "pakoputkisto";
+  if (normalized === "alusta" || normalized === "jousitus") return "alusta & telasto";
+  if (normalized === "runko") return "runko & katteet";
 
-  return src;
+  return normalized;
 }
 
-function listingImageSrc(listing: Listing) {
-  const firstStoredImage =
-    listing.image_url ||
-    listing.image_urls?.find(Boolean) ||
-    null;
-
-  return safeImageSrc(firstStoredImage);
-}
-
-function textMatchesSearch(value: string | undefined | null, query: string) {
-  const normalize = (text: string) =>
-    text
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-
-  const haystack = normalize(value ?? "");
-  const needles = normalize(query)
-    .split(/\s+/)
+function normalizeSubcategoryMatch(value?: string | null) {
+  const leaf = (value ?? "")
+    .split("/")
     .map((part) => part.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .at(-1)
+    ?.toLowerCase() ?? "";
 
-  return needles.every((needle) => haystack.includes(needle));
+  const singulars: Record<string, string> = {
+    sylinteri: "sylinterit",
+    mäntä: "männät",
+    tiiviste: "laakerit & tiivisteet",
+    kaasutin: "kaasuttimet",
+    sytytys: "sytytyspuolat",
+    akku: "akut",
+    valo: "valot",
+    johdotus: "johtosarjat",
+    ohjaustanko: "ohjaustangot",
+    jarrut: "jarrupalat",
+    kytkin: "kytkin kitit",
+    variaattori: "variaattori kitit",
+    hihnat: "variaattorin hihnat",
+    ketjut: "ketjut & hihnat",
+    äänenvaimennin: "äänenvaimentimet"
+  };
+
+  return singulars[leaf] ?? leaf;
 }
 
-const allSearchWordsMatch = textMatchesSearch;
-
-function normalizeCategoryMatch(value: string | undefined | null) {
+function normalizeSearchText(value?: string | null) {
   return (value ?? "")
+    .toString()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
+    .replace(/[’'`´.]/g, "")
+    .replace(/[^a-z0-9åäö]+/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
-const normalizeSubcategoryMatch = normalizeCategoryMatch;
+function compactSearchText(value?: string | null) {
+  return normalizeSearchText(value).replace(/\s+/g, "");
+}
+
+function textMatchesSearch(haystack: string, needle: string) {
+  const normalizedNeedle = normalizeSearchText(needle);
+
+  if (!normalizedNeedle) return true;
+
+  const normalizedHaystack = normalizeSearchText(haystack);
+
+  return (
+    normalizedHaystack.includes(normalizedNeedle) ||
+    compactSearchText(normalizedHaystack).includes(compactSearchText(normalizedNeedle))
+  );
+}
+
+function allSearchWordsMatch(haystack: string, needle: string) {
+  return normalizeSearchText(needle)
+    .split(" ")
+    .filter(Boolean)
+    .every((word) => textMatchesSearch(haystack, word));
+}
 
 function brandMatchesListing(
   selectedBrand: string,
   listing: Listing,
   listingText: { title: string; description: string }
 ) {
-  if (!selectedBrand || selectedBrand === "Kaikki") return true;
+  if (selectedBrand === "Kaikki") return true;
 
-  return (
-    textMatchesSearch(listing.brand ?? "", selectedBrand) ||
-    textMatchesSearch(listing.model ?? "", selectedBrand) ||
-    textMatchesSearch(listingText.title, selectedBrand) ||
-    textMatchesSearch(listingText.description, selectedBrand)
-  );
+  if (listing.brand?.trim()) {
+    return textMatchesSearch(listing.brand, selectedBrand);
+  }
+
+  const haystack = [
+    listing.model ?? "",
+    listing.title,
+    listing.description,
+    listingText.title,
+    listingText.description
+  ].join(" ");
+
+  if (textMatchesSearch(haystack, selectedBrand)) {
+    return true;
+  }
+
+  return false;
 }
 
 function listingMatchesVehicleType(
   listing: Listing,
   listingText: { title: string; description: string },
-  selected: VehicleFilter
+  selectedVehicleType: string
 ) {
-  if (!selected) return true;
-  if (listing.vehicle_type === selected) return true;
+  if (!selectedVehicleType) return true;
+
+  const selected = normalizeVehicleType(selectedVehicleType);
+  const stored = normalizeVehicleType(listing.vehicle_type ?? "");
+
+  // If the listing has an explicit, known vehicle type, it is authoritative –
+  // never allow fuzzy text/cc heuristics to pull it into the wrong category.
+  const knownVehicleTypes = ["Mopo", "Motocross", "Moottorikelkka", "Mönkijä"];
+  if (stored && knownVehicleTypes.includes(stored)) {
+    return stored === selected;
+  }
 
   const haystack = [
     listing.vehicle_type ?? "",
@@ -576,7 +777,8 @@ function listingMatchesVehicleType(
     listing.engine_cc ?? ""
   ].join(" ");
 
-  if (selected === "Mopot") {
+  if (selected === "Mopo") {
+    // Exclude obvious motocross/snowmobile/ATV leaks when inferring by cc.
     if (
       textMatchesSearch(haystack, "motocross") ||
       textMatchesSearch(haystack, "moottorikelkka") ||
@@ -589,10 +791,51 @@ function listingMatchesVehicleType(
     }
 
     const cc = Number(String(listing.engine_cc ?? "").replace(/[^\d.]/g, ""));
-    return textMatchesSearch(haystack, "mopo") || textMatchesSearch(haystack, "moped") || (cc > 0 && cc <= 50);
+    return (
+      textMatchesSearch(haystack, "mopo") ||
+      textMatchesSearch(haystack, "moped") ||
+      textMatchesSearch(haystack, "bws") ||
+      (cc > 0 && cc <= 50)
+    );
   }
 
-  return textMatchesSearch(haystack, selected);
+  if (selected === "Moottorikelkka") {
+    return textMatchesSearch(haystack, "moottorikelkka") || textMatchesSearch(haystack, "kelkka") || textMatchesSearch(haystack, "snowmobile");
+  }
+
+  if (selected === "Mönkijä") {
+    return textMatchesSearch(haystack, "mönkijä") || textMatchesSearch(haystack, "atv") || textMatchesSearch(haystack, "outlander") || textMatchesSearch(haystack, "sportsman");
+  }
+
+  if (selected === "Motocross") {
+    return textMatchesSearch(haystack, "motocross") || textMatchesSearch(haystack, "yz") || textMatchesSearch(haystack, "crf") || textMatchesSearch(haystack, "sx");
+  }
+
+  return false;
+}
+
+const fallbackCardImage = fallbackListingImage;
+
+function safeImageSrc(src: string | undefined | null) {
+  if (!src) return fallbackCardImage;
+
+  return src;
+}
+
+function isListingNew(createdAt: string | null | undefined): boolean {
+  if (!createdAt) return false;
+  const created = new Date(createdAt).getTime();
+  if (Number.isNaN(created)) return false;
+  return Date.now() - created < 24 * 60 * 60 * 1000;
+}
+
+function listingImageSrc(listing: Listing) {
+  const firstStoredImage =
+    listing.image_url ||
+    listing.image_urls?.find(Boolean) ||
+    null;
+
+  return safeImageSrc(firstStoredImage);
 }
 
 function normalizeLocation(value: string) {
@@ -671,6 +914,31 @@ function withTimeout<T>(
 export default function Home() {
   const router = useRouter();
 
+  const taxonomy = useTaxonomy();
+  const partsCategories = useMemo(() => categoriesAsRecord(taxonomy), [taxonomy]);
+  const vehicleBrands = useMemo(() => vehicleBrandsRecord(taxonomy), [taxonomy]);
+  const vehicleCategories = useMemo(() => {
+    const out: Record<string, Record<string, string[]>> = {};
+    for (const v of taxonomy.vehicles) {
+      out[v.key] = buildVehicleCategoriesFromTaxonomy(taxonomy, v.key);
+    }
+    return out;
+  }, [taxonomy]);
+  const vehiclePills = useMemo(
+    () => [
+      { label: "Kaikki", type: "" as string },
+      ...taxonomy.vehicles.map((v) => ({ label: v.pillLabel, type: v.key }))
+    ],
+    [taxonomy]
+  );
+  const taxonomyVehicleLabels = useMemo(() => {
+    const labels: Record<string, string> = {};
+    for (const vehicle of taxonomy.vehicles) {
+      labels[vehicle.key] = vehicle.label || vehicle.pillLabel || vehicle.key;
+    }
+    return labels;
+  }, [taxonomy]);
+
   const profileRef = useRef<HTMLDivElement | null>(null);
   const notificationRef = useRef<HTMLDivElement | null>(null);
   const garageDropdownRef = useRef<HTMLDivElement | null>(null);
@@ -691,7 +959,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageJumpOpen, setPageJumpOpen] = useState(false);
   const [pageJumpValue, setPageJumpValue] = useState("");
-  const PAGE_SIZE = 28;
+  const PAGE_SIZE = 40;
 
   const [category, setCategory] = useState("");
 
@@ -803,12 +1071,6 @@ export default function Home() {
   }, [router, saveHomeReturnState]);
 
   const handleSortChange = useCallback((value: string) => {
-    try {
-      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
-    } catch {
-      // Session storage can be unavailable in private/browser-restricted contexts.
-    }
-
     if (value === "recommendations") {
       setRecommendationsMode(true);
       setSort("Osuvimmat ensin");
@@ -846,7 +1108,7 @@ export default function Home() {
         scrollY?: number;
       };
 
-      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
+      if (saved.garageFilterId && garageVehicles.length === 0) return;
 
       setQuery(saved.query ?? "");
       setCategory(saved.category ?? "");
@@ -863,7 +1125,7 @@ export default function Home() {
       setRecommendationsMode(saved.recommendationsMode ?? true);
       setCurrentPage(typeof saved.currentPage === "number" ? saved.currentPage : 1);
       setGarageFilter(
-        saved.garageFilterId && garageVehicles.length > 0
+        saved.garageFilterId
           ? garageVehicles.find((vehicle) => vehicle.id === saved.garageFilterId) ?? null
           : null
       );
@@ -871,6 +1133,8 @@ export default function Home() {
       if (typeof saved.scrollY === "number") {
         window.setTimeout(() => window.scrollTo(0, saved.scrollY || 0), 0);
       }
+
+      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
     } catch {
       sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
     }
@@ -888,13 +1152,20 @@ export default function Home() {
 
   useEffect(() => {
     function openCategoryDrawerFromTopbar() {
-      setDrawerOpenStep(0);
-      setDrawerOpen(true);
+      setDrawerOpen((open) => {
+        if (open) {
+          setDrawerOpenStep(undefined);
+          return false;
+        }
+
+        setDrawerOpenStep(0);
+        return true;
+      });
     }
 
     window.addEventListener("open-category-drawer", openCategoryDrawerFromTopbar);
     return () => window.removeEventListener("open-category-drawer", openCategoryDrawerFromTopbar);
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -945,28 +1216,6 @@ export default function Home() {
       ? t.highestPrice
       : t.nearest;
   }, [t]);
-
-  const vehicleTypeLabel = useCallback((type: VehicleFilter) => {
-    if (!type) return t.all;
-    return type === "Moottorikelkka"
-      ? t.snowmobiles
-      : type === "Mönkijä"
-      ? t.atvs
-      : type === "Motocross"
-      ? t.cars
-      : t.mopeds;
-  }, [t]);
-
-  const vehiclePills = useMemo<Array<{ type: VehicleFilter; label: string }>>(
-    () => [
-      { type: "", label: vehicleTypeLabel("") },
-      { type: "Moottorikelkka", label: vehicleTypeLabel("Moottorikelkka") },
-      { type: "Mönkijä", label: vehicleTypeLabel("Mönkijä") },
-      { type: "Motocross", label: vehicleTypeLabel("Motocross") },
-      { type: "Mopot", label: vehicleTypeLabel("Mopot") }
-    ],
-    [vehicleTypeLabel]
-  );
 
   function clearListingFilters() {
     setQuery("");
@@ -1081,8 +1330,8 @@ export default function Home() {
     };
 
     if (!value) return "";
-    return vehicleTranslations[locale][value] ?? value;
-  }, [locale]);
+    return vehicleTranslations[locale][value] ?? taxonomyVehicleLabels[value] ?? value;
+  }, [locale, taxonomyVehicleLabels]);
 
   const getListingText = useCallback((listing: Listing) => {
     const listingText = getLocalizedListingText(listing, locale);
@@ -1467,7 +1716,7 @@ export default function Home() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [router]);
+  }, []);
 
   /* ======================================================
      CLOSE PROFILE MENU
@@ -1663,6 +1912,8 @@ export default function Home() {
     event.preventDefault();
     event.stopPropagation();
 
+    if (!user) return;
+
     setFavorites((prev) => {
       const current = prev.length > 0 ? prev : readSavedListingIds();
       const next = current.includes(listingId)
@@ -1757,7 +2008,31 @@ export default function Home() {
     recommendationsMode &&
     sort === "Osuvimmat ensin";
 
-  const activeSortSelectValue = recommendationsEnabled ? "recommendations" : sort;
+  const renderSortControl = (className: string) => (
+    <label className={`${className} ${styles.sortControlRebuilt}`}>
+      <span className={styles.sortControlLabel}>{t.sort}</span>
+      <select
+        aria-label={t.sort}
+        data-testid="home-sort-select"
+        value={recommendationsEnabled ? "recommendations" : sort}
+        onChange={(event) => handleSortChange(event.target.value)}
+      >
+        {canShowRecommendations ? (
+          <option value="recommendations">{t.relevance}</option>
+        ) : null}
+        {sortValues
+          .filter((value) => canShowRecommendations ? value !== "Osuvimmat ensin" : true)
+          .map((value) => (
+          <option key={value} value={value}>
+            {sortLabel(value)}
+          </option>
+        ))}
+      </select>
+      <span className={styles.sortSelectFace} aria-hidden="true">
+        {recommendationsEnabled ? t.relevance : sortLabel(sort)}
+      </span>
+    </label>
+  );
 
   const showRecoSection =
     recommendationsEnabled &&
@@ -1825,7 +2100,23 @@ export default function Home() {
       Math.min(totalPages, Math.max(1, page));
 
     setCurrentPage(nextPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.requestAnimationFrame(() => {
+      const isMobile = window.matchMedia("(max-width: 720px)").matches;
+
+      if (isMobile && resultsRef.current) {
+        const topbarOffset = 76;
+        const targetTop =
+          resultsRef.current.getBoundingClientRect().top + window.scrollY - topbarOffset;
+
+        window.scrollTo({
+          top: Math.max(0, targetTop),
+          behavior: "smooth"
+        });
+        return;
+      }
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   }, [totalPages]);
 
   const featuredListings = useMemo(() => {
@@ -1917,347 +2208,37 @@ export default function Home() {
   return (
     <main className={styles.shell}>
       <div className={styles.heroWrap}>
-      <div className={`${styles.container} ${styles.topbar}`}>
-        <div style={{flex:1}} />
-        <div className={styles.topActions} suppressHydrationWarning>
-          {user ? (
-            <Link
-              href="/sell"
-              className={`${styles.topButton} ${styles.topButtonSolid}`}
-            >
-              <Plus size={14} />
-              <span className={styles.topButtonLabel}>{t.createListing}</span>
-            </Link>
-          ) : (
-            <Link
-              href="/auth"
-              className={`${styles.topButton} ${styles.topButtonSolid}`}
-              title={t.login}
-              suppressHydrationWarning
-            >
-              <LockKeyhole size={14} />
-              <span className={styles.topButtonLabel}>{t.login}</span>
-            </Link>
-          )}
-
-          {user ? (
-            <div ref={notificationRef} className={styles.notificationWrap}>
-              <button
-                type="button"
-                className={styles.notificationButton}
-                aria-label={t.notifications}
-                aria-haspopup="menu"
-                aria-expanded={notificationMenu}
-                onClick={toggleNotificationMenu}
-              >
-                <Bell size={17} />
-                {notificationCount > 0 && (
-                  <span className={styles.notificationBadge}>
-                    {notificationCount > 9 ? "9+" : notificationCount}
-                  </span>
-                )}
-              </button>
-
-              {notificationMenu && (
-                <>
-                  <div
-                    style={{ position: "fixed", inset: 0, zIndex: 100002 }}
-                    onClick={() => setNotificationMenu(false)}
-                    aria-hidden="true"
-                  />
-                  <div className={styles.notificationMenu} role="menu">
-                  <div className={styles.notificationHead}>
-                    <strong>{t.notifications}</strong>
-                    <Link href="/search-alerts" onClick={() => setNotificationMenu(false)}>
-                      {t.saTitle}
-                    </Link>
-                  </div>
-
-                  {unreadConversations.length > 0 && (
-                    <div className={styles.notificationGroup}>
-                      <span>{t.messages}</span>
-                      {unreadConversations.slice(0, 4).map((c) => {
-                        const other = c.other_profile;
-                        const name = other?.full_name || other?.name ||
-                          `${other?.first_name ?? ""} ${other?.last_name ?? ""}`.trim() || "–";
-                        const listingTitle = (c.listing as { title?: string } | null)?.title ?? "";
-                        return (
-                          <div key={c.id} className={styles.notificationItemWrap}>
-                            <Link
-                              href={`/messages?conv=${c.id}`}
-                              className={styles.notificationItem}
-                              onClick={() => {
-                                markConversationNotificationRead(c);
-                                setUnreadConversations((prev) => prev.filter(x => x.id !== c.id));
-                                setNotificationMenu(false);
-                              }}
-                            >
-                              <div className={styles.notificationIcon}>
-                                <MessageCircle size={14} />
-                              </div>
-                              <div>
-                                <strong>{name}</strong>
-                                {listingTitle && <p style={{color:"#64748b",fontSize:"11px",margin:"1px 0 0"}}>{listingTitle}</p>}
-                                <p>{c.last_message?.content?.slice(0, 48) ?? ""}</p>
-                              </div>
-                            </Link>
-                            <button
-                              type="button"
-                              className={styles.notificationDismiss}
-                              title="Poista"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                markConversationNotificationRead(c);
-                                setUnreadConversations((prev) => prev.filter(x => x.id !== c.id));
-                              }}
-                            >✕</button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {reviewRequests.length > 0 && (
-                    <div className={styles.notificationGroup}>
-                      <span>{t.reviews}</span>
-                      {[...new Map(reviewRequests.map(r => [r.listing_id ?? r.id, r])).values()].slice(0, 4).map((request) => (
-                          <div key={request.id} className={styles.notificationItemWrap}>
-                            <button
-                              type="button"
-                              className={styles.notificationItem}
-                              onClick={() => {
-                                window.dispatchEvent(
-                                  new CustomEvent(
-                                    "open-purchase-review",
-                                    { detail: { requestId: request.id } }
-                                  )
-                                );
-                                setNotificationMenu(false);
-                              }}
-                            >
-                              <div className={styles.notificationIcon}>★</div>
-                              <div>
-                                <strong>{t.reviewSeller}</strong>
-                                <p>{request.listing_title}</p>
-                                <small>{t.openReview}</small>
-                              </div>
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.notificationDismiss}
-                              title={t.dismiss}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                dismissPurchaseReviewRequest(request.id);
-                                setReviewRequests((prev) => prev.filter(r => r.id !== request.id));
-                                window.dispatchEvent(new CustomEvent("review-request-dismissed", { detail: request.id }));
-                              }}
-                            >
-                              ✕
-                            </button>
-                          </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {notifications.length > 0 && (
-                    <div className={styles.notificationGroup}>
-                      <span>{t.saTitle}</span>
-                      {notifications.slice(0, 5).map((notification) => (
-                        <div key={notification.id} className={styles.notificationItemWrap}>
-                          <Link
-                            href={`/listing/${notification.listing_id}`}
-                            className={styles.notificationItem}
-                            onClick={() => setNotificationMenu(false)}
-                          >
-                            <div className={styles.notificationIcon}>
-                              <Bell size={14} />
-                            </div>
-                            <div>
-                              <strong>{notification.alert_label}</strong>
-                              <p>{notification.listing_title}</p>
-                              {notification.listing_price != null && (
-                                <small>{formatPrice(notification.listing_price)}</small>
-                              )}
-                            </div>
-                          </Link>
-                          <button
-                            type="button"
-                            className={styles.notificationDismiss}
-                            title={t.dismiss}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setNotifications((prev) => prev.filter((item) => item.id !== notification.id));
-                              void deleteAlertNotification(notification.id);
-                            }}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {notificationCount === 0 && unreadConversations.length === 0 && reviewRequests.length === 0 && notifications.length === 0 && (
-                    <div className={styles.notificationEmpty}>
-                      {t.noNotifications}
-                    </div>
-                  )}
-                </div>
-                </>
-              )}
-            </div>
-          ) : null}
-
-          {user ? (
-            <div ref={profileRef} style={{ position: "relative", zIndex: 9999 }} className={styles.topbarProfileWrap}>
-              <button
-                onClick={() => setProfileMenu(!profileMenu)}
-                className={styles.topButton}
-                aria-haspopup="menu"
-                aria-expanded={profileMenu}
-                type="button"
-              >
-                {userAvatarUrl
-                  ? <img src={userAvatarUrl} alt="" className={styles.navAvatar} referrerPolicy="no-referrer" />
-                  : <span className="profile-avatar-initial nav-profile-avatar-initial">{userProfileInitial}</span>}
-                <span className={styles.topButtonLabel}>{t.profile}</span>
-              </button>
-
-              {profileMenu && typeof window !== "undefined" && createPortal(
-                <div className={styles.profileMenu} role="menu" data-profile-menu>
-                  <div className={styles.profileMenuScroll}>
-                  <Link href="/profile" className={styles.menuLink} role="menuitem">
-                    <UserRound size={16} />
-                    {t.editProfile}
-                  </Link>
-                  <Link href="/my-listings" className={styles.menuLink} role="menuitem">
-                    <ClipboardList size={16} />
-                    {t.myListings}
-                  </Link>
-                  <Link href="/garage" className={styles.menuLink} role="menuitem">
-                    <Car size={16} />
-                    {t.garageTitle}
-                  </Link>
-                  <Link href="/messages" className={styles.menuLink} role="menuitem">
-                    <Mail size={16} />
-                    {t.messages}
-                  </Link>
-                  <Link href="/saved" className={styles.menuLink} role="menuitem">
-                    <Heart size={16} />
-                    {t.savedListings}
-                  </Link>
-                  <Link
-                    href="/search-alerts"
-                    className={styles.menuLink}
-                    role="menuitem"
-                  >
-                    <Bell size={16} />
-                    {t.saTitle}
-                  </Link>
-                  <Link href="/rewards" className={styles.menuLink} role="menuitem">
-                    <Award size={16} />
-                    {t.rewards}
-                  </Link>
-                  <Link
-                    href="/shop"
-                    className={styles.menuLink}
-                    role="menuitem"
-                    onClick={() => setProfileMenu(false)}
-                  >
-                    <Store size={16} />
-                    {t.shop}
-                  </Link>
-                  {isAdmin && (
-                    <Link
-                      href="/admin"
-                      className={styles.menuLink}
-                      role="menuitem"
-                      onClick={() => setProfileMenu(false)}
-                    >
-                      <LockKeyhole size={16} />
-                      Admin
-                    </Link>
-                  )}
-                  </div>
-                  <button
-                    onMouseDown={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                    }}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      void handleSignOut();
-                    }}
-                    className={styles.menuButton}
-                    type="button"
-                  >
-                    <DoorOpen size={16} />
-                    {t.signOut}
-                  </button>
-                </div>,
-                document.body
-              )}
-            </div>
-          ) : (
-            <Link href="/auth" className={`${styles.topButton} ${styles.topbarProfileWrap}`}>
-              <LockKeyhole size={14} />
-              {t.profile}
-            </Link>
-          )}
-
-          <LanguageSwitcher />
-
-          <button
-            type="button"
-            className={styles.topbarCategoryButton}
-            aria-label={t.openCategories}
-            onMouseDown={(event) => {
-              event.stopPropagation();
-            }}
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              setDrawerOpenStep(0);
-              setDrawerOpen(true);
-            }}
-          >
-            <Menu size={20} />
-          </button>
-        </div>
-      </div>
-
       <div className={styles.container}>
         <section className={styles.hero} aria-label="Hero">
           <div className={styles.heroInner}>
-            <h1 className={styles.heroHeadline}>
-              <span>{t.heroLeadStart}</span>
-              <span className={styles.heroHeadlineAccent}>{t.heroLeadHighlight}</span>
-              <span>{t.heroLeadEnd}</span>
-            </h1>
+            <div style={{ margin: "0 auto", maxWidth: "100%", width: "min(720px, calc(100vw - 28px))" }}>
+              <h1 className={styles.heroHeadline}>
+                <span style={{ display: "block", width: "100%" }}>{t.heroLeadStart}</span>
+                <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>{t.heroLeadHighlight}</span>
+                <span style={{ display: "block", width: "100%" }}>{t.heroLeadEnd}</span>
+              </h1>
 
-            <form
-              className={styles.heroSearch}
-              role="search"
-              onSubmit={(event) => {
-                event.preventDefault();
-                applyListingFilters();
-              }}
-            >
-              <span className={styles.heroSearchIcon} aria-hidden="true">
-                <Search size={20} />
-              </span>
-              <input
-                className={styles.heroSearchInput}
-                type="search"
-                placeholder={compactHeroSearch ? t.searchCta : t.searchPlaceholder}
-                value={query}
-                onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
-                aria-label={t.searchLabel}
-              />
-            </form>
+              <form
+                className={styles.heroSearch}
+                role="search"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  applyListingFilters();
+                }}
+              >
+                <span className={styles.heroSearchIcon} aria-hidden="true">
+                  <Search size={20} />
+                </span>
+                <input
+                  className={styles.heroSearchInput}
+                  type="search"
+                  placeholder={compactHeroSearch ? t.searchCta : t.searchPlaceholder}
+                  value={query}
+                  onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
+                  aria-label={t.searchLabel}
+                />
+              </form>
+            </div>
 
             <div className={styles.categoryRowWrap}>
               <div className={styles.categoryRow} aria-label={t.vehicleSelection}>
@@ -2294,7 +2275,7 @@ export default function Home() {
                     }}
                   >
                     <Settings2 size={16} />
-                    <span>{vehicleTypeLabel(pill.type)}</span>
+                    <span>{pill.type ? pill.label : t.all}</span>
                   </button>
                 ))}
 
@@ -2324,21 +2305,38 @@ export default function Home() {
                     </button>
 
                     {garageDropdownOpen && (
-                      <div className={styles.garageDropdown}>
-                        {garageVehicles.length === 0 ? (
-                          <Link href="/garage" className={styles.garageDropdownEmpty} onClick={() => setGarageDropdownOpen(false)}>
-                            {t.garageAddVehicle} →
-                          </Link>
-                        ) : (
-                          <>
+                      <>
+                        <div
+                          className={styles.garageDropdownBackdrop}
+                          onClick={() => setGarageDropdownOpen(false)}
+                          aria-hidden="true"
+                        />
+                        <div className={styles.garageDropdown} role="dialog" aria-label={t.garageTitle}>
+                          <div className={styles.garageDropdownHeader}>
+                            <strong>{t.garageTitle}</strong>
                             <button
                               type="button"
-                              className={`${styles.garageDropdownItem} ${!garageFilter ? styles.garageDropdownItemActive : ""}`}
-                              onClick={() => { setGarageFilter(null); setGarageDropdownOpen(false); }}
+                              className={styles.garageDropdownClose}
+                              onClick={() => setGarageDropdownOpen(false)}
+                              aria-label="Sulje"
                             >
-                              {t.all}
+                              <X size={16} />
                             </button>
-                            {garageVehicles.map((v) => (
+                          </div>
+                          {garageVehicles.length === 0 ? (
+                            <Link href="/garage" className={styles.garageDropdownEmpty} onClick={() => setGarageDropdownOpen(false)}>
+                              {t.garageAddVehicle} →
+                            </Link>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                className={`${styles.garageDropdownItem} ${!garageFilter ? styles.garageDropdownItemActive : ""}`}
+                                onClick={() => { setGarageFilter(null); setGarageDropdownOpen(false); }}
+                              >
+                                {t.all}
+                              </button>
+                              {garageVehicles.map((v) => (
                               <div key={v.id} className={styles.garageDropdownRow}>
                                 <button
                                   type="button"
@@ -2384,7 +2382,8 @@ export default function Home() {
                             </Link>
                           </>
                         )}
-                      </div>
+                        </div>
+                      </>
                     )}
                   </div>
                 )}
@@ -2409,24 +2408,7 @@ export default function Home() {
                   </>
                 </div>
                 <div className={styles.recoActions}>
-                  <label className={styles.recoSortControl} aria-label={t.sort}>
-                    <select
-                      value={activeSortSelectValue}
-                      onChange={(e) => handleSortChange(e.target.value)}
-                    >
-                    {canShowRecommendations ? (
-                      <option value="recommendations">{t.relevance}</option>
-                    ) : null}
-                    {sortValues.map((value) => (
-                        <option key={value} value={value}>
-                          {sortLabel(value)}
-                        </option>
-                      ))}
-                    </select>
-                    <span className={styles.sortSelectFace} aria-hidden="true">
-                      {recommendationsEnabled ? t.relevance : sortLabel(sort)}
-                    </span>
-                  </label>
+                  {renderSortControl(styles.recoSortControl)}
                 <button
                   type="button"
                   className={styles.mobileSortBtn}
@@ -2462,24 +2444,21 @@ export default function Home() {
                       >
                         <div className={`${styles.cardImage} ${styles.listingCardImage}`}>
                           <span className={styles.cardImageBlur} aria-hidden="true">
-                            <img src={listingImageSrc(listing)} alt="" loading="lazy" referrerPolicy="no-referrer" />
+                            <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
                           </span>
-                          <img
+                          <OptimizedListingImage
                             src={listingImageSrc(listing)}
                             alt={listingText.title}
-                            loading="lazy"
-                            referrerPolicy="no-referrer"
-                            onError={(event) => {
-                              const img = event.currentTarget;
-                              img.onerror = null;
-                              img.src = fallbackCardImage;
-                            }}
                           />
                           <button
                             onClick={(e) => toggleFavorite(e, listing.id)}
-                            className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteButtonActive : ""}`}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onTouchStart={(e) => e.stopPropagation()}
+                            className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteButtonActive : ""} ${!user ? styles.favoriteButtonDisabled : ""}`}
                             type="button"
+                            disabled={!user}
                             aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
+                            title={!user ? t.login : undefined}
                           >
                             <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
                           </button>
@@ -2522,8 +2501,17 @@ export default function Home() {
           </div>
         )}
 
-        <section ref={resultsRef} className={`${styles.mainGrid} ${!showRecoSection ? styles.mainGridNoReco : ""}`} aria-label={t.content}>
-          <div className={styles.container}>
+        <section
+          id="listings"
+          ref={resultsRef}
+          className={`${styles.mainGrid} ${styles.listingsPlainSection} ${!showRecoSection ? styles.mainGridNoReco : ""}`}
+          aria-label={t.content}
+          style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
+        >
+          <div
+            className={styles.listingsPlainContainer}
+            style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
+          >
             {/* Active filter chips */}
             {(garageFilter || selectedBrand !== "Kaikki" || category || subcategory) && (
               <div className={styles.activeFilters}>
@@ -2582,35 +2570,27 @@ export default function Home() {
                 </span>
               )}
               <div className={styles.listingToolbar}>
-                <label className={styles.sectionSortControl}>
-                  <select
-                    value={activeSortSelectValue}
-                    onChange={(e) => handleSortChange(e.target.value)}
-                  >
-                    {canShowRecommendations ? (
-                      <option value="recommendations">{recommendationsEnabled ? t.relevance : "Palaa suosituksiin"}</option>
-                    ) : null}
-                    {sortValues.map((value) => (
-                      <option key={value} value={value}>
-                        {sortLabel(value)}
-                      </option>
-                    ))}
-                  </select>
-                  <span className={styles.sortSelectFace} aria-hidden="true">
-                    {recommendationsEnabled ? t.relevance : sortLabel(sort)}
-                  </span>
-                </label>
+                {renderSortControl(styles.sectionSortControl)}
               </div>
             </div>
 
-            <div className={styles.featuredPanel}>
+            <div
+              className={styles.listingsPlainPanel}
+              style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
+            >
               <div className={styles.cardsGrid}>
               {listingsLoading ? (
-                <div className={styles.emptyState}>
+                <div
+                  className={styles.listingsPlainState}
+                  style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
+                >
                   <strong>{t.loadingListings}</strong>
                 </div>
               ) : displayedListings.length === 0 ? (
-                <div className={styles.emptyState}>
+                <div
+                  className={styles.listingsPlainState}
+                  style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
+                >
                   <strong>{t.noListings}</strong>
                   <span>{t.changeFilters}</span>
                   <button
@@ -2655,27 +2635,28 @@ export default function Home() {
 
                     <div className={`${styles.cardImage} ${styles.listingCardImage}`}>
                       <span className={styles.cardImageBlur} aria-hidden="true">
-                        <img src={listingImageSrc(listing)} alt="" loading="lazy" referrerPolicy="no-referrer" />
+                        <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
                       </span>
-                      <img
+                      <OptimizedListingImage
                         src={listingImageSrc(listing)}
                         alt={listingText.title}
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                        onError={(event) => {
-                          const img = event.currentTarget;
-                          console.warn("Listing image failed to load:", img.src);
-                          img.onerror = null;
-                          img.src = fallbackCardImage;
-                        }}
                       />
+                      {isListingNew(listing.created_at) && (
+                        <span className={styles.newBadge} aria-label={t.newBadge}>
+                          {t.newBadge}
+                        </span>
+                      )}
                       <button
                         onClick={(e) => toggleFavorite(e, listing.id)}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onTouchStart={(e) => e.stopPropagation()}
                         className={`${styles.favoriteButton} ${
                           isFavorite ? styles.favoriteButtonActive : ""
-                        }`}
+                        } ${!user ? styles.favoriteButtonDisabled : ""}`}
                         type="button"
+                        disabled={!user}
                         aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
+                        title={!user ? t.login : undefined}
                       >
                         <Heart
                           size={14}
@@ -2816,7 +2797,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => { setCategory(""); setSubcategory(""); setSelectedBrand("Kaikki"); setModelQuery(""); setYearQuery(""); setOpenCategory(null); setCategorySearch(""); }}
-                  style={{ fontSize: 11, fontWeight: 700, color: "#3b82f6", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                  style={{ fontSize: 11, fontWeight: 700, color: "#ff7a1a", background: "none", border: "none", cursor: "pointer", padding: 0 }}
                 >
                   {t.resetFilters}
                 </button>
@@ -2825,20 +2806,7 @@ export default function Home() {
 
             <div className={styles.filtersGroup}>
               <span className={styles.filtersLabel}>{t.sort}</span>
-              <select
-                className={styles.select}
-                value={activeSortSelectValue}
-                onChange={(e) => handleSortChange(e.target.value)}
-              >
-                {canShowRecommendations ? (
-                  <option value="recommendations">{t.relevance}</option>
-                ) : null}
-                {sortValues.map((value) => (
-                  <option key={value} value={value}>
-                    {sortLabel(value)}
-                  </option>
-                ))}
-              </select>
+              {renderSortControl(styles.sectionSortControl)}
 
               <span className={styles.filtersLabel}>{t.brand}</span>
               <select

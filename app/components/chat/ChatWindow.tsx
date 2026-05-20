@@ -48,11 +48,9 @@ export default function ChatWindow({
           height: 100%;
           overflow-y: auto;
 
-          padding: 28px;
+          padding: 24px;
 
-          background:
-            radial-gradient(circle at top left, rgba(255, 139, 31, 0.1), transparent 34%),
-            linear-gradient(180deg, rgba(7, 33, 55, 0.98), rgba(4, 18, 31, 0.98));
+          background: #ffffff;
         }
 
         .messages {
@@ -61,7 +59,7 @@ export default function ChatWindow({
 
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 10px;
         }
       `}</style>
     </div>

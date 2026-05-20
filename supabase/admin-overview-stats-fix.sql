@@ -120,6 +120,35 @@ begin
       into sold_prev_month using v_prev_month_start, v_month_start;
   end if;
 
+  -- Prefer sold_listings for completed marketplace sales. Also include legacy
+  -- listings.is_sold rows that do not have a matching sold_listings record.
+  if to_regclass('public.sold_listings') is not null then
+    execute 'select count(*)::integer from public.sold_listings' into sold_total;
+    execute 'select count(*)::integer from public.sold_listings where sold_at >= $1' into sold_today using v_day_start;
+    execute 'select count(*)::integer from public.sold_listings where sold_at >= $1' into sold_7d using v_week_start;
+    execute 'select count(*)::integer from public.sold_listings where sold_at >= $1' into sold_month using v_month_start;
+    execute 'select count(*)::integer from public.sold_listings where sold_at >= $1 and sold_at < $2'
+      into sold_prev_month using v_prev_month_start, v_month_start;
+
+    if to_regclass('public.listings') is not null
+      and exists (
+        select 1 from information_schema.columns
+        where table_schema = 'public' and table_name = 'listings' and column_name = 'is_sold'
+      )
+    then
+      execute 'select $1 + count(*)::integer from public.listings l where l.is_sold = true and not exists (select 1 from public.sold_listings s where s.listing_id = l.id)'
+        into sold_total using sold_total;
+      execute format('select $1 + count(*)::integer from public.listings l where l.is_sold = true and %s >= $2 and not exists (select 1 from public.sold_listings s where s.listing_id = l.id)', v_sold_date_expr)
+        into sold_today using sold_today, v_day_start;
+      execute format('select $1 + count(*)::integer from public.listings l where l.is_sold = true and %s >= $2 and not exists (select 1 from public.sold_listings s where s.listing_id = l.id)', v_sold_date_expr)
+        into sold_7d using sold_7d, v_week_start;
+      execute format('select $1 + count(*)::integer from public.listings l where l.is_sold = true and %s >= $2 and not exists (select 1 from public.sold_listings s where s.listing_id = l.id)', v_sold_date_expr)
+        into sold_month using sold_month, v_month_start;
+      execute format('select $1 + count(*)::integer from public.listings l where l.is_sold = true and %s >= $2 and %s < $3 and not exists (select 1 from public.sold_listings s where s.listing_id = l.id)', v_sold_date_expr, v_sold_date_expr)
+        into sold_prev_month using sold_prev_month, v_prev_month_start, v_month_start;
+    end if;
+  end if;
+
   if to_regclass('public.deleted_listings') is not null
     and exists (
       select 1 from information_schema.columns
@@ -167,37 +196,106 @@ begin
     end if;
   end if;
 
-  if to_regclass('public.point_purchases') is not null
+  -- Marketplace revenue / GMV: sum sold product prices, not point package purchases.
+  -- Normal seller flow inserts public.sold_listings and then deletes the active listing.
+  if to_regclass('public.sold_listings') is not null
     and exists (
       select 1 from information_schema.columns
-      where table_schema = 'public' and table_name = 'point_purchases' and column_name = 'amount'
+      where table_schema = 'public' and table_name = 'sold_listings' and column_name = 'sold_price'
     )
     and exists (
       select 1 from information_schema.columns
-      where table_schema = 'public' and table_name = 'point_purchases' and column_name = 'status'
-    )
-    and exists (
-      select 1 from information_schema.columns
-      where table_schema = 'public' and table_name = 'point_purchases' and column_name = 'created_at'
+      where table_schema = 'public' and table_name = 'sold_listings' and column_name = 'sold_at'
     )
   then
-    if exists (
-      select 1 from information_schema.columns
-      where table_schema = 'public' and table_name = 'point_purchases' and column_name = 'completed_at'
-    ) then
-      v_purchase_date_expr := 'coalesce(completed_at, created_at)';
-    end if;
-
-    execute 'select coalesce(sum(amount)::numeric, 0::numeric) from public.point_purchases where status = ''completed'''
+    execute 'select coalesce(sum(sold_price)::numeric, 0::numeric) from public.sold_listings'
       into revenue_total;
-    execute format('select coalesce(sum(amount)::numeric, 0::numeric) from public.point_purchases where status = ''completed'' and %s >= $1', v_purchase_date_expr)
+    execute 'select coalesce(sum(sold_price)::numeric, 0::numeric) from public.sold_listings where sold_at >= $1'
       into revenue_today using v_day_start;
-    execute format('select coalesce(sum(amount)::numeric, 0::numeric) from public.point_purchases where status = ''completed'' and %s >= $1', v_purchase_date_expr)
+    execute 'select coalesce(sum(sold_price)::numeric, 0::numeric) from public.sold_listings where sold_at >= $1'
       into revenue_7d using v_week_start;
-    execute format('select coalesce(sum(amount)::numeric, 0::numeric) from public.point_purchases where status = ''completed'' and %s >= $1', v_purchase_date_expr)
+    execute 'select coalesce(sum(sold_price)::numeric, 0::numeric) from public.sold_listings where sold_at >= $1'
       into revenue_month using v_month_start;
-    execute format('select coalesce(sum(amount)::numeric, 0::numeric) from public.point_purchases where status = ''completed'' and %s >= $1 and %s < $2', v_purchase_date_expr, v_purchase_date_expr)
+    execute 'select coalesce(sum(sold_price)::numeric, 0::numeric) from public.sold_listings where sold_at >= $1 and sold_at < $2'
       into revenue_prev_month using v_prev_month_start, v_month_start;
+  end if;
+
+  -- Backfill path: older code may only mark listings.is_sold=true and set listings.sold_price.
+  -- Avoid double-counting rows that also have a sold_listings record.
+  if to_regclass('public.listings') is not null
+    and to_regclass('public.sold_listings') is not null
+    and exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'listings' and column_name = 'is_sold'
+    )
+    and exists (
+      select 1 from information_schema.columns
+      where table_schema = 'public' and table_name = 'listings' and column_name = 'sold_price'
+    )
+  then
+    execute format(
+      'select coalesce(sum(l.sold_price)::numeric, 0::numeric)
+       from public.listings l
+       where l.is_sold = true
+       and not exists (select 1 from public.sold_listings s where s.listing_id = l.id)'
+    ) into revenue_total;
+    revenue_total := revenue_total + coalesce((
+      select coalesce(sum(s.sold_price)::numeric, 0::numeric)
+      from public.sold_listings s
+    ), 0::numeric);
+
+    execute format(
+      'select coalesce(sum(l.sold_price)::numeric, 0::numeric)
+       from public.listings l
+       where l.is_sold = true and %s >= $1
+       and not exists (select 1 from public.sold_listings s where s.listing_id = l.id)',
+      v_sold_date_expr
+    ) into revenue_today using v_day_start;
+    revenue_today := revenue_today + coalesce((
+      select coalesce(sum(s.sold_price)::numeric, 0::numeric)
+      from public.sold_listings s
+      where s.sold_at >= v_day_start
+    ), 0::numeric);
+
+    execute format(
+      'select coalesce(sum(l.sold_price)::numeric, 0::numeric)
+       from public.listings l
+       where l.is_sold = true and %s >= $1
+       and not exists (select 1 from public.sold_listings s where s.listing_id = l.id)',
+      v_sold_date_expr
+    ) into revenue_7d using v_week_start;
+    revenue_7d := revenue_7d + coalesce((
+      select coalesce(sum(s.sold_price)::numeric, 0::numeric)
+      from public.sold_listings s
+      where s.sold_at >= v_week_start
+    ), 0::numeric);
+
+    execute format(
+      'select coalesce(sum(l.sold_price)::numeric, 0::numeric)
+       from public.listings l
+       where l.is_sold = true and %s >= $1
+       and not exists (select 1 from public.sold_listings s where s.listing_id = l.id)',
+      v_sold_date_expr
+    ) into revenue_month using v_month_start;
+    revenue_month := revenue_month + coalesce((
+      select coalesce(sum(s.sold_price)::numeric, 0::numeric)
+      from public.sold_listings s
+      where s.sold_at >= v_month_start
+    ), 0::numeric);
+
+    execute format(
+      'select coalesce(sum(l.sold_price)::numeric, 0::numeric)
+       from public.listings l
+       where l.is_sold = true and %s >= $1 and %s < $2
+       and not exists (select 1 from public.sold_listings s where s.listing_id = l.id)',
+      v_sold_date_expr,
+      v_sold_date_expr
+    ) into revenue_prev_month using v_prev_month_start, v_month_start;
+    revenue_prev_month := revenue_prev_month + coalesce((
+      select coalesce(sum(s.sold_price)::numeric, 0::numeric)
+      from public.sold_listings s
+      where s.sold_at >= v_prev_month_start and s.sold_at < v_month_start
+    ), 0::numeric);
   end if;
 
   return jsonb_build_object(

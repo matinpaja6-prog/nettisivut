@@ -5,12 +5,10 @@ import Link from "next/link";
 
 import {
   useParams,
-  useRouter,
   useSearchParams
 } from "next/navigation";
 
 import {
-  ArrowLeft,
   UserRound
 } from "lucide-react";
 
@@ -229,8 +227,6 @@ export default function ChatPage() {
 
   const params =
     useParams<{ id: string }>();
-
-  const router = useRouter();
 
   const searchParams =
     useSearchParams();
@@ -1239,31 +1235,6 @@ export default function ChatPage() {
 
   }
 
-  /* BACK */
-
-  function goBack() {
-
-    if (
-      typeof window !==
-      "undefined"
-    ) {
-
-      if (
-        window.history
-          .length > 1
-      ) {
-
-        router.back();
-        return;
-
-      }
-
-    }
-
-    router.push("/");
-
-  }
-
   return (
 
     <main className="page">
@@ -1271,14 +1242,6 @@ export default function ChatPage() {
       <div className="chat-wrapper">
 
         <header className="header">
-
-          <button
-            type="button"
-            onClick={goBack}
-            className="back-btn"
-          >
-            <ArrowLeft size={19} />
-          </button>
 
           <Link
             href={
@@ -1412,10 +1375,7 @@ export default function ChatPage() {
         .page {
           min-height: 100vh;
 
-          background:
-            radial-gradient(circle at 16% 0%, rgba(255, 130, 24, 0.16), transparent 34%),
-            radial-gradient(circle at 82% 18%, rgba(78, 184, 211, 0.14), transparent 30%),
-            linear-gradient(135deg, #06182a 0%, #082944 54%, #04111e 100%);
+          background: #f4f7fb;
 
           display: flex;
           justify-content: center;
@@ -1427,21 +1387,17 @@ export default function ChatPage() {
         .chat-wrapper {
 
           width: 100%;
-          max-width: 1020px;
+          max-width: 980px;
 
           height:
-            calc(100vh - 52px);
+            calc(100vh - 78px);
 
-          background:
-            linear-gradient(180deg, rgba(9, 40, 62, 0.96), rgba(5, 23, 39, 0.98));
-
-          backdrop-filter:
-            blur(18px);
+          background: linear-gradient(180deg, #0d3a5c, #0a2d49);
 
           border:
-            1px solid rgba(132, 190, 213, 0.34);
+            1px solid #dbe5ef;
 
-          border-radius: 28px;
+          border-radius: 18px;
 
           overflow: hidden;
 
@@ -1449,61 +1405,28 @@ export default function ChatPage() {
           flex-direction: column;
 
           box-shadow:
-            0 24px 80px rgba(0, 0, 0, 0.34),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            0 24px 70px rgba(15, 23, 42, 0.12);
         }
 
         .header {
 
-          min-height: 104px;
+          min-height: 92px;
 
           display: flex;
           align-items: center;
+          justify-content: flex-start;
 
           gap: 16px;
 
-          padding: 18px 22px;
+          padding: 14px 22px;
 
-          background:
-            linear-gradient(
-              135deg,
-              rgba(65, 91, 103, 0.9),
-              rgba(14, 47, 70, 0.94)
-            );
+          background: #ffffff;
 
           border-bottom:
             1px solid
-            rgba(132, 190, 213, 0.22);
+            rgba(147, 197, 253, 0.22);
 
-          box-shadow:
-            0 18px 44px rgba(0, 0, 0, 0.24);
-        }
-
-        .back-btn {
-
-          width: 46px;
-          height: 46px;
-
-          flex: 0 0 auto;
-
-          border-radius: 14px;
-
-          background:
-            linear-gradient(180deg, #f8fbff, #dbe8f2);
-
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          border:
-            1px solid rgba(255, 255, 255, 0.58);
-
-          color: #06233b;
-
-          box-shadow:
-            0 12px 26px rgba(0, 0, 0, 0.22);
-
-          cursor: pointer;
+          box-shadow: none;
         }
 
         .seller {
@@ -1516,11 +1439,11 @@ export default function ChatPage() {
           gap: 12px;
 
           min-width: 0;
-          flex: 1;
+          flex: 0 1 auto;
 
-          padding: 8px 12px 8px 8px;
+          padding: 6px 12px 6px 0;
 
-          border-radius: 20px;
+          border-radius: 14px;
 
           background: transparent;
 
@@ -1535,30 +1458,24 @@ export default function ChatPage() {
 
         .seller:hover,
         .seller:focus-visible {
-          background: rgba(255, 255, 255, 0.04);
-          border-color: rgba(132, 190, 213, 0.18);
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(147, 197, 253, 0.24);
           outline: 0;
         }
 
         .avatar {
 
-          width: 64px;
-          height: 64px;
+          width: 58px;
+          height: 58px;
 
           flex: 0 0 auto;
           position: relative;
 
-          border-radius: 18px;
+          border-radius: 14px;
 
-          background:
-            linear-gradient(
-              135deg,
-              #ff9c24 0%,
-              #8fd8ee 52%,
-              #0c3a5a 100%
-            );
+          background: #e2e8f0;
 
-          color: #ffffff;
+          color: #334155;
 
           display: flex;
           align-items: center;
@@ -1567,9 +1484,7 @@ export default function ChatPage() {
           overflow: visible;
 
           box-shadow:
-            0 0 0 2px rgba(255, 255, 255, 0.94),
-            0 0 0 5px rgba(79, 194, 221, 0.22),
-            0 14px 32px rgba(0, 0, 0, 0.28);
+            0 0 0 1px #dbe5ef;
 
           transition:
             transform 200ms ease,
@@ -1579,9 +1494,7 @@ export default function ChatPage() {
         .seller:hover .avatar {
           transform: translateY(-1px);
           box-shadow:
-            0 0 0 2px rgba(255, 255, 255, 0.98),
-            0 0 0 5px rgba(255, 139, 31, 0.36),
-            0 18px 36px rgba(0, 0, 0, 0.32);
+            0 0 0 1px #cbd5e1;
         }
 
         .avatar img {
@@ -1593,15 +1506,15 @@ export default function ChatPage() {
 
           display: block;
 
-          border-radius: 16px;
+          border-radius: 13px;
         }
 
         .avatar-fallback {
           font-size: 22px;
           font-weight: 900;
           letter-spacing: -0.02em;
-          color: #ffffff;
-          text-shadow: 0 1px 2px rgba(8, 121, 149, 0.35);
+          color: #334155;
+          text-shadow: none;
           line-height: 1;
         }
 
@@ -1614,22 +1527,17 @@ export default function ChatPage() {
           border-radius: 999px;
           background: #22c55e;
           box-shadow:
-            0 0 0 3px #09283e,
-            0 2px 8px rgba(34, 197, 94, 0.5);
+            0 0 0 3px #ffffff;
         }
 
         .avatar-online {
           box-shadow:
-            0 0 0 2px rgba(255, 255, 255, 0.95),
-            0 0 0 4px rgba(34, 197, 94, 0.32),
-            0 14px 32px rgba(0, 0, 0, 0.28);
+            0 0 0 1px rgba(34, 197, 94, 0.42);
         }
 
         .seller:hover .avatar-online {
           box-shadow:
-            0 0 0 2px rgba(255, 255, 255, 0.98),
-            0 0 0 4px rgba(34, 197, 94, 0.5),
-            0 18px 36px rgba(0, 0, 0, 0.32);
+            0 0 0 1px rgba(34, 197, 94, 0.6);
         }
 
         .seller-info {
@@ -1645,7 +1553,7 @@ export default function ChatPage() {
 
         .seller-info strong {
 
-          font-size: 1.12rem;
+          font-size: 1.05rem;
           font-weight: 900;
 
           color: #ffffff;
@@ -1667,7 +1575,7 @@ export default function ChatPage() {
           font-size: 13px;
           font-weight: 700;
 
-          color: #8bf0a4;
+          color: #16a34a;
 
           max-width: 100%;
           overflow: hidden;
@@ -1676,7 +1584,7 @@ export default function ChatPage() {
         }
 
         .online-status.offline {
-          color: #c4d3df;
+          color: rgba(226, 244, 255, 0.72);
         }
 
         .online-dot {
@@ -1700,14 +1608,13 @@ export default function ChatPage() {
 
         .input-area {
 
-          padding: 20px;
+          padding: 16px 20px;
 
-          background:
-            rgba(4, 18, 31, 0.86);
+          background: #0d3a5c;
 
           border-top:
             1px solid
-            rgba(132, 190, 213, 0.18);
+            rgba(147, 197, 253, 0.22);
         }
 
         .empty-state {
@@ -1722,7 +1629,7 @@ export default function ChatPage() {
 
           text-align: center;
 
-          color: #c6d8e4;
+          color: #64748b;
         }
 
         .empty-icon {
@@ -1746,19 +1653,13 @@ export default function ChatPage() {
           }
 
           .header {
-            min-height: 86px;
+            min-height: 76px;
             padding: 12px 14px;
             gap: 10px;
           }
 
-          .back-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
-          }
-
           .seller {
-            padding: 7px 10px 7px 7px;
+            padding: 6px 10px 6px 0;
             border-radius: 20px;
             gap: 10px;
             grid-template-columns: auto minmax(0, 1fr);

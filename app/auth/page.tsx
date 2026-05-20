@@ -1,8 +1,8 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Check, LockKeyhole, Mail, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { BirthDateField } from "@/app/components/BirthDateField";
@@ -26,6 +26,39 @@ import {
 
 const REFERRAL_STORAGE_KEY = "pending_referral_code";
 const ACCOUNT_TYPE_STORAGE_KEY = "pending_account_type";
+const GOOGLE_AUTH_INTENT_STORAGE_KEY = "pending_google_auth_intent";
+type AuthMode = "login" | "register";
+
+type GooglePlace = {
+  address_components?: Array<{
+    long_name: string;
+    short_name: string;
+    types: string[];
+  }>;
+  formatted_address?: string;
+  formatted_phone_number?: string;
+  international_phone_number?: string;
+  name?: string;
+  website?: string;
+};
+
+type GoogleAutocomplete = {
+  addListener: (eventName: "place_changed", handler: () => void) => void;
+  getPlace: () => GooglePlace;
+};
+
+type GoogleMapsWindow = Window & {
+  google?: {
+    maps?: {
+      places?: {
+        Autocomplete: new (
+          input: HTMLInputElement,
+          options: Record<string, unknown>
+        ) => GoogleAutocomplete;
+      };
+    };
+  };
+};
 
 function getStoredAccountType(): "private" | "company" {
   if (typeof window === "undefined") return "private";
@@ -56,6 +89,40 @@ function rememberAccountType(type: "private" | "company") {
   } catch {}
 }
 
+function getPendingGoogleAuthIntent(): AuthMode | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get("oauth");
+    if (fromUrl === "login" || fromUrl === "register") return fromUrl;
+
+    const stored = sessionStorage.getItem(GOOGLE_AUTH_INTENT_STORAGE_KEY);
+    return stored === "login" || stored === "register" ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+function rememberGoogleAuthIntent(intent: AuthMode) {
+  try {
+    sessionStorage.setItem(GOOGLE_AUTH_INTENT_STORAGE_KEY, intent);
+  } catch {}
+}
+
+function clearGoogleAuthIntent() {
+  try {
+    sessionStorage.removeItem(GOOGLE_AUTH_INTENT_STORAGE_KEY);
+  } catch {}
+}
+
+function getAuthModeFromSearchParams(searchParams: URLSearchParams | ReadonlyURLSearchParamsLike): AuthMode {
+  return searchParams.get("mode") === "register" ? "register" : "login";
+}
+
+type ReadonlyURLSearchParamsLike = {
+  get: (name: string) => string | null;
+};
+
 const emptyAuthForm = {
   email: "",
   password: "",
@@ -76,11 +143,11 @@ const emptyAuthForm = {
 };
 
 const phoneDialingOptions = [
-  { country: "ee", code: "+372" },
-  { country: "sv", code: "+46" },
-  { country: "fi", code: "+358" },
-  { country: "no", code: "+47" },
-  { country: "da", code: "+45" }
+  { country: "EE", code: "+372" },
+  { country: "SE", code: "+46" },
+  { country: "FI", code: "+358" },
+  { country: "NO", code: "+47" },
+  { country: "DK", code: "+45" }
 ];
 
 const countryOptions = [
@@ -159,6 +226,33 @@ function buildPhoneNumber(code: string, national: string) {
   return `${code}${withoutLocalZero}`;
 }
 
+function getGoogleAddressPart(place: GooglePlace, type: string, short = false) {
+  const part = place.address_components?.find((component) =>
+    component.types.includes(type)
+  );
+  return short ? part?.short_name ?? "" : part?.long_name ?? "";
+}
+
+function getStreetAddressFromGooglePlace(place: GooglePlace) {
+  const route = getGoogleAddressPart(place, "route");
+  const streetNumber = getGoogleAddressPart(place, "street_number");
+  const streetAddress = [route, streetNumber].filter(Boolean).join(" ");
+  return streetAddress || place.formatted_address || "";
+}
+
+function getCountryValueFromGooglePlace(place: GooglePlace) {
+  const countryCode = getGoogleAddressPart(place, "country", true).toUpperCase();
+  const supportedCountries: Record<string, string> = {
+    DK: "DK",
+    DE: "DE",
+    EE: "EE",
+    FI: "FI",
+    NO: "NO",
+    SE: "SE"
+  };
+  return supportedCountries[countryCode] ?? "";
+}
+
 function getErrorMessage(error: unknown) {
   if (!error) return "Tuntematon virhe.";
   if (error instanceof Error) return error.message;
@@ -193,10 +287,11 @@ function withTimeout<T>(
   });
 }
 
-export default function AuthPage() {
+function AuthPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { locale, t } = useLanguage();
-  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [authMode, setAuthMode] = useState<AuthMode>(() => getAuthModeFromSearchParams(searchParams));
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetStatus, setResetStatus] = useState("");
@@ -216,6 +311,11 @@ export default function AuthPage() {
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [phoneDialingCode, setPhoneDialingCode] = useState("+358");
   const [customCountry, setCustomCountry] = useState("");
+  const companyAddressInputRef = useRef<HTMLInputElement | null>(null);
+  const googlePlacesApiKey =
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+    process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY ||
+    "";
 
   // Capture ?ref=CODE from URL once
   useEffect(() => {
@@ -229,8 +329,98 @@ export default function AuthPage() {
     } catch {}
   }, []);
 
+  useEffect(() => {
+    setAuthMode(getAuthModeFromSearchParams(searchParams));
+    setStatus("");
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!googlePlacesApiKey || form.account_type !== "company") return;
+    if (typeof window === "undefined") return;
+
+    let cancelled = false;
+
+    const setupAutocomplete = () => {
+      const addressInput = companyAddressInputRef.current;
+      const Autocomplete =
+        (window as GoogleMapsWindow).google?.maps?.places?.Autocomplete;
+
+      if (!addressInput || !Autocomplete || cancelled) return;
+
+      const autocomplete = new Autocomplete(addressInput, {
+        componentRestrictions: { country: ["dk", "de", "ee", "fi", "no", "se"] },
+        fields: [
+          "address_components",
+          "formatted_address",
+          "formatted_phone_number",
+          "international_phone_number",
+          "name",
+          "website"
+        ],
+        types: ["establishment", "geocode"]
+      });
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        const address = getStreetAddressFromGooglePlace(place);
+        const postalCode = getGoogleAddressPart(place, "postal_code");
+        const city =
+          getGoogleAddressPart(place, "postal_town") ||
+          getGoogleAddressPart(place, "locality") ||
+          getGoogleAddressPart(place, "administrative_area_level_3");
+        const country = getCountryValueFromGooglePlace(place);
+        const phone =
+          place.international_phone_number ||
+          place.formatted_phone_number ||
+          "";
+
+        setForm((current) => ({
+          ...current,
+          address: address || current.address,
+          city: city || current.city,
+          company_name: current.company_name || place.name || "",
+          company_website: current.company_website || place.website || "",
+          country: country || current.country,
+          phone: current.phone || phone,
+          postal_code: postalCode || current.postal_code
+        }));
+      });
+    };
+
+    if ((window as GoogleMapsWindow).google?.maps?.places?.Autocomplete) {
+      setupAutocomplete();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const scriptId = "google-places-autocomplete";
+    const existingScript = document.getElementById(scriptId) as HTMLScriptElement | null;
+
+    if (existingScript) {
+      existingScript.addEventListener("load", setupAutocomplete, { once: true });
+      return () => {
+        cancelled = true;
+        existingScript.removeEventListener("load", setupAutocomplete);
+      };
+    }
+
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.async = true;
+    script.src =
+      `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googlePlacesApiKey)}&libraries=places&language=${locale}`;
+    script.addEventListener("load", setupAutocomplete, { once: true });
+    document.head.appendChild(script);
+
+    return () => {
+      cancelled = true;
+      script.removeEventListener("load", setupAutocomplete);
+    };
+  }, [form.account_type, googlePlacesApiKey, locale]);
+
   // Try to award referral points when a logged-in user lands here with pending code
-  const tryClaimReferral = useCallback(async (userId: string) => {
+  async function tryClaimReferral(userId: string) {
     if (typeof window === "undefined") return;
     let code: string | null = null;
     try {
@@ -262,7 +452,7 @@ export default function AuthPage() {
     } else {
       console.error("[Referral] Failed to award points:", result.error);
     }
-  }, [t.authReferralSuccess]);
+  }
 
   useEffect(() => {
     if (!supabase) return;
@@ -273,9 +463,52 @@ export default function AuthPage() {
       "Istunnon tarkistus kesti liian kauan."
     )
       .then(({ data }) => {
-        setUser(data.session?.user ?? null);
-        if (data.session?.user) {
-          void tryClaimReferral(data.session.user.id);
+        const sessionUser = data.session?.user ?? null;
+
+        if (!sessionUser) {
+          setUser(null);
+          return;
+        }
+
+        const googleIntent = getPendingGoogleAuthIntent();
+
+        if (googleIntent === "login") {
+          void withTimeout(
+            getProfile(sessionUser.id),
+            8000,
+            "Profiilin tarkistus kesti liian kauan."
+          ).then(({ data: profileData }) => {
+            if (!profileData) {
+              clearGoogleAuthIntent();
+              setUser(null);
+              setProfile(null);
+              setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
+              window.history.replaceState(null, "", "/auth?mode=login");
+              void signOut();
+              return;
+            }
+
+            clearGoogleAuthIntent();
+            setUser(sessionUser);
+            void tryClaimReferral(sessionUser.id);
+          }).catch(() => {
+            clearGoogleAuthIntent();
+            setUser(null);
+            setStatus("Gmail-tilin tarkistus epäonnistui. Yritä uudelleen.");
+            void signOut();
+          });
+          return;
+        }
+
+        if (googleIntent === "register") {
+          clearGoogleAuthIntent();
+          setAuthMode("register");
+          window.history.replaceState(null, "", "/auth?mode=register");
+        }
+
+        setUser(sessionUser);
+        if (sessionUser) {
+          void tryClaimReferral(sessionUser.id);
         }
         if (
           typeof window !== "undefined" &&
@@ -290,7 +523,44 @@ export default function AuthPage() {
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
+      const nextUser = session?.user ?? null;
+      const googleIntent = getPendingGoogleAuthIntent();
+
+      if (event === "SIGNED_IN" && nextUser && googleIntent === "login") {
+        void withTimeout(
+          getProfile(nextUser.id),
+          8000,
+          "Profiilin tarkistus kesti liian kauan."
+        ).then(({ data: profileData }) => {
+          if (!profileData) {
+            clearGoogleAuthIntent();
+            setUser(null);
+            setProfile(null);
+            setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
+            window.history.replaceState(null, "", "/auth?mode=login");
+            void signOut();
+            return;
+          }
+
+          clearGoogleAuthIntent();
+          setUser(nextUser);
+          setStatus("");
+        }).catch(() => {
+          clearGoogleAuthIntent();
+          setUser(null);
+          setStatus("Gmail-tilin tarkistus epäonnistui. Yritä uudelleen.");
+          void signOut();
+        });
+        return;
+      }
+
+      if (event === "SIGNED_IN" && nextUser && googleIntent === "register") {
+        clearGoogleAuthIntent();
+        setAuthMode("register");
+        window.history.replaceState(null, "", "/auth?mode=register");
+      }
+
+      setUser(nextUser);
       setProfile(null);
 
       if (event === "PASSWORD_RECOVERY") {
@@ -306,7 +576,7 @@ export default function AuthPage() {
     });
 
     return () => subscription.unsubscribe();
-  }, [t.authPasswordRecovery, tryClaimReferral]);
+  }, []);
 
   useEffect(() => {
     if (!user) {
@@ -337,6 +607,8 @@ export default function AuthPage() {
       .then(({ data }) => {
         if (isProfileCompleted(data)) {
           setProfile(data);
+          router.replace("/");
+          return;
         }
 
         if (!isProfileCompleted(data)) {
@@ -466,7 +738,7 @@ export default function AuthPage() {
     }
 
     if (authMode === "login") {
-      setStatus(t.authLoggingIn);
+      setStatus("");
       const { data, error } =
         await withTimeout(
           signInWithEmail(form.email, form.password),
@@ -628,15 +900,21 @@ export default function AuthPage() {
 
   async function handleGoogleLogin() {
     try {
-    setStatus(t.authOpeningGmail);
+    setStatus("");
+    rememberGoogleAuthIntent(authMode);
+    rememberAccountType(form.account_type);
     const { error } =
       await withTimeout(
-        signInWithGoogle(),
+        signInWithGoogle(authMode),
         10000,
         "Google-kirjautuminen kesti liian kauan."
       );
-    if (error) setStatus(getErrorMessage(error));
+    if (error) {
+      clearGoogleAuthIntent();
+      setStatus(getErrorMessage(error));
+    }
     } catch (error) {
+      clearGoogleAuthIntent();
       setStatus(getErrorMessage(error));
     }
   }
@@ -656,12 +934,16 @@ export default function AuthPage() {
           code: phoneDialingCode,
           national: ""
         };
+  const primaryAuthActionLabel =
+    authMode === "register"
+      ? "Rekisteröidy"
+      : t.login;
 
   return (
     <main className="auth-page simple-auth-page">
       <Link href="/" className="auth-back-home">
         <ArrowLeft size={17} />
-        <span>Takaisin sivulle</span>
+        <span>Etusivulle</span>
       </Link>
       <section className="simple-auth auth-centered">
         {recoveryMode ? (
@@ -734,55 +1016,42 @@ export default function AuthPage() {
           </div>
         ) : !user ? (
           <form className="auth-card simple-card" onSubmit={handleSubmit}>
-            <div className="auth-tabs" aria-label="Kirjautumistapa">
-              <button
-                className={authMode === "login" ? "active" : ""}
-                type="button"
-                onClick={() => {
-                  setAuthMode("login");
-                }}
-              >
-                {t.login}
-              </button>
-              <button
-                className={authMode === "register" ? "active" : ""}
-                type="button"
-                onClick={() => {
-                  setAuthMode("register");
-                }}
-              >
-                {t.register}
-              </button>
+            <div className="auth-form-head">
+              <h1>{authMode === "login" ? "Kirjaudu sisään" : t.register}</h1>
             </div>
 
             {authMode === "register" && (
-              <div className="pre-register-choice">
-                <span>{t.authRegisterTo}</span>
+              <>
+                <span className="pre-register-title">{t.authRegisterTo}</span>
                 <div className="account-type-picker compact" aria-label={t.authAccountType}>
                   <button
                     type="button"
+                    aria-pressed={form.account_type === "private"}
                     className={form.account_type === "private" ? "account-type-card active" : "account-type-card"}
                     onClick={() => {
                       rememberAccountType("private");
                       setForm({ ...form, account_type: "private" });
                     }}
                   >
+                    <span className="account-type-check"><Check size={15} /></span>
                     <strong>{t.authPrivatePersonTitle}</strong>
                     <span>{t.authPrivatePersonDesc}</span>
                   </button>
                   <button
                     type="button"
+                    aria-pressed={form.account_type === "company"}
                     className={form.account_type === "company" ? "account-type-card active" : "account-type-card"}
                     onClick={() => {
                       rememberAccountType("company");
                       setForm({ ...form, account_type: "company" });
                     }}
                   >
+                    <span className="account-type-check"><Check size={15} /></span>
                     <strong>{t.authCompanyTitle}</strong>
                     <span>{t.authCompanyDesc}</span>
                   </button>
                 </div>
-              </div>
+              </>
             )}
 
             <label>
@@ -798,8 +1067,10 @@ export default function AuthPage() {
                 placeholder="nimi@gmail.com"
               />
             </label>
-            <label>
-              {t.password}
+            <label className="auth-password-label">
+              <span className="auth-label-row">
+                <span>{t.password}</span>
+              </span>
               <input
                 required
                 minLength={6}
@@ -808,28 +1079,56 @@ export default function AuthPage() {
                 onChange={(event) => setForm({ ...form, password: event.target.value })}
                 placeholder={t.authPasswordMinPlaceholder}
               />
+              {authMode === "login" && (
+                <button
+                  className="auth-forgot-inline"
+                  type="button"
+                  onClick={() => {
+                    setResetEmail(form.email);
+                    setResetStatus("");
+                    setResetModalOpen(true);
+                  }}
+                >
+                  {t.forgotPassword}
+                </button>
+              )}
             </label>
 
             <button type="submit">
-              <LockKeyhole size={18} />
-              {authMode === "login" ? t.login : t.register}
+              {authMode === "register" ? <Check size={18} /> : <LockKeyhole size={18} />}
+              {primaryAuthActionLabel}
             </button>
-            <button className="google-button" type="button" onClick={handleGoogleLogin}>
-              <Mail size={18} />
-              {t.continueWithGmail}
-            </button>
-            <button
-              className="text-button"
-              type="button"
-              onClick={() => {
-                setResetEmail(form.email);
-                setResetStatus("");
-                setResetModalOpen(true);
-              }}
-            >
-              {t.forgotPassword}
-            </button>
-            <span className="form-note">{status}</span>
+            <div className="auth-divider">
+              <span>Tai jatka</span>
+            </div>
+            <div className="auth-social-row">
+              <button
+                className="google-button auth-social-button"
+                type="button"
+                onClick={handleGoogleLogin}
+                aria-label={t.continueWithGmail}
+              >
+                <img
+                  alt=""
+                  aria-hidden="true"
+                  className="gmail-logo-img"
+                  src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 48'%3E%3Cpath fill='%234285f4' d='M4 8h10v32H4z'/%3E%3Cpath fill='%2334a853' d='M50 8h10v32H50z'/%3E%3Cpath fill='%23fbbc04' d='M50 8 32 24 14 8v12l18 16 18-16z'/%3E%3Cpath fill='%23ea4335' d='M4 8c0-3 3.6-5 6.2-3L32 22 53.8 5C56.4 3 60 5 60 8v6L32 36 4 14z'/%3E%3C/svg%3E"
+                />
+                <span>Gmail</span>
+              </button>
+            </div>
+            <p className="auth-mode-switch">
+              {authMode === "login" ? "Eikö sinulla ole tiliä?" : "Onko sinulla tili?"}{" "}
+              <Link
+                href={authMode === "login" ? "/auth?mode=register" : "/auth?mode=login"}
+                onClick={() => {
+                  setStatus("");
+                }}
+              >
+                {authMode === "login" ? t.register : t.login}
+              </Link>
+            </p>
+            {status ? <span className="form-note">{status}</span> : null}
           </form>
         ) : !profileLookupDone ? (
           <div className="auth-card simple-card profile-completion-card">
@@ -879,23 +1178,27 @@ export default function AuthPage() {
                   <div className="account-type-picker" aria-label={t.authAccountType}>
                     <button
                       type="button"
+                      aria-pressed={form.account_type === "private"}
                       className={form.account_type === "private" ? "account-type-card active" : "account-type-card"}
                       onClick={() => {
                         rememberAccountType("private");
                         setForm({ ...form, account_type: "private" });
                       }}
                     >
+                      <span className="account-type-check"><Check size={15} /></span>
                       <strong>{t.authPrivateSellerLabel}</strong>
                       <span>{t.authPrivateSellerDesc}</span>
                     </button>
                     <button
                       type="button"
+                      aria-pressed={form.account_type === "company"}
                       className={form.account_type === "company" ? "account-type-card active" : "account-type-card"}
                       onClick={() => {
                         rememberAccountType("company");
                         setForm({ ...form, account_type: "company" });
                       }}
                     >
+                      <span className="account-type-check"><Check size={15} /></span>
                       <strong>{t.authCompanyLabel}</strong>
                       <span>{t.authCompanyDesc2}</span>
                     </button>
@@ -909,6 +1212,8 @@ export default function AuthPage() {
                         {t.authCompanyName}
                         <input
                           required
+                          autoComplete="organization"
+                          name="organization"
                           value={form.company_name}
                           onChange={(event) => setForm({ ...form, company_name: event.target.value })}
                           placeholder="esim. Arctic Varaosat Oy"
@@ -918,6 +1223,8 @@ export default function AuthPage() {
                         {t.authBusinessId}
                         <input
                           required
+                          autoComplete="off"
+                          name="business-id"
                           value={form.business_id}
                           onChange={(event) => setForm({ ...form, business_id: event.target.value })}
                           placeholder="1234567-8"
@@ -931,6 +1238,8 @@ export default function AuthPage() {
                         {t.authFirstName}
                         <input
                           required
+                          autoComplete="given-name"
+                          name="given-name"
                           value={form.first_name}
                           onChange={(event) => setForm({ ...form, first_name: event.target.value })}
                         />
@@ -939,6 +1248,8 @@ export default function AuthPage() {
                         {t.authLastName}
                         <input
                           required
+                          autoComplete="family-name"
+                          name="family-name"
                           value={form.last_name}
                           onChange={(event) => setForm({ ...form, last_name: event.target.value })}
                         />
@@ -950,6 +1261,8 @@ export default function AuthPage() {
                       {t.authBillingEmail}
                       <input
                         type="email"
+                        autoComplete="email"
+                        name="billing-email"
                         value={form.billing_email}
                         onChange={(event) => setForm({ ...form, billing_email: event.target.value })}
                         placeholder={form.email || "laskutus@yritys.fi"}
@@ -959,27 +1272,36 @@ export default function AuthPage() {
                   <label>
                     {form.account_type === "company" ? t.authCompanyPhone : t.authPhone}
                     <div className="phone-field-row">
-                      <select
-                        aria-label="Suuntanumero"
-                        value={phoneParts.code}
-                        onChange={(event) => {
-                          setPhoneDialingCode(event.target.value);
-                          setForm({
-                            ...form,
-                            phone: buildPhoneNumber(event.target.value, phoneParts.national)
-                          });
-                        }}
-                      >
-                        {phoneDialingOptions.map((option) => (
-                          <option key={option.code} value={option.code}>
-                            {option.code}
-                          </option>
-                        ))}
-                      </select>
+                      <span className="phone-code-select-wrap">
+                        <span className="phone-code-selected" aria-hidden="true">
+                          {phoneParts.code}
+                        </span>
+                        <select
+                          aria-label="Suuntanumero"
+                          autoComplete="tel-country-code"
+                          name="tel-country-code"
+                          value={phoneParts.code}
+                          onChange={(event) => {
+                            setPhoneDialingCode(event.target.value);
+                            setForm({
+                              ...form,
+                              phone: buildPhoneNumber(event.target.value, phoneParts.national)
+                            });
+                          }}
+                        >
+                          {phoneDialingOptions.map((option) => (
+                            <option key={option.code} value={option.code}>
+                              {option.code} {countryNameByLocale[locale][option.country]}
+                            </option>
+                          ))}
+                        </select>
+                      </span>
                       <input
                         required
                         type="tel"
                         inputMode="tel"
+                        autoComplete="tel-national"
+                        name="tel-national"
                         value={phoneParts.national}
                         onChange={(event) => {
                           setPhoneDialingCode(phoneParts.code);
@@ -1002,6 +1324,8 @@ export default function AuthPage() {
                     <label>
                       {t.authCompanyWebsite}
                       <input
+                        autoComplete="url"
+                        name="url"
                         value={form.company_website}
                         onChange={(event) => setForm({ ...form, company_website: event.target.value })}
                         placeholder="https://yritys.fi"
@@ -1012,6 +1336,9 @@ export default function AuthPage() {
                     {form.account_type === "company" ? t.authCompanyAddress : t.authAddress}
                     <input
                       required
+                      ref={companyAddressInputRef}
+                      autoComplete="street-address"
+                      name="street-address"
                       value={form.address}
                       onChange={(event) => setForm({ ...form, address: event.target.value })}
                     />
@@ -1020,6 +1347,8 @@ export default function AuthPage() {
                     {t.authPostalCode}
                     <input
                       required
+                      autoComplete="postal-code"
+                      name="postal-code"
                       value={form.postal_code}
                       onChange={(event) => setForm({ ...form, postal_code: event.target.value })}
                     />
@@ -1028,6 +1357,8 @@ export default function AuthPage() {
                     {t.authCity}
                     <input
                       required
+                      autoComplete="address-level2"
+                      name="address-level2"
                       value={form.city}
                       onChange={(event) => setForm({ ...form, city: event.target.value })}
                     />
@@ -1036,6 +1367,8 @@ export default function AuthPage() {
                     {t.authCountry}
                     <select
                       required
+                      autoComplete="country-name"
+                      name="country-name"
                       value={form.country}
                       onChange={(event) => {
                         const nextCountry = event.target.value;
@@ -1088,9 +1421,9 @@ export default function AuthPage() {
                   />
                   <label htmlFor="privacy-accept" className="privacy-checkbox-label">
                     {t.authPrivacyAcceptText}{" "}
-                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="privacy-link">
+                    <Link href="/privacy?from=profile-completion" className="privacy-link">
                       {t.authPrivacyLink}
-                    </a>
+                    </Link>
                   </label>
                 </div>
                 <button type="submit" disabled={!privacyAccepted}>
@@ -1164,5 +1497,13 @@ export default function AuthPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={null}>
+      <AuthPageContent />
+    </Suspense>
   );
 }
