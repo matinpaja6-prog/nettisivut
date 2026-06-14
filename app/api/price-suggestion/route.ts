@@ -12,13 +12,22 @@ export async function GET(req: NextRequest) {
   const yearStr      = searchParams.get("year")         || "";
   const year         = yearStr ? parseInt(yearStr, 10) : null;
 
-  if (!category || !engine_model) {
+  if (!category || (!engine_model && !engine_cc)) {
+    return NextResponse.json({ suggestion: null });
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
     return NextResponse.json({ suggestion: null });
   }
 
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? ""
+    supabaseUrl,
+    supabaseKey
   );
 
   // subcategory leaf = last segment after " / " (handles both "Männät" and "Moottorit / Männät")
@@ -29,14 +38,14 @@ export async function GET(req: NextRequest) {
   // Price suggestions must stay inside the selected engine. If there are
   // not enough prices for this engine, we hide the suggestion instead of
   // mixing prices from another engine family.
-  function buildQuery(yearRange: number | null) {
+  function buildHistoryQuery(yearRange: number | null) {
     let q = supabase
       .from("price_history")
       .select("price, year")
       .eq("category", category)
-      .eq("engine_model", engine_model)
       .gt("price", 0);
 
+    if (engine_model) q = q.eq("engine_model", engine_model);
     if (engine_cc) q = q.eq("engine_cc", engine_cc);
 
     if (subcategory) {
@@ -54,15 +63,56 @@ export async function GET(req: NextRequest) {
     return q;
   }
 
+  function buildListingQuery(yearRange: number | null) {
+    let q = supabase
+      .from("listings")
+      .select("price, year")
+      .eq("is_hidden", false)
+      .eq("is_sold", false)
+      .eq("category", category)
+      .gt("price", 0);
+
+    if (engine_model) q = q.eq("engine_model", engine_model);
+    if (engine_cc) q = q.eq("engine_cc", engine_cc);
+
+    if (subcategory) {
+      if (subcategoryLeaf && subcategoryLeaf !== subcategory) {
+        q = q.or(`subcategory.eq.${subcategory},subcategory.eq.${subcategoryLeaf}`);
+      } else {
+        q = q.eq("subcategory", subcategory);
+      }
+    }
+    if (yearRange && year) {
+      q = q.gte("year", String(year - yearRange))
+           .lte("year", String(year + yearRange));
+    }
+    return q;
+  }
+
+  async function fetchPrices(yearRange: number | null) {
+    const prices: number[] = [];
+
+    const historyResult = await buildHistoryQuery(yearRange);
+    if (historyResult.data) {
+      prices.push(...historyResult.data.map((row) => Number(row.price)).filter(Number.isFinite));
+    }
+
+    const listingResult = await buildListingQuery(yearRange);
+    if (listingResult.data) {
+      prices.push(...listingResult.data.map((row) => Number(row.price)).filter(Number.isFinite));
+    }
+
+    return prices.sort((a, b) => a - b);
+  }
+
   const attempts: Array<{ yearRange: number | null; label: string }> = [
     { yearRange: 3,    label: "Sama moottori, lähellä vuosimallia" },
     { yearRange: null, label: "Sama moottori, kaikki vuodet" },
   ];
 
   for (const attempt of attempts) {
-    const { data } = await buildQuery(attempt.yearRange);
-    if (data && data.length >= MIN_DATA_POINTS) {
-      const prices = data.map((r) => Number(r.price)).sort((a, b) => a - b);
+    const prices = await fetchPrices(attempt.yearRange);
+    if (prices.length >= MIN_DATA_POINTS) {
       return NextResponse.json({
         suggestion: { ...buildSuggestion(prices), label: attempt.label },
       });

@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./styles/header.css";
 import "./styles/home.css";
@@ -11,10 +11,20 @@ import "./styles/legal.css";
 import "./styles/messages.css";
 import "./styles/my-listings.css";
 import "./styles/saved.css";
+import "./styles/followed.css";
 import "./styles/sell.css";
 import "./styles/listing-detail.css";
 import "./styles/profile.css";
 import "./styles/shop.css";
+import "./styles/final-clean.css";
+import "./styles/topbar-final.css";
+import "./styles/seller-profile-final.css";
+import "./styles/profile-cards-final.css";
+import "./styles/profile-reference.css";
+import "./styles/profile-absolute-final.css";
+import "./styles/auth-final.css";
+import "./styles/profile-symmetry-final.css";
+import "./styles/mobile-final.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";
@@ -24,18 +34,20 @@ import ProfileCompletionGate from "./components/ProfileCompletionGate";
 import SiteVisitTracker from "./components/SiteVisitTracker";
 import UniversalTopbar from "./components/UniversalTopbar";
 import TaxonomyProvider from "./components/TaxonomyProvider";
+import VisitorLanguageGate from "./components/VisitorLanguageGate";
+import GlobalNavigationSpinner from "./components/GlobalNavigationSpinner";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://arcticparts.fi"),
-  applicationName: "Arctic Parts",
+  applicationName: "Maskines",
   title: {
-    default: "Arctic Parts | Moottorikelkkojen, mönkijöiden, motocrossien ja mopojen varaosat",
-    template: "%s | Arctic Parts"
+    default: "Maskines | Moottorikelkkojen, mönkijöiden, motocrossien ja mopojen varaosat",
+    template: "%s | Maskines"
   },
   description:
     "Osta ja myy käytettyjä varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin. Rajaa osat ajoneuvon, merkin, mallin, vuosimallin ja kategorian mukaan.",
   keywords: [
-    "Arctic Parts",
+    "Maskines",
     "moottorikelkan varaosat",
     "mönkijän varaosat",
     "motocross varaosat",
@@ -46,8 +58,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "fi_FI",
-    siteName: "Arctic Parts",
-    title: "Arctic Parts | Käytetyt ajoneuvojen varaosat",
+    siteName: "Maskines",
+    title: "Maskines | Käytetyt ajoneuvojen varaosat",
     description:
       "Käytettyjen varaosien kauppapaikka moottorikelkoille, mönkijöille, motocross-pyörille ja mopoille.",
     url: "/",
@@ -56,13 +68,13 @@ export const metadata: Metadata = {
         url: "/hero-bg.png",
         width: 1200,
         height: 630,
-        alt: "Arctic Parts varaosakauppa"
+        alt: "Maskines varaosakauppa"
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
-    title: "Arctic Parts | Käytetyt ajoneuvojen varaosat",
+    title: "Maskines | Käytetyt ajoneuvojen varaosat",
     description:
       "Osta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin.",
     images: ["/hero-bg.png"]
@@ -139,6 +151,8 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning>
         <TaxonomyProvider>
+          <GlobalNavigationSpinner />
+          <VisitorLanguageGate />
           <SiteAppearance />
           <OnlinePresence />
           <SiteVisitTracker />

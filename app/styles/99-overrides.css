@@ -7046,3 +7046,4298 @@ body:has(.pf-page) .pf-page {
   box-shadow: inset 3px 0 0 #58b9ff !important;
   color: #d8ebff !important;
 }
+
+/* Followed page: remove the thin decorative divider beside the "Profiilit" eyebrow. */
+html body .followed-page .followed-eyebrow::before,
+html body .followed-page .followed-eyebrow::after,
+html body .followed-page .followed-hero-main::before,
+html body .followed-page .followed-hero-main::after {
+  content: none !important;
+  display: none !important;
+}
+
+html body .followed-page .followed-eyebrow,
+html body .followed-page .followed-hero-main {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Chat detail final polish: compact header/composer and clean image messages. */
+body:has(.chat-detail-page) .chat-detail-page {
+  padding: 20px clamp(18px, 4vw, 46px) 28px !important;
+}
+
+body:has(.chat-detail-page) .chat-wrapper {
+  height: min(760px, calc(100vh - 40px)) !important;
+  max-width: 1120px !important;
+  min-height: 540px !important;
+  background: linear-gradient(180deg, rgba(8, 29, 49, 0.98), rgba(4, 15, 28, 0.99)) !important;
+  border-color: rgba(97, 146, 190, 0.46) !important;
+}
+
+body:has(.chat-detail-page) .chat-wrapper .header {
+  min-height: 118px !important;
+  padding: 20px 32px !important;
+}
+
+body:has(.chat-detail-page) .chat-wrapper .avatar {
+  height: 76px !important;
+  width: 76px !important;
+}
+
+body:has(.chat-detail-page) .chat-wrapper .messages-area,
+body:has(.chat-detail-page) .chat-window {
+  background:
+    radial-gradient(520px 260px at 50% 18%, rgba(255, 122, 26, 0.055), transparent 72%),
+    linear-gradient(180deg, rgba(7, 24, 42, 0.99), rgba(4, 15, 28, 0.99)) !important;
+  color: #eef7ff !important;
+}
+
+body:has(.chat-detail-page) .chat-window {
+  padding: 18px clamp(18px, 6vw, 56px) !important;
+}
+
+body:has(.chat-detail-page) .chat-window .messages {
+  background: transparent !important;
+  gap: 8px !important;
+}
+
+body:has(.chat-detail-page) .chat-window .row {
+  min-height: 0 !important;
+  padding: 3px 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body:has(.chat-detail-page) .chat-window .row:has(.message-image-button) {
+  align-items: flex-start !important;
+}
+
+body:has(.chat-detail-page) .chat-window .own:has(.message-image-button),
+body:has(.chat-detail-page) .chat-window .other:has(.message-image-button),
+body:has(.chat-detail-page) .chat-window .image-only {
+  width: auto !important;
+  max-width: min(340px, 78vw) !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: rgba(230, 242, 255, 0.86) !important;
+  overflow: visible !important;
+}
+
+body:has(.chat-detail-page) .chat-window .own:not(:has(.message-image-button)) {
+  background: linear-gradient(135deg, #ff9a24, #ff7418 58%, #ef5f00) !important;
+  border-color: rgba(255, 190, 124, 0.48) !important;
+  color: #ffffff !important;
+}
+
+body:has(.chat-detail-page) .chat-window .other:not(:has(.message-image-button)) {
+  background: rgba(20, 43, 67, 0.92) !important;
+  border-color: rgba(126, 197, 240, 0.22) !important;
+  color: #e8f4ff !important;
+}
+
+body:has(.chat-detail-page) .chat-window .message-image-button {
+  appearance: none !important;
+  display: block !important;
+  width: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  cursor: zoom-in !important;
+  line-height: 0 !important;
+}
+
+body:has(.chat-detail-page) .chat-window .message-image {
+  display: block !important;
+  width: auto !important;
+  max-width: min(340px, 78vw) !important;
+  max-height: 380px !important;
+  border: 1px solid rgba(226, 244, 255, 0.22) !important;
+  border-radius: 12px !important;
+  object-fit: contain !important;
+  box-shadow: 0 14px 32px rgba(0, 8, 22, 0.3) !important;
+}
+
+body:has(.chat-detail-page) .chat-window .message-meta {
+  margin-top: 4px !important;
+  color: rgba(226, 244, 255, 0.76) !important;
+  text-shadow: none !important;
+}
+
+/* Chat read receipts: same double-check shape, blue only after the message is seen. */
+.chat-window .own .message-meta {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  justify-content: flex-end !important;
+}
+
+.chat-window .own .read-state {
+  color: rgba(255, 255, 255, 0.78) !important;
+  display: inline-flex !important;
+  height: 12px !important;
+  margin-left: 3px !important;
+  position: relative !important;
+  transform: translateX(3px) !important;
+  width: 15px !important;
+}
+
+.chat-window .own .read-state.is-read {
+  color: #16c7ff !important;
+}
+
+.chat-window .own .read-tick {
+  border-bottom: 2px solid currentColor !important;
+  border-right: 2px solid currentColor !important;
+  display: block !important;
+  height: 8px !important;
+  position: absolute !important;
+  top: 1px !important;
+  transform: rotate(45deg) !important;
+  width: 4px !important;
+}
+
+.chat-window .own .read-tick:first-child {
+  left: 2px !important;
+}
+
+.chat-window .own .read-tick:last-child {
+  left: 8px !important;
+}
+
+body:has(.chat-detail-page) .chat-wrapper .input-area {
+  padding: 12px 18px !important;
+  background: rgba(4, 15, 28, 0.98) !important;
+}
+
+body:has(.chat-detail-page) .chat-wrapper .input-area form {
+  gap: 10px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body:has(.chat-detail-page) .chat-wrapper .input-area .attach,
+body:has(.chat-detail-page) .chat-wrapper .input-area .send {
+  height: 54px !important;
+  min-height: 54px !important;
+  min-width: 54px !important;
+  width: 54px !important;
+}
+
+body:has(.chat-detail-page) .chat-wrapper .input-area input[type="text"],
+body:has(.chat-detail-page) .chat-wrapper .input-area input:not([type]) {
+  height: 54px !important;
+}
+
+@media (max-width: 640px) {
+  body:has(.chat-detail-page) .chat-detail-page {
+    padding: 0 !important;
+  }
+
+  body:has(.chat-detail-page) .chat-wrapper {
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-width: 100vw !important;
+  }
+
+  body:has(.chat-detail-page) .chat-window .message-image {
+    max-width: min(300px, 82vw) !important;
+    max-height: 320px !important;
+  }
+}
+
+/* Clean notification control: badge in the button's top-right corner, menu aligned to viewport. */
+html body .universal-notification-wrap {
+  flex: 0 0 auto !important;
+  position: relative !important;
+}
+
+html body .universal-app-topbar .universal-notification-button {
+  align-items: center !important;
+  background:
+    radial-gradient(34px 24px at 50% 18%, rgba(117, 183, 232, 0.14), transparent 78%),
+    linear-gradient(180deg, rgba(8, 27, 46, 0.98), rgba(3, 13, 25, 0.99)) !important;
+  border: 1px solid rgba(111, 160, 198, 0.72) !important;
+  border-radius: 10px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(0, 4, 12, 0.22) !important;
+  color: rgba(238, 248, 255, 0.96) !important;
+  display: inline-flex !important;
+  height: 44px !important;
+  justify-content: center !important;
+  min-height: 44px !important;
+  min-width: 44px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  position: relative !important;
+  width: 44px !important;
+}
+
+html body .universal-app-topbar .universal-notification-button:hover,
+html body .universal-app-topbar .universal-notification-button:focus-visible,
+html body .universal-app-topbar .universal-notification-button.is-open {
+  border-color: rgba(139, 197, 244, 0.96) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 22px rgba(0, 4, 12, 0.28),
+    0 0 0 3px rgba(73, 150, 218, 0.14) !important;
+  outline: none !important;
+}
+
+html body .universal-app-topbar .universal-notification-button > svg {
+  height: 18px !important;
+  width: 18px !important;
+}
+
+html body .universal-app-topbar .universal-notification-badge {
+  align-items: center !important;
+  background: linear-gradient(180deg, #ff5a5f, #dc2626) !important;
+  border: 2px solid #07111f !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 2px 8px rgba(220, 38, 38, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  height: 18px !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  min-height: 18px !important;
+  min-width: 18px !important;
+  padding: 0 4px !important;
+  position: absolute !important;
+  right: 7px !important;
+  top: 7px !important;
+  transform: translate(50%, -50%) !important;
+  z-index: 2 !important;
+}
+
+html body .universal-app-topbar .universal-notification-menu {
+  left: auto !important;
+  max-height: min(620px, calc(100dvh - 82px)) !important;
+  position: fixed !important;
+  right: 12px !important;
+  top: calc(var(--topbar-h, 56px) + 10px) !important;
+  transform: none !important;
+  width: min(390px, calc(100vw - 24px)) !important;
+  z-index: 1200 !important;
+}
+
+@media (max-width: 720px) {
+  html body .universal-app-topbar .universal-notification-button {
+    height: 44px !important;
+    min-width: 44px !important;
+    width: 44px !important;
+  }
+
+  html body .universal-app-topbar .universal-notification-badge {
+    right: 7px !important;
+    top: 7px !important;
+  }
+
+  html body .universal-app-topbar .universal-notification-menu {
+    right: 8px !important;
+    top: 72px !important;
+    width: calc(100vw - 16px) !important;
+  }
+}
+
+/* Final requested global topbar: orange create CTA, framed profile and flag controls. */
+.universal-app-topbar {
+  background: #030c18 !important;
+  border-bottom: 1px solid rgba(47, 74, 101, 0.42) !important;
+  box-shadow: 0 16px 38px rgba(0, 4, 12, 0.34) !important;
+  min-height: 96px !important;
+  padding: 0 clamp(16px, 4vw, 52px) !important;
+}
+
+.universal-app-topbar::after {
+  display: none !important;
+}
+
+.universal-topbar-actions {
+  align-items: center !important;
+  gap: 14px !important;
+  margin-left: auto !important;
+}
+
+.universal-level-pill {
+  align-content: center !important;
+  align-self: center !important;
+  width: 326px !important;
+  min-width: 306px !important;
+  display: grid !important;
+  grid-template-columns: 72px minmax(0, 1fr) !important;
+  grid-template-rows: auto auto auto !important;
+  column-gap: 14px !important;
+  row-gap: 4px !important;
+  padding: 8px 14px 8px 13px !important;
+  border: 1px solid rgba(77, 112, 143, 0.72) !important;
+  border-radius: 14px !important;
+  background:
+    radial-gradient(180px 64px at 95% 0%, rgba(255, 122, 26, 0.13), transparent 72%),
+    linear-gradient(180deg, rgba(9, 26, 44, 0.96), rgba(4, 15, 29, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 10px 22px rgba(0, 4, 12, 0.22) !important;
+  color: #edf7ff !important;
+  min-height: 82px !important;
+  text-decoration: none !important;
+}
+
+.universal-level-pill-badge {
+  align-self: center !important;
+  background:
+    linear-gradient(145deg, rgba(9, 22, 38, 0.92), rgba(16, 34, 54, 0.98)),
+    radial-gradient(circle at 50% 50%, rgba(255, 122, 26, 0.16), transparent 63%) !important;
+  border: 2px solid rgba(255, 122, 26, 0.92) !important;
+  border-radius: 22px !important;
+  box-shadow:
+    0 0 0 5px rgba(13, 31, 49, 0.82),
+    0 0 0 7px rgba(255, 122, 26, 0.18),
+    0 14px 22px rgba(0, 4, 12, 0.36) !important;
+  color: #ff8a1f !important;
+  display: grid !important;
+  font-weight: 950 !important;
+  gap: 1px !important;
+  grid-row: 1 / 4 !important;
+  height: 58px !important;
+  line-height: 1 !important;
+  place-items: center !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85) !important;
+  width: 58px !important;
+}
+
+.universal-level-pill-badge span {
+  color: #ff8a1f !important;
+  font-size: 8px !important;
+  font-weight: 950 !important;
+  text-transform: uppercase !important;
+}
+
+.universal-level-pill-badge strong {
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 950 !important;
+}
+
+.universal-level-pill-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  grid-column: 2 !important;
+  min-width: 0 !important;
+}
+
+.universal-level-pill-head span {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  color: rgba(226, 244, 255, 0.82) !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  white-space: nowrap !important;
+}
+
+.universal-level-pill-head svg {
+  display: none !important;
+}
+
+.universal-level-pill-head strong {
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  white-space: nowrap !important;
+}
+
+.universal-level-pill-track {
+  grid-column: 2 !important;
+  height: 8px !important;
+  overflow: hidden !important;
+  border-radius: 999px !important;
+  background: rgba(151, 178, 205, 0.24) !important;
+}
+
+.universal-level-pill-track span {
+  display: block !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(135deg, #ffb45f, #ff7a1a 62%, #f05f00) !important;
+  box-shadow: 0 0 14px rgba(255, 122, 26, 0.32) !important;
+}
+
+.universal-level-pill small {
+  color: rgba(226, 244, 255, 0.68) !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  grid-column: 2 !important;
+  line-height: 1.1 !important;
+  margin-top: 1px !important;
+  white-space: nowrap !important;
+}
+
+.universal-create-button {
+  background: linear-gradient(180deg, #ff9f2e 0%, #ff7900 54%, #ff6100 100%) !important;
+  border: 1px solid rgba(255, 214, 153, 0.82) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    0 16px 34px rgba(255, 111, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  gap: 12px !important;
+  min-height: 64px !important;
+  min-width: 182px !important;
+  padding: 0 24px !important;
+}
+
+.universal-create-button svg {
+  height: 24px !important;
+  width: 24px !important;
+}
+
+.universal-icon-button,
+.universal-category-button,
+.rebuilt-profile-button,
+.language-switcher {
+  background: linear-gradient(180deg, rgba(9, 26, 44, 0.96), rgba(4, 15, 29, 0.98)) !important;
+  border: 1px solid rgba(77, 112, 143, 0.72) !important;
+  border-radius: 12px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 10px 22px rgba(0, 4, 12, 0.22) !important;
+  color: #edf7ff !important;
+  min-height: 64px !important;
+}
+
+.universal-icon-button,
+.universal-category-button,
+.language-switcher {
+  border-radius: 14px !important;
+  min-width: 68px !important;
+  width: 68px !important;
+}
+
+.rebuilt-profile-button {
+  border-radius: 16px !important;
+  gap: 10px !important;
+  justify-content: flex-start !important;
+  min-height: 64px !important;
+  min-width: 210px !important;
+  padding: 0 14px 0 10px !important;
+}
+
+.rebuilt-profile-button-copy {
+  align-items: start !important;
+  display: grid !important;
+  gap: 6px !important;
+  min-width: 78px !important;
+}
+
+.rebuilt-profile-button-copy strong {
+  color: #ffffff !important;
+  font-size: 17px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.rebuilt-profile-xp-row {
+  align-items: center !important;
+  display: inline-flex !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+}
+
+.rebuilt-profile-xp-track,
+.universal-profile-level-track {
+  border-radius: 999px !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+.rebuilt-profile-xp-track {
+  background: rgba(3, 12, 24, 0.72) !important;
+  border: 1px solid rgba(255, 122, 26, 0.5) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.16) !important;
+}
+
+.universal-profile-level-track {
+  background: rgba(151, 178, 205, 0.24) !important;
+}
+
+.rebuilt-profile-xp-track {
+  height: 8px !important;
+  width: 66px !important;
+}
+
+.rebuilt-profile-xp-track span,
+.universal-profile-level-track span {
+  background: linear-gradient(135deg, #ffb45f, #ff7a1a 62%, #f05f00) !important;
+  border-radius: inherit !important;
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.28) !important;
+  display: block !important;
+  height: 100% !important;
+}
+
+.rebuilt-profile-xp-row small {
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  min-width: 7px !important;
+  white-space: nowrap !important;
+}
+
+.rebuilt-profile-button .universal-profile-avatar {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.64) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.26) !important;
+  color: #08213a !important;
+  height: 52px !important;
+  width: 52px !important;
+}
+
+.universal-profile-menu {
+  padding: 14px !important;
+  width: min(330px, calc(100vw - 28px)) !important;
+}
+
+.universal-profile-menu-head {
+  align-items: center !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: 44px minmax(0, 1fr) !important;
+  margin-bottom: 14px !important;
+  padding: 4px 2px 2px !important;
+}
+
+.universal-profile-menu-avatar {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.68) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28) !important;
+  color: #08213a !important;
+  display: grid !important;
+  font-weight: 950 !important;
+  height: 44px !important;
+  overflow: hidden !important;
+  place-items: center !important;
+  width: 44px !important;
+}
+
+.universal-profile-menu-avatar img {
+  height: 100% !important;
+  object-fit: cover !important;
+  width: 100% !important;
+}
+
+.universal-profile-menu-title {
+  display: grid !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+}
+
+.universal-profile-menu-title strong {
+  color: #ffffff !important;
+  font-size: 17px !important;
+  font-weight: 950 !important;
+  line-height: 1.1 !important;
+}
+
+.universal-profile-menu-title small {
+  color: rgba(226, 244, 255, 0.68) !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  line-height: 1.2 !important;
+}
+
+.universal-profile-level-card {
+  align-items: center !important;
+  border-radius: 12px !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: 44px minmax(0, 1fr) !important;
+  margin: 0 0 14px !important;
+  padding: 10px 8px !important;
+}
+
+.universal-profile-level-badge {
+  background: linear-gradient(145deg, rgba(8, 21, 36, 0.96), rgba(13, 31, 49, 0.98)) !important;
+  border: 1.5px solid rgba(255, 122, 26, 0.92) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.08) !important;
+  color: #ffffff !important;
+  display: grid !important;
+  font-size: 17px !important;
+  font-weight: 950 !important;
+  height: 38px !important;
+  place-items: center !important;
+  width: 38px !important;
+}
+
+.universal-profile-level-copy {
+  display: grid !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+}
+
+.universal-profile-level-head {
+  display: grid !important;
+  gap: 2px !important;
+}
+
+.universal-profile-level-head strong {
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  line-height: 1.1 !important;
+}
+
+.universal-profile-level-head small {
+  color: rgba(226, 244, 255, 0.72) !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+}
+
+.universal-profile-level-track {
+  height: 7px !important;
+}
+
+.rebuilt-profile-button:hover,
+.rebuilt-profile-button.is-open,
+.universal-icon-button:hover,
+.universal-icon-button.is-open,
+.universal-category-button:hover,
+.language-switcher:hover {
+  border-color: rgba(106, 160, 205, 0.92) !important;
+  transform: translateY(-1px) !important;
+}
+
+.universal-notification-badge {
+  background: #ff7a1a !important;
+  border-color: #05101e !important;
+  height: 17px !important;
+  min-height: 17px !important;
+  min-width: 17px !important;
+  right: 15px !important;
+  top: 15px !important;
+}
+
+.language-switcher span[aria-hidden="true"] {
+  border-radius: 10px !important;
+  height: 38px !important;
+  width: 48px !important;
+}
+
+.language-switcher img {
+  height: 38px !important;
+  width: 48px !important;
+}
+
+/* Final requested profile skin: dark card sections, private/company seller mode. */
+.pf-page .pf-section {
+  background:
+    radial-gradient(520px 180px at 100% 0%, rgba(33, 95, 150, 0.16), transparent 72%),
+    linear-gradient(180deg, rgba(8, 29, 49, 0.98), rgba(5, 20, 36, 0.99)) !important;
+  border: 1px solid rgba(47, 83, 114, 0.68) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 18px 48px rgba(0, 5, 14, 0.28) !important;
+}
+
+.pf-page .pf-section-head {
+  border-bottom: 1px solid rgba(55, 88, 119, 0.28) !important;
+  margin: 0 20px !important;
+  padding: 18px 0 14px !important;
+}
+
+.pf-page .pf-section-head > svg {
+  background: rgba(255, 122, 26, 0.10) !important;
+  border: 1px solid rgba(255, 122, 26, 0.34) !important;
+  border-radius: 10px !important;
+  color: #ff8a1f !important;
+  display: grid !important;
+  height: 34px !important;
+  place-items: center !important;
+  width: 34px !important;
+}
+
+.pf-page .pf-section-head h2 {
+  font-size: 18px !important;
+  letter-spacing: -0.01em !important;
+}
+
+.pf-page .pf-section-head p {
+  color: rgba(218, 230, 242, 0.72) !important;
+  font-size: 12px !important;
+}
+
+.pf-page .pf-fields {
+  padding: 14px 20px 20px !important;
+}
+
+.pf-page .pf-field input,
+.pf-page .pf-field select,
+.pf-page .pf-field textarea,
+.pf-page .pf-locked input,
+.pf-page .pf-readonly-value,
+.pf-page .pf-phone-card,
+.pf-page .pf-website-input {
+  background: rgba(7, 23, 39, 0.92) !important;
+  border: 1px solid rgba(58, 91, 122, 0.82) !important;
+  border-radius: 8px !important;
+  color: #eaf4ff !important;
+  min-height: 42px !important;
+}
+
+.pf-page .pf-field input:disabled,
+.pf-page .pf-locked input:disabled {
+  background: rgba(7, 23, 39, 0.92) !important;
+  color: #dceaff !important;
+}
+
+.pf-page .pf-field textarea {
+  min-height: 92px !important;
+  padding-top: 12px !important;
+}
+
+.pf-page .pf-field label {
+  color: rgba(203, 216, 230, 0.82) !important;
+  font-size: 10px !important;
+}
+
+.pf-page .pf-save-bar {
+  align-items: center !important;
+  display: flex !important;
+  justify-content: space-between !important;
+}
+
+.pf-page .pf-save-btn {
+  background: linear-gradient(180deg, #ff9f2e, #ff6b00) !important;
+  border: 1px solid rgba(255, 214, 153, 0.74) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  min-height: 38px !important;
+}
+
+@media (max-width: 760px) {
+  .universal-app-topbar {
+    min-height: 64px !important;
+    padding: 0 10px !important;
+  }
+
+  .universal-topbar-actions {
+    gap: 8px !important;
+  }
+
+  .universal-level-pill {
+    display: grid !important;
+    flex: 0 0 clamp(156px, 44vw, 184px) !important;
+    grid-template-columns: 0 minmax(0, 1fr) !important;
+    min-height: 44px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding: 7px 8px !important;
+    row-gap: 3px !important;
+    width: clamp(156px, 44vw, 184px) !important;
+  }
+
+  .universal-level-pill-badge {
+    display: none !important;
+  }
+
+  .universal-level-pill-head {
+    gap: 5px !important;
+  }
+
+  .universal-level-pill-head span {
+    font-size: 9px !important;
+  }
+
+  .universal-level-pill-head strong {
+    font-size: 10px !important;
+  }
+
+  .universal-level-pill-track {
+    height: 6px !important;
+  }
+
+  .universal-level-pill small {
+    font-size: 8px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .universal-create-button {
+    font-size: 0 !important;
+    min-height: 44px !important;
+    min-width: 48px !important;
+    padding: 0 !important;
+  }
+
+  .universal-create-button strong {
+    display: none !important;
+  }
+
+  .universal-icon-button,
+  .universal-category-button,
+  .language-switcher {
+    min-height: 44px !important;
+    min-width: 48px !important;
+    width: 48px !important;
+  }
+
+  .rebuilt-profile-button {
+    min-height: 44px !important;
+    min-width: 48px !important;
+    padding: 0 !important;
+    width: 48px !important;
+  }
+
+  .rebuilt-profile-button-copy,
+  .rebuilt-profile-button > svg {
+    display: none !important;
+  }
+
+  .rebuilt-profile-button .universal-profile-avatar {
+    height: 34px !important;
+    width: 34px !important;
+  }
+
+  .universal-profile-menu {
+    padding: 12px !important;
+  }
+
+  .universal-profile-menu-head {
+    grid-template-columns: 40px minmax(0, 1fr) !important;
+    margin-bottom: 12px !important;
+  }
+
+  .universal-profile-menu-avatar {
+    height: 40px !important;
+    width: 40px !important;
+  }
+
+  .universal-profile-level-card {
+    grid-template-columns: 40px minmax(0, 1fr) !important;
+    margin-bottom: 12px !important;
+    padding: 8px 6px !important;
+  }
+
+  .language-switcher span[aria-hidden="true"],
+  .language-switcher img {
+    height: 24px !important;
+    width: 32px !important;
+  }
+
+}
+
+/* Sell creator final polish: cleaner desktop flow and fixed mobile multi-listings. */
+body:has(.sell-container) {
+  background:
+    radial-gradient(900px 420px at 12% 0%, rgba(255, 122, 26, 0.11), transparent 64%),
+    radial-gradient(760px 420px at 90% 10%, rgba(40, 150, 220, 0.10), transparent 68%),
+    #071523 !important;
+}
+
+body .sell-container {
+  align-items: start !important;
+  gap: 24px !important;
+  grid-template-columns: 340px minmax(0, 1fr) !important;
+  max-width: min(1500px, calc(100vw - 36px)) !important;
+  padding-top: 20px !important;
+}
+
+body .sell-container .sell-sidebar-clean {
+  background:
+    radial-gradient(420px 220px at 0% 0%, rgba(255, 122, 26, 0.12), transparent 72%),
+    linear-gradient(180deg, rgba(8, 25, 42, 0.98), rgba(5, 17, 29, 0.96)) !important;
+  border: 1px solid rgba(124, 166, 204, 0.26) !important;
+  border-radius: 8px !important;
+  box-shadow:
+    0 22px 58px rgba(0, 6, 16, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  padding: 18px !important;
+}
+
+body .sell-container .sell-stepper-clean {
+  gap: 12px !important;
+}
+
+body .sell-container .sell-step-clean {
+  background: rgba(4, 15, 27, 0.62) !important;
+  border: 1px solid rgba(205, 224, 239, 0.18) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  grid-template-columns: 42px 28px minmax(0, 1fr) !important;
+  min-height: 78px !important;
+  padding: 12px !important;
+}
+
+body .sell-container .sell-step-clean.is-active {
+  background:
+    radial-gradient(160px 90px at 0% 50%, rgba(255, 122, 26, 0.28), transparent 72%),
+    rgba(8, 28, 47, 0.92) !important;
+  border-color: rgba(255, 122, 26, 0.92) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 122, 26, 0.22),
+    0 16px 38px rgba(255, 122, 26, 0.13) !important;
+}
+
+body .sell-container .sell-step-clean-number {
+  background: linear-gradient(180deg, #ff9f2e, #ff6b00) !important;
+  border: 0 !important;
+  box-shadow: 0 10px 24px rgba(255, 107, 0, 0.30) !important;
+  color: #ffffff !important;
+  height: 38px !important;
+  width: 38px !important;
+}
+
+body .sell-container .sell-step-clean:not(.is-active):not(.is-done) .sell-step-clean-number {
+  background: rgba(113, 144, 170, 0.88) !important;
+  box-shadow: none !important;
+}
+
+body .sell-container .sell-step-clean-icon {
+  color: #ff9a24 !important;
+}
+
+body .sell-container .sell-step-clean-copy strong {
+  font-size: 15px !important;
+  line-height: 1.15 !important;
+}
+
+body .sell-container .sell-step-clean-copy small {
+  color: rgba(224, 236, 246, 0.74) !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+}
+
+body .sell-container .section-heading,
+body .sell-container .sell-section,
+body .sell-container .sell-polished-step,
+body .sell-container .multi-products-box {
+  border-radius: 8px !important;
+}
+
+body .sell-container.sell-current-mode .section-heading {
+  background:
+    radial-gradient(620px 280px at 100% 0%, rgba(35, 151, 220, 0.18), transparent 70%),
+    linear-gradient(135deg, rgba(8, 34, 56, 0.98), rgba(3, 15, 28, 0.98)) !important;
+  min-height: 206px !important;
+  overflow: hidden !important;
+  padding: clamp(28px, 4vw, 46px) !important;
+  position: relative !important;
+}
+
+body .sell-container.sell-current-mode .section-heading::after {
+  background:
+    linear-gradient(135deg, rgba(255, 122, 26, 0.92), rgba(255, 156, 49, 0.72)),
+    url("/vehicles/selector-snowmobile-3d.png") center / contain no-repeat !important;
+  border: 1px solid rgba(255, 205, 156, 0.34) !important;
+  border-radius: 8px !important;
+  content: "" !important;
+  height: 148px !important;
+  opacity: 0.88 !important;
+  position: absolute !important;
+  right: 28px !important;
+  top: 28px !important;
+  width: 236px !important;
+}
+
+body .sell-container.sell-current-mode .section-heading-text {
+  max-width: 520px !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+body .sell-container.sell-current-mode .section-heading-text h1 {
+  font-size: clamp(42px, 5vw, 72px) !important;
+  letter-spacing: 0 !important;
+  line-height: 0.92 !important;
+}
+
+body .sell-container.sell-current-mode .section-heading-text p {
+  color: rgba(233, 242, 250, 0.78) !important;
+  font-size: 18px !important;
+  font-weight: 850 !important;
+  line-height: 1.45 !important;
+  max-width: 410px !important;
+}
+
+body .sell-container.sell-current-mode #sell-step-mode {
+  background:
+    radial-gradient(520px 220px at 0% 0%, rgba(255, 122, 26, 0.10), transparent 72%),
+    rgba(4, 17, 30, 0.82) !important;
+  padding: clamp(22px, 3vw, 34px) !important;
+}
+
+body .sell-container.sell-current-mode .sell-listing-type-toggle {
+  gap: 16px !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  max-width: 920px !important;
+}
+
+body .sell-container.sell-current-mode .sell-listing-type-toggle button {
+  border-radius: 8px !important;
+  gap: 16px !important;
+  grid-template-columns: 34px 58px minmax(0, 1fr) !important;
+  min-height: 154px !important;
+  padding: 22px !important;
+}
+
+body .sell-container.sell-current-mode .sell-listing-type-toggle .mode-card-icon {
+  align-items: center !important;
+  background: rgba(255, 122, 26, 0.12) !important;
+  border: 1px solid rgba(255, 122, 26, 0.32) !important;
+  border-radius: 8px !important;
+  color: #ff9a24 !important;
+  display: flex !important;
+  height: 58px !important;
+  justify-content: center !important;
+  width: 58px !important;
+}
+
+body .sell-container.sell-current-mode .sell-listing-type-toggle strong {
+  font-size: 22px !important;
+  line-height: 1.1 !important;
+}
+
+body .sell-container.sell-current-mode .sell-listing-type-toggle small {
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+}
+
+body .sell-container .part-card {
+  border-radius: 8px !important;
+}
+
+body .sell-container .part-card-header {
+  align-items: center !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+body .sell-container .part-card-label {
+  min-width: 0 !important;
+}
+
+body .sell-container .part-card-name,
+body .sell-container .part-card-category,
+body .sell-container .part-card-summary {
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+
+body .sell-container .part-card-quick {
+  align-items: center !important;
+  display: grid !important;
+  gap: 10px !important;
+  grid-template-columns: minmax(120px, 180px) minmax(130px, 220px) auto minmax(0, 1fr) !important;
+}
+
+body .sell-container .part-img-upload {
+  align-items: center !important;
+  background: rgba(3, 15, 27, 0.82) !important;
+  border: 1px dashed rgba(255, 122, 26, 0.54) !important;
+  border-radius: 8px !important;
+  color: #ff9a24 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 42px !important;
+  justify-content: center !important;
+  position: relative !important;
+  width: 42px !important;
+}
+
+@media (max-width: 760px) {
+  body:has(.sell-container) {
+    overflow-x: hidden !important;
+  }
+
+  body .sell-container {
+    display: grid !important;
+    gap: 14px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    margin: 0 auto !important;
+    max-width: none !important;
+    padding: 10px 12px 128px !important;
+    width: 100% !important;
+  }
+
+  body .sell-container::after {
+    display: none !important;
+  }
+
+  body .sell-container .sell-sidebar-clean {
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    padding: 10px !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  body .sell-container .sell-stepper-clean {
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    padding-bottom: 2px !important;
+    scroll-snap-type: x mandatory !important;
+    scrollbar-width: none !important;
+  }
+
+  body .sell-container .sell-stepper-clean::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  body .sell-container .sell-stepper-clean::before,
+  body .sell-container .sell-whole-sled-card {
+    display: none !important;
+  }
+
+  body .sell-container .sell-step-clean {
+    flex: 0 0 clamp(154px, 54vw, 220px) !important;
+    gap: 8px !important;
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    min-height: 78px !important;
+    padding: 10px !important;
+    scroll-snap-align: start !important;
+  }
+
+  body .sell-container .sell-step-clean-icon {
+    display: none !important;
+  }
+
+  body .sell-container .sell-step-clean-number {
+    height: 34px !important;
+    width: 34px !important;
+  }
+
+  body .sell-container .sell-step-clean-copy strong {
+    display: -webkit-box !important;
+    font-size: 13px !important;
+    line-height: 1.12 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  body .sell-container .sell-step-clean-copy small {
+    display: -webkit-box !important;
+    font-size: 11px !important;
+    line-height: 1.18 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  body .sell-container .sell-main-panel,
+  body .sell-container .sell-form,
+  body .sell-container .sell-section,
+  body .sell-container .sell-polished-step,
+  body .sell-container .multi-products-box {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  body .sell-container .section-heading {
+    display: grid !important;
+    min-height: 0 !important;
+    padding: 26px 20px !important;
+  }
+
+  body .sell-container.sell-current-mode .section-heading {
+    display: grid !important;
+  }
+
+  body .sell-container.sell-current-mode .section-heading::after {
+    display: none !important;
+  }
+
+  body .sell-container.sell-current-mode .section-heading-text h1 {
+    font-size: clamp(42px, 14vw, 56px) !important;
+  }
+
+  body .sell-container.sell-current-mode .section-heading-text p {
+    font-size: 15px !important;
+  }
+
+  body .sell-container .sell-section,
+  body .sell-container.sell-current-mode #sell-step-mode {
+    padding: 18px 14px !important;
+  }
+
+  body .sell-container .sell-section-header,
+  body .sell-container .sell-polished-header {
+    align-items: start !important;
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    margin-bottom: 14px !important;
+    padding-bottom: 14px !important;
+  }
+
+  body .sell-container .sell-section-header h2,
+  body .sell-container .sell-polished-header h2 {
+    font-size: clamp(22px, 7vw, 30px) !important;
+    line-height: 1.02 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  body .sell-container .sell-section-header p,
+  body .sell-container .sell-polished-header p {
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+  }
+
+  body .sell-container.sell-current-mode .sell-listing-type-toggle,
+  body .sell-container .sell-listing-type-toggle {
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  body .sell-container.sell-current-mode .sell-listing-type-toggle button,
+  body .sell-container .sell-listing-type-toggle button {
+    align-items: center !important;
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: 32px 46px minmax(0, 1fr) !important;
+    min-height: 92px !important;
+    padding: 14px !important;
+  }
+
+  body .sell-container .sell-listing-type-toggle .mode-card-icon {
+    display: flex !important;
+    height: 46px !important;
+    width: 46px !important;
+  }
+
+  body .sell-container .sell-listing-type-toggle strong {
+    font-size: 17px !important;
+    white-space: normal !important;
+  }
+
+  body .sell-container .sell-listing-type-toggle small {
+    font-size: 12px !important;
+    white-space: normal !important;
+  }
+
+  body .sell-container .multi-products-head,
+  body .sell-container .part-group-main,
+  body .sell-container .part-subgroup-main {
+    align-items: start !important;
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body .sell-container .multi-products-head small,
+  body .sell-container .part-group-count,
+  body .sell-container .part-group-action {
+    justify-self: start !important;
+    white-space: normal !important;
+  }
+
+  body .sell-container .multi-product-add {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body .sell-container .part-card {
+    padding: 12px !important;
+  }
+
+  body .sell-container .part-card-header {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+  }
+
+  body .sell-container .part-card-index {
+    height: 30px !important;
+    width: 30px !important;
+  }
+
+  body .sell-container .part-card-header-actions {
+    gap: 4px !important;
+  }
+
+  body .sell-container .part-card-toggle,
+  body .sell-container .part-card-remove {
+    align-items: center !important;
+    background: rgba(4, 16, 28, 0.66) !important;
+    border: 1px solid rgba(255, 122, 26, 0.28) !important;
+    border-radius: 8px !important;
+    color: #ff9a24 !important;
+    display: flex !important;
+    height: 32px !important;
+    justify-content: center !important;
+    min-height: 32px !important;
+    min-width: 32px !important;
+    padding: 0 !important;
+    width: 32px !important;
+  }
+
+  body .sell-container .part-card-quick {
+    display: grid !important;
+    gap: 9px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100% !important;
+  }
+
+  body .sell-container .part-price-input,
+  body .sell-container .part-number-input,
+  body .sell-container .part-price-hint {
+    grid-column: 1 / -1 !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  body .sell-container .part-img-upload {
+    grid-column: 1 !important;
+    height: 44px !important;
+    width: 44px !important;
+  }
+
+  body .sell-container .part-img-thumb {
+    height: 66px !important;
+    width: 66px !important;
+  }
+
+  body .sell-container .part-card-details {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body .sell-container .sell-location-fields,
+  body .sell-container.sell-current-location .sell-location-fields {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body .sell-container.sell-current-location .sell-location-note {
+    grid-template-columns: 24px minmax(0, 1fr) !important;
+    min-height: 0 !important;
+    padding: 18px !important;
+  }
+
+  body .sell-container.sell-current-location .sell-mini-map {
+    display: none !important;
+  }
+
+  body .sell-container.sell-current-publish .sell-publish-summary {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+@media (max-width: 1000px) {
+  html body:has(.sell-container.sell-current-category) {
+    background:
+      radial-gradient(540px 380px at 50% 18%, rgba(24, 83, 126, 0.22), transparent 72%),
+      linear-gradient(180deg, #05101c 0%, #071827 100%) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  html body .sell-reference-topbar {
+    height: 64px !important;
+    padding: 0 10px 0 14px !important;
+  }
+
+  html body .sell-reference-brand {
+    gap: 10px !important;
+  }
+
+  html body .sell-reference-brand strong {
+    font-size: 18px !important;
+  }
+
+  html body .sell-reference-brand-mark {
+    height: 28px !important;
+    width: 31px !important;
+  }
+
+  html body .sell-reference-brand-mark::before {
+    border-bottom-width: 21px !important;
+    border-left-width: 15px !important;
+    border-right-width: 15px !important;
+    left: 0 !important;
+    top: 3px !important;
+  }
+
+  html body .sell-reference-brand-mark::after {
+    height: 19px !important;
+    left: 5px !important;
+    top: 7px !important;
+    width: 24px !important;
+  }
+
+  html body .sell-reference-actions {
+    gap: 8px !important;
+  }
+
+  html body .sell-reference-icon-btn,
+  html body .sell-reference-profile {
+    display: none !important;
+  }
+
+  html body .sell-reference-create {
+    gap: 0 !important;
+    height: 44px !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    width: 48px !important;
+  }
+
+  html body .sell-reference-create span {
+    display: none !important;
+  }
+
+  html body .sell-reference-lang {
+    height: 44px !important;
+    width: 46px !important;
+  }
+
+  html body .sell-reference-lang span {
+    height: 30px !important;
+    width: 30px !important;
+  }
+
+  html body .sell-container.sell-current-category {
+    display: block !important;
+    margin: 0 !important;
+    max-width: none !important;
+    padding: 78px 10px 28px !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-sidebar-clean {
+    display: none !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-main-panel,
+  html body .sell-container.sell-current-category .sell-form {
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) {
+    gap: 14px !important;
+    margin-top: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) > .sell-section-header h2 {
+    font-size: clamp(31px, 9vw, 42px) !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-reference-picker {
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-panel {
+    grid-template-rows: auto 470px 60px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-copy {
+    padding: 20px 18px 8px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-copy h3 {
+    font-size: 23px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-copy p {
+    font-size: 14px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-vehicle-stage {
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-vehicle-stage > img {
+    left: 50% !important;
+    top: 44% !important;
+    width: 185% !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot strong {
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    padding: 7px 8px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot::before {
+    width: 26px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot strong {
+    left: 34px !important;
+    max-width: 124px !important;
+    white-space: normal !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot.is-left strong {
+    left: auto !important;
+    right: 34px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-whole-vehicle {
+    bottom: 20px !important;
+    font-size: 14px !important;
+    min-height: 44px !important;
+    padding: 0 16px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-stage-help {
+    font-size: 12px !important;
+    min-height: 60px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-stage-help::before {
+    height: 24px !important;
+    width: 14px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-panel {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 18px 12px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-panel > strong {
+    font-size: 22px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list {
+    gap: 8px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list button {
+    grid-template-columns: 34px minmax(0, 1fr) 18px !important;
+    min-height: 52px !important;
+    padding: 8px 10px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list button strong {
+    font-size: 15px !important;
+    white-space: normal !important;
+  }
+}
+
+@media (max-width: 420px) {
+  html body .sell-container.sell-current-category {
+    padding-inline: 8px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-panel {
+    grid-template-rows: auto 430px 58px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot strong {
+    display: none !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot::before {
+    width: 18px !important;
+  }
+}
+
+/* Home sort dropdown must stay readable above cards and hero media. */
+html body [class*="sortControlRebuilt"] {
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 10020 !important;
+}
+
+html body [class*="sortMenuPanel"] {
+  box-sizing: border-box !important;
+  max-width: calc(100vw - 24px) !important;
+  min-width: min(236px, calc(100vw - 24px)) !important;
+  overflow: visible !important;
+  width: min(236px, calc(100vw - 24px)) !important;
+  z-index: 10030 !important;
+}
+
+html body [class*="sortMenuItem"] {
+  grid-template-columns: 18px minmax(150px, 1fr) 18px !important;
+  min-height: 34px !important;
+}
+
+html body [class*="sortMenuItem"] span {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 760px) {
+  html body .sell-container .sell-main-panel {
+    justify-self: stretch !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container .sell-main-panel > *,
+  html body .sell-container .sell-form > *,
+  html body .sell-container .sell-section,
+  html body .sell-container .sell-polished-step {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container .sell-whole-sled-card {
+    display: none !important;
+  }
+
+  html body .sell-container.sell-current-mode .sell-main-panel,
+  html body .sell-container.sell-current-mode .sell-form,
+  html body .sell-container.sell-current-mode #sell-step-mode.sell-section {
+    justify-self: stretch !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-mode .sell-sidebar-clean {
+    min-height: 0 !important;
+  }
+
+  html body .sell-container.sell-current-mode .sell-sidebar-clean,
+  html body .sell-container.sell-current-mode .sell-stepper-clean {
+    max-height: 96px !important;
+  }
+
+  html body .sell-container.sell-current-mode .section-heading-text p {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+  }
+
+  html body .sell-container .sell-wizard-nav,
+  html body .sell-container #sell-step-mode .sell-wizard-nav,
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-wizard-nav {
+    align-items: center !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-content: stretch !important;
+    margin: 22px 0 0 !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container .sell-wizard-nav > span {
+    display: none !important;
+    min-width: 0 !important;
+  }
+
+  html body .sell-container .sell-wizard-nav-prev,
+  html body .sell-container .sell-wizard-nav-next,
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-wizard-nav-next {
+    align-items: center !important;
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    font-size: 14px !important;
+    gap: 7px !important;
+    height: 46px !important;
+    justify-content: center !important;
+    justify-self: stretch !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    min-height: 46px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding: 0 12px !important;
+    position: static !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container .sell-wizard-nav-next,
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-wizard-nav-next {
+    grid-column: 1 !important;
+  }
+
+  html body .sell-container .sell-wizard-nav-prev {
+    grid-column: 1 !important;
+  }
+
+  html body .sell-container .sell-wizard-nav:has(.sell-wizard-nav-prev) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+
+  html body .sell-container .sell-wizard-nav:has(.sell-wizard-nav-prev) .sell-wizard-nav-next {
+    grid-column: 2 !important;
+  }
+
+  html body .sell-container .sell-wizard-nav:has(.sell-wizard-nav-prev) > span {
+    display: none !important;
+  }
+
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-listing-type-toggle button {
+    min-height: 230px !important;
+  }
+
+  html body .sell-container.sell-current-mode #sell-step-mode.sell-section {
+    display: grid !important;
+    gap: 18px !important;
+    grid-template-rows: auto auto auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 32px 36px 36px !important;
+  }
+
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-listing-type-toggle {
+    align-self: start !important;
+    gap: 12px !important;
+    margin: 14px 0 0 !important;
+  }
+
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-listing-type-toggle button {
+    align-content: center !important;
+    grid-template-rows: auto auto !important;
+    justify-items: start !important;
+    min-height: 228px !important;
+    padding: 22px 14px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-mode #sell-step-mode .mode-card-icon,
+  html body .sell-container.sell-current-mode #sell-step-mode .mode-card-check {
+    display: none !important;
+  }
+
+  html body .sell-container.sell-current-mode #sell-step-mode .mode-card-copy {
+    justify-items: start !important;
+    margin: 0 !important;
+    text-align: left !important;
+  }
+
+  html body .sell-container.sell-current-mode #sell-step-mode .mode-card-copy strong,
+  html body .sell-container.sell-current-mode #sell-step-mode .mode-card-copy small {
+    white-space: normal !important;
+  }
+
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-wizard-nav {
+    align-items: center !important;
+    margin-top: 2px !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+
+  html body .sell-container .sell-wizard-nav-next svg,
+  html body .sell-container .sell-wizard-nav-prev svg {
+    flex: 0 0 auto !important;
+    height: 16px !important;
+    width: 16px !important;
+  }
+
+  html body .sell-container .sell-sidebar-clean {
+    max-height: 96px !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html body .sell-container .sell-stepper-clean {
+    max-height: 76px !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle.sell-section {
+    display: grid !important;
+    gap: 16px !important;
+    justify-self: stretch !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    padding: 28px 14px 18px !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-vehicle .sell-main-panel,
+  html body .sell-container.sell-current-vehicle .sell-form {
+    display: grid !important;
+    justify-self: stretch !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .sell-section-header {
+    align-items: start !important;
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    margin: 0 0 8px !important;
+    padding: 0 !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .sell-step {
+    align-items: center !important;
+    background: linear-gradient(180deg, #ff8f24 0%, #ff6500 100%) !important;
+    border-radius: 999px !important;
+    color: #ffffff !important;
+    display: grid !important;
+    font-size: 16px !important;
+    font-weight: 950 !important;
+    height: 34px !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    width: 34px !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .sell-step::after {
+    content: "" !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .sell-section-header h2 {
+    font-size: clamp(28px, 8vw, 36px) !important;
+    line-height: 1.02 !important;
+    margin: 0 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle > .field-stack:first-of-type {
+    background: rgba(7, 27, 45, 0.62) !important;
+    border: 1px solid rgba(104, 145, 174, 0.18) !important;
+    border-radius: 8px !important;
+    gap: 12px !important;
+    padding: 14px !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .field-stack {
+    box-sizing: border-box !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .vehicle-card-list {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .vehicle-card {
+    align-items: center !important;
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: 94px minmax(0, 1fr) 22px !important;
+    min-height: 104px !important;
+    padding: 10px 12px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .vehicle-card-img {
+    border-radius: 8px !important;
+    height: 82px !important;
+    min-height: 82px !important;
+    padding: 6px !important;
+    width: 94px !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .vehicle-card-img img {
+    height: 100% !important;
+    object-fit: contain !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .vehicle-card-body {
+    align-content: center !important;
+    display: grid !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .vehicle-card-body strong {
+    font-size: 20px !important;
+    line-height: 1.08 !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .vehicle-card-body span {
+    font-size: 13px !important;
+    line-height: 1.25 !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .vehicle-card-arrow {
+    display: block !important;
+    justify-self: end !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .sell-grid-3,
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .sell-grid-2,
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .vehicle-detail-grid {
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .sell-grid-3 > .field-stack,
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .sell-grid-2 > .field-stack,
+  html body .sell-container.sell-current-vehicle #sell-step-vehicle .vehicle-detail-grid > .field-stack {
+    min-height: 0 !important;
+    padding: 14px !important;
+  }
+}
+
+/* Multi listing editor: reference layout for desktop and mobile. */
+body .sell-container.sell-current-category {
+  --multi-bg: #061421;
+  --multi-panel: rgba(7, 25, 42, 0.9);
+  --multi-panel-2: rgba(5, 18, 31, 0.96);
+  --multi-line: rgba(107, 151, 184, 0.28);
+  --multi-line-strong: rgba(255, 112, 24, 0.94);
+}
+
+@media (min-width: 1101px) {
+  body .sell-container.sell-current-category {
+    grid-template-columns: 310px minmax(0, 1fr) !important;
+    max-width: min(1560px, calc(100vw - 42px)) !important;
+    width: min(1560px, calc(100vw - 42px)) !important;
+  }
+
+  body .sell-container.sell-current-category .sell-main-panel,
+  body .sell-container.sell-current-category .sell-form {
+    max-width: none !important;
+    width: 100% !important;
+  }
+}
+
+body .sell-container.sell-current-category #sell-step-category {
+  background:
+    radial-gradient(980px 520px at 54% 18%, rgba(23, 89, 132, 0.23), transparent 70%),
+    linear-gradient(180deg, rgba(5, 18, 31, 0.98), rgba(3, 12, 22, 0.99)) !important;
+  border: 1px solid rgba(98, 139, 170, 0.22) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 28px 80px rgba(0, 5, 14, 0.34) !important;
+  display: grid !important;
+  gap: 18px !important;
+  padding: 24px !important;
+}
+
+body .sell-container.sell-current-category #sell-step-category > .sell-section-header {
+  display: none !important;
+}
+
+body .sell-container.sell-current-category #sell-step-category.has-selected-parts > .parts-reference-picker,
+body .sell-container.sell-current-category #sell-step-category.has-selected-parts > .parts-flow-grid,
+body .sell-container.sell-current-category #sell-step-category.has-selected-parts > .part-group-list {
+  display: none !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-editor {
+  background:
+    radial-gradient(680px 260px at 0% 0%, rgba(255, 112, 24, 0.08), transparent 70%),
+    radial-gradient(680px 300px at 100% 0%, rgba(32, 127, 186, 0.13), transparent 74%),
+    var(--multi-panel-2) !important;
+  border: 1px solid var(--multi-line) !important;
+  border-radius: 8px !important;
+  box-shadow:
+    0 24px 68px rgba(0, 5, 14, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
+  display: grid !important;
+  gap: 16px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-shell-head {
+  align-items: center !important;
+  display: flex !important;
+  gap: 18px !important;
+  justify-content: space-between !important;
+  padding: 28px 30px 16px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-shell-title {
+  align-items: center !important;
+  display: grid !important;
+  gap: 16px !important;
+  grid-template-columns: 58px minmax(0, 1fr) !important;
+  min-width: 0 !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-shell-icon {
+  align-items: center !important;
+  background: rgba(255, 112, 24, 0.12) !important;
+  border: 1px solid rgba(255, 112, 24, 0.55) !important;
+  border-radius: 8px !important;
+  color: #ff7a14 !important;
+  display: flex !important;
+  height: 58px !important;
+  justify-content: center !important;
+  width: 58px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-shell-title h3 {
+  color: #ffffff !important;
+  font-size: 27px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.05 !important;
+  margin: 0 !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-shell-title p {
+  color: rgba(220, 232, 242, 0.78) !important;
+  font-size: 16px !important;
+  font-weight: 650 !important;
+  margin: 8px 0 0 !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-preview-btn,
+body .sell-container.sell-current-category .sell-multi-save-draft {
+  align-items: center !important;
+  background: rgba(14, 31, 50, 0.88) !important;
+  border: 1px solid rgba(143, 174, 201, 0.34) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  gap: 10px !important;
+  justify-content: center !important;
+  min-height: 58px !important;
+  padding: 0 24px !important;
+  white-space: nowrap !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-preview-btn:hover,
+body .sell-container.sell-current-category .sell-multi-save-draft:hover {
+  border-color: rgba(255, 112, 24, 0.62) !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-editor-head {
+  background: rgba(4, 16, 28, 0.46) !important;
+  border-bottom: 1px solid rgba(103, 144, 175, 0.18) !important;
+  border-top: 1px solid rgba(103, 144, 175, 0.14) !important;
+  margin: 0 !important;
+  padding: 14px 30px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-defaults {
+  background: rgba(5, 19, 33, 0.62) !important;
+  border: 1px solid rgba(103, 144, 175, 0.18) !important;
+  border-radius: 8px !important;
+  margin: 0 30px !important;
+  padding: 14px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-list {
+  display: grid !important;
+  gap: 10px !important;
+  padding: 0 30px 28px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-group {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  display: grid !important;
+  gap: 10px !important;
+  padding: 0 !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-group.is-open {
+  background:
+    radial-gradient(620px 240px at 0% 0%, rgba(255, 112, 24, 0.09), transparent 68%),
+    rgba(5, 18, 31, 0.74) !important;
+  border-color: var(--multi-line-strong) !important;
+  box-shadow: 0 0 0 1px rgba(255, 112, 24, 0.16) !important;
+  padding: 0 0 16px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-category-break,
+body .sell-container.sell-current-category .parts-multi-subgroup-head {
+  display: grid !important;
+  gap: 10px !important;
+  grid-template-columns: minmax(0, 1fr) 38px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-group-main,
+body .sell-container.sell-current-category .parts-multi-subgroup-main {
+  background: rgba(8, 29, 49, 0.78) !important;
+  border: 1px solid rgba(105, 149, 181, 0.24) !important;
+  border-radius: 8px !important;
+  min-height: 76px !important;
+  padding: 14px 22px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-group.is-open > .parts-multi-category-break .parts-multi-group-main,
+body .sell-container.sell-current-category .parts-multi-subgroup.is-open > .parts-multi-subgroup-head .parts-multi-subgroup-main {
+  border-color: rgba(255, 112, 24, 0.88) !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-group-main strong,
+body .sell-container.sell-current-category .parts-multi-subgroup-main strong {
+  font-size: 19px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-group-main small,
+body .sell-container.sell-current-category .parts-multi-subgroup-main small {
+  color: rgba(220, 232, 242, 0.76) !important;
+  font-size: 14px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-group-main em,
+body .sell-container.sell-current-category .parts-multi-subgroup-main em {
+  border-color: rgba(255, 112, 24, 0.64) !important;
+  color: #ff8a18 !important;
+  font-size: 13px !important;
+  padding: 8px 13px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-subgroup-list {
+  background: rgba(6, 23, 39, 0.58) !important;
+  border: 1px solid rgba(103, 144, 175, 0.18) !important;
+  border-radius: 8px !important;
+  display: grid !important;
+  gap: 12px !important;
+  margin: 0 24px !important;
+  padding: 22px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-subgroup {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-part-list {
+  display: grid !important;
+  gap: 10px !important;
+  padding: 0 0 0 24px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-row {
+  background:
+    radial-gradient(420px 180px at 0% 0%, rgba(255, 112, 24, 0.12), transparent 70%),
+    linear-gradient(180deg, rgba(15, 24, 35, 0.96), rgba(5, 17, 29, 0.98)) !important;
+  border: 1px solid rgba(105, 149, 181, 0.24) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  display: grid !important;
+  gap: 14px !important;
+  min-height: 70px !important;
+  padding: 16px 18px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-row.is-open {
+  border-color: var(--multi-line-strong) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 112, 24, 0.22),
+    0 18px 42px rgba(255, 112, 24, 0.08) !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-row-title {
+  grid-template-columns: 34px minmax(0, 1fr) auto !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-row-title > span,
+body .sell-container.sell-current-category .parts-multi-subgroup-main > span {
+  background: linear-gradient(180deg, #ff8e22 0%, #ff6500 100%) !important;
+  height: 34px !important;
+  width: 34px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-row-title strong {
+  font-size: 18px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-row-actions {
+  gap: 10px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-row-actions > button,
+body .sell-container.sell-current-category .parts-multi-remove {
+  background: rgba(15, 31, 49, 0.92) !important;
+  border: 1px solid rgba(143, 174, 201, 0.28) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  height: 42px !important;
+  width: 42px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-fields {
+  align-items: stretch !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns:
+    minmax(160px, 1.15fr)
+    minmax(120px, 0.72fr)
+    minmax(120px, 0.72fr)
+    minmax(150px, 0.92fr)
+    minmax(130px, 0.8fr)
+    minmax(220px, 1.25fr) !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-fields label {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-fields label > span:first-child {
+  color: rgba(211, 224, 236, 0.78) !important;
+  font-size: 12px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-fields input,
+body .sell-container.sell-current-category .parts-multi-fields select,
+body .sell-container.sell-current-category .parts-multi-fields textarea,
+body .sell-container.sell-current-category .parts-upload-button {
+  background: rgba(3, 14, 25, 0.86) !important;
+  border: 1px solid rgba(105, 149, 181, 0.28) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  min-height: 88px !important;
+  padding: 14px 16px !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-fields textarea {
+  line-height: 1.35 !important;
+}
+
+body .sell-container.sell-current-category .parts-upload-button {
+  align-items: center !important;
+  border-style: dashed !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+body .sell-container.sell-current-category .parts-multi-notes small {
+  bottom: 8px !important;
+  right: 12px !important;
+}
+
+body .sell-container.sell-current-category .sell-multi-progress-panel {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(7, 24, 40, 0.98), rgba(4, 14, 25, 0.98)) !important;
+  border: 1px solid rgba(103, 144, 175, 0.20) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 22px 60px rgba(0, 5, 14, 0.28) !important;
+  display: grid !important;
+  gap: 18px !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  padding: 16px 20px !important;
+}
+
+body .sell-container.sell-current-category .sell-multi-drag-handle {
+  align-items: center !important;
+  background: rgba(14, 31, 50, 0.92) !important;
+  border: 1px solid rgba(143, 174, 201, 0.28) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  display: flex !important;
+  height: 48px !important;
+  justify-content: center !important;
+  width: 48px !important;
+}
+
+body .sell-container.sell-current-category .sell-multi-progress-copy {
+  display: grid !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+}
+
+body .sell-container.sell-current-category .sell-multi-progress-copy strong {
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+
+body .sell-container.sell-current-category .sell-multi-progress-track {
+  background: rgba(49, 75, 98, 0.72) !important;
+  border-radius: 999px !important;
+  display: block !important;
+  height: 6px !important;
+  overflow: hidden !important;
+  width: min(390px, 100%) !important;
+}
+
+body .sell-container.sell-current-category .sell-multi-progress-track span {
+  background: linear-gradient(90deg, #ff8e22, #ff6500) !important;
+  border-radius: inherit !important;
+  display: block !important;
+  height: 100% !important;
+}
+
+body .sell-container.sell-current-category .sell-form > .sell-wizard-nav {
+  background:
+    linear-gradient(180deg, rgba(7, 24, 40, 0.98), rgba(4, 14, 25, 0.98)) !important;
+  border: 1px solid rgba(103, 144, 175, 0.20) !important;
+  border-radius: 8px !important;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  padding: 16px 20px !important;
+}
+
+body .sell-container.sell-current-category .sell-form > .sell-wizard-nav .sell-wizard-nav-prev,
+body .sell-container.sell-current-category .sell-form > .sell-wizard-nav .sell-wizard-nav-next {
+  min-height: 52px !important;
+  width: 220px !important;
+}
+
+body .sell-container.sell-current-category .sell-form > .sell-wizard-nav .sell-wizard-nav-next {
+  background: linear-gradient(135deg, #ff8f13 0%, #ff5c00 100%) !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 900px) {
+  body .sell-container.sell-current-category #sell-step-category {
+    gap: 14px !important;
+    padding: 12px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-shell-head {
+    align-items: stretch !important;
+    display: grid !important;
+    gap: 14px !important;
+    padding: 18px 16px 12px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-shell-title {
+    grid-template-columns: 46px minmax(0, 1fr) !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-shell-icon {
+    height: 46px !important;
+    width: 46px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-shell-title h3 {
+    font-size: 23px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-shell-title p {
+    font-size: 13px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-preview-btn {
+    min-height: 46px !important;
+    width: 100% !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-editor-head,
+  body .sell-container.sell-current-category .parts-multi-defaults,
+  body .sell-container.sell-current-category .parts-multi-list {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-defaults {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-category-break,
+  body .sell-container.sell-current-category .parts-multi-subgroup-head {
+    grid-template-columns: minmax(0, 1fr) 38px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-group-main {
+    grid-template-columns: minmax(0, 1fr) auto 20px !important;
+    min-height: 68px !important;
+    padding: 12px 14px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-subgroup-main {
+    grid-template-columns: 34px minmax(0, 1fr) auto 20px !important;
+    min-height: 68px !important;
+    padding: 12px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-subgroup-list {
+    margin: 0 8px !important;
+    padding: 12px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-part-list {
+    padding-left: 0 !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-row {
+    padding: 14px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-row-title {
+    grid-template-columns: 34px minmax(0, 1fr) auto !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-row-title strong {
+    font-size: 16px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-row-actions {
+    gap: 4px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-row-actions > button,
+  body .sell-container.sell-current-category .parts-multi-remove {
+    height: 36px !important;
+    width: 36px !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-fields {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body .sell-container.sell-current-category .parts-multi-fields input,
+  body .sell-container.sell-current-category .parts-multi-fields select,
+  body .sell-container.sell-current-category .parts-multi-fields textarea,
+  body .sell-container.sell-current-category .parts-upload-button {
+    min-height: 54px !important;
+    padding: 12px !important;
+  }
+
+  body .sell-container.sell-current-category .sell-multi-progress-panel {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px) !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    position: sticky !important;
+    z-index: 20 !important;
+  }
+
+  body .sell-container.sell-current-category .sell-multi-save-draft {
+    grid-column: 1 / -1 !important;
+    min-height: 44px !important;
+    width: 100% !important;
+  }
+
+  body .sell-container.sell-current-category .sell-multi-drag-handle {
+    height: 40px !important;
+    width: 40px !important;
+  }
+
+  body .sell-container.sell-current-category .sell-form > .sell-wizard-nav {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px) !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    padding: 10px !important;
+    position: sticky !important;
+    z-index: 21 !important;
+  }
+
+  body .sell-container.sell-current-category .sell-form > .sell-wizard-nav .sell-wizard-nav-prev,
+  body .sell-container.sell-current-category .sell-form > .sell-wizard-nav .sell-wizard-nav-next {
+    min-height: 46px !important;
+    width: 100% !important;
+  }
+
+  body .sell-container.sell-current-location,
+  body .sell-container.sell-current-seller,
+  body .sell-container.sell-current-images,
+  body .sell-container.sell-current-description,
+  body .sell-container.sell-current-publish {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-width: none !important;
+    padding: 10px 12px 118px !important;
+    width: 100% !important;
+  }
+
+  body .sell-container.sell-current-location .sell-step-layout,
+  body .sell-container.sell-current-location .sell-location-card,
+  body .sell-container.sell-current-seller .sell-seller-step,
+  body .sell-container.sell-current-images .sell-images-step,
+  body .sell-container.sell-current-description .sell-description-step,
+  body .sell-container.sell-current-publish .sell-publish-section,
+  body .sell-container.sell-current-publish .sell-publish-safe-card,
+  body .sell-container.sell-current-publish .sell-submit-bar {
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts > .parts-reference-picker,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts > .parts-flow-grid,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts > .part-group-list,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts > .visual-part-picker,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts > .category-picker-block,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts > #sell-field-subcategory,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts > .subgroup-items {
+  display: none !important;
+}
+
+@media (max-width: 1000px) {
+  html body .sell-container.sell-current-category .parts-multi-group,
+  html body .sell-container.sell-current-category .parts-multi-subgroup,
+  html body .sell-container.sell-current-category .parts-multi-row,
+  html body .sell-container.sell-current-category .parts-multi-subgroup-list,
+  html body .sell-container.sell-current-category .parts-multi-part-list {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-category-break,
+  html body .sell-container.sell-current-category .parts-multi-subgroup-head {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-category-break > .parts-multi-remove,
+  html body .sell-container.sell-current-category .parts-multi-subgroup-head > .parts-multi-remove {
+    display: none !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-subgroup-list {
+    margin: 0 !important;
+    padding: 10px !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-group-main,
+  html body .sell-container.sell-current-category .parts-multi-subgroup-main {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-group-main {
+    grid-template-columns: minmax(0, 1fr) auto auto !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-subgroup-main {
+    grid-template-columns: 34px minmax(0, 1fr) auto auto !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-group-main strong,
+  html body .sell-container.sell-current-category .parts-multi-subgroup-main strong,
+  html body .sell-container.sell-current-category .parts-multi-row-title strong {
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-row-title {
+    grid-template-columns: 34px minmax(0, 1fr) auto !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-row-title .parts-multi-remove {
+    display: none !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-row-actions {
+    min-width: 0 !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-fields {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-fields label,
+  html body .sell-container.sell-current-category .parts-multi-fields input,
+  html body .sell-container.sell-current-category .parts-multi-fields select,
+  html body .sell-container.sell-current-category .parts-multi-fields textarea,
+  html body .sell-container.sell-current-category .parts-upload-button {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-fields input,
+  html body .sell-container.sell-current-category .parts-multi-fields select,
+  html body .sell-container.sell-current-category .parts-multi-fields textarea,
+  html body .sell-container.sell-current-category .parts-upload-button {
+    min-height: 52px !important;
+  }
+}
+
+html body .sell-container.sell-current-category .parts-multi-fields input,
+html body .sell-container.sell-current-category .parts-multi-fields select,
+html body .sell-container.sell-current-category .parts-multi-fields textarea,
+html body .sell-container.sell-current-category .parts-multi-defaults input,
+html body .sell-container.sell-current-category .parts-upload-button {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: #061625 !important;
+  background-color: #061625 !important;
+  border-color: rgba(105, 149, 181, 0.34) !important;
+  -webkit-box-shadow:
+    0 0 0 1000px #061625 inset,
+    inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+  box-shadow:
+    0 0 0 1000px #061625 inset,
+    inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+  color: #f7fbff !important;
+  color-scheme: dark !important;
+  -webkit-text-fill-color: #f7fbff !important;
+}
+
+html body .sell-container.sell-current-category .parts-multi-fields input::placeholder,
+html body .sell-container.sell-current-category .parts-multi-fields textarea::placeholder,
+html body .sell-container.sell-current-category .parts-multi-defaults input::placeholder {
+  color: rgba(214, 228, 239, 0.52) !important;
+  opacity: 1 !important;
+}
+
+html body .sell-container.sell-current-category .parts-multi-fields select option {
+  background: #061625 !important;
+  color: #f7fbff !important;
+}
+
+html body .sell-container.sell-current-category .parts-multi-preview-btn {
+  flex: 0 0 auto !important;
+  max-width: 100% !important;
+  min-width: 230px !important;
+}
+
+/* Final sell category fixes: single mode must keep the normal categorization visible. */
+html body .sell-container .sell-whole-sled-card {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > .parts-reference-picker,
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > .parts-multi-editor,
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > .parts-flow-grid,
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > .part-presets,
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > .multi-custom-add,
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > .part-group-list {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > .sell-section-header {
+  align-items: start !important;
+  display: grid !important;
+  gap: 14px !important;
+  grid-template-columns: 42px minmax(0, 1fr) !important;
+  margin: 0 0 4px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > .visual-part-picker {
+  display: grid !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > .category-picker-block,
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > #sell-field-subcategory,
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > .subgroup-items {
+  display: grid !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) .sell-category-card-list,
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) .sell-subcategory-card-list,
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) .subgroup-item-grid {
+  box-sizing: border-box !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)) !important;
+  width: 100% !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) .sell-category-card,
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) .sell-subcategory-card,
+html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) .subgroup-item-card {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+@media (max-width: 700px) {
+  html body .sell-container.sell-current-category #sell-step-category {
+    padding: 14px 10px 96px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) > .sell-section-header {
+    grid-template-columns: 36px minmax(0, 1fr) !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) .sell-category-card-list,
+  html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) .sell-subcategory-card-list,
+  html body .sell-container.sell-current-category #sell-step-category:not(.is-multi-category-step) .subgroup-item-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-editor {
+    border-radius: 8px !important;
+    margin-inline: -2px !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-shell-head {
+    align-items: stretch !important;
+    display: grid !important;
+    gap: 12px !important;
+    padding: 18px 12px 10px !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-shell-title {
+    grid-template-columns: 46px minmax(0, 1fr) !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-shell-icon {
+    height: 46px !important;
+    width: 46px !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-shell-title h3 {
+    font-size: 26px !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-preview-btn {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-editor-head,
+  html body .sell-container.sell-current-category .parts-multi-defaults {
+    margin: 0 !important;
+    padding-inline: 12px !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-list {
+    padding: 0 8px 16px !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-group.is-open {
+    padding: 0 6px 10px !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-subgroup-list {
+    padding: 8px !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-part-list {
+    padding-left: 0 !important;
+  }
+
+  html body .sell-container.sell-current-category .parts-multi-row {
+    padding: 12px !important;
+  }
+}
+
+/* Multi selected category: cleaner editor matching the compact reference card. */
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step.has-selected-parts {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  gap: 12px !important;
+  padding: 0 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-editor {
+  background:
+    radial-gradient(760px 360px at 18% 0%, rgba(38, 103, 154, 0.12), transparent 68%),
+    linear-gradient(180deg, rgba(7, 21, 35, 0.98), rgba(4, 15, 26, 0.99)) !important;
+  border: 1px solid rgba(108, 148, 178, 0.22) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 22px 70px rgba(0, 5, 14, 0.30) !important;
+  gap: 16px !important;
+  overflow: visible !important;
+  padding: 18px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-shell-head {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-editor-head {
+  background: transparent !important;
+  border: 0 !important;
+  margin: 0 !important;
+  min-height: 94px !important;
+  padding: 8px 22px 4px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-editor-head span {
+  color: rgba(213, 225, 236, 0.64) !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-editor-head h3 {
+  color: #ffffff !important;
+  font-size: clamp(30px, 3vw, 42px) !important;
+  line-height: 1.05 !important;
+  margin-top: 8px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-editor-head > strong {
+  background: rgba(255, 112, 18, 0.10) !important;
+  border: 1px solid rgba(255, 112, 18, 0.56) !important;
+  border-radius: 999px !important;
+  color: #ff8b18 !important;
+  font-size: 13px !important;
+  padding: 8px 13px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-defaults {
+  align-items: end !important;
+  background: rgba(6, 20, 34, 0.72) !important;
+  border: 1px solid rgba(104, 145, 176, 0.20) !important;
+  border-radius: 8px !important;
+  display: grid !important;
+  gap: 26px !important;
+  grid-template-columns: 250px 185px minmax(0, 1fr) !important;
+  margin: 0 !important;
+  min-height: 130px !important;
+  padding: 26px 22px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-defaults label {
+  align-content: start !important;
+  display: grid !important;
+  gap: 10px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-defaults label > span:first-child {
+  color: rgba(214, 226, 237, 0.72) !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-defaults input,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-defaults .parts-upload-button {
+  background: #10263a !important;
+  background-color: #10263a !important;
+  border: 1px solid rgba(112, 153, 184, 0.34) !important;
+  border-radius: 8px !important;
+  box-shadow:
+    0 0 0 1000px #10263a inset,
+    inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+  color: #ffffff !important;
+  min-height: 56px !important;
+  padding: 0 18px !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-list {
+  background: rgba(7, 22, 36, 0.76) !important;
+  border: 1px solid rgba(104, 145, 176, 0.20) !important;
+  border-radius: 8px !important;
+  display: grid !important;
+  gap: 12px !important;
+  margin: 0 !important;
+  padding: 22px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-group {
+  background: rgba(4, 16, 28, 0.78) !important;
+  border: 1px solid rgba(104, 145, 176, 0.20) !important;
+  border-radius: 8px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+  gap: 14px !important;
+  padding: 20px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-group.is-open {
+  background: rgba(5, 18, 31, 0.82) !important;
+  border-color: rgba(104, 145, 176, 0.22) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-category-break {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-list {
+  background: transparent !important;
+  border: 0 !important;
+  gap: 12px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup {
+  background: transparent !important;
+  gap: 10px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-head {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-head > .parts-multi-remove {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-main {
+  background:
+    linear-gradient(180deg, rgba(11, 35, 55, 0.90), rgba(7, 24, 40, 0.94)) !important;
+  border: 1px solid rgba(104, 145, 176, 0.22) !important;
+  border-radius: 8px !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto 24px !important;
+  min-height: 82px !important;
+  padding: 16px 22px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup.is-open .parts-multi-subgroup-main {
+  border-color: rgba(104, 145, 176, 0.28) !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-main > span,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row-title > span {
+  background: linear-gradient(180deg, #ff941d 0%, #ff6900 100%) !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 950 !important;
+  height: 38px !important;
+  width: 38px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-main strong {
+  color: #ffffff !important;
+  font-size: 22px !important;
+  line-height: 1.12 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-main small {
+  color: rgba(213, 225, 236, 0.72) !important;
+  font-size: 14px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-main em {
+  background: rgba(255, 112, 18, 0.10) !important;
+  border: 1px solid rgba(255, 112, 18, 0.48) !important;
+  border-radius: 999px !important;
+  color: #ff8b18 !important;
+  font-size: 13px !important;
+  padding: 8px 13px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-part-list {
+  gap: 10px !important;
+  padding: 0 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row {
+  background:
+    linear-gradient(180deg, rgba(10, 32, 51, 0.96), rgba(6, 22, 37, 0.98)) !important;
+  border: 1px solid rgba(104, 145, 176, 0.22) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  gap: 16px !important;
+  padding: 18px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row.is-open {
+  border-color: rgba(104, 145, 176, 0.30) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row-title {
+  grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  min-height: 48px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row-title strong {
+  color: #ffffff !important;
+  font-size: 21px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row-title small {
+  color: rgba(213, 225, 236, 0.68) !important;
+  font-size: 13px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row-actions > button,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-remove {
+  background: rgba(14, 31, 50, 0.88) !important;
+  border: 1px solid rgba(128, 164, 194, 0.26) !important;
+  border-radius: 8px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row-title .parts-multi-remove {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields {
+  background: rgba(5, 18, 31, 0.54) !important;
+  border: 1px solid rgba(104, 145, 176, 0.16) !important;
+  border-radius: 8px !important;
+  gap: 26px !important;
+  grid-template-columns:
+    minmax(190px, 1.20fr)
+    minmax(120px, 0.70fr)
+    minmax(130px, 0.75fr)
+    minmax(180px, 1fr)
+    minmax(160px, 0.9fr)
+    minmax(250px, 1.35fr) !important;
+  padding: 22px 18px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields label > span:first-child {
+  color: rgba(213, 225, 236, 0.72) !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  text-transform: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields input,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields select,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields textarea,
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields .parts-upload-button {
+  background: #10263a !important;
+  background-color: #10263a !important;
+  border: 1px solid rgba(112, 153, 184, 0.34) !important;
+  border-radius: 8px !important;
+  box-shadow:
+    0 0 0 1000px #10263a inset,
+    inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+  color: #ffffff !important;
+  min-height: 58px !important;
+  padding: 0 18px !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields textarea {
+  min-height: 96px !important;
+  padding-block: 16px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-upload-button {
+  border-style: dashed !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts + .sell-multi-progress-panel {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.has-selected-parts ~ .sell-wizard-nav,
+html body .sell-container.sell-current-category .sell-form > .sell-wizard-nav {
+  background:
+    linear-gradient(180deg, rgba(7, 24, 40, 0.98), rgba(4, 14, 25, 0.98)) !important;
+  border: 1px solid rgba(104, 145, 176, 0.20) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 18px 52px rgba(0, 5, 14, 0.28) !important;
+  display: grid !important;
+  grid-template-columns: 220px minmax(0, 1fr) 250px !important;
+  padding: 18px !important;
+}
+
+html body .sell-container.sell-current-category .sell-form > .sell-wizard-nav > span {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category .sell-form > .sell-wizard-nav .sell-wizard-nav-prev,
+html body .sell-container.sell-current-category .sell-form > .sell-wizard-nav .sell-wizard-nav-next {
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  min-height: 58px !important;
+}
+
+html body .sell-container.sell-current-category .sell-form > .sell-wizard-nav .sell-wizard-nav-prev {
+  grid-column: 1 !important;
+}
+
+html body .sell-container.sell-current-category .sell-form > .sell-wizard-nav .sell-wizard-nav-next {
+  grid-column: 3 !important;
+}
+
+@media (max-width: 900px) {
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-editor {
+    margin-inline: -10px !important;
+    padding: 10px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-editor-head {
+    min-height: 0 !important;
+    padding: 4px 4px 8px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-editor-head h3 {
+    font-size: clamp(26px, 8vw, 34px) !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-editor-head > strong {
+    justify-self: start !important;
+    margin-top: 10px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-defaults {
+    gap: 12px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-height: 0 !important;
+    padding: 14px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-list {
+    padding: 8px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-group {
+    padding: 6px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-main {
+    grid-template-columns: 40px minmax(0, 1fr) 22px !important;
+    min-height: 72px !important;
+    padding: 12px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-main em {
+    display: none !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row {
+    padding: 10px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row-title {
+    grid-template-columns: 40px minmax(0, 1fr) 38px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row-title > span,
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-main > span {
+    height: 34px !important;
+    width: 34px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-row-title strong,
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-subgroup-main strong {
+    font-size: 18px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields {
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 10px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields input,
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields select,
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields textarea,
+  html body .sell-container.sell-current-category #sell-step-category.has-selected-parts .parts-multi-fields .parts-upload-button {
+    min-height: 52px !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-form > .sell-wizard-nav {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    padding: 10px !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-form > .sell-wizard-nav .sell-wizard-nav-prev {
+    grid-column: 1 !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-form > .sell-wizard-nav .sell-wizard-nav-next {
+    grid-column: 2 !important;
+  }
+}
+
+/* Create listing step 3: exact snowmobile category selector reference. */
+html body:has(.sell-container.sell-current-category) header.universal-app-topbar {
+  display: none !important;
+}
+
+html body .sell-reference-topbar {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(3, 12, 22, 0.98), rgba(3, 12, 22, 0.94)) !important;
+  border-bottom: 1px solid rgba(109, 147, 177, 0.20) !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  height: 80px !important;
+  justify-content: space-between !important;
+  padding: 0 20px 0 30px !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  z-index: 1000 !important;
+}
+
+html body:has(.sell-container.sell-current-category) .site-footer,
+html body:has(.sell-container.sell-current-category) .rebuilt-chat-button {
+  display: none !important;
+}
+
+html body .sell-reference-brand {
+  align-items: center !important;
+  color: #ffffff !important;
+  display: flex !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+}
+
+html body .sell-reference-brand strong {
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.01em !important;
+}
+
+html body .sell-reference-brand-mark {
+  display: block !important;
+  height: 34px !important;
+  position: relative !important;
+  width: 38px !important;
+}
+
+html body .sell-reference-brand-mark::before {
+  border-bottom: 24px solid #ff7900 !important;
+  border-left: 17px solid transparent !important;
+  border-right: 17px solid transparent !important;
+  content: "" !important;
+  height: 0 !important;
+  left: 2px !important;
+  position: absolute !important;
+  top: 5px !important;
+  width: 0 !important;
+}
+
+html body .sell-reference-brand-mark::after {
+  background: #06111e !important;
+  clip-path: polygon(50% 0, 100% 100%, 70% 100%, 50% 42%, 29% 100%, 0 100%) !important;
+  content: "" !important;
+  height: 22px !important;
+  left: 7px !important;
+  position: absolute !important;
+  top: 10px !important;
+  width: 28px !important;
+}
+
+html body .sell-reference-actions {
+  align-items: center !important;
+  display: flex !important;
+  gap: 14px !important;
+}
+
+html body .sell-reference-actions button {
+  appearance: none !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+}
+
+html body .sell-reference-create {
+  align-items: center !important;
+  background: linear-gradient(180deg, #ff8f1f 0%, #ff6400 100%) !important;
+  border: 1px solid rgba(255, 146, 44, 0.70) !important;
+  box-shadow: 0 14px 32px rgba(255, 104, 0, 0.24) !important;
+  display: inline-flex !important;
+  font-size: 16px !important;
+  font-weight: 850 !important;
+  gap: 10px !important;
+  height: 50px !important;
+  padding: 0 21px !important;
+}
+
+html body .sell-reference-icon-btn,
+html body .sell-reference-lang {
+  align-items: center !important;
+  background: rgba(6, 19, 33, 0.86) !important;
+  border: 1px solid rgba(111, 151, 183, 0.25) !important;
+  display: inline-flex !important;
+  height: 50px !important;
+  justify-content: center !important;
+  width: 54px !important;
+}
+
+html body .sell-reference-profile {
+  align-items: center !important;
+  background: rgba(6, 19, 33, 0.86) !important;
+  border: 1px solid rgba(111, 151, 183, 0.25) !important;
+  display: inline-flex !important;
+  gap: 10px !important;
+  height: 50px !important;
+  padding: 0 12px 0 8px !important;
+}
+
+html body .sell-reference-avatar {
+  background:
+    radial-gradient(circle at 50% 50%, #ffffff 0 58%, #e8ecef 59% 100%) !important;
+  border-radius: 999px !important;
+  display: block !important;
+  height: 36px !important;
+  overflow: hidden !important;
+  width: 36px !important;
+}
+
+html body .sell-reference-avatar img {
+  display: block !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  transform: scale(2.1) translate(-3%, 2%) !important;
+  width: 100% !important;
+}
+
+html body .sell-reference-avatar::before {
+  background:
+    linear-gradient(18deg, transparent 0 26%, #111722 27% 43%, transparent 44%),
+    linear-gradient(-15deg, transparent 0 37%, #111722 38% 52%, transparent 53%),
+    radial-gradient(circle at 28% 68%, #111722 0 7%, transparent 8%),
+    radial-gradient(circle at 72% 68%, #111722 0 7%, transparent 8%),
+    linear-gradient(180deg, #2d333b, #111722) !important;
+  border-radius: 48% 48% 42% 42% !important;
+  content: "" !important;
+  display: none !important;
+  height: 18px !important;
+  margin: 9px auto 0 !important;
+  transform: rotate(-8deg) !important;
+  width: 28px !important;
+}
+
+html body .sell-reference-profile-copy {
+  display: grid !important;
+  gap: 3px !important;
+  min-width: 64px !important;
+}
+
+html body .sell-reference-profile-copy strong {
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+html body .sell-reference-profile-copy span {
+  align-items: center !important;
+  display: inline-flex !important;
+  gap: 6px !important;
+}
+
+html body .sell-reference-profile-copy small {
+  color: #ffffff !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+html body .sell-reference-profile-copy em {
+  background: #ff7300 !important;
+  border-radius: 999px !important;
+  display: block !important;
+  height: 5px !important;
+  width: 42px !important;
+}
+
+html body .sell-reference-lang span {
+  background:
+    linear-gradient(90deg, transparent 0 36%, #1f5fbf 36% 52%, transparent 52%),
+    linear-gradient(180deg, transparent 0 38%, #1f5fbf 38% 56%, transparent 56%),
+    #ffffff !important;
+  border-radius: 999px !important;
+  display: block !important;
+  height: 34px !important;
+  width: 34px !important;
+}
+
+@media (min-width: 1001px) {
+  html:has(body #sell-step-category.is-multi-category-step:not(.has-selected-parts)) {
+    overflow-y: hidden !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) {
+    background:
+      radial-gradient(940px 540px at 42% 42%, rgba(20, 71, 108, 0.20), transparent 70%),
+      linear-gradient(180deg, #05101c 0%, #071827 100%) !important;
+  }
+
+  html body:has(#sell-step-category.is-multi-category-step:not(.has-selected-parts)) {
+    overflow-y: hidden !important;
+  }
+
+  html body .sell-container.sell-current-category {
+    gap: 22px !important;
+    grid-template-columns: 244px minmax(0, 1fr) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: min(1496px, calc(100vw - 40px)) !important;
+    padding-top: 40px !important;
+    width: min(1496px, calc(100vw - 40px)) !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-main-panel,
+  html body .sell-container.sell-current-category .sell-form {
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-sidebar-clean {
+    align-self: start !important;
+    background: rgba(5, 17, 29, 0.72) !important;
+    border: 1px solid rgba(121, 164, 198, 0.20) !important;
+    border-radius: 8px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+    box-sizing: border-box !important;
+    height: 544px !important;
+    max-width: none !important;
+    min-height: 544px !important;
+    min-width: 0 !important;
+    margin-top: 64px !important;
+    padding: 27px 10px !important;
+    position: sticky !important;
+    top: 122px !important;
+    transform: translateY(40px) !important;
+    width: 244px !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-stepper-clean {
+    display: grid !important;
+    gap: 0 !important;
+    position: relative !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-stepper-clean::before {
+    background: linear-gradient(180deg, transparent 0, #ff6b00 58px, #ff6b00 calc(100% - 72px), transparent 100%) !important;
+    content: "" !important;
+    left: 31px !important;
+    position: absolute !important;
+    top: 28px !important;
+    bottom: 28px !important;
+    width: 2px !important;
+    z-index: 0 !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-step-clean {
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    gap: 12px !important;
+    grid-template-columns: 50px 28px minmax(0, 1fr) !important;
+    min-height: 112px !important;
+    padding: 12px 8px !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-step-clean.is-active {
+    background: rgba(6, 23, 38, 0.70) !important;
+    border-color: rgba(255, 107, 0, 0.96) !important;
+    box-shadow: 0 0 0 1px rgba(255, 107, 0, 0.14) !important;
+    min-height: 132px !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-step-clean-number {
+    align-self: start !important;
+    font-size: 18px !important;
+    height: 46px !important;
+    margin-top: 0 !important;
+    width: 46px !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-step-clean:not(.is-active):not(.is-done) .sell-step-clean-number {
+    background: #6f8799 !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-step-clean-icon {
+    align-self: start !important;
+    color: #ff7600 !important;
+    margin-top: 9px !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-step-clean-copy {
+    align-self: start !important;
+    padding-top: 4px !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-step-clean-copy strong {
+    color: #ffffff !important;
+    font-size: 17px !important;
+    line-height: 1.18 !important;
+  }
+
+  html body .sell-container.sell-current-category .sell-step-clean-copy small {
+    color: rgba(230, 238, 246, 0.76) !important;
+    font-size: 14px !important;
+    line-height: 1.42 !important;
+    margin-top: 8px !important;
+  }
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  display: grid !important;
+  gap: 18px !important;
+  margin-top: 120px !important;
+  padding: 0 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) > .sell-section-header {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) > .sell-section-header .sell-step {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) > .sell-section-header h2 {
+  color: #ffffff !important;
+  font-size: 40px !important;
+  font-weight: 950 !important;
+  line-height: 1.05 !important;
+  margin: 0 0 0 16px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) > .parts-multi-editor {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) + .sell-multi-progress-panel {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) ~ .sell-wizard-nav {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-reference-picker {
+  align-items: stretch !important;
+  display: grid !important;
+  gap: 26px !important;
+  grid-template-columns: minmax(720px, 1fr) 346px !important;
+  height: 804px !important;
+  min-height: 804px !important;
+  width: 100% !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-panel,
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-panel {
+  background:
+    radial-gradient(740px 390px at 48% 40%, rgba(25, 86, 128, 0.18), transparent 70%),
+    linear-gradient(180deg, rgba(5, 17, 29, 0.78), rgba(4, 15, 26, 0.94)) !important;
+  border: 1px solid rgba(116, 158, 190, 0.22) !important;
+  border-radius: 8px !important;
+  box-shadow:
+    0 18px 54px rgba(0, 5, 14, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+  box-sizing: border-box !important;
+  height: 804px !important;
+  min-height: 0 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-panel {
+  display: grid !important;
+  grid-template-rows: 92px minmax(0, 1fr) 78px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-panel::after {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-copy {
+  display: block !important;
+  padding: 30px 28px 0 !important;
+  position: relative !important;
+  z-index: 8 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-step-badge {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-copy h3 {
+  color: #ffffff !important;
+  font-size: 25px !important;
+  font-weight: 950 !important;
+  line-height: 1.08 !important;
+  margin: 0 0 11px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-copy p {
+  color: rgba(229, 238, 246, 0.78) !important;
+  display: block !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 1.45 !important;
+  margin: 0 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-vehicle-stage {
+  min-height: 0 !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-vehicle-stage::before {
+  background:
+    radial-gradient(ellipse at center, rgba(255, 103, 0, 0.16), transparent 62%),
+    radial-gradient(ellipse at center, rgba(34, 94, 134, 0.20), transparent 72%) !important;
+  bottom: 40px !important;
+  content: "" !important;
+  height: 140px !important;
+  left: 8% !important;
+  position: absolute !important;
+  right: 8% !important;
+  z-index: 1 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-vehicle-stage::after {
+  border: 1px dashed rgba(255, 104, 0, 0.72) !important;
+  border-radius: 50% !important;
+  bottom: 24px !important;
+  content: "" !important;
+  height: 142px !important;
+  left: 6% !important;
+  position: absolute !important;
+  right: 6% !important;
+  z-index: 4 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-vehicle-stage > img {
+  height: auto !important;
+  left: 50% !important;
+  max-height: none !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  position: absolute !important;
+  top: 42% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 108% !important;
+  z-index: 2 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot {
+  background: transparent !important;
+  border: 0 !important;
+  display: block !important;
+  height: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  transform: translate(-50%, -50%) !important;
+  width: 0 !important;
+  z-index: 9 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot::before {
+  background: rgba(255, 104, 0, 0.82) !important;
+  content: "" !important;
+  height: 1px !important;
+  left: 10px !important;
+  position: absolute !important;
+  top: 0 !important;
+  transform-origin: left center !important;
+  width: 58px !important;
+  z-index: 1 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot.is-left::before {
+  left: auto !important;
+  right: 10px !important;
+  transform-origin: right center !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot > span {
+  background: #ff7100 !important;
+  border: 2px solid rgba(255, 191, 122, 0.96) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 0 0 8px rgba(255, 104, 0, 0.14),
+    0 0 24px rgba(255, 104, 0, 0.62) !important;
+  height: 14px !important;
+  left: -7px !important;
+  position: absolute !important;
+  top: -7px !important;
+  width: 14px !important;
+  z-index: 3 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot strong {
+  background: rgba(8, 20, 33, 0.92) !important;
+  border: 1px solid rgba(132, 170, 199, 0.42) !important;
+  border-radius: 7px !important;
+  box-shadow: 0 12px 28px rgba(0, 4, 12, 0.32) !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  left: 64px !important;
+  line-height: 1 !important;
+  padding: 11px 13px !important;
+  position: absolute !important;
+  top: -20px !important;
+  white-space: nowrap !important;
+  z-index: 2 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot.is-left strong {
+  left: auto !important;
+  right: 64px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot.is-active strong,
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot:hover strong {
+  border-color: rgba(255, 112, 0, 0.95) !important;
+  color: #ffffff !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-whole-vehicle {
+  align-items: center !important;
+  background: rgba(8, 20, 33, 0.86) !important;
+  border: 1px dashed rgba(255, 104, 0, 0.92) !important;
+  border-radius: 8px !important;
+  bottom: 24px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  gap: 12px !important;
+  left: 50% !important;
+  min-height: 54px !important;
+  padding: 0 24px !important;
+  position: absolute !important;
+  transform: translateX(-50%) !important;
+  z-index: 10 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-whole-vehicle svg {
+  color: #ff7200 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-stage-help {
+  align-items: center !important;
+  border-top: 1px solid rgba(116, 158, 190, 0.12) !important;
+  color: rgba(230, 238, 246, 0.72) !important;
+  display: flex !important;
+  font-size: 14px !important;
+  gap: 14px !important;
+  justify-content: center !important;
+  min-height: 78px !important;
+  padding: 0 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-stage-help::before {
+  border: 2px solid rgba(230, 238, 246, 0.78) !important;
+  border-radius: 12px !important;
+  content: "" !important;
+  display: inline-block !important;
+  height: 28px !important;
+  position: relative !important;
+  width: 16px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-panel {
+  align-content: start !important;
+  display: grid !important;
+  gap: 0 !important;
+  padding: 26px 18px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-panel > strong {
+  color: #ffffff !important;
+  font-size: 24px !important;
+  font-weight: 950 !important;
+  line-height: 1.1 !important;
+  margin: 0 0 12px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-panel > p {
+  color: rgba(230, 238, 246, 0.72) !important;
+  display: block !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  margin: 0 0 22px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list {
+  counter-reset: category-choice !important;
+  display: grid !important;
+  gap: 8px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list button {
+  align-items: center !important;
+  background: rgba(9, 28, 45, 0.72) !important;
+  border: 1px solid rgba(122, 163, 194, 0.22) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  counter-increment: category-choice !important;
+  display: grid !important;
+  gap: 14px !important;
+  grid-template-columns: 38px minmax(0, 1fr) 20px !important;
+  min-height: 54px !important;
+  padding: 8px 13px !important;
+  text-align: left !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list button::before {
+  align-items: center !important;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 174, 82, 0.44), transparent 34%),
+    linear-gradient(180deg, rgba(164, 90, 22, 0.88), rgba(93, 48, 14, 0.96)) !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
+  content: counter(category-choice) !important;
+  display: flex !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  height: 30px !important;
+  justify-content: center !important;
+  width: 30px !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list button.is-active::before,
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list button:hover::before {
+  background: linear-gradient(180deg, #ff941d, #ff6900) !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list button:hover,
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list button.is-active {
+  border-color: rgba(255, 112, 0, 0.92) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 204, 143, 0.08) !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-icon {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list button span:not(.parts-category-icon) {
+  display: block !important;
+  min-width: 0 !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list button strong {
+  color: #ffffff !important;
+  display: block !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-list button small {
+  display: none !important;
+}
+
+@media (max-width: 1180px) {
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-reference-picker {
+    grid-template-columns: minmax(0, 1fr) !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-panel,
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-category-panel {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) > .sell-section-header h2 {
+    font-size: 32px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hero-panel {
+    min-height: 620px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-vehicle-stage {
+    min-height: 430px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-vehicle-stage > img {
+    top: 50% !important;
+    width: 138% !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot strong {
+    font-size: 12px !important;
+    padding: 8px 10px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot::before {
+    width: 34px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot strong {
+    left: 44px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-hotspot.is-left strong {
+    left: auto !important;
+    right: 44px !important;
+  }
+
+  html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-whole-vehicle {
+    bottom: 28px !important;
+    min-height: 46px !important;
+    padding: 0 18px !important;
+  }
+}
+
+/* Final phone override for the reference category header. Keep this after the desktop reference block. */
+@media (max-width: 1000px) {
+  html body:has(.sell-container.sell-current-category) .sell-reference-topbar {
+    height: 64px !important;
+    padding: 0 10px 0 14px !important;
+    width: 100vw !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) .sell-reference-brand {
+    gap: 10px !important;
+    min-width: 0 !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) .sell-reference-brand strong {
+    font-size: 17px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) .sell-reference-brand-mark {
+    flex: 0 0 31px !important;
+    height: 28px !important;
+    width: 31px !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) .sell-reference-brand-mark::before {
+    border-bottom-width: 21px !important;
+    border-left-width: 15px !important;
+    border-right-width: 15px !important;
+    left: 0 !important;
+    top: 3px !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) .sell-reference-brand-mark::after {
+    height: 19px !important;
+    left: 5px !important;
+    top: 7px !important;
+    width: 24px !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) .sell-reference-actions {
+    flex: 0 0 auto !important;
+    gap: 8px !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) .sell-reference-icon-btn,
+  html body:has(.sell-container.sell-current-category) .sell-reference-profile {
+    display: none !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) .sell-reference-create {
+    gap: 0 !important;
+    height: 44px !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    width: 48px !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) .sell-reference-create span {
+    display: none !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) .sell-reference-lang {
+    height: 44px !important;
+    width: 46px !important;
+  }
+
+  html body:has(.sell-container.sell-current-category) .sell-reference-lang span {
+    height: 30px !important;
+    width: 30px !important;
+  }
+}
+
+/* Sell vehicle preset dropdown: force the custom menu to stay dark. */
+html body [data-sell-preset-options="true"] {
+  background: #061726 !important;
+  background-color: #061726 !important;
+  border: 1px solid rgba(143, 194, 243, 0.36) !important;
+  box-shadow:
+    0 22px 54px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+  color: #dce8f7 !important;
+}
+
+html body [data-sell-preset-options="true"] [data-sell-preset-option="true"] {
+  appearance: none !important;
+  background: #061726 !important;
+  background-color: #061726 !important;
+  color: #dce8f7 !important;
+}
+
+html body [data-sell-preset-options="true"] [data-sell-preset-option="true"]:hover,
+html body [data-sell-preset-options="true"] [data-sell-preset-option="true"][data-active="true"] {
+  background: #8fc2f3 !important;
+  background-color: #8fc2f3 !important;
+  color: #04111f !important;
+}
+
+/* Global responsive safety net. Keep this at the end so every page gets sane bounds
+   on odd desktop widths, tablets, and narrow phones. */
+html,
+body {
+  max-width: 100% !important;
+  overflow-x: clip !important;
+}
+
+body,
+body * {
+  min-width: 0;
+}
+
+img,
+video,
+canvas,
+iframe,
+embed,
+object {
+  max-width: 100% !important;
+}
+
+img,
+video {
+  height: auto;
+}
+
+p,
+li,
+dd,
+dt,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+small,
+span,
+a,
+button {
+  overflow-wrap: anywhere;
+}
+
+pre,
+code,
+table {
+  max-width: 100% !important;
+}
+
+pre,
+table {
+  overflow-x: auto !important;
+}
+
+main,
+section,
+article,
+aside,
+header,
+footer,
+form,
+fieldset,
+[class*="page"],
+[class*="shell"],
+[class*="container"],
+[class*="wrapper"],
+[class*="panel"],
+[class*="card"],
+[class*="hero"],
+[class*="grid"],
+[class*="list"],
+[class*="row"] {
+  max-width: 100% !important;
+}
+
+input,
+textarea,
+select {
+  max-width: 100% !important;
+}
+
+html body [data-sell-category-select="true"] {
+  background:
+    linear-gradient(180deg, rgba(9, 26, 45, 0.98), rgba(4, 15, 28, 0.99)) !important;
+  background-color: #061726 !important;
+  border-color: rgba(255, 122, 26, 0.16) !important;
+  color: #f7f9fc !important;
+  color-scheme: dark !important;
+}
+
+html body [data-sell-category-menu="true"] {
+  background: #061726 !important;
+  background-color: #061726 !important;
+  background-image: none !important;
+  border: 1px solid rgba(255, 122, 26, 0.22) !important;
+  box-shadow: 0 24px 58px rgba(0, 0, 0, 0.58) !important;
+  color: #dce8f7 !important;
+  color-scheme: dark !important;
+}
+
+html body [data-sell-category-menu="true"] *,
+html body [data-sell-category-option="true"] {
+  color-scheme: dark !important;
+}
+
+html body [data-sell-category-option="true"] {
+  background: #061726 !important;
+  background-color: #061726 !important;
+  background-image: none !important;
+  border: 0 !important;
+  color: #dce8f7 !important;
+  -webkit-text-fill-color: #dce8f7 !important;
+}
+
+html body [data-sell-category-option="true"]:hover,
+html body [data-sell-category-option="true"][data-active="true"] {
+  background: rgba(255, 122, 26, 0.16) !important;
+  background-color: rgba(255, 122, 26, 0.16) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html body [class*="sell-first_page"] select,
+html body [class*="sell-first_page"] select option {
+  background: #061726 !important;
+  background-color: #061726 !important;
+  color: #f7f9fc !important;
+  color-scheme: dark !important;
+}
+
+@media (max-width: 1100px) {
+  :where(
+    [class*="desktop-shell"],
+    [class*="layout"],
+    [class*="columns"],
+    [class*="detail-grid"],
+    [class*="content-grid"],
+    [class*="dashboard-grid"],
+    [class*="management-grid"],
+    [class*="profile-grid"],
+    [class*="listing-grid"],
+    [class*="garage-grid"],
+    [class*="seller-grid"],
+    [class*="stats-grid"]
+  ) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  body {
+    width: 100% !important;
+  }
+
+  main,
+  [class*="page"],
+  [class*="shell"],
+  [class*="container"] {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100% !important;
+  }
+
+  :where(
+    [class*="hero"],
+    [class*="section"],
+    [class*="panel"],
+    [class*="card"],
+    [class*="wrapper"],
+    [class*="strip"],
+    [class*="toolbar"],
+    [class*="actions"]
+  ) {
+    max-width: 100% !important;
+  }
+
+  :where(
+    [class*="grid"],
+    [class*="columns"],
+    [class*="stats"],
+    [class*="facts"],
+    [class*="cards"],
+    [class*="listings"],
+    [class*="results"]
+  ) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  :where(
+    [class*="actions"],
+    [class*="toolbar"],
+    [class*="filters"],
+    [class*="tabs"],
+    [class*="chips"]
+  ) {
+    flex-wrap: wrap !important;
+  }
+
+  :where(button, .button, [class*="btn"], [class*="button"]) {
+    max-width: 100% !important;
+    white-space: normal !important;
+  }
+}
+
+@media (max-width: 420px) {
+  :where(
+    [class*="hero"],
+    [class*="panel"],
+    [class*="card"],
+    [class*="section"],
+    [class*="form"],
+    [class*="modal"]
+  ) {
+    border-radius: min(8px, var(--radius, 8px)) !important;
+  }
+
+  :where(h1, [class*="title"], [class*="heading"]) {
+    line-height: 1.08 !important;
+    max-width: 100% !important;
+  }
+}

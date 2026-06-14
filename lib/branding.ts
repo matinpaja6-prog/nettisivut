@@ -15,11 +15,11 @@
 
 export const branding = {
   /** Näkyvä sivuston nimi headerissa ja titleissä */
-  siteName: "MoottoriTori",
+  siteName: "Maskines",
 
   /** Logon vasen osa (paksumpi) — valinnainen, jos haluat kaksiosaisen nimen */
-  logoLeft: "Moottori",
-  logoRight: "Tori",
+  logoLeft: "Maskines",
+  logoRight: "",
 
   /** Slogan / tagline yläpalkissa logon alla */
   tagline: "Käytettyjen moottorinosien tori",

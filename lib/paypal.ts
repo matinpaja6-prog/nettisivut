@@ -1,4 +1,4 @@
-import { getPointPackage } from "@/lib/point-packages";
+﻿import { getPointPackage } from "@/lib/point-packages";
 
 const PAYPAL_API_BASE =
   process.env.PAYPAL_ENV === "live"
@@ -59,7 +59,7 @@ export async function createPayPalPointOrder(packageId: string, userId: string) 
       purchase_units: [
         {
           reference_id: pointPackage.id,
-          description: `${pointPackage.points} Arctic Parts pistettä`,
+          description: `${pointPackage.points} Maskines pistettä`,
           custom_id: `${userId}:${pointPackage.id}`,
           amount: {
             currency_code: pointPackage.currency,
@@ -68,7 +68,7 @@ export async function createPayPalPointOrder(packageId: string, userId: string) 
         }
       ],
       application_context: {
-        brand_name: "Arctic Parts",
+        brand_name: "Maskines",
         shipping_preference: "NO_SHIPPING",
         user_action: "PAY_NOW"
       }

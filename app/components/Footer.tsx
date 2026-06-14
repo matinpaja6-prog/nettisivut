@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -126,6 +126,7 @@ export default function Footer() {
 
   const hideFooter =
     pathname?.startsWith("/auth") ||
+    pathname?.startsWith("/messages") ||
     pathname?.startsWith("/profile") ||
     pathname?.startsWith("/privacy") ||
     pathname?.startsWith("/terms");
@@ -138,11 +139,10 @@ export default function Footer() {
 
         {/* Brand */}
         <div className="footer-brand">
-          <Link href="/" className="footer-logo" aria-label="Arctic Parts">
-            <span className="footer-logo-icon">AP</span>
+          <Link href="/" className="footer-logo" aria-label="Maskines">
+            <span className="footer-logo-icon">M</span>
             <span className="footer-logo-text">
-              <strong>Arctic</strong>
-              <em>Parts</em>
+              <strong>Maskines</strong>
             </span>
           </Link>
           <p className="footer-tagline">
@@ -207,7 +207,7 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <span>© {year} Arctic Parts Oy. {text.rights}</span>
+        <span>© {year} Maskines. {text.rights}</span>
         <span className="footer-bottom-links">
           <Link href="/terms">{text.terms}</Link>
           <Link href="/privacy">{text.privacy}</Link>

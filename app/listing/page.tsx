@@ -4,11 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { Heart, MapPin, Tag, UserRound } from "lucide-react";
+import { Clock3, Heart, Tag, UserRound } from "lucide-react";
 import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 import OptimizedListingImage, { fallbackListingImage } from "@/app/components/OptimizedListingImage";
 import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
+import { getCountryFlagFromLocation } from "@/lib/country-flags";
 
 import {
   fallbackListings,
@@ -17,6 +18,7 @@ import {
 } from "@/lib/listings";
 
 import { getListings } from "@/lib/supabase";
+import { readCachedListings, writeCachedListings } from "@/lib/client-listings-cache";
 
 import homeStyles from "../page.module.css";
 
@@ -25,6 +27,20 @@ const fallbackCardImage = fallbackListingImage;
 function safeImageSrc(src: string | undefined | null) {
   if (!src) return fallbackCardImage;
   return src;
+}
+
+function getClientErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message;
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message;
+  }
+
+  return String(error ?? "Tuntematon virhe");
 }
 
 function listingImageSrc(listing: Listing) {
@@ -80,22 +96,32 @@ export default function ListingsIndexPage() {
 
   useEffect(() => {
     let mounted = true;
+    const cachedListings = readCachedListings();
 
-    setLoading(true);
+    if (cachedListings.length > 0) {
+      setListings(cachedListings);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
 
-    getListings()
+    getListings({
+      includeOptionalFields: false,
+      limit: 240
+    })
       .then(({ data, error }) => {
         if (error) {
-          console.error(error);
+          console.warn("Ilmoitusten lataus epaonnistui.", getClientErrorMessage(error));
           return;
         }
 
-        if (mounted && data) {
+        if (mounted && data && (data.length > 0 || cachedListings.length === 0)) {
           setListings(data);
+          writeCachedListings(data);
         }
       })
       .catch((err) => {
-        console.error(err);
+        console.warn("Ilmoitusten lataus epaonnistui.", getClientErrorMessage(err));
       })
       .finally(() => {
         if (mounted) {
@@ -129,6 +155,14 @@ export default function ListingsIndexPage() {
     const translatedLeaf = translatedSub.split("/").map((p) => p.trim()).filter(Boolean).at(-1) || translateCategory(locale, leafSubcategory);
     const translatedVehicle = vehicleTypeTranslations[locale]?.[listing.vehicle_type ?? ""] ?? listing.vehicle_type ?? "";
     return `${translatedLeaf} - ${translatedVehicle}`.trim();
+  }
+
+  function formatDate(value: string) {
+    return new Intl.DateTimeFormat("fi-FI", {
+      day: "numeric",
+      month: "numeric",
+      year: "numeric"
+    }).format(new Date(value));
   }
 
   function toggleFavorite(
@@ -196,6 +230,7 @@ export default function ListingsIndexPage() {
         <div className={homeStyles.cardsGrid}>
           {sorted.map((listing) => {
             const isFavorite = favorites.includes(listing.id);
+            const countryFlag = getCountryFlagFromLocation(listing.location, t.country);
 
             return (
               <article
@@ -247,9 +282,21 @@ export default function ListingsIndexPage() {
                   <p className={homeStyles.cardPrice}>{formatPrice(listing.price)}</p>
                   <h3 className={homeStyles.cardTitle}>{getListingTitle(listing)}</h3>
                   <div className={homeStyles.cardMetaRow}>
+                    <span className={homeStyles.cardLocationMeta}>
+                      {countryFlag ? (
+                        <img
+                          className={homeStyles.listingCountryFlag}
+                          src={countryFlag.src}
+                          alt=""
+                          aria-hidden="true"
+                          loading="lazy"
+                        />
+                      ) : null}
+                      {listing.location || t.country}
+                    </span>
                     <span>
-                      <MapPin size={14} />
-                      {t.country}, {listing.location}
+                      <Clock3 size={14} />
+                      {formatDate(listing.created_at)}
                     </span>
                   </div>
 

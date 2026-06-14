@@ -9,5 +9,6 @@ yarn-debug.log*
 yarn-error.log*
 *.log
 tsconfig.tsbuildinfo
+.visitor-language-preferences.json
 
 .vercel

@@ -101,7 +101,7 @@ export const TAXONOMY_EVENT = "arctic-taxonomy-changed";
 
 function mergeWithDefaults(data: Partial<SiteTaxonomy> | null | undefined): SiteTaxonomy {
   if (!data) return DEFAULT_TAXONOMY;
-  return {
+  const merged: SiteTaxonomy = {
     vehicles:
       Array.isArray(data.vehicles) && data.vehicles.length > 0
         ? (data.vehicles as VehicleEntry[]).map((v) => ({
@@ -133,6 +133,23 @@ function mergeWithDefaults(data: Partial<SiteTaxonomy> | null | undefined): Site
         ? (data.subcategoryGroups as Record<string, Record<string, string[]>>)
         : DEFAULT_TAXONOMY.subcategoryGroups
   };
+
+  const frameCategory = merged.categories.find((cat) => cat.key === "Runko & katteet");
+  if (frameCategory && !frameCategory.subcategories.includes("Tunnelit / Takarunko")) {
+    const frontFrameIndex = frameCategory.subcategories.indexOf("Tunnelit / Eturunko");
+    const insertAt = frontFrameIndex === -1 ? frameCategory.subcategories.length : frontFrameIndex + 1;
+    frameCategory.subcategories.splice(insertAt, 0, "Tunnelit / Takarunko");
+  }
+
+  const frameGroups = merged.subcategoryGroups["Runko & katteet"];
+  const frameGroup = frameGroups?.Runko;
+  if (Array.isArray(frameGroup) && !frameGroup.includes("Tunnelit / Takarunko")) {
+    const frontFrameIndex = frameGroup.indexOf("Tunnelit / Eturunko");
+    const insertAt = frontFrameIndex === -1 ? frameGroup.length : frontFrameIndex + 1;
+    frameGroup.splice(insertAt, 0, "Tunnelit / Takarunko");
+  }
+
+  return merged;
 }
 
 export async function fetchSiteTaxonomy(): Promise<SiteTaxonomy> {

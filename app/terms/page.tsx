@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { BadgeCheck, FileText, Handshake } from "lucide-react";
@@ -13,16 +13,16 @@ const termsCopy: Record<Locale, {
     back: "Takaisin", eyebrow: "Palvelun ehdot", title: "Käyttöehdot", updated: "Päivitetty 14.5.2026", privacy: "Tietosuojaseloste", summaryLabel: "Käyttöehtojen tiivistelmä",
     summary: [
       { title: "Myyjä vastaa ilmoituksesta", text: "Ilmoituksen tietojen, hinnan, kuvien ja kuvauksen pitää olla oikein ja ajan tasalla." },
-      { title: "Kauppa on käyttäjien välinen", text: "Arctic Parts toimii alustana. Ostaja ja myyjä sopivat maksusta, toimituksesta ja tuotteen kunnosta." },
+      { title: "Kauppa on käyttäjien välinen", text: "Maskines toimii alustana. Ostaja ja myyjä sopivat maksusta, toimituksesta ja tuotteen kunnosta." },
       { title: "Palvelua käytetään reilusti", text: "Huijaukset, häirintä, laiton sisältö ja toisten tietojen väärinkäyttö voidaan poistaa." }
     ],
     sections: [
-      { title: "1. Palvelun kuvaus", body: ["Arctic Parts on varaosien kauppapaikka, jossa käyttäjät voivat ostaa ja myydä moottorikelkkojen, mönkijöiden, motocross-pyörien ja mopojen varaosia, tarvikkeita sekä niihin liittyviä tuotteita."] },
-      { title: "2. Käyttäjätili", body: ["Ilmoittaminen, viestit ja osa muista toiminnoista edellyttävät käyttäjätiliä. Käyttäjä vastaa tietojensa oikeellisuudesta ja kirjautumistietojen huolellisesta säilyttämisestä.", "Tili on henkilökohtainen tai yrityskohtainen. Tiliä ei saa luovuttaa toiselle ilman Arctic Partsin lupaa."] },
+      { title: "1. Palvelun kuvaus", body: ["Maskines on varaosien kauppapaikka, jossa käyttäjät voivat ostaa ja myydä moottorikelkkojen, mönkijöiden, motocross-pyörien ja mopojen varaosia, tarvikkeita sekä niihin liittyviä tuotteita."] },
+      { title: "2. Käyttäjätili", body: ["Ilmoittaminen, viestit ja osa muista toiminnoista edellyttävät käyttäjätiliä. Käyttäjä vastaa tietojensa oikeellisuudesta ja kirjautumistietojen huolellisesta säilyttämisestä.", "Tili on henkilökohtainen tai yrityskohtainen. Tiliä ei saa luovuttaa toiselle ilman Maskinesin lupaa."] },
       { title: "3. Ilmoitukset", body: ["Myyjä vastaa ilmoituksen sisällöstä. Tuotteen kunto, sopivuus, varaosan tiedot, hinta, sijainti ja kuvat on ilmoitettava totuudenmukaisesti.", "Kiellettyä sisältöä ovat esimerkiksi:"], bullets: ["varastettu, laiton tai vaaralliseksi tiedetty tuote", "harhaanjohtava hinta, kuva tai tuotteen kuntoa koskeva tieto", "toisen henkilön, yrityksen, kuvan tai tavaramerkin luvaton käyttö", "huijaustarkoituksessa palvelusta pois ohjaavat ilmoitukset"] },
-      { title: "4. Kaupankäynti", body: ["Arctic Parts ei ole kaupan osapuoli. Kauppa syntyy ostajan ja myyjän välillä. Osapuolet sopivat maksusta, toimituksesta, noudosta, palautuksista ja reklamaatioista.", "Suosittelemme tarkistamaan tuotteen tiedot, sopivuuden ja myyjän profiilin ennen kauppaa."] },
+      { title: "4. Kaupankäynti", body: ["Maskines ei ole kaupan osapuoli. Kauppa syntyy ostajan ja myyjän välillä. Osapuolet sopivat maksusta, toimituksesta, noudosta, palautuksista ja reklamaatioista.", "Suosittelemme tarkistamaan tuotteen tiedot, sopivuuden ja myyjän profiilin ennen kauppaa."] },
       { title: "5. Maksulliset ominaisuudet", body: ["Lisäominaisuudet, kuten ilmoituspaikat, korostukset ja näkyvyyslisät, näytetään käyttäjälle ennen maksun vahvistamista. Digitaalisen palvelun maksua ei palauteta, jos ominaisuus on otettu käyttöön, ellei pakottava laki muuta edellytä."] },
-      { title: "6. Turvallisuus ja väärinkäytökset", body: ["Palvelua ei saa käyttää huijaamiseen, häirintään, roskapostiin, automatisoituun käyttöön ilman lupaa, haittaohjelmien levittämiseen tai toisen henkilön tietojen väärinkäyttöön.", "Arctic Parts voi poistaa sisältöä, rajoittaa toimintoja tai sulkea tilin, jos käyttö rikkoo ehtoja tai aiheuttaa riskin muille."] },
+      { title: "6. Turvallisuus ja väärinkäytökset", body: ["Palvelua ei saa käyttää huijaamiseen, häirintään, roskapostiin, automatisoituun käyttöön ilman lupaa, haittaohjelmien levittämiseen tai toisen henkilön tietojen väärinkäyttöön.", "Maskines voi poistaa sisältöä, rajoittaa toimintoja tai sulkea tilin, jos käyttö rikkoo ehtoja tai aiheuttaa riskin muille."] },
       { title: "7. Vastuu ja saatavuus", body: ["Pyrimme pitämään palvelun toimivana ja turvallisena, mutta emme takaa keskeytyksetöntä saatavuutta. Emme vastaa käyttäjien välisen kaupan toteutumisesta, tuotteen virheistä, toimituksen viivästymisestä tai välillisistä vahingoista."] },
       { title: "8. Tietosuoja", body: ["Henkilötietoja käsitellään tietosuojaselosteen mukaisesti. Emme myy henkilötietoja. Käyttäjä vastaa siitä, ettei julkaise ilmoituksissa tai viesteissä tarpeettomia henkilötietoja."] },
       { title: "9. Ehtojen muuttaminen", body: ["Voimme päivittää käyttöehtoja, kun palvelu muuttuu tai lainsäädäntö edellyttää muutoksia. Olennaisista muutoksista kerrotaan palvelussa tai sähköpostitse ennen voimaantuloa."] },
@@ -33,16 +33,16 @@ const termsCopy: Record<Locale, {
     back: "Back", eyebrow: "Service terms", title: "Terms of Use", updated: "Updated 14 May 2026", privacy: "Privacy Notice", summaryLabel: "Terms summary",
     summary: [
       { title: "Seller is responsible", text: "Listing details, price, photos and description must be accurate and up to date." },
-      { title: "Trade is between users", text: "Arctic Parts provides the platform. Buyer and seller agree payment, delivery and condition." },
+      { title: "Trade is between users", text: "Maskines provides the platform. Buyer and seller agree payment, delivery and condition." },
       { title: "Use the service fairly", text: "Fraud, harassment, illegal content and misuse of data may be removed." }
     ],
     sections: [
-      { title: "1. Service description", body: ["Arctic Parts is a marketplace for buying and selling spare parts, accessories and related products for snowmobiles, ATVs, motocross bikes and mopeds."] },
+      { title: "1. Service description", body: ["Maskines is a marketplace for buying and selling spare parts, accessories and related products for snowmobiles, ATVs, motocross bikes and mopeds."] },
       { title: "2. User account", body: ["Posting listings, messaging and some features require an account. You are responsible for accurate account details and keeping login credentials secure.", "Accounts are personal or company-specific and may not be transferred without permission."] },
       { title: "3. Listings", body: ["The seller is responsible for listing content. Condition, compatibility, part details, price, location and photos must be truthful.", "Prohibited content includes:"], bullets: ["stolen, illegal or known dangerous products", "misleading prices, photos or condition details", "unauthorized use of another person, company, photo or trademark", "listings intended to redirect users for fraud"] },
-      { title: "4. Trading", body: ["Arctic Parts is not a party to the transaction. Buyer and seller agree payment, delivery, pickup, returns and complaints.", "Check product details, compatibility and seller profile before trading."] },
+      { title: "4. Trading", body: ["Maskines is not a party to the transaction. Buyer and seller agree payment, delivery, pickup, returns and complaints.", "Check product details, compatibility and seller profile before trading."] },
       { title: "5. Paid features", body: ["Paid features such as listing slots, highlights and visibility boosts are shown before payment confirmation. Digital service payments are not refunded after activation unless mandatory law requires otherwise."] },
-      { title: "6. Safety and misuse", body: ["The service may not be used for fraud, harassment, spam, unauthorized automation, malware or misuse of another person’s data.", "Arctic Parts may remove content, restrict features or close accounts that break these terms or create risk."] },
+      { title: "6. Safety and misuse", body: ["The service may not be used for fraud, harassment, spam, unauthorized automation, malware or misuse of another person’s data.", "Maskines may remove content, restrict features or close accounts that break these terms or create risk."] },
       { title: "7. Liability and availability", body: ["We aim to keep the service functional and secure, but do not guarantee uninterrupted availability. We are not responsible for user-to-user transactions, product defects, delivery delays or indirect damages."] },
       { title: "8. Privacy", body: ["Personal data is processed according to the Privacy Notice. We do not sell personal data. Users should avoid publishing unnecessary personal data in listings or messages."] },
       { title: "9. Changes", body: ["We may update these terms when the service or law changes. Material changes are announced in the service or by email before they take effect."] },
@@ -51,12 +51,12 @@ const termsCopy: Record<Locale, {
   },
   sv: {
     back: "Tillbaka", eyebrow: "Tjänstevillkor", title: "Användarvillkor", updated: "Uppdaterad 14.5.2026", privacy: "Integritetspolicy", summaryLabel: "Sammanfattning",
-    summary: [{ title: "Säljaren ansvarar", text: "Uppgifter, pris, bilder och beskrivning ska vara korrekta." }, { title: "Affären sker mellan användare", text: "Arctic Parts är plattformen. Köpare och säljare avtalar om betalning och leverans." }, { title: "Använd tjänsten rättvist", text: "Bedrägeri, trakasserier och olagligt innehåll kan tas bort." }],
+    summary: [{ title: "Säljaren ansvarar", text: "Uppgifter, pris, bilder och beskrivning ska vara korrekta." }, { title: "Affären sker mellan användare", text: "Maskines är plattformen. Köpare och säljare avtalar om betalning och leverans." }, { title: "Använd tjänsten rättvist", text: "Bedrägeri, trakasserier och olagligt innehåll kan tas bort." }],
     sections: [
-      { title: "1. Tjänsten", body: ["Arctic Parts är en marknadsplats för reservdelar och tillbehör till snöskotrar, fyrhjulingar, motocross och mopeder."] },
+      { title: "1. Tjänsten", body: ["Maskines är en marknadsplats för reservdelar och tillbehör till snöskotrar, fyrhjulingar, motocross och mopeder."] },
       { title: "2. Konto", body: ["Annonser, meddelanden och vissa funktioner kräver konto. Du ansvarar för korrekta uppgifter och säker inloggning.", "Kontot är personligt eller företagsbundet och får inte överlåtas utan tillstånd."] },
       { title: "3. Annonser", body: ["Säljaren ansvarar för annonsens innehåll. Skick, passform, pris, plats och bilder ska vara sanningsenliga.", "Förbjudet innehåll:"], bullets: ["stulna eller olagliga produkter", "vilseledande pris eller skick", "obehörig användning av annans material", "bedrägliga omdirigeringar"] },
-      { title: "4. Handel", body: ["Arctic Parts är inte part i affären. Köpare och säljare avtalar själva om betalning, leverans och reklamationer."] },
+      { title: "4. Handel", body: ["Maskines är inte part i affären. Köpare och säljare avtalar själva om betalning, leverans och reklamationer."] },
       { title: "5. Betalfunktioner", body: ["Betalda funktioner visas innan betalning. Digitala tjänster återbetalas inte efter aktivering om inte tvingande lag kräver det."] },
       { title: "6. Säkerhet", body: ["Tjänsten får inte användas för bedrägeri, trakasserier, spam, skadliga länkar eller missbruk av personuppgifter."] },
       { title: "7. Ansvar", body: ["Vi strävar efter en fungerande tjänst men garanterar inte oavbruten tillgång och ansvarar inte för användarnas affärer."] },
@@ -67,12 +67,12 @@ const termsCopy: Record<Locale, {
   },
   no: {
     back: "Tilbake", eyebrow: "Vilkår", title: "Brukervilkår", updated: "Oppdatert 14.5.2026", privacy: "Personvernerklæring", summaryLabel: "Sammendrag",
-    summary: [{ title: "Selger har ansvar", text: "Opplysninger, pris, bilder og beskrivelse må være korrekte." }, { title: "Handel skjer mellom brukere", text: "Arctic Parts er plattformen. Kjøper og selger avtaler betaling og levering." }, { title: "Bruk tjenesten rettferdig", text: "Svindel, trakassering og ulovlig innhold kan fjernes." }],
+    summary: [{ title: "Selger har ansvar", text: "Opplysninger, pris, bilder og beskrivelse må være korrekte." }, { title: "Handel skjer mellom brukere", text: "Maskines er plattformen. Kjøper og selger avtaler betaling og levering." }, { title: "Bruk tjenesten rettferdig", text: "Svindel, trakassering og ulovlig innhold kan fjernes." }],
     sections: [
-      { title: "1. Tjenesten", body: ["Arctic Parts er en markedsplass for reservedeler og tilbehør til snøscootere, ATV-er, motocross og mopeder."] },
+      { title: "1. Tjenesten", body: ["Maskines er en markedsplass for reservedeler og tilbehør til snøscootere, ATV-er, motocross og mopeder."] },
       { title: "2. Konto", body: ["Annonser, meldinger og enkelte funksjoner krever konto. Du er ansvarlig for korrekte opplysninger og sikker innlogging."] },
       { title: "3. Annonser", body: ["Selger er ansvarlig for annonsen. Tilstand, passform, pris, sted og bilder skal være riktige."], bullets: ["stjålne eller ulovlige varer", "villedende pris eller tilstand", "uautorisert bruk av andres materiale", "svindelrettede lenker"] },
-      { title: "4. Handel", body: ["Arctic Parts er ikke part i handelen. Kjøper og selger avtaler betaling, levering og reklamasjoner."] },
+      { title: "4. Handel", body: ["Maskines er ikke part i handelen. Kjøper og selger avtaler betaling, levering og reklamasjoner."] },
       { title: "5. Betalte funksjoner", body: ["Betalte funksjoner vises før betaling og refunderes ikke etter aktivering med mindre loven krever det."] },
       { title: "6. Sikkerhet", body: ["Tjenesten må ikke brukes til svindel, trakassering, spam, skadevare eller misbruk av personopplysninger."] },
       { title: "7. Ansvar", body: ["Vi prøver å holde tjenesten tilgjengelig, men garanterer ikke avbruddsfri drift og er ikke ansvarlige for handler mellom brukere."] },
@@ -83,12 +83,12 @@ const termsCopy: Record<Locale, {
   },
   et: {
     back: "Tagasi", eyebrow: "Teenuse tingimused", title: "Kasutustingimused", updated: "Uuendatud 14.5.2026", privacy: "Privaatsusteade", summaryLabel: "Kokkuvõte",
-    summary: [{ title: "Müüja vastutab", text: "Kuulutuse andmed, hind, pildid ja kirjeldus peavad olema õiged." }, { title: "Tehing on kasutajate vahel", text: "Arctic Parts on platvorm. Ostja ja müüja lepivad makse ja tarne kokku." }, { title: "Kasuta teenust ausalt", text: "Pettus, ahistamine ja ebaseaduslik sisu võidakse eemaldada." }],
+    summary: [{ title: "Müüja vastutab", text: "Kuulutuse andmed, hind, pildid ja kirjeldus peavad olema õiged." }, { title: "Tehing on kasutajate vahel", text: "Maskines on platvorm. Ostja ja müüja lepivad makse ja tarne kokku." }, { title: "Kasuta teenust ausalt", text: "Pettus, ahistamine ja ebaseaduslik sisu võidakse eemaldada." }],
     sections: [
-      { title: "1. Teenus", body: ["Arctic Parts on varuosade ja tarvikute turuplats mootorsaanidele, ATV-dele, krossiratastele ja mopeedidele."] },
+      { title: "1. Teenus", body: ["Maskines on varuosade ja tarvikute turuplats mootorsaanidele, ATV-dele, krossiratastele ja mopeedidele."] },
       { title: "2. Konto", body: ["Kuulutused, sõnumid ja osa funktsioone nõuavad kontot. Vastutad õigete andmete ja turvalise sisselogimise eest."] },
       { title: "3. Kuulutused", body: ["Müüja vastutab kuulutuse sisu eest. Seisukord, sobivus, hind, asukoht ja pildid peavad olema tõesed."], bullets: ["varastatud või ebaseaduslik kaup", "eksitav hind või seisukord", "teise isiku materjali loata kasutamine", "pettuslikud ümbersuunamised"] },
-      { title: "4. Kauplemine", body: ["Arctic Parts ei ole tehingu osapool. Ostja ja müüja lepivad ise kokku makse, tarne ja pretensioonid."] },
+      { title: "4. Kauplemine", body: ["Maskines ei ole tehingu osapool. Ostja ja müüja lepivad ise kokku makse, tarne ja pretensioonid."] },
       { title: "5. Tasulised funktsioonid", body: ["Tasulised funktsioonid kuvatakse enne makset ja neid ei tagastata pärast aktiveerimist, kui seadus ei nõua teisiti."] },
       { title: "6. Turvalisus", body: ["Teenust ei tohi kasutada pettuseks, ahistamiseks, spämmiks, pahavaraks ega isikuandmete väärkasutuseks."] },
       { title: "7. Vastutus", body: ["Püüame hoida teenuse töökorras, kuid ei taga katkestusteta kättesaadavust ega vastuta kasutajate tehingute eest."] },

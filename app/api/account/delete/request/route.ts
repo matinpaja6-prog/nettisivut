@@ -68,7 +68,7 @@ async function sendDeletionEmail(input: {
   const from =
     process.env.ACCOUNT_EMAIL_FROM ??
     process.env.ALERT_FROM_EMAIL ??
-    "Arctic Parts <onboarding@resend.dev>";
+    "Maskines <onboarding@resend.dev>";
 
   const code = escapeHtml(input.code);
 

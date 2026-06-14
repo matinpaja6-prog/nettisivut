@@ -1,7 +1,6 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -9,23 +8,19 @@ import type { User } from "@supabase/supabase-js";
 import styles from "./page.module.css";
 
 import {
-  Award,
-  Bell,
   Car,
+  Check,
+  CalendarDays,
   ChevronDown,
-  ClipboardList,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
-  DoorOpen,
   Heart,
-  LockKeyhole,
-  Mail,
   MapPin,
-  MessageCircle,
-  Plus,
   Search,
   Settings2,
-  Store,
-  UserRound,
+  TrendingDown,
+  TrendingUp,
   X
 } from "lucide-react";
 
@@ -43,40 +38,29 @@ import {
 } from "@/lib/taxonomy";
 import { useTaxonomy } from "./components/TaxonomyProvider";
 import { getLocalizedListingText } from "@/lib/listing-translations";
+import { readCachedListings, writeCachedListings } from "@/lib/client-listings-cache";
+import { getCountryFlagFromLocation } from "@/lib/country-flags";
 
 import { buildRecoProfile, getRecommendedListings, setRecoUserId } from "@/lib/recommendations";
 
 import {
-  getAlertNotifications,
-  getConversationSummaries,
   getProfile,
-  getPendingPurchaseReviewRequests,
   getSavedListingIds,
   getGarageVehicles,
-  getCurrentUserIsAdmin,
   ensureListingTranslations,
   getListings,
   getUserPreferenceProfile,
   isProfileCompleted,
-  deleteAlertNotification,
-  dismissPurchaseReviewRequest,
-  markConversationRead,
-  markNotificationsSeen,
   saveListing,
-  signOut,
   supabase,
   trackUserActivity,
   unsaveListing,
-  type AlertNotification,
-  type ConversationSummary,
   type GarageVehicle,
-  type PurchaseReviewRequest,
   type UserPreferenceProfile
 } from "@/lib/supabase";
 import { applyLocale, isLocale, translateCategory } from "@/lib/i18n";
-import LanguageSwitcher from "./components/LanguageSwitcher";
 import OptimizedListingImage, { fallbackListingImage } from "./components/OptimizedListingImage";
-import { ListFilter, Menu } from "lucide-react";
+import { ListFilter } from "lucide-react";
 
 const CategoryDrawer = dynamic(() => import("./components/CategoryDrawer"), {
   ssr: false,
@@ -98,7 +82,7 @@ const translations = {
     savedListings: "Tallennetut ilmoitukset",
     login: "Kirjaudu",
     signOut: "Kirjaudu ulos",
-    heroTitle: "Arctic Parts",
+    heroTitle: "Maskines",
     heroSubtitle: "Nopea haku. Laaja valikoima. Luotettavat myyjät.",
     heroLeadStart: "Nopea haku.",
     heroLeadHighlight: "Laaja valikoima.",
@@ -163,7 +147,11 @@ const translations = {
     newBadge: "Uusi",
     allListings: "Kaikki ilmoitukset",
     selectedVehicle: "Valittu ajoneuvo",
-    openCategories: "Avaa kategoriat"
+    openCategories: "Avaa kategoriat",
+    sellerLevel: "Myyjälevel",
+    level: "Level",
+    xpToNextLevel: "seuraavaan leveliin",
+    maxLevel: "Maksimitaso"
   },
   en: {
     createListing: "Create listing",
@@ -239,7 +227,11 @@ const translations = {
     newBadge: "New",
     allListings: "All listings",
     selectedVehicle: "Selected vehicle",
-    openCategories: "Open categories"
+    openCategories: "Open categories",
+    sellerLevel: "Seller level",
+    level: "Level",
+    xpToNextLevel: "to next level",
+    maxLevel: "Max level"
   },
   sv: {
     createListing: "Skapa annons",
@@ -315,7 +307,11 @@ const translations = {
     newBadge: "Ny",
     allListings: "Alla annonser",
     selectedVehicle: "Valt fordon",
-    openCategories: "Öppna kategorier"
+    openCategories: "Öppna kategorier",
+    sellerLevel: "Säljarnivå",
+    level: "Level",
+    xpToNextLevel: "till nästa level",
+    maxLevel: "Maxnivå"
   },
   no: {
     createListing: "Opprett annonse",
@@ -391,7 +387,11 @@ const translations = {
     newBadge: "Ny",
     allListings: "Alle annonser",
     selectedVehicle: "Valgt kjøretøy",
-    openCategories: "Åpne kategorier"
+    openCategories: "Åpne kategorier",
+    sellerLevel: "Selgernivå",
+    level: "Level",
+    xpToNextLevel: "til neste level",
+    maxLevel: "Maksnivå"
   },
   et: {
     createListing: "Loo kuulutus",
@@ -467,7 +467,11 @@ const translations = {
     newBadge: "Uus",
     allListings: "Kõik kuulutused",
     selectedVehicle: "Valitud sõiduk",
-    openCategories: "Ava kategooriad"
+    openCategories: "Ava kategooriad",
+    sellerLevel: "Müüja level",
+    level: "Level",
+    xpToNextLevel: "järgmise levelini",
+    maxLevel: "Maksimaalne tase"
   }
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -482,8 +486,7 @@ const sortValues = [
 
 type SortValue = typeof sortValues[number];
 
-const SEEN_REVIEW_REQUESTS_STORAGE_KEY = "seenPurchaseReviewRequests";
-
+/*
 const categoryTranslations: Record<Locale, Record<string, string>> = {
   fi: {},
   en: {
@@ -629,6 +632,7 @@ const categoryTranslations: Record<Locale, Record<string, string>> = {
   },
   et: {}
 };
+*/
 
 /* ======================================================
    CATEGORIES
@@ -939,17 +943,17 @@ export default function Home() {
     return labels;
   }, [taxonomy]);
 
-  const profileRef = useRef<HTMLDivElement | null>(null);
-  const notificationRef = useRef<HTMLDivElement | null>(null);
   const garageDropdownRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLElement | null>(null);
   const favoritesHydrated = useRef(false);
+  const listingsPageFetchRef = useRef(false);
 
   const [locale, setLocale] = useState<Locale>("fi");
   const [localeReady, setLocaleReady] = useState(false);
 
   const [listings, setListings] = useState<Listing[]>(fallbackListings);
-  const [listingsLoading, setListingsLoading] = useState(true);
+  const [listingsLoading, setListingsLoading] = useState(fallbackListings.length === 0);
+  const [listingsTotalCount, setListingsTotalCount] = useState<number | null>(null);
 
   const [favorites, setFavorites] = useState<string[]>([]);
 
@@ -957,9 +961,10 @@ export default function Home() {
   const [compactHeroSearch, setCompactHeroSearch] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageJumpOpen, setPageJumpOpen] = useState(false);
   const [pageJumpValue, setPageJumpValue] = useState("");
+  const [pageJumpOpen, setPageJumpOpen] = useState(false);
   const PAGE_SIZE = 40;
+  const INITIAL_LISTING_FETCH_LIMIT = 240;
 
   const [category, setCategory] = useState("");
 
@@ -976,11 +981,10 @@ export default function Home() {
 
   const [sort, setSort] = useState<SortValue>("Osuvimmat ensin");
   const [recommendationsMode, setRecommendationsMode] = useState(true);
+  const [homeSortOpen, setHomeSortOpen] = useState(false);
   const [sortSheetOpen, setSortSheetOpen] = useState(false);
 
   const [user, setUser] = useState<User | null>(null);
-  const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
-  const [userProfileInitial, setUserProfileInitial] = useState("?");
   const [userLocationTerms, setUserLocationTerms] = useState<string[]>([]);
 
   const [garageVehicles, setGarageVehicles] = useState<GarageVehicle[]>([]);
@@ -988,30 +992,6 @@ export default function Home() {
   const [garageDropdownOpen, setGarageDropdownOpen] = useState(false);
 
   const [openCategory, setOpenCategory] = useState<string | null>(null);
-
-  const [profileMenu, setProfileMenu] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [notificationMenu, setNotificationMenu] = useState(false);
-  const [notifications, setNotifications] = useState<AlertNotification[]>([]);
-  const [reviewRequests, setReviewRequests] = useState<PurchaseReviewRequest[]>([]);
-  const [seenReviewRequestIds, setSeenReviewRequestIds] = useState<Set<string>>(() => {
-    if (typeof window === "undefined") return new Set();
-
-    try {
-      const parsed =
-        JSON.parse(localStorage.getItem(SEEN_REVIEW_REQUESTS_STORAGE_KEY) ?? "[]");
-
-      return new Set(
-        Array.isArray(parsed)
-          ? parsed.filter((value): value is string => typeof value === "string")
-          : []
-      );
-    } catch {
-      return new Set();
-    }
-  });
-  const [unreadConversations, setUnreadConversations] = useState<ConversationSummary[]>([]);
-  const [convNotifSeen, setConvNotifSeen] = useState(false);
 
   const [categorySearch, setCategorySearch] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -1377,77 +1357,6 @@ export default function Home() {
     return new Date(date).toLocaleDateString(locales[locale]);
   }
 
-  async function handleSignOut() {
-    setUser(null);
-    setProfileMenu(false);
-    try {
-      sessionStorage.removeItem(HOME_RETURN_STATE_KEY);
-      sessionStorage.removeItem(HOME_RETURN_PENDING_KEY);
-    } catch {}
-    await signOut().finally(() => {
-      router.refresh();
-    });
-    router.push("/");
-  }
-
-  const unreadSearchAlertCount = notifications.filter(n => !n.seen).length;
-  const unreadReviewCount = reviewRequests.filter((request) => !seenReviewRequestIds.has(request.id)).length;
-  const notificationCount = unreadSearchAlertCount + unreadReviewCount + (convNotifSeen ? 0 : unreadConversations.length);
-
-  const markConversationNotificationRead = useCallback((conversation: ConversationSummary) => {
-    if (!user) return;
-
-    const lastMessageAt =
-      conversation.last_message?.created_at
-        ? new Date(conversation.last_message.created_at).getTime() + 1
-        : Date.now();
-
-    void markConversationRead(
-      conversation.id,
-      user.id,
-      Math.max(Date.now(), lastMessageAt)
-    );
-  }, [user]);
-
-  function toggleNotificationMenu() {
-    if (!user) return;
-
-    const nextOpen = !notificationMenu;
-    setNotificationMenu(nextOpen);
-
-    if (nextOpen) {
-      setConvNotifSeen(true);
-      unreadConversations.forEach(markConversationNotificationRead);
-      if (reviewRequests.length > 0) {
-        setSeenReviewRequestIds((prev) => {
-          const next =
-            new Set(prev);
-
-          reviewRequests.forEach((request) => next.add(request.id));
-
-          try {
-            localStorage.setItem(
-              SEEN_REVIEW_REQUESTS_STORAGE_KEY,
-              JSON.stringify([...next])
-            );
-          } catch {}
-
-          return next;
-        });
-      }
-      if (unreadSearchAlertCount > 0) {
-        markNotificationsSeen(user.id).then(() =>
-          setNotifications((prev) =>
-            prev.map((notification) => ({
-              ...notification,
-              seen: true
-            }))
-          )
-        );
-      }
-    }
-  }
-
   /* ======================================================
      LOAD GARAGE VEHICLES
   ====================================================== */
@@ -1456,32 +1365,15 @@ export default function Home() {
     setRecoUserId(user?.id ?? null);
     if (!user) {
       setGarageVehicles([]);
-      setNotifications([]);
-      setReviewRequests([]);
       setDbPreferenceProfile(null);
-      setUserAvatarUrl(null);
-      setUserProfileInitial("?");
       setUserLocationTerms([]);
-      setIsAdmin(false);
       return;
     }
-    getCurrentUserIsAdmin()
-      .then(setIsAdmin)
-      .catch(() => setIsAdmin(false));
     getUserPreferenceProfile(user.id)
       .then(({ data }) => setDbPreferenceProfile(data))
       .catch(() => setDbPreferenceProfile(null));
     getProfile(user.id)
       .then(({ data }) => {
-        setUserAvatarUrl(data?.avatar_url ?? null);
-        const displayName =
-          data?.company_name ||
-          data?.full_name ||
-          data?.name ||
-          `${data?.first_name ?? ""} ${data?.last_name ?? ""}`.trim() ||
-          user.email ||
-          "";
-        setUserProfileInitial(displayName.trim().charAt(0).toUpperCase() || "?");
         setUserLocationTerms(data ? buildLocationTerms(data) : []);
       })
       .catch(() => {});
@@ -1489,105 +1381,6 @@ export default function Home() {
       .then(({ data }) => setGarageVehicles(data ?? []))
       .catch(() => setGarageVehicles([]));
 
-    withTimeout(getAlertNotifications(user.id), 6000)
-      .then(({ data }) => setNotifications(data))
-      .catch(() => setNotifications([]));
-
-    withTimeout(getPendingPurchaseReviewRequests(user.id), 6000)
-      .then(({ data }) => setReviewRequests(data ?? []))
-      .catch(() => setReviewRequests([]));
-
-    withTimeout(getConversationSummaries(user.id), 6000)
-      .then(({ data }) => {
-        let lastRead: Record<string, number> = {};
-        try { lastRead = JSON.parse(localStorage.getItem("chatLastRead") ?? "{}"); } catch { /* ok */ }
-        const unread = data.filter((c) => {
-          const msg = c.last_message;
-          if (!msg || msg.sender_id === user.id) return false;
-          return new Date(msg.created_at).getTime() > (lastRead[c.id] ?? 0);
-        });
-        setUnreadConversations(unread);
-      })
-      .catch(() => {});
-
-  }, [user]);
-
-  useEffect(() => {
-    if (!supabase || !user) return;
-
-    const client = supabase;
-    const channel = client
-      .channel(`alert-notifications-${user.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "alert_notifications",
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          const next = payload.new as AlertNotification;
-          setNotifications((prev) => {
-            if (prev.some((notification) => notification.id === next.id)) {
-              return prev;
-            }
-
-            return [next, ...prev].slice(0, 30);
-          });
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "purchase_review_requests",
-          filter: `buyer_id=eq.${user.id}`
-        },
-        (payload) => {
-          const next = payload.new as PurchaseReviewRequest;
-          setReviewRequests((prev) => {
-            if (prev.some((request) => request.id === next.id)) {
-              return prev;
-            }
-
-            return [next, ...prev];
-          });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      void client.removeChannel(channel);
-    };
-  }, [user]);
-
-  /* listen for new incoming messages → reset badge */
-  useEffect(() => {
-    if (!supabase || !user) return;
-    const client = supabase;
-    const ch = client
-      .channel(`new-messages-notif-${user.id}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" },
-        (payload) => {
-          const msg = payload.new as { sender_id: string; conversation_id: string };
-          if (msg.sender_id === user.id) return;
-          setConvNotifSeen(false);
-          getConversationSummaries(user.id).then(({ data }) => {
-            let lastRead: Record<string, number> = {};
-            try { lastRead = JSON.parse(localStorage.getItem("chatLastRead") ?? "{}"); } catch { /* ok */ }
-            const unread = data.filter((c) => {
-              const m = c.last_message;
-              if (!m || m.sender_id === user.id) return false;
-              return new Date(m.created_at).getTime() > (lastRead[c.id] ?? 0);
-            });
-            setUnreadConversations(unread);
-          });
-        }
-      )
-      .subscribe();
-    return () => { void client.removeChannel(ch); };
   }, [user]);
 
   /* ======================================================
@@ -1598,33 +1391,76 @@ export default function Home() {
     let mounted = true;
 
     async function loadListings() {
-      try {
-        if (mounted) {
-          setListingsLoading(true);
-        }
+      const cachedListings = readCachedListings();
+      const localListings =
+        cachedListings.length > 0 ? cachedListings : fallbackListings;
 
-        const { data, error } =
+      if (localListings.length > 0 && mounted) {
+        setListings(localListings);
+        setListingsLoading(false);
+      } else if (mounted) {
+        setListingsLoading(true);
+      }
+
+      let keepLoadingForRetry = false;
+
+      try {
+        const { data, error, count } =
           await withTimeout(
-            getListings(),
-            7000,
+            getListings({
+              includeOptionalFields: false,
+              includeCount: true,
+              limit: INITIAL_LISTING_FETCH_LIMIT,
+              offset: 0
+            }),
+            4500,
             "Ilmoitusten lataus kesti liian kauan."
           );
 
         if (error) {
-          console.warn("Ilmoitusten lataus epäonnistui, käytetään tyhjää näkymää.", error);
+          console.warn("Ilmoitusten lataus epäonnistui, käytetään paikallista listaa.", error);
           return;
         }
 
-        if (mounted && data) {
+        if (mounted && data && data.length > 0) {
           setListings(data);
+          if (typeof count === "number") setListingsTotalCount(count);
+          writeCachedListings(data);
         }
-      } catch {
-
+      } catch (error) {
+        console.warn("Nopea ilmoitusten lataus epäonnistui, yritetään pidemmällä aikakatkaisulla.", error);
         if (mounted) {
-          setListings(fallbackListings);
+          keepLoadingForRetry = true;
+          try {
+            const { data, error: retryError, count } =
+              await withTimeout(
+                getListings({
+                  includeOptionalFields: false,
+                  includeCount: true,
+                  limit: INITIAL_LISTING_FETCH_LIMIT,
+                  offset: 0
+                }),
+                30000,
+                "Ilmoitusten varalataus kesti liian kauan."
+              );
+
+            if (retryError) {
+              console.warn("Ilmoitusten varalataus epäonnistui.", retryError);
+            }
+
+            if (mounted && data && data.length > 0) {
+              setListings(data);
+              if (typeof count === "number") setListingsTotalCount(count);
+              writeCachedListings(data);
+            }
+          } catch (retryError) {
+            console.warn("Ilmoitusten varalataus aikakatkaistiin.", retryError);
+          } finally {
+            keepLoadingForRetry = false;
+          }
         }
       } finally {
-        if (mounted) {
+        if (mounted && !keepLoadingForRetry) {
           setListingsLoading(false);
         }
       }
@@ -1635,7 +1471,7 @@ export default function Home() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     const urlLocale = new URLSearchParams(window.location.search).get("lang");
@@ -1716,7 +1552,7 @@ export default function Home() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [router]);
 
   /* ======================================================
      CLOSE PROFILE MENU
@@ -1724,21 +1560,6 @@ export default function Home() {
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(e.target as Node) &&
-        !(e.target as Element).closest("[data-profile-menu]")
-      ) {
-        setProfileMenu(false);
-      }
-
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(e.target as Node)
-      ) {
-        setNotificationMenu(false);
-      }
-
       if (
         garageDropdownRef.current &&
         !garageDropdownRef.current.contains(e.target as Node)
@@ -1996,7 +1817,8 @@ export default function Home() {
     Boolean(yearQuery.trim()) ||
     Boolean(engineCcQuery.trim()) ||
     Boolean(engineModelQuery.trim()) ||
-    Boolean(engineModelQuery.trim());
+    minPrice !== 0 ||
+    maxPrice !== 100000;
 
   const canShowRecommendations =
     !listingsLoading &&
@@ -2008,30 +1830,85 @@ export default function Home() {
     recommendationsMode &&
     sort === "Osuvimmat ensin";
 
+  const canUseRemoteListingPages =
+    !hasActiveListingFilters &&
+    (sort === "Osuvimmat ensin" || sort === "Uusimmat ensin");
+
+  const sortMenuOptions = [
+    ...(canShowRecommendations
+      ? [{ value: "recommendations", label: t.relevance, icon: Settings2 }]
+      : []),
+    ...sortValues
+      .filter((value) => (canShowRecommendations ? value !== "Osuvimmat ensin" : true))
+      .map((value) => ({
+        value,
+        label: sortLabel(value),
+        icon:
+          value === "Uusimmat ensin"
+            ? Clock3
+            : value === "Vanhimmat ensin"
+            ? CalendarDays
+            : value === "Alhaisin hinta"
+            ? TrendingDown
+            : value === "Korkein hinta"
+            ? TrendingUp
+            : value === "Lähimpänä sinua"
+            ? MapPin
+            : Settings2
+      }))
+  ];
+  const activeSortValue = recommendationsEnabled ? "recommendations" : sort;
+  const activeSortOption = sortMenuOptions.find((option) => option.value === activeSortValue) ?? sortMenuOptions[0];
+  const ActiveSortIcon = activeSortOption?.icon ?? Settings2;
+
   const renderSortControl = (className: string) => (
-    <label className={`${className} ${styles.sortControlRebuilt}`}>
+    <div
+      className={`${className} ${styles.sortControlRebuilt} ${homeSortOpen ? styles.sortControlOpen : ""}`}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setHomeSortOpen(false);
+        }
+      }}
+    >
       <span className={styles.sortControlLabel}>{t.sort}</span>
-      <select
+      <button
+        type="button"
         aria-label={t.sort}
+        aria-expanded={homeSortOpen}
+        className={styles.sortButtonFace}
         data-testid="home-sort-select"
-        value={recommendationsEnabled ? "recommendations" : sort}
-        onChange={(event) => handleSortChange(event.target.value)}
+        onClick={() => setHomeSortOpen((open) => !open)}
       >
-        {canShowRecommendations ? (
-          <option value="recommendations">{t.relevance}</option>
-        ) : null}
-        {sortValues
-          .filter((value) => canShowRecommendations ? value !== "Osuvimmat ensin" : true)
-          .map((value) => (
-          <option key={value} value={value}>
-            {sortLabel(value)}
-          </option>
-        ))}
-      </select>
-      <span className={styles.sortSelectFace} aria-hidden="true">
-        {recommendationsEnabled ? t.relevance : sortLabel(sort)}
-      </span>
-    </label>
+        <ActiveSortIcon size={16} aria-hidden="true" />
+        <span>{activeSortOption?.label ?? sortLabel(sort)}</span>
+        <ChevronDown size={16} className={styles.sortButtonChevron} aria-hidden="true" />
+      </button>
+      {homeSortOpen && (
+        <div className={styles.sortMenuPanel} role="menu">
+          {sortMenuOptions.map((option) => {
+            const Icon = option.icon;
+            const selected = option.value === activeSortValue;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="menuitemradio"
+                aria-checked={selected}
+                className={`${styles.sortMenuItem} ${selected ? styles.sortMenuItemActive : ""}`}
+                onClick={() => {
+                  handleSortChange(option.value);
+                  setHomeSortOpen(false);
+                }}
+              >
+                <Icon size={15} aria-hidden="true" />
+                <span>{option.label}</span>
+                {selected && <Check size={15} className={styles.sortMenuCheck} aria-hidden="true" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 
   const showRecoSection =
@@ -2073,10 +1950,20 @@ export default function Home() {
     return filteredListings.filter((listing) => !firstPageRecommendedIds.has(listing.id));
   }, [filteredListings, firstPageRecommendedIds, recommendationsEnabled]);
 
+  const remoteDisplayListings =
+    canUseRemoteListingPages &&
+    !hasActiveListingFilters &&
+    typeof listingsTotalCount === "number"
+      ? Math.max(listingsTotalCount, filteredListings.length)
+      : filteredListings.length;
+
   const totalDisplayListings =
     recommendationsEnabled
-      ? firstPageRecommendedListings.length + listingsForPaging.length
-      : filteredListings.length;
+      ? Math.max(
+          remoteDisplayListings,
+          firstPageRecommendedListings.length + listingsForPaging.length
+        )
+      : remoteDisplayListings;
 
   const firstPageListingSlots =
     recommendationsEnabled
@@ -2094,6 +1981,72 @@ export default function Home() {
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(1);
   }, [totalPages, currentPage]);
+
+  useEffect(() => {
+    if (
+      listingsLoading ||
+      !canUseRemoteListingPages ||
+      typeof listingsTotalCount !== "number" ||
+      listingsPageFetchRef.current ||
+      listings.length >= listingsTotalCount
+    ) {
+      return;
+    }
+
+    const requiredListings =
+      recommendationsEnabled
+        ? currentPage === 1
+          ? firstPageListingSlots
+          : firstPageListingSlots + (currentPage - 1) * PAGE_SIZE
+        : currentPage * PAGE_SIZE;
+
+    if (requiredListings <= listings.length) return;
+
+    listingsPageFetchRef.current = true;
+    const offset = listings.length;
+    const limit = Math.max(PAGE_SIZE * 3, requiredListings - listings.length);
+    let cancelled = false;
+
+    getListings({
+      includeOptionalFields: false,
+      limit,
+      offset
+    })
+      .then(({ data }) => {
+        if (cancelled || !data || data.length === 0) return;
+
+        setListings((current) => {
+          const seen = new Set(current.map((listing) => listing.id));
+          const next = [...current];
+
+          for (const listing of data) {
+            if (seen.has(listing.id)) continue;
+            seen.add(listing.id);
+            next.push(listing);
+          }
+
+          return next;
+        });
+      })
+      .catch((error) => {
+        console.warn("LisÃ¤ilmoitusten lataus epÃ¤onnistui.", error);
+      })
+      .finally(() => {
+        listingsPageFetchRef.current = false;
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    canUseRemoteListingPages,
+    currentPage,
+    firstPageListingSlots,
+    listings.length,
+    listingsLoading,
+    listingsTotalCount,
+    recommendationsEnabled
+  ]);
 
   const goToPage = useCallback((page: number) => {
     const nextPage =
@@ -2118,6 +2071,25 @@ export default function Home() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
   }, [totalPages]);
+
+  const resetPageJump = useCallback(() => {
+    setPageJumpValue("");
+    setPageJumpOpen(false);
+  }, []);
+
+  const suggestedPageJump = Math.min(totalPages, Math.max(1, currentPage + 10));
+
+  const submitPageJump = useCallback(() => {
+    const page = Number.parseInt(pageJumpValue.trim() || String(suggestedPageJump), 10);
+
+    if (Number.isNaN(page)) {
+      resetPageJump();
+      return;
+    }
+
+    goToPage(page);
+    resetPageJump();
+  }, [goToPage, pageJumpValue, resetPageJump, suggestedPageJump]);
 
   const featuredListings = useMemo(() => {
     if (recommendationsEnabled) {
@@ -2183,7 +2155,7 @@ export default function Home() {
 
   const categorySource = useMemo(() => {
     return vehicleType ? vehicleCategories[vehicleType] : partsCategories;
-  }, [vehicleType]);
+  }, [partsCategories, vehicleCategories, vehicleType]);
 
   const categoryEntries = useMemo(() => {
     const q = categorySearch.trim().toLowerCase();
@@ -2203,7 +2175,42 @@ export default function Home() {
 
   const brandOptions = useMemo(() => {
     return vehicleType ? vehicleBrands[vehicleType] : ["Kaikki"];
-  }, [vehicleType]);
+  }, [vehicleBrands, vehicleType]);
+
+  function selectVehicleType(nextVehicleType: VehicleFilter) {
+    if (!nextVehicleType) {
+      clearListingFilters();
+      return;
+    }
+
+    if (vehicleType !== nextVehicleType) {
+      setVehicleType(nextVehicleType);
+      setGarageFilter(null);
+      setSelectedBrand("Kaikki");
+      setModelQuery("");
+      setYearQuery("");
+      setEngineCcQuery("");
+      setEngineModelQuery("");
+      setCategory("");
+      setSubcategory("");
+      setOpenCategory(null);
+      setCategorySearch("");
+      setMinPrice(0);
+      setMaxPrice(100000);
+    }
+
+    setDrawerOpen(false);
+    setDrawerOpenStep(undefined);
+    setCurrentPage(1);
+  }
+
+  function getVehiclePillLabel(vehicle: string) {
+    if (vehicle === "Moottorikelkka") return t.snowmobiles;
+    if (vehicle === "Mönkijä") return t.atvs;
+    if (vehicle === "Motocross") return t.cars;
+    if (vehicle === "Mopot" || vehicle === "Mopo") return t.mopeds;
+    return vehicle;
+  }
 
   return (
     <main className={styles.shell}>
@@ -2238,6 +2245,7 @@ export default function Home() {
                   aria-label={t.searchLabel}
                 />
               </form>
+
             </div>
 
             <div className={styles.categoryRowWrap}>
@@ -2249,47 +2257,12 @@ export default function Home() {
                     className={`${styles.categoryPill} ${
                       vehicleType === pill.type ? styles.categoryPillActive : ""
                     }`}
-                    onClick={() => {
-                      if (!pill.type) {
-                        clearListingFilters();
-                      } else {
-                        if (vehicleType !== pill.type) {
-                          setVehicleType(pill.type);
-                          setGarageFilter(null);
-                          setSelectedBrand("Kaikki");
-                          setModelQuery("");
-                          setYearQuery("");
-                          setEngineCcQuery("");
-                          setEngineModelQuery("");
-                          setCategory("");
-                          setSubcategory("");
-                          setOpenCategory(null);
-                          setCategorySearch("");
-                          setMinPrice(0);
-                          setMaxPrice(100000);
-                        }
-                        setDrawerOpen(false);
-                        setDrawerOpenStep(undefined);
-                        setCurrentPage(1);
-                      }
-                    }}
+                    onClick={() => selectVehicleType(pill.type)}
                   >
                     <Settings2 size={16} />
                     <span>{pill.type ? pill.label : t.all}</span>
                   </button>
                 ))}
-
-                <button
-                  type="button"
-                  className={`${styles.categoryPill} ${styles.mobileCategoryMenuPill}`}
-                  onClick={() => {
-                    setDrawerOpenStep(0);
-                    setDrawerOpen(true);
-                  }}
-                >
-                  <ListFilter size={16} />
-                  <span>Kategoriat</span>
-                </button>
 
                 {user && garageVehicles.length > 0 && (
                   <div ref={garageDropdownRef} className={styles.garagePillWrap}>
@@ -2342,6 +2315,8 @@ export default function Home() {
                                   type="button"
                                   className={`${styles.garageDropdownItem} ${garageFilter?.id === v.id ? styles.garageDropdownItemActive : ""}`}
                                   onClick={() => {
+                                    setGarageDropdownOpen(false);
+                                    router.push(`/sell?make=${encodeURIComponent(v.make)}&model=${encodeURIComponent(v.model)}&year=${v.year}&vehicleType=${encodeURIComponent(v.vehicle_class === "Auto" ? "Motocross" : v.vehicle_class || "Moottorikelkka")}`);
                                     const next = garageFilter?.id === v.id ? null : v;
                                     setGarageFilter(next);
                                     setGarageDropdownOpen(false);
@@ -2392,6 +2367,64 @@ export default function Home() {
 
             </div>
 
+            <div className={styles.heroQuickCategoryRow} aria-label={t.vehicleSelection}>
+              {vehiclePills.map((pill) => (
+                <button
+                  key={pill.type}
+                  type="button"
+                  className={`${styles.heroQuickCategory} ${vehicleType === pill.type ? styles.heroQuickCategoryActive : ""}`}
+                  onClick={() => selectVehicleType(pill.type)}
+                >
+                  <Car size={15} />
+                  <span>{pill.type ? getVehiclePillLabel(pill.type) : t.all}</span>
+                </button>
+              ))}
+              {user && garageVehicles.length > 0 && (
+                <div className={styles.heroGaragePillWrap}>
+                  <button
+                    type="button"
+                    className={`${styles.heroQuickCategory} ${garageFilter || garageDropdownOpen ? styles.heroQuickCategoryActive : ""}`}
+                    onClick={() => setGarageDropdownOpen((open) => !open)}
+                  >
+                    <Car size={15} />
+                    <span>{t.garageTitle}</span>
+                    <ChevronDown size={13} />
+                  </button>
+                  {garageDropdownOpen && (
+                    <div className={styles.heroGarageDropdown}>
+                      <button
+                        type="button"
+                        className={!garageFilter ? styles.garageDropdownItemActive : ""}
+                        onClick={() => {
+                          setGarageFilter(null);
+                          setGarageDropdownOpen(false);
+                        }}
+                      >
+                        {t.all}
+                      </button>
+                      {garageVehicles.map((vehicle) => (
+                        <button
+                          key={vehicle.id}
+                          type="button"
+                          className={garageFilter?.id === vehicle.id ? styles.garageDropdownItemActive : ""}
+                          onClick={() => {
+                            setGarageFilter(vehicle);
+                            setGarageDropdownOpen(false);
+                            router.push(`/sell?make=${encodeURIComponent(vehicle.make)}&model=${encodeURIComponent(vehicle.model)}&year=${vehicle.year}&vehicleType=${encodeURIComponent(vehicle.vehicle_class === "Auto" ? "Motocross" : vehicle.vehicle_class || "Moottorikelkka")}`);
+                          }}
+                        >
+                          {vehicle.make} {vehicle.model} {vehicle.year}
+                        </button>
+                      ))}
+                      <Link href="/garage" onClick={() => setGarageDropdownOpen(false)}>
+                        {t.garageTitle} →
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
           </div>
         </section>
       </div>
@@ -2427,6 +2460,7 @@ export default function Home() {
                     const isFavorite = favorites.includes(listing.id);
                     const listingText = getListingText(listing);
                     const listingPartNumber = getListingPartNumber(listing);
+                    const countryFlag = getCountryFlagFromLocation(listing.location, t.country);
                     return (
                       <article
                         key={listing.id}
@@ -2472,7 +2506,18 @@ export default function Home() {
                           ) : null}
                           <h3 className={styles.cardTitle}>{listingText.title}</h3>
                           <div className={styles.cardMetaRow}>
-                            <span><MapPin size={14} />{t.country}, {listing.location}</span>
+                            <span className={styles.cardLocationMeta}>
+                              {countryFlag ? (
+                                <img
+                                  className={styles.listingCountryFlag}
+                                  src={countryFlag.src}
+                                  alt=""
+                                  aria-hidden="true"
+                                  loading="lazy"
+                                />
+                              ) : null}
+                              {listing.location || t.country}
+                            </span>
                             <span><Clock3 size={14} />{formatDate(listing.created_at)}</span>
                           </div>
                         </div>
@@ -2513,7 +2558,7 @@ export default function Home() {
             style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
           >
             {/* Active filter chips */}
-            {(garageFilter || selectedBrand !== "Kaikki" || category || subcategory) && (
+            {hasActiveListingFilters && (
               <div className={styles.activeFilters}>
                 {garageFilter && (
                   <span className={styles.filterChip}>
@@ -2549,7 +2594,7 @@ export default function Home() {
                 <button
                   type="button"
                   className={styles.filterChipReset}
-                  onClick={() => { setGarageFilter(null); setSelectedBrand("Kaikki"); setModelQuery(""); setYearQuery(""); setEngineCcQuery(""); setEngineModelQuery(""); setCategory(""); setSubcategory(""); }}
+                  onClick={clearListingFilters}
                 >
                   {t.resetFilters}
                 </button>
@@ -2596,18 +2641,7 @@ export default function Home() {
                   <button
                     type="button"
                     className={styles.resetButton}
-                    onClick={() => {
-                      setQuery("");
-                      setCategory("");
-                      setSubcategory("");
-                      setOpenCategory(null);
-                      setCategorySearch("");
-                      setSelectedBrand("Kaikki");
-                      setModelQuery("");
-                      setYearQuery("");
-                      setEngineCcQuery("");
-                      setEngineModelQuery("");
-                    }}
+                    onClick={clearListingFilters}
                   >
                     {t.resetFilters}
                   </button>
@@ -2617,6 +2651,7 @@ export default function Home() {
                 const isFavorite = favorites.includes(listing.id);
                 const listingText = getListingText(listing);
                 const listingPartNumber = getListingPartNumber(listing);
+                const countryFlag = getCountryFlagFromLocation(listing.location, t.country);
                 return (
                   <article
                     key={listing.id}
@@ -2678,9 +2713,17 @@ export default function Home() {
                       <h3 className={styles.cardTitle}>{listingText.title}</h3>
 
                       <div className={styles.cardMetaRow}>
-                        <span>
-                          <MapPin size={14} />
-                          {t.country}, {listing.location}
+                        <span className={styles.cardLocationMeta}>
+                          {countryFlag ? (
+                            <img
+                              className={styles.listingCountryFlag}
+                              src={countryFlag.src}
+                              alt=""
+                              aria-hidden="true"
+                              loading="lazy"
+                            />
+                          ) : null}
+                          {listing.location || t.country}
                         </span>
                         <span>
                           <Clock3 size={14} />
@@ -2705,7 +2748,7 @@ export default function Home() {
                     }}
                     aria-label="Edellinen sivu"
                   >
-                    ←
+                    <ChevronLeft size={16} strokeWidth={3} aria-hidden="true" />
                   </button>
 
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -2716,54 +2759,79 @@ export default function Home() {
                       return false;
                     })
                     .reduce<(number | "...")[]>((acc, p, idx, arr) => {
-                      if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("...");
+                      if (idx > 0 && p - (arr[idx - 1] as number) > 1 && !acc.includes("...")) acc.push("...");
                       acc.push(p);
                       return acc;
                     }, [])
                     .map((p, idx) =>
                       p === "..." ? (
                         pageJumpOpen ? (
-                          <input
+                          <form
                             key={`gap-${idx}`}
-                            className={styles.pageJumpInput}
-                            autoFocus
-                            type="number"
-                            min={1}
-                            max={totalPages}
-                            value={pageJumpValue}
-                            onChange={(e) => setPageJumpValue(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                const n = parseInt(pageJumpValue, 10);
-                                if (!isNaN(n)) goToPage(n);
-                                setPageJumpOpen(false);
-                                setPageJumpValue("");
-                              } else if (e.key === "Escape") {
-                                setPageJumpOpen(false);
-                                setPageJumpValue("");
-                              }
+                            className={styles.pageJumpControl}
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              submitPageJump();
                             }}
-                            onBlur={() => {
-                              const n = parseInt(pageJumpValue, 10);
-                              if (!isNaN(n)) goToPage(n);
-                              setPageJumpOpen(false);
-                              setPageJumpValue("");
-                            }}
-                          />
+                          >
+                            <span className={styles.pageJumpLabel}>Sivu</span>
+                            <input
+                              className={styles.pageJumpInput}
+                              type="number"
+                              inputMode="numeric"
+                              min={1}
+                              max={totalPages}
+                              value={pageJumpValue}
+                              autoFocus
+                              placeholder={String(suggestedPageJump)}
+                              aria-label={`Siirry sivulle 1-${totalPages}`}
+                              onChange={(e) => setPageJumpValue(e.target.value)}
+                              onFocus={(e) => {
+                                const input = e.currentTarget;
+
+                                if (!pageJumpValue.trim()) {
+                                  setPageJumpValue(String(suggestedPageJump));
+                                  window.requestAnimationFrame(() => input.select());
+                                  return;
+                                }
+
+                                input.select();
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Escape") resetPageJump();
+                              }}
+                              onBlur={(e) => {
+                                if (!e.currentTarget.form?.contains(e.relatedTarget as Node | null)) {
+                                  resetPageJump();
+                                }
+                              }}
+                            />
+                            <span className={styles.pageJumpTotal}>/ {totalPages}</span>
+                            <button
+                              type="submit"
+                              className={styles.pageJumpSubmit}
+                              aria-label="Siirry sivulle"
+                            >
+                              <Check size={17} strokeWidth={3.2} aria-hidden="true" />
+                            </button>
+                          </form>
                         ) : (
                           <button
                             key={`gap-${idx}`}
                             type="button"
-                            className={styles.pageGap}
-                            title="Hyppää sivulle"
-                            onClick={() => { setPageJumpOpen(true); setPageJumpValue(""); }}
-                          >…</button>
+                            className={`${styles.pageBtn} ${styles.pageGap}`}
+                            aria-label="Avaa sivulle siirtyminen"
+                            onClick={() => setPageJumpOpen(true)}
+                          >
+                            &hellip;
+                          </button>
                         )
                       ) : (
                         <button
                           key={p}
                           type="button"
                           className={p === currentPage ? `${styles.pageBtn} ${styles.pageBtnActive}` : styles.pageBtn}
+                          aria-current={p === currentPage ? "page" : undefined}
                           onClick={() => {
                             goToPage(p);
                           }}
@@ -2782,7 +2850,7 @@ export default function Home() {
                     }}
                     aria-label="Seuraava sivu"
                   >
-                    →
+                    <ChevronRight size={16} strokeWidth={3} aria-hidden="true" />
                   </button>
                 </div>
               )}

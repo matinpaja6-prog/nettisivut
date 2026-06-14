@@ -10,9 +10,15 @@ create table if not exists public.sold_listings (
   brand text,
   model text,
   year text,
+  engine_cc text,
+  engine_model text,
   category text,
   subcategory text,
+  part_number text,
+  condition text,
+  location text,
   image_url text,
+  listing_mode text not null default 'single' check (listing_mode in ('single', 'multiple')),
   sold_at timestamptz not null default now(),
   created_at timestamptz not null default now(),
   primary key (id)
@@ -24,6 +30,14 @@ create unique index if not exists sold_listings_listing_id_key
   on public.sold_listings (listing_id);
 
 alter table public.sold_listings alter column title drop not null;
+alter table public.sold_listings
+  add column if not exists listing_mode text not null default 'single'
+  check (listing_mode in ('single', 'multiple'));
+alter table public.sold_listings add column if not exists engine_cc text;
+alter table public.sold_listings add column if not exists engine_model text;
+alter table public.sold_listings add column if not exists part_number text;
+alter table public.sold_listings add column if not exists condition text;
+alter table public.sold_listings add column if not exists location text;
 
 create index if not exists sold_listings_seller_sold_at_idx
   on public.sold_listings (seller_id, sold_at desc);

@@ -3,10 +3,11 @@
 import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Check, LockKeyhole, Mail, X } from "lucide-react";
+import { ArrowLeft, Building2, Check, LockKeyhole, Mail, UserRound, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { BirthDateField } from "@/app/components/BirthDateField";
-import { applyLocale, useLanguage, type Locale } from "@/lib/i18n";
+import { goBackOrFallback } from "@/lib/go-back";
+import { useLanguage, type Locale } from "@/lib/i18n";
 import {
   awardReferralPoints,
   getProfile,
@@ -27,6 +28,7 @@ import {
 const REFERRAL_STORAGE_KEY = "pending_referral_code";
 const ACCOUNT_TYPE_STORAGE_KEY = "pending_account_type";
 const GOOGLE_AUTH_INTENT_STORAGE_KEY = "pending_google_auth_intent";
+const PROFILE_COMPLETION_DRAFT_STORAGE_KEY = "profile_completion_draft_v1";
 type AuthMode = "login" | "register";
 
 type GooglePlace = {
@@ -59,29 +61,6 @@ type GoogleMapsWindow = Window & {
     };
   };
 };
-
-function getStoredAccountType(): "private" | "company" {
-  if (typeof window === "undefined") return "private";
-
-  try {
-    return getStoredAccountTypeSelection() === "company"
-      ? "company"
-      : "private";
-  } catch {
-    return "private";
-  }
-}
-
-function getStoredAccountTypeSelection(): "private" | "company" | null {
-  if (typeof window === "undefined") return null;
-
-  try {
-    const stored = localStorage.getItem(ACCOUNT_TYPE_STORAGE_KEY);
-    return stored === "company" || stored === "private" ? stored : null;
-  } catch {
-    return null;
-  }
-}
 
 function rememberAccountType(type: "private" | "company") {
   try {
@@ -143,11 +122,11 @@ const emptyAuthForm = {
 };
 
 const phoneDialingOptions = [
-  { country: "EE", code: "+372" },
-  { country: "SE", code: "+46" },
-  { country: "FI", code: "+358" },
-  { country: "NO", code: "+47" },
-  { country: "DK", code: "+45" }
+  { country: "EE", code: "+372", flag: "🇪🇪" },
+  { country: "SE", code: "+46", flag: "🇸🇪" },
+  { country: "FI", code: "+358", flag: "🇫🇮" },
+  { country: "NO", code: "+47", flag: "🇳🇴" },
+  { country: "DK", code: "+45", flag: "🇩🇰" }
 ];
 
 const countryOptions = [
@@ -226,6 +205,36 @@ function buildPhoneNumber(code: string, national: string) {
   return `${code}${withoutLocalZero}`;
 }
 
+type AuthFormState = typeof emptyAuthForm;
+
+type ProfileCompletionDraft = {
+  customCountry?: string;
+  form?: Partial<AuthFormState>;
+  phoneDialingCode?: string;
+  privacyAccepted?: boolean;
+  scrollY?: number;
+};
+
+function getProfileCompletionDraftForm(form: AuthFormState): Partial<AuthFormState> {
+  return {
+    account_type: form.account_type,
+    address: form.address,
+    billing_email: form.billing_email,
+    birth_date: form.birth_date,
+    business_id: form.business_id,
+    city: form.city,
+    company_name: form.company_name,
+    company_role: form.company_role,
+    company_website: form.company_website,
+    country: form.country,
+    email: form.email,
+    first_name: form.first_name,
+    last_name: form.last_name,
+    phone: form.phone,
+    postal_code: form.postal_code
+  };
+}
+
 function getGoogleAddressPart(place: GooglePlace, type: string, short = false) {
   const part = place.address_components?.find((component) =>
     component.types.includes(type)
@@ -297,8 +306,7 @@ function AuthPageContent() {
   const [resetStatus, setResetStatus] = useState("");
   const [recoveryMode, setRecoveryMode] = useState(false);
   const [form, setForm] = useState(() => ({
-    ...emptyAuthForm,
-    account_type: getStoredAccountType()
+    ...emptyAuthForm
   }));
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -327,6 +335,59 @@ function AuthPageContent() {
         localStorage.setItem(REFERRAL_STORAGE_KEY, ref.trim().toLowerCase());
       }
     } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const rawDraft = sessionStorage.getItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY);
+      if (!rawDraft) return;
+
+      const draft = JSON.parse(rawDraft) as ProfileCompletionDraft;
+      const draftForm =
+        draft.form && typeof draft.form === "object"
+          ? draft.form
+          : null;
+
+      if (draftForm) {
+        setForm((current) => ({
+          ...current,
+          ...draftForm,
+          account_type:
+            draftForm.account_type === "company" || draftForm.account_type === "private"
+              ? draftForm.account_type
+              : current.account_type,
+          country:
+            typeof draftForm.country === "string" && countryOptions.includes(draftForm.country)
+              ? draftForm.country
+              : current.country
+        }));
+      }
+
+      if (typeof draft.customCountry === "string") {
+        setCustomCountry(draft.customCountry);
+      }
+
+      if (
+        typeof draft.phoneDialingCode === "string" &&
+        phoneDialingOptions.some((option) => option.code === draft.phoneDialingCode)
+      ) {
+        setPhoneDialingCode(draft.phoneDialingCode);
+      }
+
+      if (typeof draft.privacyAccepted === "boolean") {
+        setPrivacyAccepted(draft.privacyAccepted);
+      }
+
+      if (typeof draft.scrollY === "number" && Number.isFinite(draft.scrollY)) {
+        window.setTimeout(() => {
+          window.scrollTo({ top: draft.scrollY, behavior: "instant" });
+        }, 0);
+      }
+    } catch {
+      sessionStorage.removeItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY);
+    }
   }, []);
 
   useEffect(() => {
@@ -592,12 +653,14 @@ function AuthPageContent() {
         ? "company"
         : metadata.account_type === "private"
         ? "private"
-        : getStoredAccountType();
+        : null;
 
-    setForm((current) => ({
-      ...current,
-      account_type: metadataType
-    }));
+    if (metadataType) {
+      setForm((current) => ({
+        ...current,
+        account_type: metadataType
+      }));
+    }
 
     withTimeout(
       getProfile(user.id),
@@ -718,6 +781,9 @@ function AuthPageContent() {
     }
 
     setProfile(data);
+    try {
+      sessionStorage.removeItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY);
+    } catch {}
     // Final chance to claim referral (covers email-confirmation signups
     // where the session arrived after the initial useEffect)
     await tryClaimReferral(targetUser.id);
@@ -772,7 +838,6 @@ function AuthPageContent() {
     }
 
     setStatus(t.authCreatingUser);
-    rememberAccountType(form.account_type);
     const redirectTo =
       typeof window !== "undefined"
         ? `${window.location.origin}/auth`
@@ -782,7 +847,7 @@ function AuthPageContent() {
         signUpWithEmail(
           form.email,
           form.password,
-          { account_type: form.account_type },
+          undefined,
           redirectTo
         ),
         10000,
@@ -796,8 +861,7 @@ function AuthPageContent() {
 
     if (data?.user && data.session) {
       setForm((current) => ({
-        ...current,
-        account_type: form.account_type
+        ...current
       }));
       setUser(data.user);
       void tryClaimReferral(data.user.id);
@@ -891,6 +955,7 @@ function AuthPageContent() {
     try {
       sessionStorage.removeItem("home_return_state_v1");
       sessionStorage.removeItem("home_return_pending_v1");
+      sessionStorage.removeItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY);
     } catch {}
     void signOut().finally(() => {
       router.refresh();
@@ -902,7 +967,6 @@ function AuthPageContent() {
     try {
     setStatus("");
     rememberGoogleAuthIntent(authMode);
-    rememberAccountType(form.account_type);
     const { error } =
       await withTimeout(
         signInWithGoogle(authMode),
@@ -926,7 +990,7 @@ function AuthPageContent() {
       ? user.user_metadata.account_type
       : null;
   const lockedAccountType =
-    metadataAccountType ?? getStoredAccountTypeSelection();
+    metadataAccountType;
   const phoneParts =
     form.phone
       ? getPhoneParts(form.phone)
@@ -934,17 +998,47 @@ function AuthPageContent() {
           code: phoneDialingCode,
           national: ""
         };
+  const currentPhoneDialingOption =
+    phoneDialingOptions.find((option) => option.code === phoneParts.code) ??
+    phoneDialingOptions.find((option) => option.code === phoneDialingCode) ??
+    phoneDialingOptions[2];
   const primaryAuthActionLabel =
     authMode === "register"
       ? "Rekisteröidy"
       : t.login;
+  const showBackHome =
+    !user && !emailPending;
+  const profilePrivacyHref =
+    "/privacy?from=profile-completion&returnTo=%2Fauth";
+
+  function persistProfileCompletionDraft() {
+    if (typeof window === "undefined") return;
+
+    const draft: ProfileCompletionDraft = {
+      customCountry,
+      form: getProfileCompletionDraftForm(form),
+      phoneDialingCode: phoneParts.code,
+      privacyAccepted,
+      scrollY: window.scrollY
+    };
+
+    try {
+      sessionStorage.setItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    } catch {}
+  }
 
   return (
     <main className="auth-page simple-auth-page">
-      <Link href="/" className="auth-back-home">
-        <ArrowLeft size={17} />
-        <span>Etusivulle</span>
-      </Link>
+      {showBackHome && (
+        <button
+          type="button"
+          className="auth-back-home"
+          onClick={() => goBackOrFallback(router)}
+        >
+          <ArrowLeft size={17} />
+          <span>Takaisin</span>
+        </button>
+      )}
       <section className="simple-auth auth-centered">
         {recoveryMode ? (
           <form
@@ -1019,40 +1113,6 @@ function AuthPageContent() {
             <div className="auth-form-head">
               <h1>{authMode === "login" ? "Kirjaudu sisään" : t.register}</h1>
             </div>
-
-            {authMode === "register" && (
-              <>
-                <span className="pre-register-title">{t.authRegisterTo}</span>
-                <div className="account-type-picker compact" aria-label={t.authAccountType}>
-                  <button
-                    type="button"
-                    aria-pressed={form.account_type === "private"}
-                    className={form.account_type === "private" ? "account-type-card active" : "account-type-card"}
-                    onClick={() => {
-                      rememberAccountType("private");
-                      setForm({ ...form, account_type: "private" });
-                    }}
-                  >
-                    <span className="account-type-check"><Check size={15} /></span>
-                    <strong>{t.authPrivatePersonTitle}</strong>
-                    <span>{t.authPrivatePersonDesc}</span>
-                  </button>
-                  <button
-                    type="button"
-                    aria-pressed={form.account_type === "company"}
-                    className={form.account_type === "company" ? "account-type-card active" : "account-type-card"}
-                    onClick={() => {
-                      rememberAccountType("company");
-                      setForm({ ...form, account_type: "company" });
-                    }}
-                  >
-                    <span className="account-type-check"><Check size={15} /></span>
-                    <strong>{t.authCompanyTitle}</strong>
-                    <span>{t.authCompanyDesc}</span>
-                  </button>
-                </div>
-              </>
-            )}
 
             <label>
               {t.email}
@@ -1142,7 +1202,7 @@ function AuthPageContent() {
             </div>
           </div>
         ) : (
-          <form className={`auth-card simple-card profile-completion-card profile-finalize-card ${needsProfile ? "" : "profile-ready-card"}`} onSubmit={(event) => {
+          <form className={`auth-card simple-card profile-completion-card profile-finalize-card profile-type-${form.account_type} ${needsProfile ? "" : "profile-ready-card"}`} onSubmit={(event) => {
             event.preventDefault();
             saveProfile(user);
           }}>
@@ -1185,9 +1245,14 @@ function AuthPageContent() {
                         setForm({ ...form, account_type: "private" });
                       }}
                     >
+                      <span className="account-type-icon" aria-hidden="true">
+                        <UserRound size={28} />
+                      </span>
+                      <span className="account-type-copy">
+                        <strong>{t.authPrivateSellerLabel}</strong>
+                        <span>{t.authPrivateSellerDesc}</span>
+                      </span>
                       <span className="account-type-check"><Check size={15} /></span>
-                      <strong>{t.authPrivateSellerLabel}</strong>
-                      <span>{t.authPrivateSellerDesc}</span>
                     </button>
                     <button
                       type="button"
@@ -1198,9 +1263,14 @@ function AuthPageContent() {
                         setForm({ ...form, account_type: "company" });
                       }}
                     >
+                      <span className="account-type-icon" aria-hidden="true">
+                        <Building2 size={28} />
+                      </span>
+                      <span className="account-type-copy">
+                        <strong>{t.authCompanyLabel}</strong>
+                        <span>{t.authCompanyDesc2}</span>
+                      </span>
                       <span className="account-type-check"><Check size={15} /></span>
-                      <strong>{t.authCompanyLabel}</strong>
-                      <span>{t.authCompanyDesc2}</span>
                     </button>
                   </div>
                 )}
@@ -1216,7 +1286,7 @@ function AuthPageContent() {
                           name="organization"
                           value={form.company_name}
                           onChange={(event) => setForm({ ...form, company_name: event.target.value })}
-                          placeholder="esim. Arctic Varaosat Oy"
+                          placeholder="esim. Maskines Varaosat Oy"
                         />
                       </label>
                       <label>
@@ -1274,7 +1344,8 @@ function AuthPageContent() {
                     <div className="phone-field-row">
                       <span className="phone-code-select-wrap">
                         <span className="phone-code-selected" aria-hidden="true">
-                          {phoneParts.code}
+                          <span className="phone-code-flag">{currentPhoneDialingOption.flag}</span>
+                          <span>{phoneParts.code}</span>
                         </span>
                         <select
                           aria-label="Suuntanumero"
@@ -1291,7 +1362,7 @@ function AuthPageContent() {
                         >
                           {phoneDialingOptions.map((option) => (
                             <option key={option.code} value={option.code}>
-                              {option.code} {countryNameByLocale[locale][option.country]}
+                              {option.flag} {option.code} {countryNameByLocale[locale][option.country]}
                             </option>
                           ))}
                         </select>
@@ -1376,17 +1447,6 @@ function AuthPageContent() {
                         if (nextCountry !== OTHER_COUNTRY_VALUE) {
                           setCustomCountry("");
                         }
-                        const localeByCountry: Record<string, Locale> = {
-                          FI: "fi",
-                          SE: "sv",
-                          NO: "no",
-                          EE: "et",
-                          DK: "en",
-                          DE: "en",
-                          OTHER: "en"
-                        };
-                        const nextLocale = localeByCountry[nextCountry];
-                        if (nextLocale) applyLocale(nextLocale);
                       }}
                     >
                       {countryOptions.map((country) => (
@@ -1421,7 +1481,7 @@ function AuthPageContent() {
                   />
                   <label htmlFor="privacy-accept" className="privacy-checkbox-label">
                     {t.authPrivacyAcceptText}{" "}
-                    <Link href="/privacy?from=profile-completion" className="privacy-link">
+                    <Link href={profilePrivacyHref} className="privacy-link" onClick={persistProfileCompletionDraft}>
                       {t.authPrivacyLink}
                     </Link>
                   </label>

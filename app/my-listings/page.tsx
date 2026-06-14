@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import OptimizedListingImage from "@/app/components/OptimizedListingImage";
 import { translateCategory, useLanguage } from "@/lib/i18n";
@@ -34,11 +34,14 @@ import type { User } from "@supabase/supabase-js";
 import {
   createPurchaseReviewRequest,
   deleteListing,
+  deleteSoldListing,
   findReviewBuyerByPhone,
   getConversationCountForUser,
+  getListingById,
   getListingBuyerCandidates,
   getListingsBySeller,
   getMyListingMessageCounts,
+  getSoldListingsBySeller,
   recordSoldListing,
   setListingHidden,
   supabase,
@@ -54,7 +57,8 @@ import {
   conditions,
   formatPrice,
   getListingPartNumber,
-  type Listing
+  type Listing,
+  type SoldListing
 } from "@/lib/listings";
 import { buildVehicleCategoriesFromTaxonomy, categoriesAsRecord } from "@/lib/taxonomy";
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
@@ -77,6 +81,98 @@ function splitLocation(value: string | null | undefined) {
 
 function buildLocation(city: string, country: string) {
   return [city.trim(), country.trim()].filter(Boolean).join(", ");
+}
+
+function getEditableListingImages(
+  listing: Pick<Listing, "image_url" | "image_urls">
+) {
+  const extraImages =
+    Array.isArray(listing.image_urls)
+      ? listing.image_urls
+      : typeof (listing.image_urls as unknown) === "string"
+      ? [listing.image_urls as unknown as string]
+      : [];
+
+  return Array.from(
+    new Set(
+      [
+        listing.image_url,
+        ...extraImages
+      ].filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+    )
+  );
+}
+
+function getUserWrittenDescription(description: string) {
+  const lines = (description || "").replace(/\r\n/g, "\n").split("\n");
+  let index = 0;
+  let removedVehicleInfo = false;
+
+  while (index < lines.length) {
+    const line = lines[index].trim();
+
+    if (/^(Ajoneuvo|Merkki|Malli|Vuosimalli):/i.test(line)) {
+      removedVehicleInfo = true;
+      index += 1;
+      continue;
+    }
+
+    if (removedVehicleInfo && line.length === 0) {
+      index += 1;
+      continue;
+    }
+
+    break;
+  }
+
+  return lines.slice(index).join("\n").trimStart();
+}
+
+function normalizeVehicleToken(value?: string | null) {
+  return (value || "").trim().toLowerCase();
+}
+
+function getVehicleGroupKey(
+  item: Pick<Listing | SoldListing, "brand" | "model" | "year" | "vehicle_type">
+) {
+  const key = [
+    normalizeVehicleToken(item.vehicle_type),
+    normalizeVehicleToken(item.brand),
+    normalizeVehicleToken(item.model),
+    normalizeVehicleToken(item.year)
+  ].join("|");
+
+  return key.replace(/\|/g, "") ? key : "";
+}
+
+function getVehicleGroupTitle(
+  item: Pick<Listing | SoldListing, "title" | "brand" | "model" | "year" | "vehicle_type">
+) {
+  const makeModel = [item.brand, item.model]
+    .filter((value) => value && !/^\d{4}$/.test(String(value).trim()))
+    .join(" ")
+    .trim();
+  const vehicleTitle = [makeModel, item.year].filter(Boolean).join(" ").trim();
+  if (makeModel) return vehicleTitle;
+
+  const titleCandidate = (item.title || "")
+    .split(" - ")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .at(-1);
+
+  if (titleCandidate && !/^\d{4}$/.test(titleCandidate)) {
+    return titleCandidate;
+  }
+
+  return item.vehicle_type || "Multi-ilmoitus";
+}
+
+function isWithinHours(value: string | null | undefined, hours: number) {
+  if (!value) return false;
+  const time = new Date(value).getTime();
+  if (Number.isNaN(time)) return false;
+  return Date.now() - time <= hours * 60 * 60 * 1000;
 }
 
 function getErrorMessage(error: unknown) {
@@ -235,6 +331,9 @@ export default function MyListingsPage() {
   const [listings, setListings] =
     useState<Listing[]>([]);
 
+  const [soldListings, setSoldListings] =
+    useState<SoldListing[]>([]);
+
   const [listingsCacheReady, setListingsCacheReady] =
     useState(false);
 
@@ -320,11 +419,16 @@ export default function MyListingsPage() {
   const [openMenuId, setOpenMenuId] =
     useState<string | null>(null);
 
+  const [expandedGroupKeys, setExpandedGroupKeys] =
+    useState<Record<string, boolean>>({});
+
   const [statsRange, setStatsRange] =
     useState<"1d" | "7d" | "30d" | "all">("7d");
 
   const [messageCounts, setMessageCounts] =
     useState<Record<string, ListingMessageCount>>({});
+  const openedGroupFirstListingIdRef =
+    useRef<string | null>(null);
 
   useEffect(() => {
 
@@ -391,6 +495,15 @@ export default function MyListingsPage() {
         if (!cancelled) setMessageCounts({});
       });
 
+    getSoldListingsBySeller(user.id)
+      .then(({ data }) => {
+        if (cancelled) return;
+        setSoldListings(data ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setSoldListings([]);
+      });
+
     return () => {
       cancelled = true;
     };
@@ -428,14 +541,7 @@ export default function MyListingsPage() {
     setEditingListingId(listing.id);
     setStatus("");
 
-    const listingImages = Array.from(
-      new Set(
-        [
-          listing.image_url,
-          ...(listing.image_urls ?? [])
-        ].filter(Boolean)
-      )
-    );
+    const listingImages = getEditableListingImages(listing);
     const locationParts = splitLocation(listing.location);
 
     setListingForm({
@@ -448,15 +554,46 @@ export default function MyListingsPage() {
       location_country: locationParts.country,
       location_city: locationParts.city,
       condition: listing.condition,
-      description: listing.description,
+      description: getUserWrittenDescription(listing.description),
       image_url: listingImages[0] ?? "",
       image_urls: listingImages
     });
 
+    void getListingById(listing.id)
+      .then(({ data }) => {
+        if (!data) return;
+
+        const freshImages = getEditableListingImages(data);
+        const freshLocationParts = splitLocation(data.location);
+
+        setListings((prev) =>
+          prev.map((item) => item.id === data.id ? data : item)
+        );
+
+        setListingForm({
+          title: data.title,
+          price: String(data.price),
+          category: data.category ?? "",
+          subcategory: data.subcategory ?? "",
+          part_number: data.part_number ?? "",
+          location: data.location,
+          location_country: freshLocationParts.country,
+          location_city: freshLocationParts.city,
+          condition: data.condition,
+          description: getUserWrittenDescription(data.description),
+          image_url: freshImages[0] ?? "",
+          image_urls: freshImages
+        });
+      })
+      .catch(() => {
+        // The cached listing is still usable if the fresh fetch fails.
+      });
+
   }
 
-  function handleListingImageUpload(file: File | undefined) {
-    if (!file) return;
+  function handleListingImageUpload(files: FileList | null | undefined) {
+    const selectedFiles = Array.from(files ?? []);
+    if (selectedFiles.length === 0) return;
 
     const allowedImageTypes =
       new Set([
@@ -471,33 +608,52 @@ export default function MyListingsPage() {
     const allowedImageExtension =
       /\.(jpe?g|png|webp|gif|avif|heic|heif)$/i;
 
-    if (
-      file.type.startsWith("video/") ||
-      (file.type ? !allowedImageTypes.has(file.type) : !allowedImageExtension.test(file.name))
-    ) {
+    const invalidFile =
+      selectedFiles.find((file) =>
+        file.type.startsWith("video/") ||
+        (file.type ? !allowedImageTypes.has(file.type) : !allowedImageExtension.test(file.name))
+      );
+
+    if (invalidFile) {
       setStatus("Videoita ei voi julkaista myynti-ilmoitukseen. Valitse kuvatiedosto.");
       return;
     }
 
-    const reader = new FileReader();
+    const reads = selectedFiles.map((file) =>
+      new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (typeof reader.result === "string") {
+            resolve(reader.result);
+          } else {
+            reject(new Error("Kuvan lukeminen epäonnistui."));
+          }
+        };
+        reader.onerror = () => reject(new Error("Kuvan lukeminen epäonnistui."));
+        reader.readAsDataURL(file);
+      })
+    );
 
-    reader.onload = () => {
-      const result = reader.result;
-
-      if (typeof result === "string") {
+    void Promise.all(reads)
+      .then((results) => {
         setListingForm((prev) => {
-          const nextImages = [...prev.image_urls, result];
+          const nextImages = Array.from(
+            new Set([
+              ...prev.image_urls,
+              ...results
+            ])
+          );
 
           return {
             ...prev,
-            image_url: prev.image_url || result,
+            image_url: prev.image_url || nextImages[0] || "",
             image_urls: nextImages
           };
         });
-      }
-    };
-
-    reader.readAsDataURL(file);
+      })
+      .catch(() => {
+        setStatus("Kuvan lisääminen epäonnistui.");
+      });
   }
 
   function removeListingImage(index: number) {
@@ -812,6 +968,14 @@ export default function MyListingsPage() {
         );
         return;
       }
+
+      const soldData = soldRecord.data;
+      if (soldData) {
+        setSoldListings((prev) => [
+          soldData,
+          ...prev.filter((item) => item.id !== soldData.id)
+        ]);
+      }
     }
 
     if (
@@ -876,6 +1040,31 @@ export default function MyListingsPage() {
 
   }
 
+  async function dismissCompletedGroup(groupKey: string) {
+    const soldItems =
+      soldListings.filter((item) => getVehicleGroupKey(item) === groupKey);
+
+    if (soldItems.length === 0) return;
+
+    setStatus("Poistetaan valmis multi-koonti...");
+
+    const results =
+      await Promise.all(soldItems.map((item) => deleteSoldListing(item.id)));
+
+    const failed =
+      results.find((result) => result.error);
+
+    if (failed?.error) {
+      setStatus(getErrorMessage(failed.error));
+      return;
+    }
+
+    setSoldListings((prev) =>
+      prev.filter((item) => getVehicleGroupKey(item) !== groupKey)
+    );
+    setStatus("Multi-koonti poistettu.");
+  }
+
   const activeListingsValue =
     listings.reduce((sum, listing) => sum + (Number(listing.price) || 0), 0);
 
@@ -915,10 +1104,12 @@ export default function MyListingsPage() {
     (l) => !rangeStart || (l.created_at && new Date(l.created_at) >= rangeStart)
   ).length, [listings, rangeStart]);
 
-  const soldInRange = useMemo(() => [] as Listing[], []);
+  const soldInRange = useMemo(() => soldListings.filter(
+    (l) => !rangeStart || (l.sold_at && new Date(l.sold_at) >= rangeStart)
+  ), [soldListings, rangeStart]);
 
   const soldValueInRange = useMemo(() => soldInRange.reduce(
-    (sum) => sum,  // no sold tracking
+    (sum, listing) => sum + (Number(listing.sold_price) || 0),
     0
   ), [soldInRange]);
 
@@ -966,6 +1157,103 @@ export default function MyListingsPage() {
     return sorted;
   }, [activeTab, listings, sortOrder]);
 
+  const multiGroups = useMemo(() => {
+    if (activeTab === "hidden") return [];
+
+    const groupMap = new Map<string, {
+      key: string;
+      title: string;
+      active: Listing[];
+      sold: SoldListing[];
+      completed: boolean;
+      latestAt: string;
+    }>();
+
+    for (const listing of filteredListings) {
+      const key = getVehicleGroupKey(listing);
+      if (!key) continue;
+      const group = groupMap.get(key) ?? {
+        key,
+        title: getVehicleGroupTitle(listing),
+        active: [],
+        sold: [],
+        completed: false,
+        latestAt: listing.created_at || ""
+      };
+      group.active.push(listing);
+      if ((listing.created_at || "") > group.latestAt) group.latestAt = listing.created_at || "";
+      groupMap.set(key, group);
+    }
+
+    for (const sold of soldListings) {
+      const key = getVehicleGroupKey(sold);
+      if (!key) continue;
+      const group = groupMap.get(key) ?? {
+        key,
+        title: getVehicleGroupTitle(sold),
+        active: [],
+        sold: [],
+        completed: false,
+        latestAt: sold.sold_at || sold.created_at || ""
+      };
+      group.sold.push(sold);
+      const soldAt = sold.sold_at || sold.created_at || "";
+      if (soldAt > group.latestAt) group.latestAt = soldAt;
+      groupMap.set(key, group);
+    }
+
+    return Array.from(groupMap.values())
+      .map((group) => ({
+        ...group,
+        completed: group.active.length === 0 && group.sold.length > 0
+      }))
+      .filter((group) => {
+        if (group.active.length >= 2) return true;
+        if (group.active.length > 0 && group.sold.length > 0) return true;
+        return group.completed && isWithinHours(group.latestAt, 12);
+      })
+      .sort((a, b) => b.latestAt.localeCompare(a.latestAt));
+  }, [activeTab, filteredListings, soldListings]);
+
+  const collapsedGroupedListingIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const group of multiGroups) {
+      if (expandedGroupKeys[group.key]) continue;
+      group.active.forEach((listing) => ids.add(listing.id));
+    }
+    return ids;
+  }, [expandedGroupKeys, multiGroups]);
+
+  const openedGroup = useMemo(
+    () => multiGroups.find((group) => expandedGroupKeys[group.key]) ?? null,
+    [expandedGroupKeys, multiGroups]
+  );
+
+  useEffect(() => {
+    if (!openedGroup || openedGroup.active.length === 0) return;
+    const firstListingId = openedGroup.active[0]?.id;
+    if (!firstListingId) return;
+    if (openedGroupFirstListingIdRef.current === firstListingId) return;
+    openedGroupFirstListingIdRef.current = firstListingId;
+
+    requestAnimationFrame(() => {
+      const target = document.querySelector<HTMLElement>(`[data-listing-id="${firstListingId}"]`);
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [openedGroup]);
+
+  const renderedListings = useMemo(
+    () => {
+      if (openedGroup) {
+        const openedIds = new Set(openedGroup.active.map((listing) => listing.id));
+        return filteredListings.filter((listing) => openedIds.has(listing.id));
+      }
+
+      return filteredListings.filter((listing) => !collapsedGroupedListingIds.has(listing.id));
+    },
+    [collapsedGroupedListingIds, filteredListings, openedGroup]
+  );
+
   function formatDateFi(value?: string | null) {
     if (!value) return "";
     const d = new Date(value);
@@ -989,7 +1277,7 @@ export default function MyListingsPage() {
 
   return (
 
-    <main className={styles.page}>
+    <main className={`${styles.page} my-listings-page`}>
 
       <header className={styles.header}>
 
@@ -1138,7 +1426,7 @@ export default function MyListingsPage() {
               <Tag size={28} />
               <span>Ladataan omia ilmoituksia...</span>
             </div>
-          ) : filteredListings.length === 0 ? (
+          ) : filteredListings.length === 0 && multiGroups.length === 0 ? (
             <div className={styles.emptyState}>
               <Tag size={28} />
               <span>{pageText.noListings}</span>
@@ -1147,7 +1435,101 @@ export default function MyListingsPage() {
           ) : (
             <div className={styles.list}>
 
-              {filteredListings.map((listing) => {
+              {multiGroups.map((group) => {
+                const isOpen = !!expandedGroupKeys[group.key];
+                const activeValue = group.active.reduce(
+                  (sum, listing) => sum + (Number(listing.price) || 0),
+                  0
+                );
+                const soldValue = group.sold.reduce(
+                  (sum, listing) => sum + (Number(listing.sold_price) || 0),
+                  0
+                );
+                const originalSoldValue = group.sold.reduce(
+                  (sum, listing) => sum + (Number(listing.price) || 0),
+                  0
+                );
+                const estimateValue = activeValue + originalSoldValue;
+                const views = group.active.reduce(
+                  (sum, listing) => sum + (Number(listing.view_count) || 0),
+                  0
+                );
+                const messages = group.active.reduce(
+                  (sum, listing) => sum + (messageCounts[listing.id]?.message_count ?? 0),
+                  0
+                );
+
+                return (
+                  <article
+                    className={`${styles.multiGroupRow} ${group.completed ? styles.multiGroupCompleted : ""}`}
+                    key={`group-${group.key}`}
+                  >
+                    <div className={styles.multiGroupIcon}>
+                      <ClipboardList size={24} />
+                    </div>
+
+                    <div className={styles.multiGroupBody}>
+                      <span className={styles.multiGroupKicker}>
+                        {group.completed ? "Valmis multi-ilmoitus" : "Muokkaa ilmoituksia"}
+                      </span>
+                      <h3 className={styles.multiGroupTitle}>{group.title}</h3>
+                      <div className={styles.multiGroupMeta}>
+                        <span>{group.active.length} myynnissä</span>
+                        <span>{group.sold.length} myyty</span>
+                        <span>{views} katselua</span>
+                        <span>{messages} viestiä</span>
+                      </div>
+                    </div>
+
+                    <div className={styles.multiGroupMoney}>
+                      <span>
+                        <small>Arvio yhteensä</small>
+                        <strong>{estimateValue.toLocaleString("fi-FI")} €</strong>
+                      </span>
+                      <span>
+                        <small>Saatu jo</small>
+                        <strong>{soldValue.toLocaleString("fi-FI")} €</strong>
+                      </span>
+                    </div>
+
+                    <div className={styles.multiGroupActions}>
+                      {group.active.length > 0 ? (
+                        <button
+                          type="button"
+                          className={`${styles.actionBtn} ${isOpen ? styles.groupToggleOpen : ""}`}
+                          onClick={() =>
+                            setExpandedGroupKeys(
+                              isOpen
+                                ? {}
+                                : { [group.key]: true }
+                            )
+                          }
+                        >
+                          <ChevronDown size={15} />
+                          {isOpen ? "Sulje osat" : "Avaa osat"}
+                        </button>
+                      ) : (
+                        <span className={`${styles.statusBadge} ${styles.statusSold}`}>
+                          Kaikki myyty
+                        </span>
+                      )}
+                      {group.completed && (
+                        <button
+                          type="button"
+                          className={`${styles.actionBtn} ${styles.actionDanger}`}
+                          onClick={() => dismissCompletedGroup(group.key)}
+                          title="Valmis koonti poistuu myös itsestään 12 tunnin jälkeen."
+                        >
+                          <Trash2 size={14} />
+                          Poista koonti
+                        </button>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+
+              {renderedListings.map((listing) => {
 
                 const editing =
                   editingListingId === listing.id;
@@ -1185,12 +1567,21 @@ export default function MyListingsPage() {
                 const dateText = isSold
                   ? `Myyty ${formatDateFi(listing.sold_at ?? listing.created_at)}`
                   : `Lisätty ${formatDateFi(listing.created_at)}`;
+                const editImages = Array.from(
+                  new Set(
+                    [
+                      ...(listingForm.image_urls ?? []),
+                      listingForm.image_url
+                    ].filter(Boolean)
+                  )
+                );
 
                 return (
 
                   <article
                     className={styles.row}
                     key={listing.id}
+                    data-listing-id={listing.id}
                     style={editing ? { display: "block" } : undefined}
                   >
 
@@ -1401,45 +1792,59 @@ export default function MyListingsPage() {
                           </div>
                         </div>
 
-                        <div className="own-listing-section">
-                          <span className="own-listing-section-title">Kuvat</span>
-                          <div className="own-listing-image-editor">
-                            <label className="upload-box own-listing-upload-box">
-                              <ImagePlus size={24} />
-                              <strong>Lisää kuva</strong>
-                              <span>PNG, JPG, WEBP</span>
+                        <div className={`own-listing-section ${styles.editPhotoSection}`}>
+                          <div className={styles.editPhotoHeader}>
+                            <span className="own-listing-section-title">Kuvat</span>
+                            <span className={styles.editPhotoCount}>
+                              {editImages.length} kuvaa
+                            </span>
+                          </div>
+
+                          <div className={styles.editPhotoBody}>
+                            <label className={styles.editPhotoUploadButton}>
                               <input
+                                className={styles.editPhotoInput}
                                 type="file"
                                 accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/heic,image/heif"
+                                multiple
                                 onChange={(event) => {
-                                  handleListingImageUpload(event.target.files?.[0]);
+                                  handleListingImageUpload(event.target.files);
                                   event.currentTarget.value = "";
                                 }}
                               />
+                              <ImagePlus size={19} />
+                              <strong>Lisää kuvia</strong>
+                              <span>Valitse tiedostot</span>
                             </label>
 
-                            <div className="image-grid own-listing-image-grid">
-                              {listingForm.image_urls.map((img, index) => (
-                                <div key={`${img}-${index}`} className="img-box own-listing-img-box">
-                                  <button
-                                    type="button"
-                                    className="image-open-btn"
-                                    onClick={() => setPreviewImage(img)}
-                                    aria-label={`Avaa kuva ${index + 1}`}
-                                  >
-                                    <img src={img} alt={`Kuva ${index + 1}`} />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="image-remove-btn"
-                                    aria-label="Poista kuva"
-                                    onClick={() => removeListingImage(index)}
-                                  >
-                                    ✕
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
+                            {editImages.length > 0 ? (
+                              <div className={styles.editPhotoGrid}>
+                                {editImages.map((img, index) => (
+                                  <div key={`${img}-${index}`} className={styles.editPhotoTile}>
+                                    <button
+                                      type="button"
+                                      className={styles.editPhotoPreview}
+                                      onClick={() => setPreviewImage(img)}
+                                      aria-label={`Avaa kuva ${index + 1}`}
+                                    >
+                                      <img src={img} alt={`Kuva ${index + 1}`} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className={styles.editPhotoRemove}
+                                      aria-label="Poista kuva"
+                                      onClick={() => removeListingImage(index)}
+                                    >
+                                      <X size={13} />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className={styles.editPhotoEmpty}>
+                                Ei kuvia lisättynä vielä
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -1520,14 +1925,20 @@ export default function MyListingsPage() {
                         </div>
 
                         <div className={styles.rowBody}>
-                          {(listing.subcategory || listing.category) && (
-                            <span className={styles.categoryPill}>
-                              {translateCategory(
-                                locale,
-                                listing.subcategory || listing.category || ""
-                              )}
+                          <div className={styles.rowBadges}>
+                            <span className={styles.listingTypePill}>
+                              Yksittäinen ilmoitus
                             </span>
-                          )}
+
+                            {(listing.subcategory || listing.category) && (
+                              <span className={styles.categoryPill}>
+                                {translateCategory(
+                                  locale,
+                                  listing.subcategory || listing.category || ""
+                                )}
+                              </span>
+                            )}
+                          </div>
 
                           <h3 className={styles.rowTitle}>{listing.title}</h3>
 

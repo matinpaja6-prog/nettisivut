@@ -119,18 +119,12 @@ export default function LanguageSwitcher() {
       <div
         ref={menuRef}
         role="listbox"
+        className="global-language-menu"
         style={{
           position: "fixed",
           top: dropPos.top,
           right: dropPos.right,
-          background: "#ffffff",
-          border: 0,
-          borderRadius: 16,
-          boxShadow: "none",
-          padding: 6,
-          minWidth: 160,
           zIndex: 999999,
-          overflow: "visible",
           pointerEvents: "all"
         }}
       >
@@ -139,24 +133,9 @@ export default function LanguageSwitcher() {
             key={l.code}
             type="button"
             role="option"
+            className={`global-language-option${l.code === locale ? " is-active" : ""}`}
             aria-selected={l.code === locale}
             onMouseDown={(e) => { e.preventDefault(); pick(l.code); }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              width: "100%",
-              padding: "9px 12px",
-              background: "#ffffff",
-              border: l.code === locale ? "2px solid #ff7a1a" : "2px solid transparent",
-              borderRadius: l.code === locale ? 999 : 0,
-              cursor: "pointer",
-              textAlign: "left",
-              fontWeight: l.code === locale ? 800 : 600,
-              fontSize: 13,
-              color: "#050b14",
-              pointerEvents: "all"
-            }}
           >
             <Flag iso={l.iso} />
             {l.label}

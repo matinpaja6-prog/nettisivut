@@ -28,6 +28,8 @@ export type Listing = {
 
   translations?: ListingTranslations | null;
 
+  listing_mode?: "single" | "multiple" | null;
+
   price: number;
 
   // ajoneuvotyyppi
@@ -104,9 +106,15 @@ export type SoldListing = {
   brand?: string | null;
   model?: string | null;
   year?: string | null;
+  engine_cc?: string | null;
+  engine_model?: string | null;
   category?: string | null;
   subcategory?: string | null;
+  part_number?: string | null;
+  condition?: string | null;
+  location?: string | null;
   image_url?: string | null;
+  listing_mode?: "single" | "multiple" | null;
   sold_at: string;
   created_at?: string | null;
 };
@@ -294,6 +302,7 @@ export const categories = {
     "Kokonainen katesarja",
     "Tunnelit / Keskirunko",
     "Tunnelit / Eturunko",
+    "Tunnelit / Takarunko",
     "Kuomut & konepellit",
     "Sivukatteet",
     "Etupuskurit",
@@ -425,7 +434,7 @@ export const subcategoryGroups: Record<string, Record<string, string[]>> = {
     "Pakoputkisto": ["Kokonainen pakoputkisto","Alkukäyrät","Pakosarjat & Y-haarat","Äänenvaimentimet","Resonanssiputket"]
   },
   "Runko & katteet": {
-    "Runko":              ["Kokonainen runko","Tunnelit / Keskirunko","Tunnelit / Eturunko"],
+    "Runko":              ["Kokonainen runko","Tunnelit / Keskirunko","Tunnelit / Eturunko","Tunnelit / Takarunko"],
     "Katteet":            ["Kokonainen katesarja","Kuomut & konepellit","Sivukatteet"],
     "Etupuskurit":        [],
     "Takapuskurit":       [],

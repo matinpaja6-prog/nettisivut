@@ -1,0 +1,519 @@
+/* Final login/register polish. Keep after global page overrides. */
+body:has(.simple-auth-page) {
+  background: #0f1e26 !important;
+  background-color: #0f1e26 !important;
+  background-image: none !important;
+}
+
+html body .pf-page #osoite,
+html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: none !important;
+  transform: none !important;
+  width: 100% !important;
+}
+
+html body .pf-page #osoite .pf-section-head,
+html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite .pf-section-head {
+  align-items: center !important;
+  display: grid !important;
+  gap: 16px !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  justify-content: start !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: none !important;
+  padding-left: 42px !important;
+  padding-right: 20px !important;
+  transform: none !important;
+  width: 100% !important;
+}
+
+html body .pf-page #osoite .pf-section-head > svg,
+html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite .pf-section-head > svg {
+  grid-column: 1 !important;
+  justify-self: start !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+html body .pf-page #osoite .pf-section-head > div,
+html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite .pf-section-head > div {
+  grid-column: 2 !important;
+  justify-self: start !important;
+  margin: 0 !important;
+  max-width: none !important;
+  text-align: left !important;
+  transform: none !important;
+}
+
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) > :is(.pf-section-head, .pf-info-rows, .pf-public-fields, .company-seller-list, .company-seller-add, .company-seller-footer) {
+  margin-left: 34px !important;
+  margin-right: 34px !important;
+  width: calc(100% - 68px) !important;
+}
+
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) > .pf-section-head {
+  align-items: center !important;
+  display: grid !important;
+  gap: 16px !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  margin-bottom: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  text-align: left !important;
+  transform: none !important;
+}
+
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) > .pf-section-head > svg {
+  grid-column: 1 !important;
+  justify-self: start !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) > .pf-section-head > div {
+  grid-column: 2 !important;
+  justify-self: start !important;
+  margin: 0 !important;
+  text-align: left !important;
+  transform: none !important;
+}
+
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) .pf-section-head {
+  align-items: center !important;
+  display: grid !important;
+  gap: 16px !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 34px !important;
+  padding-right: 20px !important;
+  text-align: left !important;
+  transform: none !important;
+  width: 100% !important;
+}
+
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) .pf-section-head > svg {
+  grid-column: 1 !important;
+  justify-self: start !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) .pf-section-head > div {
+  grid-column: 2 !important;
+  justify-self: start !important;
+  margin: 0 !important;
+  text-align: left !important;
+  transform: none !important;
+}
+
+html body .pf-page :is(#julkinen-profiili .pf-public-fields, #osoite .pf-info-rows, #osoite .pf-address-rows, #tilin-turvallisuus .pf-info-rows) {
+  margin-left: 34px !important;
+  margin-right: 34px !important;
+  width: calc(100% - 68px) !important;
+}
+
+html body .pf-page :is(#julkinen-profiili .pf-field, #julkinen-profiili .pf-field.pf-field-wide, #osoite .pf-info-row, #tilin-turvallisuus .pf-info-row) {
+  gap: 16px !important;
+  grid-template-columns: 44px 150px minmax(0, 1fr) !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+html body .pf-page :is(#osoite .pf-info-row > .pf-info-value, #tilin-turvallisuus .pf-info-row > .pf-info-value) {
+  grid-column: 3 !important;
+}
+
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) > :is(.pf-section-head, .pf-info-rows, .pf-public-fields, .company-seller-list, .company-seller-add, .company-seller-footer) {
+  margin-left: 34px !important;
+  margin-right: 34px !important;
+  width: calc(100% - 68px) !important;
+}
+
+html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) > .pf-section-head {
+  margin-bottom: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+@media (min-width: 721px) {
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    flex: 0 0 136px !important;
+    gap: 6px !important;
+    max-width: 136px !important;
+    min-height: 46px !important;
+    min-width: 136px !important;
+    padding: 0 8px !important;
+    width: 136px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar {
+    height: 32px !important;
+    width: 32px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button-copy,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy {
+    gap: 3px !important;
+    width: 56px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button-copy strong,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    font-size: 14px !important;
+    max-width: 56px !important;
+    transform: translateY(3px) !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-xp-track,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-track {
+    height: 6px !important;
+    width: 42px !important;
+  }
+}
+
+body .simple-auth-page {
+  background: #0f1e26 !important;
+  background-color: #0f1e26 !important;
+  background-image: none !important;
+}
+
+body .simple-auth-page .auth-centered {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) {
+  background: #12304a !important;
+  background-color: #12304a !important;
+  background-image: none !important;
+  isolation: isolate !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card)::before,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card)::after,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) :is(.auth-form-head, label, .auth-password-label, .auth-label-row, .auth-divider, .auth-social-row, .auth-mode-switch, .form-note)::before,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) :is(.auth-form-head, label, .auth-password-label, .auth-label-row, .auth-divider, .auth-social-row, .auth-mode-switch, .form-note)::after {
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  content: none !important;
+  display: none !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) :is(.auth-form-head, label, .auth-password-label, .auth-label-row, .auth-social-row, .auth-mode-switch, .form-note),
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) :is(h1, p, span:not(.auth-divider span), a) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .auth-divider {
+  align-items: center !important;
+  background: transparent !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+  margin: 10px 0 !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .auth-divider::before,
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .auth-divider::after {
+  background: rgba(151, 178, 205, 0.28) !important;
+  content: "" !important;
+  display: block !important;
+  height: 1px !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .auth-divider span {
+  background: #12304a !important;
+  color: rgba(214, 228, 241, 0.72) !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  padding: 0 !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .auth-social-row {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) input:not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+  box-shadow: none !important;
+}
+
+body .simple-auth-page .auth-card.simple-card:not(.profile-finalize-card):not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card) .google-button.auth-social-button {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: rgba(255, 218, 184, 0.64) !important;
+  box-shadow: none !important;
+  color: #071827 !important;
+}
+
+/* Final profile-completion sizing and field alignment. */
+body .simple-auth-page:has(.profile-finalize-card) .auth-centered {
+  padding: 10px 14px 24px !important;
+}
+
+body .simple-auth-page .profile-finalize-card {
+  border-radius: 16px !important;
+  gap: 9px !important;
+  max-width: min(900px, calc(100vw - 64px)) !important;
+  padding: clamp(18px, 2vw, 24px) !important;
+  width: min(900px, calc(100vw - 64px)) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-completion-head {
+  gap: 9px !important;
+  margin-bottom: 2px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .eyebrow {
+  font-size: 12px !important;
+  padding: 8px 14px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .profile-completion-head h1 {
+  font-size: clamp(30px, 3.5vw, 42px) !important;
+  line-height: 1 !important;
+}
+
+body .simple-auth-page .profile-finalize-card > .profile-alert {
+  gap: 13px !important;
+  min-height: 54px !important;
+  padding: 9px 13px !important;
+}
+
+body .simple-auth-page .profile-finalize-card > .profile-alert svg {
+  height: 18px !important;
+  padding: 8px !important;
+  width: 18px !important;
+}
+
+body .simple-auth-page .profile-finalize-card > .profile-alert span {
+  font-size: 14px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .account-type-picker {
+  gap: 8px !important;
+  margin-bottom: 2px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .account-type-card {
+  gap: 12px !important;
+  grid-template-columns: 44px minmax(0, 1fr) 32px !important;
+  min-height: 62px !important;
+  padding: 9px 12px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .account-type-icon {
+  height: 44px !important;
+  width: 44px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .account-type-card strong {
+  font-size: 17px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .account-type-card span:not(.account-type-check):not(.account-type-icon):not(.account-type-copy) {
+  font-size: 13px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .account-type-check {
+  height: 30px !important;
+  width: 30px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .account-type-locked {
+  min-height: 62px !important;
+  padding: 9px 12px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .registration-fields {
+  gap: 10px 20px !important;
+  margin-top: 2px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .registration-fields > label,
+body .simple-auth-page .profile-finalize-card .registration-fields > .date-field {
+  font-size: 13px !important;
+  gap: 6px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .registration-fields > label:has(.custom-country-input) {
+  grid-column: auto !important;
+}
+
+body .simple-auth-page .profile-finalize-card input:not([type="checkbox"]),
+body .simple-auth-page .profile-finalize-card select,
+body .simple-auth-page .profile-finalize-card .phone-field-row,
+body .simple-auth-page .profile-finalize-card .date-field-control {
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  height: 44px !important;
+}
+
+body .simple-auth-page .profile-finalize-card input:not([type="checkbox"]),
+body .simple-auth-page .profile-finalize-card select {
+  padding-inline: 14px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .custom-country-input {
+  margin-top: 0 !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row {
+  grid-template-columns: 150px minmax(0, 1fr) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-code-select-wrap::before {
+  content: none !important;
+  display: none !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-code-selected {
+  align-items: center !important;
+  color: #ffffff !important;
+  display: flex !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  gap: 6px !important;
+  left: 14px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-code-flag {
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row select {
+  color: transparent !important;
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", system-ui, sans-serif !important;
+  padding: 0 28px 0 14px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row select option {
+  color: #ffffff !important;
+}
+
+body .simple-auth-page .profile-finalize-card .phone-field-row input {
+  color: #ffffff !important;
+  padding: 0 14px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .date-field-control {
+  grid-template-columns: 44px minmax(70px, 0.86fr) minmax(0, 1.16fr) minmax(80px, 0.86fr) !important;
+}
+
+body .simple-auth-page .profile-finalize-card .date-field-control select {
+  height: 44px !important;
+  padding-inline: 12px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .privacy-checkbox-row {
+  min-height: 54px !important;
+  padding: 10px 13px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .privacy-checkbox-row input[type="checkbox"] {
+  height: 24px !important;
+  width: 24px !important;
+}
+
+body .simple-auth-page .profile-finalize-card button[type="submit"],
+body .simple-auth-page .profile-finalize-card .primary-action,
+body .simple-auth-page .profile-finalize-card .secondary-button {
+  border-radius: 8px !important;
+  font-size: 15px !important;
+  height: 46px !important;
+  min-height: 46px !important;
+}
+
+@media (max-width: 760px) {
+  body .simple-auth-page:has(.profile-finalize-card) .auth-centered {
+    padding: 10px 8px 20px !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card {
+    max-width: calc(100vw - 18px) !important;
+    padding: 14px 10px !important;
+    width: calc(100vw - 18px) !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card .registration-fields {
+    grid-template-columns: 1fr !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card .phone-field-row {
+    grid-template-columns: 126px minmax(0, 1fr) !important;
+  }
+
+  body .simple-auth-page .profile-finalize-card .date-field-control {
+    grid-template-columns: 38px minmax(56px, 0.78fr) minmax(0, 1.08fr) minmax(64px, 0.8fr) !important;
+  }
+}
+
+html body .pf-page #osoite,
+html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: none !important;
+  transform: none !important;
+  width: 100% !important;
+}
+
+html body .pf-page #osoite .pf-section-head,
+html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite .pf-section-head {
+  align-items: center !important;
+  display: grid !important;
+  gap: 16px !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  justify-content: start !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: none !important;
+  padding-left: 42px !important;
+  padding-right: 20px !important;
+  transform: none !important;
+  width: 100% !important;
+}
+
+html body .pf-page #osoite .pf-section-head > svg,
+html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite .pf-section-head > svg {
+  grid-column: 1 !important;
+  justify-self: start !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+html body .pf-page #osoite .pf-section-head > div,
+html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite .pf-section-head > div {
+  grid-column: 2 !important;
+  justify-self: start !important;
+  margin: 0 !important;
+  max-width: none !important;
+  text-align: left !important;
+  transform: none !important;
+}

@@ -1,0 +1,87 @@
+html body .pf-page .pf-form > .pf-aligned-section {
+  --pf-card-inset: 48px;
+}
+
+html body .pf-page .pf-form > .pf-aligned-section > :is(.pf-info-card-head, .pf-section-head) {
+  align-items: center !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  gap: 16px !important;
+  grid-template-columns: 52px minmax(0, 1fr) auto !important;
+  margin: 0 !important;
+  padding: 20px var(--pf-card-inset) 16px !important;
+  text-align: left !important;
+  transform: none !important;
+  width: 100% !important;
+}
+
+html body .pf-page .pf-form > .pf-aligned-section > .pf-info-card-head > .pf-info-title {
+  align-items: center !important;
+  display: grid !important;
+  gap: 16px !important;
+  grid-column: 1 / 3 !important;
+  grid-template-columns: 52px minmax(0, 1fr) !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+html body .pf-page .pf-form > .pf-aligned-section > .pf-info-card-head .pf-info-title-icon,
+html body .pf-page .pf-form > .pf-aligned-section > .pf-section-head > svg {
+  grid-column: 1 !important;
+  height: 52px !important;
+  justify-self: start !important;
+  margin: 0 !important;
+  min-width: 52px !important;
+  transform: none !important;
+  width: 52px !important;
+}
+
+html body .pf-page .pf-form > .pf-aligned-section > .pf-info-card-head .pf-info-title > div,
+html body .pf-page .pf-form > .pf-aligned-section > .pf-section-head > div {
+  grid-column: 2 !important;
+  justify-self: start !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  text-align: left !important;
+  transform: none !important;
+}
+
+html body .pf-page .pf-form > .pf-aligned-section > .pf-card-body {
+  box-sizing: border-box !important;
+  margin: 0 var(--pf-card-inset) 20px !important;
+  max-width: none !important;
+  transform: none !important;
+  width: auto !important;
+}
+
+html body .pf-page .pf-form > .pf-aligned-section > .pf-card-body > :is(.company-seller-card, .company-seller-empty) {
+  box-sizing: border-box !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+}
+
+@media (max-width: 760px) {
+  html body .pf-page .pf-form > .pf-aligned-section {
+    --pf-card-inset: 14px;
+  }
+
+  html body .pf-page .pf-form > .pf-aligned-section > :is(.pf-info-card-head, .pf-section-head) {
+    gap: 12px !important;
+    grid-template-columns: 44px minmax(0, 1fr) auto !important;
+    padding-top: 14px !important;
+  }
+
+  html body .pf-page .pf-form > .pf-aligned-section > .pf-info-card-head > .pf-info-title {
+    gap: 12px !important;
+    grid-template-columns: 44px minmax(0, 1fr) !important;
+  }
+
+  html body .pf-page .pf-form > .pf-aligned-section > .pf-info-card-head .pf-info-title-icon,
+  html body .pf-page .pf-form > .pf-aligned-section > .pf-section-head > svg {
+    height: 44px !important;
+    min-width: 44px !important;
+    width: 44px !important;
+  }
+}

@@ -4,19 +4,22 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import OptimizedListingImage, { fallbackListingImage } from "@/app/components/OptimizedListingImage";
+import marketplaceStyles from "@/app/page.module.css";
 import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 
-import { Heart, MapPin, Search, Tag, UserRound } from "lucide-react";
+import { ArrowRight, Clock3, Heart, Search, Tag } from "lucide-react";
 
 import type { Listing } from "@/lib/listings";
 import { formatPrice } from "@/lib/listings";
+import { getCountryFlagFromLocation } from "@/lib/country-flags";
 import {
-  getListings,
+  getListingsByIds,
   getSavedListingIds,
   saveListing,
   unsaveListing
 } from "@/lib/supabase";
+import { readCachedListings } from "@/lib/client-listings-cache";
 
 const fallbackCardImage = fallbackListingImage;
 
@@ -78,10 +81,32 @@ export default function SavedListingsPage() {
 
   useEffect(() => {
     let mounted = true;
-    setListingsLoading(true);
-    getListings()
+
+    if (savedIds.length === 0) {
+      setAllListings([]);
+      setListingsLoading(false);
+      return () => {
+        mounted = false;
+      };
+    }
+
+    const cachedListings = readCachedListings();
+    const savedIdSet = new Set(savedIds);
+    const cachedSavedListings =
+      cachedListings.filter((listing) => savedIdSet.has(listing.id));
+
+    if (cachedSavedListings.length > 0) {
+      setAllListings(cachedSavedListings);
+      setListingsLoading(false);
+    } else {
+      setListingsLoading(true);
+    }
+
+    getListingsByIds(savedIds)
       .then(({ data }) => {
-        if (mounted && data) setAllListings(data);
+        if (mounted && data) {
+          setAllListings(data);
+        }
       })
       .catch(() => undefined)
       .finally(() => {
@@ -90,7 +115,7 @@ export default function SavedListingsPage() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [savedIds]);
 
   const savedListings = useMemo(() => {
     const set = new Set(savedIds);
@@ -129,6 +154,18 @@ export default function SavedListingsPage() {
     });
   }
 
+  function formatDate(date: string) {
+    const locales: Record<Locale, string> = {
+      fi: "fi-FI",
+      en: "en-US",
+      sv: "sv-SE",
+      no: "nb-NO",
+      et: "et-EE"
+    };
+
+    return new Date(date).toLocaleDateString(locales[locale]);
+  }
+
   return (
     <main className="saved-page saved-shell">
       <div className="saved-container">
@@ -151,18 +188,27 @@ export default function SavedListingsPage() {
 
         {savedIds.length === 0 ? (
           <div className="saved-empty">
-            <div className="saved-empty-icon">
-              <Heart size={28} />
+            <div className="saved-empty-orbit" aria-hidden="true">
+              <span className="saved-orbit-ring" />
+              <span className="saved-orbit-ring" />
+              <span className="saved-orbit-ring" />
+              <span className="saved-orbit-dot" />
+              <span className="saved-orbit-dot" />
+              <span className="saved-orbit-dot" />
+              <div className="saved-empty-icon">
+                <Heart size={38} />
+              </div>
             </div>
             <strong>{t.noListings}</strong>
             <span>Paina ilmoituksen sydäntä, niin se näkyy täällä myöhemmin.</span>
             <Link className="saved-empty-link" href="/">
               <Search size={16} />
               {t.viewAll}
+              <ArrowRight size={18} />
             </Link>
           </div>
         ) : listingsLoading ? (
-          <div className="saved-grid" aria-label="Ladataan tallennettuja ilmoituksia">
+          <div className={`${marketplaceStyles.cardsGrid} saved-grid`} aria-label="Ladataan tallennettuja ilmoituksia">
             {[0, 1, 2].map((item) => (
               <div className="saved-card saved-card-skeleton" key={item}>
                 <div className="saved-card-image" />
@@ -184,17 +230,19 @@ export default function SavedListingsPage() {
             <Link className="saved-empty-link" href="/">
               <Search size={16} />
               {t.viewAll}
+              <ArrowRight size={18} />
             </Link>
           </div>
         ) : (
-          <div className="saved-grid">
+          <div className={`${marketplaceStyles.cardsGrid} saved-grid`}>
             {savedListings.map((listing) => {
               const isFavorite = savedIds.includes(listing.id);
+              const countryFlag = getCountryFlagFromLocation(listing.location, t.country);
 
               return (
                 <article
                   key={listing.id}
-                  className="saved-card"
+                  className={`${marketplaceStyles.card} saved-card`}
                   role="link"
                   tabIndex={0}
                   aria-label={`${t.openListing} ${getListingTitle(listing)}`}
@@ -207,54 +255,57 @@ export default function SavedListingsPage() {
                   }}
                 >
 
-                  <div className="saved-card-image">
+                  <div className={`${marketplaceStyles.cardImage} ${marketplaceStyles.listingCardImage} saved-card-image`}>
+                    <span className={marketplaceStyles.cardImageBlur} aria-hidden="true">
+                      <OptimizedListingImage
+                        src={listingImageSrc(listing)}
+                        alt=""
+                        decorative
+                      />
+                    </span>
                     <OptimizedListingImage
                       src={listingImageSrc(listing)}
                       alt={getListingTitle(listing)}
                     />
                     {isListingNew(listing.created_at) && (
-                      <span className="saved-new-badge" aria-label="Uusi">
+                      <span className={`${marketplaceStyles.newBadge} saved-new-badge`} aria-label="Uusi">
                         Uusi
                       </span>
                     )}
                     <button
                       onClick={(e) => toggleFavorite(e, listing.id)}
-                      className={`saved-favorite ${isFavorite ? "is-active" : ""}`}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onTouchStart={(e) => e.stopPropagation()}
+                      className={`${marketplaceStyles.favoriteButton} ${
+                        isFavorite ? marketplaceStyles.favoriteButtonActive : ""
+                      } saved-favorite ${isFavorite ? "is-active" : ""}`}
                       type="button"
                       aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
                     >
-                      <Heart size={16} fill={isFavorite ? "currentColor" : "none"} />
+                      <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
                     </button>
                   </div>
 
-                  <div className="saved-card-body">
-                    <div className="saved-card-topline">
-                      <strong>{formatPrice(listing.price)}</strong>
-                      {listing.condition ? <span>{listing.condition}</span> : null}
-                    </div>
-                    <h2>{getListingTitle(listing)}</h2>
-                    <div className="saved-meta">
-                      <span>
-                        <MapPin size={14} />
-                        {t.country}, {listing.location}
+                  <div className={`${marketplaceStyles.cardBody} saved-card-body`}>
+                    <p className={marketplaceStyles.cardPrice}>{formatPrice(listing.price)}</p>
+                    <h3 className={marketplaceStyles.cardTitle}>{getListingTitle(listing)}</h3>
+                    <div className={`${marketplaceStyles.cardMetaRow} saved-meta`}>
+                      <span className={marketplaceStyles.cardLocationMeta}>
+                        {countryFlag ? (
+                          <img
+                            className={`${marketplaceStyles.listingCountryFlag} saved-country-flag`}
+                            src={countryFlag.src}
+                            alt=""
+                            aria-hidden="true"
+                            loading="lazy"
+                          />
+                        ) : null}
+                        {listing.location || t.country}
                       </span>
-                    </div>
-                    <div className="saved-seller">
-                      <Link
-                        href={listing.seller_id ? `/seller/${listing.seller_id}` : "#"}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!listing.seller_id) e.preventDefault();
-                        }}
-                      >
-                        <span className="saved-seller-avatar">
-                          <UserRound size={15} />
-                        </span>
-                        <span>
-                          <strong>{listing.seller_name}</strong>
-                          <small>{t.viewProfile}</small>
-                        </span>
-                      </Link>
+                      <span>
+                        <Clock3 size={14} />
+                        {formatDate(listing.created_at)}
+                      </span>
                     </div>
                   </div>
                 </article>
@@ -381,7 +432,7 @@ export default function SavedListingsPage() {
           overflow: hidden;
           border-radius: 12px;
           border: 1px solid rgba(255, 122, 26, 0.48);
-          background: #071f38;
+          background: var(--listing-card-bg, var(--site-card, #0e1721));
           box-shadow: none;
           cursor: pointer;
           color: #ffffff;
@@ -463,50 +514,10 @@ export default function SavedListingsPage() {
           display: grid;
           gap: 8px;
           flex: 1 1 auto;
+          background: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 92%, #ffffff 8%);
         }
 
-        .saved-card-topline {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-        }
-
-        .saved-card-topline strong {
-          color: #fff;
-          font-size: 20px;
-          font-weight: 950;
-          letter-spacing: -0.03em;
-          line-height: 1;
-        }
-
-        .saved-card-topline span {
-          border: 1px solid rgba(255, 122, 26, 0.28);
-          border-radius: 999px;
-          background: rgba(255, 122, 26, 0.1);
-          color: #ffd1a3;
-          font-size: 10px;
-          font-weight: 900;
-          line-height: 1;
-          padding: 5px 7px;
-        }
-
-        .saved-card h2 {
-          margin: 0;
-          color: #fff;
-          display: -webkit-box;
-          font-size: 14px;
-          font-weight: 950;
-          letter-spacing: -0.02em;
-          line-height: 1.14;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 3;
-          line-clamp: 3;
-          overflow: hidden;
-        }
-
-        .saved-meta,
-        .saved-seller small {
+        .saved-meta {
           color: rgba(226, 244, 255, 0.66);
           font-size: 11px;
           font-weight: 750;
@@ -518,33 +529,13 @@ export default function SavedListingsPage() {
           gap: 6px;
         }
 
-        .saved-seller {
-          margin-top: auto;
-          padding-top: 9px;
-          border-top: 1px solid rgba(151, 178, 205, 0.14);
-        }
-
-        .saved-seller a {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .saved-seller-avatar {
-          display: none;
-        }
-
-        .saved-seller strong,
-        .saved-seller small {
-          display: block;
-        }
-
-        .saved-seller strong {
-          color: #fff;
-          font-size: 12px;
-          font-weight: 900;
+        .saved-country-flag {
+          width: 18px;
+          height: 13px;
+          flex: 0 0 auto;
+          border-radius: 2px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.28);
+          object-fit: cover;
         }
 
         .saved-empty {
@@ -627,7 +618,310 @@ export default function SavedListingsPage() {
           100% { background-position: -220% 50%; }
         }
 
+        body .saved-page.saved-shell {
+          min-height: 100vh !important;
+          padding: 24px 0 88px !important;
+          background:
+            radial-gradient(820px 460px at 78% 42%, rgba(18, 63, 104, 0.2), transparent 70%),
+            radial-gradient(620px 340px at 15% 16%, rgba(19, 73, 119, 0.18), transparent 72%),
+            linear-gradient(180deg, #030b17 0%, #071322 48%, #06111e 100%) !important;
+          color: #f8fbff !important;
+        }
+
+        body .saved-page .saved-container {
+          width: min(1298px, calc(100vw - 238px)) !important;
+          gap: 47px !important;
+          margin: 0 auto !important;
+        }
+
+        body .saved-page .saved-hero {
+          min-height: 174px !important;
+          padding: 36px 36px 36px 37px !important;
+          border: 1px solid rgba(185, 204, 222, 0.27) !important;
+          border-radius: 25px !important;
+          background:
+            radial-gradient(520px 260px at 4% 0%, rgba(35, 95, 139, 0.52), transparent 72%),
+            radial-gradient(720px 320px at 100% 0%, rgba(147, 91, 48, 0.12), transparent 75%),
+            linear-gradient(145deg, rgba(14, 33, 53, 0.96), rgba(12, 22, 36, 0.97)) !important;
+          box-shadow:
+            0 26px 60px rgba(0, 8, 20, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+        }
+
+        body .saved-page .saved-hero-main {
+          gap: 25px !important;
+        }
+
+        body .saved-page .saved-hero-icon {
+          width: 78px !important;
+          height: 78px !important;
+          border-radius: 17px !important;
+          color: #ffffff !important;
+          background:
+            radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 0.28), transparent 32%),
+            linear-gradient(135deg, #ffad29 0%, #ff7114 52%, #ed5100 100%) !important;
+          border: 1px solid rgba(255, 201, 143, 0.35) !important;
+          box-shadow:
+            0 0 34px rgba(255, 116, 20, 0.54),
+            0 16px 28px rgba(0, 0, 0, 0.26),
+            inset 0 1px 0 rgba(255, 255, 255, 0.26) !important;
+        }
+
+        body .saved-page .saved-hero-icon svg {
+          width: 40px !important;
+          height: 40px !important;
+        }
+
+        body .saved-page .saved-hero-copy span {
+          margin-bottom: 9px !important;
+          color: #ff8a1a !important;
+          font-size: 16px !important;
+          font-weight: 950 !important;
+          letter-spacing: 0 !important;
+        }
+
+        body .saved-page .saved-hero-copy h1 {
+          margin: 0 !important;
+          color: #ffffff !important;
+          font-size: clamp(34px, 2.65vw, 40px) !important;
+          line-height: 1.02 !important;
+          letter-spacing: 0 !important;
+          text-shadow: 0 12px 26px rgba(0, 8, 20, 0.38) !important;
+        }
+
+        body .saved-page .saved-hero-copy p {
+          margin-top: 9px !important;
+          color: rgba(222, 235, 245, 0.76) !important;
+          font-size: 16px !important;
+          font-weight: 750 !important;
+        }
+
+        body .saved-page .saved-hero-stat {
+          min-width: 110px !important;
+          min-height: 101px !important;
+          border-radius: 12px !important;
+          border: 1px solid rgba(185, 204, 222, 0.16) !important;
+          background: linear-gradient(180deg, rgba(31, 48, 68, 0.66), rgba(20, 34, 50, 0.55)) !important;
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.05),
+            0 16px 30px rgba(0, 8, 20, 0.14) !important;
+        }
+
+        body .saved-page .saved-hero-stat strong {
+          color: #ffffff !important;
+          font-size: 34px !important;
+          line-height: 1 !important;
+        }
+
+        body .saved-page .saved-hero-stat span {
+          margin-top: 5px !important;
+          color: #ffd48d !important;
+          font-size: 13px !important;
+        }
+
+        body .saved-page .saved-empty {
+          min-height: 536px !important;
+          gap: 14px !important;
+          padding: 48px 28px !important;
+          border: 1px dashed rgba(171, 196, 220, 0.42) !important;
+          border-radius: 27px !important;
+          background:
+            radial-gradient(680px 320px at 50% 36%, rgba(17, 67, 111, 0.3), transparent 72%),
+            linear-gradient(180deg, rgba(7, 25, 43, 0.56), rgba(5, 18, 31, 0.34)) !important;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+        }
+
+        body .saved-page .saved-empty-orbit {
+          position: relative !important;
+          width: 230px !important;
+          height: 230px !important;
+          display: grid !important;
+          place-items: center !important;
+          margin: 0 0 -2px !important;
+        }
+
+        body .saved-page .saved-orbit-ring {
+          position: absolute !important;
+          inset: 50% auto auto 50% !important;
+          border: 1px solid rgba(255, 122, 24, 0.22) !important;
+          border-radius: 999px !important;
+          transform: translate(-50%, -50%) !important;
+        }
+
+        body .saved-page .saved-orbit-ring:nth-child(1) {
+          width: 116px !important;
+          height: 116px !important;
+        }
+
+        body .saved-page .saved-orbit-ring:nth-child(2) {
+          width: 154px !important;
+          height: 154px !important;
+          border-color: rgba(255, 122, 24, 0.16) !important;
+        }
+
+        body .saved-page .saved-orbit-ring:nth-child(3) {
+          width: 192px !important;
+          height: 192px !important;
+          border-color: rgba(255, 122, 24, 0.1) !important;
+        }
+
+        body .saved-page .saved-orbit-dot {
+          position: absolute !important;
+          width: 6px !important;
+          height: 6px !important;
+          border-radius: 999px !important;
+          background: #ff7a1a !important;
+          box-shadow: 0 0 12px rgba(255, 122, 24, 0.95) !important;
+        }
+
+        body .saved-page .saved-orbit-dot:nth-child(4) {
+          left: 23px !important;
+          top: 111px !important;
+        }
+
+        body .saved-page .saved-orbit-dot:nth-child(5) {
+          right: 34px !important;
+          top: 30px !important;
+        }
+
+        body .saved-page .saved-orbit-dot:nth-child(6) {
+          right: 38px !important;
+          top: 141px !important;
+        }
+
+        body .saved-page .saved-empty-icon {
+          width: 78px !important;
+          height: 78px !important;
+          border-radius: 16px !important;
+          z-index: 1 !important;
+          background:
+            radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25), transparent 34%),
+            linear-gradient(135deg, #ffaa28 0%, #ff7215 54%, #ef5200 100%) !important;
+          border: 1px solid rgba(255, 201, 143, 0.34) !important;
+          box-shadow:
+            0 0 34px rgba(255, 116, 20, 0.46),
+            0 18px 30px rgba(0, 8, 20, 0.28),
+            inset 0 1px 0 rgba(255, 255, 255, 0.26) !important;
+        }
+
+        body .saved-page .saved-empty strong {
+          color: #ffffff !important;
+          font-size: 32px !important;
+          line-height: 1.15 !important;
+          letter-spacing: 0 !important;
+          text-shadow: 0 12px 28px rgba(0, 8, 20, 0.44) !important;
+        }
+
+        body .saved-page .saved-empty > span {
+          color: rgba(222, 235, 245, 0.75) !important;
+          font-size: 17px !important;
+          font-weight: 750 !important;
+          max-width: 520px !important;
+        }
+
+        body .saved-page .saved-empty-link {
+          min-height: 57px !important;
+          margin-top: 5px !important;
+          padding: 0 20px !important;
+          border-radius: 11px !important;
+          border: 1px solid rgba(255, 201, 143, 0.46) !important;
+          background: linear-gradient(135deg, #ff981f 0%, #ff6c12 52%, #ef5200 100%) !important;
+          color: #ffffff !important;
+          font-size: 17px !important;
+          font-weight: 950 !important;
+          gap: 13px !important;
+          box-shadow:
+            0 0 30px rgba(255, 116, 20, 0.34),
+            0 15px 28px rgba(0, 8, 20, 0.25),
+            inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+        }
+
         @media (max-width: 720px) {
+          body .saved-page.saved-shell {
+            padding: 14px 0 74px !important;
+          }
+
+          body .saved-page .saved-container {
+            width: min(100% - 24px, 1160px) !important;
+            gap: 18px !important;
+          }
+
+          body .saved-page .saved-hero {
+            min-height: 0 !important;
+            padding: 20px !important;
+          }
+
+          body .saved-page .saved-hero-main {
+            gap: 14px !important;
+          }
+
+          body .saved-page .saved-hero-icon {
+            width: 54px !important;
+            height: 54px !important;
+          }
+
+          body .saved-page .saved-hero-icon svg {
+            width: 28px !important;
+            height: 28px !important;
+          }
+
+          body .saved-page .saved-hero-copy h1 {
+            font-size: clamp(27px, 8vw, 34px) !important;
+          }
+
+          body .saved-page .saved-hero-copy p {
+            font-size: 14px !important;
+          }
+
+          body .saved-page .saved-hero-stat {
+            min-height: 58px !important;
+            min-width: 100% !important;
+            padding: 0 16px !important;
+          }
+
+          body .saved-page .saved-empty {
+            min-height: 430px !important;
+            padding: 32px 18px !important;
+          }
+
+          body .saved-page .saved-empty-orbit {
+            width: 170px !important;
+            height: 170px !important;
+          }
+
+          body .saved-page .saved-orbit-ring:nth-child(1) {
+            width: 92px !important;
+            height: 92px !important;
+          }
+
+          body .saved-page .saved-orbit-ring:nth-child(2) {
+            width: 124px !important;
+            height: 124px !important;
+          }
+
+          body .saved-page .saved-orbit-ring:nth-child(3) {
+            width: 154px !important;
+            height: 154px !important;
+          }
+
+          body .saved-page .saved-empty-icon {
+            width: 68px !important;
+            height: 68px !important;
+          }
+
+          body .saved-page .saved-empty strong {
+            font-size: 26px !important;
+          }
+
+          body .saved-page .saved-empty > span {
+            font-size: 15px !important;
+          }
+
+          body .saved-page .saved-empty-link {
+            min-height: 50px !important;
+            font-size: 15px !important;
+          }
+
           .saved-shell {
             padding-top: 14px;
           }
@@ -699,46 +993,8 @@ export default function SavedListingsPage() {
             padding: 10px;
           }
 
-          .saved-card-topline {
-            align-items: flex-start;
-            gap: 6px;
-          }
-
-          .saved-card-topline strong {
-            font-size: clamp(17px, 5vw, 21px);
-            line-height: 1;
-          }
-
-          .saved-card-topline span {
-            font-size: 9.5px;
-            padding: 5px 7px;
-          }
-
-          .saved-card h2 {
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 3;
-            display: -webkit-box;
-            font-size: 12.5px;
-            line-clamp: 3;
-            line-height: 1.13;
-            overflow: hidden;
-          }
-
-          .saved-meta,
-          .saved-seller small {
+          .saved-meta {
             font-size: 10px;
-          }
-
-          .saved-seller {
-            padding-top: 7px;
-          }
-
-          .saved-seller-avatar {
-            display: none;
-          }
-
-          .saved-seller strong {
-            font-size: 11px;
           }
         }
 
@@ -750,6 +1006,91 @@ export default function SavedListingsPage() {
           .saved-grid {
             gap: 8px;
           }
+        }
+
+        /* Match the front page favorite heart: orange, round, and clearly active. */
+        body .saved-page .saved-card-image .saved-favorite,
+        body .saved-page .saved-card-image [class*="favoriteButton"].saved-favorite {
+          align-items: center !important;
+          background: rgba(3, 19, 38, 0.72) !important;
+          border: 1px solid rgba(226, 232, 240, 0.72) !important;
+          border-radius: 999px !important;
+          box-shadow:
+            0 10px 24px rgba(0, 10, 24, 0.34),
+            inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+          color: #ffffff !important;
+          display: inline-flex !important;
+          height: 34px !important;
+          justify-content: center !important;
+          line-height: 0 !important;
+          padding: 0 !important;
+          right: 10px !important;
+          top: 10px !important;
+          transform: none !important;
+          width: 34px !important;
+        }
+
+        body .saved-page .saved-card-image .saved-favorite:hover,
+        body .saved-page .saved-card-image [class*="favoriteButton"].saved-favorite:hover {
+          background: rgba(255, 107, 22, 0.92) !important;
+          border-color: rgba(255, 210, 168, 0.9) !important;
+          color: #ffffff !important;
+          transform: translateY(-1px) scale(1.03) !important;
+        }
+
+        body .saved-page .saved-card-image .saved-favorite.is-active,
+        body .saved-page .saved-card-image [class*="favoriteButtonActive"].saved-favorite,
+        body .saved-page .saved-card-image [class*="favoriteButtonActive"].saved-favorite:hover {
+          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%) !important;
+          border-color: rgba(255, 210, 168, 0.9) !important;
+          box-shadow:
+            0 12px 28px rgba(255, 107, 22, 0.38),
+            inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+          color: #ffffff !important;
+        }
+
+        body .saved-page .saved-card-image .saved-favorite svg,
+        body .saved-page .saved-card-image [class*="favoriteButton"].saved-favorite svg {
+          display: block !important;
+          fill: currentColor !important;
+          height: 17px !important;
+          margin: 0 !important;
+          stroke-width: 2.4 !important;
+          width: 17px !important;
+        }
+
+        body .saved-page .saved-empty-icon {
+          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%) !important;
+          color: #ffffff !important;
+        }
+
+        @media (max-width: 640px) {
+          body .saved-page .saved-card-image .saved-favorite,
+          body .saved-page .saved-card-image [class*="favoriteButton"].saved-favorite {
+            height: 30px !important;
+            right: 7px !important;
+            top: 7px !important;
+            width: 30px !important;
+          }
+
+          body .saved-page .saved-card-image .saved-favorite svg,
+          body .saved-page .saved-card-image [class*="favoriteButton"].saved-favorite svg {
+            height: 15px !important;
+            width: 15px !important;
+          }
+        }
+
+        /* Follow the admin appearance base/background color. Keep this last so it wins old page gradients. */
+        body:has(.saved-page),
+        html body:has(.saved-page) {
+          background: var(--site-bg, var(--bg, #0b1118)) !important;
+          background-image: none !important;
+        }
+
+        html body .saved-page.saved-shell,
+        html body .saved-page {
+          background: var(--site-bg, var(--bg, #0b1118)) !important;
+          background-image: none !important;
         }
       `}</style>
     </main>

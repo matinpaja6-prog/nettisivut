@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import LanguageSwitcher from "@/app/components/LanguageSwitcher";
+import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage } from "@/lib/i18n";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import {
@@ -36,6 +38,14 @@ import {
   type ListingSlotPurchase
 } from "@/lib/listing-slots";
 import { POINT_PACKAGES } from "@/lib/point-packages";
+import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
+
+type ShopCache = {
+  points: number;
+  slotUsed: number;
+  slotPurchases: ListingSlotPurchase[];
+  dbExtraSlots: number;
+};
 
 declare global {
   interface Window {
@@ -61,14 +71,15 @@ export default function ShopPage() {
 }
 
 function ShopDisabledPage() {
+  const router = useRouter();
   const { t } = useLanguage();
   return (
     <main className="profile-workspace shop-page">
       <section className="profile-card rewards-card">
-        <Link href="/" className="profile-back-link">
+        <button type="button" className="profile-back-link" onClick={() => goBackOrFallback(router)}>
           <ArrowLeft size={16} />
           {t.back}
-        </Link>
+        </button>
         <h1>Kauppa ei ole tällä hetkellä käytössä.</h1>
       </section>
     </main>
@@ -76,6 +87,7 @@ function ShopDisabledPage() {
 }
 
 function ShopEnabledPage() {
+  const router = useRouter();
   const { locale, t } = useLanguage();
   const sh = useMemo(() => ({
     fi:  { h1: "Osta etuja pisteillä", desc: "Käytä ansaittuja pisteitä ilmoituspaikkoihin. Pisteiden ostaminen oikealla rahalla on valmiina maksupalvelun yhdistämistä varten.", loginPrompt: "Kirjaudu sisään käyttääksesi pisteitä ja nähdäksesi ilmoituspaikkasi.", loginLink: "Kirjaudu", loading: "Ladataan kauppaa...", notEnoughPoints: (c: number) => `Pisteitä ei ole tarpeeksi. Tarvitset ${c.toLocaleString()} pistettä.`, buyFailed: (e: string) => `Osto ei onnistunut: ${e}`, buySuccess: (title: string, days: number) => `${title} lisätty käyttöön ${days} päiväksi.`, pointsAvailable: "Pisteitä käytössä", listingSlots: "Ilmoituspaikat", slotBase: (base: number, bonus: number) => `Vakiona ${base}${bonus > 0 ? ` + ${bonus} ostettua paikkaa` : ""}.`, slotTitle: "Ilmoituspaikat pisteillä", slotValidity: "30 pv voimassa", inUseNow: "Käytössä nyt", slotNote: "Lisäpaikat lasketaan aktiivisten ilmoitusten rajaan heti oston jälkeen.", pointsSuffix: "pistettä", validFor: (days: number, total: number) => `Voimassa ${days} päivää, raja yhteensä ${total}.`, buying: "Ostetaan...", buyWithPoints: "Osta pisteillä", noPoints: "Ei pisteitä", activePurchases: "Aktiiviset lisäpaikat", expiresAt: (d: string) => `päättyy ${d}`, cashTitle: "Osta pisteitä rahalla", cashDesc: "Valitse pistepaketti ja maksa PayPalilla. Pisteet lisätään tilille vasta kun maksu on vahvistettu palvelimella.", addPaypalId: "Lisää PayPal client id", securityNote: "PayPal secret pysyy vain palvelimella. Tietokantaan tallennetaan order, capture ja lisätty piskemäärä, jotta samaa maksua ei hyvitetä kahdesti.", earnMore: "Ansaitse lisää pisteitä tehtävistä", loginRequired: "Kirjaudu sisään ennen maksua.", paypalFail: "PayPal-maksu epäonnistui tai keskeytyi.", paypalOrderFail: "PayPal-orderin luonti epäonnistui.", paypalNoOrderId: "PayPal ei palauttanut order id:tä.", paypalSessionExpired: "Kirjautuminen vanheni. Kirjaudu uudelleen.", paypalCaptureFail: "Maksun vahvistus epäonnistui.", paypalSuccess: (p: string) => `Maksu onnistui. Tilillesi lisättiin ${p} pistettä.`, paypalLoadFail: "PayPal-nappien lataus epäonnistui." },
@@ -109,17 +121,34 @@ function ShopEnabledPage() {
   }, []);
 
   const reload = useCallback(async (uid: string) => {
-    setLoading(true);
+    const cacheKey = `shop:${uid}`;
+    const cached = readCachedResource<ShopCache>(cacheKey);
+    if (cached) {
+      setPoints(cached.points);
+      setSlotUsed(cached.slotUsed);
+      setSlotPurchases(cached.slotPurchases);
+      setDbExtraSlots(cached.dbExtraSlots);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     try {
       const [stats, usage, extras] = await Promise.all([
         getMyReferralStats(uid),
         getListingSlotUsage(uid),
         getProfileExtraSlots(uid)
       ]);
-      setPoints(stats.points);
-      setSlotUsed(usage.data);
-      setSlotPurchases(readListingSlotPurchases(uid));
-      setDbExtraSlots(extras);
+      const next = {
+        points: stats.points,
+        slotUsed: usage.data,
+        slotPurchases: readListingSlotPurchases(uid),
+        dbExtraSlots: extras
+      };
+      setPoints(next.points);
+      setSlotUsed(next.slotUsed);
+      setSlotPurchases(next.slotPurchases);
+      setDbExtraSlots(next.dbExtraSlots);
+      writeCachedResource(cacheKey, next);
     } finally {
       setLoading(false);
     }
@@ -281,10 +310,10 @@ function ShopEnabledPage() {
   return (
     <main className="auth-page">
       <header className="auth-topbar">
-        <Link className="back-link" href="/">
+        <button type="button" className="back-link" onClick={() => goBackOrFallback(router)}>
           <ArrowLeft size={18} />
           {t.back}
-        </Link>
+        </button>
         <LanguageSwitcher />
       </header>
 

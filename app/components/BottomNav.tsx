@@ -3,13 +3,16 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Award, Bell, Car, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, MessageCircle, Plus, Store, UserRound } from "lucide-react";
+import { Award, Bell, Car, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, MessageCircle, Plus, Store, UserRound, Users } from "lucide-react";
 import {
+  CHAT_NOTIFICATIONS_CHANGED_EVENT,
   getPendingPurchaseReviewRequests,
   getAlertNotifications,
-  getConversationSummaries,
+  getUnreadConversationSummaries,
+  isConversationLastMessageUnread,
   markConversationRead,
   markNotificationsSeen,
+  readChatLastRead,
   supabase,
   type AlertNotification,
   type ConversationSummary,
@@ -59,11 +62,14 @@ export default function BottomNav() {
 
   useEffect(() => {
     if (!userId) return;
+    let cancelled = false;
+
     const fetchNotifs = async () => {
       const [{ data: reviews }, { data: alerts }] = await Promise.all([
         getPendingPurchaseReviewRequests(userId),
         getAlertNotifications(userId)
       ]);
+      if (cancelled) return;
       setReviewRequests(reviews ?? []);
       setAlertNotifs(alerts ?? []);
       setNotifCount((reviews?.length ?? 0) + (alerts?.filter((a) => !a.seen).length ?? 0));
@@ -75,35 +81,81 @@ export default function BottomNav() {
       setReviewRequests((prev) => prev.filter((r) => r.id !== id));
     }
     window.addEventListener("review-request-dismissed", onDismissed);
-    return () => window.removeEventListener("review-request-dismissed", onDismissed);
+    const alertsChannel = supabase
+      ?.channel(`bn-notifications-${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "alert_notifications", filter: `user_id=eq.${userId}` },
+        fetchNotifs
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "purchase_review_requests", filter: `buyer_id=eq.${userId}` },
+        fetchNotifs
+      )
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("review-request-dismissed", onDismissed);
+      if (alertsChannel) {
+        supabase?.removeChannel(alertsChannel);
+      }
+    };
   }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
-    getConversationSummaries(userId).then(({ data }) => {
-      const STORAGE_KEY = "chatLastRead";
-      let lastRead: Record<string, number> = {};
-      try { lastRead = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}"); } catch { /* ok */ }
-      const unread = data.filter((c) => {
-        const msg = c.last_message;
-        if (!msg || msg.sender_id === userId) return false;
-        return new Date(msg.created_at).getTime() > (lastRead[c.id] ?? 0);
-      });
-      setUnreadConvs(unread);
-    });
-  }, [userId]);
+    let cancelled = false;
 
-  useEffect(() => {
-    if (!supabase || !userId) return;
-    const fetch = async () => {
-      const { count } = await supabase!.from("messages").select("*", { count: "exact", head: true }).eq("receiver_id", userId).eq("read", false);
-      setUnreadMessages(count ?? 0);
+    const refreshUnreadMessages = async () => {
+      const { data } = await getUnreadConversationSummaries(userId);
+      if (cancelled) return;
+
+      const lastRead = readChatLastRead();
+      const unread = (data ?? []).filter((conversation) =>
+        isConversationLastMessageUnread(
+          conversation,
+          userId,
+          lastRead
+        )
+      );
+
+      setUnreadConvs(unread);
+      setUnreadMessages(unread.length);
     };
-    fetch();
-    const ch = supabase.channel("bn-msg")
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, fetch)
+
+    refreshUnreadMessages();
+
+    const ch = supabase
+      ?.channel(`bn-msg-${userId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${userId}` }, refreshUnreadMessages)
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `sender_id=eq.${userId}` }, refreshUnreadMessages)
       .subscribe();
-    return () => { supabase!.removeChannel(ch); };
+
+    window.addEventListener(
+      CHAT_NOTIFICATIONS_CHANGED_EVENT,
+      refreshUnreadMessages
+    );
+    window.addEventListener(
+      "storage",
+      refreshUnreadMessages
+    );
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener(
+        CHAT_NOTIFICATIONS_CHANGED_EVENT,
+        refreshUnreadMessages
+      );
+      window.removeEventListener(
+        "storage",
+        refreshUnreadMessages
+      );
+      if (ch) {
+        supabase?.removeChannel(ch);
+      }
+    };
   }, [userId]);
 
   const labels: Record<string, string[]> = {
@@ -133,6 +185,11 @@ export default function BottomNav() {
       conversation.id,
       userId,
       Math.max(Date.now(), lastMessageAt)
+    );
+    setUnreadConvs((current) =>
+      current.filter((item) =>
+        item.id !== conversation.id
+      )
     );
     setUnreadMessages((count) => Math.max(0, count - 1));
   }
@@ -200,6 +257,7 @@ export default function BottomNav() {
                 <Link href="/garage"     className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Car size={18} />{t.garageTitle}</Link>
                 <Link href="/messages"   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Mail size={18} />{t.messages}</Link>
                 <Link href="/saved"      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Heart size={18} />{t.savedListings}</Link>
+                <Link href="/followed"   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Users size={18} />Seuratut</Link>
                 {FEATURE_FLAGS.rewardsAndShop ? (
                   <>
                     <Link href="/rewards"    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Award size={18} />{t.rewards}</Link>
@@ -290,7 +348,7 @@ export default function BottomNav() {
                   return (
                     <Link
                       key={c.id}
-                      href={`/messages?conv=${c.id}`}
+                      href={`/messages/${c.listing_id}?conversation=${c.id}`}
                       className="bn-notif-item"
                       onClick={() => {
                         markConversationNotificationRead(c);

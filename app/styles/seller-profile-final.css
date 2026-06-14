@@ -1,0 +1,4311 @@
+/* Seller profile final pass: search tools and listing cards. */
+
+html body:has(.cd-drawer-open) .bottom-nav,
+html body:has(.cd-drawer-open) .floating-chat,
+html body:has(.cd-drawer-open) .fc-button {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+html body .seller-page .sp-listing-tools {
+  gap: 8px !important;
+}
+
+html body .seller-page .sp-view-toggle {
+  display: none !important;
+}
+
+html body .seller-page .sp-listing-tools .sp-sort-wrap,
+html body .seller-page .sp-sort-wrap {
+  max-width: 148px !important;
+  min-width: 132px !important;
+  width: 148px !important;
+}
+
+html body .seller-page .sp-sort-select {
+  background: #061120 !important;
+  border: 1px solid rgba(82, 129, 168, 0.48) !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 30px 0 12px !important;
+}
+
+html body .seller-page .sp-advanced-search {
+  align-items: center !important;
+  background: rgba(7, 23, 39, 0.9) !important;
+  border: 1px solid rgba(72, 112, 146, 0.36) !important;
+  border-radius: 8px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+  display: grid !important;
+  gap: 8px !important;
+  grid-template-columns: max-content minmax(240px, 1fr) 92px 92px minmax(150px, 190px) auto auto !important;
+  max-height: none !important;
+  min-height: 48px !important;
+  overflow: visible !important;
+  padding: 6px !important;
+}
+
+html body .seller-page .sp-filter-label,
+html body .seller-page .sp-search-field,
+html body .seller-page .sp-price-field,
+html body .seller-page .sp-filter-select-wrap,
+html body .seller-page .sp-filter-reset,
+html body .seller-page .sp-filter-summary {
+  box-sizing: border-box !important;
+  min-height: 36px !important;
+}
+
+html body .seller-page .sp-filter-label {
+  align-items: center !important;
+  background: rgba(255, 122, 26, 0.12) !important;
+  border: 1px solid rgba(255, 122, 26, 0.42) !important;
+  border-radius: 7px !important;
+  color: #ff9a24 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  gap: 8px !important;
+  justify-content: center !important;
+  padding: 0 13px !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .sp-filter-label.has-selection {
+  background: linear-gradient(135deg, #ff9a24, #ff6b16) !important;
+  border-color: rgba(255, 208, 163, 0.72) !important;
+  color: #ffffff !important;
+}
+
+html body .seller-page .sp-search-field,
+html body .seller-page .sp-price-field,
+html body .seller-page .sp-filter-select-wrap {
+  background: #061120 !important;
+  border: 1px solid rgba(82, 129, 168, 0.46) !important;
+  border-radius: 7px !important;
+}
+
+html body .seller-page .sp-search-field {
+  grid-template-columns: 18px minmax(0, 1fr) !important;
+  padding: 0 12px !important;
+}
+
+html body .seller-page .sp-search-field svg {
+  color: rgba(210, 226, 240, 0.75) !important;
+}
+
+html body .seller-page .sp-search-field input,
+html body .seller-page .sp-price-field input,
+html body .seller-page .sp-condition-select {
+  background: transparent !important;
+  border: 0 !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  outline: 0 !important;
+}
+
+html body .seller-page .sp-search-field input::placeholder {
+  color: rgba(210, 226, 240, 0.66) !important;
+}
+
+html body .seller-page .sp-price-field {
+  align-items: center !important;
+  display: grid !important;
+  gap: 4px !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  padding: 0 8px !important;
+}
+
+html body .seller-page .sp-price-field span {
+  color: #ffffff !important;
+  font-size: 10px !important;
+  font-weight: 950 !important;
+  opacity: 0.92 !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .sp-filter-select-wrap {
+  align-items: center !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 18px !important;
+  padding: 0 8px 0 12px !important;
+}
+
+html body .seller-page .sp-condition-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-filter-select-icon {
+  color: rgba(210, 226, 240, 0.78) !important;
+  pointer-events: none !important;
+}
+
+html body .seller-page .sp-filter-summary {
+  align-items: center !important;
+  background: rgba(255, 122, 26, 0.1) !important;
+  border: 1px solid rgba(255, 122, 26, 0.28) !important;
+  border-radius: 7px !important;
+  color: #ffd0a3 !important;
+  display: inline-flex !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  max-width: 220px !important;
+  overflow: hidden !important;
+  padding: 0 10px !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .sp-filter-reset {
+  align-items: center !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(210, 226, 240, 0.22) !important;
+  border-radius: 7px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  gap: 6px !important;
+  justify-content: center !important;
+  padding: 0 11px !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .seller-listing-grid {
+  display: grid !important;
+  gap: 18px !important;
+  grid-column: 1 / -1 !important;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  margin-top: 0 !important;
+  width: 100% !important;
+}
+
+html body .seller-page .listing-card.seller-listing-card,
+html body .seller-page .seller-listing-card {
+  background: var(--listing-card-bg, #1d2f5f) !important;
+  border: 1px solid color-mix(in srgb, var(--listing-card-bg, #1d2f5f) 64%, #ffffff 36%) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: grid !important;
+  grid-template-rows: 236px minmax(178px, 1fr) !important;
+  height: auto !important;
+  min-height: 414px !important;
+  outline: 0 !important;
+  overflow: hidden !important;
+  text-decoration: none !important;
+  transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease !important;
+}
+
+html body .seller-page .listing-card.seller-listing-card:hover,
+html body .seller-page .seller-listing-card:hover {
+  border-color: rgba(255, 154, 36, 0.74) !important;
+  box-shadow: 0 18px 42px rgba(0, 8, 18, 0.28) !important;
+  transform: translateY(-2px) !important;
+}
+
+html body .seller-page .seller-listing-image {
+  background: #071827 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  display: block !important;
+  height: 236px !important;
+  max-height: 236px !important;
+  min-height: 236px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-listing-image-blur {
+  display: none !important;
+}
+
+html body .seller-page .seller-listing-image > img {
+  display: block !important;
+  height: 100% !important;
+  max-height: none !important;
+  object-fit: cover !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-listing-heart {
+  align-items: center !important;
+  background: rgba(7, 16, 30, 0.58) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 34px !important;
+  justify-content: center !important;
+  position: absolute !important;
+  right: 12px !important;
+  top: 12px !important;
+  width: 34px !important;
+  z-index: 2 !important;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease !important;
+}
+
+html body .seller-page .seller-listing-heart svg {
+  height: 19px !important;
+  width: 19px !important;
+}
+
+html body .seller-page .seller-listing-heart:hover {
+  background: rgba(255, 107, 22, 0.92) !important;
+  border-color: rgba(255, 210, 168, 0.9) !important;
+  transform: translateY(-1px) scale(1.03) !important;
+}
+
+html body .seller-page .seller-listing-heart.is-active,
+html body .seller-page .seller-listing-heart.is-active:hover {
+  background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%) !important;
+  border-color: rgba(255, 210, 168, 0.9) !important;
+  box-shadow:
+    0 12px 28px rgba(255, 107, 22, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+}
+
+html body .seller-page .seller-listing-heart:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.72 !important;
+}
+
+html body .seller-page .seller-listing-card .listing-body {
+  background: var(--listing-card-bg, #1d2f5f) !important;
+  display: grid !important;
+  gap: 11px !important;
+  grid-template-rows: auto auto 1fr auto !important;
+  min-height: 178px !important;
+  padding: 22px 22px 18px !important;
+}
+
+html body .seller-page .seller-listing-price {
+  align-self: start !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  color: #ffffff !important;
+  display: block !important;
+  font-size: 34px !important;
+  font-weight: 950 !important;
+  justify-self: start !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+}
+
+html body .seller-page .seller-listing-card h3 {
+  color: #ffffff !important;
+  display: -webkit-box !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  line-height: 1.28 !important;
+  margin: 0 !important;
+  min-height: 20px !important;
+  overflow: hidden !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+html body .seller-page .seller-listing-card .listing-body > p,
+html body .seller-page .seller-listing-card .price-row {
+  display: none !important;
+}
+
+html body .seller-page .seller-listing-meta {
+  align-items: center !important;
+  border-top: 1px solid rgba(210, 226, 240, 0.18) !important;
+  color: rgba(224, 235, 247, 0.78) !important;
+  display: flex !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  gap: 14px !important;
+  justify-content: space-between !important;
+  line-height: 1.2 !important;
+  margin-top: auto !important;
+  min-width: 0 !important;
+  padding-top: 15px !important;
+}
+
+html body .seller-page .seller-listing-meta span {
+  align-items: center !important;
+  display: inline-flex !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+}
+
+html body .seller-page .seller-listing-meta svg {
+  color: rgba(210, 226, 240, 0.76) !important;
+  height: 16px !important;
+  width: 16px !important;
+}
+
+html body .seller-page .seller-listing-location {
+  flex: 1 1 auto !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .seller-listing-country-flag {
+  border-radius: 2px !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.28)) !important;
+  flex: 0 0 18px !important;
+  height: 13px !important;
+  object-fit: cover !important;
+  width: 18px !important;
+}
+
+@media (max-width: 1060px) {
+  html body .seller-page .sp-advanced-search {
+    grid-template-columns: max-content minmax(220px, 1fr) 88px 88px minmax(142px, 170px) auto !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+  }
+
+  html body .seller-page .sp-advanced-search::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .sp-listing-tools {
+    display: flex !important;
+  }
+
+  html body .seller-page .sp-listing-tools .sp-sort-wrap,
+  html body .seller-page .sp-sort-wrap {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-advanced-search {
+    grid-template-columns: max-content minmax(210px, 1fr) 78px 78px 138px auto auto !important;
+    min-height: 48px !important;
+  }
+
+  html body .seller-page .sp-filter-summary {
+    max-width: 170px !important;
+  }
+
+  html body .seller-page .seller-listing-grid {
+    gap: 12px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html body .seller-page .listing-card.seller-listing-card,
+  html body .seller-page .seller-listing-card {
+    grid-template-rows: 136px minmax(132px, 1fr) !important;
+    min-height: 268px !important;
+  }
+
+  html body .seller-page .seller-listing-image {
+    height: 136px !important;
+    max-height: 136px !important;
+    min-height: 136px !important;
+  }
+
+  html body .seller-page .seller-listing-card .listing-body {
+    gap: 7px !important;
+    min-height: 132px !important;
+    padding: 13px 12px 12px !important;
+  }
+
+  html body .seller-page .seller-listing-price {
+    font-size: 22px !important;
+  }
+
+  html body .seller-page .seller-listing-card h3 {
+    font-size: 12px !important;
+  }
+
+  html body .seller-page .seller-listing-meta {
+    align-items: center !important;
+    flex-direction: row !important;
+    font-size: 10px !important;
+    gap: 6px !important;
+    padding-top: 9px !important;
+  }
+
+  html body .seller-page .seller-listing-heart {
+    height: 30px !important;
+    right: 8px !important;
+    top: 8px !important;
+    width: 30px !important;
+  }
+}
+
+/* Final sizing pass: compact tabs and remove the nested input frame. */
+html body .seller-page .sp-tabs {
+  border-radius: 12px 12px 0 0 !important;
+  margin-top: 20px !important;
+  min-height: 82px !important;
+  padding: 20px 22px 0 !important;
+}
+
+html body .seller-page .sp-tab {
+  border-radius: 7px 7px 0 0 !important;
+  font-size: 19px !important;
+  gap: 14px !important;
+  min-height: 70px !important;
+  min-width: 260px !important;
+  padding: 0 32px !important;
+}
+
+html body .seller-page .sp-tab svg {
+  height: 21px !important;
+  width: 21px !important;
+}
+
+html body .seller-page .sp-tab.active {
+  box-shadow:
+    inset 0 3px 0 #ff971f,
+    0 0 0 1px rgba(255, 148, 31, 0.12) !important;
+}
+
+html body .seller-page .sp-advanced-search {
+  border-radius: 0 0 12px 12px !important;
+  column-gap: 28px !important;
+  grid-template-columns: minmax(0, 1fr) auto auto auto !important;
+  min-height: 110px !important;
+  padding: 22px 26px !important;
+}
+
+html body .seller-page .sp-search-field {
+  border-radius: 17px !important;
+  gap: 18px !important;
+  min-height: 72px !important;
+  padding: 0 26px !important;
+}
+
+html body .seller-page .sp-search-field input,
+html body .seller-page .sp-search-field input[type="search"] {
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: auto !important;
+  line-height: 1.2 !important;
+  outline: 0 !important;
+  padding: 0 !important;
+}
+
+html body .seller-page .sp-search-field input::-webkit-search-cancel-button,
+html body .seller-page .sp-search-field input::-webkit-search-decoration {
+  appearance: none !important;
+}
+
+html body .seller-page .sp-filter-label {
+  border-radius: 17px !important;
+  font-size: 18px !important;
+  min-height: 72px !important;
+  padding: 0 32px !important;
+}
+
+html body .seller-page .sp-filter-label svg {
+  height: 23px !important;
+  width: 23px !important;
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .sp-tabs {
+    min-height: 64px !important;
+    padding: 10px 8px 0 !important;
+  }
+
+  html body .seller-page .sp-tab {
+    font-size: 13px !important;
+    gap: 8px !important;
+    min-height: 50px !important;
+    min-width: 142px !important;
+    padding: 0 12px !important;
+  }
+
+  html body .seller-page .sp-tab svg {
+    height: 17px !important;
+    width: 17px !important;
+  }
+
+  html body .seller-page .sp-advanced-search {
+    gap: 10px !important;
+    padding: 10px !important;
+  }
+
+  html body .seller-page .sp-search-field {
+    min-height: 48px !important;
+  }
+
+  html body .seller-page .sp-filter-label {
+    min-height: 46px !important;
+  }
+}
+
+html body .seller-page label.sp-search-field input.sp-search-input[type="search"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  padding: 0 !important;
+}
+
+/* Reference match: one framed search deck with tabs above and controls in one row. */
+html body .seller-page .sp-tabs {
+  background:
+    linear-gradient(180deg, rgba(20, 36, 52, 0.78), rgba(4, 14, 25, 0.94)) !important;
+  border: 1px solid rgba(141, 164, 188, 0.22) !important;
+  border-bottom: 0 !important;
+  border-radius: 16px 16px 0 0 !important;
+  box-shadow:
+    0 22px 54px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+  margin: 26px 0 0 !important;
+  min-height: 110px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding: 30px 22px 0 !important;
+  scrollbar-color: rgba(73, 109, 150, 0.9) transparent !important;
+  scrollbar-width: thin !important;
+}
+
+html body .seller-page .sp-tabs-left {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 0 !important;
+  min-width: max-content !important;
+}
+
+html body .seller-page .sp-tab {
+  align-items: center !important;
+  background: rgba(48, 78, 99, 0.9) !important;
+  border: 1px solid rgba(140, 170, 196, 0.38) !important;
+  border-bottom-color: rgba(140, 170, 196, 0.28) !important;
+  border-radius: 7px 7px 0 0 !important;
+  color: rgba(229, 238, 247, 0.92) !important;
+  display: inline-flex !important;
+  font-size: clamp(15px, 1.55vw, 28px) !important;
+  font-weight: 850 !important;
+  gap: clamp(10px, 1.4vw, 24px) !important;
+  justify-content: center !important;
+  min-height: clamp(58px, 6vw, 120px) !important;
+  min-width: clamp(170px, 21vw, 430px) !important;
+  padding: 0 clamp(20px, 2.7vw, 58px) !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.34) !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .sp-tab.active {
+  background:
+    linear-gradient(180deg, rgba(8, 22, 36, 0.98), rgba(4, 14, 25, 0.98)) !important;
+  border-color: rgba(255, 151, 31, 0.85) rgba(140, 170, 196, 0.22) rgba(140, 170, 196, 0.2) !important;
+  box-shadow:
+    inset 0 4px 0 #ff971f,
+    0 0 0 1px rgba(255, 151, 31, 0.16) !important;
+  color: #ff971f !important;
+}
+
+html body .seller-page .sp-tab svg {
+  height: clamp(18px, 1.9vw, 38px) !important;
+  width: clamp(18px, 1.9vw, 38px) !important;
+}
+
+html body .seller-page .sp-advanced-search {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(4, 13, 24, 0.96), rgba(3, 11, 20, 0.99)) !important;
+  border: 1px solid rgba(141, 164, 188, 0.22) !important;
+  border-radius: 0 0 16px 16px !important;
+  box-shadow:
+    0 22px 54px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+  display: grid !important;
+  gap: clamp(12px, 1.7vw, 34px) !important;
+  grid-template-columns: minmax(0, 1fr) minmax(168px, 16vw) auto auto !important;
+  margin: 0 0 30px !important;
+  min-height: clamp(88px, 8.2vw, 160px) !important;
+  padding: clamp(14px, 1.8vw, 34px) clamp(18px, 2.2vw, 48px) !important;
+}
+
+html body .seller-page .sp-search-field {
+  background: rgba(3, 12, 22, 0.78) !important;
+  border: 1px solid rgba(141, 164, 188, 0.32) !important;
+  border-radius: clamp(12px, 1.25vw, 24px) !important;
+  min-height: clamp(52px, 4.8vw, 98px) !important;
+  padding: 0 clamp(16px, 1.8vw, 36px) !important;
+}
+
+html body .seller-page .sp-search-field svg {
+  height: clamp(21px, 2.1vw, 42px) !important;
+  width: clamp(21px, 2.1vw, 42px) !important;
+}
+
+html body .seller-page label.sp-search-field input.sp-search-input[type="search"] {
+  color: rgba(232, 240, 248, 0.94) !important;
+  font-size: clamp(14px, 1.5vw, 30px) !important;
+  font-weight: 650 !important;
+}
+
+html body .seller-page .sp-filter-label {
+  background: rgba(47, 24, 8, 0.92) !important;
+  border: 1px solid rgba(255, 139, 26, 0.58) !important;
+  border-radius: clamp(12px, 1.25vw, 24px) !important;
+  color: #ff971f !important;
+  font-size: clamp(14px, 1.35vw, 28px) !important;
+  font-weight: 850 !important;
+  gap: clamp(10px, 1vw, 20px) !important;
+  justify-content: center !important;
+  min-height: clamp(52px, 4.8vw, 98px) !important;
+  padding: 0 clamp(18px, 2vw, 42px) !important;
+  white-space: nowrap !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-filter-label svg {
+  height: clamp(20px, 1.8vw, 36px) !important;
+  width: clamp(20px, 1.8vw, 36px) !important;
+}
+
+html body .seller-page .sp-filter-summary,
+html body .seller-page .sp-filter-actions {
+  align-self: center !important;
+}
+
+@media (max-width: 520px) {
+  html body .seller-page .sp-advanced-search {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Seller profile toolbar: compact basic filters, advanced search on the right. */
+html body .seller-page .seller-ref-hero {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 300px) !important;
+}
+
+html body .seller-page .seller-ref-trust-card {
+  gap: 10px !important;
+  justify-self: flex-end !important;
+  max-width: 300px !important;
+  min-height: 0 !important;
+  padding: 18px !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-ref-trust-top {
+  align-items: center !important;
+  gap: 10px !important;
+  grid-template-columns: 24px minmax(0, 1fr) 72px !important;
+}
+
+html body .seller-page .seller-ref-trust-top > svg {
+  height: 24px !important;
+  width: 24px !important;
+}
+
+html body .seller-page .seller-ref-score-ring {
+  height: 72px !important;
+  width: 72px !important;
+}
+
+html body .seller-page .seller-ref-trust-card p {
+  gap: 2px !important;
+  margin: 0 !important;
+}
+
+html body .seller-page .sp-advanced-search {
+  align-items: center !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  overflow: visible !important;
+}
+
+html body .seller-page .sp-search-field {
+  flex: 1 1 280px !important;
+  min-width: 220px !important;
+}
+
+html body .seller-page .sp-basic-filter-group,
+html body .seller-page .sp-filter-actions {
+  align-items: center !important;
+  display: flex !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+html body .seller-page .sp-basic-filter-group {
+  flex: 0 1 auto !important;
+}
+
+html body .seller-page .sp-price-field {
+  flex: 0 0 88px !important;
+  width: 88px !important;
+}
+
+html body .seller-page .sp-filter-select-wrap {
+  flex: 0 0 168px !important;
+  width: 168px !important;
+}
+
+html body .seller-page .sp-filter-summary {
+  flex: 0 1 180px !important;
+}
+
+html body .seller-page .sp-filter-actions {
+  margin-left: auto !important;
+}
+
+html body .seller-page .sp-price-field input[type="number"] {
+  appearance: textfield !important;
+  -moz-appearance: textfield !important;
+}
+
+html body .seller-page .sp-price-field input[type="number"]::-webkit-inner-spin-button,
+html body .seller-page .sp-price-field input[type="number"]::-webkit-outer-spin-button {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 900px) {
+  html body .seller-page .seller-ref-hero {
+    grid-template-areas:
+      "identity"
+      "trust"
+      "stats" !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-width: 0 !important;
+  }
+
+  html body .seller-page .seller-ref-trust-card {
+    box-sizing: border-box !important;
+    justify-self: stretch !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-identity,
+  html body .seller-page .seller-ref-stats {
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html body .seller-page .seller-ref-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html body .seller-page .seller-ref-stat,
+  html body .seller-page .seller-ref-stat.is-rating {
+    height: 82px !important;
+    min-height: 82px !important;
+    min-width: 0 !important;
+  }
+
+  html body .seller-page .seller-ref-stat:last-child:nth-child(odd) {
+    grid-column: 1 / -1 !important;
+  }
+
+  html body .seller-page .sp-search-field {
+    flex-basis: 220px !important;
+  }
+}
+
+@media (max-width: 620px) {
+  html body .seller-page .sp-wrap,
+  html body .seller-page .seller-ref-hero {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    width: calc(100vw - 12px) !important;
+  }
+
+  html body .seller-page .seller-ref-trust-card {
+    overflow: hidden !important;
+    position: relative !important;
+    width: calc(100vw - 42px) !important;
+  }
+
+  html body .seller-page .seller-ref-trust-top {
+    grid-template-columns: 24px minmax(0, 1fr) !important;
+    padding-right: 82px !important;
+  }
+
+  html body .seller-page .seller-ref-score-ring {
+    display: none !important;
+  }
+
+  html body .seller-page .seller-ref-stats {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: calc(100vw - 42px) !important;
+  }
+
+  html body .seller-page .seller-ref-stat,
+  html body .seller-page .seller-ref-stat.is-rating {
+    box-sizing: border-box !important;
+    flex: 0 0 50% !important;
+    height: 92px !important;
+    max-width: 50% !important;
+    min-height: 92px !important;
+    overflow: hidden !important;
+    padding: 7px 4px !important;
+    width: 50% !important;
+  }
+
+  html body .seller-page .seller-ref-stat:last-child:nth-child(odd) {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-stat span {
+    display: block !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    text-align: center !important;
+    white-space: normal !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-basic-filter-group {
+    display: grid !important;
+    flex: 1 1 100% !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-price-field,
+  html body .seller-page .sp-filter-select-wrap {
+    flex-basis: auto !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-select-wrap {
+    grid-column: 1 / -1 !important;
+  }
+
+  html body .seller-page .sp-filter-summary {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-actions {
+    justify-content: flex-end !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-tabs {
+    max-width: calc(100vw - 12px) !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    width: calc(100vw - 12px) !important;
+  }
+
+  html body .seller-page .sp-tabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  html body .seller-page .sp-tabs-left {
+    flex: 0 0 max-content !important;
+    min-width: max-content !important;
+  }
+}
+
+/* Listing metadata: keep the country visible even if the remote flag image fails. */
+html body .seller-page .seller-listing-country-flag {
+  background: #dce8f5 !important;
+  border-radius: 2px !important;
+  display: inline-block !important;
+  flex: 0 0 18px !important;
+  height: 13px !important;
+  overflow: hidden !important;
+  width: 18px !important;
+}
+
+html body .seller-page .seller-listing-country-flag[data-country="FI"] {
+  background:
+    linear-gradient(to bottom, transparent 40%, #174a9c 40% 60%, transparent 60%),
+    linear-gradient(to right, transparent 28%, #174a9c 28% 43%, transparent 43%),
+    #ffffff !important;
+}
+
+html body .seller-page .seller-listing-country-flag[data-country="SE"] {
+  background:
+    linear-gradient(to bottom, transparent 40%, #ffcc26 40% 60%, transparent 60%),
+    linear-gradient(to right, transparent 28%, #ffcc26 28% 43%, transparent 43%),
+    #1372b8 !important;
+}
+
+html body .seller-page .seller-listing-country-flag[data-country="NO"] {
+  background:
+    linear-gradient(to bottom, transparent 42%, #183f8b 42% 58%, transparent 58%),
+    linear-gradient(to right, transparent 31%, #183f8b 31% 40%, transparent 40%),
+    linear-gradient(to bottom, transparent 34%, #ffffff 34% 66%, transparent 66%),
+    linear-gradient(to right, transparent 25%, #ffffff 25% 46%, transparent 46%),
+    #e53242 !important;
+}
+
+html body .seller-page .seller-listing-country-flag[data-country="EE"] {
+  background:
+    linear-gradient(to bottom, #3486dd 0 33.33%, #111820 33.33% 66.66%, #ffffff 66.66%) !important;
+}
+
+html body .seller-page .seller-listing-country-flag[data-country="GB"] {
+  background:
+    linear-gradient(90deg, transparent 42%, #e43145 42% 58%, transparent 58%),
+    linear-gradient(transparent 39%, #e43145 39% 61%, transparent 61%),
+    linear-gradient(33deg, transparent 43%, #ffffff 43% 57%, transparent 57%),
+    linear-gradient(-33deg, transparent 43%, #ffffff 43% 57%, transparent 57%),
+    #214b9b !important;
+}
+
+html body .seller-page .seller-listing-country-flag img {
+  display: block !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-listing-location-label {
+  display: block !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 720px) {
+  html body .seller-page .seller-listing-country-flag {
+    flex-basis: 16px !important;
+    height: 11px !important;
+    width: 16px !important;
+  }
+}
+
+/* Public profile follow action. */
+html body .seller-page .seller-ref-follow-row {
+  align-items: center !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin-top: 4px !important;
+}
+
+html body .seller-page .seller-ref-follow-button {
+  align-items: center !important;
+  background: rgba(255, 122, 26, 0.14) !important;
+  border: 1px solid rgba(255, 154, 36, 0.58) !important;
+  border-radius: 7px !important;
+  color: #ffd2a1 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  gap: 7px !important;
+  min-height: 32px !important;
+  padding: 0 11px !important;
+  text-decoration: none !important;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease !important;
+}
+
+html body .seller-page .seller-ref-follow-button:hover,
+html body .seller-page .seller-ref-follow-button:focus-visible {
+  background: rgba(255, 122, 26, 0.24) !important;
+  border-color: rgba(255, 184, 104, 0.9) !important;
+  color: #ffffff !important;
+  outline: none !important;
+}
+
+html body .seller-page .seller-ref-follow-button.is-following {
+  background: rgba(29, 167, 103, 0.15) !important;
+  border-color: rgba(47, 226, 138, 0.5) !important;
+  color: #49e89c !important;
+}
+
+html body .seller-page .seller-ref-follow-button:disabled {
+  cursor: wait !important;
+  opacity: 0.68 !important;
+}
+
+html body .seller-page .seller-ref-follow-error {
+  color: #ffb4a8 !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+}
+
+/* Premium seller profile composition: hero and controls only, keep listing cards unchanged. */
+html body .seller-page {
+  background:
+    radial-gradient(900px 360px at 88% 18%, rgba(255, 122, 26, 0.11), transparent 62%),
+    radial-gradient(720px 320px at 24% 8%, rgba(87, 176, 255, 0.08), transparent 66%),
+    linear-gradient(180deg, #020912 0%, #06111d 48%, #030a12 100%) !important;
+  color: #f5f8fc !important;
+}
+
+html body .seller-page .sp-wrap {
+  max-width: 1320px !important;
+  padding-top: 28px !important;
+}
+
+html body .seller-page .seller-ref-hero {
+  background:
+    radial-gradient(520px 240px at 92% 18%, rgba(255, 122, 26, 0.13), transparent 68%),
+    radial-gradient(640px 300px at 22% 10%, rgba(79, 166, 240, 0.11), transparent 70%),
+    linear-gradient(180deg, rgba(5, 15, 25, 0.94), rgba(2, 9, 17, 0.97)) !important;
+  border: 1px solid rgba(112, 146, 174, 0.34) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 26px 80px rgba(0, 4, 12, 0.38) !important;
+  display: grid !important;
+  gap: 28px !important;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 430px) !important;
+  padding: 30px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+html body .seller-page .seller-ref-hero::after {
+  background:
+    linear-gradient(rgba(255, 122, 26, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 122, 26, 0.06) 1px, transparent 1px) !important;
+  background-size: 52px 52px !important;
+  content: "" !important;
+  inset: 0 !important;
+  opacity: 0.22 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+}
+
+html body .seller-page .seller-ref-identity,
+html body .seller-page .seller-ref-trust-card,
+html body .seller-page .seller-ref-stats {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+html body .seller-page .seller-ref-identity {
+  align-items: center !important;
+  display: grid !important;
+  gap: 30px !important;
+  grid-template-columns: 190px minmax(0, 1fr) !important;
+}
+
+html body .seller-page .seller-ref-avatar {
+  background:
+    radial-gradient(circle at 50% 45%, rgba(88, 199, 255, 0.24), transparent 64%),
+    linear-gradient(180deg, rgba(8, 28, 47, 0.96), rgba(3, 11, 20, 0.98)) !important;
+  border: 2px solid rgba(255, 122, 26, 0.95) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 203, 155, 0.16),
+    0 0 34px rgba(255, 122, 26, 0.28),
+    0 22px 48px rgba(0, 4, 12, 0.36) !important;
+  height: 190px !important;
+  overflow: hidden !important;
+  width: 190px !important;
+}
+
+html body .seller-page .seller-ref-avatar img {
+  height: 100% !important;
+  object-fit: cover !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-ref-logo {
+  color: #9fe7ff !important;
+  font-size: 34px !important;
+  letter-spacing: 0 !important;
+  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.72) !important;
+}
+
+html body .seller-page .seller-ref-copy h1 {
+  align-items: center !important;
+  color: #ffffff !important;
+  display: flex !important;
+  font-size: clamp(36px, 4.4vw, 56px) !important;
+  font-weight: 950 !important;
+  gap: 14px !important;
+  letter-spacing: 0 !important;
+  line-height: 1.02 !important;
+  margin: 0 0 18px !important;
+}
+
+html body .seller-page .seller-ref-copy h1 span {
+  align-items: center !important;
+  background: linear-gradient(135deg, #ff9b24, #ff6500) !important;
+  border-radius: 999px !important;
+  color: #08121d !important;
+  display: inline-flex !important;
+  font-size: 18px !important;
+  height: 30px !important;
+  justify-content: center !important;
+  width: 30px !important;
+}
+
+html body .seller-page .seller-ref-copy p {
+  align-items: center !important;
+  color: rgba(231, 239, 247, 0.76) !important;
+  display: flex !important;
+  font-size: 15px !important;
+  font-weight: 750 !important;
+  gap: 9px !important;
+  margin: 0 0 12px !important;
+}
+
+html body .seller-page .seller-ref-copy p svg {
+  color: rgba(231, 239, 247, 0.7) !important;
+}
+
+html body .seller-page .seller-ref-pill-row,
+html body .seller-page .seller-ref-mini-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  margin-top: 20px !important;
+}
+
+html body .seller-page .seller-ref-mini-row {
+  border-top: 1px solid rgba(151, 178, 205, 0.14) !important;
+  padding-top: 12px !important;
+}
+
+html body .seller-page .seller-ref-phone-pill,
+html body .seller-page .seller-ref-mini-row > span,
+html body .seller-page .seller-ref-company-extra span,
+html body .seller-page .seller-ref-company-extra a {
+  align-items: center !important;
+  background: rgba(7, 20, 34, 0.68) !important;
+  border: 1px solid rgba(151, 178, 205, 0.22) !important;
+  border-radius: 999px !important;
+  color: #eef7ff !important;
+  display: inline-flex !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  gap: 8px !important;
+  min-height: 36px !important;
+  padding: 0 15px !important;
+  text-decoration: none !important;
+}
+
+html body .seller-page .seller-ref-phone-pill:first-child,
+html body .seller-page .seller-ref-mini-row > span:first-child {
+  border-color: rgba(255, 122, 26, 0.42) !important;
+}
+
+html body .seller-page .seller-ref-phone-pill svg,
+html body .seller-page .seller-ref-mini-row svg,
+html body .seller-page .seller-ref-company-extra svg {
+  color: #ff7a1a !important;
+}
+
+html body .seller-page .seller-ref-mini-row .is-good {
+  color: #22d88b !important;
+}
+
+html body .seller-page .seller-ref-follow-button {
+  border-radius: 999px !important;
+  min-height: 36px !important;
+}
+
+html body .seller-page .seller-ref-company-extra {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  margin-top: 14px !important;
+}
+
+html body .seller-page .seller-ref-trust-card {
+  align-self: stretch !important;
+  background:
+    radial-gradient(190px 160px at 78% 28%, rgba(255, 122, 26, 0.2), transparent 72%),
+    linear-gradient(180deg, rgba(8, 22, 36, 0.78), rgba(3, 11, 20, 0.84)) !important;
+  border: 1px solid rgba(151, 178, 205, 0.28) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 24px 70px rgba(0, 4, 12, 0.26) !important;
+  display: grid !important;
+  min-height: 260px !important;
+  overflow: hidden !important;
+  padding: 26px 28px !important;
+}
+
+html body .seller-page .seller-ref-trust-top {
+  align-items: start !important;
+  display: grid !important;
+  gap: 8px !important;
+  grid-template-columns: minmax(0, 1fr) 128px !important;
+}
+
+html body .seller-page .seller-ref-trust-top > svg {
+  display: none !important;
+}
+
+html body .seller-page .seller-ref-trust-top > div:first-of-type {
+  display: grid !important;
+  gap: 6px !important;
+}
+
+html body .seller-page .seller-ref-trust-top span {
+  color: rgba(231, 239, 247, 0.66) !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+html body .seller-page .seller-ref-trust-top strong {
+  color: #ffffff !important;
+  font-size: 52px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+html body .seller-page .seller-ref-score-ring {
+  align-items: center !important;
+  background:
+    radial-gradient(circle, rgba(255, 122, 26, 0.13), transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01)) !important;
+  border: 5px solid rgba(255, 122, 26, 0.88) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 0 0 7px rgba(255, 122, 26, 0.09),
+    0 0 42px rgba(255, 122, 26, 0.32) !important;
+  display: grid !important;
+  height: 118px !important;
+  justify-items: center !important;
+  place-self: center end !important;
+  width: 118px !important;
+}
+
+html body .seller-page .seller-ref-score-ring strong {
+  font-size: 34px !important;
+}
+
+html body .seller-page .seller-ref-score-ring span,
+html body .seller-page .seller-ref-score-ring small {
+  color: rgba(231, 239, 247, 0.62) !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+}
+
+html body .seller-page .seller-ref-trust-card p {
+  color: rgba(231, 239, 247, 0.72) !important;
+  display: grid !important;
+  font-size: 14px !important;
+  font-weight: 750 !important;
+  gap: 8px !important;
+  line-height: 1.48 !important;
+  margin: 16px 0 0 !important;
+  max-width: 300px !important;
+}
+
+html body .seller-page .seller-ref-trust-card p strong {
+  color: #ff9a24 !important;
+  font-size: 16px !important;
+}
+
+html body .seller-page .seller-ref-meter-head {
+  align-items: flex-end !important;
+  display: flex !important;
+  gap: 8px !important;
+  justify-content: flex-start !important;
+  margin-top: 10px !important;
+}
+
+html body .seller-page .seller-ref-meter-head span,
+html body .seller-page .seller-ref-meter-head strong {
+  color: #ff9a24 !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+}
+
+html body .seller-page .seller-ref-meter {
+  background: rgba(134, 160, 184, 0.28) !important;
+  border-radius: 999px !important;
+  height: 8px !important;
+  margin-top: 8px !important;
+  overflow: hidden !important;
+}
+
+html body .seller-page .seller-ref-meter span {
+  background: linear-gradient(90deg, #ff9a24, #ff6b00) !important;
+  border-radius: inherit !important;
+  box-shadow: 0 0 18px rgba(255, 122, 26, 0.34) !important;
+  display: block !important;
+  height: 100% !important;
+}
+
+html body .seller-page .seller-ref-stats {
+  background: rgba(3, 12, 22, 0.74) !important;
+  border: 1px solid rgba(151, 178, 205, 0.26) !important;
+  border-radius: 14px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  display: grid !important;
+  gap: 0 !important;
+  grid-column: 1 / 13 !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  margin-top: 2px !important;
+  overflow: hidden !important;
+}
+
+html body .seller-page .seller-ref-stat {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-right: 1px solid rgba(151, 178, 205, 0.16) !important;
+  border-radius: 0 !important;
+  color: #ffffff !important;
+  display: grid !important;
+  gap: 4px !important;
+  justify-items: center !important;
+  min-height: 92px !important;
+  padding: 12px 10px !important;
+}
+
+html body .seller-page .seller-ref-stat:last-child {
+  border-right: 0 !important;
+}
+
+html body .seller-page .seller-ref-stat svg {
+  color: #ff7a1a !important;
+  height: 26px !important;
+  width: 26px !important;
+}
+
+html body .seller-page .seller-ref-stat strong {
+  color: #ffffff !important;
+  font-size: 27px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+html body .seller-page .seller-ref-stat span {
+  color: rgba(231, 239, 247, 0.7) !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  text-align: center !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating {
+  grid-template-columns: auto auto minmax(0, 1fr) !important;
+  justify-content: center !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating div {
+  color: #ff8a1a !important;
+  display: inline-flex !important;
+  gap: 2px !important;
+}
+
+html body .seller-page .sp-tabs {
+  background: rgba(3, 12, 22, 0.76) !important;
+  border: 1px solid rgba(151, 178, 205, 0.22) !important;
+  border-radius: 13px 13px 0 0 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  margin-top: 12px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+html body .seller-page .sp-tabs-left {
+  display: flex !important;
+}
+
+html body .seller-page .sp-tab {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 0 !important;
+  border-right: 1px solid rgba(151, 178, 205, 0.1) !important;
+  border-radius: 0 !important;
+  color: rgba(231, 239, 247, 0.72) !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  min-height: 62px !important;
+  min-width: 150px !important;
+  padding: 0 28px !important;
+}
+
+html body .seller-page .sp-tab.active {
+  background: linear-gradient(180deg, rgba(255, 122, 26, 0.12), rgba(255, 122, 26, 0.04)) !important;
+  box-shadow: inset 0 -3px 0 #ff7a1a !important;
+  color: #ff9a24 !important;
+}
+
+html body .seller-page .sp-advanced-search {
+  background: rgba(3, 12, 22, 0.76) !important;
+  border: 1px solid rgba(151, 178, 205, 0.22) !important;
+  border-radius: 0 0 13px 13px !important;
+  box-shadow: none !important;
+  grid-template-columns: minmax(0, 1fr) auto auto !important;
+  margin-bottom: 14px !important;
+  margin-top: -1px !important;
+  min-height: 62px !important;
+  padding: 10px !important;
+}
+
+html body .seller-page .sp-search-field {
+  background: rgba(2, 9, 17, 0.72) !important;
+  border: 1px solid rgba(151, 178, 205, 0.22) !important;
+  border-radius: 9px !important;
+  min-height: 42px !important;
+}
+
+html body .seller-page .sp-filter-label,
+html body .seller-page .sp-filter-reset {
+  border-radius: 9px !important;
+  min-height: 42px !important;
+}
+
+@media (max-width: 1080px) {
+  html body .seller-page .seller-ref-hero {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .seller-page .seller-ref-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html body .seller-page .seller-ref-stat:nth-child(3n) {
+    border-right: 0 !important;
+  }
+}
+
+@media (max-width: 720px) {
+  html body .seller-page .sp-wrap {
+    padding-top: 14px !important;
+  }
+
+  html body .seller-page .seller-ref-hero {
+    border-radius: 14px !important;
+    gap: 16px !important;
+    padding: 16px !important;
+  }
+
+  html body .seller-page .seller-ref-identity {
+    gap: 14px !important;
+    grid-template-columns: 84px minmax(0, 1fr) !important;
+  }
+
+  html body .seller-page .seller-ref-avatar {
+    border-radius: 13px !important;
+    height: 84px !important;
+    width: 84px !important;
+  }
+
+  html body .seller-page .seller-ref-copy h1 {
+    font-size: clamp(24px, 8vw, 34px) !important;
+    margin-bottom: 10px !important;
+  }
+
+  html body .seller-page .seller-ref-copy p {
+    font-size: 12px !important;
+    margin-bottom: 7px !important;
+  }
+
+  html body .seller-page .seller-ref-pill-row,
+  html body .seller-page .seller-ref-mini-row {
+    gap: 7px !important;
+    margin-top: 10px !important;
+  }
+
+  html body .seller-page .seller-ref-phone-pill,
+  html body .seller-page .seller-ref-mini-row > span {
+    font-size: 11px !important;
+    min-height: 30px !important;
+    padding: 0 10px !important;
+  }
+
+  html body .seller-page .seller-ref-trust-card {
+    min-height: 0 !important;
+    padding: 18px !important;
+    width: auto !important;
+  }
+
+  html body .seller-page .seller-ref-trust-top {
+    grid-template-columns: minmax(0, 1fr) 86px !important;
+  }
+
+  html body .seller-page .seller-ref-score-ring {
+    height: 78px !important;
+    width: 78px !important;
+  }
+
+  html body .seller-page .seller-ref-trust-top strong {
+    font-size: 38px !important;
+  }
+
+  html body .seller-page .seller-ref-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: auto !important;
+  }
+
+  html body .seller-page .seller-ref-stat,
+  html body .seller-page .seller-ref-stat.is-rating {
+    border-right: 1px solid rgba(151, 178, 205, 0.16) !important;
+    flex: none !important;
+    height: auto !important;
+    max-width: none !important;
+    min-height: 84px !important;
+    width: auto !important;
+  }
+
+  html body .seller-page .seller-ref-stat:nth-child(2n) {
+    border-right: 0 !important;
+  }
+
+  html body .seller-page .sp-tabs {
+    width: auto !important;
+  }
+
+  html body .seller-page .sp-tab {
+    min-height: 52px !important;
+    min-width: 120px !important;
+    padding: 0 18px !important;
+  }
+
+  html body .seller-page .sp-advanced-search {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: auto !important;
+  }
+
+  html body .seller-page .sp-search-field {
+    flex: 1 1 100% !important;
+  }
+}
+
+/* Seller profile search deck: reference-inspired tab and filter surface. */
+html body .seller-page .sp-tabs {
+  background:
+    linear-gradient(180deg, rgba(22, 39, 55, 0.82), rgba(5, 14, 25, 0.92)) !important;
+  border: 1px solid rgba(137, 160, 184, 0.18) !important;
+  border-bottom: 0 !important;
+  border-radius: 16px 16px 0 0 !important;
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  margin: 28px 0 0 !important;
+  min-height: 96px !important;
+  overflow: visible !important;
+  padding: 28px 22px 0 !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-tabs::before {
+  background: radial-gradient(circle at 22% 0%, rgba(151, 178, 205, 0.16), transparent 38%) !important;
+  content: "" !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+}
+
+html body .seller-page .sp-tabs-left {
+  align-items: stretch !important;
+  display: flex !important;
+  gap: 0 !important;
+  isolation: isolate !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+html body .seller-page .sp-tab {
+  align-items: center !important;
+  background: rgba(7, 18, 31, 0.54) !important;
+  border: 1px solid rgba(137, 160, 184, 0.12) !important;
+  border-bottom-color: rgba(137, 160, 184, 0.22) !important;
+  border-radius: 8px 8px 0 0 !important;
+  color: rgba(208, 221, 235, 0.72) !important;
+  display: inline-flex !important;
+  font-size: 22px !important;
+  font-weight: 850 !important;
+  gap: 18px !important;
+  justify-content: center !important;
+  letter-spacing: 0 !important;
+  min-height: 88px !important;
+  min-width: 260px !important;
+  padding: 0 36px !important;
+  position: relative !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.28) !important;
+}
+
+html body .seller-page .sp-tab svg {
+  color: currentColor !important;
+  flex: 0 0 auto !important;
+  stroke-width: 2.2 !important;
+}
+
+html body .seller-page .sp-tab.active {
+  background:
+    linear-gradient(180deg, rgba(11, 25, 39, 0.96), rgba(4, 13, 24, 0.98)) !important;
+  border-color: rgba(255, 148, 31, 0.7) rgba(137, 160, 184, 0.16) rgba(137, 160, 184, 0.16) !important;
+  box-shadow:
+    inset 0 4px 0 #ff971f,
+    0 0 0 1px rgba(255, 148, 31, 0.14),
+    0 18px 36px rgba(0, 0, 0, 0.25) !important;
+  color: #ff971f !important;
+  z-index: 2 !important;
+}
+
+html body .seller-page .sp-advanced-search {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(5, 14, 25, 0.95), rgba(3, 11, 21, 0.98)) !important;
+  border: 1px solid rgba(137, 160, 184, 0.18) !important;
+  border-radius: 0 0 16px 16px !important;
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  column-gap: 28px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto auto auto !important;
+  margin: 0 0 30px !important;
+  min-height: 112px !important;
+  padding: 22px 26px !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-search-field {
+  align-items: center !important;
+  background: rgba(4, 13, 24, 0.92) !important;
+  border: 1px solid rgba(137, 160, 184, 0.28) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 0 1px rgba(0, 0, 0, 0.14) !important;
+  display: flex !important;
+  gap: 18px !important;
+  min-height: 72px !important;
+  padding: 0 26px !important;
+}
+
+html body .seller-page .sp-search-field svg {
+  color: rgba(184, 202, 222, 0.88) !important;
+  flex: 0 0 auto !important;
+  height: 29px !important;
+  width: 29px !important;
+}
+
+html body .seller-page .sp-search-field input {
+  color: rgba(235, 242, 249, 0.96) !important;
+  font-size: 22px !important;
+  font-weight: 650 !important;
+  letter-spacing: 0 !important;
+  min-width: 0 !important;
+}
+
+html body .seller-page .sp-search-field input::placeholder {
+  color: rgba(210, 222, 235, 0.72) !important;
+}
+
+html body .seller-page .sp-search-clear {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: rgba(184, 202, 222, 0.78) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 38px !important;
+  justify-content: center !important;
+  margin-left: auto !important;
+  padding: 0 !important;
+  width: 38px !important;
+}
+
+html body .seller-page .sp-search-clear:hover {
+  color: #ff971f !important;
+}
+
+html body .seller-page .sp-filter-label {
+  align-items: center !important;
+  background: rgba(37, 20, 9, 0.9) !important;
+  border: 1px solid rgba(255, 139, 26, 0.56) !important;
+  border-radius: 18px !important;
+  color: #ff971f !important;
+  display: inline-flex !important;
+  font-size: 20px !important;
+  font-weight: 850 !important;
+  gap: 14px !important;
+  justify-content: center !important;
+  letter-spacing: 0 !important;
+  min-height: 72px !important;
+  padding: 0 32px !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .sp-filter-label svg {
+  height: 25px !important;
+  width: 25px !important;
+}
+
+html body .seller-page .sp-filter-label:hover {
+  background: rgba(53, 28, 11, 0.96) !important;
+  border-color: rgba(255, 151, 31, 0.86) !important;
+}
+
+html body .seller-page .sp-filter-summary {
+  align-self: center !important;
+  color: rgba(210, 222, 235, 0.76) !important;
+  font-size: 14px !important;
+  max-width: 240px !important;
+}
+
+html body .seller-page .sp-filter-actions {
+  align-self: center !important;
+}
+
+html body .seller-page .sp-filter-reset {
+  border-radius: 14px !important;
+  min-height: 46px !important;
+}
+
+@media (max-width: 1120px) {
+  html body .seller-page .sp-tab {
+    font-size: 18px !important;
+    min-width: 210px !important;
+    padding: 0 26px !important;
+  }
+
+  html body .seller-page .sp-advanced-search {
+    column-gap: 16px !important;
+    padding: 18px !important;
+  }
+
+  html body .seller-page .sp-search-field input,
+  html body .seller-page .sp-filter-label {
+    font-size: 18px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .sp-tabs {
+    margin-top: 18px !important;
+    min-height: 72px !important;
+    overflow-x: auto !important;
+    padding: 14px 10px 0 !important;
+  }
+
+  html body .seller-page .sp-tab {
+    flex: 0 0 auto !important;
+    font-size: 14px !important;
+    gap: 9px !important;
+    min-height: 58px !important;
+    min-width: 150px !important;
+    padding: 0 15px !important;
+  }
+
+  html body .seller-page .sp-tab svg {
+    height: 18px !important;
+    width: 18px !important;
+  }
+
+  html body .seller-page .sp-advanced-search {
+    border-radius: 0 0 14px 14px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    min-height: 0 !important;
+    padding: 12px !important;
+  }
+
+  html body .seller-page .sp-search-field {
+    border-radius: 13px !important;
+    flex: 1 1 100% !important;
+    gap: 11px !important;
+    min-height: 52px !important;
+    padding: 0 14px !important;
+  }
+
+  html body .seller-page .sp-search-field svg {
+    height: 20px !important;
+    width: 20px !important;
+  }
+
+  html body .seller-page .sp-search-field input,
+  html body .seller-page .sp-filter-label {
+    font-size: 14px !important;
+  }
+
+  html body .seller-page .sp-filter-label {
+    border-radius: 13px !important;
+    flex: 1 1 auto !important;
+    min-height: 48px !important;
+    padding: 0 16px !important;
+  }
+}
+
+/* True final override for the seller search deck at the in-app browser width. */
+@media (min-width: 521px) and (max-width: 760px) {
+  html body .seller-page .sp-tabs {
+    scrollbar-width: none !important;
+  }
+
+  html body .seller-page .sp-tabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  html body .seller-page .sp-advanced-search {
+    display: grid !important;
+    flex-wrap: nowrap !important;
+    gap: 14px !important;
+    grid-template-columns: minmax(0, 1fr) 184px !important;
+    min-height: 88px !important;
+    padding: 12px 14px !important;
+  }
+
+  html body .seller-page .sp-search-field {
+    flex: initial !important;
+    min-height: 52px !important;
+    width: auto !important;
+  }
+
+  html body .seller-page .sp-filter-label {
+    flex: initial !important;
+    min-height: 52px !important;
+    padding: 0 16px !important;
+    width: auto !important;
+  }
+}
+
+html body .seller-page .sp-tabs,
+html body .seller-page .sp-tabs-left {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+html body .seller-page .sp-tabs::-webkit-scrollbar,
+html body .seller-page .sp-tabs-left::-webkit-scrollbar {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+}
+
+@media (min-width: 521px) and (max-width: 760px) {
+  html body .seller-page .sp-tabs {
+    overflow: hidden !important;
+  }
+
+  html body .seller-page .sp-advanced-search {
+    border-top: 0 !important;
+    margin-top: -14px !important;
+  }
+}
+
+/* Desktop reference layout: same treatment as mobile, scaled for the wide profile view. */
+@media (min-width: 900px) {
+  html body .seller-page .sp-tabs {
+    background:
+      linear-gradient(180deg, rgba(22, 39, 55, 0.78), rgba(5, 14, 25, 0.96)) !important;
+    border: 1px solid rgba(141, 164, 188, 0.22) !important;
+    border-bottom: 0 !important;
+    border-radius: 14px 14px 0 0 !important;
+    box-shadow:
+      0 22px 54px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+    margin: 28px 0 0 !important;
+    min-height: 128px !important;
+    overflow: hidden !important;
+    padding: 30px 24px 0 !important;
+  }
+
+  html body .seller-page .sp-tabs-left {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 0 !important;
+    min-width: 0 !important;
+  }
+
+  html body .seller-page .sp-tab {
+    background: rgba(48, 78, 99, 0.9) !important;
+    border: 1px solid rgba(140, 170, 196, 0.36) !important;
+    border-radius: 7px 7px 0 0 !important;
+    color: rgba(229, 238, 247, 0.92) !important;
+    font-size: 24px !important;
+    gap: 22px !important;
+    min-height: 96px !important;
+    min-width: 302px !important;
+    padding: 0 34px !important;
+  }
+
+  html body .seller-page .sp-tab.active {
+    background:
+      linear-gradient(180deg, rgba(8, 22, 36, 0.98), rgba(4, 14, 25, 0.98)) !important;
+    border-color: rgba(255, 151, 31, 0.85) rgba(140, 170, 196, 0.22) rgba(140, 170, 196, 0.2) !important;
+    box-shadow:
+      inset 0 4px 0 #ff971f,
+      0 0 0 1px rgba(255, 151, 31, 0.16) !important;
+    color: #ff971f !important;
+  }
+
+  html body .seller-page .sp-tab svg {
+    height: 30px !important;
+    width: 30px !important;
+  }
+
+  html body .seller-page .sp-advanced-search {
+    border-top: 0 !important;
+    border-radius: 0 0 14px 14px !important;
+    display: grid !important;
+    gap: 32px !important;
+    grid-template-columns: minmax(0, 1fr) 312px auto auto !important;
+    margin-top: -14px !important;
+    min-height: 112px !important;
+    padding: 22px 32px !important;
+  }
+
+  html body .seller-page .sp-search-field {
+    border-radius: 18px !important;
+    min-height: 72px !important;
+    padding: 0 30px !important;
+  }
+
+  html body .seller-page .sp-filter-label {
+    border-radius: 18px !important;
+    font-size: 20px !important;
+    min-height: 72px !important;
+    padding: 0 32px !important;
+    width: auto !important;
+  }
+
+  html body .seller-page .sp-empty {
+    border-radius: 0 0 14px 14px !important;
+    border-top-color: rgba(141, 164, 188, 0.14) !important;
+    margin-top: -14px !important;
+  }
+}
+
+/* Clean seller intro: remove starter divider lines and move follow action top-right. */
+html body .seller-page .seller-ref-hero {
+  position: relative !important;
+}
+
+html body .seller-page .seller-ref-identity,
+html body .seller-page .seller-ref-copy {
+  position: static !important;
+}
+
+html body .seller-page .seller-ref-copy,
+html body .seller-page .seller-ref-copy *,
+html body .seller-page .seller-ref-pill-row,
+html body .seller-page .seller-ref-mini-row,
+html body .seller-page .seller-ref-company-extra {
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+}
+
+html body .seller-page .seller-ref-copy::before,
+html body .seller-page .seller-ref-copy::after,
+html body .seller-page .seller-ref-pill-row::before,
+html body .seller-page .seller-ref-pill-row::after,
+html body .seller-page .seller-ref-mini-row::before,
+html body .seller-page .seller-ref-mini-row::after {
+  display: none !important;
+}
+
+html body .seller-page .seller-ref-copy p,
+html body .seller-page .seller-ref-pill-row,
+html body .seller-page .seller-ref-mini-row,
+html body .seller-page .seller-ref-company-extra {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html body .seller-page .seller-ref-follow-row {
+  align-items: center !important;
+  display: flex !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  position: absolute !important;
+  left: auto !important;
+  right: 28px !important;
+  top: 26px !important;
+  width: auto !important;
+  z-index: 4 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html body .seller-page .seller-ref-follow-button {
+  background: transparent !important;
+  border: 1px solid rgba(255, 122, 26, 0.78) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  color: rgba(244, 248, 252, 0.92) !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  min-height: 38px !important;
+  padding: 0 18px !important;
+}
+
+html body .seller-page .seller-ref-follow-button svg {
+  color: #ff7a1a !important;
+}
+
+html body .seller-page .seller-ref-follow-button:hover,
+html body .seller-page .seller-ref-follow-button:focus-visible {
+  background: rgba(255, 122, 26, 0.08) !important;
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.12) !important;
+  color: #fff !important;
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .seller-ref-follow-row {
+    margin-top: 10px !important;
+    position: static !important;
+  }
+}
+
+/* Remove the old top trust/highly-rated row from the seller intro. */
+html body .seller-page .seller-ref-copy > .seller-ref-mini-row {
+  display: none !important;
+}
+
+/* Remove top level / phone verification pill row. */
+html body .seller-page .seller-ref-copy > .seller-ref-pill-row {
+  display: none !important;
+}
+
+/* Remove lower profile info cards. */
+html body .seller-page .seller-ref-about-highlight,
+html body .seller-page .seller-ref-detail-card {
+  display: none !important;
+}
+
+html body .seller-page .seller-ref-hero .seller-ref-detail-card {
+  display: none !important;
+}
+
+/* Final seller name cleanup: no backing glow/card and no clipped letters. */
+html body .seller-page .seller-ref-copy h1 {
+  background: transparent !important;
+  box-decoration-break: clone !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  line-height: 1.18 !important;
+  max-width: min(720px, calc(100vw - 430px)) !important;
+  overflow: visible !important;
+  padding: 0 4px 4px 0 !important;
+  text-overflow: clip !important;
+  text-shadow: none !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .seller-ref-copy h1 span {
+  flex: 0 0 auto !important;
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .seller-ref-copy h1 {
+    max-width: calc(100vw - 112px) !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+/* Seller hero info section: show Lisatiedot above individual stat cards. */
+html body .seller-page .seller-ref-about-highlight {
+  background:
+    radial-gradient(520px 220px at 100% 0%, rgba(255, 122, 26, 0.06), transparent 66%),
+    linear-gradient(180deg, rgba(5, 16, 28, 0.9), rgba(3, 12, 22, 0.96)) !important;
+  border: 1px solid rgba(141, 164, 188, 0.16) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  grid-column: 1 / 7 !important;
+  grid-row: auto !important;
+  min-height: 220px !important;
+  order: 2 !important;
+  margin: 8px 0 0 !important;
+  padding: 22px 24px !important;
+}
+
+html body .seller-page .seller-ref-about-highlight h2 {
+  color: #f4f8fc !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  margin: 0 0 12px !important;
+}
+
+html body .seller-page .seller-ref-about-highlight p {
+  color: rgba(226, 236, 247, 0.82) !important;
+  font-size: 15px !important;
+  font-weight: 650 !important;
+  line-height: 1.65 !important;
+  margin: 0 !important;
+  max-width: 860px !important;
+  white-space: pre-line !important;
+}
+
+html body .seller-page .seller-ref-stats {
+  background:
+    linear-gradient(180deg, rgba(5, 16, 28, 0.92), rgba(3, 12, 22, 0.98)) !important;
+  border: 1px solid rgba(141, 164, 188, 0.14) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  display: grid !important;
+  gap: 0 !important;
+  grid-column: 1 / -1 !important;
+  grid-row: auto !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  margin-top: 16px !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 138px !important;
+  order: 3 !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+html body .seller-page .seller-ref-stat,
+html body .seller-page .seller-ref-stat.is-rating {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  border-right: 1px solid rgba(141, 164, 188, 0.18) !important;
+  box-shadow: none !important;
+  display: grid !important;
+  gap: 7px !important;
+  justify-items: center !important;
+  min-height: 138px !important;
+  height: auto !important;
+  padding: 16px 10px !important;
+  text-align: center !important;
+}
+
+html body .seller-page .seller-ref-stat:last-child {
+  border-right: 0 !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating {
+  background:
+    radial-gradient(180px 100px at 0% 100%, rgba(255, 122, 26, 0.14), transparent 72%) !important;
+}
+
+html body .seller-page .seller-ref-stat svg {
+  color: #ff7a1a !important;
+  height: 24px !important;
+  width: 24px !important;
+}
+
+html body .seller-page .seller-ref-stat strong {
+  color: #f4f8fc !important;
+  font-size: 27px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+html body .seller-page .seller-ref-stat span {
+  color: rgba(226, 236, 247, 0.72) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating div {
+  color: #ff7a1a !important;
+  display: flex !important;
+  gap: 2px !important;
+}
+
+html body .seller-page .seller-ref-detail-card {
+  background:
+    radial-gradient(420px 180px at 100% 0%, rgba(82, 129, 168, 0.08), transparent 68%),
+    linear-gradient(180deg, rgba(5, 16, 28, 0.9), rgba(3, 12, 22, 0.96)) !important;
+  border: 1px solid rgba(141, 164, 188, 0.16) !important;
+  border-radius: 12px !important;
+  display: grid !important;
+  grid-column: 7 / 13 !important;
+  margin-top: 8px !important;
+  min-height: 220px !important;
+  order: 2 !important;
+  padding: 20px 24px !important;
+}
+
+html body .seller-page .seller-ref-detail-row {
+  align-items: center !important;
+  border-bottom: 1px solid rgba(141, 164, 188, 0.1) !important;
+  color: rgba(226, 236, 247, 0.78) !important;
+  display: grid !important;
+  gap: 14px !important;
+  grid-template-columns: 24px minmax(0, 1fr) minmax(120px, auto) !important;
+  min-height: 40px !important;
+}
+
+html body .seller-page .seller-ref-detail-row:last-child {
+  border-bottom: 0 !important;
+}
+
+html body .seller-page .seller-ref-detail-row svg {
+  color: rgba(226, 236, 247, 0.68) !important;
+}
+
+html body .seller-page .seller-ref-detail-row span {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+
+html body .seller-page .seller-ref-detail-row strong {
+  color: rgba(244, 248, 252, 0.82) !important;
+  display: grid !important;
+  font-size: 14px !important;
+  font-weight: 750 !important;
+  justify-items: flex-end !important;
+  text-align: right !important;
+}
+
+html body .seller-page .seller-ref-detail-row strong a {
+  align-items: center !important;
+  color: #ffb45f !important;
+  display: inline-flex !important;
+  gap: 6px !important;
+  justify-content: flex-end !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+  text-decoration: none !important;
+}
+
+html body .seller-page .seller-ref-detail-row strong a:hover,
+html body .seller-page .seller-ref-detail-row strong a:focus-visible {
+  color: #ffd0a0 !important;
+}
+
+html body .seller-page .seller-ref-detail-row strong.is-good {
+  color: #00e28a !important;
+}
+
+html body .seller-page .seller-ref-detail-row strong small {
+  color: rgba(226, 236, 247, 0.68) !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+}
+
+@media (max-width: 980px) {
+  html body .seller-page .seller-ref-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html body .seller-page .seller-ref-about-highlight,
+  html body .seller-page .seller-ref-detail-card {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+html body .seller-page .seller-ref-hero {
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+}
+
+html body .seller-page .seller-ref-identity {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-ref-copy {
+  min-width: 0 !important;
+  width: auto !important;
+}
+
+html body .seller-page .seller-ref-copy p {
+  white-space: normal !important;
+}
+
+@media (max-width: 980px) {
+  html body .seller-page .seller-ref-about-highlight,
+  html body .seller-page .seller-ref-detail-card {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  html body .seller-page .seller-ref-about-highlight {
+    padding: 18px !important;
+  }
+
+  html body .seller-page .seller-ref-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Compact seller identity: smaller avatar and name, avatar slightly higher. */
+html body .seller-page .seller-ref-avatar {
+  height: 132px !important;
+  transform: translateY(-14px) !important;
+  width: 132px !important;
+}
+
+html body .seller-page .seller-ref-copy h1 {
+  font-size: clamp(26px, 3vw, 40px) !important;
+  line-height: 1.02 !important;
+  max-width: min(620px, calc(100vw - 360px)) !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .seller-ref-identity {
+  align-items: start !important;
+  column-gap: 26px !important;
+  grid-template-columns: 132px minmax(0, 1fr) !important;
+}
+
+@media (min-width: 900px) {
+  html body .seller-page .seller-ref-identity {
+    column-gap: 24px !important;
+    grid-template-columns: 128px minmax(0, 1fr) !important;
+  }
+
+  html body .seller-page .seller-ref-avatar {
+    height: 128px !important;
+    width: 128px !important;
+  }
+
+  html body .seller-page .seller-ref-copy h1 {
+    font-size: clamp(28px, 2.7vw, 42px) !important;
+    max-width: min(650px, calc(100vw - 430px)) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  html body .seller-page .seller-ref-identity {
+    column-gap: 14px !important;
+    grid-template-columns: 72px minmax(0, 1fr) !important;
+  }
+
+  html body .seller-page .seller-ref-avatar {
+    height: 72px !important;
+    transform: translateY(-6px) !important;
+    width: 72px !important;
+  }
+
+  html body .seller-page .seller-ref-copy h1 {
+    font-size: clamp(20px, 5.5vw, 28px) !important;
+    max-width: calc(100vw - 128px) !important;
+  }
+}
+
+@media (min-width: 900px) {
+  html body .seller-page .sp-tabs .sp-tabs-left {
+    gap: 12px !important;
+  }
+
+  html body .seller-page .sp-tabs .sp-tabs-left .sp-tab,
+  html body .seller-page .sp-tabs .sp-tabs-left .sp-tab:not(.active) {
+    flex: 0 0 auto !important;
+    font-size: 12px !important;
+    min-height: 36px !important;
+    min-width: 146px !important;
+    width: auto !important;
+    padding: 0 14px !important;
+  }
+
+  html body .seller-page .sp-tabs .sp-tabs-left .sp-tab + .sp-tab {
+    margin-left: 0 !important;
+  }
+}
+
+/* Separate the two seller tabs and make them a touch smaller. */
+html body .seller-page .sp-tabs-left {
+  gap: 8px !important;
+}
+
+html body .seller-page .sp-tab,
+html body .seller-page .sp-tab:not(.active) {
+  border: 1px solid rgba(141, 164, 188, 0.16) !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  min-height: 34px !important;
+  min-width: 132px !important;
+  padding: 0 12px !important;
+}
+
+html body .seller-page .sp-tab + .sp-tab {
+  border-left: 1px solid rgba(141, 164, 188, 0.16) !important;
+  margin-left: 0 !important;
+}
+
+html body .seller-page .sp-tab.active {
+  border-color: rgba(255, 151, 31, 0.72) rgba(141, 164, 188, 0.16) rgba(141, 164, 188, 0.16) !important;
+  border-top-color: rgba(255, 151, 31, 0.9) !important;
+  border-radius: 8px !important;
+}
+
+html body .seller-page .sp-tab svg {
+  height: 15px !important;
+  width: 15px !important;
+}
+
+@media (min-width: 900px) {
+  html body .seller-page .sp-tabs-left {
+    gap: 10px !important;
+  }
+
+  html body .seller-page .sp-tab,
+  html body .seller-page .sp-tab:not(.active) {
+    font-size: 13px !important;
+    min-height: 38px !important;
+    min-width: 158px !important;
+    padding: 0 16px !important;
+  }
+}
+
+/* Final tab refinement requested: two smaller dark tabs, no grey inactive fill. */
+html body .seller-page .sp-tabs {
+  background:
+    linear-gradient(180deg, rgba(13, 28, 42, 0.92), rgba(3, 12, 22, 0.98)) !important;
+  padding-top: 18px !important;
+}
+
+html body .seller-page .sp-tabs-left {
+  transform: translateY(-8px) !important;
+}
+
+html body .seller-page .sp-tab {
+  background:
+    linear-gradient(180deg, rgba(5, 16, 28, 0.96), rgba(3, 12, 22, 0.98)) !important;
+  color: rgba(232, 240, 248, 0.9) !important;
+  font-size: 16px !important;
+  gap: 12px !important;
+  min-height: 54px !important;
+  min-width: 190px !important;
+  padding: 0 24px !important;
+}
+
+html body .seller-page .sp-tab svg {
+  height: 21px !important;
+  width: 21px !important;
+}
+
+html body .seller-page .sp-tab.active {
+  background:
+    linear-gradient(180deg, rgba(5, 16, 28, 0.98), rgba(3, 12, 22, 0.99)) !important;
+  color: #ff971f !important;
+}
+
+html body .seller-page .sp-tab:not(.active) {
+  background:
+    linear-gradient(180deg, rgba(5, 16, 28, 0.96), rgba(3, 12, 22, 0.98)) !important;
+  border-color: rgba(141, 164, 188, 0.2) !important;
+  color: rgba(232, 240, 248, 0.88) !important;
+}
+
+@media (min-width: 900px) {
+  html body .seller-page .sp-tabs {
+    min-height: 94px !important;
+    padding-top: 20px !important;
+  }
+
+  html body .seller-page .sp-tab {
+    font-size: 18px !important;
+    min-height: 68px !important;
+    min-width: 250px !important;
+    padding: 0 28px !important;
+  }
+
+  html body .seller-page .sp-tab svg {
+    height: 24px !important;
+    width: 24px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .sp-tabs-left {
+    transform: translateY(-5px) !important;
+  }
+
+  html body .seller-page .sp-tab {
+    font-size: 13px !important;
+    min-height: 48px !important;
+    min-width: 142px !important;
+    padding: 0 14px !important;
+  }
+}
+
+/* Latest seller toolbar refinement: compact tabs, sort select, hamburger menu. */
+html body .seller-page .sp-tabs {
+  background:
+    linear-gradient(180deg, rgba(9, 22, 35, 0.94), rgba(3, 12, 22, 0.99)) !important;
+}
+
+html body .seller-page .sp-tabs-left {
+  gap: 0 !important;
+}
+
+html body .seller-page .sp-tab,
+html body .seller-page .sp-tab:not(.active) {
+  background:
+    linear-gradient(180deg, rgba(4, 15, 27, 0.98), rgba(3, 12, 22, 0.99)) !important;
+  border-color: rgba(141, 164, 188, 0.12) !important;
+  box-shadow: none !important;
+  color: rgba(232, 240, 248, 0.9) !important;
+  font-size: 14px !important;
+  gap: 10px !important;
+  min-height: 44px !important;
+  min-width: 126px !important;
+  padding: 0 14px !important;
+}
+
+html body .seller-page .sp-tab + .sp-tab {
+  border-left-color: transparent !important;
+  margin-left: -1px !important;
+}
+
+html body .seller-page .sp-tab svg {
+  height: 18px !important;
+  width: 18px !important;
+}
+
+html body .seller-page .sp-tab.active {
+  background:
+    linear-gradient(180deg, rgba(4, 15, 27, 0.99), rgba(3, 12, 22, 1)) !important;
+  border-color: rgba(255, 151, 31, 0.82) rgba(141, 164, 188, 0.12) rgba(141, 164, 188, 0.12) !important;
+  box-shadow: inset 0 3px 0 #ff971f !important;
+  color: #ff971f !important;
+}
+
+html body .seller-page .sp-advanced-search {
+  grid-template-columns: minmax(0, 1fr) 176px 54px auto auto !important;
+}
+
+html body .seller-page .sp-sort-wrap {
+  align-items: center !important;
+  align-self: center !important;
+  display: flex !important;
+  min-width: 0 !important;
+  position: relative !important;
+  width: 176px !important;
+}
+
+html body .seller-page .sp-sort-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background:
+    linear-gradient(180deg, rgba(4, 15, 27, 0.98), rgba(3, 12, 22, 0.99)) !important;
+  border: 1px solid rgba(141, 164, 188, 0.22) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  color: rgba(232, 240, 248, 0.9) !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  height: 52px !important;
+  line-height: 52px !important;
+  padding: 0 34px 0 14px !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-sort-icon {
+  color: #ff971f !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+html body .seller-page .sp-menu-trigger {
+  align-items: center !important;
+  align-self: center !important;
+  background:
+    linear-gradient(180deg, rgba(47, 24, 8, 0.92), rgba(39, 19, 7, 0.96)) !important;
+  border: 1px solid rgba(255, 139, 26, 0.58) !important;
+  border-radius: 12px !important;
+  color: #ff971f !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 52px !important;
+  justify-content: center !important;
+  justify-self: flex-end !important;
+  padding: 0 !important;
+  width: 54px !important;
+}
+
+html body .seller-page .sp-menu-trigger:hover {
+  background:
+    linear-gradient(180deg, rgba(58, 29, 9, 0.96), rgba(43, 21, 7, 0.98)) !important;
+}
+
+@media (min-width: 900px) {
+  html body .seller-page .sp-tab,
+  html body .seller-page .sp-tab:not(.active) {
+    font-size: 16px !important;
+    min-height: 54px !important;
+    min-width: 205px !important;
+    padding: 0 22px !important;
+  }
+
+  html body .seller-page .sp-advanced-search {
+    grid-template-columns: minmax(0, 1fr) 190px 58px auto auto !important;
+  }
+
+  html body .seller-page .sp-sort-wrap {
+    width: 190px !important;
+  }
+
+  html body .seller-page .sp-sort-select,
+  html body .seller-page .sp-menu-trigger {
+    height: 58px !important;
+  }
+
+  html body .seller-page .sp-menu-trigger {
+    width: 58px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .sp-advanced-search {
+    grid-template-columns: minmax(0, 1fr) 148px 48px !important;
+  }
+
+  html body .seller-page .sp-sort-wrap {
+    width: 148px !important;
+  }
+
+  html body .seller-page .sp-sort-select {
+    font-size: 12px !important;
+    height: 48px !important;
+    line-height: 48px !important;
+  }
+
+  html body .seller-page .sp-menu-trigger {
+    height: 48px !important;
+    width: 48px !important;
+  }
+}
+
+/* Remove the remaining tab dividers and background mismatch. */
+html body .seller-page .sp-tabs,
+html body .seller-page .sp-advanced-search {
+  background: rgba(3, 12, 22, 0.98) !important;
+}
+
+html body .seller-page .sp-tabs {
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+
+html body .seller-page .sp-advanced-search {
+  border-top: 0 !important;
+  box-shadow: none !important;
+}
+
+html body .seller-page .sp-tabs::before {
+  display: none !important;
+}
+
+/* Compact polished tab/search header. */
+html body .seller-page .sp-tabs {
+  border-radius: 10px 10px 0 0 !important;
+  min-height: 72px !important;
+  padding: 12px 18px 0 !important;
+}
+
+html body .seller-page .sp-tabs-left {
+  align-items: flex-start !important;
+  transform: translateY(-2px) !important;
+}
+
+html body .seller-page .sp-tab,
+html body .seller-page .sp-tab:not(.active) {
+  border-radius: 8px 8px 0 0 !important;
+  font-size: 13px !important;
+  gap: 8px !important;
+  min-height: 38px !important;
+  min-width: 148px !important;
+  padding: 0 14px !important;
+}
+
+html body .seller-page .sp-tab svg {
+  height: 16px !important;
+  stroke-width: 2.2 !important;
+  width: 16px !important;
+}
+
+html body .seller-page .sp-tab.active {
+  box-shadow:
+    inset 0 3px 0 #ff971f,
+    0 10px 22px rgba(255, 151, 31, 0.06) !important;
+}
+
+html body .seller-page .sp-tab:not(.active):hover {
+  border-color: rgba(141, 164, 188, 0.22) !important;
+  color: rgba(244, 248, 252, 0.96) !important;
+}
+
+html body .seller-page .sp-advanced-search {
+  border-radius: 0 0 10px 10px !important;
+  min-height: 74px !important;
+  padding-bottom: 12px !important;
+  padding-top: 10px !important;
+}
+
+html body .seller-page .sp-search-field {
+  border-radius: 14px !important;
+  gap: 12px !important;
+  min-height: 46px !important;
+  padding: 0 18px !important;
+}
+
+html body .seller-page .sp-search-field svg {
+  height: 22px !important;
+  width: 22px !important;
+}
+
+html body .seller-page label.sp-search-field input.sp-search-input[type="search"] {
+  font-size: 16px !important;
+}
+
+@media (min-width: 900px) {
+  html body .seller-page .sp-tabs {
+    min-height: 78px !important;
+    padding: 14px 22px 0 !important;
+  }
+
+  html body .seller-page .sp-tab,
+  html body .seller-page .sp-tab:not(.active) {
+    font-size: 14px !important;
+    min-height: 42px !important;
+    min-width: 174px !important;
+    padding: 0 18px !important;
+  }
+
+  html body .seller-page .sp-advanced-search {
+    min-height: 82px !important;
+    padding-bottom: 14px !important;
+    padding-top: 12px !important;
+  }
+
+  html body .seller-page .sp-search-field {
+    min-height: 50px !important;
+  }
+}
+
+/* Compact custom sort dropdown, matching the requested menu style. */
+html body .seller-page .sp-advanced-search {
+  grid-template-columns: minmax(0, 1fr) 184px 48px auto auto !important;
+}
+
+html body .seller-page .sp-sort-wrap {
+  max-width: 184px !important;
+  min-width: 184px !important;
+  align-self: center !important;
+  display: block !important;
+  overflow: visible !important;
+  position: relative !important;
+  width: 184px !important;
+  z-index: 8 !important;
+}
+
+html body .seller-page .sp-sort-button {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(5, 16, 28, 0.98), rgba(3, 12, 22, 0.99)) !important;
+  border: 1px solid rgba(255, 139, 26, 0.75) !important;
+  border-radius: 12px !important;
+  color: rgba(232, 240, 248, 0.92) !important;
+  cursor: pointer !important;
+  display: grid !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  gap: 8px !important;
+  grid-template-columns: 16px minmax(0, 1fr) 16px !important;
+  height: 44px !important;
+  letter-spacing: 0 !important;
+  padding: 0 12px !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-sort-button span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .sp-sort-button svg,
+html body .seller-page .sp-sort-chevron {
+  color: #ff971f !important;
+}
+
+html body .seller-page .sp-sort-wrap.is-open .sp-sort-chevron {
+  transform: rotate(180deg) !important;
+}
+
+html body .seller-page .sp-sort-menu {
+  background:
+    linear-gradient(180deg, rgba(5, 16, 28, 0.98), rgba(3, 12, 22, 0.99)) !important;
+  border: 1px solid rgba(141, 164, 188, 0.18) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.38) !important;
+  display: grid !important;
+  gap: 2px !important;
+  left: 0 !important;
+  margin-top: 8px !important;
+  max-width: 210px !important;
+  min-width: 210px !important;
+  overflow: hidden !important;
+  padding: 6px !important;
+  position: absolute !important;
+  top: 100% !important;
+  width: 210px !important;
+}
+
+html body .seller-page .sp-sort-option {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  color: rgba(232, 240, 248, 0.86) !important;
+  cursor: pointer !important;
+  display: grid !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  gap: 10px !important;
+  grid-template-columns: 17px minmax(0, 1fr) 16px !important;
+  height: 30px !important;
+  padding: 0 10px !important;
+  text-align: left !important;
+}
+
+html body .seller-page .sp-sort-option svg {
+  color: #ff971f !important;
+}
+
+html body .seller-page .sp-sort-option span {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .sp-sort-option.selected,
+html body .seller-page .sp-sort-option:hover {
+  background: rgba(255, 151, 31, 0.12) !important;
+  color: #ff971f !important;
+}
+
+html body .seller-page .sp-sort-check {
+  justify-self: flex-end !important;
+}
+
+html body .seller-page .sp-menu-trigger {
+  height: 44px !important;
+  width: 48px !important;
+}
+
+@media (min-width: 900px) {
+  html body .seller-page .sp-advanced-search {
+    grid-template-columns: minmax(0, 1fr) 204px 50px auto auto !important;
+  }
+
+  html body .seller-page .sp-sort-wrap {
+    max-width: 204px !important;
+    min-width: 204px !important;
+    width: 204px !important;
+  }
+
+  html body .seller-page .sp-sort-button {
+    font-size: 13px !important;
+    height: 46px !important;
+  }
+
+  html body .seller-page .sp-menu-trigger {
+    height: 46px !important;
+    width: 50px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .sp-advanced-search {
+    grid-template-columns: minmax(0, 1fr) 184px 48px !important;
+  }
+
+  html body .seller-page .sp-sort-wrap {
+    max-width: 184px !important;
+    min-width: 184px !important;
+    width: 184px !important;
+  }
+
+  html body .seller-page .sp-sort-menu {
+    left: auto !important;
+    min-width: 210px !important;
+    right: -58px !important;
+    width: 210px !important;
+  }
+}
+
+/* Sort menu icon polish and slight right shift for the control pair. */
+html body .seller-page .sp-advanced-search {
+  grid-template-columns: minmax(220px, 0.86fr) 204px 50px auto auto !important;
+  column-gap: 18px !important;
+  padding-right: 18px !important;
+}
+
+html body .seller-page .sp-search-field {
+  max-width: 720px !important;
+}
+
+html body .seller-page .sp-sort-button > svg:first-child {
+  height: 17px !important;
+  width: 17px !important;
+}
+
+html body .seller-page .sp-sort-option {
+  grid-template-columns: 20px minmax(0, 1fr) 16px !important;
+}
+
+html body .seller-page .sp-sort-option > svg:first-child {
+  color: #ff971f !important;
+  height: 17px !important;
+  stroke-width: 2.1 !important;
+  width: 17px !important;
+}
+
+html body .seller-page .sp-sort-option.selected > svg:first-child,
+html body .seller-page .sp-sort-option:hover > svg:first-child {
+  filter: drop-shadow(0 0 7px rgba(255, 151, 31, 0.35)) !important;
+}
+
+@media (min-width: 900px) {
+  html body .seller-page .sp-advanced-search {
+    grid-template-columns: minmax(320px, 0.86fr) 204px 50px auto auto !important;
+    column-gap: 28px !important;
+    padding-right: 28px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .sp-advanced-search {
+    grid-template-columns: minmax(0, 1fr) 184px 48px !important;
+    column-gap: 14px !important;
+    padding-right: 14px !important;
+  }
+}
+
+html body .seller-page .sp-tab,
+html body .seller-page .sp-tab:not(.active),
+html body .seller-page .sp-tab.active {
+  border-bottom-color: transparent !important;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+}
+
+html body .seller-page .sp-tab + .sp-tab {
+  border-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* Reviews dashboard */
+html body .seller-page .seller-review-dashboard {
+  color: #f4f8fc !important;
+  display: grid !important;
+  gap: 14px !important;
+  margin-top: 12px !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-review-search-row {
+  display: none !important;
+}
+
+html body .seller-page .seller-review-search,
+html body .seller-page .seller-review-advanced,
+html body .seller-page .seller-review-filter-select,
+html body .seller-page .seller-review-sort,
+html body .seller-page .seller-review-filter-icon {
+  background: rgba(3, 12, 22, 0.82) !important;
+  border: 1px solid rgba(116, 145, 174, 0.24) !important;
+  border-radius: 8px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+html body .seller-page .seller-review-search {
+  align-items: center !important;
+  color: rgba(183, 202, 224, 0.88) !important;
+  display: flex !important;
+  gap: 10px !important;
+  height: 44px !important;
+  padding: 0 14px !important;
+}
+
+html body .seller-page .seller-review-search input {
+  background: transparent !important;
+  border: 0 !important;
+  color: #eef5fb !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  outline: 0 !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-review-search input::placeholder {
+  color: rgba(188, 203, 220, 0.74) !important;
+}
+
+html body .seller-page .seller-review-advanced {
+  align-items: center !important;
+  color: rgba(237, 241, 247, 0.9) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  gap: 8px !important;
+  height: 44px !important;
+  justify-content: center !important;
+  padding: 0 12px !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .seller-review-advanced svg,
+html body .seller-page .seller-review-filter-icon svg {
+  color: #ff8a16 !important;
+}
+
+html body .seller-page .seller-review-summary {
+  background:
+    radial-gradient(420px 200px at 0% 0%, rgba(23, 68, 104, 0.26), transparent 68%),
+    linear-gradient(145deg, rgba(7, 20, 34, 0.98), rgba(3, 12, 22, 0.99)) !important;
+  border: 1px solid rgba(112, 143, 173, 0.2) !important;
+  border-radius: 8px !important;
+  display: grid !important;
+  gap: 24px !important;
+  grid-template-columns: 286px minmax(280px, 1fr) 300px !important;
+  padding: 22px 24px !important;
+}
+
+html body .seller-page .seller-review-score-card {
+  align-items: center !important;
+  border-right: 1px solid rgba(106, 134, 163, 0.2) !important;
+  display: grid !important;
+  gap: 18px !important;
+  grid-template-columns: 74px minmax(0, 1fr) !important;
+  min-height: 140px !important;
+  padding-right: 20px !important;
+}
+
+html body .seller-page .seller-review-score-card > svg {
+  color: #ff8a16 !important;
+  filter: drop-shadow(0 0 20px rgba(255, 138, 22, 0.4)) !important;
+}
+
+html body .seller-page .seller-review-score-card strong {
+  color: #fff !important;
+  display: block !important;
+  font-size: 42px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+html body .seller-page .seller-review-score-card strong span {
+  color: #fff !important;
+  font-size: 22px !important;
+  font-weight: 850 !important;
+}
+
+html body .seller-page .seller-review-score-card p,
+html body .seller-page .seller-review-verify-card p {
+  color: rgba(216, 226, 238, 0.76) !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+  margin: 8px 0 0 !important;
+}
+
+html body .seller-page .seller-review-score-card small {
+  align-items: center !important;
+  border: 1px solid rgba(118, 148, 178, 0.18) !important;
+  border-radius: 999px !important;
+  color: rgba(224, 232, 242, 0.82) !important;
+  display: inline-flex !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  gap: 7px !important;
+  margin-top: 12px !important;
+  padding: 7px 11px !important;
+}
+
+html body .seller-page .seller-review-bars {
+  align-content: center !important;
+  display: grid !important;
+  gap: 9px !important;
+  min-width: 0 !important;
+}
+
+html body .seller-page .seller-review-bar-row {
+  align-items: center !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: 92px minmax(0, 1fr) 34px !important;
+}
+
+html body .seller-page .seller-review-stars {
+  align-items: center !important;
+  color: #ff8a16 !important;
+  display: inline-flex !important;
+  gap: 2px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .seller-review-stars .filled {
+  color: #ff8a16 !important;
+}
+
+html body .seller-page .seller-review-stars .empty {
+  color: rgba(163, 180, 201, 0.58) !important;
+}
+
+html body .seller-page .seller-review-bar-track {
+  background: rgba(31, 48, 66, 0.7) !important;
+  border-radius: 999px !important;
+  display: block !important;
+  height: 8px !important;
+  overflow: hidden !important;
+}
+
+html body .seller-page .seller-review-bar-fill {
+  background: linear-gradient(90deg, #ff8a16, #ff7a0a) !important;
+  border-radius: inherit !important;
+  display: block !important;
+  height: 100% !important;
+}
+
+html body .seller-page .seller-review-bar-row strong {
+  color: rgba(228, 236, 246, 0.8) !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  text-align: left !important;
+}
+
+html body .seller-page .seller-review-verify-card {
+  align-items: center !important;
+  background: rgba(4, 14, 25, 0.58) !important;
+  border: 1px solid rgba(112, 143, 173, 0.2) !important;
+  border-radius: 8px !important;
+  display: grid !important;
+  gap: 16px !important;
+  grid-template-columns: 66px minmax(0, 1fr) !important;
+  padding: 18px !important;
+}
+
+html body .seller-page .seller-review-shield {
+  align-items: center !important;
+  background: rgba(255, 138, 22, 0.08) !important;
+  border: 1px solid rgba(255, 138, 22, 0.82) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 0 26px rgba(255, 138, 22, 0.28) !important;
+  color: #ff8a16 !important;
+  display: inline-flex !important;
+  height: 58px !important;
+  justify-content: center !important;
+  width: 58px !important;
+}
+
+html body .seller-page .seller-review-verify-card strong {
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+
+html body .seller-page .seller-review-filters {
+  align-items: center !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: 210px minmax(0, 1fr) 164px 44px !important;
+}
+
+html body .seller-page .seller-review-filter-select,
+html body .seller-page .seller-review-filter-icon {
+  align-items: center !important;
+  color: rgba(225, 233, 243, 0.82) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+  height: 36px !important;
+  justify-content: space-between !important;
+  padding: 0 12px !important;
+}
+
+html body .seller-page .seller-review-star-filters {
+  background: rgba(3, 12, 22, 0.48) !important;
+  border: 1px solid rgba(116, 145, 174, 0.18) !important;
+  border-radius: 8px !important;
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(78px, 1fr)) !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+html body .seller-page .seller-review-star-button {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-right: 1px solid rgba(116, 145, 174, 0.12) !important;
+  color: rgba(226, 236, 246, 0.86) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  height: 36px !important;
+  justify-content: center !important;
+  padding: 0 10px !important;
+}
+
+html body .seller-page .seller-review-star-button:last-child {
+  border-right: 0 !important;
+}
+
+html body .seller-page .seller-review-star-button.active {
+  background: transparent !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 138, 22, 0.5) !important;
+  color: #ff8a16 !important;
+}
+
+html body .seller-page .seller-review-star-button:hover {
+  background: rgba(255, 138, 22, 0.08) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 138, 22, 0.5) !important;
+  color: #ff8a16 !important;
+}
+
+html body .seller-page .seller-review-sort {
+  display: block !important;
+  height: 36px !important;
+  position: relative !important;
+}
+
+html body .seller-page .seller-review-sort select {
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: rgba(235, 240, 247, 0.88) !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  font-weight: 780 !important;
+  height: 100% !important;
+  outline: 0 !important;
+  padding: 0 34px 0 13px !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-review-sort svg {
+  color: rgba(204, 220, 237, 0.82) !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+html body .seller-page .seller-review-filter-icon {
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+html body .seller-page .seller-review-grid {
+  display: grid !important;
+  gap: 16px !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+html body .seller-page .seller-review-card {
+  background:
+    radial-gradient(280px 150px at 0% 0%, rgba(23, 67, 103, 0.22), transparent 72%),
+    linear-gradient(145deg, rgba(8, 23, 38, 0.98), rgba(4, 14, 25, 0.99)) !important;
+  border: 1px solid rgba(112, 143, 173, 0.22) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 18px 42px rgba(0, 5, 14, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+  display: grid !important;
+  gap: 12px !important;
+  min-height: 154px !important;
+  padding: 16px !important;
+}
+
+html body .seller-page .seller-review-card-head {
+  align-items: start !important;
+  display: grid !important;
+  gap: 11px !important;
+  grid-template-columns: 44px minmax(0, 1fr) auto !important;
+}
+
+html body .seller-page .seller-review-avatar {
+  align-items: center !important;
+  border: 1px solid rgba(255, 138, 22, 0.84) !important;
+  border-radius: 999px !important;
+  color: #ff981f !important;
+  display: inline-flex !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  height: 44px !important;
+  justify-content: center !important;
+  width: 44px !important;
+}
+
+html body .seller-page .seller-review-card-head strong {
+  align-items: center !important;
+  color: #fff !important;
+  display: flex !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  gap: 6px !important;
+  line-height: 1.2 !important;
+}
+
+html body .seller-page .seller-review-card-head strong svg {
+  background: #24d66d !important;
+  border-radius: 999px !important;
+  color: #06111f !important;
+  padding: 1px !important;
+}
+
+html body .seller-page .seller-review-card-head small {
+  color: rgba(190, 204, 220, 0.72) !important;
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  margin-top: 3px !important;
+}
+
+html body .seller-page .seller-review-card p {
+  color: rgba(238, 244, 250, 0.86) !important;
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  margin: 0 !important;
+  min-height: 40px !important;
+}
+
+html body .seller-page .seller-review-card-actions {
+  align-items: center !important;
+  color: rgba(181, 198, 218, 0.7) !important;
+  display: flex !important;
+  gap: 18px !important;
+  margin-top: auto !important;
+}
+
+html body .seller-page .seller-review-card-actions span,
+html body .seller-page .seller-review-card-actions button {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: inherit !important;
+  display: inline-flex !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  gap: 7px !important;
+  padding: 0 !important;
+}
+
+html body .seller-page .seller-review-card-actions span svg,
+html body .seller-page .seller-review-like svg {
+  color: #ff8a16 !important;
+}
+
+html body .seller-page .seller-review-like {
+  border-radius: 999px !important;
+  cursor: pointer !important;
+  min-height: 26px !important;
+  padding: 0 8px !important;
+  transition: background 140ms ease, color 140ms ease, opacity 140ms ease !important;
+}
+
+html body .seller-page .seller-review-like.is-liked,
+html body .seller-page .seller-review-like:hover {
+  background: rgba(255, 138, 22, 0.12) !important;
+  color: #ffb15f !important;
+}
+
+html body .seller-page .seller-review-like:disabled {
+  cursor: wait !important;
+  opacity: 0.68 !important;
+}
+
+html body .seller-page .seller-review-card-actions button:last-child {
+  margin-left: 0 !important;
+}
+
+html body .seller-page .seller-review-empty {
+  border-color: rgba(112, 143, 173, 0.22) !important;
+  border-radius: 8px !important;
+}
+
+html body .seller-page .seller-review-empty h3 {
+  color: #ff8a16 !important;
+}
+
+html body .seller-page .sp-empty.seller-review-empty h3,
+html body .seller-page .sp-empty.seller-review-empty p {
+  color: #ff8a16 !important;
+}
+
+@media (max-width: 1100px) {
+  html body .seller-page .seller-review-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .seller-page .seller-review-score-card {
+    border-right: 0 !important;
+    border-bottom: 1px solid rgba(106, 134, 163, 0.2) !important;
+    padding: 0 0 20px !important;
+  }
+
+  html body .seller-page .seller-review-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html body .seller-page .seller-review-filters {
+    grid-template-columns: 1fr 44px !important;
+  }
+
+  html body .seller-page .seller-review-filter-select,
+  html body .seller-page .seller-review-star-filters,
+  html body .seller-page .seller-review-sort {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 720px) {
+  html body .seller-page .seller-review-search-row,
+  html body .seller-page .seller-review-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .seller-page .seller-review-summary {
+    padding: 18px !important;
+  }
+
+  html body .seller-page .seller-review-score-card,
+  html body .seller-page .seller-review-verify-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .seller-page .seller-review-star-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Public seller profile: complete identity, account level, details and follow action. */
+html body .seller-page .seller-ref-hero {
+  align-items: start !important;
+  display: grid !important;
+  gap: 18px !important;
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+  padding-top: 28px !important;
+}
+
+html body .seller-page .seller-ref-logo {
+  align-items: center !important;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(72, 185, 255, 0.28), transparent 34%),
+    linear-gradient(145deg, rgba(12, 34, 54, 0.98), rgba(5, 15, 28, 0.98)) !important;
+  border: 1px solid rgba(255, 122, 26, 0.82) !important;
+  color: #f5f9ff !important;
+  display: flex !important;
+  font-size: 46px !important;
+  font-weight: 950 !important;
+  justify-content: center !important;
+  letter-spacing: 0 !important;
+  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.32) !important;
+}
+
+html body .seller-page .seller-ref-logo::before {
+  display: none !important;
+}
+
+html body .seller-page .seller-ref-logo .seller-ref-initial {
+  color: inherit !important;
+  display: block !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+}
+
+html body .seller-page .seller-ref-copy {
+  padding-right: 190px !important;
+}
+
+html body .seller-page .seller-ref-copy > .seller-ref-pill-row {
+  align-items: center !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+
+html body .seller-page .seller-ref-phone-pill {
+  align-items: center !important;
+  background: rgba(9, 25, 40, 0.78) !important;
+  border: 1px solid rgba(141, 164, 188, 0.24) !important;
+  border-radius: 999px !important;
+  color: rgba(241, 247, 252, 0.92) !important;
+  display: inline-flex !important;
+  gap: 6px !important;
+  line-height: 1 !important;
+  min-height: 32px !important;
+  padding: 0 12px !important;
+  text-decoration: none !important;
+}
+
+html body .seller-page .seller-ref-phone-pill svg {
+  color: #ff7a1a !important;
+  stroke: #ff7a1a !important;
+}
+
+html body .seller-page .seller-ref-phone-pill::after {
+  content: none !important;
+  display: none !important;
+}
+
+html body .seller-page .seller-ref-link-pill strong {
+  color: #fff !important;
+  font-weight: 900 !important;
+}
+
+html body .seller-page .seller-ref-link-pill:hover,
+html body .seller-page .seller-ref-link-pill:focus-visible {
+  background: rgba(255, 122, 26, 0.12) !important;
+  border-color: rgba(255, 122, 26, 0.58) !important;
+  color: #fff !important;
+}
+
+/* Final compact trust badges: business id, account level and phone verification. */
+html body .seller-page .seller-ref-copy > .seller-ref-pill-row {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  margin-top: 18px !important;
+}
+
+html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-phone-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 28px !important;
+  width: auto !important;
+  max-width: 100% !important;
+  padding: 0 12px !important;
+  border: 1px solid rgba(255, 122, 26, 0.58) !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgba(9, 24, 38, 0.88), rgba(3, 13, 23, 0.94)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 18px rgba(0, 0, 0, 0.28) !important;
+  color: #f7f9fc !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-phone-pill svg {
+  flex: 0 0 auto !important;
+  width: 13px !important;
+  height: 13px !important;
+  color: #ff7a1a !important;
+  stroke: #ff7a1a !important;
+}
+
+html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-phone-pill:first-child {
+  border-color: rgba(255, 122, 26, 0.72) !important;
+  background:
+    radial-gradient(circle at 12% 50%, rgba(255, 122, 26, 0.18), transparent 42%),
+    linear-gradient(180deg, rgba(9, 24, 38, 0.9), rgba(3, 13, 23, 0.96)) !important;
+}
+
+html body .seller-page .seller-ref-about-highlight {
+  display: block !important;
+  grid-column: 1 / -1 !important;
+  min-height: 190px !important;
+  order: 2 !important;
+}
+
+html body .seller-page .seller-ref-hero .seller-ref-detail-card {
+  display: none !important;
+  grid-column: 7 / 13 !important;
+  min-height: 190px !important;
+  order: 2 !important;
+}
+
+html body .seller-page .seller-ref-detail-row strong {
+  gap: 2px !important;
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+
+html body .seller-page .seller-ref-detail-row strong small {
+  display: block !important;
+}
+
+html body .seller-page .seller-ref-follow-row {
+  right: 24px !important;
+  top: 24px !important;
+}
+
+html body .seller-page .seller-ref-follow-button {
+  background: rgba(255, 122, 26, 0.1) !important;
+  border-color: rgba(255, 122, 26, 0.86) !important;
+}
+
+html body .seller-page .seller-ref-follow-button.is-following {
+  background: rgba(0, 226, 138, 0.12) !important;
+  border-color: rgba(0, 226, 138, 0.52) !important;
+  color: #f4fff9 !important;
+}
+
+html body .seller-page .seller-ref-company-extra {
+  display: flex !important;
+  margin-top: 10px !important;
+}
+
+@media (max-width: 980px) {
+  html body .seller-page .seller-ref-copy {
+    padding-right: 0 !important;
+  }
+
+  html body .seller-page .seller-ref-about-highlight,
+  html body .seller-page .seller-ref-hero .seller-ref-detail-card {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .seller-ref-hero {
+    padding-top: 18px !important;
+  }
+
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row {
+    gap: 6px !important;
+  }
+
+  html body .seller-page .seller-ref-logo {
+    font-size: 28px !important;
+  }
+}
+
+/* Reviews reference layout: connected header/search deck and centered review tools. */
+html body .seller-page .seller-ref-avatar:not(.has-photo) {
+  align-items: center !important;
+  background:
+    radial-gradient(circle at 50% 36%, rgba(88, 199, 255, 0.18), transparent 58%),
+    linear-gradient(180deg, rgba(8, 28, 47, 0.96), rgba(3, 11, 20, 0.98)) !important;
+  display: grid !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+html body .seller-page .seller-ref-avatar:not(.has-photo) img {
+  display: none !important;
+}
+
+html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-logo {
+  align-items: center !important;
+  background: linear-gradient(180deg, #ff9d2e, #ff7a1a) !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 12px 26px rgba(0, 0, 0, 0.34),
+    0 0 18px rgba(255, 122, 26, 0.28) !important;
+  color: #071421 !important;
+  display: flex !important;
+  font-style: normal !important;
+  font-weight: 950 !important;
+  height: 48px !important;
+  justify-content: center !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  width: 48px !important;
+  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.32) !important;
+  transform: none !important;
+}
+
+html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-logo::before,
+html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-logo::after {
+  content: none !important;
+  display: none !important;
+}
+
+html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-initial {
+  color: inherit !important;
+  display: block !important;
+  font-size: 17px !important;
+  font-style: normal !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+}
+
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) {
+  max-width: 1550px !important;
+  padding-inline: 24px !important;
+  width: min(calc(100vw - 48px), 1550px) !important;
+}
+
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tabs {
+  background:
+    linear-gradient(180deg, rgba(6, 17, 29, 0.98), rgba(3, 11, 20, 0.99)) !important;
+  border: 1px solid rgba(75, 108, 138, 0.34) !important;
+  border-bottom: 0 !important;
+  border-radius: 14px 14px 0 0 !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  margin: 22px 0 0 !important;
+  min-height: 82px !important;
+  overflow-x: auto !important;
+  padding: 14px 28px 0 !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tabs-left {
+  gap: 0 !important;
+}
+
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab {
+  background: rgba(6, 18, 31, 0.7) !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px 8px 0 0 !important;
+  color: rgba(230, 238, 247, 0.9) !important;
+  font-size: 15px !important;
+  font-weight: 850 !important;
+  gap: 12px !important;
+  min-height: 68px !important;
+  min-width: 238px !important;
+  padding: 0 28px !important;
+}
+
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab:focus,
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab:focus-visible {
+  outline: 0 !important;
+}
+
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab.active {
+  background:
+    linear-gradient(180deg, rgba(6, 18, 31, 0.98), rgba(3, 12, 22, 1)) !important;
+  border-color: rgba(255, 139, 22, 0.48) rgba(69, 102, 133, 0.2) transparent !important;
+  box-shadow: inset 0 3px 0 #ff8a16 !important;
+  color: #ff981f !important;
+}
+
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .seller-review-dashboard {
+  background:
+    radial-gradient(720px 360px at 14% 16%, rgba(26, 72, 109, 0.25), transparent 72%),
+    radial-gradient(540px 320px at 88% 8%, rgba(255, 138, 22, 0.08), transparent 70%),
+    linear-gradient(180deg, rgba(5, 16, 29, 0.98), rgba(3, 11, 20, 0.99)) !important;
+  border: 1px solid rgba(75, 108, 138, 0.34) !important;
+  border-radius: 0 0 14px 14px !important;
+  box-shadow:
+    0 24px 60px rgba(0, 6, 16, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+  box-sizing: border-box !important;
+  gap: 20px !important;
+  margin-top: -14px !important;
+  padding: 28px !important;
+}
+
+html body .seller-page .seller-review-search-row {
+  border-top: 0 !important;
+  display: none !important;
+  gap: 0 !important;
+  grid-template-columns: 1fr !important;
+  padding-top: 0 !important;
+}
+
+html body .seller-page .seller-review-search,
+html body .seller-page .seller-review-advanced {
+  border-color: rgba(75, 108, 138, 0.42) !important;
+  border-radius: 12px !important;
+  height: 48px !important;
+}
+
+html body .seller-page .seller-review-advanced {
+  border-color: rgba(255, 138, 22, 0.58) !important;
+  color: rgba(246, 249, 253, 0.94) !important;
+  font-size: 14px !important;
+}
+
+html body .seller-page .seller-review-summary {
+  align-items: center !important;
+  border-color: rgba(75, 108, 138, 0.42) !important;
+  border-radius: 12px !important;
+  gap: 34px !important;
+  grid-template-columns: 360px minmax(360px, 1fr) 386px !important;
+  min-height: 216px !important;
+  padding: 20px 32px !important;
+}
+
+html body .seller-page .seller-review-score-card {
+  grid-template-columns: 88px minmax(0, 1fr) !important;
+  min-height: 164px !important;
+}
+
+html body .seller-page .seller-review-score-card > svg {
+  height: 78px !important;
+  width: 78px !important;
+}
+
+html body .seller-page .seller-review-score-card strong {
+  font-size: 54px !important;
+}
+
+html body .seller-page .seller-review-score-card strong span {
+  font-size: 30px !important;
+}
+
+html body .seller-page .seller-review-bars {
+  gap: 11px !important;
+}
+
+html body .seller-page .seller-review-bar-row {
+  grid-template-columns: 112px minmax(0, 1fr) 38px !important;
+}
+
+html body .seller-page .seller-review-verify-card {
+  border-radius: 10px !important;
+  grid-template-columns: 78px minmax(0, 1fr) !important;
+  min-height: 148px !important;
+  padding: 22px 26px !important;
+}
+
+html body .seller-page .seller-review-shield {
+  height: 70px !important;
+  width: 70px !important;
+}
+
+html body .seller-page .seller-review-filters {
+  align-items: center !important;
+  gap: 20px !important;
+  grid-template-columns: 264px minmax(560px, 805px) 244px !important;
+  justify-content: center !important;
+}
+
+html body .seller-page .seller-review-filter-icon {
+  display: none !important;
+}
+
+html body .seller-page .seller-review-filter-select,
+html body .seller-page .seller-review-sort,
+html body .seller-page .seller-review-star-filters {
+  height: 46px !important;
+}
+
+html body .seller-page .seller-review-filter-select,
+html body .seller-page .seller-review-sort {
+  border-radius: 9px !important;
+}
+
+html body .seller-page .seller-review-star-filters {
+  border-radius: 9px !important;
+  grid-template-columns: 104px repeat(5, 1fr) !important;
+  max-width: 805px !important;
+}
+
+html body .seller-page .seller-review-star-button {
+  height: 46px !important;
+}
+
+html body .seller-page .seller-review-grid {
+  gap: 20px 22px !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+html body .seller-page .seller-review-card {
+  border-radius: 10px !important;
+  min-height: 204px !important;
+  padding: 22px 24px !important;
+}
+
+@media (max-width: 1350px) {
+  html body .seller-page .seller-review-summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .seller-page .seller-review-score-card {
+    border-bottom: 1px solid rgba(106, 134, 163, 0.2) !important;
+    border-right: 0 !important;
+    padding: 0 0 20px !important;
+  }
+
+  html body .seller-page .seller-review-filters {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .seller-page .seller-review-filter-select,
+  html body .seller-page .seller-review-star-filters,
+  html body .seller-page .seller-review-sort {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-review-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .sp-wrap:has(.seller-review-dashboard) {
+    padding-inline: 12px !important;
+  }
+
+  html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tabs {
+    min-height: 70px !important;
+    padding: 12px 14px 0 !important;
+  }
+
+  html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab {
+    min-height: 56px !important;
+    min-width: 166px !important;
+    padding: 0 14px !important;
+  }
+
+  html body .seller-page .sp-wrap:has(.seller-review-dashboard) .seller-review-dashboard {
+    padding: 12px !important;
+  }
+
+  html body .seller-page .seller-review-search-row,
+  html body .seller-page .seller-review-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .seller-page .seller-review-summary {
+    gap: 18px !important;
+    padding: 16px !important;
+  }
+
+  html body .seller-page .seller-review-score-card,
+  html body .seller-page .seller-review-verify-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .seller-page .seller-review-star-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Stable seller profile sizing: four visible stats and equal-width tabs. */
+html body .seller-page .seller-ref-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+html body .seller-page .seller-ref-stat {
+  min-width: 0 !important;
+}
+
+html body .seller-page .sp-tabs-left,
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tabs-left {
+  display: grid !important;
+  grid-template-columns: repeat(2, 190px) !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+}
+
+html body .seller-page .sp-tab,
+html body .seller-page .sp-tab:not(.active),
+html body .seller-page .sp-tab.active,
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab,
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab:not(.active),
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab.active {
+  box-sizing: border-box !important;
+  border-width: 1px !important;
+  font-size: 14px !important;
+  gap: 9px !important;
+  height: 56px !important;
+  line-height: 1 !important;
+  max-height: 56px !important;
+  max-width: 190px !important;
+  min-height: 56px !important;
+  min-width: 190px !important;
+  padding: 0 16px !important;
+  transform: none !important;
+  width: 190px !important;
+}
+
+html body .seller-page .sp-tabs,
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tabs {
+  justify-content: flex-start !important;
+  min-height: 64px !important;
+  overflow: hidden !important;
+  padding-bottom: 0 !important;
+  padding-top: 8px !important;
+}
+
+html body .seller-page .sp-tab.active,
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab.active {
+  border-width: 1px !important;
+  box-shadow: inset 0 3px 0 #ff8a16 !important;
+  height: 56px !important;
+  max-height: 56px !important;
+  min-height: 56px !important;
+}
+
+html body .seller-page .sp-tab span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .seller-ref-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html body .seller-page .sp-tabs-left,
+  html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tabs-left {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-tab,
+  html body .seller-page .sp-tab:not(.active),
+  html body .seller-page .sp-tab.active,
+  html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab,
+  html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab:not(.active),
+  html body .seller-page .sp-wrap:has(.seller-review-dashboard) .sp-tab.active {
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+
+html body .seller-page .seller-tab-loading,
+html body .seller-page .seller-tab-loading-placeholder {
+  align-items: center !important;
+  background:
+    radial-gradient(260px 160px at 50% 20%, rgba(33, 72, 104, 0.22), transparent 72%),
+    linear-gradient(180deg, rgba(5, 16, 29, 0.96), rgba(3, 11, 20, 0.99)) !important;
+  border: 1px solid rgba(75, 108, 138, 0.34) !important;
+  border-radius: 12px !important;
+  box-sizing: border-box !important;
+  color: rgba(226, 236, 247, 0.78) !important;
+  display: grid !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  gap: 12px !important;
+  justify-items: center !important;
+  min-height: 220px !important;
+  padding: 28px !important;
+  width: 100% !important;
+}
+
+/* Compact reviews panel: keep the reviews tab closer to the listings tab scale. */
+html body .seller-page .sp-wrap:has(.seller-review-dashboard) .seller-review-dashboard {
+  gap: 12px !important;
+  padding: 14px 24px !important;
+}
+
+html body .seller-page .seller-review-summary {
+  gap: 18px !important;
+  grid-template-columns: 260px minmax(260px, 1fr) 300px !important;
+  min-height: 118px !important;
+  padding: 12px 18px !important;
+}
+
+html body .seller-page .seller-review-score-card {
+  gap: 12px !important;
+  grid-template-columns: 56px minmax(0, 1fr) !important;
+  min-height: 88px !important;
+  padding-right: 16px !important;
+}
+
+html body .seller-page .seller-review-score-card > svg {
+  height: 52px !important;
+  width: 52px !important;
+}
+
+html body .seller-page .seller-review-score-card strong {
+  font-size: 36px !important;
+}
+
+html body .seller-page .seller-review-score-card strong span {
+  font-size: 20px !important;
+}
+
+html body .seller-page .seller-review-score-card p,
+html body .seller-page .seller-review-verify-card p {
+  font-size: 12px !important;
+  line-height: 1.32 !important;
+  margin-top: 4px !important;
+}
+
+html body .seller-page .seller-review-score-card small {
+  font-size: 11px !important;
+  gap: 5px !important;
+  margin-top: 8px !important;
+  padding: 5px 9px !important;
+}
+
+html body .seller-page .seller-review-bars {
+  gap: 6px !important;
+}
+
+html body .seller-page .seller-review-bar-row {
+  gap: 10px !important;
+  grid-template-columns: 92px minmax(0, 1fr) 24px !important;
+}
+
+html body .seller-page .seller-review-bar-track {
+  height: 7px !important;
+}
+
+html body .seller-page .seller-review-verify-card {
+  gap: 12px !important;
+  grid-template-columns: 54px minmax(0, 1fr) !important;
+  min-height: 88px !important;
+  padding: 12px 14px !important;
+}
+
+html body .seller-page .seller-review-shield {
+  height: 48px !important;
+  width: 48px !important;
+}
+
+html body .seller-page .seller-review-shield svg {
+  height: 24px !important;
+  width: 24px !important;
+}
+
+html body .seller-page .seller-review-verify-card strong {
+  font-size: 13px !important;
+}
+
+html body .seller-page .seller-review-filters {
+  gap: 12px !important;
+  grid-template-columns: 190px minmax(420px, 1fr) 190px !important;
+}
+
+html body .seller-page .seller-review-filter-select,
+html body .seller-page .seller-review-sort,
+html body .seller-page .seller-review-star-filters,
+html body .seller-page .seller-review-star-button {
+  height: 40px !important;
+}
+
+@media (max-width: 1350px) {
+  html body .seller-page .seller-review-summary {
+    grid-template-columns: 240px minmax(240px, 1fr) 260px !important;
+  }
+
+  html body .seller-page .seller-review-score-card {
+    border-bottom: 0 !important;
+    border-right: 1px solid rgba(106, 134, 163, 0.2) !important;
+    padding: 0 16px 0 0 !important;
+  }
+
+  html body .seller-page .seller-review-filters {
+    grid-template-columns: 180px minmax(360px, 1fr) 180px !important;
+  }
+}
+
+@media (max-width: 980px) {
+  html body .seller-page .seller-review-summary,
+  html body .seller-page .seller-review-filters {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .seller-page .seller-review-score-card {
+    border-bottom: 1px solid rgba(106, 134, 163, 0.2) !important;
+    border-right: 0 !important;
+    padding: 0 0 12px !important;
+  }
+}
+
+html body .seller-page .seller-tab-loading-placeholder {
+  background: transparent !important;
+  border-color: transparent !important;
+  min-height: 120px !important;
+}
+
+html body .seller-page .seller-tab-spinner {
+  animation: seller-tab-spin 0.78s linear infinite !important;
+  border: 4px solid rgba(11, 20, 28, 0.9) !important;
+  border-radius: 999px !important;
+  border-top-color: rgba(255, 122, 26, 0.95) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+  display: block !important;
+  height: 48px !important;
+  width: 48px !important;
+}
+
+html body .seller-page .seller-profile-pagination {
+  align-items: center !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  justify-content: center !important;
+  margin: 28px 0 4px !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-profile-page-button,
+html body .seller-page .seller-profile-page-gap {
+  align-items: center !important;
+  background: rgba(8, 22, 38, 0.94) !important;
+  border: 1px solid rgba(95, 129, 160, 0.45) !important;
+  border-radius: 8px !important;
+  box-sizing: border-box !important;
+  color: rgba(234, 242, 250, 0.92) !important;
+  display: inline-flex !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  height: 34px !important;
+  justify-content: center !important;
+  min-width: 34px !important;
+  padding: 0 11px !important;
+}
+
+html body .seller-page .seller-profile-page-button {
+  cursor: pointer !important;
+}
+
+html body .seller-page .seller-profile-page-button:hover:not(:disabled),
+html body .seller-page .seller-profile-page-button.is-active {
+  background: linear-gradient(180deg, #ff8a16, #ff6b12) !important;
+  border-color: rgba(255, 178, 96, 0.8) !important;
+  box-shadow: 0 10px 24px rgba(255, 106, 18, 0.28) !important;
+  color: #fff !important;
+}
+
+html body .seller-page .seller-profile-page-button:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.42 !important;
+}
+
+@keyframes seller-tab-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

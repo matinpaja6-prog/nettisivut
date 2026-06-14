@@ -1,4 +1,4 @@
--- PayPal-pisteostot Arctic Parts -kauppaan.
+-- PayPal-pisteostot Maskines-kauppaan.
 -- Aja Supabase SQL Editorissa ennen oikeita maksuja.
 
 create table if not exists public.point_purchases (

@@ -68,7 +68,7 @@ const APPEARANCE_PRESETS: {
   >;
 }[] = [
   {
-    name: "Arctic tumma",
+    name: "Maskines tumma",
     description: "Nykyinen selkeä tumma teema",
     colors: {
       primary_color: "#ff7a1a",

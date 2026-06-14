@@ -12,6 +12,14 @@
   padding: clamp(24px, 4vw, 42px);
 }
 
+body main.auth-page.seller-page.seller-page,
+body .auth-page.seller-page.seller-page,
+body .seller-page.seller-page {
+  background: var(--site-bg, #c8d0d7) !important;
+  background-image: none !important;
+  color: #0f172a !important;
+}
+
 .seller-avatar {
   align-items: center;
   background: rgba(255, 255, 255, 0.1);
@@ -3832,3 +3840,5 @@ body .seller-page .sp-header .sp-trust-stats > div span {
     grid-column: 1 / -1 !important;
   }
 }
+
+

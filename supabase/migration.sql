@@ -4,6 +4,7 @@ alter table public.profiles
   add column if not exists email text not null default '',
   add column if not exists postal_address text not null default '',
   add column if not exists home_address text not null default '',
+  add column if not exists public_address text not null default '',
   add column if not exists country text not null default 'Suomi',
   add column if not exists birth_date date,
   add column if not exists online boolean not null default false,
@@ -215,6 +216,8 @@ create table if not exists public.messages (
   receiver_id uuid not null references public.profiles(id) on delete cascade,
   content text not null default '',
   image text,
+  read boolean not null default false,
+  read_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -243,6 +246,61 @@ with check (
   )
 );
 
+drop policy if exists "Message receivers can mark read" on public.messages;
+create policy "Message receivers can mark read"
+on public.messages for update
+to authenticated
+using (auth.uid()::uuid = receiver_id::uuid)
+with check (
+  auth.uid()::uuid = receiver_id::uuid
+  and sender_id::uuid <> receiver_id::uuid
+);
+
+create or replace function public.enforce_message_read_receipt_update()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.id is distinct from old.id
+    or new.conversation_id is distinct from old.conversation_id
+    or new.listing_id is distinct from old.listing_id
+    or new.sender_id is distinct from old.sender_id
+    or new.receiver_id is distinct from old.receiver_id
+    or new.content is distinct from old.content
+    or new.image is distinct from old.image
+    or new.created_at is distinct from old.created_at then
+    raise exception 'only read receipt fields can be updated on messages';
+  end if;
+
+  if old.read = true and new.read = false then
+    raise exception 'message read receipt cannot be unset';
+  end if;
+
+  if old.read_at is not null and new.read_at is null then
+    raise exception 'message read timestamp cannot be unset';
+  end if;
+
+  if new.read_at is not null then
+    new.read := true;
+  end if;
+
+  if new.read = true and new.read_at is null then
+    new.read_at := now();
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists messages_read_receipt_update_guard on public.messages;
+create trigger messages_read_receipt_update_guard
+before update on public.messages
+for each row
+execute function public.enforce_message_read_receipt_update();
+
 create index if not exists messages_conversation_created_at_idx on public.messages (conversation_id, created_at);
 create index if not exists messages_sender_idx on public.messages (sender_id);
 create index if not exists messages_receiver_idx on public.messages (receiver_id);
+create index if not exists messages_receiver_unread_idx
+  on public.messages (receiver_id, conversation_id, created_at)
+  where read = false;

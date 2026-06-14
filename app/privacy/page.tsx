@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Database, LockKeyhole, Scale, ShieldCheck } from "lucide-react";
+import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage, type Locale } from "@/lib/i18n";
 
 type LegalCopy = {
@@ -26,11 +28,11 @@ const privacyCopy: Record<Locale, LegalCopy> = {
       { title: "2. Kerättävät tiedot", body: ["Keräämme vain palvelun kannalta tarpeellisia tietoja."], bullets: ["tilin perustiedot, kuten nimi, sähköposti, puhelinnumero ja sijainti", "yritystilin tiedot, kuten yrityksen nimi ja y-tunnus", "ilmoitusten kuvat, hinnat, varaosatiedot, kuvaukset ja sijainnit", "viestit, arvostelut, ilmoitukset ja turvallisuuteen liittyvät lokitiedot"] },
       { title: "3. Käyttötarkoitukset", body: ["Tietoja käytetään käyttäjätilin ylläpitoon, ilmoitusten julkaisuun, ostajan ja myyjän yhteydenpitoon, asiakastukeen, turvallisuuteen, väärinkäytösten estoon ja palvelun kehittämiseen."] },
       { title: "4. Oikeusperuste", body: ["Käsittely perustuu sopimuksen toteuttamiseen, lakisääteisiin velvoitteisiin, oikeutettuun etuun palvelun turvallisuuden vuoksi sekä suostumukseen silloin, kun suostumusta erikseen pyydetään."] },
-      { title: "5. EU:n yleinen tietosuoja-asetus (GDPR)", body: ["Arctic Parts käsittelee henkilötietoja GDPR:n periaatteiden mukaisesti: lainmukaisesti, kohtuullisesti, läpinäkyvästi ja vain määriteltyihin tarkoituksiin."], bullets: ["tietojen minimointi", "säilytyksen rajoittaminen", "eheys ja luottamuksellisuus", "osoitusvelvollisuus"] },
+      { title: "5. EU:n yleinen tietosuoja-asetus (GDPR)", body: ["Maskines käsittelee henkilötietoja GDPR:n periaatteiden mukaisesti: lainmukaisesti, kohtuullisesti, läpinäkyvästi ja vain määriteltyihin tarkoituksiin."], bullets: ["tietojen minimointi", "säilytyksen rajoittaminen", "eheys ja luottamuksellisuus", "osoitusvelvollisuus"] },
       { title: "6. Säilytysajat", body: ["Käyttäjätilin tiedot säilytetään tilin voimassaolon ajan. Poiston jälkeen tiedot poistetaan tai anonymisoidaan kohtuullisessa ajassa, ellei laki, riita tai väärinkäytösten selvittäminen edellytä pidempää säilytystä."] },
       { title: "7. Vastaanottajat ja siirrot", body: ["Emme myy henkilötietoja. Tietoja voidaan käsitellä teknisten palveluntarjoajien, kuten tietokanta-, kirjautumis-, maksu-, sähköposti- tai ylläpitopalveluiden kautta. Jos tietoja siirretään EU/ETA-alueen ulkopuolelle, käytämme GDPR:n mukaisia suojakeinoja."] },
       { title: "8. Rekisteröidyn oikeudet", body: ["Sinulla on oikeus saada pääsy tietoihin, korjata virheellisiä tietoja, pyytää poistamista, rajoittaa käsittelyä, vastustaa käsittelyä ja saada tietyt tiedot koneellisesti luettavassa muodossa. Lähetä pyyntö osoitteeseen info@arcticparts.fi."] },
-      { title: "9. Valitusoikeus ja lisätieto", body: ["Jos katsot, että henkilötietojasi käsitellään lainvastaisesti, voit olla yhteydessä Arctic Partsiin tai tehdä valituksen tietosuojavaltuutetun toimistolle."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "Euroopan komissio" }, { href: "https://tietosuoja.fi/", label: "Tietosuojavaltuutetun toimisto" }] },
+      { title: "9. Valitusoikeus ja lisätieto", body: ["Jos katsot, että henkilötietojasi käsitellään lainvastaisesti, voit olla yhteydessä Maskinesiin tai tehdä valituksen tietosuojavaltuutetun toimistolle."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "Euroopan komissio" }, { href: "https://tietosuoja.fi/", label: "Tietosuojavaltuutetun toimisto" }] },
       { title: "10. Evästeet ja muutokset", body: ["Palvelu käyttää välttämättömiä evästeitä ja paikallista tallennusta kirjautumiseen, istuntoon, kielivalintaan ja turvallisuuteen. Päivitämme selostetta, kun palvelu tai käsittely muuttuu."] }
     ]
   },
@@ -47,11 +49,11 @@ const privacyCopy: Record<Locale, LegalCopy> = {
       { title: "2. Data we collect", body: ["We collect only data necessary for the service."], bullets: ["account details such as name, email, phone and location", "company account details such as company name and business ID", "listing photos, prices, part details, descriptions and locations", "messages, reviews, notifications and security logs"] },
       { title: "3. Purposes", body: ["Data is used for account management, publishing listings, buyer-seller communication, customer support, security, preventing misuse and improving the service."] },
       { title: "4. Legal basis", body: ["Processing is based on contract performance, legal obligations, legitimate interests for service security and consent where consent is requested."] },
-      { title: "5. EU General Data Protection Regulation (GDPR)", body: ["Arctic Parts processes personal data according to GDPR principles: lawfully, fairly, transparently and only for defined purposes."], bullets: ["data minimisation", "storage limitation", "integrity and confidentiality", "accountability"] },
+      { title: "5. EU General Data Protection Regulation (GDPR)", body: ["Maskines processes personal data according to GDPR principles: lawfully, fairly, transparently and only for defined purposes."], bullets: ["data minimisation", "storage limitation", "integrity and confidentiality", "accountability"] },
       { title: "6. Retention", body: ["Account data is kept while the account exists. After deletion, data is removed or anonymised within a reasonable time unless law, disputes or misuse investigations require longer retention."] },
       { title: "7. Recipients and transfers", body: ["We do not sell personal data. Data may be processed by technical providers such as database, login, payment, email or hosting services. Transfers outside the EU/EEA use GDPR safeguards."] },
       { title: "8. Your rights", body: ["You have the right to access, rectify, erase, restrict, object and receive certain data in machine-readable form. Send requests to info@arcticparts.fi."] },
-      { title: "9. Complaint and more information", body: ["If you believe your data is processed unlawfully, contact Arctic Parts or lodge a complaint with a supervisory authority."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "European Commission" }, { href: "https://tietosuoja.fi/", label: "Finnish Data Protection Ombudsman" }] },
+      { title: "9. Complaint and more information", body: ["If you believe your data is processed unlawfully, contact Maskines or lodge a complaint with a supervisory authority."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "European Commission" }, { href: "https://tietosuoja.fi/", label: "Finnish Data Protection Ombudsman" }] },
       { title: "10. Cookies and changes", body: ["The service uses necessary cookies and local storage for login, sessions, language choice and security. We update this notice when the service or processing changes."] }
     ]
   },
@@ -63,11 +65,11 @@ const privacyCopy: Record<Locale, LegalCopy> = {
       { title: "2. Uppgifter", body: ["Vi samlar endast in nödvändiga uppgifter."], bullets: ["kontouppgifter", "företagsuppgifter", "annonsuppgifter och bilder", "meddelanden, recensioner och säkerhetsloggar"] },
       { title: "3. Syften", body: ["Uppgifter används för konton, annonser, kommunikation, support, säkerhet, missbruksförebyggande och utveckling."] },
       { title: "4. Rättslig grund", body: ["Behandlingen baseras på avtal, rättsliga skyldigheter, berättigat intresse och samtycke där det begärs."] },
-      { title: "5. GDPR", body: ["Arctic Parts behandlar personuppgifter enligt GDPR-principerna: lagligt, korrekt, öppet och för definierade ändamål."], bullets: ["dataminimering", "lagringsbegränsning", "integritet och konfidentialitet", "ansvarsskyldighet"] },
+      { title: "5. GDPR", body: ["Maskines behandlar personuppgifter enligt GDPR-principerna: lagligt, korrekt, öppet och för definierade ändamål."], bullets: ["dataminimering", "lagringsbegränsning", "integritet och konfidentialitet", "ansvarsskyldighet"] },
       { title: "6. Lagring", body: ["Kontouppgifter sparas medan kontot finns och raderas eller anonymiseras därefter om inte lag eller utredning kräver längre lagring."] },
       { title: "7. Mottagare och överföringar", body: ["Vi säljer inte data. Tekniska leverantörer kan behandla data. Överföringar utanför EU/EES skyddas enligt GDPR."] },
       { title: "8. Dina rättigheter", body: ["Du har rätt till åtkomst, rättelse, radering, begränsning, invändning och dataportabilitet. Kontakta info@arcticparts.fi."] },
-      { title: "9. Klagomål", body: ["Du kan kontakta Arctic Parts eller lämna klagomål till en tillsynsmyndighet."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "Europeiska kommissionen" }, { href: "https://tietosuoja.fi/", label: "Dataombudsmannen" }] },
+      { title: "9. Klagomål", body: ["Du kan kontakta Maskines eller lämna klagomål till en tillsynsmyndighet."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "Europeiska kommissionen" }, { href: "https://tietosuoja.fi/", label: "Dataombudsmannen" }] },
       { title: "10. Cookies och ändringar", body: ["Nödvändiga cookies och lokal lagring används för inloggning, session, språkval och säkerhet."] }
     ]
   },
@@ -79,11 +81,11 @@ const privacyCopy: Record<Locale, LegalCopy> = {
       { title: "2. Data", body: ["Vi samler bare nødvendige data."], bullets: ["kontoopplysninger", "bedriftsopplysninger", "annonseopplysninger og bilder", "meldinger, vurderinger og sikkerhetslogger"] },
       { title: "3. Formål", body: ["Data brukes til kontoer, annonser, kommunikasjon, support, sikkerhet, misbruksforebygging og utvikling."] },
       { title: "4. Rettsgrunnlag", body: ["Behandlingen bygger på avtale, lovpålagte plikter, berettiget interesse og samtykke der det innhentes."] },
-      { title: "5. GDPR", body: ["Arctic Parts behandler personopplysninger etter GDPR-prinsippene: lovlig, rettferdig, åpent og for definerte formål."], bullets: ["dataminimering", "lagringsbegrensning", "integritet og konfidensialitet", "ansvarlighet"] },
+      { title: "5. GDPR", body: ["Maskines behandler personopplysninger etter GDPR-prinsippene: lovlig, rettferdig, åpent og for definerte formål."], bullets: ["dataminimering", "lagringsbegrensning", "integritet og konfidensialitet", "ansvarlighet"] },
       { title: "6. Lagring", body: ["Kontodata lagres mens kontoen finnes og slettes eller anonymiseres etterpå med mindre lov eller undersøkelser krever lengre lagring."] },
       { title: "7. Mottakere og overføringer", body: ["Vi selger ikke data. Tekniske leverandører kan behandle data. Overføringer utenfor EU/EØS sikres etter GDPR."] },
       { title: "8. Dine rettigheter", body: ["Du har rett til innsyn, retting, sletting, begrensning, protest og dataportabilitet. Kontakt info@arcticparts.fi."] },
-      { title: "9. Klage", body: ["Du kan kontakte Arctic Parts eller klage til en tilsynsmyndighet."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "Europakommisjonen" }, { href: "https://tietosuoja.fi/", label: "Datatilsynsmyndighet" }] },
+      { title: "9. Klage", body: ["Du kan kontakte Maskines eller klage til en tilsynsmyndighet."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "Europakommisjonen" }, { href: "https://tietosuoja.fi/", label: "Datatilsynsmyndighet" }] },
       { title: "10. Informasjonskapsler og endringer", body: ["Nødvendige informasjonskapsler og lokal lagring brukes for innlogging, økt, språkvalg og sikkerhet."] }
     ]
   },
@@ -95,35 +97,46 @@ const privacyCopy: Record<Locale, LegalCopy> = {
       { title: "2. Andmed", body: ["Kogume ainult vajalikke andmeid."], bullets: ["kontoandmed", "ettevõtte andmed", "kuulutuse andmed ja pildid", "sõnumid, arvustused ja turvalogid"] },
       { title: "3. Eesmärgid", body: ["Andmeid kasutatakse kontode, kuulutuste, suhtluse, toe, turvalisuse, väärkasutuse ennetamise ja arenduse jaoks."] },
       { title: "4. Õiguslik alus", body: ["Töötlemine põhineb lepingul, seadusest tulenevatel kohustustel, õigustatud huvil ja nõusolekul, kui seda küsitakse."] },
-      { title: "5. GDPR", body: ["Arctic Parts töötleb isikuandmeid GDPR põhimõtete järgi: seaduslikult, õiglaselt, läbipaistvalt ja kindlatel eesmärkidel."], bullets: ["andmete minimeerimine", "säilitamise piiramine", "terviklus ja konfidentsiaalsus", "vastutavus"] },
+      { title: "5. GDPR", body: ["Maskines töötleb isikuandmeid GDPR põhimõtete järgi: seaduslikult, õiglaselt, läbipaistvalt ja kindlatel eesmärkidel."], bullets: ["andmete minimeerimine", "säilitamise piiramine", "terviklus ja konfidentsiaalsus", "vastutavus"] },
       { title: "6. Säilitamine", body: ["Kontoandmeid säilitatakse konto olemasolu ajal ning seejärel kustutatakse või anonüümitakse, kui seadus või uurimine ei nõua pikemat säilitamist."] },
       { title: "7. Saajad ja edastamine", body: ["Me ei müü andmeid. Tehnilised teenusepakkujad võivad andmeid töödelda. EL/EMP välised edastused kaitstakse GDPR järgi."] },
       { title: "8. Sinu õigused", body: ["Sul on õigus juurdepääsule, parandamisele, kustutamisele, piiramisele, vastuväitele ja andmete ülekandmisele. Kirjuta info@arcticparts.fi."] },
-      { title: "9. Kaebus", body: ["Võid võtta ühendust Arctic Partsiga või esitada kaebuse järelevalveasutusele."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "Euroopa Komisjon" }, { href: "https://tietosuoja.fi/", label: "Andmekaitseasutus" }] },
+      { title: "9. Kaebus", body: ["Võid võtta ühendust Maskinesiga või esitada kaebuse järelevalveasutusele."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "Euroopa Komisjon" }, { href: "https://tietosuoja.fi/", label: "Andmekaitseasutus" }] },
       { title: "10. Küpsised ja muudatused", body: ["Vajalikud küpsised ja kohalik salvestus toetavad sisselogimist, seanssi, keelevalikut ja turvalisust."] }
     ]
   }
 };
 
 export default function PrivacyPage() {
+  const router = useRouter();
   const { locale } = useLanguage();
   const copy = privacyCopy[locale];
   const icons = [ShieldCheck, Database, LockKeyhole, Scale];
   const [fromProfileCompletion, setFromProfileCompletion] = useState(false);
+  const [profileReturnHref, setProfileReturnHref] = useState("/auth");
 
   useEffect(() => {
-    setFromProfileCompletion(
-      new URLSearchParams(window.location.search).get("from") === "profile-completion"
-    );
+    const params = new URLSearchParams(window.location.search);
+    const returnTo = params.get("returnTo");
+
+    setFromProfileCompletion(params.get("from") === "profile-completion");
+
+    if (returnTo?.startsWith("/") && !returnTo.startsWith("//")) {
+      setProfileReturnHref(returnTo);
+    }
   }, []);
 
   return (
     <main className="privacy-page privacy-clean-page">
       <div className="privacy-topbar">
-        <Link className="privacy-back" href={fromProfileCompletion ? "/auth" : "/"}>
+        <button
+          type="button"
+          className="privacy-back"
+          onClick={() => goBackOrFallback(router, fromProfileCompletion ? profileReturnHref : "/")}
+        >
           <ArrowLeft size={18} />
           <span>{copy.back}</span>
-        </Link>
+        </button>
       </div>
       <article className="privacy-shell">
         <section className="privacy-hero">

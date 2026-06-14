@@ -2780,7 +2780,7 @@
   color: white;
 }
 
-/* Arctic Parts home finish */
+/* Maskines home finish */
 .shell {
   background:
     linear-gradient(180deg, #f7fdff 0%, #e9f7fb 46%, #f7fdff 100%);
@@ -7752,7 +7752,7 @@
   pointer-events: auto !important;
 }
 
-/* Arctic theme refresh for home content below the image hero. */
+/* Maskines theme refresh for home content below the image hero. */
 .shell {
   background:
     linear-gradient(180deg, rgba(12, 42, 66, 0.18) 0%, rgba(8, 29, 48, 0.72) 100%),
@@ -9311,6 +9311,7 @@
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
+  margin-right: 24px !important;
   padding: 0 !important;
 }
 
@@ -9886,6 +9887,105 @@
   width: 7px !important;
 }
 
+.sortButtonFace {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(5, 16, 28, 0.98), rgba(3, 12, 22, 0.99)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.86) !important;
+  border-radius: 10px !important;
+  box-shadow:
+    0 12px 24px rgba(0, 8, 20, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  color: rgba(232, 240, 248, 0.94) !important;
+  cursor: pointer !important;
+  display: grid !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  gap: 8px !important;
+  grid-template-columns: 16px minmax(0, 1fr) 16px !important;
+  height: 44px !important;
+  letter-spacing: 0 !important;
+  min-width: 196px !important;
+  padding: 0 12px !important;
+  text-align: left !important;
+  width: 196px !important;
+}
+
+.sortButtonFace svg,
+.sortButtonChevron {
+  color: #ff971f !important;
+}
+
+.sortButtonFace span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.sortControlOpen .sortButtonChevron {
+  transform: rotate(180deg) !important;
+}
+
+.sortMenuPanel {
+  background:
+    linear-gradient(180deg, rgba(5, 16, 28, 0.98), rgba(3, 12, 22, 0.99)) !important;
+  border: 1px solid rgba(141, 164, 188, 0.18) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.38) !important;
+  display: grid !important;
+  gap: 2px !important;
+  left: 0 !important;
+  margin-top: 8px !important;
+  min-width: 236px !important;
+  overflow: visible !important;
+  padding: 6px !important;
+  position: absolute !important;
+  top: 100% !important;
+  width: 236px !important;
+  z-index: 10000 !important;
+}
+
+.sortMenuItem {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  color: rgba(232, 240, 248, 0.86) !important;
+  cursor: pointer !important;
+  display: grid !important;
+  font-size: 12px !important;
+  font-weight: 780 !important;
+  gap: 10px !important;
+  grid-template-columns: 18px minmax(150px, 1fr) 18px !important;
+  min-height: 34px !important;
+  letter-spacing: 0 !important;
+  padding: 0 12px !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+.sortMenuItem svg {
+  color: #ff971f !important;
+}
+
+.sortMenuItem span {
+  min-width: 0 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+.sortMenuItem:hover,
+.sortMenuItemActive {
+  background: rgba(255, 151, 31, 0.12) !important;
+  color: #ff971f !important;
+}
+
+.sortMenuCheck {
+  justify-self: flex-end !important;
+}
+
 @media (max-width: 720px) {
   .heroWrap {
     --hero-stage-height: 545px !important;
@@ -9899,6 +9999,18 @@
   .sortControlRebuilt,
   .sortControlRebuilt .sortSelectFace {
     min-width: 132px !important;
+  }
+
+  .sortButtonFace {
+    min-width: 184px !important;
+    width: 184px !important;
+  }
+
+  .sortMenuPanel {
+    left: auto !important;
+    right: 0 !important;
+    min-width: min(236px, calc(100vw - 24px)) !important;
+    width: min(236px, calc(100vw - 24px)) !important;
   }
 }
 
@@ -11683,4 +11795,1086 @@
 
 .cardBody {
   background: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 92%, #ffffff 8%) !important;
+}
+
+/* Final pagination rail: one compact dark capsule with a single page jump control. */
+.pagination {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 5px !important;
+  justify-content: center !important;
+  margin: 28px auto 40px !important;
+  max-width: calc(100vw - 28px) !important;
+  overflow-x: auto !important;
+  padding: 6px !important;
+  scrollbar-width: none !important;
+  width: max-content !important;
+}
+
+.pagination::-webkit-scrollbar {
+  display: none !important;
+}
+
+.pagination .pageBtn,
+.pagination .pageGap,
+.pagination .paginationButton {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(22, 34, 49, 0.96), rgba(9, 19, 32, 0.98)) !important;
+  border: 1px solid rgba(151, 178, 205, 0.24) !important;
+  border-radius: 9px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 8px 18px rgba(0, 8, 22, 0.16) !important;
+  color: rgba(244, 248, 252, 0.95) !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  height: 34px !important;
+  justify-content: center !important;
+  min-width: 34px !important;
+  padding: 0 8px !important;
+  text-shadow: none !important;
+}
+
+.pagination .pageBtn svg {
+  color: currentColor !important;
+  height: 16px !important;
+  width: 16px !important;
+}
+
+.pagination .pageBtn:hover:not(:disabled),
+.pagination .pageGap:hover,
+.pagination .paginationButton:hover {
+  border-color: rgba(255, 122, 26, 0.58) !important;
+  color: #ffffff !important;
+}
+
+.pagination .pageBtn:disabled {
+  opacity: 0.46 !important;
+}
+
+.pagination .pageBtnActive,
+.pagination .pageBtnActive:hover:not(:disabled),
+.pagination .pageBtn[aria-current="page"],
+.pagination .paginationButtonActive,
+.pagination .paginationButtonActive:hover {
+  background: linear-gradient(180deg, #ff9824 0%, #ff6b12 100%) !important;
+  border-color: rgba(255, 150, 62, 0.9) !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 118, 20, 0.36),
+    0 0 18px rgba(255, 102, 18, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32) !important;
+  color: #ffffff !important;
+}
+
+.pagination .pageJumpControl {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  gap: 6px !important;
+  min-height: 34px !important;
+  margin-right: 7px !important;
+  padding: 0 8px 0 4px !important;
+  position: relative !important;
+}
+
+.pagination .pageJumpControl::after {
+  background: linear-gradient(180deg, transparent, rgba(151, 178, 205, 0.24), transparent);
+  content: "";
+  height: 24px;
+  pointer-events: none;
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+}
+
+.pagination .pageJumpLabel,
+.pagination .pageJumpTotal {
+  color: rgba(235, 244, 252, 0.7) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.pagination .pageJumpLabel {
+  color: rgba(244, 248, 252, 0.88) !important;
+}
+
+.pagination .pageJumpInput {
+  appearance: textfield !important;
+  background: linear-gradient(180deg, rgba(17, 27, 40, 0.98), rgba(7, 16, 29, 0.98)) !important;
+  border: 1px solid rgba(151, 178, 205, 0.28) !important;
+  border-radius: 9px !important;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 4, 12, 0.42),
+    0 0 0 1px rgba(255, 255, 255, 0.03) !important;
+  caret-color: #ffffff !important;
+  color: #ffffff !important;
+  flex: 0 0 58px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 8px !important;
+  text-align: center !important;
+  text-shadow: none !important;
+  width: 58px !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.pagination .pageJumpInput::placeholder {
+  color: rgba(244, 248, 252, 0.84) !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: rgba(244, 248, 252, 0.84) !important;
+}
+
+.pagination .pageJumpInput:focus {
+  border-color: rgba(151, 178, 205, 0.48) !important;
+  outline: 0 !important;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 4, 12, 0.36),
+    0 0 0 2px rgba(151, 178, 205, 0.14) !important;
+}
+
+.pagination .pageJumpInput::selection {
+  background: rgba(255, 122, 26, 0.44);
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+}
+
+.pagination .pageJumpSubmit {
+  align-items: center !important;
+  background: linear-gradient(180deg, #ff9824 0%, #ff6b12 100%) !important;
+  border: 1px solid rgba(255, 150, 62, 0.9) !important;
+  border-radius: 9px !important;
+  box-shadow:
+    0 0 16px rgba(255, 102, 18, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  flex: 0 0 34px !important;
+  height: 34px !important;
+  justify-content: center !important;
+  min-width: 34px !important;
+  padding: 0 !important;
+  position: relative !important;
+}
+
+.pagination .pageJumpSubmit::before {
+  background: linear-gradient(180deg, transparent, rgba(151, 178, 205, 0.2), transparent);
+  content: "";
+  height: 24px;
+  left: -7px;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+}
+
+.pagination .pageJumpSubmit svg {
+  height: 17px !important;
+  width: 17px !important;
+}
+
+.pagination .pageJumpSubmit:disabled {
+  opacity: 0.48 !important;
+}
+
+@media (max-width: 520px) {
+  .pagination {
+    gap: 4px !important;
+    padding: 5px !important;
+  }
+
+  .pagination .pageBtn,
+  .pagination .pageGap,
+  .pagination .paginationButton {
+    border-radius: 8px !important;
+    font-size: 11.5px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    padding: 0 6px !important;
+  }
+
+  .pagination .pageBtn svg {
+    height: 15px !important;
+    width: 15px !important;
+  }
+
+  .pagination .pageJumpControl {
+    gap: 4px !important;
+    min-height: 30px !important;
+    margin-right: 6px !important;
+    padding: 0 6px 0 2px !important;
+  }
+
+  .pagination .pageJumpLabel,
+  .pagination .pageJumpTotal {
+    font-size: 10.5px !important;
+  }
+
+  .pagination .pageJumpInput {
+    flex-basis: 48px !important;
+    font-size: 12px !important;
+    height: 30px !important;
+    line-height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 6px !important;
+    width: 48px !important;
+  }
+
+  .pagination .pageJumpSubmit {
+    flex-basis: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+  }
+
+  .pagination .pageJumpSubmit svg {
+    height: 15px !important;
+    width: 15px !important;
+  }
+}
+
+.marketStatsGrid {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  justify-content: stretch;
+  margin: 28px auto 0;
+  max-width: min(1050px, calc(100vw - 112px));
+  overflow: visible;
+  padding: 0;
+  width: 100%;
+}
+
+.marketStatCard {
+  align-items: center;
+  background:
+    radial-gradient(220px 90px at 18% 0%, rgba(75, 156, 255, 0.16), transparent 70%),
+    linear-gradient(180deg, rgba(8, 31, 55, 0.86), rgba(4, 18, 35, 0.9));
+  backdrop-filter: blur(12px) saturate(1.18);
+  border: 1px solid rgba(99, 184, 255, 0.28);
+  border-radius: 15px;
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(20, 245, 166, 0.08);
+  color: #f4f8fc;
+  display: flex;
+  gap: 22px;
+  justify-content: flex-start;
+  min-height: 72px;
+  overflow: hidden;
+  padding: 16px 28px;
+  position: relative;
+  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+
+.marketStatCard::before {
+  background:
+    radial-gradient(circle at 11% 54%, rgba(20, 245, 166, 0.16), transparent 28%),
+    linear-gradient(110deg, rgba(255, 255, 255, 0.1), transparent 42%);
+  content: "";
+  inset: 0;
+  opacity: 0.72;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 0.18s ease;
+}
+
+.marketStatCard:hover {
+  background: rgba(5, 30, 57, 0.46);
+  border-color: rgba(20, 245, 166, 0.34);
+  transform: translateY(-1px);
+}
+
+.marketStatCard:not(:last-child)::after {
+  display: none;
+}
+
+.marketStatIcon,
+.marketStatText,
+.marketStatValue,
+.marketStatLabel {
+  position: relative;
+  z-index: 1;
+}
+
+.marketStatIcon {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: #14f5a6;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 38px;
+  justify-content: center;
+  position: relative;
+  width: 38px;
+}
+
+.marketStatIcon::after {
+  background: linear-gradient(180deg, transparent, rgba(135, 190, 240, 0.28), transparent);
+  content: "";
+  height: 44px;
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+}
+
+.marketStatIcon svg {
+  height: 32px;
+  stroke-width: 1.9;
+  width: 32px;
+}
+
+.marketStatText {
+  align-items: flex-start;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.marketStatValue {
+  color: #ffffff;
+  font-size: clamp(21px, 2vw, 27px);
+  font-weight: 950;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
+}
+
+.marketStatLabel {
+  color: rgba(236, 245, 255, 0.78);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0;
+  line-height: 1.15;
+  max-width: none;
+  text-align: left;
+}
+
+@media (max-width: 720px) {
+  .marketStatsGrid {
+    gap: 7px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    margin: 18px auto 0 !important;
+    max-width: min(372px, calc(100vw - 20px)) !important;
+    width: 100% !important;
+  }
+
+  .marketStatCard {
+    align-content: center !important;
+    align-items: center !important;
+    border-radius: 13px !important;
+    display: grid !important;
+    gap: 4px !important;
+    justify-items: center !important;
+    min-height: 76px !important;
+    padding: 9px 5px 8px !important;
+    text-align: center !important;
+  }
+
+  .marketStatCard:not(:last-child)::after {
+    background: rgba(120, 181, 240, 0.16) !important;
+    bottom: 0 !important;
+    height: 1px !important;
+    left: 16px !important;
+    right: 16px !important;
+    top: auto !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  .marketStatIcon {
+    height: 24px !important;
+    width: 24px !important;
+  }
+
+  .marketStatIcon::after {
+    display: none !important;
+  }
+
+  .marketStatIcon svg {
+    height: 21px !important;
+    width: 21px !important;
+  }
+
+  .marketStatText {
+    align-items: center !important;
+    gap: 2px !important;
+    justify-items: center !important;
+    width: 100% !important;
+  }
+
+  .marketStatValue {
+    font-size: 17px !important;
+    line-height: 0.95 !important;
+  }
+
+  .marketStatLabel {
+    display: -webkit-box !important;
+    font-size: 8.5px !important;
+    line-height: 1.05 !important;
+    max-width: 100% !important;
+    min-height: 18px !important;
+    overflow: hidden !important;
+    text-align: center !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+  }
+}
+
+/* Reference-style desktop marketplace hero. */
+.heroQuickCategoryRow {
+  display: none;
+}
+
+@media (min-width: 721px) {
+  .heroWrap {
+    --hero-stage-height: clamp(500px, 42vw, 585px) !important;
+    background:
+      linear-gradient(180deg, rgba(1, 8, 16, 0.52), rgba(2, 10, 19, 0.35) 58%, rgba(2, 9, 17, 0.9)),
+      var(--hero-bg-url, url("/hero-bg.png")) center center / cover no-repeat !important;
+    border-bottom: 1px solid rgba(255, 122, 26, 0.3) !important;
+    height: var(--hero-stage-height) !important;
+    min-height: var(--hero-stage-height) !important;
+  }
+
+  .heroWrap::before {
+    background:
+      radial-gradient(640px 280px at 50% 42%, rgba(12, 30, 47, 0.08), rgba(1, 8, 16, 0.6)),
+      linear-gradient(90deg, rgba(0, 5, 12, 0.34), transparent 26%, transparent 74%, rgba(0, 5, 12, 0.34)) !important;
+  }
+
+  .hero {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    padding: 28px 16px 18px !important;
+  }
+
+  .heroInner {
+    gap: 0 !important;
+    max-width: min(1080px, calc(100vw - 32px)) !important;
+    padding: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  .heroHeadline {
+    font-size: clamp(42px, 4.25vw, 62px) !important;
+    letter-spacing: -0.045em !important;
+    line-height: 0.98 !important;
+    margin: 0 auto 18px !important;
+    max-width: 700px !important;
+    text-shadow: 0 8px 22px rgba(0, 0, 0, 0.52) !important;
+  }
+
+  .heroSearch {
+    background: rgba(4, 13, 23, 0.88) !important;
+    border: 1px solid rgba(255, 139, 61, 0.48) !important;
+    border-radius: 9px !important;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    grid-template-columns: 54px minmax(0, 1fr) !important;
+    height: 56px !important;
+    max-width: 690px !important;
+  }
+
+  .heroSearchIcon {
+    border-right: 0 !important;
+    color: rgba(235, 243, 250, 0.9) !important;
+  }
+
+  .heroSearchInput {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    padding: 0 16px 0 0 !important;
+  }
+
+  .categoryRowWrap {
+    display: none !important;
+  }
+
+  .heroQuickCategoryRow {
+    display: grid;
+    gap: 9px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    margin: 17px auto 0;
+    max-width: min(910px, calc(100vw - 32px));
+    width: 100%;
+  }
+
+  .heroQuickCategory {
+    align-items: center;
+    background: rgba(5, 18, 31, 0.86);
+    border: 1px solid rgba(142, 168, 191, 0.46);
+    border-radius: 6px;
+    color: rgba(245, 249, 253, 0.92);
+    cursor: pointer;
+    display: flex;
+    font-size: clamp(10px, 1vw, 12px);
+    font-weight: 850;
+    gap: 7px;
+    height: 42px;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 8px;
+    transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+  }
+
+  .heroQuickCategory:hover,
+  .heroQuickCategoryActive {
+    background: linear-gradient(135deg, #ff9b28, #ff6b12);
+    border-color: rgba(255, 196, 141, 0.92);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  .heroGaragePillWrap {
+    position: relative;
+  }
+
+  .heroGaragePillWrap > .heroQuickCategory {
+    width: 100%;
+  }
+
+  .heroGarageDropdown {
+    background: rgba(5, 17, 29, 0.98);
+    border: 1px solid rgba(255, 139, 61, 0.5);
+    border-radius: 8px;
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.38);
+    display: grid;
+    gap: 4px;
+    min-width: 230px;
+    padding: 7px;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 80;
+  }
+
+  .heroGarageDropdown button,
+  .heroGarageDropdown a {
+    background: transparent;
+    border: 0;
+    border-radius: 5px;
+    color: rgba(241, 247, 253, 0.88);
+    cursor: pointer;
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 9px 10px;
+    text-align: left;
+    width: 100%;
+  }
+
+  .heroGarageDropdown button:hover,
+  .heroGarageDropdown a:hover,
+  .heroGarageDropdown .garageDropdownItemActive {
+    background: rgba(255, 122, 26, 0.16);
+    color: #ff9a35;
+  }
+
+  .marketStatsGrid {
+    border-radius: 14px !important;
+    margin: 18px auto 0 !important;
+    max-width: min(1010px, calc(100vw - 32px)) !important;
+  }
+
+  .marketStatCard {
+    gap: 14px !important;
+    min-height: 78px !important;
+    padding: 15px 22px !important;
+  }
+
+  .marketStatIcon {
+    border-color: rgba(255, 122, 26, 0.28) !important;
+    color: #ff8120 !important;
+    height: 38px !important;
+    width: 38px !important;
+  }
+
+  .marketStatIcon svg {
+    height: 21px !important;
+    width: 21px !important;
+  }
+
+  .marketStatValue {
+    font-size: clamp(22px, 2vw, 27px) !important;
+  }
+
+  .marketStatLabel {
+    font-size: clamp(10px, 0.95vw, 12px) !important;
+    text-transform: uppercase;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 900px) {
+  .heroWrap {
+    --hero-stage-height: 530px !important;
+  }
+
+  .heroHeadline {
+    font-size: clamp(40px, 6vw, 52px) !important;
+  }
+
+  .heroQuickCategoryRow {
+    gap: 6px;
+  }
+
+  .heroQuickCategory {
+    font-size: 10px;
+    gap: 4px;
+    padding: 0 5px;
+  }
+
+  .heroQuickCategory svg {
+    height: 13px;
+    width: 13px;
+  }
+
+  .marketStatCard {
+    padding: 13px 14px !important;
+  }
+}
+
+/* Final listing-card meta polish: country flag and date stay on one tidy row. */
+.card .cardMetaRow,
+.cardsGrid .card .cardMetaRow,
+.listingsPlainPanel .card .cardMetaRow {
+  align-items: center !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.18) !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  justify-content: space-between !important;
+  margin-top: auto !important;
+  min-height: 34px !important;
+  overflow: hidden !important;
+  padding: 9px 0 0 !important;
+}
+
+.card .cardMetaRow span,
+.cardsGrid .card .cardMetaRow span,
+.listingsPlainPanel .card .cardMetaRow span {
+  align-items: center !important;
+  display: inline-flex !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+}
+
+.cardLocationMeta {
+  color: rgba(236, 245, 255, 0.88) !important;
+  flex: 1 1 auto !important;
+  font-weight: 850 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.listingCountryFlag {
+  display: inline-block !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.28)) !important;
+  flex: 0 0 auto !important;
+  height: 13px !important;
+  line-height: 1 !important;
+  object-fit: cover !important;
+  border-radius: 2px !important;
+  width: 18px !important;
+}
+
+.card .cardMetaRow span:not(.cardLocationMeta),
+.cardsGrid .card .cardMetaRow span:not(.cardLocationMeta),
+.listingsPlainPanel .card .cardMetaRow span:not(.cardLocationMeta) {
+  color: rgba(203, 213, 225, 0.72) !important;
+  flex: 0 0 auto !important;
+}
+
+@media (max-width: 720px) {
+  .card .cardMetaRow,
+  .cardsGrid .card .cardMetaRow,
+  .listingsPlainPanel .card .cardMetaRow {
+    gap: 6px !important;
+    min-height: 28px !important;
+    padding-top: 7px !important;
+  }
+
+  .card .cardMetaRow span,
+  .cardsGrid .card .cardMetaRow span,
+  .listingsPlainPanel .card .cardMetaRow span {
+    font-size: 9.5px !important;
+    gap: 4px !important;
+  }
+
+  .listingCountryFlag {
+    height: 11px !important;
+    width: 16px !important;
+  }
+
+  .card .cardMetaRow svg,
+  .cardsGrid .card .cardMetaRow svg,
+  .listingsPlainPanel .card .cardMetaRow svg {
+    height: 11px !important;
+    width: 11px !important;
+  }
+}
+
+/* Refined home stats bar: quiet framing, clearer hierarchy and compact labels. */
+.heroWrap {
+  margin-bottom: 0 !important;
+}
+
+.mainGrid,
+.listingsPlainSection {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.marketStatsGrid {
+  background:
+    radial-gradient(520px 140px at 18% -20%, rgba(29, 201, 162, 0.1), transparent 72%),
+    linear-gradient(135deg, rgba(18, 35, 51, 0.94), rgba(9, 20, 33, 0.94)) !important;
+  border: 1px solid rgba(255, 139, 61, 0.42) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 20px 52px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 1px rgba(255, 139, 61, 0.05) !important;
+  gap: 0 !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  margin: 28px auto 0 !important;
+  max-width: min(960px, calc(100vw - 88px)) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.marketStatCard {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: flex !important;
+  gap: 16px !important;
+  justify-content: center !important;
+  min-height: 96px !important;
+  padding: 21px 28px !important;
+  transform: none !important;
+}
+
+.marketStatCard::before {
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.045), transparent 58%) !important;
+  opacity: 1 !important;
+}
+
+.marketStatCard:hover {
+  background: rgba(255, 255, 255, 0.025) !important;
+  border-color: transparent !important;
+  transform: none !important;
+}
+
+.marketStatCard:not(:last-child)::after {
+  background: linear-gradient(180deg, transparent, rgba(166, 190, 211, 0.3), transparent) !important;
+  bottom: auto !important;
+  content: "" !important;
+  display: block !important;
+  height: 54px !important;
+  left: auto !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 1px !important;
+}
+
+.marketStatIcon {
+  background: rgba(12, 225, 159, 0.08) !important;
+  border: 1px solid rgba(19, 235, 169, 0.16) !important;
+  border-radius: 12px !important;
+  color: #18e7ab !important;
+  height: 42px !important;
+  width: 42px !important;
+}
+
+.marketStatIcon::after {
+  display: none !important;
+}
+
+.marketStatIcon svg {
+  height: 24px !important;
+  stroke-width: 1.9 !important;
+  width: 24px !important;
+}
+
+.marketStatText {
+  align-items: start !important;
+  gap: 5px !important;
+  justify-items: start !important;
+}
+
+.marketStatValue {
+  font-size: clamp(23px, 2vw, 30px) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.marketStatLabel {
+  color: rgba(218, 230, 240, 0.76) !important;
+  font-size: clamp(11px, 0.95vw, 13px) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+  line-height: 1.18 !important;
+}
+
+@media (max-width: 720px) {
+  .heroWrap {
+    margin-bottom: 0 !important;
+  }
+
+  .mainGrid,
+  .listingsPlainSection {
+    margin-top: 0 !important;
+  }
+
+  .marketStatsGrid {
+    border-radius: 14px !important;
+    margin: 16px auto 0 !important;
+    max-width: min(372px, calc(100vw - 18px)) !important;
+  }
+
+  .marketStatCard {
+    display: grid !important;
+    gap: 5px !important;
+    justify-items: center !important;
+    min-height: 76px !important;
+    padding: 9px 5px !important;
+    text-align: center !important;
+  }
+
+  .marketStatCard:not(:last-child)::after {
+    height: 40px !important;
+    right: 0 !important;
+    width: 1px !important;
+  }
+
+  .marketStatIcon {
+    border-radius: 8px !important;
+    height: 27px !important;
+    width: 27px !important;
+  }
+
+  .marketStatIcon svg {
+    height: 17px !important;
+    width: 17px !important;
+  }
+
+  .marketStatText {
+    align-items: center !important;
+    gap: 2px !important;
+    justify-items: center !important;
+  }
+
+  .marketStatValue {
+    font-size: 17px !important;
+    line-height: 1 !important;
+  }
+
+  .marketStatLabel {
+    display: -webkit-box !important;
+    font-size: 8px !important;
+    line-height: 1.05 !important;
+    min-height: 18px !important;
+    overflow: hidden !important;
+    text-align: center !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+  }
+}
+
+/* Final mobile category panel: balanced, calmer, and no empty grid holes. */
+@media (max-width: 720px) {
+  .categoryRowWrap {
+    background:
+      radial-gradient(260px 150px at 0% 0%, rgba(255, 137, 24, 0.14), transparent 68%),
+      linear-gradient(145deg, rgba(11, 29, 48, 0.62), rgba(4, 16, 31, 0.78)) !important;
+    backdrop-filter: blur(12px) saturate(1.12) !important;
+    border: 1px solid rgba(198, 221, 238, 0.14) !important;
+    border-radius: 20px !important;
+    box-shadow:
+      0 18px 42px rgba(0, 8, 20, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    margin: 24px auto 0 !important;
+    max-width: min(292px, calc(100vw - 72px)) !important;
+    overflow: visible !important;
+    padding: 10px !important;
+    width: 100% !important;
+  }
+
+  .categoryRow {
+    align-items: stretch !important;
+    display: grid !important;
+    gap: 8px !important;
+    grid-auto-flow: row !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    justify-content: stretch !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    scroll-snap-type: none !important;
+    width: 100% !important;
+  }
+
+  .categoryRow > .categoryPill:last-child:nth-child(odd) {
+    grid-column: 1 / -1 !important;
+  }
+
+  .categoryRow .garagePillWrap,
+  .categoryRow .garagePillWrap:has(.garageDropdown) {
+    display: block !important;
+    grid-column: auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .categoryRow .categoryPill,
+  .categoryRow .garagePillBtn,
+  .categoryRow .garagePillActive,
+  .categoryRow .garagePillWrap .categoryPill {
+    align-items: center !important;
+    background:
+      linear-gradient(180deg, rgba(12, 35, 57, 0.98), rgba(5, 20, 37, 0.98)) !important;
+    border: 1px solid rgba(110, 150, 184, 0.28) !important;
+    border-radius: 14px !important;
+    box-shadow:
+      0 10px 22px rgba(0, 8, 20, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    color: rgba(245, 250, 255, 0.94) !important;
+    display: inline-flex !important;
+    font-size: clamp(12.5px, 3.45vw, 14.5px) !important;
+    font-weight: 900 !important;
+    gap: 6px !important;
+    height: 56px !important;
+    justify-content: center !important;
+    line-height: 1.05 !important;
+    min-height: 56px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding: 0 9px !important;
+    position: relative !important;
+    text-align: center !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  .categoryRow .categoryPill::before,
+  .categoryRow .garagePillBtn::before,
+  .categoryRow .garagePillActive::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 54%) !important;
+    content: "" !important;
+    inset: 0 !important;
+    opacity: 0.72 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+  }
+
+  .categoryRow .categoryPillActive,
+  .categoryRow .garagePillActive {
+    background: linear-gradient(135deg, #ffa12d 0%, #ff7a1a 54%, #ef5f00 100%) !important;
+    border-color: rgba(255, 220, 184, 0.9) !important;
+    box-shadow:
+      0 12px 28px rgba(255, 105, 10, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+  }
+
+  .categoryRow .categoryPillActive::after,
+  .categoryRow .garagePillActive::after {
+    background: rgba(255, 255, 255, 0.72) !important;
+    border-radius: 999px !important;
+    bottom: 7px !important;
+    content: "" !important;
+    height: 3px !important;
+    left: 50% !important;
+    opacity: 0.9 !important;
+    position: absolute !important;
+    transform: translateX(-50%) !important;
+    width: 22px !important;
+  }
+
+  .categoryRow .categoryPill span,
+  .categoryRow .garagePillBtn span,
+  .categoryRow .garagePillActive span {
+    display: block !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    overflow-wrap: normal !important;
+    position: relative !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    z-index: 1 !important;
+  }
+
+  .categoryRow .categoryPill svg,
+  .categoryRow .garagePillBtn svg,
+  .categoryRow .garagePillActive svg {
+    display: none !important;
+  }
+
+  .categoryRow .garagePillDot {
+    right: 10px !important;
+    top: 10px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .sectionHead {
+    align-items: stretch !important;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    overflow: hidden !important;
+  }
+
+  .listingToolbar,
+  .sectionSortControl.sortControlRebuilt,
+  .recoSortControl.sortControlRebuilt {
+    justify-self: stretch !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .sectionSortControl.sortControlRebuilt select,
+  .recoSortControl.sortControlRebuilt select,
+  .sectionSortControl .sortSelectFace,
+  .recoSortControl .sortSelectFace {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
 }

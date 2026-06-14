@@ -1,26 +1,179 @@
-
-> kauppapaikka@0.1.0 dev
-> next dev --hostname 0.0.0.0 --port 3000
-
    ▲ Next.js 15.5.15
-   - Local:        http://localhost:3000
-   - Network:      http://0.0.0.0:3000
+   - Local:        http://127.0.0.1:3000
+   - Network:      http://127.0.0.1:3000
    - Environments: .env.local
 
  ✓ Starting...
- ✓ Ready in 1673ms
+ ✓ Ready in 1750ms
+ ○ Compiling /messages/[id] ...
+ ✓ Compiled /messages/[id] in 1942ms (923 modules)
+ GET /messages/69aef466-d34e-42e6-b665-c2e5677f1ed6?conversation=2a97c2d5-c7e2-4634-9817-261cff8da124 200 in 2704ms
+ ○ Compiling /messages ...
+ ✓ Compiled /messages in 1042ms (958 modules)
+ GET /messages?conversation=2a97c2d5-c7e2-4634-9817-261cff8da124 200 in 1202ms
+ GET /messages?conversation=2a97c2d5-c7e2-4634-9817-261cff8da124 200 in 36ms
+ ✓ Compiled /sell in 467ms (997 modules)
+ GET /sell 200 in 838ms
+ GET /sell 200 in 114ms
+ ○ Compiling /api/visitor-language ...
+ ✓ Compiled /api/visitor-language in 593ms (1022 modules)
+ POST /api/visitor-language 200 in 763ms
+ GET /messages/69aef466-d34e-42e6-b665-c2e5677f1ed6?conversation=2a97c2d5-c7e2-4634-9817-261cff8da124 200 in 94ms
+ GET /messages?conversation=2a97c2d5-c7e2-4634-9817-261cff8da124 200 in 53ms
+ GET /messages?conversation=2a97c2d5-c7e2-4634-9817-261cff8da124 200 in 27ms
+ ○ Compiling /seller/[id] ...
+ ✓ Compiled /seller/[id] in 719ms (1116 modules)
+ GET /seller/4730ce17-7c89-4a43-8958-4aba5b334e4c?returnTo=%2Fmessages 200 in 1338ms
+ ○ Compiling /api/profile-follows ...
+ ✓ Compiled /api/profile-follows in 591ms (1160 modules)
+ GET /api/profile-follows?profileId=4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 1235ms
+ GET /api/profile-follows?profileId=4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 416ms
+ GET /api/profile-follows?profileId=4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 478ms
+ ✓ Compiled /api/messages/mark-read in 282ms (1162 modules)
+ POST /api/messages/mark-read 200 in 673ms
+ ○ Compiling /profile ...
+ ✓ Compiled /profile in 760ms (1158 modules)
+ GET /profile 200 in 1288ms
+ ✓ Compiled /api/visitor-language in 179ms (654 modules)
+ GET /api/visitor-language 200 in 314ms
+ ○ Compiling /auth ...
+ ✓ Compiled /auth in 526ms (1161 modules)
+ GET /auth 200 in 659ms
  ○ Compiling / ...
- ✓ Compiled / in 3.4s (866 modules)
- GET / 200 in 4032ms
- ✓ Compiled /listing/[id] in 442ms (860 modules)
- ○ Compiling /_error ...
- ✓ Compiled /_error in 1427ms (1206 modules)
- GET /listing/9fc52cf0-c743-4bc6-93b5-c1ab4322ff51 500 in 2696ms
- GET /listing/9fc52cf0-c743-4bc6-93b5-c1ab4322ff51 500 in 637ms
- GET /listing/52e44ea6-2736-4f35-af61-027e87515817 500 in 563ms
- GET /listing/3163380f-d4c6-45c5-8a08-c81e3575b82d 500 in 576ms
- GET /listing/3163380f-d4c6-45c5-8a08-c81e3575b82d 500 in 576ms
- GET /listing/3163380f-d4c6-45c5-8a08-c81e3575b82d 500 in 579ms
- GET /listing/52e44ea6-2736-4f35-af61-027e87515817 200 in 257ms
- GET / 200 in 280ms
- GET / 200 in 65ms
+ ✓ Compiled / in 950ms (1214 modules)
+ GET / 200 in 1578ms
+ GET /api/visitor-language 200 in 226ms
+ ✓ Compiled in 1198ms (1133 modules)
+ GET / 200 in 236ms
+ GET /profile 200 in 239ms
+ GET /profile 200 in 36ms
+ GET / 200 in 26ms
+ ✓ Compiled /api/visitor-language in 202ms (620 modules)
+ POST /api/visitor-language 200 in 353ms
+ ○ Compiling /my-listings ...
+ ✓ Compiled /my-listings in 878ms (1168 modules)
+ GET /my-listings 200 in 1093ms
+ GET /profile 200 in 46ms
+ ○ Compiling /seller/[id] ...
+ ✓ Compiled /seller/[id] in 550ms (649 modules)
+ GET /seller/4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 1086ms
+ GET /profile 200 in 515ms
+ GET /profile 200 in 32ms
+ GET /api/visitor-language 200 in 51ms
+ ✓ Compiled /api/profile-follows in 334ms (693 modules)
+ GET /api/profile-follows?profileId=4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 2659ms
+ GET /api/profile-follows?profileId=4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 526ms
+ ✓ Compiled in 948ms (1242 modules)
+ GET / 200 in 873ms
+ GET /profile 200 in 223ms
+ GET / 200 in 135ms
+ GET /profile 200 in 85ms
+ POST /api/visitor-language 200 in 40ms
+ ✓ Compiled in 486ms (535 modules)
+ ✓ Compiled in 249ms (535 modules)
+ ✓ Compiled in 198ms (535 modules)
+ ○ Compiling /sell ...
+ ✓ Compiled /sell in 778ms (626 modules)
+ GET /sell 200 in 1031ms
+ GET /profile 200 in 54ms
+ GET / 200 in 84ms
+ GET /sell 200 in 88ms
+ ✓ Compiled in 501ms (1161 modules)
+ ✓ Compiled in 658ms (1161 modules)
+ ✓ Compiled in 586ms (1161 modules)
+ ✓ Compiled in 666ms (1161 modules)
+ ✓ Compiled in 755ms (1171 modules)
+ GET / 200 in 342ms
+ GET /profile 200 in 348ms
+ GET /sell 200 in 340ms
+ ○ Compiling /api/price-suggestion ...
+ ✓ Compiled /api/price-suggestion in 522ms (1219 modules)
+ GET /api/price-suggestion?category=Moottori%20%26%20voimansiirto&subcategory=Kokonainen%20moottori&engine_model=Rotax%20600&engine_cc=600&year=2015 200 in 2080ms
+ GET /seller/4730ce17-7c89-4a43-8958-4aba5b334e4c?returnTo=%2Fmessages 200 in 405ms
+ ✓ Compiled /api/visitor-language in 340ms (651 modules)
+ GET /api/visitor-language 200 in 482ms
+ ✓ Compiled /api/profile-follows in 296ms (695 modules)
+ GET /api/profile-follows?profileId=4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 970ms
+ GET /api/profile-follows?profileId=4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 470ms
+ POST /api/profile-follows 500 in 420ms
+ ✓ Compiled in 688ms (1161 modules)
+ GET /seller/4730ce17-7c89-4a43-8958-4aba5b334e4c?returnTo=%2Fmessages 200 in 504ms
+ GET /profile 200 in 337ms
+ GET / 200 in 345ms
+ GET /sell 200 in 184ms
+ ✓ Compiled /api/visitor-language in 278ms (651 modules)
+ GET /api/visitor-language 200 in 362ms
+ GET /api/visitor-language 200 in 357ms
+ GET /api/visitor-language 200 in 288ms
+ GET /api/visitor-language 200 in 448ms
+ ✓ Compiled /api/profile-follows in 200ms (695 modules)
+ GET /api/profile-follows?profileId=4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 1222ms
+ GET /api/profile-follows?profileId=4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 787ms
+ POST /api/visitor-language 200 in 35ms
+ ✓ Compiled in 939ms (1230 modules)
+ GET /seller/4730ce17-7c89-4a43-8958-4aba5b334e4c?returnTo=%2Fmessages 200 in 469ms
+ GET / 200 in 222ms
+ GET /profile 200 in 292ms
+ GET /sell 200 in 288ms
+ GET /api/visitor-language 200 in 31ms
+ GET /api/visitor-language 200 in 24ms
+ GET /api/visitor-language 200 in 18ms
+ GET /api/visitor-language 200 in 19ms
+ GET /api/profile-follows?profileId=4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 569ms
+ POST /api/visitor-language 200 in 23ms
+ GET /api/profile-follows?profileId=4730ce17-7c89-4a43-8958-4aba5b334e4c 200 in 448ms
+ GET / 200 in 100ms
+ GET /api/visitor-language 200 in 37ms
+ GET /profile 200 in 29ms
+ GET / 200 in 26ms
+ POST /api/visitor-language 200 in 19ms
+ ○ Compiling /listing/[id] ...
+ ✓ Compiled /listing/[id] in 1010ms (1201 modules)
+ GET /listing/08f9d4e2-c2d2-4b2c-840a-26745a512ca1 200 in 1653ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1122ms (1206 modules)
+ GET /keuliminen.png 404 in 1586ms
+ POST /api/visitor-language 200 in 44ms
+ GET /listing/bb9b0538-25c1-4775-8b5b-c33f0d8b5e6c 200 in 56ms
+ POST /api/visitor-language 200 in 30ms
+ GET /listing/d20bb8a6-d85c-4122-86a0-4aa614c06271 200 in 34ms
+ POST /api/visitor-language 200 in 25ms
+ GET /listing/b5dcdabd-f6ff-47c2-bfcf-b4d298879975 200 in 35ms
+ POST /api/visitor-language 200 in 21ms
+ GET /listing/0ae897dd-89fc-45ab-9543-510cfbc164e0 200 in 34ms
+ GET / 200 in 134ms
+ GET /api/visitor-language 200 in 35ms
+ POST /api/visitor-language 200 in 21ms
+ POST /api/visitor-language 200 in 26ms
+ GET /sell 200 in 56ms
+ ✓ Compiled /api/price-suggestion in 413ms (704 modules)
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Kokonainen+moottori&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 2289ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Kokonainen+voimansiirto&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 612ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Moottorit+%2F+Sylinterit&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 411ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Moottorit+%2F+Sylinterin+kannet&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 548ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Moottorit+%2F+M%C3%A4nn%C3%A4t&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 899ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Moottorit+%2F+Kampiakselit&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 668ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Moottorit+%2F+Moottorin+lohkot&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 470ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Moottorit+%2F+Laakerit+%26+tiivisteet&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 817ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Kytkimet+%2F+Kokonainen+kytkin&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 877ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Kytkimet+%2F+Kytkin+kitit&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 673ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Kytkimet+%2F+Jouset&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 771ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Kytkimet+%2F+Painovarret&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 473ms
+ GET /api/price-suggestion?category=Moottori+%26+voimansiirto&subcategory=Kokonainen+moottori&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 561ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Kokonainen+telasto&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 737ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Kokonainen+alusta&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 624ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Telasto+%2F+Etupukit&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 813ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Tukivarret+%2F+Oikea+yl%C3%A4&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 533ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Olka-akselit&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 438ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Telasto+%2F+Etupukit&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 420ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Kokonainen+alusta&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 421ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Tukivarret+%2F+Oikea+yl%C3%A4&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 498ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Olka-akselit&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 435ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Vetoakselit&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 423ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Telamatot&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 443ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Iskunvaimentimet+%2F+Kokonainen+iskunvaimennussarja&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 387ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Iskunvaimentimet+%2F+Kokonainen+iskunvaimennussarja&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 802ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Iskunvaimentimet+%2F+Kokonainen+iskunvaimennussarja&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 415ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Iskunvaimentimet+%2F+Kokonainen+iskunvaimennussarja&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 410ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Iskunvaimentimet+%2F+Kokonainen+iskunvaimennussarja&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 408ms
+ GET /api/price-suggestion?category=Alusta+%26+telasto&subcategory=Iskunvaimentimet+%2F+Kokonainen+iskunvaimennussarja&engine_model=Rotax+600R+E-TEC&engine_cc=600&year=2018 200 in 407ms

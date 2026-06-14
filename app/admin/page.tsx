@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -7,15 +7,21 @@ import {
   ArrowLeft,
   BadgeCheck,
   Ban,
+  BarChart3,
+  Bell,
+  CalendarDays,
+  Car,
   ChevronDown,
   ClipboardList,
   Euro,
   Eye,
-  FolderTree,
+  ExternalLink,
+  Home,
   LogOut,
-  Palette,
+  Search,
   ShieldCheck,
   Trash2,
+  Truck,
   UserCog,
   Users,
   X
@@ -75,6 +81,16 @@ type AdminListing = {
 type ListingStatus = "all" | "active" | "sold";
 
 type Toast = { type: "ok" | "error"; message: string } | null;
+
+const ADMIN_LISTING_COLUMNS =
+  "id,title,price,seller_name,seller_id,created_at,is_sold,is_hidden,image_url,image_urls,category,subcategory,vehicle_type,brand,model,view_count";
+
+const ADMIN_VEHICLE_FILTERS: Record<string, string[]> = {
+  Mopot: ["mopo", "mopot"],
+  Moottorikelkka: ["moottorikelkka", "moottorikelkat"],
+  Mönkijä: ["mönkijä", "mönkijät", "monkija", "monkijat"],
+  Motocross: ["motocross", "crossi", "crossit"]
+};
 
 type ConfirmState =
   | null
@@ -137,6 +153,8 @@ export default function AdminPage() {
   const [pinInput, setPinInput] = useState("");
   const [pinChecking, setPinChecking] = useState(false);
   const [pinError, setPinError] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminSearch, setAdminSearch] = useState("");
 
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [toast, setToast] = useState<Toast>(null);
@@ -208,6 +226,7 @@ export default function AdminPage() {
         return;
       }
 
+      setAdminEmail(authData.user.email ?? "");
       setIsAdmin(true);
       setBootMessage("");
       setBootLoading(false);
@@ -305,15 +324,24 @@ export default function AdminPage() {
 
     const channel = client
       .channel("admin-overview-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "listings" }, () => void loadStats())
+      .on("postgres_changes", { event: "*", schema: "public", table: "listings" }, () => {
+        void loadStats();
+        void loadListings();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => {
+        void loadStats();
+        void loadUsers();
+      })
       .on("postgres_changes", { event: "*", schema: "public", table: "sold_listings" }, () => void loadStats())
       .on("postgres_changes", { event: "*", schema: "public", table: "deleted_listings_log" }, () => void loadStats())
+      .on("postgres_changes", { event: "*", schema: "public", table: "user_activity" }, () => void loadStats())
       .subscribe();
 
     return () => {
       window.clearInterval(interval);
       void client.removeChannel(channel);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isAdmin, loadStats, pinUnlocked]);
 
   /* Debounce user search */
@@ -345,15 +373,33 @@ export default function AdminPage() {
   const loadListings = useCallback(async () => {
     if (!isAdmin || !supabase) return;
     setListingsLoading(true);
+    const vehicleTerms = ADMIN_VEHICLE_FILTERS[listingVehicle] ?? [];
     let q = supabase
       .from("listings")
-      .select("id,title,price,seller_name,seller_id,created_at,is_sold,is_hidden,image_url,image_urls,category,subcategory,vehicle_type,brand,model,view_count")
+      .select(ADMIN_LISTING_COLUMNS)
       .order("created_at", { ascending: false })
-      .limit(500);
+      .limit(listingVehicle === "all" ? 1000 : 10000);
 
     if (listingQuery.trim()) {
       const term = `%${listingQuery.trim()}%`;
       q = q.or(`title.ilike.${term},seller_name.ilike.${term}`);
+    }
+
+    if (vehicleTerms.length > 0) {
+      q = q.or(vehicleTerms.map((term) => `vehicle_type.ilike.${term}`).join(","));
+    } else if (listingVehicle === "Muut") {
+      q = q
+        .not("vehicle_type", "ilike", "mopo")
+        .not("vehicle_type", "ilike", "mopot")
+        .not("vehicle_type", "ilike", "moottorikelkka")
+        .not("vehicle_type", "ilike", "moottorikelkat")
+        .not("vehicle_type", "ilike", "mönkijä")
+        .not("vehicle_type", "ilike", "mönkijät")
+        .not("vehicle_type", "ilike", "monkija")
+        .not("vehicle_type", "ilike", "monkijat")
+        .not("vehicle_type", "ilike", "motocross")
+        .not("vehicle_type", "ilike", "crossi")
+        .not("vehicle_type", "ilike", "crossit");
     }
 
     const { data, error } = await q;
@@ -363,7 +409,7 @@ export default function AdminPage() {
       return;
     }
     setListings((data ?? []) as AdminListing[]);
-  }, [isAdmin, listingQuery, showError]);
+  }, [isAdmin, listingQuery, listingVehicle, showError]);
 
   useEffect(() => {
     if (isAdmin && pinUnlocked && activeTab === "listings") void loadListings();
@@ -408,6 +454,7 @@ export default function AdminPage() {
     if (error) { showError("Ilmoituksen poisto epäonnistui."); return; }
     showOk("Ilmoitus poistettu.");
     setListings((prev) => prev.filter((l) => l.id !== listing.id));
+    void loadStats();
     setConfirm(null);
   };
 
@@ -494,12 +541,12 @@ export default function AdminPage() {
 
   /* Render */
   const tabs: { key: TabKey; label: string; icon: typeof Users }[] = useMemo(() => [
-    { key: "overview", label: "Yleiskatsaus", icon: Eye },
-    { key: "users", label: "Käyttäjät", icon: Users },
+    { key: "overview", label: "Yleiskatsaus", icon: Home },
+    { key: "users", label: "Käyttäjät", icon: Truck },
     { key: "listings", label: "Ilmoitukset", icon: ClipboardList },
-    { key: "bans", label: "Bannit", icon: Ban },
-    { key: "appearance", label: "Ulkoasu", icon: Palette },
-    { key: "categories", label: "Kategoriat", icon: FolderTree }
+    { key: "bans", label: "Bannit", icon: Users },
+    { key: "categories", label: "Kategoriat", icon: Car },
+    { key: "appearance", label: "Ulkoasu", icon: BarChart3 }
   ], []);
 
   async function handleSignOut() {
@@ -508,16 +555,43 @@ export default function AdminPage() {
     window.location.href = "/";
   }
 
+  const adminName =
+    adminEmail
+      ? adminEmail.split("@")[0].replace(/[._-]+/g, " ")
+      : "Admin";
+  const adminInitial =
+    adminName.trim().charAt(0).toUpperCase() || "A";
+  const dashboardRange = (() => {
+    const end = new Date();
+    const start = new Date(end);
+    start.setDate(end.getDate() - 6);
+    const fmt = new Intl.DateTimeFormat("fi-FI", { day: "numeric", month: "numeric" });
+    return `${fmt.format(start)} - ${fmt.format(end)}.${end.getFullYear()}`;
+  })();
+
+  function submitAdminSearch() {
+    const q = adminSearch.trim();
+    if (!q) return;
+    if (activeTab === "listings") {
+      setListingQuery(q);
+      return;
+    }
+    setUserQuery(q);
+    setActiveTab("users");
+  }
+
+  function refreshAdminDashboard() {
+    void loadStats();
+    void loadUsers();
+    void loadListings();
+  }
+
   return (
     <main className={`${styles.page} admin-page`}>
       <aside className={styles.sidebar}>
         <div className={styles.sidebarBrand}>
-          <div className={styles.sidebarBrandIcon}>
-            <ShieldCheck size={20} />
-          </div>
-          <div>
-            <strong>Arctic Parts</strong>
-            <small>Admin-paneeli</small>
+          <div className={styles.sidebarBrandIcon} aria-label="Maskines">
+            <ShieldCheck size={24} />
           </div>
         </div>
 
@@ -553,41 +627,95 @@ export default function AdminPage() {
       </aside>
 
       <section className={styles.shell}>
+        {!bootLoading && isAdmin && pinUnlocked && (
+          <header className={styles.adminTopbar}>
+            <button type="button" className={styles.adminMenuButton} aria-label="Avaa yleiskatsaus" onClick={() => setActiveTab("overview")}>
+              <ChevronDown size={18} />
+            </button>
+            <label className={styles.adminSearch}>
+              <Search size={18} />
+              <input
+                type="search"
+                placeholder="Hae..."
+                aria-label="Hae admin-dataa"
+                value={adminSearch}
+                onChange={(event) => setAdminSearch(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") submitAdminSearch();
+                }}
+              />
+              <button type="button" onClick={submitAdminSearch}>Hae</button>
+            </label>
+            <div className={styles.adminTopbarSpacer} />
+            <button type="button" className={styles.adminBell} aria-label="Päivitä tiedot" onClick={refreshAdminDashboard}>
+              <Bell size={21} />
+              <span />
+            </button>
+            <div className={styles.adminUserBadge}>
+              <div className={styles.adminAvatar}>{adminInitial}</div>
+              <div>
+                <strong>{adminName}</strong>
+                <span>Admin</span>
+              </div>
+              <ChevronDown size={15} />
+            </div>
+          </header>
+        )}
+
+        {!bootLoading && isAdmin && pinUnlocked && stats && (
+          <div className={styles.dashboardHero}>
+            <div>
+              <h1>Tervetuloa takaisin, {adminName}! <span aria-hidden="true">👋</span></h1>
+              <p>Tässä näet, mitä kauppapaikalla tapahtuu tänään.</p>
+            </div>
+            <button type="button" className={styles.dateRangeButton} onClick={refreshAdminDashboard}>
+              <CalendarDays size={16} />
+              {dashboardRange}
+              <ChevronDown size={15} />
+            </button>
+          </div>
+        )}
+
         {!bootLoading && isAdmin && pinUnlocked && stats && (
           <div className={styles.summaryStrip}>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconBlue}`}><Users size={22} /></div>
               <div className={styles.summaryBody}>
+                <span>Käyttäjät</span>
                 <strong>{Number(stats.profiles_total ?? 0).toLocaleString("fi-FI")}</strong>
-                <span>Käyttäjiä</span>
+                <small>Aktiiviset käyttäjät</small>
               </div>
             </article>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconCyan}`}><ClipboardList size={22} /></div>
               <div className={styles.summaryBody}>
+                <span>Ilmoitukset</span>
                 <strong>{Number(stats.listings_total ?? 0).toLocaleString("fi-FI")}</strong>
-                <span>Ilmoituksia</span>
+                <small>Ilmoituksia yhteensä</small>
               </div>
             </article>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconGreen}`}><BadgeCheck size={22} /></div>
               <div className={styles.summaryBody}>
+                <span>Myydyt</span>
                 <strong>{Number(stats.sold_total ?? 0).toLocaleString("fi-FI")}</strong>
-                <span>Myytyjä</span>
+                <small>Tällä viikolla</small>
               </div>
             </article>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconRed}`}><Ban size={22} /></div>
               <div className={styles.summaryBody}>
+                <span>Bannatut</span>
                 <strong>{users.filter((u) => u.is_banned).length}</strong>
-                <span>Bannattuja</span>
+                <small>Tällä viikolla</small>
               </div>
             </article>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconOrange}`}><Euro size={22} /></div>
               <div className={styles.summaryBody}>
-                <strong>{Number(stats.revenue_total ?? 0).toLocaleString("fi-FI")} €</strong>
                 <span>Liikevaihto</span>
+                <strong>{Number(stats.revenue_total ?? 0).toLocaleString("fi-FI")} €</strong>
+                <small>Liikevaihto yhteensä</small>
               </div>
             </article>
           </div>
@@ -660,8 +788,16 @@ export default function AdminPage() {
           <>
             {activeTab === "overview" && (
               <>
-                <OverviewPanel stats={stats} loading={statsLoading} onRefresh={loadStats} />
-                <RecentEventsPanel users={users} listings={listings} />
+                <DashboardOverviewPanel
+                  stats={stats}
+                  loading={statsLoading}
+                  onOpenReport={() => setActiveTab("listings")}
+                />
+                <RecentEventsPanelV2
+                  users={users}
+                  listings={listings}
+                  onViewAll={() => setActiveTab("users")}
+                />
               </>
             )}
 
@@ -783,6 +919,7 @@ function relativeTime(value?: string | null) {
   return `${d} pv sitten`;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function RecentEventsPanel({ users, listings }: {
   users: AdminProfileRow[];
   listings: AdminListing[];
@@ -832,6 +969,68 @@ function RecentEventsPanel({ users, listings }: {
   );
 }
 
+function RecentEventsPanelV2({ users, listings, onViewAll }: {
+  users: AdminProfileRow[];
+  listings: AdminListing[];
+  onViewAll: () => void;
+}) {
+  type Event = { kind: "user" | "listing" | "completed"; title: string; sub: string; time: string };
+  const events: Event[] = useMemo(() => {
+    const arr: Event[] = [];
+    users.slice(0, 6).forEach((user) => {
+      arr.push({
+        kind: "user",
+        title: "Uusi käyttäjä rekisteröityi",
+        sub: user.email || user.full_name || user.id.slice(0, 8),
+        time: user.created_at ?? ""
+      });
+    });
+    listings.slice(0, 6).forEach((listing) => {
+      arr.push({
+        kind: listing.is_sold ? "completed" : "listing",
+        title: listing.is_sold ? `Tilaus valmis #${listing.id.slice(0, 6)}` : `Uusi tilaus #${listing.id.slice(0, 6)}`,
+        sub: listing.seller_name || listing.title || "-",
+        time: listing.created_at ?? ""
+      });
+    });
+    return arr
+      .filter((event) => event.time)
+      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+      .slice(0, 9);
+  }, [users, listings]);
+
+  if (events.length === 0) return null;
+
+  return (
+    <div className={styles.recentEvents}>
+      <div className={styles.recentEventsHeader}>
+        <h3>Viimeisin toiminta</h3>
+        <button type="button" onClick={onViewAll}>Näytä kaikki tapahtumat</button>
+      </div>
+      <div className={styles.recentEventList}>
+        {events.map((event, index) => (
+          <div key={`${event.title}-${index}`} className={styles.recentEventItem}>
+            <div className={`${styles.recentEventIcon} ${styles[event.kind]}`}>
+              {event.kind === "listing" ? (
+                <ClipboardList size={18} />
+              ) : event.kind === "completed" ? (
+                <BadgeCheck size={18} />
+              ) : (
+                <Users size={18} />
+              )}
+            </div>
+            <div>
+              <strong>{event.title}</strong>
+              <small>{event.sub}</small>
+            </div>
+            <span className={styles.recentEventTime}>{relativeTime(event.time)}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* =================================================================
    OVERVIEW PANEL
 ================================================================= */
@@ -854,6 +1053,7 @@ function trendBadge(current: number, previous: number) {
   return { className: "flat", icon: "·", text: "0%" };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function OverviewPanel({ stats, loading, onRefresh }: {
   stats: AdminOverviewStats | null;
   loading: boolean;
@@ -980,6 +1180,167 @@ function OverviewPanel({ stats, loading, onRefresh }: {
   );
 }
 
+function dashboardTrend(current: number, previous?: number) {
+  if (previous === undefined || (previous === 0 && current === 0)) {
+    return { className: "flat", label: "-" };
+  }
+  if (previous === 0) {
+    return { className: "up", label: "100%" };
+  }
+  const value = Math.round(((current - previous) / previous) * 100);
+  if (value > 0) return { className: "up", label: `${value}%` };
+  if (value < 0) return { className: "down", label: `${Math.abs(value)}%` };
+  return { className: "flat", label: "0%" };
+}
+
+function dashboardSpark(values: number[]) {
+  const max = Math.max(...values, 1);
+  return values
+    .map((value, index) => {
+      const x = (index / Math.max(values.length - 1, 1)) * 100;
+      const y = 34 - (Math.max(0, value) / max) * 24;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+}
+
+function DashboardOverviewPanel({ stats, loading, onOpenReport }: {
+  stats: AdminOverviewStats | null;
+  loading: boolean;
+  onOpenReport: () => void;
+}) {
+  const cards = [
+    {
+      label: "Käyttäjät",
+      value: stats?.profiles_month ?? 0,
+      today: stats?.profiles_today ?? 0,
+      week: stats?.profiles_7d ?? 0,
+      month: stats?.profiles_month ?? 0,
+      previous: stats?.profiles_prev_month ?? 0,
+      accent: "accentBlue",
+      series: [0, stats?.profiles_today ?? 0, stats?.profiles_7d ?? 0, stats?.profiles_month ?? 0, stats?.profiles_total ?? 0]
+    },
+    {
+      label: "Ilmoitukset",
+      value: stats?.listings_month ?? 0,
+      today: stats?.listings_today ?? 0,
+      week: stats?.listings_7d ?? 0,
+      month: stats?.listings_month ?? 0,
+      previous: stats?.listings_prev_month ?? 0,
+      accent: "accentBlue",
+      series: [stats?.listings_today ?? 0, stats?.listings_7d ?? 0, stats?.listings_month ?? 0, stats?.listings_total ?? 0, stats?.listings_7d ?? 0]
+    },
+    {
+      label: "Myydyt",
+      value: stats?.sold_month ?? 0,
+      today: stats?.sold_today ?? 0,
+      week: stats?.sold_7d ?? 0,
+      month: stats?.sold_month ?? 0,
+      previous: stats?.sold_prev_month ?? 0,
+      accent: "accentGreen",
+      series: [0, stats?.sold_today ?? 0, stats?.sold_7d ?? 0, stats?.sold_month ?? 0, stats?.sold_total ?? 0]
+    },
+    {
+      label: "Liikevaihto",
+      value: stats?.revenue_month ?? 0,
+      today: stats?.revenue_today ?? 0,
+      week: stats?.revenue_7d ?? 0,
+      month: stats?.revenue_month ?? 0,
+      previous: stats?.revenue_prev_month ?? 0,
+      suffix: " €",
+      accent: "accentOrange",
+      series: [stats?.revenue_today ?? 0, stats?.revenue_7d ?? 0, stats?.revenue_month ?? 0, stats?.revenue_total ?? 0, stats?.revenue_7d ?? 0]
+    },
+    {
+      label: "Sivulataukset",
+      value: stats?.visits_month ?? 0,
+      today: stats?.visits_today ?? 0,
+      week: stats?.visits_7d ?? 0,
+      month: stats?.visits_month ?? 0,
+      previous: Math.max(0, (stats?.visits_month ?? 0) - (stats?.visits_7d ?? 0)),
+      accent: "accentPurple",
+      series: [stats?.visits_today ?? 0, stats?.visits_7d ?? 0, stats?.visits_month ?? 0, stats?.visits_total ?? 0, stats?.visits_7d ?? 0]
+    },
+    {
+      label: "Uniikit kävijät",
+      value: stats?.unique_visitors_month ?? 0,
+      today: stats?.unique_visitors_today ?? 0,
+      week: stats?.unique_visitors_7d ?? 0,
+      month: stats?.unique_visitors_month ?? 0,
+      previous: Math.max(0, (stats?.unique_visitors_month ?? 0) - (stats?.unique_visitors_7d ?? 0)),
+      accent: "accentPurple",
+      series: [stats?.unique_visitors_today ?? 0, stats?.unique_visitors_7d ?? 0, stats?.unique_visitors_month ?? 0, stats?.unique_visitors_total ?? 0, stats?.unique_visitors_7d ?? 0]
+    },
+    {
+      label: "Poistetut",
+      value: stats?.deleted_month ?? 0,
+      today: stats?.deleted_today ?? 0,
+      week: stats?.deleted_7d ?? 0,
+      month: stats?.deleted_month ?? 0,
+      accent: "accentRed",
+      series: [0, stats?.deleted_today ?? 0, stats?.deleted_7d ?? 0, stats?.deleted_month ?? 0, stats?.deleted_total ?? 0]
+    },
+    {
+      label: "Hyvitykset",
+      value: 0,
+      today: 0,
+      week: 0,
+      month: 0,
+      suffix: " €",
+      accent: "accentYellow",
+      series: [0, 0, 0, 0, 0]
+    }
+  ];
+
+  return (
+    <section className={`${styles.panel} ${styles.dashboardPanel}`}>
+      <div className={styles.dashboardSectionHeader}>
+        <h2>Tilastojen yleiskatsaus</h2>
+        <button type="button" className={styles.fullReportButton} onClick={onOpenReport}>
+          {loading ? "Päivitetään..." : "Näytä koko raportti"}
+          <ExternalLink size={15} />
+        </button>
+      </div>
+
+      <div className={styles.statsGridLarge}>
+        {cards.map((card) => {
+          const trend = dashboardTrend(card.month, card.previous);
+          return (
+            <article key={card.label} className={`${styles.statCardRich} ${styles[card.accent]}`}>
+              <div className={styles.statCardHead}>
+                <span>{card.label}</span>
+                <span className={`${styles.statCardTrend} ${styles[trend.className]}`}>
+                  {trend.className === "flat" ? "-" : trend.className === "down" ? "↓" : "↑"} {trend.label}
+                </span>
+              </div>
+              <div className={styles.statCardBig}>
+                <b>{formatNumber(card.value, card.suffix)}</b>
+              </div>
+              <div className={styles.statCardBreakdown}>
+                <div>
+                  <small>Tänään</small>
+                  <strong>{formatNumber(card.today, card.suffix)}</strong>
+                </div>
+                <div>
+                  <small>7 pv</small>
+                  <strong>{formatNumber(card.week, card.suffix)}</strong>
+                </div>
+                <div>
+                  <small>30 pv</small>
+                  <strong>{formatNumber(card.month, card.suffix)}</strong>
+                </div>
+              </div>
+              <svg className={styles.sparkline} viewBox="0 0 100 38" preserveAspectRatio="none" aria-hidden="true">
+                <polyline points={dashboardSpark(card.series)} />
+              </svg>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 /* =================================================================
    USERS PANEL
 ================================================================= */
@@ -1086,9 +1447,11 @@ function UserTableRow({
   const openMenu = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
+      const menuHeightEstimate = 230;
+      const opensBelow = rect.bottom + menuHeightEstimate + 12 <= window.innerHeight;
       setMenuPos({
-        top: rect.bottom + window.scrollY + 6,
-        right: window.innerWidth - rect.right,
+        top: opensBelow ? rect.bottom + 8 : Math.max(12, rect.top - menuHeightEstimate - 8),
+        right: Math.max(12, window.innerWidth - rect.right),
       });
     }
     setMenuOpen(true);
@@ -1166,14 +1529,15 @@ function UserTableRow({
           <div
             data-action-portal={u.id}
             className={styles.actionMenu}
-            style={{ position: "absolute", top: menuPos.top, right: menuPos.right, zIndex: 9999 }}
+            style={{ position: "fixed", top: menuPos.top, right: menuPos.right, zIndex: 9999 }}
           >
+            <div className={styles.actionMenuGrid}>
             <button
               type="button"
               className={styles.actionMenuItem}
               onClick={() => { setMenuOpen(false); onAction("edit-profile", u); }}
             >
-              <UserCog size={14} /> Muokkaa profiilia
+              <UserCog size={14} /> Muokkaa
             </button>
             <button
               type="button"
@@ -1187,14 +1551,14 @@ function UserTableRow({
               className={styles.actionMenuItem}
               onClick={() => { setMenuOpen(false); onAction("set-slots", u); }}
             >
-              <ClipboardList size={14} /> Aseta ilmoituspaikat
+              <ClipboardList size={14} /> Ilmoituspaikat
             </button>
             <button
               type="button"
               className={styles.actionMenuItem}
               onClick={() => { setMenuOpen(false); onAdjustPhoneVer(u, 1); }}
             >
-              <BadgeCheck size={14} /> Anna +1 vahvistus
+              <BadgeCheck size={14} /> +1 vahvistus
             </button>
             <button
               type="button"
@@ -1202,16 +1566,17 @@ function UserTableRow({
               onClick={() => { setMenuOpen(false); onAdjustPhoneVer(u, -1); }}
               disabled={(u.extra_phone_verifications ?? 0) === 0}
             >
-              <BadgeCheck size={14} /> Poista 1 vahvistus
+              <BadgeCheck size={14} /> -1 vahvistus
             </button>
             <button
               type="button"
               className={styles.actionMenuItem}
               onClick={() => { setMenuOpen(false); onAction("verify-phone", u); }}
             >
-              <BadgeCheck size={14} /> Vahvista puhelin
+              <BadgeCheck size={14} /> Puhelin ok
             </button>
-            <div className={styles.actionMenuDivider} />
+            </div>
+            <div className={styles.actionMenuDangerGrid}>
             <button
               type="button"
               className={`${styles.actionMenuItem} ${u.is_banned ? "" : styles.danger}`}
@@ -1236,6 +1601,7 @@ function UserTableRow({
             >
               <Trash2 size={14} /> Poista käyttäjä
             </button>
+            </div>
           </div>,
           document.body
         )}
@@ -1290,9 +1656,18 @@ function ListingsPanel({
     return "Muut";
   }, []);
 
+  const useGlobalListingCounts = !query.trim() && vehicle === "all";
+  const totalListingCount = useGlobalListingCounts
+    ? Number(stats?.listings_total ?? listings.length)
+    : listings.length;
+  const soldListingCount = useGlobalListingCounts
+    ? Number(stats?.sold_total ?? listings.filter((l) => !!l.is_sold).length)
+    : listings.filter((l) => !!l.is_sold).length;
+  const activeListingCount = Math.max(0, totalListingCount - soldListingCount);
+
   const vehicleCounts = useMemo(() => {
     const counts: Record<string, number> = {
-      all: listings.length,
+      all: totalListingCount,
       Mopot: 0,
       Moottorikelkka: 0,
       Mönkijä: 0,
@@ -1304,7 +1679,7 @@ function ListingsPanel({
       counts[bucket] = (counts[bucket] ?? 0) + 1;
     });
     return counts;
-  }, [listings, vehicleBucket]);
+  }, [listings, totalListingCount, vehicleBucket]);
 
   const filtered = useMemo(() => {
     let arr = listings;
@@ -1317,9 +1692,9 @@ function ListingsPanel({
   }, [listings, status, vehicle, vehicleBucket]);
 
   const counts = {
-    all: listings.length,
-    active: listings.filter((l) => !l.is_sold).length,
-    sold: listings.filter((l) => !!l.is_sold).length
+    all: totalListingCount,
+    active: activeListingCount,
+    sold: soldListingCount
   };
 
   const totalViews = listings.reduce((sum, l) => sum + (l.view_count ?? 0), 0);
@@ -1332,6 +1707,18 @@ function ListingsPanel({
           <h2>Ilmoitusten hallinta</h2>
           <p>Hallitse ilmoituksia ja seuraa niiden tilannetta.</p>
         </div>
+        <button
+          type="button"
+          className={styles.fullReportButton}
+          onClick={() => {
+            onQueryChange("");
+            onStatusChange("all");
+            onVehicleChange("all");
+            window.setTimeout(onRefresh, 0);
+          }}
+        >
+          {loading ? "Ladataan..." : "Näytä kaikki ilmoitukset"}
+        </button>
       </div>
 
       {/* Yhteenveto */}
@@ -1426,7 +1813,15 @@ function ListingsPanel({
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
         />
+        <button type="button" className={styles.ghostBtn} onClick={onRefresh}>
+          {loading ? "Ladataan..." : "Päivitä"}
+        </button>
       </div>
+      {listings.length < counts.all && !query.trim() && vehicle === "all" && (
+        <p className={styles.listingLimitNote}>
+          Näytetään {listings.length.toLocaleString("fi-FI")} uusinta ilmoitusta. Kokonaismäärä on {counts.all.toLocaleString("fi-FI")}.
+        </p>
+      )}
 
       <div className={styles.listingCardList}>
         {filtered.length === 0 && !loading && (

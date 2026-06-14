@@ -129,6 +129,26 @@
     --topbar-h: 62px;
   }
 
+  *,
+  *::before,
+  *::after {
+    min-width: 0;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    max-width: 100%;
+  }
+
   body {
     padding-bottom: 78px;
   }
@@ -146,6 +166,73 @@
   .listing-detail-page .container,
   .listing-detail-page .wrapper {
     width: min(100% - 24px, var(--container));
+  }
+
+  .messages-page,
+  .shop-page,
+  .saved-page,
+  .garage-page,
+  .followed-page,
+  .rewards-page,
+  .sa-page,
+  .sell-page,
+  .profile-page,
+  .listing-detail-page,
+  .legal-page {
+    overflow-x: clip;
+  }
+
+  .section-heading,
+  .messages-hero,
+  .saved-hero,
+  .legal-hero,
+  .rewards-hero,
+  .shop-hero,
+  .sa-hero,
+  .garage-heading,
+  .pf-topbar,
+  .footer-bottom,
+  .sell-submit-bar {
+    gap: 12px;
+  }
+
+  :where(
+    .listing-card,
+    .saved-card,
+    .garage-vehicle-card,
+    .garage-part-card,
+    .sa-card,
+    .conversation-card,
+    .seller-card,
+    .own-listing-card,
+    .profile-subsection,
+    .pf-phone-card,
+    .sell-panel,
+    .sell-sidebar,
+    .contact-card
+  ) {
+    max-width: 100%;
+  }
+
+  :where(
+    .form-actions,
+    .sell-submit-bar,
+    .seller-row,
+    .footer-bottom,
+    .pf-topbar,
+    .section-heading
+  ) {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  :where(
+    .form-actions > *,
+    .sell-submit-bar > *,
+    .section-heading > *,
+    .pf-topbar > *
+  ) {
+    width: 100%;
   }
 
   .universal-app-topbar {

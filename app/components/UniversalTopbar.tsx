@@ -1,32 +1,58 @@
-"use client";
+﻿"use client";
 
-import { ArrowLeft, Award, Bell, Car, ChevronDown, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Star, Store, UserRound, X } from "lucide-react";
+import { ArrowLeft, Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Star, Store, UserRound, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
+  CHAT_NOTIFICATIONS_CHANGED_EVENT,
   deleteAlertNotification,
   dismissPurchaseReviewRequest,
   getAlertNotifications,
-  getConversationSummaries,
   getCurrentUserIsAdmin,
+  getUnreadConversationSummaries,
+  getPublicSellerLevelStats,
   getPendingPurchaseReviewRequests,
+  isConversationLastMessageUnread,
   markConversationRead,
   markNotificationsSeen,
+  readChatLastRead,
   supabase,
   type AlertNotification,
   type ConversationSummary,
   type PurchaseReviewRequest,
+  type SellerLevelStats,
   type UserProfile,
 } from "@/lib/supabase";
+import { calculateSellerLevel } from "@/lib/seller-level";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
+import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage } from "@/lib/i18n";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
-const CHAT_LAST_READ_STORAGE_KEY = "chatLastRead";
-const HIDDEN_CHAT_CONVERSATIONS_STORAGE_KEY = "chatHiddenConvs";
+const HOME_RETURN_STATE_KEY = "home_return_state_v1";
+const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
+const NOTIFICATION_REFRESH_DEBOUNCE_MS = 120;
+const emptySellerLevelStats: SellerLevelStats = {
+  listings_created: 0,
+  single_listings_created: 0,
+  multi_listings_created: 0,
+  sold_count: 0,
+  reviews_given: 0,
+  reviews_received: 0,
+  phone_verified: false
+};
+
+function uniqueById<T extends { id: string }>(items: T[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+}
 
 export default function UniversalTopbar() {
   const router = useRouter();
@@ -38,13 +64,15 @@ export default function UniversalTopbar() {
   const [userId, setUserId] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [profileInitial, setProfileInitial] = useState("?");
+  const [profileDisplayName, setProfileDisplayName] = useState("Profiili");
   const [reviewRequests, setReviewRequests] = useState<PurchaseReviewRequest[]>([]);
   const [alertNotifications, setAlertNotifications] = useState<AlertNotification[]>([]);
   const [unreadConversations, setUnreadConversations] = useState<ConversationSummary[]>([]);
-  const [hiddenConversationIds, setHiddenConversationIds] = useState<Set<string>>(new Set());
   const [seenNotificationKeys, setSeenNotificationKeys] = useState<Set<string>>(new Set());
+  const [notificationRefreshNonce, setNotificationRefreshNonce] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [sellerLevelStats, setSellerLevelStats] = useState<SellerLevelStats>(emptySellerLevelStats);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
 
@@ -63,7 +91,9 @@ export default function UniversalTopbar() {
       if (!nextUserId) {
         setAvatarUrl(null);
         setProfileInitial("?");
+        setProfileDisplayName("Profiili");
         setIsAdmin(false);
+        setSellerLevelStats(emptySellerLevelStats);
         setProfileOpen(false);
         setNotificationOpen(false);
         return;
@@ -84,7 +114,15 @@ export default function UniversalTopbar() {
         fallbackEmail ||
         "";
       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "?");
+      setProfileDisplayName(displayName.trim() || "Profiili");
       getCurrentUserIsAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
+      getPublicSellerLevelStats(nextUserId)
+        .then(({ data }) => {
+          if (!cancelled) setSellerLevelStats(data);
+        })
+        .catch(() => {
+          if (!cancelled) setSellerLevelStats(emptySellerLevelStats);
+        });
     }
 
     client.auth.getUser().then(async ({ data }) => {
@@ -107,7 +145,6 @@ export default function UniversalTopbar() {
   useEffect(() => {
     if (!userId) {
       setSeenNotificationKeys(new Set());
-      setHiddenConversationIds(new Set());
       return;
     }
 
@@ -119,13 +156,6 @@ export default function UniversalTopbar() {
       setSeenNotificationKeys(new Set());
     }
 
-    try {
-      const storedHidden = localStorage.getItem(HIDDEN_CHAT_CONVERSATIONS_STORAGE_KEY);
-      const parsedHidden = storedHidden ? JSON.parse(storedHidden) : [];
-      setHiddenConversationIds(new Set(Array.isArray(parsedHidden) ? parsedHidden.filter((value): value is string => typeof value === "string") : []));
-    } catch {
-      setHiddenConversationIds(new Set());
-    }
   }, [userId]);
 
   useEffect(() => {
@@ -139,39 +169,67 @@ export default function UniversalTopbar() {
     const activeUserId = userId;
     const client = supabase;
     let cancelled = false;
+    let refreshTimer: number | null = null;
 
     async function refreshNotifications() {
-      const [{ data: reviews }, { data: alerts }, { data: conversations }] = await Promise.all([
-        getPendingPurchaseReviewRequests(activeUserId),
-        getAlertNotifications(activeUserId),
-        getConversationSummaries(activeUserId),
-      ]);
+      try {
+        const [{ data: reviews }, { data: alerts }, { data: conversations }] = await Promise.all([
+          getPendingPurchaseReviewRequests(activeUserId),
+          getAlertNotifications(activeUserId),
+          getUnreadConversationSummaries(activeUserId),
+        ]);
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      let lastRead: Record<string, number> = {};
-      try { lastRead = JSON.parse(localStorage.getItem(CHAT_LAST_READ_STORAGE_KEY) ?? "{}"); } catch { /* ok */ }
-      const unread = (conversations ?? []).filter((conversation) => {
-        const message = conversation.last_message;
-        if (!message || message.sender_id === activeUserId) return false;
-        if (hiddenConversationIds.has(conversation.id)) return false;
-        return new Date(message.created_at).getTime() > (lastRead[conversation.id] ?? 0);
-      });
+        const lastRead = readChatLastRead();
+        const unread = uniqueById(conversations ?? []).filter((conversation) => {
+          return isConversationLastMessageUnread(
+            conversation,
+            activeUserId,
+            lastRead
+          );
+        });
 
-      setReviewRequests(reviews ?? []);
-      setAlertNotifications((alerts ?? []).filter((alert) => !alert.seen));
-      setUnreadConversations(unread);
-
+        setReviewRequests(uniqueById(reviews ?? []));
+        setAlertNotifications(uniqueById(alerts ?? []).filter((alert) => !alert.seen));
+        setUnreadConversations(unread);
+      } catch {
+        // Keep the last visible state if a realtime refresh races with a temporary network error.
+      }
     }
 
-    refreshNotifications();
-    const interval = window.setInterval(refreshNotifications, 30000);
+    function scheduleRefreshNotifications() {
+      if (refreshTimer !== null) {
+        window.clearTimeout(refreshTimer);
+      }
+      refreshTimer = window.setTimeout(() => {
+        refreshTimer = null;
+        void refreshNotifications();
+      }, NOTIFICATION_REFRESH_DEBOUNCE_MS);
+    }
+
+    void refreshNotifications();
     const messagesChannel = client
-      .channel("universal-topbar-notifications")
+      .channel(`universal-topbar-notifications-${activeUserId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${activeUserId}` },
-        refreshNotifications
+        scheduleRefreshNotifications
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages", filter: `sender_id=eq.${activeUserId}` },
+        scheduleRefreshNotifications
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "alert_notifications", filter: `user_id=eq.${activeUserId}` },
+        scheduleRefreshNotifications
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "purchase_review_requests", filter: `buyer_id=eq.${activeUserId}` },
+        scheduleRefreshNotifications
       )
       .subscribe();
 
@@ -179,14 +237,24 @@ export default function UniversalTopbar() {
       refreshNotifications();
     }
 
+    function onChatNotificationsChanged() {
+      refreshNotifications();
+    }
+
     window.addEventListener("review-request-dismissed", onReviewDismissed);
+    window.addEventListener(CHAT_NOTIFICATIONS_CHANGED_EVENT, onChatNotificationsChanged);
+    window.addEventListener("storage", onChatNotificationsChanged);
     return () => {
       cancelled = true;
-      window.clearInterval(interval);
+      if (refreshTimer !== null) {
+        window.clearTimeout(refreshTimer);
+      }
       window.removeEventListener("review-request-dismissed", onReviewDismissed);
+      window.removeEventListener(CHAT_NOTIFICATIONS_CHANGED_EVENT, onChatNotificationsChanged);
+      window.removeEventListener("storage", onChatNotificationsChanged);
       client.removeChannel(messagesChannel);
     };
-  }, [hiddenConversationIds, userId]);
+  }, [notificationRefreshNonce, userId]);
 
   useEffect(() => {
     if (!notificationOpen) return;
@@ -242,17 +310,22 @@ export default function UniversalTopbar() {
     router.push("/");
   }
 
+  const visibleReviewRequests = reviewRequests.filter((request) => !seenNotificationKeys.has(`review:${request.id}`));
+  const visibleAlertNotifications = alertNotifications.filter((notification) => !notification.seen && !seenNotificationKeys.has(`alert:${notification.id}`));
+  const visibleUnreadConversations = unreadConversations;
   const notificationItemCount =
-    reviewRequests.filter((request) => !seenNotificationKeys.has(`review:${request.id}`)).length +
-    alertNotifications.filter((notification) => !seenNotificationKeys.has(`alert:${notification.id}`)).length +
-    unreadConversations.filter((conversation) => !seenNotificationKeys.has(`conversation:${conversation.id}`)).length;
+    visibleReviewRequests.length +
+    visibleAlertNotifications.length +
+    visibleUnreadConversations.length;
   const hasNotifications = notificationItemCount > 0;
   const hasNotificationItems =
-    reviewRequests.length +
-    alertNotifications.length +
-    unreadConversations.length > 0;
+    notificationItemCount > 0;
   const isHomePage = pathname === "/";
   const guestLocked = !authChecked || !userId;
+  const sellerLevel = calculateSellerLevel(sellerLevelStats);
+  const sellerLevelTooltip = sellerLevel.maxLevel
+    ? `Maksimitaso - Taso ${sellerLevel.level}`
+    : `${sellerLevel.currentLevelXp}/${sellerLevel.xpForNextLevel} XP - Taso ${sellerLevel.level}`;
   const hideUniversalTopbar =
     pathname.startsWith("/auth") ||
     pathname.startsWith("/admin") ||
@@ -263,12 +336,17 @@ export default function UniversalTopbar() {
   }
 
   function goBack() {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return;
+    if (typeof window !== "undefined") {
+      try {
+        if (sessionStorage.getItem(HOME_RETURN_STATE_KEY)) {
+          sessionStorage.setItem(HOME_RETURN_PENDING_KEY, "1");
+        }
+      } catch {
+        // Session storage can be unavailable in private/browser-restricted contexts.
+      }
     }
 
-    router.push("/");
+    goBackOrFallback(router);
   }
 
   function isActiveRoute(href: string) {
@@ -278,54 +356,73 @@ export default function UniversalTopbar() {
 
   function toggleNotifications() {
     if (guestLocked) return;
-    const activeUserId = userId;
-    if (!activeUserId) return;
+    setProfileOpen(false);
     setNotificationOpen((open) => {
-      const nextOpen = !open;
-      if (nextOpen) {
-        unreadConversations.forEach((conversation) => {
-          const lastMessageAt = conversation.last_message?.created_at
-            ? new Date(conversation.last_message.created_at).getTime() + 1
-            : Date.now();
-          const readAt = Math.max(Date.now(), lastMessageAt);
-          void markConversationRead(conversation.id, activeUserId, readAt);
-        });
-
-        try {
-          const lastRead = JSON.parse(localStorage.getItem(CHAT_LAST_READ_STORAGE_KEY) ?? "{}") as Record<string, number>;
-          unreadConversations.forEach((conversation) => {
-            const lastMessageAt = conversation.last_message?.created_at
-              ? new Date(conversation.last_message.created_at).getTime() + 1
-              : Date.now();
-            lastRead[conversation.id] = Math.max(Date.now(), lastMessageAt);
-          });
-          localStorage.setItem(CHAT_LAST_READ_STORAGE_KEY, JSON.stringify(lastRead));
-        } catch {
-          /* ok */
-        }
-
-        if (alertNotifications.length > 0) {
-          void markNotificationsSeen(activeUserId).then(() => {
-            setAlertNotifications((prev) => prev.map((notification) => ({ ...notification, seen: true })));
-          });
-        }
-
-        setSeenNotificationKeys((prev) => {
-          const next = new Set(prev);
-          reviewRequests.forEach((request) => next.add(`review:${request.id}`));
-          alertNotifications.forEach((notification) => next.add(`alert:${notification.id}`));
-          unreadConversations.forEach((conversation) => next.add(`conversation:${conversation.id}`));
-          try {
-            localStorage.setItem(`${SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY}:${activeUserId}`, JSON.stringify([...next]));
-          } catch {
-            /* ok */
-          }
-          return next;
-        });
-      }
-      return nextOpen;
+      if (!open) setNotificationRefreshNonce((value) => value + 1);
+      return !open;
     });
   }
+
+  function formatNotificationTime(value: string | null | undefined) {
+    if (!value) return "";
+    const timestamp = new Date(value).getTime();
+    if (Number.isNaN(timestamp)) return "";
+    const minutes = Math.max(1, Math.round((Date.now() - timestamp) / 60000));
+    if (minutes < 60) return `${minutes} min sitten`;
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) return `${hours} h sitten`;
+    const days = Math.round(hours / 24);
+    return `${days} pv sitten`;
+  }
+
+  function markAllNotificationItemsRead() {
+    const activeUserId = userId;
+    if (!activeUserId) return;
+
+    visibleUnreadConversations.forEach((conversation) => {
+      const lastMessageAt = conversation.last_message?.created_at
+        ? new Date(conversation.last_message.created_at).getTime() + 1
+        : Date.now();
+      const readAt = Math.max(Date.now(), lastMessageAt);
+      void markConversationRead(conversation.id, activeUserId, readAt);
+    });
+
+    if (visibleAlertNotifications.length > 0) {
+      void markNotificationsSeen(activeUserId).then(() => {
+        setAlertNotifications((prev) =>
+          prev.map((notification) =>
+            visibleAlertNotifications.some((visible) => visible.id === notification.id)
+              ? { ...notification, seen: true }
+              : notification
+          )
+        );
+      });
+    }
+
+    setSeenNotificationKeys((prev) => {
+      const next = new Set(prev);
+      visibleReviewRequests.forEach((request) => next.add(`review:${request.id}`));
+      visibleAlertNotifications.forEach((notification) => next.add(`alert:${notification.id}`));
+      try {
+        localStorage.setItem(`${SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY}:${activeUserId}`, JSON.stringify([...next]));
+      } catch {
+        /* ok */
+      }
+      return next;
+    });
+    setUnreadConversations((prev) =>
+      prev.filter((conversation) => !visibleUnreadConversations.some((visible) => visible.id === conversation.id))
+    );
+  }
+
+  const homeNavigation = isHomePage ? (
+    <div className="universal-home-navigation">
+      <Link href="/" className="universal-home-brand" aria-label="Maskines">
+        <strong>Maskines</strong>
+        <span>Parts</span>
+      </Link>
+    </div>
+  ) : null;
 
   function dismissConversationNotification(conversation: ConversationSummary) {
     const lastMessageAt = conversation.last_message?.created_at
@@ -334,25 +431,6 @@ export default function UniversalTopbar() {
     const readAt = Math.max(Date.now(), lastMessageAt);
 
     setUnreadConversations((prev) => prev.filter((item) => item.id !== conversation.id));
-    setHiddenConversationIds((prev) => {
-      const next = new Set(prev);
-      next.add(conversation.id);
-      try {
-        localStorage.setItem(HIDDEN_CHAT_CONVERSATIONS_STORAGE_KEY, JSON.stringify([...next]));
-      } catch {
-        /* ok */
-      }
-      return next;
-    });
-
-    try {
-      const lastRead = JSON.parse(localStorage.getItem(CHAT_LAST_READ_STORAGE_KEY) ?? "{}") as Record<string, number>;
-      lastRead[conversation.id] = readAt;
-      localStorage.setItem(CHAT_LAST_READ_STORAGE_KEY, JSON.stringify(lastRead));
-    } catch {
-      /* ok */
-    }
-
     if (userId) {
       void markConversationRead(conversation.id, userId, readAt);
     }
@@ -375,7 +453,8 @@ export default function UniversalTopbar() {
 
   if (guestLocked) {
     return (
-      <header className="universal-app-topbar">
+      <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}`}>
+        {homeNavigation}
         {!isHomePage ? (
           <button type="button" className="universal-return-button" onClick={goBack}>
             <ArrowLeft size={16} aria-hidden="true" />
@@ -384,26 +463,26 @@ export default function UniversalTopbar() {
         ) : null}
         <nav className="universal-topbar-actions universal-topbar-actions-guest" aria-label="Pikatoiminnot">
           <Link href="/auth" className={`rebuilt-login-button${isActiveRoute("/auth") ? " is-active" : ""}`}>
-            <span className="universal-profile-avatar" aria-hidden="true">
-              <LockKeyhole size={17} />
-            </span>
             <strong>{t.login}</strong>
           </Link>
-          <button
-            type="button"
-            className="universal-category-button"
-            aria-label="Avaa kategoriat"
-            onClick={openCategories}
-          >
-            <Menu size={22} aria-hidden="true" />
-          </button>
+          {isHomePage ? (
+            <button
+              type="button"
+              className="universal-category-button universal-category-button-right"
+              aria-label="Avaa kategoriat"
+              onClick={openCategories}
+            >
+              <Menu size={22} aria-hidden="true" />
+            </button>
+          ) : null}
         </nav>
       </header>
     );
   }
 
   return (
-    <header className="universal-app-topbar">
+    <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}`}>
+      {homeNavigation}
       {!isHomePage ? (
         <button type="button" className="universal-return-button" onClick={goBack} disabled={guestLocked}>
           <ArrowLeft size={16} aria-hidden="true" />
@@ -411,6 +490,34 @@ export default function UniversalTopbar() {
         </button>
       ) : null}
       <nav className="universal-topbar-actions" aria-label="Pikatoiminnot">
+        {false && isHomePage && userId ? (
+          <Link
+            href={`/seller/${userId}`}
+            className="universal-level-pill"
+            title={sellerLevelTooltip}
+            aria-label={sellerLevelTooltip}
+          >
+            <span className="universal-level-pill-badge" aria-hidden="true">
+              <span>Taso</span>
+              <strong>{sellerLevel.level}</strong>
+            </span>
+            <span className="universal-level-pill-head">
+              <span>
+                <Award size={13} aria-hidden="true" />
+                Myyjälevel
+              </span>
+              <strong>Taso {sellerLevel.level}</strong>
+            </span>
+            <span className="universal-level-pill-track" aria-hidden="true">
+              <span style={{ width: `${sellerLevel.progressPercent}%` }} />
+            </span>
+            <small>
+              {sellerLevel.maxLevel
+                ? "Maksimitaso"
+                : `${sellerLevel.nextLevelXp} XP seuraavaan tasoon`}
+            </small>
+          </Link>
+        ) : null}
         <Link href="/sell" className={`universal-create-button${isActiveRoute("/sell") ? " is-active" : ""}`}>
           <Plus size={17} aria-hidden="true" />
           <strong>Luo ilmoitus</strong>
@@ -436,8 +543,23 @@ export default function UniversalTopbar() {
           {notificationOpen && (
             <div className="universal-notification-menu" role="menu">
               <div className="universal-notification-head">
-                <strong>Ilmoitukset</strong>
-                {hasNotificationItems ? <span>{reviewRequests.length + alertNotifications.length + unreadConversations.length}</span> : null}
+                <span className="universal-notification-head-icon" aria-hidden="true">
+                  <Bell size={24} />
+                </span>
+                <span className="universal-notification-head-copy">
+                  <strong>Ilmoitukset</strong>
+                  <small>Pysy ajan tasalla tärkeistä viesteistä.</small>
+                </span>
+                <button
+                  type="button"
+                  className="universal-notification-read-all"
+                  onClick={markAllNotificationItemsRead}
+                >
+                  Merkitse kaikki luetuiksi
+                </button>
+                <span className="universal-notification-count">
+                  {notificationItemCount}
+                </span>
               </div>
 
               {!hasNotificationItems ? (
@@ -445,25 +567,49 @@ export default function UniversalTopbar() {
               ) : null}
 
               <div className="universal-notification-body">
-              {unreadConversations.length > 0 ? (
+              {visibleUnreadConversations.length > 0 ? (
                 <div className="universal-notification-group">
                   <span>{t.messages}</span>
-                  {unreadConversations.map((conversation) => {
+                  {visibleUnreadConversations.map((conversation) => {
                     const other = conversation.other_profile;
                     const name = other?.full_name || other?.name || `${other?.first_name ?? ""} ${other?.last_name ?? ""}`.trim() || "Käyttäjä";
                     return (
                       <div key={conversation.id} className="universal-notification-item-wrap">
+                        <span className="universal-notification-dot is-unread" aria-hidden="true" />
                         <Link
-                          href={`/messages?conv=${conversation.id}`}
+                          href={`/messages/${conversation.listing_id}?conversation=${conversation.id}`}
                           className="universal-notification-item"
                           role="menuitem"
-                          onClick={() => setNotificationOpen(false)}
+                          onClick={() => {
+                            const lastMessageAt =
+                              conversation.last_message?.created_at
+                                ? new Date(conversation.last_message.created_at).getTime() + 1
+                                : Date.now();
+                            const readAt =
+                              Math.max(Date.now(), lastMessageAt);
+
+                            setUnreadConversations((prev) =>
+                              prev.filter((item) =>
+                                item.id !== conversation.id
+                              )
+                            );
+                            if (userId) {
+                              void markConversationRead(
+                                conversation.id,
+                                userId,
+                                readAt
+                              );
+                            }
+                            setNotificationOpen(false);
+                          }}
                         >
                           <span className="universal-notification-item-icon"><MessageCircle size={15} /></span>
                           <span>
                             <strong>{name}</strong>
                             <small>{conversation.last_message?.content?.slice(0, 58) ?? ""}</small>
                           </span>
+                          <time>{formatNotificationTime(conversation.last_message?.created_at || conversation.updated_at || conversation.created_at)}</time>
+                          <ChevronRight size={22} aria-hidden="true" />
                         </Link>
                         <button
                           type="button"
@@ -481,11 +627,12 @@ export default function UniversalTopbar() {
                 </div>
               ) : null}
 
-              {reviewRequests.length > 0 ? (
+              {visibleReviewRequests.length > 0 ? (
                 <div className="universal-notification-group">
                   <span>{t.reviews}</span>
-                  {reviewRequests.map((request) => (
+                  {visibleReviewRequests.map((request) => (
                     <div key={request.id} className="universal-notification-item-wrap">
+                      <span className="universal-notification-dot is-unread" aria-hidden="true" />
                       <button
                         type="button"
                         className="universal-notification-item"
@@ -500,6 +647,8 @@ export default function UniversalTopbar() {
                           <strong>{t.reviewSeller}</strong>
                           <small>{request.listing_title}</small>
                         </span>
+                        <time>{formatNotificationTime(request.created_at)}</time>
+                        <ChevronRight size={22} aria-hidden="true" />
                       </button>
                       <button
                         type="button"
@@ -517,11 +666,12 @@ export default function UniversalTopbar() {
                 </div>
               ) : null}
 
-              {alertNotifications.length > 0 ? (
+              {visibleAlertNotifications.length > 0 ? (
                 <div className="universal-notification-group">
                   <span>{t.saTitle}</span>
-                  {alertNotifications.map((notification) => (
+                  {visibleAlertNotifications.map((notification) => (
                     <div key={notification.id} className="universal-notification-item-wrap">
+                      <span className="universal-notification-dot is-unread" aria-hidden="true" />
                       <Link
                         href={`/listing/${notification.listing_id}`}
                         className="universal-notification-item"
@@ -533,6 +683,8 @@ export default function UniversalTopbar() {
                           <strong>{notification.alert_label}</strong>
                           <small>{notification.listing_title}</small>
                         </span>
+                        <time>{formatNotificationTime(notification.created_at)}</time>
+                        <ChevronRight size={22} aria-hidden="true" />
                       </Link>
                       <button
                         type="button"
@@ -549,6 +701,16 @@ export default function UniversalTopbar() {
                 </div>
               ) : null}
               </div>
+              <Link
+                href="/messages"
+                className="universal-notification-footer"
+                role="menuitem"
+                onClick={() => setNotificationOpen(false)}
+              >
+                <MessageCircle size={20} aria-hidden="true" />
+                <strong>Näytä kaikki viestit</strong>
+                <ChevronRight size={20} aria-hidden="true" />
+              </Link>
             </div>
           )}
         </div>
@@ -579,7 +741,15 @@ export default function UniversalTopbar() {
                 <span className="profile-avatar-initial">{profileInitial}</span>
               )}
             </span>
-            <strong>Profiili</strong>
+            <span className="rebuilt-profile-button-copy">
+              <strong>{t.profile}</strong>
+              <span className="rebuilt-profile-xp-row" aria-hidden="true">
+                <small>{sellerLevel.level}</small>
+                <span className="rebuilt-profile-xp-track">
+                  <span style={{ width: `${sellerLevel.progressPercent}%` }} />
+                </span>
+              </span>
+            </span>
             <ChevronDown size={14} aria-hidden="true" />
           </button>
 
@@ -587,6 +757,35 @@ export default function UniversalTopbar() {
             <div className="universal-profile-menu" role="menu">
               {userId ? (
                 <>
+                  <div className="universal-profile-menu-head" aria-hidden="true">
+                    <span className="universal-profile-menu-avatar">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="" referrerPolicy="no-referrer" />
+                      ) : (
+                        <span className="profile-avatar-initial">{profileInitial}</span>
+                      )}
+                    </span>
+                    <span className="universal-profile-menu-title">
+                      <strong>{profileDisplayName}</strong>
+                      <small>Hallinnoi tiliäsi</small>
+                    </span>
+                  </div>
+                  <div className="universal-profile-level-card" aria-label={sellerLevelTooltip}>
+                    <span className="universal-profile-level-badge" aria-hidden="true">
+                      {sellerLevel.level}
+                    </span>
+                    <span className="universal-profile-level-copy">
+                      <span className="universal-profile-level-head">
+                        <strong>Taso {sellerLevel.level}</strong>
+                        <small>
+                          {sellerLevel.maxLevel ? "Maksimitaso" : `${sellerLevel.nextLevelXp} XP seuraavaan tasoon`}
+                        </small>
+                      </span>
+                      <span className="universal-profile-level-track" aria-hidden="true">
+                        <span style={{ width: `${sellerLevel.progressPercent}%` }} />
+                      </span>
+                    </span>
+                  </div>
                   {!isHomePage ? (
                     <Link href="/" className={`universal-profile-menu-link${isActiveRoute("/") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                       <Home size={16} /> {t.home}
@@ -606,6 +805,12 @@ export default function UniversalTopbar() {
                   </Link>
                   <Link href="/saved" className={`universal-profile-menu-link${isActiveRoute("/saved") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <Heart size={16} /> {t.savedListings}
+                  </Link>
+                  <Link href="/followed" className={`universal-profile-menu-link${isActiveRoute("/followed") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <Users size={16} /> Seuratut
+                  </Link>
+                  <Link href="/search-alerts" className={`universal-profile-menu-link${isActiveRoute("/search-alerts") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <Bell size={16} /> Hakuvahti
                   </Link>
                   {FEATURE_FLAGS.rewardsAndShop ? (
                     <>
@@ -635,15 +840,14 @@ export default function UniversalTopbar() {
             </div>
           )}
         </div>
-        <div className={guestLocked ? "universal-guest-disabled" : undefined} aria-disabled={guestLocked}>
+        <div className={`universal-language-wrap${guestLocked ? " universal-guest-disabled" : ""}`} aria-disabled={guestLocked}>
           <LanguageSwitcher />
         </div>
         {isHomePage ? (
           <button
             type="button"
-            className="universal-category-button"
+            className="universal-category-button universal-category-button-right"
             aria-label="Avaa kategoriat"
-            disabled={guestLocked}
             onClick={openCategories}
           >
             <Menu size={22} aria-hidden="true" />

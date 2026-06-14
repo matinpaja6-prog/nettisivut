@@ -625,9 +625,9 @@ const VEHICLE_PHOTOS: Record<CategoryStartKind, string> = {
 
 const ENGINE_MODELS: Record<string, Record<string, string[]>> = {
   Moottorikelkka: {
-    Lynx:         ["Rotax 550F", "Rotax 600 ACE", "Rotax 600 E-TEC", "Rotax 600 H.O. E-TEC", "Rotax 600R E-TEC", "Rotax 800R E-TEC", "Rotax 850 E-TEC", "Rotax 850 E-TEC Turbo", "Rotax 900 ACE", "Rotax 900 ACE Turbo", "Rotax 900 ACE Turbo R"],
-    "Ski-Doo":    ["Rotax 550F", "Rotax 600 ACE", "Rotax 600 E-TEC", "Rotax 600 H.O. E-TEC", "Rotax 600R E-TEC", "Rotax 650 H.O.", "Rotax 800R E-TEC", "Rotax 850 E-TEC", "Rotax 900 ACE", "Rotax 900 ACE Turbo", "Rotax 900 ACE Turbo R", "Rotax 1200 4-TEC"],
-    Polaris:      ["Liberty 500", "Liberty 550", "Liberty 600 HO", "Liberty 700", "Liberty 800", "RMK 800", "Patriot 550", "Patriot 600", "Patriot 650", "Patriot 850", "Patriot Boost"],
+    Lynx:         ["Rotax 440", "Rotax 550F", "Rotax 600 ACE", "Rotax 600 H.O.", "Rotax 600 E-TEC", "Rotax 600 H.O. E-TEC", "Rotax 600RS", "Rotax 600R E-TEC", "Rotax 800R E-TEC", "Rotax 850 E-TEC", "Rotax 850 E-TEC Turbo", "Rotax 900 ACE", "Rotax 900 ACE Turbo", "Rotax 900 ACE Turbo R"],
+    "Ski-Doo":    ["Rotax 440", "Rotax 550F", "Rotax 600 ACE", "Rotax 600 H.O.", "Rotax 600 E-TEC", "Rotax 600 H.O. E-TEC", "Rotax 600RS", "Rotax 600R E-TEC", "Rotax 650 H.O.", "Rotax 800R E-TEC", "Rotax 850 E-TEC", "Rotax 900 ACE", "Rotax 900 ACE Turbo", "Rotax 900 ACE Turbo R", "Rotax 1200 4-TEC"],
+    Polaris:      ["Liberty 440", "Liberty 500", "Liberty 550", "Liberty 600 HO", "Cleanfire 600", "Liberty 700", "Liberty 800", "RMK 800", "Patriot 550", "Patriot 600", "Patriot 600R", "Patriot 650", "Patriot 850", "Patriot Boost"],
     "Arctic Cat": ["500 2-stroke", "600 EFI", "650 H.O.", "700 EFI", "800 H.O.", "C-TEC2 600", "C-TEC2 800", "C-TEC4 1100"],
     Yamaha:       ["Genesis 500", "Genesis 500FI", "Genesis 700", "Genesis 973", "Genesis 1000FI", "VK Professional 500", "FX Nytro 1000", "SRX 1000"]
   },
@@ -748,10 +748,10 @@ function VehiclePicture({ kind }: { kind: CategoryStartKind }) {
 
 const BRAND_MODELS: Record<string, Record<string, string[]>> = {
   Moottorikelkka: {
-    "Lynx":       ["Rave", "Shredder", "Commander", "BoonDocker", "Xterrain", "Xtrim", "Adventure", "Ranger", "Yeti", "Spirit"],
-    "Ski-Doo":    ["MXZ", "Freeride", "Summit", "Backcountry", "Renegade", "Expedition", "Tundra", "Skandic", "Grand Touring", "Enduro"],
-    "Polaris":    ["Indy", "Rush", "RMK", "Switchback", "Titan", "Voyageur", "Patriot", "Pro-RMK"],
-    "Arctic Cat": ["ZR", "M-Series", "XF", "F-Series", "Pantera", "Bearcat", "Wildcat", "Norseman"],
+    "Lynx":       ["Rave RS", "Rave Racing", "Rave", "Shredder", "Commander", "BoonDocker", "Xterrain", "Xtrim", "Adventure", "Ranger", "Yeti", "Spirit"],
+    "Ski-Doo":    ["MXZ RS", "MXZ", "Freeride", "Summit", "Backcountry", "Renegade", "Expedition", "Tundra", "Skandic", "Grand Touring", "Enduro"],
+    "Polaris":    ["IQR", "600R", "XCR", "Indy XC", "Indy", "Rush", "RMK", "Switchback", "Titan", "Voyageur", "Patriot", "Pro-RMK"],
+    "Arctic Cat": ["ZR 600 R-XC", "ZR 6000 R XC", "ZR", "M-Series", "XF", "F-Series", "Pantera", "Bearcat", "Wildcat", "Norseman"],
   },
   "Mönkijä": {
     "Can-Am":  ["Outlander", "Renegade", "Commander", "Defender", "Maverick", "DS"],

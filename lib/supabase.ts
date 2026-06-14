@@ -37,6 +37,8 @@ export type UserProfile = {
 
   company_website?: string | null;
 
+  public_address?: string | null;
+
   billing_email?: string | null;
 
   full_name?: string;
@@ -127,6 +129,10 @@ export type SellerReview = {
   comment: string;
 
   created_at: string;
+
+  like_count?: number;
+
+  is_liked?: boolean;
 };
 
 export type SellerReviewInput = Omit<
@@ -134,6 +140,40 @@ export type SellerReviewInput = Omit<
   | "id"
   | "created_at"
 >;
+
+export type ProfileFollowStats = {
+  follower_count: number;
+  following_count: number;
+  is_following: boolean;
+};
+
+export type SellerReviewLikeSummary = {
+  review_id: string;
+  like_count: number;
+  is_liked: boolean;
+};
+
+export type SellerLevelStats = {
+  listings_created: number;
+  single_listings_created: number;
+  multi_listings_created: number;
+  sold_count: number;
+  reviews_given: number;
+  reviews_received: number;
+  phone_verified: boolean;
+};
+
+export type ProfileFollowListItem = {
+  direction: "following" | "follower";
+  profile_id: string;
+  account_type: string | null;
+  display_name: string;
+  avatar_url: string | null;
+  city: string | null;
+  country: string | null;
+  bio: string | null;
+  relation_created_at: string;
+};
 
 export type PurchaseReviewRequest = {
   id: string;
@@ -203,6 +243,8 @@ export type ChatMessage = {
   receiver_id: string;
   content: string;
   image?: string | null;
+  read?: boolean | null;
+  read_at?: string | null;
   created_at: string;
 };
 
@@ -224,10 +266,16 @@ export type ConversationSummary = Conversation & {
     | "full_name"
     | "name"
     | "username"
+    | "avatar_url"
     | "online"
     | "last_seen"
+    | "created_at"
+    | "city"
+    | "country"
   > | null;
   last_message?: ChatMessage | null;
+  other_review_average?: number | null;
+  other_review_count?: number;
 };
 
 /* =========================
@@ -305,11 +353,165 @@ export const supabase =
       )
     : null;
 
+type ListingImageFields = Pick<Listing, "image_url" | "image_urls">;
+
+function storageObjectFromPublicUrl(value: string) {
+  if (!value || value.startsWith("data:") || value.startsWith("blob:")) {
+    return null;
+  }
+
+  try {
+    const url = new URL(value);
+    const parts = url.pathname.split("/").filter(Boolean);
+    const objectIndex =
+      parts.findIndex((part, index) =>
+        part === "object" &&
+        parts[index - 2] === "storage" &&
+        parts[index - 1] === "v1"
+      );
+
+    if (objectIndex === -1) {
+      return null;
+    }
+
+    const visibility = parts[objectIndex + 1];
+    if (visibility !== "public" && visibility !== "sign") {
+      return null;
+    }
+
+    const bucket = parts[objectIndex + 2];
+    const path =
+      parts
+        .slice(objectIndex + 3)
+        .map((part) => decodeURIComponent(part))
+        .join("/");
+
+    if (!bucket || !path) {
+      return null;
+    }
+
+    return { bucket, path };
+  } catch {
+    return null;
+  }
+}
+
+function collectListingStorageObjects(listing: Partial<ListingImageFields> | null | undefined) {
+  const imageValues =
+    Array.from(
+      new Set([
+        listing?.image_url,
+        ...(Array.isArray(listing?.image_urls) ? listing.image_urls : [])
+      ].filter((value): value is string => Boolean(value)))
+    );
+
+  const byBucket = new Map<string, Set<string>>();
+
+  for (const value of imageValues) {
+    const object = storageObjectFromPublicUrl(value);
+    if (!object) continue;
+
+    const paths =
+      byBucket.get(object.bucket) ?? new Set<string>();
+    paths.add(object.path);
+    byBucket.set(object.bucket, paths);
+  }
+
+  return byBucket;
+}
+
+async function deleteListingStorageImages(
+  listing: Partial<ListingImageFields> | null | undefined
+) {
+  if (!supabase) return null;
+
+  const byBucket =
+    collectListingStorageObjects(listing);
+  let firstError: unknown = null;
+
+  for (const [bucket, paths] of byBucket) {
+    if (paths.size === 0) continue;
+
+    const { error } =
+      await supabase
+        .storage
+        .from(bucket)
+        .remove([...paths]);
+
+    if (error && !firstError) {
+      firstError = error;
+    }
+  }
+
+  return firstError;
+}
+
 /* =========================
    LISTINGS
 ========================= */
 
-export async function getListings() {
+type GetListingsOptions = {
+  enrichSellerProfiles?: boolean;
+  includeOptionalFields?: boolean;
+  limit?: number;
+  offset?: number;
+  includeCount?: boolean;
+  onChunk?: (listings: Listing[]) => void;
+};
+
+const LISTINGS_FETCH_CHUNK_SIZE = 1000;
+
+const BASE_LISTING_CARD_COLUMN_LIST = [
+  "id",
+  "seller_id",
+  "title",
+  "price",
+  "vehicle_type",
+  "brand",
+  "model",
+  "year",
+  "engine_cc",
+  "engine_model",
+  "category",
+  "subcategory",
+  "location",
+  "condition",
+  "description",
+  "image_url",
+  "seller_name",
+  "created_at"
+];
+
+const OPTIONAL_LISTING_CARD_COLUMN_LIST = [
+  "original_language",
+  "translations",
+  "part_number",
+  "image_urls",
+  "company_name",
+  "seller_avatar_url",
+  "seller_email",
+  "view_count",
+  "is_sold",
+  "is_hidden",
+  "sold_price",
+  "sold_at"
+];
+
+const LISTING_CARD_COLUMN_LIST = [
+  ...BASE_LISTING_CARD_COLUMN_LIST,
+  ...OPTIONAL_LISTING_CARD_COLUMN_LIST
+];
+
+const LISTING_CARD_SELECT =
+  LISTING_CARD_COLUMN_LIST.join(",");
+
+const BASE_LISTING_CARD_SELECT =
+  BASE_LISTING_CARD_COLUMN_LIST.join(",");
+
+const escapeIlikeTerm = (value: string) =>
+  value.trim().replace(/[%_]/g, "");
+
+export async function getListings(options: GetListingsOptions = {}) {
 
   if (!supabase) {
 
@@ -322,61 +524,96 @@ export async function getListings() {
 
   try {
 
-    const baseListingCardColumnList = [
-      "id",
-      "seller_id",
-      "title",
-      "price",
-      "vehicle_type",
-      "brand",
-      "model",
-      "year",
-      "engine_cc",
-      "engine_model",
-      "category",
-      "subcategory",
-      "location",
-      "condition",
-      "description",
-      "image_url",
-      "seller_name",
-      "created_at"
-    ];
-
-    const optionalListingCardColumnList = [
-      "original_language",
-      "translations",
-      "part_number",
-      "image_urls",
-      "company_name",
-      "seller_avatar_url",
-      "seller_email",
-      "seller_phone_verified",
-      "view_count",
-      "is_sold",
-      "sold_price",
-      "sold_at"
-    ];
-
-    const listingCardColumnList = [
-      ...baseListingCardColumnList,
-      ...optionalListingCardColumnList
-    ];
-
-    const fetchListings = (columns: string[]) =>
+    const fetchListingsChunk = (columns: string[], from: number, to: number) =>
       supabase
         .from("listings")
         .select(columns.join(","))
         .order("created_at", { ascending: false })
+        .range(from, to)
         .returns<Listing[]>();
 
-    let { data, error } = await fetchListings(listingCardColumnList);
+    const fetchListingsRange = (
+      columns: string[],
+      from: number,
+      to: number,
+      includeCount: boolean
+    ) =>
+      supabase
+        .from("listings")
+        .select(columns.join(","), includeCount ? { count: "exact" } : undefined)
+        .order("created_at", { ascending: false })
+        .range(from, to)
+        .returns<Listing[]>();
 
-    if (error && hasMissingListingColumns(error)) {
-      ({ data, error } = await fetchListings(baseListingCardColumnList));
+    const fetchAllListings = async (columns: string[]) => {
+      const allListings: Listing[] = [];
+
+      for (let from = 0; ; from += LISTINGS_FETCH_CHUNK_SIZE) {
+        const to = from + LISTINGS_FETCH_CHUNK_SIZE - 1;
+        const { data: chunk, error } = await fetchListingsChunk(columns, from, to);
+
+        if (error) {
+          return { data: allListings, error };
+        }
+
+        if (!chunk || chunk.length === 0) {
+          break;
+        }
+
+        allListings.push(...chunk);
+        options.onChunk?.([...allListings]);
+
+        if (chunk.length < LISTINGS_FETCH_CHUNK_SIZE) {
+          break;
+        }
+      }
+
+      return { data: allListings, error: null };
+    };
+
+    const includeOptionalFields =
+      options.includeOptionalFields ?? true;
+
+    const selectedColumns =
+      includeOptionalFields
+        ? LISTING_CARD_COLUMN_LIST
+        : BASE_LISTING_CARD_COLUMN_LIST;
+
+    if (typeof options.limit === "number") {
+      const offset = Math.max(0, options.offset ?? 0);
+      const limit = Math.max(1, options.limit);
+      let { data, error, count } = await fetchListingsRange(
+        selectedColumns,
+        offset,
+        offset + limit - 1,
+        Boolean(options.includeCount)
+      );
+
+      if (includeOptionalFields && error && hasMissingListingColumns(error)) {
+        ({ data, error, count } = await fetchListingsRange(
+          BASE_LISTING_CARD_COLUMN_LIST,
+          offset,
+          offset + limit - 1,
+          Boolean(options.includeCount)
+        ));
+      }
+
+      return { data: data ?? [], error, count: count ?? null };
+    }
+
+    let { data, error } = await fetchAllListings(
+      selectedColumns
+    );
+
+    if (includeOptionalFields && error && hasMissingListingColumns(error)) {
+      ({ data, error } = await fetchAllListings(BASE_LISTING_CARD_COLUMN_LIST));
     }
 
     if (error || !data) return { data: data ?? [], error };
+
+    if (!options.enrichSellerProfiles) {
+      return { data, error: null };
+    }
 
     // Batch-fetch profile data for sellers missing avatar/company info
     const missingIds = [
@@ -419,6 +656,64 @@ export async function getListings() {
 
 }
 
+export async function getListingsByIds(listingIds: string[]) {
+  if (!supabase) {
+    return {
+      data: [] as Listing[],
+      error: null
+    };
+  }
+
+  const ids = [
+    ...new Set(
+      listingIds
+        .map((id) => id.trim())
+        .filter(Boolean)
+    )
+  ];
+
+  if (ids.length === 0) {
+    return {
+      data: [] as Listing[],
+      error: null
+    };
+  }
+
+  try {
+    const fetchListingsByIds = (columns: string[]) =>
+      supabase
+        .from("listings")
+        .select(columns.join(","))
+        .in("id", ids)
+        .returns<Listing[]>();
+
+    let { data, error } =
+      await fetchListingsByIds(LISTING_CARD_COLUMN_LIST);
+
+    if (error && hasMissingListingColumns(error)) {
+      ({ data, error } =
+        await fetchListingsByIds(BASE_LISTING_CARD_COLUMN_LIST));
+    }
+
+    const orderById =
+      new Map(ids.map((id, index) => [id, index]));
+
+    return {
+      data: (data ?? []).sort(
+        (a, b) =>
+          (orderById.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
+          (orderById.get(b.id) ?? Number.MAX_SAFE_INTEGER)
+      ),
+      error
+    };
+  } catch (error) {
+    return {
+      data: [] as Listing[],
+      error
+    };
+  }
+}
+
 export async function getListingById(
   listingId: string
 ) {
@@ -433,11 +728,13 @@ export async function getListingById(
   }
 
   try {
+    const resolvedListingId =
+      await resolveListingId(listingId);
 
     const result = await supabase
       .from("listings")
       .select("*")
-      .eq("id", listingId)
+      .eq("id", resolvedListingId)
       .maybeSingle<Listing>();
 
     if (!result.data?.seller_id) {
@@ -540,9 +837,93 @@ export async function getListingDisplayNumber(createdAt?: string | null) {
       return null;
     }
 
-    return count ?? null;
+    return count === null ? null : 100000 + count;
   } catch {
     return null;
+  }
+}
+
+async function resolveListingId(listingIdOrDisplayId: string) {
+  const value = listingIdOrDisplayId.trim();
+
+  if (!/^\d{6}$/.test(value)) {
+    return value;
+  }
+
+  const rank = Number(value) - 100000;
+
+  if (!Number.isInteger(rank) || rank < 1) {
+    return value;
+  }
+
+  const { data, error } =
+    await supabase!
+      .from("listings")
+      .select("id")
+      .order("created_at", { ascending: true })
+      .range(rank - 1, rank - 1)
+      .returns<Array<{ id: string }>>();
+
+  if (error || !data) {
+    return value;
+  }
+
+  return data[0]?.id ?? value;
+}
+
+export type MarketplaceStats = {
+  activeListings: number;
+  allTimeListings: number;
+  tradedTotal: number;
+};
+
+export async function getMarketplaceStats(): Promise<{
+  data: MarketplaceStats | null;
+  error: unknown;
+}> {
+  if (!supabase) return { data: null, error: null };
+
+  try {
+    const [
+      activeResult,
+      soldCountResult,
+      soldValueResult
+    ] = await Promise.all([
+      supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("is_sold", false),
+      supabase
+        .from("sold_listings")
+        .select("id", { count: "exact", head: true }),
+      supabase
+        .from("sold_listings")
+        .select("sold_price")
+    ]);
+
+    const firstError =
+      activeResult.error ??
+      soldCountResult.error ??
+      soldValueResult.error;
+
+    if (firstError) return { data: null, error: firstError };
+
+    const tradedTotal = (soldValueResult.data ?? []).reduce(
+      (sum, listing) => sum + (Number(listing.sold_price) || 0),
+      0
+    );
+
+    const activeListings = activeResult.count ?? 0;
+    return {
+      data: {
+        activeListings,
+        allTimeListings: activeListings + (soldCountResult.count ?? 0),
+        tradedTotal
+      },
+      error: null
+    };
+  } catch (error) {
+    return { data: null, error };
   }
 }
 
@@ -571,6 +952,80 @@ export async function getListingsBySeller(
           ascending: false
         }
       )
+      .returns<Listing[]>();
+
+  } catch (error) {
+
+    return {
+      data: [],
+      error
+    };
+
+  }
+
+}
+
+export async function getPublicListingsBySeller(
+  sellerId: string
+) {
+
+  if (!supabase) {
+
+    return {
+      data: [],
+      error: null
+    };
+
+  }
+
+  try {
+    const publicListingSelect = [
+      "id",
+      "seller_id",
+      "title",
+      "original_language",
+      "translations",
+      "listing_mode",
+      "price",
+      "vehicle_type",
+      "brand",
+      "model",
+      "year",
+      "engine_cc",
+      "engine_model",
+      "category",
+      "subcategory",
+      "part_number",
+      "location",
+      "condition",
+      "description",
+      "image_url",
+      "image_urls",
+      "seller_name",
+      "created_at"
+    ].join(",");
+
+    const result = await supabase
+      .from("listings")
+      .select(publicListingSelect)
+      .eq("seller_id", sellerId)
+      .order(
+        "created_at",
+        {
+          ascending: false
+        }
+      )
+      .returns<Listing[]>();
+
+    if (!hasMissingListingColumns(result.error)) {
+      return result;
+    }
+
+    return await supabase
+      .from("listings")
+      .select(BASE_LISTING_CARD_SELECT)
+      .eq("seller_id", sellerId)
+      .order("created_at", { ascending: false })
       .returns<Listing[]>();
 
   } catch (error) {
@@ -729,11 +1184,59 @@ export async function deleteListing(
 
     }
 
-    return await supabase
+    const listingResult =
+      await supabase
+        .from("listings")
+        .select("image_url,image_urls")
+        .eq("id", listingId)
+        .eq("seller_id", user.id)
+        .maybeSingle<ListingImageFields>();
+
+    let listingImages =
+      listingResult.data;
+
+    if (hasMissingListingColumns(listingResult.error)) {
+      const fallbackResult =
+        await supabase
+          .from("listings")
+          .select("image_url")
+          .eq("id", listingId)
+          .eq("seller_id", user.id)
+          .maybeSingle<Pick<Listing, "image_url">>();
+
+      if (fallbackResult.error) {
+        return { error: fallbackResult.error };
+      }
+
+      listingImages =
+        fallbackResult.data
+          ? {
+              image_url: fallbackResult.data.image_url,
+              image_urls: []
+            }
+          : null;
+    } else if (listingResult.error) {
+      return { error: listingResult.error };
+    }
+
+    const deleteResult =
+      await supabase
       .from("listings")
       .delete()
       .eq("id", listingId)
       .eq("seller_id", user.id);
+
+    if (deleteResult.error) {
+      return deleteResult;
+    }
+
+    const imageCleanupError =
+      await deleteListingStorageImages(listingImages);
+
+    return {
+      ...deleteResult,
+      imageCleanupError
+    };
 
   } catch (error) {
 
@@ -796,26 +1299,53 @@ export async function recordSoldListing(
 
     // Store only the minimum required data. Keep a generic non-empty title so
     // older databases where sold_listings.title is still NOT NULL can accept it.
-    const insertResult = await supabase
+    const soldPayload = {
+      listing_id: listing.id,
+      seller_id: user.id,
+      buyer_id: buyerId ?? null,
+      title: soldTitle,
+      price: listing.price,
+      sold_price: soldPrice,
+      vehicle_type: listing.vehicle_type ?? null,
+      brand: listing.brand ?? null,
+      model: listing.model ?? null,
+      year: listing.year ?? null,
+      engine_cc: listing.engine_cc ?? null,
+      engine_model: listing.engine_model ?? null,
+      category: listing.category ?? null,
+      subcategory: listing.subcategory ?? null,
+      part_number: listing.part_number ?? null,
+      condition: listing.condition ?? null,
+      location: listing.location ?? null,
+      image_url: null,
+      listing_mode: listing.listing_mode ?? "single",
+      sold_at: soldAt
+    };
+
+    let insertResult = await supabase
       .from("sold_listings")
-      .insert({
-        listing_id: listing.id,
-        seller_id: user.id,
-        buyer_id: buyerId ?? null,
-        title: soldTitle,
-        price: listing.price,
-        sold_price: soldPrice,
-        vehicle_type: null,
-        brand: null,
-        model: null,
-        year: null,
-        category: null,
-        subcategory: null,
-        image_url: null,
-        sold_at: soldAt
-      })
+      .insert(soldPayload)
       .select()
       .single<SoldListing>();
+
+    if (hasMissingListingColumns(insertResult.error)) {
+      const optionalSoldColumns = new Set([
+        "listing_mode",
+        "engine_cc",
+        "engine_model",
+        "part_number",
+        "condition",
+        "location"
+      ]);
+      const fallbackPayload = Object.fromEntries(
+        Object.entries(soldPayload).filter(([key]) => !optionalSoldColumns.has(key))
+      );
+      insertResult = await supabase
+        .from("sold_listings")
+        .insert(fallbackPayload)
+        .select()
+        .single<SoldListing>();
+    }
 
     if (!insertResult.error) {
       return { data: insertResult.data, error: null };
@@ -1036,6 +1566,205 @@ export async function unsaveListing(
   }
 }
 
+/* =========================
+   PROFILE FOLLOWS
+========================= */
+
+const EMPTY_PROFILE_FOLLOW_STATS: ProfileFollowStats = {
+  follower_count: 0,
+  following_count: 0,
+  is_following: false
+};
+
+async function getCurrentAccessToken() {
+  if (!supabase) return null;
+
+  const {
+    data: { session }
+  } = await supabase.auth.getSession();
+
+  return session?.access_token ?? null;
+}
+
+async function requestProfileFollowApi<T>(
+  path: string,
+  init?: RequestInit
+): Promise<{ data: T | null; error: unknown }> {
+  try {
+    const token = await getCurrentAccessToken();
+    const headers = new Headers(init?.headers);
+
+    if (token) headers.set("authorization", `Bearer ${token}`);
+    if (init?.body && !headers.has("content-type")) {
+      headers.set("content-type", "application/json");
+    }
+
+    const response = await fetch(path, {
+      ...init,
+      headers
+    });
+
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      return {
+        data: null,
+        error: new Error(payload?.error ?? "Seurantapyyntö epäonnistui.")
+      };
+    }
+
+    return {
+      data: payload as T,
+      error: null
+    };
+  } catch (error) {
+    return {
+      data: null,
+      error
+    };
+  }
+}
+
+export async function getProfileFollowStats(
+  profileId: string
+): Promise<{ data: ProfileFollowStats; error: unknown }> {
+  const apiResult = await requestProfileFollowApi<ProfileFollowStats>(
+    `/api/profile-follows?profileId=${encodeURIComponent(profileId)}`
+  );
+
+  if (apiResult.data) {
+    return {
+      data: apiResult.data,
+      error: null
+    };
+  }
+
+  if (!supabase) return { data: EMPTY_PROFILE_FOLLOW_STATS, error: apiResult.error };
+
+  try {
+    const { data, error } = await supabase.rpc(
+      "get_profile_follow_stats",
+      { target_profile_id: profileId }
+    );
+    const row = Array.isArray(data) ? data[0] : data;
+
+    return {
+      data: {
+        follower_count: Number(row?.follower_count) || 0,
+        following_count: Number(row?.following_count) || 0,
+        is_following: Boolean(row?.is_following)
+      },
+      error
+    };
+  } catch (error) {
+    return {
+      data: EMPTY_PROFILE_FOLLOW_STATS,
+      error
+    };
+  }
+}
+
+export async function getMyProfileFollows(): Promise<{
+  data: ProfileFollowListItem[];
+  error: unknown;
+}> {
+  if (!supabase) {
+    return {
+      data: [],
+      error: null
+    };
+  }
+
+  try {
+    const { data, error } = await supabase.rpc("get_my_profile_follows");
+    return {
+      data: (data ?? []) as ProfileFollowListItem[],
+      error
+    };
+  } catch (error) {
+    return {
+      data: [],
+      error
+    };
+  }
+}
+
+export async function followProfile(
+  profileId: string
+) {
+  if (!supabase) {
+    return {
+      error: new Error("Supabase ei ole konfiguroitu.")
+    };
+  }
+
+  try {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return {
+        error: new Error("Kirjaudu sisään seurataksesi profiileja.")
+      };
+    }
+
+    if (user.id === profileId) {
+      return {
+        error: new Error("Et voi seurata omaa profiiliasi.")
+      };
+    }
+
+    const apiResult = await requestProfileFollowApi<{ ok: boolean }>("/api/profile-follows", {
+      method: "POST",
+      body: JSON.stringify({ profileId })
+    });
+
+    return {
+      error: apiResult.error
+    };
+  } catch (error) {
+    return {
+      error
+    };
+  }
+}
+
+export async function unfollowProfile(
+  profileId: string
+) {
+  if (!supabase) {
+    return {
+      error: new Error("Supabase ei ole konfiguroitu.")
+    };
+  }
+
+  try {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return {
+        error: new Error("Kirjaudu sisään hallitaksesi seurattuja.")
+      };
+    }
+
+    const apiResult = await requestProfileFollowApi<{ ok: boolean }>("/api/profile-follows", {
+      method: "DELETE",
+      body: JSON.stringify({ profileId })
+    });
+
+    return {
+      error: apiResult.error
+    };
+  } catch (error) {
+    return {
+      error
+    };
+  }
+}
+
 export async function createListing(
   listing: ListingInput
 ) {
@@ -1072,32 +1801,71 @@ export async function createListing(
     const { data: profile } =
       await supabase
         .from("profiles")
-        .select("phone,phone_verified_at,account_type")
+        .select("phone,account_type,first_name,last_name,full_name,name,company_name,avatar_url")
         .eq("id", user.id)
         .maybeSingle<Pick<
           UserProfile,
-          "phone" | "phone_verified_at" | "account_type"
+          | "phone"
+          | "account_type"
+          | "first_name"
+          | "last_name"
+          | "full_name"
+          | "name"
+          | "company_name"
+          | "avatar_url"
         >>();
 
     if (profile?.account_type === "company") {
-      if (!profile?.phone || !profile.phone_verified_at) {
+      const selectedSellerName =
+        listing.seller_name?.replace(/\s+/g, " ").trim() ?? "";
+      const selectedSellerPhone =
+        listing.seller_phone?.replace(/\s+/g, " ").trim() ?? "";
+
+      if (!selectedSellerName || !selectedSellerPhone) {
         return {
           data: null,
           error: new Error(
-            "Vahvista yrityksen puhelinnumero ennen ilmoituksen julkaisua."
+            "Valitse yrityksen myyjä ennen ilmoituksen julkaisua."
           )
         };
       }
-    } else if (!profile?.phone || !profile.phone_verified_at) {
-      return {
-        data: null,
-        error: new Error(
-          "Vahvista puhelinnumero ennen ilmoituksen julkaisua."
-        )
-      };
+
+      const { data: selectedSeller, error: selectedSellerError } =
+        await supabase
+          .from("company_sellers")
+          .select("id,name,phone")
+          .eq("company_id", user.id)
+          .eq("name", selectedSellerName)
+          .eq("phone", selectedSellerPhone)
+          .maybeSingle<Pick<CompanySeller, "id" | "name" | "phone">>();
+
+      if (selectedSellerError || !selectedSeller) {
+        return {
+          data: null,
+          error: new Error(
+            "Valitse yrityksen profiiliin lisätty myyjä ennen ilmoituksen julkaisua."
+          )
+        };
+      }
     }
 
-    const listingPayload = withInitialListingTranslations(listing);
+    const profileName =
+      profile?.account_type === "company"
+        ? profile.company_name
+        : profile?.full_name ||
+          profile?.name ||
+          [profile?.first_name, profile?.last_name].filter(Boolean).join(" ");
+
+    const listingPayload = withInitialListingTranslations({
+      ...listing,
+      seller_name: listing.seller_name || profileName?.trim() || user.email || "Myyja",
+      seller_email: listing.seller_email || user.email || "",
+      seller_phone: listing.seller_phone ?? profile?.phone ?? null,
+      seller_avatar_url: listing.seller_avatar_url ?? profile?.avatar_url ?? null,
+      company_name:
+        listing.company_name ??
+        (profile?.account_type === "company" ? profile.company_name ?? null : null)
+    });
     delete listingPayload.user_id;
 
     let result = await supabase
@@ -1123,6 +1891,7 @@ export async function createListing(
       delete fallbackPayload.original_language;
       delete fallbackPayload.translations;
       delete fallbackPayload.part_number;
+      delete fallbackPayload.listing_mode;
 
       result = await supabase
         .from("listings")
@@ -1868,11 +2637,53 @@ export async function adminDeleteUser(targetUserId: string) {
 
 export async function adminDeleteListing(targetListingId: string, reason?: string) {
   if (!supabase) return { error: "no-supabase" };
+
+  const listingResult =
+    await supabase
+      .from("listings")
+      .select("image_url,image_urls")
+      .eq("id", targetListingId)
+      .maybeSingle<ListingImageFields>();
+
+  let listingImages =
+    listingResult.data;
+
+  if (hasMissingListingColumns(listingResult.error)) {
+    const fallbackResult =
+      await supabase
+        .from("listings")
+        .select("image_url")
+        .eq("id", targetListingId)
+        .maybeSingle<Pick<Listing, "image_url">>();
+
+    if (fallbackResult.error) {
+      return { error: fallbackResult.error };
+    }
+
+    listingImages =
+      fallbackResult.data
+        ? {
+            image_url: fallbackResult.data.image_url,
+            image_urls: []
+          }
+        : null;
+  } else if (listingResult.error) {
+    return { error: listingResult.error };
+  }
+
   const { error } = await supabase.rpc("admin_delete_listing", {
     target_listing_id: targetListingId,
     reason: reason ?? null
   });
-  return { error };
+
+  if (error) {
+    return { error };
+  }
+
+  const imageCleanupError =
+    await deleteListingStorageImages(listingImages);
+
+  return { error, imageCleanupError };
 }
 
 export async function adminUpdateProfile(
@@ -2057,10 +2868,7 @@ export async function getPublicProfile(
   }
 
   try {
-
-      return await supabase
-        .from("profiles")
-        .select(`
+    const profileSelect = `
           id,
           public_id,
           account_type,
@@ -2072,14 +2880,40 @@ export async function getPublicProfile(
           business_id,
           company_role,
           company_website,
+          public_address,
+          phone,
           city,
           country,
           bio,
           avatar_url,
           created_at,
           phone_verified_at
-      `)
+      `;
+    const isUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId);
+
+    if (!isUuid) {
+      return await supabase
+        .from("profiles")
+        .select(profileSelect)
+        .eq("public_id", userId)
+        .maybeSingle();
+    }
+
+    const byId = await supabase
+      .from("profiles")
+      .select(profileSelect)
       .eq("id", userId)
+      .maybeSingle();
+
+    if (byId.data || byId.error) {
+      return byId;
+    }
+
+    return await supabase
+      .from("profiles")
+      .select(profileSelect)
+      .eq("public_id", userId)
       .maybeSingle();
 
   } catch (error) {
@@ -2191,12 +3025,14 @@ export async function updateEditableProfile(
   profile: Pick<
     UserProfile,
     | "address"
+    | "account_type"
     | "postal_code"
     | "city"
     | "country"
     | "company_name"
     | "business_id"
     | "company_website"
+    | "public_address"
     | "billing_email"
     | "bio"
   >
@@ -2215,21 +3051,23 @@ export async function updateEditableProfile(
 
   try {
 
+    const updatePayload: Partial<UserProfile> = {
+      ...profile,
+      is_completed: true,
+      updated_at: new Date().toISOString()
+    };
+
+    if (profile.account_type === "company") {
+      const companyDisplayName = profile.company_name?.trim();
+      if (companyDisplayName) {
+        updatePayload.full_name = companyDisplayName;
+        updatePayload.name = companyDisplayName;
+      }
+    }
+
     return await supabase
       .from("profiles")
-      .update({
-
-        ...profile,
-        full_name:
-          profile.company_name?.trim() ||
-          undefined,
-        name:
-          profile.company_name?.trim() ||
-          undefined,
-
-        is_completed: true
-
-      })
+      .update(updatePayload)
       .eq("id", userId)
       .select()
       .single<UserProfile>();
@@ -2411,6 +3249,200 @@ export async function getReviewsBySeller(
 
   }
 
+}
+
+export async function getSellerReviewLikeSummary(
+  reviewIds: string[]
+): Promise<{ data: SellerReviewLikeSummary[]; error: unknown }> {
+  const uniqueIds = Array.from(new Set(reviewIds.filter(Boolean)));
+
+  if (!supabase || uniqueIds.length === 0) {
+    return {
+      data: [],
+      error: null
+    };
+  }
+
+  try {
+    const { data, error } = await supabase.rpc(
+      "get_seller_review_like_summary",
+      { review_ids: uniqueIds }
+    );
+
+    return {
+      data: (data ?? []).map((row: Partial<SellerReviewLikeSummary>) => ({
+        review_id: String(row.review_id ?? ""),
+        like_count: Number(row.like_count) || 0,
+        is_liked: Boolean(row.is_liked)
+      })).filter((row: SellerReviewLikeSummary) => row.review_id),
+      error
+    };
+  } catch (error) {
+    return {
+      data: [],
+      error
+    };
+  }
+}
+
+export async function likeSellerReview(reviewId: string) {
+  if (!supabase) {
+    return {
+      error: new Error("Supabase ei ole konfiguroitu.")
+    };
+  }
+
+  try {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return {
+        error: new Error("Kirjaudu sisÃ¤Ã¤n tykÃ¤tÃ¤ksesi arvostelusta.")
+      };
+    }
+
+    const { error } = await supabase
+      .from("seller_review_likes")
+      .upsert(
+        {
+          review_id: reviewId,
+          user_id: user.id
+        },
+        {
+          onConflict: "review_id,user_id"
+        }
+      );
+
+    return { error };
+  } catch (error) {
+    return { error };
+  }
+}
+
+export async function unlikeSellerReview(reviewId: string) {
+  if (!supabase) {
+    return {
+      error: new Error("Supabase ei ole konfiguroitu.")
+    };
+  }
+
+  try {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return {
+        error: new Error("Kirjaudu sisÃ¤Ã¤n hallitaksesi peukkuja.")
+      };
+    }
+
+    const { error } = await supabase
+      .from("seller_review_likes")
+      .delete()
+      .eq("review_id", reviewId)
+      .eq("user_id", user.id);
+
+    return { error };
+  } catch (error) {
+    return { error };
+  }
+}
+
+function normalizeSellerLevelStats(value: Partial<SellerLevelStats> | null | undefined): SellerLevelStats {
+  const listingsCreated = Math.max(0, Number(value?.listings_created) || 0);
+  const multiListingsCreated = Math.max(0, Number(value?.multi_listings_created) || 0);
+  const singleListingsCreated =
+    value?.single_listings_created === undefined
+      ? Math.max(0, listingsCreated - multiListingsCreated)
+      : Math.max(0, Number(value.single_listings_created) || 0);
+
+  return {
+    listings_created: listingsCreated,
+    single_listings_created: singleListingsCreated,
+    multi_listings_created: multiListingsCreated,
+    sold_count: Math.max(0, Number(value?.sold_count) || 0),
+    reviews_given: Math.max(0, Number(value?.reviews_given) || 0),
+    reviews_received: Math.max(0, Number(value?.reviews_received) || 0),
+    phone_verified: Boolean(value?.phone_verified)
+  };
+}
+
+export async function getPublicSellerLevelStats(
+  sellerId: string
+): Promise<{ data: SellerLevelStats; error: unknown }> {
+  const empty = normalizeSellerLevelStats(null);
+  if (!supabase) return { data: empty, error: null };
+
+  try {
+    const rpcResult = await supabase.rpc("get_public_seller_level_stats", {
+      p_user_id: sellerId
+    });
+
+    if (!rpcResult.error && rpcResult.data) {
+      return {
+        data: normalizeSellerLevelStats(rpcResult.data as Partial<SellerLevelStats>),
+        error: null
+      };
+    }
+
+    const [
+      listingsResult,
+      soldResult,
+      reviewsGivenResult,
+      reviewsReceivedResult,
+      profileResult
+    ] = await Promise.all([
+      supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("seller_id", sellerId),
+      supabase
+        .from("sold_listings")
+        .select("id", { count: "exact", head: true })
+        .eq("seller_id", sellerId),
+      supabase
+        .from("seller_reviews")
+        .select("id", { count: "exact", head: true })
+        .eq("reviewer_id", sellerId),
+      supabase
+        .from("seller_reviews")
+        .select("id", { count: "exact", head: true })
+        .eq("seller_id", sellerId),
+      supabase
+        .from("profiles")
+        .select("phone_verified_at")
+        .eq("id", sellerId)
+        .maybeSingle<Pick<UserProfile, "phone_verified_at">>()
+    ]);
+
+    const soldCount =
+      soldResult.error ? 0 : soldResult.count ?? 0;
+
+    return {
+      data: normalizeSellerLevelStats({
+        listings_created: (listingsResult.count ?? 0) + soldCount,
+        single_listings_created: (listingsResult.count ?? 0) + soldCount,
+        multi_listings_created: 0,
+        sold_count: soldCount,
+        reviews_given: reviewsGivenResult.count ?? 0,
+        reviews_received: reviewsReceivedResult.count ?? 0,
+        phone_verified: Boolean(profileResult.data?.phone_verified_at)
+      }),
+      error:
+        rpcResult.error ??
+        listingsResult.error ??
+        soldResult.error ??
+        reviewsGivenResult.error ??
+        reviewsReceivedResult.error ??
+        profileResult.error ??
+        null
+    };
+  } catch (error) {
+    return { data: empty, error };
+  }
 }
 
 export async function createSellerReview(
@@ -2866,7 +3898,8 @@ export async function getConversationSummaries(
       listingsResult,
       profilesResult,
       publicProfilesResult,
-      messagesResult
+      messagesResult,
+      reviewsResult
     ] =
       await Promise.all([
         supabase
@@ -2884,8 +3917,12 @@ export async function getConversationSummaries(
             full_name,
             name,
             username,
+            avatar_url,
             online,
-            last_seen
+            last_seen,
+            created_at,
+            city,
+            country
           `)
           .in("id", otherUserIds),
 
@@ -2895,7 +3932,11 @@ export async function getConversationSummaries(
             id,
             first_name,
             last_name,
-            full_name
+            full_name,
+            avatar_url,
+            created_at,
+            city,
+            country
           `)
           .in("id", otherUserIds),
 
@@ -2912,7 +3953,14 @@ export async function getConversationSummaries(
               ascending: false
             }
           )
-          .returns<ChatMessage[]>()
+          .limit(Math.min(Math.max(conversationIds.length * 5, 100), 500))
+          .returns<ChatMessage[]>(),
+
+        supabase
+          .from("seller_reviews")
+          .select("seller_id,rating")
+          .in("seller_id", otherUserIds)
+          .returns<Array<{ seller_id: string; rating: number | null }>>()
       ]);
 
     const listingsById =
@@ -2954,6 +4002,47 @@ export async function getConversationSummaries(
     const lastMessageByConversation =
       new Map<string, ChatMessage>();
 
+    const reviewStatsBySeller =
+      new Map<
+        string,
+        {
+          average: number;
+          count: number;
+        }
+      >();
+
+    for (const review of reviewsResult.data ?? []) {
+      const sellerId =
+        String(review.seller_id || "");
+      const rating =
+        Number(review.rating);
+
+      if (
+        !sellerId ||
+        !Number.isFinite(rating)
+      ) {
+        continue;
+      }
+
+      const current =
+        reviewStatsBySeller.get(sellerId);
+
+      reviewStatsBySeller.set(
+        sellerId,
+        {
+          average:
+            current
+              ? (
+                  current.average * current.count +
+                  rating
+                ) / (current.count + 1)
+              : rating,
+          count:
+            (current?.count ?? 0) + 1
+        }
+      );
+    }
+
     for (const message of messagesResult.data ?? []) {
 
       if (
@@ -2979,6 +4068,8 @@ export async function getConversationSummaries(
             conversation.buyer_id === userId
               ? conversation.seller_id
               : conversation.buyer_id;
+          const reviewStats =
+            reviewStatsBySeller.get(otherUserId);
 
           return {
             ...conversation,
@@ -2993,14 +4084,14 @@ export async function getConversationSummaries(
             last_message:
               lastMessageByConversation.get(
                 conversation.id
-              ) ?? null
+              ) ?? null,
+            other_review_average:
+              reviewStats?.average ?? null,
+            other_review_count:
+              reviewStats?.count ?? 0
           };
 
         }
-      )
-      .filter(
-        (conversation) =>
-          Boolean(conversation.last_message)
       )
       .sort((a, b) => {
 
@@ -3028,6 +4119,7 @@ export async function getConversationSummaries(
         profilesResult.error ??
         publicProfilesResult.error ??
         messagesResult.error ??
+        reviewsResult.error ??
         null
     };
 
@@ -3040,6 +4132,259 @@ export async function getConversationSummaries(
 
   }
 
+}
+
+export async function getUnreadConversationSummaries(
+  userId: string,
+  limit = 30
+) {
+  if (!supabase) {
+    return {
+      data: [] as ConversationSummary[],
+      error: null
+    };
+  }
+
+  try {
+    let unreadResult = await supabase
+      .from("messages")
+      .select("*")
+      .eq("receiver_id", userId)
+      .is("read_at", null)
+      .or("read.is.null,read.eq.false")
+      .order("created_at", { ascending: false })
+      .limit(Math.max(limit * 3, limit))
+      .returns<ChatMessage[]>();
+
+    if (unreadResult.error) {
+      unreadResult = await supabase
+        .from("messages")
+        .select("*")
+        .eq("receiver_id", userId)
+        .is("read_at", null)
+        .order("created_at", { ascending: false })
+        .limit(Math.max(limit * 3, limit))
+        .returns<ChatMessage[]>();
+    }
+
+    if (unreadResult.error || !unreadResult.data?.length) {
+      return {
+        data: [],
+        error: unreadResult.error
+      };
+    }
+
+    const lastUnreadByConversation =
+      new Map<string, ChatMessage>();
+
+    for (const message of unreadResult.data) {
+      if (!lastUnreadByConversation.has(message.conversation_id)) {
+        lastUnreadByConversation.set(message.conversation_id, message);
+      }
+    }
+
+    const conversationIds =
+      Array.from(lastUnreadByConversation.keys()).slice(0, limit);
+
+    if (conversationIds.length === 0) {
+      return {
+        data: [],
+        error: null
+      };
+    }
+
+    const conversationsResult =
+      await supabase
+        .from("conversations")
+        .select("*")
+        .in("id", conversationIds)
+        .returns<Conversation[]>();
+
+    if (conversationsResult.error || !conversationsResult.data?.length) {
+      return {
+        data: [],
+        error: conversationsResult.error
+      };
+    }
+
+    const conversations =
+      conversationsResult.data;
+
+    const listingIds =
+      Array.from(
+        new Set(conversations.map((conversation) => conversation.listing_id))
+      );
+
+    const otherUserIds =
+      Array.from(
+        new Set(
+          conversations.map((conversation) =>
+            conversation.buyer_id === userId
+              ? conversation.seller_id
+              : conversation.buyer_id
+          )
+        )
+      );
+
+    const [
+      listingsResult,
+      profilesResult,
+      publicProfilesResult,
+      reviewsResult
+    ] =
+      await Promise.all([
+        supabase
+          .from("listings")
+          .select("id,title,image_url,price,seller_name")
+          .in("id", listingIds),
+
+        supabase
+          .from("profiles")
+          .select(`
+            id,
+            public_id,
+            first_name,
+            last_name,
+            full_name,
+            name,
+            username,
+            avatar_url,
+            online,
+            last_seen,
+            created_at,
+            city,
+            country
+          `)
+          .in("id", otherUserIds),
+
+        supabase
+          .from("public_profiles")
+          .select(`
+            id,
+            first_name,
+            last_name,
+            full_name,
+            avatar_url,
+            created_at,
+            city,
+            country
+          `)
+          .in("id", otherUserIds),
+
+        supabase
+          .from("seller_reviews")
+          .select("seller_id,rating")
+          .in("seller_id", otherUserIds)
+          .returns<Array<{ seller_id: string; rating: number | null }>>()
+      ]);
+
+    const listingsById =
+      new Map(
+        (listingsResult.data ?? []).map((listing) => [
+          listing.id,
+          listing
+        ])
+      );
+
+    const profilesById =
+      new Map<string, ConversationSummary["other_profile"]>(
+        (profilesResult.data ?? []).map((profile) => [
+          profile.id,
+          profile
+        ])
+      );
+
+    for (const publicProfile of publicProfilesResult.data ?? []) {
+      const existing =
+        profilesById.get(publicProfile.id);
+
+      profilesById.set(
+        publicProfile.id,
+        {
+          ...existing,
+          ...publicProfile
+        }
+      );
+    }
+
+    const reviewStatsBySeller =
+      new Map<string, { average: number; count: number }>();
+
+    for (const review of reviewsResult.data ?? []) {
+      const sellerId =
+        String(review.seller_id || "");
+      const rating =
+        Number(review.rating);
+
+      if (!sellerId || !Number.isFinite(rating)) {
+        continue;
+      }
+
+      const current =
+        reviewStatsBySeller.get(sellerId);
+
+      reviewStatsBySeller.set(
+        sellerId,
+        {
+          average:
+            current
+              ? (current.average * current.count + rating) /
+                (current.count + 1)
+              : rating,
+          count:
+            (current?.count ?? 0) + 1
+        }
+      );
+    }
+
+    const orderByConversation =
+      new Map(conversationIds.map((id, index) => [id, index]));
+
+    const summaries =
+      conversations
+        .map((conversation) => {
+          const otherUserId =
+            conversation.buyer_id === userId
+              ? conversation.seller_id
+              : conversation.buyer_id;
+          const reviewStats =
+            reviewStatsBySeller.get(otherUserId);
+
+          return {
+            ...conversation,
+            listing:
+              listingsById.get(conversation.listing_id) ?? null,
+            other_profile:
+              profilesById.get(otherUserId) ?? null,
+            last_message:
+              lastUnreadByConversation.get(conversation.id) ?? null,
+            other_review_average:
+              reviewStats?.average ?? null,
+            other_review_count:
+              reviewStats?.count ?? 0
+          };
+        })
+        .sort(
+          (a, b) =>
+            (orderByConversation.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
+            (orderByConversation.get(b.id) ?? Number.MAX_SAFE_INTEGER)
+        );
+
+    return {
+      data: summaries,
+      error:
+        listingsResult.error ??
+        profilesResult.error ??
+        publicProfilesResult.error ??
+        reviewsResult.error ??
+        null
+    };
+  } catch (error) {
+    return {
+      data: [] as ConversationSummary[],
+      error
+    };
+  }
 }
 
 export async function getConversationCountForUser(
@@ -3092,29 +4437,425 @@ export async function getMessagesForConversation(conversationId: string) {
   }
 }
 
-const CHAT_LAST_READ_STORAGE_KEY = "chatLastRead";
-
-function rememberConversationReadLocally(
+export async function getMessagesForConversationAfter(
   conversationId: string,
-  readAt = Date.now()
+  afterCreatedAt: string
+) {
+  if (!supabase) return { data: [] as ChatMessage[], error: null };
+  try {
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("conversation_id", conversationId)
+      .gt("created_at", afterCreatedAt)
+      .order("created_at", { ascending: true })
+      .limit(60)
+      .returns<ChatMessage[]>();
+    return { data: data ?? [], error };
+  } catch (error) {
+    return { data: [] as ChatMessage[], error };
+  }
+}
+
+function isUniqueViolation(error: unknown) {
+  return Boolean(
+    error &&
+      typeof error === "object" &&
+      "code" in error &&
+      String((error as { code?: unknown }).code) === "23505"
+  );
+}
+
+async function findConversationForListingPair(
+  listingId: string,
+  buyerId: string,
+  sellerId: string
+) {
+  if (!supabase) return { data: null as Conversation | null, error: null };
+
+  try {
+    let result = await supabase
+      .from("conversations")
+      .select("*")
+      .eq("listing_id", listingId)
+      .eq("buyer_id", buyerId)
+      .eq("seller_id", sellerId)
+      .order("updated_at", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .returns<Conversation[]>();
+
+    if (result.error) {
+      result = await supabase
+        .from("conversations")
+        .select("*")
+        .eq("listing_id", listingId)
+        .eq("buyer_id", buyerId)
+        .eq("seller_id", sellerId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .returns<Conversation[]>();
+    }
+
+    return { data: result.data?.[0] ?? null, error: result.error };
+  } catch (error) {
+    return { data: null as Conversation | null, error };
+  }
+}
+
+export async function getOrCreateConversationForListing(input: {
+  listing_id: string;
+  buyer_id: string;
+  seller_id: string;
+}) {
+  if (!supabase) return { data: null as Conversation | null, error: new Error("Ei yhteyttä") };
+
+  const listingId = input.listing_id;
+  const buyerId = input.buyer_id;
+  const sellerId = input.seller_id;
+
+  if (!listingId || !buyerId || !sellerId) {
+    return { data: null as Conversation | null, error: new Error("Keskustelun tiedot puuttuvat") };
+  }
+
+  if (buyerId === sellerId) {
+    return { data: null as Conversation | null, error: new Error("Omaan ilmoitukseen ei voi aloittaa keskustelua") };
+  }
+
+  try {
+    const rpcResult = await supabase.rpc(
+      "start_listing_conversation",
+      {
+        p_listing_id: listingId
+      }
+    );
+
+    if (!rpcResult.error && rpcResult.data) {
+      const conversation =
+        Array.isArray(rpcResult.data)
+          ? rpcResult.data[0]
+          : rpcResult.data;
+
+      return {
+        data: conversation as Conversation,
+        error: null
+      };
+    }
+  } catch {
+    // Older databases may not have the RPC yet. Fall back to direct insert.
+  }
+
+  const existing = await findConversationForListingPair(listingId, buyerId, sellerId);
+  if (existing.data || existing.error) return existing;
+
+  try {
+    const { data, error } = await supabase
+      .from("conversations")
+      .insert({
+        listing_id: listingId,
+        buyer_id: buyerId,
+        seller_id: sellerId
+      })
+      .select()
+      .single<Conversation>();
+
+    if (error) {
+      if (isUniqueViolation(error)) {
+        return await findConversationForListingPair(listingId, buyerId, sellerId);
+      }
+
+      return { data: null as Conversation | null, error };
+    }
+
+    return { data, error: null };
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      return await findConversationForListingPair(listingId, buyerId, sellerId);
+    }
+
+    return { data: null as Conversation | null, error };
+  }
+}
+
+export const CHAT_LAST_READ_STORAGE_KEY = "chatLastRead";
+export const CHAT_NOTIFICATIONS_CHANGED_EVENT = "chat-notifications-changed";
+
+export function dispatchChatNotificationsChanged(
+  detail?: Record<string, unknown>
 ) {
   if (typeof window === "undefined") {
     return;
   }
 
+  window.dispatchEvent(
+    new CustomEvent(
+      CHAT_NOTIFICATIONS_CHANGED_EVENT,
+      {
+        detail
+      }
+    )
+  );
+}
+
+export function readChatLastRead(): Record<string, number> {
+  if (typeof window === "undefined") {
+    return {};
+  }
+
   try {
-    const current = JSON.parse(
+    const parsed = JSON.parse(
       window.localStorage.getItem(CHAT_LAST_READ_STORAGE_KEY) ?? "{}"
     );
-    const next =
-      current && typeof current === "object" && !Array.isArray(current)
-        ? current as Record<string, number>
-        : {};
 
-    next[conversationId] = Math.max(Number(next[conversationId]) || 0, readAt);
-    window.localStorage.setItem(CHAT_LAST_READ_STORAGE_KEY, JSON.stringify(next));
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      Array.isArray(parsed)
+    ) {
+      return {};
+    }
+
+    return Object.entries(parsed).reduce<Record<string, number>>(
+      (result, [conversationId, value]) => {
+        const timestamp = Number(value);
+        if (conversationId && Number.isFinite(timestamp)) {
+          result[conversationId] = timestamp;
+        }
+        return result;
+      },
+      {}
+    );
   } catch {
-    // Local notification state is best-effort; the database update below is primary.
+    return {};
+  }
+}
+
+export function writeChatLastRead(next: Record<string, number>) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(
+      CHAT_LAST_READ_STORAGE_KEY,
+      JSON.stringify(next)
+    );
+  } catch {
+    // Local notification state is best-effort.
+  }
+
+  dispatchChatNotificationsChanged({
+    reason: "last-read"
+  });
+}
+
+export function isConversationLastMessageUnread(
+  conversation: Pick<ConversationSummary, "id" | "last_message">,
+  userId: string,
+  lastRead = readChatLastRead()
+) {
+  const message = conversation.last_message;
+
+  if (
+    !message ||
+    !userId ||
+    message.sender_id === userId ||
+    message.receiver_id !== userId ||
+    message.read === true ||
+    Boolean(message.read_at)
+  ) {
+    return false;
+  }
+
+  const sentAt =
+    new Date(message.created_at).getTime();
+
+  if (Number.isNaN(sentAt)) {
+    return false;
+  }
+
+  return sentAt > (lastRead[conversation.id] ?? 0);
+}
+
+function isMissingReadColumnError(error: unknown) {
+  const message =
+    error && typeof error === "object" && "message" in error
+      ? String((error as { message?: unknown }).message ?? "")
+      : "";
+
+  return (
+    message.includes("read") &&
+    (
+      message.includes("Could not find") ||
+      message.includes("schema cache") ||
+      message.includes("column")
+    )
+  );
+}
+
+export function rememberConversationReadLocally(
+  conversationId: string,
+  readAt = Date.now()
+) {
+  const current = readChatLastRead();
+  const previous = Number(current[conversationId]) || 0;
+
+  writeChatLastRead({
+    ...current,
+    [conversationId]: Math.max(previous, readAt)
+  });
+}
+
+async function markConversationReadViaApi(
+  conversationId: string,
+  readAt: number
+) {
+  if (
+    typeof window === "undefined" ||
+    typeof fetch === "undefined" ||
+    !supabase
+  ) {
+    return { error: new Error("API fallback ei ole käytettävissä.") };
+  }
+
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+  const accessToken =
+    sessionData.session?.access_token;
+
+  if (sessionError || !accessToken) {
+    return {
+      error:
+        sessionError ??
+        new Error("Kirjautuminen ei ole voimassa.")
+    };
+  }
+
+  try {
+    const response =
+      await fetch(
+        "/api/messages/mark-read",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+          },
+          body: JSON.stringify({
+            conversationId,
+            readAt
+          })
+        }
+      );
+
+    if (!response.ok) {
+      const payload =
+        await response.json().catch(() => ({})) as { error?: string };
+
+      return {
+        error: new Error(payload.error || "Luetuksi merkintä epäonnistui.")
+      };
+    }
+
+    return { error: null };
+  } catch (error) {
+    return { error };
+  }
+}
+
+type MarkConversationReadResult = {
+  error: unknown;
+};
+
+const pendingConversationReadRequests =
+  new Map<string, {
+    readAt: number;
+    promise: Promise<MarkConversationReadResult>;
+  }>();
+
+const completedConversationReadAt =
+  new Map<string, number>();
+
+async function persistConversationRead(
+  conversationId: string,
+  userId: string,
+  readAt = Date.now()
+): Promise<MarkConversationReadResult> {
+  if (!supabase) {
+    return { error: null };
+  }
+
+  try {
+    const readAtIso =
+      new Date(readAt).toISOString();
+
+    let result = await supabase
+      .from("messages")
+      .update({
+        read: true,
+        read_at: readAtIso
+      })
+      .eq("conversation_id", conversationId)
+      .eq("receiver_id", userId)
+      .is("read_at", null);
+
+    if (result.error && isMissingReadColumnError(result.error)) {
+      result = await supabase
+        .from("messages")
+        .update({
+          read_at: readAtIso
+        })
+        .eq("conversation_id", conversationId)
+        .eq("receiver_id", userId)
+        .is("read_at", null);
+    }
+
+    if (result.error) {
+      const apiResult =
+        await markConversationReadViaApi(
+          conversationId,
+          readAt
+        );
+
+      if (!apiResult.error) {
+        dispatchChatNotificationsChanged({
+          conversationId,
+          reason: "read"
+        });
+
+        return apiResult;
+      }
+    }
+
+    if (result.error) {
+      result = await supabase
+        .from("messages")
+        .update({
+          read: true
+        })
+        .eq("conversation_id", conversationId)
+        .eq("receiver_id", userId);
+    }
+
+    if (result.error) {
+      result = await supabase
+        .from("messages")
+        .update({
+          read: true,
+          read_at: readAtIso
+        })
+        .eq("conversation_id", conversationId)
+        .eq("receiver_id", userId);
+    }
+
+    dispatchChatNotificationsChanged({
+      conversationId,
+      reason: "read"
+    });
+
+    return { error: result.error };
+  } catch (error) {
+    return { error };
   }
 }
 
@@ -3125,22 +4866,53 @@ export async function markConversationRead(
 ) {
   rememberConversationReadLocally(conversationId, readAt);
 
-  if (!supabase) {
+  const completedAt =
+    completedConversationReadAt.get(conversationId) ?? 0;
+
+  if (readAt <= completedAt) {
     return { error: null };
   }
 
-  try {
-    const { error } = await supabase
-      .from("messages")
-      .update({ read: true })
-      .eq("conversation_id", conversationId)
-      .eq("receiver_id", userId)
-      .eq("read", false);
+  const pending =
+    pendingConversationReadRequests.get(conversationId);
 
-    return { error };
-  } catch (error) {
-    return { error };
+  if (pending && readAt <= pending.readAt) {
+    return pending.promise;
   }
+
+  const promise =
+    persistConversationRead(conversationId, userId, readAt)
+      .then((result) => {
+        if (!result.error) {
+          completedConversationReadAt.set(
+            conversationId,
+            Math.max(
+              completedConversationReadAt.get(conversationId) ?? 0,
+              readAt
+            )
+          );
+        }
+
+        return result;
+      })
+      .finally(() => {
+        const current =
+          pendingConversationReadRequests.get(conversationId);
+
+        if (current?.promise === promise) {
+          pendingConversationReadRequests.delete(conversationId);
+        }
+      });
+
+  pendingConversationReadRequests.set(
+    conversationId,
+    {
+      readAt,
+      promise
+    }
+  );
+
+  return promise;
 }
 
 export async function sendChatMessage(msg: {
@@ -3149,12 +4921,41 @@ export async function sendChatMessage(msg: {
   sender_id: string;
   receiver_id: string;
   content: string;
+  image?: string | null;
 }) {
   if (!supabase) return { data: null, error: new Error("Ei yhteyttä") };
   try {
+    const { data: conversation, error: conversationError } = await supabase
+      .from("conversations")
+      .select("*")
+      .eq("id", msg.conversation_id)
+      .maybeSingle<Conversation>();
+
+    if (conversationError || !conversation) {
+      return {
+        data: null,
+        error: conversationError ?? new Error("Keskustelua ei löytynyt")
+      };
+    }
+
+    const senderIsBuyer = conversation.buyer_id === msg.sender_id;
+    const senderIsSeller = conversation.seller_id === msg.sender_id;
+
+    if (!senderIsBuyer && !senderIsSeller) {
+      return { data: null, error: new Error("Et kuulu tähän keskusteluun") };
+    }
+
+    const receiverId = senderIsBuyer
+      ? conversation.seller_id
+      : conversation.buyer_id;
+
     const { data, error } = await supabase
       .from("messages")
-      .insert(msg)
+      .insert({
+        ...msg,
+        listing_id: conversation.listing_id,
+        receiver_id: receiverId
+      })
       .select()
       .single<ChatMessage>();
     if (!error) {
@@ -3162,6 +4963,11 @@ export async function sendChatMessage(msg: {
         .from("conversations")
         .update({ updated_at: new Date().toISOString() })
         .eq("id", msg.conversation_id);
+
+      dispatchChatNotificationsChanged({
+        conversationId: msg.conversation_id,
+        reason: "sent"
+      });
     }
     return { data, error };
   } catch (error) {
@@ -3271,12 +5077,69 @@ export async function getListingsByVehicle(
   }
 
   try {
+    const makeTerm = escapeIlikeTerm(make);
+    const modelTerms =
+      model
+        .split(/\s+/)
+        .map(escapeIlikeTerm)
+        .filter(Boolean)
+        .slice(0, 3);
 
-    const { data, error } = await supabase
-      .from("listings")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .returns<import("./listings").Listing[]>();
+    let query =
+      supabase
+        .from("listings")
+        .select(LISTING_CARD_SELECT)
+        .order("created_at", { ascending: false })
+        .limit(80);
+
+    if (makeTerm) {
+      query = query.or([
+        `brand.ilike.%${makeTerm}%`,
+        `title.ilike.%${makeTerm}%`,
+        `description.ilike.%${makeTerm}%`
+      ].join(","));
+    }
+
+    if (modelTerms[0]) {
+      const term = modelTerms[0];
+      query = query.or([
+        `model.ilike.%${term}%`,
+        `title.ilike.%${term}%`,
+        `description.ilike.%${term}%`
+      ].join(","));
+    }
+
+    let { data, error } =
+      await query.returns<import("./listings").Listing[]>();
+
+    if (error && hasMissingListingColumns(error)) {
+      let fallbackQuery =
+        supabase
+          .from("listings")
+          .select(BASE_LISTING_CARD_SELECT)
+          .order("created_at", { ascending: false })
+          .limit(80);
+
+      if (makeTerm) {
+        fallbackQuery = fallbackQuery.or([
+          `brand.ilike.%${makeTerm}%`,
+          `title.ilike.%${makeTerm}%`,
+          `description.ilike.%${makeTerm}%`
+        ].join(","));
+      }
+
+      if (modelTerms[0]) {
+        const term = modelTerms[0];
+        fallbackQuery = fallbackQuery.or([
+          `model.ilike.%${term}%`,
+          `title.ilike.%${term}%`,
+          `description.ilike.%${term}%`
+        ].join(","));
+      }
+
+      ({ data, error } =
+        await fallbackQuery.returns<import("./listings").Listing[]>());
+    }
 
     if (error) return { data: [] as import("./listings").Listing[], error };
 
@@ -3466,17 +5329,19 @@ export async function getListingsMatchingAlert(alert: SearchAlert) {
   if (!supabase) return { data: [], error: null };
   try {
     const buildQuery = (includePartNumber: boolean) => {
-      let q = supabase.from("listings").select("*");
+      let q = supabase
+        .from("listings")
+        .select(includePartNumber ? LISTING_CARD_SELECT : BASE_LISTING_CARD_SELECT);
       if (alert.vehicle_type) q = q.eq("vehicle_type", alert.vehicle_type);
       if (alert.category)     q = q.eq("category", alert.category);
       if (alert.subcategory)  q = q.eq("subcategory", alert.subcategory);
       if (alert.condition)    q = q.eq("condition", alert.condition);
-      if (alert.brand)        q = q.ilike("brand", `%${alert.brand}%`);
+      if (alert.brand)        q = q.ilike("brand", `%${escapeIlikeTerm(alert.brand)}%`);
       if (alert.year_min)     q = q.gte("year", alert.year_min);
       if (alert.year_max)     q = q.lte("year", alert.year_max);
       if (alert.max_price != null) q = q.lte("price", alert.max_price);
       if (alert.query) {
-        const term = alert.query.replace(/[%_]/g, "");
+        const term = escapeIlikeTerm(alert.query);
         const fields = [
           `title.ilike.%${term}%`,
           `description.ilike.%${term}%`,

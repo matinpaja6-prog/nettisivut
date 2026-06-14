@@ -14,6 +14,19 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      ...(!process.env.VERCEL
+        ? [
+            {
+              source: "/((?!_next/static|_next/image|.*\\.(?:svg|jpg|jpeg|png|webp|avif|gif|ico)$).*)",
+              headers: [
+                {
+                  key: "Cache-Control",
+                  value: "no-store, max-age=0, must-revalidate"
+                }
+              ]
+            }
+          ]
+        : []),
       {
         source: "/:all*(svg|jpg|jpeg|png|webp|avif|gif|ico)",
         headers: [

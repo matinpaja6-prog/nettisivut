@@ -1,12 +1,15 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Award, Check, CheckCircle2, Copy, Gift, ListChecks, LockKeyhole, Share2, Sparkles, Store, Users } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import LanguageSwitcher from "@/app/components/LanguageSwitcher";
+import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage } from "@/lib/i18n";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
+import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
 import {
   claimQuest,
   getListingSlotUsage,
@@ -25,6 +28,16 @@ import {
 } from "@/lib/listing-slots";
 
 type ReferralWithName = Referral & { referred_name?: string | null };
+
+type RewardsCache = {
+  points: number;
+  referralCode: string | null;
+  referrals: ReferralWithName[];
+  questProgress: QuestProgress | null;
+  listingSlotUsed: number;
+  slotPurchases: ListingSlotPurchase[];
+  dbExtraSlots: number;
+};
 
 type QuestDef = {
   id: string;
@@ -122,14 +135,15 @@ export default function RewardsPage() {
 }
 
 function RewardsDisabledPage() {
+  const router = useRouter();
   const { t } = useLanguage();
   return (
     <main className="profile-workspace rewards-page">
       <section className="profile-card rewards-card">
-        <Link href="/" className="profile-back-link">
+        <button type="button" className="profile-back-link" onClick={() => goBackOrFallback(router)}>
           <ArrowLeft size={16} />
           {t.back}
-        </Link>
+        </button>
         <h1>Palkinnot eivät ole tällä hetkellä käytössä.</h1>
       </section>
     </main>
@@ -137,14 +151,15 @@ function RewardsDisabledPage() {
 }
 
 function RewardsEnabledPage() {
+  const router = useRouter();
   const { locale, t } = useLanguage();
   const qtr = QUEST_TR[locale] ?? QUEST_TR.fi;
   const rw = {
-    fi:  { eyebrow: "Palkinnot", h1: "Kutsu kavereita ja ansaitse pisteitä", introBefore: "Jaa henkilökohtainen kutsulinkkisi. Kun kaveri rekisteröityy linkkisi kautta, saat automaattisesti", introAfter: "Pisteillä voi tulevaisuudessa lunastaa etuja palvelussa.", loginPrompt: "Kirjaudu sisään nähdäksesi pisteesi ja kutsulinkkisi.", loginLink: "Kirjaudu", loading: "Ladataan...", claimSuccess: (p: number) => `✅ Sait ${p} pistettä!`, notCompleted: (p: number, r: number) => `Tehtävä ei ole vielä suoritettu (${p}/${r}).`, alreadyClaimed: "Tämä tehtävä on jo lunastettu.", claimError: (e: string) => `Virhe: ${e}`, shareTitle: "Liity Arctic Partsiin!", shareText: (u: string) => `Käytä kutsulinkkiäni: ${u}`, pointsTitle: "Pistetilisi", pointsSuffix: "pistettä", invitedUsers: "Kutsutut käyttäjät", listingSlots: "Ilmoituspaikat", shopBadge: "Pisteillä etuja", shopDesc: "Kaupassa voit käyttää pisteitä ilmoituspaikkoihin ja myöhemmin ostaa pisteitä oikealla rahalla.", openShop: "Avaa kauppa", refBadge: "+100 p / kaveri", refBefore: "Jaa tämä henkilökohtainen linkki. Jokaisesta sen kautta rekisteröityneestä saat automaattisesti", refAfter: "tilillesi.", copied: "Kopioitu!", copy: "Kopioi", shareLink: "Jaa linkki", waText: (u: string) => `Liity Arctic Partsiin kutsullani: ${u}`, emailSubject: "Liity Arctic Partsiin", emailBody: (u: string) => `Liity Arctic Partsiin kutsullani: ${u}`, email: "Sähköposti", noCode: "Kutsulinkki luodaan automaattisesti — palaa hetken kuluttua.", questsBadge: "Ansaitse pisteitä", questsDesc: "Suorita tehtäviä ja lunasta pisteet napilla. Jokainen tehtävä voidaan lunastaa vain kerran.", done: "Valmis", ongoing: "Kesken", claimed: "Lunastettu", claiming: "Lunastetaan...", claim: "Lunasta", inviteTitle: "Kutsumasi käyttäjät", noInvites: "Et ole vielä kutsunut ketään. Jaa linkkisi yllä ja ansaitse pisteitä!", unknownUser: "Käyttäjä" },
-    en:  { eyebrow: "Rewards", h1: "Invite friends and earn points", introBefore: "Share your personal invite link. When a friend registers through your link, you automatically receive", introAfter: "Points can be redeemed for benefits in the future.", loginPrompt: "Log in to see your points and invite link.", loginLink: "Log in", loading: "Loading...", claimSuccess: (p: number) => `✅ You earned ${p} points!`, notCompleted: (p: number, r: number) => `Quest not yet completed (${p}/${r}).`, alreadyClaimed: "This quest has already been claimed.", claimError: (e: string) => `Error: ${e}`, shareTitle: "Join Arctic Parts!", shareText: (u: string) => `Use my invite link: ${u}`, pointsTitle: "Your points", pointsSuffix: "points", invitedUsers: "Invited users", listingSlots: "Listing slots", shopBadge: "Spend points", shopDesc: "In the shop you can use points for listing slots and later buy points with real money.", openShop: "Open shop", refBadge: "+100 p / friend", refBefore: "Share this personal link. For every user who registers through it you automatically receive", refAfter: "in your account.", copied: "Copied!", copy: "Copy", shareLink: "Share link", waText: (u: string) => `Join Arctic Parts with my invite: ${u}`, emailSubject: "Join Arctic Parts", emailBody: (u: string) => `Join Arctic Parts with my invite: ${u}`, email: "Email", noCode: "Invite link will be created automatically — check back in a moment.", questsBadge: "Earn points", questsDesc: "Complete quests and claim points. Each quest can only be claimed once.", done: "Done", ongoing: "In progress", claimed: "Claimed", claiming: "Claiming...", claim: "Claim", inviteTitle: "Your referred users", noInvites: "You haven't invited anyone yet. Share your link above and earn points!", unknownUser: "User" },
-    sv:  { eyebrow: "Belöningar", h1: "Bjud in vänner och tjäna poäng", introBefore: "Dela din personliga inbjudningslänk. När en vän registrerar sig via din länk får du automatiskt", introAfter: "Poäng kan lösas in mot förmåner i framtiden.", loginPrompt: "Logga in för att se dina poäng och inbjudningslänk.", loginLink: "Logga in", loading: "Laddar...", claimSuccess: (p: number) => `✅ Du fick ${p} poäng!`, notCompleted: (p: number, r: number) => `Uppdraget är inte klart ännu (${p}/${r}).`, alreadyClaimed: "Det här uppdraget har redan lösts in.", claimError: (e: string) => `Fel: ${e}`, shareTitle: "Gå med i Arctic Parts!", shareText: (u: string) => `Använd min inbjudningslänk: ${u}`, pointsTitle: "Dina poäng", pointsSuffix: "poäng", invitedUsers: "Inbjudna användare", listingSlots: "Annonsplatser", shopBadge: "Spendera poäng", shopDesc: "I butiken kan du använda poäng för annonsplatser och senare köpa poäng med riktiga pengar.", openShop: "Öppna butiken", refBadge: "+100 p / vän", refBefore: "Dela den här personliga länken. För varje användare som registrerar sig via den får du automatiskt", refAfter: "på ditt konto.", copied: "Kopierat!", copy: "Kopiera", shareLink: "Dela länk", waText: (u: string) => `Gå med i Arctic Parts med min inbjudan: ${u}`, emailSubject: "Gå med i Arctic Parts", emailBody: (u: string) => `Gå med i Arctic Parts med min inbjudan: ${u}`, email: "E-post", noCode: "Inbjudningslänk skapas automatiskt — kom tillbaka om en stund.", questsBadge: "Tjäna poäng", questsDesc: "Slutför uppdrag och lös in poäng. Varje uppdrag kan bara lösas in en gång.", done: "Klar", ongoing: "Pågår", claimed: "Inlöst", claiming: "Löser in...", claim: "Lös in", inviteTitle: "Dina inbjudna användare", noInvites: "Du har inte bjudit in någon ännu. Dela din länk ovan och tjäna poäng!", unknownUser: "Användare" },
-    no:  { eyebrow: "Belønninger", h1: "Inviter venner og tjen poeng", introBefore: "Del din personlige invitasjonslenke. Når en venn registrerer seg via lenken din, får du automatisk", introAfter: "Poeng kan i fremtiden løses inn mot fordeler.", loginPrompt: "Logg inn for å se poengene dine og invitasjonslenken.", loginLink: "Logg inn", loading: "Laster...", claimSuccess: (p: number) => `✅ Du fikk ${p} poeng!`, notCompleted: (p: number, r: number) => `Oppdraget er ikke fullført ennå (${p}/${r}).`, alreadyClaimed: "Dette oppdraget er allerede innløst.", claimError: (e: string) => `Feil: ${e}`, shareTitle: "Bli med i Arctic Parts!", shareText: (u: string) => `Bruk invitasjonslenken min: ${u}`, pointsTitle: "Poengene dine", pointsSuffix: "poeng", invitedUsers: "Inviterte brukere", listingSlots: "Annonseplasser", shopBadge: "Bruk poeng", shopDesc: "I butikken kan du bruke poeng til annonseplasser og senere kjøpe poeng med ekte penger.", openShop: "Åpne butikken", refBadge: "+100 p / venn", refBefore: "Del denne personlige lenken. For hver bruker som registrerer seg via den, får du automatisk", refAfter: "på kontoen.", copied: "Kopiert!", copy: "Kopier", shareLink: "Del lenke", waText: (u: string) => `Bli med i Arctic Parts med invitasjonen min: ${u}`, emailSubject: "Bli med i Arctic Parts", emailBody: (u: string) => `Bli med i Arctic Parts med invitasjonen min: ${u}`, email: "E-post", noCode: "Invitasjonslenke opprettes automatisk — kom tilbake om litt.", questsBadge: "Tjen poeng", questsDesc: "Fullfør oppdrag og løs inn poeng. Hvert oppdrag kan bare løses inn én gang.", done: "Ferdig", ongoing: "Pågår", claimed: "Innløst", claiming: "Løser inn...", claim: "Løs inn", inviteTitle: "Dine inviterte brukere", noInvites: "Du har ikke invitert noen ennå. Del lenken din ovenfor og tjen poeng!", unknownUser: "Bruker" },
-    et:  { eyebrow: "Auhinnad", h1: "Kutsu sõpru ja teeni punkte", introBefore: "Jaga oma isiklikku kutsumislinki. Kui sõber registreerub sinu lingi kaudu, saad automaatselt", introAfter: "Punktidega saad tulevikus hüvesid lunastada.", loginPrompt: "Logi sisse, et näha oma punkte ja kutsumislinki.", loginLink: "Logi sisse", loading: "Laadimine...", claimSuccess: (p: number) => `✅ Said ${p} punkti!`, notCompleted: (p: number, r: number) => `Ülesanne pole veel lõpetatud (${p}/${r}).`, alreadyClaimed: "See ülesanne on juba lunastatud.", claimError: (e: string) => `Viga: ${e}`, shareTitle: "Liitu Arctic Partsiga!", shareText: (u: string) => `Kasuta minu kutsumislinki: ${u}`, pointsTitle: "Sinu punktid", pointsSuffix: "punkti", invitedUsers: "Kutsutud kasutajad", listingSlots: "Kuulutuse kohad", shopBadge: "Kuluta punkte", shopDesc: "Poes saad kasutada punkte kuulutuskohtade jaoks ja hiljem osta punkte päris rahaga.", openShop: "Ava pood", refBadge: "+100 p / sõber", refBefore: "Jaga seda isiklikku linki. Iga selle kaudu registreeruva kasutaja eest saad automaatselt", refAfter: "oma kontole.", copied: "Kopeeritud!", copy: "Kopeeri", shareLink: "Jaga linki", waText: (u: string) => `Liitu Arctic Partsiga minu kutsega: ${u}`, emailSubject: "Liitu Arctic Partsiga", emailBody: (u: string) => `Liitu Arctic Partsiga minu kutsega: ${u}`, email: "E-post", noCode: "Kutsumislink luuakse automaatselt — tule tagasi hetke pärast.", questsBadge: "Teeni punkte", questsDesc: "Täida ülesandeid ja lunasta punkte nupuga. Iga ülesannet saab lunastada ainult üks kord.", done: "Valmis", ongoing: "Pooleli", claimed: "Lunastatud", claiming: "Lunastamine...", claim: "Lunasta", inviteTitle: "Sinu kutsutud kasutajad", noInvites: "Sa pole veel kedagi kutsunud. Jaga linki ülal ja teeni punkte!", unknownUser: "Kasutaja" }
+    fi:  { eyebrow: "Palkinnot", h1: "Kutsu kavereita ja ansaitse pisteitä", introBefore: "Jaa henkilökohtainen kutsulinkkisi. Kun kaveri rekisteröityy linkkisi kautta, saat automaattisesti", introAfter: "Pisteillä voi tulevaisuudessa lunastaa etuja palvelussa.", loginPrompt: "Kirjaudu sisään nähdäksesi pisteesi ja kutsulinkkisi.", loginLink: "Kirjaudu", loading: "Ladataan...", claimSuccess: (p: number) => `✅ Sait ${p} pistettä!`, notCompleted: (p: number, r: number) => `Tehtävä ei ole vielä suoritettu (${p}/${r}).`, alreadyClaimed: "Tämä tehtävä on jo lunastettu.", claimError: (e: string) => `Virhe: ${e}`, shareTitle: "Liity Maskinesiin!", shareText: (u: string) => `Käytä kutsulinkkiäni: ${u}`, pointsTitle: "Pistetilisi", pointsSuffix: "pistettä", invitedUsers: "Kutsutut käyttäjät", listingSlots: "Ilmoituspaikat", shopBadge: "Pisteillä etuja", shopDesc: "Kaupassa voit käyttää pisteitä ilmoituspaikkoihin ja myöhemmin ostaa pisteitä oikealla rahalla.", openShop: "Avaa kauppa", refBadge: "+100 p / kaveri", refBefore: "Jaa tämä henkilökohtainen linkki. Jokaisesta sen kautta rekisteröityneestä saat automaattisesti", refAfter: "tilillesi.", copied: "Kopioitu!", copy: "Kopioi", shareLink: "Jaa linkki", waText: (u: string) => `Liity Maskinesiin kutsullani: ${u}`, emailSubject: "Liity Maskinesiin", emailBody: (u: string) => `Liity Maskinesiin kutsullani: ${u}`, email: "Sähköposti", noCode: "Kutsulinkki luodaan automaattisesti — palaa hetken kuluttua.", questsBadge: "Ansaitse pisteitä", questsDesc: "Suorita tehtäviä ja lunasta pisteet napilla. Jokainen tehtävä voidaan lunastaa vain kerran.", done: "Valmis", ongoing: "Kesken", claimed: "Lunastettu", claiming: "Lunastetaan...", claim: "Lunasta", inviteTitle: "Kutsumasi käyttäjät", noInvites: "Et ole vielä kutsunut ketään. Jaa linkkisi yllä ja ansaitse pisteitä!", unknownUser: "Käyttäjä" },
+    en:  { eyebrow: "Rewards", h1: "Invite friends and earn points", introBefore: "Share your personal invite link. When a friend registers through your link, you automatically receive", introAfter: "Points can be redeemed for benefits in the future.", loginPrompt: "Log in to see your points and invite link.", loginLink: "Log in", loading: "Loading...", claimSuccess: (p: number) => `✅ You earned ${p} points!`, notCompleted: (p: number, r: number) => `Quest not yet completed (${p}/${r}).`, alreadyClaimed: "This quest has already been claimed.", claimError: (e: string) => `Error: ${e}`, shareTitle: "Join Maskines!", shareText: (u: string) => `Use my invite link: ${u}`, pointsTitle: "Your points", pointsSuffix: "points", invitedUsers: "Invited users", listingSlots: "Listing slots", shopBadge: "Spend points", shopDesc: "In the shop you can use points for listing slots and later buy points with real money.", openShop: "Open shop", refBadge: "+100 p / friend", refBefore: "Share this personal link. For every user who registers through it you automatically receive", refAfter: "in your account.", copied: "Copied!", copy: "Copy", shareLink: "Share link", waText: (u: string) => `Join Maskines with my invite: ${u}`, emailSubject: "Join Maskines", emailBody: (u: string) => `Join Maskines with my invite: ${u}`, email: "Email", noCode: "Invite link will be created automatically — check back in a moment.", questsBadge: "Earn points", questsDesc: "Complete quests and claim points. Each quest can only be claimed once.", done: "Done", ongoing: "In progress", claimed: "Claimed", claiming: "Claiming...", claim: "Claim", inviteTitle: "Your referred users", noInvites: "You haven't invited anyone yet. Share your link above and earn points!", unknownUser: "User" },
+    sv:  { eyebrow: "Belöningar", h1: "Bjud in vänner och tjäna poäng", introBefore: "Dela din personliga inbjudningslänk. När en vän registrerar sig via din länk får du automatiskt", introAfter: "Poäng kan lösas in mot förmåner i framtiden.", loginPrompt: "Logga in för att se dina poäng och inbjudningslänk.", loginLink: "Logga in", loading: "Laddar...", claimSuccess: (p: number) => `✅ Du fick ${p} poäng!`, notCompleted: (p: number, r: number) => `Uppdraget är inte klart ännu (${p}/${r}).`, alreadyClaimed: "Det här uppdraget har redan lösts in.", claimError: (e: string) => `Fel: ${e}`, shareTitle: "Gå med i Maskines!", shareText: (u: string) => `Använd min inbjudningslänk: ${u}`, pointsTitle: "Dina poäng", pointsSuffix: "poäng", invitedUsers: "Inbjudna användare", listingSlots: "Annonsplatser", shopBadge: "Spendera poäng", shopDesc: "I butiken kan du använda poäng för annonsplatser och senare köpa poäng med riktiga pengar.", openShop: "Öppna butiken", refBadge: "+100 p / vän", refBefore: "Dela den här personliga länken. För varje användare som registrerar sig via den får du automatiskt", refAfter: "på ditt konto.", copied: "Kopierat!", copy: "Kopiera", shareLink: "Dela länk", waText: (u: string) => `Gå med i Maskines med min inbjudan: ${u}`, emailSubject: "Gå med i Maskines", emailBody: (u: string) => `Gå med i Maskines med min inbjudan: ${u}`, email: "E-post", noCode: "Inbjudningslänk skapas automatiskt — kom tillbaka om en stund.", questsBadge: "Tjäna poäng", questsDesc: "Slutför uppdrag och lös in poäng. Varje uppdrag kan bara lösas in en gång.", done: "Klar", ongoing: "Pågår", claimed: "Inlöst", claiming: "Löser in...", claim: "Lös in", inviteTitle: "Dina inbjudna användare", noInvites: "Du har inte bjudit in någon ännu. Dela din länk ovan och tjäna poäng!", unknownUser: "Användare" },
+    no:  { eyebrow: "Belønninger", h1: "Inviter venner og tjen poeng", introBefore: "Del din personlige invitasjonslenke. Når en venn registrerer seg via lenken din, får du automatisk", introAfter: "Poeng kan i fremtiden løses inn mot fordeler.", loginPrompt: "Logg inn for å se poengene dine og invitasjonslenken.", loginLink: "Logg inn", loading: "Laster...", claimSuccess: (p: number) => `✅ Du fikk ${p} poeng!`, notCompleted: (p: number, r: number) => `Oppdraget er ikke fullført ennå (${p}/${r}).`, alreadyClaimed: "Dette oppdraget er allerede innløst.", claimError: (e: string) => `Feil: ${e}`, shareTitle: "Bli med i Maskines!", shareText: (u: string) => `Bruk invitasjonslenken min: ${u}`, pointsTitle: "Poengene dine", pointsSuffix: "poeng", invitedUsers: "Inviterte brukere", listingSlots: "Annonseplasser", shopBadge: "Bruk poeng", shopDesc: "I butikken kan du bruke poeng til annonseplasser og senere kjøpe poeng med ekte penger.", openShop: "Åpne butikken", refBadge: "+100 p / venn", refBefore: "Del denne personlige lenken. For hver bruker som registrerer seg via den, får du automatisk", refAfter: "på kontoen.", copied: "Kopiert!", copy: "Kopier", shareLink: "Del lenke", waText: (u: string) => `Bli med i Maskines med invitasjonen min: ${u}`, emailSubject: "Bli med i Maskines", emailBody: (u: string) => `Bli med i Maskines med invitasjonen min: ${u}`, email: "E-post", noCode: "Invitasjonslenke opprettes automatisk — kom tilbake om litt.", questsBadge: "Tjen poeng", questsDesc: "Fullfør oppdrag og løs inn poeng. Hvert oppdrag kan bare løses inn én gang.", done: "Ferdig", ongoing: "Pågår", claimed: "Innløst", claiming: "Løser inn...", claim: "Løs inn", inviteTitle: "Dine inviterte brukere", noInvites: "Du har ikke invitert noen ennå. Del lenken din ovenfor og tjen poeng!", unknownUser: "Bruker" },
+    et:  { eyebrow: "Auhinnad", h1: "Kutsu sõpru ja teeni punkte", introBefore: "Jaga oma isiklikku kutsumislinki. Kui sõber registreerub sinu lingi kaudu, saad automaatselt", introAfter: "Punktidega saad tulevikus hüvesid lunastada.", loginPrompt: "Logi sisse, et näha oma punkte ja kutsumislinki.", loginLink: "Logi sisse", loading: "Laadimine...", claimSuccess: (p: number) => `✅ Said ${p} punkti!`, notCompleted: (p: number, r: number) => `Ülesanne pole veel lõpetatud (${p}/${r}).`, alreadyClaimed: "See ülesanne on juba lunastatud.", claimError: (e: string) => `Viga: ${e}`, shareTitle: "Liitu Maskinesiga!", shareText: (u: string) => `Kasuta minu kutsumislinki: ${u}`, pointsTitle: "Sinu punktid", pointsSuffix: "punkti", invitedUsers: "Kutsutud kasutajad", listingSlots: "Kuulutuse kohad", shopBadge: "Kuluta punkte", shopDesc: "Poes saad kasutada punkte kuulutuskohtade jaoks ja hiljem osta punkte päris rahaga.", openShop: "Ava pood", refBadge: "+100 p / sõber", refBefore: "Jaga seda isiklikku linki. Iga selle kaudu registreeruva kasutaja eest saad automaatselt", refAfter: "oma kontole.", copied: "Kopeeritud!", copy: "Kopeeri", shareLink: "Jaga linki", waText: (u: string) => `Liitu Maskinesiga minu kutsega: ${u}`, emailSubject: "Liitu Maskinesiga", emailBody: (u: string) => `Liitu Maskinesiga minu kutsega: ${u}`, email: "E-post", noCode: "Kutsumislink luuakse automaatselt — tule tagasi hetke pärast.", questsBadge: "Teeni punkte", questsDesc: "Täida ülesandeid ja lunasta punkte nupuga. Iga ülesannet saab lunastada ainult üks kord.", done: "Valmis", ongoing: "Pooleli", claimed: "Lunastatud", claiming: "Lunastamine...", claim: "Lunasta", inviteTitle: "Sinu kutsutud kasutajad", noInvites: "Sa pole veel kedagi kutsunud. Jaga linki ülal ja teeni punkte!", unknownUser: "Kasutaja" }
   }[locale] ?? { eyebrow: t.rewards, h1: "", introBefore: "", introAfter: "", loginPrompt: "", loginLink: t.login, loading: "...", claimSuccess: (p: number) => `+${p}`, notCompleted: (p: number, r: number) => `${p}/${r}`, alreadyClaimed: "", claimError: (e: string) => e, shareTitle: "", shareText: (u: string) => u, pointsTitle: "", pointsSuffix: "p", invitedUsers: "", listingSlots: "", shopBadge: "", shopDesc: "", openShop: "", refBadge: "", refBefore: "", refAfter: "", copied: "", copy: "", shareLink: "", waText: (u: string) => u, emailSubject: "", emailBody: (u: string) => u, email: "", noCode: "", questsBadge: "", questsDesc: "", done: "", ongoing: "", claimed: "", claiming: "", claim: "", inviteTitle: "", noInvites: "", unknownUser: "" };
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -170,7 +185,20 @@ function RewardsEnabledPage() {
   }, []);
 
   async function reloadAll(uid: string) {
-    setLoading(true);
+    const cacheKey = `rewards:${uid}`;
+    const cached = readCachedResource<RewardsCache>(cacheKey);
+    if (cached) {
+      setPoints(cached.points);
+      setReferralCode(cached.referralCode);
+      setReferrals(cached.referrals);
+      setQuestProgress(cached.questProgress);
+      setListingSlotUsed(cached.listingSlotUsed);
+      setSlotPurchases(cached.slotPurchases);
+      setDbExtraSlots(cached.dbExtraSlots);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     try {
       const [stats, progress, slotUsage, extras] = await Promise.all([
         getMyReferralStats(uid),
@@ -178,13 +206,23 @@ function RewardsEnabledPage() {
         getListingSlotUsage(uid),
         getProfileExtraSlots(uid)
       ]);
-      setPoints(stats.points);
-      setReferralCode(stats.referralCode);
-      setReferrals(stats.referrals);
-      setQuestProgress(progress);
-      setListingSlotUsed(slotUsage.data);
-      setSlotPurchases(readListingSlotPurchases(uid));
-      setDbExtraSlots(extras);
+      const next = {
+        points: stats.points,
+        referralCode: stats.referralCode,
+        referrals: stats.referrals,
+        questProgress: progress,
+        listingSlotUsed: slotUsage.data,
+        slotPurchases: readListingSlotPurchases(uid),
+        dbExtraSlots: extras
+      };
+      setPoints(next.points);
+      setReferralCode(next.referralCode);
+      setReferrals(next.referrals);
+      setQuestProgress(next.questProgress);
+      setListingSlotUsed(next.listingSlotUsed);
+      setSlotPurchases(next.slotPurchases);
+      setDbExtraSlots(next.dbExtraSlots);
+      writeCachedResource(cacheKey, next);
     } finally {
       setLoading(false);
     }
@@ -265,10 +303,10 @@ function RewardsEnabledPage() {
   return (
     <main className="auth-page">
       <header className="auth-topbar">
-        <Link className="back-link" href="/">
+        <button type="button" className="back-link" onClick={() => goBackOrFallback(router)}>
           <ArrowLeft size={18} />
           {t.back}
-        </Link>
+        </button>
         <LanguageSwitcher />
       </header>
 

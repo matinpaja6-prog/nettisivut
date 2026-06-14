@@ -10,6 +10,7 @@ create table if not exists public.profiles (
   phone text not null check (char_length(phone) between 5 and 40),
   postal_address text not null default '',
   home_address text not null default '',
+  public_address text not null default '',
   city text not null check (char_length(city) between 2 and 80),
   country text not null default 'Suomi',
   birth_date date,
@@ -108,6 +109,7 @@ create table if not exists public.listings (
   title text not null check (char_length(title) between 3 and 120),
   original_language text not null default 'fi' check (original_language in ('fi', 'en', 'sv', 'no', 'et')),
   translations jsonb not null default '{}'::jsonb,
+  listing_mode text not null default 'single' check (listing_mode in ('single', 'multiple')),
   price integer not null check (price >= 0),
   brand text not null default '',
   category text not null,
@@ -264,6 +266,8 @@ create table if not exists public.messages (
   receiver_id uuid not null references public.profiles(id) on delete cascade,
   content text not null default '',
   image text,
+  read boolean not null default false,
+  read_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -292,6 +296,61 @@ with check (
   )
 );
 
+drop policy if exists "Message receivers can mark read" on public.messages;
+create policy "Message receivers can mark read"
+on public.messages for update
+to authenticated
+using (auth.uid()::uuid = receiver_id::uuid)
+with check (
+  auth.uid()::uuid = receiver_id::uuid
+  and sender_id::uuid <> receiver_id::uuid
+);
+
+create or replace function public.enforce_message_read_receipt_update()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.id is distinct from old.id
+    or new.conversation_id is distinct from old.conversation_id
+    or new.listing_id is distinct from old.listing_id
+    or new.sender_id is distinct from old.sender_id
+    or new.receiver_id is distinct from old.receiver_id
+    or new.content is distinct from old.content
+    or new.image is distinct from old.image
+    or new.created_at is distinct from old.created_at then
+    raise exception 'only read receipt fields can be updated on messages';
+  end if;
+
+  if old.read = true and new.read = false then
+    raise exception 'message read receipt cannot be unset';
+  end if;
+
+  if old.read_at is not null and new.read_at is null then
+    raise exception 'message read timestamp cannot be unset';
+  end if;
+
+  if new.read_at is not null then
+    new.read := true;
+  end if;
+
+  if new.read = true and new.read_at is null then
+    new.read_at := now();
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists messages_read_receipt_update_guard on public.messages;
+create trigger messages_read_receipt_update_guard
+before update on public.messages
+for each row
+execute function public.enforce_message_read_receipt_update();
+
 create index if not exists messages_conversation_created_at_idx on public.messages (conversation_id, created_at);
 create index if not exists messages_sender_idx on public.messages (sender_id);
 create index if not exists messages_receiver_idx on public.messages (receiver_id);
+create index if not exists messages_receiver_unread_idx
+  on public.messages (receiver_id, conversation_id, created_at)
+  where read = false;

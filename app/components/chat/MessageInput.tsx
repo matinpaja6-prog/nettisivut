@@ -2,10 +2,13 @@
 
 import { useRef, useState } from "react";
 import {
-  ImagePlus,
+  Camera,
+  Paperclip,
   Send,
+  Smile,
   X
 } from "lucide-react";
+import { resizeMessageImageTo1080p } from "./image-processing";
 
 type Props = {
   onSend: (
@@ -19,42 +22,124 @@ export default function MessageInput({
 }: Props) {
   const [message, setMessage] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragDepthRef = useRef(0);
+  const emojis = [
+    "😀",
+    "😁",
+    "😂",
+    "🙂",
+    "👍",
+    "👌",
+    "🙏",
+    "🔥",
+    "❤️",
+    "✅",
+    "💰",
+    "📦",
+    "🚚",
+    "🔧",
+    "🏁",
+    "❄️"
+  ];
 
   function handleSubmit(
     e: React.FormEvent
   ) {
     e.preventDefault();
 
-    if (!message.trim() && !preview)
+    if ((!message.trim() && !preview) || imageLoading)
       return;
 
     onSend(message, preview || undefined);
 
     setMessage("");
     setPreview(null);
+    setEmojiOpen(false);
+  }
+
+  async function readImageFile(file: File | undefined | null) {
+    if (!file || !file.type.startsWith("image/")) return;
+
+    setImageLoading(true);
+
+    try {
+      setPreview(await resizeMessageImageTo1080p(file));
+    } finally {
+      setImageLoading(false);
+    }
   }
 
   function handleImage(
     e: React.ChangeEvent<HTMLInputElement>
   ) {
-    const file = e.target.files?.[0];
+    void readImageFile(e.target.files?.[0]);
+    e.target.value = "";
+  }
 
-    if (!file) return;
+  function handleDragEnter(
+    e: React.DragEvent<HTMLDivElement>
+  ) {
+    if (!hasImageFile(e.dataTransfer)) return;
+    e.preventDefault();
+    dragDepthRef.current += 1;
+    setIsDraggingImage(true);
+  }
 
-    const reader = new FileReader();
+  function handleDragOver(
+    e: React.DragEvent<HTMLDivElement>
+  ) {
+    if (!hasImageFile(e.dataTransfer)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    setIsDraggingImage(true);
+  }
 
-    reader.onloadend = () => {
-      setPreview(reader.result as string);
-    };
+  function handleDragLeave(
+    e: React.DragEvent<HTMLDivElement>
+  ) {
+    if (!hasImageFile(e.dataTransfer)) return;
+    e.preventDefault();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) {
+      setIsDraggingImage(false);
+    }
+  }
 
-    reader.readAsDataURL(file);
+  function handleDrop(
+    e: React.DragEvent<HTMLDivElement>
+  ) {
+    if (!hasImageFile(e.dataTransfer)) return;
+    e.preventDefault();
+    dragDepthRef.current = 0;
+    setIsDraggingImage(false);
+    void readImageFile([...e.dataTransfer.files].find((file) => file.type.startsWith("image/")));
   }
 
   return (
-    <div className="wrapper">
-      {preview && (
+    <div
+      className={`wrapper${isDraggingImage ? " isDraggingImage" : ""}`}
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {imageLoading && (
+        <div className="preview loadingPreview">
+          <div className="loadingThumb" />
+
+          <div className="previewText">
+            <strong>Kuva kasitellaan</strong>
+            <span>Muunnetaan 1080p-kokoon</span>
+          </div>
+        </div>
+      )}
+
+      {preview && !imageLoading && (
         <div className="preview">
           <img src={preview} alt="" />
 
@@ -73,17 +158,23 @@ export default function MessageInput({
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <button
-          type="button"
-          className="attach"
-          onClick={() =>
-            fileInputRef.current?.click()
-          }
-        >
-          <ImagePlus size={20} />
-        </button>
+      {emojiOpen && (
+        <div className="emojiPicker" aria-label="Emojit">
+          {emojis.map((emoji) => (
+            <button
+              key={emoji}
+              type="button"
+              onClick={() =>
+                setMessage((current) => `${current}${emoji}`)
+              }
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      )}
 
+      <form onSubmit={handleSubmit}>
         <input
           type="file"
           hidden
@@ -100,9 +191,45 @@ export default function MessageInput({
           placeholder="Kirjoita viesti..."
         />
 
+        <div className="tools">
+          <button
+            type="button"
+            className="tool"
+            aria-label="Liitä tiedosto"
+            onClick={() =>
+              fileInputRef.current?.click()
+            }
+          >
+            <Paperclip size={15} />
+          </button>
+
+          <button
+            type="button"
+            className="tool"
+            aria-label="Lisää kuva"
+            onClick={() =>
+              fileInputRef.current?.click()
+            }
+          >
+            <Camera size={15} />
+          </button>
+
+          <button
+            type="button"
+            className="tool"
+            aria-label="Emoji"
+            onClick={() =>
+              setEmojiOpen((open) => !open)
+            }
+          >
+            <Smile size={15} />
+          </button>
+        </div>
+
         <button
           type="submit"
           className="send"
+          disabled={imageLoading}
         >
           <Send size={18} />
         </button>
@@ -112,7 +239,64 @@ export default function MessageInput({
         .wrapper {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 12px;
+          position: relative;
+        }
+
+        .wrapper::after {
+          align-items: center;
+          background:
+            radial-gradient(180px 70px at 50% 0%, rgba(255, 122, 26, 0.18), transparent 72%),
+            rgba(5, 18, 32, 0.86);
+          border: 1px dashed rgba(255, 154, 60, 0.72);
+          border-radius: 10px;
+          color: #ffffff;
+          content: "Pudota kuva viestiin";
+          display: flex;
+          font-size: 12px;
+          font-weight: 900;
+          inset: 0;
+          justify-content: center;
+          opacity: 0;
+          pointer-events: none;
+          position: absolute;
+          transition: opacity 0.14s ease;
+          z-index: 3;
+        }
+
+        .wrapper.isDraggingImage::after {
+          opacity: 1;
+        }
+
+        .wrapper.isDraggingImage form {
+          border-color: rgba(255, 154, 60, 0.92);
+          box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.12);
+        }
+
+        .loadingPreview {
+          pointer-events: none;
+        }
+
+        .loadingThumb {
+          background:
+            linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.18), rgba(255,255,255,0.06)),
+            rgba(255, 255, 255, 0.06);
+          background-size: 180% 100%;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 8px;
+          height: 44px;
+          width: 56px;
+          animation: loadingImage 1.1s ease-in-out infinite;
+        }
+
+        @keyframes loadingImage {
+          from {
+            background-position: 120% 0;
+          }
+
+          to {
+            background-position: -80% 0;
+          }
         }
 
         .preview {
@@ -123,11 +307,11 @@ export default function MessageInput({
           gap: 10px;
           width: min(360px, 100%);
           padding: 8px 10px 8px 8px;
-          border: 1px solid rgba(255, 122, 26, 0.38);
+          border: 1px solid rgba(255, 154, 60, 0.36);
           border-radius: 14px;
           background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 248, 252, 0.96));
-          box-shadow: 0 10px 26px rgba(0, 8, 20, 0.12);
+            linear-gradient(180deg, rgba(18, 43, 67, 0.98), rgba(9, 26, 44, 0.98));
+          box-shadow: 0 10px 26px rgba(0, 8, 20, 0.2);
         }
 
         .preview img {
@@ -147,14 +331,14 @@ export default function MessageInput({
         }
 
         .previewText strong {
-          color: #0f172a;
+          color: #ffffff;
           font-size: 13px;
           font-weight: 900;
           line-height: 1.1;
         }
 
         .previewText span {
-          color: #64748b;
+          color: rgba(218, 234, 249, 0.72);
           font-size: 12px;
           font-weight: 700;
           overflow: hidden;
@@ -182,77 +366,121 @@ export default function MessageInput({
           transform: translateY(-1px);
         }
 
-        form {
-          display: flex;
-          align-items: center;
-          gap: 7px;
-          background: #ffffff;
-          border: 1px solid #dbe5ef;
-          border-radius: 10px;
-          padding: 6px;
-          box-shadow: none;
+        .emojiPicker {
+          align-self: flex-start;
+          display: grid;
+          grid-template-columns: repeat(8, 30px);
+          gap: 5px;
+          padding: 8px;
+          border: 1px solid rgba(80, 120, 155, 0.52);
+          border-radius: 8px;
+          background: rgba(7, 20, 34, 0.98);
+          box-shadow: 0 18px 38px rgba(0, 8, 20, 0.34);
         }
 
-        .attach {
-          width: 38px;
-          height: 38px;
-
-          border: none;
-          border-radius: 8px;
-
-          background: #f1f5f9;
-
-          display: flex;
+        .emojiPicker button {
+          width: 30px;
+          height: 30px;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-
+          border: 0;
+          border-radius: 6px;
+          background: transparent;
           cursor: pointer;
-
-          color: #475569;
-
-          transition: 0.2s;
+          font-size: 17px;
+          line-height: 1;
         }
 
-        .attach:hover {
-          background: #e2e8f0;
-          color: #0f172a;
-          transform: translateY(-1px);
+        .emojiPicker button:hover {
+          background: rgba(126, 197, 240, 0.12);
+        }
+
+        form {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 38px;
+          grid-template-rows: minmax(40px, auto) 24px;
+          align-items: end;
+          gap: 4px 10px;
+          background: linear-gradient(180deg, rgba(11, 28, 46, 0.95), rgba(7, 21, 36, 0.98));
+          border: 1px solid rgba(80, 120, 155, 0.52);
+          border-radius: 6px;
+          padding: 9px 8px 7px 12px;
+          box-shadow: none;
         }
 
         input[type="text"],
         input:not([type]) {
-          flex: 1;
+          grid-column: 1 / -1;
+          grid-row: 1;
           min-width: 0;
-          height: 38px;
-          padding: 0 12px;
+          width: 100%;
+          height: 32px;
+          padding: 0 4px;
 
-          border: 1px solid #dbe5ef;
-          border-radius: 8px;
-          background: #ffffff;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
 
-          font-size: 14px;
-          font-weight: 650;
-          color: #0f172a;
+          font-size: 12px;
+          font-weight: 700;
+          color: #f4f8fc;
 
           outline: none;
+          box-shadow: none;
         }
 
         input[type="text"]::placeholder,
         input:not([type])::placeholder {
-          color: #617586;
+          color: rgba(199, 218, 236, 0.72);
           opacity: 1;
         }
 
+        .tools {
+          grid-column: 1;
+          grid-row: 2;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          min-height: 22px;
+        }
+
+        .tool {
+          width: 20px;
+          height: 20px;
+          border: 0;
+          border-radius: 5px;
+          background: transparent;
+          color: rgba(202, 221, 238, 0.82);
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          transition: color 0.15s ease, background 0.15s ease;
+        }
+
+        .tool:hover {
+          background: rgba(126, 197, 240, 0.1);
+          color: #ffffff;
+        }
+
         .send {
-          width: 38px;
-          height: 38px;
+          grid-column: 2;
+          grid-row: 2;
+          width: 30px;
+          min-width: 30px;
+          height: 30px;
 
-          border: none;
-          border-radius: 8px;
+          border: 1px solid rgba(255, 190, 124, 0.42);
+          border-radius: 6px;
 
-          background: #ff7a1a;
+          background: linear-gradient(135deg, #247cff 0%, #1d6ee8 55%, #165bd0 100%);
 
           color: white;
+          box-shadow:
+            0 12px 26px rgba(29, 110, 232, 0.32),
+            inset 0 1px 0 rgba(255, 255, 255, 0.24);
 
           display: flex;
           align-items: center;
@@ -265,9 +493,22 @@ export default function MessageInput({
 
         .send:hover {
           transform: translateY(-1px) scale(1.03);
-          box-shadow: 0 10px 22px rgba(255, 122, 26, 0.24);
+          box-shadow: 0 18px 34px rgba(29, 110, 232, 0.34);
+        }
+
+        @media (max-width: 640px) {
+          form {
+            grid-template-columns: minmax(0, 1fr) 34px;
+            padding: 8px;
+          }
         }
       `}</style>
     </div>
+  );
+}
+
+function hasImageFile(dataTransfer: DataTransfer) {
+  return [...dataTransfer.items].some((item) =>
+    item.kind === "file" && item.type.startsWith("image/")
   );
 }

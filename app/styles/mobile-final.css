@@ -1,0 +1,1187 @@
+/* Last mobile pass: keep every page inside the phone viewport. */
+@media (max-width: 760px) {
+  html,
+  body {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
+  }
+
+  body *,
+  body *::before,
+  body *::after {
+    box-sizing: border-box !important;
+    min-width: 0;
+  }
+
+  body :where(img, picture, video, canvas, iframe) {
+    height: auto;
+    max-width: 100% !important;
+  }
+
+  body :where(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body :where(pre, code, p, h1, h2, h3, h4, h5, h6, strong, small, span) {
+    overflow-wrap: anywhere;
+  }
+
+  body :where(table) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    width: 100%;
+  }
+
+  body :where(
+    .auth-page,
+    .simple-auth-page,
+    .garage-page,
+    .messages-page,
+    .saved-page,
+    .followed-page,
+    .profile-page,
+    .pf-page,
+    .sa-page,
+    .sell-page,
+    .seller-page,
+    .listing-page,
+    .listing-detail-page,
+    .my-listings-page,
+    .shop-page,
+    .rewards-page,
+    .legal-page,
+    .privacy-page,
+    .terms-page,
+    .admin-page
+  ) {
+    max-width: 100vw !important;
+    overflow-x: clip !important;
+    width: 100% !important;
+  }
+
+  body :where(
+    .auth-card,
+    .simple-card,
+    .garage-container,
+    .messages-shell,
+    .saved-container,
+    .followed-container,
+    .profile-workspace,
+    .pf-content,
+    .sa-page,
+    .listing-detail-page .container,
+    .my-listings-workspace,
+    .sp-wrap,
+    .terms-shell,
+    .privacy-shell,
+    .legal-content,
+    .shop-workspace,
+    .rewards-card,
+    [class*="page_container__"],
+    [class*="page_listingsPlainContainer__"]
+  ) {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: min(100%, calc(100vw - 20px)) !important;
+    width: min(100%, calc(100vw - 20px)) !important;
+  }
+
+  body :where(
+    .section-heading,
+    .garage-heading,
+    .messages-hero,
+    .saved-hero,
+    .followed-hero,
+    .sa-hero,
+    .pf-topbar,
+    .shop-hero,
+    .rewards-hero,
+    .terms-hero,
+    .privacy-hero,
+    .seller-listings-head,
+    .seller-ref-hero,
+    .sp-tabs,
+    .sp-advanced-search,
+    .seller-review-filters,
+    .footer-bottom
+  ) {
+    align-items: stretch !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    max-width: 100% !important;
+  }
+
+  body :where(
+    .section-heading > *,
+    .garage-heading > *,
+    .messages-hero > *,
+    .saved-hero > *,
+    .followed-hero > *,
+    .sa-hero > *,
+    .pf-topbar > *,
+    .shop-hero > *,
+    .rewards-hero > *,
+    .terms-hero > *,
+    .privacy-hero > *,
+    .seller-ref-hero > *,
+    .sp-tabs > *,
+    .sp-advanced-search > *,
+    .seller-review-filters > *,
+    .footer-bottom > *
+  ) {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body :where(
+    .sa-layout,
+    .pf-layout,
+    .listing-detail-page .layout,
+    .garage-form-grid,
+    .garage-vehicles,
+    .garage-parts-grid,
+    .garage-class-grid,
+    .sa-form-grid,
+    .pf-fields,
+    .registration-fields,
+    .sell-grid-2,
+    .sell-grid-3,
+    .grid-2,
+    .grid-3,
+    .form-grid,
+    .vehicle-card-list,
+    .preset-grid,
+    .sell-mode-grid,
+    .sell-category-card-list,
+    .sell-subcategory-card-list,
+    .company-seller-checkbox-list,
+    .slot-plan-grid,
+    .point-package-grid,
+    .terms-summary,
+    .privacy-summary,
+    .seller-review-summary,
+    .seller-review-grid,
+    .seller-ref-detail-card,
+    .own-listings-list,
+    .earnings-summary
+  ) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body :where(.seller-ref-stats, .followed-hero-stats, .messages-stats, .rewards-hero-stats) {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body :where(.messages-stats > *, .seller-ref-stats > *, .followed-hero-stats > *, .rewards-hero-stats > *) {
+    min-width: 0 !important;
+  }
+
+  body :where(
+    .form-actions,
+    .sa-form-actions,
+    .pf-save-bar,
+    .sell-submit-bar,
+    .own-listing-actions,
+    .company-seller-actions,
+    .privacy-actions,
+    .terms-actions,
+    .followed-card-footer,
+    .recoActions
+  ) {
+    align-items: stretch !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body :where(
+    .form-actions > *,
+    .sa-form-actions > *,
+    .pf-save-bar > *,
+    .sell-submit-bar > *,
+    .own-listing-actions > *,
+    .company-seller-actions > *,
+    .privacy-actions > *,
+    .terms-actions > *,
+    .followed-card-footer > *,
+    .recoActions > *
+  ) {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  body :where(
+    .profile-alert,
+    .garage-form,
+    .garage-empty,
+    .garage-login-prompt,
+    .garage-vehicle-wrap,
+    .garage-parts-panel,
+    .sa-form-card,
+    .sa-saved-panel,
+    .sa-card,
+    .messages-empty,
+    .conversation-card,
+    .saved-empty,
+    .followed-card,
+    .followed-empty,
+    .followed-login,
+    .pf-section,
+    .pf-sidebar,
+    .profile-subsection,
+    .rewards-card,
+    .slot-plan-card,
+    .point-package-card,
+    .seller-ref-about,
+    .seller-ref-detail-card,
+    .seller-review-card,
+    .own-listing-card,
+    .terms-section,
+    .privacy-section,
+    .terms-summary-item,
+    .privacy-summary-item
+  ) {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  body :where(.conversation-card) {
+    gap: 10px !important;
+    grid-template-columns: 76px minmax(0, 1fr) !important;
+    padding: 10px !important;
+  }
+
+  body :where(.conversation-card img, .conversation-image) {
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
+    width: 76px !important;
+  }
+
+  body :where(.own-listing-card) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body :where(.own-listing-card > img) {
+    aspect-ratio: 16 / 10 !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  body :where(.listing-detail-page .main, .listing-detail-page .sidebar, .contact-card) {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body :where(.listing-detail-page .image-wrapper, .listing-detail-page .image-stage) {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  body :where(.seller-listing-grid, .saved-grid, .followed-grid, [class*="cardsGrid"]) {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body :where(.seller-listing-card, .saved-card, [class*="card__"], [class*="Card"]) {
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body :where(.sa-saved-workspace, .sa-list, .sp-tabs-left, .followed-tabs) {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    scrollbar-width: none;
+  }
+
+  body .sa-saved-workspace::-webkit-scrollbar,
+  body .sa-list::-webkit-scrollbar,
+  body .sp-tabs-left::-webkit-scrollbar,
+  body .followed-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  body :where(.auth-modal, .pf-modal, .pf-phone-modal, .delete-listing-modal, .review-gate-card, .part-image-preview-modal, .universal-profile-menu, .universal-notification-menu) {
+    max-height: calc(100dvh - 24px) !important;
+    max-width: calc(100vw - 20px) !important;
+    overflow: auto !important;
+    width: calc(100vw - 20px) !important;
+  }
+
+  body :where(.phone-field-row) {
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: minmax(96px, 0.42fr) minmax(0, 1fr) !important;
+  }
+
+  body :where(.date-field-control) {
+    display: grid !important;
+    gap: 6px !important;
+    grid-template-columns: 36px minmax(52px, 0.8fr) minmax(0, 1fr) minmax(58px, 0.8fr) !important;
+  }
+
+  body :where(.garage-dropdown, .garageDropdown, .sp-sort-menu, .language-switcher-menu) {
+    max-width: calc(100vw - 20px) !important;
+  }
+}
+
+/* Seller profile mobile polish: keep the dense public profile readable on phones. */
+@media (max-width: 760px) {
+  html body .seller-page {
+    padding-top: 12px !important;
+  }
+
+  html body .seller-page .sp-wrap {
+    gap: 12px !important;
+  }
+
+  html body .seller-page .seller-ref-hero {
+    border-radius: 14px !important;
+    gap: 14px !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    padding: 14px !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-identity {
+    align-items: start !important;
+    column-gap: 12px !important;
+    display: grid !important;
+    grid-template-columns: 64px minmax(0, 1fr) !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-avatar {
+    border-radius: 14px !important;
+    height: 64px !important;
+    transform: none !important;
+    width: 64px !important;
+  }
+
+  html body .seller-page .seller-ref-copy {
+    display: grid !important;
+    gap: 0 !important;
+    min-width: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  html body .seller-page .seller-ref-copy h1 {
+    align-items: center !important;
+    display: flex !important;
+    font-size: clamp(20px, 7vw, 28px) !important;
+    gap: 8px !important;
+    line-height: 1.1 !important;
+    margin: 0 0 8px !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    word-break: normal !important;
+  }
+
+  html body .seller-page .seller-ref-copy h1 span {
+    align-items: center !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    flex: 0 0 28px !important;
+    font-size: 16px !important;
+    height: 28px !important;
+    justify-content: center !important;
+    width: 28px !important;
+  }
+
+  html body .seller-page .seller-ref-copy p {
+    display: flex !important;
+    font-size: 12px !important;
+    gap: 7px !important;
+    line-height: 1.35 !important;
+    margin: 0 0 8px !important;
+    max-width: 100% !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  html body .seller-page .seller-ref-copy p svg {
+    flex: 0 0 auto !important;
+    margin-top: 1px !important;
+  }
+
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row {
+    display: flex !important;
+    gap: 7px !important;
+    margin-top: 12px !important;
+  }
+
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-phone-pill {
+    flex: 0 1 auto !important;
+    font-size: 11px !important;
+    min-height: 28px !important;
+    padding: 0 10px !important;
+    white-space: nowrap !important;
+  }
+
+  html body .seller-page .seller-ref-follow-row {
+    align-items: stretch !important;
+    display: flex !important;
+    grid-column: 1 / -1 !important;
+    margin-top: 12px !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-follow-button {
+    justify-content: center !important;
+    min-height: 42px !important;
+    overflow-wrap: normal !important;
+    white-space: normal !important;
+    width: 100% !important;
+    word-break: normal !important;
+  }
+
+  html body .seller-page .seller-ref-about-highlight {
+    border-radius: 10px !important;
+    margin-top: 2px !important;
+    min-height: 132px !important;
+    padding: 16px !important;
+  }
+
+  html body .seller-page .seller-ref-about-highlight h2 {
+    font-size: 18px !important;
+    margin-bottom: 10px !important;
+  }
+
+  html body .seller-page .seller-ref-about-highlight p {
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  html body .seller-page .seller-ref-stats {
+    border-radius: 10px !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    margin-top: 2px !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-stat,
+  html body .seller-page .seller-ref-stat.is-rating {
+    border-bottom: 1px solid rgba(141, 164, 188, 0.14) !important;
+    border-right: 1px solid rgba(141, 164, 188, 0.14) !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 6px !important;
+    flex: none !important;
+    justify-self: stretch !important;
+    min-height: 112px !important;
+    max-width: none !important;
+    padding: 14px 8px !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-stat:nth-child(2n) {
+    border-right: 0 !important;
+  }
+
+  html body .seller-page .seller-ref-stat:nth-last-child(-n + 2) {
+    border-bottom: 0 !important;
+  }
+
+  html body .seller-page .seller-ref-stat svg {
+    height: 22px !important;
+    width: 22px !important;
+  }
+
+  html body .seller-page .seller-ref-stat strong {
+    font-size: 24px !important;
+  }
+
+  html body .seller-page .seller-ref-stat span {
+    font-size: 12px !important;
+    line-height: 1.18 !important;
+    max-width: 92px !important;
+    overflow-wrap: normal !important;
+    text-align: center !important;
+    white-space: normal !important;
+    word-break: normal !important;
+  }
+
+  html body .seller-page .seller-ref-stat.is-rating div {
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+  }
+
+  html body .seller-page .seller-ref-stat.is-rating div svg {
+    height: 12px !important;
+    width: 12px !important;
+  }
+
+  html body .seller-page .sp-tabs {
+    border-radius: 12px 12px 0 0 !important;
+    min-height: 56px !important;
+    padding: 8px 8px 0 !important;
+  }
+
+  html body .seller-page .sp-tabs-left {
+    display: grid !important;
+    gap: 0 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-tab,
+  html body .seller-page .sp-tab:not(.active),
+  html body .seller-page .sp-tab.active {
+    font-size: 12px !important;
+    gap: 7px !important;
+    min-height: 48px !important;
+    padding: 0 8px !important;
+  }
+
+  html body .seller-page .sp-tab svg {
+    height: 16px !important;
+    width: 16px !important;
+  }
+
+  html body .seller-page .seller-review-dashboard,
+  html body .seller-page .sp-wrap:has(.seller-review-dashboard) .seller-review-dashboard {
+    gap: 12px !important;
+    margin-top: 0 !important;
+    padding: 12px !important;
+  }
+
+  html body .seller-page .seller-review-summary {
+    border-radius: 10px !important;
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-height: 0 !important;
+    padding: 14px !important;
+  }
+
+  html body .seller-page .seller-review-score-card {
+    border-bottom: 1px solid rgba(106, 134, 163, 0.2) !important;
+    border-right: 0 !important;
+    gap: 12px !important;
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+    min-height: 0 !important;
+    padding: 0 0 12px !important;
+  }
+
+  html body .seller-page .seller-review-score-card > svg {
+    height: 46px !important;
+    width: 46px !important;
+  }
+
+  html body .seller-page .seller-review-score-card strong {
+    font-size: 32px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  html body .seller-page .seller-review-score-card strong span {
+    font-size: 16px !important;
+  }
+
+  html body .seller-page .seller-review-score-card p,
+  html body .seller-page .seller-review-score-card small,
+  html body .seller-page .seller-review-verify-card p,
+  html body .seller-page .seller-review-verify-card strong {
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  html body .seller-page .seller-review-bars {
+    gap: 7px !important;
+  }
+
+  html body .seller-page .seller-review-bar-row {
+    gap: 8px !important;
+    grid-template-columns: 82px minmax(0, 1fr) 18px !important;
+  }
+
+  html body .seller-page .seller-review-stars {
+    justify-content: flex-start !important;
+    white-space: nowrap !important;
+  }
+
+  html body .seller-page .seller-review-verify-card {
+    gap: 12px !important;
+    grid-template-columns: 46px minmax(0, 1fr) !important;
+    min-height: 0 !important;
+    padding: 12px !important;
+  }
+
+  html body .seller-page .seller-review-shield {
+    height: 42px !important;
+    width: 42px !important;
+  }
+
+  html body .seller-page .seller-review-filters {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body .seller-page .seller-review-star-filters {
+    display: grid !important;
+    gap: 7px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  html body .seller-page .seller-review-filter-select,
+  html body .seller-page .seller-review-sort,
+  html body .seller-page .seller-review-star-button {
+    height: 38px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-review-star-button {
+    justify-content: center !important;
+    padding: 0 8px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  html body .seller-page .seller-ref-hero {
+    padding: 12px !important;
+  }
+
+  html body .seller-page .seller-ref-identity {
+    grid-template-columns: 58px minmax(0, 1fr) !important;
+  }
+
+  html body .seller-page .seller-ref-avatar {
+    height: 58px !important;
+    width: 58px !important;
+  }
+
+  html body .seller-page .seller-ref-stat span {
+    font-size: 11px !important;
+    max-width: 82px !important;
+  }
+}
+
+/* Final chat receipt position/color override. */
+html body .chat-window .own .message-meta {
+  align-items: center !important;
+  display: inline-flex !important;
+  gap: 6px !important;
+  justify-content: flex-end !important;
+}
+
+html body .chat-window .own .message-meta .read-state {
+  color: rgba(255, 246, 232, 0.96) !important;
+  display: inline-flex !important;
+  flex: 0 0 18px !important;
+  height: 14px !important;
+  margin-left: 5px !important;
+  position: relative !important;
+  transform: translateX(5px) translateY(-1px) !important;
+  width: 18px !important;
+}
+
+html body .chat-window .own .message-meta .read-state .read-check-icon {
+  display: block !important;
+  height: 13px !important;
+  overflow: visible !important;
+  width: 17px !important;
+}
+
+html body .chat-window .own .message-meta .read-state .read-check-icon path {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  stroke-width: 2.05 !important;
+}
+
+html body .chat-window .own .message-meta .read-state.is-read {
+  color: #16c7ff !important;
+}
+
+html body .chat-window .own .message-meta .read-state .read-tick {
+  border-bottom: 2px solid currentColor !important;
+  border-right: 2px solid currentColor !important;
+  display: block !important;
+  height: 9px !important;
+  position: absolute !important;
+  top: 0 !important;
+  transform: rotate(43deg) !important;
+  transform-origin: center !important;
+  width: 5px !important;
+}
+
+html body .chat-window .own .message-meta .read-state .read-tick:first-child {
+  left: 2px !important;
+}
+
+html body .chat-window .own .message-meta .read-state .read-tick:last-child {
+  left: 8px !important;
+}
+
+/* Sell category selector must show the real selector PNG, not a zoomed crop. */
+html body .sell-container.sell-current-category #sell-step-category .visual-part-scene,
+html body .sell-container.sell-current-category #sell-step-category .parts-vehicle-stage {
+  background: #06111e !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category .visual-part-model {
+  transform: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category .visual-part-model::before,
+html body .sell-container.sell-current-category #sell-step-category .parts-vehicle-stage::before,
+html body .sell-container.sell-current-category #sell-step-category .parts-vehicle-stage::after,
+html body .sell-container.sell-current-category #sell-step-category .parts-hero-panel::after {
+  display: none !important;
+}
+
+html body .sell-container.sell-current-category #sell-step-category .visual-part-model > img,
+html body .sell-container.sell-current-category #sell-step-category .parts-vehicle-stage > img,
+html body .sell-container.sell-current-category #sell-step-category.is-multi-category-step:not(.has-selected-parts) .parts-vehicle-stage > img {
+  display: block !important;
+  height: 100% !important;
+  inset: 0 !important;
+  left: 0 !important;
+  max-height: none !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  position: absolute !important;
+  top: 0 !important;
+  transform: none !important;
+  width: 100% !important;
+  z-index: 2 !important;
+}
+
+@media (max-width: 420px) {
+  body :where(.seller-listing-grid, .saved-grid, .followed-grid, [class*="cardsGrid"]) {
+    gap: 8px !important;
+  }
+
+  body :where(.conversation-card) {
+    grid-template-columns: 64px minmax(0, 1fr) !important;
+  }
+
+  body :where(.conversation-card img, .conversation-image) {
+    width: 64px !important;
+  }
+
+  body :where(.date-field-control) {
+    grid-template-columns: 34px minmax(48px, 0.75fr) minmax(0, 1fr) minmax(54px, 0.75fr) !important;
+  }
+}
+
+/* Phone viewport fixes for the most visible entry points. */
+@media (max-width: 760px) {
+  body [class*="page_heroHeadline__"] {
+    font-size: clamp(25px, 7.3vw, 30px) !important;
+    line-height: 1.08 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: min(310px, calc(100vw - 44px)) !important;
+    text-align: center !important;
+    width: min(310px, calc(100vw - 44px)) !important;
+  }
+
+  body [class*="page_heroHeadline__"] span {
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    word-break: normal !important;
+  }
+
+  body [class*="page_heroSearch__"] {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: calc(100vw - 32px) !important;
+    width: calc(100vw - 32px) !important;
+  }
+
+  body [class*="page_shell__"],
+  body [class*="page_mainGrid__"] {
+    max-width: 100vw !important;
+    overflow-x: clip !important;
+    width: 100% !important;
+  }
+
+  body [class*="page_mainGrid__"],
+  body [class*="page_listingsPlainSection__"] {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    transform: none !important;
+  }
+
+  body [class*="page_listingsPlainSection__"],
+  body [class*="page_listingsPlainContainer__"],
+  body [class*="page_sectionHead__"],
+  body [class*="page_listingToolbar__"] {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body [class*="page_sectionHead__"] {
+    align-items: stretch !important;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    overflow: hidden !important;
+  }
+
+  body [class*="page_listingToolbar__"] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-items: stretch !important;
+  }
+
+  body [class*="page_listingToolbar__"] > *,
+  body [class*="page_sort"] {
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  body [class*="page_sectionSortControl__"],
+  body [class*="page_sortControlRebuilt__"] {
+    justify-self: stretch !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body [class*="page_sectionSortControl__"] select,
+  body [class*="page_sortControlRebuilt__"] select,
+  body [class*="page_sortSelectFace__"] {
+    inset: auto !important;
+    left: 0 !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    right: auto !important;
+    width: 100% !important;
+  }
+
+  body .simple-auth-page .auth-centered,
+  body .auth-page .auth-centered {
+    align-items: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+  }
+
+  body .simple-auth-page .auth-card,
+  body .simple-auth-page .simple-card,
+  body .auth-page .auth-card,
+  body .auth-page .simple-card {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: calc(100vw - 48px) !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    transform: none !important;
+    width: calc(100vw - 48px) !important;
+  }
+
+  body .simple-auth-page .auth-forgot-inline {
+    display: flex !important;
+    font-size: 12px !important;
+    justify-content: flex-end !important;
+    max-width: 100% !important;
+    text-align: right !important;
+    white-space: normal !important;
+    width: 100% !important;
+  }
+
+  body .sell-container {
+    max-width: 100vw !important;
+    overflow-x: clip !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    width: 100% !important;
+  }
+
+  body .sell-container :where(
+    .sell-main-panel,
+    .sell-stepper-clean,
+    .sell-form,
+    .sell-section,
+    .sell-sidebar,
+    .section-heading,
+    .sell-mode-panel,
+    .multi-products-box,
+    .part-card,
+    .panel
+  ) {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  body .sell-container .sell-main-panel,
+  body .sell-container .sell-stepper-clean {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  body .sell-container .sell-sidebar {
+    display: none !important;
+  }
+
+  body .sell-container .sell-listing-type-toggle {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  body .sell-container .sell-listing-type-toggle button {
+    display: grid !important;
+    gap: 4px !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 12px !important;
+    white-space: normal !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container .sell-listing-type-toggle,
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-listing-type-toggle,
+  html body .sell-container.sell-current-type .sell-listing-type-toggle {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container .sell-listing-type-toggle button,
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-listing-type-toggle button,
+  html body .sell-container.sell-current-type .sell-listing-type-toggle button {
+    align-items: center !important;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-items: stretch !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 14px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container .sell-listing-type-toggle .mode-card-check,
+  html body .sell-container .sell-listing-type-toggle .mode-card-icon {
+    display: none !important;
+  }
+
+  html body .sell-container .sell-listing-type-toggle .mode-card-copy {
+    grid-column: 1 / -1 !important;
+    justify-self: stretch !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container .sell-listing-type-toggle .mode-card-copy {
+    display: grid !important;
+    gap: 3px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-items: start !important;
+  }
+
+  html body .sell-container .sell-listing-type-toggle strong,
+  html body .sell-container .sell-listing-type-toggle small {
+    left: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+    position: static !important;
+    right: auto !important;
+    text-align: left !important;
+    transform: none !important;
+    white-space: normal !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-listing-type-toggle .mode-card-check,
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-listing-type-toggle .mode-card-icon,
+  html body .sell-container.sell-current-type .sell-listing-type-toggle .mode-card-check,
+  html body .sell-container.sell-current-type .sell-listing-type-toggle .mode-card-icon {
+    display: none !important;
+  }
+
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-listing-type-toggle .mode-card-copy,
+  html body .sell-container.sell-current-type .sell-listing-type-toggle .mode-card-copy {
+    display: grid !important;
+    gap: 3px !important;
+    grid-column: 1 / -1 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-items: start !important;
+    justify-self: stretch !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-listing-type-toggle strong,
+  html body .sell-container.sell-current-mode #sell-step-mode .sell-listing-type-toggle small,
+  html body .sell-container.sell-current-type .sell-listing-type-toggle strong,
+  html body .sell-container.sell-current-type .sell-listing-type-toggle small {
+    left: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+    position: static !important;
+    right: auto !important;
+    text-align: left !important;
+    transform: none !important;
+    white-space: normal !important;
+    width: 100% !important;
+  }
+
+  body .messages-shell {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: calc(100vw - 20px) !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: calc(100vw - 20px) !important;
+  }
+
+  body .messages-page :where(.messages-tabs, .conversation-tabs, .messages-filter-tabs) {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    scrollbar-width: none;
+  }
+
+  body .messages-page .messages-tabs::-webkit-scrollbar,
+  body .messages-page .conversation-tabs::-webkit-scrollbar,
+  body .messages-page .messages-filter-tabs::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Final seller mobile override: loaded after the generic viewport rescue rules. */
+@media (max-width: 760px) {
+  html body .seller-page .sp-wrap {
+    max-width: calc(100vw - 24px) !important;
+    width: calc(100vw - 24px) !important;
+  }
+
+  html body .seller-page .seller-ref-hero {
+    max-width: 100% !important;
+    overflow: hidden !important;
+    padding: 14px !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-identity {
+    display: grid !important;
+    grid-template-columns: 64px minmax(0, 1fr) !important;
+  }
+
+  html body .seller-page .seller-ref-follow-row {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-follow-button {
+    max-width: 250px !important;
+    white-space: normal !important;
+    width: min(100%, 250px) !important;
+  }
+
+  html body .seller-page .seller-ref-stats {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-stat,
+  html body .seller-page .seller-ref-stat.is-rating {
+    align-content: center !important;
+    align-items: center !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-content: center !important;
+    justify-items: center !important;
+    justify-self: stretch !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+
+  html body .seller-page .seller-ref-stat > * {
+    justify-self: center !important;
+  }
+
+  html body .seller-page .seller-ref-stat span {
+    max-width: 96px !important;
+    overflow-wrap: normal !important;
+    text-align: center !important;
+    white-space: normal !important;
+    word-break: normal !important;
+  }
+
+  html body .seller-page .seller-review-score-card p,
+  html body .seller-page .seller-review-score-card small,
+  html body .seller-page .seller-review-verify-card p,
+  html body .seller-page .seller-review-verify-card strong {
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+}
+
+@media (max-width: 420px) {
+  html body .seller-page .seller-ref-stats {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body .seller-page .seller-ref-stat,
+  html body .seller-page .seller-ref-stat.is-rating {
+    border-right: 0 !important;
+    min-height: 92px !important;
+  }
+
+  html body .seller-page .seller-ref-stat:not(:last-child) {
+    border-bottom: 1px solid rgba(141, 164, 188, 0.14) !important;
+  }
+
+  html body .seller-page .seller-ref-stat span {
+    max-width: 190px !important;
+  }
+}

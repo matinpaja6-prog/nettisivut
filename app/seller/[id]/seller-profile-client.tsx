@@ -2,24 +2,49 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Building2, CalendarDays, CheckCircle2, ChevronDown, ExternalLink, Globe2, Heart, MapPin, Shield, Star } from "lucide-react";
-import { formatPrice, type Listing } from "@/lib/listings";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, Menu, MessageCircle, Phone, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, ThumbsUp, TrendingDown, TrendingUp, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
+import { formatPrice, normalizeVehicleType, type Listing } from "@/lib/listings";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
+import { getCountryFlagFromLocation } from "@/lib/country-flags";
+import { calculateSellerLevel } from "@/lib/seller-level";
+import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
+import { readCachedListings } from "@/lib/client-listings-cache";
+import { buildVehicleCategoriesFromTaxonomy, categoriesAsRecord, vehicleBrandsRecord } from "@/lib/taxonomy";
+import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 import {
-  getListingsBySeller,
+  getPublicListingsBySeller,
+  getSavedListingIds,
+  getProfileFollowStats,
+  getSellerReviewLikeSummary,
   getPublicProfile,
+  getPublicSellerLevelStats,
   getReviewsBySeller,
-  getCompanySellers,
   ensureListingTranslations,
-  type CompanySeller,
+  followProfile,
+  likeSellerReview,
+  saveListing,
+  supabase,
+  unlikeSellerReview,
+  unsaveListing,
+  unfollowProfile,
+  type ProfileFollowStats,
+  type SellerLevelStats,
   type SellerReview,
   type UserProfile
 } from "@/lib/supabase";
 
+const CategoryDrawer = dynamic(() => import("@/app/components/CategoryDrawer"), {
+  ssr: false,
+  loading: () => null
+});
+
 type PublicProfile = Pick<
   UserProfile,
   | "id"
+  | "public_id"
   | "account_type"
   | "first_name"
   | "last_name"
@@ -28,6 +53,8 @@ type PublicProfile = Pick<
   | "business_id"
   | "company_role"
   | "company_website"
+  | "public_address"
+  | "phone"
   | "city"
   | "country"
   | "bio"
@@ -45,8 +72,8 @@ function formatAccountAge(value: string | undefined, locale: string) {
     : locale === "sv" ? "sv-SE"
     : locale === "no" ? "nb-NO"
     : locale === "et" ? "et-EE"
-    : "en-GB",
-    { day: "numeric", month: "numeric", year: "numeric" }
+    : "en-US",
+    { day: "numeric", month: "long", year: "numeric" }
   );
 }
 
@@ -78,11 +105,203 @@ function formatListingDate(value: string | undefined, locale: string) {
     : locale === "sv" ? "sv-SE"
     : locale === "no" ? "nb-NO"
     : locale === "et" ? "et-EE"
-    : "en-GB"
+    : "en-US",
+    { day: "numeric", month: "numeric", year: "numeric" }
   );
 }
 
-type TabKey = "listings" | "reviews";
+function formatListingLocation(location: string | undefined, fallbackCountry: string) {
+  const cityOrLocation = location?.trim() ?? "";
+  const country = fallbackCountry.trim();
+
+  if (!cityOrLocation) return country;
+  if (!country || getCountryFlagFromLocation(cityOrLocation)) return cityOrLocation;
+  return `${cityOrLocation}, ${country}`;
+}
+
+function listingFallbackImageSrc(listing: Listing, index = 0) {
+  const haystack = [
+    listing.title,
+    listing.description,
+    listing.category,
+    listing.subcategory,
+    listing.vehicle_type,
+    listing.brand,
+    listing.model
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  if (haystack.includes("iskun") || haystack.includes("shock") || haystack.includes("jous")) {
+    return "/category-sub/iskunvaimentimet.png";
+  }
+  if (haystack.includes("telasto") || haystack.includes("tela") || haystack.includes("track")) {
+    return "/category-sub/telasto.png";
+  }
+  if (haystack.includes("moottorikelkka") || haystack.includes("ski-doo") || haystack.includes("lynx")) {
+    return "/vehicles/moottorikelkka.png";
+  }
+  if (haystack.includes("voimansiirto") || haystack.includes("kytkin") || haystack.includes("ketju")) {
+    return "/category-main/moottori-voimansiirto.png";
+  }
+  if (haystack.includes("moottori") || haystack.includes("mäntä") || haystack.includes("männ") || haystack.includes("engine")) {
+    return "/category-sub/moottorit.png";
+  }
+
+  const fallbacks = [
+    "/category-sub/moottorit.png",
+    "/vehicles/moottorikelkka.png",
+    "/category-main/moottori-voimansiirto.png",
+    "/category-sub/iskunvaimentimet.png",
+    "/category-sub/telasto.png"
+  ];
+  return fallbacks[index % fallbacks.length];
+}
+
+function listingImageSrc(listing: Listing, index = 0) {
+  return listing.image_url || listing.image_urls?.find(Boolean) || listingFallbackImageSrc(listing, index);
+}
+
+function readSavedListingIds() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("savedListings") || "[]");
+    return Array.isArray(saved)
+      ? saved.filter((id) => typeof id === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function normalizeSellerFilterText(value?: string | null) {
+  return (value ?? "")
+    .toString()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[’'`´.]/g, "")
+    .replace(/[^a-z0-9åäö]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function sellerTextMatches(haystack: string, needle: string) {
+  const normalizedNeedle = normalizeSellerFilterText(needle);
+  if (!normalizedNeedle) return true;
+
+  const normalizedHaystack = normalizeSellerFilterText(haystack);
+
+  return (
+    normalizedHaystack.includes(normalizedNeedle) ||
+    normalizedHaystack.replace(/\s+/g, "").includes(normalizedNeedle.replace(/\s+/g, ""))
+  );
+}
+
+function normalizeCategoryFilter(value?: string | null) {
+  const normalized = (value ?? "").trim().toLowerCase();
+  if (normalized === "moottori") return "moottori & voimansiirto";
+  if (normalized === "sähkö") return "sähköjärjestelmät";
+  if (normalized === "pakoputki") return "pakoputkisto";
+  if (normalized === "alusta" || normalized === "jousitus") return "alusta & telasto";
+  if (normalized === "runko") return "runko & katteet";
+  return normalized;
+}
+
+function normalizeSubcategoryFilter(value?: string | null) {
+  return (value ?? "")
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .at(-1)
+    ?.toLowerCase() ?? "";
+}
+
+function categoryLeaf(value: string) {
+  return value.split("/").map((part) => part.trim()).filter(Boolean).at(-1) ?? value;
+}
+
+function formatReviewAge(value: string | undefined, locale: Locale) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const dayMs = 24 * 60 * 60 * 1000;
+  const diffDays = Math.max(0, Math.floor((Date.now() - date.getTime()) / dayMs));
+
+  if (locale === "fi") {
+    if (diffDays === 0) return "Tänään";
+    if (diffDays === 1) return "1 päivä sitten";
+    if (diffDays < 7) return `${diffDays} päivää sitten`;
+    const weeks = Math.floor(diffDays / 7);
+    if (weeks === 1) return "1 viikko sitten";
+    if (weeks < 5) return `${weeks} viikkoa sitten`;
+  }
+
+  return formatAccountAge(value, locale);
+}
+
+function getReviewInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const initials = parts.map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+  return initials || "AR";
+}
+
+function getSellerInitials(name: string, locale: Locale) {
+  const initials = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2);
+
+  return initials.toLocaleUpperCase(locale === "fi" ? "fi-FI" : undefined) || "?";
+}
+
+type TabKey = "listings" | "reviews" | "about";
+type ListingSort = "relevance" | "newest" | "oldest" | "priceAsc" | "priceDesc" | "nearest";
+type ReviewSort = "newest" | "oldest" | "highest" | "lowest";
+
+type SellerProfileCache = {
+  profile: PublicProfile | null;
+  listings: Listing[];
+  reviews: SellerReview[];
+  levelStats?: SellerLevelStats;
+};
+
+const SELLER_LISTINGS_PAGE_SIZE = 40;
+
+const emptySellerLevelStats: SellerLevelStats = {
+  listings_created: 0,
+  single_listings_created: 0,
+  multi_listings_created: 0,
+  sold_count: 0,
+  reviews_given: 0,
+  reviews_received: 0,
+  phone_verified: false
+};
+
+function writeSellerProfileCachePatch(
+  sellerId: string,
+  patch: Partial<SellerProfileCache>
+) {
+  const cacheKey = `seller-profile:${sellerId}`;
+  const cached = readCachedResource<SellerProfileCache>(cacheKey);
+
+  writeCachedResource(cacheKey, {
+    profile: patch.profile ?? cached?.profile ?? null,
+    listings: patch.listings ?? cached?.listings ?? [],
+    reviews: patch.reviews ?? cached?.reviews ?? [],
+    levelStats: patch.levelStats ?? cached?.levelStats
+  });
+}
+
+function SellerTabLoading({ label }: { label: string }) {
+  return (
+    <div className="seller-tab-loading" role="status" aria-live="polite">
+      <span className="seller-tab-spinner" aria-hidden="true" />
+      <span>{label}</span>
+    </div>
+  );
+}
 
 const vehicleTypeTranslations: Record<Locale, Record<string, string>> = {
   fi: {},
@@ -93,14 +312,60 @@ const vehicleTypeTranslations: Record<Locale, Record<string, string>> = {
 };
 
 export default function SellerProfileClient({ sellerId }: { sellerId: string }) {
+  const router = useRouter();
   const { t, locale } = useLanguage();
+  const taxonomy = useTaxonomy();
+  const partsCategories = useMemo(() => categoriesAsRecord(taxonomy), [taxonomy]);
+  const vehicleBrands = useMemo(() => vehicleBrandsRecord(taxonomy), [taxonomy]);
+  const vehicleCategories = useMemo(() => {
+    const out: Record<string, Record<string, string[]>> = {};
+    for (const vehicle of taxonomy.vehicles) {
+      out[vehicle.key] = buildVehicleCategoriesFromTaxonomy(taxonomy, vehicle.key);
+    }
+    return out;
+  }, [taxonomy]);
   const [profile, setProfile] = useState<PublicProfile | null>(null);
-  const [listings, setListings] = useState<Listing[]>([]);
+  const [listings, setListings] = useState<Listing[]>(() =>
+    readCachedListings().filter((listing) => listing.seller_id === sellerId)
+  );
   const [reviews, setReviews] = useState<SellerReview[]>([]);
-  const [, setCompanySellers] = useState<CompanySeller[]>([]);
+  const [levelStats, setLevelStats] = useState<SellerLevelStats>(emptySellerLevelStats);
   const [activeTab, setActiveTab] = useState<TabKey>("listings");
-  type SortKey = "newest" | "oldest" | "price_asc" | "price_desc";
-  const [sort, setSort] = useState<SortKey>("newest");
+  const [listingsLoaded, setListingsLoaded] = useState(false);
+  const [reviewsLoaded, setReviewsLoaded] = useState(false);
+  const [listingsLoading, setListingsLoading] = useState(false);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [showListingsLoader, setShowListingsLoader] = useState(false);
+  const [showReviewsLoader, setShowReviewsLoader] = useState(false);
+  const [sellerListingPage, setSellerListingPage] = useState(1);
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [listingSort, setListingSort] = useState<ListingSort>("relevance");
+  const [sortOpen, setSortOpen] = useState(false);
+  const [reviewRatingFilter, setReviewRatingFilter] = useState(0);
+  const [reviewSort, setReviewSort] = useState<ReviewSort>("newest");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerOpenStep, setDrawerOpenStep] = useState<number | undefined>(undefined);
+  const [vehicleTypeFilter, setVehicleTypeFilter] = useState("");
+  const [brandFilter, setBrandFilter] = useState("");
+  const [modelFilter, setModelFilter] = useState("");
+  const [yearFilter, setYearFilter] = useState("");
+  const [engineCcFilter, setEngineCcFilter] = useState("");
+  const [engineModelFilter, setEngineModelFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [subcategoryFilter, setSubcategoryFilter] = useState("");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [followStats, setFollowStats] = useState<ProfileFollowStats>({
+    follower_count: 0,
+    following_count: 0,
+    is_following: false
+  });
+  const [followSaving, setFollowSaving] = useState(false);
+  const [followError, setFollowError] = useState("");
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [reviewLikeSaving, setReviewLikeSaving] = useState<Record<string, boolean>>({});
+  const resolvedSellerId = profile?.id ?? sellerId;
+  const listingsSellerId = resolvedSellerId;
 
   function getListingTitle(listing: Listing): string {
     const localized = getLocalizedListingText(listing, locale);
@@ -121,13 +386,106 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     return (translatedVehicle ? `${translatedLeaf} - ${translatedVehicle}` : translatedLeaf).trim();
   }
 
-  const sortedListings = useMemo(() => {
-    const copy = [...listings];
-    if (sort === "price_asc")  return copy.sort((a, b) => Number(a.price) - Number(b.price));
-    if (sort === "price_desc") return copy.sort((a, b) => Number(b.price) - Number(a.price));
-    if (sort === "oldest")     return copy.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-    return copy.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  }, [listings, sort]);
+  const filteredListings = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    const copy = listings.filter((listing) => {
+      const localized = getLocalizedListingText(listing, locale);
+      const haystack = [
+        localized.title,
+        localized.description,
+        listing.title,
+        listing.description,
+        listing.brand,
+        listing.model,
+        listing.vehicle_type,
+        listing.category,
+        listing.subcategory,
+        listing.part_number,
+        listing.location
+      ].filter(Boolean).join(" ").toLowerCase();
+
+      if (query && !haystack.includes(query)) return false;
+      if (vehicleTypeFilter) {
+        const selectedVehicle = normalizeVehicleType(vehicleTypeFilter);
+        const listingVehicle = normalizeVehicleType(listing.vehicle_type ?? "");
+        if (listingVehicle) {
+          if (listingVehicle !== selectedVehicle) return false;
+        } else if (!sellerTextMatches(haystack, selectedVehicle)) {
+          return false;
+        }
+      }
+      if (brandFilter && !sellerTextMatches([listing.brand, listing.model, haystack].filter(Boolean).join(" "), brandFilter)) return false;
+      if (modelFilter && !sellerTextMatches([listing.model, haystack].filter(Boolean).join(" "), modelFilter)) return false;
+      if (yearFilter && !sellerTextMatches([listing.year, haystack].filter(Boolean).join(" "), yearFilter)) return false;
+      if (engineCcFilter && !sellerTextMatches([listing.engine_cc, haystack].filter(Boolean).join(" "), engineCcFilter)) return false;
+      if (engineModelFilter && !sellerTextMatches([listing.engine_model, haystack].filter(Boolean).join(" "), engineModelFilter)) return false;
+      if (categoryFilter && normalizeCategoryFilter(listing.category) !== normalizeCategoryFilter(categoryFilter)) return false;
+      if (subcategoryFilter) {
+        const selectedSub = normalizeSubcategoryFilter(subcategoryFilter);
+        const listingSub = normalizeSubcategoryFilter(listing.subcategory);
+        if (listingSub !== selectedSub && !sellerTextMatches(haystack, categoryLeaf(subcategoryFilter))) return false;
+      }
+      return true;
+    });
+
+    return copy.sort((a, b) => {
+      if (listingSort === "oldest") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      if (listingSort === "priceAsc") return Number(a.price ?? 0) - Number(b.price ?? 0);
+      if (listingSort === "priceDesc") return Number(b.price ?? 0) - Number(a.price ?? 0);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [brandFilter, categoryFilter, engineCcFilter, engineModelFilter, listingSort, listings, locale, modelFilter, searchQuery, subcategoryFilter, vehicleTypeFilter, yearFilter]);
+
+  const sellerListingTotalPages = Math.max(
+    1,
+    Math.ceil(filteredListings.length / SELLER_LISTINGS_PAGE_SIZE)
+  );
+
+  const paginatedSellerListings = useMemo(() => {
+    const start = (sellerListingPage - 1) * SELLER_LISTINGS_PAGE_SIZE;
+    return filteredListings.slice(start, start + SELLER_LISTINGS_PAGE_SIZE);
+  }, [filteredListings, sellerListingPage]);
+
+  const hasAdvancedFilters =
+    searchQuery.trim() !== "" ||
+    vehicleTypeFilter.trim() !== "" ||
+    brandFilter.trim() !== "" ||
+    modelFilter.trim() !== "" ||
+    yearFilter.trim() !== "" ||
+    engineCcFilter.trim() !== "" ||
+    engineModelFilter.trim() !== "" ||
+    categoryFilter.trim() !== "" ||
+    subcategoryFilter.trim() !== "";
+
+  const categoryFilterSummary = useMemo(() => {
+    const parts = [
+      vehicleTypeFilter,
+      brandFilter,
+      modelFilter,
+      yearFilter,
+      engineCcFilter,
+      engineModelFilter,
+      categoryFilter ? translateCategory(locale, categoryFilter) : "",
+      subcategoryFilter ? translateCategory(locale, categoryLeaf(subcategoryFilter)) : ""
+    ].filter(Boolean);
+
+    return parts.join(" / ");
+  }, [brandFilter, categoryFilter, engineCcFilter, engineModelFilter, locale, modelFilter, subcategoryFilter, vehicleTypeFilter, yearFilter]);
+  const reviewIds = useMemo(() => reviews.map((review) => review.id), [reviews]);
+  const reviewIdsKey = reviewIds.join("|");
+
+  function resetListingFilters() {
+    setSearchQuery("");
+    setVehicleTypeFilter("");
+    setBrandFilter("");
+    setModelFilter("");
+    setYearFilter("");
+    setEngineCcFilter("");
+    setEngineModelFilter("");
+    setCategoryFilter("");
+    setSubcategoryFilter("");
+  }
 
   useEffect(() => {
     if (locale === "fi" || listings.length === 0) return;
@@ -162,28 +520,381 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }, [listings, locale]);
 
   useEffect(() => {
+    const cacheKey = `seller-profile:${sellerId}`;
+    const cached = readCachedResource<SellerProfileCache>(cacheKey);
+
+    setListings(readCachedListings().filter((listing) => listing.seller_id === sellerId));
+    setReviews([]);
+    setListingsLoaded(false);
+    setReviewsLoaded(false);
+    setListingsLoading(false);
+    setReviewsLoading(false);
+    setSellerListingPage(1);
+
+    if (cached) {
+      setProfile(cached.profile);
+      setListings(cached.listings);
+      setListingsLoaded(cached.listings.length > 0);
+      if (cached.levelStats) setLevelStats(cached.levelStats);
+    } else {
+      setProfile(null);
+      setLevelStats(emptySellerLevelStats);
+    }
+
+    let cancelled = false;
+
     getPublicProfile(sellerId).then(({ data }) => {
-      if (data) {
+      if (!cancelled && data) {
         setProfile(data);
-        if (data.account_type === "company") {
-          getCompanySellers(sellerId).then(({ data: sellers }) => {
-            if (sellers) setCompanySellers(sellers);
-          });
-        }
+        writeSellerProfileCachePatch(sellerId, { profile: data });
       }
     });
-    getListingsBySeller(sellerId).then(({ data }) => {
-      if (data) setListings(data);
-    });
-    getReviewsBySeller(sellerId).then(({ data }) => {
-      if (data) setReviews(data);
-    });
+    return () => {
+      cancelled = true;
+    };
   }, [sellerId]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getPublicSellerLevelStats(resolvedSellerId).then(({ data }) => {
+      if (!cancelled && data) {
+        setLevelStats(data);
+        writeSellerProfileCachePatch(sellerId, { levelStats: data });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [resolvedSellerId, sellerId]);
+
+  useEffect(() => {
+    setSellerListingPage(1);
+  }, [
+    brandFilter,
+    categoryFilter,
+    engineCcFilter,
+    engineModelFilter,
+    listingSort,
+    modelFilter,
+    searchQuery,
+    sellerId,
+    subcategoryFilter,
+    vehicleTypeFilter,
+    yearFilter
+  ]);
+
+  useEffect(() => {
+    if (sellerListingPage > sellerListingTotalPages) {
+      setSellerListingPage(sellerListingTotalPages);
+    }
+  }, [sellerListingPage, sellerListingTotalPages]);
+
+  useEffect(() => {
+    if (activeTab !== "listings") return;
+
+    const cacheKey = `seller-profile:${sellerId}`;
+    const cached = readCachedResource<SellerProfileCache>(cacheKey);
+    if (cached?.listings.length) {
+      setListings(cached.listings);
+      setListingsLoaded(true);
+    }
+
+    let cancelled = false;
+    setListingsLoading(true);
+
+    getPublicListingsBySeller(listingsSellerId)
+      .then(({ data }) => {
+        if (cancelled) return;
+        if (data) {
+          setListings(data);
+          writeSellerProfileCachePatch(sellerId, { listings: data });
+        }
+        setListingsLoaded(true);
+      })
+      .finally(() => {
+        if (!cancelled) setListingsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, listingsSellerId, sellerId]);
+
+  useEffect(() => {
+    if (activeTab !== "reviews" || reviewsLoaded) return;
+
+    const cacheKey = `seller-profile:${sellerId}`;
+    const cached = readCachedResource<SellerProfileCache>(cacheKey);
+    if (cached?.reviews.length) {
+      setReviews(cached.reviews);
+      setReviewsLoaded(true);
+    }
+
+    let cancelled = false;
+    setReviewsLoading(true);
+
+    getReviewsBySeller(resolvedSellerId)
+      .then(({ data }) => {
+        if (cancelled) return;
+        if (data) {
+          setReviews(data);
+          writeSellerProfileCachePatch(sellerId, { reviews: data });
+        }
+        setReviewsLoaded(true);
+      })
+      .finally(() => {
+        if (!cancelled) setReviewsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, resolvedSellerId, reviewsLoaded, sellerId]);
+
+  useEffect(() => {
+    if (!listingsLoading) {
+      setShowListingsLoader(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setShowListingsLoader(true);
+    }, 280);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [listingsLoading]);
+
+  useEffect(() => {
+    if (!reviewsLoading) {
+      setShowReviewsLoader(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setShowReviewsLoader(true);
+    }, 280);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [reviewsLoading]);
+
+  useEffect(() => {
+    setAvatarFailed(false);
+  }, [profile?.avatar_url]);
+
+  useEffect(() => {
+    if (!supabase) return;
+
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUserId(data.user?.id ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setCurrentUserId(session?.user?.id ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    setFavorites(readSavedListingIds());
+
+    if (!currentUserId) return;
+
+    getSavedListingIds()
+      .then(({ data }) => {
+        localStorage.setItem("savedListings", JSON.stringify(data));
+        setFavorites(data);
+      })
+      .catch(() => undefined);
+  }, [currentUserId]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getProfileFollowStats(resolvedSellerId).then(({ data }) => {
+      if (!cancelled) setFollowStats(data);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentUserId, resolvedSellerId]);
+
+  useEffect(() => {
+    const ids = reviewIdsKey ? reviewIdsKey.split("|") : [];
+    if (ids.length === 0) return;
+
+    let cancelled = false;
+
+    getSellerReviewLikeSummary(ids).then(({ data }) => {
+      if (cancelled || data.length === 0) return;
+
+      const summaryByReview = new Map(
+        data.map((item) => [item.review_id, item])
+      );
+
+      setReviews((current) =>
+        current.map((review) => {
+          const summary = summaryByReview.get(review.id);
+          return summary
+            ? {
+                ...review,
+                like_count: summary.like_count,
+                is_liked: summary.is_liked
+              }
+            : review;
+        })
+      );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentUserId, reviewIdsKey]);
+
+  async function handleProfileFollowToggle() {
+    if (!currentUserId || currentUserId === resolvedSellerId || followSaving) return;
+
+    setFollowSaving(true);
+    setFollowError("");
+    const result = followStats.is_following
+      ? await unfollowProfile(resolvedSellerId)
+      : await followProfile(resolvedSellerId);
+
+    if (result.error) {
+      setFollowError(refLabels.followError);
+    } else {
+      const { data } = await getProfileFollowStats(resolvedSellerId);
+      setFollowStats(data);
+      window.dispatchEvent(new CustomEvent("profile-follow-changed"));
+    }
+
+    setFollowSaving(false);
+  }
+
+  async function handleReviewLikeToggle(reviewId: string) {
+    if (reviewLikeSaving[reviewId]) return;
+
+    if (!currentUserId) {
+      router.push(`/auth?returnTo=${encodeURIComponent(`/seller/${sellerId}`)}`);
+      return;
+    }
+
+    const review = reviews.find((item) => item.id === reviewId);
+    if (!review) return;
+
+    const wasLiked = Boolean(review.is_liked);
+
+    setReviewLikeSaving((current) => ({ ...current, [reviewId]: true }));
+    setReviews((current) =>
+      current.map((item) =>
+        item.id === reviewId
+          ? {
+              ...item,
+              is_liked: !wasLiked,
+              like_count: Math.max(0, (item.like_count ?? 0) + (wasLiked ? -1 : 1))
+            }
+          : item
+      )
+    );
+
+    const result = wasLiked
+      ? await unlikeSellerReview(reviewId)
+      : await likeSellerReview(reviewId);
+
+    if (result.error) {
+      setReviews((current) =>
+        current.map((item) =>
+          item.id === reviewId
+            ? {
+                ...item,
+                is_liked: wasLiked,
+                like_count: Math.max(0, (item.like_count ?? 0) + (wasLiked ? 1 : -1))
+              }
+            : item
+        )
+      );
+    } else {
+      const { data } = await getSellerReviewLikeSummary([reviewId]);
+      const summary = data[0];
+      if (summary) {
+        setReviews((current) =>
+          current.map((item) =>
+            item.id === reviewId
+              ? {
+                  ...item,
+                  like_count: summary.like_count,
+                  is_liked: summary.is_liked
+                }
+              : item
+          )
+        );
+      }
+    }
+
+    setReviewLikeSaving((current) => {
+      const next = { ...current };
+      delete next[reviewId];
+      return next;
+    });
+  }
+
+  function toggleFavorite(event: React.MouseEvent, listingId: string) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!currentUserId) return;
+
+    setFavorites((current) => {
+      const next = current.includes(listingId)
+        ? current.filter((id) => id !== listingId)
+        : [...current, listingId];
+
+      localStorage.setItem("savedListings", JSON.stringify(next));
+      void (
+        current.includes(listingId)
+          ? unsaveListing(listingId)
+          : saveListing(listingId)
+      );
+
+      return next;
+    });
+  }
 
   const averageRating = useMemo(() => {
     if (!reviews.length) return 0;
     return reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
   }, [reviews]);
+
+  const reviewRatingCounts = useMemo(() => {
+    return [5, 4, 3, 2, 1].map((stars) => ({
+      stars,
+      count: reviews.filter((review) => Math.min(5, Math.max(1, Math.round(review.rating))) === stars).length
+    }));
+  }, [reviews]);
+
+  const filteredReviews = useMemo(() => {
+    const filtered = reviews.filter((review) => {
+      const rating = Math.min(5, Math.max(1, Math.round(review.rating)));
+      if (reviewRatingFilter && rating !== reviewRatingFilter) return false;
+      return true;
+    });
+
+    return filtered.sort((a, b) => {
+      const aTime = new Date(a.created_at).getTime() || 0;
+      const bTime = new Date(b.created_at).getTime() || 0;
+      if (reviewSort === "oldest") return aTime - bTime;
+      if (reviewSort === "highest") return b.rating - a.rating || bTime - aTime;
+      if (reviewSort === "lowest") return a.rating - b.rating || bTime - aTime;
+      return bTime - aTime;
+    });
+  }, [reviewRatingFilter, reviewSort, reviews]);
 
   const sellerName =
     profile?.account_type === "company"
@@ -193,6 +904,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim() ||
     listings[0]?.seller_name ||
     t.sellerProfile;
+  const sellerAvatarUrl = profile?.avatar_url?.trim() || "";
+  const showSellerAvatar = Boolean(sellerAvatarUrl && !avatarFailed);
+  const sellerInitial = getSellerInitials(sellerName, locale);
   const isCompany =
     profile?.account_type === "company";
   const locationFallback = {
@@ -202,42 +916,40 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     no: "Sted er ikke angitt",
     et: "Asukohta pole määratud"
   }[locale];
+  const publicAddress =
+    profile?.public_address?.trim();
+  const baseLocation =
+    [profile?.city, profile?.country].filter(Boolean).join(", ");
   const sellerLocation =
-    [profile?.city, profile?.country].filter(Boolean).join(", ") || listings[0]?.location || locationFallback;
+    isCompany && publicAddress
+      ? [baseLocation, publicAddress].filter(Boolean).join(" - ")
+      : baseLocation ||
+    listings[0]?.location ||
+    locationFallback;
   const companyWebsite =
     isCompany ? formatWebsiteUrl(profile?.company_website) : null;
-  const sellerBio = profile?.bio?.trim() ?? "";
-  // Trust score 0-100
-  const memberYears = useMemo(() => {
-    if (!profile?.created_at) return 0;
-    const ms = Date.now() - new Date(profile.created_at).getTime();
-    return Math.max(0, ms / (1000 * 60 * 60 * 24 * 365));
-  }, [profile?.created_at]);
+  const effectiveLevelStats = useMemo<SellerLevelStats>(() => ({
+    listings_created: Math.max(levelStats.listings_created, listings.length),
+    single_listings_created:
+      levelStats.listings_created > 0
+        ? levelStats.single_listings_created
+        : listings.filter((listing) => listing.listing_mode !== "multiple").length,
+    multi_listings_created:
+      levelStats.listings_created > 0
+        ? levelStats.multi_listings_created
+        : listings.filter((listing) => listing.listing_mode === "multiple").length,
+    sold_count: levelStats.sold_count,
+    reviews_given: levelStats.reviews_given,
+    reviews_received: Math.max(levelStats.reviews_received, reviews.length),
+    phone_verified: levelStats.phone_verified || Boolean(profile?.phone_verified_at)
+  }), [levelStats, listings, profile?.phone_verified_at, reviews.length]);
 
-  const trustScore = useMemo(() => {
-    const ratingPart = (averageRating / 5) * 50;
-    const reviewPart = Math.min(reviews.length, 20) * 1.5;
-    const listingPart = Math.min(listings.length, 10) * 1;
-    const agePart = Math.min(memberYears, 5) * 2;
-    return Math.round(
-      Math.min(100, Math.max(0, ratingPart + reviewPart + listingPart + agePart))
-    );
-  }, [averageRating, reviews.length, listings.length, memberYears]);
-
-  const trustLabel =
-    trustScore >= 80 ? t.spTrustExcellent
-    : trustScore >= 60 ? t.spTrustGood
-    : trustScore >= 40 ? t.spTrustFair
-    : trustScore >= 20 ? t.spTrustNew
-    : t.spTrustPoor;
+  const sellerLevel = useMemo(
+    () => calculateSellerLevel(effectiveLevelStats),
+    [effectiveLevelStats]
+  );
 
   const memberSince = formatAccountAge(profile?.created_at, locale);
-  const memberMonths = useMemo(() => {
-    if (!profile?.created_at) return 0;
-    const ms = Date.now() - new Date(profile.created_at).getTime();
-    return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24 * 30.44)));
-  }, [profile?.created_at]);
-
   const verifiedLabels = {
     phone: {
       fi: "Puhelin vahvistettu",
@@ -246,19 +958,348 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       no: "Telefon verifisert",
       et: "Telefon kinnitatud"
     }[locale],
-    company: {
-      fi: "Yritysprofiili",
-      en: "Company profile",
-      sv: "Företagsprofil",
-      no: "Bedriftsprofil",
-      et: "Ettevõtte profiil"
+  };
+  const refLabels = {
+    about: {
+      fi: "Tietoja",
+      en: "About",
+      sv: "Om",
+      no: "Om",
+      et: "Info"
+    }[locale],
+    averageRating: {
+      fi: "Keskiarvo",
+      en: "Average rating",
+      sv: "Genomsnitt",
+      no: "Gjennomsnitt",
+      et: "Keskmine hinne"
+    }[locale],
+    activeListings: {
+      fi: "Aktiiviset ilmoitukset",
+      en: "Active listings",
+      sv: "Aktiva annonser",
+      no: "Aktive annonser",
+      et: "Aktiivsed kuulutused"
+    }[locale],
+    totalListings: {
+      fi: "Ilmoituksia yhteensä",
+      en: "Total listings",
+      sv: "Annonser totalt",
+      no: "Annonser totalt",
+      et: "Kuulutusi kokku"
+    }[locale],
+    reviews: {
+      fi: "Arvostelut",
+      en: "Reviews",
+      sv: "Recensioner",
+      no: "Anmeldelser",
+      et: "Arvustused"
+    }[locale],
+    followers: {
+      fi: "Seuraajat",
+      en: "Followers",
+      sv: "Följare",
+      no: "Følgere",
+      et: "Jälgijad"
+    }[locale],
+    follow: {
+      fi: "Seuraa profiilia",
+      en: "Follow profile",
+      sv: "Följ profil",
+      no: "Følg profil",
+      et: "Jälgi profiili"
+    }[locale],
+    following: {
+      fi: "Seurataan",
+      en: "Following",
+      sv: "Följer",
+      no: "Følger",
+      et: "Jälgid"
+    }[locale],
+    loginToFollow: {
+      fi: "Kirjaudu seurataksesi",
+      en: "Sign in to follow",
+      sv: "Logga in för att följa",
+      no: "Logg inn for å følge",
+      et: "Jälgimiseks logi sisse"
+    }[locale],
+    followError: {
+      fi: "Seurannan tallennus epäonnistui. Yritä uudelleen.",
+      en: "Could not save the follow. Please try again.",
+      sv: "Det gick inte att spara följningen. Försök igen.",
+      no: "Kunne ikke lagre følgingen. Prøv igjen.",
+      et: "Jälgimise salvestamine ebaõnnestus. Proovi uuesti."
+    }[locale],
+    sellerRating: {
+      fi: "Myyjäarvio",
+      en: "Seller rating",
+      sv: "Säljarbetyg",
+      no: "Selgervurdering",
+      et: "Müüja hinnang"
+    }[locale],
+    greatJob: {
+      fi: "Hyvä työ!",
+      en: "Great job!",
+      sv: "Bra jobbat!",
+      no: "Bra jobbet!",
+      et: "Tubli töö!"
+    }[locale],
+    keepGoodWork: {
+      fi: "Jatka samaan malliin.",
+      en: "Keep up the good work.",
+      sv: "Fortsätt så.",
+      no: "Fortsett slik.",
+      et: "Jätka samas vaimus."
+    }[locale],
+    completionRate: {
+      fi: "Valmiusaste",
+      en: "Completion rate",
+      sv: "Slutförandegrad",
+      no: "Fullføringsgrad",
+      et: "Täidetuse määr"
+    }[locale],
+    points: {
+      fi: "pistettä",
+      en: "points",
+      sv: "poäng",
+      no: "poeng",
+      et: "punkti"
+    }[locale],
+    sellerLevel: {
+      fi: "Myyjälevel",
+      en: "Seller level",
+      sv: "Säljarnivå",
+      no: "Selgernivå",
+      et: "Müüja tase"
+    }[locale],
+    accountLevel: {
+      fi: "Account level",
+      en: "Account level",
+      sv: "Account level",
+      no: "Account level",
+      et: "Account level"
+    }[locale],
+    registered: {
+      fi: "Rekisteroitynyt",
+      en: "Registered",
+      sv: "Registrerad",
+      no: "Registrert",
+      et: "Registreeritud"
+    }[locale],
+    location: {
+      fi: "Sijainti",
+      en: "Location",
+      sv: "Plats",
+      no: "Sted",
+      et: "Asukoht"
+    }[locale],
+    verified: {
+      fi: "Vahvistettu",
+      en: "Verified",
+      sv: "Verifierad",
+      no: "Verifisert",
+      et: "Kinnitatud"
+    }[locale],
+    extraInfo: {
+      fi: "Lisatiedot",
+      en: "Additional info",
+      sv: "Mer information",
+      no: "Mer informasjon",
+      et: "Lisainfo"
+    }[locale],
+    levelMax: {
+      fi: "Maksimitaso",
+      en: "Max level",
+      sv: "Maxnivå",
+      no: "Maksnivå",
+      et: "Maksimaalne tase"
+    }[locale],
+    levelUpHint: {
+      fi: "Luo ilmoituksia, merkitse myyntejä ja anna sekä saa arvioita.",
+      en: "Create listings, mark sales, and give and receive reviews.",
+      sv: "Skapa annonser, markera försäljningar och ge samt få recensioner.",
+      no: "Opprett annonser, marker salg og gi og motta anmeldelser.",
+      et: "Loo kuulutusi, märgi müüke ning anna ja saa arvustusi."
+    }[locale],
+    nextLevel: {
+      fi: "Seuraavaan tasoon",
+      en: "To next level",
+      sv: "Till nästa nivå",
+      no: "Til neste nivå",
+      et: "Järgmise tasemeni"
+    }[locale],
+    xp: {
+      fi: "XP",
+      en: "XP",
+      sv: "XP",
+      no: "XP",
+      et: "XP"
+    }[locale],
+    level: {
+      fi: "Level",
+      en: "Level",
+      sv: "Level",
+      no: "Level",
+      et: "Level"
+    }[locale],
+    sold: {
+      fi: "Myyty",
+      en: "Sold",
+      sv: "Sålda",
+      no: "Solgt",
+      et: "Müüdud"
+    }[locale],
+    reviewsGiven: {
+      fi: "Annetut arviot",
+      en: "Reviews given",
+      sv: "Givna recensioner",
+      no: "Gitte anmeldelser",
+      et: "Antud arvustused"
+    }[locale],
+    phone: {
+      fi: "Puhelin",
+      en: "Phone",
+      sv: "Telefon",
+      no: "Telefon",
+      et: "Telefon"
+    }[locale],
+    businessId: {
+      fi: "Y-tunnus",
+      en: "Business ID",
+      sv: "FO-nummer",
+      no: "Organisasjonsnummer",
+      et: "Registrikood"
+    }[locale],
+    website: {
+      fi: "Nettisivu",
+      en: "Website",
+      sv: "Webbplats",
+      no: "Nettside",
+      et: "Veebileht"
+    }[locale],
+    trustedSeller: {
+      fi: "Luotettu myyjä",
+      en: "Trusted seller",
+      sv: "Betrodd säljare",
+      no: "Betrodd selger",
+      et: "Usaldatud müüja"
+    }[locale],
+    advancedSearch: {
+      fi: "Tarkempi haku",
+      en: "Advanced search",
+      sv: "Avancerad sökning",
+      no: "Avansert søk",
+      et: "Täpsem otsing"
+    }[locale],
+    searchPlaceholder: {
+      fi: "Hae ilmoituksista",
+      en: "Search listings",
+      sv: "Sök i annonser",
+      no: "Søk i annonser",
+      et: "Otsi kuulutustest"
+    }[locale],
+    minPrice: {
+      fi: "Min €",
+      en: "Min €",
+      sv: "Min €",
+      no: "Min €",
+      et: "Min €"
+    }[locale],
+    maxPrice: {
+      fi: "Max €",
+      en: "Max €",
+      sv: "Max €",
+      no: "Max €",
+      et: "Max €"
+    }[locale],
+    allConditions: {
+      fi: "Kaikki kunnot",
+      en: "All conditions",
+      sv: "Alla skick",
+      no: "Alle tilstander",
+      et: "Kõik seisukorrad"
+    }[locale],
+    resetFilters: {
+      fi: "Nollaa",
+      en: "Reset",
+      sv: "Nollställ",
+      no: "Nullstill",
+      et: "Lähtesta"
+    }[locale],
+    relevanceFirst: {
+      fi: "Osuvimmat ensin",
+      en: "Most relevant",
+      sv: "Mest relevanta",
+      no: "Mest relevante",
+      et: "Asjakohasemad enne"
+    }[locale],
+    newestFirst: {
+      fi: "Uusimmat ensin",
+      en: "Newest first",
+      sv: "Nyaste ensin",
+      no: "Nyeste først",
+      et: "Uuemad enne"
+    }[locale],
+    oldestFirst: {
+      fi: "Vanhimmat ensin",
+      en: "Oldest first",
+      sv: "Aldsta ensin",
+      no: "Eldste først",
+      et: "Vanemad enne"
+    }[locale],
+    lowestPrice: {
+      fi: "Halvin ensin",
+      en: "Lowest price",
+      sv: "Lagsta pris",
+      no: "Laveste pris",
+      et: "Madalaim hind"
+    }[locale],
+    highestPrice: {
+      fi: "Kallein ensin",
+      en: "Highest price",
+      sv: "Hogsta pris",
+      no: "Hoyeste pris",
+      et: "Korgeim hind"
+    }[locale],
+    nearestFirst: {
+      fi: "Lähimpänä sinua",
+      en: "Nearest to you",
+      sv: "Narmast dig",
+      no: "Narmest deg",
+      et: "Sulle lahemal"
+    }[locale],
+    noFilterResults: {
+      fi: "Hakuehdoilla ei löytynyt ilmoituksia.",
+      en: "No listings matched your filters.",
+      sv: "Inga annonser matchade filtren.",
+      no: "Ingen annonser matchet filtrene.",
+      et: "Filtritele vastavaid kuulutusi ei leitud."
+    }[locale],
+    highlyRated: {
+      fi: "Hyvin arvioitu",
+      en: "Highly rated",
+      sv: "Högt betyg",
+      no: "Høyt vurdert",
+      et: "Kõrgelt hinnatud"
+    }[locale],
+    noBio: {
+      fi: "Myyjä ei ole vielä lisännyt esittelytekstiä.",
+      en: "This seller has not added an about text yet.",
+      sv: "Säljaren har inte lagt till någon presentation ännu.",
+      no: "Selgeren har ikke lagt til en presentasjon ennå.",
+      et: "Müüja pole veel tutvustust lisanud."
     }[locale]
   };
-
-  const verificationBadges = [
-    profile?.phone_verified_at ? { label: verifiedLabels.phone, type: "phone" } : null,
-    isCompany && profile?.business_id ? { label: verifiedLabels.company, type: "company" } : null
-  ].filter(Boolean) as Array<{ label: string; type: "phone" | "company" }>;
+  const reviewCountLabel = reviews.length === 1 ? t.spReviews.toLowerCase().replace(/s$/, "") : t.spReviews.toLowerCase();
+  const visibleReviewCount = reviewsLoaded ? reviews.length : effectiveLevelStats.reviews_received;
+  const reviewBasisWord = locale === "fi" ? "arvosteluun" : reviewCountLabel;
+  const loadingReviewsLabel = {
+    fi: "Ladataan arvosteluja...",
+    en: "Loading reviews...",
+    sv: "Laddar recensioner...",
+    no: "Laster anmeldelser...",
+    et: "Laadin arvustusi..."
+  }[locale];
   const reviewEmptyDescription = {
     fi: `${sellerName} ei ole vielä saanut arvosteluja.`,
     en: `${sellerName} has not received reviews yet.`,
@@ -266,118 +1307,302 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     no: `${sellerName} har ikke fått anmeldelser ennå.`,
     et: `${sellerName} ei ole veel arvustusi saanud.`
   }[locale];
+  const reviewLabels = {
+    search: {
+      fi: "Hae arvosteluista...",
+      en: "Search reviews...",
+      sv: "Sök bland recensioner...",
+      no: "Søk i anmeldelser...",
+      et: "Otsi arvustustest..."
+    }[locale],
+    average: {
+      fi: "Keskimääräinen arvio",
+      en: "Average rating",
+      sv: "Genomsnittligt betyg",
+      no: "Gjennomsnittlig vurdering",
+      et: "Keskmine hinnang"
+    }[locale],
+    basedOn: {
+      fi: "Perustuu",
+      en: "Based on",
+      sv: "Baserat på",
+      no: "Basert på",
+      et: "Põhineb"
+    }[locale],
+    verifiedTitle: {
+      fi: "Vain vahvistetut kaupat",
+      en: "Verified deals only",
+      sv: "Endast verifierade affärer",
+      no: "Kun verifiserte handler",
+      et: "Ainult kinnitatud tehingud"
+    }[locale],
+    verifiedBody: {
+      fi: "Arvostelut tulevat vain vahvistetuilta käyttäjiltä onnistuneiden kauppojen jälkeen.",
+      en: "Reviews come only from verified users after successful deals.",
+      sv: "Recensioner kommer bara från verifierade användare efter lyckade affärer.",
+      no: "Anmeldelser kommer bare fra verifiserte brukere etter vellykkede handler.",
+      et: "Arvustused tulevad ainult kinnitatud kasutajatelt pärast edukaid tehinguid."
+    }[locale],
+    starFilter: {
+      fi: "Suodata tähtien mukaan",
+      en: "Filter by stars",
+      sv: "Filtrera efter stjärnor",
+      no: "Filtrer etter stjerner",
+      et: "Filtreeri tähtede järgi"
+    }[locale],
+    all: {
+      fi: "Kaikki",
+      en: "All",
+      sv: "Alla",
+      no: "Alle",
+      et: "Kõik"
+    }[locale],
+    noMatches: {
+      fi: "Hakuehdoilla ei löytynyt arvosteluja.",
+      en: "No reviews matched your filters.",
+      sv: "Inga recensioner matchade filtren.",
+      no: "Ingen anmeldelser matchet filtrene.",
+      et: "Filtritele vastavaid arvustusi ei leitud."
+    }[locale],
+    reply: {
+      fi: "Vastaa",
+      en: "Reply",
+      sv: "Svara",
+      no: "Svar",
+      et: "Vasta"
+    }[locale]
+  };
+  const reviewSortOptions: Array<{ value: ReviewSort; label: string }> = [
+    { value: "newest", label: refLabels.newestFirst },
+    { value: "oldest", label: refLabels.oldestFirst },
+    { value: "highest", label: "Korkein arvio" },
+    { value: "lowest", label: "Alhaisin arvio" }
+  ];
+  const renderReviewStars = (rating: number, size = 15) => (
+    <span className="seller-review-stars" aria-label={`${rating}/5`}>
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          size={size}
+          className={star <= Math.round(rating) ? "filled" : "empty"}
+          fill={star <= Math.round(rating) ? "currentColor" : "none"}
+          aria-hidden="true"
+        />
+      ))}
+    </span>
+  );
+  const sortOptions: Array<{ value: ListingSort; label: string; icon: typeof Search }> = [
+    { value: "relevance", label: refLabels.relevanceFirst, icon: Crosshair },
+    { value: "newest", label: refLabels.newestFirst, icon: Clock3 },
+    { value: "oldest", label: refLabels.oldestFirst, icon: CalendarDays },
+    { value: "priceAsc", label: refLabels.lowestPrice, icon: TrendingDown },
+    { value: "priceDesc", label: refLabels.highestPrice, icon: TrendingUp },
+    { value: "nearest", label: refLabels.nearestFirst, icon: MapPin }
+  ];
+  const activeSort = sortOptions.find((option) => option.value === listingSort) ?? sortOptions[0];
+
   return (
-    <main className="auth-page seller-page">
+    <main className={`auth-page seller-page ${isCompany ? "seller-company-page" : "seller-private-page"}`}>
       <section className="sp-wrap">
-        <div className="sp-header">
-          <div className="sp-avatar">
-            {profile?.avatar_url
-              ? <img src={profile.avatar_url} alt="" />
-              : (
-                <span className="sp-avatar-initial">
-                  {sellerName.trim().charAt(0).toUpperCase() || "?"}
-                </span>
-              )
-            }
-          </div>
-          <div className="sp-header-info">
-            <h1>
-              {sellerName}
-            </h1>
-            {memberSince && (
-              <p className="sp-member-since">{t.spMemberSince.replace("{date}", memberSince)}</p>
-            )}
-            {sellerLocation && (
-              <p className="sp-location">
-                <MapPin size={14} />
-                {sellerLocation}
-              </p>
-            )}
-            {companyWebsite && (
-              <a
-                className="sp-website"
-                href={companyWebsite.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Globe2 size={14} />
-                {companyWebsite.label}
-                <ExternalLink size={13} />
-              </a>
-            )}
-            {verificationBadges.length > 0 && (
-              <div className="sp-verified-row" aria-label="Vahvistukset">
-                {verificationBadges.map((badge) => (
-                  <span className={`sp-verified ${badge.type === "phone" ? "is-phone" : ""}`} key={badge.label}>
-                    <CheckCircle2 size={14} />
-                    {badge.label}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className="sp-trust-row">
-              <span className="sp-trust-badge" title={`${t.spTrust} ${trustScore}/100 – ${trustLabel}`}>
-                <Shield size={13} />
-                <span>{t.spTrust}</span>
-                <strong>{trustScore}</strong>
-              </span>
-              <span className="sp-trust-label">
-                {trustLabel}
-                {reviews.length > 0 && (
-                  <> · {reviews.length} {t.spReviews.toLowerCase()}</>
-                )}
+          <div className="seller-ref-hero">
+            <div className="seller-ref-identity">
+            <div className={`seller-ref-avatar${showSellerAvatar ? " has-photo" : ""}`}>
+              {showSellerAvatar && (
+                <img
+                  src={sellerAvatarUrl}
+                  alt={`${sellerName} profile picture`}
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                    setAvatarFailed(true);
+                  }}
+                />
+              )}
+              <span className="seller-ref-logo">
+                <strong className="seller-ref-initial">{sellerInitial}</strong>
               </span>
             </div>
-            {sellerBio && (
-              <p className="sp-bio">
-                {sellerBio}
-              </p>
-            )}
+
+            <div className="seller-ref-copy">
+              <h1>
+                {sellerName}
+                <span aria-hidden="true">✓</span>
+              </h1>
+              {memberSince && (
+                <p>
+                  <CalendarDays size={13} />
+                  {t.spMemberSince.replace("{date}", memberSince)}
+                </p>
+              )}
+              {sellerLocation && (
+                <p>
+                  <MapPin size={13} />
+                  {sellerLocation}
+                </p>
+              )}
+
+              <div className="seller-ref-pill-row">
+                {isCompany && profile?.business_id?.trim() && (
+                  <span className="seller-ref-phone-pill">
+                    <Building2 size={13} />
+                    {refLabels.businessId} {profile.business_id.trim()}
+                  </span>
+                )}
+                <span className="seller-ref-phone-pill">
+                  <Trophy size={13} />
+                  {refLabels.accountLevel} {sellerLevel.level}
+                </span>
+                {isCompany && companyWebsite && (
+                  <a
+                    className="seller-ref-phone-pill seller-ref-link-pill"
+                    href={companyWebsite.href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Globe2 size={13} />
+                    {refLabels.website} <strong>{companyWebsite.label}</strong>
+                    <ExternalLink size={12} />
+                  </a>
+                )}
+                {profile?.phone_verified_at && (
+                  <span className="seller-ref-phone-pill">
+                    <Phone size={13} />
+                    {verifiedLabels.phone}
+                  </span>
+                )}
+              </div>
+
+              <div className="seller-ref-mini-row">
+                <span>
+                  <Shield size={13} />
+                  {refLabels.trustedSeller}
+                </span>
+                <span className="is-good">
+                  {refLabels.highlyRated}
+                  {reviews.length > 0 && <> · {reviews.length} {reviewCountLabel}</>}
+                </span>
+              </div>
+
+              {currentUserId !== resolvedSellerId && (
+                <div className="seller-ref-follow-row">
+                  {currentUserId ? (
+                    <button
+                      type="button"
+                      className={`seller-ref-follow-button${followStats.is_following ? " is-following" : ""}`}
+                      disabled={followSaving}
+                      onClick={handleProfileFollowToggle}
+                    >
+                      {followStats.is_following ? <UserCheck size={15} /> : <UserPlus size={15} />}
+                      {followStats.is_following ? refLabels.following : refLabels.follow}
+                    </button>
+                  ) : (
+                    <Link className="seller-ref-follow-button" href={`/auth?returnTo=${encodeURIComponent(`/seller/${sellerId}`)}`}>
+                      <UserPlus size={15} />
+                      {refLabels.loginToFollow}
+                    </Link>
+                  )}
+                  {followError && <span className="seller-ref-follow-error">{followError}</span>}
+                </div>
+              )}
+
+            </div>
           </div>
 
-          <div className="sp-trust-breakdown">
-            <div className="sp-trust-panel">
-              <div className="sp-data-head">
-                <Shield className="sp-trust-panel-icon" size={44} />
-                <div>
-                  <span>Luottamustaso</span>
-                  <strong>{trustLabel}</strong>
-                </div>
-                <span>
-                  <strong>{trustScore} / 100</strong>
-                  <small>pistettä</small>
-                </span>
-              </div>
-              <div className="sp-trust-meter-head">
-                <span>Luottamus</span>
-                <strong>{trustScore} %</strong>
-              </div>
-              <div className="sp-trust-bar">
-                <div className="sp-trust-bar-fill" style={{ width: `${trustScore}%` }} />
+          <article className="seller-ref-about seller-ref-about-highlight">
+            <h2>{refLabels.extraInfo}</h2>
+            <p>{profile?.bio?.trim() || refLabels.noBio}</p>
+          </article>
+
+          <div className="seller-ref-stats">
+            <div className="seller-ref-stat is-rating">
+              <Star size={24} />
+              <strong>{reviews.length ? averageRating.toFixed(1) : "–"}</strong>
+              <span>{refLabels.averageRating}</span>
+              <div aria-hidden="true">
+                <Star size={13} fill="currentColor" />
+                <Star size={13} fill="currentColor" />
+                <Star size={13} fill="currentColor" />
+                <Star size={13} fill="currentColor" />
+                <Star size={13} fill="currentColor" />
               </div>
             </div>
-            <div className="sp-trust-stats">
-              <div>
-                <Star size={14} />
-                <strong>{reviews.length ? averageRating.toFixed(1) : "–"}</strong>
-                <span>{t.spAverage}</span>
+            <div className="seller-ref-stat">
+              <Tag size={22} />
+              <strong>{effectiveLevelStats.listings_created}</strong>
+              <span>{refLabels.totalListings}</span>
+            </div>
+            <div className="seller-ref-stat">
+              <ShoppingBag size={22} />
+              <strong>{effectiveLevelStats.sold_count}</strong>
+              <span>{refLabels.sold}</span>
+            </div>
+            <div className="seller-ref-stat">
+              <MessageCircle size={22} />
+              <strong>{visibleReviewCount}</strong>
+              <span>{refLabels.reviews}</span>
+            </div>
+          </div>
+
+          <div className="seller-ref-detail-card" aria-label="Profiilin lisätiedot">
+            <div className="seller-ref-detail-row">
+              <Trophy size={20} aria-hidden="true" />
+              <span>{refLabels.accountLevel}</span>
+              <strong>
+                {refLabels.level} {sellerLevel.level}
+                <small>{sellerLevel.totalXp} {refLabels.xp}</small>
+              </strong>
+            </div>
+            <div className="seller-ref-detail-row">
+              <Shield size={20} aria-hidden="true" />
+              <span>{refLabels.trustedSeller}</span>
+              <strong className="is-good">
+                {refLabels.highlyRated}
+                {visibleReviewCount > 0 && <small>{visibleReviewCount} {reviewCountLabel}</small>}
+              </strong>
+            </div>
+            {memberSince && (
+              <div className="seller-ref-detail-row">
+                <CalendarDays size={20} aria-hidden="true" />
+                <span>{refLabels.registered}</span>
+                <strong>{memberSince}</strong>
               </div>
-              <div>
-                <strong>{listings.length}</strong>
-                <span>{t.spActiveListings}</span>
+            )}
+            {sellerLocation && (
+              <div className="seller-ref-detail-row">
+                <MapPin size={20} aria-hidden="true" />
+                <span>{refLabels.location}</span>
+                <strong>{sellerLocation}</strong>
               </div>
-              <div>
-                <strong>{listings.length}</strong>
-                <span>{t.spListingsTotal}</span>
+            )}
+            {profile?.phone_verified_at && (
+              <div className="seller-ref-detail-row">
+                <Phone size={20} aria-hidden="true" />
+                <span>{refLabels.phone}</span>
+                <strong className="is-good">{refLabels.verified}</strong>
               </div>
-              <div>
-                <strong>{reviews.length}</strong>
-                <span>{t.spReviewsTotal}</span>
+            )}
+            {isCompany && profile?.business_id?.trim() && (
+              <div className="seller-ref-detail-row">
+                <Building2 size={20} aria-hidden="true" />
+                <span>{refLabels.businessId}</span>
+                <strong>{profile.business_id.trim()}</strong>
               </div>
-              <div>
-                <strong>{memberMonths < 12 ? memberMonths : Math.floor(memberYears)}</strong>
-                <span>{memberMonths < 12 ? t.spMonthsMember : t.spYearsMember}</span>
+            )}
+            {isCompany && companyWebsite && (
+              <div className="seller-ref-detail-row">
+                <Globe2 size={20} aria-hidden="true" />
+                <span>{refLabels.website}</span>
+                <strong>
+                  <a href={companyWebsite.href} target="_blank" rel="noreferrer">
+                    {companyWebsite.label}
+                    <ExternalLink size={13} aria-hidden="true" />
+                  </a>
+                </strong>
               </div>
+            )}
+            <div className="seller-ref-detail-row">
+              <MessageCircle size={20} aria-hidden="true" />
+              <span>Kieli</span>
+              <strong>{locale === "fi" ? "Suomi" : locale.toUpperCase()}</strong>
             </div>
           </div>
         </div>
@@ -389,35 +1614,115 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               className={`sp-tab${activeTab === "listings" ? " active" : ""}`}
               onClick={() => setActiveTab("listings")}
             >
-              {t.spListings} ({listings.length})
+              <Bell size={22} aria-hidden="true" />
+              <span>{t.spListings} ({filteredListings.length})</span>
             </button>
             <button
               type="button"
               className={`sp-tab${activeTab === "reviews" ? " active" : ""}`}
               onClick={() => setActiveTab("reviews")}
             >
-              {t.spReviews} ({reviews.length})
+              <Star size={23} aria-hidden="true" />
+              <span>{t.spReviews} ({visibleReviewCount})</span>
             </button>
           </div>
-          {activeTab === "listings" && listings.length > 0 && (
-            <div className="sp-sort-wrap">
-              <select
-                className="sp-sort-select"
-                value={sort}
-                onChange={(e) => setSort(e.target.value as SortKey)}
-              >
-                <option value="newest">{t.spSortNewest}</option>
-                <option value="oldest">{t.spSortOldest}</option>
-                <option value="price_asc">{t.spSortPriceAsc}</option>
-                <option value="price_desc">{t.spSortPriceDesc}</option>
-              </select>
-              <ChevronDown size={14} className="sp-sort-icon" />
-            </div>
-          )}
         </div>
 
+        {activeTab === "listings" && listings.length > 0 && (
+          <div className="sp-advanced-search" role="search" aria-label={refLabels.advancedSearch}>
+            <label className="sp-search-field">
+              <Search size={15} aria-hidden="true" />
+              <input
+                type="search"
+                className="sp-search-input"
+                value={searchQuery}
+                aria-label={refLabels.searchPlaceholder}
+                placeholder={refLabels.searchPlaceholder}
+                onChange={(event) => setSearchQuery(event.target.value)}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  className="sp-search-clear"
+                  aria-label={refLabels.resetFilters}
+                  onClick={() => setSearchQuery("")}
+                >
+                  <CircleX size={20} aria-hidden="true" />
+                </button>
+              )}
+            </label>
+            <div className={`sp-sort-wrap${sortOpen ? " is-open" : ""}`}>
+              <button
+                type="button"
+                className="sp-sort-button"
+                aria-haspopup="menu"
+                aria-expanded={sortOpen}
+                onClick={() => setSortOpen((open) => !open)}
+              >
+                <SlidersHorizontal size={16} aria-hidden="true" />
+                <span>{activeSort.label}</span>
+                <ChevronDown size={16} className="sp-sort-chevron" aria-hidden="true" />
+              </button>
+              {sortOpen && (
+                <div className="sp-sort-menu" role="menu">
+                  {sortOptions.map((option) => {
+                    const Icon = option.icon;
+                    const selected = option.value === listingSort;
+                    return (
+                      <button
+                        type="button"
+                        className={`sp-sort-option${selected ? " selected" : ""}`}
+                        role="menuitemradio"
+                        aria-checked={selected}
+                        key={option.value}
+                        onClick={() => {
+                          setListingSort(option.value);
+                          setSortOpen(false);
+                        }}
+                      >
+                        <Icon size={15} aria-hidden="true" />
+                        <span>{option.label}</span>
+                        {selected && <Check size={15} className="sp-sort-check" aria-hidden="true" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              className={`sp-menu-trigger sp-category-trigger${categoryFilterSummary ? " has-selection" : ""}`}
+              aria-label={categoryFilterSummary || refLabels.advancedSearch}
+              title={categoryFilterSummary || refLabels.advancedSearch}
+              onClick={() => {
+                setDrawerOpenStep(0);
+                setDrawerOpen(true);
+              }}
+            >
+              <Menu size={20} aria-hidden="true" />
+            </button>
+            {categoryFilterSummary && (
+              <span className="sp-filter-summary" title={categoryFilterSummary}>
+                {categoryFilterSummary}
+              </span>
+            )}
+            {hasAdvancedFilters && (
+              <div className="sp-filter-actions">
+                <button type="button" className="sp-filter-reset" onClick={resetListingFilters}>
+                  <RotateCcw size={14} aria-hidden="true" />
+                  {refLabels.resetFilters}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab === "listings" && (
-          listings.length === 0 ? (
+          listingsLoading && listings.length === 0 && showListingsLoader ? (
+            <SellerTabLoading label={t.loadingListings} />
+          ) : !listingsLoaded && listings.length === 0 ? (
+            <div className="seller-tab-loading-placeholder" aria-hidden="true" />
+          ) : listings.length === 0 ? (
             <div className="sp-empty">
               <div className="sp-empty-icon">
                 <Building2 size={48} />
@@ -425,77 +1730,344 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               <h3>{t.spNoListings}</h3>
               <p>{t.spNoListingsDesc.replace("{name}", sellerName)}</p>
             </div>
-          ) : (
-            <div className="seller-listing-grid">
-              {sortedListings.map((listing) => (
-                <Link className="listing-card seller-listing-card" href={`/listing/${listing.id}`} key={listing.id}>
-                  <span className="seller-listing-image">
-                    <img src={listing.image_url} alt="" />
-                    <span className="seller-listing-heart" aria-hidden="true">
-                      <Heart size={20} />
-                    </span>
-                  </span>
-                  <div className="listing-body">
-                    <strong className="seller-listing-price">{formatPrice(listing.price)}</strong>
-                    <h3>{getListingTitle(listing)}</h3>
-                    <p>{getLocalizedListingText(listing, locale).description}</p>
-                    <div className="seller-listing-meta">
-                      <span>
-                        <MapPin size={12} />
-                        {listing.location}
-                      </span>
-                      <span>
-                        <CalendarDays size={12} />
-                        {formatListingDate(listing.created_at, locale)}
-                      </span>
-                    </div>
-                    <div className="price-row">
-                      <span>{(t as Record<string,string>)["cond" + (listing.condition === "Hyvä" ? "Good" : listing.condition === "Uusi" ? "New" : listing.condition === "Kuin uusi" ? "LikeNew" : listing.condition === "Tyydyttävä" ? "Fair" : listing.condition === "Heikko" ? "Poor" : "")] || listing.condition}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+          ) : filteredListings.length === 0 ? (
+            <div className="sp-empty">
+              <div className="sp-empty-icon">
+                <Search size={48} />
+              </div>
+              <h3>{refLabels.noFilterResults}</h3>
+              <p>{refLabels.searchPlaceholder}</p>
             </div>
+          ) : (
+            <>
+            <div className="seller-listing-grid">
+              {paginatedSellerListings.map((listing, index) => {
+                const title = getListingTitle(listing);
+                const locationLabel = formatListingLocation(listing.location, t.country);
+                const countryFlag = getCountryFlagFromLocation(locationLabel, t.country);
+                const fallbackImage = listingFallbackImageSrc(listing, index);
+                const imageSrc = listingImageSrc(listing, index);
+                const isFavorite = favorites.includes(listing.id);
+                return (
+                  <article
+                    className="listing-card seller-listing-card"
+                    key={listing.id}
+                    role="link"
+                    tabIndex={0}
+                    aria-label={`${t.openListing} ${title}`}
+                    onClick={() => router.push(`/listing/${listing.id}`)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        router.push(`/listing/${listing.id}`);
+                      }
+                    }}
+                  >
+                    <span className="seller-listing-image">
+                      <span className="seller-listing-image-blur" aria-hidden="true">
+                        <img
+                          src={imageSrc}
+                          alt=""
+                          loading="lazy"
+                          onError={(event) => {
+                            if (event.currentTarget.src.endsWith(fallbackImage)) return;
+                            event.currentTarget.src = fallbackImage;
+                          }}
+                        />
+                      </span>
+                      <img
+                        src={imageSrc}
+                        alt={title}
+                        loading="lazy"
+                        onError={(event) => {
+                          if (event.currentTarget.src.endsWith(fallbackImage)) return;
+                          event.currentTarget.src = fallbackImage;
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className={`seller-listing-heart${isFavorite ? " is-active" : ""}`}
+                        disabled={!currentUserId}
+                        aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
+                        title={!currentUserId ? t.login : undefined}
+                        onClick={(event) => toggleFavorite(event, listing.id)}
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onTouchStart={(event) => event.stopPropagation()}
+                      >
+                        <Heart size={17} fill={isFavorite ? "currentColor" : "none"} />
+                      </button>
+                    </span>
+                    <div className="listing-body">
+                      <strong className="seller-listing-price">{formatPrice(listing.price)}</strong>
+                      <h3>{title}</h3>
+                      <p>{getLocalizedListingText(listing, locale).description}</p>
+                      <div className="seller-listing-meta">
+                        <span className="seller-listing-location">
+                          {countryFlag ? (
+                            <span
+                              className="seller-listing-country-flag"
+                              data-country={countryFlag.code}
+                              aria-hidden="true"
+                            >
+                              <img
+                                src={countryFlag.src}
+                                alt=""
+                                loading="lazy"
+                                onError={(event) => {
+                                  event.currentTarget.style.display = "none";
+                                }}
+                              />
+                            </span>
+                          ) : null}
+                          <span className="seller-listing-location-label">{locationLabel}</span>
+                        </span>
+                        <span>
+                          <Clock3 size={14} />
+                          {formatListingDate(listing.created_at, locale)}
+                        </span>
+                      </div>
+                      <div className="price-row">
+                        <span>{(t as Record<string,string>)["cond" + (listing.condition === "Hyvä" ? "Good" : listing.condition === "Uusi" ? "New" : listing.condition === "Kuin uusi" ? "LikeNew" : listing.condition === "Tyydyttävä" ? "Fair" : listing.condition === "Heikko" ? "Poor" : "")] || listing.condition}</span>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+            {sellerListingTotalPages > 1 && (
+              <nav className="seller-profile-pagination" aria-label="Myyjän ilmoitusten sivutus">
+                <button
+                  type="button"
+                  className="seller-profile-page-button"
+                  disabled={sellerListingPage === 1}
+                  onClick={() => setSellerListingPage((page) => Math.max(1, page - 1))}
+                  aria-label="Edellinen sivu"
+                >
+                  ‹
+                </button>
+                {Array.from({ length: sellerListingTotalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    if (sellerListingTotalPages <= 5) return true;
+                    if (page === 1 || page === sellerListingTotalPages) return true;
+                    return Math.abs(page - sellerListingPage) <= 1;
+                  })
+                  .reduce<(number | "...")[]>((pages, page, index, source) => {
+                    if (index > 0 && page - (source[index - 1] as number) > 1) {
+                      pages.push("...");
+                    }
+                    pages.push(page);
+                    return pages;
+                  }, [])
+                  .map((page, index) =>
+                    page === "..." ? (
+                      <span className="seller-profile-page-gap" key={`gap-${index}`}>...</span>
+                    ) : (
+                      <button
+                        type="button"
+                        key={page}
+                        className={`seller-profile-page-button${page === sellerListingPage ? " is-active" : ""}`}
+                        aria-current={page === sellerListingPage ? "page" : undefined}
+                        onClick={() => setSellerListingPage(page)}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+                <button
+                  type="button"
+                  className="seller-profile-page-button"
+                  disabled={sellerListingPage === sellerListingTotalPages}
+                  onClick={() => setSellerListingPage((page) => Math.min(sellerListingTotalPages, page + 1))}
+                  aria-label="Seuraava sivu"
+                >
+                  ›
+                </button>
+              </nav>
+            )}
+            </>
           )
         )}
 
         {activeTab === "reviews" && (
-          reviews.length === 0 ? (
-            <div className="sp-empty">
-              <div className="sp-empty-icon">
-                <Star size={48} />
-              </div>
-              <h3>{t.noReviews}</h3>
-              <p>{reviewEmptyDescription}</p>
-            </div>
+          reviewsLoading && reviews.length === 0 && showReviewsLoader ? (
+            <SellerTabLoading label={loadingReviewsLabel} />
+          ) : !reviewsLoaded && reviews.length === 0 ? (
+            <div className="seller-tab-loading-placeholder" aria-hidden="true" />
           ) : (
-            <div className="review-list">
-              {reviews.map((review) => (
-                <article className="review-card" key={review.id}>
-                  <div className="review-card-head">
-                    <strong>{review.reviewer_name}</strong>
-                    <span>
-                      <Star size={15} />
-                      {review.rating}/5
-                    </span>
+            <section className="seller-review-dashboard" aria-label={t.spReviews}>
+              <div className="seller-review-summary">
+                <div className="seller-review-score-card">
+                  <Star size={60} fill="currentColor" aria-hidden="true" />
+                  <div>
+                    <strong>
+                      {averageRating.toFixed(1)}
+                      <span> / 5</span>
+                    </strong>
+                    <p>{reviewLabels.average}</p>
+                    <small>
+                      <Users size={14} aria-hidden="true" />
+                      {reviewLabels.basedOn} {reviews.length} {reviewBasisWord}
+                    </small>
                   </div>
-                  <p>{review.comment}</p>
-                </article>
-              ))}
-            </div>
+                </div>
+
+                <div className="seller-review-bars" aria-label="Arvostelujakauma">
+                  {reviewRatingCounts.map(({ stars, count }) => (
+                    <div className="seller-review-bar-row" key={stars}>
+                      {renderReviewStars(stars, 14)}
+                      <span className="seller-review-bar-track">
+                        <span
+                          className="seller-review-bar-fill"
+                          style={{ width: `${reviews.length ? (count / reviews.length) * 100 : 0}%` }}
+                        />
+                      </span>
+                      <strong>{count}</strong>
+                    </div>
+                  ))}
+                </div>
+
+                <aside className="seller-review-verify-card">
+                  <span className="seller-review-shield">
+                    <Shield size={32} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <strong>{reviewLabels.verifiedTitle}</strong>
+                    <p>{reviewLabels.verifiedBody}</p>
+                  </div>
+                </aside>
+              </div>
+
+              <div className="seller-review-filters">
+                <button type="button" className="seller-review-filter-select">
+                  {reviewLabels.starFilter}
+                  <ChevronDown size={16} aria-hidden="true" />
+                </button>
+                <div className="seller-review-star-filters" role="group" aria-label={reviewLabels.starFilter}>
+                  <button
+                    type="button"
+                    className={`seller-review-star-button${reviewRatingFilter === 0 ? " active" : ""}`}
+                    onClick={() => setReviewRatingFilter(0)}
+                  >
+                    {reviewLabels.all}
+                  </button>
+                  {[5, 4, 3, 2, 1].map((stars) => (
+                    <button
+                      type="button"
+                      className={`seller-review-star-button${reviewRatingFilter === stars ? " active" : ""}`}
+                      key={stars}
+                      onClick={() => setReviewRatingFilter(stars)}
+                    >
+                      {renderReviewStars(stars, 13)}
+                    </button>
+                  ))}
+                </div>
+                <label className="seller-review-sort">
+                  <select
+                    value={reviewSort}
+                    aria-label={refLabels.newestFirst}
+                    onChange={(event) => setReviewSort(event.target.value as ReviewSort)}
+                  >
+                    {reviewSortOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={16} aria-hidden="true" />
+                </label>
+              </div>
+
+              {filteredReviews.length === 0 ? (
+                <div className="sp-empty seller-review-empty">
+                  <div className="sp-empty-icon">
+                    {reviews.length === 0 ? <Star size={44} /> : <Search size={44} />}
+                  </div>
+                  <h3>{reviews.length === 0 ? t.noReviews : reviewLabels.noMatches}</h3>
+                  <p>{reviews.length === 0 ? reviewEmptyDescription : reviewLabels.search}</p>
+                </div>
+              ) : (
+                <div className="seller-review-grid">
+                  {filteredReviews.map((review) => (
+                    <article className="seller-review-card" key={review.id}>
+                      <div className="seller-review-card-head">
+                        <span className="seller-review-avatar">{getReviewInitials(review.reviewer_name)}</span>
+                        <div>
+                          <strong>
+                            {review.reviewer_name}
+                            <Check size={13} aria-hidden="true" />
+                          </strong>
+                          <small>{formatReviewAge(review.created_at, locale)}</small>
+                        </div>
+                        {renderReviewStars(review.rating, 16)}
+                      </div>
+                      <p>{review.comment}</p>
+                      <div className="seller-review-card-actions">
+                        <button
+                          type="button"
+                          className={`seller-review-like${review.is_liked ? " is-liked" : ""}`}
+                          disabled={Boolean(reviewLikeSaving[review.id])}
+                          aria-pressed={Boolean(review.is_liked)}
+                          aria-label="Tykkää arvostelusta"
+                          onClick={() => handleReviewLikeToggle(review.id)}
+                        >
+                          <ThumbsUp size={14} aria-hidden="true" />
+                          {review.like_count ?? 0}
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
           )
         )}
+
+        {activeTab === "about" && (
+          <article className="seller-ref-about">
+            <h2>{refLabels.about}</h2>
+            <p>{profile?.bio?.trim() || refLabels.noBio}</p>
+          </article>
+        )}
+
+        <CategoryDrawer
+          isOpen={drawerOpen}
+          onClose={() => {
+            setDrawerOpen(false);
+            setDrawerOpenStep(undefined);
+          }}
+          vehicleType={vehicleTypeFilter}
+          brand={brandFilter}
+          model={modelFilter}
+          year={yearFilter}
+          engineCc={engineCcFilter}
+          engineModel={engineModelFilter}
+          category={categoryFilter}
+          subcategory={subcategoryFilter}
+          openAtStep={drawerOpenStep}
+          vehicleBrands={vehicleBrands}
+          vehicleCategories={vehicleCategories}
+          partsCategories={partsCategories}
+          onApply={({ vehicleType, brand, model, year, engineCc, engineModel, category, subcategory }) => {
+            setVehicleTypeFilter(vehicleType);
+            setBrandFilter(brand);
+            setModelFilter(model);
+            setYearFilter(year);
+            setEngineCcFilter(engineCc);
+            setEngineModelFilter(engineModel);
+            setCategoryFilter(category);
+            setSubcategoryFilter(subcategory);
+            setActiveTab("listings");
+          }}
+        />
       </section>
 
       <style jsx>{`
         .seller-page {
           min-height: 100vh;
           padding: clamp(18px, 3vw, 34px) 0 88px;
-          background:
-            radial-gradient(760px 320px at 88% -8%, rgba(255, 122, 26, 0.12), transparent 62%),
-            radial-gradient(680px 300px at 8% 0%, rgba(64, 216, 255, 0.08), transparent 68%),
-            #0b1118 !important;
-          color: #f4f8fc;
+          background: var(--site-bg, #c8d0d7) !important;
+          background-image: none !important;
+          color: #0f172a;
         }
 
         .sp-wrap {
@@ -739,6 +2311,17 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
           color: #fff;
         }
 
+        .sp-search-field .sp-search-input {
+          appearance: none !important;
+          -webkit-appearance: none !important;
+          background: transparent !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          outline: 0 !important;
+          padding: 0 !important;
+        }
+
         .sp-sort-wrap {
           position: relative;
           min-width: 0;
@@ -947,6 +2530,11 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
           font-weight: 950;
         }
 
+        .sp-empty.seller-review-empty h3,
+        .sp-empty.seller-review-empty p {
+          color: #ff8a16;
+        }
+
         .sp-empty p,
         .review-card p {
           margin: 0;
@@ -1100,3 +2688,5 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     </main>
   );
 }
+
+
