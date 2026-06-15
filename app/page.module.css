@@ -14461,6 +14461,145 @@
   }
 }
 
+/* Phone home reference lock: keep the hero content visible below the compact topbar. */
+@media (max-width: 720px) {
+  .heroWrap {
+    --hero-stage-height: min(620px, calc(100dvh - 56px)) !important;
+    background:
+      linear-gradient(180deg, rgba(3, 12, 23, 0.18) 0%, rgba(3, 12, 23, 0.24) 48%, rgba(3, 12, 23, 0.82) 100%),
+      var(--hero-bg-url, url("/hero-bg.png")) center top / cover no-repeat !important;
+    height: var(--hero-stage-height) !important;
+    min-height: var(--hero-stage-height) !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .heroWrap > .container,
+  .hero {
+    height: 100% !important;
+  }
+
+  .hero {
+    align-items: start !important;
+    display: grid !important;
+    justify-items: center !important;
+    overflow: visible !important;
+    padding: clamp(40px, 10dvh, 72px) 10px 28px !important;
+  }
+
+  .heroInner {
+    align-content: start !important;
+    display: grid !important;
+    gap: 0 !important;
+    justify-items: center !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .heroHeadline {
+    color: #ffffff !important;
+    display: grid !important;
+    font-size: clamp(24px, 7vw, 29px) !important;
+    font-weight: 950 !important;
+    gap: 0 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.04 !important;
+    margin: 0 auto 24px !important;
+    max-width: 310px !important;
+    text-align: center !important;
+    text-shadow: 0 7px 22px rgba(0, 0, 0, 0.55) !important;
+    width: 100% !important;
+  }
+
+  .heroHeadline span:first-child {
+    display: block !important;
+  }
+
+  .heroHeadlineAccent {
+    color: #ff7a1a !important;
+  }
+
+  .heroSearch {
+    background: rgba(4, 14, 26, 0.94) !important;
+    border: 1px solid rgba(255, 122, 26, 0.82) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    height: 56px !important;
+    margin: 0 auto !important;
+    max-width: min(326px, calc(100vw - 56px)) !important;
+    min-height: 56px !important;
+    padding: 0 16px !important;
+    width: 100% !important;
+  }
+
+  .heroSearchInput {
+    color: #f6fbff !important;
+    font-size: 16px !important;
+    font-weight: 850 !important;
+    height: 100% !important;
+    padding: 0 !important;
+    -webkit-text-fill-color: #f6fbff !important;
+  }
+
+  .heroSearchInput::placeholder {
+    color: rgba(226, 235, 243, 0.72) !important;
+    opacity: 1 !important;
+  }
+
+  .heroQuickCategoryRow {
+    display: grid !important;
+    gap: 12px 10px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    justify-content: center !important;
+    margin: 24px auto 0 !important;
+    max-width: min(326px, calc(100vw - 56px)) !important;
+    width: 100% !important;
+  }
+
+  .heroQuickCategoryItem,
+  .heroGaragePillWrap {
+    display: block !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .heroQuickCategoryRow > .heroQuickCategoryItem:last-of-type:nth-child(odd) {
+    grid-column: 1 / -1 !important;
+    justify-self: center !important;
+    width: calc((100% - 10px) / 2) !important;
+  }
+
+  .heroQuickCategory {
+    border-radius: 8px !important;
+    font-size: clamp(11px, 3vw, 13px) !important;
+    font-weight: 950 !important;
+    gap: 6px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 8px !important;
+  }
+
+  .heroQuickCategory svg {
+    height: 13px !important;
+    width: 13px !important;
+  }
+
+  .heroRefineCategoryButton {
+    border-radius: 8px !important;
+    grid-column: 1 / -1 !important;
+    margin-top: 2px !important;
+    max-width: 280px !important;
+    min-height: 40px !important;
+    width: 100% !important;
+  }
+
+  .mainGrid,
+  .recoFullBleed,
+  .listingsPlainSection {
+    padding-top: 0 !important;
+  }
+}
+
 /* Absolute final mobile pagination sizing: no wrapped page numbers or overlapping jump input. */
 @media (max-width: 720px) {
   .pagination {

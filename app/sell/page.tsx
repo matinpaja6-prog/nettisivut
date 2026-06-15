@@ -6,7 +6,8 @@ import {
   useMemo,
   useRef,
   useState,
-  type InputHTMLAttributes
+  type InputHTMLAttributes,
+  type RefObject
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -1303,6 +1304,7 @@ export default function SellPage() {
   const [selectedCompanySellerId, setSelectedCompanySellerId] = useState("");
   const uploadedImagesRef = useRef<UploadedImage[]>([]);
   const vehicleFieldRefs = useRef<Partial<Record<VehicleDetailKey, HTMLInputElement | null>>>({});
+  const listingLocationInputRef = useRef<HTMLInputElement | null>(null);
   const steps =
     useMemo(
       () =>
@@ -2429,7 +2431,7 @@ export default function SellPage() {
     };
   }
 
-  function validateListingPayload(payload: ListingInput) {
+  function validateListingPayload(payload: ListingInput, imageCount: number) {
     if (isCompanyAccount && companySellers.length === 0) {
       return "Lisää yritykselle vähintään yksi myyjä profiilin Myyjät-osiossa ennen julkaisua.";
     }
@@ -2437,12 +2439,12 @@ export default function SellPage() {
       return "Valitse ilmoitukselle myyjä ennen julkaisua.";
     }
     if (payload.title.trim().length < 3) return "Lisa vahintaan 3 merkin otsikko.";
-    if (payload.description.trim().length < 10) return "Lisa vahintaan 10 merkin kuvaus.";
     if (!String(payload.category ?? "").trim()) return "Valitse kategoria ennen julkaisua.";
     if (!String(payload.condition ?? "").trim()) return "Valitse kuntoluokitus ennen julkaisua.";
     if (payload.price <= 0) return "Lisa ilmoitukselle hinta. Hinnan taytyy olla vahintaan 1 euro.";
-    if (listingNeedsTrackMatDimensions(payload) && !descriptionHasTrackMatDimensions(payload.description)) {
-      return `Kirjoita telamaton mitat ilmoituksen kuvaukseen: ${payload.title}.`;
+    if (imageCount <= 0) return "Lisa vahintaan yksi kuva jokaiseen julkaistavaan ilmoitukseen.";
+    if (listingNeedsTrackMatDimensions(payload)) {
+      void descriptionHasTrackMatDimensions(payload.description);
     }
     if (mode === "single" && !listingLocation.trim()) return "Lisa sijainti ennen julkaisua.";
     return "";
@@ -2483,18 +2485,32 @@ export default function SellPage() {
     try {
       const listingParts =
         mode === "multiple"
-          ? selectedMultiPartList
+          ? selectedMultiPartList.filter((part) =>
+              part.title.trim().length >= 3 &&
+              getPublishPrice(part.price) > 0 &&
+              part.condition.trim().length > 0 &&
+              part.images.length > 0
+            )
           : [undefined];
       const draftPayloads =
         listingParts.map((part) => buildListingPayload(part));
 
       if (draftPayloads.length === 0) {
-        setPublishError("Valitse vahintaan yksi myytava osa ennen julkaisua.");
+        setPublishError(
+          mode === "multiple"
+            ? "Yhtaan julkaisukelpoista ilmoitusta ei loytynyt. Lisaa julkaistaville osille otsikko, hinta, kunto ja vahintaan yksi kuva."
+            : "Valitse vahintaan yksi myytava osa ennen julkaisua."
+        );
         return;
       }
 
-      for (const payload of draftPayloads) {
-        const validationError = validateListingPayload(payload);
+      for (let index = 0; index < draftPayloads.length; index += 1) {
+        const payload = draftPayloads[index];
+        const part = listingParts[index];
+        const imageCount = part ? part.images.length : uploadedImages.length;
+        if (!payload) continue;
+
+        const validationError = validateListingPayload(payload, imageCount);
         if (validationError) {
           setPublishError(validationError);
           return;
@@ -2952,7 +2968,7 @@ export default function SellPage() {
                       <small className={styles.multiPriceSuggestionMuted}>Haetaan...</small>
                     ) : null}
                   </span>
-                  <label className={styles.multiConditionSelect}>
+                  <span className={styles.multiConditionSelect}>
                     <span className={styles[`conditionDot${conditionKey}` as keyof typeof styles]} />
                     <select
                       value={part.condition}
@@ -2965,7 +2981,7 @@ export default function SellPage() {
                       <option>Käytetty</option>
                       <option>Korjattava</option>
                     </select>
-                  </label>
+                  </span>
                   <span className={styles.multiListingActions}>
                     <button
                       type="button"
@@ -3517,6 +3533,17 @@ export default function SellPage() {
                 options={categoryOptions.map((value) => ({ value, label: value }))}
                 placeholder="Ei kategorioita"
                 autoOpenNonce={categoryAutoOpenTarget?.field === "category" ? categoryAutoOpenTarget.nonce : 0}
+                open={categoryAutoOpenTarget?.field === "category"}
+                onOpenChange={(open) => {
+                  if (open) {
+                    setCategoryAutoOpenTarget({ field: "category", nonce: Date.now() });
+                    return;
+                  }
+
+                  setCategoryAutoOpenTarget((current) =>
+                    current?.field === "category" ? null : current
+                  );
+                }}
               />
               <CategorySelect
                 label="Alakategoria"
@@ -3531,6 +3558,17 @@ export default function SellPage() {
                 }}
                 options={categoryGroupOptions}
                 autoOpenNonce={categoryAutoOpenTarget?.field === "group" ? categoryAutoOpenTarget.nonce : 0}
+                open={categoryAutoOpenTarget?.field === "group"}
+                onOpenChange={(open) => {
+                  if (open) {
+                    setCategoryAutoOpenTarget({ field: "group", nonce: Date.now() });
+                    return;
+                  }
+
+                  setCategoryAutoOpenTarget((current) =>
+                    current?.field === "group" ? null : current
+                  );
+                }}
                 placeholder="Valitse pääkategoria"
               />
               <CategorySelect
@@ -3538,10 +3576,24 @@ export default function SellPage() {
                 icon={Tags}
                 value={selectedDetailCategory}
                 onChange={(value) => {
-                  updateStepThreeSelection(() => setSubcategory(value));
+                  updateStepThreeSelection(() => {
+                    setSubcategory(value);
+                    setCategoryAutoOpenTarget(null);
+                  });
                 }}
                 options={detailCategoryOptions}
                 autoOpenNonce={categoryAutoOpenTarget?.field === "detail" ? categoryAutoOpenTarget.nonce : 0}
+                open={categoryAutoOpenTarget?.field === "detail"}
+                onOpenChange={(open) => {
+                  if (open) {
+                    setCategoryAutoOpenTarget({ field: "detail", nonce: Date.now() });
+                    return;
+                  }
+
+                  setCategoryAutoOpenTarget((current) =>
+                    current?.field === "detail" ? null : current
+                  );
+                }}
                 placeholder="Valitse alakategoria"
               />
             </div>
@@ -3779,7 +3831,10 @@ export default function SellPage() {
                 label="Kunto"
                 icon={Star}
                 value={condition}
-                onChange={setCondition}
+                onChange={(value) => {
+                  setCondition(value);
+                  window.setTimeout(() => listingLocationInputRef.current?.focus(), 60);
+                }}
                 options={[
                   { value: "Uusi", label: "Uusi" },
                   { value: "Hyvä", label: "Hyvä" },
@@ -3794,6 +3849,7 @@ export default function SellPage() {
                 placeholder="Kaupunki tai paikkakunta"
                 value={listingLocation}
                 onChange={setListingLocation}
+                inputRef={listingLocationInputRef}
               />
             </div>
           </section>
@@ -4420,6 +4476,8 @@ function CategorySelect({
   options,
   placeholder,
   autoOpenNonce,
+  open: controlledOpen,
+  onOpenChange,
   onChange
 }: {
   label: string;
@@ -4428,21 +4486,33 @@ function CategorySelect({
   options: SelectOption[];
   placeholder: string;
   autoOpenNonce?: number;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onChange: (value: string) => void;
 }) {
   const hasOptions = options.length > 0;
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
   const selectedOption = options.find((option) => option.value === value);
   const displayValue = hasOptions ? selectedOption?.label ?? placeholder : placeholder;
 
+  const setSelectOpen = useCallback((nextOpen: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(nextOpen);
+      return;
+    }
+
+    setUncontrolledOpen(nextOpen);
+  }, [onOpenChange]);
+
   useEffect(() => {
-    if (!autoOpenNonce || !hasOptions) return;
-    setOpen(true);
-  }, [autoOpenNonce, hasOptions]);
+    if (!autoOpenNonce || !hasOptions || open) return;
+    setSelectOpen(true);
+  }, [autoOpenNonce, hasOptions, open, setSelectOpen]);
 
   function chooseOption(nextValue: string) {
+    setSelectOpen(false);
     onChange(nextValue);
-    setOpen(false);
   }
 
   return (
@@ -4452,7 +4522,7 @@ function CategorySelect({
         className={`${styles.categorySelectShell} ${open ? styles.categorySelectOpen : ""}`}
         data-sell-category-select="true"
         onBlur={() => {
-          window.setTimeout(() => setOpen(false), 120);
+          window.setTimeout(() => setSelectOpen(false), 120);
         }}
       >
         <span className={styles.categorySelectIcon}>
@@ -4462,7 +4532,7 @@ function CategorySelect({
           type="button"
           className={`${styles.categorySelectButton} ${value ? "" : styles.categorySelectPlaceholder}`}
           onClick={() => {
-            if (hasOptions) setOpen((current) => !current);
+            if (hasOptions) setSelectOpen(!open);
           }}
           disabled={!hasOptions}
           aria-haspopup="listbox"
@@ -4580,13 +4650,15 @@ function PlainIconInput({
   icon: Icon,
   placeholder,
   value,
-  onChange
+  onChange,
+  inputRef
 }: {
   label: string;
   icon: LucideIcon;
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
+  inputRef?: RefObject<HTMLInputElement | null>;
 }) {
   return (
     <label className={styles.plainIconField}>
@@ -4594,6 +4666,7 @@ function PlainIconInput({
       <span className={styles.plainIconShell}>
         <Icon size={22} aria-hidden="true" />
         <input
+          ref={inputRef}
           placeholder={placeholder}
           value={value}
           onChange={(event) => onChange(event.target.value)}
