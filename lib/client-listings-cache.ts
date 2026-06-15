@@ -1,6 +1,6 @@
 import type { Listing } from "@/lib/listings";
 
-const LISTINGS_CACHE_KEY = "arctic-listings-cache-v1";
+const LISTINGS_CACHE_KEY = "arctic-listings-cache-v2";
 const LISTINGS_CACHE_MAX_AGE_MS = 30 * 60 * 1000;
 
 type ListingsCache = {
@@ -51,7 +51,7 @@ export function readCachedListings() {
 }
 
 export function writeCachedListings(listings: Listing[]) {
-  if (typeof window === "undefined" || listings.length === 0) return;
+  if (typeof window === "undefined") return;
 
   const cache = {
     cachedAt: Date.now(),

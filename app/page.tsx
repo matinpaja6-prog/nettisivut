@@ -1475,7 +1475,7 @@ export default function Home() {
           return;
         }
 
-        if (mounted && data && data.length > 0) {
+        if (mounted && data) {
           const publicData = data.filter(isPublicListing);
           setListings(publicData);
           if (typeof count === "number") setListingsTotalCount(count);
@@ -1502,7 +1502,7 @@ export default function Home() {
               console.warn("Ilmoitusten varalataus epäonnistui.", retryError);
             }
 
-            if (mounted && data && data.length > 0) {
+            if (mounted && data) {
               const publicData = data.filter(isPublicListing);
               setListings(publicData);
               if (typeof count === "number") setListingsTotalCount(count);

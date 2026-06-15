@@ -127,16 +127,25 @@ export default function VisitorLanguageGate() {
     if (!open) return;
 
     const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousHtmlOverflowX = document.documentElement.style.overflowX;
+    const previousHtmlOverscrollBehavior = document.documentElement.style.overscrollBehavior;
     const previousBodyOverflow = document.body.style.overflow;
+    const previousBodyOverflowX = document.body.style.overflowX;
     const previousBodyOverscrollBehavior = document.body.style.overscrollBehavior;
 
     document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.overflowX = "hidden";
+    document.documentElement.style.overscrollBehavior = "none";
     document.body.style.overflow = "hidden";
+    document.body.style.overflowX = "hidden";
     document.body.style.overscrollBehavior = "none";
 
     return () => {
       document.documentElement.style.overflow = previousHtmlOverflow;
+      document.documentElement.style.overflowX = previousHtmlOverflowX;
+      document.documentElement.style.overscrollBehavior = previousHtmlOverscrollBehavior;
       document.body.style.overflow = previousBodyOverflow;
+      document.body.style.overflowX = previousBodyOverflowX;
       document.body.style.overscrollBehavior = previousBodyOverscrollBehavior;
     };
   }, [open]);
