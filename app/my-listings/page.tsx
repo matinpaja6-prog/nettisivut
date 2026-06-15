@@ -103,6 +103,12 @@ function getEditableListingImages(
   );
 }
 
+function getListingMainImage(
+  listing: Pick<Listing, "image_url" | "image_urls">
+) {
+  return getEditableListingImages(listing)[0] ?? fallbackListingImage;
+}
+
 function getUserWrittenDescription(description: string) {
   const lines = (description || "").replace(/\r\n/g, "\n").split("\n");
   let index = 0;
@@ -1891,7 +1897,7 @@ export default function MyListingsPage() {
                           <div className={styles.rowImageWrap}>
                             <OptimizedListingImage
                               className={styles.rowImage}
-                              src={listing.image_url}
+                              src={getListingMainImage(listing)}
                               alt={listing.title}
                               sizes="96px"
                             />

@@ -1678,3 +1678,115 @@ html body .sell-container.sell-current-category #sell-step-category.is-multi-cat
     z-index: 1 !important;
   }
 }
+
+/* Phone form and dialog rescue: prevent iOS input zoom and keep dense cards readable. */
+@media (max-width: 760px) {
+  html body :where(
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea,
+    button
+  ) {
+    font-size: 16px !important;
+  }
+
+  html body :where(input, select, textarea) {
+    -webkit-text-size-adjust: 100% !important;
+    touch-action: manipulation !important;
+  }
+
+  html body .pf-page {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  html body .pf-page :where(.pf-content, .pf-form) {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  html body .pf-page :where(.pf-section, .pf-save-bar) {
+    border-radius: 10px !important;
+    overflow: hidden !important;
+  }
+
+  html body .pf-page :where(.pf-info-row, #julkinen-profiili .pf-field, #osoite .pf-info-row, #osoite .pf-field) {
+    align-items: center !important;
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    padding: 12px !important;
+  }
+
+  html body .pf-page :where(.pf-info-label, #julkinen-profiili .pf-field label, #osoite .pf-info-label) {
+    grid-column: 2 !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+  }
+
+  html body .pf-page :where(.pf-info-value, #julkinen-profiili .pf-locked, #julkinen-profiili .pf-readonly-value, #julkinen-profiili input, #julkinen-profiili textarea, #osoite .pf-info-value, #osoite input) {
+    grid-column: 1 / -1 !important;
+    margin-top: 6px !important;
+    min-height: 44px !important;
+  }
+
+  html body .pf-page :where(.pf-info-value input, .pf-info-value input:disabled, .pf-info-value > span, .pf-phone-number, #julkinen-profiili input, #julkinen-profiili textarea, #osoite input) {
+    font-size: 16px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+  }
+
+  html body .pf-page .pf-phone-row {
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .pf-page .pf-phone-actions {
+    display: grid !important;
+    gap: 8px !important;
+    grid-auto-flow: row !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .delete-listing-modal-backdrop {
+    align-items: start !important;
+    min-height: 100dvh !important;
+    overflow-y: auto !important;
+    padding: max(12px, env(safe-area-inset-top)) 10px max(18px, env(safe-area-inset-bottom)) !important;
+  }
+
+  html body .delete-listing-modal {
+    border-radius: 14px !important;
+    margin: 0 auto !important;
+    max-height: none !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    padding: 18px !important;
+    width: 100% !important;
+  }
+
+  html body .delete-listing-modal h2 {
+    font-size: clamp(24px, 8vw, 34px) !important;
+    line-height: 1.12 !important;
+    white-space: normal !important;
+  }
+
+  html body :where(.delete-reason-options, .delete-buyer-mode, .delete-listing-modal-actions, .delete-phone-lookup-row) {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+  }
+
+  html body :where(.delete-reason-options button, .delete-buyer-mode button, .delete-listing-modal-actions button, .delete-phone-lookup-row button) {
+    justify-content: center !important;
+    min-height: 48px !important;
+    width: 100% !important;
+  }
+
+  html body :where(.delete-sold-price, .delete-buyer-select, .delete-phone-lookup) {
+    min-width: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+}
