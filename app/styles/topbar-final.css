@@ -277,7 +277,37 @@ html body header.universal-app-topbar .rebuilt-profile-button {
 
 html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar {
   height: 34px !important;
+  overflow: visible !important;
+  position: relative !important;
   width: 34px !important;
+}
+
+html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar img,
+html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar .profile-avatar-initial {
+  border-radius: inherit !important;
+}
+
+html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar-lock {
+  align-items: center !important;
+  background: linear-gradient(135deg, #071827, #020914) !important;
+  border: 1px solid rgba(255, 190, 112, 0.78) !important;
+  border-radius: 999px !important;
+  bottom: -3px !important;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.28) !important;
+  color: #ffb45f !important;
+  display: inline-flex !important;
+  height: 15px !important;
+  justify-content: center !important;
+  position: absolute !important;
+  right: -3px !important;
+  width: 15px !important;
+  z-index: 3 !important;
+}
+
+html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar-lock svg {
+  display: block !important;
+  height: 9px !important;
+  width: 9px !important;
 }
 
 html body header.universal-app-topbar .rebuilt-profile-button-copy {

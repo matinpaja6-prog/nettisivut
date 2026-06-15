@@ -726,6 +726,9 @@ export default function UniversalTopbar() {
               ) : (
                 <span className="profile-avatar-initial">{profileInitial}</span>
               )}
+              <span className="universal-profile-avatar-lock">
+                <LockKeyhole size={9} strokeWidth={3} />
+              </span>
             </span>
             <span className="rebuilt-profile-button-copy">
               <strong>{t.profile}</strong>

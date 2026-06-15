@@ -479,8 +479,8 @@ export default function AdminPage() {
   const handleVerifyPhone = async (user: AdminProfileRow, newPhone?: string) => {
     const { error } = await adminForceVerifyPhone(user.id, newPhone);
     if (error) { showError("Vahvistus epäonnistui."); return; }
-    showOk("Puhelinnumero vahvistettu, laskuri nollattu.");
-    setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, phone_verified_at: new Date().toISOString(), phone_verification_count: 0, phone: newPhone ?? u.phone } : u));
+    showOk("Puhelinnumero vahvistettu.");
+    setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, phone_verified_at: new Date().toISOString(), phone_verification_count: Math.max(1, u.phone_verification_count ?? 0), phone: newPhone ?? u.phone } : u));
     setConfirm(null);
   };
 
@@ -1476,8 +1476,9 @@ function UserTableRow({
 
   const verifyCount = u.phone_verification_count;
   const verifyMax = 2 + (u.extra_phone_verifications ?? 0);
+  const phoneVerified = Boolean(u.phone_verified_at);
   const verifyClass =
-    verifyCount === 0 ? "danger" : verifyCount >= verifyMax ? "warn" : "ok";
+    !phoneVerified ? "danger" : verifyCount >= verifyMax ? "warn" : "ok";
   const slots = BASE_LISTING_SLOT_LIMIT + (u.extra_listing_slots ?? 0);
 
   return (
@@ -1507,7 +1508,7 @@ function UserTableRow({
       <td>
         {u.is_banned ? (
           <span className={`${styles.statusPill} ${styles.statusBanned}`}>Bannattu</span>
-        ) : verifyCount === 0 ? (
+        ) : !phoneVerified ? (
           <span className={`${styles.statusPill} ${styles.statusPending}`}>Odottaa</span>
         ) : (
           <span className={`${styles.statusPill} ${styles.statusActive}`}>Aktiivinen</span>

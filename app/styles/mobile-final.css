@@ -557,6 +557,99 @@
   }
 }
 
+/* Profile completion mobile fields: keep phone and birth date controls readable. */
+@media (max-width: 760px) {
+  html body .simple-auth-page .profile-finalize-card .registration-fields > label:has(.phone-field-row),
+  html body .simple-auth-page .profile-finalize-card .registration-fields > .date-field {
+    width: 100% !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-field-row {
+    align-items: stretch !important;
+    display: grid !important;
+    gap: 0 !important;
+    grid-template-columns: minmax(86px, 96px) minmax(0, 1fr) !important;
+    height: 48px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-code-select-wrap {
+    border-right: 1px solid rgba(112, 178, 230, 0.3) !important;
+    display: grid !important;
+    min-width: 0 !important;
+    place-items: center !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-code-select-wrap::before,
+  html body .simple-auth-page .profile-finalize-card .phone-code-flag {
+    display: none !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-code-selected {
+    color: #ffffff !important;
+    display: block !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+    inset: auto !important;
+    line-height: 1 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    padding: 0 22px 0 10px !important;
+    pointer-events: none !important;
+    position: relative !important;
+    text-align: center !important;
+    text-overflow: ellipsis !important;
+    transform: none !important;
+    white-space: nowrap !important;
+    z-index: 2 !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-field-row select {
+    inset: 0 !important;
+    opacity: 0 !important;
+    padding: 0 !important;
+    position: absolute !important;
+    width: 100% !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-field-row input {
+    font-size: 15px !important;
+    min-width: 0 !important;
+    padding: 0 12px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-field-control {
+    display: grid !important;
+    gap: 0 !important;
+    grid-template-columns: minmax(62px, 0.78fr) minmax(92px, 1.24fr) minmax(76px, 0.98fr) !important;
+    height: 48px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-field-control svg {
+    display: none !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-field-control select {
+    border-left: 1px solid rgba(112, 178, 230, 0.24) !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    padding: 0 8px !important;
+    text-align: center !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-field-control select:first-of-type {
+    border-left: 0 !important;
+  }
+}
+
 /* Absolute last seller profile header alignment. */
 @media (max-width: 760px) {
   html body .seller-page .seller-ref-copy > .seller-ref-pill-row {
