@@ -50,6 +50,7 @@ import {
   type ListingMessageCount,
   type ReviewBuyerLookup
 } from "@/lib/supabase";
+import { removeCachedListing, updateCachedListing } from "@/lib/client-listings-cache";
 
 import styles from "./my-listings.module.css";
 
@@ -528,9 +529,11 @@ export default function MyListingsPage() {
         l.id === listing.id ? { ...l, is_hidden: next } : l
       )
     );
+    updateCachedListing({ ...listing, is_hidden: next });
     const { error } = await setListingHidden(listing.id, next);
     if (error) {
       setStatus("Näkyvyyden vaihto epäonnistui.");
+      updateCachedListing({ ...listing, is_hidden: !next });
       setListings((prev) =>
         prev.map((l) =>
           l.id === listing.id ? { ...l, is_hidden: !next } : l
@@ -788,6 +791,7 @@ export default function MyListingsPage() {
         return;
       }
       setListings((prev) => prev.filter((l) => l.id !== listing.id));
+      removeCachedListing(listing.id);
       setStatus(pageText.deleted ?? "Ilmoitus poistettu.");
       return;
     }
@@ -1032,6 +1036,7 @@ export default function MyListingsPage() {
           listing.id !== deleteTarget.id
       )
     );
+    removeCachedListing(deleteTarget.id);
 
     setStatus(
       deleteReason === "sold"

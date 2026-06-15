@@ -527,10 +527,15 @@ export async function getListings(options: GetListingsOptions = {}) {
 
   try {
 
-    const fetchListingsChunk = (columns: string[], from: number, to: number) =>
+    const publicListingsQuery = (columns: string[], includeCount = false) =>
       supabase
         .from("listings")
-        .select(columns.join(","))
+        .select(columns.join(","), includeCount ? { count: "exact" } : undefined)
+        .eq("is_sold", false)
+        .eq("is_hidden", false);
+
+    const fetchListingsChunk = (columns: string[], from: number, to: number) =>
+      publicListingsQuery(columns)
         .order("created_at", { ascending: false })
         .range(from, to)
         .returns<Listing[]>();
@@ -541,9 +546,7 @@ export async function getListings(options: GetListingsOptions = {}) {
       to: number,
       includeCount: boolean
     ) =>
-      supabase
-        .from("listings")
-        .select(columns.join(","), includeCount ? { count: "exact" } : undefined)
+      publicListingsQuery(columns, includeCount)
         .order("created_at", { ascending: false })
         .range(from, to)
         .returns<Listing[]>();
@@ -601,7 +604,11 @@ export async function getListings(options: GetListingsOptions = {}) {
         ));
       }
 
-      return { data: data ?? [], error, count: count ?? null };
+      return {
+        data: (data ?? []).filter((listing) => !listing.is_sold && !listing.is_hidden),
+        error,
+        count: count ?? null
+      };
     }
 
     let { data, error } = await fetchAllListings(
@@ -612,7 +619,14 @@ export async function getListings(options: GetListingsOptions = {}) {
       ({ data, error } = await fetchAllListings(BASE_LISTING_CARD_COLUMN_LIST));
     }
 
-    if (error || !data) return { data: data ?? [], error };
+    if (error || !data) {
+      return {
+        data: (data ?? []).filter((listing) => !listing.is_sold && !listing.is_hidden),
+        error
+      };
+    }
+
+    data = data.filter((listing) => !listing.is_sold && !listing.is_hidden);
 
     if (!options.enrichSellerProfiles) {
       return { data, error: null };
@@ -918,7 +932,8 @@ export async function getMarketplaceStats(): Promise<{
       supabase
         .from("listings")
         .select("id", { count: "exact", head: true })
-        .eq("is_sold", false),
+        .eq("is_sold", false)
+        .eq("is_hidden", false),
       supabase
         .from("sold_listings")
         .select("id", { count: "exact", head: true }),
@@ -1076,6 +1091,15 @@ export async function setListingHidden(
       p_listing_id: listingId,
       p_hidden: hidden
     });
+    if (error && isMissingDatabaseRoutine(error)) {
+      const result = await supabase
+        .from("listings")
+        .update({ is_hidden: hidden })
+        .eq("id", listingId)
+        .select("is_hidden")
+        .maybeSingle<{ is_hidden: boolean }>();
+      return { data: result.data?.is_hidden ?? null, error: result.error };
+    }
     return { data, error };
   } catch (error) {
     return { data: null, error };
@@ -1251,10 +1275,18 @@ export async function deleteListing(
       .from("listings")
       .delete()
       .eq("id", listingId)
-      .eq("seller_id", user.id);
+      .eq("seller_id", user.id)
+      .select("id")
+      .maybeSingle<{ id: string }>();
 
     if (deleteResult.error) {
       return deleteResult;
+    }
+
+    if (!deleteResult.data?.id) {
+      return {
+        error: new Error("Ilmoitusta ei poistettu. Tarkista tietokannan poistopolitiikat.")
+      };
     }
 
     const imageCleanupError =
@@ -1972,6 +2004,25 @@ function hasMissingListingColumns(error: unknown) {
     message.includes("original_language") ||
     message.includes("translations") ||
     message.includes("part_number")
+  );
+}
+
+function isMissingDatabaseRoutine(error: unknown) {
+  const message =
+    error && typeof error === "object" && "message" in error
+      ? String((error as { message?: unknown }).message ?? "")
+      : String(error ?? "");
+  const code =
+    error && typeof error === "object" && "code" in error
+      ? String((error as { code?: unknown }).code ?? "")
+      : "";
+  const lowerMessage = message.toLowerCase();
+
+  return (
+    code === "42883" ||
+    code === "PGRST202" ||
+    lowerMessage.includes("could not find the function") ||
+    (lowerMessage.includes("function") && lowerMessage.includes("does not exist"))
   );
 }
 

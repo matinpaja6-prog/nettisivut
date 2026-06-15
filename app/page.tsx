@@ -72,6 +72,10 @@ type Locale = "fi" | "en" | "sv" | "no" | "et";
 const HOME_RETURN_STATE_KEY = "home_return_state_v1";
 const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
 
+function isPublicListing(listing: Listing) {
+  return !listing.is_sold && !listing.is_hidden;
+}
+
 const translations = {
   fi: {
     createListing: "Luo ilmoitus",
@@ -1441,7 +1445,8 @@ export default function Home() {
     async function loadListings() {
       const cachedListings = readCachedListings();
       const localListings =
-        cachedListings.length > 0 ? cachedListings : fallbackListings;
+        (cachedListings.length > 0 ? cachedListings : fallbackListings)
+          .filter(isPublicListing);
 
       if (localListings.length > 0 && mounted) {
         setListings(localListings);
@@ -1471,9 +1476,10 @@ export default function Home() {
         }
 
         if (mounted && data && data.length > 0) {
-          setListings(data);
+          const publicData = data.filter(isPublicListing);
+          setListings(publicData);
           if (typeof count === "number") setListingsTotalCount(count);
-          writeCachedListings(data);
+          writeCachedListings(publicData);
         }
       } catch (error) {
         console.warn("Nopea ilmoitusten lataus epäonnistui, yritetään pidemmällä aikakatkaisulla.", error);
@@ -1497,9 +1503,10 @@ export default function Home() {
             }
 
             if (mounted && data && data.length > 0) {
-              setListings(data);
+              const publicData = data.filter(isPublicListing);
+              setListings(publicData);
               if (typeof count === "number") setListingsTotalCount(count);
-              writeCachedListings(data);
+              writeCachedListings(publicData);
             }
           } catch (retryError) {
             console.warn("Ilmoitusten varalataus aikakatkaistiin.", retryError);
@@ -1634,6 +1641,7 @@ export default function Home() {
 
   const filteredListings = useMemo(() => {
     return listings
+      .filter(isPublicListing)
       .filter((listing) => {
         const listingText = getListingText(listing);
         const listingPartNumber = getListingPartNumber(listing);
@@ -2104,7 +2112,7 @@ export default function Home() {
           const seen = new Set(current.map((listing) => listing.id));
           const next = [...current];
 
-          for (const listing of data) {
+          for (const listing of data.filter(isPublicListing)) {
             if (seen.has(listing.id)) continue;
             seen.add(listing.id);
             next.push(listing);

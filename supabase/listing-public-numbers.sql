@@ -17,27 +17,41 @@ alter sequence public.listing_number_seq
   minvalue 1
   start with 1;
 
-drop index if exists public.listings_listing_number_key;
+update public.listings
+set listing_number = listing_number - 100000
+where listing_number >= 100001;
 
-with ordered as (
-  select
-    id,
-    row_number() over (order by created_at asc, id asc) as next_number
+with numbered_existing as (
+  select coalesce(max(listing_number), 0) as max_listing_number
   from public.listings
+),
+missing_numbers as (
+  select
+    l.id,
+    numbered_existing.max_listing_number +
+      row_number() over (order by l.created_at asc, l.id asc) as next_number
+  from public.listings l
+  cross join numbered_existing
+  where l.listing_number is null
 )
 update public.listings l
-set listing_number = ordered.next_number
-from ordered
-where l.id = ordered.id;
+set listing_number = missing_numbers.next_number
+from missing_numbers
+where l.id = missing_numbers.id;
 
 with sequence_state as (
-  select max(listing_number) as max_listing_number
-  from public.listings
+  select greatest(
+    coalesce((select max(listing_number) from public.listings), 0),
+    case
+      when to_regclass('public.listing_number_seq') is null then 0
+      else (select last_value from public.listing_number_seq)
+    end
+  ) as max_listing_number
 )
 select setval(
   'public.listing_number_seq',
   greatest(1, coalesce(max_listing_number, 1)),
-  max_listing_number is not null
+  max_listing_number > 0
 )
 from sequence_state;
 

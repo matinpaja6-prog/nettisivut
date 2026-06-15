@@ -2317,7 +2317,9 @@
 
  .page :global(.delete-reason-options),
  .page :global(.delete-buyer-mode) {
+  display: grid !important;
   gap: 10px !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
 
  .page :global(.delete-reason-options button),
@@ -2330,6 +2332,7 @@
   color: #edf6ff !important;
   font-weight: 900 !important;
   min-height: 44px !important;
+  white-space: nowrap !important;
 }
 
  .page :global(.delete-reason-options button.active),
@@ -2369,16 +2372,24 @@
 }
 
  .page :global(.delete-phone-lookup-row) {
+  align-items: stretch !important;
+  display: grid !important;
   gap: 10px !important;
+  grid-template-columns: minmax(0, 1fr) 88px !important;
 }
 
  .page :global(.delete-phone-lookup-row button) {
+  align-items: center !important;
   background: linear-gradient(135deg, #ff9824 0%, #ff7a1a 100%) !important;
   border: 1px solid rgba(255, 218, 184, 0.72) !important;
   border-radius: 10px !important;
   color: #071827 !important;
   font-weight: 950 !important;
+  gap: 6px !important;
+  justify-content: center !important;
   min-height: 46px !important;
+  padding-inline: 12px !important;
+  white-space: nowrap !important;
 }
 
  .page :global(.delete-muted) {

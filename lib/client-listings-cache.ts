@@ -71,3 +71,48 @@ export function writeCachedListings(listings: Listing[]) {
 export function readCachedListing(listingId: string) {
   return readCachedListings().find((listing) => listing.id === listingId) ?? null;
 }
+
+export function removeCachedListing(listingId: string) {
+  if (typeof window === "undefined") return;
+
+  const nextListings = readCachedListings().filter((listing) => listing.id !== listingId);
+  memoryCache = {
+    cachedAt: Date.now(),
+    listings: nextListings
+  };
+
+  try {
+    const serialized = JSON.stringify(memoryCache);
+    localStorage.setItem(LISTINGS_CACHE_KEY, serialized);
+    sessionStorage.setItem(LISTINGS_CACHE_KEY, serialized);
+  } catch {
+    // Ignore storage cleanup failures in restricted browser contexts.
+  }
+}
+
+export function updateCachedListing(nextListing: Listing) {
+  if (typeof window === "undefined") return;
+
+  const listings = readCachedListings();
+  if (listings.length === 0) return;
+
+  const nextListings =
+    nextListing.is_hidden || nextListing.is_sold
+      ? listings.filter((listing) => listing.id !== nextListing.id)
+      : listings.map((listing) =>
+          listing.id === nextListing.id ? { ...listing, ...nextListing } : listing
+        );
+
+  memoryCache = {
+    cachedAt: Date.now(),
+    listings: nextListings
+  };
+
+  try {
+    const serialized = JSON.stringify(memoryCache);
+    localStorage.setItem(LISTINGS_CACHE_KEY, serialized);
+    sessionStorage.setItem(LISTINGS_CACHE_KEY, serialized);
+  } catch {
+    // Ignore storage cleanup failures in restricted browser contexts.
+  }
+}
