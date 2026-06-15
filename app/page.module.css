@@ -14546,6 +14546,34 @@
     opacity: 1 !important;
   }
 
+  .heroSearch,
+  .heroSearch:focus-within {
+    outline: 0 !important;
+  }
+
+  .heroSearchInput,
+  .heroSearchInput:focus,
+  .heroSearchInput:focus-visible {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    caret-color: #f6fbff !important;
+    outline: 0 !important;
+    padding-left: 0 !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  .heroSearchInput::-webkit-search-cancel-button,
+  .heroSearchInput::-webkit-search-decoration,
+  .heroSearchInput::-webkit-search-results-button,
+  .heroSearchInput::-webkit-search-results-decoration {
+    display: none !important;
+    -webkit-appearance: none !important;
+  }
+
   .heroQuickCategoryRow {
     display: grid !important;
     gap: 12px 10px !important;

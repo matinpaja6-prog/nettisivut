@@ -84,12 +84,12 @@ const translations = {
     signOut: "Kirjaudu ulos",
     heroTitle: "Maskines",
     heroSubtitle: "Nopea haku. Laaja valikoima. Luotettavat myyjät.",
-    heroLeadStart: "Nopea haku.",
-    heroLeadHighlight: "Laaja valikoima.",
-    heroLeadEnd: "Luotettavat myyjät.",
+    heroLeadStart: "Nopea haku",
+    heroLeadHighlight: "Laaja valikoima",
+    heroLeadEnd: "Luotettavat myyjät",
     brandTagline: "Kaikki varaosat. Kaikilta. Sinulle.",
     searchLabel: "Haku",
-    searchCta: "Hae",
+    searchCta: "Hae varaosia",
     searchPlaceholder: "Hae varaosia, merkkiä tai mallia...",
     vehicleSelection: "Ajoneuvon valinta",
     content: "Sisältö",
@@ -164,9 +164,9 @@ const translations = {
     signOut: "Log out",
     heroTitle: "Vehicle parts that move you forward.",
     heroSubtitle: "Fast search. Wide selection. Trusted sellers.",
-    heroLeadStart: "Fast search.",
-    heroLeadHighlight: "Wide selection.",
-    heroLeadEnd: "Trusted sellers.",
+    heroLeadStart: "Fast search",
+    heroLeadHighlight: "Wide selection",
+    heroLeadEnd: "Trusted sellers",
     brandTagline: "All parts. From everyone. For you.",
     searchLabel: "Search",
     searchCta: "Search",
@@ -244,9 +244,9 @@ const translations = {
     signOut: "Logga ut",
     heroTitle: "Fordonsdelar som tar dig framåt.",
     heroSubtitle: "Snabb sökning. Brett utbud. Pålitliga säljare.",
-    heroLeadStart: "Snabb sökning.",
-    heroLeadHighlight: "Brett utbud.",
-    heroLeadEnd: "Pålitliga säljare.",
+    heroLeadStart: "Snabb sökning",
+    heroLeadHighlight: "Brett utbud",
+    heroLeadEnd: "Pålitliga säljare",
     brandTagline: "Alla delar. Från alla. För dig.",
     searchLabel: "Sök",
     searchCta: "Sök",
@@ -324,9 +324,9 @@ const translations = {
     signOut: "Logg ut",
     heroTitle: "Kjøretøydeler som tar deg videre.",
     heroSubtitle: "Raskt søk. Stort utvalg. Pålitelige selgere.",
-    heroLeadStart: "Raskt søk.",
-    heroLeadHighlight: "Stort utvalg.",
-    heroLeadEnd: "Pålitelige selgere.",
+    heroLeadStart: "Raskt søk",
+    heroLeadHighlight: "Stort utvalg",
+    heroLeadEnd: "Pålitelige selgere",
     brandTagline: "Alle deler. Fra alle. For deg.",
     searchLabel: "Søk",
     searchCta: "Søk",
@@ -404,9 +404,9 @@ const translations = {
     signOut: "Logi välja",
     heroTitle: "Sõidukiosad, mis viivad sind edasi.",
     heroSubtitle: "Kiire otsing. Lai valik. Usaldusväärsed müüjad.",
-    heroLeadStart: "Kiire otsing.",
-    heroLeadHighlight: "Lai valik.",
-    heroLeadEnd: "Usaldusväärsed müüjad.",
+    heroLeadStart: "Kiire otsing",
+    heroLeadHighlight: "Lai valik",
+    heroLeadEnd: "Usaldusväärsed müüjad",
     brandTagline: "Kõik osad. Kõigilt. Sulle.",
     searchLabel: "Otsing",
     searchCta: "Otsi",
@@ -1186,7 +1186,7 @@ export default function Home() {
           return false;
         }
 
-        setDrawerOpenStep(vehicleType ? 2 : 3);
+        setDrawerOpenStep(2);
         return true;
       });
     }
@@ -2503,7 +2503,7 @@ export default function Home() {
                 type="button"
                 className={styles.heroRefineCategoryButton}
                 onClick={() => {
-                  setDrawerOpenStep(vehicleType ? 2 : 3);
+                  setDrawerOpenStep(2);
                   setDrawerOpen(true);
                 }}
               >
