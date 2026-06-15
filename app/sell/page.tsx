@@ -76,6 +76,7 @@ type UploadedImage = {
 };
 
 type VehicleDetails = {
+  vehicleSubtype: string;
   brand: string;
   model: string;
   year: string;
@@ -252,6 +253,7 @@ function descriptionHasTrackMatDimensions(description: string) {
 const vehicleDetailPresets: Record<
   string,
   Omit<VehicleDetails, "brand"> & {
+    typeOptions: string[];
     models: string[];
     engineCcs: string[];
     engineTypes: string[];
@@ -259,44 +261,81 @@ const vehicleDetailPresets: Record<
   }
 > = {
   Moottorikelkka: {
+    vehicleSubtype: "Sport - moottorikelkka",
     model: "MXZ X-RS 600 E-TEC",
     year: "2020",
     engineCc: "850",
     engineType: "E-TEC",
     driveType: "Telamatto",
+    typeOptions: [
+      "Crossover - moottorikelkka",
+      "Deep snow - moottorikelkka",
+      "Sport - moottorikelkka",
+      "Touring - moottorikelkka",
+      "Työ - moottorikelkka",
+      "Watercross - moottorikelkka"
+    ],
     models: ["MXZ RS 600", "MXZ X-RS 600 E-TEC", "Rave RS", "Rave RE", "IQR 600", "ZR 600 R-XC"],
     engineCcs: ["440", "500", "600", "650", "800", "850", "900", "1000"],
     engineTypes: ["Rotax 600RS", "E-TEC", "Patriot", "Cleanfire", "C-TEC2", "4-tahti", "Turbo"],
     driveTypes: ["Telamatto"]
   },
   Mönkijä: {
+    vehicleSubtype: "ATV - mönkijä",
     model: "Outlander",
     year: "2020",
     engineCc: "850",
     engineType: "Rotax",
     driveType: "4WD",
+    typeOptions: [
+      "ATV - mönkijä",
+      "UTV - mönkijä",
+      "Sport - mönkijä",
+      "Työ - mönkijä",
+      "Maasto - mönkijä",
+      "6x6 - mönkijä",
+      "Lasten - mönkijä"
+    ],
     models: ["Outlander", "Renegade", "Sportsman", "Grizzly", "TRX", "CFORCE"],
     engineCcs: ["450", "500", "570", "700", "850", "1000"],
     engineTypes: ["Rotax", "EFI", "SOHC", "DOHC", "4-tahti"],
     driveTypes: ["2WD", "4WD", "6WD"]
   },
   Motocross: {
+    vehicleSubtype: "Motocross - crossi",
     model: "SX-F",
     year: "2020",
     engineCc: "250",
     engineType: "4-tahti",
     driveType: "Ketju",
+    typeOptions: [
+      "Motocross - crossi",
+      "Enduro - crossi",
+      "Supermoto - crossi",
+      "Trial - crossi",
+      "Pitbike - crossi",
+      "Minicross - crossi"
+    ],
     models: ["SX-F", "EXC-F", "YZ-F", "CRF", "FC", "KX"],
     engineCcs: ["125", "250", "300", "350", "450", "500"],
     engineTypes: ["2-tahti", "4-tahti", "TPI", "EFI"],
     driveTypes: ["Ketju"]
   },
   Mopo: {
+    vehicleSubtype: "Mopo - mopo",
     model: "DT",
     year: "2020",
     engineCc: "50",
     engineType: "2-tahti",
     driveType: "Ketju",
+    typeOptions: [
+      "Mopo - mopo",
+      "Skootteri - mopo",
+      "Supermoto - mopo",
+      "Enduro - mopo",
+      "Manki / monkey - mopo",
+      "Piikki 125 - mopo"
+    ],
     models: ["DT", "Senda", "MRT", "RX", "SX", "RS"],
     engineCcs: ["50", "70", "80", "125"],
     engineTypes: ["2-tahti", "4-tahti", "AM6", "Derbi D50B0"],
@@ -946,6 +985,7 @@ function getModelEngineOptions(
 
 function buildEmptyVehicleDetails(): VehicleDetails {
   return {
+    vehicleSubtype: "",
     brand: "",
     model: "",
     year: "",
@@ -1628,6 +1668,7 @@ export default function SellPage() {
     setMode("single");
     setVehicleType(nextVehicle);
     setVehicleDetails({
+      vehicleSubtype: "",
       brand: make,
       model,
       year,
@@ -2386,6 +2427,7 @@ export default function SellPage() {
       ? uniqueOptions([
           vehicleDetails.brand,
           vehicleDetails.model,
+          vehicleDetails.vehicleSubtype,
           vehicleDetails.year,
           part.detail
         ]).join(" ")
@@ -2425,6 +2467,7 @@ export default function SellPage() {
       seller_avatar_url: null,
       user_id: null,
       view_count: 0,
+      vehicle_subtype: vehicleDetails.vehicleSubtype.trim(),
       is_sold: false,
       is_hidden: false,
       sold_price: null,
@@ -2724,6 +2767,7 @@ export default function SellPage() {
           const automaticTitle = uniqueOptions([
             vehicleDetails.brand,
             vehicleDetails.model,
+            vehicleDetails.vehicleSubtype,
             vehicleDetails.year,
             part.detail
           ]).join(" ");
@@ -2899,6 +2943,7 @@ export default function SellPage() {
     const automaticTitle = uniqueOptions([
       vehicleDetails.brand,
       vehicleDetails.model,
+      vehicleDetails.vehicleSubtype,
       vehicleDetails.year,
       part.detail
     ]).join(" ");
@@ -3174,7 +3219,7 @@ export default function SellPage() {
                     setCategory("");
                     setCategoryGroup("");
                     setSubcategory("");
-                    focusVehicleField("brand");
+                    focusVehicleField("vehicleSubtype");
                   }}
                 >
                   <img src={vehicle.image} alt="" />
@@ -3186,6 +3231,20 @@ export default function SellPage() {
           </div>
 
           <form className={styles.vehicleForm}>
+            <PresetField
+              label="Tyyppi"
+              value={vehicleDetails.vehicleSubtype}
+              options={vehiclePreset.typeOptions}
+              onChange={(value) => updateVehicleDetail("vehicleSubtype", value)}
+              customMode={Boolean(customVehicleFields.vehicleSubtype)}
+              onCustomModeChange={(customMode) => updateVehicleCustomMode("vehicleSubtype", customMode)}
+              onComplete={() => completeVehicleField("brand")}
+              inputRef={(element) => {
+                vehicleFieldRefs.current.vehicleSubtype = element;
+              }}
+              placeholder="Valitse tyyppi"
+              customPlaceholder="Kirjoita tyyppi"
+            />
             <PresetField
               label="Merkki"
               value={vehicleDetails.brand}
@@ -4001,6 +4060,7 @@ export default function SellPage() {
 
     const vehicleSummary = uniqueOptions([
       vehicleType.title,
+      vehicleDetails.vehicleSubtype,
       vehicleDetails.brand,
       vehicleDetails.model,
       vehicleDetails.year

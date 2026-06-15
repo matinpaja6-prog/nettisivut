@@ -218,6 +218,7 @@ export type ListingUpdateInput = Pick<
   | "original_language"
   | "translations"
   | "price"
+  | "vehicle_subtype"
   | "category"
   | "subcategory"
   | "part_number"
@@ -488,6 +489,7 @@ const OPTIONAL_LISTING_CARD_COLUMN_LIST = [
   "listing_number",
   "original_language",
   "translations",
+  "vehicle_subtype",
   "part_number",
   "image_urls",
   "company_name",
@@ -1030,6 +1032,7 @@ export async function getPublicListingsBySeller(
       "listing_mode",
       "price",
       "vehicle_type",
+      "vehicle_subtype",
       "brand",
       "model",
       "year",
@@ -1366,6 +1369,7 @@ export async function recordSoldListing(
       price: listing.price,
       sold_price: soldPrice,
       vehicle_type: listing.vehicle_type ?? null,
+      vehicle_subtype: listing.vehicle_subtype ?? null,
       brand: listing.brand ?? null,
       model: listing.model ?? null,
       year: listing.year ?? null,
@@ -1390,6 +1394,7 @@ export async function recordSoldListing(
     if (hasMissingListingColumns(insertResult.error)) {
       const optionalSoldColumns = new Set([
         "listing_mode",
+        "vehicle_subtype",
         "engine_cc",
         "engine_model",
         "part_number",
@@ -1963,6 +1968,7 @@ export async function createListing(
       delete fallbackPayload.translations;
       delete fallbackPayload.part_number;
       delete fallbackPayload.listing_mode;
+      delete fallbackPayload.vehicle_subtype;
 
       result = await supabase
         .from("listings")

@@ -1348,6 +1348,12 @@ export default function ListingPage() {
                     {translateVehicleTypeLabel(listing.vehicle_type)}
                   </span>
                 )}
+                {listing.vehicle_subtype && (
+                  <span>
+                    <strong>Tyyppi</strong>
+                    {listing.vehicle_subtype}
+                  </span>
+                )}
                 {listingPartNumber && (
                   <span>
                     <strong>{ui.partNumber}</strong>

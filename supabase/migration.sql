@@ -12,6 +12,7 @@ alter table public.profiles
 
 alter table public.listings
   add column if not exists vehicle_type text not null default '',
+  add column if not exists vehicle_subtype text not null default '',
   add column if not exists seller_id uuid references public.profiles(id) on delete set null,
   add column if not exists brand text not null default '',
   add column if not exists category text not null default 'Koti',

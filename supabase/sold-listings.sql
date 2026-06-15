@@ -7,6 +7,7 @@ create table if not exists public.sold_listings (
   price numeric,
   sold_price numeric not null default 0,
   vehicle_type text,
+  vehicle_subtype text,
   brand text,
   model text,
   year text,
@@ -33,6 +34,7 @@ alter table public.sold_listings alter column title drop not null;
 alter table public.sold_listings
   add column if not exists listing_mode text not null default 'single'
   check (listing_mode in ('single', 'multiple'));
+alter table public.sold_listings add column if not exists vehicle_subtype text;
 alter table public.sold_listings add column if not exists engine_cc text;
 alter table public.sold_listings add column if not exists engine_model text;
 alter table public.sold_listings add column if not exists part_number text;

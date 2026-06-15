@@ -37,6 +37,9 @@ export type Listing = {
   // ajoneuvotyyppi
   vehicle_type?: string | null;
 
+  // ajoneuvon tarkempi tyyppi
+  vehicle_subtype?: string | null;
+
   // merkki
   brand?: string | null;
 
@@ -105,6 +108,7 @@ export type SoldListing = {
   price?: number | null;
   sold_price: number;
   vehicle_type?: string | null;
+  vehicle_subtype?: string | null;
   brand?: string | null;
   model?: string | null;
   year?: string | null;

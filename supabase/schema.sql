@@ -119,6 +119,8 @@ create table if not exists public.listings (
   translations jsonb not null default '{}'::jsonb,
   listing_mode text not null default 'single' check (listing_mode in ('single', 'multiple')),
   price integer not null check (price >= 0),
+  vehicle_type text not null default '',
+  vehicle_subtype text not null default '',
   brand text not null default '',
   category text not null,
   subcategory text not null default '',
