@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   type InputHTMLAttributes,
+  type PointerEvent,
   type RefObject
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -4322,6 +4323,7 @@ function PresetField({
   );
   const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const innerInputRef = useRef<HTMLInputElement | null>(null);
+  const optionSelectHandledRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -4343,7 +4345,7 @@ function PresetField({
     onCustomModeChange(false);
     onChange(option);
     setOpen(false);
-    onComplete();
+    window.setTimeout(onComplete, 40);
   }
 
   function selectOther() {
@@ -4358,6 +4360,26 @@ function PresetField({
 
   function toggleOptions() {
     setOpen((current) => !current);
+  }
+
+  function handleOptionPointerDown(event: PointerEvent<HTMLButtonElement>, option: string) {
+    event.preventDefault();
+    event.stopPropagation();
+    optionSelectHandledRef.current = true;
+    selectOption(option);
+    window.setTimeout(() => {
+      optionSelectHandledRef.current = false;
+    }, 180);
+  }
+
+  function handleOtherPointerDown(event: PointerEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    optionSelectHandledRef.current = true;
+    selectOther();
+    window.setTimeout(() => {
+      optionSelectHandledRef.current = false;
+    }, 180);
   }
 
   return (
@@ -4440,8 +4462,11 @@ function PresetField({
                     backgroundColor: active ? "#8fc2f3" : "#061726",
                     color: active ? "#04111f" : "#dce8f7"
                   }}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => selectOption(option)}
+                  onPointerDown={(event) => handleOptionPointerDown(event, option)}
+                  onClick={() => {
+                    if (optionSelectHandledRef.current) return;
+                    selectOption(option);
+                  }}
                 >
                   {option}
                 </button>
@@ -4457,8 +4482,11 @@ function PresetField({
                 backgroundColor: effectiveCustomMode ? "#8fc2f3" : "#061726",
                 color: effectiveCustomMode ? "#04111f" : "#f7b56e"
               }}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={selectOther}
+              onPointerDown={handleOtherPointerDown}
+              onClick={() => {
+                if (optionSelectHandledRef.current) return;
+                selectOther();
+              }}
             >
               {otherLabel}
             </button>
@@ -4495,6 +4523,7 @@ function CategorySelect({
   const open = controlledOpen ?? uncontrolledOpen;
   const selectedOption = options.find((option) => option.value === value);
   const displayValue = hasOptions ? selectedOption?.label ?? placeholder : placeholder;
+  const optionSelectHandledRef = useRef(false);
 
   const setSelectOpen = useCallback((nextOpen: boolean) => {
     if (onOpenChange) {
@@ -4512,7 +4541,17 @@ function CategorySelect({
 
   function chooseOption(nextValue: string) {
     setSelectOpen(false);
-    onChange(nextValue);
+    window.setTimeout(() => onChange(nextValue), 20);
+  }
+
+  function handleOptionPointerDown(event: PointerEvent<HTMLButtonElement>, nextValue: string) {
+    event.preventDefault();
+    event.stopPropagation();
+    optionSelectHandledRef.current = true;
+    chooseOption(nextValue);
+    window.setTimeout(() => {
+      optionSelectHandledRef.current = false;
+    }, 180);
   }
 
   return (
@@ -4567,8 +4606,11 @@ function CategorySelect({
                     backgroundColor: active ? "rgba(56, 189, 248, 0.16)" : "#061726",
                     color: "#dce8f7"
                   }}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => chooseOption(option.value)}
+                  onPointerDown={(event) => handleOptionPointerDown(event, option.value)}
+                  onClick={() => {
+                    if (optionSelectHandledRef.current) return;
+                    chooseOption(option.value);
+                  }}
                   role="option"
                   aria-selected={active}
                 >
