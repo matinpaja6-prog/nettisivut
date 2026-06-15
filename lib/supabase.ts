@@ -847,7 +847,7 @@ export async function getListingDisplayNumber(
       return null;
     }
 
-    return count === null ? null : 100000 + count;
+    return count === null ? null : count;
   } catch {
     return null;
   }
@@ -862,7 +862,7 @@ async function resolveListingId(listingIdOrDisplayId: string) {
 
   const displayNumber = Number(value);
 
-  if (!Number.isInteger(displayNumber) || displayNumber < 100001) {
+  if (!Number.isInteger(displayNumber) || displayNumber < 1) {
     return value;
   }
 
@@ -877,7 +877,10 @@ async function resolveListingId(listingIdOrDisplayId: string) {
     return lookup.data.id;
   }
 
-  const rank = displayNumber - 100000;
+  const rank =
+    displayNumber >= 100001
+      ? displayNumber - 100000
+      : displayNumber;
 
   const fallback =
     await supabase!

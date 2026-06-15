@@ -105,9 +105,9 @@ with check (auth.uid()::uuid = reviewer_id::uuid and auth.uid()::uuid <> seller_
 
 create sequence if not exists public.listing_number_seq
   as bigint
-  start with 100001
+  start with 1
   increment by 1
-  minvalue 100001
+  minvalue 1
   no cycle;
 
 create table if not exists public.listings (
