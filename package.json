@@ -6,7 +6,8 @@
     "dev": "next dev",
     "start": "next start",
     "build": "next build",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "empty:storage": "node scripts/empty-supabase-storage.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",

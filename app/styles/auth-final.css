@@ -48,6 +48,185 @@ html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite .pf-section
   transform: none !important;
 }
 
+@media (min-width: 761px) {
+  html body .simple-auth-page:has(.profile-finalize-card) .auth-centered {
+    align-items: flex-start !important;
+    padding: 18px 18px 32px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card {
+    border-color: rgba(255, 134, 24, 0.58) !important;
+    border-radius: 18px !important;
+    box-shadow:
+      0 22px 62px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    gap: 12px !important;
+    max-width: min(760px, calc(100vw - 120px)) !important;
+    padding: 22px 24px 24px !important;
+    width: min(760px, calc(100vw - 120px)) !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .profile-completion-head {
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .eyebrow {
+    font-size: 11px !important;
+    padding: 8px 14px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .profile-completion-head h1 {
+    font-size: clamp(32px, 3vw, 40px) !important;
+    line-height: 1.02 !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card > .profile-alert {
+    gap: 12px !important;
+    min-height: 54px !important;
+    padding: 10px 14px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card > .profile-alert svg {
+    height: 16px !important;
+    padding: 8px !important;
+    width: 16px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card > .profile-alert span {
+    font-size: 14px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .account-type-picker {
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .account-type-card {
+    border-radius: 12px !important;
+    gap: 12px !important;
+    grid-template-columns: 42px minmax(0, 1fr) 30px !important;
+    min-height: 62px !important;
+    padding: 10px 12px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .account-type-icon {
+    height: 42px !important;
+    width: 42px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .account-type-card strong,
+  html body .simple-auth-page .profile-finalize-card .account-type-locked strong {
+    font-size: 16px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .account-type-card span:not(.account-type-check):not(.account-type-icon):not(.account-type-copy),
+  html body .simple-auth-page .profile-finalize-card .account-type-locked > span,
+  html body .simple-auth-page .profile-finalize-card .account-type-locked p {
+    font-size: 12px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .account-type-check {
+    height: 28px !important;
+    width: 28px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .account-type-locked {
+    border-radius: 12px !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    min-height: 62px !important;
+    padding: 10px 12px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .account-type-locked::before {
+    height: 42px !important;
+    width: 42px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .registration-fields {
+    gap: 10px 20px !important;
+    margin-top: 2px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .registration-fields > label,
+  html body .simple-auth-page .profile-finalize-card .registration-fields > .date-field {
+    font-size: 12px !important;
+    gap: 6px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card input:not([type="checkbox"]),
+  html body .simple-auth-page .profile-finalize-card select,
+  html body .simple-auth-page .profile-finalize-card .phone-field-row,
+  html body .simple-auth-page .profile-finalize-card .date-field-control {
+    border-radius: 10px !important;
+    font-size: 14px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-field-row {
+    background: rgba(3, 16, 31, 0.88) !important;
+    display: grid !important;
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+    overflow: hidden !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-code-select-wrap {
+    background: rgba(8, 30, 52, 0.78) !important;
+    border-right: 1px solid rgba(112, 178, 230, 0.3) !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-code-select-wrap::before {
+    display: none !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-code-selected {
+    align-items: center !important;
+    display: flex !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    gap: 6px !important;
+    left: 14px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-code-flag {
+    font-size: 16px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-field-row select {
+    padding: 0 26px 0 12px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-field-row input {
+    border-left: 0 !important;
+    color: #ffffff !important;
+    font-weight: 850 !important;
+    padding: 0 14px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-field-control {
+    grid-template-columns: 40px minmax(66px, 0.86fr) minmax(0, 1.16fr) minmax(78px, 0.86fr) !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-field-control select {
+    height: 44px !important;
+    padding-inline: 12px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .privacy-checkbox-row {
+    min-height: 52px !important;
+    padding: 10px 14px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card button[type="submit"],
+  html body .simple-auth-page .profile-finalize-card .primary-action,
+  html body .simple-auth-page .profile-finalize-card .secondary-button {
+    font-size: 14px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
 html body .pf-page :is(.pf-company-sellers-section, #julkinen-profiili, #osoite, #tilin-turvallisuus) {
   padding-left: 0 !important;
   padding-right: 0 !important;
