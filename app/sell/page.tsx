@@ -66,6 +66,7 @@ type SelectOption = {
 type UploadedImage = {
   id: string;
   url: string;
+  file: File;
   name: string;
   width: number;
   height: number;
@@ -956,6 +957,7 @@ const maxUploadImageSide = 1080;
 const compressedImageQuality = 0.84;
 const fallbackListingImage =
   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80";
+const listingImageBucket = "listing-images";
 
 async function canvasToBlob(
   canvas: HTMLCanvasElement,
@@ -1838,6 +1840,7 @@ export default function SellPage() {
           return {
             id: `${prepared.file.name}-${prepared.file.lastModified}-${crypto.randomUUID()}`,
             url: URL.createObjectURL(prepared.file),
+            file: prepared.file,
             name: prepared.file.name,
             width: prepared.width,
             height: prepared.height,
@@ -1847,6 +1850,7 @@ export default function SellPage() {
           return {
             id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
             url: URL.createObjectURL(file),
+            file,
             name: file.name,
             width: 0,
             height: 0,
@@ -2211,6 +2215,7 @@ export default function SellPage() {
           return {
             id: `${id}-${prepared.file.name}-${prepared.file.lastModified}-${crypto.randomUUID()}`,
             url: URL.createObjectURL(prepared.file),
+            file: prepared.file,
             name: prepared.file.name,
             width: prepared.width,
             height: prepared.height,
@@ -2220,6 +2225,7 @@ export default function SellPage() {
           return {
             id: `${id}-${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
             url: URL.createObjectURL(file),
+            file,
             name: file.name,
             width: 0,
             height: 0,
@@ -2322,7 +2328,56 @@ export default function SellPage() {
     return "Julkaisu epaonnistui. Yrita hetken paasta uudelleen.";
   }
 
-  function buildListingPayload(part?: MultiPartSelection): ListingInput {
+  async function uploadListingImages(images: UploadedImage[]) {
+    if (images.length === 0) return [fallbackListingImage];
+
+    const { supabase } = await import("@/lib/supabase");
+
+    if (!supabase) {
+      throw new Error("Supabase ei ole konfiguroitu.");
+    }
+
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      throw new Error("Et ole kirjautunut.");
+    }
+
+    const uploadedUrls: string[] = [];
+
+    for (const image of images) {
+      const extension =
+        image.file.name.split(".").pop()?.replace(/[^a-zA-Z0-9]/g, "").toLowerCase() ||
+        (image.file.type === "image/png" ? "png" : "webp");
+      const path = `${user.id}/${crypto.randomUUID()}.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(listingImageBucket)
+        .upload(path, image.file, {
+          cacheControl: "31536000",
+          contentType: image.file.type || "image/webp",
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage
+        .from(listingImageBucket)
+        .getPublicUrl(path);
+
+      if (data.publicUrl) {
+        uploadedUrls.push(data.publicUrl);
+      }
+    }
+
+    return uploadedUrls.length > 0 ? uploadedUrls : [fallbackListingImage];
+  }
+
+  function buildListingPayload(part?: MultiPartSelection, imageUrls?: string[]): ListingInput {
     const price = getPublishPrice(part?.price ?? listingPrice);
     const automaticPartTitle = part?.detail
       ? uniqueOptions([
@@ -2337,7 +2392,8 @@ export default function SellPage() {
       mode === "multiple"
         ? part?.description.trim() || `Myynnissa ${part?.detail ?? "varaosa"}. Tarkemmat tiedot saat myyjalta viestilla.`
         : listingDescription.trim();
-    const imageUrls = uploadedImages.length > 0 ? [fallbackListingImage] : [fallbackListingImage];
+    const resolvedImageUrls =
+      imageUrls && imageUrls.length > 0 ? imageUrls : [fallbackListingImage];
 
     return {
       title,
@@ -2357,8 +2413,8 @@ export default function SellPage() {
       location: listingLocation.trim() || "Ei maaritetty",
       condition: part?.condition ?? condition,
       description,
-      image_url: imageUrls[0],
-      image_urls: imageUrls,
+      image_url: resolvedImageUrls[0],
+      image_urls: resolvedImageUrls,
       seller_name: isCompanyAccount ? selectedCompanySeller?.name.trim() ?? "" : "",
       seller_email: "",
       seller_phone: isCompanyAccount ? selectedCompanySeller?.phone.trim() || null : null,
@@ -2425,17 +2481,19 @@ export default function SellPage() {
     setIsPublishing(true);
 
     try {
-      const payloads =
+      const listingParts =
         mode === "multiple"
-          ? selectedMultiPartList.map((part) => buildListingPayload(part))
-          : [buildListingPayload()];
+          ? selectedMultiPartList
+          : [undefined];
+      const draftPayloads =
+        listingParts.map((part) => buildListingPayload(part));
 
-      if (payloads.length === 0) {
+      if (draftPayloads.length === 0) {
         setPublishError("Valitse vahintaan yksi myytava osa ennen julkaisua.");
         return;
       }
 
-      for (const payload of payloads) {
+      for (const payload of draftPayloads) {
         const validationError = validateListingPayload(payload);
         if (validationError) {
           setPublishError(validationError);
@@ -2452,7 +2510,11 @@ export default function SellPage() {
       let firstListingId = "";
       const { createListing } = await import("@/lib/supabase");
 
-      for (const payload of payloads) {
+      for (const part of listingParts) {
+        const imageUrls = await uploadListingImages(
+          part ? part.images : uploadedImages
+        );
+        const payload = buildListingPayload(part, imageUrls);
         const { data, error } = await createListing(payload);
         if (error || !data) {
           setPublishError(getErrorMessage(error));
@@ -2463,6 +2525,8 @@ export default function SellPage() {
       }
 
       router.push(firstListingId ? `/listing/${firstListingId}` : "/my-listings");
+    } catch (error) {
+      setPublishError(getErrorMessage(error));
     } finally {
       setIsPublishing(false);
     }

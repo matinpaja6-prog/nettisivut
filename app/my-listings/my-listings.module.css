@@ -2235,6 +2235,7 @@
     radial-gradient(760px 460px at 50% 8%, rgba(126, 197, 240, 0.16), transparent 62%),
     rgba(1, 9, 19, 0.74) !important;
   backdrop-filter: blur(8px) !important;
+  pointer-events: none !important;
 }
 
  .page :global(.delete-listing-modal) {
@@ -2250,6 +2251,7 @@
   max-width: 620px !important;
   overflow: hidden !important;
   padding: 22px !important;
+  pointer-events: auto !important;
 }
 
  .page :global(.delete-listing-modal::before) {
@@ -2425,9 +2427,35 @@
 }
 
 @media (max-width: 640px) {
+  .page :global(.delete-listing-modal-backdrop) {
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding-inline: 14px !important;
+  }
+
   .page :global(.delete-listing-modal) {
+    box-sizing: border-box !important;
+    margin-inline: auto !important;
     max-width: calc(100vw - 28px) !important;
     padding: 18px !important;
+  }
+
+  .page :global(.delete-listing-modal-heading) {
+    align-items: center !important;
+    display: grid !important;
+    grid-template-columns: 34px minmax(0, 1fr) 34px !important;
+    justify-items: center !important;
+  }
+
+  .page :global(.delete-listing-modal-heading span) {
+    display: inline-flex !important;
+    grid-column: 2 !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .page :global(.delete-listing-modal-heading button) {
+    grid-column: 3 !important;
   }
 
   .page :global(.delete-reason-options),
@@ -2437,8 +2465,18 @@
   }
 
   .page :global(.delete-listing-modal-actions) {
-    margin: 16px -18px -18px !important;
-    padding: 14px 18px 0 !important;
+    justify-items: stretch !important;
+    margin: 16px 0 0 !important;
+    padding: 14px 0 0 !important;
+    width: 100% !important;
+  }
+
+  .page :global(.delete-listing-modal-actions .secondary-button),
+  .page :global(.delete-listing-modal-actions .danger-button) {
+    justify-self: stretch !important;
+    margin-inline: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
   }
 }
 
@@ -3577,6 +3615,98 @@
 @media (max-width: 420px) {
   .page .editPhotoGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Phone edit form fix: keep fields full-width and photo thumbnails compact. */
+@media (max-width: 640px) {
+  .page :global(.own-listing-edit) {
+    box-sizing: border-box !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    justify-items: stretch !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+
+  .page :global(.own-listing-section),
+  .page :global(.own-listing-section:nth-of-type(1)),
+  .page :global(.own-listing-section:nth-of-type(2)),
+  .page :global(.own-listing-section:nth-of-type(3)),
+  .page :global(.own-listing-section:nth-of-type(4)),
+  .page :global(.own-listing-description-field),
+  .page :global(.own-listing-actions) {
+    grid-column: 1 / -1 !important;
+    justify-self: stretch !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .page :global(.own-listing-title-fields),
+  .page :global(.own-listing-grid-3),
+  .page :global(.own-listing-location-pair) {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .page :global(.own-listing-field),
+  .page :global(.own-listing-price-wrap),
+  .page :global(.own-listing-edit input:not([type="file"])),
+  .page :global(.own-listing-edit select),
+  .page :global(.own-listing-edit textarea) {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .page .editPhotoSection {
+    overflow: visible !important;
+  }
+
+  .page .editPhotoHeader {
+    align-items: center !important;
+    flex-direction: row !important;
+  }
+
+  .page .editPhotoBody {
+    gap: 10px !important;
+  }
+
+  .page .editPhotoUploadButton {
+    height: 104px !important;
+    min-height: 104px !important;
+    padding: 10px !important;
+  }
+
+  .page .editPhotoGrid {
+    gap: 8px !important;
+    grid-template-columns: repeat(3, minmax(0, 74px)) !important;
+    justify-content: start !important;
+  }
+
+  .page .editPhotoTile {
+    border-radius: 8px !important;
+    width: 74px !important;
+  }
+
+  .page .editPhotoRemove {
+    height: 20px !important;
+    right: 3px !important;
+    top: 3px !important;
+    width: 20px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .page .editPhotoGrid {
+    grid-template-columns: repeat(3, minmax(0, 64px)) !important;
+  }
+
+  .page .editPhotoTile {
+    width: 64px !important;
   }
 }
 

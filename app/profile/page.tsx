@@ -138,6 +138,26 @@ function formatProfileUpdatedAt(value: string | null | undefined) {
   }).format(date);
 }
 
+function getPhoneChangeUnlockDate(value: string | null | undefined) {
+  if (!value) return null;
+
+  const changedAt = new Date(value);
+  if (Number.isNaN(changedAt.getTime())) return null;
+
+  const unlockDate = new Date(changedAt);
+  unlockDate.setMonth(unlockDate.getMonth() + 2);
+
+  return unlockDate;
+}
+
+function formatPhoneChangeUnlockDate(value: Date) {
+  return new Intl.DateTimeFormat("fi-FI", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric"
+  }).format(value);
+}
+
 function normalizePhoneNumber(value: string) {
   const compact =
     value
@@ -584,6 +604,14 @@ export default function ProfilePage() {
     useState(false);
   const [deleteFinalConfirm, setDeleteFinalConfirm] =
     useState(false);
+  const phoneUnlockDate =
+    getPhoneChangeUnlockDate(profile?.phone_last_changed_at);
+  const phoneChangeLocked =
+    Boolean(phoneUnlockDate && phoneUnlockDate.getTime() > Date.now());
+  const phoneChangeLockText =
+    phoneUnlockDate
+      ? `Puhelinnumeron voi vaihtaa seuraavan kerran ${formatPhoneChangeUnlockDate(phoneUnlockDate)}.`
+      : "";
 
   useEffect(() => {
     return () => {
@@ -780,6 +808,10 @@ export default function ProfilePage() {
 
   function startPhoneEdit() {
     if (!profile) return;
+    if (phoneChangeLocked) {
+      setPhoneStatus(phoneChangeLockText);
+      return;
+    }
     setPhoneDraft(profile.phone ?? "");
     setPhoneStatus("");
     setPhoneEditing(true);
@@ -793,6 +825,15 @@ export default function ProfilePage() {
       setPhoneStatus("Syota puhelinnumero.");
       return;
     }
+    if (nextPhone === normalizePhoneNumber(profile.phone ?? "")) {
+      setPhoneEditing(false);
+      setPhoneStatus("");
+      return;
+    }
+    if (phoneChangeLocked) {
+      setPhoneStatus(phoneChangeLockText);
+      return;
+    }
 
     setPhoneSaving(true);
     setPhoneStatus("Tallennetaan numeroa...");
@@ -802,6 +843,7 @@ export default function ProfilePage() {
         .from("profiles")
         .update({
           phone: nextPhone,
+          phone_last_changed_at: new Date().toISOString(),
           pending_phone: null
         })
         .eq("id", user.id)
@@ -1268,8 +1310,10 @@ export default function ProfilePage() {
                         <div className="pf-phone-actions">
                           <button
                             type="button"
-                            className="pf-inline-btn"
+                            className="pf-inline-btn pf-phone-change-btn"
+                            disabled={phoneChangeLocked}
                             onClick={startPhoneEdit}
+                            title={phoneChangeLocked ? phoneChangeLockText : "Vaihda puhelinnumero"}
                           >
                             {profileText.change}
                           </button>
@@ -1278,15 +1322,6 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   )}
-                  <div className="pf-info-row">
-                    <span className="pf-info-row-icon">
-                      <Mail size={19} />
-                    </span>
-                    <span className="pf-info-label">{t.email}</span>
-                    <div className="pf-info-value">
-                      <input disabled type="email" value={profile.email} />
-                    </div>
-                  </div>
                   {profile.account_type === "private" && (
                     <div className="pf-info-row">
                       <span className="pf-info-row-icon">
@@ -1372,8 +1407,10 @@ export default function ProfilePage() {
                         <div className="pf-phone-actions">
                           <button
                             type="button"
-                            className="pf-inline-btn"
+                            className="pf-inline-btn pf-phone-change-btn"
+                            disabled={phoneChangeLocked}
                             onClick={startPhoneEdit}
+                            title={phoneChangeLocked ? phoneChangeLockText : "Vaihda puhelinnumero"}
                           >
                             {profileText.change}
                           </button>
@@ -5136,6 +5173,474 @@ export default function ProfilePage() {
           html body .pf-page .pf-form > #osoite.pf-aligned-section,
           html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section {
             --pf-hard-inset: 14px;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+          }
+
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-info-card-head,
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-info-card-head,
+          html body .pf-page .pf-form > #myyjat.pf-aligned-section > .pf-section-head,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-section-head,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-section-head,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-section-head {
+            align-items: start !important;
+            gap: 12px !important;
+            grid-template-columns: 48px minmax(0, 1fr) !important;
+            min-height: 0 !important;
+            padding: 20px var(--pf-hard-inset) 14px !important;
+          }
+
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-info-card-head > .pf-info-title,
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-info-card-head > .pf-info-title {
+            gap: 12px !important;
+            grid-column: 1 / -1 !important;
+            grid-template-columns: 48px minmax(0, 1fr) !important;
+          }
+
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-info-card-head .pf-info-title-icon,
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-info-card-head .pf-info-title-icon,
+          html body .pf-page .pf-form > #myyjat.pf-aligned-section > .pf-section-head > svg,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-section-head > svg,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-section-head > svg,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-section-head > svg {
+            height: 44px !important;
+            min-width: 44px !important;
+            padding: 8px !important;
+            width: 44px !important;
+          }
+
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-info-card-head .pf-info-title > div,
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-info-card-head .pf-info-title > div,
+          html body .pf-page .pf-form > #myyjat.pf-aligned-section > .pf-section-head > div,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-section-head > div,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-section-head > div,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-section-head > div {
+            grid-column: 2 !important;
+            min-width: 0 !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #myyjat, #julkinen-profiili, #osoite, #tilin-turvallisuus).pf-aligned-section :is(h2, p, label, span, strong, small) {
+            max-width: 100% !important;
+            min-width: 0 !important;
+            overflow-wrap: anywhere !important;
+          }
+
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #myyjat.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-card-body {
+            display: grid !important;
+            gap: 10px !important;
+            grid-column: 1 / -1 !important;
+            justify-self: stretch !important;
+            margin: 0 var(--pf-hard-inset) 18px !important;
+            max-width: none !important;
+            min-width: 0 !important;
+            width: auto !important;
+          }
+
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-card-body > .pf-field,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-card-body > .pf-info-row {
+            align-items: start !important;
+            background: rgba(4, 18, 32, 0.42) !important;
+            border: 1px solid rgba(95, 143, 179, 0.22) !important;
+            border-radius: 8px !important;
+            box-sizing: border-box !important;
+            display: grid !important;
+            gap: 6px 10px !important;
+            grid-template-columns: 34px minmax(0, 1fr) !important;
+            justify-self: stretch !important;
+            min-height: 0 !important;
+            min-width: 0 !important;
+            padding: 10px !important;
+            width: 100% !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-row-icon,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section .pf-field-icon {
+            grid-column: 1 !important;
+            grid-row: 1 / span 2 !important;
+            height: 30px !important;
+            justify-self: start !important;
+            width: 30px !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-label,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section .pf-field label {
+            align-self: center !important;
+            grid-column: 2 !important;
+            grid-row: 1 !important;
+            line-height: 1.2 !important;
+            margin: 0 !important;
+            white-space: normal !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-value,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section :is(.pf-locked, .pf-readonly-value, input, textarea) {
+            grid-column: 2 !important;
+            grid-row: 2 !important;
+            min-width: 0 !important;
+            width: 100% !important;
+          }
+
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-card-body {
+            grid-template-columns: minmax(0, 1fr) !important;
+          }
+
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-card-body > .pf-field,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-card-body > .pf-info-row {
+            max-width: none !important;
+            width: 100% !important;
+          }
+
+          @media (max-width: 380px) {
+            html body .pf-page .pf-form > #yritys.pf-aligned-section,
+            html body .pf-page .pf-form > #tiedot.pf-aligned-section,
+            html body .pf-page .pf-form > #myyjat.pf-aligned-section,
+            html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section,
+            html body .pf-page .pf-form > #osoite.pf-aligned-section,
+            html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section {
+              --pf-hard-inset: 10px;
+            }
+
+            html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-card-body > .pf-info-row,
+            html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-card-body > .pf-info-row,
+            html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-card-body > .pf-field,
+            html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-card-body > .pf-info-row,
+            html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-card-body > .pf-info-row {
+              grid-template-columns: 32px minmax(0, 1fr) !important;
+              padding: 10px 12px !important;
+            }
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-value :is(input, span),
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section :is(input, textarea, .pf-readonly-value span) {
+            min-width: 0 !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+          }
+
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section .pf-field {
+            min-width: 0 !important;
+          }
+
+          html body .pf-page .pf-form > #yritys.pf-aligned-section,
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section {
+            overflow: visible !important;
+          }
+
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-card-body,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-card-body {
+            left: auto !important;
+            margin: 0 14px 18px !important;
+            max-width: none !important;
+            position: relative !important;
+            transform: none !important;
+            width: calc(100% - 28px) !important;
+          }
+
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-card-body > .pf-field,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-card-body > .pf-info-row {
+            align-items: center !important;
+            gap: 8px !important;
+            grid-template-columns: 30px minmax(70px, 0.38fr) minmax(0, 1fr) !important;
+            min-height: 58px !important;
+            padding: 8px 10px !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-row-icon,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section .pf-field-icon {
+            grid-column: 1 !important;
+            grid-row: 1 !important;
+            height: 28px !important;
+            width: 28px !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-label,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section .pf-field label {
+            grid-column: 2 !important;
+            grid-row: 1 !important;
+            line-height: 1.05 !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-value,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section :is(.pf-locked, .pf-readonly-value, input, textarea) {
+            grid-column: 3 !important;
+            grid-row: 1 !important;
+          }
+
+          html body .pf-page .pf-company-sellers-section > .company-seller-list > *,
+          html body .pf-page .pf-company-sellers-section > .company-seller-add {
+            margin-inline: 0 !important;
+            width: 100% !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #julkinen-profiili, #osoite, #tilin-turvallisuus).pf-aligned-section {
+            display: block !important;
+            max-width: none !important;
+            min-width: 0 !important;
+            overflow: hidden !important;
+            width: 100% !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot).pf-aligned-section > .pf-info-card-head,
+          html body .pf-page .pf-form > :is(#julkinen-profiili, #osoite, #tilin-turvallisuus).pf-aligned-section > .pf-section-head {
+            box-sizing: border-box !important;
+            margin: 0 !important;
+            width: 100% !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #julkinen-profiili, #osoite, #tilin-turvallisuus).pf-aligned-section > .pf-card-body {
+            box-sizing: border-box !important;
+            display: grid !important;
+            gap: 10px !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+            left: auto !important;
+            margin: 0 12px 18px !important;
+            max-width: none !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            position: static !important;
+            right: auto !important;
+            transform: none !important;
+            width: calc(100% - 24px) !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section > .pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-card-body > .pf-field {
+            align-items: center !important;
+            box-sizing: border-box !important;
+            display: grid !important;
+            gap: 8px 10px !important;
+            grid-template-columns: 32px minmax(0, 1fr) !important;
+            grid-template-rows: auto auto !important;
+            justify-self: stretch !important;
+            margin: 0 !important;
+            max-width: none !important;
+            min-height: 0 !important;
+            min-width: 0 !important;
+            padding: 10px 12px !important;
+            transform: none !important;
+            width: 100% !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-row-icon,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section .pf-field-icon {
+            grid-column: 1 !important;
+            grid-row: 1 / span 2 !important;
+            height: 30px !important;
+            width: 30px !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-label,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section .pf-field label {
+            grid-column: 2 !important;
+            grid-row: 1 !important;
+            min-width: 0 !important;
+            white-space: normal !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-value,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section :is(.pf-locked, .pf-readonly-value, input, textarea) {
+            display: block !important;
+            grid-column: 2 !important;
+            grid-row: 2 !important;
+            min-width: 0 !important;
+            overflow-wrap: anywhere !important;
+            text-align: left !important;
+            white-space: normal !important;
+            width: 100% !important;
+            word-break: normal !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #julkinen-profiili, #osoite, #tilin-turvallisuus).pf-aligned-section > .pf-card-body {
+            margin: 0 18px 18px !important;
+            max-width: none !important;
+            width: calc(100% - 36px) !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section > .pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-card-body > .pf-field {
+            border-radius: 8px !important;
+            grid-template-columns: 42px minmax(0, 1fr) !important;
+            grid-template-rows: auto auto !important;
+            min-height: 76px !important;
+            padding: 14px 16px !important;
+            width: 100% !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-row-icon,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section .pf-field-icon {
+            grid-column: 1 !important;
+            grid-row: 1 / span 2 !important;
+            height: 38px !important;
+            width: 38px !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-label,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section .pf-field label {
+            grid-column: 2 !important;
+            grid-row: 1 !important;
+            line-height: 1.15 !important;
+          }
+
+          html body .pf-page .pf-form > :is(#yritys, #tiedot, #osoite, #tilin-turvallisuus).pf-aligned-section .pf-info-value,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section :is(.pf-locked, .pf-readonly-value, input, textarea) {
+            grid-column: 2 !important;
+            grid-row: 2 !important;
+            line-height: 1.18 !important;
+          }
+
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section .pf-security-action-row {
+            grid-template-columns: 42px minmax(0, 1fr) auto !important;
+          }
+
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section .pf-security-action-row .pf-info-label {
+            grid-column: 2 !important;
+            grid-row: 1 / span 2 !important;
+          }
+
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section .pf-security-action-row .pf-info-value {
+            grid-column: 3 !important;
+            grid-row: 1 / span 2 !important;
+            justify-self: end !important;
+            width: auto !important;
+          }
+
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section .pf-security-action-row .pf-inline-btn {
+            max-width: 100% !important;
+            min-width: 0 !important;
+            white-space: nowrap !important;
+            width: auto !important;
+          }
+
+          @media (max-width: 380px) {
+            html body .pf-page .pf-form > :is(#yritys, #tiedot, #julkinen-profiili, #osoite, #tilin-turvallisuus).pf-aligned-section > .pf-card-body {
+              margin-left: 12px !important;
+              margin-right: 12px !important;
+              width: calc(100% - 24px) !important;
+            }
+
+            html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section .pf-security-action-row {
+              grid-template-columns: 38px minmax(0, 1fr) !important;
+              min-height: 88px !important;
+            }
+
+            html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section .pf-security-action-row .pf-info-label {
+              grid-column: 2 !important;
+              grid-row: 1 !important;
+              line-height: 1.15 !important;
+              overflow-wrap: normal !important;
+              word-break: normal !important;
+            }
+
+            html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section .pf-security-action-row .pf-info-value {
+              grid-column: 2 !important;
+              grid-row: 2 !important;
+              justify-self: stretch !important;
+              width: 100% !important;
+            }
+
+            html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section .pf-security-action-row .pf-inline-btn {
+              width: 100% !important;
+            }
+          }
+
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-info-rows.pf-card-body,
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-info-rows.pf-card-body,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-fields.pf-public-fields.pf-card-body,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-info-rows.pf-address-rows.pf-card-body,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-info-rows.pf-card-body {
+            align-self: stretch !important;
+            box-sizing: border-box !important;
+            display: grid !important;
+            inline-size: calc(100% - 24px) !important;
+            justify-self: stretch !important;
+            margin: 0 12px 18px !important;
+            max-inline-size: none !important;
+            max-width: none !important;
+            min-inline-size: calc(100% - 24px) !important;
+            min-width: calc(100% - 24px) !important;
+            padding: 0 !important;
+            width: calc(100% - 24px) !important;
+          }
+
+          html body .pf-page .pf-form > #tiedot.pf-aligned-section > .pf-info-rows.pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #yritys.pf-aligned-section > .pf-info-rows.pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-fields.pf-public-fields.pf-card-body > .pf-field,
+          html body .pf-page .pf-form > #osoite.pf-aligned-section > .pf-info-rows.pf-address-rows.pf-card-body > .pf-info-row,
+          html body .pf-page .pf-form > #tilin-turvallisuus.pf-aligned-section > .pf-info-rows.pf-card-body > .pf-info-row {
+            box-sizing: border-box !important;
+            inline-size: 100% !important;
+            max-inline-size: none !important;
+            max-width: none !important;
+            min-inline-size: 100% !important;
+            min-width: 100% !important;
+            width: 100% !important;
+          }
+
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-fields.pf-public-fields.pf-card-body > .pf-public-name-field {
+            min-height: 48px !important;
+            padding-bottom: 4px !important;
+            padding-top: 4px !important;
+          }
+
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-fields.pf-public-fields.pf-card-body > .pf-public-bio-field {
+            min-height: 118px !important;
+            padding-bottom: 14px !important;
+            padding-top: 14px !important;
+          }
+
+          html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-fields.pf-public-fields.pf-card-body > .pf-public-bio-field textarea {
+            min-height: 72px !important;
+          }
+
+          html body .pf-page .pf-form .pf-phone-change-btn {
+            background: linear-gradient(180deg, rgba(18, 50, 76, 0.96), rgba(7, 25, 43, 0.96)) !important;
+            border: 1px solid rgba(96, 160, 210, 0.48) !important;
+            border-radius: 8px !important;
+            box-shadow:
+              inset 0 1px 0 rgba(255, 255, 255, 0.08),
+              0 10px 20px rgba(0, 0, 0, 0.16) !important;
+            color: #ffffff !important;
+            min-height: 34px !important;
+            padding: 8px 16px !important;
+          }
+
+          html body .pf-page .pf-form .pf-phone-change-btn:hover:not(:disabled) {
+            border-color: rgba(255, 141, 37, 0.78) !important;
+            box-shadow:
+              inset 0 1px 0 rgba(255, 255, 255, 0.1),
+              0 0 0 2px rgba(255, 122, 24, 0.14),
+              0 12px 24px rgba(255, 122, 24, 0.16) !important;
+          }
+
+          html body .pf-page .pf-form .pf-phone-change-btn:disabled {
+            cursor: not-allowed !important;
+            opacity: 0.48 !important;
           }
         }
       `}</style>

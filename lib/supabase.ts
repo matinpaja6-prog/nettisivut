@@ -55,6 +55,8 @@ export type UserProfile = {
 
   pending_phone?: string | null;
 
+  phone_last_changed_at?: string | null;
+
   phone_verification_count?: number | null;
 
   address: string;

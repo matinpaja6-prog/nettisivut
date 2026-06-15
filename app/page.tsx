@@ -998,6 +998,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageJumpValue, setPageJumpValue] = useState("");
   const [pageJumpOpen, setPageJumpOpen] = useState(false);
+  const [mobilePagination, setMobilePagination] = useState(false);
   const PAGE_SIZE = 40;
   const INITIAL_LISTING_FETCH_LIMIT = 240;
 
@@ -1034,6 +1035,18 @@ export default function Home() {
   const [dbPreferenceProfile, setDbPreferenceProfile] = useState<UserPreferenceProfile | null>(null);
 
   const t = translations[locale];
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 720px)");
+    const syncMobilePagination = () => setMobilePagination(media.matches);
+
+    syncMobilePagination();
+    media.addEventListener("change", syncMobilePagination);
+
+    return () => {
+      media.removeEventListener("change", syncMobilePagination);
+    };
+  }, []);
 
   const saveHomeReturnState = useCallback(() => {
     try {
@@ -2285,7 +2298,7 @@ export default function Home() {
   return (
     <main className={styles.shell}>
       <div className={styles.heroWrap}>
-      <div className={styles.container}>
+        <div className={styles.container}>
         <section className={styles.hero} aria-label="Hero">
           <div className={styles.heroInner}>
             <div style={{ margin: "0 auto", maxWidth: "100%", width: "min(720px, calc(100vw - 28px))" }}>
@@ -2837,9 +2850,35 @@ export default function Home() {
                       acc.push(p);
                       return acc;
                     }, [])
-                    .map((p, idx) =>
+                    .map((p, idx, pages) =>
                       p === "..." ? (
-                        pageJumpOpen ? (
+                        mobilePagination ? (() => {
+                          const previousPage = [...pages]
+                            .slice(0, idx)
+                            .reverse()
+                            .find((item): item is number => typeof item === "number");
+                          const nextPage = pages
+                            .slice(idx + 1)
+                            .find((item): item is number => typeof item === "number");
+                          const jumpPage =
+                            typeof nextPage === "number" && nextPage <= currentPage
+                              ? Math.max(1, currentPage - 10)
+                              : typeof previousPage === "number" && previousPage >= currentPage
+                                ? Math.min(totalPages, currentPage + 10)
+                                : suggestedPageJump;
+
+                          return (
+                            <button
+                              key={`gap-${idx}`}
+                              type="button"
+                              className={`${styles.pageBtn} ${styles.pageGap}`}
+                              aria-label={`Siirry sivulle ${jumpPage}`}
+                              onClick={() => goToPage(jumpPage)}
+                            >
+                              {jumpPage}
+                            </button>
+                          );
+                        })() : pageJumpOpen ? (
                           <form
                             key={`gap-${idx}`}
                             className={styles.pageJumpControl}

@@ -14272,6 +14272,72 @@
   }
 }
 
+/* Symmetric home hero controls: stays centered with or without Oma Talli. */
+.heroQuickCategoryRow {
+  align-items: center !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  justify-content: center !important;
+  margin: 14px auto 0 !important;
+  max-width: min(980px, calc(100vw - 32px)) !important;
+  width: 100% !important;
+}
+
+.heroQuickCategoryItem,
+.heroGaragePillWrap {
+  flex: 0 1 140px !important;
+  min-width: 128px !important;
+  width: 140px !important;
+}
+
+.heroQuickCategory {
+  width: 100% !important;
+}
+
+.heroRefineCategoryButton {
+  flex: 0 0 100% !important;
+  margin: 0 auto !important;
+  max-width: 280px !important;
+  width: min(280px, 100%) !important;
+}
+
+@media (min-width: 900px) {
+  .heroSearch {
+    width: min(720px, calc(100vw - 32px)) !important;
+  }
+
+  .heroQuickCategoryItem,
+  .heroGaragePillWrap {
+    flex-basis: 150px !important;
+    width: 150px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .heroQuickCategoryRow {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: min(326px, calc(100vw - 34px)) !important;
+  }
+
+  .heroQuickCategoryItem,
+  .heroGaragePillWrap {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .heroQuickCategoryRow > .heroQuickCategoryItem:last-of-type:nth-child(odd) {
+    grid-column: 1 / -1 !important;
+    justify-self: center !important;
+    width: calc((100% - 8px) / 2) !important;
+  }
+
+  .heroRefineCategoryButton {
+    grid-column: 1 / -1 !important;
+  }
+}
+
 /* Final mobile homepage pagination: compact button rail like the reference. */
 @media (max-width: 720px) {
   .pagination {
@@ -14402,6 +14468,8 @@
     justify-content: flex-start !important;
     max-width: calc(100vw - 20px) !important;
     padding: 0 10px 2px !important;
+    position: relative !important;
+    z-index: 5 !important;
     width: 100% !important;
   }
 
@@ -14415,6 +14483,7 @@
     overflow: hidden !important;
     padding: 0 8px !important;
     text-overflow: clip !important;
+    touch-action: manipulation !important;
     white-space: nowrap !important;
     width: auto !important;
   }

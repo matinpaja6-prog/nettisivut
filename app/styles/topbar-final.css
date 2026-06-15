@@ -1,7 +1,7 @@
 /* Final topbar placement locks. */
 html body header.universal-app-topbar.universal-home-topbar {
   --topbar-h: 56px !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
   justify-content: stretch !important;
   justify-items: stretch !important;
   min-height: 56px !important;
@@ -10,11 +10,34 @@ html body header.universal-app-topbar.universal-home-topbar {
 }
 
 html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation {
-  display: none !important;
+  align-items: center !important;
+  display: inline-flex !important;
+  grid-column: 1 / 2 !important;
+  justify-content: flex-start !important;
+  justify-self: start !important;
+  min-width: 0 !important;
+}
+
+html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+  align-items: center !important;
+  display: inline-flex !important;
+  height: 52px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  text-decoration: none !important;
+  transform: translateY(2px) !important;
+  width: clamp(47px, 7.2vw, 67px) !important;
+}
+
+html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+  display: block !important;
+  filter: drop-shadow(0 9px 16px rgba(0, 7, 18, 0.46)) !important;
+  height: auto !important;
+  width: 100% !important;
 }
 
 html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
-  grid-column: 1 / 2 !important;
+  grid-column: 2 / 3 !important;
   justify-content: flex-end !important;
   justify-self: end !important;
   gap: 8px !important;
@@ -56,7 +79,7 @@ html body header.universal-app-topbar.universal-home-topbar .universal-category-
 }
 
 html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions-guest {
-  grid-column: 1 / -1 !important;
+  grid-column: 2 / 3 !important;
   justify-content: flex-end !important;
   justify-self: end !important;
   margin-left: 0 !important;
@@ -594,8 +617,16 @@ html body header.universal-app-topbar.universal-home-topbar .universal-topbar-ac
 
 html body header.universal-app-topbar .universal-topbar-actions-guest .rebuilt-login-button,
 html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions-guest .rebuilt-login-button {
+  align-items: center !important;
+  display: inline-flex !important;
+  gap: 8px !important;
   margin-left: 0 !important;
   order: 1 !important;
+}
+
+html body header.universal-app-topbar .rebuilt-login-button-guest > svg,
+html body header.universal-app-topbar.universal-home-topbar .rebuilt-login-button-guest > svg {
+  display: none !important;
 }
 
 html body header.universal-app-topbar .universal-topbar-actions-guest .universal-category-button-right,
@@ -766,21 +797,25 @@ html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-
 
   html body header.universal-app-topbar .rebuilt-login-button,
   html body header.universal-app-topbar.universal-home-topbar .rebuilt-login-button {
-    flex: 0 1 auto !important;
+    flex: 0 0 42px !important;
     height: 42px !important;
-    max-width: calc(100vw - 64px) !important;
+    max-width: 42px !important;
     min-height: 42px !important;
-    min-width: 0 !important;
-    padding: 0 14px !important;
+    min-width: 42px !important;
+    padding: 0 !important;
+    width: 42px !important;
   }
 
   html body header.universal-app-topbar .rebuilt-login-button strong,
   html body header.universal-app-topbar.universal-home-topbar .rebuilt-login-button strong {
-    font-size: 13px !important;
-    line-height: 1 !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-login-button-guest > svg,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-login-button-guest > svg {
+    display: block !important;
+    height: 18px !important;
+    width: 18px !important;
   }
 
   html body header.universal-app-topbar :is(.universal-return-button, .universal-create-button, .universal-icon-button, .universal-category-button, .language-switcher),
