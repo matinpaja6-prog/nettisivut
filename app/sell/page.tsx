@@ -2438,11 +2438,11 @@ export default function SellPage() {
     if (isCompanyAccount && !selectedCompanySeller) {
       return "Valitse ilmoitukselle myyjä ennen julkaisua.";
     }
-    if (payload.title.trim().length < 3) return "Lisa vahintaan 3 merkin otsikko.";
+    if (payload.title.trim().length < 3) return "Lisää vähintään 3 merkin otsikko.";
     if (!String(payload.category ?? "").trim()) return "Valitse kategoria ennen julkaisua.";
     if (!String(payload.condition ?? "").trim()) return "Valitse kuntoluokitus ennen julkaisua.";
-    if (payload.price <= 0) return "Lisa ilmoitukselle hinta. Hinnan taytyy olla vahintaan 1 euro.";
-    if (imageCount <= 0) return "Lisa vahintaan yksi kuva jokaiseen julkaistavaan ilmoitukseen.";
+    if (payload.price <= 0) return "Lisää ilmoitukselle hinta. Hinnan täytyy olla vähintään 1 euro.";
+    if (imageCount <= 0) return "Lisää vähintään yksi kuva jokaiseen julkaistavaan ilmoitukseen.";
     if (listingNeedsTrackMatDimensions(payload)) {
       void descriptionHasTrackMatDimensions(payload.description);
     }
@@ -2498,8 +2498,8 @@ export default function SellPage() {
       if (draftPayloads.length === 0) {
         setPublishError(
           mode === "multiple"
-            ? "Yhtaan julkaisukelpoista ilmoitusta ei loytynyt. Lisaa julkaistaville osille otsikko, hinta, kunto ja vahintaan yksi kuva."
-            : "Valitse vahintaan yksi myytava osa ennen julkaisua."
+            ? "Yhtään julkaisukelpoista ilmoitusta ei löytynyt. Lisää julkaistaville osille otsikko, hinta, kunto ja vähintään yksi kuva."
+            : "Valitse vähintään yksi myytävä osa ennen julkaisua."
         );
         return;
       }

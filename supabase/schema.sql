@@ -103,8 +103,16 @@ on public.seller_reviews for insert
 to authenticated
 with check (auth.uid()::uuid = reviewer_id::uuid and auth.uid()::uuid <> seller_id::uuid);
 
+create sequence if not exists public.listing_number_seq
+  as bigint
+  start with 100001
+  increment by 1
+  minvalue 100001
+  no cycle;
+
 create table if not exists public.listings (
   id uuid primary key default gen_random_uuid(),
+  listing_number bigint not null default nextval('public.listing_number_seq'),
   seller_id uuid references public.profiles(id) on delete set null,
   title text not null check (char_length(title) between 3 and 120),
   original_language text not null default 'fi' check (original_language in ('fi', 'en', 'sv', 'no', 'et')),
@@ -126,6 +134,9 @@ create table if not exists public.listings (
   view_count integer not null default 0 check (view_count >= 0),
   created_at timestamptz not null default now()
 );
+
+create unique index if not exists listings_listing_number_key
+on public.listings(listing_number);
 
 alter table public.listings enable row level security;
 

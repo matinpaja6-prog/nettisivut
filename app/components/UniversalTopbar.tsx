@@ -499,6 +499,34 @@ export default function UniversalTopbar() {
     }
   }
 
+  function dismissAlertNotification(notification: AlertNotification) {
+    setAlertNotifications((prev) =>
+      prev.filter((item) => item.id !== notification.id)
+    );
+
+    if (userId) {
+      setSeenNotificationKeys((prev) => {
+        const next = new Set(prev);
+        next.add(`alert:${notification.id}`);
+        try {
+          localStorage.setItem(
+            `${SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY}:${userId}`,
+            JSON.stringify([...next])
+          );
+        } catch {
+          /* ok */
+        }
+        return next;
+      });
+    }
+
+    void deleteAlertNotification(notification.id).then(({ error }) => {
+      if (error) {
+        console.warn("Alert notification delete failed:", error);
+      }
+    });
+  }
+
   if (hideUniversalTopbar) {
     return null;
   }
@@ -751,8 +779,7 @@ export default function UniversalTopbar() {
                         title={t.dismiss}
                         onClick={(e) => {
                           e.stopPropagation();
-                          void deleteAlertNotification(notification.id);
-                          setAlertNotifications(prev => prev.filter(n => n.id !== notification.id));
+                          dismissAlertNotification(notification);
                         }}
                       ><X size={11} /></button>
                     </div>

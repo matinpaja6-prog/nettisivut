@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useId, type ReactNode } from "react";
+import { useState, useEffect, useId, useRef, type ReactNode, type RefObject } from "react";
 import { displayCategoryForVehicle, subcategoryGroups } from "@/lib/listings";
 import { useLanguage, translateCategory } from "@/lib/i18n";
 import {
@@ -1101,6 +1101,8 @@ function VehicleComboField({
   placeholder,
   disabled,
   onChange,
+  inputRef,
+  onMobileSelect,
 }: {
   label: string;
   value: string;
@@ -1108,6 +1110,8 @@ function VehicleComboField({
   placeholder: string;
   disabled?: boolean;
   onChange: (value: string) => void;
+  inputRef?: RefObject<HTMLInputElement | null>;
+  onMobileSelect?: () => void;
 }) {
   const comboId = useId();
   const [open, setOpen] = useState(false);
@@ -1139,6 +1143,9 @@ function VehicleComboField({
     onChange(customValue(option));
     setShowAll(true);
     setOpen(false);
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      window.setTimeout(() => onMobileSelect?.(), 60);
+    }
   }
 
   return (
@@ -1153,6 +1160,7 @@ function VehicleComboField({
       >
         <div className="cd-combo-control">
           <input
+            ref={inputRef}
             className="cd-cc-select cd-combo-input"
             value={value}
             onChange={(event) => {
@@ -1227,6 +1235,12 @@ export default function CategoryDrawer({
   const [cat,     setCat]             = useState(initCat);
   const [subGroup, setSubGroup] = useState("");
   const [sub,     setSub]       = useState(initSub);
+  const brandInputRef = useRef<HTMLInputElement | null>(null);
+  const modelInputRef = useRef<HTMLInputElement | null>(null);
+  const yearInputRef = useRef<HTMLInputElement | null>(null);
+  const engineCcInputRef = useRef<HTMLInputElement | null>(null);
+  const engineModelInputRef = useRef<HTMLInputElement | null>(null);
+  const driveTypeInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     setVehicle(initVehicle);
@@ -1335,6 +1349,11 @@ export default function CategoryDrawer({
   ]);
   const modelOptions = brand ? getBrandModelOptions(vehicle, brand) : [];
   const driveOptions = DRIVE_OPTIONS[vehicle] ?? [];
+
+  function focusNextMobileField(ref: RefObject<HTMLInputElement | null>) {
+    if (!window.matchMedia("(max-width: 760px)").matches) return;
+    ref.current?.focus();
+  }
 
   useEffect(() => {
     if (!engineModel || engineModel === "muu" || engineModelOptions.includes(engineModel)) return;
@@ -1664,6 +1683,8 @@ export default function CategoryDrawer({
                   value={brand}
                   options={brandOptions}
                   placeholder="Kaikki merkit"
+                  inputRef={brandInputRef}
+                  onMobileSelect={() => focusNextMobileField(modelInputRef)}
                   onChange={(nextValue) => {
                       setBrand(nextValue);
                       setModel("");
@@ -1679,6 +1700,8 @@ export default function CategoryDrawer({
                   options={modelOptions}
                   disabled={!brand}
                   placeholder={brand ? "Kaikki mallit" : "Valitse ensin merkki"}
+                  inputRef={modelInputRef}
+                  onMobileSelect={() => focusNextMobileField(yearInputRef)}
                   onChange={(nextValue) => {
                       setModel(nextValue);
                       setEngineModel("");
@@ -1691,6 +1714,8 @@ export default function CategoryDrawer({
                   value={year}
                   options={YEAR_OPTIONS}
                   placeholder="Vuosi tai kirjoita itse"
+                  inputRef={yearInputRef}
+                  onMobileSelect={() => focusNextMobileField(engineCcInputRef)}
                   onChange={setYear}
                 />
 
@@ -1699,6 +1724,8 @@ export default function CategoryDrawer({
                   value={engineCc}
                   options={vehicle ? (CC_OPTIONS[vehicle] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS}
                   placeholder={t.all}
+                  inputRef={engineCcInputRef}
+                  onMobileSelect={() => focusNextMobileField(engineModelInputRef)}
                   onChange={(nextValue) => {
                     setEngineCc(nextValue);
                     setEngineCcOther("");
@@ -1711,6 +1738,8 @@ export default function CategoryDrawer({
                   options={engineModelOptions}
                   disabled={!brand}
                   placeholder={brand ? "Kaikki moottorit" : t.sellSelectBrandFirst}
+                  inputRef={engineModelInputRef}
+                  onMobileSelect={() => focusNextMobileField(driveTypeInputRef)}
                   onChange={(nextValue) => {
                     setEngineModel(nextValue);
                     setEngineModelOther("");
@@ -1722,6 +1751,8 @@ export default function CategoryDrawer({
                   value={driveType}
                   options={driveOptions}
                   placeholder="Kaikki"
+                  inputRef={driveTypeInputRef}
+                  onMobileSelect={() => setStep(3)}
                   onChange={setDriveType}
                 />
               </div>

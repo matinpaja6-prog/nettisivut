@@ -18,6 +18,8 @@ import {
 export type Listing = {
   id: string;
 
+  listing_number?: number | null;
+
   seller_id?: string | null;
 
   user_id?: string | null;

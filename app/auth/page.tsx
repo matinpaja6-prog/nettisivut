@@ -262,12 +262,30 @@ function getCountryValueFromGooglePlace(place: GooglePlace) {
   return supportedCountries[countryCode] ?? "";
 }
 
+function normalizeAuthErrorMessage(message: string) {
+  const lower = message.toLowerCase();
+
+  if (
+    lower.includes("invalid login credentials") ||
+    lower.includes("email not confirmed") ||
+    lower.includes("user not found")
+  ) {
+    return "Tätä sähköpostia ei ole rekisteröity. Rekisteröidy ensin tai tarkista salasana.";
+  }
+
+  if (lower.includes("user already registered") || lower.includes("already registered")) {
+    return "Tällä sähköpostilla on jo tili. Kirjaudu sisään.";
+  }
+
+  return message;
+}
+
 function getErrorMessage(error: unknown) {
   if (!error) return "Tuntematon virhe.";
-  if (error instanceof Error) return error.message;
-  if (typeof error === "string") return error;
+  if (error instanceof Error) return normalizeAuthErrorMessage(error.message);
+  if (typeof error === "string") return normalizeAuthErrorMessage(error);
   if (typeof error === "object" && "message" in error && typeof error.message === "string") {
-    return error.message;
+    return normalizeAuthErrorMessage(error.message);
   }
   return "Toiminto epäonnistui.";
 }

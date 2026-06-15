@@ -485,6 +485,7 @@ const BASE_LISTING_CARD_COLUMN_LIST = [
 ];
 
 const OPTIONAL_LISTING_CARD_COLUMN_LIST = [
+  "listing_number",
   "original_language",
   "translations",
   "part_number",
@@ -824,7 +825,14 @@ export async function incrementListingView(
 
 }
 
-export async function getListingDisplayNumber(createdAt?: string | null) {
+export async function getListingDisplayNumber(
+  createdAt?: string | null,
+  listingNumber?: number | null
+) {
+  if (listingNumber) {
+    return listingNumber;
+  }
+
   if (!supabase || !createdAt) {
     return null;
   }
@@ -852,13 +860,26 @@ async function resolveListingId(listingIdOrDisplayId: string) {
     return value;
   }
 
-  const rank = Number(value) - 100000;
+  const displayNumber = Number(value);
 
-  if (!Number.isInteger(rank) || rank < 1) {
+  if (!Number.isInteger(displayNumber) || displayNumber < 100001) {
     return value;
   }
 
-  const { data, error } =
+  const lookup =
+    await supabase!
+      .from("listings")
+      .select("id")
+      .eq("listing_number", displayNumber)
+      .maybeSingle<{ id: string }>();
+
+  if (!lookup.error && lookup.data?.id) {
+    return lookup.data.id;
+  }
+
+  const rank = displayNumber - 100000;
+
+  const fallback =
     await supabase!
       .from("listings")
       .select("id")
@@ -866,11 +887,11 @@ async function resolveListingId(listingIdOrDisplayId: string) {
       .range(rank - 1, rank - 1)
       .returns<Array<{ id: string }>>();
 
-  if (error || !data) {
+  if (fallback.error || !fallback.data) {
     return value;
   }
 
-  return data[0]?.id ?? value;
+  return fallback.data[0]?.id ?? value;
 }
 
 export type MarketplaceStats = {
@@ -983,6 +1004,7 @@ export async function getPublicListingsBySeller(
   try {
     const publicListingSelect = [
       "id",
+      "listing_number",
       "seller_id",
       "title",
       "original_language",

@@ -791,7 +791,7 @@ export default function ListingPage() {
 
     let mounted = true;
 
-    getListingDisplayNumber(listing.created_at)
+    getListingDisplayNumber(listing.created_at, listing.listing_number)
       .then((number) => {
         if (mounted) {
           setListingDisplayNumber(number);
