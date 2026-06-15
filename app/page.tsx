@@ -691,6 +691,27 @@ function normalizeSubcategoryMatch(value?: string | null) {
   return singulars[leaf] ?? leaf;
 }
 
+function listingMatchesSubcategoryFilter(
+  listingSubcategory?: string | null,
+  selectedSubcategory?: string | null
+) {
+  if (!selectedSubcategory) return true;
+
+  const listingValue = listingSubcategory ?? "";
+  const selectedValue = selectedSubcategory ?? "";
+  const normalizedListing = normalizeSubcategoryMatch(listingValue);
+  const normalizedSelected = normalizeSubcategoryMatch(selectedValue);
+
+  if (normalizedListing === normalizedSelected) return true;
+
+  const listingParts = listingValue.split("/").map((part) => part.trim()).filter(Boolean);
+  const selectedParts = selectedValue.split("/").map((part) => part.trim()).filter(Boolean);
+  const selectedLeaf = selectedParts.at(-1) ?? selectedValue;
+  const normalizedSelectedLeaf = normalizeSubcategoryMatch(selectedLeaf);
+
+  return listingParts.some((part) => normalizeSubcategoryMatch(part) === normalizedSelectedLeaf);
+}
+
 function normalizeSearchText(value?: string | null) {
   return (value ?? "")
     .toString()
@@ -721,9 +742,21 @@ function textMatchesSearch(haystack: string, needle: string) {
 }
 
 function allSearchWordsMatch(haystack: string, needle: string) {
+  const ignoredSearchWords = new Set([
+    "osa",
+    "osat",
+    "osia",
+    "varaosa",
+    "varaosat",
+    "varaosia",
+    "parts",
+    "part"
+  ]);
+
   return normalizeSearchText(needle)
     .split(" ")
     .filter(Boolean)
+    .filter((word) => !ignoredSearchWords.has(word))
     .every((word) => textMatchesSearch(haystack, word));
 }
 
@@ -931,7 +964,9 @@ export default function Home() {
   const vehiclePills = useMemo(
     () => [
       { label: "Kaikki", type: "" as string },
-      ...taxonomy.vehicles.map((v) => ({ label: v.pillLabel, type: v.key }))
+      ...taxonomy.vehicles
+        .filter((v) => ["Moottorikelkka", "Mönkijä", "Motocross", "Mopot", "Mopo"].includes(v.key))
+        .map((v) => ({ label: v.pillLabel, type: v.key }))
     ],
     [taxonomy]
   );
@@ -1138,14 +1173,14 @@ export default function Home() {
           return false;
         }
 
-        setDrawerOpenStep(0);
+        setDrawerOpenStep(vehicleType ? 2 : 3);
         return true;
       });
     }
 
     window.addEventListener("open-category-drawer", openCategoryDrawerFromTopbar);
     return () => window.removeEventListener("open-category-drawer", openCategoryDrawerFromTopbar);
-  }, []);
+  }, [vehicleType]);
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -1560,6 +1595,11 @@ export default function Home() {
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("[data-garage-dropdown-root]")) {
+        return;
+      }
+
       if (
         garageDropdownRef.current &&
         !garageDropdownRef.current.contains(e.target as Node)
@@ -1596,7 +1636,7 @@ export default function Home() {
         `;
 
         const matchesQuery =
-          !query || textMatchesSearch(search, query);
+          !query || allSearchWordsMatch(search, query);
         const directPartNumberMatch =
           Boolean(query) &&
           Boolean(listingPartNumber) &&
@@ -1626,8 +1666,7 @@ export default function Home() {
           normalizeCategoryMatch(listing.category) === normalizeCategoryMatch(category);
 
         const matchesSubcategory =
-          !subcategory ||
-          normalizeSubcategoryMatch(listing.subcategory) === normalizeSubcategoryMatch(subcategory);
+          listingMatchesSubcategoryFilter(listing.subcategory, subcategory);
 
         const matchesBrand =
           brandMatchesListing(selectedBrand, listing, listingText);
@@ -1758,14 +1797,47 @@ export default function Home() {
   function openGarageFilterInDrawer() {
     if (!garageFilter) return;
 
-    const vt = garageFilter.vehicle_class === "Motocross" || garageFilter.vehicle_class === "Auto" ? "Motocross"
-      : garageFilter.vehicle_class === "Mopo" ? "Mopot"
-      : (garageFilter.vehicle_class as "Moottorikelkka" | "Mönkijä") ?? "Moottorikelkka";
+    applyGarageVehicleToCategorization(garageFilter);
+  }
 
+  function getGarageVehicleType(vehicle: GarageVehicle): VehicleFilter {
+    return vehicle.vehicle_class === "Motocross" || vehicle.vehicle_class === "Auto" ? "Motocross"
+      : vehicle.vehicle_class === "Mopo" ? "Mopot"
+      : vehicle.vehicle_class === "Mönkijä" ? "Mönkijä"
+      : "Moottorikelkka";
+  }
+
+  function getGarageVehicleEngineCc(vehicle: GarageVehicle) {
+    const modelCc = String(vehicle.model ?? "").match(/\b(\d{2,4})\b/)?.[1] ?? "";
+    return modelCc && Number(modelCc) >= 50 ? modelCc : "";
+  }
+
+  function applyGarageVehicleToCategorization(vehicle: GarageVehicle | null) {
+    setGarageDropdownOpen(false);
+
+    if (!vehicle) {
+      setGarageFilter(null);
+      setSelectedBrand("Kaikki");
+      setModelQuery("");
+      setYearQuery("");
+      setEngineCcQuery("");
+      setEngineModelQuery("");
+      setDrawerOpenStep(undefined);
+      return;
+    }
+
+    const vt = getGarageVehicleType(vehicle);
+    setGarageFilter(vehicle);
     setVehicleType(vt);
-    setSelectedBrand(garageFilter.make);
+    setSelectedBrand(vehicle.make);
+    setModelQuery(vehicle.model);
+    setYearQuery(String(vehicle.year));
+    setEngineCcQuery(getGarageVehicleEngineCc(vehicle));
+    setEngineModelQuery("");
     setDrawerOpenStep(2);
     setDrawerOpen(true);
+    setRecommendationsMode(false);
+    setCurrentPage(1);
   }
 
   useEffect(() => {
@@ -2199,8 +2271,6 @@ export default function Home() {
       setMaxPrice(100000);
     }
 
-    setDrawerOpen(false);
-    setDrawerOpenStep(undefined);
     setCurrentPage(1);
   }
 
@@ -2265,7 +2335,7 @@ export default function Home() {
                 ))}
 
                 {user && garageVehicles.length > 0 && (
-                  <div ref={garageDropdownRef} className={styles.garagePillWrap}>
+                  <div ref={garageDropdownRef} className={styles.garagePillWrap} data-garage-dropdown-root>
                     <button
                       type="button"
                       className={`${styles.categoryPill} ${garageFilter || garageDropdownOpen ? styles.garagePillActive : styles.garagePillBtn}`}
@@ -2305,7 +2375,12 @@ export default function Home() {
                               <button
                                 type="button"
                                 className={`${styles.garageDropdownItem} ${!garageFilter ? styles.garageDropdownItemActive : ""}`}
-                                onClick={() => { setGarageFilter(null); setGarageDropdownOpen(false); }}
+                                onPointerDown={(event) => {
+                                  event.preventDefault();
+                                  event.stopPropagation();
+                                  applyGarageVehicleToCategorization(null);
+                                }}
+                                onClick={() => applyGarageVehicleToCategorization(null)}
                               >
                                 {t.all}
                               </button>
@@ -2314,30 +2389,12 @@ export default function Home() {
                                 <button
                                   type="button"
                                   className={`${styles.garageDropdownItem} ${garageFilter?.id === v.id ? styles.garageDropdownItemActive : ""}`}
-                                  onClick={() => {
-                                    setGarageDropdownOpen(false);
-                                    router.push(`/sell?make=${encodeURIComponent(v.make)}&model=${encodeURIComponent(v.model)}&year=${v.year}&vehicleType=${encodeURIComponent(v.vehicle_class === "Auto" ? "Motocross" : v.vehicle_class || "Moottorikelkka")}`);
-                                    const next = garageFilter?.id === v.id ? null : v;
-                                    setGarageFilter(next);
-                                    setGarageDropdownOpen(false);
-                                    if (next) {
-                                      const vt = next.vehicle_class === "Motocross" || next.vehicle_class === "Auto" ? "Motocross"
-                                        : next.vehicle_class === "Mopo" ? "Mopot"
-                                        : (next.vehicle_class as "Moottorikelkka" | "Mönkijä") ?? "Moottorikelkka";
-                                      setVehicleType(vt);
-                                      setSelectedBrand(next.make);
-                                      setModelQuery(next.model);
-                                      setYearQuery(String(next.year));
-                                      setDrawerOpenStep(2);
-                                      setDrawerOpen(true);
-                                    } else {
-                                      setSelectedBrand("Kaikki");
-                                      setModelQuery("");
-                                      setYearQuery("");
-                                      setEngineCcQuery("");
-                                      setEngineModelQuery("");
-                                    }
+                                  onPointerDown={(event) => {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    applyGarageVehicleToCategorization(v);
                                   }}
+                                  onClick={() => applyGarageVehicleToCategorization(v)}
                                 >
                                   <Car size={14} />
                                   <span>{v.make} {v.model}</span>
@@ -2369,18 +2426,19 @@ export default function Home() {
 
             <div className={styles.heroQuickCategoryRow} aria-label={t.vehicleSelection}>
               {vehiclePills.map((pill) => (
-                <button
-                  key={pill.type}
-                  type="button"
-                  className={`${styles.heroQuickCategory} ${vehicleType === pill.type ? styles.heroQuickCategoryActive : ""}`}
-                  onClick={() => selectVehicleType(pill.type)}
-                >
-                  <Car size={15} />
-                  <span>{pill.type ? getVehiclePillLabel(pill.type) : t.all}</span>
-                </button>
+                <div key={pill.type} className={styles.heroQuickCategoryItem}>
+                  <button
+                    type="button"
+                    className={`${styles.heroQuickCategory} ${vehicleType === pill.type ? styles.heroQuickCategoryActive : ""}`}
+                    onClick={() => selectVehicleType(pill.type)}
+                  >
+                    <Car size={15} />
+                    <span>{pill.type ? getVehiclePillLabel(pill.type) : t.all}</span>
+                  </button>
+                </div>
               ))}
               {user && garageVehicles.length > 0 && (
-                <div className={styles.heroGaragePillWrap}>
+                <div className={styles.heroGaragePillWrap} data-garage-dropdown-root>
                   <button
                     type="button"
                     className={`${styles.heroQuickCategory} ${garageFilter || garageDropdownOpen ? styles.heroQuickCategoryActive : ""}`}
@@ -2395,9 +2453,13 @@ export default function Home() {
                       <button
                         type="button"
                         className={!garageFilter ? styles.garageDropdownItemActive : ""}
+                        onPointerDown={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          applyGarageVehicleToCategorization(null);
+                        }}
                         onClick={() => {
-                          setGarageFilter(null);
-                          setGarageDropdownOpen(false);
+                          applyGarageVehicleToCategorization(null);
                         }}
                       >
                         {t.all}
@@ -2407,11 +2469,12 @@ export default function Home() {
                           key={vehicle.id}
                           type="button"
                           className={garageFilter?.id === vehicle.id ? styles.garageDropdownItemActive : ""}
-                          onClick={() => {
-                            setGarageFilter(vehicle);
-                            setGarageDropdownOpen(false);
-                            router.push(`/sell?make=${encodeURIComponent(vehicle.make)}&model=${encodeURIComponent(vehicle.model)}&year=${vehicle.year}&vehicleType=${encodeURIComponent(vehicle.vehicle_class === "Auto" ? "Motocross" : vehicle.vehicle_class || "Moottorikelkka")}`);
+                          onPointerDown={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            applyGarageVehicleToCategorization(vehicle);
                           }}
+                          onClick={() => applyGarageVehicleToCategorization(vehicle)}
                         >
                           {vehicle.make} {vehicle.model} {vehicle.year}
                         </button>
@@ -2423,6 +2486,17 @@ export default function Home() {
                   )}
                 </div>
               )}
+              <button
+                type="button"
+                className={styles.heroRefineCategoryButton}
+                onClick={() => {
+                  setDrawerOpenStep(vehicleType ? 2 : 3);
+                  setDrawerOpen(true);
+                }}
+              >
+                <Settings2 size={14} strokeWidth={2.8} aria-hidden="true" />
+                <span>{t.openCategories}</span>
+              </button>
             </div>
 
           </div>

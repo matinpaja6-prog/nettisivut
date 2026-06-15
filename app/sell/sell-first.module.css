@@ -1910,8 +1910,8 @@
 
 .categorySelectOption:hover,
 .categorySelectOptionActive {
-  background: rgba(255, 122, 26, 0.14) !important;
-  background-color: rgba(255, 122, 26, 0.14) !important;
+  background: rgba(56, 189, 248, 0.14) !important;
+  background-color: rgba(56, 189, 248, 0.14) !important;
   color: #fff !important;
 }
 
@@ -2781,7 +2781,7 @@
 
 .multiListingTableHead {
   display: grid;
-  grid-template-columns: 22px 34px minmax(210px, 1fr) minmax(128px, 170px) minmax(132px, 160px) 76px;
+  grid-template-columns: 24px 22px 34px minmax(210px, 1fr) minmax(128px, 170px) minmax(132px, 160px) 46px;
   gap: 14px;
   align-items: center;
   min-height: 34px;
@@ -2793,15 +2793,48 @@
 
 .multiListingRow {
   display: grid;
-  grid-template-columns: 22px 34px minmax(210px, 1fr) minmax(128px, 170px) minmax(132px, 160px) 76px;
-  gap: 14px;
-  align-items: center;
   min-height: 54px;
-  padding: 7px 10px;
+  padding: 0;
   border: 0;
   border-top: 1px solid rgba(121, 153, 187, 0.09);
   border-radius: 0;
   background: transparent;
+}
+
+.multiListingRow > summary {
+  list-style: none;
+}
+
+.multiListingRow > summary::-webkit-details-marker {
+  display: none;
+}
+
+.multiListingSummary {
+  display: grid;
+  grid-template-columns: 24px 22px 34px minmax(210px, 1fr) minmax(128px, 170px) minmax(132px, 160px) 46px;
+  gap: 14px;
+  align-items: center;
+  min-height: 54px;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.multiRowArrow {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: #8fc2f3;
+  transition: transform 140ms ease, color 140ms ease;
+}
+
+.multiListingRow[open] .multiRowArrow {
+  color: #38bdf8;
+  transform: rotate(180deg);
+}
+
+.multiListingRow[open] {
+  background: rgba(5, 24, 42, 0.42);
 }
 
 .multiDragDots {
@@ -3089,6 +3122,241 @@
   border-radius: 999px;
   background: rgba(3, 12, 22, 0.86);
   color: #fff;
+}
+
+.multiListingWizard {
+  max-width: 920px;
+}
+
+.multiListingStaticHeader {
+  position: relative;
+  cursor: default;
+}
+
+.multiListingStaticHeader svg {
+  transform: none !important;
+}
+
+.multiListingProgress {
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  left: 12px;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(126, 158, 190, 0.14);
+}
+
+.multiListingProgress::before {
+  display: block;
+  width: var(--progress, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff7a1a, #ffb14a);
+  content: "";
+}
+
+.multiListingSinglePart {
+  background: rgba(4, 18, 31, 0.92);
+  border-color: rgba(255, 122, 26, 0.28);
+}
+
+.multiListingSinglePart .multiListingSummary {
+  cursor: default;
+  border-bottom: 1px solid rgba(126, 158, 190, 0.1);
+}
+
+.multiListingSinglePart .multiRowArrow {
+  color: #ff8a1a;
+  transform: rotate(180deg);
+}
+
+.multiListingSinglePart .multiListingDetails {
+  background: rgba(1, 10, 18, 0.34);
+}
+
+/* Cleaner multi listing editor. */
+.listingStack {
+  gap: 12px;
+  background: transparent;
+}
+
+.multiListingCategory {
+  border-color: rgba(126, 158, 190, 0.16);
+  border-radius: 10px;
+  background: rgba(5, 21, 36, 0.78);
+  box-shadow: none;
+}
+
+.multiListingCategoryHeader {
+  min-height: 46px;
+  padding: 8px 14px;
+  background: rgba(7, 24, 39, 0.92);
+}
+
+.multiListingHeaderIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.multiListingHeaderIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.multiListingCategoryHeader strong {
+  font-size: 15px;
+}
+
+.multiListingCategoryHeader small,
+.multiListingGroupHeader small {
+  min-height: 20px;
+  padding: 0 7px;
+  border-color: rgba(126, 158, 190, 0.16);
+  border-radius: 5px;
+  background: rgba(9, 30, 49, 0.86);
+  color: #aeb9c9;
+  font-size: 10px;
+}
+
+.multiListingCategoryHeader > svg,
+.multiListingGroupHeader > svg,
+.multiRowArrow {
+  color: #ff8a1a;
+}
+
+.multiListingCategoryBody {
+  gap: 8px;
+  padding: 0 10px 10px;
+}
+
+.multiListingGroup {
+  border: 0;
+  border-radius: 9px;
+  background: rgba(4, 17, 30, 0.58);
+}
+
+.multiListingGroupHeader {
+  min-height: 38px;
+  padding: 7px 12px;
+  border: 0;
+  background: transparent;
+}
+
+.multiListingGroupHeader strong {
+  font-size: 14px;
+}
+
+.multiListingTable {
+  gap: 8px;
+  padding: 0 10px 10px;
+}
+
+.multiListingTableHead,
+.multiDragDots {
+  display: none;
+}
+
+.multiListingRow {
+  overflow: hidden;
+  min-height: 0;
+  border: 1px solid rgba(126, 158, 190, 0.12);
+  border-radius: 9px;
+  background: rgba(3, 16, 28, 0.78);
+}
+
+.multiListingRow[open] {
+  background: rgba(4, 18, 31, 0.92);
+  border-color: rgba(255, 122, 26, 0.24);
+}
+
+.multiListingSummary {
+  grid-template-columns: 24px 28px minmax(180px, 1fr) minmax(128px, 152px) minmax(136px, 160px) 34px;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 10px;
+}
+
+.multiListingRow[open] .multiListingSummary {
+  border-bottom: 1px solid rgba(126, 158, 190, 0.1);
+}
+
+.multiRowArrow {
+  width: 22px;
+  height: 22px;
+}
+
+.multiListingRow[open] .multiRowArrow {
+  color: #ff8a1a;
+}
+
+.multiListingIndex {
+  color: #c9d7e8;
+  font-size: 13px;
+}
+
+.multiPartIdentity {
+  gap: 2px;
+}
+
+.multiPartIdentity b {
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.multiPartIdentity small {
+  color: #8fa4bb;
+  font-size: 10px;
+}
+
+.multiListingRow input,
+.multiListingRow select,
+.multiListingRow textarea {
+  min-height: 38px;
+  border-radius: 7px;
+  background: #061727 !important;
+  font-size: 13px;
+}
+
+.multiPriceCell {
+  gap: 4px;
+}
+
+.multiConditionSelect select {
+  padding-left: 26px;
+}
+
+.multiListingActions button {
+  width: 28px;
+  height: 28px;
+  color: #ff8a1a;
+}
+
+.multiListingDetails {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px 14px 14px 64px;
+  background: rgba(1, 10, 18, 0.34);
+}
+
+.multiListingDetails label {
+  max-width: none;
+}
+
+.multiListingDetails label > span {
+  font-size: 11px;
+}
+
+.multiListingRow textarea {
+  min-height: 82px;
+}
+
+.multiPartPhotoAdd,
+.multiPartPhoto {
+  width: 68px;
+  height: 58px;
+  border-radius: 7px;
 }
 
 .addListingButton {
@@ -3472,6 +3740,16 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  .multiListingSummary {
+    grid-template-columns: 24px 22px 30px minmax(0, 1fr);
+  }
+
+  .multiListingSummary .multiPriceCell,
+  .multiListingSummary .multiConditionSelect,
+  .multiListingSummary .multiListingActions {
+    grid-column: 1 / -1;
+  }
+
   .multiPartIdentity {
     grid-column: 1 / -1;
   }
@@ -3516,7 +3794,7 @@
 
   .content {
     align-content: start;
-    padding: 18px 14px 104px;
+    padding: 16px 12px 112px;
   }
 
   .header h1 {
@@ -3534,19 +3812,20 @@
 
   .vehicleContent {
     align-content: start;
-    padding: 18px 12px 104px;
+    padding: 14px 10px 112px;
   }
 
   .vehicleHeader {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
 
   .vehicleHeader h1 {
-    font-size: 32px;
+    font-size: 28px;
+    line-height: 1.06;
   }
 
   .vehicleHeader p {
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.35;
   }
 
@@ -3559,6 +3838,77 @@
   .vehicleForm {
     gap: 15px;
     padding: 14px;
+  }
+
+  .listingStack {
+    gap: 10px;
+  }
+
+  .multiListingCategory {
+    border-radius: 10px;
+    background: rgba(5, 21, 36, 0.88);
+  }
+
+  .multiListingCategoryHeader {
+    min-height: 58px;
+    padding: 10px 12px;
+  }
+
+  .multiListingHeaderTitle {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    gap: 9px;
+    width: 100%;
+  }
+
+  .multiListingHeaderIcon {
+    align-self: center;
+  }
+
+  .multiListingCategoryHeader strong {
+    min-width: 0;
+    font-size: 15px;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  .multiListingCategoryHeader small {
+    align-self: center;
+    white-space: nowrap;
+  }
+
+  .multiListingStaticHeader .multiListingHeaderTitle {
+    grid-template-columns: 22px minmax(0, 1fr);
+  }
+
+  .multiListingStaticHeader .multiListingHeaderTitle small {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: -2px;
+  }
+
+  .multiListingCategoryBody {
+    gap: 8px;
+    padding: 0 8px 8px;
+  }
+
+  .multiListingGroup {
+    border: 1px solid rgba(126, 158, 190, 0.12);
+    background: rgba(3, 16, 29, 0.74);
+  }
+
+  .multiListingGroupHeader {
+    min-height: 44px;
+    padding: 8px 10px;
+  }
+
+  .multiListingGroupTitle strong {
+    font-size: 14px;
+  }
+
+  .multiListingTable {
+    gap: 8px;
+    padding: 0 8px 8px;
   }
 
   .formGridTwo,
@@ -3579,8 +3929,122 @@
     display: none;
   }
 
+  .multiListingRow {
+    border-color: rgba(126, 158, 190, 0.14);
+    border-radius: 10px;
+    background: rgba(2, 13, 24, 0.82);
+  }
+
+  .multiListingRow[open] {
+    border-color: rgba(255, 122, 26, 0.38);
+    background:
+      linear-gradient(180deg, rgba(6, 24, 40, 0.94), rgba(2, 13, 24, 0.9));
+    box-shadow: inset 0 0 0 1px rgba(255, 122, 26, 0.08);
+  }
+
+  .multiListingSummary {
+    grid-template-columns: 24px minmax(0, 1fr) 32px;
+    gap: 9px;
+    min-height: 0;
+    padding: 11px 10px;
+    outline: 0;
+  }
+
+  .multiListingSummary:focus,
+  .multiListingSummary:focus-visible {
+    outline: 0;
+    box-shadow: inset 0 0 0 1px rgba(255, 122, 26, 0.34);
+  }
+
+  .multiListingSummary .multiRowArrow {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    margin-top: 1px;
+  }
+
+  .multiListingSummary .multiPartIdentity {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .multiPartIdentity b {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  .multiPartIdentity small {
+    display: block;
+    margin-top: 3px;
+    white-space: normal;
+    line-height: 1.25;
+  }
+
+  .multiListingSummary .multiPriceCell {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 5px;
+  }
+
+  .multiListingSummary .multiConditionSelect {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .multiListingSummary .multiListingActions {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
+    justify-content: end;
+  }
+
+  .multiListingActions button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(255, 122, 26, 0.18);
+    background: rgba(255, 122, 26, 0.08);
+  }
+
+  .multiPriceCell input,
+  .multiConditionSelect select {
+    min-height: 42px;
+  }
+
+  .multiListingRow input,
+  .multiListingRow select,
+  .multiListingRow textarea {
+    border-color: rgba(126, 158, 190, 0.16);
+    background: #061827 !important;
+    font-size: 14px;
+  }
+
   .multiListingDetails {
-    padding: 0 12px 14px;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 0 10px 12px;
+    background: transparent;
+  }
+
+  .multiListingDetails label {
+    gap: 6px;
+  }
+
+  .multiListingDetails label > span {
+    font-size: 11px;
+  }
+
+  .multiListingRow textarea {
+    min-height: 94px;
+  }
+
+  .multiPartPhotos {
+    gap: 8px;
+  }
+
+  .multiPartPhotoAdd,
+  .multiPartPhoto {
+    width: 72px;
+    height: 58px;
   }
 
   .photoDropzone {
@@ -3692,12 +4156,52 @@
     z-index: 8;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
-    margin: 18px -12px -104px;
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    margin: 18px -10px -112px;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
     border-top: 1px solid rgba(126, 158, 190, 0.18);
     border-radius: 0;
     background: rgba(4, 16, 31, 0.96);
     backdrop-filter: blur(14px);
+  }
+
+  .vehicleContent:has(.presetSelectOpen),
+  .vehicleContent:has(.categorySelectOpen) {
+    padding-bottom: 178px;
+  }
+
+  .vehicleContent:has(.presetSelectOpen) .vehicleForm,
+  .vehicleContent:has(.categorySelectOpen) .vehicleForm {
+    z-index: 30;
+  }
+
+  .vehicleContent:has(.presetSelectOpen) .vehicleActions,
+  .vehicleContent:has(.categorySelectOpen) .vehicleActions {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  .presetField:focus-within {
+    z-index: 60;
+  }
+
+  .presetOptionList,
+  .categorySelectMenu {
+    z-index: 1000;
+    max-height: min(210px, 34svh);
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .presetOptionList button,
+  .categorySelectOption,
+  .categorySelectOptionActive {
+    min-height: 38px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .publishButton {

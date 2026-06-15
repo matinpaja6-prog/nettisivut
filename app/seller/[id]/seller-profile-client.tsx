@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, Menu, MessageCircle, Phone, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, ThumbsUp, TrendingDown, TrendingUp, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
+import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, Menu, MessageCircle, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, ThumbsUp, TrendingDown, TrendingUp, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
 import { formatPrice, normalizeVehicleType, type Listing } from "@/lib/listings";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
@@ -355,6 +355,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const [categoryFilter, setCategoryFilter] = useState("");
   const [subcategoryFilter, setSubcategoryFilter] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [authReady, setAuthReady] = useState(false);
   const [followStats, setFollowStats] = useState<ProfileFollowStats>({
     follower_count: 0,
     following_count: 0,
@@ -688,14 +689,19 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }, [profile?.avatar_url]);
 
   useEffect(() => {
-    if (!supabase) return;
+    if (!supabase) {
+      setAuthReady(true);
+      return;
+    }
 
     supabase.auth.getUser().then(({ data }) => {
       setCurrentUserId(data.user?.id ?? null);
+      setAuthReady(true);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setCurrentUserId(session?.user?.id ?? null);
+      setAuthReady(true);
     });
 
     return () => subscription.unsubscribe();
@@ -715,6 +721,8 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }, [currentUserId]);
 
   useEffect(() => {
+    if (!authReady) return;
+
     let cancelled = false;
 
     getProfileFollowStats(resolvedSellerId).then(({ data }) => {
@@ -724,7 +732,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     return () => {
       cancelled = true;
     };
-  }, [currentUserId, resolvedSellerId]);
+  }, [authReady, currentUserId, resolvedSellerId]);
 
   useEffect(() => {
     const ids = reviewIdsKey ? reviewIdsKey.split("|") : [];
@@ -768,7 +776,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       : await followProfile(resolvedSellerId);
 
     if (result.error) {
-      setFollowError(refLabels.followError);
+      setFollowError(result.error instanceof Error ? result.error.message : refLabels.followError);
     } else {
       const { data } = await getProfileFollowStats(resolvedSellerId);
       setFollowStats(data);
@@ -950,15 +958,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   );
 
   const memberSince = formatAccountAge(profile?.created_at, locale);
-  const verifiedLabels = {
-    phone: {
-      fi: "Puhelin vahvistettu",
-      en: "Phone verified",
-      sv: "Telefon verifierad",
-      no: "Telefon verifisert",
-      et: "Telefon kinnitatud"
-    }[locale],
-  };
   const refLabels = {
     about: {
       fi: "Tietoja",
@@ -1463,12 +1462,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     <ExternalLink size={12} />
                   </a>
                 )}
-                {profile?.phone_verified_at && (
-                  <span className="seller-ref-phone-pill">
-                    <Phone size={13} />
-                    {verifiedLabels.phone}
-                  </span>
-                )}
               </div>
 
               <div className="seller-ref-mini-row">
@@ -1571,13 +1564,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 <MapPin size={20} aria-hidden="true" />
                 <span>{refLabels.location}</span>
                 <strong>{sellerLocation}</strong>
-              </div>
-            )}
-            {profile?.phone_verified_at && (
-              <div className="seller-ref-detail-row">
-                <Phone size={20} aria-hidden="true" />
-                <span>{refLabels.phone}</span>
-                <strong className="is-good">{refLabels.verified}</strong>
               </div>
             )}
             {isCompany && profile?.business_id?.trim() && (
@@ -1695,7 +1681,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               aria-label={categoryFilterSummary || refLabels.advancedSearch}
               title={categoryFilterSummary || refLabels.advancedSearch}
               onClick={() => {
-                setDrawerOpenStep(0);
+                setDrawerOpenStep(2);
                 setDrawerOpen(true);
               }}
             >

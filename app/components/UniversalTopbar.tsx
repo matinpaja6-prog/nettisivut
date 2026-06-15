@@ -331,10 +331,6 @@ export default function UniversalTopbar() {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/privacy");
 
-  function openCategories() {
-    window.dispatchEvent(new CustomEvent("open-category-drawer"));
-  }
-
   function goBack() {
     if (typeof window !== "undefined") {
       try {
@@ -465,16 +461,6 @@ export default function UniversalTopbar() {
           <Link href="/auth" className={`rebuilt-login-button${isActiveRoute("/auth") ? " is-active" : ""}`}>
             <strong>{t.login}</strong>
           </Link>
-          {isHomePage ? (
-            <button
-              type="button"
-              className="universal-category-button universal-category-button-right"
-              aria-label="Avaa kategoriat"
-              onClick={openCategories}
-            >
-              <Menu size={22} aria-hidden="true" />
-            </button>
-          ) : null}
         </nav>
       </header>
     );
@@ -843,15 +829,19 @@ export default function UniversalTopbar() {
         <div className={`universal-language-wrap${guestLocked ? " universal-guest-disabled" : ""}`} aria-disabled={guestLocked}>
           <LanguageSwitcher />
         </div>
-        {isHomePage ? (
-          <button
-            type="button"
-            className="universal-category-button universal-category-button-right"
-            aria-label="Avaa kategoriat"
-            onClick={openCategories}
+        {!isHomePage ? (
+          <Link
+            href="/"
+            className="universal-icon-button universal-home-button"
+            aria-label={t.home}
+            title={t.home}
+            onClick={() => {
+              setProfileOpen(false);
+              setNotificationOpen(false);
+            }}
           >
-            <Menu size={22} aria-hidden="true" />
-          </button>
+            <Home size={17} aria-hidden="true" />
+          </Link>
         ) : null}
       </nav>
     </header>

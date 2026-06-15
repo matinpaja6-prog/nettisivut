@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -17,7 +18,6 @@ import {
   ChevronDown,
   Check,
   ClipboardList,
-  Copy,
   Cog,
   CircleDot,
   Droplets,
@@ -218,6 +218,32 @@ function normalizeSellVehicleType(value?: string | null) {
   if (normalized === "moottorikelkka" || normalized === "moottorikelkat") return "Moottorikelkka";
 
   return "Moottorikelkka";
+}
+
+function isTrackMatText(value?: string | null) {
+  return (value ?? "").trim().toLowerCase().includes("telamat");
+}
+
+function listingNeedsTrackMatDimensions(payload: ListingInput) {
+  return [
+    payload.vehicle_type,
+    payload.category,
+    payload.subcategory
+  ].some(isTrackMatText);
+}
+
+function descriptionHasTrackMatDimensions(description: string) {
+  const normalized = description.toLowerCase().replace(",", ".");
+  const keywordMatches = normalized.match(/(?:pituus|leveys|korkeus|harja|lappu)\D{0,24}\d+/g) ?? [];
+  const unitMatches = normalized.match(/\d+(?:\.\d+)?\s*(?:mm|cm|m|tuumaa|")/g) ?? [];
+  const mitatMatch = normalized.match(/mitat?\D{0,24}((?:\d+(?:\.\d+)?\D{0,8}){2,})/);
+
+  return (
+    /\d+(?:\.\d+)?\s*(?:x|\*|×|\/)\s*\d+(?:\.\d+)?/.test(normalized) ||
+    keywordMatches.length >= 2 ||
+    unitMatches.length >= 2 ||
+    Boolean(mitatMatch)
+  );
 }
 
 const vehicleDetailPresets: Record<
@@ -1229,6 +1255,9 @@ export default function SellPage() {
   const searchParams = useSearchParams();
   const taxonomy = useTaxonomy();
   const garagePrefillAppliedRef = useRef(false);
+  const shellRef = useRef<HTMLElement | null>(null);
+  const vehicleContentRef = useRef<HTMLElement | null>(null);
+  const skipInitialStepScrollRef = useRef(true);
   const [mode, setMode] = useState<ListingMode>("single");
   const [currentStep, setCurrentStep] = useState(1);
   const [vehicleType, setVehicleType] = useState(vehicleCards[1]);
@@ -1249,6 +1278,7 @@ export default function SellPage() {
   const [singlePriceSuggestion, setSinglePriceSuggestion] = useState<PriceSuggestion | null>(null);
   const [singlePriceSuggestionLoading, setSinglePriceSuggestionLoading] = useState(false);
   const [multiParts, setMultiParts] = useState<Record<string, MultiPartSelection>>({});
+  const [activeMultiListingIndex, setActiveMultiListingIndex] = useState(0);
   const [multiPriceSuggestions, setMultiPriceSuggestions] = useState<Record<string, PriceSuggestion>>({});
   const [multiPriceSuggestionsLoading, setMultiPriceSuggestionsLoading] = useState(false);
   const [expandedMultiCategories, setExpandedMultiCategories] = useState<Record<string, boolean>>({});
@@ -1349,6 +1379,11 @@ export default function SellPage() {
     detailCategoryOptions.some((option) => option.value === subcategory)
       ? subcategory
       : detailCategoryOptions[0]?.value ?? "";
+  const selectedSinglePartNeedsTrackMatDimensions = [
+    selectedCategory,
+    selectedCategoryGroup,
+    selectedDetailCategory
+  ].some(isTrackMatText);
   const isCompanyAccount = accountProfile?.account_type === "company";
   const selectedCompanySeller =
     companySellers.find((seller) => seller.id === selectedCompanySellerId) ?? null;
@@ -1449,6 +1484,10 @@ export default function SellPage() {
     () => Object.values(multiParts),
     [multiParts]
   );
+  const activeMultiListingPart =
+    selectedMultiPartList[
+      Math.min(activeMultiListingIndex, Math.max(selectedMultiPartList.length - 1, 0))
+    ] ?? null;
   const multiPriceSuggestionKey = useMemo(
     () =>
       JSON.stringify(
@@ -1530,6 +1569,42 @@ export default function SellPage() {
     steps.find((step) => step.number === currentStep) ?? steps[0];
   const isLastStep =
     currentStep === steps.length;
+
+  const scrollStepToTop = useCallback(() => {
+    if (typeof window === "undefined") return;
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const target = currentStep === 1
+          ? shellRef.current
+          : vehicleContentRef.current ?? shellRef.current;
+        const top = target
+          ? target.getBoundingClientRect().top + window.scrollY
+          : 0;
+
+        window.scrollTo({
+          top: Math.max(0, top - 8),
+          behavior: "auto"
+        });
+      });
+    });
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (skipInitialStepScrollRef.current) {
+      skipInitialStepScrollRef.current = false;
+      return;
+    }
+
+    scrollStepToTop();
+  }, [currentStep, activeMultiListingIndex, scrollStepToTop]);
+
+  useEffect(() => {
+    setActiveMultiListingIndex((index) => {
+      if (selectedMultiPartList.length === 0) return 0;
+      return Math.min(index, selectedMultiPartList.length - 1);
+    });
+  }, [selectedMultiPartList.length]);
 
   useEffect(() => {
     if (garagePrefillAppliedRef.current) return;
@@ -2116,27 +2191,6 @@ export default function SellPage() {
     });
   }
 
-  function duplicateMultiPart(id: string) {
-    setMultiParts((current) => {
-      const part = current[id];
-      if (!part) return current;
-
-      const nextId = `${part.id}-copy-${crypto.randomUUID()}`;
-      return {
-        ...current,
-        [nextId]: {
-          ...part,
-          id: nextId,
-          title: part.title ? `${part.title} kopio` : "",
-          images: part.images.map((image) => ({
-            ...image,
-            id: `${nextId}-${image.id}`
-          }))
-        }
-      };
-    });
-  }
-
   function removeMultiPartSelection(id: string) {
     setMultiParts((current) => {
       if (!current[id]) return current;
@@ -2222,6 +2276,21 @@ export default function SellPage() {
 
   function goToNextStep() {
     setPublishError("");
+
+    if (
+      mode === "multiple" &&
+      currentStep === 4 &&
+      selectedMultiPartList.length > 0 &&
+      activeMultiListingIndex < selectedMultiPartList.length - 1
+    ) {
+      setActiveMultiListingIndex((index) => Math.min(index + 1, selectedMultiPartList.length - 1));
+      return;
+    }
+
+    if (mode === "multiple" && currentStep === 3) {
+      setActiveMultiListingIndex(0);
+    }
+
     setCurrentStep((step) =>
       Math.min(step + 1, steps.length)
     );
@@ -2229,6 +2298,12 @@ export default function SellPage() {
 
   function goToPreviousStep() {
     setPublishError("");
+
+    if (mode === "multiple" && currentStep === 4 && activeMultiListingIndex > 0) {
+      setActiveMultiListingIndex((index) => Math.max(index - 1, 0));
+      return;
+    }
+
     setCurrentStep((step) =>
       Math.max(step - 1, 1)
     );
@@ -2310,6 +2385,9 @@ export default function SellPage() {
     if (!String(payload.category ?? "").trim()) return "Valitse kategoria ennen julkaisua.";
     if (!String(payload.condition ?? "").trim()) return "Valitse kuntoluokitus ennen julkaisua.";
     if (payload.price <= 0) return "Lisa ilmoitukselle hinta. Hinnan taytyy olla vahintaan 1 euro.";
+    if (listingNeedsTrackMatDimensions(payload) && !descriptionHasTrackMatDimensions(payload.description)) {
+      return `Kirjoita telamaton mitat ilmoituksen kuvaukseen: ${payload.title}.`;
+    }
     if (mode === "single" && !listingLocation.trim()) return "Lisa sijainti ennen julkaisua.";
     return "";
   }
@@ -2397,6 +2475,17 @@ export default function SellPage() {
     }
 
     goToNextStep();
+  }
+
+  function getPrimaryActionLabel() {
+    if (isPublishing) return "Julkaistaan...";
+    if (isLastStep) return "Julkaise";
+    if (mode === "multiple" && currentStep === 4) {
+      return activeMultiListingIndex < selectedMultiPartList.length - 1
+        ? "Seuraava osa"
+        : "Julkaisuun";
+    }
+    return "Seuraava";
   }
 
   function getStepLead() {
@@ -2544,6 +2633,7 @@ export default function SellPage() {
         <div className={styles.multiListingTableHead} aria-hidden="true">
           <span />
           <span />
+          <span />
           <span>Nimi</span>
           <span>Hinta (€)</span>
           <span>Kunto</span>
@@ -2556,6 +2646,7 @@ export default function SellPage() {
             vehicleDetails.year,
             part.detail
           ]).join(" ");
+          const partNeedsTrackMatDimensions = [part.category, part.group, part.detail].some(isTrackMatText);
           const conditionKey =
             part.condition === "Uusi"
               ? "New"
@@ -2568,7 +2659,11 @@ export default function SellPage() {
                     : "Empty";
 
           return (
-            <div className={styles.multiListingRow} key={part.id}>
+            <details className={styles.multiListingRow} key={part.id}>
+              <summary className={styles.multiListingSummary}>
+                <span className={styles.multiRowArrow} aria-hidden="true">
+                  <ChevronDown size={17} />
+                </span>
               <span className={styles.multiDragDots} aria-hidden="true">::</span>
               <strong className={styles.multiListingIndex}>{index + 1}</strong>
               <span className={styles.multiPartIdentity}>
@@ -2610,16 +2705,293 @@ export default function SellPage() {
                 </select>
               </label>
               <span className={styles.multiListingActions}>
-                <button type="button" onClick={() => duplicateMultiPart(part.id)} aria-label="Kopioi ilmoitus">
-                  <Copy size={16} aria-hidden="true" />
-                </button>
-                <button type="button" onClick={() => removeMultiPartSelection(part.id)} aria-label="Poista ilmoitus">
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    removeMultiPartSelection(part.id);
+                  }}
+                  aria-label="Poista ilmoitus"
+                >
                   <Trash2 size={16} aria-hidden="true" />
                 </button>
               </span>
-            </div>
+              </summary>
+
+              <div className={styles.multiListingDetails}>
+                <label>
+                  <span>Otsikko</span>
+                  <input
+                    value={part.title}
+                    onChange={(event) => updateMultiPartField(part.id, "title", event.target.value)}
+                    placeholder={automaticTitle || part.detail}
+                  />
+                </label>
+                <label>
+                  <span>Osanumero / OEM</span>
+                  <input
+                    value={part.partNumber}
+                    onChange={(event) => updateMultiPartField(part.id, "partNumber", event.target.value)}
+                    placeholder="Kirjoita osanumero"
+                  />
+                </label>
+                <label className={styles.multiListingWideField}>
+                  <span>Lisätiedot</span>
+                  <textarea
+                    value={part.description}
+                    onChange={(event) => updateMultiPartField(part.id, "description", event.target.value)}
+                    placeholder={
+                      partNeedsTrackMatDimensions
+                        ? "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot"
+                        : "Kirjoita lisätiedot, viat, sopivuus tai muut huomiot"
+                    }
+                  />
+                </label>
+
+                <div className={styles.multiPartPhotos}>
+                  <label className={styles.multiPartPhotoAdd}>
+                    <Camera size={17} aria-hidden="true" />
+                    <span>Lisää kuvat</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(event) => {
+                        if (event.target.files) void addMultiPartImages(part.id, event.target.files);
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
+
+                  {part.images.map((image) => (
+                    <button
+                      type="button"
+                      key={image.id}
+                      className={styles.multiPartPhoto}
+                      onClick={() => setPreviewImage(image)}
+                    >
+                      <img src={image.url} alt={image.name} />
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        className={styles.multiPartPhotoRemove}
+                        aria-label={`Poista kuva ${image.name}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          removeMultiPartImage(part.id, image.id);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key !== "Enter" && event.key !== " ") return;
+                          event.preventDefault();
+                          event.stopPropagation();
+                          removeMultiPartImage(part.id, image.id);
+                        }}
+                      >
+                        <X size={13} aria-hidden="true" />
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </details>
           );
         })}
+      </div>
+    );
+  }
+
+  function renderActiveMultiListingPart() {
+    const part = activeMultiListingPart;
+
+    if (!part) {
+      return (
+        <div className={styles.multiListingEmpty}>
+          <strong>Ei valittuja osia</strong>
+          <span>Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.</span>
+        </div>
+      );
+    }
+
+    const activeIndex = Math.min(activeMultiListingIndex, selectedMultiPartList.length - 1);
+    const listingProgressLabel = `${activeIndex + 1}/${selectedMultiPartList.length} ilmoitusta täytetty`;
+    const automaticTitle = uniqueOptions([
+      vehicleDetails.brand,
+      vehicleDetails.model,
+      vehicleDetails.year,
+      part.detail
+    ]).join(" ");
+    const partNeedsTrackMatDimensions = [part.category, part.group, part.detail].some(isTrackMatText);
+    const conditionKey =
+      part.condition === "Uusi"
+        ? "New"
+        : part.condition === "Hyvä"
+          ? "Good"
+          : part.condition === "Käytetty"
+            ? "Used"
+            : part.condition === "Korjattava"
+              ? "Repair"
+              : "Empty";
+
+    return (
+      <div className={`${styles.listingStack} ${styles.multiListingWizard}`}>
+        <section className={styles.multiListingCategory}>
+          <div className={`${styles.multiListingCategoryHeader} ${styles.multiListingStaticHeader}`}>
+            <span className={styles.multiListingHeaderTitle}>
+              <span className={styles.multiListingHeaderIcon}>{getMultiCategoryIcon(part.category)}</span>
+              <strong>{part.category}</strong>
+              <small>{listingProgressLabel}</small>
+            </span>
+            <span
+              className={styles.multiListingProgress}
+              aria-hidden="true"
+              style={{ ["--progress" as string]: `${((activeIndex + 1) / selectedMultiPartList.length) * 100}%` }}
+            />
+          </div>
+
+          <div className={styles.multiListingCategoryBody}>
+            <section className={styles.multiListingGroup}>
+              <div className={`${styles.multiListingGroupHeader} ${styles.multiListingStaticHeader}`}>
+                <span className={styles.multiListingGroupTitle}>
+                  <strong>{part.group}</strong>
+                  <small>{part.detail}</small>
+                </span>
+              </div>
+
+              <article className={`${styles.multiListingRow} ${styles.multiListingSinglePart}`}>
+                <div className={styles.multiListingSummary}>
+                  <span className={styles.multiRowArrow} aria-hidden="true">
+                    <ChevronDown size={17} />
+                  </span>
+                  <strong className={styles.multiListingIndex}>{activeIndex + 1}</strong>
+                  <span className={styles.multiPartIdentity}>
+                    <b>{part.title || part.detail || automaticTitle}</b>
+                    <small>{part.category} &gt; {part.group}</small>
+                  </span>
+                  <span className={styles.multiPriceCell}>
+                    <input
+                      inputMode="numeric"
+                      placeholder="Hinta"
+                      value={part.price}
+                      onChange={(event) => updateMultiPartPrice(part.id, event.target.value)}
+                      aria-label="Hinta"
+                    />
+                    {multiPriceSuggestions[part.id] ? (
+                      <button
+                        type="button"
+                        className={styles.multiPriceSuggestion}
+                        onClick={() => updateMultiPartPrice(part.id, String(multiPriceSuggestions[part.id].avg))}
+                      >
+                        Ehdotus {formatSuggestionPrice(multiPriceSuggestions[part.id].avg)}
+                      </button>
+                    ) : multiPriceSuggestionsLoading ? (
+                      <small className={styles.multiPriceSuggestionMuted}>Haetaan...</small>
+                    ) : null}
+                  </span>
+                  <label className={styles.multiConditionSelect}>
+                    <span className={styles[`conditionDot${conditionKey}` as keyof typeof styles]} />
+                    <select
+                      value={part.condition}
+                      onChange={(event) => updateMultiPartField(part.id, "condition", event.target.value)}
+                      aria-label="Kunto"
+                    >
+                      <option value="">Kuntoluokitus</option>
+                      <option>Uusi</option>
+                      <option>Hyvä</option>
+                      <option>Käytetty</option>
+                      <option>Korjattava</option>
+                    </select>
+                  </label>
+                  <span className={styles.multiListingActions}>
+                    <button
+                      type="button"
+                      onClick={() => removeMultiPartSelection(part.id)}
+                      aria-label="Poista ilmoitus"
+                    >
+                      <Trash2 size={16} aria-hidden="true" />
+                    </button>
+                  </span>
+                </div>
+
+                <div className={styles.multiListingDetails}>
+                  <label>
+                    <span>Otsikko</span>
+                    <input
+                      value={part.title}
+                      onChange={(event) => updateMultiPartField(part.id, "title", event.target.value)}
+                      placeholder={automaticTitle || part.detail}
+                    />
+                  </label>
+                  <label>
+                    <span>Osanumero / OEM</span>
+                    <input
+                      value={part.partNumber}
+                      onChange={(event) => updateMultiPartField(part.id, "partNumber", event.target.value)}
+                      placeholder="Kirjoita osanumero"
+                    />
+                  </label>
+                  <label className={styles.multiListingWideField}>
+                    <span>Lisätiedot</span>
+                    <textarea
+                      value={part.description}
+                      onChange={(event) => updateMultiPartField(part.id, "description", event.target.value)}
+                      placeholder={
+                        partNeedsTrackMatDimensions
+                          ? "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot"
+                          : "Kirjoita lisätiedot, viat, sopivuus tai muut huomiot"
+                      }
+                    />
+                  </label>
+
+                  <div className={styles.multiPartPhotos}>
+                    <label className={styles.multiPartPhotoAdd}>
+                      <Camera size={17} aria-hidden="true" />
+                      <span>Lisää kuvat</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(event) => {
+                          if (event.target.files) void addMultiPartImages(part.id, event.target.files);
+                          event.target.value = "";
+                        }}
+                      />
+                    </label>
+
+                    {part.images.map((image) => (
+                      <button
+                        type="button"
+                        key={image.id}
+                        className={styles.multiPartPhoto}
+                        onClick={() => setPreviewImage(image)}
+                      >
+                        <img src={image.url} alt={image.name} />
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          className={styles.multiPartPhotoRemove}
+                          aria-label={`Poista kuva ${image.name}`}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            removeMultiPartImage(part.id, image.id);
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key !== "Enter" && event.key !== " ") return;
+                            event.preventDefault();
+                            event.stopPropagation();
+                            removeMultiPartImage(part.id, image.id);
+                          }}
+                        >
+                          <X size={13} aria-hidden="true" />
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </article>
+            </section>
+          </div>
+        </section>
       </div>
     );
   }
@@ -2681,14 +3053,6 @@ export default function SellPage() {
                           {groupOpen ? (
                             <>
                               {renderMultiListingPartRows(groupItem.parts)}
-                              <button
-                                type="button"
-                                className={styles.multiListingAddPart}
-                                onClick={() => setCurrentStep(3)}
-                              >
-                                <PackagePlus size={16} aria-hidden="true" />
-                                <span>Lisää osa tähän alakategoriaan</span>
-                              </button>
                             </>
                           ) : null}
                         </section>
@@ -3154,7 +3518,7 @@ export default function SellPage() {
     }
 
     if (mode === "multiple" && currentStep === 4) {
-      return renderMultiListingCategories();
+      return renderActiveMultiListingPart();
 
       return (
         <div className={styles.listingStack}>
@@ -3488,7 +3852,11 @@ export default function SellPage() {
               maxLength={5000}
               value={listingDescription}
               onChange={(event) => setListingDescription(event.target.value)}
-              placeholder="Kerro kunto, ominaisuudet, sopivuus ja muut tärkeät tiedot..."
+              placeholder={
+                selectedSinglePartNeedsTrackMatDimensions
+                  ? "Kirjoita telamaton mitat, kunto, sopivuus ja muut tärkeät tiedot..."
+                  : "Kerro kunto, ominaisuudet, sopivuus ja muut tärkeät tiedot..."
+              }
             />
           </label>
 
@@ -3499,6 +3867,9 @@ export default function SellPage() {
             <div>
               <span><Check size={18} aria-hidden="true" /> Kerro tärkeimmät ominaisuudet</span>
               <span><Check size={18} aria-hidden="true" /> Mainitse kunto</span>
+              {selectedSinglePartNeedsTrackMatDimensions ? (
+                <span><Check size={18} aria-hidden="true" /> Kirjoita telamaton mitat</span>
+              ) : null}
               <span><Check size={18} aria-hidden="true" /> Lisää sopivuustiedot</span>
               <span><Check size={18} aria-hidden="true" /> Ole rehellinen ja tarkka</span>
             </div>
@@ -3614,7 +3985,7 @@ export default function SellPage() {
 
   return (
     <main className={styles.page} aria-label="Luo myynti-ilmoitus">
-      <section className={styles.shell}>
+      <section className={styles.shell} ref={shellRef}>
         <aside className={`${styles.stepper} ${styles.stepperCompact}`} aria-label="Ilmoituksen vaiheet">
           {steps.map((step, index) => {
             const Icon = step.icon;
@@ -3742,7 +4113,7 @@ export default function SellPage() {
             </p>
           </section>
         ) : (
-          <section className={styles.vehicleContent}>
+          <section className={styles.vehicleContent} ref={vehicleContentRef}>
             <header className={styles.vehicleHeader}>
               <h1><span>{currentStepInfo.number}.</span> {currentStepInfo.title}</h1>
               <p>{getStepLead()}</p>
@@ -3767,7 +4138,7 @@ export default function SellPage() {
                 onClick={handlePrimaryAction}
                 disabled={isPublishing}
               >
-                <span>{isPublishing ? "Julkaistaan..." : isLastStep ? "Julkaise" : "Seuraava"}</span>
+                <span>{getPrimaryActionLabel()}</span>
                 <ArrowRight size={22} aria-hidden="true" />
               </button>
             </div>
@@ -4058,8 +4429,8 @@ function CategorySelect({
                   data-sell-category-option="true"
                   data-active={active ? "true" : "false"}
                   style={{
-                    background: active ? "rgba(255, 122, 26, 0.14)" : "#061726",
-                    backgroundColor: active ? "rgba(255, 122, 26, 0.14)" : "#061726",
+                    background: active ? "rgba(56, 189, 248, 0.16)" : "#061726",
+                    backgroundColor: active ? "rgba(56, 189, 248, 0.16)" : "#061726",
                     color: "#dce8f7"
                   }}
                   onMouseDown={(event) => event.preventDefault()}

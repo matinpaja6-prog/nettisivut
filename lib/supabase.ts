@@ -1601,6 +1601,7 @@ async function requestProfileFollowApi<T>(
 
     const response = await fetch(path, {
       ...init,
+      cache: "no-store",
       headers
     });
 
@@ -1676,10 +1677,21 @@ export async function getMyProfileFollows(): Promise<{
   }
 
   try {
+    const apiResult = await requestProfileFollowApi<ProfileFollowListItem[]>(
+      "/api/profile-follows?scope=mine"
+    );
+
+    if (apiResult.data) {
+      return {
+        data: apiResult.data,
+        error: null
+      };
+    }
+
     const { data, error } = await supabase.rpc("get_my_profile_follows");
     return {
       data: (data ?? []) as ProfileFollowListItem[],
-      error
+      error: error ?? apiResult.error
     };
   } catch (error) {
     return {

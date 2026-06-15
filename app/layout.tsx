@@ -25,6 +25,7 @@ import "./styles/profile-absolute-final.css";
 import "./styles/auth-final.css";
 import "./styles/profile-symmetry-final.css";
 import "./styles/mobile-final.css";
+import "./styles/seller-phone-reference.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";

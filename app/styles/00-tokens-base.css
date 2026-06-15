@@ -10,11 +10,11 @@
   --muted: #9aaabe;
   --soft: #c9d5e2;
   --line: rgba(151, 178, 205, 0.22);
-  --line-strong: rgba(255, 154, 36, 0.5);
-  --blue: #ff7a1a;
-  --blue-2: #ffb057;
-  --orange: #ff7a1a;
-  --orange-2: #ff9d2e;
+  --line-strong: rgba(56, 189, 248, 0.5);
+  --blue: #38bdf8;
+  --blue-2: #7dd3fc;
+  --orange: #38bdf8;
+  --orange-2: #67e8f9;
   --green: #31c77f;
   --danger: #ff5f6d;
   --warning: #ffc65a;
@@ -25,7 +25,7 @@
   --container: 1380px;
   --topbar-h: 72px;
   --brand-primary: var(--orange);
-  --brand-primary-dark: #e65c00;
+  --brand-primary-dark: #0284c7;
   --brand-accent: var(--orange);
   --brand-dark: var(--bg);
   --brand-dark-surface: var(--surface);
@@ -108,7 +108,7 @@ textarea:disabled {
 }
 
 ::selection {
-  background: rgba(255, 122, 26, 0.42);
+  background: rgba(56, 189, 248, 0.42);
 }
 
 ::-webkit-scrollbar {

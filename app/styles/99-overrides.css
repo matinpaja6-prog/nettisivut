@@ -11236,8 +11236,8 @@ html body [data-sell-category-option="true"] {
 
 html body [data-sell-category-option="true"]:hover,
 html body [data-sell-category-option="true"][data-active="true"] {
-  background: rgba(255, 122, 26, 0.16) !important;
-  background-color: rgba(255, 122, 26, 0.16) !important;
+  background: rgba(56, 189, 248, 0.16) !important;
+  background-color: rgba(56, 189, 248, 0.16) !important;
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
@@ -11340,4 +11340,111 @@ html body [class*="sell-first_page"] select option {
     line-height: 1.08 !important;
     max-width: 100% !important;
   }
+}
+
+/* Final accent cleanup: keep orange as the visible accent and remove brown fills. */
+:root {
+  --blue: #ff7a1a !important;
+  --blue-2: #ffb14a !important;
+  --orange: #ff7a1a !important;
+  --orange-2: #ffb14a !important;
+  --line-strong: rgba(255, 122, 26, 0.5) !important;
+  --brand-primary: #ff7a1a !important;
+  --brand-primary-dark: #d94b00 !important;
+  --brand-accent: #ffb14a !important;
+}
+
+:where(
+  [class*="sell-first_"],
+  [class*="admin_"],
+  .sell-page,
+  .admin-page,
+  .sell-container,
+  .category-drawer,
+  .universal-topbar,
+  .bottom-nav
+) :where(
+  [class*="Active"],
+  [class*="Selected"],
+  [class*="Open"] > button,
+  [class*="Open"] > summary,
+  [class*="multiCheckOn"],
+  [class*="categorySelectOptionActive"],
+  [class*="multiDetailSelected"],
+  [class*="multiDetailWhole"],
+  .active,
+  .is-active,
+  [aria-selected="true"],
+  [aria-pressed="true"]
+) {
+  background:
+    radial-gradient(260px 140px at 100% 0%, rgba(255, 122, 26, 0.14), transparent 72%),
+    rgba(8, 33, 54, 0.94) !important;
+  border-color: rgba(255, 122, 26, 0.68) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(255, 122, 26, 0.2) !important;
+}
+
+:where(
+  [class*="sell-first_"],
+  [class*="admin_"],
+  .sell-page,
+  .admin-page,
+  .sell-container,
+  .category-drawer,
+  .universal-topbar,
+  .bottom-nav
+) :where(svg, [class*="Icon"], [class*="Arrow"]) {
+  color: #ff7a1a !important;
+}
+
+:where(
+  [class*="sell-first_"],
+  [class*="admin_"],
+  .sell-page,
+  .admin-page,
+  .sell-container
+) :where(
+  [class*="modeCheck"],
+  [class*="stepActive"] [class*="stepNumber"],
+  [class*="stepCompleted"] [class*="stepNumber"],
+  [class*="multiCheckOn"],
+  [class*="primaryBtn"],
+  .primary,
+  .primaryBtn
+) {
+  background: linear-gradient(135deg, #ffb14a 0%, #ff7a1a 58%, #d94b00 100%) !important;
+  border-color: rgba(255, 177, 74, 0.72) !important;
+  box-shadow: 0 14px 30px rgba(255, 122, 26, 0.26) !important;
+}
+
+:where(
+  [class*="sell-first_"],
+  [class*="admin_"],
+  .sell-page,
+  .admin-page,
+  .sell-container
+) :where(
+  [class*="Option"]:hover,
+  [class*="OptionActive"],
+  [class*="ChoiceRow"]:hover,
+  [class*="ChoiceActive"],
+  [class*="ChoiceSelected"],
+  [class*="Open"] > button,
+  [class*="Open"] > summary
+) {
+  background: #082033 !important;
+  border-color: rgba(255, 122, 26, 0.34) !important;
+  box-shadow: inset 3px 0 0 #ff7a1a !important;
+}
+
+:where(
+  [class*="sell-first_"],
+  .sell-page,
+  .sell-container
+) [class*="multiCheckOn"] svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.32)) !important;
 }

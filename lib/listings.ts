@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+﻿import type { LucideIcon } from "lucide-react";
 
 import {
   Snowflake,
@@ -229,10 +229,11 @@ export const categories = {
     "Renkaat & vanteet / Rengassarjat",
     "Renkaat & vanteet / Vannesetit",
     "Renkaat & vanteet / Akselit & laakerit",
-    "Tukivarret / Oikea ylä",
-    "Tukivarret / Oikea ala",
-    "Tukivarret / Vasen ylä",
-    "Tukivarret / Vasen ala",
+    "Tukivarret / Täydellinen tukivarsi sarja",
+    "Tukivarret / Ylä tukivarret oikea",
+    "Tukivarret / Ala tukivarret oikea",
+    "Tukivarret / Ylä tukivarret vasen",
+    "Tukivarret / Ala tukivarret vasen",
     "Olka-akselit",
     "Vetoakselit",
     "Telamatot",
@@ -413,11 +414,11 @@ export const subcategoryGroups: Record<string, Record<string, string[]>> = {
     "Telasto":            ["Kokonainen telasto","Telasto / Etupukit","Telasto / Takapukit","Telasto / Liukurungot","Telasto / Tela- ja kääntöpyörät","Telamatot"],
     "Renkaat & vanteet":  ["Renkaat & vanteet / Renkaat","Renkaat & vanteet / Vanteet","Renkaat & vanteet / Rengassarjat","Renkaat & vanteet / Vannesetit","Renkaat & vanteet / Akselit & laakerit"],
     "Alusta":             ["Kokonainen alusta","Olka-akselit","Vetoakselit"],
-    "Tukivarret":         ["Tukivarret / Oikea ylä","Tukivarret / Oikea ala","Tukivarret / Vasen ylä","Tukivarret / Vasen ala"],
+    "Tukivarret":         ["Tukivarret / Täydellinen tukivarsi sarja","Tukivarret / Ylä tukivarret oikea","Tukivarret / Ala tukivarret oikea","Tukivarret / Ylä tukivarret vasen","Tukivarret / Ala tukivarret vasen"],
     "Iskunvaimentimet":   ["Iskunvaimentimet / Kokonainen iskunvaimennussarja","Iskunvaimentimet / Etuiskunvaimentimet","Iskunvaimentimet / Takaiskunvaimentimet","Iskunvaimentimet / Telaston iskunvaimentimet","Jouset"]
   },
   "Ohjaus & hallintalaitteet": {
-    "Ohjaus":             ["Kokonainen ohjaus","Ohjaustangot","Käsisuojat","Tangon korokepalat","Ohjaus / Ohjausakselit","Ohjaus / Raidetangot","Ohjaus / Muut ohjauksen osat"],
+    "Ohjaus akseli":      ["Kokonainen ohjaus","Ohjaustangot","Käsisuojat","Tangon korokepalat","Ohjaus / Ohjausakselit","Ohjaus / Raidetangot","Ohjaus / Muut ohjauksen osat"],
     "Hallintalaitteet":   ["Kaasukahvat","Kaasuvaijerit"],
     "Jarrut":             ["Jarrut / Kokonainen jarrujärjestelmä","Jarrut / Levyt","Jarrut / Jarrusatulat & letkut","Jarrut / Kahvat & puristimet","Jarrut / Jarrupalat"],
     "Sukset":             ["Sukset / Kokonainen sukset","Sukset / Ohjainraudat","Sukset / Suksikumit"]
@@ -521,3 +522,4 @@ export function formatPrice(
   ).format(price);
 
 }
+

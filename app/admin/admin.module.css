@@ -375,7 +375,7 @@
 .primaryBtn,
 .saveBtn,
 .actionBtn {
-  background: linear-gradient(135deg, #e65c00 0%, #ff7a1a 100%) !important;
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%) !important;
   border-color: rgba(14, 165, 233, 0.5) !important;
   color: #ffffff !important;
   box-shadow: 0 8px 20px rgba(14, 165, 233, 0.25) !important;
@@ -425,8 +425,8 @@
   flex-shrink: 0;
 }
 
-.summaryIcon.iconBlue { background: linear-gradient(135deg, #e65c00, #ff7a1a); }
-.summaryIcon.iconCyan { background: linear-gradient(135deg, #0e7490, #ffb057); }
+.summaryIcon.iconBlue { background: linear-gradient(135deg, #0284c7, #38bdf8); }
+.summaryIcon.iconCyan { background: linear-gradient(135deg, #0e7490, #7dd3fc); }
 .summaryIcon.iconGreen { background: linear-gradient(135deg, #047857, #34d399); }
 .summaryIcon.iconRed { background: linear-gradient(135deg, #991b1b, #ef4444); }
 .summaryIcon.iconOrange { background: linear-gradient(135deg, #b45309, #fbbf24); }
@@ -1764,7 +1764,7 @@
 .page {
   background:
     radial-gradient(900px 480px at 12% -8%, rgba(64, 216, 255, 0.15), transparent 64%),
-    radial-gradient(780px 460px at 96% 0%, rgba(255, 107, 22, 0.1), transparent 62%),
+    radial-gradient(780px 460px at 96% 0%, rgba(56, 189, 248, 0.1), transparent 62%),
     linear-gradient(180deg, #031326 0%, #073b77 44%, #0b4579 72%, #061a2e 100%) !important;
   color: #071827 !important;
 }
@@ -1779,10 +1779,10 @@
 .sidebarLinkActive,
 .primaryBtn,
 .iconOrange {
-  background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 52%, #e65300 100%) !important;
-  border-color: rgba(255, 199, 148, 0.68) !important;
+  background: linear-gradient(135deg, #22d3ee 0%, #0891b2 52%, #0369a1 100%) !important;
+  border-color: rgba(125, 211, 252, 0.68) !important;
   color: #ffffff !important;
-  box-shadow: 0 14px 30px rgba(255, 107, 22, 0.24) !important;
+  box-shadow: 0 14px 30px rgba(56, 189, 248, 0.24) !important;
 }
 
 .shell {
@@ -1818,8 +1818,8 @@
 .metaPill,
 .listingMgmtCategory,
 .listingStatusTabActive {
-  background: rgba(255, 107, 22, 0.15) !important;
-  border-color: rgba(255, 107, 22, 0.44) !important;
+  background: rgba(56, 189, 248, 0.15) !important;
+  border-color: rgba(56, 189, 248, 0.44) !important;
   color: #9a3b00 !important;
 }
 
@@ -2535,7 +2535,7 @@
 
 .taxonomyAddInline button {
   align-items: center;
-  background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 100%);
+  background: linear-gradient(135deg, #22d3ee 0%, #0891b2 100%);
   border: 0;
   border-radius: 10px;
   color: #ffffff;
@@ -2676,13 +2676,13 @@
 }
 
 .appearanceInput:focus {
-  border-color: #ff7a1a;
-  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.22);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22);
 }
 
 .appearanceUploadBtn {
   align-items: center;
-  background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 52%, #e65300 100%);
+  background: linear-gradient(135deg, #22d3ee 0%, #0891b2 52%, #0369a1 100%);
   border: 0;
   border-radius: 10px;
   color: #ffffff;
@@ -2767,7 +2767,7 @@
 }
 
 .secondaryBtn:hover {
-  border-color: #ff7a1a;
+  border-color: #38bdf8;
   color: #ffd8b6;
 }
 
@@ -2832,7 +2832,7 @@
 }
 
 .appearancePageSelect:focus {
-  border-color: #ff7a1a;
+  border-color: #38bdf8;
 }
 
 .appearanceDeviceToggle {
@@ -2860,7 +2860,7 @@
 }
 
 .appearanceDeviceActive {
-  background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 52%, #e65300 100%) !important;
+  background: linear-gradient(135deg, #22d3ee 0%, #0891b2 52%, #0369a1 100%) !important;
   color: #ffffff !important;
 }
 
@@ -2920,7 +2920,7 @@
 }
 
 .appearanceNavBtns button:hover:not(:disabled) {
-  border-color: #ff7a1a;
+  border-color: #38bdf8;
   color: #ffffff;
 }
 
@@ -2948,8 +2948,8 @@
 }
 
 .appearanceAddressInput:focus {
-  border-color: #ff7a1a;
-  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.22);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22);
 }
 
 .appearanceOpenLink {
@@ -2966,7 +2966,7 @@
 }
 
 .appearanceOpenLink:hover {
-  border-color: #ff7a1a;
+  border-color: #38bdf8;
   color: #ffffff;
 }
 
@@ -3016,7 +3016,7 @@
 .sidebarBrandIcon {
   background: transparent !important;
   box-shadow: none !important;
-  color: #ff7a1a !important;
+  color: #38bdf8 !important;
   height: 48px !important;
   width: 48px !important;
 }
@@ -3044,7 +3044,7 @@
 
 .sidebarLinkActive {
   background: rgba(20, 40, 63, 0.82) !important;
-  box-shadow: inset 3px 0 0 #ff7a1a !important;
+  box-shadow: inset 3px 0 0 #38bdf8 !important;
   color: #ff8a1c !important;
 }
 
@@ -3117,8 +3117,8 @@
 }
 
 .adminSearch button {
-  background: rgba(255, 122, 26, 0.12);
-  border: 1px solid rgba(255, 122, 26, 0.38);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.38);
   border-radius: 7px;
   color: #ff9a2e;
   cursor: pointer;
@@ -3130,7 +3130,7 @@
 
 .adminSearch button:hover,
 .adminSearch button:focus-visible {
-  background: rgba(255, 122, 26, 0.2);
+  background: rgba(56, 189, 248, 0.2);
   color: #fff;
 }
 
@@ -3139,7 +3139,7 @@
 }
 
 .adminBell span {
-  background: #ff7a1a;
+  background: #38bdf8;
   border-radius: 999px;
   height: 7px;
   position: absolute;
@@ -3563,8 +3563,8 @@
 
 .page .listingStatusTab:hover,
 .page .listingStatusTabActive {
-  background: linear-gradient(135deg, #ff8a1c 0%, #ff6b16 100%) !important;
-  border-color: rgba(255, 199, 148, 0.62) !important;
+  background: linear-gradient(135deg, #ff8a1c 0%, #0891b2 100%) !important;
+  border-color: rgba(125, 211, 252, 0.62) !important;
   color: #ffffff !important;
 }
 
@@ -3704,6 +3704,6 @@
   }
 
   .sidebarLinkActive {
-    box-shadow: inset 0 -3px 0 #ff7a1a !important;
+    box-shadow: inset 0 -3px 0 #38bdf8 !important;
   }
 }

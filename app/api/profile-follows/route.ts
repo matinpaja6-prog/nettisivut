@@ -9,6 +9,14 @@ function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
 }
 
+function profileFollowErrorMessage(error: { code?: string; message?: string } | null | undefined) {
+  if (!error) return "Seurannan tallennus epÃ¤onnistui.";
+  if (error.code === "42P01" || error.message?.includes("profile_follows")) {
+    return "Seuranta ei ole vielÃ¤ kÃ¤ytÃ¶ssÃ¤: aja Supabasessa supabase/profile-follows.sql.";
+  }
+  return error.message ?? "Seurannan tallennus epÃ¤onnistui.";
+}
+
 async function getOptionalUser(request: Request) {
   const authHeader = request.headers.get("authorization") ?? "";
   const token = authHeader.startsWith("Bearer ")
@@ -44,9 +52,91 @@ async function resolveProfileId(profileId: string) {
   return data?.id ?? null;
 }
 
+async function getMyProfileFollows(request: Request) {
+  const user = await requireUser(request);
+  const admin = getSupabaseAdmin();
+
+  const [followingResult, followersResult] = await Promise.all([
+    admin
+      .from("profile_follows")
+      .select("followed_id, created_at")
+      .eq("follower_id", user.id)
+      .order("created_at", { ascending: false }),
+    admin
+      .from("profile_follows")
+      .select("follower_id, created_at")
+      .eq("followed_id", user.id)
+      .order("created_at", { ascending: false })
+  ]);
+
+  if (followingResult.error) throw followingResult.error;
+  if (followersResult.error) throw followersResult.error;
+
+  const following = followingResult.data ?? [];
+  const followers = followersResult.data ?? [];
+  const profileIds = Array.from(new Set([
+    ...following.map((row) => row.followed_id),
+    ...followers.map((row) => row.follower_id)
+  ].filter(Boolean)));
+
+  if (profileIds.length === 0) return [];
+
+  const { data: profiles, error } = await admin
+    .from("profiles")
+    .select("id, account_type, company_name, full_name, name, first_name, last_name, avatar_url, city, country, bio")
+    .in("id", profileIds);
+
+  if (error) throw error;
+
+  const profileById = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
+  const displayName = (profile: NonNullable<typeof profiles>[number] | undefined) =>
+    profile?.company_name?.trim()
+    || profile?.full_name?.trim()
+    || profile?.name?.trim()
+    || [profile?.first_name, profile?.last_name].filter(Boolean).join(" ").trim()
+    || "Kayttaja";
+
+  return [
+    ...following.map((row) => {
+      const profile = profileById.get(row.followed_id);
+      return {
+        direction: "following",
+        profile_id: row.followed_id,
+        account_type: profile?.account_type ?? null,
+        display_name: displayName(profile),
+        avatar_url: profile?.avatar_url ?? null,
+        city: profile?.city ?? null,
+        country: profile?.country ?? null,
+        bio: profile?.bio ?? null,
+        relation_created_at: row.created_at
+      };
+    }),
+    ...followers.map((row) => {
+      const profile = profileById.get(row.follower_id);
+      return {
+        direction: "follower",
+        profile_id: row.follower_id,
+        account_type: profile?.account_type ?? null,
+        display_name: displayName(profile),
+        avatar_url: profile?.avatar_url ?? null,
+        city: profile?.city ?? null,
+        country: profile?.country ?? null,
+        bio: profile?.bio ?? null,
+        relation_created_at: row.created_at
+      };
+    })
+  ].sort((a, b) =>
+    new Date(b.relation_created_at).getTime() - new Date(a.relation_created_at).getTime()
+  );
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
+    if (searchParams.get("scope") === "mine") {
+      return NextResponse.json(await getMyProfileFollows(request));
+    }
+
     const rawProfileId = searchParams.get("profileId") ?? "";
     const profileId = await resolveProfileId(rawProfileId);
 
@@ -111,7 +201,7 @@ export async function POST(request: Request) {
         }
       );
 
-    if (error) return jsonError(error.message, 500);
+    if (error) return jsonError(profileFollowErrorMessage(error), 500);
     return NextResponse.json({ ok: true, profileId });
   } catch (error) {
     return jsonError(error instanceof Error ? error.message : "Seurannan tallennus epäonnistui.", 500);
@@ -133,7 +223,7 @@ export async function DELETE(request: Request) {
       .eq("follower_id", user.id)
       .eq("followed_id", profileId);
 
-    if (error) return jsonError(error.message, 500);
+    if (error) return jsonError(profileFollowErrorMessage(error), 500);
     return NextResponse.json({ ok: true, profileId });
   } catch (error) {
     return jsonError(error instanceof Error ? error.message : "Seurannan poistaminen epäonnistui.", 500);

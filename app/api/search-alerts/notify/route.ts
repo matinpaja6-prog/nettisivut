@@ -109,7 +109,7 @@ async function sendAlertEmail(input: {
       html: `
         <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:28px;background:#f8fafc;">
           <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
-            <div style="background:#ff7a1a;color:#fff;padding:22px 26px;">
+            <div style="background:#38bdf8;color:#fff;padding:22px 26px;">
               <h1 style="font-size:20px;line-height:1.25;margin:0;">Hakuvahti löysi uuden ilmoituksen</h1>
             </div>
             <div style="padding:26px;">
@@ -117,9 +117,9 @@ async function sendAlertEmail(input: {
               <p style="font-size:18px;font-weight:700;color:#0f172a;margin:0 0 22px;">${alertLabel}</p>
               <div style="background:#f8fafc;border:1px solid #e8edf5;border-radius:12px;padding:18px;margin-bottom:22px;">
                 <p style="font-size:17px;font-weight:700;color:#0f172a;margin:0 0 8px;">${title}</p>
-                <p style="font-size:22px;font-weight:800;color:#ff7a1a;margin:0;">${price}</p>
+                <p style="font-size:22px;font-weight:800;color:#38bdf8;margin:0;">${price}</p>
               </div>
-              <a href="${listingUrl}" style="display:inline-block;background:#ff7a1a;color:#fff;text-decoration:none;font-weight:700;border-radius:10px;padding:12px 22px;">Katso ilmoitus</a>
+              <a href="${listingUrl}" style="display:inline-block;background:#38bdf8;color:#fff;text-decoration:none;font-weight:700;border-radius:10px;padding:12px 22px;">Katso ilmoitus</a>
             </div>
           </div>
         </div>

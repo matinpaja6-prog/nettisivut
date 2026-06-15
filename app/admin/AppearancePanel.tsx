@@ -71,8 +71,8 @@ const APPEARANCE_PRESETS: {
     name: "Maskines tumma",
     description: "Nykyinen selkeä tumma teema",
     colors: {
-      primary_color: "#ff7a1a",
-      accent_color: "#ff9d2e",
+      primary_color: "#38bdf8",
+      accent_color: "#67e8f9",
       background_color: "#0b1118",
       surface_color: "#0e1721",
       card_color: "#0e1721",
@@ -101,7 +101,7 @@ const APPEARANCE_PRESETS: {
     name: "Kontrasti",
     description: "Selkeät rajat ja kirkkaampi teksti",
     colors: {
-      primary_color: "#ff6b16",
+      primary_color: "#0891b2",
       accent_color: "#4cc9f0",
       background_color: "#050b13",
       surface_color: "#0b1828",
@@ -455,12 +455,12 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
             <div className={styles.appearanceLabel}>Brändivärit</div>
             <ColorRow
               label="Pääväri"
-              value={form.primary_color ?? DEFAULT_APPEARANCE.primary_color ?? "#ff7a1a"}
+              value={form.primary_color ?? DEFAULT_APPEARANCE.primary_color ?? "#38bdf8"}
               onChange={(v) => update("primary_color", v)}
             />
             <ColorRow
               label="Korostusväri"
-              value={form.accent_color ?? DEFAULT_APPEARANCE.accent_color ?? "#ff9d2e"}
+              value={form.accent_color ?? DEFAULT_APPEARANCE.accent_color ?? "#67e8f9"}
               onChange={(v) => update("accent_color", v)}
             />
           </div>

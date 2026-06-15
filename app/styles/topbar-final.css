@@ -15,8 +15,8 @@ html body header.universal-app-topbar.universal-home-topbar .universal-home-navi
 
 html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
   grid-column: 1 / 2 !important;
-  justify-content: flex-start !important;
-  justify-self: stretch !important;
+  justify-content: flex-end !important;
+  justify-self: end !important;
   gap: 8px !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
@@ -25,7 +25,7 @@ html body header.universal-app-topbar.universal-home-topbar .universal-topbar-ac
 }
 
 html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
-  margin-left: auto !important;
+  margin-left: 0 !important;
   order: 2 !important;
 }
 
@@ -57,11 +57,11 @@ html body header.universal-app-topbar.universal-home-topbar .universal-category-
 
 html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions-guest {
   grid-column: 1 / -1 !important;
-  justify-content: flex-start !important;
-  justify-self: start !important;
+  justify-content: flex-end !important;
+  justify-self: end !important;
   margin-left: 0 !important;
-  margin-right: auto !important;
-  width: auto !important;
+  margin-right: 0 !important;
+  width: 100% !important;
 }
 
 html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions-guest .rebuilt-login-button {
@@ -866,5 +866,39 @@ html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-
   html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar {
     height: 30px !important;
     width: 30px !important;
+  }
+}
+
+/* Home icon lives as an icon-only action after the language flag. */
+html body header.universal-app-topbar .universal-home-button,
+html body header.universal-app-topbar.universal-home-topbar .universal-home-button {
+  align-items: center !important;
+  display: inline-flex !important;
+  flex: 0 0 48px !important;
+  height: 44px !important;
+  justify-content: center !important;
+  min-height: 44px !important;
+  min-width: 48px !important;
+  order: 6 !important;
+  padding: 0 !important;
+  width: 48px !important;
+}
+
+html body header.universal-app-topbar .universal-home-button svg,
+html body header.universal-app-topbar.universal-home-topbar .universal-home-button svg {
+  height: 17px !important;
+  width: 17px !important;
+}
+
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  html body header.universal-app-topbar .universal-home-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-button {
+    flex: 0 0 42px !important;
+    height: 42px !important;
+    max-height: 42px !important;
+    max-width: 42px !important;
+    min-height: 42px !important;
+    min-width: 42px !important;
+    width: 42px !important;
   }
 }
