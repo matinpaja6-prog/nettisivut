@@ -2022,6 +2022,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             setDrawerOpenStep(undefined);
           }}
           vehicleType={vehicleTypeFilter}
+          vehicleSubtype=""
           brand={brandFilter}
           model={modelFilter}
           year={yearFilter}

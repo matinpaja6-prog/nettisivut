@@ -1010,6 +1010,7 @@ export default function Home() {
 
   const [subcategory, setSubcategory] = useState("");
   const [vehicleType, setVehicleType] = useState<VehicleFilter>("");
+  const [vehicleSubtype, setVehicleSubtype] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("Kaikki");
   const [modelQuery, setModelQuery] = useState("");
   const [yearQuery, setYearQuery] = useState("");
@@ -1061,6 +1062,7 @@ export default function Home() {
           category,
           subcategory,
           vehicleType,
+          vehicleSubtype,
           selectedBrand,
           modelQuery,
           yearQuery,
@@ -1094,6 +1096,7 @@ export default function Home() {
     sort,
     subcategory,
     vehicleType,
+    vehicleSubtype,
     yearQuery
   ]);
 
@@ -1126,6 +1129,7 @@ export default function Home() {
         category?: string;
         subcategory?: string;
         vehicleType?: VehicleFilter;
+        vehicleSubtype?: string;
         selectedBrand?: string;
         modelQuery?: string;
         yearQuery?: string;
@@ -1146,6 +1150,7 @@ export default function Home() {
       setCategory(saved.category ?? "");
       setSubcategory(saved.subcategory ?? "");
       setVehicleType(saved.vehicleType ?? "");
+      setVehicleSubtype(saved.vehicleSubtype ?? "");
       setSelectedBrand(saved.selectedBrand ?? "Kaikki");
       setModelQuery(saved.modelQuery ?? "");
       setYearQuery(saved.yearQuery ?? "");
@@ -1252,6 +1257,7 @@ export default function Home() {
   function clearListingFilters() {
     setQuery("");
     setVehicleType("");
+    setVehicleSubtype("");
     setGarageFilter(null);
     setSelectedBrand("Kaikki");
     setModelQuery("");
@@ -1284,6 +1290,7 @@ export default function Home() {
     JSON.stringify({
       query: query.trim(),
       vehicleType,
+      vehicleSubtype,
       garageFilterId: garageFilter?.id ?? "",
       selectedBrand,
       modelQuery: modelQuery.trim(),
@@ -1300,6 +1307,7 @@ export default function Home() {
   ), [
     query,
     vehicleType,
+    vehicleSubtype,
     garageFilter?.id,
     selectedBrand,
     modelQuery,
@@ -1651,6 +1659,7 @@ export default function Home() {
           ${listing.description ?? ""}
           ${listing.brand ?? ""}
           ${listing.model ?? ""}
+          ${listing.vehicle_subtype ?? ""}
           ${listing.engine_cc ?? ""}
           ${listingPartNumber}
           ${listing.location}
@@ -1681,6 +1690,9 @@ export default function Home() {
 
         const matchesVehicleType =
           listingMatchesVehicleType(listing, listingText, vehicleType);
+        const matchesVehicleSubtype =
+          !vehicleSubtype ||
+          textMatchesSearch(listing.vehicle_subtype ?? "", vehicleSubtype);
 
         const matchesCategory =
           !category ||
@@ -1723,6 +1735,7 @@ export default function Home() {
         return (
           matchesQuery &&
           matchesVehicleType &&
+          matchesVehicleSubtype &&
           matchesCategory &&
           matchesSubcategory &&
           matchesBrand &&
@@ -1771,6 +1784,7 @@ export default function Home() {
     listings,
     query,
     vehicleType,
+    vehicleSubtype,
     category,
     subcategory,
     selectedBrand,
@@ -1838,6 +1852,7 @@ export default function Home() {
 
     if (!vehicle) {
       setGarageFilter(null);
+      setVehicleSubtype("");
       setSelectedBrand("Kaikki");
       setModelQuery("");
       setYearQuery("");
@@ -1850,6 +1865,7 @@ export default function Home() {
     const vt = getGarageVehicleType(vehicle);
     setGarageFilter(vehicle);
     setVehicleType(vt);
+    setVehicleSubtype("");
     setSelectedBrand(vehicle.make);
     setModelQuery(vehicle.model);
     setYearQuery(String(vehicle.year));
@@ -1903,6 +1919,7 @@ export default function Home() {
     Boolean(vehicleType) ||
     Boolean(query.trim()) ||
     selectedBrand !== "Kaikki" ||
+    Boolean(vehicleSubtype.trim()) ||
     Boolean(category) ||
     Boolean(subcategory) ||
     Boolean(garageFilter) ||
@@ -2278,6 +2295,7 @@ export default function Home() {
 
     if (vehicleType !== nextVehicleType) {
       setVehicleType(nextVehicleType);
+      setVehicleSubtype("");
       setGarageFilter(null);
       setSelectedBrand("Kaikki");
       setModelQuery("");
@@ -2672,6 +2690,12 @@ export default function Home() {
                   <span className={styles.filterChip}>
                     <button type="button" className={styles.filterChipLabel} onClick={() => setDrawerOpen(true)}>{selectedBrand}</button>
                     <button type="button" className={styles.filterChipX} onClick={() => setSelectedBrand("Kaikki")}>✕</button>
+                  </span>
+                )}
+                {vehicleSubtype && (
+                  <span className={styles.filterChip}>
+                    <button type="button" className={styles.filterChipLabel} onClick={() => { setDrawerOpenStep(2); setDrawerOpen(true); }}>{vehicleSubtype}</button>
+                    <button type="button" className={styles.filterChipX} onClick={() => setVehicleSubtype("")}>✕</button>
                   </span>
                 )}
                 {category && (
@@ -3190,6 +3214,7 @@ export default function Home() {
         isOpen={drawerOpen}
         onClose={() => { setDrawerOpen(false); setDrawerOpenStep(undefined); }}
         vehicleType={vehicleType}
+        vehicleSubtype={vehicleSubtype}
         brand={selectedBrand === "Kaikki" ? "" : selectedBrand}
         model={modelQuery}
         year={yearQuery}
@@ -3201,8 +3226,9 @@ export default function Home() {
         vehicleBrands={vehicleBrands}
         vehicleCategories={vehicleCategories}
         partsCategories={partsCategories}
-        onApply={({ vehicleType: vt, brand, model, year, engineCc, engineModel, category: cat, subcategory: sub }) => {
+        onApply={({ vehicleType: vt, vehicleSubtype: vst, brand, model, year, engineCc, engineModel, category: cat, subcategory: sub }) => {
           setVehicleType(vt);
+          setVehicleSubtype(vst);
           setSelectedBrand(brand || "Kaikki");
           setModelQuery(model);
           setYearQuery(year);

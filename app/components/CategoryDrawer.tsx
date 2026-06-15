@@ -18,6 +18,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   vehicleType: VehicleType | "";
+  vehicleSubtype: string;
   brand: string;
   model: string;
   year: string;
@@ -28,6 +29,7 @@ interface Props {
   openAtStep?: number;
   onApply: (filters: {
     vehicleType: VehicleType | "";
+    vehicleSubtype: string;
     brand: string;
     model: string;
     year: string;
@@ -768,6 +770,50 @@ function uniqueOptions(values: Array<string | undefined>) {
   return Array.from(new Set(values.filter((value): value is string => Boolean(value?.trim()))));
 }
 
+const VEHICLE_SUBTYPE_OPTIONS: Record<string, string[]> = {
+  Moottorikelkka: [
+    "Crossover - moottorikelkka",
+    "Deep snow - moottorikelkka",
+    "Sport - moottorikelkka",
+    "Touring - moottorikelkka",
+    "Työ - moottorikelkka",
+    "Watercross - moottorikelkka"
+  ],
+  "Mönkijä": [
+    "ATV - mönkijä",
+    "UTV - mönkijä",
+    "Sport - mönkijä",
+    "Työ - mönkijä",
+    "Maasto - mönkijä",
+    "6x6 - mönkijä",
+    "Lasten - mönkijä"
+  ],
+  Motocross: [
+    "Motocross - crossi",
+    "Enduro - crossi",
+    "Supermoto - crossi",
+    "Trial - crossi",
+    "Pitbike - crossi",
+    "Minicross - crossi"
+  ],
+  Mopot: [
+    "Mopo - mopo",
+    "Skootteri - mopo",
+    "Supermoto - mopo",
+    "Enduro - mopo",
+    "Manki / monkey - mopo",
+    "Piikki 125 - mopo"
+  ],
+  Mopo: [
+    "Mopo - mopo",
+    "Skootteri - mopo",
+    "Supermoto - mopo",
+    "Enduro - mopo",
+    "Manki / monkey - mopo",
+    "Piikki 125 - mopo"
+  ]
+};
+
 function customValue(value: string) {
   return value === CUSTOM_OPTION_LABEL ? "" : value;
 }
@@ -1214,7 +1260,7 @@ function VehicleComboField({
 
 export default function CategoryDrawer({
   isOpen, onClose,
-  vehicleType: initVehicle, brand: initBrand, model: initModel,
+  vehicleType: initVehicle, vehicleSubtype: initVehicleSubtype, brand: initBrand, model: initModel,
   year: initYear, engineCc: initCc, engineModel: initEngineModel, category: initCat, subcategory: initSub,
   openAtStep,
   onApply, vehicleBrands, vehicleCategories, partsCategories,
@@ -1222,6 +1268,7 @@ export default function CategoryDrawer({
   const { locale, t } = useLanguage();
   const [step, setStep]         = useState(3);
   const [vehicle, setVehicle]   = useState<VehicleType | "">(initVehicle);
+  const [vehicleSubtype, setVehicleSubtype] = useState(initVehicleSubtype);
   const [brand,   setBrand]     = useState(initBrand);
   const [model,   setModel]     = useState(initModel);
   const [, setModelOpen] = useState(false);
@@ -1232,6 +1279,7 @@ export default function CategoryDrawer({
   const [engineModelOther, setEngineModelOther] = useState("");
   const [driveType, setDriveType] = useState("");
   const [vehicleTypeMenuOpen, setVehicleTypeMenuOpen] = useState(false);
+  const [vehicleSubtypeMenuOpen, setVehicleSubtypeMenuOpen] = useState(false);
   const [cat,     setCat]             = useState(initCat);
   const [subGroup, setSubGroup] = useState("");
   const [sub,     setSub]       = useState(initSub);
@@ -1251,6 +1299,7 @@ export default function CategoryDrawer({
       const nextStep = requestedStep < 2 ? 2 : requestedStep;
 
       setVehicle(initVehicle);
+      setVehicleSubtype(initVehicleSubtype);
       setBrand(initBrand);
       setModel(initModel);
       setYear(initYear);
@@ -1259,20 +1308,22 @@ export default function CategoryDrawer({
       setEngineModel(initEngineModel ?? "");
       setEngineModelOther("");
       setDriveType("");
+      setVehicleTypeMenuOpen(false);
+      setVehicleSubtypeMenuOpen(false);
       setModelOpen(false);
       setCat("");
       setSubGroup("");
       setSub("");
       setStep(nextStep);
     }
-  }, [isOpen, initVehicle, initBrand, initModel, initYear, initCc, initEngineModel, openAtStep]);
+  }, [isOpen, initVehicle, initVehicleSubtype, initBrand, initModel, initYear, initCc, initEngineModel, openAtStep]);
 
   useEffect(() => {
     if (isOpen && step < 2) setStep(2);
   }, [isOpen, step]);
 
   function apply() {
-    onApply({ vehicleType: vehicle, brand, model, year,
+    onApply({ vehicleType: vehicle, vehicleSubtype, brand, model, year,
       engineCc: engineCc === "muu" ? engineCcOther : engineCc,
       engineModel: engineModel === "muu" ? engineModelOther : engineModel,
       category: cat, subcategory: sub });
@@ -1284,6 +1335,7 @@ export default function CategoryDrawer({
     setSub(nextSub);
     onApply({
       vehicleType: vehicle,
+      vehicleSubtype,
       brand,
       model,
       year,
@@ -1483,8 +1535,10 @@ export default function CategoryDrawer({
   function selectVehicleType(nextKind: CategoryStartKind) {
     const nextVehicle = nextKind === "all" ? "" : (nextKind as VehicleType);
     setVehicleTypeMenuOpen(false);
+    setVehicleSubtypeMenuOpen(false);
     setVehicle(nextVehicle);
     setBrand("");
+    setVehicleSubtype("");
     setModel("");
     setModelOpen(false);
     setYear("");
@@ -1538,6 +1592,53 @@ export default function CategoryDrawer({
     );
   }
 
+  function renderVehicleSubtypeMenu() {
+    const subtypeOptions = vehicle ? (VEHICLE_SUBTYPE_OPTIONS[vehicle] ?? []) : [];
+    const selectedLabel = vehicleSubtype || "Kaikki tyypit";
+    const disabled = !vehicle || subtypeOptions.length === 0;
+
+    return (
+      <div className={`cd-vehicle-type-menu cd-vehicle-subtype-menu${disabled ? " is-disabled" : ""}`}>
+        <span>Tyyppi</span>
+        <button
+          type="button"
+          className="cd-vehicle-type-trigger"
+          onClick={() => {
+            if (!disabled) setVehicleSubtypeMenuOpen((open) => !open);
+          }}
+          aria-haspopup="listbox"
+          aria-expanded={vehicleSubtypeMenuOpen}
+          disabled={disabled}
+        >
+          <strong>{selectedLabel}</strong>
+          <ChevronDown size={16} aria-hidden="true" />
+        </button>
+        {vehicleSubtypeMenuOpen && !disabled && (
+          <div className="cd-vehicle-type-options" role="listbox">
+            {["", ...subtypeOptions].map((option) => {
+              const active = option === vehicleSubtype;
+              return (
+                <button
+                  key={option || "all-subtypes"}
+                  type="button"
+                  className={`cd-vehicle-type-option${active ? " is-active" : ""}`}
+                  onClick={() => {
+                    setVehicleSubtype(option);
+                    setVehicleSubtypeMenuOpen(false);
+                  }}
+                  role="option"
+                  aria-selected={active}
+                >
+                  {option || "Kaikki tyypit"}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const currentSubcategoryGroups =
     cat ? getFilteredSubcategoryGroups(cat) : null;
 
@@ -1552,7 +1653,10 @@ export default function CategoryDrawer({
   /* ── breadcrumb segments ── */
   const crumbs: Array<{ label: string; toStep: number; onRemove: () => void }> = [];
   if (vehicle)  crumbs.push({ label: vehicleCrumbLabel(vehicle), toStep: 2,
-      onRemove: () => { setBrand(""); setModel(""); setModelOpen(false); setYear(""); setEngineCc(""); setEngineCcOther(""); setEngineModel(""); setEngineModelOther(""); setCat(""); setSubGroup(""); setSub(""); setStep(3); }
+      onRemove: () => { setVehicleSubtype(""); setBrand(""); setModel(""); setModelOpen(false); setYear(""); setEngineCc(""); setEngineCcOther(""); setEngineModel(""); setEngineModelOther(""); setCat(""); setSubGroup(""); setSub(""); setStep(3); }
+    });
+    if (vehicleSubtype) crumbs.push({ label: vehicleSubtype, toStep: 2,
+      onRemove: () => { setVehicleSubtype(""); setStep(2); }
     });
     if (brand)    crumbs.push({ label: brand, toStep: 2,
       onRemove: () => { setBrand(""); setModel(""); setModelOpen(false); setYear(""); setEngineCc(""); setEngineCcOther(""); setEngineModel(""); setEngineModelOther(""); setCat(""); setSubGroup(""); setSub(""); setStep(2); }
@@ -1675,7 +1779,10 @@ export default function CategoryDrawer({
             <section className="cd-vehicle-step" aria-label="Ajoneuvon tarkennus">
               <div className="cd-vehicle-step-head">
                 <span className="cd-step-hint">{t.cdRefineVehicle}</span>
-                {renderVehicleTypeMenu()}
+                <div className="cd-vehicle-head-fields">
+                  {renderVehicleTypeMenu()}
+                  {renderVehicleSubtypeMenu()}
+                </div>
               </div>
               <div className="cd-vehicle-detail-grid">
                 <VehicleComboField
@@ -2272,12 +2379,21 @@ export default function CategoryDrawer({
           line-height: 1.1 !important;
           overflow-wrap: anywhere !important;
         }
+        .cd-vehicle-head-fields {
+          display: grid !important;
+          gap: 10px !important;
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          width: 100% !important;
+        }
         .cd-vehicle-type-menu {
           display: grid !important;
           gap: 7px !important;
           margin: 0 !important;
           min-width: 0 !important;
           width: 100% !important;
+        }
+        .cd-vehicle-type-menu.is-disabled {
+          opacity: 0.58 !important;
         }
         .cd-vehicle-type-menu span {
           color: rgba(216, 226, 236, 0.72) !important;
@@ -2306,6 +2422,9 @@ export default function CategoryDrawer({
           min-width: 0 !important;
           padding: 0 12px !important;
           width: 100% !important;
+        }
+        .cd-vehicle-type-trigger:disabled {
+          cursor: not-allowed !important;
         }
         .cd-vehicle-type-trigger strong {
           color: #ffffff !important;
@@ -2472,11 +2591,11 @@ export default function CategoryDrawer({
           padding: 14px !important;
         }
         .cd-vehicle-step .cd-detail-field {
-          background: rgba(3, 19, 38, 0.5) !important;
-          border: 1px solid rgba(126, 197, 240, 0.18) !important;
-          border-radius: 10px !important;
+          background: transparent !important;
+          border: 0 !important;
+          border-radius: 0 !important;
           gap: 8px !important;
-          padding: 10px !important;
+          padding: 0 !important;
         }
         .cd-vehicle-step .cd-field-label {
           color: rgba(216, 226, 236, 0.86) !important;
@@ -4471,6 +4590,9 @@ export default function CategoryDrawer({
         .cd-drawer .cd-vehicle-step .cd-detail-field {
           min-width: 0 !important;
           overflow: visible !important;
+          border: 0 !important;
+          background: transparent !important;
+          padding: 0 !important;
         }
         .cd-drawer .cd-vehicle-step .cd-field-label {
           white-space: normal !important;
@@ -4539,7 +4661,7 @@ export default function CategoryDrawer({
             padding: 10px !important;
           }
           .cd-drawer .cd-vehicle-step .cd-detail-field {
-            padding: 9px !important;
+            padding: 0 !important;
           }
           .cd-drawer .cd-vehicle-step .cd-field-label {
             font-size: 12px !important;
@@ -4563,6 +4685,9 @@ export default function CategoryDrawer({
           }
           .cd-drawer .cd-vehicle-kind-card {
             min-height: 46px !important;
+          }
+          .cd-vehicle-head-fields {
+            grid-template-columns: 1fr !important;
           }
         }
       `}</style>
