@@ -4,7 +4,7 @@ import { ArrowLeft, Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CHAT_NOTIFICATIONS_CHANGED_EVENT,
   deleteAlertNotification,
@@ -17,6 +17,7 @@ import {
   isConversationLastMessageUnread,
   markConversationRead,
   markNotificationsSeen,
+  markPurchaseReviewRequestsSeen,
   readChatLastRead,
   supabase,
   type AlertNotification,
@@ -259,7 +260,7 @@ export default function UniversalTopbar() {
         });
 
         setReviewRequests(uniqueById(reviews ?? []));
-        setAlertNotifications(uniqueById(alerts ?? []).filter((alert) => !alert.seen));
+        setAlertNotifications(uniqueById(alerts ?? []));
         setUnreadConversations(unread);
       } catch {
         // Keep the last visible state if a realtime refresh races with a temporary network error.
@@ -378,16 +379,19 @@ export default function UniversalTopbar() {
     router.push("/");
   }
 
-  const visibleReviewRequests = reviewRequests.filter((request) => !seenNotificationKeys.has(`review:${request.id}`));
-  const visibleAlertNotifications = alertNotifications.filter((notification) => !notification.seen && !seenNotificationKeys.has(`alert:${notification.id}`));
+  const visibleReviewRequests = reviewRequests;
+  const visibleAlertNotifications = alertNotifications;
   const visibleUnreadConversations = unreadConversations;
+  const unreadReviewRequests = visibleReviewRequests.filter((request) => !request.seen_at && !seenNotificationKeys.has(`review:${request.id}`));
+  const unreadAlertNotifications = visibleAlertNotifications.filter((notification) => !notification.seen && !seenNotificationKeys.has(`alert:${notification.id}`));
+  const unreadConversationsForBadge = visibleUnreadConversations.filter((conversation) => !seenNotificationKeys.has(`conversation:${conversation.id}`));
   const notificationItemCount =
-    visibleReviewRequests.length +
-    visibleAlertNotifications.length +
-    visibleUnreadConversations.length;
+    unreadReviewRequests.length +
+    unreadAlertNotifications.length +
+    unreadConversationsForBadge.length;
   const hasNotifications = notificationItemCount > 0;
   const hasNotificationItems =
-    notificationItemCount > 0;
+    visibleReviewRequests.length + visibleAlertNotifications.length + visibleUnreadConversations.length > 0;
   const isHomePage = pathname === "/";
   const guestLocked = !authChecked || !userId;
   const sellerLevel = calculateSellerLevel(sellerLevelStats);
@@ -439,9 +443,25 @@ export default function UniversalTopbar() {
     return `${days} pv sitten`;
   }
 
-  function markAllNotificationItemsRead() {
+  const rememberSeenNotificationKeys = useCallback((keys: string[]) => {
     const activeUserId = userId;
-    if (!activeUserId) return;
+    if (!activeUserId || keys.length === 0) return;
+
+    setSeenNotificationKeys((prev) => {
+      const next = new Set(prev);
+      keys.forEach((key) => next.add(key));
+      try {
+        localStorage.setItem(`${SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY}:${activeUserId}`, JSON.stringify([...next]));
+      } catch {
+        /* ok */
+      }
+      return next;
+    });
+  }, [userId]);
+
+  const acknowledgeVisibleNotificationItems = useCallback(() => {
+    const activeUserId = userId;
+    if (!activeUserId || notificationItemCount === 0) return;
 
     visibleUnreadConversations.forEach((conversation) => {
       const lastMessageAt = conversation.last_message?.created_at
@@ -451,11 +471,11 @@ export default function UniversalTopbar() {
       void markConversationRead(conversation.id, activeUserId, readAt);
     });
 
-    if (visibleAlertNotifications.length > 0) {
+    if (unreadAlertNotifications.length > 0) {
       void markNotificationsSeen(activeUserId).then(() => {
         setAlertNotifications((prev) =>
           prev.map((notification) =>
-            visibleAlertNotifications.some((visible) => visible.id === notification.id)
+            unreadAlertNotifications.some((visible) => visible.id === notification.id)
               ? { ...notification, seen: true }
               : notification
           )
@@ -463,20 +483,39 @@ export default function UniversalTopbar() {
       });
     }
 
-    setSeenNotificationKeys((prev) => {
-      const next = new Set(prev);
-      visibleReviewRequests.forEach((request) => next.add(`review:${request.id}`));
-      visibleAlertNotifications.forEach((notification) => next.add(`alert:${notification.id}`));
-      try {
-        localStorage.setItem(`${SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY}:${activeUserId}`, JSON.stringify([...next]));
-      } catch {
-        /* ok */
-      }
-      return next;
-    });
-    setUnreadConversations((prev) =>
-      prev.filter((conversation) => !visibleUnreadConversations.some((visible) => visible.id === conversation.id))
-    );
+    if (unreadReviewRequests.length > 0) {
+      const seenAt = new Date().toISOString();
+      void markPurchaseReviewRequestsSeen(
+        unreadReviewRequests.map((request) => request.id),
+        activeUserId
+      ).then(({ error }) => {
+        if (error) return;
+        setReviewRequests((prev) =>
+          prev.map((request) =>
+            unreadReviewRequests.some((visible) => visible.id === request.id)
+              ? { ...request, seen_at: seenAt }
+              : request
+          )
+        );
+      });
+    }
+
+    rememberSeenNotificationKeys([
+      ...unreadReviewRequests.map((request) => `review:${request.id}`),
+      ...unreadAlertNotifications.map((notification) => `alert:${notification.id}`),
+      ...visibleUnreadConversations.map((conversation) => `conversation:${conversation.id}`),
+    ]);
+  }, [
+    notificationItemCount,
+    rememberSeenNotificationKeys,
+    unreadAlertNotifications,
+    unreadReviewRequests,
+    userId,
+    visibleUnreadConversations,
+  ]);
+
+  function markAllNotificationItemsRead() {
+    acknowledgeVisibleNotificationItems();
   }
 
   const homeNavigation = isHomePage ? (
@@ -499,33 +538,57 @@ export default function UniversalTopbar() {
     }
   }
 
+  function rememberDismissedNotificationKey(key: string) {
+    if (!userId) return;
+
+    setSeenNotificationKeys((prev) => {
+      const next = new Set(prev);
+      next.add(key);
+      try {
+        localStorage.setItem(
+          `${SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY}:${userId}`,
+          JSON.stringify([...next])
+        );
+      } catch {
+        /* ok */
+      }
+      return next;
+    });
+  }
+
+  function dismissReviewNotification(request: PurchaseReviewRequest) {
+    setReviewRequests((prev) => prev.filter((item) => item.id !== request.id));
+    rememberDismissedNotificationKey(`review:${request.id}`);
+
+    void dismissPurchaseReviewRequest(request.id).then(({ error }) => {
+      if (error) {
+        console.warn("Review notification delete failed:", error);
+        setNotificationRefreshNonce((value) => value + 1);
+      }
+    });
+
+    window.dispatchEvent(new CustomEvent("review-request-dismissed", { detail: request.id }));
+  }
+
   function dismissAlertNotification(notification: AlertNotification) {
     setAlertNotifications((prev) =>
       prev.filter((item) => item.id !== notification.id)
     );
 
-    if (userId) {
-      setSeenNotificationKeys((prev) => {
-        const next = new Set(prev);
-        next.add(`alert:${notification.id}`);
-        try {
-          localStorage.setItem(
-            `${SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY}:${userId}`,
-            JSON.stringify([...next])
-          );
-        } catch {
-          /* ok */
-        }
-        return next;
-      });
-    }
+    rememberDismissedNotificationKey(`alert:${notification.id}`);
 
     void deleteAlertNotification(notification.id).then(({ error }) => {
       if (error) {
         console.warn("Alert notification delete failed:", error);
+        setNotificationRefreshNonce((value) => value + 1);
       }
     });
   }
+
+  useEffect(() => {
+    if (!notificationOpen) return;
+    acknowledgeVisibleNotificationItems();
+  }, [acknowledgeVisibleNotificationItems, notificationOpen]);
 
   if (hideUniversalTopbar) {
     return null;
@@ -637,16 +700,15 @@ export default function UniversalTopbar() {
                   <strong>Ilmoitukset</strong>
                   <small>Pysy ajan tasalla tärkeistä viesteistä.</small>
                 </span>
-                <button
-                  type="button"
-                  className="universal-notification-read-all"
-                  onClick={markAllNotificationItemsRead}
-                >
-                  Merkitse kaikki luetuiksi
-                </button>
-                <span className="universal-notification-count">
-                  {notificationItemCount}
-                </span>
+                {hasNotifications ? (
+                  <button
+                    type="button"
+                    className="universal-notification-read-all"
+                    onClick={markAllNotificationItemsRead}
+                  >
+                    Merkitse kaikki luetuiksi
+                  </button>
+                ) : null}
               </div>
 
               {!hasNotificationItems ? (
@@ -702,6 +764,7 @@ export default function UniversalTopbar() {
                           type="button"
                           className="universal-notif-dismiss"
                           title="Poista"
+                          aria-label="Poista ilmoitus"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -717,73 +780,80 @@ export default function UniversalTopbar() {
               {visibleReviewRequests.length > 0 ? (
                 <div className="universal-notification-group">
                   <span>{t.reviews}</span>
-                  {visibleReviewRequests.map((request) => (
-                    <div key={request.id} className="universal-notification-item-wrap">
-                      <span className="universal-notification-dot is-unread" aria-hidden="true" />
-                      <button
-                        type="button"
-                        className="universal-notification-item"
-                        role="menuitem"
-                        onClick={() => {
-                          window.dispatchEvent(new CustomEvent("open-purchase-review", { detail: { requestId: request.id } }));
-                          setNotificationOpen(false);
-                        }}
-                      >
-                        <span className="universal-notification-item-icon"><Star size={15} /></span>
-                        <span>
-                          <strong>{t.reviewSeller}</strong>
-                          <small>{request.listing_title}</small>
-                        </span>
-                        <time>{formatNotificationTime(request.created_at)}</time>
-                        <ChevronRight size={22} aria-hidden="true" />
-                      </button>
-                      <button
-                        type="button"
-                        className="universal-notif-dismiss"
-                        title={t.dismiss}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          void dismissPurchaseReviewRequest(request.id);
-                          setReviewRequests(prev => prev.filter(r => r.id !== request.id));
-                          window.dispatchEvent(new CustomEvent("review-request-dismissed", { detail: request.id }));
-                        }}
-                      ><X size={11} /></button>
-                    </div>
-                  ))}
+                  {visibleReviewRequests.map((request) => {
+                    const isUnread = !request.seen_at && !seenNotificationKeys.has(`review:${request.id}`);
+                    return (
+                      <div key={request.id} className="universal-notification-item-wrap">
+                        {isUnread ? <span className="universal-notification-dot is-unread" aria-hidden="true" /> : <span />}
+                        <button
+                          type="button"
+                          className="universal-notification-item"
+                          role="menuitem"
+                          onClick={() => {
+                            window.dispatchEvent(new CustomEvent("open-purchase-review", { detail: { requestId: request.id } }));
+                            setNotificationOpen(false);
+                          }}
+                        >
+                          <span className="universal-notification-item-icon"><Star size={15} /></span>
+                          <span>
+                            <strong>{t.reviewSeller}</strong>
+                            <small>{request.listing_title}</small>
+                          </span>
+                          <time>{formatNotificationTime(request.created_at)}</time>
+                          <ChevronRight size={22} aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          className="universal-notif-dismiss"
+                          title={t.dismiss}
+                          aria-label="Poista ilmoitus"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            dismissReviewNotification(request);
+                          }}
+                        ><X size={11} /></button>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : null}
 
               {visibleAlertNotifications.length > 0 ? (
                 <div className="universal-notification-group">
                   <span>{t.saTitle}</span>
-                  {visibleAlertNotifications.map((notification) => (
-                    <div key={notification.id} className="universal-notification-item-wrap">
-                      <span className="universal-notification-dot is-unread" aria-hidden="true" />
-                      <Link
-                        href={`/listing/${notification.listing_id}`}
-                        className="universal-notification-item"
-                        role="menuitem"
-                        onClick={() => setNotificationOpen(false)}
-                      >
-                        <span className="universal-notification-item-icon"><Bell size={15} /></span>
-                        <span>
-                          <strong>{notification.alert_label}</strong>
-                          <small>{notification.listing_title}</small>
-                        </span>
-                        <time>{formatNotificationTime(notification.created_at)}</time>
-                        <ChevronRight size={22} aria-hidden="true" />
-                      </Link>
-                      <button
-                        type="button"
-                        className="universal-notif-dismiss"
-                        title={t.dismiss}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          dismissAlertNotification(notification);
-                        }}
-                      ><X size={11} /></button>
-                    </div>
-                  ))}
+                  {visibleAlertNotifications.map((notification) => {
+                    const isUnread = !notification.seen && !seenNotificationKeys.has(`alert:${notification.id}`);
+                    return (
+                      <div key={notification.id} className="universal-notification-item-wrap">
+                        {isUnread ? <span className="universal-notification-dot is-unread" aria-hidden="true" /> : <span />}
+                        <Link
+                          href={`/listing/${notification.listing_id}`}
+                          className="universal-notification-item"
+                          role="menuitem"
+                          onClick={() => setNotificationOpen(false)}
+                        >
+                          <span className="universal-notification-item-icon"><Bell size={15} /></span>
+                          <span>
+                            <strong>{notification.alert_label}</strong>
+                            <small>{notification.listing_title}</small>
+                          </span>
+                          <time>{formatNotificationTime(notification.created_at)}</time>
+                          <ChevronRight size={22} aria-hidden="true" />
+                        </Link>
+                        <button
+                          type="button"
+                          className="universal-notif-dismiss"
+                          title={t.dismiss}
+                          aria-label="Poista ilmoitus"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dismissAlertNotification(notification);
+                          }}
+                        ><X size={11} /></button>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : null}
               </div>

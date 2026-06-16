@@ -12,6 +12,7 @@ create table if not exists public.purchase_review_requests (
   listing_title text not null default '',
   seller_name text not null default 'Myyjä',
   due_at timestamptz not null default now(),
+  seen_at timestamptz,
   completed_at timestamptz,
   created_at timestamptz not null default now(),
   constraint purchase_review_requests_buyer_seller_check check (buyer_id <> seller_id),
@@ -24,6 +25,9 @@ alter table if exists public.purchase_review_requests
 
 alter table public.purchase_review_requests
   alter column due_at set default now();
+
+alter table public.purchase_review_requests
+  add column if not exists seen_at timestamptz;
 
 alter table public.purchase_review_requests enable row level security;
 
@@ -54,6 +58,10 @@ using (auth.uid() = buyer_id);
 
 create index if not exists purchase_review_requests_buyer_due_idx
   on public.purchase_review_requests (buyer_id, due_at)
+  where completed_at is null;
+
+create index if not exists purchase_review_requests_buyer_seen_due_idx
+  on public.purchase_review_requests (buyer_id, seen_at, due_at)
   where completed_at is null;
 
 create index if not exists purchase_review_requests_seller_idx

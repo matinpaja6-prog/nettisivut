@@ -757,13 +757,6 @@ const MODEL_ENGINE_OPTIONS: Record<string, Record<string, Record<string, string[
   }
 };
 
-const DRIVE_OPTIONS: Record<string, string[]> = {
-  Moottorikelkka: ["Telamatto"],
-  "Mönkijä": ["2WD", "4WD", "6WD"],
-  Motocross: ["Ketju"],
-  Mopot: ["Ketju", "Hihna"]
-};
-
 const CUSTOM_OPTION_LABEL = "Muu (kirjoita itse)";
 
 function uniqueOptions(values: Array<string | undefined>) {
@@ -1277,7 +1270,6 @@ export default function CategoryDrawer({
   const [engineCcOther, setEngineCcOther]   = useState("");
   const [engineModel, setEngineModel]       = useState(initEngineModel ?? "");
   const [engineModelOther, setEngineModelOther] = useState("");
-  const [driveType, setDriveType] = useState("");
   const [vehicleTypeMenuOpen, setVehicleTypeMenuOpen] = useState(false);
   const [vehicleSubtypeMenuOpen, setVehicleSubtypeMenuOpen] = useState(false);
   const [cat,     setCat]             = useState(initCat);
@@ -1288,7 +1280,6 @@ export default function CategoryDrawer({
   const yearInputRef = useRef<HTMLInputElement | null>(null);
   const engineCcInputRef = useRef<HTMLInputElement | null>(null);
   const engineModelInputRef = useRef<HTMLInputElement | null>(null);
-  const driveTypeInputRef = useRef<HTMLInputElement | null>(null);
   const categoryVehicleMenuAutoOpenedRef = useRef(false);
 
   useEffect(() => {
@@ -1308,7 +1299,6 @@ export default function CategoryDrawer({
       setEngineCcOther("");
       setEngineModel(initEngineModel ?? "");
       setEngineModelOther("");
-      setDriveType("");
       setVehicleTypeMenuOpen(false);
       setVehicleSubtypeMenuOpen(false);
       categoryVehicleMenuAutoOpenedRef.current = false;
@@ -1420,7 +1410,6 @@ export default function CategoryDrawer({
     ...Object.keys(COMMON_BRAND_MODELS_BY_VEHICLE[getCommonVehicleKey(vehicle)] ?? {})
   ]);
   const modelOptions = brand ? getBrandModelOptions(vehicle, brand) : [];
-  const driveOptions = DRIVE_OPTIONS[vehicle] ?? [];
 
   function focusNextMobileField(ref: RefObject<HTMLInputElement | null>) {
     if (!window.matchMedia("(max-width: 760px)").matches) return;
@@ -1566,7 +1555,6 @@ export default function CategoryDrawer({
     setEngineCcOther("");
     setEngineModel("");
     setEngineModelOther("");
-    setDriveType("");
     setCat("");
     setSubGroup("");
     setSub("");
@@ -1910,22 +1898,11 @@ export default function CategoryDrawer({
                   disabled={!vehicle || !brand}
                   placeholder={brand ? "Kaikki moottorit" : t.sellSelectBrandFirst}
                   inputRef={engineModelInputRef}
-                  onMobileSelect={() => focusNextMobileField(driveTypeInputRef)}
+                  onMobileSelect={() => setStep(3)}
                   onChange={(nextValue) => {
                     setEngineModel(nextValue);
                     setEngineModelOther("");
                   }}
-                />
-
-                <VehicleComboField
-                  label="Vetotapa"
-                  value={driveType}
-                  options={driveOptions}
-                  disabled={!vehicle}
-                  placeholder="Kaikki"
-                  inputRef={driveTypeInputRef}
-                  onMobileSelect={() => setStep(3)}
-                  onChange={setDriveType}
                 />
               </div>
               <div className="cd-vehicle-actions">
@@ -1947,7 +1924,6 @@ export default function CategoryDrawer({
                     setEngineCcOther("");
                     setEngineModel("");
                     setEngineModelOther("");
-                    setDriveType("");
                   }}
                 >
                   Tyhjennä
@@ -2068,19 +2044,6 @@ export default function CategoryDrawer({
                       )}
                     </div>
 
-                    <div className="cd-detail-field">
-                      <label className="cd-field-label">Vetotapa</label>
-                      <select
-                        className="cd-cc-select"
-                        value={driveType}
-                        onChange={e => setDriveType(e.target.value)}
-                      >
-                        <option value="">Kaikki</option>
-                        {driveOptions.map((option) => (
-                          <option key={option} value={option}>{option}</option>
-                        ))}
-                      </select>
-                    </div>
                   </div>
                   <div className="cd-inline-actions">
                     <button className="cd-apply" type="button" onClick={apply}>Näytä tulokset</button>
@@ -2096,7 +2059,6 @@ export default function CategoryDrawer({
                         setEngineCcOther("");
                         setEngineModel("");
                         setEngineModelOther("");
-                        setDriveType("");
                       }}
                     >
                       Tyhjennä

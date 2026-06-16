@@ -120,7 +120,7 @@ export default function GaragePage() {
   const latestUpdatedLabel = newestVehicleDate
     ? newestVehicleDate.toLocaleDateString(locale, { day: "numeric", month: "numeric", year: "numeric" })
     : "-";
-  const shouldShowForm = showForm || vehicles.length === 0;
+  const shouldShowForm = showForm;
 
   useEffect(() => {
     if (!user) return;

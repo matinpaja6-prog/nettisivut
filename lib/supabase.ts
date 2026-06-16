@@ -186,6 +186,7 @@ export type PurchaseReviewRequest = {
   listing_title: string;
   seller_name: string;
   due_at: string;
+  seen_at?: string | null;
   completed_at?: string | null;
   created_at: string;
 };
@@ -1892,40 +1893,6 @@ export async function createListing(
           | "city"
         >>();
 
-    if (profile?.account_type === "company") {
-      const selectedSellerName =
-        listing.seller_name?.replace(/\s+/g, " ").trim() ?? "";
-      const selectedSellerPhone =
-        listing.seller_phone?.replace(/\s+/g, " ").trim() ?? "";
-
-      if (!selectedSellerName || !selectedSellerPhone) {
-        return {
-          data: null,
-          error: new Error(
-            "Valitse yrityksen myyjä ennen ilmoituksen julkaisua."
-          )
-        };
-      }
-
-      const { data: selectedSeller, error: selectedSellerError } =
-        await supabase
-          .from("company_sellers")
-          .select("id,name,phone")
-          .eq("company_id", user.id)
-          .eq("name", selectedSellerName)
-          .eq("phone", selectedSellerPhone)
-          .maybeSingle<Pick<CompanySeller, "id" | "name" | "phone">>();
-
-      if (selectedSellerError || !selectedSeller) {
-        return {
-          data: null,
-          error: new Error(
-            "Valitse yrityksen profiiliin lisätty myyjä ennen ilmoituksen julkaisua."
-          )
-        };
-      }
-    }
-
     const profileName =
       profile?.account_type === "company"
         ? profile.company_name
@@ -3117,6 +3084,81 @@ export async function upsertProfile(
 
 }
 
+export async function upsertProfileFromApi(
+  profile: UserProfileInput
+) {
+
+  if (!supabase) {
+
+    return {
+      data: null,
+      error: new Error(
+        "Supabase ei ole konfiguroitu."
+      )
+    };
+
+  }
+
+  try {
+
+    const {
+      data: sessionData,
+      error: sessionError
+    } =
+      await supabase.auth.getSession();
+    const token =
+      sessionData.session?.access_token;
+
+    if (sessionError || !token) {
+      return {
+        data: null,
+        error:
+          sessionError ??
+          new Error("Kirjautuminen ei ole voimassa.")
+      };
+    }
+
+    const response =
+      await fetch("/api/profiles/upsert", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ profile })
+      });
+
+    const payload =
+      await response.json().catch(() => ({})) as {
+        data?: UserProfile;
+        error?: string;
+      };
+
+    if (!response.ok) {
+      return {
+        data: null,
+        error: new Error(
+          payload.error || "Profiilin tallennus epaonnistui."
+        )
+      };
+    }
+
+    return {
+      data: payload.data ?? null,
+      error: null
+    };
+
+  } catch (error) {
+
+    return {
+      data: null,
+      error
+    };
+
+  }
+
+}
+
 export async function updateEditableProfile(
   userId: string,
 
@@ -3674,6 +3716,31 @@ export async function getPendingPurchaseReviewRequests(
       data: [] as PurchaseReviewRequest[],
       error
     };
+  }
+}
+
+export async function markPurchaseReviewRequestsSeen(
+  requestIds: string[],
+  buyerId: string
+) {
+  if (!supabase || requestIds.length === 0) {
+    return { error: null };
+  }
+
+  try {
+    const { error } =
+      await supabase
+        .from("purchase_review_requests")
+        .update({
+          seen_at: new Date().toISOString()
+        })
+        .in("id", requestIds)
+        .eq("buyer_id", buyerId)
+        .is("seen_at", null);
+
+    return { error };
+  } catch (error) {
+    return { error };
   }
 }
 

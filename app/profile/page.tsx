@@ -385,11 +385,11 @@ export default function ProfilePage() {
       et: "Ettevõtte müüjad"
     }[locale],
     companySellersHelp: {
-      fi: "Lisää enintään 8 myyjää. Ilmoituksen luonnissa valitaan kuka näkyy myyjänä ostajalle.",
-      en: "Add up to 8 sellers. When creating a listing, you choose who appears as the seller to the buyer.",
-      sv: "Lägg till upp till 8 säljare. När du skapar en annons väljer du vem som visas som säljare för köparen.",
-      no: "Legg til opptil 8 selgere. Når du oppretter en annonse, velger du hvem som vises som selger for kjøperen.",
-      et: "Lisa kuni 8 müüjat. Kuulutuse loomisel valid, kes ostjale müüjana kuvatakse."
+      fi: "Lisää halutessasi yritykselle myyjiä. Ilmoitus voidaan julkaista myös yrityksen omilla tiedoilla.",
+      en: "Optionally add company sellers. Listings can also be published with the company details.",
+      sv: "Lägg till företagets säljare vid behov. Annonser kan också publiceras med företagets uppgifter.",
+      no: "Legg til bedriftens selgere ved behov. Annonser kan også publiseres med bedriftens opplysninger.",
+      et: "Soovi korral lisa ettevõtte müüjaid. Kuulutusi saab avaldada ka ettevõtte andmetega."
     }[locale],
     sellers: {
       fi: "Myyjät",
@@ -413,11 +413,11 @@ export default function ProfilePage() {
       et: "Telefoninumber"
     }[locale],
     noCompanySellers: {
-      fi: "Ei myyjiä vielä. Lisää ensimmäinen myyjä tähän.",
-      en: "No sellers yet. Add the first seller here.",
-      sv: "Inga säljare ännu. Lägg till den första säljaren här.",
-      no: "Ingen selgere ennå. Legg til den første selgeren her.",
-      et: "Müüjaid pole veel. Lisa esimene müüja siia."
+      fi: "Ei erillisiä myyjiä vielä. Ilmoituksissa käytetään yrityksen tietoja.",
+      en: "No separate sellers yet. Listings use the company details.",
+      sv: "Inga separata säljare ännu. Annonser använder företagets uppgifter.",
+      no: "Ingen egne selgere ennå. Annonser bruker bedriftens opplysninger.",
+      et: "Eraldi müüjaid pole veel. Kuulutustes kasutatakse ettevõtte andmeid."
     }[locale],
     addSeller: {
       fi: "Lisää myyjä",
@@ -1362,7 +1362,6 @@ export default function ProfilePage() {
                         value={profile.company_name ?? ""}
                         onChange={e => setProfile({ ...profile, company_name: e.target.value })}
                       />
-                      {profile.company_name && <Lock size={13} className="pf-info-lock" />}
                       </div>
                     </div>
                     <div className="pf-info-row">
@@ -1376,7 +1375,6 @@ export default function ProfilePage() {
                         value={profile.business_id ?? ""}
                         onChange={e => setProfile({ ...profile, business_id: e.target.value })}
                       />
-                      {profile.business_id && <Lock size={13} className="pf-info-lock" />}
                       </div>
                     </div>
                     <div className="pf-info-row">
@@ -5618,6 +5616,141 @@ export default function ProfilePage() {
             min-height: 72px !important;
           }
 
+          @media (max-width: 640px) {
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section {
+              --pf-card-inset: 14px !important;
+              border-radius: 12px !important;
+              min-height: 0 !important;
+              padding-bottom: 18px !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section > .pf-section-head {
+              align-items: start !important;
+              gap: 12px !important;
+              grid-template-columns: 44px minmax(0, 1fr) !important;
+              padding: 18px var(--pf-card-inset) 14px !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section > .pf-section-head > svg {
+              height: 44px !important;
+              min-width: 44px !important;
+              padding: 10px !important;
+              width: 44px !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section > .pf-section-head h2 {
+              font-size: 20px !important;
+              line-height: 1.05 !important;
+              white-space: normal !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section > .pf-section-head p {
+              font-size: 12px !important;
+              line-height: 1.32 !important;
+              max-width: none !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section > :is(.company-seller-list, .company-seller-add) {
+              box-sizing: border-box !important;
+              inline-size: calc(100% - (var(--pf-card-inset) * 2)) !important;
+              justify-self: stretch !important;
+              margin: 0 var(--pf-card-inset) 12px !important;
+              max-width: none !important;
+              max-inline-size: none !important;
+              min-width: 0 !important;
+              min-inline-size: 0 !important;
+              place-self: stretch !important;
+              transform: none !important;
+              width: calc(100% - (var(--pf-card-inset) * 2)) !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section > .company-seller-list {
+              display: grid !important;
+              gap: 10px !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section > .company-seller-list > *,
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section > .company-seller-add {
+              box-sizing: border-box !important;
+              inline-size: 100% !important;
+              justify-self: stretch !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              max-width: none !important;
+              max-inline-size: none !important;
+              min-width: 0 !important;
+              min-inline-size: 0 !important;
+              place-self: stretch !important;
+              transform: none !important;
+              width: 100% !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section .company-seller-empty {
+              align-items: flex-start !important;
+              align-self: stretch !important;
+              box-sizing: border-box !important;
+              flex: 1 1 auto !important;
+              inline-size: 100% !important;
+              justify-content: flex-start !important;
+              line-height: 1.3 !important;
+              max-width: none !important;
+              max-inline-size: none !important;
+              min-height: 0 !important;
+              min-width: 0 !important;
+              min-inline-size: 0 !important;
+              padding: 14px !important;
+              place-self: stretch !important;
+              text-align: left !important;
+              width: 100% !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section .company-seller-add {
+              border-radius: 10px !important;
+              box-sizing: border-box !important;
+              inline-size: 100% !important;
+              margin-top: 10px !important;
+              max-width: none !important;
+              max-inline-size: none !important;
+              min-width: 0 !important;
+              min-inline-size: 0 !important;
+              place-self: stretch !important;
+              transform: none !important;
+              width: 100% !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section .company-seller-add-btn {
+              align-self: stretch !important;
+              box-sizing: border-box !important;
+              min-height: 56px !important;
+              justify-content: center !important;
+              max-width: none !important;
+              min-width: 0 !important;
+              padding: 0 14px !important;
+              white-space: normal !important;
+              width: 100% !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section .company-seller-add-fields {
+              display: grid !important;
+              gap: 12px !important;
+              padding: 14px !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section .company-seller-add:not(.is-open) .company-seller-add-fields {
+              display: none !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section .company-seller-add-fields label {
+              display: grid !important;
+              gap: 7px !important;
+              min-width: 0 !important;
+            }
+
+            html body .pf-page .pf-form > #myyjat.pf-company-sellers-section .company-seller-add-fields input {
+              width: 100% !important;
+            }
+          }
+
           html body .pf-page .pf-form .pf-phone-change-btn {
             background: linear-gradient(180deg, rgba(18, 50, 76, 0.96), rgba(7, 25, 43, 0.96)) !important;
             border: 1px solid rgba(96, 160, 210, 0.48) !important;
@@ -5626,8 +5759,19 @@ export default function ProfilePage() {
               inset 0 1px 0 rgba(255, 255, 255, 0.08),
               0 10px 20px rgba(0, 0, 0, 0.16) !important;
             color: #ffffff !important;
+            flex: 0 0 auto !important;
+            justify-self: center !important;
             min-height: 34px !important;
-            padding: 8px 16px !important;
+            min-width: 104px !important;
+            padding: 0 16px !important;
+            width: auto !important;
+          }
+
+          html body .pf-page .pf-form .pf-info-phone-value .pf-phone-actions {
+            align-self: center !important;
+            justify-content: center !important;
+            margin-inline: auto !important;
+            width: auto !important;
           }
 
           html body .pf-page .pf-form .pf-phone-change-btn:hover:not(:disabled) {
@@ -5658,6 +5802,44 @@ export default function ProfilePage() {
           html body .pf-phone-modal.pf-delete-modal .pf-modal-close {
             right: 16px !important;
             top: 16px !important;
+          }
+
+          @media (max-width: 640px) {
+            html body .pf-page .pf-form > section#myyjat.pf-company-sellers-section > div.company-seller-list.pf-card-body,
+            html body .pf-page .pf-form > section#myyjat.pf-company-sellers-section > div.company-seller-add.pf-card-body {
+              box-sizing: border-box !important;
+              display: grid !important;
+              inline-size: calc(100% - 28px) !important;
+              justify-self: stretch !important;
+              margin: 0 14px 12px !important;
+              max-inline-size: none !important;
+              max-width: none !important;
+              min-inline-size: 0 !important;
+              min-width: 0 !important;
+              padding-left: 0 !important;
+              padding-right: 0 !important;
+              place-self: stretch !important;
+              transform: none !important;
+              width: calc(100% - 28px) !important;
+            }
+
+            html body .pf-page .pf-form > section#myyjat.pf-company-sellers-section > div.company-seller-list.pf-card-body > .company-seller-empty,
+            html body .pf-page .pf-form > section#myyjat.pf-company-sellers-section > div.company-seller-list.pf-card-body > .company-seller-card,
+            html body .pf-page .pf-form > section#myyjat.pf-company-sellers-section > div.company-seller-add.pf-card-body > .company-seller-add-btn,
+            html body .pf-page .pf-form > section#myyjat.pf-company-sellers-section > div.company-seller-add.pf-card-body > .company-seller-add-fields {
+              box-sizing: border-box !important;
+              inline-size: 100% !important;
+              justify-self: stretch !important;
+              margin-left: 0 !important;
+              margin-right: 0 !important;
+              max-inline-size: none !important;
+              max-width: none !important;
+              min-inline-size: 0 !important;
+              min-width: 0 !important;
+              place-self: stretch !important;
+              transform: none !important;
+              width: 100% !important;
+            }
           }
         }
       `}</style>

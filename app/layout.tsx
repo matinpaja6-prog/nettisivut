@@ -37,6 +37,7 @@ import UniversalTopbar from "./components/UniversalTopbar";
 import TaxonomyProvider from "./components/TaxonomyProvider";
 import VisitorLanguageGate from "./components/VisitorLanguageGate";
 import GlobalNavigationSpinner from "./components/GlobalNavigationSpinner";
+import InstantNavigation from "./components/InstantNavigation";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://arcticparts.fi"),
@@ -154,6 +155,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning>
         <TaxonomyProvider>
+          <InstantNavigation />
           <GlobalNavigationSpinner />
           <VisitorLanguageGate />
           <SiteAppearance />

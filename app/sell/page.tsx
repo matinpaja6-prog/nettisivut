@@ -114,7 +114,6 @@ type VehicleDetails = {
   year: string;
   engineCc: string;
   engineType: string;
-  driveType: string;
 };
 
 type VehicleDetailKey = keyof VehicleDetails;
@@ -154,6 +153,126 @@ type MultiPartSection = {
   groups: MultiPartGroup[];
   parts: MultiPartOption[];
 };
+
+type SellDraftImage = Omit<UploadedImage, "url">;
+
+type SellDraftPart = Omit<MultiPartSelection, "images"> & {
+  images: SellDraftImage[];
+};
+
+type SellDraftState = {
+  version: 1;
+  mode: ListingMode;
+  currentStep: number;
+  vehicleTypeKey: string;
+  vehicleDetails: VehicleDetails;
+  customVehicleFields: Partial<Record<VehicleDetailKey, boolean>>;
+  category: string;
+  categoryGroup: string;
+  subcategory: string;
+  condition: string;
+  uploadedImages: SellDraftImage[];
+  partNumber: string;
+  listingPrice: string;
+  multiParts: Record<string, SellDraftPart>;
+  activeMultiListingIndex: number;
+  expandedMultiCategories: Record<string, boolean>;
+  expandedMultiSections: Record<string, boolean>;
+  expandedMultiGroups: Record<string, boolean>;
+  multiPartSearch: string;
+  showSelectedMultiParts: boolean;
+  expandedListingGroups: Record<string, boolean>;
+  openMultiListingPartId: string | null;
+  listingLocation: string;
+  listingLocationTouched: boolean;
+  deliveryMethod: DeliveryMethod;
+  listingTitle: string;
+  listingDescription: string;
+  selectedCompanySellerId: string;
+  savedAt: number;
+};
+
+const sellDraftDbName = "maskines-sell-drafts";
+const sellDraftStoreName = "drafts";
+const sellDraftKey = "current";
+
+function openSellDraftDb() {
+  return new Promise<IDBDatabase>((resolve, reject) => {
+    if (typeof indexedDB === "undefined") {
+      reject(new Error("IndexedDB ei ole saatavilla."));
+      return;
+    }
+
+    const request = indexedDB.open(sellDraftDbName, 1);
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore(sellDraftStoreName);
+    };
+    request.onerror = () => reject(request.error ?? new Error("Luonnoksen avaaminen epaonnistui."));
+    request.onsuccess = () => resolve(request.result);
+  });
+}
+
+async function readSellDraft() {
+  const db = await openSellDraftDb();
+
+  return new Promise<SellDraftState | null>((resolve, reject) => {
+    const transaction = db.transaction(sellDraftStoreName, "readonly");
+    const request = transaction.objectStore(sellDraftStoreName).get(sellDraftKey);
+
+    request.onerror = () => reject(request.error ?? new Error("Luonnoksen lukeminen epaonnistui."));
+    request.onsuccess = () => resolve((request.result as SellDraftState | undefined) ?? null);
+    transaction.oncomplete = () => db.close();
+    transaction.onerror = () => {
+      db.close();
+      reject(transaction.error ?? new Error("Luonnoksen lukeminen epaonnistui."));
+    };
+  });
+}
+
+async function writeSellDraft(draft: SellDraftState) {
+  const db = await openSellDraftDb();
+
+  return new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction(sellDraftStoreName, "readwrite");
+    transaction.objectStore(sellDraftStoreName).put(draft, sellDraftKey);
+    transaction.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+    transaction.onerror = () => {
+      db.close();
+      reject(transaction.error ?? new Error("Luonnoksen tallennus epaonnistui."));
+    };
+  });
+}
+
+async function deleteSellDraft() {
+  const db = await openSellDraftDb();
+
+  return new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction(sellDraftStoreName, "readwrite");
+    transaction.objectStore(sellDraftStoreName).delete(sellDraftKey);
+    transaction.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+    transaction.onerror = () => {
+      db.close();
+      reject(transaction.error ?? new Error("Luonnoksen poistaminen epaonnistui."));
+    };
+  });
+}
+
+function toDraftImage(image: UploadedImage): SellDraftImage {
+  return {
+    id: image.id,
+    file: image.file,
+    name: image.name,
+    width: image.width,
+    height: image.height,
+    size: image.size
+  };
+}
 
 const singleSteps: SellStep[] = [
   { number: 1, title: "Ilmoituksen tyyppi", description: "Valitse myyntityyppi", icon: Tags },
@@ -290,7 +409,6 @@ const vehicleDetailPresets: Record<
     models: string[];
     engineCcs: string[];
     engineTypes: string[];
-    driveTypes: string[];
   }
 > = {
   Moottorikelkka: {
@@ -299,7 +417,6 @@ const vehicleDetailPresets: Record<
     year: "2020",
     engineCc: "850",
     engineType: "E-TEC",
-    driveType: "Telamatto",
     typeOptions: [
       "Crossover - moottorikelkka",
       "Deep snow - moottorikelkka",
@@ -310,8 +427,7 @@ const vehicleDetailPresets: Record<
     ],
     models: ["MXZ RS 600", "MXZ X-RS 600 E-TEC", "Rave RS", "Rave RE", "IQR 600", "ZR 600 R-XC"],
     engineCcs: ["440", "500", "600", "650", "800", "850", "900", "1000"],
-    engineTypes: ["Rotax 600RS", "E-TEC", "Patriot", "Cleanfire", "C-TEC2", "4-tahti", "Turbo"],
-    driveTypes: ["Telamatto"]
+    engineTypes: ["Rotax 600RS", "E-TEC", "Patriot", "Cleanfire", "C-TEC2", "4-tahti", "Turbo"]
   },
   Mönkijä: {
     vehicleSubtype: "ATV - mönkijä",
@@ -319,7 +435,6 @@ const vehicleDetailPresets: Record<
     year: "2020",
     engineCc: "850",
     engineType: "Rotax",
-    driveType: "4WD",
     typeOptions: [
       "ATV - mönkijä",
       "UTV - mönkijä",
@@ -331,8 +446,7 @@ const vehicleDetailPresets: Record<
     ],
     models: ["Outlander", "Renegade", "Sportsman", "Grizzly", "TRX", "CFORCE"],
     engineCcs: ["450", "500", "570", "700", "850", "1000"],
-    engineTypes: ["Rotax", "EFI", "SOHC", "DOHC", "4-tahti"],
-    driveTypes: ["2WD", "4WD", "6WD"]
+    engineTypes: ["Rotax", "EFI", "SOHC", "DOHC", "4-tahti"]
   },
   Motocross: {
     vehicleSubtype: "Motocross - crossi",
@@ -340,7 +454,6 @@ const vehicleDetailPresets: Record<
     year: "2020",
     engineCc: "250",
     engineType: "4-tahti",
-    driveType: "Ketju",
     typeOptions: [
       "Motocross - crossi",
       "Enduro - crossi",
@@ -351,8 +464,7 @@ const vehicleDetailPresets: Record<
     ],
     models: ["SX-F", "EXC-F", "YZ-F", "CRF", "FC", "KX"],
     engineCcs: ["125", "250", "300", "350", "450", "500"],
-    engineTypes: ["2-tahti", "4-tahti", "TPI", "EFI"],
-    driveTypes: ["Ketju"]
+    engineTypes: ["2-tahti", "4-tahti", "TPI", "EFI"]
   },
   Mopo: {
     vehicleSubtype: "Mopo - mopo",
@@ -360,7 +472,6 @@ const vehicleDetailPresets: Record<
     year: "2020",
     engineCc: "50",
     engineType: "2-tahti",
-    driveType: "Ketju",
     typeOptions: [
       "Mopo - mopo",
       "Skootteri - mopo",
@@ -371,8 +482,7 @@ const vehicleDetailPresets: Record<
     ],
     models: ["DT", "Senda", "MRT", "RX", "SX", "RS"],
     engineCcs: ["50", "70", "80", "125"],
-    engineTypes: ["2-tahti", "4-tahti", "AM6", "Derbi D50B0"],
-    driveTypes: ["Ketju", "Hihna"]
+    engineTypes: ["2-tahti", "4-tahti", "AM6", "Derbi D50B0"]
   }
 };
 
@@ -1023,8 +1133,7 @@ function buildEmptyVehicleDetails(): VehicleDetails {
     model: "",
     year: "",
     engineCc: "",
-    engineType: "",
-    driveType: ""
+    engineType: ""
   };
 }
 
@@ -1374,6 +1483,7 @@ export default function SellPage() {
   const [listingDescription, setListingDescription] = useState("");
   const [publishError, setPublishError] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [categoryAutoOpenTarget, setCategoryAutoOpenTarget] = useState<{
     field: "category" | "group" | "detail";
     nonce: number;
@@ -1383,6 +1493,9 @@ export default function SellPage() {
   const [companySellers, setCompanySellers] = useState<CompanySeller[]>([]);
   const [selectedCompanySellerId, setSelectedCompanySellerId] = useState("");
   const uploadedImagesRef = useRef<UploadedImage[]>([]);
+  const multiPartsRef = useRef<Record<string, MultiPartSelection>>({});
+  const draftHydratedRef = useRef(false);
+  const draftClearedOrPublishedRef = useRef(false);
   const vehicleFieldRefs = useRef<Partial<Record<VehicleDetailKey, HTMLInputElement | null>>>({});
   const listingLocationInputRef = useRef<HTMLInputElement | null>(null);
   const listingLocationTouchedRef = useRef(false);
@@ -1657,6 +1770,115 @@ export default function SellPage() {
   const isLastStep =
     currentStep === steps.length;
 
+  const createImageFromDraft = useCallback((image: SellDraftImage): UploadedImage => ({
+    ...image,
+    url: URL.createObjectURL(image.file)
+  }), []);
+
+  const revokeCurrentImageUrls = useCallback(() => {
+    uploadedImagesRef.current.forEach((image) => URL.revokeObjectURL(image.url));
+    Object.values(multiPartsRef.current).forEach((part) => {
+      part.images.forEach((image) => URL.revokeObjectURL(image.url));
+    });
+    setPreviewImage(null);
+  }, []);
+
+  const hasDraftContent = useCallback(() => {
+    if (currentStep > 1 || mode !== "single") return true;
+    if (vehicleType.key !== vehicleCards[1].key) return true;
+    if (Object.values(vehicleDetails).some((value) => value.trim())) return true;
+    if (category || categoryGroup || subcategory || condition) return true;
+    if (partNumber || listingPrice || listingLocation || listingTitle || listingDescription) return true;
+    if (deliveryMethod !== "both" || selectedCompanySellerId) return true;
+    if (uploadedImages.length > 0 || Object.keys(multiParts).length > 0) return true;
+    return false;
+  }, [
+    category,
+    categoryGroup,
+    condition,
+    currentStep,
+    deliveryMethod,
+    listingDescription,
+    listingLocation,
+    listingPrice,
+    listingTitle,
+    mode,
+    multiParts,
+    partNumber,
+    selectedCompanySellerId,
+    subcategory,
+    uploadedImages.length,
+    vehicleDetails,
+    vehicleType.key
+  ]);
+
+  const buildDraftState = useCallback((): SellDraftState => ({
+    version: 1,
+    mode,
+    currentStep,
+    vehicleTypeKey: vehicleType.key,
+    vehicleDetails,
+    customVehicleFields,
+    category,
+    categoryGroup,
+    subcategory,
+    condition,
+    uploadedImages: uploadedImages.map(toDraftImage),
+    partNumber,
+    listingPrice,
+    multiParts: Object.fromEntries(
+      Object.entries(multiParts).map(([id, part]) => [
+        id,
+        {
+          ...part,
+          images: part.images.map(toDraftImage)
+        }
+      ])
+    ),
+    activeMultiListingIndex,
+    expandedMultiCategories,
+    expandedMultiSections,
+    expandedMultiGroups,
+    multiPartSearch,
+    showSelectedMultiParts,
+    expandedListingGroups,
+    openMultiListingPartId,
+    listingLocation,
+    listingLocationTouched: listingLocationTouchedRef.current,
+    deliveryMethod,
+    listingTitle,
+    listingDescription,
+    selectedCompanySellerId,
+    savedAt: Date.now()
+  }), [
+    activeMultiListingIndex,
+    category,
+    categoryGroup,
+    condition,
+    currentStep,
+    customVehicleFields,
+    deliveryMethod,
+    expandedListingGroups,
+    expandedMultiCategories,
+    expandedMultiGroups,
+    expandedMultiSections,
+    listingDescription,
+    listingLocation,
+    listingPrice,
+    listingTitle,
+    mode,
+    multiPartSearch,
+    multiParts,
+    openMultiListingPartId,
+    partNumber,
+    selectedCompanySellerId,
+    showSelectedMultiParts,
+    subcategory,
+    uploadedImages,
+    vehicleDetails,
+    vehicleType.key
+  ]);
+
   const scrollStepToTop = useCallback(() => {
     if (typeof window === "undefined") return;
 
@@ -1702,6 +1924,88 @@ export default function SellPage() {
   }, [selectedMultiPartList]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function hydrateDraft() {
+      try {
+        const draft = await readSellDraft();
+        if (cancelled || !draft || draft.version !== 1) return;
+
+        garagePrefillAppliedRef.current = true;
+        listingLocationTouchedRef.current = draft.listingLocationTouched;
+        setMode(draft.mode);
+        setCurrentStep(Math.max(1, Math.min(draft.currentStep, draft.mode === "single" ? singleSteps.length : multipleSteps.length)));
+        setVehicleType(vehicleCards.find((vehicle) => vehicle.key === draft.vehicleTypeKey) ?? vehicleCards[1]);
+        setVehicleDetails(draft.vehicleDetails);
+        setCustomVehicleFields(draft.customVehicleFields);
+        vehicleAutoAdvancedFieldsRef.current = draft.customVehicleFields;
+        setCategory(draft.category);
+        setCategoryGroup(draft.categoryGroup);
+        setSubcategory(draft.subcategory);
+        setCondition(draft.condition);
+        setUploadedImages(draft.uploadedImages.map(createImageFromDraft));
+        setPartNumber(draft.partNumber);
+        setListingPrice(draft.listingPrice);
+        setMultiParts(
+          Object.fromEntries(
+            Object.entries(draft.multiParts).map(([id, part]) => [
+              id,
+              {
+                ...part,
+                images: part.images.map(createImageFromDraft)
+              }
+            ])
+          )
+        );
+        setActiveMultiListingIndex(draft.activeMultiListingIndex);
+        setExpandedMultiCategories(draft.expandedMultiCategories);
+        setExpandedMultiSections(draft.expandedMultiSections);
+        setExpandedMultiGroups(draft.expandedMultiGroups);
+        setMultiPartSearch(draft.multiPartSearch);
+        setShowSelectedMultiParts(draft.showSelectedMultiParts);
+        setExpandedListingGroups(draft.expandedListingGroups);
+        setOpenMultiListingPartId(draft.openMultiListingPartId);
+        setListingLocation(draft.listingLocation);
+        setDeliveryMethod(draft.deliveryMethod);
+        setListingTitle(draft.listingTitle);
+        setListingDescription(draft.listingDescription);
+        setSelectedCompanySellerId(draft.selectedCompanySellerId);
+      } catch {
+        /* Draft restore is best-effort. */
+      } finally {
+        if (!cancelled) draftHydratedRef.current = true;
+      }
+    }
+
+    void hydrateDraft();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [createImageFromDraft]);
+
+  useEffect(() => {
+    if (!draftHydratedRef.current || draftClearedOrPublishedRef.current) return;
+
+    const timeout = window.setTimeout(() => {
+      if (!hasDraftContent()) return;
+      void writeSellDraft(buildDraftState()).catch(() => undefined);
+    }, 600);
+
+    return () => window.clearTimeout(timeout);
+  }, [buildDraftState, hasDraftContent]);
+
+  useEffect(() => {
+    function saveDraftBeforeLeaving() {
+      if (!draftHydratedRef.current || draftClearedOrPublishedRef.current || !hasDraftContent()) return;
+      void writeSellDraft(buildDraftState()).catch(() => undefined);
+    }
+
+    window.addEventListener("pagehide", saveDraftBeforeLeaving);
+    return () => window.removeEventListener("pagehide", saveDraftBeforeLeaving);
+  }, [buildDraftState, hasDraftContent]);
+
+  useEffect(() => {
     if (garagePrefillAppliedRef.current) return;
 
     const make = searchParams.get("make")?.trim() ?? "";
@@ -1725,8 +2029,7 @@ export default function SellPage() {
       model,
       year,
       engineCc: "",
-      engineType: "",
-      driveType: nextVehicle.key === "Moottorikelkka" ? "Telamatto" : ""
+      engineType: ""
     });
     setCustomVehicleFields({});
     setCategory("");
@@ -1870,6 +2173,10 @@ export default function SellPage() {
   }, [uploadedImages]);
 
   useEffect(() => {
+    multiPartsRef.current = multiParts;
+  }, [multiParts]);
+
+  useEffect(() => {
     if (accountProfile || currentStep < 4) return;
 
     let cancelled = false;
@@ -1921,9 +2228,9 @@ export default function SellPage() {
 
   useEffect(() => {
     return () => {
-      uploadedImagesRef.current.forEach((image) => URL.revokeObjectURL(image.url));
+      revokeCurrentImageUrls();
     };
-  }, []);
+  }, [revokeCurrentImageUrls]);
 
   useEffect(() => {
     if (!profileCity || listingLocationTouchedRef.current) return;
@@ -2426,6 +2733,57 @@ export default function SellPage() {
     setCurrentStep(2);
   }
 
+  function resetSellDraft() {
+    draftClearedOrPublishedRef.current = true;
+    setShowResetConfirm(false);
+    revokeCurrentImageUrls();
+    setMode("single");
+    setCurrentStep(1);
+    setVehicleType(vehicleCards[1]);
+    setVehicleDetails(buildEmptyVehicleDetails());
+    setCustomVehicleFields({});
+    vehicleAutoAdvancedFieldsRef.current = {};
+    categoryAutoAdvancedFieldsRef.current = {};
+    categoryEntryAutoOpenRef.current = false;
+    setOpenVehiclePresetField(null);
+    setCategory("");
+    setCategoryGroup("");
+    setSubcategory("");
+    setCondition("");
+    setUploadedImages([]);
+    setPartNumber("");
+    setListingPrice("");
+    setSinglePriceSuggestion(null);
+    setSinglePriceSuggestionLoading(false);
+    setMultiParts({});
+    setActiveMultiListingIndex(0);
+    setMultiPriceSuggestions({});
+    setMultiPriceSuggestionsLoading(false);
+    setExpandedMultiCategories({});
+    setExpandedMultiSections({});
+    setExpandedMultiGroups({});
+    setMultiPartSearch("");
+    setShowSelectedMultiParts(false);
+    setExpandedListingGroups({});
+    setOpenMultiListingPartId(null);
+    setListingLocation("");
+    listingLocationTouchedRef.current = false;
+    setDeliveryMethod("both");
+    setListingTitle("");
+    setListingDescription("");
+    setPublishError("");
+    setIsPublishing(false);
+    setCategoryAutoOpenTarget(null);
+    setSelectedCompanySellerId("");
+    garagePrefillAppliedRef.current = true;
+
+    void deleteSellDraft()
+      .catch(() => undefined)
+      .finally(() => {
+        draftClearedOrPublishedRef.current = false;
+      });
+  }
+
   function goToNextStep() {
     setPublishError("");
 
@@ -2616,12 +2974,6 @@ export default function SellPage() {
   }
 
   function validateListingPayload(payload: ListingInput, imageCount: number) {
-    if (isCompanyAccount && companySellers.length === 0) {
-      return "Lisää yritykselle vähintään yksi myyjä profiilin Myyjät-osiossa ennen julkaisua.";
-    }
-    if (isCompanyAccount && !selectedCompanySeller) {
-      return "Valitse ilmoitukselle myyjä ennen julkaisua.";
-    }
     if (payload.title.trim().length < 3) return "Lisää vähintään 3 merkin otsikko.";
     if (!String(payload.category ?? "").trim()) return "Valitse kategoria ennen julkaisua.";
     if (!String(payload.condition ?? "").trim()) return "Valitse kuntoluokitus ennen julkaisua.";
@@ -2722,6 +3074,8 @@ export default function SellPage() {
         firstListingId ||= data.id;
       }
 
+      draftClearedOrPublishedRef.current = true;
+      await deleteSellDraft().catch(() => undefined);
       router.push(firstListingId ? `/listing/${firstListingId}` : "/my-listings");
     } catch (error) {
       setPublishError(getErrorMessage(error));
@@ -3461,32 +3815,13 @@ export default function SellPage() {
               onChange={(value) => updateVehicleDetail("engineType", value)}
               customMode={Boolean(customVehicleFields.engineType)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("engineType", customMode)}
-              onComplete={() => completeVehicleField("engineType", mode === "single" ? "driveType" : undefined)}
+              onComplete={() => completeVehicleField("engineType")}
               inputRef={(element) => {
                 vehicleFieldRefs.current.engineType = element;
               }}
               placeholder="Valitse moottorityyppi"
               customPlaceholder="Kirjoita moottori"
             />
-            {mode === "single" ? (
-              <PresetField
-                fieldKey="driveType"
-                label="Vetotapa"
-                value={vehicleDetails.driveType}
-                options={vehiclePreset.driveTypes}
-                open={openVehiclePresetField === "driveType"}
-                onOpenChange={(open) => setVehiclePresetFieldOpen("driveType", open)}
-                onChange={(value) => updateVehicleDetail("driveType", value)}
-                customMode={Boolean(customVehicleFields.driveType)}
-                onCustomModeChange={(customMode) => updateVehicleCustomMode("driveType", customMode)}
-                onComplete={() => completeVehicleField("driveType")}
-                inputRef={(element) => {
-                  vehicleFieldRefs.current.driveType = element;
-                }}
-                placeholder="Valitse vetotapa"
-                customPlaceholder="Kirjoita vetotapa"
-              />
-            ) : null}
           </form>
         </div>
       );
@@ -4221,8 +4556,7 @@ export default function SellPage() {
     ]).join(" ");
     const technicalSummary = uniqueOptions([
       vehicleDetails.engineCc ? `${vehicleDetails.engineCc} cc` : "",
-      vehicleDetails.engineType,
-      vehicleDetails.driveType
+      vehicleDetails.engineType
     ]).join(" / ");
     const categorySummary = uniqueOptions([
       selectedCategory,
@@ -4262,8 +4596,8 @@ export default function SellPage() {
         {isCompanyAccount ? (
           <section className={styles.companySellerPanel} aria-label="Ilmoituksen myyjä">
             <div>
-              <strong>Valitse ilmoituksen myyjä</strong>
-              <p>Valittu myyjä näkyy ostajalle ilmoituksessa nimellä ja puhelinnumerolla.</p>
+              <strong>Ilmoituksen myyjä</strong>
+              <p>Voit valita erillisen myyjän. Jos et valitse, ilmoitus julkaistaan yrityksen tiedoilla.</p>
             </div>
             {companySellers.length > 0 ? (
               <label className={styles.companySellerSelect}>
@@ -4272,7 +4606,7 @@ export default function SellPage() {
                   value={selectedCompanySellerId}
                   onChange={(event) => setSelectedCompanySellerId(event.target.value)}
                 >
-                  <option value="">Valitse myyjä</option>
+                  <option value="">Yrityksen tiedot</option>
                   {companySellers.map((seller) => (
                     <option key={seller.id} value={seller.id}>
                       {seller.name} - {seller.phone}
@@ -4282,7 +4616,7 @@ export default function SellPage() {
               </label>
             ) : (
               <div className={styles.companySellerMissing}>
-                Yrityksellä ei ole vielä myyjiä. Lisää myyjä profiilin Myyjät-osiossa ennen julkaisua.
+                Erillisiä myyjiä ei ole lisätty. Ilmoitus julkaistaan yrityksen tiedoilla.
               </div>
             )}
           </section>
@@ -4361,6 +4695,14 @@ export default function SellPage() {
               </div>
             );
           })}
+          <button
+            type="button"
+            className={styles.resetDraftButton}
+            onClick={() => setShowResetConfirm(true)}
+          >
+            <X size={15} aria-hidden="true" />
+            <span>Nollaa</span>
+          </button>
         </aside>
 
         <nav
@@ -4393,6 +4735,14 @@ export default function SellPage() {
               <small>{step.title}</small>
             </button>
           ))}
+            <button
+              type="button"
+              className={styles.resetDraftButton}
+              onClick={() => setShowResetConfirm(true)}
+            >
+              <X size={14} aria-hidden="true" />
+              <span>Nollaa</span>
+            </button>
           </div>
         </nav>
 
@@ -4498,6 +4848,35 @@ export default function SellPage() {
             aria-label="Sulje esikatselu"
           />
           <img src={previewImage.url} alt={previewImage.name} />
+        </div>
+      ) : null}
+      {showResetConfirm ? (
+        <div className={styles.resetConfirmOverlay} role="presentation">
+          <section className={styles.resetConfirmDialog} role="dialog" aria-modal="true" aria-labelledby="reset-draft-title">
+            <button
+              type="button"
+              className={styles.resetConfirmClose}
+              onClick={() => setShowResetConfirm(false)}
+              aria-label="Sulje"
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+            <div className={styles.resetConfirmIcon} aria-hidden="true">
+              <X size={20} />
+            </div>
+            <div>
+              <h2 id="reset-draft-title">Nollataanko luonnos?</h2>
+              <p>Kaikki tämän myynti-ilmoituksen tiedot ja kuvat poistetaan, eikä niitä palauteta automaattisesti.</p>
+            </div>
+            <div className={styles.resetConfirmActions}>
+              <button type="button" onClick={() => setShowResetConfirm(false)}>
+                Peruuta
+              </button>
+              <button type="button" className={styles.resetConfirmPrimary} onClick={resetSellDraft}>
+                Nollaa luonnos
+              </button>
+            </div>
+          </section>
         </div>
       ) : null}
     </main>
@@ -4783,7 +5162,10 @@ function ConditionSelect({
                   className={active ? styles.categorySelectOptionActive : styles.categorySelectOption}
                   data-active={active ? "true" : "false"}
                   onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => chooseOption(option.value)}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    chooseOption(option.value);
+                  }}
                   role="option"
                   aria-selected={active}
                 >
@@ -4842,7 +5224,7 @@ function CategorySelect({
 
   function chooseOption(nextValue: string) {
     setSelectOpen(false);
-    window.setTimeout(() => onChange(nextValue), 20);
+    onChange(nextValue);
   }
 
   return (

@@ -967,3 +967,25 @@ html body header.universal-app-topbar.universal-home-topbar .universal-home-butt
     width: 42px !important;
   }
 }
+
+html body header.universal-app-topbar .universal-notification-wrap,
+html body header.universal-app-topbar.universal-home-topbar .universal-notification-wrap {
+  align-items: center !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+}
+
+html body header.universal-app-topbar .universal-notification-button,
+html body header.universal-app-topbar.universal-home-topbar .universal-notification-button {
+  align-items: center !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+
+html body header.universal-app-topbar .universal-notification-button > svg,
+html body header.universal-app-topbar.universal-home-topbar .universal-notification-button > svg {
+  display: block !important;
+  flex: 0 0 auto !important;
+}

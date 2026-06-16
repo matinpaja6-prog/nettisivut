@@ -26,20 +26,35 @@ body {
 .global-navigation-spinner,
 .global-route-loading {
   align-items: center;
-  background: rgba(0, 0, 0, 0.18);
   display: grid;
-  inset: 0;
   justify-items: center;
   pointer-events: none;
   position: fixed;
   z-index: 2147483000;
 }
 
+.global-navigation-spinner {
+  background: transparent;
+  inset: 0 0 auto;
+  min-height: 3px;
+}
+
 .global-route-loading {
+  background: rgba(0, 0, 0, 0.18);
+  inset: 0;
   min-height: 100vh;
 }
 
-.global-navigation-spinner span,
+.global-navigation-spinner span {
+  animation: global-loading-bar 0.72s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 122, 26, 0.96), transparent);
+  border-radius: 999px;
+  box-shadow: 0 0 18px rgba(255, 122, 26, 0.45);
+  display: block;
+  height: 3px;
+  width: min(52vw, 520px);
+}
+
 .global-route-loading span {
   animation: global-loading-spin 0.78s linear infinite;
   background: transparent;
@@ -55,5 +70,20 @@ body {
 @keyframes global-loading-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes global-loading-bar {
+  0% {
+    opacity: 0.35;
+    transform: translateX(-45vw) scaleX(0.45);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(0) scaleX(1);
+  }
+  100% {
+    opacity: 0.35;
+    transform: translateX(45vw) scaleX(0.45);
   }
 }

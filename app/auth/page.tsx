@@ -21,7 +21,7 @@ import {
   signUpWithEmail,
   supabase,
   updatePassword,
-  upsertProfile,
+  upsertProfileFromApi,
   type UserProfile
 } from "@/lib/supabase";
 
@@ -349,6 +349,7 @@ function AuthPageContent() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [status, setStatus] = useState("");
+  const [authSubmitting, setAuthSubmitting] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLookupDone, setProfileLookupDone] = useState(false);
@@ -785,7 +786,7 @@ function AuthPageContent() {
 
     const { data, error } =
       await withTimeout(
-        upsertProfile({
+        upsertProfileFromApi({
           id: targetUser.id,
           account_type: form.account_type,
           first_name: form.account_type === "private" ? form.first_name : "",
@@ -802,7 +803,7 @@ function AuthPageContent() {
           country: selectedCountry,
           birth_date: form.account_type === "private" ? form.birth_date : null
         }),
-        10000,
+        25000,
         "Profiilin tallennus kesti liian kauan."
       );
 
@@ -834,6 +835,7 @@ function AuthPageContent() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (authSubmitting) return;
 
     try {
     if (!isSupabaseConfigured) {
@@ -841,17 +843,20 @@ function AuthPageContent() {
       return;
     }
 
+    setAuthSubmitting(true);
+
     if (authMode === "login") {
-      setStatus("");
+      setStatus("Tarkistetaan tiliä...");
       const { data, error } =
         await withTimeout(
           signInWithEmail(form.email, form.password),
-          10000,
+          4500,
           "Kirjautuminen kesti liian kauan."
         );
 
       if (error) {
         setStatus(getErrorMessage(error));
+        setAuthSubmitting(false);
         return;
       }
 
@@ -872,6 +877,7 @@ function AuthPageContent() {
         setUser(data.user);
         setStatus(t.authCompleteProfileMsg);
       }
+      setAuthSubmitting(false);
       return;
     }
 
@@ -894,6 +900,7 @@ function AuthPageContent() {
 
     if (error) {
       setStatus(getErrorMessage(error));
+      setAuthSubmitting(false);
       return;
     }
 
@@ -904,6 +911,7 @@ function AuthPageContent() {
       setUser(data.user);
       void tryClaimReferral(data.user.id);
       setStatus(t.authAccountCreatedMsg);
+      setAuthSubmitting(false);
       return;
     }
 
@@ -911,11 +919,14 @@ function AuthPageContent() {
       setPendingEmail(form.email);
       setEmailPending(true);
       setStatus("");
+      setAuthSubmitting(false);
       return;
     }
 
     setStatus(t.authAccountCreatedEmailMsg);
+    setAuthSubmitting(false);
     } catch (error) {
+      setAuthSubmitting(false);
       setStatus(getErrorMessage(error));
     }
   }
@@ -1044,6 +1055,7 @@ function AuthPageContent() {
     authMode === "register"
       ? "Rekisteröidy"
       : t.login;
+  const nextAuthMode: AuthMode = authMode === "login" ? "register" : "login";
   const showBackHome =
     !user && !emailPending;
   const profilePrivacyHref =
@@ -1063,6 +1075,16 @@ function AuthPageContent() {
     try {
       sessionStorage.setItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY, JSON.stringify(draft));
     } catch {}
+  }
+
+  function switchAuthMode(mode: AuthMode) {
+    setAuthMode(mode);
+    setStatus("");
+    setAuthSubmitting(false);
+
+    if (typeof window === "undefined") return;
+
+    window.history.replaceState(null, "", `/auth?mode=${mode}`);
   }
 
   return (
@@ -1192,9 +1214,9 @@ function AuthPageContent() {
               )}
             </label>
 
-            <button type="submit">
+            <button type="submit" disabled={authSubmitting}>
               {authMode === "register" ? <Check size={18} /> : <LockKeyhole size={18} />}
-              {primaryAuthActionLabel}
+              {authSubmitting ? "Hetki..." : primaryAuthActionLabel}
             </button>
             <div className="auth-divider">
               <span>Tai jatka</span>
@@ -1217,14 +1239,12 @@ function AuthPageContent() {
             </div>
             <p className="auth-mode-switch">
               {authMode === "login" ? "Eikö sinulla ole tiliä?" : "Onko sinulla tili?"}{" "}
-              <Link
-                href={authMode === "login" ? "/auth?mode=register" : "/auth?mode=login"}
-                onClick={() => {
-                  setStatus("");
-                }}
+              <button
+                type="button"
+                onClick={() => switchAuthMode(nextAuthMode)}
               >
                 {authMode === "login" ? t.register : t.login}
-              </Link>
+              </button>
             </p>
             {status ? <span className="form-note">{status}</span> : null}
           </form>

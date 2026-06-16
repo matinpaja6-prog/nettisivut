@@ -34,7 +34,7 @@ export default function GlobalNavigationSpinner() {
 
       showTimer.current = window.setTimeout(() => {
         setVisible(true);
-      }, 180);
+      }, 450);
 
       hideTimer.current = window.setTimeout(() => {
         setVisible(false);
