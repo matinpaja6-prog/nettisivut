@@ -1488,7 +1488,6 @@ export default function SellPage() {
     field: "category" | "group" | "detail";
     nonce: number;
   } | null>(null);
-  const categoryAutoAdvancedFieldsRef = useRef<Partial<Record<"category" | "group", boolean>>>({});
   const [accountProfile, setAccountProfile] = useState<UserProfile | null>(null);
   const [companySellers, setCompanySellers] = useState<CompanySeller[]>([]);
   const [selectedCompanySellerId, setSelectedCompanySellerId] = useState("");
@@ -2022,7 +2021,6 @@ export default function SellPage() {
     setMode("single");
     setVehicleType(nextVehicle);
     vehicleAutoAdvancedFieldsRef.current = {};
-    categoryAutoAdvancedFieldsRef.current = {};
     setVehicleDetails({
       vehicleSubtype: "",
       brand: make,
@@ -2395,16 +2393,7 @@ export default function SellPage() {
     update();
   }
 
-  function advanceCategoryFieldOnce(currentField: "category" | "group", nextField: "group" | "detail") {
-    if (categoryAutoAdvancedFieldsRef.current[currentField]) {
-      setCategoryAutoOpenTarget(null);
-      return;
-    }
-
-    categoryAutoAdvancedFieldsRef.current = {
-      ...categoryAutoAdvancedFieldsRef.current,
-      [currentField]: true
-    };
+  function advanceCategoryField(nextField: "group" | "detail") {
     setCategoryAutoOpenTarget({ field: nextField, nonce: Date.now() });
   }
 
@@ -2743,7 +2732,6 @@ export default function SellPage() {
     setVehicleDetails(buildEmptyVehicleDetails());
     setCustomVehicleFields({});
     vehicleAutoAdvancedFieldsRef.current = {};
-    categoryAutoAdvancedFieldsRef.current = {};
     categoryEntryAutoOpenRef.current = false;
     setOpenVehiclePresetField(null);
     setCategory("");
@@ -3704,7 +3692,6 @@ export default function SellPage() {
                     setVehicleDetails(buildEmptyVehicleDetails());
                     setCustomVehicleFields({});
                     vehicleAutoAdvancedFieldsRef.current = {};
-                    categoryAutoAdvancedFieldsRef.current = {};
                     setCategory("");
                     setCategoryGroup("");
                     setSubcategory("");
@@ -4078,7 +4065,7 @@ export default function SellPage() {
                     setCategory(value);
                     setCategoryGroup("");
                     setSubcategory("");
-                    advanceCategoryFieldOnce("category", "group");
+                    advanceCategoryField("group");
                   });
                 }}
                 options={categoryOptions.map((value) => ({ value, label: value }))}
@@ -4104,7 +4091,7 @@ export default function SellPage() {
                   updateStepThreeSelection(() => {
                     setCategoryGroup(value);
                     setSubcategory("");
-                    advanceCategoryFieldOnce("group", "detail");
+                    advanceCategoryField("detail");
                   });
                 }}
                 options={categoryGroupOptions}
@@ -5216,6 +5203,7 @@ function CategorySelect({
 }) {
   const hasOptions = options.length > 0;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const pointerSelectionRef = useRef<string | null>(null);
   const open = controlledOpen ?? uncontrolledOpen;
   const selectedOption = options.find((option) => option.value === value);
   const displayValue = hasOptions ? selectedOption?.label ?? placeholder : placeholder;
@@ -5298,8 +5286,22 @@ function CategorySelect({
                     backgroundColor: active ? "rgba(56, 189, 248, 0.16)" : "#061726",
                     color: "#dce8f7"
                   }}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => chooseOption(option.value)}
+                  onPointerDown={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    pointerSelectionRef.current = option.value;
+                    chooseOption(option.value);
+                    event.currentTarget.blur();
+                  }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    if (pointerSelectionRef.current === option.value) {
+                      pointerSelectionRef.current = null;
+                      return;
+                    }
+                    chooseOption(option.value);
+                    event.currentTarget.blur();
+                  }}
                   role="option"
                   aria-selected={active}
                 >
