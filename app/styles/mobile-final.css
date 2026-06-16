@@ -2008,3 +2008,50 @@ html body .site-footer .footer-maskines-logo {
     width: min(260px, 86vw) !important;
   }
 }
+
+@media (max-width: 760px) {
+  html body .simple-auth-page .profile-finalize-card .phone-field-row {
+    background:
+      linear-gradient(180deg, rgba(7, 28, 50, 0.94), rgba(3, 13, 25, 0.98)) !important;
+    border: 1px solid rgba(255, 138, 34, 0.7) !important;
+    border-radius: 14px !important;
+    box-shadow:
+      0 16px 34px rgba(0, 7, 18, 0.26),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    grid-template-columns: 104px minmax(0, 1fr) !important;
+    height: 48px !important;
+    overflow: hidden !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-field-row:focus-within {
+    border-color: #ff9824 !important;
+    box-shadow:
+      0 0 0 3px rgba(255, 138, 34, 0.18),
+      0 18px 38px rgba(0, 7, 18, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-code-select-wrap {
+    background:
+      radial-gradient(120px 80px at 20% 0%, rgba(255, 154, 36, 0.2), transparent 70%),
+      rgba(8, 30, 52, 0.9) !important;
+    border-right: 1px solid rgba(255, 138, 34, 0.34) !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-code-selected {
+    color: #f8fbff !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    left: 12px !important;
+    padding: 0 !important;
+    position: absolute !important;
+    transform: translateY(-50%) !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .phone-field-row input {
+    color: #9fc9ff !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+    padding: 0 14px !important;
+  }
+}

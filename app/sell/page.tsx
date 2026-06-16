@@ -7,7 +7,6 @@ import {
   useRef,
   useState,
   type InputHTMLAttributes,
-  type PointerEvent,
   type RefObject
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -52,6 +51,7 @@ import { buildVehicleCategoriesFromTaxonomy } from "@/lib/taxonomy";
 import styles from "./sell-first.module.css";
 
 type ListingMode = "multiple" | "single";
+type DeliveryMethod = "both" | "shipping" | "pickup";
 
 type SellStep = {
   number: number;
@@ -64,6 +64,12 @@ type SelectOption = {
   value: string;
   label: string;
 };
+
+const deliveryMethodOptions: Array<{ value: DeliveryMethod; label: string }> = [
+  { value: "both", label: "Posti ja nouto" },
+  { value: "shipping", label: "Posti" },
+  { value: "pickup", label: "Nouto" }
+];
 
 type UploadedImage = {
   id: string;
@@ -1332,6 +1338,7 @@ export default function SellPage() {
   const [showSelectedMultiParts, setShowSelectedMultiParts] = useState(false);
   const [expandedListingGroups, setExpandedListingGroups] = useState<Record<string, boolean>>({});
   const [listingLocation, setListingLocation] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("both");
   const [listingTitle, setListingTitle] = useState("");
   const [listingDescription, setListingDescription] = useState("");
   const [publishError, setPublishError] = useState("");
@@ -1432,6 +1439,7 @@ export default function SellPage() {
   const isCompanyAccount = accountProfile?.account_type === "company";
   const selectedCompanySeller =
     companySellers.find((seller) => seller.id === selectedCompanySellerId) ?? null;
+  const profileCity = accountProfile?.city?.trim() ?? "";
   const multiPartTree = useMemo(
     () =>
       categoryOptions.map((categoryName) => {
@@ -2421,22 +2429,57 @@ export default function SellPage() {
     return uploadedUrls.length > 0 ? uploadedUrls : [fallbackListingImage];
   }
 
+  function getAutomaticListingTitle(part?: MultiPartSelection) {
+    const titleParts = part
+      ? [part.category, part.group, part.detail]
+      : [selectedCategory, selectedCategoryGroup, selectedDetailCategory];
+
+    return uniqueOptions(titleParts).join(" / ").trim() || part?.detail || "Ilmoitus";
+  }
+
+  function getDeliveryMethodLabel(method: DeliveryMethod = deliveryMethod) {
+    return deliveryMethodOptions.find((option) => option.value === method)?.label ?? "Posti ja nouto";
+  }
+
+  function appendDeliveryMethod(description: string) {
+    return [
+      description.trim(),
+      `Toimitustapa: ${getDeliveryMethodLabel()}`
+    ].filter(Boolean).join("\n\n");
+  }
+
+  function renderDeliveryMethodSelector() {
+    return (
+      <div className={styles.deliveryMethodField}>
+        <span>Toimitustapa</span>
+        <div className={styles.deliveryMethodOptions}>
+          {deliveryMethodOptions.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              className={deliveryMethod === option.value ? styles.deliveryMethodActive : ""}
+              onClick={() => setDeliveryMethod(option.value)}
+              aria-pressed={deliveryMethod === option.value}
+            >
+              {deliveryMethod === option.value ? <Check size={16} aria-hidden="true" /> : null}
+              <span>{option.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   function buildListingPayload(part?: MultiPartSelection, imageUrls?: string[]): ListingInput {
     const price = getPublishPrice(part?.price ?? listingPrice);
-    const automaticPartTitle = part?.detail
-      ? uniqueOptions([
-          vehicleDetails.brand,
-          vehicleDetails.model,
-          vehicleDetails.vehicleSubtype,
-          vehicleDetails.year,
-          part.detail
-        ]).join(" ")
-      : "";
-    const title = part ? part.title.trim() || automaticPartTitle : listingTitle.trim();
-    const description =
+    const title = part
+      ? part.title.trim() || getAutomaticListingTitle(part)
+      : listingTitle.trim() || getAutomaticListingTitle();
+    const baseDescription =
       mode === "multiple"
         ? part?.description.trim() || `Myynnissa ${part?.detail ?? "varaosa"}. Tarkemmat tiedot saat myyjalta viestilla.`
         : listingDescription.trim();
+    const description = appendDeliveryMethod(baseDescription);
     const resolvedImageUrls =
       imageUrls && imageUrls.length > 0 ? imageUrls : [fallbackListingImage];
 
@@ -2455,7 +2498,7 @@ export default function SellPage() {
       category: part?.category ?? selectedCategory,
       subcategory: part?.detail ?? selectedDetailCategory,
       part_number: mode === "single" ? partNumber.trim() || null : part?.partNumber.trim() || null,
-      location: listingLocation.trim() || "Ei maaritetty",
+      location: listingLocation.trim() || profileCity || "Ei maaritetty",
       condition: part?.condition ?? condition,
       description,
       image_url: resolvedImageUrls[0],
@@ -2490,7 +2533,6 @@ export default function SellPage() {
     if (listingNeedsTrackMatDimensions(payload)) {
       void descriptionHasTrackMatDimensions(payload.description);
     }
-    if (mode === "single" && !listingLocation.trim()) return "Lisa sijainti ennen julkaisua.";
     return "";
   }
 
@@ -2530,7 +2572,6 @@ export default function SellPage() {
       const listingParts =
         mode === "multiple"
           ? selectedMultiPartList.filter((part) =>
-              part.title.trim().length >= 3 &&
               getPublishPrice(part.price) > 0 &&
               part.condition.trim().length > 0 &&
               part.images.length > 0
@@ -2542,7 +2583,7 @@ export default function SellPage() {
       if (draftPayloads.length === 0) {
         setPublishError(
           mode === "multiple"
-            ? "Yhtään julkaisukelpoista ilmoitusta ei löytynyt. Lisää julkaistaville osille otsikko, hinta, kunto ja vähintään yksi kuva."
+            ? "Yhtään julkaisukelpoista ilmoitusta ei löytynyt. Lisää julkaistaville osille hinta, kunto ja vähintään yksi kuva."
             : "Valitse vähintään yksi myytävä osa ennen julkaisua."
         );
         return;
@@ -2764,13 +2805,7 @@ export default function SellPage() {
           <span />
         </div>
         {parts.map((part, index) => {
-          const automaticTitle = uniqueOptions([
-            vehicleDetails.brand,
-            vehicleDetails.model,
-            vehicleDetails.vehicleSubtype,
-            vehicleDetails.year,
-            part.detail
-          ]).join(" ");
+          const automaticTitle = getAutomaticListingTitle(part);
           const partNeedsTrackMatDimensions = [part.category, part.group, part.detail].some(isTrackMatText);
           const conditionKey =
             part.condition === "Uusi"
@@ -2792,7 +2827,7 @@ export default function SellPage() {
               <span className={styles.multiDragDots} aria-hidden="true">::</span>
               <strong className={styles.multiListingIndex}>{index + 1}</strong>
               <span className={styles.multiPartIdentity}>
-                <b>{part.title || part.detail || automaticTitle}</b>
+                <b>{part.title || automaticTitle}</b>
                 <small>{part.category} &gt; {part.group}</small>
               </span>
               <span className={styles.multiPriceCell}>
@@ -2850,8 +2885,11 @@ export default function SellPage() {
                   <input
                     value={part.title}
                     onChange={(event) => updateMultiPartField(part.id, "title", event.target.value)}
-                    placeholder={automaticTitle || part.detail}
+                    placeholder={automaticTitle}
                   />
+                  <small className={styles.automaticTitleHint}>
+                    Tämä on otsikko jos et itse otsikoi: {automaticTitle}
+                  </small>
                 </label>
                 <label>
                   <span>Osanumero / OEM</span>
@@ -2940,13 +2978,7 @@ export default function SellPage() {
 
     const activeIndex = Math.min(activeMultiListingIndex, selectedMultiPartList.length - 1);
     const listingProgressLabel = `${activeIndex + 1}/${selectedMultiPartList.length} ilmoitusta täytetty`;
-    const automaticTitle = uniqueOptions([
-      vehicleDetails.brand,
-      vehicleDetails.model,
-      vehicleDetails.vehicleSubtype,
-      vehicleDetails.year,
-      part.detail
-    ]).join(" ");
+    const automaticTitle = getAutomaticListingTitle(part);
     const partNeedsTrackMatDimensions = [part.category, part.group, part.detail].some(isTrackMatText);
     const conditionKey =
       part.condition === "Uusi"
@@ -2961,6 +2993,17 @@ export default function SellPage() {
 
     return (
       <div className={`${styles.listingStack} ${styles.multiListingWizard}`}>
+        <section className={styles.multiListingMetaPanel} aria-label="Sijainti ja toimitus">
+          <PlainIconInput
+            label="Sijainti"
+            icon={MapPin}
+            placeholder="Kaupunki tai paikkakunta"
+            value={listingLocation}
+            onChange={setListingLocation}
+          />
+          {renderDeliveryMethodSelector()}
+        </section>
+
         <section className={styles.multiListingCategory}>
           <div className={`${styles.multiListingCategoryHeader} ${styles.multiListingStaticHeader}`}>
             <span className={styles.multiListingHeaderTitle}>
@@ -2991,7 +3034,7 @@ export default function SellPage() {
                   </span>
                   <strong className={styles.multiListingIndex}>{activeIndex + 1}</strong>
                   <span className={styles.multiPartIdentity}>
-                    <b>{part.title || part.detail || automaticTitle}</b>
+                    <b>{part.title || automaticTitle}</b>
                     <small>{part.category} &gt; {part.group}</small>
                   </span>
                   <span className={styles.multiPriceCell}>
@@ -3045,8 +3088,11 @@ export default function SellPage() {
                     <input
                       value={part.title}
                       onChange={(event) => updateMultiPartField(part.id, "title", event.target.value)}
-                      placeholder={automaticTitle || part.detail}
+                      placeholder={automaticTitle}
                     />
+                    <small className={styles.automaticTitleHint}>
+                      Tämä on otsikko jos et itse otsikoi: {automaticTitle}
+                    </small>
                   </label>
                   <label>
                     <span>Osanumero / OEM</span>
@@ -3725,12 +3771,7 @@ export default function SellPage() {
                   {groupOpen ? (
                     <div className={styles.multiListingTable}>
                       {groupItem.parts.map((part, index) => {
-                        const automaticTitle = uniqueOptions([
-                          vehicleDetails.brand,
-                          vehicleDetails.model,
-                          vehicleDetails.year,
-                          part.detail
-                        ]).join(" ");
+                        const automaticTitle = getAutomaticListingTitle(part);
 
                         return (
                           <details className={styles.multiListingRow} key={part.id}>
@@ -3738,7 +3779,7 @@ export default function SellPage() {
                               <span className={styles.multiDragDots} aria-hidden="true">::</span>
                               <strong>{index + 1}</strong>
                               <span className={styles.multiPartIdentity}>
-                                <b>{part.detail}</b>
+                                <b>{part.title || automaticTitle}</b>
                                 <small>{part.category} / {part.group}</small>
                               </span>
                               <input
@@ -3767,8 +3808,11 @@ export default function SellPage() {
                                 <input
                                   value={part.title}
                                   onChange={(event) => updateMultiPartField(part.id, "title", event.target.value)}
-                                  placeholder={automaticTitle || part.detail}
+                                  placeholder={automaticTitle}
                                 />
+                                <small className={styles.automaticTitleHint}>
+                                  Tämä on otsikko jos et itse otsikoi: {automaticTitle}
+                                </small>
                               </label>
                               <label>
                                 <span>Osanumero / OEM</span>
@@ -3911,6 +3955,7 @@ export default function SellPage() {
                 onChange={setListingLocation}
                 inputRef={listingLocationInputRef}
               />
+              {renderDeliveryMethodSelector()}
             </div>
           </section>
 
@@ -4021,6 +4066,9 @@ export default function SellPage() {
               onChange={(event) => setListingTitle(event.target.value)}
               placeholder="Esim. Ski-Doo variaattori 850 E-TEC"
             />
+            <small className={styles.automaticTitleHint}>
+              Tämä on otsikko jos et itse otsikoi: {getAutomaticListingTitle()}
+            </small>
           </label>
 
           <label className={styles.detailsField}>
@@ -4088,7 +4136,8 @@ export default function SellPage() {
       { label: "Ajoneuvo", value: vehicleSummary || "Ei lisatty" },
       { label: "Tekniikka", value: technicalSummary || "Ei lisatty" },
       { label: "Kategoria", value: categorySummary || "Ei lisatty" },
-      { label: "Sijainti", value: listingLocation.trim() || "Ei lisatty" },
+      { label: "Sijainti", value: listingLocation.trim() || profileCity || "Ei lisatty" },
+      { label: "Toimitustapa", value: getDeliveryMethodLabel() },
       { label: "Varaosanumero", value: partNumber.trim() || "Ei lisatty" }
     ];
 
@@ -4145,7 +4194,7 @@ export default function SellPage() {
         <section className={styles.publishSummary} aria-label="Ilmoituksen yhteenveto">
           <div className={styles.publishTitleBlock}>
             <span>Otsikko</span>
-            <strong>{listingTitle.trim() || "Ei otsikkoa viela"}</strong>
+            <strong>{listingTitle.trim() || getAutomaticListingTitle()}</strong>
             <p>{listingDescription.trim() || "Kuvausta ei ole viela lisatty."}</p>
           </div>
 
@@ -4383,7 +4432,6 @@ function PresetField({
   );
   const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const innerInputRef = useRef<HTMLInputElement | null>(null);
-  const optionSelectHandledRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -4422,28 +4470,8 @@ function PresetField({
     setOpen((current) => !current);
   }
 
-  function handleOptionPointerDown(event: PointerEvent<HTMLButtonElement>, option: string) {
-    event.preventDefault();
-    event.stopPropagation();
-    optionSelectHandledRef.current = true;
-    selectOption(option);
-    window.setTimeout(() => {
-      optionSelectHandledRef.current = false;
-    }, 180);
-  }
-
-  function handleOtherPointerDown(event: PointerEvent<HTMLButtonElement>) {
-    event.preventDefault();
-    event.stopPropagation();
-    optionSelectHandledRef.current = true;
-    selectOther();
-    window.setTimeout(() => {
-      optionSelectHandledRef.current = false;
-    }, 180);
-  }
-
   return (
-    <label className={styles.presetField}>
+    <label className={styles.presetField} data-preset-label={label}>
       <span>{label}</span>
       <span
         className={`${styles.presetSelectShell} ${open ? styles.presetSelectOpen : ""} ${effectiveCustomMode ? styles.presetSelectCustom : ""}`}
@@ -4522,11 +4550,8 @@ function PresetField({
                     backgroundColor: active ? "#8fc2f3" : "#061726",
                     color: active ? "#04111f" : "#dce8f7"
                   }}
-                  onPointerDown={(event) => handleOptionPointerDown(event, option)}
-                  onClick={() => {
-                    if (optionSelectHandledRef.current) return;
-                    selectOption(option);
-                  }}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => selectOption(option)}
                 >
                   {option}
                 </button>
@@ -4542,11 +4567,8 @@ function PresetField({
                 backgroundColor: effectiveCustomMode ? "#8fc2f3" : "#061726",
                 color: effectiveCustomMode ? "#04111f" : "#f7b56e"
               }}
-              onPointerDown={handleOtherPointerDown}
-              onClick={() => {
-                if (optionSelectHandledRef.current) return;
-                selectOther();
-              }}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={selectOther}
             >
               {otherLabel}
             </button>
@@ -4583,7 +4605,6 @@ function CategorySelect({
   const open = controlledOpen ?? uncontrolledOpen;
   const selectedOption = options.find((option) => option.value === value);
   const displayValue = hasOptions ? selectedOption?.label ?? placeholder : placeholder;
-  const optionSelectHandledRef = useRef(false);
 
   const setSelectOpen = useCallback((nextOpen: boolean) => {
     if (onOpenChange) {
@@ -4602,16 +4623,6 @@ function CategorySelect({
   function chooseOption(nextValue: string) {
     setSelectOpen(false);
     window.setTimeout(() => onChange(nextValue), 20);
-  }
-
-  function handleOptionPointerDown(event: PointerEvent<HTMLButtonElement>, nextValue: string) {
-    event.preventDefault();
-    event.stopPropagation();
-    optionSelectHandledRef.current = true;
-    chooseOption(nextValue);
-    window.setTimeout(() => {
-      optionSelectHandledRef.current = false;
-    }, 180);
   }
 
   return (
@@ -4666,11 +4677,8 @@ function CategorySelect({
                     backgroundColor: active ? "rgba(56, 189, 248, 0.16)" : "#061726",
                     color: "#dce8f7"
                   }}
-                  onPointerDown={(event) => handleOptionPointerDown(event, option.value)}
-                  onClick={() => {
-                    if (optionSelectHandledRef.current) return;
-                    chooseOption(option.value);
-                  }}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => chooseOption(option.value)}
                   role="option"
                   aria-selected={active}
                 >

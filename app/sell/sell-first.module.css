@@ -2045,6 +2045,67 @@
   gap: 22px;
 }
 
+.deliveryMethodField {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.conditionGrid .deliveryMethodField {
+  grid-column: 1 / -1;
+}
+
+.deliveryMethodField > span {
+  color: #d9e2ee;
+  font-size: 15px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.deliveryMethodOptions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.deliveryMethodOptions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid rgba(156, 184, 216, 0.25);
+  border-radius: 10px;
+  background: rgba(214, 229, 240, 0.11);
+  color: #e8eef7;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.deliveryMethodActive {
+  border-color: rgba(255, 218, 184, 0.72) !important;
+  background: linear-gradient(135deg, #ff9824 0%, #ff7a1a 100%) !important;
+  color: #071827 !important;
+  box-shadow: 0 12px 24px rgba(255, 122, 26, 0.18);
+}
+
+.multiListingMetaPanel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 1fr);
+  gap: 18px;
+  align-items: start;
+  padding: 18px;
+  border: 1px solid rgba(126, 158, 190, 0.22);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 122, 26, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(4, 19, 33, 0.96), rgba(2, 11, 21, 0.96));
+}
+
 .plainIconField {
   display: grid;
   gap: 12px;
@@ -2478,6 +2539,15 @@
   font-size: 14px;
   font-style: normal;
   font-weight: 700;
+}
+
+.automaticTitleHint {
+  display: block;
+  margin-top: -3px;
+  color: #9fb0c5;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 750;
 }
 
 .detailsField input,
@@ -4191,6 +4261,17 @@
     max-height: min(210px, 34svh);
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .presetField[data-preset-label="Tyyppi"] .presetOptionList {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .multiListingMetaPanel,
+  .conditionGrid,
+  .deliveryMethodOptions {
+    grid-template-columns: 1fr;
   }
 
   .presetOptionList button,

@@ -1877,7 +1877,7 @@ export async function createListing(
     const { data: profile } =
       await supabase
         .from("profiles")
-        .select("phone,account_type,first_name,last_name,full_name,name,company_name,avatar_url")
+        .select("phone,account_type,first_name,last_name,full_name,name,company_name,avatar_url,city")
         .eq("id", user.id)
         .maybeSingle<Pick<
           UserProfile,
@@ -1889,6 +1889,7 @@ export async function createListing(
           | "name"
           | "company_name"
           | "avatar_url"
+          | "city"
         >>();
 
     if (profile?.account_type === "company") {
@@ -1934,6 +1935,7 @@ export async function createListing(
 
     const listingPayload = withInitialListingTranslations({
       ...listing,
+      location: listing.location?.trim() || profile?.city?.trim() || "Ei maaritetty",
       seller_name: listing.seller_name || profileName?.trim() || user.email || "Myyja",
       seller_email: listing.seller_email || user.email || "",
       seller_phone: listing.seller_phone ?? profile?.phone ?? null,

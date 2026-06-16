@@ -2612,9 +2612,10 @@ export default function Home() {
                         </div>
                         <div className={styles.cardBody}>
                           <p className={styles.cardPrice}>{formatPrice(listing.price)}</p>
-                          {listingPartNumber ? (
+                          {listingPartNumber || listing.vehicle_subtype ? (
                           <div className={styles.badgeRow}>
                             {listingPartNumber ? <span className={`${styles.badge} ${styles.partNumberBadge}`}>OEM {listingPartNumber}</span> : null}
+                            {listing.vehicle_subtype ? <span className={styles.badge}>Tyyppi {listing.vehicle_subtype}</span> : null}
                           </div>
                           ) : null}
                           <h3 className={styles.cardTitle}>{listingText.title}</h3>
@@ -2821,10 +2822,13 @@ export default function Home() {
 
                     <div className={styles.cardBody}>
                       <p className={styles.cardPrice}>{formatPrice(listing.price)}</p>
-                      {listingPartNumber ? (
+                      {listingPartNumber || listing.vehicle_subtype ? (
                       <div className={styles.badgeRow}>
                         {listingPartNumber ? (
                           <span className={`${styles.badge} ${styles.partNumberBadge}`}>OEM {listingPartNumber}</span>
+                        ) : null}
+                        {listing.vehicle_subtype ? (
+                          <span className={styles.badge}>Tyyppi {listing.vehicle_subtype}</span>
                         ) : null}
                       </div>
                       ) : null}

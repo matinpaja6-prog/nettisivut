@@ -2235,7 +2235,15 @@
     radial-gradient(760px 460px at 50% 8%, rgba(126, 197, 240, 0.16), transparent 62%),
     rgba(1, 9, 19, 0.74) !important;
   backdrop-filter: blur(8px) !important;
-  pointer-events: none !important;
+  align-items: center !important;
+  display: flex !important;
+  inset: 0 !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  padding: 18px !important;
+  pointer-events: auto !important;
+  position: fixed !important;
+  z-index: 2147483000 !important;
 }
 
  .page :global(.delete-listing-modal) {
@@ -2248,10 +2256,15 @@
     0 28px 80px rgba(0, 8, 22, 0.58),
     inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
   color: #eef7ff !important;
+  max-height: calc(100dvh - 36px) !important;
   max-width: 620px !important;
-  overflow: hidden !important;
+  overscroll-behavior: contain !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
   padding: 22px !important;
   pointer-events: auto !important;
+  scrollbar-gutter: stable !important;
+  width: min(100%, 620px) !important;
 }
 
  .page :global(.delete-listing-modal::before) {
@@ -2441,14 +2454,20 @@
   .page :global(.delete-listing-modal-backdrop) {
     align-items: flex-start !important;
     justify-content: center !important;
-    padding-inline: 14px !important;
+    min-height: 100dvh !important;
+    overflow: hidden !important;
+    padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom)) !important;
   }
 
   .page :global(.delete-listing-modal) {
     box-sizing: border-box !important;
     margin-inline: auto !important;
-    max-width: calc(100vw - 28px) !important;
+    max-height: calc(100dvh - max(20px, env(safe-area-inset-top)) - max(20px, env(safe-area-inset-bottom))) !important;
+    max-width: calc(100vw - 20px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
     padding: 18px !important;
+    width: 100% !important;
   }
 
   .page :global(.delete-listing-modal-heading) {
