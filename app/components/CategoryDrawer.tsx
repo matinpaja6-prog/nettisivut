@@ -1289,6 +1289,7 @@ export default function CategoryDrawer({
   const engineCcInputRef = useRef<HTMLInputElement | null>(null);
   const engineModelInputRef = useRef<HTMLInputElement | null>(null);
   const driveTypeInputRef = useRef<HTMLInputElement | null>(null);
+  const categoryVehicleMenuAutoOpenedRef = useRef(false);
 
   useEffect(() => {
     setVehicle(initVehicle);
@@ -1310,6 +1311,7 @@ export default function CategoryDrawer({
       setDriveType("");
       setVehicleTypeMenuOpen(false);
       setVehicleSubtypeMenuOpen(false);
+      categoryVehicleMenuAutoOpenedRef.current = false;
       setModelOpen(false);
       setCat("");
       setSubGroup("");
@@ -1321,6 +1323,24 @@ export default function CategoryDrawer({
   useEffect(() => {
     if (isOpen && step < 2) setStep(2);
   }, [isOpen, step]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setVehicleTypeMenuOpen(false);
+    setVehicleSubtypeMenuOpen(false);
+  }, [isOpen, step]);
+
+  useEffect(() => {
+    if (!isOpen || step !== 3 || vehicle || categoryVehicleMenuAutoOpenedRef.current) return;
+
+    categoryVehicleMenuAutoOpenedRef.current = true;
+    setVehicleTypeMenuOpen(true);
+  }, [isOpen, step, vehicle]);
+
+  function closeVehicleTypeMenus() {
+    setVehicleTypeMenuOpen(false);
+    setVehicleSubtypeMenuOpen(false);
+  }
 
   function apply() {
     onApply({ vehicleType: vehicle, vehicleSubtype, brand, model, year,
@@ -1554,7 +1574,9 @@ export default function CategoryDrawer({
 
   function renderVehicleTypeMenu() {
     const selectedKind = vehicle || "all";
-    const selectedLabel = startTiles.find((tile) => tile.kind === selectedKind)?.label ?? t.all;
+    const selectedLabel = vehicle
+      ? startTiles.find((tile) => tile.kind === selectedKind)?.label ?? t.all
+      : "Ajoneuvotyyppi";
 
     return (
       <div className={`cd-vehicle-type-menu${vehicleTypeMenuOpen ? " is-open" : ""}`}>
@@ -1562,7 +1584,11 @@ export default function CategoryDrawer({
         <button
           type="button"
           className="cd-vehicle-type-trigger"
-          onClick={() => setVehicleTypeMenuOpen((open) => !open)}
+          onClick={() => {
+            categoryVehicleMenuAutoOpenedRef.current = true;
+            setVehicleSubtypeMenuOpen(false);
+            setVehicleTypeMenuOpen((open) => !open);
+          }}
           aria-haspopup="listbox"
           aria-expanded={vehicleTypeMenuOpen}
         >
@@ -1618,7 +1644,10 @@ export default function CategoryDrawer({
           type="button"
           className="cd-vehicle-type-trigger"
           onClick={() => {
-            if (!disabled) setVehicleSubtypeMenuOpen((open) => !open);
+            if (!disabled) {
+              setVehicleTypeMenuOpen(false);
+              setVehicleSubtypeMenuOpen((open) => !open);
+            }
           }}
           aria-haspopup="listbox"
           aria-expanded={vehicleSubtypeMenuOpen}
@@ -1812,11 +1841,16 @@ export default function CategoryDrawer({
                   {renderVehicleSubtypeMenu()}
                 </div>
               </div>
-              <div className="cd-vehicle-detail-grid">
+              <div
+                className="cd-vehicle-detail-grid"
+                onClickCapture={closeVehicleTypeMenus}
+                onFocusCapture={closeVehicleTypeMenus}
+              >
                 <VehicleComboField
                   label="Merkki"
                   value={brand}
                   options={brandOptions}
+                  disabled={!vehicle}
                   placeholder="Kaikki merkit"
                   inputRef={brandInputRef}
                   onMobileSelect={() => focusNextMobileField(modelInputRef)}
@@ -1833,7 +1867,7 @@ export default function CategoryDrawer({
                   label="Malli"
                   value={model}
                   options={modelOptions}
-                  disabled={!brand}
+                  disabled={!vehicle || !brand}
                   placeholder={brand ? "Kaikki mallit" : "Valitse ensin merkki"}
                   inputRef={modelInputRef}
                   onMobileSelect={() => focusNextMobileField(yearInputRef)}
@@ -1848,6 +1882,7 @@ export default function CategoryDrawer({
                   label="Vuosimalli"
                   value={year}
                   options={YEAR_OPTIONS}
+                  disabled={!vehicle}
                   placeholder="Vuosi tai kirjoita itse"
                   inputRef={yearInputRef}
                   onMobileSelect={() => focusNextMobileField(engineCcInputRef)}
@@ -1858,6 +1893,7 @@ export default function CategoryDrawer({
                   label="Moottorin koko (cc)"
                   value={engineCc}
                   options={vehicle ? (CC_OPTIONS[vehicle] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS}
+                  disabled={!vehicle}
                   placeholder={t.all}
                   inputRef={engineCcInputRef}
                   onMobileSelect={() => focusNextMobileField(engineModelInputRef)}
@@ -1871,7 +1907,7 @@ export default function CategoryDrawer({
                   label="Moottori"
                   value={engineModel}
                   options={engineModelOptions}
-                  disabled={!brand}
+                  disabled={!vehicle || !brand}
                   placeholder={brand ? "Kaikki moottorit" : t.sellSelectBrandFirst}
                   inputRef={engineModelInputRef}
                   onMobileSelect={() => focusNextMobileField(driveTypeInputRef)}
@@ -1885,6 +1921,7 @@ export default function CategoryDrawer({
                   label="Vetotapa"
                   value={driveType}
                   options={driveOptions}
+                  disabled={!vehicle}
                   placeholder="Kaikki"
                   inputRef={driveTypeInputRef}
                   onMobileSelect={() => setStep(3)}
@@ -1925,7 +1962,11 @@ export default function CategoryDrawer({
               {false && vehicle && (
                 <section className="cd-inline-vehicle-panel" aria-label="Ajoneuvon tiedot">
                   <div className="cd-step-hint">Merkki, malli, vuosimalli ja moottori</div>
-                  <div className="cd-vehicle-detail-grid">
+              <div
+                className="cd-vehicle-detail-grid"
+                onClickCapture={closeVehicleTypeMenus}
+                onFocusCapture={closeVehicleTypeMenus}
+              >
                     <div className="cd-detail-field">
                       <label className="cd-field-label">Merkki</label>
                       <select
@@ -2068,7 +2109,7 @@ export default function CategoryDrawer({
                 {renderVehicleTypeMenu()}
               </section>
 
-              <ul className="cd-list cd-category-photo-list">
+              <ul className="cd-list cd-category-photo-list" onClickCapture={closeVehicleTypeMenus}>
                 {Object.keys(cats).map(c => (
                   <li key={c}>
                     <button
@@ -4700,6 +4741,63 @@ export default function CategoryDrawer({
           align-self: start !important;
           min-width: 0 !important;
         }
+        .cd-vehicle-step-head .cd-vehicle-type-trigger,
+        .cd-category-vehicle-inline .cd-vehicle-type-trigger,
+        .cd-drawer .cd-vehicle-type-trigger,
+        .cd-drawer .cd-vehicle-type-menu.is-open .cd-vehicle-type-trigger,
+        .cd-category-vehicle-inline .cd-vehicle-type-menu.is-open .cd-vehicle-type-trigger {
+          border: 1.5px solid #ff7a1f !important;
+          box-shadow:
+            0 0 0 1px rgba(255, 122, 31, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+        }
+        .cd-vehicle-step-head .cd-vehicle-type-options,
+        .cd-category-vehicle-inline .cd-vehicle-type-options,
+        .cd-drawer .cd-vehicle-type-options {
+          border: 1.5px solid #ff7a1f !important;
+        }
+        .cd-vehicle-step-head .cd-vehicle-head-fields,
+        .cd-category-vehicle-inline {
+          grid-template-columns: minmax(170px, 1fr) minmax(170px, 1fr) !important;
+        }
+        .cd-vehicle-step-head .cd-vehicle-type-trigger,
+        .cd-category-vehicle-inline .cd-vehicle-type-trigger,
+        .cd-drawer .cd-vehicle-type-trigger {
+          height: auto !important;
+          min-height: 46px !important;
+          padding: 7px 12px !important;
+        }
+        .cd-vehicle-step-head .cd-vehicle-type-trigger strong,
+        .cd-category-vehicle-inline .cd-vehicle-type-trigger strong,
+        .cd-drawer .cd-vehicle-type-trigger strong {
+          font-size: clamp(12px, 1.05vw, 16px) !important;
+          line-height: 1.12 !important;
+          display: -webkit-box !important;
+          max-height: 2.3em !important;
+          overflow: hidden !important;
+          overflow-wrap: normal !important;
+          text-overflow: ellipsis !important;
+          white-space: normal !important;
+          word-break: normal !important;
+          -webkit-box-orient: vertical !important;
+          -webkit-line-clamp: 2 !important;
+        }
+        .cd-vehicle-step .cd-cc-select,
+        .cd-vehicle-step .cd-input,
+        .cd-vehicle-step .cd-combo-input,
+        .cd-category-vehicle-inline .cd-cc-select,
+        .cd-category-vehicle-inline .cd-input,
+        .cd-category-vehicle-inline .cd-combo-input {
+          font-size: clamp(11px, 1.05vw, 13px) !important;
+          line-height: 1.22 !important;
+          min-height: 46px !important;
+          overflow: visible !important;
+          overflow-wrap: anywhere !important;
+          padding-bottom: 6px !important;
+          padding-top: 6px !important;
+          text-overflow: clip !important;
+          white-space: normal !important;
+        }
         .cd-drawer .cd-combo-control,
         .cd-category-vehicle-inline .cd-combo-control,
         .cd-vehicle-step .cd-combo-control {
@@ -4737,6 +4835,32 @@ export default function CategoryDrawer({
         .cd-category-vehicle-inline .cd-detail-field .cd-cc-select,
         .cd-vehicle-step .cd-detail-field .cd-cc-select {
           background-image: linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98)) !important;
+        }
+        .cd-drawer .cd-combo-disabled .cd-combo-control,
+        .cd-vehicle-step .cd-combo-disabled .cd-combo-control {
+          background:
+            linear-gradient(180deg, rgba(7, 24, 42, 0.72), rgba(4, 17, 32, 0.72)) !important;
+          border-color: rgba(255, 122, 31, 0.42) !important;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+          cursor: not-allowed !important;
+          opacity: 0.58 !important;
+        }
+        .cd-drawer .cd-combo-disabled .cd-combo-input,
+        .cd-vehicle-step .cd-combo-disabled .cd-combo-input {
+          color: rgba(216, 226, 236, 0.58) !important;
+          cursor: not-allowed !important;
+          -webkit-text-fill-color: rgba(216, 226, 236, 0.58) !important;
+        }
+        .cd-drawer .cd-combo-disabled .cd-combo-input::placeholder,
+        .cd-vehicle-step .cd-combo-disabled .cd-combo-input::placeholder {
+          color: rgba(216, 226, 236, 0.58) !important;
+          opacity: 1 !important;
+        }
+        .cd-drawer .cd-combo-disabled .cd-combo-toggle,
+        .cd-vehicle-step .cd-combo-disabled .cd-combo-toggle {
+          color: rgba(255, 138, 28, 0.58) !important;
+          cursor: not-allowed !important;
+          opacity: 1 !important;
         }
         .cd-vehicle-type-menu .cd-vehicle-type-options::before,
         .cd-category-vehicle-inline .cd-vehicle-type-options::before,

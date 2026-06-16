@@ -9,7 +9,7 @@ import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 import OptimizedListingImage, { fallbackListingImage } from "@/app/components/OptimizedListingImage";
 import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
-import { getCountryFlagFromLocation } from "@/lib/country-flags";
+import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 
 import {
   fallbackListings,
@@ -292,7 +292,7 @@ export default function ListingsIndexPage() {
                           loading="lazy"
                         />
                       ) : null}
-                      {listing.location || t.country}
+                      {formatLocationWithCountry(listing.location, t.country)}
                     </span>
                     <span>
                       <Clock3 size={14} />

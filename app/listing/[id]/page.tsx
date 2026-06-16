@@ -38,6 +38,7 @@ import {
 import { getLocalizedListingText } from "@/lib/listing-translations";
 import { readCachedListing, readCachedListings, writeCachedListings } from "@/lib/client-listings-cache";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
+import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 
 import { trackListingView, setRecoUserId } from "@/lib/recommendations";
 
@@ -353,6 +354,7 @@ export default function ListingPage() {
   const router = useRouter();
   const { locale } = useLanguage();
   const ui = listingUiText[locale];
+  const fallbackCountry = locale === "et" ? "Soome" : locale === "fi" ? "Suomi" : "Finland";
 
   const [listing, setListing] =
     useState<Listing | null>(null);
@@ -1025,7 +1027,7 @@ export default function ListingPage() {
       .map((value) => value?.trim())
       .filter(Boolean)
       .join(" ");
-  const listingLocation = formatLocation(listing.location);
+  const listingLocation = formatLocation(formatLocationWithCountry(listing.location, fallbackCountry));
   const sellerMemberYear =
     sellerProfileCreatedAt
       ? new Date(sellerProfileCreatedAt).getFullYear()
@@ -1059,8 +1061,13 @@ export default function ListingPage() {
       .trim();
   const listingDeliveryMethod =
     descriptionWithoutVehicleMeta.match(/(?:^|\n)Toimitustapa:\s*([^\n]+)/i)?.[1]?.trim() || "";
+  const listingVehicleSubtype =
+    listing.vehicle_subtype?.trim() ||
+    descriptionWithoutVehicleMeta.match(/(?:^|\n)Ajoneuvotyyppi:\s*([^\n]+)/i)?.[1]?.trim() ||
+    "";
   const listingDescription =
     descriptionWithoutVehicleMeta
+      .replace(/(?:^|\n)Ajoneuvotyyppi:\s*[^\n]+/i, "")
       .replace(/(?:^|\n)Toimitustapa:\s*[^\n]+/i, "")
       .trim() || ui.noDescription;
   const sellerAvatarUrl = listing.seller_avatar_url || sellerProfileAvatarUrl;
@@ -1356,50 +1363,36 @@ export default function ListingPage() {
               <div className={basicInfoOpen ? "listing-section-content" : "listing-section-content is-collapsed"}>
 
               <div className="listing-fact-grid">
-                {listing.vehicle_type && (
-                  <span>
-                    <strong>{ui.vehicle}</strong>
-                    {translateVehicleTypeLabel(listing.vehicle_type)}
-                  </span>
-                )}
-                {listing.vehicle_subtype && (
-                  <span>
-                    <strong>Ajoneuvotyyppi</strong>
-                    {listing.vehicle_subtype}
-                  </span>
-                )}
+                <span>
+                  <strong>{ui.vehicle}</strong>
+                  {translateVehicleTypeLabel(listing.vehicle_type)}
+                </span>
+                <span>
+                  <strong>Ajoneuvotyyppi</strong>
+                  {listingVehicleSubtype || ui.notSpecified}
+                </span>
                 {listingPartNumber && (
                   <span>
                     <strong>{ui.partNumber}</strong>
                     {listingPartNumber}
                   </span>
                 )}
-                {listingBrandModel && (
-                  <span>
-                    <strong>{ui.brandModel}</strong>
-                    {listingBrandModel}
-                  </span>
-                )}
-                {listing.year && (
-                  <span>
-                    <strong>{ui.year}</strong>
-                    {listing.year}
-                  </span>
-                )}
+                <span>
+                  <strong>{ui.brandModel}</strong>
+                  {listingBrandModel || ui.notSpecified}
+                </span>
+                <span>
+                  <strong>{ui.year}</strong>
+                  {listing.year || ui.notSpecified}
+                </span>
                 <span>
                   <strong>{ui.condition}</strong>
                   {translateConditionLabel(listing.condition)}
                 </span>
                 <span>
-                  <strong>{ui.location}</strong>
-                  {listingLocation || ui.notSpecified}
+                  <strong>Toimitus</strong>
+                  {listingDeliveryMethod || ui.notSpecified}
                 </span>
-                {listingDeliveryMethod && (
-                  <span>
-                    <strong>Toimitus</strong>
-                    {listingDeliveryMethod}
-                  </span>
-                )}
               </div>
 
               </div>
@@ -1661,6 +1654,7 @@ export default function ListingPage() {
                 const itemImageSrc = listingImageSrc(item);
                 const itemPartNumber = getListingPartNumber(item);
                 const isFavorite = savedListingIds.includes(item.id);
+                const countryFlag = getCountryFlagFromLocation(item.location, fallbackCountry);
                 return (
                   <article
                     key={item.id}
@@ -1716,9 +1710,19 @@ export default function ListingPage() {
                       ) : null}
                       <h3 className={homeStyles.cardTitle}>{itemText.title}</h3>
                       <div className={homeStyles.cardMetaRow}>
-                        <span>
-                          <MapPin size={14} />
-                          {formatLocation(item.location)}
+                        <span className={homeStyles.cardLocationMeta}>
+                          {countryFlag ? (
+                            <img
+                              className={homeStyles.listingCountryFlag}
+                              src={countryFlag.src}
+                              alt=""
+                              aria-hidden="true"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <MapPin size={14} />
+                          )}
+                          {formatLocation(formatLocationWithCountry(item.location, fallbackCountry))}
                         </span>
                         <span>
                           <Clock3 size={14} />

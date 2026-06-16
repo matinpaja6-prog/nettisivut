@@ -34,7 +34,6 @@ import type { User } from "@supabase/supabase-js";
 import {
   createPurchaseReviewRequest,
   deleteListing,
-  deleteSoldListing,
   findReviewBuyerByPhone,
   getConversationCountForUser,
   getListingById,
@@ -204,9 +203,42 @@ const fallbackListingImage =
   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3";
 
 const myListingsCachePrefix = "arcticparts:my-listings:";
+const dismissedCompletedGroupsPrefix = "arcticparts:dismissed-completed-groups:";
+const myListingsStatsHistoryPrefix = "arcticparts:my-listings-stats:";
+type StatsRange = "1d" | "7d" | "30d" | "all";
+type StatsSnapshot = {
+  listings: number;
+  newListings: number;
+  soldValue: number;
+  soldCount: number;
+  views: number;
+  messages: number;
+  unread: number;
+  conversations: number;
+};
+type StatsHistory = Partial<Record<StatsRange, StatsSnapshot>>;
+
+const emptyStatsSnapshot: StatsSnapshot = {
+  listings: 0,
+  newListings: 0,
+  soldValue: 0,
+  soldCount: 0,
+  views: 0,
+  messages: 0,
+  unread: 0,
+  conversations: 0
+};
 
 function myListingsCacheKey(userId: string) {
   return `${myListingsCachePrefix}${userId}`;
+}
+
+function dismissedCompletedGroupsKey(userId: string) {
+  return `${dismissedCompletedGroupsPrefix}${userId}`;
+}
+
+function myListingsStatsHistoryKey(userId: string) {
+  return `${myListingsStatsHistoryPrefix}${userId}`;
 }
 
 function readCachedMyListings(userId: string) {
@@ -233,6 +265,91 @@ function writeCachedMyListings(userId: string, nextListings: Listing[]) {
     );
   } catch {
     // Cache is only a speed boost, so storage failures can be ignored.
+  }
+}
+
+function readDismissedCompletedGroupKeys(userId: string) {
+  if (typeof window === "undefined") return new Set<string>();
+
+  try {
+    const raw = window.localStorage.getItem(dismissedCompletedGroupsKey(userId));
+    if (!raw) return new Set<string>();
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set<string>();
+    return new Set(parsed.filter((value): value is string => typeof value === "string"));
+  } catch {
+    return new Set<string>();
+  }
+}
+
+function writeDismissedCompletedGroupKeys(userId: string, keys: Set<string>) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(
+      dismissedCompletedGroupsKey(userId),
+      JSON.stringify(Array.from(keys))
+    );
+  } catch {
+    // This only controls local UI visibility; sales history stays in the database.
+  }
+}
+
+function normalizeStatsSnapshot(value: unknown): StatsSnapshot {
+  if (!value || typeof value !== "object") return emptyStatsSnapshot;
+  const record = value as Partial<Record<keyof StatsSnapshot, unknown>>;
+  return {
+    listings: Number(record.listings) || 0,
+    newListings: Number(record.newListings) || 0,
+    soldValue: Number(record.soldValue) || 0,
+    soldCount: Number(record.soldCount) || 0,
+    views: Number(record.views) || 0,
+    messages: Number(record.messages) || 0,
+    unread: Number(record.unread) || 0,
+    conversations: Number(record.conversations) || 0
+  };
+}
+
+function mergeStatsSnapshots(current: StatsSnapshot, previous?: StatsSnapshot): StatsSnapshot {
+  const old = previous ?? emptyStatsSnapshot;
+  return {
+    listings: Math.max(current.listings, old.listings),
+    newListings: Math.max(current.newListings, old.newListings),
+    soldValue: Math.max(current.soldValue, old.soldValue),
+    soldCount: Math.max(current.soldCount, old.soldCount),
+    views: Math.max(current.views, old.views),
+    messages: Math.max(current.messages, old.messages),
+    unread: Math.max(current.unread, old.unread),
+    conversations: Math.max(current.conversations, old.conversations)
+  };
+}
+
+function readMyListingsStatsHistory(userId: string): StatsHistory {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const raw = window.localStorage.getItem(myListingsStatsHistoryKey(userId));
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return {};
+    return Object.fromEntries(
+      (["1d", "7d", "30d", "all"] as const).map((range) => [
+        range,
+        normalizeStatsSnapshot((parsed as StatsHistory)[range])
+      ])
+    ) as StatsHistory;
+  } catch {
+    return {};
+  }
+}
+
+function writeMyListingsStatsHistory(userId: string, history: StatsHistory) {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(myListingsStatsHistoryKey(userId), JSON.stringify(history));
+  } catch {
+    // Stats are also derived from persisted sales where possible.
   }
 }
 
@@ -340,6 +457,8 @@ export default function MyListingsPage() {
 
   const [soldListings, setSoldListings] =
     useState<SoldListing[]>([]);
+  const [dismissedCompletedGroupKeys, setDismissedCompletedGroupKeys] = useState<Set<string>>(() => new Set());
+  const [statsHistory, setStatsHistory] = useState<StatsHistory>({});
 
   const [listingsCacheReady, setListingsCacheReady] =
     useState(false);
@@ -454,9 +573,15 @@ export default function MyListingsPage() {
 
   useEffect(() => {
 
-    if (!user) return;
+    if (!user) {
+      setDismissedCompletedGroupKeys(new Set());
+      setStatsHistory({});
+      return;
+    }
 
     let cancelled = false;
+    setDismissedCompletedGroupKeys(readDismissedCompletedGroupKeys(user.id));
+    setStatsHistory(readMyListingsStatsHistory(user.id));
     const cachedListings = readCachedMyListings(user.id);
 
     if (cachedListings.length > 0) {
@@ -1078,28 +1203,15 @@ export default function MyListingsPage() {
   }
 
   async function dismissCompletedGroup(groupKey: string) {
-    const soldItems =
-      soldListings.filter((item) => getVehicleGroupKey(item) === groupKey);
-
-    if (soldItems.length === 0) return;
-
-    setStatus("Poistetaan valmis multi-koonti...");
-
-    const results =
-      await Promise.all(soldItems.map((item) => deleteSoldListing(item.id)));
-
-    const failed =
-      results.find((result) => result.error);
-
-    if (failed?.error) {
-      setStatus(getErrorMessage(failed.error));
-      return;
-    }
-
-    setSoldListings((prev) =>
-      prev.filter((item) => getVehicleGroupKey(item) !== groupKey)
-    );
-    setStatus("Multi-koonti poistettu.");
+    setDismissedCompletedGroupKeys((prev) => {
+      const next = new Set(prev);
+      next.add(groupKey);
+      if (user) {
+        writeDismissedCompletedGroupKeys(user.id, next);
+      }
+      return next;
+    });
+    setStatus("Multi-koonti piilotettu. Myyntisumma säilyy tilastoissa.");
   }
 
   const activeListingsValue =
@@ -1149,6 +1261,73 @@ export default function MyListingsPage() {
     (sum, listing) => sum + (Number(listing.sold_price) || 0),
     0
   ), [soldInRange]);
+
+  const totalMessageCount = useMemo(
+    () => Object.values(messageCounts).reduce(
+      (sum, m) => sum + (Number(m.message_count) || 0),
+      0
+    ),
+    [messageCounts]
+  );
+
+  const unreadMessageCount = useMemo(
+    () => Object.values(messageCounts).reduce(
+      (sum, m) => sum + (Number(m.unread_count) || 0),
+      0
+    ),
+    [messageCounts]
+  );
+
+  const currentStatsSnapshot = useMemo<StatsSnapshot>(() => ({
+    listings: listings.length,
+    newListings: newListingsInRange,
+    soldValue: soldValueInRange,
+    soldCount: soldInRange.length,
+    views: totalViews,
+    messages: totalMessageCount,
+    unread: unreadMessageCount,
+    conversations: conversationCount
+  }), [
+    conversationCount,
+    listings.length,
+    newListingsInRange,
+    soldInRange.length,
+    soldValueInRange,
+    totalMessageCount,
+    totalViews,
+    unreadMessageCount
+  ]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    setStatsHistory((previous) => {
+      const merged = mergeStatsSnapshots(currentStatsSnapshot, previous[statsRange]);
+      const old = previous[statsRange];
+      if (
+        old &&
+        merged.listings === old.listings &&
+        merged.newListings === old.newListings &&
+        merged.soldValue === old.soldValue &&
+        merged.soldCount === old.soldCount &&
+        merged.views === old.views &&
+        merged.messages === old.messages &&
+        merged.unread === old.unread &&
+        merged.conversations === old.conversations
+      ) {
+        return previous;
+      }
+
+      const next = { ...previous, [statsRange]: merged };
+      writeMyListingsStatsHistory(user.id, next);
+      return next;
+    });
+  }, [currentStatsSnapshot, statsRange, user]);
+
+  const displayedStats = mergeStatsSnapshots(
+    currentStatsSnapshot,
+    statsHistory[statsRange]
+  );
 
   const visibleListings = listings.filter((l) => !l.is_hidden);
   const hiddenListings = listings.filter((l) => !!l.is_hidden);
@@ -1245,12 +1424,13 @@ export default function MyListingsPage() {
         completed: group.active.length === 0 && group.sold.length > 0
       }))
       .filter((group) => {
+        if (group.completed && dismissedCompletedGroupKeys.has(group.key)) return false;
         if (group.active.length >= 2) return true;
         if (group.active.length > 0 && group.sold.length > 0) return true;
         return group.completed && isWithinHours(group.latestAt, 12);
       })
       .sort((a, b) => b.latestAt.localeCompare(a.latestAt));
-  }, [activeTab, filteredListings, soldListings]);
+  }, [activeTab, dismissedCompletedGroupKeys, filteredListings, soldListings]);
 
   const collapsedGroupedListingIds = useMemo(() => {
     const ids = new Set<string>();
@@ -1357,13 +1537,13 @@ export default function MyListingsPage() {
                 <Tag size={22} />
               </span>
               <div>
-                <div className={styles.statValue}>{listings.length.toLocaleString("fi-FI")}</div>
+                <div className={styles.statValue}>{displayedStats.listings.toLocaleString("fi-FI")}</div>
                 <div className={styles.statLabel}>Aktiivista ilmoitusta</div>
               </div>
             </div>
             <div className={styles.statDelta}>
               <ArrowUp size={14} />
-              {newListingsInRange} uutta · {rangeLabel}
+              {displayedStats.newListings.toLocaleString("fi-FI")} uutta · {rangeLabel}
             </div>
           </div>
 
@@ -1374,14 +1554,14 @@ export default function MyListingsPage() {
               </span>
               <div>
                 <div className={styles.statValue}>
-                  {soldValueInRange.toLocaleString("fi-FI")} €
+                  {displayedStats.soldValue.toLocaleString("fi-FI")} €
                 </div>
                 <div className={styles.statLabel}>Myynti · {rangeLabel}</div>
               </div>
             </div>
             <div className={styles.statDelta}>
               <ArrowUp size={14} />
-              {soldValueInRange.toLocaleString("fi-FI")} € yhteensä
+              {displayedStats.soldValue.toLocaleString("fi-FI")} € yhteensä
             </div>
           </div>
 
@@ -1391,13 +1571,13 @@ export default function MyListingsPage() {
                 <Eye size={22} />
               </span>
               <div>
-                <div className={styles.statValue}>{totalViews.toLocaleString("fi-FI")}</div>
+                <div className={styles.statValue}>{displayedStats.views.toLocaleString("fi-FI")}</div>
                 <div className={styles.statLabel}>Katselukerrat</div>
               </div>
             </div>
             <div className={styles.statDelta}>
               <ArrowUp size={14} />
-              {soldInRange.length} myyntiä · {rangeLabel}
+              {displayedStats.soldCount.toLocaleString("fi-FI")} myyntiä · {rangeLabel}
             </div>
           </div>
 
@@ -1408,21 +1588,15 @@ export default function MyListingsPage() {
               </span>
               <div>
                 <div className={styles.statValue}>
-                  {Object.values(messageCounts).reduce(
-                    (sum, m) => sum + (Number(m.message_count) || 0),
-                    0
-                  )}
+                  {displayedStats.messages.toLocaleString("fi-FI")}
                 </div>
                 <div className={styles.statLabel}>Viestit</div>
               </div>
             </div>
             <div className={styles.statDelta}>
               <ArrowUp size={14} />
-              {Object.values(messageCounts).reduce(
-                (sum, m) => sum + (Number(m.unread_count) || 0),
-                0
-              )}{" "}
-              lukematta · {conversationCount} keskustelua
+              {displayedStats.unread.toLocaleString("fi-FI")}{" "}
+              lukematta · {displayedStats.conversations.toLocaleString("fi-FI")} keskustelua
             </div>
           </div>
 

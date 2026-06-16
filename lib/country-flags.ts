@@ -153,6 +153,25 @@ export function getCountryFlagFromLocation(
   return null;
 }
 
+export function formatLocationWithCountry(
+  location: string | null | undefined,
+  fallbackCountry?: string | null
+) {
+  const cleanLocation = (location ?? "").trim();
+  const cleanCountry = (fallbackCountry ?? "").trim();
+
+  if (!cleanLocation) return cleanCountry;
+  if (!cleanCountry) return cleanLocation;
+
+  const normalizedCountry = normalizeCountryName(cleanCountry);
+  const hasCountry = cleanLocation
+    .split(",")
+    .map((part) => normalizeCountryName(part))
+    .some((part) => part === normalizedCountry);
+
+  return hasCountry ? cleanLocation : `${cleanLocation}, ${cleanCountry}`;
+}
+
 export function buildCountryFlagInfo(code: string): CountryFlagInfo | null {
   const upper = code.trim().toUpperCase();
   if (!REGION_CODE_SET.has(upper)) return null;

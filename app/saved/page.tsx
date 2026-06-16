@@ -12,7 +12,7 @@ import { ArrowRight, Clock3, Heart, Search, Tag } from "lucide-react";
 
 import type { Listing } from "@/lib/listings";
 import { formatPrice } from "@/lib/listings";
-import { getCountryFlagFromLocation } from "@/lib/country-flags";
+import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 import {
   getListingsByIds,
   getSavedListingIds,
@@ -300,7 +300,7 @@ export default function SavedListingsPage() {
                             loading="lazy"
                           />
                         ) : null}
-                        {listing.location || t.country}
+                        {formatLocationWithCountry(listing.location, t.country)}
                       </span>
                       <span>
                         <Clock3 size={14} />

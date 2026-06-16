@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, Menu, MessageCircle, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, ThumbsUp, TrendingDown, TrendingUp, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
+import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, Menu, MessageCircle, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, TrendingDown, TrendingUp, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
 import { formatPrice, normalizeVehicleType, type Listing } from "@/lib/listings";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
@@ -24,10 +24,8 @@ import {
   getReviewsBySeller,
   ensureListingTranslations,
   followProfile,
-  likeSellerReview,
   saveListing,
   supabase,
-  unlikeSellerReview,
   unsaveListing,
   unfollowProfile,
   type ProfileFollowStats,
@@ -364,7 +362,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const [followSaving, setFollowSaving] = useState(false);
   const [followError, setFollowError] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [reviewLikeSaving, setReviewLikeSaving] = useState<Record<string, boolean>>({});
   const resolvedSellerId = profile?.id ?? sellerId;
   const listingsSellerId = resolvedSellerId;
 
@@ -624,7 +621,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }, [activeTab, listingsSellerId, sellerId]);
 
   useEffect(() => {
-    if (activeTab !== "reviews" || reviewsLoaded) return;
+    if (reviewsLoaded) return;
 
     const cacheKey = `seller-profile:${sellerId}`;
     const cached = readCachedResource<SellerProfileCache>(cacheKey);
@@ -652,7 +649,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     return () => {
       cancelled = true;
     };
-  }, [activeTab, resolvedSellerId, reviewsLoaded, sellerId]);
+  }, [resolvedSellerId, reviewsLoaded, sellerId]);
 
   useEffect(() => {
     if (!listingsLoading) {
@@ -784,73 +781,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     }
 
     setFollowSaving(false);
-  }
-
-  async function handleReviewLikeToggle(reviewId: string) {
-    if (reviewLikeSaving[reviewId]) return;
-
-    if (!currentUserId) {
-      router.push(`/auth?returnTo=${encodeURIComponent(`/seller/${sellerId}`)}`);
-      return;
-    }
-
-    const review = reviews.find((item) => item.id === reviewId);
-    if (!review) return;
-
-    const wasLiked = Boolean(review.is_liked);
-
-    setReviewLikeSaving((current) => ({ ...current, [reviewId]: true }));
-    setReviews((current) =>
-      current.map((item) =>
-        item.id === reviewId
-          ? {
-              ...item,
-              is_liked: !wasLiked,
-              like_count: Math.max(0, (item.like_count ?? 0) + (wasLiked ? -1 : 1))
-            }
-          : item
-      )
-    );
-
-    const result = wasLiked
-      ? await unlikeSellerReview(reviewId)
-      : await likeSellerReview(reviewId);
-
-    if (result.error) {
-      setReviews((current) =>
-        current.map((item) =>
-          item.id === reviewId
-            ? {
-                ...item,
-                is_liked: wasLiked,
-                like_count: Math.max(0, (item.like_count ?? 0) + (wasLiked ? 1 : -1))
-              }
-            : item
-        )
-      );
-    } else {
-      const { data } = await getSellerReviewLikeSummary([reviewId]);
-      const summary = data[0];
-      if (summary) {
-        setReviews((current) =>
-          current.map((item) =>
-            item.id === reviewId
-              ? {
-                  ...item,
-                  like_count: summary.like_count,
-                  is_liked: summary.is_liked
-                }
-              : item
-          )
-        );
-      }
-    }
-
-    setReviewLikeSaving((current) => {
-      const next = { ...current };
-      delete next[reviewId];
-      return next;
-    });
   }
 
   function toggleFavorite(event: React.MouseEvent, listingId: string) {
@@ -1987,19 +1917,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                         {renderReviewStars(review.rating, 16)}
                       </div>
                       <p>{review.comment}</p>
-                      <div className="seller-review-card-actions">
-                        <button
-                          type="button"
-                          className={`seller-review-like${review.is_liked ? " is-liked" : ""}`}
-                          disabled={Boolean(reviewLikeSaving[review.id])}
-                          aria-pressed={Boolean(review.is_liked)}
-                          aria-label="Tykkää arvostelusta"
-                          onClick={() => handleReviewLikeToggle(review.id)}
-                        >
-                          <ThumbsUp size={14} aria-hidden="true" />
-                          {review.like_count ?? 0}
-                        </button>
-                      </div>
                     </article>
                   ))}
                 </div>

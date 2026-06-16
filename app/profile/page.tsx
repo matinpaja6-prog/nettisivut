@@ -5642,6 +5642,23 @@ export default function ProfilePage() {
             cursor: not-allowed !important;
             opacity: 0.48 !important;
           }
+
+          html body .pf-modal-backdrop:has(.pf-delete-modal) {
+            align-items: flex-start !important;
+            padding: calc(var(--topbar-h, 58px) + env(safe-area-inset-top, 0px) + 72px) 20px 28px !important;
+            overflow-y: auto !important;
+          }
+
+          html body .pf-phone-modal.pf-delete-modal {
+            margin: 0 auto 28px !important;
+            max-height: none !important;
+            width: min(100%, 420px) !important;
+          }
+
+          html body .pf-phone-modal.pf-delete-modal .pf-modal-close {
+            right: 16px !important;
+            top: 16px !important;
+          }
         }
       `}</style>
 

@@ -66,6 +66,24 @@ type SelectOption = {
   label: string;
 };
 
+function buildListingLocation(cityOrLocation: string, fallbackCity: string, fallbackCountry: string) {
+  const location = cityOrLocation.trim() || fallbackCity.trim();
+  const country = fallbackCountry.trim();
+
+  if (!location) return country || "Ei maaritetty";
+  if (!country) return location;
+
+  const normalizedLocation = location.toLocaleLowerCase("fi-FI");
+  const normalizedCountry = country.toLocaleLowerCase("fi-FI");
+  const locationParts = normalizedLocation.split(",").map((part) => part.trim());
+
+  if (normalizedLocation === normalizedCountry || locationParts.includes(normalizedCountry)) {
+    return location;
+  }
+
+  return `${location}, ${country}`;
+}
+
 const deliveryMethodOptions: Array<{ value: DeliveryMethod; label: string }> = [
   { value: "both", label: "Lähetys ja nouto" },
   { value: "shipping", label: "Lähetys" },
@@ -1318,6 +1336,7 @@ export default function SellPage() {
   const vehicleContentRef = useRef<HTMLElement | null>(null);
   const skipInitialStepScrollRef = useRef(true);
   const vehicleAutoAdvancedFieldsRef = useRef<Partial<Record<VehicleDetailKey, boolean>>>({});
+  const categoryEntryAutoOpenRef = useRef(false);
   const [mode, setMode] = useState<ListingMode>("single");
   const [currentStep, setCurrentStep] = useState(1);
   const [vehicleType, setVehicleType] = useState(vehicleCards[1]);
@@ -1454,6 +1473,7 @@ export default function SellPage() {
   const selectedCompanySeller =
     companySellers.find((seller) => seller.id === selectedCompanySellerId) ?? null;
   const profileCity = accountProfile?.city?.trim() ?? "";
+  const profileCountry = accountProfile?.country?.trim() ?? "";
   const multiPartTree = useMemo(
     () =>
       categoryOptions.map((categoryName) => {
@@ -1850,7 +1870,7 @@ export default function SellPage() {
   }, [uploadedImages]);
 
   useEffect(() => {
-    if (accountProfile || currentStep < steps.length - 1) return;
+    if (accountProfile || currentStep < 4) return;
 
     let cancelled = false;
 
@@ -1897,7 +1917,7 @@ export default function SellPage() {
     return () => {
       cancelled = true;
     };
-  }, [accountProfile, currentStep, steps.length]);
+  }, [accountProfile, currentStep]);
 
   useEffect(() => {
     return () => {
@@ -1910,6 +1930,18 @@ export default function SellPage() {
 
     setListingLocation((current) => current.trim() ? current : profileCity);
   }, [profileCity]);
+
+  useEffect(() => {
+    if (currentStep !== 3 || mode !== "single") {
+      categoryEntryAutoOpenRef.current = false;
+      return;
+    }
+
+    if (categoryEntryAutoOpenRef.current || selectedCategory || categoryOptions.length === 0) return;
+
+    categoryEntryAutoOpenRef.current = true;
+    setCategoryAutoOpenTarget({ field: "category", nonce: Date.now() });
+  }, [categoryOptions.length, currentStep, mode, selectedCategory]);
 
   function updateListingLocation(value: string) {
     listingLocationTouchedRef.current = true;
@@ -2506,6 +2538,9 @@ export default function SellPage() {
   function appendDeliveryMethod(description: string) {
     return [
       description.trim(),
+      vehicleDetails.vehicleSubtype.trim()
+        ? `Ajoneuvotyyppi: ${vehicleDetails.vehicleSubtype.trim()}`
+        : "",
       `Toimitustapa: ${getDeliveryMethodLabel()}`
     ].filter(Boolean).join("\n\n");
   }
@@ -2560,7 +2595,7 @@ export default function SellPage() {
       category: part?.category ?? selectedCategory,
       subcategory: part?.detail ?? selectedDetailCategory,
       part_number: mode === "single" ? partNumber.trim() || null : part?.partNumber.trim() || null,
-      location: listingLocation.trim() || profileCity || "Ei maaritetty",
+      location: buildListingLocation(listingLocation, profileCity, profileCountry),
       condition: part?.condition ?? condition,
       description,
       image_url: resolvedImageUrls[0],
@@ -4021,7 +4056,7 @@ export default function SellPage() {
               <PlainIconInput
                 label="Sijainti"
                 icon={MapPin}
-                placeholder="Kaupunki tai paikkakunta"
+                placeholder={profileCity || "Kaupunki tai paikkakunta"}
                 value={listingLocation}
                 onChange={updateListingLocation}
                 inputRef={listingLocationInputRef}
@@ -4207,7 +4242,7 @@ export default function SellPage() {
       { label: "Ajoneuvo", value: vehicleSummary || "Ei lisatty" },
       { label: "Tekniikka", value: technicalSummary || "Ei lisatty" },
       { label: "Kategoria", value: categorySummary || "Ei lisatty" },
-      { label: "Sijainti", value: listingLocation.trim() || profileCity || "Ei lisatty" },
+      { label: "Sijainti", value: buildListingLocation(listingLocation, profileCity, profileCountry) || "Ei lisatty" },
       { label: "Toimitustapa", value: getDeliveryMethodLabel() },
       { label: "Varaosanumero", value: partNumber.trim() || "Ei lisatty" }
     ];
@@ -4529,7 +4564,11 @@ function PresetField({
     onCustomModeChange(false);
     onChange(option);
     onOpenChange(false);
-    window.setTimeout(onComplete, 40);
+    window.setTimeout(() => {
+      onOpenChange(false);
+      onComplete();
+    }, 40);
+    window.setTimeout(() => onOpenChange(false), 140);
   }
 
   function selectOther() {
@@ -4627,7 +4666,10 @@ function PresetField({
                     color: active ? "#04111f" : "#dce8f7"
                   }}
                   onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => selectOption(option)}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    selectOption(option);
+                  }}
                 >
                   {option}
                 </button>
@@ -4644,7 +4686,10 @@ function PresetField({
                 color: effectiveCustomMode ? "#04111f" : "#f7b56e"
               }}
               onMouseDown={(event) => event.preventDefault()}
-              onClick={selectOther}
+              onClick={(event) => {
+                event.stopPropagation();
+                selectOther();
+              }}
             >
               {otherLabel}
             </button>

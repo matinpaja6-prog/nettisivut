@@ -39,7 +39,7 @@ import {
 import { useTaxonomy } from "./components/TaxonomyProvider";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 import { readCachedListings, writeCachedListings } from "@/lib/client-listings-cache";
-import { getCountryFlagFromLocation } from "@/lib/country-flags";
+import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 
 import { buildRecoProfile, getRecommendedListings, setRecoUserId } from "@/lib/recommendations";
 
@@ -788,6 +788,40 @@ function brandMatchesListing(
   }
 
   return false;
+}
+
+function getListingVehicleSubtypeText(
+  listing: Listing,
+  listingText: { title: string; description: string }
+) {
+  const metadataSubtype =
+    `${listing.description ?? ""}\n${listingText.description ?? ""}`
+      .match(/(?:^|\n)Ajoneuvotyyppi:\s*([^\n]+)/i)?.[1]
+      ?.trim() ?? "";
+
+  return [
+    listing.vehicle_subtype ?? "",
+    metadataSubtype,
+    listing.title,
+    listingText.title,
+    listing.description,
+    listingText.description
+  ].join(" ");
+}
+
+function getListingYearText(
+  listing: Listing,
+  listingText: { title: string; description: string }
+) {
+  const metadataYear =
+    `${listing.description ?? ""}\n${listingText.description ?? ""}`
+      .match(/(?:^|\n)Vuosi(?:malli)?:\s*([^\n]+)/i)?.[1]
+      ?.trim() ?? "";
+
+  return [
+    listing.year ?? "",
+    metadataYear
+  ].join(" ");
 }
 
 function listingMatchesVehicleType(
@@ -1653,13 +1687,14 @@ export default function Home() {
       .filter((listing) => {
         const listingText = getListingText(listing);
         const listingPartNumber = getListingPartNumber(listing);
+        const listingVehicleSubtypeText = getListingVehicleSubtypeText(listing, listingText);
         const search = `
           ${listingText.title}
           ${listingText.description}
           ${listing.description ?? ""}
           ${listing.brand ?? ""}
           ${listing.model ?? ""}
-          ${listing.vehicle_subtype ?? ""}
+          ${listingVehicleSubtypeText}
           ${listing.engine_cc ?? ""}
           ${listingPartNumber}
           ${listing.location}
@@ -1692,7 +1727,7 @@ export default function Home() {
           listingMatchesVehicleType(listing, listingText, vehicleType);
         const matchesVehicleSubtype =
           !vehicleSubtype ||
-          textMatchesSearch(listing.vehicle_subtype ?? "", vehicleSubtype);
+          allSearchWordsMatch(listingVehicleSubtypeText, vehicleSubtype);
 
         const matchesCategory =
           !category ||
@@ -1712,9 +1747,9 @@ export default function Home() {
           );
 
         const yearNeedle = yearQuery.trim();
-        const haystack = `${listingText.title} ${listingText.description} ${listing.model ?? ""} ${listingPartNumber}`;
+        const listingYearText = getListingYearText(listing, listingText);
         const matchesYear =
-          !yearNeedle || textMatchesSearch(haystack, yearNeedle);
+          !yearNeedle || textMatchesSearch(listingYearText, yearNeedle);
 
         const matchesEngineCc =
           !engineCcQuery ||
@@ -2630,7 +2665,7 @@ export default function Home() {
                                   loading="lazy"
                                 />
                               ) : null}
-                              {listing.location || t.country}
+                              {formatLocationWithCountry(listing.location, t.country)}
                             </span>
                             <span><Clock3 size={14} />{formatDate(listing.created_at)}</span>
                           </div>
@@ -2846,7 +2881,7 @@ export default function Home() {
                               loading="lazy"
                             />
                           ) : null}
-                          {listing.location || t.country}
+                          {formatLocationWithCountry(listing.location, t.country)}
                         </span>
                         <span>
                           <Clock3 size={14} />
