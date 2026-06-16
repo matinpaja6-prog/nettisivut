@@ -1570,7 +1570,16 @@ export default function CategoryDrawer({
           <ChevronDown size={16} aria-hidden="true" />
         </button>
         {vehicleTypeMenuOpen && (
-          <div className="cd-vehicle-type-options" role="listbox">
+          <div
+            className="cd-vehicle-type-options"
+            role="listbox"
+            style={{
+              background: "#06182a",
+              backgroundColor: "#06182a",
+              color: "#ffffff",
+              boxShadow: "inset 0 0 0 9999px #06182a, 0 18px 34px rgba(0, 8, 22, 0.44)"
+            }}
+          >
             {startTiles.map((tile) => {
               const active = tile.kind === selectedKind;
               return (
@@ -1578,6 +1587,11 @@ export default function CategoryDrawer({
                   key={tile.kind}
                   type="button"
                   className={`cd-vehicle-type-option${active ? " is-active" : ""}`}
+                  style={{
+                    background: active ? "#92c2f1" : "#081f34",
+                    backgroundColor: active ? "#92c2f1" : "#081f34",
+                    color: active ? "#031326" : "#ffffff"
+                  }}
                   onClick={() => selectVehicleType(tile.kind)}
                   role="option"
                   aria-selected={active}
@@ -1614,7 +1628,16 @@ export default function CategoryDrawer({
           <ChevronDown size={16} aria-hidden="true" />
         </button>
         {vehicleSubtypeMenuOpen && !disabled && (
-          <div className="cd-vehicle-type-options" role="listbox">
+          <div
+            className="cd-vehicle-type-options"
+            role="listbox"
+            style={{
+              background: "#06182a",
+              backgroundColor: "#06182a",
+              color: "#ffffff",
+              boxShadow: "inset 0 0 0 9999px #06182a, 0 18px 34px rgba(0, 8, 22, 0.44)"
+            }}
+          >
             {["", ...subtypeOptions].map((option) => {
               const active = option === vehicleSubtype;
               return (
@@ -1622,6 +1645,11 @@ export default function CategoryDrawer({
                   key={option || "all-subtypes"}
                   type="button"
                   className={`cd-vehicle-type-option${active ? " is-active" : ""}`}
+                  style={{
+                    background: active ? "#92c2f1" : "#081f34",
+                    backgroundColor: active ? "#92c2f1" : "#081f34",
+                    color: active ? "#031326" : "#ffffff"
+                  }}
                   onClick={() => {
                     setVehicleSubtype(option);
                     setVehicleSubtypeMenuOpen(false);
@@ -4636,6 +4664,108 @@ export default function CategoryDrawer({
         .cd-drawer .cd-combo-option:hover,
         .cd-drawer .cd-combo-option-active {
           background: #92c2f1 !important;
+          color: #031326 !important;
+        }
+        .cd-vehicle-type-menu .cd-vehicle-type-options,
+        .cd-category-vehicle-inline .cd-vehicle-type-options,
+        .cd-drawer .cd-vehicle-type-options {
+          position: absolute !important;
+          top: calc(100% + 8px) !important;
+          right: 0 !important;
+          left: 0 !important;
+          z-index: 120 !important;
+          background: #06182a !important;
+          background-color: #06182a !important;
+          background-image: none !important;
+          color: #ffffff !important;
+          box-shadow:
+            inset 0 0 0 9999px #06182a,
+            0 18px 34px rgba(0, 8, 22, 0.44) !important;
+        }
+        .cd-vehicle-type-menu,
+        .cd-category-vehicle-inline .cd-vehicle-type-menu,
+        .cd-drawer .cd-vehicle-type-menu {
+          position: relative !important;
+        }
+        .cd-category-vehicle-inline {
+          align-items: start !important;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+          min-height: 172px !important;
+          overflow: visible !important;
+        }
+        .cd-category-vehicle-inline .cd-step-hint {
+          grid-column: 1 / -1 !important;
+        }
+        .cd-category-vehicle-inline .cd-vehicle-type-menu {
+          align-self: start !important;
+          min-width: 0 !important;
+        }
+        .cd-drawer .cd-combo-control,
+        .cd-category-vehicle-inline .cd-combo-control,
+        .cd-vehicle-step .cd-combo-control {
+          gap: 0 !important;
+        }
+        .cd-drawer .cd-combo-control .cd-combo-input,
+        .cd-drawer .cd-combo-control .cd-combo-toggle,
+        .cd-category-vehicle-inline .cd-combo-control .cd-combo-input,
+        .cd-category-vehicle-inline .cd-combo-control .cd-combo-toggle,
+        .cd-vehicle-step .cd-combo-control .cd-combo-input,
+        .cd-vehicle-step .cd-combo-control .cd-combo-toggle {
+          border-left: 0 !important;
+          border-right: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+        }
+        .cd-drawer .cd-combo-control .cd-combo-input,
+        .cd-category-vehicle-inline .cd-combo-control .cd-combo-input,
+        .cd-vehicle-step .cd-combo-control .cd-combo-input {
+          appearance: none !important;
+          background: transparent !important;
+          background-color: transparent !important;
+          background-image: none !important;
+          border: 0 !important;
+          outline: 0 !important;
+          -webkit-appearance: none !important;
+        }
+        .cd-drawer .cd-combo-control .cd-combo-toggle,
+        .cd-category-vehicle-inline .cd-combo-control .cd-combo-toggle,
+        .cd-vehicle-step .cd-combo-control .cd-combo-toggle {
+          background: transparent !important;
+          outline: 0 !important;
+        }
+        .cd-drawer .cd-detail-field .cd-cc-select,
+        .cd-category-vehicle-inline .cd-detail-field .cd-cc-select,
+        .cd-vehicle-step .cd-detail-field .cd-cc-select {
+          background-image: linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98)) !important;
+        }
+        .cd-vehicle-type-menu .cd-vehicle-type-options::before,
+        .cd-category-vehicle-inline .cd-vehicle-type-options::before,
+        .cd-drawer .cd-vehicle-type-options::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          border-radius: inherit;
+          background: #06182a;
+          pointer-events: none;
+        }
+        .cd-vehicle-type-menu .cd-vehicle-type-option,
+        .cd-category-vehicle-inline .cd-vehicle-type-option,
+        .cd-drawer .cd-vehicle-type-option {
+          position: relative;
+          z-index: 1;
+          background: #081f34 !important;
+          background-color: #081f34 !important;
+          color: #ffffff !important;
+        }
+        .cd-vehicle-type-menu .cd-vehicle-type-option:hover,
+        .cd-vehicle-type-menu .cd-vehicle-type-option.is-active,
+        .cd-category-vehicle-inline .cd-vehicle-type-option:hover,
+        .cd-category-vehicle-inline .cd-vehicle-type-option.is-active,
+        .cd-drawer .cd-vehicle-type-option:hover,
+        .cd-drawer .cd-vehicle-type-option.is-active {
+          background: #92c2f1 !important;
+          background-color: #92c2f1 !important;
           color: #031326 !important;
         }
         @media (max-width: 760px) {

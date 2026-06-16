@@ -67,8 +67,8 @@ type SelectOption = {
 };
 
 const deliveryMethodOptions: Array<{ value: DeliveryMethod; label: string }> = [
-  { value: "both", label: "Posti ja nouto" },
-  { value: "shipping", label: "Posti" },
+  { value: "both", label: "Lähetys ja nouto" },
+  { value: "shipping", label: "Lähetys" },
   { value: "pickup", label: "Nouto" }
 ];
 
@@ -1317,6 +1317,7 @@ export default function SellPage() {
   const shellRef = useRef<HTMLElement | null>(null);
   const vehicleContentRef = useRef<HTMLElement | null>(null);
   const skipInitialStepScrollRef = useRef(true);
+  const vehicleAutoAdvancedFieldsRef = useRef<Partial<Record<VehicleDetailKey, boolean>>>({});
   const [mode, setMode] = useState<ListingMode>("single");
   const [currentStep, setCurrentStep] = useState(1);
   const [vehicleType, setVehicleType] = useState(vehicleCards[1]);
@@ -1347,6 +1348,7 @@ export default function SellPage() {
   const [multiPartSearch, setMultiPartSearch] = useState("");
   const [showSelectedMultiParts, setShowSelectedMultiParts] = useState(false);
   const [expandedListingGroups, setExpandedListingGroups] = useState<Record<string, boolean>>({});
+  const [openMultiListingPartId, setOpenMultiListingPartId] = useState<string | null>(null);
   const [listingLocation, setListingLocation] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("both");
   const [listingTitle, setListingTitle] = useState("");
@@ -1357,12 +1359,14 @@ export default function SellPage() {
     field: "category" | "group" | "detail";
     nonce: number;
   } | null>(null);
+  const categoryAutoAdvancedFieldsRef = useRef<Partial<Record<"category" | "group", boolean>>>({});
   const [accountProfile, setAccountProfile] = useState<UserProfile | null>(null);
   const [companySellers, setCompanySellers] = useState<CompanySeller[]>([]);
   const [selectedCompanySellerId, setSelectedCompanySellerId] = useState("");
   const uploadedImagesRef = useRef<UploadedImage[]>([]);
   const vehicleFieldRefs = useRef<Partial<Record<VehicleDetailKey, HTMLInputElement | null>>>({});
   const listingLocationInputRef = useRef<HTMLInputElement | null>(null);
+  const listingLocationTouchedRef = useRef(false);
   const steps =
     useMemo(
       () =>
@@ -1670,6 +1674,14 @@ export default function SellPage() {
   }, [selectedMultiPartList.length]);
 
   useEffect(() => {
+    setOpenMultiListingPartId((current) =>
+      current && selectedMultiPartList.some((part) => part.id === current)
+        ? current
+        : selectedMultiPartList[0]?.id ?? null
+    );
+  }, [selectedMultiPartList]);
+
+  useEffect(() => {
     if (garagePrefillAppliedRef.current) return;
 
     const make = searchParams.get("make")?.trim() ?? "";
@@ -1685,6 +1697,8 @@ export default function SellPage() {
 
     setMode("single");
     setVehicleType(nextVehicle);
+    vehicleAutoAdvancedFieldsRef.current = {};
+    categoryAutoAdvancedFieldsRef.current = {};
     setVehicleDetails({
       vehicleSubtype: "",
       brand: make,
@@ -1891,6 +1905,17 @@ export default function SellPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!profileCity || listingLocationTouchedRef.current) return;
+
+    setListingLocation((current) => current.trim() ? current : profileCity);
+  }, [profileCity]);
+
+  function updateListingLocation(value: string) {
+    listingLocationTouchedRef.current = true;
+    setListingLocation(value);
+  }
+
   async function addImageFiles(files: FileList | File[]) {
     const imageFiles = Array.from(files).filter((file) => file.type.startsWith("image/"));
     if (imageFiles.length === 0) return;
@@ -2009,14 +2034,39 @@ export default function SellPage() {
     }, 80);
   }
 
-  function completeVehicleField(nextKey?: VehicleDetailKey) {
-    if (nextKey) {
-      focusVehicleField(nextKey);
-    }
+  function setVehiclePresetFieldOpen(key: VehicleDetailKey, open: boolean) {
+    setOpenVehiclePresetField((current) => {
+      if (open) return key;
+      return current === key ? null : current;
+    });
+  }
+
+  function completeVehicleField(currentKey: VehicleDetailKey, nextKey?: VehicleDetailKey) {
+    if (!nextKey) return;
+    if (vehicleAutoAdvancedFieldsRef.current[currentKey]) return;
+
+    vehicleAutoAdvancedFieldsRef.current = {
+      ...vehicleAutoAdvancedFieldsRef.current,
+      [currentKey]: true
+    };
+    focusVehicleField(nextKey);
   }
 
   function updateStepThreeSelection(update: () => void) {
     update();
+  }
+
+  function advanceCategoryFieldOnce(currentField: "category" | "group", nextField: "group" | "detail") {
+    if (categoryAutoAdvancedFieldsRef.current[currentField]) {
+      setCategoryAutoOpenTarget(null);
+      return;
+    }
+
+    categoryAutoAdvancedFieldsRef.current = {
+      ...categoryAutoAdvancedFieldsRef.current,
+      [currentField]: true
+    };
+    setCategoryAutoOpenTarget({ field: nextField, nonce: Date.now() });
   }
 
   function toggleMultiPart(option: MultiPartOption) {
@@ -2442,15 +2492,15 @@ export default function SellPage() {
   }
 
   function getAutomaticListingTitle(part?: MultiPartSelection) {
-    const titleParts = part
-      ? [part.category, part.group, part.detail]
-      : [selectedCategory, selectedCategoryGroup, selectedDetailCategory];
+    const fallbackTitle = part
+      ? part.detail || part.group || part.category
+      : selectedDetailCategory || selectedCategoryGroup || selectedCategory;
 
-    return uniqueOptions(titleParts).join(" / ").trim() || part?.detail || "Ilmoitus";
+    return fallbackTitle.trim() || "Ilmoitus";
   }
 
   function getDeliveryMethodLabel(method: DeliveryMethod = deliveryMethod) {
-    return deliveryMethodOptions.find((option) => option.value === method)?.label ?? "Posti ja nouto";
+    return deliveryMethodOptions.find((option) => option.value === method)?.label ?? "Lähetys ja nouto";
   }
 
   function appendDeliveryMethod(description: string) {
@@ -2824,8 +2874,23 @@ export default function SellPage() {
           const partNeedsTrackMatDimensions = [part.category, part.group, part.detail].some(isTrackMatText);
 
           return (
-            <details className={styles.multiListingRow} key={part.id}>
-              <summary className={styles.multiListingSummary}>
+            <article
+              className={`${styles.multiListingRow} ${openMultiListingPartId === part.id ? styles.multiListingRowOpen : ""}`}
+              key={part.id}
+            >
+              <div
+                className={styles.multiListingSummary}
+                onClick={() => setOpenMultiListingPartId((current) => (current === part.id ? null : part.id))}
+                onKeyDown={(event) => {
+                  if (event.target !== event.currentTarget) return;
+                  if (event.key !== "Enter" && event.key !== " ") return;
+                  event.preventDefault();
+                  setOpenMultiListingPartId((current) => (current === part.id ? null : part.id));
+                }}
+                role="button"
+                tabIndex={0}
+                aria-expanded={openMultiListingPartId === part.id}
+              >
                 <span className={styles.multiRowArrow} aria-hidden="true">
                   <ChevronDown size={17} />
                 </span>
@@ -2840,6 +2905,7 @@ export default function SellPage() {
                   inputMode="numeric"
                   placeholder="Hinta"
                   value={part.price}
+                  onClick={(event) => event.stopPropagation()}
                   onChange={(event) => updateMultiPartPrice(part.id, event.target.value)}
                   aria-label="Hinta"
                 />
@@ -2847,7 +2913,10 @@ export default function SellPage() {
                   <button
                     type="button"
                     className={styles.multiPriceSuggestion}
-                    onClick={() => updateMultiPartPrice(part.id, String(multiPriceSuggestions[part.id].avg))}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      updateMultiPartPrice(part.id, String(multiPriceSuggestions[part.id].avg));
+                    }}
                   >
                     Ehdotus {formatSuggestionPrice(multiPriceSuggestions[part.id].avg)}
                   </button>
@@ -2873,8 +2942,9 @@ export default function SellPage() {
                   <Trash2 size={16} aria-hidden="true" />
                 </button>
               </span>
-              </summary>
+              </div>
 
+              {openMultiListingPartId === part.id ? (
               <div className={styles.multiListingDetails}>
                 <label>
                   <span>Otsikko</span>
@@ -2953,7 +3023,8 @@ export default function SellPage() {
                   ))}
                 </div>
               </div>
-            </details>
+              ) : null}
+            </article>
           );
         })}
       </div>
@@ -3219,7 +3290,7 @@ export default function SellPage() {
           icon={MapPin}
           placeholder="Kaupunki tai paikkakunta"
           value={listingLocation}
-          onChange={setListingLocation}
+          onChange={updateListingLocation}
         />
         {renderDeliveryMethodSelector()}
       </section>
@@ -3243,6 +3314,8 @@ export default function SellPage() {
                     setVehicleType(vehicle);
                     setVehicleDetails(buildEmptyVehicleDetails());
                     setCustomVehicleFields({});
+                    vehicleAutoAdvancedFieldsRef.current = {};
+                    categoryAutoAdvancedFieldsRef.current = {};
                     setCategory("");
                     setCategoryGroup("");
                     setSubcategory("");
@@ -3264,11 +3337,11 @@ export default function SellPage() {
               value={vehicleDetails.vehicleSubtype}
               options={vehiclePreset.typeOptions}
               open={openVehiclePresetField === "vehicleSubtype"}
-              onOpenChange={(open) => setOpenVehiclePresetField(open ? "vehicleSubtype" : null)}
+              onOpenChange={(open) => setVehiclePresetFieldOpen("vehicleSubtype", open)}
               onChange={(value) => updateVehicleDetail("vehicleSubtype", value)}
               customMode={Boolean(customVehicleFields.vehicleSubtype)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("vehicleSubtype", customMode)}
-              onComplete={() => completeVehicleField("brand")}
+              onComplete={() => completeVehicleField("vehicleSubtype", "brand")}
               inputRef={(element) => {
                 vehicleFieldRefs.current.vehicleSubtype = element;
               }}
@@ -3281,11 +3354,11 @@ export default function SellPage() {
               value={vehicleDetails.brand}
               options={taxonomyBrandOptions}
               open={openVehiclePresetField === "brand"}
-              onOpenChange={(open) => setOpenVehiclePresetField(open ? "brand" : null)}
+              onOpenChange={(open) => setVehiclePresetFieldOpen("brand", open)}
               onChange={updateVehicleBrand}
               customMode={Boolean(customVehicleFields.brand)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("brand", customMode)}
-              onComplete={() => completeVehicleField("model")}
+              onComplete={() => completeVehicleField("brand", "model")}
               inputRef={(element) => {
                 vehicleFieldRefs.current.brand = element;
               }}
@@ -3298,11 +3371,11 @@ export default function SellPage() {
               value={vehicleDetails.model}
               options={modelOptions}
               open={openVehiclePresetField === "model"}
-              onOpenChange={(open) => setOpenVehiclePresetField(open ? "model" : null)}
+              onOpenChange={(open) => setVehiclePresetFieldOpen("model", open)}
               onChange={updateVehicleModel}
               customMode={Boolean(customVehicleFields.model)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("model", customMode)}
-              onComplete={() => completeVehicleField("year")}
+              onComplete={() => completeVehicleField("model", "year")}
               inputRef={(element) => {
                 vehicleFieldRefs.current.model = element;
               }}
@@ -3315,11 +3388,11 @@ export default function SellPage() {
               value={vehicleDetails.year}
               options={vehicleYearOptions}
               open={openVehiclePresetField === "year"}
-              onOpenChange={(open) => setOpenVehiclePresetField(open ? "year" : null)}
+              onOpenChange={(open) => setVehiclePresetFieldOpen("year", open)}
               onChange={(value) => updateVehicleDetail("year", value)}
               customMode={Boolean(customVehicleFields.year)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("year", customMode)}
-              onComplete={() => completeVehicleField("engineCc")}
+              onComplete={() => completeVehicleField("year", "engineCc")}
               inputRef={(element) => {
                 vehicleFieldRefs.current.year = element;
               }}
@@ -3332,11 +3405,11 @@ export default function SellPage() {
               value={vehicleDetails.engineCc}
               options={vehiclePreset.engineCcs}
               open={openVehiclePresetField === "engineCc"}
-              onOpenChange={(open) => setOpenVehiclePresetField(open ? "engineCc" : null)}
+              onOpenChange={(open) => setVehiclePresetFieldOpen("engineCc", open)}
               onChange={(value) => updateVehicleDetail("engineCc", value)}
               customMode={Boolean(customVehicleFields.engineCc)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("engineCc", customMode)}
-              onComplete={() => completeVehicleField("engineType")}
+              onComplete={() => completeVehicleField("engineCc", "engineType")}
               inputRef={(element) => {
                 vehicleFieldRefs.current.engineCc = element;
               }}
@@ -3349,11 +3422,11 @@ export default function SellPage() {
               value={vehicleDetails.engineType}
               options={engineTypeOptions}
               open={openVehiclePresetField === "engineType"}
-              onOpenChange={(open) => setOpenVehiclePresetField(open ? "engineType" : null)}
+              onOpenChange={(open) => setVehiclePresetFieldOpen("engineType", open)}
               onChange={(value) => updateVehicleDetail("engineType", value)}
               customMode={Boolean(customVehicleFields.engineType)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("engineType", customMode)}
-              onComplete={() => completeVehicleField(mode === "single" ? "driveType" : undefined)}
+              onComplete={() => completeVehicleField("engineType", mode === "single" ? "driveType" : undefined)}
               inputRef={(element) => {
                 vehicleFieldRefs.current.engineType = element;
               }}
@@ -3367,11 +3440,11 @@ export default function SellPage() {
                 value={vehicleDetails.driveType}
                 options={vehiclePreset.driveTypes}
                 open={openVehiclePresetField === "driveType"}
-                onOpenChange={(open) => setOpenVehiclePresetField(open ? "driveType" : null)}
+                onOpenChange={(open) => setVehiclePresetFieldOpen("driveType", open)}
                 onChange={(value) => updateVehicleDetail("driveType", value)}
                 customMode={Boolean(customVehicleFields.driveType)}
                 onCustomModeChange={(customMode) => updateVehicleCustomMode("driveType", customMode)}
-                onComplete={() => completeVehicleField()}
+                onComplete={() => completeVehicleField("driveType")}
                 inputRef={(element) => {
                   vehicleFieldRefs.current.driveType = element;
                 }}
@@ -3635,7 +3708,7 @@ export default function SellPage() {
                     setCategory(value);
                     setCategoryGroup("");
                     setSubcategory("");
-                    setCategoryAutoOpenTarget({ field: "group", nonce: Date.now() });
+                    advanceCategoryFieldOnce("category", "group");
                   });
                 }}
                 options={categoryOptions.map((value) => ({ value, label: value }))}
@@ -3661,7 +3734,7 @@ export default function SellPage() {
                   updateStepThreeSelection(() => {
                     setCategoryGroup(value);
                     setSubcategory("");
-                    setCategoryAutoOpenTarget({ field: "detail", nonce: Date.now() });
+                    advanceCategoryFieldOnce("group", "detail");
                   });
                 }}
                 options={categoryGroupOptions}
@@ -3950,7 +4023,7 @@ export default function SellPage() {
                 icon={MapPin}
                 placeholder="Kaupunki tai paikkakunta"
                 value={listingLocation}
-                onChange={setListingLocation}
+                onChange={updateListingLocation}
                 inputRef={listingLocationInputRef}
               />
               {renderDeliveryMethodSelector()}
@@ -4618,7 +4691,10 @@ function ConditionSelect({
   }
 
   return (
-    <label className={`${styles.categorySelectField} ${compact ? styles.conditionSelectCompact : ""}`}>
+    <label
+      className={`${styles.categorySelectField} ${compact ? styles.conditionSelectCompact : ""}`}
+      onClick={(event) => event.stopPropagation()}
+    >
       {!compact ? <span>{label}</span> : null}
       <span
         className={`${styles.categorySelectShell} ${styles.conditionSelectShell} ${open ? styles.categorySelectOpen : ""}`}
@@ -4633,6 +4709,7 @@ function ConditionSelect({
         <button
           type="button"
           className={`${styles.categorySelectButton} ${value ? "" : styles.categorySelectPlaceholder}`}
+          onMouseDown={(event) => event.preventDefault()}
           onClick={() => setOpen((current) => !current)}
           aria-haspopup="listbox"
           aria-expanded={open}
@@ -4660,6 +4737,7 @@ function ConditionSelect({
                   type="button"
                   className={active ? styles.categorySelectOptionActive : styles.categorySelectOption}
                   data-active={active ? "true" : "false"}
+                  onMouseDown={(event) => event.preventDefault()}
                   onClick={() => chooseOption(option.value)}
                   role="option"
                   aria-selected={active}
@@ -4723,7 +4801,10 @@ function CategorySelect({
   }
 
   return (
-    <label className={styles.categorySelectField}>
+    <label
+      className={styles.categorySelectField}
+      onClick={(event) => event.stopPropagation()}
+    >
       <span>{label}</span>
       <span
         className={`${styles.categorySelectShell} ${open ? styles.categorySelectOpen : ""}`}
@@ -4738,6 +4819,7 @@ function CategorySelect({
         <button
           type="button"
           className={`${styles.categorySelectButton} ${value ? "" : styles.categorySelectPlaceholder}`}
+          onMouseDown={(event) => event.preventDefault()}
           onClick={() => {
             if (hasOptions) setSelectOpen(!open);
           }}
@@ -4752,10 +4834,13 @@ function CategorySelect({
           <div
             className={styles.categorySelectMenu}
             data-sell-category-menu="true"
+            data-option-count={options.length}
             role="listbox"
             style={{
               background: "#061726",
               backgroundColor: "#061726",
+              backgroundClip: "padding-box",
+              boxShadow: "inset 0 0 0 9999px #061726, 0 22px 54px rgba(0, 0, 0, 0.5)",
               color: "#dce8f7"
             }}
           >

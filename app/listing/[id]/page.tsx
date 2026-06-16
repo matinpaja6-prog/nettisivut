@@ -384,6 +384,9 @@ export default function ListingPage() {
   const [sellerBusinessId, setSellerBusinessId] =
     useState<string | null>(null);
 
+  const [sellerProfileAvatarUrl, setSellerProfileAvatarUrl] =
+    useState<string | null>(null);
+
   const [sellerAccountType, setSellerAccountType] =
     useState<"company" | "private" | null>(null);
 
@@ -540,6 +543,7 @@ export default function ListingPage() {
     if (!supabase || !sellerIdForPublicStats) {
       setSellerWebsite(null);
       setSellerBusinessId(null);
+      setSellerProfileAvatarUrl(null);
       setSellerAccountType(null);
       setSellerProfileCreatedAt(null);
       setSellerReviewAverage(null);
@@ -560,13 +564,14 @@ export default function ListingPage() {
         ] = await Promise.all([
           supabase!
             .from("profiles")
-            .select("company_website,business_id,account_type,created_at")
+            .select("company_website,business_id,account_type,created_at,avatar_url")
             .eq("id", sellerIdForPublicStats)
             .maybeSingle<{
               company_website?: string | null;
               business_id?: string | null;
               account_type?: "company" | "private" | null;
               created_at?: string | null;
+              avatar_url?: string | null;
             }>(),
           supabase!
             .from("seller_reviews")
@@ -603,6 +608,7 @@ export default function ListingPage() {
 
         setSellerWebsite(data?.company_website?.trim() || null);
         setSellerBusinessId(data?.business_id?.trim() || null);
+        setSellerProfileAvatarUrl(data?.avatar_url?.trim() || null);
         setSellerAccountType(data?.account_type ?? null);
         setSellerProfileCreatedAt(data?.created_at ?? null);
         setSellerReviewCount(ratings ? ratings.length : null);
@@ -622,6 +628,7 @@ export default function ListingPage() {
         if (mounted) {
           setSellerWebsite(null);
           setSellerBusinessId(null);
+          setSellerProfileAvatarUrl(null);
           setSellerAccountType(null);
           setSellerProfileCreatedAt(null);
           setSellerReviewAverage(null);
@@ -1045,11 +1052,18 @@ export default function ListingPage() {
     const tVehicle = vehicleTypeMap[locale]?.[listing.vehicle_type ?? ""] ?? listing.vehicle_type ?? "";
     return { ...baseListingText, title: `${tLeaf} - ${tVehicle}`.trim() };
   })();
-  const listingDescription =
+  const descriptionWithoutVehicleMeta =
     (listingText.description || "")
       .replace(/^(?:Ajoneuvo:[^\n]*\n?)?(?:Merkki:[^\n]*\n?)?(?:Malli:[^\n]*\n?)?(?:Vuosimalli:[^\n]*\n?)?/i, "")
       .replace(/Ajoneuvo:\s*\S+\s+Merkki:\s*[^\s]+(?:\s+\S+)?\s+Malli:\s*[^\s]+(?:\s+\S+)*?\s+Vuosimalli:\s*\d+\s*/i, "")
+      .trim();
+  const listingDeliveryMethod =
+    descriptionWithoutVehicleMeta.match(/(?:^|\n)Toimitustapa:\s*([^\n]+)/i)?.[1]?.trim() || "";
+  const listingDescription =
+    descriptionWithoutVehicleMeta
+      .replace(/(?:^|\n)Toimitustapa:\s*[^\n]+/i, "")
       .trim() || ui.noDescription;
+  const sellerAvatarUrl = listing.seller_avatar_url || sellerProfileAvatarUrl;
 
   return (
     <main className="page listing-detail-page">
@@ -1350,7 +1364,7 @@ export default function ListingPage() {
                 )}
                 {listing.vehicle_subtype && (
                   <span>
-                    <strong>Tyyppi</strong>
+                    <strong>Ajoneuvotyyppi</strong>
                     {listing.vehicle_subtype}
                   </span>
                 )}
@@ -1380,6 +1394,12 @@ export default function ListingPage() {
                   <strong>{ui.location}</strong>
                   {listingLocation || ui.notSpecified}
                 </span>
+                {listingDeliveryMethod && (
+                  <span>
+                    <strong>Toimitus</strong>
+                    {listingDeliveryMethod}
+                  </span>
+                )}
               </div>
 
               </div>
@@ -1419,8 +1439,8 @@ export default function ListingPage() {
 
                 <div className="seller-identity-row">
                   <div className="seller-avatar-detail">
-                    {listing.seller_avatar_url
-                      ? <img src={listing.seller_avatar_url} alt="" className="seller-avatar-img" referrerPolicy="no-referrer" />
+                    {sellerAvatarUrl
+                      ? <img src={sellerAvatarUrl} alt="" className="seller-avatar-img" referrerPolicy="no-referrer" />
                       : sellerInitial}
                   </div>
 
@@ -7459,6 +7479,42 @@ export default function ListingPage() {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .login-contact) {
             height: 54px !important;
             min-height: 54px !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-avatar-detail.seller-avatar-detail),
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-avatar-img.seller-avatar-img) {
+            border-radius: 12px !important;
+            height: 72px !important;
+            width: 72px !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-name-row.seller-name-row strong) {
+            font-size: 22px !important;
+            line-height: 1.08 !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-profile-btn-top.seller-profile-btn-top) {
+            border-radius: 9px !important;
+            font-size: 12px !important;
+            gap: 5px !important;
+            min-height: 32px !important;
+            padding: 0 8px !important;
+            white-space: nowrap !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-profile-btn-top.seller-profile-btn-top svg) {
+            height: 14px !important;
+            width: 14px !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-btn),
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-number) {
+            background: linear-gradient(180deg, rgba(5, 25, 46, 0.98), rgba(3, 15, 30, 0.98)) !important;
+            border: 1px solid rgba(255, 122, 26, 0.82) !important;
+            border-radius: 12px !important;
+            color: #ffffff !important;
+            font-size: 14px !important;
+            font-weight: 950 !important;
           }
         }
 

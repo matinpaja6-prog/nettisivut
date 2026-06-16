@@ -2510,6 +2510,24 @@
   }
 }
 
+@media (max-width: 640px) {
+  .page :global(.delete-listing-modal) {
+    padding-bottom: 20px !important;
+  }
+
+  .page :global(.delete-listing-modal-actions) {
+    position: static !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    display: grid !important;
+    gap: 10px !important;
+    margin-top: 22px !important;
+    padding-top: 16px !important;
+    transform: none !important;
+  }
+}
+
 /* Edit listing form: stable, readable management layout. */
 .row:has(:global(.own-listing-edit)) {
   display: block !important;

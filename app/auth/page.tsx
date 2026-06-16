@@ -148,15 +148,15 @@ const OTHER_COUNTRY_VALUE = "OTHER";
 const countryNameByLocale: Record<Locale, Record<string, string>> = {
   fi: {
     FI: "Suomi", SE: "Ruotsi", NO: "Norja", DK: "Tanska", EE: "Viro",
-    AL: "Albania", AD: "Andorra", AM: "Armenia", AT: "ItÃ¤valta", AZ: "AzerbaidÅ¾an", BY: "Valko-VenÃ¤jÃ¤",
+    AL: "Albania", AD: "Andorra", AM: "Armenia", AT: "Itävalta", AZ: "Azerbaidžan", BY: "Valko-Venäjä",
     BE: "Belgia", BA: "Bosnia ja Hertsegovina", BG: "Bulgaria", HR: "Kroatia", CY: "Kypros",
-    CZ: "TÅ¡ekki", FR: "Ranska", GE: "Georgia", DE: "Saksa", GI: "Gibraltar", GR: "Kreikka",
+    CZ: "Tšekki", FR: "Ranska", GE: "Georgia", DE: "Saksa", GI: "Gibraltar", GR: "Kreikka",
     HU: "Unkari", IS: "Islanti", IE: "Irlanti", IT: "Italia", XK: "Kosovo",
     LV: "Latvia", LI: "Liechtenstein", LT: "Liettua", LU: "Luxemburg", MT: "Malta",
     MD: "Moldova", MC: "Monaco", ME: "Montenegro", NL: "Alankomaat", MK: "Pohjois-Makedonia",
-    PL: "Puola", PT: "Portugali", RO: "Romania", RU: "VenÃ¤jÃ¤", SM: "San Marino", RS: "Serbia",
+    PL: "Puola", PT: "Portugali", RO: "Romania", RU: "Venäjä", SM: "San Marino", RS: "Serbia",
     SK: "Slovakia", SI: "Slovenia", ES: "Espanja", CH: "Sveitsi", TR: "Turkki",
-    UA: "Ukraina", GB: "Iso-Britannia", VA: "Vatikaani", FO: "FÃ¤rsaaret",
+    UA: "Ukraina", GB: "Iso-Britannia", VA: "Vatikaani", FO: "Färsaaret",
     OTHER: "Muu", da: "Tanska", sv: "Ruotsi", no: "Norja", ee: "Viro"
   },
   en: { FI: "Finland", SE: "Sweden", NO: "Norway", DK: "Denmark", EE: "Estonia", DE: "Germany", OTHER: "Other", da: "Denmark", sv: "Sweden", no: "Norway", ee: "Estonia" },
@@ -290,11 +290,11 @@ function normalizeAuthErrorMessage(message: string) {
     lower.includes("email not confirmed") ||
     lower.includes("user not found")
   ) {
-    return "TÃ¤tÃ¤ sÃ¤hkÃ¶postia ei ole rekisterÃ¶ity. RekisterÃ¶idy ensin tai tarkista salasana.";
+    return "Tätä sähköpostia ei ole rekisteröity. Rekisteröidy ensin tai tarkista salasana.";
   }
 
   if (lower.includes("user already registered") || lower.includes("already registered")) {
-    return "TÃ¤llÃ¤ sÃ¤hkÃ¶postilla on jo tili. Kirjaudu sisÃ¤Ã¤n.";
+    return "Tällä sähköpostilla on jo tili. Kirjaudu sisään.";
   }
 
   return message;
@@ -307,7 +307,7 @@ function getErrorMessage(error: unknown) {
   if (typeof error === "object" && "message" in error && typeof error.message === "string") {
     return normalizeAuthErrorMessage(error.message);
   }
-  return "Toiminto epÃ¤onnistui.";
+  return "Toiminto epäonnistui.";
 }
 
 function withTimeout<T>(
@@ -581,7 +581,7 @@ function AuthPageContent() {
               clearGoogleAuthIntent();
               setUser(null);
               setProfile(null);
-              setStatus("TÃ¤tÃ¤ Gmail-tiliÃ¤ ei ole rekisterÃ¶ity. RekisterÃ¶idy ensin.");
+              setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
               window.history.replaceState(null, "", "/auth?mode=login");
               void signOut();
               return;
@@ -593,7 +593,7 @@ function AuthPageContent() {
           }).catch(() => {
             clearGoogleAuthIntent();
             setUser(null);
-            setStatus("Gmail-tilin tarkistus epÃ¤onnistui. YritÃ¤ uudelleen.");
+            setStatus("Gmail-tilin tarkistus epäonnistui. Yritä uudelleen.");
             void signOut();
           });
           return;
@@ -635,7 +635,7 @@ function AuthPageContent() {
             clearGoogleAuthIntent();
             setUser(null);
             setProfile(null);
-            setStatus("TÃ¤tÃ¤ Gmail-tiliÃ¤ ei ole rekisterÃ¶ity. RekisterÃ¶idy ensin.");
+            setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
             window.history.replaceState(null, "", "/auth?mode=login");
             void signOut();
             return;
@@ -647,7 +647,7 @@ function AuthPageContent() {
         }).catch(() => {
           clearGoogleAuthIntent();
           setUser(null);
-          setStatus("Gmail-tilin tarkistus epÃ¤onnistui. YritÃ¤ uudelleen.");
+          setStatus("Gmail-tilin tarkistus epäonnistui. Yritä uudelleen.");
           void signOut();
         });
         return;
@@ -809,7 +809,7 @@ function AuthPageContent() {
     if (error) {
       const msg = getErrorMessage(error);
       if (msg.includes("phone_reserved_until_3_months")) {
-        setStatus("TÃ¤mÃ¤ puhelinnumero on varattu poistetulle tilille 3 kuukaudeksi.");
+        setStatus("Tämä puhelinnumero on varattu poistetulle tilille 3 kuukaudeksi.");
       } else if (msg.includes("profiles_phone_unique") || msg.includes("unique constraint")) {
         setStatus(t.authPhoneUnique);
       } else {
@@ -932,7 +932,7 @@ function AuthPageContent() {
       await withTimeout(
         resetPassword(resetEmail),
         10000,
-        "Palautuslinkin lÃ¤hetys kesti liian kauan."
+        "Palautuslinkin lähetys kesti liian kauan."
       );
 
     if (error) {
@@ -1042,7 +1042,7 @@ function AuthPageContent() {
     phoneDialingOptions[0];
   const primaryAuthActionLabel =
     authMode === "register"
-      ? "RekisterÃ¶idy"
+      ? "Rekisteröidy"
       : t.login;
   const showBackHome =
     !user && !emailPending;
@@ -1149,7 +1149,7 @@ function AuthPageContent() {
         ) : !user ? (
           <form className="auth-card simple-card" onSubmit={handleSubmit}>
             <div className="auth-form-head">
-              <h1>{authMode === "login" ? "Kirjaudu sisÃ¤Ã¤n" : t.register}</h1>
+              <h1>{authMode === "login" ? "Kirjaudu sisään" : t.register}</h1>
             </div>
 
             <label>
@@ -1216,7 +1216,7 @@ function AuthPageContent() {
               </button>
             </div>
             <p className="auth-mode-switch">
-              {authMode === "login" ? "EikÃ¶ sinulla ole tiliÃ¤?" : "Onko sinulla tili?"}{" "}
+              {authMode === "login" ? "Eikö sinulla ole tiliä?" : "Onko sinulla tili?"}{" "}
               <Link
                 href={authMode === "login" ? "/auth?mode=register" : "/auth?mode=login"}
                 onClick={() => {

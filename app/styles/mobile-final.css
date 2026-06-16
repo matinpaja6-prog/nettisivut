@@ -424,12 +424,16 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
   min-height: 0 !important;
 }
 
-html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished select {
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished .phone-code-select-wrap select {
   color: transparent !important;
   cursor: pointer !important;
-  opacity: 1 !important;
+  opacity: 0 !important;
   padding: 0 18px 0 10px !important;
+  position: absolute !important;
+  inset: 0 !important;
+  text-shadow: none !important;
   width: 100% !important;
+  z-index: 3 !important;
 }
 
 html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished input {
@@ -2074,6 +2078,113 @@ html body .sell-container.sell-current-category #sell-step-category.is-multi-cat
     margin-inline: 0 !important;
     max-width: none !important;
     width: 100% !important;
+  }
+}
+
+/* Absolute mobile lock for the profile completion date selects. */
+@media (max-width: 760px) {
+  html body .simple-auth-page .profile-finalize-card .registration-fields > label,
+  html body .simple-auth-page .profile-finalize-card .registration-fields > .date-field {
+    width: 100% !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  html body .simple-auth-page .profile-finalize-card select,
+  html body .simple-auth-page .profile-finalize-card .phone-field-row {
+    background: #03101d !important;
+    border: 1px solid rgba(112, 178, 230, 0.34) !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 850 !important;
+    height: 46px !important;
+    min-height: 46px !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-field-control {
+    align-items: center !important;
+    background: #03101d !important;
+    border: 1px solid rgba(112, 178, 230, 0.34) !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    display: grid !important;
+    gap: 0 !important;
+    grid-template-columns: minmax(62px, 0.72fr) minmax(0, 1fr) minmax(76px, 0.82fr) !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    position: relative !important;
+    z-index: 20 !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-field.is-open,
+  html body .simple-auth-page .profile-finalize-card .date-field:has(.date-part-select.is-open),
+  html body .simple-auth-page .profile-finalize-card .date-field-control:has(.date-part-select.is-open) {
+    position: relative !important;
+    z-index: 120 !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card:has(.date-part-select.is-open),
+  html body .simple-auth-page .profile-finalize-card .registration-fields:has(.date-field.is-open),
+  html body .simple-auth-page .profile-finalize-card .registration-fields:has(.date-part-select.is-open) {
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 300 !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .privacy-checkbox-row {
+    position: relative !important;
+    z-index: 0 !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-field-control > svg {
+    display: none !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-field-control select {
+    border: 1px solid rgba(112, 178, 230, 0.34) !important;
+    border-radius: 10px !important;
+    min-width: 0 !important;
+    padding: 0 26px 0 10px !important;
+    text-align: center !important;
+    text-overflow: ellipsis !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-part-select {
+    height: 100% !important;
+    min-width: 0 !important;
+    position: relative !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-part-button {
+    background: transparent !important;
+    border: 0 !important;
+    border-left: 1px solid rgba(112, 178, 230, 0.24) !important;
+    border-radius: 0 !important;
+    color: #ffffff !important;
+    display: grid !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    grid-template-columns: minmax(0, 1fr) 15px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 0 7px 0 9px !important;
+    width: 100% !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-part-button span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body .simple-auth-page .profile-finalize-card .date-part-menu {
+    left: 0 !important;
+    max-height: 168px !important;
+    right: 0 !important;
+    top: calc(100% + 5px) !important;
+    z-index: 500 !important;
   }
 }
 
