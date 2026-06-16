@@ -122,11 +122,58 @@ const emptyAuthForm = {
 };
 
 const phoneDialingOptions = [
-  { country: "EE", code: "+372", flag: "🇪🇪" },
-  { country: "SE", code: "+46", flag: "🇸🇪" },
   { country: "FI", code: "+358", flag: "🇫🇮" },
+  { country: "SE", code: "+46", flag: "🇸🇪" },
   { country: "NO", code: "+47", flag: "🇳🇴" },
-  { country: "DK", code: "+45", flag: "🇩🇰" }
+  { country: "DK", code: "+45", flag: "🇩🇰" },
+  { country: "EE", code: "+372", flag: "🇪🇪" },
+  { country: "AL", code: "+355", flag: "🇦🇱" },
+  { country: "AD", code: "+376", flag: "🇦🇩" },
+  { country: "AM", code: "+374", flag: "🇦🇲" },
+  { country: "AT", code: "+43", flag: "🇦🇹" },
+  { country: "AZ", code: "+994", flag: "🇦🇿" },
+  { country: "BY", code: "+375", flag: "🇧🇾" },
+  { country: "BE", code: "+32", flag: "🇧🇪" },
+  { country: "BA", code: "+387", flag: "🇧🇦" },
+  { country: "BG", code: "+359", flag: "🇧🇬" },
+  { country: "HR", code: "+385", flag: "🇭🇷" },
+  { country: "CY", code: "+357", flag: "🇨🇾" },
+  { country: "CZ", code: "+420", flag: "🇨🇿" },
+  { country: "FR", code: "+33", flag: "🇫🇷" },
+  { country: "GE", code: "+995", flag: "🇬🇪" },
+  { country: "DE", code: "+49", flag: "🇩🇪" },
+  { country: "GI", code: "+350", flag: "🇬🇮" },
+  { country: "GR", code: "+30", flag: "🇬🇷" },
+  { country: "HU", code: "+36", flag: "🇭🇺" },
+  { country: "IS", code: "+354", flag: "🇮🇸" },
+  { country: "IE", code: "+353", flag: "🇮🇪" },
+  { country: "IT", code: "+39", flag: "🇮🇹" },
+  { country: "XK", code: "+383", flag: "🇽🇰" },
+  { country: "LV", code: "+371", flag: "🇱🇻" },
+  { country: "LI", code: "+423", flag: "🇱🇮" },
+  { country: "LT", code: "+370", flag: "🇱🇹" },
+  { country: "LU", code: "+352", flag: "🇱🇺" },
+  { country: "MT", code: "+356", flag: "🇲🇹" },
+  { country: "MD", code: "+373", flag: "🇲🇩" },
+  { country: "MC", code: "+377", flag: "🇲🇨" },
+  { country: "ME", code: "+382", flag: "🇲🇪" },
+  { country: "NL", code: "+31", flag: "🇳🇱" },
+  { country: "MK", code: "+389", flag: "🇲🇰" },
+  { country: "PL", code: "+48", flag: "🇵🇱" },
+  { country: "PT", code: "+351", flag: "🇵🇹" },
+  { country: "RO", code: "+40", flag: "🇷🇴" },
+  { country: "RU", code: "+7", flag: "🇷🇺" },
+  { country: "SM", code: "+378", flag: "🇸🇲" },
+  { country: "RS", code: "+381", flag: "🇷🇸" },
+  { country: "SK", code: "+421", flag: "🇸🇰" },
+  { country: "SI", code: "+386", flag: "🇸🇮" },
+  { country: "ES", code: "+34", flag: "🇪🇸" },
+  { country: "CH", code: "+41", flag: "🇨🇭" },
+  { country: "TR", code: "+90", flag: "🇹🇷" },
+  { country: "UA", code: "+380", flag: "🇺🇦" },
+  { country: "GB", code: "+44", flag: "🇬🇧" },
+  { country: "VA", code: "+379", flag: "🇻🇦" },
+  { country: "FO", code: "+298", flag: "🇫🇴" }
 ];
 
 const countryOptions = [
@@ -142,12 +189,28 @@ const countryOptions = [
 const OTHER_COUNTRY_VALUE = "OTHER";
 
 const countryNameByLocale: Record<Locale, Record<string, string>> = {
-  fi: { FI: "Suomi", SE: "Ruotsi", NO: "Norja", DK: "Tanska", EE: "Viro", DE: "Saksa", OTHER: "Muu", da: "Tanska", sv: "Ruotsi", no: "Norja", ee: "Viro" },
+  fi: {
+    FI: "Suomi", SE: "Ruotsi", NO: "Norja", DK: "Tanska", EE: "Viro",
+    AL: "Albania", AD: "Andorra", AM: "Armenia", AT: "Itävalta", AZ: "Azerbaidžan", BY: "Valko-Venäjä",
+    BE: "Belgia", BA: "Bosnia ja Hertsegovina", BG: "Bulgaria", HR: "Kroatia", CY: "Kypros",
+    CZ: "Tšekki", FR: "Ranska", GE: "Georgia", DE: "Saksa", GI: "Gibraltar", GR: "Kreikka",
+    HU: "Unkari", IS: "Islanti", IE: "Irlanti", IT: "Italia", XK: "Kosovo",
+    LV: "Latvia", LI: "Liechtenstein", LT: "Liettua", LU: "Luxemburg", MT: "Malta",
+    MD: "Moldova", MC: "Monaco", ME: "Montenegro", NL: "Alankomaat", MK: "Pohjois-Makedonia",
+    PL: "Puola", PT: "Portugali", RO: "Romania", RU: "Venäjä", SM: "San Marino", RS: "Serbia",
+    SK: "Slovakia", SI: "Slovenia", ES: "Espanja", CH: "Sveitsi", TR: "Turkki",
+    UA: "Ukraina", GB: "Iso-Britannia", VA: "Vatikaani", FO: "Färsaaret",
+    OTHER: "Muu", da: "Tanska", sv: "Ruotsi", no: "Norja", ee: "Viro"
+  },
   en: { FI: "Finland", SE: "Sweden", NO: "Norway", DK: "Denmark", EE: "Estonia", DE: "Germany", OTHER: "Other", da: "Denmark", sv: "Sweden", no: "Norway", ee: "Estonia" },
   sv: { FI: "Finland", SE: "Sverige", NO: "Norge", DK: "Danmark", EE: "Estland", DE: "Tyskland", OTHER: "Annat", da: "Danmark", sv: "Sverige", no: "Norge", ee: "Estland" },
   no: { FI: "Finland", SE: "Sverige", NO: "Norge", DK: "Danmark", EE: "Estland", DE: "Tyskland", OTHER: "Annet", da: "Danmark", sv: "Sverige", no: "Norge", ee: "Estland" },
   et: { FI: "Soome", SE: "Rootsi", NO: "Norra", DK: "Taani", EE: "Eesti", DE: "Saksamaa", OTHER: "Muu", da: "Taani", sv: "Rootsi", no: "Norra", ee: "Eesti" }
 };
+
+function getCountryName(locale: Locale, country: string) {
+  return countryNameByLocale[locale][country] ?? countryNameByLocale.fi[country] ?? country;
+}
 
 const countryValueByFinnishName: Record<string, string> = {
   Suomi: "FI",
@@ -1019,7 +1082,7 @@ function AuthPageContent() {
   const currentPhoneDialingOption =
     phoneDialingOptions.find((option) => option.code === phoneParts.code) ??
     phoneDialingOptions.find((option) => option.code === phoneDialingCode) ??
-    phoneDialingOptions[2];
+    phoneDialingOptions[0];
   const primaryAuthActionLabel =
     authMode === "register"
       ? "Rekisteröidy"
@@ -1359,7 +1422,7 @@ function AuthPageContent() {
                   )}
                   <label>
                     {form.account_type === "company" ? t.authCompanyPhone : t.authPhone}
-                    <div className="phone-field-row">
+                    <div className="phone-field-row phone-field-row-polished">
                       <span className="phone-code-select-wrap">
                         <span className="phone-code-selected" aria-hidden="true">
                           <span className="phone-code-flag">{currentPhoneDialingOption.flag}</span>
@@ -1379,8 +1442,8 @@ function AuthPageContent() {
                           }}
                         >
                           {phoneDialingOptions.map((option) => (
-                            <option key={option.code} value={option.code}>
-                              {option.flag} {option.code} {countryNameByLocale[locale][option.country]}
+                            <option key={`${option.country}-${option.code}`} value={option.code}>
+                              {option.flag} {option.code} {getCountryName(locale, option.country)}
                             </option>
                           ))}
                         </select>

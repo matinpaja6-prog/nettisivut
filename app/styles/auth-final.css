@@ -617,8 +617,24 @@ body .simple-auth-page .profile-finalize-card .privacy-checkbox-row {
 }
 
 body .simple-auth-page .profile-finalize-card .privacy-checkbox-row input[type="checkbox"] {
+  appearance: none !important;
+  align-items: center !important;
+  display: inline-grid !important;
   height: 24px !important;
+  justify-content: center !important;
+  position: relative !important;
   width: 24px !important;
+}
+
+body .simple-auth-page .profile-finalize-card .privacy-checkbox-row input[type="checkbox"]:checked::after {
+  border: solid #071827 !important;
+  border-width: 0 3px 3px 0 !important;
+  content: "" !important;
+  display: block !important;
+  height: 12px !important;
+  margin-top: -2px !important;
+  transform: rotate(45deg) !important;
+  width: 6px !important;
 }
 
 body .simple-auth-page .profile-finalize-card button[type="submit"],

@@ -341,6 +341,144 @@
   }
 }
 
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished {
+  align-items: stretch !important;
+  background:
+    linear-gradient(180deg, rgba(8, 32, 57, 0.98), rgba(3, 13, 25, 0.99)) !important;
+  border: 1px solid rgba(255, 138, 34, 0.82) !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 18px 42px rgba(0, 7, 18, 0.34),
+    0 0 0 1px rgba(255, 185, 92, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  display: grid !important;
+  grid-template-columns: 112px minmax(0, 1fr) !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished:focus-within {
+  border-color: #ff9b2f !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 138, 34, 0.2),
+    0 20px 44px rgba(0, 7, 18, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished .phone-code-select-wrap {
+  align-items: center !important;
+  background:
+    radial-gradient(120px 72px at 20% 0%, rgba(255, 154, 36, 0.22), transparent 70%),
+    linear-gradient(180deg, rgba(12, 42, 70, 0.96), rgba(6, 24, 43, 0.96)) !important;
+  border-right: 1px solid rgba(255, 138, 34, 0.4) !important;
+  display: flex !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  position: relative !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished .phone-code-select-wrap::before {
+  content: none !important;
+  display: none !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished .phone-code-selected {
+  align-items: center !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  gap: 5px !important;
+  inset: auto !important;
+  left: 14px !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  max-width: calc(100% - 24px) !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  text-overflow: ellipsis !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  white-space: nowrap !important;
+  z-index: 2 !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished .phone-code-flag {
+  display: inline-grid !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+  place-items: center !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished select,
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished input {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color-scheme: dark !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished select {
+  color: transparent !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+  padding: 0 18px 0 10px !important;
+  width: 100% !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished input {
+  color: #9fc9ff !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.01em !important;
+  padding: 0 18px !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished input::placeholder {
+  color: rgba(159, 201, 255, 0.52) !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .privacy-checkbox-row input[type="checkbox"] {
+  appearance: none !important;
+  align-items: center !important;
+  display: inline-grid !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .privacy-checkbox-row input[type="checkbox"]:checked::after {
+  border: solid #071827 !important;
+  border-width: 0 3px 3px 0 !important;
+  content: "" !important;
+  display: block !important;
+  height: 13px !important;
+  margin-top: -2px !important;
+  transform: rotate(45deg) !important;
+  width: 7px !important;
+}
+
+@media (max-width: 760px) {
+  html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished {
+    grid-template-columns: 104px minmax(0, 1fr) !important;
+    height: 50px !important;
+    min-height: 50px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished .phone-code-selected {
+    left: 12px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished input {
+    padding: 0 14px !important;
+  }
+}
+
 /* Mobile category drawer dropdowns: keep opened menus dark instead of browser blue/white. */
 @media (max-width: 760px) {
   html body .cd-drawer .cd-cc-select,
