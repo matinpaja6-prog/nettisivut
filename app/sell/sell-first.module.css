@@ -1805,6 +1805,40 @@
   color: #ff7a1a;
 }
 
+.conditionSelectDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.conditionSelectShell .categorySelectIcon {
+  min-width: 16px;
+}
+
+.conditionSelectCompact {
+  min-width: 0;
+}
+
+.conditionSelectCompact .conditionSelectShell {
+  min-height: 44px;
+  grid-template-columns: 18px minmax(0, 1fr) 18px;
+  gap: 7px;
+  padding: 0 10px;
+}
+
+.conditionSelectCompact .categorySelectButton {
+  min-height: 42px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.conditionSelectCompact .categorySelectMenu {
+  left: auto;
+  min-width: 190px;
+  right: 0;
+}
+
 .categorySelectShell svg:last-child {
   color: #fff;
   pointer-events: none;
@@ -2066,6 +2100,57 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+}
+
+.deliveryMethodSelectShell {
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-height: 52px;
+  border: 1px solid rgba(156, 184, 216, 0.28);
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgba(255, 122, 26, 0.18), rgba(255, 122, 26, 0.04)),
+    rgba(7, 19, 33, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.deliveryMethodSelectShell:focus-within {
+  border-color: rgba(255, 152, 36, 0.88);
+  box-shadow:
+    0 0 0 3px rgba(255, 122, 26, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.deliveryMethodSelectShell select {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 48px 0 16px;
+  border: 0;
+  outline: 0;
+  appearance: none;
+  background: transparent;
+  color: #f4f8ff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.deliveryMethodSelectShell select option {
+  background: #071827;
+  color: #f4f8ff;
+  font-weight: 800;
+}
+
+.deliveryMethodSelectShell svg {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ff9824;
+  pointer-events: none;
 }
 
 .deliveryMethodOptions button {

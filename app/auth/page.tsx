@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -127,53 +127,10 @@ const phoneDialingOptions = [
   { country: "NO", code: "+47", flag: "🇳🇴" },
   { country: "DK", code: "+45", flag: "🇩🇰" },
   { country: "EE", code: "+372", flag: "🇪🇪" },
-  { country: "AL", code: "+355", flag: "🇦🇱" },
-  { country: "AD", code: "+376", flag: "🇦🇩" },
-  { country: "AM", code: "+374", flag: "🇦🇲" },
-  { country: "AT", code: "+43", flag: "🇦🇹" },
-  { country: "AZ", code: "+994", flag: "🇦🇿" },
-  { country: "BY", code: "+375", flag: "🇧🇾" },
-  { country: "BE", code: "+32", flag: "🇧🇪" },
-  { country: "BA", code: "+387", flag: "🇧🇦" },
-  { country: "BG", code: "+359", flag: "🇧🇬" },
-  { country: "HR", code: "+385", flag: "🇭🇷" },
-  { country: "CY", code: "+357", flag: "🇨🇾" },
-  { country: "CZ", code: "+420", flag: "🇨🇿" },
-  { country: "FR", code: "+33", flag: "🇫🇷" },
-  { country: "GE", code: "+995", flag: "🇬🇪" },
-  { country: "DE", code: "+49", flag: "🇩🇪" },
-  { country: "GI", code: "+350", flag: "🇬🇮" },
-  { country: "GR", code: "+30", flag: "🇬🇷" },
-  { country: "HU", code: "+36", flag: "🇭🇺" },
-  { country: "IS", code: "+354", flag: "🇮🇸" },
-  { country: "IE", code: "+353", flag: "🇮🇪" },
-  { country: "IT", code: "+39", flag: "🇮🇹" },
-  { country: "XK", code: "+383", flag: "🇽🇰" },
-  { country: "LV", code: "+371", flag: "🇱🇻" },
-  { country: "LI", code: "+423", flag: "🇱🇮" },
-  { country: "LT", code: "+370", flag: "🇱🇹" },
-  { country: "LU", code: "+352", flag: "🇱🇺" },
-  { country: "MT", code: "+356", flag: "🇲🇹" },
-  { country: "MD", code: "+373", flag: "🇲🇩" },
-  { country: "MC", code: "+377", flag: "🇲🇨" },
-  { country: "ME", code: "+382", flag: "🇲🇪" },
-  { country: "NL", code: "+31", flag: "🇳🇱" },
-  { country: "MK", code: "+389", flag: "🇲🇰" },
   { country: "PL", code: "+48", flag: "🇵🇱" },
-  { country: "PT", code: "+351", flag: "🇵🇹" },
-  { country: "RO", code: "+40", flag: "🇷🇴" },
-  { country: "RU", code: "+7", flag: "🇷🇺" },
-  { country: "SM", code: "+378", flag: "🇸🇲" },
-  { country: "RS", code: "+381", flag: "🇷🇸" },
-  { country: "SK", code: "+421", flag: "🇸🇰" },
-  { country: "SI", code: "+386", flag: "🇸🇮" },
-  { country: "ES", code: "+34", flag: "🇪🇸" },
-  { country: "CH", code: "+41", flag: "🇨🇭" },
-  { country: "TR", code: "+90", flag: "🇹🇷" },
-  { country: "UA", code: "+380", flag: "🇺🇦" },
-  { country: "GB", code: "+44", flag: "🇬🇧" },
-  { country: "VA", code: "+379", flag: "🇻🇦" },
-  { country: "FO", code: "+298", flag: "🇫🇴" }
+  { country: "LV", code: "+371", flag: "🇱🇻" },
+  { country: "DE", code: "+49", flag: "🇩🇪" },
+  { country: "LT", code: "+370", flag: "🇱🇹" }
 ];
 
 const countryOptions = [
@@ -191,15 +148,15 @@ const OTHER_COUNTRY_VALUE = "OTHER";
 const countryNameByLocale: Record<Locale, Record<string, string>> = {
   fi: {
     FI: "Suomi", SE: "Ruotsi", NO: "Norja", DK: "Tanska", EE: "Viro",
-    AL: "Albania", AD: "Andorra", AM: "Armenia", AT: "Itävalta", AZ: "Azerbaidžan", BY: "Valko-Venäjä",
+    AL: "Albania", AD: "Andorra", AM: "Armenia", AT: "ItÃ¤valta", AZ: "AzerbaidÅ¾an", BY: "Valko-VenÃ¤jÃ¤",
     BE: "Belgia", BA: "Bosnia ja Hertsegovina", BG: "Bulgaria", HR: "Kroatia", CY: "Kypros",
-    CZ: "Tšekki", FR: "Ranska", GE: "Georgia", DE: "Saksa", GI: "Gibraltar", GR: "Kreikka",
+    CZ: "TÅ¡ekki", FR: "Ranska", GE: "Georgia", DE: "Saksa", GI: "Gibraltar", GR: "Kreikka",
     HU: "Unkari", IS: "Islanti", IE: "Irlanti", IT: "Italia", XK: "Kosovo",
     LV: "Latvia", LI: "Liechtenstein", LT: "Liettua", LU: "Luxemburg", MT: "Malta",
     MD: "Moldova", MC: "Monaco", ME: "Montenegro", NL: "Alankomaat", MK: "Pohjois-Makedonia",
-    PL: "Puola", PT: "Portugali", RO: "Romania", RU: "Venäjä", SM: "San Marino", RS: "Serbia",
+    PL: "Puola", PT: "Portugali", RO: "Romania", RU: "VenÃ¤jÃ¤", SM: "San Marino", RS: "Serbia",
     SK: "Slovakia", SI: "Slovenia", ES: "Espanja", CH: "Sveitsi", TR: "Turkki",
-    UA: "Ukraina", GB: "Iso-Britannia", VA: "Vatikaani", FO: "Färsaaret",
+    UA: "Ukraina", GB: "Iso-Britannia", VA: "Vatikaani", FO: "FÃ¤rsaaret",
     OTHER: "Muu", da: "Tanska", sv: "Ruotsi", no: "Norja", ee: "Viro"
   },
   en: { FI: "Finland", SE: "Sweden", NO: "Norway", DK: "Denmark", EE: "Estonia", DE: "Germany", OTHER: "Other", da: "Denmark", sv: "Sweden", no: "Norway", ee: "Estonia" },
@@ -333,11 +290,11 @@ function normalizeAuthErrorMessage(message: string) {
     lower.includes("email not confirmed") ||
     lower.includes("user not found")
   ) {
-    return "Tätä sähköpostia ei ole rekisteröity. Rekisteröidy ensin tai tarkista salasana.";
+    return "TÃ¤tÃ¤ sÃ¤hkÃ¶postia ei ole rekisterÃ¶ity. RekisterÃ¶idy ensin tai tarkista salasana.";
   }
 
   if (lower.includes("user already registered") || lower.includes("already registered")) {
-    return "Tällä sähköpostilla on jo tili. Kirjaudu sisään.";
+    return "TÃ¤llÃ¤ sÃ¤hkÃ¶postilla on jo tili. Kirjaudu sisÃ¤Ã¤n.";
   }
 
   return message;
@@ -350,7 +307,7 @@ function getErrorMessage(error: unknown) {
   if (typeof error === "object" && "message" in error && typeof error.message === "string") {
     return normalizeAuthErrorMessage(error.message);
   }
-  return "Toiminto epäonnistui.";
+  return "Toiminto epÃ¤onnistui.";
 }
 
 function withTimeout<T>(
@@ -572,10 +529,10 @@ function AuthPageContent() {
     if (!code) return;
 
     const referrerId = await getReferrerIdByCode(code);
-    console.log("[Referral] Resolved referrer id for code", code, "→", referrerId);
+    console.log("[Referral] Resolved referrer id for code", code, "â†’", referrerId);
 
     if (!referrerId) {
-      console.warn("[Referral] No user found for code", code, "— SQL may not be set up.");
+      console.warn("[Referral] No user found for code", code, "â€” SQL may not be set up.");
       try { localStorage.removeItem(REFERRAL_STORAGE_KEY); } catch {}
       return;
     }
@@ -624,7 +581,7 @@ function AuthPageContent() {
               clearGoogleAuthIntent();
               setUser(null);
               setProfile(null);
-              setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
+              setStatus("TÃ¤tÃ¤ Gmail-tiliÃ¤ ei ole rekisterÃ¶ity. RekisterÃ¶idy ensin.");
               window.history.replaceState(null, "", "/auth?mode=login");
               void signOut();
               return;
@@ -636,7 +593,7 @@ function AuthPageContent() {
           }).catch(() => {
             clearGoogleAuthIntent();
             setUser(null);
-            setStatus("Gmail-tilin tarkistus epäonnistui. Yritä uudelleen.");
+            setStatus("Gmail-tilin tarkistus epÃ¤onnistui. YritÃ¤ uudelleen.");
             void signOut();
           });
           return;
@@ -678,7 +635,7 @@ function AuthPageContent() {
             clearGoogleAuthIntent();
             setUser(null);
             setProfile(null);
-            setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
+            setStatus("TÃ¤tÃ¤ Gmail-tiliÃ¤ ei ole rekisterÃ¶ity. RekisterÃ¶idy ensin.");
             window.history.replaceState(null, "", "/auth?mode=login");
             void signOut();
             return;
@@ -690,7 +647,7 @@ function AuthPageContent() {
         }).catch(() => {
           clearGoogleAuthIntent();
           setUser(null);
-          setStatus("Gmail-tilin tarkistus epäonnistui. Yritä uudelleen.");
+          setStatus("Gmail-tilin tarkistus epÃ¤onnistui. YritÃ¤ uudelleen.");
           void signOut();
         });
         return;
@@ -852,7 +809,7 @@ function AuthPageContent() {
     if (error) {
       const msg = getErrorMessage(error);
       if (msg.includes("phone_reserved_until_3_months")) {
-        setStatus("Tämä puhelinnumero on varattu poistetulle tilille 3 kuukaudeksi.");
+        setStatus("TÃ¤mÃ¤ puhelinnumero on varattu poistetulle tilille 3 kuukaudeksi.");
       } else if (msg.includes("profiles_phone_unique") || msg.includes("unique constraint")) {
         setStatus(t.authPhoneUnique);
       } else {
@@ -975,7 +932,7 @@ function AuthPageContent() {
       await withTimeout(
         resetPassword(resetEmail),
         10000,
-        "Palautuslinkin lähetys kesti liian kauan."
+        "Palautuslinkin lÃ¤hetys kesti liian kauan."
       );
 
     if (error) {
@@ -1085,7 +1042,7 @@ function AuthPageContent() {
     phoneDialingOptions[0];
   const primaryAuthActionLabel =
     authMode === "register"
-      ? "Rekisteröidy"
+      ? "RekisterÃ¶idy"
       : t.login;
   const showBackHome =
     !user && !emailPending;
@@ -1192,7 +1149,7 @@ function AuthPageContent() {
         ) : !user ? (
           <form className="auth-card simple-card" onSubmit={handleSubmit}>
             <div className="auth-form-head">
-              <h1>{authMode === "login" ? "Kirjaudu sisään" : t.register}</h1>
+              <h1>{authMode === "login" ? "Kirjaudu sisÃ¤Ã¤n" : t.register}</h1>
             </div>
 
             <label>
@@ -1259,7 +1216,7 @@ function AuthPageContent() {
               </button>
             </div>
             <p className="auth-mode-switch">
-              {authMode === "login" ? "Eikö sinulla ole tiliä?" : "Onko sinulla tili?"}{" "}
+              {authMode === "login" ? "EikÃ¶ sinulla ole tiliÃ¤?" : "Onko sinulla tili?"}{" "}
               <Link
                 href={authMode === "login" ? "/auth?mode=register" : "/auth?mode=login"}
                 onClick={() => {

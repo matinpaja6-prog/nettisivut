@@ -35,6 +35,7 @@ import {
   Star,
   Tags,
   Trash2,
+  Truck,
   Wrench,
   X,
   Zap,
@@ -69,6 +70,13 @@ const deliveryMethodOptions: Array<{ value: DeliveryMethod; label: string }> = [
   { value: "both", label: "Posti ja nouto" },
   { value: "shipping", label: "Posti" },
   { value: "pickup", label: "Nouto" }
+];
+
+const conditionOptions: SelectOption[] = [
+  { value: "Uusi", label: "Uusi" },
+  { value: "Hyvä", label: "Hyvä" },
+  { value: "Käytetty", label: "Käytetty" },
+  { value: "Korjattava", label: "Korjattava" }
 ];
 
 type UploadedImage = {
@@ -144,7 +152,8 @@ const multipleSteps: SellStep[] = [
   { number: 2, title: "Ajoneuvon tiedot", description: "Täytä ajoneuvon tiedot", icon: FileText },
   { number: 3, title: "Kategoria ja hinta", description: "Valitse kategoriointi", icon: Layers3 },
   { number: 4, title: "Ilmoitukset", description: "Lisää myytävät osat", icon: PackagePlus },
-  { number: 5, title: "Julkaise", description: "Tarkista ja julkaise", icon: Send }
+  { number: 5, title: "Toimitus", description: "Valitse sijainti ja toimitus", icon: Truck },
+  { number: 6, title: "Julkaise", description: "Tarkista ja julkaise", icon: Send }
 ];
 
 const modeCards: Array<{
@@ -1317,6 +1326,7 @@ export default function SellPage() {
   const [customVehicleFields, setCustomVehicleFields] = useState<
     Partial<Record<VehicleDetailKey, boolean>>
   >({});
+  const [openVehiclePresetField, setOpenVehiclePresetField] = useState<VehicleDetailKey | null>(null);
   const [category, setCategory] = useState("");
   const [categoryGroup, setCategoryGroup] = useState("");
   const [subcategory, setSubcategory] = useState("");
@@ -1989,12 +1999,14 @@ export default function SellPage() {
   }
 
   function focusVehicleField(key: VehicleDetailKey) {
+    setOpenVehiclePresetField(key);
     window.setTimeout(() => {
       const field = vehicleFieldRefs.current[key];
       if (!field) return;
+      field.scrollIntoView({ block: "center", behavior: "smooth" });
       field.focus();
       field.select();
-    }, 140);
+    }, 80);
   }
 
   function completeVehicleField(nextKey?: VehicleDetailKey) {
@@ -2452,19 +2464,19 @@ export default function SellPage() {
     return (
       <div className={styles.deliveryMethodField}>
         <span>Toimitustapa</span>
-        <div className={styles.deliveryMethodOptions}>
-          {deliveryMethodOptions.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              className={deliveryMethod === option.value ? styles.deliveryMethodActive : ""}
-              onClick={() => setDeliveryMethod(option.value)}
-              aria-pressed={deliveryMethod === option.value}
-            >
-              {deliveryMethod === option.value ? <Check size={16} aria-hidden="true" /> : null}
-              <span>{option.label}</span>
-            </button>
-          ))}
+        <div className={styles.deliveryMethodSelectShell}>
+          <select
+            value={deliveryMethod}
+            onChange={(event) => setDeliveryMethod(event.target.value as DeliveryMethod)}
+            aria-label="Toimitustapa"
+          >
+            {deliveryMethodOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown size={18} aria-hidden="true" />
         </div>
       </div>
     );
@@ -2648,7 +2660,10 @@ export default function SellPage() {
     if (mode === "multiple" && currentStep === 4) {
       return activeMultiListingIndex < selectedMultiPartList.length - 1
         ? "Seuraava osa"
-        : "Julkaisuun";
+        : "Toimitukseen";
+    }
+    if (mode === "multiple" && currentStep === 5) {
+      return "Julkaisuun";
     }
     return "Seuraava";
   }
@@ -2807,16 +2822,6 @@ export default function SellPage() {
         {parts.map((part, index) => {
           const automaticTitle = getAutomaticListingTitle(part);
           const partNeedsTrackMatDimensions = [part.category, part.group, part.detail].some(isTrackMatText);
-          const conditionKey =
-            part.condition === "Uusi"
-              ? "New"
-              : part.condition === "Hyvä"
-                ? "Good"
-                : part.condition === "Käytetty"
-                  ? "Used"
-                  : part.condition === "Korjattava"
-                    ? "Repair"
-                    : "Empty";
 
           return (
             <details className={styles.multiListingRow} key={part.id}>
@@ -2850,20 +2855,11 @@ export default function SellPage() {
                   <small className={styles.multiPriceSuggestionMuted}>Haetaan...</small>
                 ) : null}
               </span>
-              <label className={styles.multiConditionSelect}>
-                <span className={styles[`conditionDot${conditionKey}` as keyof typeof styles]} />
-                <select
-                  value={part.condition}
-                  onChange={(event) => updateMultiPartField(part.id, "condition", event.target.value)}
-                  aria-label="Kunto"
-                >
-                  <option value="">Kuntoluokitus</option>
-                  <option>Uusi</option>
-                  <option>Hyvä</option>
-                  <option>Käytetty</option>
-                  <option>Korjattava</option>
-                </select>
-              </label>
+              <ConditionSelect
+                compact
+                value={part.condition}
+                onChange={(value) => updateMultiPartField(part.id, "condition", value)}
+              />
               <span className={styles.multiListingActions}>
                 <button
                   type="button"
@@ -2980,30 +2976,9 @@ export default function SellPage() {
     const listingProgressLabel = `${activeIndex + 1}/${selectedMultiPartList.length} ilmoitusta täytetty`;
     const automaticTitle = getAutomaticListingTitle(part);
     const partNeedsTrackMatDimensions = [part.category, part.group, part.detail].some(isTrackMatText);
-    const conditionKey =
-      part.condition === "Uusi"
-        ? "New"
-        : part.condition === "Hyvä"
-          ? "Good"
-          : part.condition === "Käytetty"
-            ? "Used"
-            : part.condition === "Korjattava"
-              ? "Repair"
-              : "Empty";
 
     return (
       <div className={`${styles.listingStack} ${styles.multiListingWizard}`}>
-        <section className={styles.multiListingMetaPanel} aria-label="Sijainti ja toimitus">
-          <PlainIconInput
-            label="Sijainti"
-            icon={MapPin}
-            placeholder="Kaupunki tai paikkakunta"
-            value={listingLocation}
-            onChange={setListingLocation}
-          />
-          {renderDeliveryMethodSelector()}
-        </section>
-
         <section className={styles.multiListingCategory}>
           <div className={`${styles.multiListingCategoryHeader} ${styles.multiListingStaticHeader}`}>
             <span className={styles.multiListingHeaderTitle}>
@@ -3057,20 +3032,11 @@ export default function SellPage() {
                       <small className={styles.multiPriceSuggestionMuted}>Haetaan...</small>
                     ) : null}
                   </span>
-                  <span className={styles.multiConditionSelect}>
-                    <span className={styles[`conditionDot${conditionKey}` as keyof typeof styles]} />
-                    <select
-                      value={part.condition}
-                      onChange={(event) => updateMultiPartField(part.id, "condition", event.target.value)}
-                      aria-label="Kunto"
-                    >
-                      <option value="">Kuntoluokitus</option>
-                      <option>Uusi</option>
-                      <option>Hyvä</option>
-                      <option>Käytetty</option>
-                      <option>Korjattava</option>
-                    </select>
-                  </span>
+                  <ConditionSelect
+                    compact
+                    value={part.condition}
+                    onChange={(value) => updateMultiPartField(part.id, "condition", value)}
+                  />
                   <span className={styles.multiListingActions}>
                     <button
                       type="button"
@@ -3245,6 +3211,21 @@ export default function SellPage() {
     );
   }
 
+  function renderMultiDeliveryStep() {
+    return (
+      <section className={styles.multiListingMetaPanel} aria-label="Sijainti ja toimitus">
+        <PlainIconInput
+          label="Sijainti"
+          icon={MapPin}
+          placeholder="Kaupunki tai paikkakunta"
+          value={listingLocation}
+          onChange={setListingLocation}
+        />
+        {renderDeliveryMethodSelector()}
+      </section>
+    );
+  }
+
   function renderCurrentStep() {
     if (currentStep === 2) {
       return (
@@ -3278,9 +3259,12 @@ export default function SellPage() {
 
           <form className={styles.vehicleForm}>
             <PresetField
+              fieldKey="vehicleSubtype"
               label="Tyyppi"
               value={vehicleDetails.vehicleSubtype}
               options={vehiclePreset.typeOptions}
+              open={openVehiclePresetField === "vehicleSubtype"}
+              onOpenChange={(open) => setOpenVehiclePresetField(open ? "vehicleSubtype" : null)}
               onChange={(value) => updateVehicleDetail("vehicleSubtype", value)}
               customMode={Boolean(customVehicleFields.vehicleSubtype)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("vehicleSubtype", customMode)}
@@ -3292,9 +3276,12 @@ export default function SellPage() {
               customPlaceholder="Kirjoita tyyppi"
             />
             <PresetField
+              fieldKey="brand"
               label="Merkki"
               value={vehicleDetails.brand}
               options={taxonomyBrandOptions}
+              open={openVehiclePresetField === "brand"}
+              onOpenChange={(open) => setOpenVehiclePresetField(open ? "brand" : null)}
               onChange={updateVehicleBrand}
               customMode={Boolean(customVehicleFields.brand)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("brand", customMode)}
@@ -3306,9 +3293,12 @@ export default function SellPage() {
               customPlaceholder="Kirjoita merkki"
             />
             <PresetField
+              fieldKey="model"
               label="Malli"
               value={vehicleDetails.model}
               options={modelOptions}
+              open={openVehiclePresetField === "model"}
+              onOpenChange={(open) => setOpenVehiclePresetField(open ? "model" : null)}
               onChange={updateVehicleModel}
               customMode={Boolean(customVehicleFields.model)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("model", customMode)}
@@ -3320,9 +3310,12 @@ export default function SellPage() {
               customPlaceholder="Kirjoita malli"
             />
             <PresetField
+              fieldKey="year"
               label="Vuosimalli"
               value={vehicleDetails.year}
               options={vehicleYearOptions}
+              open={openVehiclePresetField === "year"}
+              onOpenChange={(open) => setOpenVehiclePresetField(open ? "year" : null)}
               onChange={(value) => updateVehicleDetail("year", value)}
               customMode={Boolean(customVehicleFields.year)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("year", customMode)}
@@ -3334,9 +3327,12 @@ export default function SellPage() {
               customPlaceholder="Kirjoita vuosimalli"
             />
             <PresetField
+              fieldKey="engineCc"
               label="Moottorin koko (cc)"
               value={vehicleDetails.engineCc}
               options={vehiclePreset.engineCcs}
+              open={openVehiclePresetField === "engineCc"}
+              onOpenChange={(open) => setOpenVehiclePresetField(open ? "engineCc" : null)}
               onChange={(value) => updateVehicleDetail("engineCc", value)}
               customMode={Boolean(customVehicleFields.engineCc)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("engineCc", customMode)}
@@ -3348,9 +3344,12 @@ export default function SellPage() {
               customPlaceholder="Kirjoita cc"
             />
             <PresetField
+              fieldKey="engineType"
               label="Moottori / moottorityyppi"
               value={vehicleDetails.engineType}
               options={engineTypeOptions}
+              open={openVehiclePresetField === "engineType"}
+              onOpenChange={(open) => setOpenVehiclePresetField(open ? "engineType" : null)}
               onChange={(value) => updateVehicleDetail("engineType", value)}
               customMode={Boolean(customVehicleFields.engineType)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("engineType", customMode)}
@@ -3363,9 +3362,12 @@ export default function SellPage() {
             />
             {mode === "single" ? (
               <PresetField
+                fieldKey="driveType"
                 label="Vetotapa"
                 value={vehicleDetails.driveType}
                 options={vehiclePreset.driveTypes}
+                open={openVehiclePresetField === "driveType"}
+                onOpenChange={(open) => setOpenVehiclePresetField(open ? "driveType" : null)}
                 onChange={(value) => updateVehicleDetail("driveType", value)}
                 customMode={Boolean(customVehicleFields.driveType)}
                 onCustomModeChange={(customMode) => updateVehicleCustomMode("driveType", customMode)}
@@ -3925,27 +3927,23 @@ export default function SellPage() {
       );
     }
 
+    if (mode === "multiple" && currentStep === 5) {
+      return renderMultiDeliveryStep();
+    }
+
     if (mode === "single" && currentStep === 4) {
       return (
         <div className={styles.conditionStep}>
           <section className={styles.conditionPanel} aria-label="Kunto ja sijainti">
             <h2>Kunto</h2>
             <div className={styles.conditionGrid}>
-              <CategorySelect
+              <ConditionSelect
                 label="Kunto"
-                icon={Star}
                 value={condition}
                 onChange={(value) => {
                   setCondition(value);
                   window.setTimeout(() => listingLocationInputRef.current?.focus(), 60);
                 }}
-                options={[
-                  { value: "Uusi", label: "Uusi" },
-                  { value: "Hyvä", label: "Hyvä" },
-                  { value: "Käytetty", label: "Käytetty" },
-                  { value: "Korjattava", label: "Korjattava" }
-                ]}
-                placeholder="Kuntoluokitus"
               />
               <PlainIconInput
                 label="Sijainti"
@@ -4399,6 +4397,7 @@ export default function SellPage() {
 }
 
 function PresetField({
+  fieldKey,
   label,
   value,
   options,
@@ -4408,8 +4407,11 @@ function PresetField({
   onCustomModeChange,
   onChange,
   onComplete,
-  inputRef
+  inputRef,
+  open,
+  onOpenChange
 }: {
+  fieldKey: VehicleDetailKey;
   label: string;
   value: string;
   options: string[];
@@ -4420,10 +4422,11 @@ function PresetField({
   onChange: (value: string) => void;
   onComplete: () => void;
   inputRef: (element: HTMLInputElement | null) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
   const cleanOptions = uniqueOptions(options);
   const otherLabel = "Muu";
-  const [open, setOpen] = useState(false);
   const isKnownValue = cleanOptions.includes(value);
   const effectiveCustomMode = customMode || Boolean(value && !isKnownValue);
   const presetOptions = useMemo(
@@ -4452,14 +4455,14 @@ function PresetField({
     if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
     onCustomModeChange(false);
     onChange(option);
-    setOpen(false);
+    onOpenChange(false);
     window.setTimeout(onComplete, 40);
   }
 
   function selectOther() {
     if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
     onCustomModeChange(true);
-    setOpen(false);
+    onOpenChange(false);
     onChange("");
     window.setTimeout(() => {
       innerInputRef.current?.focus();
@@ -4467,11 +4470,11 @@ function PresetField({
   }
 
   function toggleOptions() {
-    setOpen((current) => !current);
+    onOpenChange(!open);
   }
 
   return (
-    <label className={styles.presetField} data-preset-label={label}>
+    <label className={styles.presetField} data-preset-key={fieldKey} data-preset-label={label}>
       <span>{label}</span>
       <span
         className={`${styles.presetSelectShell} ${open ? styles.presetSelectOpen : ""} ${effectiveCustomMode ? styles.presetSelectCustom : ""}`}
@@ -4483,13 +4486,13 @@ function PresetField({
           }}
           value={value}
           onFocus={() => {
-            if (!effectiveCustomMode) setOpen(true);
+            if (!effectiveCustomMode) onOpenChange(true);
           }}
           onClick={() => {
-            if (!effectiveCustomMode) setOpen(true);
+            if (!effectiveCustomMode) onOpenChange(true);
           }}
           onBlur={() => {
-            window.setTimeout(() => setOpen(false), 120);
+            window.setTimeout(() => onOpenChange(false), 120);
           }}
           onChange={(event) => {
             if (!effectiveCustomMode) return;
@@ -4499,15 +4502,15 @@ function PresetField({
           onKeyDown={(event) => {
             if (event.key === "ArrowDown") {
               event.preventDefault();
-              setOpen(true);
+              onOpenChange(true);
             }
             if (event.key === "Enter" && effectiveCustomMode && value.trim()) {
               event.preventDefault();
-              setOpen(false);
+              onOpenChange(false);
               onComplete();
             }
             if (event.key === "Escape") {
-              setOpen(false);
+              onOpenChange(false);
             }
           }}
           readOnly={!effectiveCustomMode}
@@ -4572,6 +4575,100 @@ function PresetField({
             >
               {otherLabel}
             </button>
+          </div>
+        ) : null}
+      </span>
+    </label>
+  );
+}
+
+function getConditionDotClass(conditionValue: string) {
+  const conditionKey =
+    conditionValue === "Uusi"
+      ? "New"
+      : conditionValue === "Hyvä"
+        ? "Good"
+        : conditionValue === "Käytetty"
+          ? "Used"
+          : conditionValue === "Korjattava"
+            ? "Repair"
+            : "Empty";
+
+  return styles[`conditionDot${conditionKey}` as keyof typeof styles];
+}
+
+function ConditionSelect({
+  compact = false,
+  label = "Kunto",
+  onChange,
+  value
+}: {
+  compact?: boolean;
+  label?: string;
+  onChange: (value: string) => void;
+  value: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedOption = conditionOptions.find((option) => option.value === value);
+  const displayValue = selectedOption?.label ?? "Kuntoluokitus";
+
+  function chooseOption(nextValue: string) {
+    setOpen(false);
+    onChange(nextValue);
+  }
+
+  return (
+    <label className={`${styles.categorySelectField} ${compact ? styles.conditionSelectCompact : ""}`}>
+      {!compact ? <span>{label}</span> : null}
+      <span
+        className={`${styles.categorySelectShell} ${styles.conditionSelectShell} ${open ? styles.categorySelectOpen : ""}`}
+        data-sell-condition-select="true"
+        onBlur={() => {
+          window.setTimeout(() => setOpen(false), 80);
+        }}
+      >
+        <span className={styles.categorySelectIcon}>
+          <span className={`${styles.conditionSelectDot} ${getConditionDotClass(value)}`} />
+        </span>
+        <button
+          type="button"
+          className={`${styles.categorySelectButton} ${value ? "" : styles.categorySelectPlaceholder}`}
+          onClick={() => setOpen((current) => !current)}
+          aria-haspopup="listbox"
+          aria-expanded={open}
+        >
+          {displayValue}
+        </button>
+        <ChevronDown size={20} aria-hidden="true" />
+        {open ? (
+          <div
+            className={styles.categorySelectMenu}
+            data-sell-condition-menu="true"
+            role="listbox"
+            style={{
+              background: "#061726",
+              backgroundColor: "#061726",
+              color: "#dce8f7"
+            }}
+          >
+            {conditionOptions.map((option) => {
+              const active = option.value === value;
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={active ? styles.categorySelectOptionActive : styles.categorySelectOption}
+                  data-active={active ? "true" : "false"}
+                  onClick={() => chooseOption(option.value)}
+                  role="option"
+                  aria-selected={active}
+                >
+                  <span className={`${styles.conditionSelectDot} ${getConditionDotClass(option.value)}`} />
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
           </div>
         ) : null}
       </span>

@@ -5761,15 +5761,20 @@ html body .universal-notification-menu::before {
 
 html body .universal-notification-head {
   align-items: center !important;
-  gap: 10px !important;
-  grid-template-columns: 40px minmax(0, 1fr) 30px !important;
-  min-height: 66px !important;
-  padding: 12px 14px !important;
+  display: grid !important;
+  gap: 7px !important;
+  grid-template-columns: 1fr !important;
+  justify-items: center !important;
+  min-height: 98px !important;
+  padding: 14px 48px 13px !important;
+  position: relative !important;
+  text-align: center !important;
 }
 
 html body .universal-notification-head-icon {
   border-radius: 9px !important;
   height: 36px !important;
+  justify-self: center !important;
   width: 36px !important;
 }
 
@@ -5782,7 +5787,9 @@ html body .universal-notification-head-copy {
   align-content: center !important;
   display: grid !important;
   gap: 3px !important;
+  justify-items: center !important;
   min-width: 0 !important;
+  width: 100% !important;
 }
 
 html body .universal-notification-head-copy strong,
@@ -5807,7 +5814,9 @@ html body .universal-notification-head-copy small {
 html body .universal-notification-count {
   font-size: 12px !important;
   height: 26px !important;
-  justify-self: flex-end !important;
+  position: absolute !important;
+  right: 28px !important;
+  top: 18px !important;
   min-width: 26px !important;
   padding: 0 7px !important;
 }
@@ -10530,14 +10539,27 @@ html body .simple-auth-page .profile-finalize-card .date-field-control svg {
   width: 18px !important;
 }
 
-html body .simple-auth-page .profile-finalize-card .date-field-control select {
+html body .simple-auth-page .profile-finalize-card .date-field-control select,
+html body .simple-auth-page .profile-finalize-card .date-field-control input {
   background: transparent !important;
   border: 0 !important;
   border-left: 1px solid rgba(112, 178, 230, 0.26) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  color: #ffffff !important;
+  font: inherit !important;
+  font-weight: 850 !important;
   height: 100% !important;
   padding: 0 16px !important;
+}
+
+html body .simple-auth-page .profile-finalize-card .date-field-control input {
+  min-height: 0 !important;
+  text-align: center !important;
+}
+
+html body .simple-auth-page .profile-finalize-card .date-field-control input::placeholder {
+  color: rgba(210, 225, 238, 0.72) !important;
 }
 
 html body .simple-auth-page .profile-finalize-card .privacy-checkbox-row {

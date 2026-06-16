@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
 
 type BirthDateFieldProps = {
@@ -27,7 +27,7 @@ const months = [
 ];
 
 const currentYear = new Date().getFullYear();
-const years = Array.from({ length: 101 }, (_, index) => String(currentYear - index));
+const minYear = currentYear - 100;
 
 function parseDate(value: string) {
   const [year = "", month = "", day = ""] = value.split("-");
@@ -41,6 +41,24 @@ function daysInMonth(year: string, month: string) {
 
 function formatDate(year: string, month: string, day: string) {
   return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
+function cleanNumberInput(value: string, maxLength: number) {
+  return value.replace(/\D/g, "").slice(0, maxLength);
+}
+
+function isCompleteDate(year: string, month: string, day: string) {
+  const numericYear = Number(year);
+  const numericDay = Number(day);
+
+  return (
+    year.length === 4 &&
+    numericYear >= minYear &&
+    numericYear <= currentYear &&
+    Boolean(month) &&
+    numericDay >= 1 &&
+    numericDay <= daysInMonth(year, month)
+  );
 }
 
 export function BirthDateField({
@@ -57,10 +75,10 @@ export function BirthDateField({
   }, [value]);
 
   const maxDays = daysInMonth(parts.year, parts.month);
-  const days = useMemo(() => Array.from({ length: maxDays }, (_, index) => String(index + 1)), [maxDays]);
 
   function updatePart(key: "day" | "month" | "year", nextValue: string) {
-    const next = { ...parts, [key]: nextValue };
+    const cleanedValue = key === "month" ? nextValue : cleanNumberInput(nextValue, key === "year" ? 4 : 2);
+    const next = { ...parts, [key]: cleanedValue };
     const nextMaxDays = daysInMonth(next.year, next.month);
 
     if (Number(next.day) > nextMaxDays) {
@@ -69,7 +87,7 @@ export function BirthDateField({
 
     setParts(next);
 
-    if (next.year && next.month && next.day) {
+    if (isCompleteDate(next.year, next.month, next.day)) {
       onChange(formatDate(next.year, next.month, next.day));
       return;
     }
@@ -82,20 +100,18 @@ export function BirthDateField({
       <span>{label}</span>
       <div className="date-field-control">
         <CalendarDays size={18} aria-hidden="true" />
-        <select
+        <input
           aria-label="Päivä"
           disabled={disabled}
+          inputMode="numeric"
+          max={maxDays}
+          maxLength={2}
+          min={1}
+          placeholder="Pv"
           required={required}
           value={parts.day ? String(Number(parts.day)) : ""}
           onChange={(event) => updatePart("day", event.target.value)}
-        >
-          <option value="">Pv</option>
-          {days.map((day) => (
-            <option key={day} value={day}>
-              {day}
-            </option>
-          ))}
-        </select>
+        />
         <select
           aria-label="Kuukausi"
           disabled={disabled}
@@ -110,20 +126,18 @@ export function BirthDateField({
             </option>
           ))}
         </select>
-        <select
+        <input
           aria-label="Vuosi"
           disabled={disabled}
+          inputMode="numeric"
+          max={currentYear}
+          maxLength={4}
+          min={minYear}
+          placeholder="Vuosi"
           required={required}
           value={parts.year}
           onChange={(event) => updatePart("year", event.target.value)}
-        >
-          <option value="">Vuosi</option>
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
+        />
       </div>
     </label>
   );

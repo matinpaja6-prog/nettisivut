@@ -771,11 +771,13 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .privacy-checkb
     display: none !important;
   }
 
-  html body .simple-auth-page .profile-finalize-card .date-field-control select {
+  html body .simple-auth-page .profile-finalize-card .date-field-control select,
+  html body .simple-auth-page .profile-finalize-card .date-field-control input {
     border-left: 1px solid rgba(112, 178, 230, 0.24) !important;
     font-size: 13px !important;
     font-weight: 850 !important;
     height: 100% !important;
+    min-height: 0 !important;
     min-width: 0 !important;
     padding: 0 8px !important;
     text-align: center !important;
@@ -783,7 +785,7 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .privacy-checkb
     white-space: nowrap !important;
   }
 
-  html body .simple-auth-page .profile-finalize-card .date-field-control select:first-of-type {
+  html body .simple-auth-page .profile-finalize-card .date-field-control input:first-of-type {
     border-left: 0 !important;
   }
 }

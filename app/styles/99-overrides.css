@@ -1263,7 +1263,8 @@ body:has(.profile-ready-card) .fc-panel {
   padding: 0 10px !important;
 }
 
-.auth-page .date-field-control select {
+.auth-page .date-field-control select,
+.auth-page .date-field-control input {
   min-height: 34px !important;
   padding: 0 8px !important;
 }
@@ -8675,9 +8676,11 @@ html body [class*="sortControlRebuilt"] {
 
 html body [class*="sortMenuPanel"] {
   box-sizing: border-box !important;
+  left: auto !important;
   max-width: calc(100vw - 24px) !important;
   min-width: min(236px, calc(100vw - 24px)) !important;
   overflow: visible !important;
+  right: 0 !important;
   width: min(236px, calc(100vw - 24px)) !important;
   z-index: 10030 !important;
 }
