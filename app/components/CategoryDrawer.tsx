@@ -1251,6 +1251,33 @@ function VehicleComboField({
   );
 }
 
+function mergeCategorySources(
+  baseCategories: Record<string, readonly string[]>,
+  vehicleCategorySources: Record<string, Record<string, readonly string[]>>
+) {
+  const merged = new Map<string, string[]>();
+
+  function addCategorySource(source: Record<string, readonly string[]>) {
+    for (const [categoryName, subcategories] of Object.entries(source)) {
+      const existing = merged.get(categoryName) ?? [];
+      const next = [...existing];
+
+      for (const subcategory of subcategories) {
+        if (!next.includes(subcategory)) next.push(subcategory);
+      }
+
+      merged.set(categoryName, next);
+    }
+  }
+
+  addCategorySource(baseCategories);
+  for (const source of Object.values(vehicleCategorySources)) {
+    addCategorySource(source);
+  }
+
+  return Object.fromEntries(merged.entries()) as Record<string, readonly string[]>;
+}
+
 export default function CategoryDrawer({
   isOpen, onClose,
   vehicleType: initVehicle, vehicleSubtype: initVehicleSubtype, brand: initBrand, model: initModel,
@@ -1271,6 +1298,7 @@ export default function CategoryDrawer({
   const [engineModel, setEngineModel]       = useState(initEngineModel ?? "");
   const [engineModelOther, setEngineModelOther] = useState("");
   const [vehicleTypeMenuOpen, setVehicleTypeMenuOpen] = useState(false);
+  const [vehicleTypeWasSelected, setVehicleTypeWasSelected] = useState(Boolean(initVehicle));
   const [vehicleSubtypeMenuOpen, setVehicleSubtypeMenuOpen] = useState(false);
   const [cat,     setCat]             = useState(initCat);
   const [subGroup, setSubGroup] = useState("");
@@ -1284,6 +1312,7 @@ export default function CategoryDrawer({
 
   useEffect(() => {
     setVehicle(initVehicle);
+    setVehicleTypeWasSelected(Boolean(initVehicle));
   }, [initVehicle]);
   useEffect(() => {
     if (isOpen) {
@@ -1300,6 +1329,7 @@ export default function CategoryDrawer({
       setEngineModel(initEngineModel ?? "");
       setEngineModelOther("");
       setVehicleTypeMenuOpen(false);
+      setVehicleTypeWasSelected(Boolean(initVehicle));
       setVehicleSubtypeMenuOpen(false);
       categoryVehicleMenuAutoOpenedRef.current = false;
       setModelOpen(false);
@@ -1396,7 +1426,7 @@ export default function CategoryDrawer({
 
   const cats = vehicle
     ? (vehicleCategories[vehicle as VehicleType] ?? partsCategories)
-    : partsCategories;
+    : mergeCategorySources(partsCategories, vehicleCategories);
   const engineModelOptions = getModelEngineOptions(
     vehicle,
     brand,
@@ -1545,6 +1575,7 @@ export default function CategoryDrawer({
     const nextVehicle = nextKind === "all" ? "" : (nextKind as VehicleType);
     setVehicleTypeMenuOpen(false);
     setVehicleSubtypeMenuOpen(false);
+    setVehicleTypeWasSelected(true);
     setVehicle(nextVehicle);
     setBrand("");
     setVehicleSubtype("");
@@ -1564,7 +1595,9 @@ export default function CategoryDrawer({
     const selectedKind = vehicle || "all";
     const selectedLabel = vehicle
       ? startTiles.find((tile) => tile.kind === selectedKind)?.label ?? t.all
-      : "Ajoneuvotyyppi";
+      : vehicleTypeWasSelected
+        ? t.all
+        : "Ajoneuvotyyppi";
 
     return (
       <div className={`cd-vehicle-type-menu${vehicleTypeMenuOpen ? " is-open" : ""}`}>

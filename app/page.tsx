@@ -76,6 +76,33 @@ function isPublicListing(listing: Listing) {
   return !listing.is_sold && !listing.is_hidden;
 }
 
+function mergeCategorySources(
+  baseCategories: Record<string, readonly string[]>,
+  vehicleCategorySources: Record<string, Record<string, readonly string[]>>
+) {
+  const merged = new Map<string, string[]>();
+
+  function addCategorySource(source: Record<string, readonly string[]>) {
+    for (const [categoryName, subcategories] of Object.entries(source)) {
+      const existing = merged.get(categoryName) ?? [];
+      const next = [...existing];
+
+      for (const subcategory of subcategories) {
+        if (!next.includes(subcategory)) next.push(subcategory);
+      }
+
+      merged.set(categoryName, next);
+    }
+  }
+
+  addCategorySource(baseCategories);
+  for (const source of Object.values(vehicleCategorySources)) {
+    addCategorySource(source);
+  }
+
+  return Object.fromEntries(merged.entries()) as Record<string, readonly string[]>;
+}
+
 const translations = {
   fi: {
     createListing: "Luo ilmoitus",
@@ -999,6 +1026,10 @@ export default function Home() {
     }
     return out;
   }, [taxonomy]);
+  const allVehicleCategories = useMemo(
+    () => mergeCategorySources(partsCategories, vehicleCategories),
+    [partsCategories, vehicleCategories]
+  );
   const vehiclePills = useMemo(
     () => [
       { label: "Kaikki", type: "" as string },
@@ -2299,8 +2330,8 @@ export default function Home() {
   }, [query]);
 
   const categorySource = useMemo(() => {
-    return vehicleType ? vehicleCategories[vehicleType] : partsCategories;
-  }, [partsCategories, vehicleCategories, vehicleType]);
+    return vehicleType ? vehicleCategories[vehicleType] : allVehicleCategories;
+  }, [allVehicleCategories, vehicleCategories, vehicleType]);
 
   const categoryEntries = useMemo(() => {
     const q = categorySearch.trim().toLowerCase();

@@ -5106,6 +5106,7 @@ function ConditionSelect({
   value: string;
 }) {
   const [open, setOpen] = useState(false);
+  const pointerSelectionRef = useRef<string | null>(null);
   const selectedOption = conditionOptions.find((option) => option.value === value);
   const displayValue = selectedOption?.label ?? "Kuntoluokitus";
 
@@ -5161,10 +5162,21 @@ function ConditionSelect({
                   type="button"
                   className={active ? styles.categorySelectOptionActive : styles.categorySelectOption}
                   data-active={active ? "true" : "false"}
-                  onMouseDown={(event) => event.preventDefault()}
+                  onPointerDown={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    pointerSelectionRef.current = option.value;
+                    chooseOption(option.value);
+                    event.currentTarget.blur();
+                  }}
                   onClick={(event) => {
                     event.stopPropagation();
+                    if (pointerSelectionRef.current === option.value) {
+                      pointerSelectionRef.current = null;
+                      return;
+                    }
                     chooseOption(option.value);
+                    event.currentTarget.blur();
                   }}
                   role="option"
                   aria-selected={active}
