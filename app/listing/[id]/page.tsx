@@ -386,6 +386,9 @@ export default function ListingPage() {
   const [sellerBusinessId, setSellerBusinessId] =
     useState<string | null>(null);
 
+  const [sellerCompanyVerifiedAt, setSellerCompanyVerifiedAt] =
+    useState<string | null>(null);
+
   const [sellerProfileAvatarUrl, setSellerProfileAvatarUrl] =
     useState<string | null>(null);
 
@@ -559,6 +562,7 @@ export default function ListingPage() {
     if (!supabase || !sellerIdForPublicStats) {
       setSellerWebsite(null);
       setSellerBusinessId(null);
+      setSellerCompanyVerifiedAt(null);
       setSellerProfileAvatarUrl(null);
       setSellerAccountType(null);
       setSellerProfileCreatedAt(null);
@@ -580,11 +584,12 @@ export default function ListingPage() {
         ] = await Promise.all([
           supabase!
             .from("profiles")
-            .select("company_website,business_id,account_type,created_at,avatar_url")
+            .select("company_website,business_id,company_verified_at,account_type,created_at,avatar_url")
             .eq("id", sellerIdForPublicStats)
             .maybeSingle<{
               company_website?: string | null;
               business_id?: string | null;
+              company_verified_at?: string | null;
               account_type?: "company" | "private" | null;
               created_at?: string | null;
               avatar_url?: string | null;
@@ -624,6 +629,7 @@ export default function ListingPage() {
 
         setSellerWebsite(data?.company_website?.trim() || null);
         setSellerBusinessId(data?.business_id?.trim() || null);
+        setSellerCompanyVerifiedAt(data?.company_verified_at ?? null);
         setSellerProfileAvatarUrl(data?.avatar_url?.trim() || null);
         setSellerAccountType(data?.account_type ?? null);
         setSellerProfileCreatedAt(data?.created_at ?? null);
@@ -644,6 +650,7 @@ export default function ListingPage() {
         if (mounted) {
           setSellerWebsite(null);
           setSellerBusinessId(null);
+          setSellerCompanyVerifiedAt(null);
           setSellerProfileAvatarUrl(null);
           setSellerAccountType(null);
           setSellerProfileCreatedAt(null);
@@ -1052,7 +1059,7 @@ export default function ListingPage() {
     Number(hasSellerReviewStats) + Number(hasSellerSoldStats);
   const sellerAccountTypeLabel =
     sellerAccountType === "company"
-      ? "Yritys"
+      ? sellerCompanyVerifiedAt ? "Vahvistettu yritys" : "Yritys"
       : sellerAccountType === "private"
         ? "Yksityinen myyjä"
         : null;
@@ -1426,7 +1433,7 @@ export default function ListingPage() {
               <div className="seller-card-body seller-card-panel">
                 <div className="seller-card-top">
                   {sellerAccountTypeLabel ? (
-                    <div className="seller-type-corner">
+                    <div className={`seller-type-corner${sellerCompanyVerifiedAt ? " is-company-verified" : ""}`}>
                       <ShieldCheck size={14} />
                       <strong>{sellerAccountTypeLabel}</strong>
                     </div>
@@ -1484,11 +1491,13 @@ export default function ListingPage() {
                     <strong>{companySellerNames || sellerDisplayName}</strong>
                   </div>
                   {showSellerBusinessId && (
-                    <div className="seller-meta-row">
-                      <Building2 size={14} />
-                      <span>Y-tunnus:</span>
-                      <strong>{sellerBusinessId || ui.notSpecified}</strong>
-                    </div>
+                    <>
+                      <div className="seller-meta-row">
+                        <Building2 size={14} />
+                        <span>Y-tunnus:</span>
+                        <strong>{sellerBusinessId || ui.notSpecified}</strong>
+                      </div>
+                    </>
                   )}
                   {listingLocation && (
                     <div className="seller-meta-row">
@@ -7584,6 +7593,31 @@ export default function ListingPage() {
             width: 14px !important;
           }
 
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-company-verified-line.seller-company-verified-line) {
+            background: transparent !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            color: #4ade80 !important;
+            font-weight: 950 !important;
+            padding-top: 0 !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-company-verified-line.seller-company-verified-line span),
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-company-verified-line.seller-company-verified-line svg) {
+            color: #4ade80 !important;
+            stroke: #4ade80 !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified) {
+            color: #4ade80 !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified strong),
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified svg) {
+            color: #4ade80 !important;
+            stroke: #4ade80 !important;
+          }
+
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-btn),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-number) {
             background: linear-gradient(180deg, rgba(5, 25, 46, 0.98), rgba(3, 15, 30, 0.98)) !important;
@@ -7593,6 +7627,17 @@ export default function ListingPage() {
             font-size: 14px !important;
             font-weight: 950 !important;
           }
+        }
+
+        :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified),
+        :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified strong) {
+          color: #4ade80 !important;
+          -webkit-text-fill-color: #4ade80 !important;
+        }
+
+        :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified svg) {
+          color: #4ade80 !important;
+          stroke: #4ade80 !important;
         }
 
       `}</style>

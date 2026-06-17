@@ -4742,3 +4742,78 @@ html body .seller-page .seller-ref-follow-button {
     width: 100% !important;
   }
 }
+html body .seller-page .seller-ref-detail-row.seller-ref-company-verified-text {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #4ade80 !important;
+  padding-top: 0 !important;
+}
+
+html body .seller-page .seller-ref-detail-row.seller-ref-company-verified-text span,
+html body .seller-page .seller-ref-detail-row.seller-ref-company-verified-text svg {
+  color: #4ade80 !important;
+  stroke: #4ade80 !important;
+}
+
+html body .seller-page .seller-ref-copy h1 > span[aria-hidden="true"] {
+  display: none !important;
+}
+
+html body .seller-page .seller-ref-title-verified {
+  align-items: center !important;
+  color: #4ade80 !important;
+  display: inline-flex !important;
+  font-size: 0.98rem !important;
+  font-weight: 950 !important;
+  gap: 6px !important;
+  line-height: 1.15 !important;
+  margin: 4px 0 0 !important;
+  -webkit-text-fill-color: #4ade80 !important;
+}
+
+html body .seller-page .seller-ref-title-verified svg {
+  color: #4ade80 !important;
+  flex: 0 0 auto !important;
+  stroke: #4ade80 !important;
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .seller-ref-identity {
+    align-items: start !important;
+    grid-template-columns: 64px minmax(0, 1fr) !important;
+  }
+
+  html body .seller-page .seller-ref-copy {
+    display: grid !important;
+    justify-items: start !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-copy h1 {
+    min-width: 0 !important;
+    overflow-wrap: normal !important;
+    text-align: left !important;
+    white-space: normal !important;
+    word-break: normal !important;
+  }
+
+  html body .seller-page .seller-ref-title-verified {
+    align-self: start !important;
+    font-size: 12px !important;
+    gap: 5px !important;
+    justify-content: flex-start !important;
+    line-height: 1.15 !important;
+    margin: 5px 0 2px !important;
+    max-width: 100% !important;
+    min-width: max-content !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+  }
+
+  html body .seller-page .seller-ref-title-verified svg {
+    height: 12px !important;
+    width: 12px !important;
+  }
+}

@@ -80,7 +80,7 @@ type AdminListing = {
 };
 
 type ListingStatus = "all" | "active" | "sold";
-type UserTypeFilter = "all" | "company" | "private";
+type UserTypeFilter = "all" | "company" | "company_pending" | "private";
 
 type Toast = { type: "ok" | "error"; message: string } | null;
 
@@ -122,6 +122,10 @@ type ConfirmState =
     }
   | {
       kind: "edit-profile";
+      user: AdminProfileRow;
+    }
+  | {
+      kind: "view-profile";
       user: AdminProfileRow;
     }
   | {
@@ -537,7 +541,11 @@ export default function AdminPage() {
     showOk(nextVerified ? "Yritys merkitty vahvistetuksi." : "Yrityksen vahvistus poistettu.");
     setUsers((prev) => prev.map((u) => (
       u.id === user.id
-        ? { ...u, company_verified_at: nextVerified ? (data ?? new Date().toISOString()) : null }
+        ? {
+            ...u,
+            company_verified_at: nextVerified ? (data ?? new Date().toISOString()) : null,
+            company_verification_requested_at: null
+          }
         : u
     )));
   };
@@ -839,13 +847,14 @@ export default function AdminPage() {
                   }
                 }}
                 onBanUserIp={(user) => {
-                  if (!user.last_ip) {
+                  const ip = user.last_ip || user.last_seen_ip;
+                  if (!ip) {
                     showError("Käyttäjältä ei löydy tallennettua IP:tä vielä.");
                     return;
                   }
                   setConfirm({
                     kind: "ban-ip",
-                    prefillIp: user.last_ip,
+                    prefillIp: ip,
                     contextUserName: user.full_name || user.email || user.id.slice(0, 8)
                   });
                 }}
@@ -1366,7 +1375,7 @@ function DashboardOverviewPanel({ stats, loading, onOpenReport }: {
    USERS PANEL
 ================================================================= */
 
-type UserActionKind = "delete-user" | "ban-user" | "verify-phone" | "set-points" | "set-slots" | "edit-profile";
+type UserActionKind = "delete-user" | "ban-user" | "verify-phone" | "set-points" | "set-slots" | "edit-profile" | "view-profile";
 
 function UsersPanel({
   users,
@@ -1397,9 +1406,22 @@ function UsersPanel({
 }) {
   const filteredUsers = useMemo(() => {
     if (typeFilter === "company") return users.filter((user) => user.account_type === "company");
+    if (typeFilter === "company_pending") {
+      return users.filter((user) =>
+        user.account_type === "company" &&
+        Boolean(user.company_verification_requested_at) &&
+        !user.company_verified_at
+      );
+    }
     if (typeFilter === "private") return users.filter((user) => user.account_type !== "company");
     return users;
   }, [typeFilter, users]);
+  const pendingCompanyCount =
+    users.filter((u) =>
+      u.account_type === "company" &&
+      Boolean(u.company_verification_requested_at) &&
+      !u.company_verified_at
+    ).length;
 
   return (
     <section className={styles.panel}>
@@ -1428,6 +1450,7 @@ function UsersPanel({
         {[
           { key: "all", label: `Kaikki (${users.length})` },
           { key: "company", label: `Yritykset (${users.filter((u) => u.account_type === "company").length})` },
+          { key: "company_pending", label: `Odottaa vahvistusta (${pendingCompanyCount})` },
           { key: "private", label: `Yksityiset (${users.filter((u) => u.account_type !== "company").length})` }
         ].map((item) => (
           <button
@@ -1533,25 +1556,30 @@ function UserTableRow({
   const verifyClass =
     !phoneVerified ? "danger" : verifyCount >= verifyMax ? "warn" : "ok";
   const slots = BASE_LISTING_SLOT_LIMIT + (u.extra_listing_slots ?? 0);
+  const displayName =
+    u.full_name || [u.first_name, u.last_name].filter(Boolean).join(" ") || "Tuntematon";
+  const ip = u.last_ip || u.last_seen_ip;
 
   return (
     <tr>
       <td className={styles.cellName}>
-        <strong>{u.full_name || [u.first_name, u.last_name].filter(Boolean).join(" ") || "Tuntematon"}</strong>
-        <small>
-          {u.account_type === "company" ? "Yritys" : "Yksityinen"}
-          {u.business_id ? ` · ${u.business_id}` : ""}
-          {u.company_verified_at ? " · Vahvistettu yritys" : ""}
-          {u.is_admin ? " · ADMIN" : ""}
-        </small>
+        <strong title={displayName}>{displayName}</strong>
+        <small>{u.account_type === "company" ? "Yritys" : "Yksityinen"}{u.business_id ? ` · ${u.business_id}` : ""}</small>
+        {u.company_verified_at && (
+          <span className={styles.companyVerifiedText}>Vahvistettu yritys</span>
+        )}
+        {u.account_type === "company" && u.company_verification_requested_at && !u.company_verified_at && (
+          <span className={styles.companyPendingText}>Odottaa vahvistusta</span>
+        )}
+        {u.is_admin && <span className={styles.adminInlineText}>ADMIN</span>}
       </td>
-      <td>
-        <div>{u.email || "—"}</div>
-        <small style={{ color: "#94a3b8", fontSize: "0.78rem", fontWeight: 700 }}>
+      <td className={styles.contactCell}>
+        <div title={u.email || undefined}>{u.email || "—"}</div>
+        <small>
           {u.phone || "ei puhelinta"}
         </small>
-        <small style={{ color: "#7dd3fc", display: "block", fontSize: "0.76rem", fontWeight: 800, marginTop: 3 }}>
-          IP: {u.last_ip || u.last_seen_ip || "ei tallennettua IP:tä"}
+        <small className={styles.ipLine} title={ip || undefined}>
+          IP: {ip || "ei tallennettua IP:tä"}
           {u.ip_count ? ` · ${u.ip_count} osumaa` : ""}
         </small>
       </td>
@@ -1590,6 +1618,13 @@ function UserTableRow({
             style={{ position: "fixed", top: menuPos.top, right: menuPos.right, zIndex: 9999 }}
           >
             <div className={styles.actionMenuGrid}>
+            <button
+              type="button"
+              className={styles.actionMenuItem}
+              onClick={() => { setMenuOpen(false); onAction("view-profile", u); }}
+            >
+              <Eye size={14} /> Tarkat tiedot
+            </button>
             <button
               type="button"
               className={styles.actionMenuItem}
@@ -2133,9 +2168,65 @@ function ConfirmDialogs({
 
   if (!state) return null;
 
+  const profileDetailRows =
+    state && "user" in state
+      ? [
+          ["ID", state.user.id],
+          ["Julkinen ID", state.user.public_id],
+          ["Sähköposti", state.user.email],
+          ["Puhelin", state.user.phone],
+          ["Nimi", state.user.full_name],
+          ["Etunimi", state.user.first_name],
+          ["Sukunimi", state.user.last_name],
+          ["Tilityyppi", state.user.account_type === "company" ? "Yritys" : "Yksityinen"],
+          ["Yritys", state.user.company_name],
+          ["Y-tunnus", state.user.business_id],
+          ["Yrityksen sivu", state.user.company_website],
+          ["Vahvistuspyyntö", state.user.company_verification_requested_at ? formatDate(state.user.company_verification_requested_at) : null],
+          ["Yritys vahvistettu", state.user.company_verified_at ? formatDate(state.user.company_verified_at) : null],
+          ["Laskutussähköposti", state.user.billing_email],
+          ["Osoite", state.user.address],
+          ["Postinumero", state.user.postal_code],
+          ["Kaupunki", state.user.city],
+          ["Maa", state.user.country],
+          ["Syntymäpäivä", state.user.birth_date],
+          ["Julkinen osoite", state.user.public_address],
+          ["Käyttäjänimi", state.user.username],
+          ["Bio", state.user.bio],
+          ["IP", state.user.last_ip || state.user.last_seen_ip],
+          ["IP-osumat", state.user.ip_count ? String(state.user.ip_count) : null],
+          ["Pisteet", String(state.user.points)],
+          ["Ilmoituspaikat", String(BASE_LISTING_SLOT_LIMIT + (state.user.extra_listing_slots ?? 0))],
+          ["Puhelin vahvistettu", state.user.phone_verified_at ? formatDate(state.user.phone_verified_at) : null],
+          ["Vahvistukset", `${state.user.phone_verification_count}/${2 + (state.user.extra_phone_verifications ?? 0)}`],
+          ["Bannattu", state.user.is_banned ? "Kyllä" : "Ei"],
+          ["Bannin syy", state.user.banned_reason],
+          ["Liittynyt", formatDate(state.user.created_at)],
+          ["Päivitetty", formatDate(state.user.updated_at)]
+        ].filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== "")
+      : [];
+
   return (
     <div className={styles.modalBackdrop} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        {state.kind === "view-profile" && (
+          <>
+            <h3>Profiilin tarkat tiedot</h3>
+            <p>{state.user.email || state.user.id}</p>
+            <div className={styles.profileDetailsGrid}>
+              {profileDetailRows.map(([label, value]) => (
+                <div key={label} className={styles.profileDetailRow}>
+                  <span>{label}</span>
+                  <strong>{value}</strong>
+                </div>
+              ))}
+            </div>
+            <div className={styles.modalActions}>
+              <button type="button" className={styles.ghostBtn} onClick={onClose}>Sulje</button>
+            </div>
+          </>
+        )}
+
         {state.kind === "delete-listing" && (
           <>
             <h3>Poista ilmoitus?</h3>

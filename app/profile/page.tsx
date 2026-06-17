@@ -570,6 +570,9 @@ export default function ProfilePage() {
   const [status, setStatus] = useState("");
   const [passwordStatus, setPasswordStatus] = useState("");
   const [passwordSending, setPasswordSending] = useState(false);
+  const [companyVerifyModalOpen, setCompanyVerifyModalOpen] = useState(false);
+  const [companyVerifySaving, setCompanyVerifySaving] = useState(false);
+  const [companyVerifyStatus, setCompanyVerifyStatus] = useState("");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarCropFile, setAvatarCropFile] = useState<File | null>(null);
@@ -606,8 +609,7 @@ export default function ProfilePage() {
     useState(false);
   const phoneUnlockDate =
     getPhoneChangeUnlockDate(profile?.phone_last_changed_at);
-  const phoneChangeLocked =
-    Boolean(phoneUnlockDate && phoneUnlockDate.getTime() > Date.now());
+  const phoneChangeLocked = false;
   const phoneChangeLockText =
     phoneUnlockDate
       ? `Puhelinnumeron voi vaihtaa seuraavan kerran ${formatPhoneChangeUnlockDate(phoneUnlockDate)}.`
@@ -722,6 +724,37 @@ export default function ProfilePage() {
     }
     setPasswordStatus(profileText.passwordLinkSent);
     setPasswordSending(false);
+  }
+
+  async function requestCompanyVerification() {
+    if (!supabase || !user || !profile || profile.account_type !== "company") return;
+    if (profile.company_verified_at || companyVerifySaving) return;
+
+    setCompanyVerifySaving(true);
+    setCompanyVerifyStatus("Lähetetään pyyntöä...");
+
+    const requestedAt = new Date().toISOString();
+    const { data, error } = await supabase
+      .from("profiles")
+      .update({ company_verification_requested_at: requestedAt })
+      .eq("id", user.id)
+      .select()
+      .single<UserProfile>();
+
+    if (error) {
+      setCompanyVerifyStatus(getErrorMessage(error));
+      setCompanyVerifySaving(false);
+      return;
+    }
+
+    setProfile(data);
+    writeCachedResource(`profile:${user.id}`, data);
+    setCompanyVerifyStatus("Vahvistuspyyntö lähetetty. Käsittelyaika on yleensä 0-2 päivää.");
+    setCompanyVerifySaving(false);
+    window.setTimeout(() => {
+      setCompanyVerifyModalOpen(false);
+      setCompanyVerifyStatus("");
+    }, 1800);
   }
 
   async function handleAddCompanySeller() {
@@ -842,7 +875,9 @@ export default function ProfilePage() {
       await supabase
         .from("profiles")
         .update({
-          phone: nextPhone
+          phone: nextPhone,
+          phone_verified_at: new Date().toISOString(),
+          pending_phone: null
         })
         .eq("id", user.id)
         .select()
@@ -1293,7 +1328,7 @@ export default function ProfilePage() {
                     </>
                   )}
                   {profile.account_type === "private" && (
-                    <div className="pf-info-row">
+                    <div className="pf-info-row pf-phone-info-row">
                       <span className="pf-info-row-icon">
                         <Phone size={19} />
                       </span>
@@ -1744,6 +1779,32 @@ export default function ProfilePage() {
                       )}
                     </div>
                   </div>
+                  {profile.account_type === "company" && (
+                    <div className="pf-info-row pf-security-action-row pf-company-verify-row">
+                      <span className="pf-info-row-icon">
+                        <ShieldCheck size={16} />
+                      </span>
+                      <span className="pf-info-label">Yrityksen vahvistus</span>
+                      <div className="pf-info-value pf-security-action-value">
+                        {profile.company_verified_at ? (
+                          <span className="pf-company-verify-ok">Vahvistettu yritys</span>
+                        ) : profile.company_verification_requested_at ? (
+                          <span className="pf-company-verify-pending">Odottaa käsittelyä</span>
+                        ) : (
+                          <button
+                            type="button"
+                            className="pf-inline-btn verify pf-company-verify-btn"
+                            onClick={() => {
+                              setCompanyVerifyStatus("");
+                              setCompanyVerifyModalOpen(true);
+                            }}
+                          >
+                            Vahvista yritys
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </section>
 
@@ -1765,6 +1826,75 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      {companyVerifyModalOpen && profile?.account_type === "company" && (
+        <div
+          className="pf-modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !companyVerifySaving) {
+              setCompanyVerifyModalOpen(false);
+              setCompanyVerifyStatus("");
+            }
+          }}
+        >
+          <div
+            className="pf-phone-modal pf-company-verify-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="company-verify-title"
+          >
+            <button
+              type="button"
+              className="pf-modal-close"
+              disabled={companyVerifySaving}
+              onClick={() => {
+                setCompanyVerifyModalOpen(false);
+                setCompanyVerifyStatus("");
+              }}
+            >
+              ×
+            </button>
+            <div className="pf-modal-icon">
+              <ShieldCheck size={23} />
+            </div>
+            <h2 id="company-verify-title">Vahvista yritystili</h2>
+            <p>
+              Lähetä yrityksesi tiedot tarkistettavaksi. Käsittelyaika on yleensä
+              0-2 päivää. Kun admin hyväksyy pyynnön, profiilissasi näkyy vihreä
+              Vahvistettu yritys -merkintä.
+            </p>
+            <div className="pf-company-verify-summary">
+              <span>{profile.company_name || "Yritys"}</span>
+              <strong>{profile.business_id || "Y-tunnus puuttuu"}</strong>
+            </div>
+            <div className="pf-phone-actions pf-company-verify-actions">
+              <button
+                type="button"
+                className="pf-inline-btn secondary"
+                disabled={companyVerifySaving}
+                onClick={() => {
+                  setCompanyVerifyModalOpen(false);
+                  setCompanyVerifyStatus("");
+                }}
+              >
+                Peruuta
+              </button>
+              <button
+                type="button"
+                className="pf-inline-btn verify"
+                disabled={companyVerifySaving || !profile.business_id}
+                onClick={requestCompanyVerification}
+              >
+                {companyVerifySaving ? "Lähetetään..." : "Lähetä pyyntö"}
+              </button>
+            </div>
+            {companyVerifyStatus && (
+              <span className="pf-modal-note">{companyVerifyStatus}</span>
+            )}
+          </div>
+        </div>
+      )}
 
       {phoneEditing && (
         <div
@@ -4931,6 +5061,99 @@ export default function ProfilePage() {
           transform: none !important;
           width: calc(100% - 180px) !important;
         }
+
+        html body .pf-page .pf-company-verify-ok {
+          color: #4ade80 !important;
+          -webkit-text-fill-color: #4ade80 !important;
+          font-weight: 950 !important;
+        }
+
+        html body .pf-page .pf-form #tilin-turvallisuus .pf-company-verify-row .pf-company-verify-ok,
+        html body .pf-page .pf-form #tilin-turvallisuus .pf-company-verify-row .pf-info-value > span.pf-company-verify-ok {
+          background: transparent !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          color: #4ade80 !important;
+          -webkit-text-fill-color: #4ade80 !important;
+          padding: 0 !important;
+          text-shadow: none !important;
+        }
+
+        html body .pf-page .pf-company-verify-pending {
+          color: #fbbf24 !important;
+          font-weight: 950 !important;
+        }
+
+        html body .pf-page .pf-company-verify-btn {
+          min-width: 150px !important;
+        }
+
+        html body .pf-page .pf-company-verify-modal {
+          max-width: min(430px, calc(100vw - 28px)) !important;
+        }
+
+        html body .pf-page .pf-company-verify-summary {
+          background: rgba(5, 24, 42, 0.64) !important;
+          border: 1px solid rgba(77, 184, 238, 0.24) !important;
+          border-radius: 12px !important;
+          display: grid !important;
+          gap: 5px !important;
+          margin: 12px 0 4px !important;
+          padding: 12px 14px !important;
+          text-align: left !important;
+        }
+
+        html body .pf-page .pf-company-verify-summary span {
+          color: #f7fbff !important;
+          font-weight: 950 !important;
+        }
+
+        html body .pf-page .pf-company-verify-summary strong {
+          color: #7dd3fc !important;
+          font-size: 0.86rem !important;
+        }
+
+        html body .pf-page .pf-company-verify-actions {
+          display: flex !important;
+          gap: 10px !important;
+          justify-content: center !important;
+          margin-top: 14px !important;
+        }
+
+        @media (min-width: 761px) {
+          html body .pf-page .pf-form .pf-info-row.pf-phone-info-row .pf-phone-row {
+            align-items: center !important;
+            display: grid !important;
+            gap: 12px !important;
+            grid-template-columns: minmax(0, 1fr) auto !important;
+            width: 100% !important;
+          }
+
+          html body .pf-page .pf-form .pf-info-row.pf-phone-info-row .pf-phone-actions {
+            justify-content: flex-end !important;
+            width: auto !important;
+          }
+
+          html body .pf-page .pf-form .pf-info-row.pf-phone-info-row .pf-phone-change-btn {
+            height: 34px !important;
+            min-height: 34px !important;
+            min-width: 116px !important;
+            padding: 0 18px !important;
+            width: auto !important;
+          }
+
+          html body .pf-page .pf-form #tilin-turvallisuus .pf-company-verify-row .pf-info-value,
+          html body .pf-page .pf-form #tilin-turvallisuus .pf-company-verify-row .pf-info-value > .pf-company-verify-ok {
+            background: none !important;
+            background-color: transparent !important;
+            background-image: none !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            filter: none !important;
+            outline: 0 !important;
+            text-shadow: none !important;
+          }
+        }
       `}</style>
 
       <style jsx global>{`
@@ -5965,6 +6188,15 @@ export default function ProfilePage() {
               place-self: stretch !important;
               transform: none !important;
               width: 100% !important;
+            }
+
+            html body .pf-page .pf-form #tilin-turvallisuus .pf-company-verify-row .pf-info-value > .pf-company-verify-ok {
+              background: transparent !important;
+              border: 0 !important;
+              box-shadow: none !important;
+              color: #4ade80 !important;
+              -webkit-text-fill-color: #4ade80 !important;
+              padding: 0 !important;
             }
           }
         }

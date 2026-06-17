@@ -14888,3 +14888,70 @@
     width: auto !important;
   }
 }
+
+/* Mobile Oma Talli dropdown: keep it in the page flow and scroll long vehicle lists. */
+@media (max-width: 720px) {
+  .heroWrap:has(.heroGarageDropdown) {
+    height: auto !important;
+    min-height: var(--hero-stage-height) !important;
+    overflow: visible !important;
+    padding-bottom: 18px !important;
+  }
+
+  .heroWrap:has(.heroGarageDropdown) .hero,
+  .heroWrap:has(.heroGarageDropdown) .heroInner {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .heroQuickCategoryRow:has(.heroGarageDropdown) {
+    align-items: start !important;
+    overflow: visible !important;
+  }
+
+  .heroGaragePillWrap:has(.heroGarageDropdown) {
+    display: grid !important;
+    grid-column: 1 / -1 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    overflow: visible !important;
+    position: relative !important;
+    width: 100% !important;
+  }
+
+  .heroGaragePillWrap:has(.heroGarageDropdown) > .heroQuickCategory {
+    grid-column: 2 !important;
+    width: 100% !important;
+  }
+
+  .heroGarageDropdown {
+    grid-column: 1 / -1 !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    max-height: clamp(168px, 30dvh, 260px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin-top: 0 !important;
+    z-index: 1 !important;
+  }
+
+  .heroGarageDropdown::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .heroGarageDropdown::-webkit-scrollbar-thumb {
+    background: rgba(255, 122, 26, 0.55);
+    border-radius: 999px;
+  }
+
+  .heroGarageDropdown button,
+  .heroGarageDropdown a {
+    min-height: 40px !important;
+    white-space: normal !important;
+  }
+}

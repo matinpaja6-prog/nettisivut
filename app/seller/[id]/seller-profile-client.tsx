@@ -1364,6 +1364,12 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 {sellerName}
                 <span aria-hidden="true">✓</span>
               </h1>
+              {isCompany && profile?.company_verified_at && (
+                <span className="seller-ref-title-verified">
+                  <Shield size={15} aria-hidden="true" />
+                  Vahvistettu yritys
+                </span>
+              )}
               {memberSince && (
                 <p>
                   <CalendarDays size={13} />
@@ -1382,12 +1388,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                   <span className="seller-ref-phone-pill">
                     <Building2 size={13} />
                     {refLabels.businessId} {profile.business_id.trim()}
-                  </span>
-                )}
-                {isCompany && profile?.company_verified_at && (
-                  <span className="seller-ref-phone-pill seller-ref-verified-company">
-                    <Shield size={13} />
-                    Vahvistettu yritys
                   </span>
                 )}
                 <span className="seller-ref-phone-pill">
@@ -1511,11 +1511,19 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               </div>
             )}
             {isCompany && profile?.business_id?.trim() && (
-              <div className="seller-ref-detail-row">
-                <Building2 size={20} aria-hidden="true" />
-                <span>{refLabels.businessId}</span>
-                <strong>{profile.business_id.trim()}</strong>
-              </div>
+              <>
+                <div className="seller-ref-detail-row">
+                  <Building2 size={20} aria-hidden="true" />
+                  <span>{refLabels.businessId}</span>
+                  <strong>{profile.business_id.trim()}</strong>
+                </div>
+                {profile.company_verified_at && (
+                  <div className="seller-ref-detail-row seller-ref-company-verified-text">
+                    <Shield size={20} aria-hidden="true" />
+                    <span>Vahvistettu yritys</span>
+                  </div>
+                )}
+              </>
             )}
             {isCompany && companyWebsite && (
               <div className="seller-ref-detail-row">

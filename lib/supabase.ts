@@ -38,6 +38,8 @@ export type UserProfile = {
 
   company_verified_at?: string | null;
 
+  company_verification_requested_at?: string | null;
+
   public_address?: string | null;
 
   billing_email?: string | null;
@@ -1231,6 +1233,15 @@ export async function updateListing(
 
     }
 
+    const banStatus =
+      await getUserBanStatus(user.id);
+    if (banStatus.isBanned) {
+      return {
+        data: null,
+        error: new Error("Tilisi on bannattu, et voi muokata ilmoituksia.")
+      };
+    }
+
     const translatedListing = withInitialListingTranslations(listing);
 
     let result = await supabase
@@ -1903,6 +1914,23 @@ export async function unfollowProfile(
   }
 }
 
+async function getUserBanStatus(userId: string) {
+  if (!supabase) return { isBanned: false };
+
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("is_banned")
+      .eq("id", userId)
+      .maybeSingle<{ is_banned: boolean | null }>();
+
+    if (error) return { isBanned: false };
+    return { isBanned: Boolean(data?.is_banned) };
+  } catch {
+    return { isBanned: false };
+  }
+}
+
 export async function createListing(
   listing: ListingInput
 ) {
@@ -1939,7 +1967,7 @@ export async function createListing(
     const { data: profile } =
       await supabase
         .from("profiles")
-        .select("phone,account_type,first_name,last_name,full_name,name,company_name,avatar_url,city")
+        .select("phone,account_type,first_name,last_name,full_name,name,company_name,avatar_url,city,is_banned")
         .eq("id", user.id)
         .maybeSingle<Pick<
           UserProfile,
@@ -1952,7 +1980,14 @@ export async function createListing(
           | "company_name"
           | "avatar_url"
           | "city"
-        >>();
+        > & { is_banned?: boolean | null }>();
+
+    if (profile?.is_banned) {
+      return {
+        data: null,
+        error: new Error("Tilisi on bannattu, et voi luoda ilmoituksia.")
+      };
+    }
 
     const profileName =
       profile?.account_type === "company"
@@ -2540,6 +2575,19 @@ export type AdminProfileRow = {
   company_name?: string | null;
   business_id?: string | null;
   company_verified_at?: string | null;
+  company_verification_requested_at?: string | null;
+  address?: string | null;
+  postal_code?: string | null;
+  city?: string | null;
+  country?: string | null;
+  birth_date?: string | null;
+  public_id?: string | null;
+  username?: string | null;
+  bio?: string | null;
+  public_address?: string | null;
+  billing_email?: string | null;
+  company_website?: string | null;
+  updated_at?: string | null;
 };
 
 export type AdminUserIp = {
@@ -2670,6 +2718,15 @@ export async function adminListProfiles(params: {
   offset?: number;
 }): Promise<{ data: AdminProfileRow[]; error: unknown }> {
   if (!supabase) return { data: [], error: "no-supabase" };
+  const apiResult = await adminActionRequest<{ data: AdminProfileRow[] }>("list-profiles", {
+    query: params.query ?? "",
+    limit: params.limit ?? 50,
+    offset: params.offset ?? 0
+  });
+  if (!apiResult.error && apiResult.data?.data) {
+    return { data: apiResult.data.data, error: null };
+  }
+
   const { data, error } = await supabase.rpc("admin_list_profiles", {
     search_query: params.query ?? "",
     page_limit: params.limit ?? 50,
@@ -2711,7 +2768,8 @@ export async function adminBanUser(targetUserId: string, reason?: string) {
     target_user_id: targetUserId,
     reason: reason ?? null
   });
-  return { error };
+  if (!error) return { error };
+  return adminActionRequest("ban-user", { userId: targetUserId, reason: reason ?? null });
 }
 
 export async function adminUnbanUser(targetUserId: string) {
@@ -2719,7 +2777,8 @@ export async function adminUnbanUser(targetUserId: string) {
   const { error } = await supabase.rpc("admin_unban_user", {
     target_user_id: targetUserId
   });
-  return { error };
+  if (!error) return { error };
+  return adminActionRequest("unban-user", { userId: targetUserId });
 }
 
 export async function adminBanIp(ip: string, reason?: string) {
@@ -2728,7 +2787,8 @@ export async function adminBanIp(ip: string, reason?: string) {
     target_ip: ip,
     reason: reason ?? null
   });
-  return { error };
+  if (!error) return { error };
+  return adminActionRequest("ban-ip", { ip, reason: reason ?? null });
 }
 
 export async function adminUnbanIp(ip: string) {
@@ -2736,7 +2796,8 @@ export async function adminUnbanIp(ip: string) {
   const { error } = await supabase.rpc("admin_unban_ip", {
     target_ip: ip
   });
-  return { error };
+  if (!error) return { error };
+  return adminActionRequest("unban-ip", { ip });
 }
 
 export async function adminListBannedIps(): Promise<{ data: AdminBannedIp[]; error: unknown }> {
@@ -2745,7 +2806,13 @@ export async function adminListBannedIps(): Promise<{ data: AdminBannedIp[]; err
     .from("banned_ips")
     .select("ip, reason, banned_at, banned_by")
     .order("banned_at", { ascending: false });
-  return { data: (data ?? []) as AdminBannedIp[], error };
+  if (!error) return { data: (data ?? []) as AdminBannedIp[], error };
+
+  const fallback = await adminActionRequest<{ data: AdminBannedIp[] }>("list-banned-ips", {});
+  return {
+    data: fallback.data?.data ?? [],
+    error: fallback.error
+  };
 }
 
 export async function adminDeleteUser(targetUserId: string) {
@@ -2778,7 +2845,11 @@ export async function adminDeleteListing(targetListingId: string, reason?: strin
         .maybeSingle<Pick<Listing, "image_url">>();
 
     if (fallbackResult.error) {
-      return { error: fallbackResult.error };
+      const fallback = await adminActionRequest("delete-listing", {
+        listingId: targetListingId,
+        reason: reason ?? null
+      });
+      return { error: fallback.error };
     }
 
     listingImages =
@@ -2789,7 +2860,11 @@ export async function adminDeleteListing(targetListingId: string, reason?: strin
           }
         : null;
   } else if (listingResult.error) {
-    return { error: listingResult.error };
+    const fallback = await adminActionRequest("delete-listing", {
+      listingId: targetListingId,
+      reason: reason ?? null
+    });
+    return { error: fallback.error };
   }
 
   const { error } = await supabase.rpc("admin_delete_listing", {
@@ -2798,7 +2873,11 @@ export async function adminDeleteListing(targetListingId: string, reason?: strin
   });
 
   if (error) {
-    return { error };
+    const fallback = await adminActionRequest("delete-listing", {
+      listingId: targetListingId,
+      reason: reason ?? null
+    });
+    return { error: fallback.error };
   }
 
   const directDelete = await supabase
@@ -2822,6 +2901,41 @@ export async function adminDeleteListing(targetListingId: string, reason?: strin
     await deleteListingStorageImages(listingImages);
 
   return { error, imageCleanupError };
+}
+
+async function adminActionRequest<T = { ok: boolean }>(
+  action: string,
+  payload: Record<string, unknown>
+): Promise<{ data: T | null; error: unknown }> {
+  if (!supabase) return { data: null, error: "no-supabase" };
+
+  try {
+    const { data: sessionData, error: sessionError } =
+      await supabase.auth.getSession();
+
+    const token = sessionData.session?.access_token;
+    if (sessionError || !token) {
+      return { data: null, error: sessionError ?? new Error("Kirjautuminen puuttuu.") };
+    }
+
+    const response = await fetch("/api/admin/actions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ action, ...payload })
+    });
+
+    const json = await response.json().catch(() => ({})) as T & { error?: string };
+    if (!response.ok) {
+      return { data: null, error: new Error(json.error || "Admin-toiminto epäonnistui.") };
+    }
+
+    return { data: json as T, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
 }
 
 export async function adminUpdateProfile(
@@ -2866,10 +2980,16 @@ export async function adminSetCompanyVerified(targetUserId: string, verified: bo
   const nextValue = verified ? new Date().toISOString() : null;
   const fallback = await supabase
     .from("profiles")
-    .update({ company_verified_at: nextValue })
+    .update({
+      company_verified_at: nextValue,
+      company_verification_requested_at: null
+    })
     .eq("id", targetUserId)
-    .select("company_verified_at")
-    .maybeSingle<{ company_verified_at: string | null }>();
+    .select("company_verified_at,company_verification_requested_at")
+    .maybeSingle<{
+      company_verified_at: string | null;
+      company_verification_requested_at: string | null;
+    }>();
 
   return { data: fallback.data?.company_verified_at ?? nextValue, error: fallback.error };
 }
@@ -2888,6 +3008,20 @@ export async function trackSiteVisit(params: {
     });
 
     if (params.ip) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+
+      if (token) {
+        await fetch("/api/site-visit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ ip: params.ip })
+        }).catch(() => undefined);
+      }
+
       const { data } = await supabase.auth.getUser();
       const userId = data.user?.id;
       if (userId) {
