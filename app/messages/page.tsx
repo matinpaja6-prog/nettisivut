@@ -246,7 +246,7 @@ function getOtherProfileHref(
     otherProfile?.name ||
     `${otherProfile?.first_name ?? ""} ${otherProfile?.last_name ?? ""}`.trim();
 
-  return `${profilePath(otherUserId, otherName, locale)}?returnTo=${encodeURIComponent("/messages")}`;
+  return profilePath(otherUserId, otherName, locale);
 }
 
 function formatJoinedDate(value?: string | null) {

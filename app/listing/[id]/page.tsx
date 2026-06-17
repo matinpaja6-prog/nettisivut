@@ -989,7 +989,7 @@ export default function ListingPage() {
     listing.company_name || listing.seller_name || ui.fallbackSeller;
   const sellerHref =
     sellerProfileId
-      ? `${profilePath(sellerProfileId, sellerDisplayName, locale)}?returnTo=${encodeURIComponent(listingPath(listingUrlId(listing), locale))}`
+      ? profilePath(sellerProfileId, sellerDisplayName, locale)
       : "#";
   const companySellerNames =
     isCompanySeller &&
