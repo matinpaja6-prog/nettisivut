@@ -95,6 +95,30 @@ function DatePartSelect({
   function choose(nextValue: string) {
     onChange(nextValue);
     onOpen(false);
+    if (typeof document !== "undefined") {
+      const activeElement = document.activeElement;
+      if (activeElement instanceof HTMLElement) {
+        activeElement.blur();
+      }
+    }
+  }
+
+  function chooseFromPointer(
+    event: React.PointerEvent<HTMLButtonElement>,
+    nextValue: string
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+    choose(nextValue);
+  }
+
+  function chooseFromClick(
+    event: React.MouseEvent<HTMLButtonElement>,
+    nextValue: string
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+    choose(nextValue);
   }
 
   return (
@@ -123,8 +147,8 @@ function DatePartSelect({
           <button
             type="button"
             className={!value ? "date-part-option is-active" : "date-part-option"}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => choose("")}
+            onPointerDown={(event) => chooseFromPointer(event, "")}
+            onClick={(event) => chooseFromClick(event, "")}
             role="option"
             aria-selected={!value}
           >
@@ -135,8 +159,8 @@ function DatePartSelect({
               key={option.value}
               type="button"
               className={option.value === value ? "date-part-option is-active" : "date-part-option"}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => choose(option.value)}
+              onPointerDown={(event) => chooseFromPointer(event, option.value)}
+              onClick={(event) => chooseFromClick(event, option.value)}
               role="option"
               aria-selected={option.value === value}
             >
@@ -192,7 +216,7 @@ export function BirthDateField({
   }
 
   return (
-    <label className={`date-field${openPart ? " is-open" : ""}`}>
+    <div className={`date-field${openPart ? " is-open" : ""}`}>
       <span>{label}</span>
       <div className="date-field-control" data-required={required ? "true" : undefined}>
         <CalendarDays size={18} aria-hidden="true" />
@@ -227,6 +251,6 @@ export function BirthDateField({
           onChange={(nextValue) => updatePart("year", nextValue)}
         />
       </div>
-    </label>
+    </div>
   );
 }
