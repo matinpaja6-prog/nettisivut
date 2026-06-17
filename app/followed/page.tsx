@@ -19,6 +19,7 @@ import {
   unfollowProfile,
   type ProfileFollowListItem
 } from "@/lib/supabase";
+import { useLanguage } from "@/lib/i18n";
 import { profilePath } from "@/lib/routes";
 
 type FollowedTab = "following" | "followers";
@@ -32,6 +33,7 @@ function profileInitial(profile: ProfileFollowListItem) {
 }
 
 export default function FollowedProfilesPage() {
+  const { locale } = useLanguage();
   const [userId, setUserId] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [rows, setRows] = useState<ProfileFollowListItem[]>([]);
@@ -228,7 +230,7 @@ export default function FollowedProfilesPage() {
           <div className="followed-grid">
             {visibleProfiles.map((profile) => (
               <article className="followed-card" key={`${profile.direction}:${profile.profile_id}`}>
-                <Link className="followed-card-main" href={profilePath(profile.profile_id, profile.display_name)}>
+                <Link className="followed-card-main" href={profilePath(profile.profile_id, profile.display_name, locale)}>
                   <span className="followed-avatar">
                     {profile.avatar_url ? (
                       <img src={profile.avatar_url} alt="" />
@@ -270,7 +272,7 @@ export default function FollowedProfilesPage() {
                       Lopeta seuraaminen
                     </button>
                   ) : (
-                    <Link href={profilePath(profile.profile_id, profile.display_name)}>
+                    <Link href={profilePath(profile.profile_id, profile.display_name, locale)}>
                       Avaa profiili
                       <ArrowRight size={15} />
                     </Link>

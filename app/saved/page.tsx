@@ -20,7 +20,7 @@ import {
   unsaveListing
 } from "@/lib/supabase";
 import { readCachedListings } from "@/lib/client-listings-cache";
-import { listingPath } from "@/lib/routes";
+import { listingPath, listingUrlId } from "@/lib/routes";
 
 const fallbackCardImage = fallbackListingImage;
 
@@ -247,11 +247,11 @@ export default function SavedListingsPage() {
                   role="link"
                   tabIndex={0}
                   aria-label={`${t.openListing} ${getListingTitle(listing)}`}
-                  onClick={() => router.push(listingPath(listing.id))}
+                  onClick={() => router.push(listingPath(listingUrlId(listing), locale))}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      router.push(listingPath(listing.id));
+                      router.push(listingPath(listingUrlId(listing), locale));
                     }
                   }}
                 >

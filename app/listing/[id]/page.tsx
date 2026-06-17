@@ -39,7 +39,7 @@ import { getLocalizedListingText } from "@/lib/listing-translations";
 import { readCachedListing, readCachedListings, writeCachedListings } from "@/lib/client-listings-cache";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
-import { listingPath, profilePath } from "@/lib/routes";
+import { listingPath, listingUrlId, profilePath } from "@/lib/routes";
 
 import { trackListingView, setRecoUserId } from "@/lib/recommendations";
 
@@ -927,7 +927,7 @@ export default function ListingPage() {
   }
 
   function openSimilarListing(listingId: string) {
-    router.push(listingPath(listingId));
+    router.push(listingPath(listingId, locale));
   }
 
   async function shareListing() {
@@ -1007,7 +1007,7 @@ export default function ListingPage() {
     listing.company_name || listing.seller_name || ui.fallbackSeller;
   const sellerHref =
     sellerProfileId
-      ? `${profilePath(sellerProfileId, sellerDisplayName)}?returnTo=${encodeURIComponent(listingPath(params.id))}`
+      ? `${profilePath(sellerProfileId, sellerDisplayName, locale)}?returnTo=${encodeURIComponent(listingPath(listingUrlId(listing), locale))}`
       : "#";
   const companySellerNames =
     isCompanySeller &&

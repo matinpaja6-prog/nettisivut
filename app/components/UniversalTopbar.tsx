@@ -128,7 +128,7 @@ function uniqueById<T extends { id: string }>(items: T[]) {
 export default function UniversalTopbar() {
   const router = useRouter();
   const pathname = usePathname() || "/";
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const ownProfileLabel = "Oma profiili";
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -637,7 +637,7 @@ export default function UniversalTopbar() {
       <nav className="universal-topbar-actions" aria-label="Pikatoiminnot">
         {false && isHomePage && userId ? (
           <Link
-            href={profilePath(userId, profileDisplayName)}
+            href={profilePath(userId, profileDisplayName, locale)}
             className="universal-level-pill"
             title={sellerLevelTooltip}
             aria-label={sellerLevelTooltip}
@@ -822,7 +822,7 @@ export default function UniversalTopbar() {
                       <div key={notification.id} className="universal-notification-item-wrap">
                         {isUnread ? <span className="universal-notification-dot is-unread" aria-hidden="true" /> : <span />}
                         <Link
-                          href={listingPath(notification.listing_id)}
+                          href={listingPath(notification.listing_id, locale)}
                           className="universal-notification-item"
                           role="menuitem"
                           onClick={() => setNotificationOpen(false)}

@@ -260,6 +260,7 @@ export type ConversationSummary = Conversation & {
   listing?: Pick<
     Listing,
     | "id"
+    | "listing_number"
     | "title"
     | "image_url"
     | "price"
@@ -943,7 +944,7 @@ export async function getListingDisplayNumber(
 async function resolveListingId(listingIdOrDisplayId: string) {
   const value = listingIdOrDisplayId.trim();
 
-  if (!/^\d{6}$/.test(value)) {
+  if (!/^\d+$/.test(value)) {
     return value;
   }
 
@@ -4754,7 +4755,7 @@ export async function getUnreadConversationSummaries(
       await Promise.all([
         supabase
           .from("listings")
-          .select("id,title,image_url,price,seller_name")
+          .select("id,listing_number,title,image_url,price,seller_name")
           .in("id", listingIds),
 
         supabase

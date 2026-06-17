@@ -12,7 +12,7 @@ import { getCountryFlagFromLocation } from "@/lib/country-flags";
 import { calculateSellerLevel } from "@/lib/seller-level";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
 import { readCachedListings } from "@/lib/client-listings-cache";
-import { listingPath, profilePath } from "@/lib/routes";
+import { listingPath, listingUrlId, profilePath } from "@/lib/routes";
 import { buildVehicleCategoriesFromTaxonomy, categoriesAsRecord, vehicleBrandsRecord } from "@/lib/taxonomy";
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 import {
@@ -1433,7 +1433,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       {followStats.is_following ? refLabels.following : refLabels.follow}
                     </button>
                   ) : (
-                    <Link className="seller-ref-follow-button" href={`/auth?returnTo=${encodeURIComponent(profilePath(sellerId, sellerName))}`}>
+                    <Link className="seller-ref-follow-button" href={`/auth?returnTo=${encodeURIComponent(profilePath(sellerId, sellerName, locale))}`}>
                       <UserPlus size={15} />
                       {refLabels.loginToFollow}
                     </Link>
@@ -1694,11 +1694,11 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     role="link"
                     tabIndex={0}
                     aria-label={`${t.openListing} ${title}`}
-                    onClick={() => router.push(listingPath(listing.id))}
+                    onClick={() => router.push(listingPath(listingUrlId(listing), locale))}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
-                        router.push(listingPath(listing.id));
+                        router.push(listingPath(listingUrlId(listing), locale));
                       }
                     }}
                   >

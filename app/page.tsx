@@ -42,7 +42,7 @@ import { readCachedListings, writeCachedListings } from "@/lib/client-listings-c
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 
 import { buildRecoProfile, getRecommendedListings, setRecoUserId } from "@/lib/recommendations";
-import { listingPath } from "@/lib/routes";
+import { listingPath, listingUrlId } from "@/lib/routes";
 
 import {
   getProfile,
@@ -1166,10 +1166,10 @@ export default function Home() {
     yearQuery
   ]);
 
-  const openListing = useCallback((listingId: string) => {
+  const openListing = useCallback((listingId: string | number) => {
     saveHomeReturnState();
-    router.push(listingPath(listingId));
-  }, [router, saveHomeReturnState]);
+    router.push(listingPath(listingId, locale));
+  }, [locale, router, saveHomeReturnState]);
 
   const handleSortChange = useCallback((value: string) => {
     if (value === "recommendations") {
@@ -2638,11 +2638,11 @@ export default function Home() {
                         role="link"
                         tabIndex={0}
                         aria-label={`${t.openListing} ${listingText.title}`}
-                        onClick={() => openListing(listing.id)}
+                        onClick={() => openListing(listingUrlId(listing))}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
-                            openListing(listing.id);
+                            openListing(listingUrlId(listing));
                           }
                         }}
                       >
@@ -2784,11 +2784,11 @@ export default function Home() {
                     role="link"
                     tabIndex={0}
                     aria-label={`${t.openListing} ${listingText.title}`}
-                    onClick={() => openListing(listing.id)}
+                    onClick={() => openListing(listingUrlId(listing))}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
-                        openListing(listing.id);
+                        openListing(listingUrlId(listing));
                       }
                     }}
                   >

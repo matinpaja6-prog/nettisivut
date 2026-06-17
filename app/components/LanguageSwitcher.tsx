@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { isLocale, useLanguage } from "@/lib/i18n";
+import { translateLocalizedPath } from "@/lib/routes";
 
 const LOCALES = [
   { code: "fi", label: "Suomi",   iso: "fi" },
@@ -106,6 +107,7 @@ export default function LanguageSwitcher() {
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.set("lang", code);
+      url.pathname = translateLocalizedPath(url.pathname, code);
       window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
     }
   }

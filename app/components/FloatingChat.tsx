@@ -28,7 +28,7 @@ import {
 import { useLanguage } from "@/lib/i18n";
 import { playNotificationSound } from "@/lib/notification-sound";
 import { resizeMessageImageTo1080p } from "@/app/components/chat/image-processing";
-import { listingPath } from "@/lib/routes";
+import { listingPath, listingUrlId } from "@/lib/routes";
 
 /* ======================================================
    HELPERS
@@ -129,7 +129,7 @@ import { usePathname, useRouter } from "next/navigation";
 export default function FloatingChat() {
   const pathname = usePathname();
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [userId, setUserId] = useState<string | null>(null);
 
   // Älä renderöi admin-sivulla
@@ -621,7 +621,7 @@ export default function FloatingChat() {
             <>
               {activeConv.listing && (
                 <Link
-                  href={listingPath(activeConv.listing_id)}
+                  href={listingPath(listingUrlId(activeConv.listing ?? { id: activeConv.listing_id }), locale)}
                   className="fc-listing-bar"
                   onClick={() => setOpen(false)}
                 >

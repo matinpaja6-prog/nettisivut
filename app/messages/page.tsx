@@ -43,7 +43,7 @@ import {
 import { formatPrice } from "@/lib/listings";
 import { playNotificationSound } from "@/lib/notification-sound";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
-import { listingPath, profilePath } from "@/lib/routes";
+import { listingPath, listingUrlId, profilePath } from "@/lib/routes";
 import ChatWindow from "@/app/components/chat/ChatWindow";
 import MessageInput from "@/app/components/chat/MessageInput";
 
@@ -228,7 +228,8 @@ function formatName(
 
 function getOtherProfileHref(
   conversation: ConversationSummary,
-  userId: string | null
+  userId: string | null,
+  locale?: string | null
 ) {
   if (!userId) return "#";
 
@@ -245,7 +246,7 @@ function getOtherProfileHref(
     otherProfile?.name ||
     `${otherProfile?.first_name ?? ""} ${otherProfile?.last_name ?? ""}`.trim();
 
-  return `${profilePath(otherUserId, otherName)}?returnTo=${encodeURIComponent("/messages")}`;
+  return `${profilePath(otherUserId, otherName, locale)}?returnTo=${encodeURIComponent("/messages")}`;
 }
 
 function formatJoinedDate(value?: string | null) {
@@ -432,7 +433,7 @@ function readDeletedConversationIds(userId: string) {
 }
 
 export default function MessagesPage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const router = useRouter();
   const searchParams =
     useSearchParams();
@@ -877,7 +878,7 @@ export default function MessagesPage() {
       : "";
   const activeProfileHref =
     activeConversation
-      ? getOtherProfileHref(activeConversation, userId)
+      ? getOtherProfileHref(activeConversation, userId, locale)
       : "#";
   const activeOtherOnline =
     isProfileActuallyOnline(
@@ -1621,7 +1622,7 @@ export default function MessagesPage() {
                 </div>
 
                 <Link
-                  href={listingPath(activeConversation.listing_id)}
+                  href={listingPath(listingUrlId(activeConversation.listing ?? { id: activeConversation.listing_id }), locale)}
                   className="listing-open"
                 >
                   Näytä ilmoitus
@@ -1685,7 +1686,7 @@ export default function MessagesPage() {
               </div>
 
               <Link
-                href={listingPath(activeConversation.listing_id)}
+                href={listingPath(listingUrlId(activeConversation.listing ?? { id: activeConversation.listing_id }), locale)}
                 className="messages-info-primary"
               >
                 Avaa ilmoitus

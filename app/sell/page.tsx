@@ -44,7 +44,7 @@ import {
 
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 import { subcategoryGroups, type ListingInput } from "@/lib/listings";
-import { listingPath } from "@/lib/routes";
+import { listingPath, listingUrlId } from "@/lib/routes";
 import type {
   CompanySeller,
   UserProfile
@@ -3052,6 +3052,7 @@ export default function SellPage() {
       }
 
       let firstListingId = "";
+      let firstListingUrlId: string | number = "";
       const { createListing } = await import("@/lib/supabase");
 
       for (const part of listingParts) {
@@ -3066,11 +3067,12 @@ export default function SellPage() {
         }
 
         firstListingId ||= data.id;
+        firstListingUrlId ||= listingUrlId(data);
       }
 
       draftClearedOrPublishedRef.current = true;
       await deleteSellDraft().catch(() => undefined);
-      router.push(firstListingId ? listingPath(firstListingId) : "/my-listings");
+      router.push(firstListingId ? listingPath(firstListingUrlId || firstListingId) : "/my-listings");
     } catch (error) {
       setPublishError(getErrorMessage(error));
     } finally {

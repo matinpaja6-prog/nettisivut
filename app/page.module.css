@@ -14889,18 +14889,18 @@
   }
 }
 
-/* Mobile Oma Talli dropdown: keep it in the page flow and scroll long vehicle lists. */
+/* Mobile Oma Talli dropdown: float it over the hero so opening it does not move the layout. */
 @media (max-width: 720px) {
   .heroWrap:has(.heroGarageDropdown) {
-    height: auto !important;
+    height: var(--hero-stage-height) !important;
     min-height: var(--hero-stage-height) !important;
     overflow: visible !important;
-    padding-bottom: 18px !important;
+    padding-bottom: 0 !important;
   }
 
   .heroWrap:has(.heroGarageDropdown) .hero,
   .heroWrap:has(.heroGarageDropdown) .heroInner {
-    height: auto !important;
+    height: 100% !important;
     overflow: visible !important;
   }
 
@@ -14910,34 +14910,35 @@
   }
 
   .heroGaragePillWrap:has(.heroGarageDropdown) {
-    display: grid !important;
-    grid-column: 1 / -1 !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 10px !important;
+    display: block !important;
+    grid-column: auto !important;
+    grid-template-columns: none !important;
+    gap: 0 !important;
     overflow: visible !important;
     position: relative !important;
     width: 100% !important;
   }
 
   .heroGaragePillWrap:has(.heroGarageDropdown) > .heroQuickCategory {
-    grid-column: 2 !important;
+    grid-column: auto !important;
     width: 100% !important;
   }
 
   .heroGarageDropdown {
-    grid-column: 1 / -1 !important;
-    position: static !important;
-    inset: auto !important;
+    grid-column: auto !important;
+    position: absolute !important;
+    inset: auto 0 auto auto !important;
     transform: none !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    top: calc(100% + 8px) !important;
+    width: min(260px, calc(100vw - 28px)) !important;
+    max-width: calc(100vw - 28px) !important;
     min-width: 0 !important;
     max-height: clamp(168px, 30dvh, 260px) !important;
     overflow-y: auto !important;
     overscroll-behavior: contain !important;
     -webkit-overflow-scrolling: touch !important;
     margin-top: 0 !important;
-    z-index: 1 !important;
+    z-index: 100300 !important;
   }
 
   .heroGarageDropdown::-webkit-scrollbar {

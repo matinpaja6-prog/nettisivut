@@ -1226,7 +1226,7 @@ export default function ProfilePage() {
               </a>
             )}
             <Link
-              href={user ? profilePath(user.id, profile?.company_name || profile?.full_name || `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim()) : "/"}
+              href={user ? profilePath(user.id, profile?.company_name || profile?.full_name || `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim(), locale) : "/"}
               className="pf-nav-item"
               target="_blank"
             >
@@ -1675,7 +1675,7 @@ export default function ProfilePage() {
                 <div className="pf-public-note">
                   <ShieldCheck size={20} />
                   <span>{profileText.publicVisibilityNote}</span>
-                  <Link href={user ? profilePath(user.id, profile?.company_name || profile?.full_name || `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim()) : "/"} className="pf-public-note-link">
+                  <Link href={user ? profilePath(user.id, profile?.company_name || profile?.full_name || `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim(), locale) : "/"} className="pf-public-note-link">
                     {profileText.moreInfo}
                     <ArrowRight size={16} />
                   </Link>
