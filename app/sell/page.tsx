@@ -44,6 +44,7 @@ import {
 
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 import { subcategoryGroups, type ListingInput } from "@/lib/listings";
+import { listingPath } from "@/lib/routes";
 import type {
   CompanySeller,
   UserProfile
@@ -3069,7 +3070,7 @@ export default function SellPage() {
 
       draftClearedOrPublishedRef.current = true;
       await deleteSellDraft().catch(() => undefined);
-      router.push(firstListingId ? `/listing/${firstListingId}` : "/my-listings");
+      router.push(firstListingId ? listingPath(firstListingId) : "/my-listings");
     } catch (error) {
       setPublishError(getErrorMessage(error));
     } finally {

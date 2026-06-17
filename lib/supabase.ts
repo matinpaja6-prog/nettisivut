@@ -12,6 +12,7 @@ import {
   listingLocales,
   type ListingLocale
 } from "./listing-translations";
+import { isUuidLike, slugifyProfileName } from "./routes";
 
 /* =========================
    TYPES
@@ -3202,6 +3203,7 @@ export async function getPublicProfile(
           last_name,
           full_name,
           name,
+          username,
           company_name,
           business_id,
           company_role,
@@ -3228,11 +3230,10 @@ export async function getPublicProfile(
       }
       return result;
     };
-    const isUuid =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId);
+    const isUuid = isUuidLike(userId);
 
     if (!isUuid) {
-      return await withMissingCompanyVerificationFallback(
+      const byPublicId = await withMissingCompanyVerificationFallback(
         supabase
         .from("profiles")
         .select(profileSelect)
@@ -3244,6 +3245,64 @@ export async function getPublicProfile(
           .eq("public_id", userId)
           .maybeSingle()
       );
+
+      if (byPublicId.data || byPublicId.error) {
+        return byPublicId;
+      }
+
+      const byUsername = await withMissingCompanyVerificationFallback(
+        supabase
+          .from("profiles")
+          .select(profileSelect)
+          .eq("username", userId)
+          .maybeSingle(),
+        () => supabase
+          .from("profiles")
+          .select(fallbackProfileSelect)
+          .eq("username", userId)
+          .maybeSingle()
+      );
+
+      if (byUsername.data || byUsername.error) {
+        return byUsername;
+      }
+
+      const wantedSlug = slugifyProfileName(userId);
+      const candidates = await withMissingCompanyVerificationFallback(
+        supabase
+          .from("profiles")
+          .select(profileSelect)
+          .range(0, 999) as unknown as PromiseLike<{ data: Partial<UserProfile>[] | null; error: unknown }>,
+        () => supabase
+          .from("profiles")
+          .select(fallbackProfileSelect)
+          .range(0, 999) as unknown as PromiseLike<{ data: Partial<UserProfile>[] | null; error: unknown }>
+      );
+
+      if (candidates.error) {
+        return { data: null, error: candidates.error };
+      }
+
+      const match = (candidates.data ?? []).find((candidate) => {
+        const profile = candidate as Partial<UserProfile>;
+        const displayName =
+          profile.account_type === "company"
+            ? profile.company_name || profile.full_name || profile.name
+            : profile.full_name ||
+              profile.name ||
+              `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim();
+
+        return [
+          displayName,
+          profile.company_name,
+          profile.full_name,
+          profile.name,
+          profile.username,
+          profile.public_id
+        ].some((value) => slugifyProfileName(value) === wantedSlug);
+      });
+
+      return { data: (match ?? null) as UserProfile | null, error: null };
     }
 
     const byId = await withMissingCompanyVerificationFallback(

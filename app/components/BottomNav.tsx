@@ -21,6 +21,7 @@ import {
 } from "@/lib/supabase";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage } from "@/lib/i18n";
+import { listingPath } from "@/lib/routes";
 
 const LOCALES = [
   { code: "fi", label: "Suomi", iso: "fi" },
@@ -390,7 +391,7 @@ export default function BottomNav() {
               <>
                 <div className="bn-notif-group-label">{t.saTitle}</div>
                 {alertNotifs.filter((a) => !a.seen).slice(0, 6).map((n) => (
-                  <Link key={n.id} href={`/listing/${n.listing_id}`} className="bn-notif-item" onClick={() => setNotifOpen(false)}>
+                  <Link key={n.id} href={listingPath(n.listing_id)} className="bn-notif-item" onClick={() => setNotifOpen(false)}>
                     <span className="bn-notif-icon"><Bell size={14} /></span>
                     <div>
                       <strong>{n.listing_title}</strong>

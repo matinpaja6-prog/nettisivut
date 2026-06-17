@@ -42,6 +42,7 @@ import { readCachedListings, writeCachedListings } from "@/lib/client-listings-c
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 
 import { buildRecoProfile, getRecommendedListings, setRecoUserId } from "@/lib/recommendations";
+import { listingPath } from "@/lib/routes";
 
 import {
   getProfile,
@@ -1167,7 +1168,7 @@ export default function Home() {
 
   const openListing = useCallback((listingId: string) => {
     saveHomeReturnState();
-    router.push(`/listing/${listingId}`);
+    router.push(listingPath(listingId));
   }, [router, saveHomeReturnState]);
 
   const handleSortChange = useCallback((value: string) => {

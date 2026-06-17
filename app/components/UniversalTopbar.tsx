@@ -31,6 +31,7 @@ import { calculateSellerLevel } from "@/lib/seller-level";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage } from "@/lib/i18n";
+import { listingPath, profilePath } from "@/lib/routes";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
@@ -636,7 +637,7 @@ export default function UniversalTopbar() {
       <nav className="universal-topbar-actions" aria-label="Pikatoiminnot">
         {false && isHomePage && userId ? (
           <Link
-            href={`/seller/${userId}`}
+            href={profilePath(userId, profileDisplayName)}
             className="universal-level-pill"
             title={sellerLevelTooltip}
             aria-label={sellerLevelTooltip}
@@ -821,7 +822,7 @@ export default function UniversalTopbar() {
                       <div key={notification.id} className="universal-notification-item-wrap">
                         {isUnread ? <span className="universal-notification-dot is-unread" aria-hidden="true" /> : <span />}
                         <Link
-                          href={`/listing/${notification.listing_id}`}
+                          href={listingPath(notification.listing_id)}
                           className="universal-notification-item"
                           role="menuitem"
                           onClick={() => setNotificationOpen(false)}

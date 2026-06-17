@@ -29,6 +29,7 @@ import {
 
 import AppearancePanel from "./AppearancePanel";
 import CategoriesPanel from "./CategoriesPanel";
+import { listingPath } from "@/lib/routes";
 
 import {
   adminAdjustPhoneVerifications,
@@ -1974,7 +1975,7 @@ function ListingsPanel({
               </div>
 
               <div className={styles.listingMgmtActions}>
-                <Link href={`/listing/${listing.id}`} target="_blank" rel="noreferrer">
+                <Link href={listingPath(listing.id)} target="_blank" rel="noreferrer">
                   Avaa
                 </Link>
                 <button

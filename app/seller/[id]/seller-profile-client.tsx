@@ -12,6 +12,7 @@ import { getCountryFlagFromLocation } from "@/lib/country-flags";
 import { calculateSellerLevel } from "@/lib/seller-level";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
 import { readCachedListings } from "@/lib/client-listings-cache";
+import { listingPath, profilePath } from "@/lib/routes";
 import { buildVehicleCategoriesFromTaxonomy, categoriesAsRecord, vehicleBrandsRecord } from "@/lib/taxonomy";
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 import {
@@ -1432,7 +1433,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       {followStats.is_following ? refLabels.following : refLabels.follow}
                     </button>
                   ) : (
-                    <Link className="seller-ref-follow-button" href={`/auth?returnTo=${encodeURIComponent(`/seller/${sellerId}`)}`}>
+                    <Link className="seller-ref-follow-button" href={`/auth?returnTo=${encodeURIComponent(profilePath(sellerId, sellerName))}`}>
                       <UserPlus size={15} />
                       {refLabels.loginToFollow}
                     </Link>
@@ -1693,11 +1694,11 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     role="link"
                     tabIndex={0}
                     aria-label={`${t.openListing} ${title}`}
-                    onClick={() => router.push(`/listing/${listing.id}`)}
+                    onClick={() => router.push(listingPath(listing.id))}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
-                        router.push(`/listing/${listing.id}`);
+                        router.push(listingPath(listing.id));
                       }
                     }}
                   >

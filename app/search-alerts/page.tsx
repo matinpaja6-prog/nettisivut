@@ -39,6 +39,7 @@ import {
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
 import { goBackOrFallback } from "@/lib/go-back";
+import { listingPath } from "@/lib/routes";
 
 const CONDITIONS = ["Uusi", "Erinomainen", "Hyvä", "Tyydyttävä"];
 const CUR_YEAR = new Date().getFullYear();
@@ -533,7 +534,7 @@ export default function SearchAlertsPage() {
                   <div className="sa-notif-list">
                     <div className="sa-notif-header">{t.saHits} — {notifsForAlert(alert.id).length} {t.saFoundSuffix}</div>
                     {notifsForAlert(alert.id).map(n => (
-                      <a key={n.id} href={`/listing/${n.listing_id}`} className="sa-notif-item">
+                      <a key={n.id} href={listingPath(n.listing_id)} className="sa-notif-item">
                         {n.listing_image_url && <img src={n.listing_image_url} alt="" className="sa-notif-img" />}
                         <div className="sa-notif-info">
                           <span className="sa-notif-title">{n.listing_title}</span>
@@ -663,7 +664,7 @@ export default function SearchAlertsPage() {
                       <>
                         <div className="sa-notif-header">{t.saFound} {matches[alert.id].length} {t.saFoundSuffix}</div>
                         {matches[alert.id].map(l => (
-                          <a key={l.id} href={`/listing/${l.id}`} className="sa-notif-item">
+                          <a key={l.id} href={listingPath(l.id)} className="sa-notif-item">
                             {l.image_url && <img src={l.image_url} alt="" className="sa-notif-img" />}
                             <div className="sa-notif-info">
                               <span className="sa-notif-title">{l.title}</span>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 import { getListingPartNumber, type Listing } from "@/lib/listings";
+import { listingPath } from "@/lib/routes";
 import type { AlertNotification, SearchAlert } from "@/lib/supabase";
 
 type NotifyResult = {
@@ -172,7 +173,7 @@ export async function POST(request: Request) {
   }
 
   const origin = request.headers.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";
-  const listingUrl = `${origin.replace(/\/$/, "")}/listing/${listing.id}`;
+  const listingUrl = `${origin.replace(/\/$/, "")}${listingPath(listing.id)}`;
   const results: NotifyResult[] = [];
 
   for (const alert of alerts ?? []) {

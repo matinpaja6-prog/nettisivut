@@ -31,6 +31,7 @@ import { formatPrice, type Listing } from "@/lib/listings";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 import { useLanguage, translateCategory } from "@/lib/i18n";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
+import { listingPath } from "@/lib/routes";
 
 type VehicleClass = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopo";
 
@@ -639,7 +640,7 @@ export default function GaragePage() {
                               return (
                                 <Link
                                   key={listing.id}
-                                  href={`/listing/${listing.id}`}
+                                  href={listingPath(listing.id)}
                                   className="garage-part-card"
                                 >
                                   <img

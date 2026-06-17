@@ -43,6 +43,7 @@ import {
 import { formatPrice } from "@/lib/listings";
 import { playNotificationSound } from "@/lib/notification-sound";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
+import { listingPath, profilePath } from "@/lib/routes";
 import ChatWindow from "@/app/components/chat/ChatWindow";
 import MessageInput from "@/app/components/chat/MessageInput";
 
@@ -238,7 +239,13 @@ function getOtherProfileHref(
 
   if (!otherUserId) return "#";
 
-  return `/seller/${otherUserId}?returnTo=${encodeURIComponent("/messages")}`;
+  const otherProfile = conversation.other_profile;
+  const otherName =
+    otherProfile?.full_name ||
+    otherProfile?.name ||
+    `${otherProfile?.first_name ?? ""} ${otherProfile?.last_name ?? ""}`.trim();
+
+  return `${profilePath(otherUserId, otherName)}?returnTo=${encodeURIComponent("/messages")}`;
 }
 
 function formatJoinedDate(value?: string | null) {
@@ -1614,7 +1621,7 @@ export default function MessagesPage() {
                 </div>
 
                 <Link
-                  href={`/listing/${activeConversation.listing_id}`}
+                  href={listingPath(activeConversation.listing_id)}
                   className="listing-open"
                 >
                   Näytä ilmoitus
@@ -1678,7 +1685,7 @@ export default function MessagesPage() {
               </div>
 
               <Link
-                href={`/listing/${activeConversation.listing_id}`}
+                href={listingPath(activeConversation.listing_id)}
                 className="messages-info-primary"
               >
                 Avaa ilmoitus

@@ -28,6 +28,7 @@ import {
 import { useLanguage } from "@/lib/i18n";
 import { playNotificationSound } from "@/lib/notification-sound";
 import { resizeMessageImageTo1080p } from "@/app/components/chat/image-processing";
+import { listingPath } from "@/lib/routes";
 
 /* ======================================================
    HELPERS
@@ -620,7 +621,7 @@ export default function FloatingChat() {
             <>
               {activeConv.listing && (
                 <Link
-                  href={`/listing/${activeConv.listing_id}`}
+                  href={listingPath(activeConv.listing_id)}
                   className="fc-listing-bar"
                   onClick={() => setOpen(false)}
                 >

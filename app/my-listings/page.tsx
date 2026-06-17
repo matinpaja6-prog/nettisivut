@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import OptimizedListingImage from "@/app/components/OptimizedListingImage";
 import { translateCategory, useLanguage } from "@/lib/i18n";
+import { listingPath } from "@/lib/routes";
 
 import {
   ArrowUp,
@@ -2173,7 +2174,7 @@ export default function MyListingsPage() {
                             <>
                               <Link
                                 className={styles.actionBtn}
-                                href={`/listing/${listing.id}`}
+                                href={listingPath(listing.id)}
                               >
                                 {t.openListing}
                               </Link>

@@ -19,6 +19,7 @@ import {
 
 import { getListings } from "@/lib/supabase";
 import { readCachedListings, writeCachedListings } from "@/lib/client-listings-cache";
+import { listingPath, profilePath } from "@/lib/routes";
 
 import homeStyles from "../page.module.css";
 
@@ -239,11 +240,11 @@ export default function ListingsIndexPage() {
                 role="link"
                 tabIndex={0}
                 aria-label={`${t.openListing} ${getListingTitle(listing)}`}
-                onClick={() => router.push(`/listing/${listing.id}`)}
+                onClick={() => router.push(listingPath(listing.id))}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    router.push(`/listing/${listing.id}`);
+                    router.push(listingPath(listing.id));
                   }
                 }}
               >
@@ -304,7 +305,7 @@ export default function ListingsIndexPage() {
                     <Link
                       href={
                         listing.seller_id
-                          ? `/seller/${listing.seller_id}`
+                          ? profilePath(listing.seller_id, listing.company_name || listing.seller_name)
                           : "#"
                       }
                       className={homeStyles.sellerLink}

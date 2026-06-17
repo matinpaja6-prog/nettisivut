@@ -19,6 +19,7 @@ import {
   unfollowProfile,
   type ProfileFollowListItem
 } from "@/lib/supabase";
+import { profilePath } from "@/lib/routes";
 
 type FollowedTab = "following" | "followers";
 
@@ -227,7 +228,7 @@ export default function FollowedProfilesPage() {
           <div className="followed-grid">
             {visibleProfiles.map((profile) => (
               <article className="followed-card" key={`${profile.direction}:${profile.profile_id}`}>
-                <Link className="followed-card-main" href={`/seller/${profile.profile_id}`}>
+                <Link className="followed-card-main" href={profilePath(profile.profile_id, profile.display_name)}>
                   <span className="followed-avatar">
                     {profile.avatar_url ? (
                       <img src={profile.avatar_url} alt="" />
@@ -269,7 +270,7 @@ export default function FollowedProfilesPage() {
                       Lopeta seuraaminen
                     </button>
                   ) : (
-                    <Link href={`/seller/${profile.profile_id}`}>
+                    <Link href={profilePath(profile.profile_id, profile.display_name)}>
                       Avaa profiili
                       <ArrowRight size={15} />
                     </Link>
