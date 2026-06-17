@@ -11,9 +11,114 @@ import {
   supabase,
   type PurchaseReviewRequest
 } from "@/lib/supabase";
+import { useLanguage, type Locale } from "@/lib/i18n";
 
-function getErrorMessage(error: unknown) {
-  if (!error) return "Tuntematon virhe.";
+const reviewGateText: Record<Locale, {
+  unknownError: string;
+  timeoutError: string;
+  defaultUser: string;
+  commentRequired: string;
+  saveFailed: string;
+  close: string;
+  title: string;
+  introStart: string;
+  introEnd: string;
+  rating: string;
+  starLabel: (value: number) => string;
+  commentLabel: string;
+  commentPlaceholder: string;
+  saving: string;
+  submit: string;
+}> = {
+  fi: {
+    unknownError: "Tuntematon virhe.",
+    timeoutError: "Supabase ei vastannut ajoissa. Tarkista SQL ja kokeile uudestaan.",
+    defaultUser: "Käyttäjä",
+    commentRequired: "Kirjoita lyhyt arvostelu kaupasta.",
+    saveFailed: "Arvostelun tallennus epäonnistui",
+    close: "Sulje",
+    title: "Anna arvio myyjästä",
+    introStart: "Ostit tuotteen",
+    introEnd: "Voit antaa arvostelun nyt tai sulkea tämän ja tehdä sen myöhemmin ilmoituskellosta.",
+    rating: "Arvosana",
+    starLabel: (value) => `${value} tähteä`,
+    commentLabel: "Kerro lyhyesti miten kauppa sujui",
+    commentPlaceholder: "Esim. Kauppa sujui hyvin ja tuote oli kuvauksen mukainen.",
+    saving: "Tallennetaan...",
+    submit: "Lähetä arvostelu"
+  },
+  en: {
+    unknownError: "Unknown error.",
+    timeoutError: "Supabase did not respond in time. Check the SQL and try again.",
+    defaultUser: "User",
+    commentRequired: "Write a short review about the trade.",
+    saveFailed: "Saving the review failed",
+    close: "Close",
+    title: "Review the seller",
+    introStart: "You bought",
+    introEnd: "You can leave the review now, or close this and do it later from the notification bell.",
+    rating: "Rating",
+    starLabel: (value) => `${value} stars`,
+    commentLabel: "Briefly describe how the trade went",
+    commentPlaceholder: "For example: The trade went well and the product matched the description.",
+    saving: "Saving...",
+    submit: "Send review"
+  },
+  sv: {
+    unknownError: "Okänt fel.",
+    timeoutError: "Supabase svarade inte i tid. Kontrollera SQL och försök igen.",
+    defaultUser: "Användare",
+    commentRequired: "Skriv en kort recension om affären.",
+    saveFailed: "Det gick inte att spara recensionen",
+    close: "Stäng",
+    title: "Ge säljaren ett omdöme",
+    introStart: "Du köpte",
+    introEnd: "Du kan ge omdömet nu eller stänga detta och göra det senare via notifieringsklockan.",
+    rating: "Betyg",
+    starLabel: (value) => `${value} stjärnor`,
+    commentLabel: "Beskriv kort hur affären gick",
+    commentPlaceholder: "Till exempel: Affären gick bra och produkten motsvarade beskrivningen.",
+    saving: "Sparar...",
+    submit: "Skicka omdöme"
+  },
+  no: {
+    unknownError: "Ukjent feil.",
+    timeoutError: "Supabase svarte ikke i tide. Kontroller SQL og prøv igjen.",
+    defaultUser: "Bruker",
+    commentRequired: "Skriv en kort vurdering av handelen.",
+    saveFailed: "Kunne ikke lagre vurderingen",
+    close: "Lukk",
+    title: "Gi vurdering av selgeren",
+    introStart: "Du kjøpte",
+    introEnd: "Du kan gi vurderingen nå, eller lukke dette og gjøre det senere fra varselklokken.",
+    rating: "Vurdering",
+    starLabel: (value) => `${value} stjerner`,
+    commentLabel: "Fortell kort hvordan handelen gikk",
+    commentPlaceholder: "For eksempel: Handelen gikk bra og produktet var som beskrevet.",
+    saving: "Lagrer...",
+    submit: "Send vurdering"
+  },
+  et: {
+    unknownError: "Tundmatu viga.",
+    timeoutError: "Supabase ei vastanud õigel ajal. Kontrolli SQL-i ja proovi uuesti.",
+    defaultUser: "Kasutaja",
+    commentRequired: "Kirjuta tehingu kohta lühike arvustus.",
+    saveFailed: "Arvustuse salvestamine ebaõnnestus",
+    close: "Sulge",
+    title: "Hinda müüjat",
+    introStart: "Ostsid toote",
+    introEnd: "Saad arvustuse anda kohe või selle sulgeda ja teha hiljem teavituskellast.",
+    rating: "Hinnang",
+    starLabel: (value) => `${value} tärni`,
+    commentLabel: "Kirjelda lühidalt, kuidas tehing sujus",
+    commentPlaceholder: "Näiteks: Tehing sujus hästi ja toode vastas kirjeldusele.",
+    saving: "Salvestamine...",
+    submit: "Saada arvustus"
+  }
+};
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (!error) return fallback;
   if (error instanceof Error) return error.message;
   if (typeof error === "string") return error;
   if (
@@ -24,12 +129,13 @@ function getErrorMessage(error: unknown) {
     return error.message;
   }
 
-  return "Tuntematon virhe.";
+  return fallback;
 }
 
 function withTimeout<T>(
   promise: Promise<T>,
-  timeoutMs: number
+  timeoutMs: number,
+  timeoutMessage: string
 ) {
   let timeoutId: number | undefined;
 
@@ -38,7 +144,7 @@ function withTimeout<T>(
       timeoutId = window.setTimeout(() => {
         reject(
           new Error(
-            "Supabase ei vastannut ajoissa. Tarkista SQL ja kokeile uudestaan."
+            timeoutMessage
           )
         );
       }, timeoutMs);
@@ -55,8 +161,10 @@ function withTimeout<T>(
 }
 
 export default function RequiredReviewGate() {
+  const { locale } = useLanguage();
+  const text = reviewGateText[locale] ?? reviewGateText.fi;
   const [userId, setUserId] = useState("");
-  const [reviewerName, setReviewerName] = useState("Käyttäjä");
+  const [reviewerName, setReviewerName] = useState(text.defaultUser);
   const [requests, setRequests] = useState<PurchaseReviewRequest[]>([]);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -143,7 +251,7 @@ export default function RequiredReviewGate() {
     event.preventDefault();
 
     if (!request || !userId || comment.trim().length < 2) {
-      setStatus("Kirjoita lyhyt arvostelu kaupasta.");
+      setStatus(text.commentRequired);
       return;
     }
 
@@ -163,19 +271,20 @@ export default function RequiredReviewGate() {
             comment: comment.trim()
           }
         ),
-        12000
+        12000,
+        text.timeoutError
       );
 
       if (error) {
         setStatus(
-          `Arvostelun tallennus epäonnistui: ${getErrorMessage(error)}`
+          `${text.saveFailed}: ${getErrorMessage(error, text.unknownError)}`
         );
         setSaving(false);
         return;
       }
     } catch (error) {
       setStatus(
-        `Arvostelun tallennus epäonnistui: ${getErrorMessage(error)}`
+        `${text.saveFailed}: ${getErrorMessage(error, text.unknownError)}`
       );
       setSaving(false);
       return;
@@ -200,7 +309,7 @@ export default function RequiredReviewGate() {
         <button
           type="button"
           className="review-gate-close"
-          aria-label="Sulje"
+          aria-label={text.close}
           onClick={() => setSelectedRequestId("")}
         >
           ×
@@ -209,19 +318,18 @@ export default function RequiredReviewGate() {
         <div className="review-gate-icon">
           <Star size={28} />
         </div>
-        <h2>Anna arvio myyjästä</h2>
+        <h2>{text.title}</h2>
         <p>
-          Ostit tuotteen <strong>{request.listing_title}</strong>. Voit antaa
-          arvostelun nyt tai sulkea tämän ja tehdä sen myöhemmin ilmoituskellosta.
+          {text.introStart} <strong>{request.listing_title}</strong>. {text.introEnd}
         </p>
 
-        <div className="review-gate-stars" aria-label="Arvosana">
+        <div className="review-gate-stars" aria-label={text.rating}>
           {[1, 2, 3, 4, 5].map((value) => (
             <button
               key={value}
               type="button"
               className={value <= rating ? "active" : ""}
-              aria-label={`${value} tähteä`}
+              aria-label={text.starLabel(value)}
               onClick={() => setRating(value)}
             >
               <Star size={24} />
@@ -230,20 +338,20 @@ export default function RequiredReviewGate() {
         </div>
 
         <label>
-          Kerro lyhyesti miten kauppa sujui
+          {text.commentLabel}
           <textarea
             minLength={2}
             required
             value={comment}
             onChange={(event) => setComment(event.target.value)}
-            placeholder="Esim. Kauppa sujui hyvin ja tuote oli kuvauksen mukainen."
+            placeholder={text.commentPlaceholder}
           />
         </label>
 
         {status ? <span className="review-gate-status">{status}</span> : null}
 
         <button type="submit" disabled={saving}>
-          {saving ? "Tallennetaan..." : "Lähetä arvostelu"}
+          {saving ? text.saving : text.submit}
         </button>
       </form>
 

@@ -19,10 +19,168 @@ import {
   unfollowProfile,
   type ProfileFollowListItem
 } from "@/lib/supabase";
-import { useLanguage } from "@/lib/i18n";
+import { useLanguage, type Locale } from "@/lib/i18n";
 import { profilePath } from "@/lib/routes";
 
 type FollowedTab = "following" | "followers";
+
+const followedText: Record<Locale, {
+  loadError: string;
+  removeError: string;
+  loading: string;
+  loginTitle: string;
+  loginLead: string;
+  loginAction: string;
+  eyebrow: string;
+  title: string;
+  lead: string;
+  followingStat: string;
+  followersStat: string;
+  tabsLabel: string;
+  followingTab: string;
+  followersTab: string;
+  emptyFollowingTitle: string;
+  emptyFollowersTitle: string;
+  emptyFollowingLead: string;
+  emptyFollowersLead: string;
+  browseListings: string;
+  companyProfile: string;
+  sellerProfile: string;
+  mutual: string;
+  unfollow: string;
+  openProfile: string;
+}> = {
+  fi: {
+    loadError: "Seurattujen profiilien lataaminen epäonnistui. Yritä hetken kuluttua uudelleen.",
+    removeError: "Seurannan poistaminen epäonnistui. Yritä uudelleen.",
+    loading: "Ladataan seurattuja profiileja...",
+    loginTitle: "Seuratut profiilit",
+    loginLead: "Kirjaudu sisään nähdäksesi seuraamasi profiilit ja omat seuraajasi.",
+    loginAction: "Kirjaudu sisään",
+    eyebrow: "Profiilit",
+    title: "Seuratut",
+    lead: "Hallitse seuraamiasi myyjiä ja katso, ketkä seuraavat profiiliasi.",
+    followingStat: "seurattua",
+    followersStat: "seuraajaa",
+    tabsLabel: "Seuratut profiilit",
+    followingTab: "Seuratut profiilit",
+    followersTab: "Seuraajasi",
+    emptyFollowingTitle: "Et seuraa vielä profiileja",
+    emptyFollowersTitle: "Sinulla ei ole vielä seuraajia",
+    emptyFollowingLead: "Voit seurata kiinnostavia myyjiä suoraan heidän profiilisivultaan.",
+    emptyFollowersLead: "Kun joku seuraa profiiliasi, näet hänet tässä listassa.",
+    browseListings: "Selaa ilmoituksia",
+    companyProfile: "Yritysprofiili",
+    sellerProfile: "Myyjäprofiili",
+    mutual: "Seuraat myös",
+    unfollow: "Lopeta seuraaminen",
+    openProfile: "Avaa profiili"
+  },
+  en: {
+    loadError: "Followed profiles could not be loaded. Please try again shortly.",
+    removeError: "Could not remove the follow. Please try again.",
+    loading: "Loading followed profiles...",
+    loginTitle: "Followed profiles",
+    loginLead: "Log in to see the profiles you follow and your own followers.",
+    loginAction: "Log in",
+    eyebrow: "Profiles",
+    title: "Following",
+    lead: "Manage the sellers you follow and see who follows your profile.",
+    followingStat: "following",
+    followersStat: "followers",
+    tabsLabel: "Followed profiles",
+    followingTab: "Followed profiles",
+    followersTab: "Your followers",
+    emptyFollowingTitle: "You do not follow any profiles yet",
+    emptyFollowersTitle: "You do not have followers yet",
+    emptyFollowingLead: "You can follow interesting sellers directly from their profile page.",
+    emptyFollowersLead: "When someone follows your profile, you will see them in this list.",
+    browseListings: "Browse listings",
+    companyProfile: "Company profile",
+    sellerProfile: "Seller profile",
+    mutual: "You also follow",
+    unfollow: "Unfollow",
+    openProfile: "Open profile"
+  },
+  sv: {
+    loadError: "Det gick inte att ladda följda profiler. Försök igen om en stund.",
+    removeError: "Det gick inte att sluta följa. Försök igen.",
+    loading: "Laddar följda profiler...",
+    loginTitle: "Följda profiler",
+    loginLead: "Logga in för att se profilerna du följer och dina egna följare.",
+    loginAction: "Logga in",
+    eyebrow: "Profiler",
+    title: "Följer",
+    lead: "Hantera säljare du följer och se vilka som följer din profil.",
+    followingStat: "följda",
+    followersStat: "följare",
+    tabsLabel: "Följda profiler",
+    followingTab: "Följda profiler",
+    followersTab: "Dina följare",
+    emptyFollowingTitle: "Du följer inga profiler ännu",
+    emptyFollowersTitle: "Du har inga följare ännu",
+    emptyFollowingLead: "Du kan följa intressanta säljare direkt från deras profilsida.",
+    emptyFollowersLead: "När någon följer din profil ser du personen i den här listan.",
+    browseListings: "Bläddra bland annonser",
+    companyProfile: "Företagsprofil",
+    sellerProfile: "Säljarprofil",
+    mutual: "Du följer också",
+    unfollow: "Sluta följa",
+    openProfile: "Öppna profil"
+  },
+  no: {
+    loadError: "Kunne ikke laste fulgte profiler. Prøv igjen om litt.",
+    removeError: "Kunne ikke slutte å følge. Prøv igjen.",
+    loading: "Laster fulgte profiler...",
+    loginTitle: "Fulgte profiler",
+    loginLead: "Logg inn for å se profilene du følger og dine egne følgere.",
+    loginAction: "Logg inn",
+    eyebrow: "Profiler",
+    title: "Følger",
+    lead: "Administrer selgere du følger og se hvem som følger profilen din.",
+    followingStat: "fulgte",
+    followersStat: "følgere",
+    tabsLabel: "Fulgte profiler",
+    followingTab: "Fulgte profiler",
+    followersTab: "Dine følgere",
+    emptyFollowingTitle: "Du følger ingen profiler ennå",
+    emptyFollowersTitle: "Du har ingen følgere ennå",
+    emptyFollowingLead: "Du kan følge interessante selgere direkte fra profilsiden deres.",
+    emptyFollowersLead: "Når noen følger profilen din, ser du dem i denne listen.",
+    browseListings: "Bla gjennom annonser",
+    companyProfile: "Bedriftsprofil",
+    sellerProfile: "Selgerprofil",
+    mutual: "Du følger også",
+    unfollow: "Slutt å følge",
+    openProfile: "Åpne profil"
+  },
+  et: {
+    loadError: "Jälgitavate profiilide laadimine ebaõnnestus. Proovi hetke pärast uuesti.",
+    removeError: "Jälgimise eemaldamine ebaõnnestus. Proovi uuesti.",
+    loading: "Jälgitavate profiilide laadimine...",
+    loginTitle: "Jälgitavad profiilid",
+    loginLead: "Logi sisse, et näha profiile, mida jälgid, ja oma jälgijaid.",
+    loginAction: "Logi sisse",
+    eyebrow: "Profiilid",
+    title: "Jälgitavad",
+    lead: "Halda müüjaid, keda jälgid, ja vaata, kes sinu profiili jälgivad.",
+    followingStat: "jälgitavat",
+    followersStat: "jälgijat",
+    tabsLabel: "Jälgitavad profiilid",
+    followingTab: "Jälgitavad profiilid",
+    followersTab: "Sinu jälgijad",
+    emptyFollowingTitle: "Sa ei jälgi veel ühtegi profiili",
+    emptyFollowersTitle: "Sul ei ole veel jälgijaid",
+    emptyFollowingLead: "Saad huvitavaid müüjaid jälgida otse nende profiililehelt.",
+    emptyFollowersLead: "Kui keegi sinu profiili jälgib, näed teda selles nimekirjas.",
+    browseListings: "Sirvi kuulutusi",
+    companyProfile: "Ettevõtte profiil",
+    sellerProfile: "Müüja profiil",
+    mutual: "Jälgid samuti",
+    unfollow: "Lõpeta jälgimine",
+    openProfile: "Ava profiil"
+  }
+};
 
 function profileLocation(profile: ProfileFollowListItem) {
   return [profile.city, profile.country].filter(Boolean).join(", ");
@@ -34,6 +192,7 @@ function profileInitial(profile: ProfileFollowListItem) {
 
 export default function FollowedProfilesPage() {
   const { locale } = useLanguage();
+  const text = followedText[locale] ?? followedText.fi;
   const [userId, setUserId] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [rows, setRows] = useState<ProfileFollowListItem[]>([]);
@@ -74,10 +233,10 @@ export default function FollowedProfilesPage() {
     const { data, error } = await getMyProfileFollows();
     setRows(data);
     if (error) {
-      setLoadError("Seurattujen profiilien lataaminen epäonnistui. Yritä hetken kuluttua uudelleen.");
+      setLoadError(text.loadError);
     }
     setLoading(false);
-  }, [userId]);
+  }, [text.loadError, userId]);
 
   useEffect(() => {
     void load();
@@ -115,7 +274,7 @@ export default function FollowedProfilesPage() {
       );
       window.dispatchEvent(new CustomEvent("profile-follow-changed"));
     } else {
-      setLoadError("Seurannan poistaminen epäonnistui. Yritä uudelleen.");
+      setLoadError(text.removeError);
     }
     setRemovingId(null);
   }
@@ -124,7 +283,7 @@ export default function FollowedProfilesPage() {
     return (
       <main className="followed-page">
         <div className="followed-container">
-          <div className="followed-loading">Ladataan seurattuja profiileja...</div>
+          <div className="followed-loading">{text.loading}</div>
         </div>
       </main>
     );
@@ -136,10 +295,10 @@ export default function FollowedProfilesPage() {
         <div className="followed-container">
           <section className="followed-login">
             <Users size={30} />
-            <h1>Seuratut profiilit</h1>
-            <p>Kirjaudu sisään nähdäksesi seuraamasi profiilit ja omat seuraajasi.</p>
+            <h1>{text.loginTitle}</h1>
+            <p>{text.loginLead}</p>
             <Link href="/auth">
-              Kirjaudu sisään
+              {text.loginAction}
               <ArrowRight size={16} />
             </Link>
           </section>
@@ -157,27 +316,27 @@ export default function FollowedProfilesPage() {
               <Users size={25} />
             </span>
             <div>
-              <span className="followed-eyebrow">Profiilit</span>
-              <h1>Seuratut</h1>
-              <p>Hallitse seuraamiasi myyjiä ja katso, ketkä seuraavat profiiliasi.</p>
+              <span className="followed-eyebrow">{text.eyebrow}</span>
+              <h1>{text.title}</h1>
+              <p>{text.lead}</p>
             </div>
           </div>
           <div className="followed-hero-stats">
             <span>
               <Users size={18} />
               <strong>{following.length}</strong>
-              <small>seurattua</small>
+              <small>{text.followingStat}</small>
             </span>
             <span>
               <UserCheck size={18} />
               <strong>{followers.length}</strong>
-              <small>seuraajaa</small>
+              <small>{text.followersStat}</small>
             </span>
           </div>
         </header>
 
         <div className="followed-toolbar">
-          <div className="followed-tabs" role="tablist" aria-label="Seuratut profiilit">
+          <div className="followed-tabs" role="tablist" aria-label={text.tabsLabel}>
             <button
               type="button"
               className={activeTab === "following" ? "is-active" : ""}
@@ -185,7 +344,7 @@ export default function FollowedProfilesPage() {
               aria-selected={activeTab === "following"}
               onClick={() => setActiveTab("following")}
             >
-              Seuratut profiilit
+              {text.followingTab}
               <span>{following.length}</span>
             </button>
             <button
@@ -195,7 +354,7 @@ export default function FollowedProfilesPage() {
               aria-selected={activeTab === "followers"}
               onClick={() => setActiveTab("followers")}
             >
-              Seuraajasi
+              {text.followersTab}
               <span>{followers.length}</span>
             </button>
           </div>
@@ -213,15 +372,15 @@ export default function FollowedProfilesPage() {
             <span className="followed-empty-icon">
               <Search size={36} />
             </span>
-            <h2>{activeTab === "following" ? "Et seuraa vielä profiileja" : "Sinulla ei ole vielä seuraajia"}</h2>
+            <h2>{activeTab === "following" ? text.emptyFollowingTitle : text.emptyFollowersTitle}</h2>
             <p>
               {activeTab === "following"
-                ? "Voit seurata kiinnostavia myyjiä suoraan heidän profiilisivultaan."
-                : "Kun joku seuraa profiiliasi, näet hänet tässä listassa."}
+                ? text.emptyFollowingLead
+                : text.emptyFollowersLead}
             </p>
             {activeTab === "following" && (
               <Link href="/">
-                Selaa ilmoituksia
+                {text.browseListings}
                 <ArrowRight size={16} />
               </Link>
             )}
@@ -242,7 +401,7 @@ export default function FollowedProfilesPage() {
                     <strong>{profile.display_name}</strong>
                     <small>
                       {profile.account_type === "company" ? <Building2 size={13} /> : <UserCheck size={13} />}
-                      {profile.account_type === "company" ? "Yritysprofiili" : "Myyjäprofiili"}
+                      {profile.account_type === "company" ? text.companyProfile : text.sellerProfile}
                     </small>
                     {profileLocation(profile) && (
                       <small>
@@ -257,7 +416,7 @@ export default function FollowedProfilesPage() {
                   {activeTab === "followers" && followingIds.has(profile.profile_id) ? (
                     <span className="followed-mutual">
                       <UserCheck size={14} />
-                      Seuraat myös
+                      {text.mutual}
                     </span>
                   ) : (
                     <span />
@@ -269,11 +428,11 @@ export default function FollowedProfilesPage() {
                       onClick={() => void handleUnfollow(profile.profile_id)}
                     >
                       <UserMinus size={15} />
-                      Lopeta seuraaminen
+                      {text.unfollow}
                     </button>
                   ) : (
                     <Link href={profilePath(profile.profile_id, profile.display_name, locale)}>
-                      Avaa profiili
+                      {text.openProfile}
                       <ArrowRight size={15} />
                     </Link>
                   )}

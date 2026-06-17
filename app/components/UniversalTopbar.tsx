@@ -30,7 +30,7 @@ import {
 import { calculateSellerLevel } from "@/lib/seller-level";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { goBackOrFallback } from "@/lib/go-back";
-import { useLanguage } from "@/lib/i18n";
+import { useLanguage, type Locale } from "@/lib/i18n";
 import { listingPath, listingUrlId, profilePath } from "@/lib/routes";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -46,6 +46,134 @@ const emptySellerLevelStats: SellerLevelStats = {
   reviews_given: 0,
   reviews_received: 0,
   phone_verified: false
+};
+
+const topbarText: Record<Locale, {
+  ownProfile: string;
+  fallbackProfile: string;
+  sellerLevel: string;
+  level: string;
+  maxLevel: string;
+  xpToNextLevel: (xp: number) => string;
+  quickActions: string;
+  notificationsHelp: string;
+  markAllRead: string;
+  defaultUser: string;
+  delete: string;
+  deleteNotification: string;
+  showAllMessages: string;
+  manageAccount: string;
+  followed: string;
+  searchAlert: string;
+  minutesAgo: (minutes: number) => string;
+  hoursAgo: (hours: number) => string;
+  daysAgo: (days: number) => string;
+}> = {
+  fi: {
+    ownProfile: "Oma profiili",
+    fallbackProfile: "Profiili",
+    sellerLevel: "Myyjälevel",
+    level: "Taso",
+    maxLevel: "Maksimitaso",
+    xpToNextLevel: (xp) => `${xp} XP seuraavaan tasoon`,
+    quickActions: "Pikatoiminnot",
+    notificationsHelp: "Pysy ajan tasalla tärkeistä viesteistä.",
+    markAllRead: "Merkitse kaikki luetuiksi",
+    defaultUser: "Käyttäjä",
+    delete: "Poista",
+    deleteNotification: "Poista ilmoitus",
+    showAllMessages: "Näytä kaikki viestit",
+    manageAccount: "Hallinnoi tiliäsi",
+    followed: "Seuratut",
+    searchAlert: "Hakuvahti",
+    minutesAgo: (minutes) => `${minutes} min sitten`,
+    hoursAgo: (hours) => `${hours} h sitten`,
+    daysAgo: (days) => `${days} pv sitten`
+  },
+  en: {
+    ownProfile: "My profile",
+    fallbackProfile: "Profile",
+    sellerLevel: "Seller level",
+    level: "Level",
+    maxLevel: "Max level",
+    xpToNextLevel: (xp) => `${xp} XP to next level`,
+    quickActions: "Quick actions",
+    notificationsHelp: "Stay up to date with important messages.",
+    markAllRead: "Mark all as read",
+    defaultUser: "User",
+    delete: "Delete",
+    deleteNotification: "Delete notification",
+    showAllMessages: "Show all messages",
+    manageAccount: "Manage your account",
+    followed: "Following",
+    searchAlert: "Search alert",
+    minutesAgo: (minutes) => `${minutes} min ago`,
+    hoursAgo: (hours) => `${hours} h ago`,
+    daysAgo: (days) => `${days} d ago`
+  },
+  sv: {
+    ownProfile: "Min profil",
+    fallbackProfile: "Profil",
+    sellerLevel: "Säljarnivå",
+    level: "Nivå",
+    maxLevel: "Maxnivå",
+    xpToNextLevel: (xp) => `${xp} XP till nästa nivå`,
+    quickActions: "Snabbåtgärder",
+    notificationsHelp: "Håll dig uppdaterad om viktiga meddelanden.",
+    markAllRead: "Markera alla som lästa",
+    defaultUser: "Användare",
+    delete: "Ta bort",
+    deleteNotification: "Ta bort avisering",
+    showAllMessages: "Visa alla meddelanden",
+    manageAccount: "Hantera ditt konto",
+    followed: "Följer",
+    searchAlert: "Sökbevakning",
+    minutesAgo: (minutes) => `${minutes} min sedan`,
+    hoursAgo: (hours) => `${hours} h sedan`,
+    daysAgo: (days) => `${days} d sedan`
+  },
+  no: {
+    ownProfile: "Min profil",
+    fallbackProfile: "Profil",
+    sellerLevel: "Selgernivå",
+    level: "Nivå",
+    maxLevel: "Maksnivå",
+    xpToNextLevel: (xp) => `${xp} XP til neste nivå`,
+    quickActions: "Hurtighandlinger",
+    notificationsHelp: "Hold deg oppdatert på viktige meldinger.",
+    markAllRead: "Merk alle som lest",
+    defaultUser: "Bruker",
+    delete: "Fjern",
+    deleteNotification: "Fjern varsel",
+    showAllMessages: "Vis alle meldinger",
+    manageAccount: "Administrer kontoen din",
+    followed: "Følger",
+    searchAlert: "Søkevarsel",
+    minutesAgo: (minutes) => `${minutes} min siden`,
+    hoursAgo: (hours) => `${hours} t siden`,
+    daysAgo: (days) => `${days} d siden`
+  },
+  et: {
+    ownProfile: "Minu profiil",
+    fallbackProfile: "Profiil",
+    sellerLevel: "Müüja tase",
+    level: "Tase",
+    maxLevel: "Maksimaalne tase",
+    xpToNextLevel: (xp) => `${xp} XP järgmise tasemeni`,
+    quickActions: "Kiirtoimingud",
+    notificationsHelp: "Hoia end oluliste sõnumitega kursis.",
+    markAllRead: "Märgi kõik loetuks",
+    defaultUser: "Kasutaja",
+    delete: "Eemalda",
+    deleteNotification: "Eemalda teavitus",
+    showAllMessages: "Näita kõiki sõnumeid",
+    manageAccount: "Halda oma kontot",
+    followed: "Jälgitavad",
+    searchAlert: "Otsinguvalvur",
+    minutesAgo: (minutes) => `${minutes} min tagasi`,
+    hoursAgo: (hours) => `${hours} h tagasi`,
+    daysAgo: (days) => `${days} p tagasi`
+  }
 };
 
 function TopbarMaskinesLogo() {
@@ -129,13 +257,14 @@ export default function UniversalTopbar() {
   const router = useRouter();
   const pathname = usePathname() || "/";
   const { t, locale } = useLanguage();
-  const ownProfileLabel = "Oma profiili";
+  const ui = topbarText[locale] ?? topbarText.fi;
+  const ownProfileLabel = ui.ownProfile;
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [profileInitial, setProfileInitial] = useState("?");
-  const [profileDisplayName, setProfileDisplayName] = useState("Profiili");
+  const [profileDisplayName, setProfileDisplayName] = useState(ui.fallbackProfile);
   const [reviewRequests, setReviewRequests] = useState<PurchaseReviewRequest[]>([]);
   const [alertNotifications, setAlertNotifications] = useState<AlertNotification[]>([]);
   const [unreadConversations, setUnreadConversations] = useState<ConversationSummary[]>([]);
@@ -162,7 +291,7 @@ export default function UniversalTopbar() {
       if (!nextUserId) {
         setAvatarUrl(null);
         setProfileInitial("?");
-        setProfileDisplayName("Profiili");
+        setProfileDisplayName(ui.fallbackProfile);
         setIsAdmin(false);
         setSellerLevelStats(emptySellerLevelStats);
         setProfileOpen(false);
@@ -185,7 +314,7 @@ export default function UniversalTopbar() {
         fallbackEmail ||
         "";
       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "?");
-      setProfileDisplayName(displayName.trim() || "Profiili");
+      setProfileDisplayName(displayName.trim() || ui.fallbackProfile);
       getCurrentUserIsAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
       getPublicSellerLevelStats(nextUserId)
         .then(({ data }) => {
@@ -216,7 +345,7 @@ export default function UniversalTopbar() {
       cancelled = true;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [ui.fallbackProfile]);
 
   useEffect(() => {
     if (!userId) {
@@ -403,8 +532,8 @@ export default function UniversalTopbar() {
   const guestLocked = !authChecked || !userId;
   const sellerLevel = calculateSellerLevel(sellerLevelStats);
   const sellerLevelTooltip = sellerLevel.maxLevel
-    ? `Maksimitaso - Taso ${sellerLevel.level}`
-    : `${sellerLevel.currentLevelXp}/${sellerLevel.xpForNextLevel} XP - Taso ${sellerLevel.level}`;
+    ? `${ui.maxLevel} - ${ui.level} ${sellerLevel.level}`
+    : `${sellerLevel.currentLevelXp}/${sellerLevel.xpForNextLevel} XP - ${ui.level} ${sellerLevel.level}`;
   const hideUniversalTopbar =
     pathname.startsWith("/auth") ||
     pathname.startsWith("/admin");
@@ -442,11 +571,11 @@ export default function UniversalTopbar() {
     const timestamp = new Date(value).getTime();
     if (Number.isNaN(timestamp)) return "";
     const minutes = Math.max(1, Math.round((Date.now() - timestamp) / 60000));
-    if (minutes < 60) return `${minutes} min sitten`;
+    if (minutes < 60) return ui.minutesAgo(minutes);
     const hours = Math.round(minutes / 60);
-    if (hours < 24) return `${hours} h sitten`;
+    if (hours < 24) return ui.hoursAgo(hours);
     const days = Math.round(hours / 24);
-    return `${days} pv sitten`;
+    return ui.daysAgo(days);
   }
 
   const rememberSeenNotificationKeys = useCallback((keys: string[]) => {
@@ -607,10 +736,10 @@ export default function UniversalTopbar() {
         {!isHomePage ? (
           <button type="button" className="universal-return-button" onClick={goBack}>
             <ArrowLeft size={16} aria-hidden="true" />
-            <strong>Takaisin</strong>
+            <strong>{t.back}</strong>
           </button>
         ) : null}
-        <nav className="universal-topbar-actions universal-topbar-actions-guest" aria-label="Pikatoiminnot">
+        <nav className="universal-topbar-actions universal-topbar-actions-guest" aria-label={ui.quickActions}>
           <Link
             href="/auth"
             className={`rebuilt-login-button rebuilt-login-button-guest${isActiveRoute("/auth") ? " is-active" : ""}`}
@@ -631,10 +760,10 @@ export default function UniversalTopbar() {
       {!isHomePage ? (
         <button type="button" className="universal-return-button" onClick={goBack} disabled={guestLocked}>
           <ArrowLeft size={16} aria-hidden="true" />
-          <strong>Takaisin</strong>
+          <strong>{t.back}</strong>
         </button>
       ) : null}
-      <nav className="universal-topbar-actions" aria-label="Pikatoiminnot">
+      <nav className="universal-topbar-actions" aria-label={ui.quickActions}>
         {false && isHomePage && userId ? (
           <Link
             href={profilePath(userId, profileDisplayName, locale)}
@@ -643,35 +772,35 @@ export default function UniversalTopbar() {
             aria-label={sellerLevelTooltip}
           >
             <span className="universal-level-pill-badge" aria-hidden="true">
-              <span>Taso</span>
+              <span>{ui.level}</span>
               <strong>{sellerLevel.level}</strong>
             </span>
             <span className="universal-level-pill-head">
               <span>
                 <Award size={13} aria-hidden="true" />
-                Myyjälevel
+                {ui.sellerLevel}
               </span>
-              <strong>Taso {sellerLevel.level}</strong>
+              <strong>{ui.level} {sellerLevel.level}</strong>
             </span>
             <span className="universal-level-pill-track" aria-hidden="true">
               <span style={{ width: `${sellerLevel.progressPercent}%` }} />
             </span>
             <small>
               {sellerLevel.maxLevel
-                ? "Maksimitaso"
-                : `${sellerLevel.nextLevelXp} XP seuraavaan tasoon`}
+                ? ui.maxLevel
+                : ui.xpToNextLevel(sellerLevel.nextLevelXp)}
             </small>
           </Link>
         ) : null}
         <Link href="/sell" className={`universal-create-button${isActiveRoute("/sell") ? " is-active" : ""}`}>
           <Plus size={17} aria-hidden="true" />
-          <strong>Luo ilmoitus</strong>
+          <strong>{t.createListing}</strong>
         </Link>
         <div className="universal-notification-wrap" ref={notificationMenuRef}>
           <button
             type="button"
             className={`universal-icon-button universal-notification-button${notificationOpen ? " is-open" : ""}`}
-            aria-label="Ilmoitukset"
+            aria-label={t.notifications}
             aria-haspopup="menu"
             aria-expanded={notificationOpen}
             disabled={guestLocked}
@@ -692,8 +821,8 @@ export default function UniversalTopbar() {
                   <Bell size={24} />
                 </span>
                 <span className="universal-notification-head-copy">
-                  <strong>Ilmoitukset</strong>
-                  <small>Pysy ajan tasalla tärkeistä viesteistä.</small>
+                  <strong>{t.notifications}</strong>
+                  <small>{ui.notificationsHelp}</small>
                 </span>
                 {hasNotifications ? (
                   <button
@@ -701,7 +830,7 @@ export default function UniversalTopbar() {
                     className="universal-notification-read-all"
                     onClick={markAllNotificationItemsRead}
                   >
-                    Merkitse kaikki luetuiksi
+                    {ui.markAllRead}
                   </button>
                 ) : null}
               </div>
@@ -716,7 +845,7 @@ export default function UniversalTopbar() {
                   <span>{t.messages}</span>
                   {visibleUnreadConversations.map((conversation) => {
                     const other = conversation.other_profile;
-                    const name = other?.full_name || other?.name || `${other?.first_name ?? ""} ${other?.last_name ?? ""}`.trim() || "Käyttäjä";
+                    const name = other?.full_name || other?.name || `${other?.first_name ?? ""} ${other?.last_name ?? ""}`.trim() || ui.defaultUser;
                     return (
                       <div key={conversation.id} className="universal-notification-item-wrap">
                         <span className="universal-notification-dot is-unread" aria-hidden="true" />
@@ -758,8 +887,8 @@ export default function UniversalTopbar() {
                         <button
                           type="button"
                           className="universal-notif-dismiss"
-                          title="Poista"
-                          aria-label="Poista ilmoitus"
+                          title={ui.delete}
+                          aria-label={ui.deleteNotification}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -801,7 +930,7 @@ export default function UniversalTopbar() {
                           type="button"
                           className="universal-notif-dismiss"
                           title={t.dismiss}
-                          aria-label="Poista ilmoitus"
+                          aria-label={ui.deleteNotification}
                           onClick={(e) => {
                             e.stopPropagation();
                             dismissReviewNotification(request);
@@ -839,7 +968,7 @@ export default function UniversalTopbar() {
                           type="button"
                           className="universal-notif-dismiss"
                           title={t.dismiss}
-                          aria-label="Poista ilmoitus"
+                          aria-label={ui.deleteNotification}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -859,7 +988,7 @@ export default function UniversalTopbar() {
                 onClick={() => setNotificationOpen(false)}
               >
                 <MessageCircle size={20} aria-hidden="true" />
-                <strong>Näytä kaikki viestit</strong>
+                <strong>{ui.showAllMessages}</strong>
                 <ChevronRight size={20} aria-hidden="true" />
               </Link>
             </div>
@@ -921,7 +1050,7 @@ export default function UniversalTopbar() {
                     </span>
                     <span className="universal-profile-menu-title">
                       <strong>{profileDisplayName}</strong>
-                      <small>Hallinnoi tiliäsi</small>
+                      <small>{ui.manageAccount}</small>
                     </span>
                   </div>
                   <div className="universal-profile-level-card" aria-label={sellerLevelTooltip}>
@@ -930,9 +1059,9 @@ export default function UniversalTopbar() {
                     </span>
                     <span className="universal-profile-level-copy">
                       <span className="universal-profile-level-head">
-                        <strong>Taso {sellerLevel.level}</strong>
+                        <strong>{ui.level} {sellerLevel.level}</strong>
                         <small>
-                          {sellerLevel.maxLevel ? "Maksimitaso" : `${sellerLevel.nextLevelXp} XP seuraavaan tasoon`}
+                          {sellerLevel.maxLevel ? ui.maxLevel : ui.xpToNextLevel(sellerLevel.nextLevelXp)}
                         </small>
                       </span>
                       <span className="universal-profile-level-track" aria-hidden="true">
@@ -961,10 +1090,10 @@ export default function UniversalTopbar() {
                     <Heart size={16} /> {t.savedListings}
                   </Link>
                   <Link href="/followed" className={`universal-profile-menu-link${isActiveRoute("/followed") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Users size={16} /> Seuratut
+                    <Users size={16} /> {ui.followed}
                   </Link>
                   <Link href="/search-alerts" className={`universal-profile-menu-link${isActiveRoute("/search-alerts") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Bell size={16} /> Hakuvahti
+                    <Bell size={16} /> {ui.searchAlert}
                   </Link>
                   {FEATURE_FLAGS.rewardsAndShop ? (
                     <>
