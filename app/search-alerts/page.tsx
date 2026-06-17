@@ -534,7 +534,7 @@ export default function SearchAlertsPage() {
                   <div className="sa-notif-list">
                     <div className="sa-notif-header">{t.saHits} — {notifsForAlert(alert.id).length} {t.saFoundSuffix}</div>
                     {notifsForAlert(alert.id).map(n => (
-                      <a key={n.id} href={listingPath(n.listing_id, locale)} className="sa-notif-item">
+                      <a key={n.id} href={listingPath(listingUrlId(n), locale)} className="sa-notif-item">
                         {n.listing_image_url && <img src={n.listing_image_url} alt="" className="sa-notif-img" />}
                         <div className="sa-notif-info">
                           <span className="sa-notif-title">{n.listing_title}</span>

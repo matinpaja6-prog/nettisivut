@@ -5822,6 +5822,7 @@ export type AlertNotification = {
   user_id: string;
   alert_id: string;
   listing_id: string;
+  listing_number?: number | null;
   listing_title: string;
   listing_price: number | null;
   listing_image_url: string | null;
@@ -5839,7 +5840,26 @@ export async function getAlertNotifications(userId: string) {
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(30);
-    return { data: (data ?? []) as AlertNotification[], error };
+    const notifications = (data ?? []) as AlertNotification[];
+
+    const listingIds =
+      Array.from(new Set(notifications.map((item) => item.listing_id).filter(Boolean)));
+
+    if (listingIds.length > 0) {
+      const { data: listingNumbers } = await supabase
+        .from("listings")
+        .select("id,listing_number")
+        .in("id", listingIds)
+        .returns<Array<{ id: string; listing_number: number | null }>>();
+      const numbersById =
+        new Map((listingNumbers ?? []).map((item) => [item.id, item.listing_number]));
+
+      for (const notification of notifications) {
+        notification.listing_number = numbersById.get(notification.listing_id) ?? null;
+      }
+    }
+
+    return { data: notifications, error };
   } catch (error) {
     return { data: [] as AlertNotification[], error };
   }

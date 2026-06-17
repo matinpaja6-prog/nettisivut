@@ -46,7 +46,6 @@ import { trackListingView, setRecoUserId } from "@/lib/recommendations";
 import {
   getSavedListingIds,
   getListingById,
-  getListingDisplayNumber,
   getListings,
   incrementListingView,
   saveListing,
@@ -420,9 +419,6 @@ export default function ListingPage() {
   const [isLoggedIn, setIsLoggedIn] =
     useState(false);
 
-  const [listingDisplayNumber, setListingDisplayNumber] =
-    useState<number | null>(null);
-
   const [similarListings, setSimilarListings] =
     useState<Listing[]>([]);
 
@@ -434,6 +430,16 @@ export default function ListingPage() {
 
   const sellerIdForPublicStats =
     listing?.seller_id ?? null;
+
+  useEffect(() => {
+    if (!listing?.listing_number) return;
+
+    const currentId = String(params.id ?? "");
+    const targetId = String(listingUrlId(listing));
+    if (currentId === targetId) return;
+
+    router.replace(listingPath(targetId, locale), { scroll: false });
+  }, [listing, locale, params.id, router]);
 
   useEffect(() => {
     if (!previewImage) return;
@@ -511,8 +517,6 @@ export default function ListingPage() {
 
   useEffect(() => {
     let mounted = true;
-
-    setListingDisplayNumber(null);
 
     const cached =
       readCachedListing(params.id);
@@ -820,28 +824,6 @@ export default function ListingPage() {
   useEffect(() => {
     if (!listing) return;
 
-    let mounted = true;
-
-    getListingDisplayNumber(listing.created_at, listing.listing_number)
-      .then((number) => {
-        if (mounted) {
-          setListingDisplayNumber(number);
-        }
-      })
-      .catch(() => {
-        if (mounted) {
-          setListingDisplayNumber(null);
-        }
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, [listing]);
-
-  useEffect(() => {
-    if (!listing) return;
-
     const localSavedIds = readSavedListingIds();
     setSavedListingIds(localSavedIds);
     setSaved(localSavedIds.includes(listing.id));
@@ -926,8 +908,8 @@ export default function ListingPage() {
     );
   }
 
-  function openSimilarListing(listingId: string) {
-    router.push(listingPath(listingId, locale));
+  function openSimilarListing(item: Pick<Listing, "id" | "listing_number">) {
+    router.push(listingPath(listingUrlId(item), locale));
   }
 
   async function shareListing() {
@@ -1107,10 +1089,6 @@ export default function ListingPage() {
             <div className="title-row">
 
               <div className="title-left">
-                <span className="mobile-listing-id">
-                  <span>ID {listingDisplayNumber ?? "..."}</span>
-                </span>
-
                 <h1>{listingText.title}</h1>
 
               </div>
@@ -1158,7 +1136,6 @@ export default function ListingPage() {
                 {listingLocation}
                 <MapPin size={15} />
               </span>
-              <strong>ID {listingDisplayNumber ?? "..."}</strong>
             </div>
 
             <div className="image-wrapper">
@@ -1685,11 +1662,11 @@ export default function ListingPage() {
                     role="link"
                     tabIndex={0}
                     aria-label={`Avaa ilmoitus ${itemText.title}`}
-                    onClick={() => openSimilarListing(item.id)}
+                    onClick={() => openSimilarListing(item)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
-                        openSimilarListing(item.id);
+                        openSimilarListing(item);
                       }
                     }}
                   >

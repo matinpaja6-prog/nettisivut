@@ -46,8 +46,14 @@ export function listingPath(id?: string | number | null, locale?: string | null)
   return `/${segment}/${encodeURIComponent(String(id ?? ""))}`;
 }
 
-export function listingUrlId(listing?: { id?: string | number | null; listing_number?: number | null } | null) {
-  return listing?.listing_number || listing?.id || "";
+export function listingUrlId(
+  listing?: {
+    id?: string | number | null;
+    listing_id?: string | number | null;
+    listing_number?: number | null;
+  } | null
+) {
+  return listing?.listing_number || listing?.id || listing?.listing_id || "";
 }
 
 export function profilePath(id?: string | null, name?: string | null, locale?: string | null) {
