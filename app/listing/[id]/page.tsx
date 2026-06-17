@@ -46,6 +46,7 @@ import { trackListingView, setRecoUserId } from "@/lib/recommendations";
 import {
   getSavedListingIds,
   getListingById,
+  getListingDisplayNumber,
   getListings,
   incrementListingView,
   saveListing,
@@ -419,6 +420,9 @@ export default function ListingPage() {
   const [isLoggedIn, setIsLoggedIn] =
     useState(false);
 
+  const [listingDisplayNumber, setListingDisplayNumber] =
+    useState<number | null>(null);
+
   const [similarListings, setSimilarListings] =
     useState<Listing[]>([]);
 
@@ -518,6 +522,8 @@ export default function ListingPage() {
   useEffect(() => {
     let mounted = true;
 
+    setListingDisplayNumber(null);
+
     const cached =
       readCachedListing(params.id);
     const fallback =
@@ -562,6 +568,28 @@ export default function ListingPage() {
       mounted = false;
     };
   }, [params.id]);
+
+  useEffect(() => {
+    if (!listing) return;
+
+    let mounted = true;
+
+    getListingDisplayNumber(listing.created_at, listing.listing_number)
+      .then((number) => {
+        if (mounted) {
+          setListingDisplayNumber(number);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setListingDisplayNumber(null);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [listing]);
 
   useEffect(() => {
     if (!supabase || !sellerIdForPublicStats) {
@@ -1136,6 +1164,7 @@ export default function ListingPage() {
                 {listingLocation}
                 <MapPin size={15} />
               </span>
+              <strong>ID {listingDisplayNumber ?? "..."}</strong>
             </div>
 
             <div className="image-wrapper">
@@ -6185,6 +6214,7 @@ export default function ListingPage() {
           background: transparent !important;
           border: 0 !important;
           box-shadow: none !important;
+          color: #ff8a1c !important;
           outline: 0 !important;
           padding: 0 !important;
         }
