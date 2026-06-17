@@ -1064,6 +1064,16 @@ export default function SavedListingsPage() {
           color: #ffffff !important;
         }
 
+        body .saved-page .saved-card-image .saved-new-badge,
+        body .saved-page .saved-card-image [class*="newBadge"].saved-new-badge {
+          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
+          border: 1px solid rgba(187, 247, 208, 0.72) !important;
+          box-shadow:
+            0 3px 9px rgba(22, 163, 74, 0.34),
+            inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+          color: #ffffff !important;
+        }
+
         @media (max-width: 640px) {
           body .saved-page .saved-card-image .saved-favorite,
           body .saved-page .saved-card-image [class*="favoriteButton"].saved-favorite {

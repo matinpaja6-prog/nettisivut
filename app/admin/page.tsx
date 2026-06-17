@@ -43,6 +43,7 @@ import {
   adminListProfiles,
   adminOverviewStats,
   adminSetPoints,
+  adminSetCompanyVerified,
   adminUnbanIp,
   adminUnbanUser,
   adminUpdateProfile,
@@ -79,6 +80,7 @@ type AdminListing = {
 };
 
 type ListingStatus = "all" | "active" | "sold";
+type UserTypeFilter = "all" | "company" | "private";
 
 type Toast = { type: "ok" | "error"; message: string } | null;
 
@@ -167,6 +169,7 @@ export default function AdminPage() {
   const [usersLoading, setUsersLoading] = useState(false);
   const [userQuery, setUserQuery] = useState("");
   const [userQueryDebounced, setUserQueryDebounced] = useState("");
+  const [userTypeFilter, setUserTypeFilter] = useState<UserTypeFilter>("all");
 
   const [listings, setListings] = useState<AdminListing[]>([]);
   const [listingsLoading, setListingsLoading] = useState(false);
@@ -524,6 +527,21 @@ export default function AdminPage() {
     setConfirm(null);
   };
 
+  const handleToggleCompanyVerified = async (user: AdminProfileRow) => {
+    const nextVerified = !user.company_verified_at;
+    const { data, error } = await adminSetCompanyVerified(user.id, nextVerified);
+    if (error) {
+      showError("Yrityksen vahvistus epäonnistui. Aja Supabasessa admin-company-verification-and-bans.sql.");
+      return;
+    }
+    showOk(nextVerified ? "Yritys merkitty vahvistetuksi." : "Yrityksen vahvistus poistettu.");
+    setUsers((prev) => prev.map((u) => (
+      u.id === user.id
+        ? { ...u, company_verified_at: nextVerified ? (data ?? new Date().toISOString()) : null }
+        : u
+    )));
+  };
+
   const handleBanIp = async (ip: string, reason?: string) => {
     const { error } = await adminBanIp(ip, reason);
     if (error) { showError("IP-bannaus epäonnistui."); return; }
@@ -806,10 +824,13 @@ export default function AdminPage() {
                 users={users}
                 loading={usersLoading}
                 query={userQuery}
+                typeFilter={userTypeFilter}
                 onQueryChange={setUserQuery}
+                onTypeFilterChange={setUserTypeFilter}
                 onRefresh={loadUsers}
                 onAction={(action, user) => setConfirm({ kind: action, user } as ConfirmState)}
                 onAdjustPhoneVer={handleAdjustPhoneVerifications}
+                onToggleCompanyVerified={(user) => void handleToggleCompanyVerified(user)}
                 onToggleBan={(user) => {
                   if (user.is_banned) {
                     void handleToggleBan(user);
@@ -1351,23 +1372,35 @@ function UsersPanel({
   users,
   loading,
   query,
+  typeFilter,
   onQueryChange,
+  onTypeFilterChange,
   onRefresh,
   onAction,
   onAdjustPhoneVer,
+  onToggleCompanyVerified,
   onToggleBan,
   onBanUserIp
 }: {
   users: AdminProfileRow[];
   loading: boolean;
   query: string;
+  typeFilter: UserTypeFilter;
   onQueryChange: (q: string) => void;
+  onTypeFilterChange: (filter: UserTypeFilter) => void;
   onRefresh: () => void;
   onAction: (kind: UserActionKind, user: AdminProfileRow) => void;
   onAdjustPhoneVer: (user: AdminProfileRow, delta: number) => void;
+  onToggleCompanyVerified: (user: AdminProfileRow) => void;
   onToggleBan: (user: AdminProfileRow) => void;
   onBanUserIp: (user: AdminProfileRow) => void;
 }) {
+  const filteredUsers = useMemo(() => {
+    if (typeFilter === "company") return users.filter((user) => user.account_type === "company");
+    if (typeFilter === "private") return users.filter((user) => user.account_type !== "company");
+    return users;
+  }, [typeFilter, users]);
+
   return (
     <section className={styles.panel}>
       <div className={styles.panelHeader}>
@@ -1391,7 +1424,24 @@ function UsersPanel({
         </button>
       </div>
 
-      {users.length === 0 && !loading ? (
+      <div className={styles.listingStatusTabs} style={{ marginBottom: 14 }}>
+        {[
+          { key: "all", label: `Kaikki (${users.length})` },
+          { key: "company", label: `Yritykset (${users.filter((u) => u.account_type === "company").length})` },
+          { key: "private", label: `Yksityiset (${users.filter((u) => u.account_type !== "company").length})` }
+        ].map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            className={`${styles.listingStatusTab} ${typeFilter === item.key ? styles.listingStatusTabActive : ""}`}
+            onClick={() => onTypeFilterChange(item.key as UserTypeFilter)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {filteredUsers.length === 0 && !loading ? (
         <div className={styles.empty}>Ei käyttäjiä.</div>
       ) : (
         <div style={{ overflowX: "auto" }}>
@@ -1409,12 +1459,13 @@ function UsersPanel({
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
+              {filteredUsers.map((u) => (
                 <UserTableRow
                   key={u.id}
                   user={u}
                   onAction={onAction}
                   onAdjustPhoneVer={onAdjustPhoneVer}
+                  onToggleCompanyVerified={onToggleCompanyVerified}
                   onToggleBan={onToggleBan}
                   onBanUserIp={onBanUserIp}
                 />
@@ -1431,12 +1482,14 @@ function UserTableRow({
   user: u,
   onAction,
   onAdjustPhoneVer,
+  onToggleCompanyVerified,
   onToggleBan,
   onBanUserIp
 }: {
   user: AdminProfileRow;
   onAction: (kind: UserActionKind, user: AdminProfileRow) => void;
   onAdjustPhoneVer: (user: AdminProfileRow, delta: number) => void;
+  onToggleCompanyVerified: (user: AdminProfileRow) => void;
   onToggleBan: (user: AdminProfileRow) => void;
   onBanUserIp: (user: AdminProfileRow) => void;
 }) {
@@ -1488,6 +1541,7 @@ function UserTableRow({
         <small>
           {u.account_type === "company" ? "Yritys" : "Yksityinen"}
           {u.business_id ? ` · ${u.business_id}` : ""}
+          {u.company_verified_at ? " · Vahvistettu yritys" : ""}
           {u.is_admin ? " · ADMIN" : ""}
         </small>
       </td>
@@ -1495,7 +1549,10 @@ function UserTableRow({
         <div>{u.email || "—"}</div>
         <small style={{ color: "#94a3b8", fontSize: "0.78rem", fontWeight: 700 }}>
           {u.phone || "ei puhelinta"}
-          {u.last_ip ? ` · ${u.last_ip}` : ""}
+        </small>
+        <small style={{ color: "#7dd3fc", display: "block", fontSize: "0.76rem", fontWeight: 800, marginTop: 3 }}>
+          IP: {u.last_ip || u.last_seen_ip || "ei tallennettua IP:tä"}
+          {u.ip_count ? ` · ${u.ip_count} osumaa` : ""}
         </small>
       </td>
       <td><strong>{u.points}</strong></td>
@@ -1576,6 +1633,15 @@ function UserTableRow({
             >
               <BadgeCheck size={14} /> Puhelin ok
             </button>
+            {u.account_type === "company" && (
+              <button
+                type="button"
+                className={styles.actionMenuItem}
+                onClick={() => { setMenuOpen(false); onToggleCompanyVerified(u); }}
+              >
+                <ShieldCheck size={14} /> {u.company_verified_at ? "Poista yritysvahvistus" : "Vahvista yritys"}
+              </button>
+            )}
             </div>
             <div className={styles.actionMenuDangerGrid}>
             <button

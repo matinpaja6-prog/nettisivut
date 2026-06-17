@@ -4,6 +4,7 @@ import { useEffect } from "react";
 
 import {
   ensureCurrentUserProfileName,
+  getSafeAuthUser,
   supabase
 } from "@/lib/supabase";
 
@@ -23,10 +24,8 @@ export default function OnlinePresence() {
 
     async function getUserId() {
 
-      const {
-        data: { user }
-      } =
-        await client.auth.getUser();
+      const user =
+        await getSafeAuthUser();
 
       if (!user) {
         return "";

@@ -14712,3 +14712,179 @@
     width: 13px !important;
   }
 }
+
+.heroSearchInput,
+.heroSearchInput:focus,
+.heroSearchInput:focus-visible {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  caret-color: transparent !important;
+  outline: 0 !important;
+}
+
+.heroSearchInput::-webkit-search-cancel-button,
+.heroSearchInput::-webkit-search-decoration,
+.heroSearchInput::-webkit-search-results-button,
+.heroSearchInput::-webkit-search-results-decoration {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  -webkit-appearance: none !important;
+}
+
+/* Final active filter polish: compact chips with lightweight remove actions. */
+.activeFilters {
+  align-items: center !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin: 0 0 16px !important;
+  padding: 0 !important;
+}
+
+.filterChip {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(14, 39, 61, 0.98), rgba(6, 25, 43, 0.98)) !important;
+  border: 1px solid rgba(92, 149, 196, 0.44) !important;
+  border-radius: 10px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(0, 8, 22, 0.16) !important;
+  display: inline-flex !important;
+  gap: 5px !important;
+  max-width: min(100%, 280px) !important;
+  min-height: 30px !important;
+  overflow: hidden !important;
+  padding: 0 7px 0 9px !important;
+}
+
+.filterChipLabel {
+  background: transparent !important;
+  border: 0 !important;
+  color: #dcecff !important;
+  display: inline-flex !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  gap: 5px !important;
+  line-height: 1.12 !important;
+  min-height: 28px !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  text-align: left !important;
+}
+
+.filterChipLabel:hover {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+.filterChipLabel strong {
+  color: #ffffff !important;
+  font-weight: 950 !important;
+}
+
+.filterChipX {
+  background: transparent !important;
+  border: 0 !important;
+  color: #ff5a52 !important;
+  display: inline-flex !important;
+  flex: 0 0 16px !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  height: 18px !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  min-width: 16px !important;
+  padding: 0 !important;
+  width: 16px !important;
+}
+
+.filterChipX:hover,
+.filterChipX:focus-visible {
+  background: transparent !important;
+  color: #ff3026 !important;
+  outline: 0 !important;
+}
+
+.filterChipReset {
+  align-items: center !important;
+  background: rgba(255, 56, 48, 0.09) !important;
+  border: 1px solid rgba(255, 82, 74, 0.28) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  color: #ff4d45 !important;
+  display: inline-flex !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  min-height: 30px !important;
+  padding: 0 11px !important;
+}
+
+.filterChipReset:hover,
+.filterChipReset:focus-visible {
+  background: rgba(255, 56, 48, 0.14) !important;
+  border-color: rgba(255, 82, 74, 0.42) !important;
+  color: #ff6a62 !important;
+  outline: 0 !important;
+  transform: none !important;
+}
+
+@media (max-width: 560px) {
+  .activeFilters {
+    align-items: center !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    justify-content: flex-start !important;
+    margin-bottom: 12px !important;
+    width: 100% !important;
+  }
+
+  .filterChip {
+    border-radius: 8px !important;
+    flex: 0 1 auto !important;
+    gap: 4px !important;
+    max-width: min(100%, 190px) !important;
+    min-height: 26px !important;
+    padding: 0 6px 0 7px !important;
+    width: auto !important;
+  }
+
+  .filterChipLabel {
+    font-size: 11px !important;
+    line-height: 1.05 !important;
+    max-width: 138px !important;
+    min-height: 24px !important;
+    white-space: nowrap !important;
+  }
+
+  .filterChipLabel svg {
+    height: 11px !important;
+    width: 11px !important;
+  }
+
+  .filterChipX {
+    flex-basis: 14px !important;
+    font-size: 12px !important;
+    height: 16px !important;
+    min-width: 14px !important;
+    width: 14px !important;
+  }
+
+  .filterChipReset {
+    border-radius: 8px !important;
+    flex: 0 0 auto !important;
+    font-size: 11px !important;
+    min-height: 26px !important;
+    padding: 0 9px !important;
+    width: auto !important;
+  }
+}

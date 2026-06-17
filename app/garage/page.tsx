@@ -36,24 +36,101 @@ type VehicleClass = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopo";
 
 const vehicleClasses: VehicleClass[] = ["Moottorikelkka", "Mönkijä", "Motocross", "Mopo"];
 const otherMakeValue = "__other_make__";
+const otherModelValue = "__other_model__";
+const otherYearValue = "__other_year__";
+const currentVehicleYear = new Date().getFullYear() + 1;
+const garageYearOptions = Array.from(
+  { length: currentVehicleYear - 1970 + 1 },
+  (_, index) => String(currentVehicleYear - index)
+);
 
-const classBrands: Record<VehicleClass, string[]> = {
+const classBrands: Record<string, string[]> = {
   Moottorikelkka: ["Lynx", "Ski-Doo", "Polaris", "Arctic Cat", "Yamaha"],
-  Mönkijä: ["Can-Am", "Polaris", "Yamaha", "Honda", "CFMOTO", "Kawasaki"],
+  [vehicleClasses[1]]: ["Can-Am", "Polaris", "Yamaha", "Honda", "CFMOTO", "Kawasaki"],
   Motocross: ["KTM", "Yamaha", "Honda", "Kawasaki", "Husqvarna", "Suzuki", "GasGas", "Beta", "Sherco", "TM"],
   Mopo: ["Yamaha", "Honda", "Derbi", "Rieju", "KTM", "Aprilia", "Husqvarna"]
 };
 
-const classModelPlaceholders: Record<VehicleClass, string> = {
+const classModelPlaceholders: Record<string, string> = {
   Moottorikelkka: "esim. RMK 800 / 600 ACE",
-  Mönkijä: "esim. Outlander 650",
+  [vehicleClasses[1]]: "esim. Outlander 650",
   Motocross: "esim. SX 125 / CRF 250 / YZ 450",
   Mopo: "esim. DT 50 / SX 50"
 };
 
-const classIcons: Record<VehicleClass, string> = {
+const garageBrandOptions: Record<string, string[]> = {
+  Moottorikelkka: ["Lynx", "Ski-Doo", "Polaris", "Arctic Cat", "Yamaha", "Taiga"],
+  [vehicleClasses[1]]: ["Can-Am", "Polaris", "Yamaha", "Honda", "CFMOTO", "Suzuki", "Kawasaki", "Arctic Cat", "TGB", "Kymco", "Linhai", "Segway", "Hisun"],
+  Motocross: ["KTM", "Yamaha", "Honda", "Kawasaki", "Husqvarna", "Suzuki", "GasGas", "Beta", "Sherco", "TM", "Fantic"],
+  Mopo: ["Yamaha", "MBK", "Derbi", "Rieju", "Aprilia", "Peugeot", "Piaggio", "Gilera", "Beta", "KTM", "Honda", "Suzuki", "Kymco", "Keeway", "CPI", "Generic", "Malaguti", "Motorhispania", "Sherco", "Tunturi", "Puch", "Solifer"]
+};
+
+const garageBrandModels: Record<string, Record<string, string[]>> = {
+  Moottorikelkka: {
+    Lynx: ["Rave RS", "Rave Racing", "Rave", "Rave RE", "Xtrim", "Xterrain", "Boondocker", "Shredder", "Commander", "Adventure", "49 Ranger", "69 Ranger", "Yeti", "GLX"],
+    "Ski-Doo": ["MXZ RS", "MXZ", "MXZ X-RS", "Summit", "Freeride", "Renegade", "Backcountry", "Expedition", "Skandic", "Tundra", "Grand Touring", "Formula", "Mach Z"],
+    Polaris: ["IQR", "600R", "XCR", "Indy XC", "Indy", "Indy VR1", "RMK", "Pro RMK", "SKS", "Switchback", "Voyageur", "Titan", "Matryx", "Rush", "Assault", "Widetrak"],
+    "Arctic Cat": ["ZR 600 R-XC", "ZR 6000 R XC", "ZR", "ZR 600", "M", "M 8000", "Riot", "Norseman", "Pantera", "Blast", "Bearcat", "Thundercat", "F", "Crossfire"],
+    Yamaha: ["SR Viper", "Sidewinder", "Apex", "Nytro", "Phazer", "Venture", "Viking", "RS Vector", "RX-1"],
+    Taiga: ["Nomad", "Ekko", "Atlas"]
+  },
+  [vehicleClasses[1]]: {
+    "Can-Am": ["Outlander", "Renegade", "Commander", "Maverick", "Traxter", "DS"],
+    Polaris: ["Sportsman", "Scrambler", "Ranger", "RZR", "General", "Trail Boss", "Phoenix", "Outlaw"],
+    Yamaha: ["Grizzly", "Kodiak", "YFZ", "Raptor", "Wolverine", "Viking", "Banshee", "Blaster", "Warrior"],
+    Honda: ["TRX", "FourTrax", "Foreman", "Rancher", "Rubicon", "Rincon", "Pioneer", "Talon"],
+    CFMOTO: ["CFORCE", "UFORCE", "ZFORCE", "Gladiator", "CForce X", "UForce XL"],
+    Suzuki: ["KingQuad", "LT-Z", "LT-R", "Eiger", "Ozark", "Vinson"],
+    Kawasaki: ["Brute Force", "KFX", "KVF", "KLF", "Mule", "Teryx", "Prairie"],
+    "Arctic Cat": ["Alterra", "TRV", "DVX", "Prowler", "Wildcat"],
+    TGB: ["Blade", "Target", "Landmax"],
+    Kymco: ["MXU", "Maxxer", "UXV"],
+    Linhai: ["M", "LH", "T-Boss"],
+    Segway: ["Snarler", "Fugleman", "Villain"],
+    Hisun: ["Tactic", "Forge", "Sector", "Strike"]
+  },
+  Motocross: {
+    KTM: ["SX", "SX-F", "EXC", "EXC-F", "XC", "XC-F", "XC-W", "SMR", "Duke", "Adventure"],
+    Yamaha: ["YZ", "YZ-F", "WR", "TTR", "PW", "Tenere", "XT"],
+    Honda: ["CR", "CRF", "CRF-R", "CRF-X", "XR", "Africa Twin", "CB"],
+    Kawasaki: ["KX", "KX-F", "KLX", "KDX", "KLR", "KLE", "Ninja"],
+    Husqvarna: ["TC", "FC", "TE", "FE", "TX", "FX", "SM"],
+    Suzuki: ["RM", "RM-Z", "DR-Z", "DR", "RMX", "TS", "LT"],
+    GasGas: ["MC", "MC-F", "EC", "EC-F", "EX", "EX-F", "TXT"],
+    Beta: ["RR", "RR Racing", "Xtrainer", "RX", "Evo"],
+    Sherco: ["SE", "SEF", "ST", "SC", "Factory"],
+    TM: ["MX", "EN", "SMR", "Fi", "ES"],
+    Fantic: ["XX", "XE", "XEF", "Caballero"]
+  },
+  Mopo: {
+    Yamaha: ["DT", "Aerox", "BW's", "BWS", "Booster", "Jog", "Slider", "Neos", "TZR", "WR", "Why"],
+    MBK: ["Booster", "Nitro", "Ovetto", "X-Limit", "Stunt", "Rocket"],
+    Derbi: ["Senda", "DRD", "Xtreme", "Racing", "GPR", "Atlantis", "Variant", "Terra"],
+    Rieju: ["MRT", "MRX", "RRX", "RS", "RS2", "SMX", "Tango", "Spike"],
+    Aprilia: ["SX", "RX", "RS", "SR", "Rally", "Sonic", "Mojito", "Tuono", "Pegaso"],
+    Peugeot: ["Speedfight", "Trekker", "Vivacity", "Ludix", "Kisbee", "XPS", "XP6", "Jetforce", "Elyseo"],
+    Piaggio: ["Zip", "Typhoon", "NRG", "Liberty", "Sfera", "Fly", "Vespa Primavera", "Vespa Sprint"],
+    Gilera: ["Runner", "SMT", "RCR", "Stalker", "DNA", "Ice", "Storm"],
+    Beta: ["RR", "RR Motard", "Ark", "Track", "Chrono"],
+    KTM: ["SX", "EXC", "Duke", "RC", "SMC"],
+    Honda: ["Monkey", "Dax", "MTX", "NSR", "Vision", "Zoomer", "X8R", "SFX"],
+    Suzuki: ["PV", "S", "TS", "Katana", "Street Magic", "Address"],
+    Kymco: ["Agility", "Super 8", "People", "Vitality", "Dink"],
+    Keeway: ["RY6", "F-Act", "Matrix", "TX", "X-Ray"],
+    CPI: ["SM", "SX", "Oliver", "Aragon", "Popcorn"],
+    Generic: ["Trigger", "XOR", "Ideo", "Race"],
+    Malaguti: ["F12", "F15", "XSM", "XTM", "Phantom"],
+    Motorhispania: ["RYZ", "Furia", "RX", "Duna"],
+    Sherco: ["SM", "SE", "HRD"],
+    Tunturi: ["Tiger", "City", "Super Sport", "Pappa", "Sport"],
+    Puch: ["Maxi", "Monza", "Cobra", "Ranger"],
+    Solifer: ["SM", "SFR", "Export", "Suzuki PV"]
+  }
+};
+
+const classIcons: Record<string, string> = {
   Moottorikelkka: "🏔️",
-  Mönkijä: "🏕️",
+  [vehicleClasses[1]]: "🏕️",
   Motocross: "🏍️",
   Mopo: "🛵"
 };
@@ -81,23 +158,29 @@ export default function GaragePage() {
   const [form, setForm] = useState({
     vehicle_class: "" as VehicleClass | "",
     make: "",
-    makeOther: "",
     model: "",
-    year: new Date().getFullYear(),
+    year: String(new Date().getFullYear()),
     nickname: ""
+  });
+  const [customVehicleFields, setCustomVehicleFields] = useState({
+    make: false,
+    model: false,
+    year: false
   });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
 
   const [selectedVehicle, setSelectedVehicle] =
     useState<GarageVehicle | null>(null);
+  const [deleteTarget, setDeleteTarget] =
+    useState<GarageVehicle | null>(null);
   const [vehicleListings, setVehicleListings] =
     useState<Listing[]>([]);
   const [listingsLoading, setListingsLoading] =
     useState(false);
-  const classLabels: Record<VehicleClass, string> = {
+  const classLabels: Record<string, string> = {
     Moottorikelkka: t.garageSnowmobile,
-    Mönkijä: t.garageAtv,
+    [vehicleClasses[1]]: t.garageAtv,
     Motocross: t.garageCar,
     Mopo: t.garageMoped
   };
@@ -122,6 +205,13 @@ export default function GaragePage() {
     : "-";
   const shouldShowForm = showForm;
 
+  const selectedVehicleClass = form.vehicle_class as VehicleClass;
+  const brandOptions = form.vehicle_class ? garageBrandOptions[selectedVehicleClass] : [];
+  const modelOptions =
+    form.vehicle_class && form.make
+      ? garageBrandModels[selectedVehicleClass]?.[form.make] ?? []
+      : [];
+
   useEffect(() => {
     if (!user) return;
     const cacheKey = `garage-vehicles:${user.id}`;
@@ -137,12 +227,14 @@ export default function GaragePage() {
 
   async function handleAdd() {
     if (!user) return;
-    const make = form.make === otherMakeValue ? form.makeOther.trim() : form.make.trim();
-    if (!make || !form.model.trim()) {
+    const make = form.make.trim();
+    const model = form.model.trim();
+    const year = Number(form.year);
+    if (!make || !model) {
       setFormError(t.garageErrorRequired);
       return;
     }
-    if (form.year < 1900 || form.year > new Date().getFullYear() + 1) {
+    if (!Number.isInteger(year) || year < 1900 || year > new Date().getFullYear() + 1) {
       setFormError(t.garageErrorYear);
       return;
     }
@@ -152,8 +244,8 @@ export default function GaragePage() {
       user_id: user.id,
       vehicle_class: form.vehicle_class || null,
       make,
-      model: form.model.trim(),
-      year: form.year,
+      model,
+      year,
       nickname: form.nickname.trim() || null
     });
     setSaving(false);
@@ -166,13 +258,13 @@ export default function GaragePage() {
       writeCachedResource(`garage-vehicles:${user.id}`, next);
       return next;
     });
-    setForm({ vehicle_class: "", make: "", makeOther: "", model: "", year: new Date().getFullYear(), nickname: "" });
+    setForm({ vehicle_class: "", make: "", model: "", year: String(new Date().getFullYear()), nickname: "" });
+    setCustomVehicleFields({ make: false, model: false, year: false });
     setFormStep("class");
     setShowForm(false);
   }
 
   async function handleDelete(vehicleId: string) {
-    if (!confirm(t.garageConfirmDelete)) return;
     await deleteGarageVehicle(vehicleId);
     setVehicles((prev) => {
       const next = prev.filter((v) => v.id !== vehicleId);
@@ -183,6 +275,7 @@ export default function GaragePage() {
       setSelectedVehicle(null);
       setVehicleListings([]);
     }
+    setDeleteTarget(null);
   }
 
   async function handleSelectVehicle(vehicle: GarageVehicle) {
@@ -300,7 +393,8 @@ export default function GaragePage() {
                             type="button"
                             className="garage-class-btn"
                             onClick={() => {
-                              setForm({ ...form, vehicle_class: cls, make: "", makeOther: "", model: "" });
+                              setForm({ ...form, vehicle_class: cls, make: "", model: "" });
+                              setCustomVehicleFields({ make: false, model: false, year: false });
                               setFormStep("details");
                             }}
                           >
@@ -334,47 +428,96 @@ export default function GaragePage() {
                     <div className="garage-form-grid">
                       <div className="garage-field">
                         <label>{t.garageMake} *</label>
+                        {customVehicleFields.make ? (
+                          <input
+                            value={form.make}
+                            onChange={(e) => setForm({ ...form, make: e.target.value, model: "" })}
+                            placeholder={t.garageMakeOtherPlaceholder}
+                            autoFocus
+                          />
+                        ) : (
                         <select
                           value={form.make}
-                          onChange={(e) => setForm({
-                            ...form,
-                            make: e.target.value,
-                            makeOther: e.target.value === otherMakeValue ? form.makeOther : ""
-                          })}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === otherMakeValue) {
+                              setCustomVehicleFields((prev) => ({ ...prev, make: true, model: true }));
+                              setForm({ ...form, make: "", model: "" });
+                              return;
+                            }
+                            setForm({ ...form, make: value, model: "" });
+                          }}
                         >
                           <option value="">—</option>
-                          {form.vehicle_class && classBrands[form.vehicle_class as VehicleClass].map((b) => (
+                          {brandOptions.map((b) => (
                             <option key={b} value={b}>{b}</option>
                           ))}
                           <option value={otherMakeValue}>{t.garageMakeOther}</option>
                         </select>
-                        {form.make === otherMakeValue && (
-                          <input
-                            className="garage-custom-make-input"
-                            value={form.makeOther}
-                            onChange={(e) => setForm({ ...form, makeOther: e.target.value })}
-                            placeholder={t.garageMakeOtherPlaceholder}
-                            autoFocus
-                          />
                         )}
                       </div>
                       <div className="garage-field">
                         <label>{t.garageModel} *</label>
+                        {customVehicleFields.model || !modelOptions.length ? (
                         <input
                           value={form.model}
                           onChange={(e) => setForm({ ...form, model: e.target.value })}
                           placeholder={form.vehicle_class ? classModelPlaceholders[form.vehicle_class as VehicleClass] : ""}
+                          autoFocus={customVehicleFields.model}
                         />
+                        ) : (
+                          <select
+                            value={form.model}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === otherModelValue) {
+                                setCustomVehicleFields((prev) => ({ ...prev, model: true }));
+                                setForm({ ...form, model: "" });
+                                return;
+                              }
+                              setForm({ ...form, model: value });
+                            }}
+                          >
+                            <option value="">-</option>
+                            {modelOptions.map((model) => (
+                              <option key={model} value={model}>{model}</option>
+                            ))}
+                            <option value={otherModelValue}>Muu</option>
+                          </select>
+                        )}
                       </div>
                       <div className="garage-field">
                         <label>{t.garageYear} *</label>
+                        {customVehicleFields.year ? (
                         <input
                           type="number"
                           value={form.year}
-                          onChange={(e) => setForm({ ...form, year: Number(e.target.value) })}
-                          min={1970}
+                          onChange={(e) => setForm({ ...form, year: e.target.value })}
+                          placeholder="Kirjoita vuosimalli"
+                          min={1900}
                           max={new Date().getFullYear() + 1}
+                          autoFocus
                         />
+                        ) : (
+                          <select
+                            value={form.year}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === otherYearValue) {
+                                setCustomVehicleFields((prev) => ({ ...prev, year: true }));
+                                setForm({ ...form, year: "" });
+                                return;
+                              }
+                              setForm({ ...form, year: value });
+                            }}
+                          >
+                            <option value="">-</option>
+                            {garageYearOptions.map((year) => (
+                              <option key={year} value={year}>{year}</option>
+                            ))}
+                            <option value={otherYearValue}>Muu</option>
+                          </select>
+                        )}
                       </div>
                       <div className="garage-field">
                         <label>{t.garageNickname}</label>
@@ -464,7 +607,7 @@ export default function GaragePage() {
                       </div>
                       <button
                         className="garage-vehicle-delete"
-                        onClick={() => handleDelete(vehicle.id)}
+                        onClick={() => setDeleteTarget(vehicle)}
                         title={t.garageConfirmDelete}
                       >
                         <Trash2 size={15} />
@@ -530,6 +673,53 @@ export default function GaragePage() {
                 );
               })}
             </div>
+
+            {deleteTarget && (
+              <div
+                className="garage-delete-backdrop"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="garage-delete-title"
+                onMouseDown={(event) => {
+                  if (event.target === event.currentTarget) setDeleteTarget(null);
+                }}
+              >
+                <div className="garage-delete-dialog">
+                  <button
+                    type="button"
+                    className="garage-delete-close"
+                    onClick={() => setDeleteTarget(null)}
+                    aria-label="Sulje"
+                  >
+                    <X size={18} />
+                  </button>
+                  <div className="garage-delete-icon">
+                    <Trash2 size={24} aria-hidden="true" />
+                  </div>
+                  <h3 id="garage-delete-title">Poistetaanko ajoneuvo tallista?</h3>
+                  <p>
+                    {deleteTarget.make} {deleteTarget.model} poistetaan omasta tallista.
+                    Ilmoitukset eivät poistu.
+                  </p>
+                  <div className="garage-delete-actions">
+                    <button
+                      type="button"
+                      className="garage-delete-cancel"
+                      onClick={() => setDeleteTarget(null)}
+                    >
+                      Peruuta
+                    </button>
+                    <button
+                      type="button"
+                      className="garage-delete-confirm"
+                      onClick={() => handleDelete(deleteTarget.id)}
+                    >
+                      Poista
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -537,10 +727,7 @@ export default function GaragePage() {
       <style>{`
         .garage-page {
           min-height: 100vh;
-          background:
-            radial-gradient(900px 440px at 12% -8%, rgba(64, 216, 255, 0.22), transparent 62%),
-            radial-gradient(720px 360px at 92% 8%, rgba(255, 107, 22, 0.12), transparent 60%),
-            linear-gradient(180deg, #031326 0%, #061a2e 46%, #082b54 100%) !important;
+          background: #101c22 !important;
           color: #f8fbff !important;
         }
 
@@ -566,9 +753,8 @@ export default function GaragePage() {
           position: relative;
           overflow: hidden;
           background:
-            linear-gradient(135deg, rgba(255, 107, 22, 0.1), transparent 34%),
-            radial-gradient(760px 260px at 88% 0%, rgba(64, 216, 255, 0.28), transparent 72%),
-            linear-gradient(135deg, #09233f 0%, #0a526d 48%, #0d8ca5 100%) !important;
+            radial-gradient(520px 180px at 78% 0%, rgba(15, 70, 122, 0.24), transparent 70%),
+            linear-gradient(135deg, rgba(8, 21, 42, 0.94), rgba(7, 18, 34, 0.96)) !important;
           border: 1px solid rgba(126, 197, 240, 0.32) !important;
           border-radius: 28px !important;
           padding: 30px !important;
@@ -652,12 +838,14 @@ export default function GaragePage() {
           display: flex;
           align-items: center;
           gap: 14px;
-          background: white;
-          border: 1px solid rgba(15,23,42,0.08);
+          background:
+            radial-gradient(520px 180px at 78% 0%, rgba(15, 70, 122, 0.2), transparent 70%),
+            linear-gradient(135deg, rgba(8, 21, 42, 0.94), rgba(7, 18, 34, 0.96));
+          border: 1px solid rgba(71, 112, 153, 0.52);
           border-radius: 16px;
           padding: 24px 28px;
           box-shadow: 0 4px 20px rgba(15,23,42,0.06);
-          color: #0f172a;
+          color: #f8fbff;
           font-size: 15px;
         }
 
@@ -730,32 +918,34 @@ export default function GaragePage() {
 
         .garage-form {
           background:
-            linear-gradient(180deg, rgba(255,255,255,0.98), rgba(239,250,254,0.96)) !important;
-          border: 1px solid rgba(126, 197, 240, 0.34) !important;
-          border-radius: 26px !important;
-          padding: 30px 34px;
-          margin-bottom: 24px;
-          box-shadow: 0 28px 78px rgba(2,18,38,0.28), inset 0 1px 0 rgba(255,255,255,0.82) !important;
+            radial-gradient(420px 180px at 88% 0%, rgba(255,122,26,0.14), transparent 68%),
+            radial-gradient(360px 160px at 12% 0%, rgba(64,216,255,0.12), transparent 70%),
+            linear-gradient(135deg, rgba(14,31,49,0.98), rgba(7,17,29,0.98)) !important;
+          border: 1px solid rgba(126, 197, 240, 0.24) !important;
+          border-radius: 22px !important;
+          padding: 22px 24px;
+          margin-bottom: 20px;
+          box-shadow: 0 24px 64px rgba(0,7,18,0.34), inset 0 1px 0 rgba(255,255,255,0.06) !important;
         }
 
         .garage-form h3 {
-          margin: 0 0 20px;
-          font-size: 20px;
+          margin: 0 0 16px;
+          font-size: 18px;
           font-weight: 950;
-          color: #061a2e;
-          letter-spacing: -0.02em;
+          color: #f8fbff;
+          letter-spacing: 0;
         }
 
         .garage-form-hint {
-          margin: 0 0 16px;
-          font-size: 14px;
-          color: #64748b;
+          margin: 0 0 14px;
+          font-size: 13px;
+          color: #b8c7d6;
         }
 
         .garage-class-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 14px;
+          gap: 12px;
           margin-bottom: 8px;
         }
 
@@ -764,33 +954,33 @@ export default function GaragePage() {
           flex-direction: row;
           align-items: center;
           justify-content: flex-start;
-          gap: 14px;
-          min-height: 92px;
-          padding: 18px;
-          border-radius: 18px !important;
-          border: 1px solid rgba(8,121,149,0.18);
+          gap: 12px;
+          min-height: 68px;
+          padding: 12px 14px;
+          border-radius: 16px !important;
+          border: 1px solid rgba(126, 197, 240, 0.24);
           background:
-            linear-gradient(135deg, rgba(255,255,255,0.98), rgba(231,247,252,0.92)) !important;
+            linear-gradient(135deg, rgba(10,33,54,0.96), rgba(7,22,37,0.96)) !important;
           cursor: pointer;
-          font-size: 16px;
+          font-size: 14px;
           font-weight: 950;
-          color: #061a2e;
+          color: #f8fbff;
           transition: all 0.2s;
-          box-shadow: 0 12px 28px rgba(5,24,46,0.08);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
         }
 
         .garage-class-btn:hover {
           border-color: rgba(255,107,22,0.58);
           background:
-            linear-gradient(135deg, rgba(255,247,240,0.98), rgba(226,249,255,0.96)) !important;
+            linear-gradient(135deg, rgba(255,122,26,0.18), rgba(9,34,56,0.98)) !important;
           transform: translateY(-2px);
-          box-shadow: 0 18px 38px rgba(5,24,46,0.14);
+          box-shadow: 0 16px 34px rgba(0,7,18,0.32);
         }
 
         .garage-class-icon {
-          width: 56px;
-          height: 56px;
-          border-radius: 16px;
+          width: 44px;
+          height: 44px;
+          border-radius: 13px;
           display: grid;
           place-items: center;
           background: linear-gradient(145deg, #d9fbff, #6ed2e4);
@@ -806,10 +996,10 @@ export default function GaragePage() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: rgba(218,249,255,0.7);
-          border: 1px solid rgba(8,121,149,0.18);
+          background: rgba(7, 22, 37, 0.82);
+          border: 1px solid rgba(126, 197, 240, 0.24);
           border-radius: 999px;
-          color: #0a516d;
+          color: #d9e8f6;
           font-size: 13px;
           font-weight: 900;
           cursor: pointer;
@@ -818,30 +1008,30 @@ export default function GaragePage() {
           transition: color 0.2s;
         }
 
-        .garage-back-step:hover { color: #061a2e; }
+        .garage-back-step:hover { color: #ff9a3d; }
 
         .garage-selected-class {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: rgba(218,249,255,0.7) !important;
-          border: 1px solid rgba(8,121,149,0.18) !important;
+          background: rgba(7, 22, 37, 0.82) !important;
+          border: 1px solid rgba(126, 197, 240, 0.24) !important;
           border-radius: 999px !important;
-          padding: 9px 16px;
-          font-size: 14px;
+          padding: 8px 14px;
+          font-size: 13px;
           font-weight: 950;
-          color: #0a516d;
-          margin-bottom: 20px;
+          color: #f8fbff;
+          margin-bottom: 16px;
         }
 
         .garage-field select {
-          height: 48px;
-          padding: 0 14px;
-          border-radius: 14px !important;
-          border: 1px solid rgba(8,121,149,0.2) !important;
-          background: rgba(255,255,255,0.94) !important;
+          height: 44px;
+          padding: 0 13px;
+          border-radius: 13px !important;
+          border: 1px solid rgba(126, 197, 240, 0.34) !important;
+          background: #061726 !important;
           font-size: 14px;
-          color: #0f172a;
+          color: #f8fbff;
           outline: none;
           transition: border-color 0.2s;
           width: 100%;
@@ -850,14 +1040,19 @@ export default function GaragePage() {
 
         .garage-field select:focus {
           border-color: #ff7a1a;
-          background: white;
+          background: #061726;
+        }
+
+        .garage-field select option {
+          background: #061726;
+          color: #f8fbff;
         }
 
         .garage-form-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 18px;
-          margin-bottom: 20px;
+          gap: 14px 18px;
+          margin-bottom: 18px;
         }
 
         .garage-field {
@@ -869,17 +1064,17 @@ export default function GaragePage() {
         .garage-field label {
           font-size: 13px;
           font-weight: 900;
-          color: #087995 !important;
+          color: #0aa6c7 !important;
         }
 
         .garage-field input {
-          height: 48px;
-          padding: 0 14px;
-          border-radius: 14px !important;
-          border: 1px solid rgba(8,121,149,0.2) !important;
-          background: rgba(255,255,255,0.94) !important;
+          height: 44px;
+          padding: 0 13px;
+          border-radius: 13px !important;
+          border: 1px solid rgba(126, 197, 240, 0.34) !important;
+          background: #061726 !important;
           font-size: 14px;
-          color: #0f172a;
+          color: #f8fbff;
           outline: none;
           transition: border-color 0.2s;
         }
@@ -890,7 +1085,7 @@ export default function GaragePage() {
 
         .garage-field input:focus {
           border-color: #ff7a1a;
-          background: white;
+          background: #061726;
         }
 
         .garage-form-error {
@@ -900,7 +1095,7 @@ export default function GaragePage() {
         }
 
         .garage-save-btn {
-          height: 48px;
+          height: 46px;
           padding: 0 26px;
           border-radius: 14px !important;
           border: 1px solid rgba(255,199,148,0.58) !important;
@@ -918,16 +1113,125 @@ export default function GaragePage() {
 
         .garage-empty {
           text-align: center;
-          padding: 54px 24px;
-          color: #547083;
-          border: 1px dashed rgba(8,121,149,0.28);
-          border-radius: 22px;
-          background: rgba(255,255,255,0.56);
+          padding: 38px 22px;
+          color: #b8c7d6;
+          border: 1px dashed rgba(126, 197, 240, 0.28);
+          border-radius: 18px;
+          background:
+            linear-gradient(135deg, rgba(8, 21, 42, 0.72), rgba(7, 18, 34, 0.78));
         }
 
         .garage-empty p {
           margin: 16px 0 0;
           font-size: 15px;
+        }
+
+        .garage-delete-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 2000;
+          display: grid;
+          place-items: center;
+          padding: 20px;
+          background: rgba(1, 9, 18, 0.74);
+          backdrop-filter: blur(10px);
+        }
+
+        .garage-delete-dialog {
+          position: relative;
+          width: min(430px, 100%);
+          overflow: hidden;
+          border-radius: 22px;
+          border: 1px solid rgba(126, 197, 240, 0.34);
+          background:
+            radial-gradient(360px 160px at 100% 0%, rgba(255, 122, 26, 0.2), transparent 70%),
+            radial-gradient(280px 150px at 0% 0%, rgba(64, 216, 255, 0.12), transparent 68%),
+            linear-gradient(145deg, #071827, #0b2235 58%, #081522);
+          box-shadow: 0 32px 90px rgba(0, 7, 18, 0.58), inset 0 1px 0 rgba(255,255,255,0.08);
+          padding: 30px;
+          color: #f8fbff;
+        }
+
+        .garage-delete-close {
+          position: absolute;
+          top: 14px;
+          right: 14px;
+          width: 36px;
+          height: 36px;
+          display: grid;
+          place-items: center;
+          border-radius: 12px;
+          border: 1px solid rgba(126, 197, 240, 0.28);
+          background: rgba(7, 20, 34, 0.72);
+          color: #c8d7e6;
+          cursor: pointer;
+        }
+
+        .garage-delete-icon {
+          width: 54px;
+          height: 54px;
+          display: grid;
+          place-items: center;
+          border-radius: 18px;
+          border: 1px solid rgba(255, 138, 28, 0.42);
+          background: linear-gradient(135deg, rgba(255, 138, 28, 0.22), rgba(255, 107, 22, 0.08));
+          color: #ff9a3d;
+          margin-bottom: 18px;
+        }
+
+        .garage-delete-dialog h3 {
+          margin: 0 42px 10px 0;
+          font-size: clamp(22px, 3vw, 28px);
+          line-height: 1.08;
+          font-weight: 950;
+          letter-spacing: 0;
+        }
+
+        .garage-delete-dialog p {
+          margin: 0;
+          max-width: 34ch;
+          color: #b8c7d6;
+          line-height: 1.55;
+          font-size: 15px;
+          font-weight: 750;
+        }
+
+        .garage-delete-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 12px;
+          margin-top: 26px;
+        }
+
+        .garage-delete-actions button {
+          min-width: 112px;
+          height: 46px;
+          border-radius: 14px;
+          font-weight: 950;
+          cursor: pointer;
+        }
+
+        .garage-delete-cancel {
+          border: 1px solid rgba(126, 197, 240, 0.28);
+          background: rgba(9, 28, 45, 0.86);
+          color: #d9e8f6;
+        }
+
+        .garage-delete-confirm {
+          border: 1px solid rgba(255, 199, 148, 0.58);
+          background: linear-gradient(135deg, #ff8a1c 0%, #ff6b16 46%, #e65300 100%);
+          color: #fff;
+          box-shadow: 0 14px 32px rgba(255, 107, 22, 0.28);
+        }
+
+        .garage-delete-close:hover,
+        .garage-delete-cancel:hover {
+          border-color: rgba(255, 138, 28, 0.48);
+        }
+
+        .garage-delete-confirm:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 18px 38px rgba(255, 107, 22, 0.36);
         }
 
         .garage-vehicles {
@@ -1097,21 +1401,22 @@ export default function GaragePage() {
 
         .garage-parts-panel {
           background:
-            radial-gradient(520px 210px at 100% 0%, rgba(255,122,26,0.11), transparent 70%),
-            linear-gradient(145deg, rgba(13,29,46,0.96), rgba(7,17,29,0.98)) !important;
-          border: 1px solid rgba(255,122,26,0.34);
+            radial-gradient(520px 180px at 78% 0%, rgba(15, 70, 122, 0.2), transparent 70%),
+            linear-gradient(135deg, rgba(8, 21, 42, 0.94), rgba(7, 18, 34, 0.96)) !important;
+          border: 1px solid rgba(71, 112, 153, 0.52);
           border-top: none;
-          border-bottom-left-radius: 16px;
-          border-bottom-right-radius: 16px;
-          padding: 24px;
-          box-shadow: 0 24px 70px rgba(0,7,18,0.32);
+          border-bottom-left-radius: 18px;
+          border-bottom-right-radius: 18px;
+          padding: 20px 22px;
+          box-shadow: 0 20px 54px rgba(0,7,18,0.28), inset 0 1px 0 rgba(255,255,255,0.05);
         }
 
         .garage-parts-header h3 {
-          margin: 0 0 20px;
+          margin: 0 0 16px;
           font-size: 15px;
-          font-weight: 700;
+          font-weight: 900;
           color: #ffffff;
+          background: transparent !important;
         }
 
         .garage-parts-loading,
@@ -1129,11 +1434,12 @@ export default function GaragePage() {
         }
 
         .garage-part-card {
-          background: white;
+          background:
+            linear-gradient(135deg, rgba(10,33,54,0.96), rgba(7,22,37,0.96)) !important;
           border-radius: 14px;
-          border: 1px solid rgba(15,23,42,0.08);
+          border: 1px solid rgba(126, 197, 240, 0.22);
           overflow: hidden;
-          box-shadow: 0 2px 10px rgba(15,23,42,0.06);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
           transition: transform 0.2s, box-shadow 0.2s;
           display: flex;
           flex-direction: column;
@@ -1170,7 +1476,7 @@ export default function GaragePage() {
           margin: 0;
           font-size: 14px;
           font-weight: 700;
-          color: #0f172a;
+          color: #f8fbff;
           line-height: 1.3;
         }
 
@@ -1186,7 +1492,7 @@ export default function GaragePage() {
         .garage-part-price {
           font-size: 15px;
           font-weight: 800;
-          color: #0f172a;
+          color: #f8fbff;
           margin-top: 8px;
         }
 
@@ -1266,30 +1572,26 @@ export default function GaragePage() {
         /* Reference-style Oma Talli surface */
         .garage-page {
           min-height: 100vh;
-          padding: 32px 0 108px;
-          background:
-            radial-gradient(760px 520px at 0% 92%, rgba(4, 64, 107, 0.45), transparent 72%),
-            radial-gradient(720px 430px at 93% 38%, rgba(11, 68, 112, 0.34), transparent 72%),
-            linear-gradient(180deg, #020916 0%, #03101f 44%, #061527 100%);
+          padding: 24px 0 84px;
+          background: #101c22;
           color: #eef7ff;
         }
 
         .garage-container {
-          max-width: 1396px;
-          padding: 0 30px;
+          max-width: 1180px;
+          padding: 0 22px;
         }
 
         .garage-heading {
-          min-height: 250px;
-          margin-bottom: 34px;
-          padding: 48px 42px;
-          border-radius: 28px;
-          border: 1px solid rgba(116, 162, 209, 0.45);
+          min-height: 218px;
+          margin-bottom: 22px;
+          padding: 34px 36px;
+          border-radius: 24px !important;
+          border: 1px solid rgba(71, 112, 153, 0.62) !important;
           background:
-            linear-gradient(90deg, rgba(6, 18, 36, 0.98) 0%, rgba(8, 24, 45, 0.92) 42%, rgba(10, 30, 56, 0.5) 70%, rgba(6, 18, 36, 0.95) 100%),
-            radial-gradient(600px 250px at 82% 25%, rgba(255, 122, 24, 0.16), transparent 68%),
-            radial-gradient(760px 330px at 86% 75%, rgba(92, 141, 190, 0.34), transparent 72%);
-          box-shadow: 0 30px 88px rgba(0, 7, 18, 0.44), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            radial-gradient(520px 180px at 78% 0%, rgba(15, 70, 122, 0.24), transparent 70%),
+            linear-gradient(135deg, rgba(8, 21, 42, 0.94), rgba(7, 18, 34, 0.96)) !important;
+          box-shadow: 0 22px 62px rgba(0, 6, 18, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
           overflow: hidden;
         }
 
@@ -1303,29 +1605,29 @@ export default function GaragePage() {
         .garage-heading::after {
           content: "";
           position: absolute;
-          inset: 0 0 0 auto;
-          width: 64%;
+          inset: 0;
+          width: auto;
           background:
-            linear-gradient(90deg, rgba(6, 18, 36, 0.88) 0%, rgba(6, 18, 36, 0.22) 32%, rgba(6, 18, 36, 0.78) 100%),
-            radial-gradient(420px 190px at 68% 84%, rgba(218, 235, 255, 0.21), transparent 76%);
+            linear-gradient(90deg, rgba(255,255,255,0.04), transparent 32%),
+            radial-gradient(420px 160px at 88% 0%, rgba(255, 122, 24, 0.1), transparent 70%);
           pointer-events: none;
           z-index: 2;
         }
 
         .garage-heading-icon {
-          width: 110px;
-          height: 110px;
-          border-radius: 22px !important;
-          background: linear-gradient(145deg, #ffb42c 0%, #ff7619 44%, #e84b00 100%) !important;
-          border: 1px solid rgba(255, 207, 156, 0.72) !important;
+          width: 88px;
+          height: 88px;
+          border-radius: 20px !important;
+          background: linear-gradient(145deg, rgba(255, 154, 61, 0.22), rgba(13, 29, 46, 0.94)) !important;
+          border: 1px solid rgba(255, 138, 28, 0.62) !important;
           color: #ffffff !important;
-          box-shadow: 0 0 38px rgba(255, 107, 22, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.26) !important;
+          box-shadow: 0 0 34px rgba(255, 107, 22, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
           z-index: 5;
         }
 
         .garage-heading-icon svg {
-          width: 52px;
-          height: 52px;
+          width: 42px;
+          height: 42px;
           filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.32));
         }
 
@@ -1336,9 +1638,9 @@ export default function GaragePage() {
         }
 
         .garage-heading h1 {
-          margin: 0 0 14px;
+          margin: 0 0 10px;
           color: #ffffff;
-          font-size: 54px;
+          font-size: 46px;
           font-weight: 950;
           line-height: 1;
           letter-spacing: 0;
@@ -1346,9 +1648,9 @@ export default function GaragePage() {
         }
 
         .garage-heading p {
-          max-width: 450px;
+          max-width: 430px;
           color: rgba(224, 234, 243, 0.9);
-          font-size: 20px;
+          font-size: 16px;
           font-weight: 800;
           line-height: 1.45;
         }
@@ -1370,8 +1672,8 @@ export default function GaragePage() {
           position: relative;
           z-index: 5;
           min-width: 118px;
-          min-height: 116px;
-          border-radius: 18px !important;
+          min-height: 58px;
+          border-radius: 14px !important;
           border: 1px solid rgba(255, 214, 178, 0.32);
           background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), rgba(48, 36, 44, 0.72));
           backdrop-filter: blur(16px);
@@ -1379,19 +1681,19 @@ export default function GaragePage() {
         }
 
         .garage-heading-stats span {
-          font-size: 42px;
+          font-size: 28px;
         }
 
         .garage-heading-stats small {
           color: rgba(239, 246, 252, 0.9);
-          font-size: 16px;
+          font-size: 12px;
           font-weight: 850;
         }
 
         .garage-toolbar {
-          min-height: 112px;
-          margin-bottom: 28px;
-          padding: 24px 28px 24px 42px;
+          min-height: 94px;
+          margin-bottom: 18px;
+          padding: 18px 26px 18px 38px;
           border-radius: 22px;
           border: 1px solid rgba(105, 159, 216, 0.33);
           background:
@@ -1416,18 +1718,18 @@ export default function GaragePage() {
 
         .garage-toolbar-copy strong {
           color: #ffffff;
-          font-size: 26px;
+          font-size: 22px;
           letter-spacing: 0;
         }
 
         .garage-toolbar-copy span:last-child {
           color: rgba(205, 218, 232, 0.8);
-          font-size: 17px;
+          font-size: 14px;
         }
 
         .garage-add-btn {
-          min-width: 272px;
-          height: 62px;
+          min-width: 202px;
+          height: 54px;
           padding: 0 0 0 24px;
           justify-content: space-between;
           gap: 16px;
@@ -1435,7 +1737,7 @@ export default function GaragePage() {
           border: 1px solid rgba(255, 197, 142, 0.72) !important;
           background: linear-gradient(135deg, #ffab20 0%, #ff7418 42%, #ff4d00 100%) !important;
           box-shadow: 0 0 28px rgba(255, 107, 22, 0.42), 0 18px 40px rgba(255, 107, 22, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
-          font-size: 18px;
+          font-size: 15px;
           font-weight: 950;
           overflow: hidden;
         }
@@ -1455,19 +1757,18 @@ export default function GaragePage() {
         }
 
         .garage-vehicles {
-          gap: 30px;
+          gap: 18px;
         }
 
         .garage-vehicle-card {
-          min-height: 250px;
-          padding: 26px 30px 26px 0;
-          border-radius: 28px !important;
-          border: 1px solid rgba(105, 159, 216, 0.4) !important;
+          min-height: 168px;
+          padding: 18px 24px 18px 18px;
+          border-radius: 22px !important;
+          border: 1px solid rgba(255, 122, 24, 0.46) !important;
           background:
-            radial-gradient(580px 250px at 17% 16%, rgba(80, 139, 195, 0.18), transparent 72%),
-            radial-gradient(520px 190px at 88% 14%, rgba(255, 122, 24, 0.12), transparent 72%),
-            linear-gradient(135deg, rgba(8, 24, 48, 0.96), rgba(6, 17, 33, 0.98)) !important;
-          box-shadow: 0 28px 82px rgba(0, 6, 18, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+            radial-gradient(520px 180px at 78% 0%, rgba(15, 70, 122, 0.22), transparent 70%),
+            linear-gradient(135deg, rgba(8, 21, 42, 0.94), rgba(7, 18, 34, 0.96)) !important;
+          box-shadow: 0 22px 62px rgba(0, 6, 18, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
           overflow: hidden;
         }
 
@@ -1487,17 +1788,17 @@ export default function GaragePage() {
         }
 
         .garage-vehicle-info {
-          gap: 44px;
+          gap: 26px;
           min-width: 0;
         }
 
         .garage-vehicle-icon {
-          width: 410px;
-          height: 198px;
-          border: 0 !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          box-shadow: none !important;
+          width: 210px;
+          height: 118px;
+          border: 1px solid rgba(126, 197, 240, 0.28) !important;
+          border-radius: 16px !important;
+          background: #061726 !important;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
           overflow: hidden;
         }
 
@@ -1506,7 +1807,7 @@ export default function GaragePage() {
           height: 100%;
           object-fit: cover;
           object-position: center;
-          border-radius: 0 18px 18px 0;
+          border-radius: 15px;
           filter: saturate(1.07) contrast(1.08);
         }
 
@@ -1536,7 +1837,7 @@ export default function GaragePage() {
 
         .garage-vehicle-name {
           color: #ffffff;
-          font-size: 44px;
+          font-size: 34px;
           line-height: 1.02;
           letter-spacing: 0;
           overflow-wrap: anywhere;
@@ -1551,7 +1852,7 @@ export default function GaragePage() {
 
         .garage-vehicle-year {
           color: rgba(210, 222, 236, 0.88) !important;
-          font-size: 22px;
+          font-size: 18px;
           font-weight: 900;
           line-height: 1;
         }
@@ -1564,12 +1865,12 @@ export default function GaragePage() {
           display: inline-flex;
           align-items: center;
           gap: 10px;
-          padding: 9px 16px !important;
+          padding: 8px 14px !important;
           border-radius: 999px !important;
           border: 1px solid rgba(255, 157, 60, 0.46) !important;
           background: rgba(6, 17, 33, 0.56) !important;
           color: #ff9d2e !important;
-          font-size: 18px;
+          font-size: 15px;
           font-weight: 950;
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
           text-shadow: 0 0 18px rgba(255, 122, 24, 0.24);
@@ -1580,8 +1881,8 @@ export default function GaragePage() {
         }
 
         .garage-vehicle-arrow {
-          width: 74px;
-          height: 74px;
+          width: 56px;
+          height: 56px;
           margin-left: auto;
           margin-right: 22px;
           border-radius: 999px !important;
@@ -1592,13 +1893,13 @@ export default function GaragePage() {
         }
 
         .garage-vehicle-arrow svg {
-          width: 34px;
-          height: 34px;
+          width: 25px;
+          height: 25px;
         }
 
         .garage-vehicle-delete {
-          width: 64px;
-          height: 64px;
+          width: 46px;
+          height: 46px;
           margin-right: 10px;
           border-radius: 999px !important;
           border: 1px solid rgba(215, 232, 248, 0.42) !important;
@@ -1608,8 +1909,8 @@ export default function GaragePage() {
         }
 
         .garage-vehicle-delete svg {
-          width: 26px;
-          height: 26px;
+          width: 19px;
+          height: 19px;
         }
 
         @media (max-width: 960px) {

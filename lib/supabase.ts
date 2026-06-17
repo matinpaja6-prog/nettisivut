@@ -1,7 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type Session, type User } from "@supabase/supabase-js";
 
 import {
-  appendPartNumberToDescription,
   type Listing,
   type ListingInput,
   type SoldListing,
@@ -36,6 +35,8 @@ export type UserProfile = {
   company_role?: string | null;
 
   company_website?: string | null;
+
+  company_verified_at?: string | null;
 
   public_address?: string | null;
 
@@ -356,6 +357,72 @@ export const supabase =
         supabaseAnonKey!
       )
     : null;
+
+function isInvalidRefreshTokenError(error: unknown) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "object" &&
+          error !== null &&
+          "message" in error
+        ? String((error as { message?: unknown }).message ?? "")
+        : String(error ?? "");
+
+  return /invalid refresh token|refresh token not found|refresh_token_not_found/i.test(message);
+}
+
+function clearStoredSupabaseAuth() {
+  if (typeof window === "undefined") return;
+
+  try {
+    const storages = [window.localStorage, window.sessionStorage];
+    for (const storage of storages) {
+      for (let index = storage.length - 1; index >= 0; index -= 1) {
+        const key = storage.key(index);
+        if (!key) continue;
+        if (key.startsWith("sb-") && key.includes("-auth-token")) {
+          storage.removeItem(key);
+        }
+      }
+    }
+  } catch {
+    // Storage can be unavailable in private mode; failing to clear it should not crash the app.
+  }
+}
+
+export async function getSafeAuthSession(): Promise<Session | null> {
+  if (!supabase) return null;
+
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    return data.session ?? null;
+  } catch (error) {
+    if (isInvalidRefreshTokenError(error)) {
+      clearStoredSupabaseAuth();
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+export async function getSafeAuthUser(): Promise<User | null> {
+  if (!supabase) return null;
+
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) throw error;
+    return data.user ?? null;
+  } catch (error) {
+    if (isInvalidRefreshTokenError(error)) {
+      clearStoredSupabaseAuth();
+      return null;
+    }
+
+    throw error;
+  }
+}
 
 type ListingImageFields = Pick<Listing, "image_url" | "image_urls">;
 
@@ -1176,12 +1243,6 @@ export async function updateListing(
 
     if (hasMissingListingColumns(result.error)) {
       const fallbackListing = { ...translatedListing };
-      if (fallbackListing.part_number) {
-        fallbackListing.description = appendPartNumberToDescription(
-          fallbackListing.description,
-          fallbackListing.part_number
-        );
-      }
       delete fallbackListing.original_language;
       delete fallbackListing.translations;
       delete fallbackListing.part_number;
@@ -1927,12 +1988,6 @@ export async function createListing(
 
     if (hasMissingListingColumns(result.error)) {
       const fallbackPayload = { ...listingPayload };
-      if (fallbackPayload.part_number) {
-        fallbackPayload.description = appendPartNumberToDescription(
-          fallbackPayload.description,
-          fallbackPayload.part_number
-        );
-      }
       delete fallbackPayload.original_language;
       delete fallbackPayload.translations;
       delete fallbackPayload.part_number;
@@ -2484,6 +2539,7 @@ export type AdminProfileRow = {
   account_type?: string | null;
   company_name?: string | null;
   business_id?: string | null;
+  company_verified_at?: string | null;
 };
 
 export type AdminUserIp = {
@@ -2745,6 +2801,23 @@ export async function adminDeleteListing(targetListingId: string, reason?: strin
     return { error };
   }
 
+  const directDelete = await supabase
+    .from("listings")
+    .delete()
+    .eq("id", targetListingId);
+
+  if (directDelete.error) {
+    const verify = await supabase
+      .from("listings")
+      .select("id")
+      .eq("id", targetListingId)
+      .maybeSingle<{ id: string }>();
+
+    if (verify.data?.id) {
+      return { error: directDelete.error };
+    }
+  }
+
   const imageCleanupError =
     await deleteListingStorageImages(listingImages);
 
@@ -2760,6 +2833,9 @@ export async function adminUpdateProfile(
     phone: string;
     country: string;
     city: string;
+    birth_date: string;
+    company_name: string;
+    business_id: string;
   }>
 ) {
   if (!supabase) return { error: "no-supabase" };
@@ -2768,6 +2844,34 @@ export async function adminUpdateProfile(
     updates
   });
   return { error };
+}
+
+export async function adminSetCompanyVerified(targetUserId: string, verified: boolean) {
+  if (!supabase) return { data: null, error: "no-supabase" };
+
+  const { data, error } = await supabase.rpc("admin_set_company_verified", {
+    target_user_id: targetUserId,
+    verified
+  });
+
+  if (!error) {
+    return { data: (data ?? null) as string | null, error };
+  }
+
+  const message = (error as { message?: string })?.message ?? "";
+  if (!message.includes("admin_set_company_verified")) {
+    return { data: null, error };
+  }
+
+  const nextValue = verified ? new Date().toISOString() : null;
+  const fallback = await supabase
+    .from("profiles")
+    .update({ company_verified_at: nextValue })
+    .eq("id", targetUserId)
+    .select("company_verified_at")
+    .maybeSingle<{ company_verified_at: string | null }>();
+
+  return { data: fallback.data?.company_verified_at ?? nextValue, error: fallback.error };
 }
 
 export async function trackSiteVisit(params: {
@@ -2782,6 +2886,29 @@ export async function trackSiteVisit(params: {
       p_path: params.path ?? null,
       p_user_agent: params.userAgent ?? null
     });
+
+    if (params.ip) {
+      const { data } = await supabase.auth.getUser();
+      const userId = data.user?.id;
+      if (userId) {
+        const current = await supabase
+          .from("profiles")
+          .select("last_ip,ip_count")
+          .eq("id", userId)
+          .maybeSingle<{ last_ip: string | null; ip_count: number | null }>();
+
+        await supabase
+          .from("profiles")
+          .update({
+            last_ip: params.ip,
+            last_seen_ip: params.ip,
+            ip_count: (current.data?.last_ip === params.ip)
+              ? (current.data?.ip_count ?? 0)
+              : (current.data?.ip_count ?? 0) + 1
+          })
+          .eq("id", userId);
+      }
+    }
   } catch {
     // tracking failures are silent
   }
@@ -2945,6 +3072,7 @@ export async function getPublicProfile(
           business_id,
           company_role,
           company_website,
+          company_verified_at,
           public_address,
           phone,
           city,
@@ -2954,32 +3082,65 @@ export async function getPublicProfile(
           created_at,
           phone_verified_at
       `;
+    const fallbackProfileSelect = profileSelect.replace(/\s*company_verified_at,\n/, "\n");
+    const withMissingCompanyVerificationFallback = async <T,>(
+      query: PromiseLike<{ data: T; error: unknown }>,
+      fallback: () => PromiseLike<{ data: T; error: unknown }>
+    ): Promise<{ data: T; error: unknown }> => {
+      const result = await query;
+      const message = (result.error as { message?: string } | null)?.message ?? "";
+      if (message.includes("company_verified_at")) {
+        return fallback();
+      }
+      return result;
+    };
     const isUuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId);
 
     if (!isUuid) {
-      return await supabase
+      return await withMissingCompanyVerificationFallback(
+        supabase
         .from("profiles")
         .select(profileSelect)
         .eq("public_id", userId)
-        .maybeSingle();
+          .maybeSingle(),
+        () => supabase
+          .from("profiles")
+          .select(fallbackProfileSelect)
+          .eq("public_id", userId)
+          .maybeSingle()
+      );
     }
 
-    const byId = await supabase
-      .from("profiles")
-      .select(profileSelect)
-      .eq("id", userId)
-      .maybeSingle();
+    const byId = await withMissingCompanyVerificationFallback(
+      supabase
+        .from("profiles")
+        .select(profileSelect)
+        .eq("id", userId)
+        .maybeSingle(),
+      () => supabase
+        .from("profiles")
+        .select(fallbackProfileSelect)
+        .eq("id", userId)
+        .maybeSingle()
+    );
 
     if (byId.data || byId.error) {
       return byId;
     }
 
-    return await supabase
-      .from("profiles")
-      .select(profileSelect)
-      .eq("public_id", userId)
-      .maybeSingle();
+    return await withMissingCompanyVerificationFallback(
+      supabase
+        .from("profiles")
+        .select(profileSelect)
+        .eq("public_id", userId)
+        .maybeSingle(),
+      () => supabase
+        .from("profiles")
+        .select(fallbackProfileSelect)
+        .eq("public_id", userId)
+        .maybeSingle()
+    );
 
   } catch (error) {
 

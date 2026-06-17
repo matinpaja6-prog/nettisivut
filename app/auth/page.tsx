@@ -1248,18 +1248,7 @@ function AuthPageContent() {
             </p>
             {status ? <span className="form-note">{status}</span> : null}
           </form>
-        ) : !profileLookupDone ? (
-          <div className="auth-card simple-card profile-completion-card">
-            <div className="profile-completion-head">
-              <span className="eyebrow">{t.authProfileCompletionTitle}</span>
-              <h1>{t.authLoadingFormTitle}</h1>
-            </div>
-            <div className="profile-alert">
-              <Check size={20} />
-              <span>{t.authFetchingAccountType}</span>
-            </div>
-          </div>
-        ) : (
+        ) : !profileLookupDone ? null : (
           <form className={`auth-card simple-card profile-completion-card profile-finalize-card profile-type-${form.account_type} ${needsProfile ? "" : "profile-ready-card"}`} onSubmit={(event) => {
             event.preventDefault();
             saveProfile(user);

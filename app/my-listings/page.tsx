@@ -56,7 +56,6 @@ import styles from "./my-listings.module.css";
 import {
   conditions,
   formatPrice,
-  getListingPartNumber,
   type Listing,
   type SoldListing
 } from "@/lib/listings";
@@ -2155,11 +2154,6 @@ export default function MyListingsPage() {
 
                           {vehicleSubline && (
                             <span className={styles.rowSubline}>{vehicleSubline}</span>
-                          )}
-                          {getListingPartNumber(listing) && (
-                            <span className={styles.rowSubline}>
-                              OEM {getListingPartNumber(listing)}
-                            </span>
                           )}
 
                         </div>

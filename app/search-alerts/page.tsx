@@ -56,6 +56,14 @@ const EMPTY_FORM = {
   max_price: ""
 };
 
+function getLastCategoryPart(value?: string | null) {
+  return value?.split("/").map(part => part.trim()).filter(Boolean).at(-1) ?? "";
+}
+
+function getAlertCategoryLabel(alert: SearchAlert) {
+  return getLastCategoryPart(alert.subcategory) || getLastCategoryPart(alert.category);
+}
+
 export default function SearchAlertsPage() {
   const router = useRouter();
   const { t } = useLanguage();
@@ -496,7 +504,9 @@ export default function SearchAlertsPage() {
                   </button>
                 </div>
               ) : (
-                alerts.map(alert => (
+                alerts.map(alert => {
+                  const categoryLabel = getAlertCategoryLabel(alert);
+                  return (
               <div key={alert.id} className={`sa-card${alert.is_active ? "" : " sa-card-off"}${notifsForAlert(alert.id).length > 0 ? " sa-card-has-notif" : ""}`}>
                 <div className="sa-card-icon">
                   {alert.is_active ? <Bell size={18} /> : <BellOff size={18} />}
@@ -506,8 +516,7 @@ export default function SearchAlertsPage() {
                   <div className="sa-card-tags">
                     {alert.vehicle_type && <span className="sa-tag sa-tag-blue">{alert.vehicle_type}</span>}
                     {alert.brand && <span className="sa-tag sa-tag-blue">{alert.brand}</span>}
-                    {alert.category && <span className="sa-tag sa-tag-purple">{alert.category}</span>}
-                    {alert.subcategory && <span className="sa-tag sa-tag-purple">{alert.subcategory}</span>}
+                    {categoryLabel && <span className="sa-tag sa-tag-purple">{categoryLabel}</span>}
                     {alert.condition && <span className="sa-tag sa-tag-purple">{alert.condition}</span>}
                     {(alert.year_min || alert.year_max) && (
                       <span className="sa-tag sa-tag-gray">
@@ -667,7 +676,8 @@ export default function SearchAlertsPage() {
                   </div>
                 )}
               </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

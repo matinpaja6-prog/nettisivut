@@ -27,7 +27,7 @@ import { useEffect, useRef, useState } from "react";
 import { Bell, MessageSquare, Search, User as UserIcon, ChevronDown } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
-import { supabase } from "@/lib/supabase";
+import { getSafeAuthUser, supabase } from "@/lib/supabase";
 import { branding } from "@/lib/branding";
 
 import styles from "./AppHeader.module.css";
@@ -72,7 +72,9 @@ export default function AppHeader({
       return;
     }
     if (!supabase) return;
-    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null));
+    getSafeAuthUser()
+      .then((currentUser) => setUser(currentUser))
+      .catch(() => setUser(null));
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_, session) => setUser(session?.user ?? null)
     );

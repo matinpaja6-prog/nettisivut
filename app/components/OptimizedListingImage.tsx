@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import type { TouchEventHandler } from "react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -38,26 +37,16 @@ export default function OptimizedListingImage({
     setCurrentSrc(normalizedSrc);
   }, [normalizedSrc]);
 
-  const inlineImage =
-    currentSrc.startsWith("data:") ||
-    currentSrc.startsWith("blob:") ||
-    currentSrc.startsWith("file:");
-
   return (
-    <Image
+    <img
       src={currentSrc}
       alt={decorative ? "" : alt}
-      width={640}
-      height={400}
       sizes={sizes}
-      quality={68}
-      priority={priority}
-      loading={priority ? undefined : "lazy"}
+      loading={priority ? "eager" : "lazy"}
       decoding="async"
       referrerPolicy="no-referrer"
       className={className}
       aria-hidden={decorative || undefined}
-      unoptimized={inlineImage}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       onError={() => setCurrentSrc(fallbackListingImage)}

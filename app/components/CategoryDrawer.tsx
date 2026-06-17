@@ -1417,7 +1417,7 @@ export default function CategoryDrawer({
       setCat("");
       setSubGroup("");
       setSub("");
-      if (vehicle) setStep(2);
+      setStep(2);
       return;
     }
 
@@ -1729,28 +1729,35 @@ export default function CategoryDrawer({
   }
 
   /* ── breadcrumb segments ── */
-  const crumbs: Array<{ label: string; toStep: number; onRemove: () => void }> = [];
+  const crumbs: Array<{ label: string; toStep: number; onJump: () => void; onRemove: () => void }> = [];
   if (vehicle)  crumbs.push({ label: vehicleCrumbLabel(vehicle), toStep: 2,
+      onJump: () => { setVehicleSubtype(""); setBrand(""); setModel(""); setModelOpen(false); setYear(""); setEngineCc(""); setEngineCcOther(""); setEngineModel(""); setEngineModelOther(""); setCat(""); setSubGroup(""); setSub(""); setStep(2); },
       onRemove: () => { setVehicleSubtype(""); setBrand(""); setModel(""); setModelOpen(false); setYear(""); setEngineCc(""); setEngineCcOther(""); setEngineModel(""); setEngineModelOther(""); setCat(""); setSubGroup(""); setSub(""); setStep(3); }
     });
     if (vehicleSubtype) crumbs.push({ label: vehicleSubtype, toStep: 2,
+      onJump: () => { setBrand(""); setModel(""); setModelOpen(false); setYear(""); setEngineCc(""); setEngineCcOther(""); setEngineModel(""); setEngineModelOther(""); setCat(""); setSubGroup(""); setSub(""); setStep(2); },
       onRemove: () => { setVehicleSubtype(""); setStep(2); }
     });
     if (brand)    crumbs.push({ label: brand, toStep: 2,
+      onJump: () => { setModel(""); setModelOpen(false); setYear(""); setEngineCc(""); setEngineCcOther(""); setEngineModel(""); setEngineModelOther(""); setCat(""); setSubGroup(""); setSub(""); setStep(2); },
       onRemove: () => { setBrand(""); setModel(""); setModelOpen(false); setYear(""); setEngineCc(""); setEngineCcOther(""); setEngineModel(""); setEngineModelOther(""); setCat(""); setSubGroup(""); setSub(""); setStep(2); }
     });
     if (model || year || engineCc || engineModel) crumbs.push({ label: [model, year, engineCc ? engineCc+"cc" : "", engineModel].filter(Boolean).join(" · ") || "Tiedot", toStep: 2,
+      onJump: () => { setCat(""); setSubGroup(""); setSub(""); setStep(2); },
       onRemove: () => { setModel(""); setModelOpen(false); setYear(""); setEngineCc(""); setEngineCcOther(""); setEngineModel(""); setEngineModelOther(""); setStep(2); }
     });
     if (cat)      crumbs.push({ label: displayCategoryLabel(cat), toStep: 3,
+      onJump: () => { setSubGroup(""); setSub(""); setStep(3); },
       onRemove: () => { setCat(""); setSubGroup(""); setSub(""); setStep(3); }
     });
     if (subGroup) crumbs.push({ label: translateCategory(locale, subGroup), toStep: 4,
+      onJump: () => { setSub(""); setStep(4); },
       onRemove: () => { setSubGroup(""); setSub(""); setStep(4); }
     });
     if (sub) {
       const subLabel = sub.includes(" / ") ? sub.split(" / ").slice(1).join(" / ") : sub;
       crumbs.push({ label: translateCategory(locale, subLabel), toStep: 5,
+        onJump: () => { setStep(5); },
         onRemove: () => { setSub(""); setStep(5); }
       });
     }
@@ -1777,7 +1784,7 @@ export default function CategoryDrawer({
           >
             <Settings2 size={17} />
           </button>
-          {step > (vehicle ? 2 : 3) && (
+          {step > 2 && (
             <button
               type="button"
               className="cd-back"
@@ -1805,11 +1812,20 @@ export default function CategoryDrawer({
           <nav className="cd-crumbs" aria-label="Sijaintisi">
             {crumbs.map((c, i) => (
               <span key={i} className="cd-crumb-seg">
-                {i > 0 && <ChevronRight size={13} className="cd-crumb-sep" />}
+                {i > 0 && (
+                  <button
+                    type="button"
+                    className="cd-crumb-sep"
+                    onClick={() => c.onJump()}
+                    aria-label={`Siirry kohtaan ${c.label}`}
+                  >
+                    <ChevronRight size={13} />
+                  </button>
+                )}
                 <span className="cd-crumb-item">
                   <button
                     className={`cd-crumb-btn${i === crumbs.length - 1 ? " cd-crumb-current" : ""}`}
-                    onClick={() => setStep(c.toStep)}
+                    onClick={() => c.onJump()}
                   >
                     {c.label}
                   </button>
@@ -2099,10 +2115,6 @@ export default function CategoryDrawer({
                   </div>
                 </section>
               )}
-
-              <section className="cd-category-vehicle-inline" aria-label="Ajoneuvotyyppi">
-                {renderVehicleTypeMenu()}
-              </section>
 
               <ul className="cd-list cd-category-photo-list" onClickCapture={closeVehicleTypeMenus}>
                 {Object.keys(cats).map(c => (
@@ -4937,6 +4949,205 @@ export default function CategoryDrawer({
           }
           .cd-vehicle-head-fields {
             grid-template-columns: 1fr !important;
+          }
+        }
+
+        @media (max-width: 720px) {
+          .cd-drawer .cd-crumbs {
+            align-items: flex-start !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 7px 8px !important;
+            justify-content: flex-start !important;
+            padding: 8px 10px 10px !important;
+          }
+
+          .cd-drawer .cd-crumb-seg {
+            align-items: center !important;
+            display: inline-flex !important;
+            flex: 0 1 auto !important;
+            gap: 5px !important;
+            min-width: 0 !important;
+          }
+
+          .cd-drawer .cd-crumb-sep {
+            align-items: center !important;
+            background: transparent !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            color: rgba(151, 178, 205, 0.72) !important;
+            display: inline-flex !important;
+            flex: 0 0 14px !important;
+            height: 18px !important;
+            justify-content: center !important;
+            padding: 0 !important;
+            stroke-width: 2.8 !important;
+            width: 14px !important;
+          }
+
+          .cd-drawer button.cd-crumb-sep {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            cursor: pointer !important;
+            margin: 0 !important;
+          }
+
+          .cd-drawer button.cd-crumb-sep:hover,
+          .cd-drawer button.cd-crumb-sep:focus-visible {
+            color: rgba(255, 138, 31, 0.95) !important;
+            outline: 0 !important;
+          }
+
+          .cd-drawer button.cd-crumb-sep svg {
+            display: block !important;
+            pointer-events: none !important;
+          }
+
+          .cd-drawer .cd-crumb-item {
+            background:
+              linear-gradient(180deg, rgba(20, 44, 66, 0.98), rgba(8, 27, 45, 0.98)) !important;
+            border: 1px solid rgba(126, 197, 240, 0.34) !important;
+            border-radius: 10px !important;
+            box-shadow:
+              inset 0 1px 0 rgba(255, 255, 255, 0.08),
+              0 6px 14px rgba(0, 8, 22, 0.16) !important;
+            gap: 4px !important;
+            max-width: min(100%, 250px) !important;
+            min-height: 30px !important;
+            padding: 4px 4px 4px 8px !important;
+          }
+
+          .cd-drawer .cd-crumb-btn {
+            color: #f6fbff !important;
+            cursor: pointer !important;
+            font-size: 12px !important;
+            font-weight: 900 !important;
+            line-height: 1.12 !important;
+            max-width: 206px !important;
+            min-width: 0 !important;
+            overflow: visible !important;
+            padding: 0 !important;
+            text-overflow: clip !important;
+            white-space: normal !important;
+            word-break: normal !important;
+            overflow-wrap: anywhere !important;
+            display: -webkit-box !important;
+            -webkit-box-orient: vertical !important;
+            -webkit-line-clamp: 3 !important;
+          }
+
+          .cd-drawer .cd-crumb-current {
+            color: #f6fbff !important;
+          }
+
+          .cd-drawer .cd-crumb-seg:has(.cd-crumb-current) .cd-crumb-item {
+            background:
+              linear-gradient(180deg, rgba(28, 55, 78, 0.98), rgba(12, 35, 56, 0.98)) !important;
+            border-color: rgba(255, 138, 31, 0.48) !important;
+          }
+
+          .cd-drawer .cd-crumb-x {
+            flex: 0 0 20px !important;
+            height: 20px !important;
+            width: 20px !important;
+          }
+
+          .cd-drawer .cd-crumb-item .cd-crumb-x {
+            background: transparent !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            color: #ff5a52 !important;
+            flex: 0 0 16px !important;
+            font-size: 13px !important;
+            height: 18px !important;
+            line-height: 1 !important;
+            min-height: 18px !important;
+            min-width: 16px !important;
+            opacity: 0.95 !important;
+            padding: 0 !important;
+            width: 16px !important;
+          }
+
+          .cd-drawer .cd-crumb-item .cd-crumb-x:hover,
+          .cd-drawer .cd-crumb-item .cd-crumb-x:focus-visible {
+            background: transparent !important;
+            border: 0 !important;
+            color: #ff2f24 !important;
+            outline: 0 !important;
+          }
+
+          .cd-drawer .cd-final-leaf-list {
+            gap: 10px !important;
+            padding: 10px 12px 18px !important;
+          }
+
+          .cd-drawer .cd-final-leaf-list .cd-final-leaf-item,
+          .cd-drawer .cd-sub-group-list .cd-item-leaf.cd-final-leaf-item {
+            align-items: center !important;
+            background:
+              radial-gradient(140px 80px at 0% 0%, rgba(255, 122, 31, 0.16), transparent 72%),
+              linear-gradient(180deg, rgba(63, 80, 98, 0.98) 0%, rgba(36, 54, 73, 0.98) 100%) !important;
+            border: 1px solid rgba(255, 158, 74, 0.46) !important;
+            border-left-color: rgba(255, 132, 31, 0.76) !important;
+            border-radius: 12px !important;
+            box-shadow:
+              inset 0 1px 0 rgba(255, 255, 255, 0.16),
+              inset 0 -14px 24px rgba(0, 8, 22, 0.18),
+              0 10px 22px rgba(0, 8, 22, 0.22) !important;
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) 34px !important;
+            min-height: 54px !important;
+            padding: 8px 12px !important;
+            width: 100% !important;
+          }
+
+          .cd-drawer .cd-final-leaf-list .cd-final-leaf-item .cd-label,
+          .cd-drawer .cd-sub-group-list .cd-item-leaf.cd-final-leaf-item .cd-label {
+            color: #f8fbff !important;
+            display: block !important;
+            font-size: 15px !important;
+            font-weight: 950 !important;
+            letter-spacing: 0 !important;
+            line-height: 1.15 !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            overflow: visible !important;
+            overflow-wrap: normal !important;
+            text-wrap: balance !important;
+            white-space: normal !important;
+            word-break: normal !important;
+          }
+
+          .cd-drawer .cd-final-leaf-list .cd-final-leaf-item .cd-arrow,
+          .cd-drawer .cd-final-leaf-list .cd-final-leaf-item .cd-check,
+          .cd-drawer .cd-sub-group-list .cd-item-leaf.cd-final-leaf-item .cd-arrow,
+          .cd-drawer .cd-sub-group-list .cd-item-leaf.cd-final-leaf-item .cd-check {
+            align-items: center !important;
+            background: rgba(226, 238, 248, 0.16) !important;
+            border: 1px solid rgba(226, 238, 248, 0.18) !important;
+            border-radius: 999px !important;
+            color: #ffffff !important;
+            display: inline-flex !important;
+            height: 28px !important;
+            justify-content: center !important;
+            justify-self: end !important;
+            padding: 5px !important;
+            width: 28px !important;
+          }
+
+          .cd-drawer .cd-final-leaf-list .cd-final-leaf-item:hover,
+          .cd-drawer .cd-final-leaf-list .cd-final-leaf-item.cd-item-active,
+          .cd-drawer .cd-sub-group-list .cd-item-leaf.cd-final-leaf-item:hover,
+          .cd-drawer .cd-sub-group-list .cd-item-leaf.cd-final-leaf-item.cd-item-active {
+            background:
+              radial-gradient(160px 90px at 0% 0%, rgba(255, 138, 31, 0.26), transparent 74%),
+              linear-gradient(180deg, rgba(72, 92, 112, 0.98) 0%, rgba(42, 62, 82, 0.98) 100%) !important;
+            border-color: rgba(255, 166, 82, 0.82) !important;
+            box-shadow:
+              inset 0 1px 0 rgba(255, 255, 255, 0.18),
+              0 12px 26px rgba(0, 8, 22, 0.28),
+              0 0 0 1px rgba(255, 122, 31, 0.14) !important;
           }
         }
       `}</style>

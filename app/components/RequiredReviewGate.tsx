@@ -5,6 +5,7 @@ import { Star } from "lucide-react";
 
 import {
   createSellerReviewForRequest,
+  getSafeAuthUser,
   getPendingPurchaseReviewRequests,
   getProfile,
   supabase,
@@ -69,9 +70,7 @@ export default function RequiredReviewGate() {
     let mounted = true;
 
     async function loadUser() {
-      const {
-        data: { user }
-      } = await supabase!.auth.getUser();
+      const user = await getSafeAuthUser();
 
       if (!mounted) return;
 

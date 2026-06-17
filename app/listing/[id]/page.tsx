@@ -434,7 +434,12 @@ export default function ListingPage() {
   useEffect(() => {
     if (!previewImage) return;
 
+    const scrollY = window.scrollY;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
     const previousOverflow = document.body.style.overflow;
+    const previousPosition = document.body.style.position;
+    const previousTop = document.body.style.top;
+    const previousWidth = document.body.style.width;
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -442,11 +447,20 @@ export default function ListingPage() {
       }
     }
 
+    document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
       document.body.style.overflow = previousOverflow;
+      document.body.style.position = previousPosition;
+      document.body.style.top = previousTop;
+      document.body.style.width = previousWidth;
+      window.scrollTo(0, scrollY);
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [previewImage]);
@@ -1652,7 +1666,6 @@ export default function ListingPage() {
               {similarListings.map((item) => {
                 const itemText = getLocalizedListingText(item, locale);
                 const itemImageSrc = listingImageSrc(item);
-                const itemPartNumber = getListingPartNumber(item);
                 const isFavorite = savedListingIds.includes(item.id);
                 const countryFlag = getCountryFlagFromLocation(item.location, fallbackCountry);
                 return (
@@ -1701,13 +1714,6 @@ export default function ListingPage() {
                     </div>
                     <div className={homeStyles.cardBody}>
                       <p className={homeStyles.cardPrice}>{formatPrice(item.price)}</p>
-                      {itemPartNumber ? (
-                        <div className={homeStyles.badgeRow}>
-                          <span className={`${homeStyles.badge} ${homeStyles.partNumberBadge}`}>
-                            OEM {itemPartNumber}
-                          </span>
-                        </div>
-                      ) : null}
                       <h3 className={homeStyles.cardTitle}>{itemText.title}</h3>
                       <div className={homeStyles.cardMetaRow}>
                         <span className={homeStyles.cardLocationMeta}>
@@ -2062,7 +2068,7 @@ export default function ListingPage() {
         .listing-image-preview {
           align-items: center;
           display: flex;
-          inset: 0;
+          inset: var(--topbar-h, 64px) 0 0;
           justify-content: center;
           padding: 22px;
           position: fixed;
@@ -2082,7 +2088,7 @@ export default function ListingPage() {
           border: 1px solid rgba(151, 178, 205, 0.28);
           border-radius: 12px;
           box-shadow: 0 28px 86px rgba(0, 8, 20, 0.62);
-          max-height: min(86vh, 820px);
+          max-height: min(calc(100dvh - var(--topbar-h, 64px) - 44px), 820px);
           max-width: min(94vw, 1120px);
           overflow: hidden;
           position: relative;
@@ -2091,7 +2097,7 @@ export default function ListingPage() {
 
         .listing-image-preview-panel img {
           display: block;
-          max-height: min(86vh, 820px);
+          max-height: min(calc(100dvh - var(--topbar-h, 64px) - 44px), 820px);
           max-width: min(94vw, 1120px);
           object-fit: contain;
           width: 100%;
@@ -6007,6 +6013,60 @@ export default function ListingPage() {
           display: none !important;
         }
 
+        body main.page.listing-detail-page.listing-detail-page .image-wrapper.image-wrapper {
+          background: #06111f !important;
+          border-left: 0 !important;
+          border-right: 0 !important;
+          box-sizing: border-box !important;
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+          width: 100% !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button {
+          align-items: center !important;
+          background: #06111f !important;
+          display: flex !important;
+          justify-content: center !important;
+          width: 100% !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button > img.main-img.main-img {
+          display: block !important;
+          height: 520px !important;
+          max-height: 520px !important;
+          max-width: 100% !important;
+          min-height: 520px !important;
+          min-width: 0 !important;
+          object-fit: contain !important;
+          object-position: center center !important;
+          width: 100% !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .desktop-image-thumbs.desktop-image-thumbs {
+          background: #06111f !important;
+          margin-left: 0 !important;
+          margin-right: 0 !important;
+          padding-left: 14px !important;
+          padding-right: 14px !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .listing-image-preview.listing-image-preview {
+          align-items: center !important;
+          inset: var(--topbar-h, 64px) 0 0 !important;
+          padding: 18px 22px 22px !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .listing-image-preview-panel.listing-image-preview-panel {
+          max-height: min(calc(100dvh - var(--topbar-h, 64px) - 40px), 820px) !important;
+          max-width: min(94vw, 1120px) !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .listing-image-preview-panel.listing-image-preview-panel img {
+          max-height: min(calc(100dvh - var(--topbar-h, 64px) - 40px), 820px) !important;
+          object-fit: contain !important;
+        }
+
         body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .verified-chip.verified-chip {
           color: #dbeafe !important;
         }
@@ -6130,7 +6190,16 @@ export default function ListingPage() {
           grid-column: 5 !important;
           grid-row: 1 !important;
           margin-left: auto !important;
-          margin-right: 0 !important;
+          margin-right: clamp(18px, 2.6vw, 30px) !important;
+        }
+
+        :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta strong),
+        body main.page.listing-detail-page.listing-detail-page .desktop-image-meta.desktop-image-meta strong {
+          background: transparent !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          outline: 0 !important;
+          padding: 0 !important;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs) {
@@ -6940,7 +7009,7 @@ export default function ListingPage() {
             border-radius: 0 !important;
             display: grid !important;
             gap: 10px !important;
-            grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1fr) !important;
+            grid-template-columns: minmax(145px, 0.8fr) minmax(0, 1fr) !important;
             padding: 0 0 15px !important;
           }
 
@@ -6952,7 +7021,11 @@ export default function ListingPage() {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid strong) {
             color: #aebfd5 !important;
             font-size: 16px !important;
+            hyphens: none !important;
+            overflow-wrap: normal !important;
             text-transform: none !important;
+            white-space: normal !important;
+            word-break: normal !important;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(aside.sidebar.sidebar) {

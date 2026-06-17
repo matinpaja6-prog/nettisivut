@@ -3707,3 +3707,62 @@
     box-shadow: inset 0 -3px 0 #38bdf8 !important;
   }
 }
+
+/* Final dark form lock: no white input/card surfaces in admin. */
+.page :is(input, textarea, select),
+.page .searchInput,
+.page .modal :is(input, textarea, select),
+.page .taxonomyField input,
+.page .taxonomyAddInline input,
+.page .adminSearch input {
+  background: #061726 !important;
+  border: 1px solid rgba(99, 192, 238, 0.34) !important;
+  color: #f7fbff !important;
+  box-shadow: none !important;
+}
+
+.page :is(input, textarea, select)::placeholder,
+.page .searchInput::placeholder,
+.page .adminSearch input::placeholder {
+  color: rgba(187, 225, 250, 0.56) !important;
+}
+
+.page :is(input, textarea, select):focus,
+.page .searchInput:focus,
+.page .taxonomyField input:focus,
+.page .taxonomyAddInline input:focus {
+  border-color: #ff8a1c !important;
+  box-shadow: 0 0 0 3px rgba(255, 138, 28, 0.16) !important;
+}
+
+.page :is(input, textarea, select):-webkit-autofill {
+  -webkit-text-fill-color: #f7fbff !important;
+  box-shadow: 0 0 0 1000px #061726 inset !important;
+}
+
+.page .modal,
+.page .summaryCard,
+.page .taxonomyField,
+.page .taxonomyAddInline,
+.page .banColumn,
+.page .bannedIpRow,
+.page .bannedUserRow {
+  background:
+    radial-gradient(420px 160px at 100% 0%, rgba(15, 138, 190, 0.14), transparent 70%),
+    linear-gradient(135deg, rgba(6, 26, 46, 0.98), rgba(3, 15, 30, 0.98)) !important;
+  border-color: rgba(77, 184, 238, 0.28) !important;
+  color: #f7fbff !important;
+}
+
+.page .listingMgmtActions a,
+.page .listingMgmtActions button {
+  background: #061726 !important;
+  border-color: rgba(99, 192, 238, 0.34) !important;
+  color: #f7fbff !important;
+}
+
+.page .listingMgmtActions a:hover,
+.page .listingMgmtActions button:hover {
+  border-color: rgba(255, 138, 28, 0.58) !important;
+  color: #ffb36f !important;
+}

@@ -1164,7 +1164,7 @@ body,
   background-image: var(--app-page-bg) !important;
 }
 
-body:has(.auth-page) .site-footer,
+body:has(.simple-auth-page) .site-footer,
 body:has(.profile-completion-card) .site-footer,
 body:has(.profile-finalize-card) .site-footer,
 body:has(.profile-ready-card) .site-footer {

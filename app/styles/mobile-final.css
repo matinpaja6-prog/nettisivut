@@ -2406,3 +2406,104 @@ html body .universal-notif-dismiss svg {
     right: 10px !important;
   }
 }
+
+/* Profile phone row: compact mobile layout with the change action on the same line. */
+@media (max-width: 760px) {
+  html body .pf-page .pf-info-row:has(.pf-phone-row) {
+    padding-bottom: 10px !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-info-phone-value {
+    margin-top: 4px !important;
+    min-height: 36px !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-phone-row {
+    align-items: center !important;
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    min-height: 36px !important;
+    width: 100% !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-phone-card {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    min-height: 34px !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-phone-number {
+    display: block !important;
+    font-size: 14px !important;
+    line-height: 1.15 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-phone-actions {
+    display: flex !important;
+    gap: 0 !important;
+    grid-auto-flow: initial !important;
+    grid-template-columns: none !important;
+    justify-content: flex-end !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-phone-change-btn {
+    border-radius: 7px !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    min-width: 78px !important;
+    padding: 0 12px !important;
+    width: auto !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .pf-page .pf-info-row:has(.pf-phone-row) {
+    min-height: 82px !important;
+    padding-bottom: 6px !important;
+    padding-top: 7px !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-info-row-icon {
+    height: 34px !important;
+    width: 34px !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-info-label {
+    line-height: 1.05 !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-info-phone-value {
+    margin-top: 2px !important;
+    min-height: 28px !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-phone-row {
+    min-height: 28px !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-phone-actions {
+    align-items: center !important;
+    align-self: center !important;
+    transform: translateY(-5px) !important;
+  }
+
+  html body .pf-page .pf-info-row:has(.pf-phone-row) .pf-phone-change-btn {
+    align-self: center !important;
+    height: 26px !important;
+    min-height: 26px !important;
+  }
+}

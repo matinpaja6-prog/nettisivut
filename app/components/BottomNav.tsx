@@ -8,6 +8,7 @@ import {
   CHAT_NOTIFICATIONS_CHANGED_EVENT,
   getPendingPurchaseReviewRequests,
   getAlertNotifications,
+  getSafeAuthUser,
   getUnreadConversationSummaries,
   isConversationLastMessageUnread,
   markConversationRead,
@@ -57,7 +58,9 @@ export default function BottomNav() {
 
   useEffect(() => {
     if (!supabase) return;
-    supabase.auth.getUser().then(({ data }) => setUserId(data?.user?.id ?? null));
+    getSafeAuthUser()
+      .then((user) => setUserId(user?.id ?? null))
+      .catch(() => setUserId(null));
   }, []);
 
   useEffect(() => {

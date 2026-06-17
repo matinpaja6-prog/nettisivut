@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { BadgeCheck, FileText, Handshake } from "lucide-react";
 import { useLanguage, type Locale } from "@/lib/i18n";
 
 const termsCopy: Record<Locale, {
@@ -99,10 +98,13 @@ const termsCopy: Record<Locale, {
   }
 };
 
+function stripSectionNumber(title: string) {
+  return title.replace(/^\d+\.\s*/, "");
+}
+
 export default function TermsPage() {
   const { locale } = useLanguage();
   const copy = termsCopy[locale];
-  const icons = [FileText, Handshake, BadgeCheck];
 
   return (
     <main className="terms-page terms-clean-page">
@@ -117,21 +119,23 @@ export default function TermsPage() {
           </div>
         </section>
         <section className="terms-summary" aria-label={copy.summaryLabel}>
-          {copy.summary.map((item, i) => {
-            const Icon = icons[i];
-            return (
-              <div key={item.title} className="terms-summary-item">
-                <Icon size={20} />
-                <strong>{item.title}</strong>
-                <span>{item.text}</span>
-              </div>
-            );
-          })}
+          {copy.summary.map((item, index) => (
+            <div key={item.title} className="terms-summary-item">
+              <strong>
+                <span className="legal-number">{index + 1}</span>
+                <span>{item.title}</span>
+              </strong>
+              <span>{item.text}</span>
+            </div>
+          ))}
         </section>
         <div className="terms-content">
-          {copy.sections.map((section) => (
+          {copy.sections.map((section, index) => (
             <section key={section.title} className="terms-section">
-              <h2>{section.title}</h2>
+              <h2>
+                <span className="legal-number">{index + 1}</span>
+                <span>{stripSectionNumber(section.title)}</span>
+              </h2>
               {section.body.map((text) => <p key={text}>{text}</p>)}
               {section.bullets && <ul>{section.bullets.map((item) => <li key={item}>{item}</li>)}</ul>}
             </section>
@@ -141,9 +145,6 @@ export default function TermsPage() {
 
       <style>{`
         .terms-clean-page {
-          background:
-            radial-gradient(760px 360px at 12% 0%, rgba(255, 122, 26, 0.12), transparent 66%),
-            linear-gradient(180deg, #030914 0%, #06101d 46%, #020712 100%) !important;
           color: #f4f8fc;
           min-height: 100vh;
           overflow-x: hidden;
@@ -154,9 +155,9 @@ export default function TermsPage() {
           border: 0 !important;
           box-shadow: none !important;
           display: grid;
-          gap: 34px;
+          gap: 18px;
           margin: 0 auto;
-          max-width: 1120px;
+          max-width: 980px;
           padding: clamp(34px, 5vw, 72px) clamp(22px, 4vw, 44px) 82px;
           width: 100%;
         }
@@ -232,42 +233,29 @@ export default function TermsPage() {
           border: 0 !important;
           box-shadow: none !important;
           display: grid;
-          gap: 22px;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 12px;
+          grid-template-columns: 1fr;
           padding: 0 !important;
           width: 100%;
         }
 
         .terms-clean-page .terms-summary-item {
-          background: linear-gradient(135deg, rgba(13, 30, 48, 0.74), rgba(8, 18, 31, 0.42)) !important;
-          border: 1px solid rgba(151, 178, 205, 0.14) !important;
-          border-radius: 12px;
-          box-shadow: none !important;
+          background: linear-gradient(135deg, rgba(12, 29, 42, 0.96), rgba(5, 18, 31, 0.98)) !important;
+          border: 1px solid rgba(92, 132, 166, 0.26) !important;
+          border-radius: 8px;
+          box-shadow: 0 18px 50px rgba(0, 5, 14, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
           display: grid;
-          gap: 8px;
+          gap: 12px;
           min-width: 0;
-          padding: 18px;
+          padding: clamp(18px, 3vw, 26px);
           overflow: visible;
         }
 
-        .terms-clean-page .terms-summary-item svg {
-          color: #ff9d2e;
-          flex: 0 0 auto;
-        }
-
         .terms-clean-page .terms-summary-item strong {
-          color: #fff;
-          font-size: 15px;
-          font-weight: 950;
-          line-height: 1.2;
-          min-width: 0;
           overflow-wrap: anywhere;
         }
 
         .terms-clean-page .terms-summary-item span {
-          color: rgba(215, 226, 238, 0.72);
-          font-size: 13px;
-          line-height: 1.55;
           min-width: 0;
           overflow-wrap: anywhere;
           white-space: normal;
@@ -278,39 +266,29 @@ export default function TermsPage() {
           border: 0 !important;
           box-shadow: none !important;
           display: grid;
-          gap: 0;
+          gap: 12px;
         }
 
         .terms-clean-page .terms-section {
-          background: transparent !important;
-          border: 0 !important;
-          border-top: 1px solid rgba(151, 178, 205, 0.16) !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
+          background: linear-gradient(135deg, rgba(12, 29, 42, 0.96), rgba(5, 18, 31, 0.98)) !important;
+          border: 1px solid rgba(92, 132, 166, 0.26) !important;
+          border-radius: 8px !important;
+          box-shadow: 0 18px 50px rgba(0, 5, 14, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
           color: #f4f8fc !important;
           display: grid;
           gap: 12px;
           min-width: 0;
-          padding: 26px 0 !important;
+          padding: clamp(18px, 3vw, 26px) !important;
         }
 
         .terms-clean-page .terms-section h2 {
-          color: #fff !important;
-          font-size: clamp(20px, 3vw, 28px);
-          font-weight: 950;
-          letter-spacing: 0;
-          line-height: 1.1;
-          margin: 0;
+          border-top: 0 !important;
           overflow-wrap: anywhere;
+          padding-top: 0 !important;
         }
 
         .terms-clean-page .terms-section p,
         .terms-clean-page .terms-section li {
-          color: rgba(215, 226, 238, 0.78) !important;
-          font-size: 15px;
-          line-height: 1.72;
-          max-width: 78ch;
-          margin: 0;
           overflow-wrap: anywhere;
           white-space: normal;
         }
@@ -327,12 +305,13 @@ export default function TermsPage() {
         }
 
         @media (max-width: 900px) {
-          .terms-clean-page .terms-summary {
-            grid-template-columns: 1fr;
-          }
-
           .terms-clean-page .terms-summary-item {
             padding: 16px;
+          }
+
+          .terms-clean-page .terms-summary-item strong,
+          .terms-clean-page .terms-section h2 {
+            align-items: flex-start;
           }
         }
       `}</style>

@@ -305,10 +305,10 @@ export default function Footer() {
             {text.tagline}
           </p>
           <div className="footer-socials" aria-label={text.follow}>
-            <a href="https://instagram.com/arcticparts" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <a href="https://www.instagram.com/maskines1/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
             </a>
-            <a href="https://facebook.com/arcticparts" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <a href="https://www.facebook.com/profile.php?id=61590753577719&locale=fi_FI" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
             </a>
             <a href="mailto:info@arcticparts.fi" aria-label={text.email}>
@@ -335,8 +335,6 @@ export default function Footer() {
             <ul>
               <li><Link href="/about">{text.about}</Link></li>
               <li><Link href="/contact">{text.contact}</Link></li>
-              <li><Link href="/careers">{text.careers}</Link></li>
-              <li><Link href="/blog">{text.blog}</Link></li>
             </ul>
           </div>
 
@@ -354,8 +352,8 @@ export default function Footer() {
             <h4>{text.contact}</h4>
             <ul>
               <li><a href="mailto:info@arcticparts.fi">info@arcticparts.fi</a></li>
-              <li><a href="https://instagram.com/arcticparts" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-              <li><a href="https://facebook.com/arcticparts" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+              <li><a href="https://www.instagram.com/maskines1/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+              <li><a href="https://www.facebook.com/profile.php?id=61590753577719&locale=fi_FI" target="_blank" rel="noopener noreferrer">Facebook</a></li>
             </ul>
           </div>
 

@@ -14,6 +14,7 @@ import {
 import {
   CHAT_NOTIFICATIONS_CHANGED_EVENT,
   getConversationSummaries,
+  getSafeAuthUser,
   getMessagesForConversation,
   isConversationLastMessageUnread,
   markConversationRead,
@@ -162,10 +163,16 @@ export default function FloatingChat() {
       setAuthChecked(true);
       return;
     }
-    supabase.auth.getUser().then(({ data }) => {
-      setUserId(data.user?.id ?? null);
-      setAuthChecked(true);
-    });
+    getSafeAuthUser()
+      .then((user) => {
+        setUserId(user?.id ?? null);
+      })
+      .catch(() => {
+        setUserId(null);
+      })
+      .finally(() => {
+        setAuthChecked(true);
+      });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setUserId(session?.user?.id ?? null);
       setAuthChecked(true);

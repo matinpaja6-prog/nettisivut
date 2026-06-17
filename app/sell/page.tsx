@@ -2182,15 +2182,14 @@ export default function SellPage() {
     async function loadAccountContext() {
       const {
         getCompanySellers,
+        getSafeAuthUser,
         getProfile,
         supabase
       } = await import("@/lib/supabase");
 
       if (!supabase) return;
 
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
+      const user = await getSafeAuthUser();
 
       if (!user || cancelled) return;
 
@@ -2823,15 +2822,13 @@ export default function SellPage() {
   async function uploadListingImages(images: UploadedImage[]) {
     if (images.length === 0) return [fallbackListingImage];
 
-    const { supabase } = await import("@/lib/supabase");
+    const { getSafeAuthUser, supabase } = await import("@/lib/supabase");
 
     if (!supabase) {
       throw new Error("Supabase ei ole konfiguroitu.");
     }
 
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
+    const user = await getSafeAuthUser();
 
     if (!user) {
       throw new Error("Et ole kirjautunut.");
@@ -2870,9 +2867,17 @@ export default function SellPage() {
   }
 
   function getAutomaticListingTitle(part?: MultiPartSelection) {
-    const fallbackTitle = part
+    const partTitle = part
       ? part.detail || part.group || part.category
       : selectedDetailCategory || selectedCategoryGroup || selectedCategory;
+    const vehicleTitle = [
+      vehicleDetails.brand.trim(),
+      vehicleDetails.model.trim()
+    ].filter(Boolean).join(" ");
+    const fallbackTitle = [
+      vehicleTitle,
+      partTitle.trim()
+    ].filter(Boolean).join(" ");
 
     return fallbackTitle.trim() || "Ilmoitus";
   }
@@ -3858,7 +3863,7 @@ export default function SellPage() {
                       placeholder="Hae kategoriaa tai osaa"
                     />
                   </label>
-                  <span>{displayedMultiPartTree.length} / {multiPartTree.length} nÃ¤kyy</span>
+                  <span>{displayedMultiPartTree.length} / {multiPartTree.length} näkyy</span>
                 </div>
 
                 <div className={styles.multiTreeList}>
@@ -4040,7 +4045,7 @@ export default function SellPage() {
                   ) : (
                     <div className={styles.multiSelectedEmpty}>
                       <strong>Ei valittuja kategorioita</strong>
-                      <span>Valitse osia listasta, niin ne nÃ¤kyvÃ¤t tÃ¤ssÃ¤.</span>
+                      <span>Valitse osia listasta, niin ne näkyvät tässä.</span>
                     </div>
                   )}
                 </div>

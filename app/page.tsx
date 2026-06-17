@@ -1395,11 +1395,6 @@ export default function Home() {
     return translateCategory(locale, value);
   }, [locale]);
 
-  const translateCategoryLeafLabel = useCallback((value: string) => {
-    const translated = translateCategory(locale, value);
-    return translated.split("/").map((part) => part.trim()).filter(Boolean).at(-1) ?? translated;
-  }, [locale]);
-
   const translateVehicleTypeLabel = useCallback((value?: string | null) => {
     const vehicleTranslations: Record<Locale, Record<string, string>> = {
       fi: {
@@ -1893,12 +1888,6 @@ export default function Home() {
 
       return next;
     });
-  }
-
-  function openGarageFilterInDrawer() {
-    if (!garageFilter) return;
-
-    applyGarageVehicleToCategorization(garageFilter);
   }
 
   function getGarageVehicleType(vehicle: GarageVehicle): VehicleFilter {
@@ -2397,7 +2386,6 @@ export default function Home() {
               <h1 className={styles.heroHeadline}>
                 <span style={{ display: "block", width: "100%" }}>{t.heroLeadStart}</span>
                 <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>{t.heroLeadHighlight}</span>
-                <span style={{ display: "block", width: "100%" }}>{t.heroLeadEnd}</span>
               </h1>
 
               <form
@@ -2418,6 +2406,9 @@ export default function Home() {
                   value={query}
                   onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
                   aria-label={t.searchLabel}
+                  spellCheck={false}
+                  autoCorrect="off"
+                  autoCapitalize="none"
                 />
               </form>
 
@@ -2638,7 +2629,6 @@ export default function Home() {
                   {([] as Listing[]).map((listing) => {
                     const isFavorite = favorites.includes(listing.id);
                     const listingText = getListingText(listing);
-                    const listingPartNumber = getListingPartNumber(listing);
                     const countryFlag = getCountryFlagFromLocation(listing.location, t.country);
                     return (
                       <article
@@ -2678,10 +2668,9 @@ export default function Home() {
                         </div>
                         <div className={styles.cardBody}>
                           <p className={styles.cardPrice}>{formatPrice(listing.price)}</p>
-                          {listingPartNumber || listing.vehicle_subtype ? (
+                          {listing.vehicle_subtype ? (
                           <div className={styles.badgeRow}>
-                            {listingPartNumber ? <span className={`${styles.badge} ${styles.partNumberBadge}`}>OEM {listingPartNumber}</span> : null}
-                            {listing.vehicle_subtype ? <span className={styles.badge}>Tyyppi {listing.vehicle_subtype}</span> : null}
+                            <span className={styles.badge}>Tyyppi {listing.vehicle_subtype}</span>
                           </div>
                           ) : null}
                           <h3 className={styles.cardTitle}>{listingText.title}</h3>
@@ -2737,56 +2726,6 @@ export default function Home() {
             className={styles.listingsPlainContainer}
             style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
           >
-            {/* Active filter chips */}
-            {hasActiveListingFilters && (
-              <div className={styles.activeFilters}>
-                {garageFilter && (
-                  <span className={styles.filterChip}>
-                    <button
-                      type="button"
-                      className={styles.filterChipLabel}
-                      onClick={openGarageFilterInDrawer}
-                    >
-                      <Car size={13} />
-                      {t.garagePartsFor}: <strong>{garageFilter.make} {garageFilter.model} {garageFilter.year}</strong>
-                    </button>
-                    <button type="button" className={styles.filterChipX} onClick={() => setGarageFilter(null)}>✕</button>
-                  </span>
-                )}
-                {selectedBrand !== "Kaikki" && (
-                  <span className={styles.filterChip}>
-                    <button type="button" className={styles.filterChipLabel} onClick={() => setDrawerOpen(true)}>{selectedBrand}</button>
-                    <button type="button" className={styles.filterChipX} onClick={() => setSelectedBrand("Kaikki")}>✕</button>
-                  </span>
-                )}
-                {vehicleSubtype && (
-                  <span className={styles.filterChip}>
-                    <button type="button" className={styles.filterChipLabel} onClick={() => { setDrawerOpenStep(2); setDrawerOpen(true); }}>{vehicleSubtype}</button>
-                    <button type="button" className={styles.filterChipX} onClick={() => setVehicleSubtype("")}>✕</button>
-                  </span>
-                )}
-                {category && (
-                  <span className={styles.filterChip}>
-                    <button type="button" className={styles.filterChipLabel} onClick={() => setDrawerOpen(true)}>{translateCategoryLabel(category)}</button>
-                    <button type="button" className={styles.filterChipX} onClick={() => { setCategory(""); setSubcategory(""); }}>✕</button>
-                  </span>
-                )}
-                {subcategory && (
-                  <span className={styles.filterChip}>
-                    <button type="button" className={styles.filterChipLabel} onClick={() => setDrawerOpen(true)}>{translateCategoryLeafLabel(subcategory)}</button>
-                    <button type="button" className={styles.filterChipX} onClick={() => setSubcategory("")}>✕</button>
-                  </span>
-                )}
-                <button
-                  type="button"
-                  className={styles.filterChipReset}
-                  onClick={clearListingFilters}
-                >
-                  {t.resetFilters}
-                </button>
-              </div>
-            )}
-
             <div className={styles.sectionHead}>
               {showRecoSection ? (
                 <div className={styles.recoHeading}>
@@ -2836,7 +2775,6 @@ export default function Home() {
               {displayedListings.map((listing) => {
                 const isFavorite = favorites.includes(listing.id);
                 const listingText = getListingText(listing);
-                const listingPartNumber = getListingPartNumber(listing);
                 const countryFlag = getCountryFlagFromLocation(listing.location, t.country);
                 return (
                   <article
@@ -2888,14 +2826,9 @@ export default function Home() {
 
                     <div className={styles.cardBody}>
                       <p className={styles.cardPrice}>{formatPrice(listing.price)}</p>
-                      {listingPartNumber || listing.vehicle_subtype ? (
+                      {listing.vehicle_subtype ? (
                       <div className={styles.badgeRow}>
-                        {listingPartNumber ? (
-                          <span className={`${styles.badge} ${styles.partNumberBadge}`}>OEM {listingPartNumber}</span>
-                        ) : null}
-                        {listing.vehicle_subtype ? (
-                          <span className={styles.badge}>Tyyppi {listing.vehicle_subtype}</span>
-                        ) : null}
+                        <span className={styles.badge}>Tyyppi {listing.vehicle_subtype}</span>
                       </div>
                       ) : null}
 

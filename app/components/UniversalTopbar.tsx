@@ -11,6 +11,7 @@ import {
   dismissPurchaseReviewRequest,
   getAlertNotifications,
   getCurrentUserIsAdmin,
+  getSafeAuthUser,
   getUnreadConversationSummaries,
   getPublicSellerLevelStats,
   getPendingPurchaseReviewRequests,
@@ -194,11 +195,16 @@ export default function UniversalTopbar() {
         });
     }
 
-    client.auth.getUser().then(async ({ data }) => {
-      await syncUser(data?.user?.id ?? null, data?.user?.email ?? null);
-    }).finally(() => {
-      if (!cancelled) setAuthChecked(true);
-    });
+    getSafeAuthUser()
+      .then(async (user) => {
+        await syncUser(user?.id ?? null, user?.email ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) void syncUser(null, null);
+      })
+      .finally(() => {
+        if (!cancelled) setAuthChecked(true);
+      });
 
     const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
       setAuthChecked(true);
@@ -400,8 +406,7 @@ export default function UniversalTopbar() {
     : `${sellerLevel.currentLevelXp}/${sellerLevel.xpForNextLevel} XP - Taso ${sellerLevel.level}`;
   const hideUniversalTopbar =
     pathname.startsWith("/auth") ||
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/privacy");
+    pathname.startsWith("/admin");
 
   function goBack() {
     if (typeof window !== "undefined") {
@@ -592,17 +597,6 @@ export default function UniversalTopbar() {
 
   if (hideUniversalTopbar) {
     return null;
-  }
-
-  if (pathname.startsWith("/terms")) {
-    return (
-      <header className="universal-app-topbar universal-terms-topbar">
-        <button type="button" className="universal-return-button" onClick={goBack}>
-          <ArrowLeft size={16} aria-hidden="true" />
-          <strong>Takaisin</strong>
-        </button>
-      </header>
-    );
   }
 
   if (guestLocked) {

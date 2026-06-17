@@ -158,28 +158,6 @@ export function getListingPartNumber(
   return listing.part_number?.trim() || extractListingPartNumber(listing.description);
 }
 
-export function appendPartNumberToDescription(
-  description: string,
-  partNumber?: string | null
-) {
-  const cleanPartNumber = partNumber?.trim();
-  const cleanDescription = description.trim();
-
-  if (!cleanPartNumber) return cleanDescription;
-
-  const existingNumber = getListingPartNumber({
-    part_number: null,
-    description: cleanDescription
-  });
-
-  if (existingNumber) return cleanDescription;
-
-  return [
-    cleanDescription,
-    `Varaosanumero: ${cleanPartNumber}`
-  ].filter(Boolean).join("\n\n");
-}
-
 /* =========================
    MERKIT
 ========================= */

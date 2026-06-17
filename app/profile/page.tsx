@@ -842,9 +842,7 @@ export default function ProfilePage() {
       await supabase
         .from("profiles")
         .update({
-          phone: nextPhone,
-          phone_last_changed_at: new Date().toISOString(),
-          pending_phone: null
+          phone: nextPhone
         })
         .eq("id", user.id)
         .select()
@@ -1323,7 +1321,7 @@ export default function ProfilePage() {
                     </div>
                   )}
                   {profile.account_type === "private" && (
-                    <div className="pf-info-row">
+                    <div className="pf-info-row pf-phone-info-row">
                       <span className="pf-info-row-icon">
                         <CalendarDays size={19} />
                       </span>
@@ -1351,7 +1349,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   <div className="pf-info-rows pf-card-body">
-                    <div className="pf-info-row">
+                    <div className="pf-info-row pf-phone-info-row">
                       <span className="pf-info-row-icon">
                         <UserCircle size={20} />
                       </span>
@@ -5785,6 +5783,134 @@ export default function ProfilePage() {
           html body .pf-page .pf-form .pf-phone-change-btn:disabled {
             cursor: not-allowed !important;
             opacity: 0.48 !important;
+          }
+
+          @media (max-width: 760px) {
+            html body .pf-page .pf-form .pf-info-row.pf-phone-info-row {
+              grid-template-columns: 36px minmax(0, 1fr) !important;
+              min-height: 76px !important;
+              padding: 7px 12px 6px !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row.pf-phone-info-row .pf-info-row-icon {
+              height: 34px !important;
+              width: 34px !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row.pf-phone-info-row .pf-info-label {
+              align-self: center !important;
+              grid-column: 2 !important;
+              justify-self: start !important;
+              line-height: 1.05 !important;
+              margin: 0 !important;
+              text-align: left !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row.pf-phone-info-row .pf-info-phone-value {
+              grid-column: 1 / -1 !important;
+              margin-top: 0 !important;
+              min-height: 28px !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row.pf-phone-info-row .pf-phone-row {
+              align-items: center !important;
+              display: grid !important;
+              gap: 8px !important;
+              grid-template-columns: minmax(0, 1fr) auto !important;
+              min-height: 28px !important;
+              width: 100% !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row.pf-phone-info-row .pf-phone-card {
+              background: transparent !important;
+              border: 0 !important;
+              box-shadow: none !important;
+              display: flex !important;
+              min-height: 28px !important;
+              padding: 0 !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row.pf-phone-info-row .pf-phone-number {
+              font-size: 13px !important;
+              line-height: 1.1 !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row.pf-phone-info-row .pf-phone-actions {
+              align-items: center !important;
+              align-self: center !important;
+              display: flex !important;
+              justify-content: flex-end !important;
+              margin-inline: 0 !important;
+              transform: translateY(-4px) !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row.pf-phone-info-row .pf-phone-change-btn {
+              height: 26px !important;
+              min-height: 26px !important;
+              min-width: 72px !important;
+              padding: 0 10px !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row:has(.pf-phone-row) {
+              min-height: 82px !important;
+              padding-bottom: 6px !important;
+              padding-top: 7px !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row:has(.pf-phone-row) .pf-info-row-icon {
+              height: 34px !important;
+              width: 34px !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row:has(.pf-phone-row) .pf-info-label {
+              justify-self: start !important;
+              line-height: 1.05 !important;
+              margin-bottom: 0 !important;
+              text-align: left !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row:has(.pf-phone-row) .pf-info-phone-value {
+              margin-top: 2px !important;
+              min-height: 28px !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row:has(.pf-phone-row) .pf-phone-row {
+              align-items: center !important;
+              display: grid !important;
+              gap: 8px !important;
+              grid-template-columns: minmax(0, 1fr) auto !important;
+              min-height: 28px !important;
+              width: 100% !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row:has(.pf-phone-row) .pf-phone-card {
+              background: transparent !important;
+              border: 0 !important;
+              box-shadow: none !important;
+              display: flex !important;
+              min-height: 28px !important;
+              padding: 0 !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row:has(.pf-phone-row) .pf-phone-number {
+              font-size: 13px !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row:has(.pf-phone-row) .pf-phone-actions {
+              align-items: center !important;
+              align-self: center !important;
+              display: flex !important;
+              justify-content: flex-end !important;
+              margin-inline: 0 !important;
+              transform: translateY(-5px) !important;
+            }
+
+            html body .pf-page .pf-form .pf-info-row:has(.pf-phone-row) .pf-phone-change-btn {
+              height: 26px !important;
+              min-height: 26px !important;
+              min-width: 72px !important;
+              padding: 0 10px !important;
+            }
           }
 
           html body .pf-modal-backdrop:has(.pf-delete-modal) {

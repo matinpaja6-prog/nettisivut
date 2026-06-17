@@ -8,7 +8,7 @@ import {
   useState
 } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/lib/i18n";
 
 import {
@@ -426,6 +426,7 @@ function readDeletedConversationIds(userId: string) {
 
 export default function MessagesPage() {
   const { t } = useLanguage();
+  const router = useRouter();
   const searchParams =
     useSearchParams();
   const requestedConversationId =
@@ -889,21 +890,10 @@ export default function MessagesPage() {
     }
 
     if (deletedConversationIds.includes(requestedConversationId)) {
-      const next =
-        deletedConversationIds.filter(
-          (conversationId) =>
-            conversationId !== requestedConversationId
-        );
-
-      setDeletedConversationIds(next);
-      writeStoredConversationIds(
-        deletedConversationsKey(userId),
-        next
-      );
-      writeStoredConversationIds(
-        hiddenConversationsKey(userId),
-        next
-      );
+      router.replace("/messages");
+      setSelectedConversationId("");
+      setMobileConversationOpen(false);
+      return;
     }
 
     if (archivedConversationIds.includes(requestedConversationId)) {
@@ -928,6 +918,7 @@ export default function MessagesPage() {
     conversations,
     deletedConversationIds,
     requestedConversationId,
+    router,
     userId
   ]);
 
@@ -975,7 +966,28 @@ export default function MessagesPage() {
       hiddenConversationsKey(userId),
       next
     );
-    setSelectedConversationId("");
+
+    const nextConversations =
+      conversations.filter(
+        (conversation) =>
+          conversation.id !== conversationId
+      );
+
+    setConversations(nextConversations);
+    writeCachedResource(
+      `conversations:${userId}`,
+      nextConversations
+    );
+
+    if (selectedConversationId === conversationId) {
+      setSelectedConversationId("");
+      setMessages([]);
+      setMobileConversationOpen(false);
+    }
+
+    if (requestedConversationId === conversationId) {
+      router.replace("/messages");
+    }
   }
 
   const loadActiveConversationMessages =

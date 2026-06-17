@@ -51,6 +51,7 @@ type PublicProfile = Pick<
   | "business_id"
   | "company_role"
   | "company_website"
+  | "company_verified_at"
   | "public_address"
   | "phone"
   | "city"
@@ -106,6 +107,13 @@ function formatListingDate(value: string | undefined, locale: string) {
     : "en-US",
     { day: "numeric", month: "numeric", year: "numeric" }
   );
+}
+
+function isSellerListingNew(createdAt: string | null | undefined): boolean {
+  if (!createdAt) return false;
+  const created = new Date(createdAt).getTime();
+  if (Number.isNaN(created)) return false;
+  return Date.now() - created < 24 * 60 * 60 * 1000;
 }
 
 function formatListingLocation(location: string | undefined, fallbackCountry: string) {
@@ -1376,6 +1384,12 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     {refLabels.businessId} {profile.business_id.trim()}
                   </span>
                 )}
+                {isCompany && profile?.company_verified_at && (
+                  <span className="seller-ref-phone-pill seller-ref-verified-company">
+                    <Shield size={13} />
+                    Vahvistettu yritys
+                  </span>
+                )}
                 <span className="seller-ref-phone-pill">
                   <Trophy size={13} />
                   {refLabels.accountLevel} {sellerLevel.level}
@@ -1700,6 +1714,11 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                           event.currentTarget.src = fallbackImage;
                         }}
                       />
+                      {isSellerListingNew(listing.created_at) && (
+                        <span className="seller-listing-new-badge" aria-label="Uusi">
+                          Uusi
+                        </span>
+                      )}
                       <button
                         type="button"
                         className={`seller-listing-heart${isFavorite ? " is-active" : ""}`}
@@ -2332,6 +2351,31 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
           z-index: 2;
         }
 
+        .seller-listing-new-badge {
+          align-items: center;
+          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+          border: 1px solid rgba(187, 247, 208, 0.72);
+          border-radius: 999px;
+          box-shadow:
+            0 3px 9px rgba(22, 163, 74, 0.34),
+            inset 0 1px 0 rgba(255, 255, 255, 0.25);
+          color: #ffffff;
+          display: inline-flex;
+          font-size: 9px;
+          font-weight: 950;
+          justify-content: center;
+          left: 8px;
+          letter-spacing: 0.02em;
+          line-height: 1;
+          padding: 3px 8px;
+          pointer-events: none;
+          position: absolute;
+          text-transform: uppercase;
+          top: 8px;
+          white-space: nowrap;
+          z-index: 2;
+        }
+
         .listing-body {
           display: grid;
           grid-template-rows: auto auto auto 1fr auto;
@@ -2551,6 +2595,14 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             right: 8px;
             top: 8px;
             width: 30px;
+          }
+
+          .seller-listing-new-badge {
+            font-size: 8px;
+            left: 6px;
+            min-height: 17px;
+            padding: 2px 7px;
+            top: 6px;
           }
 
           .listing-body {
