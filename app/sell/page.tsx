@@ -769,9 +769,181 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
   }
 };
 
+Object.assign(extraSellTranslations.en, {
+  "Monikategoriointi": "Multi-categorization",
+  "Valitse koko ajoneuvo tai poimi myytÃ¤vÃ¤t osat pÃ¤Ã¤kategorian ja alakategorian kautta.": "Select the whole vehicle or pick the parts for sale through main and subcategories.",
+  "valittu": "selected",
+  "valittua": "selected",
+  "osa": "part",
+  "osaa": "parts",
+  "nÃ¤kyy": "shown",
+  "pÃ¤Ã¤kategoriaa valittu": "main categories selected",
+  "Myyn koko ajoneuvon": "I am selling the whole vehicle",
+  "valitsee kaikki ajoneuvon osakategoriat kerralla.": "selects all vehicle part categories at once.",
+  "Kategoriat ja osat": "Categories and parts",
+  "Hae kategoriaa tai osaa": "Search category or part",
+  "Ei osumia": "No matches",
+  "Kokeile toista hakusanaa.": "Try another search term.",
+  "Valittuja kategorioita": "Selected categories",
+  "Ilmoituksesi nÃ¤kyy": "Your listing appears in",
+  "kategoriassa": "categories",
+  "NÃ¤ytÃ¤ valitut": "Show selected",
+  "Piilota valitut": "Hide selected",
+  "Ei valittuja kategorioita": "No selected categories",
+  "Valitse osia listasta, niin ne nÃ¤kyvÃ¤t tÃ¤ssÃ¤.": "Select parts from the list and they will appear here.",
+  "LisÃ¤Ã¤ myytÃ¤vÃ¤t osat": "Add the parts for sale",
+  "ilmoitusta tÃ¤ytetty": "listings completed",
+  "valittua tuotetta": "selected products",
+  "Osanumero / OEM": "Part number / OEM",
+  "Kirjoita osanumero": "Enter part number",
+  "LisÃ¤tiedot": "Additional details",
+  "Kirjoita lisÃ¤tiedot, viat, sopivuus tai muut huomiot": "Write details, defects, compatibility or other notes",
+  "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot": "Write track mat dimensions, condition, compatibility and other notes",
+  "LisÃ¤Ã¤ kuvat": "Add photos",
+  "Ei valittuja osia": "No selected parts",
+  "Palaa kategoriaan ja valitse myytÃ¤vÃ¤t osat tai koko ajoneuvo.": "Go back to categories and select the parts for sale or the whole vehicle.",
+  "Ehdotus": "Suggestion",
+  "Haetaan...": "Loading...",
+  "Poista ilmoitus": "Remove listing",
+  "Poista kuva": "Remove image",
+  "Sijainti ja toimitus": "Location and delivery",
+  "Kaupunki tai paikkakunta": "City or town"
+});
+
+Object.assign(extraSellTranslations.sv, {
+  "Monikategoriointi": "Multikategorisering",
+  "Valitse koko ajoneuvo tai poimi myytÃ¤vÃ¤t osat pÃ¤Ã¤kategorian ja alakategorian kautta.": "Välj hela fordonet eller plocka delarna som säljs via huvudkategori och underkategori.",
+  "valittu": "valt",
+  "valittua": "valda",
+  "osa": "del",
+  "osaa": "delar",
+  "nÃ¤kyy": "visas",
+  "pÃ¤Ã¤kategoriaa valittu": "huvudkategorier valda",
+  "Myyn koko ajoneuvon": "Jag säljer hela fordonet",
+  "valitsee kaikki ajoneuvon osakategoriat kerralla.": "väljer alla fordonsdelkategorier på en gång.",
+  "Kategoriat ja osat": "Kategorier och delar",
+  "Hae kategoriaa tai osaa": "Sök kategori eller del",
+  "Ei osumia": "Inga träffar",
+  "Kokeile toista hakusanaa.": "Prova ett annat sökord.",
+  "Valittuja kategorioita": "Valda kategorier",
+  "Ilmoituksesi nÃ¤kyy": "Din annons visas i",
+  "kategoriassa": "kategorier",
+  "NÃ¤ytÃ¤ valitut": "Visa valda",
+  "Piilota valitut": "Dölj valda",
+  "Ei valittuja kategorioita": "Inga valda kategorier",
+  "Valitse osia listasta, niin ne nÃ¤kyvÃ¤t tÃ¤ssÃ¤.": "Välj delar i listan så visas de här.",
+  "LisÃ¤Ã¤ myytÃ¤vÃ¤t osat": "Lägg till delarna som säljs",
+  "ilmoitusta tÃ¤ytetty": "annonser ifyllda",
+  "valittua tuotetta": "valda produkter",
+  "Osanumero / OEM": "Reservdelsnummer / OEM",
+  "Kirjoita osanumero": "Skriv reservdelsnummer",
+  "LisÃ¤tiedot": "Ytterligare uppgifter",
+  "Kirjoita lisÃ¤tiedot, viat, sopivuus tai muut huomiot": "Skriv ytterligare uppgifter, fel, kompatibilitet eller andra kommentarer",
+  "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot": "Skriv mattans mått, skick, kompatibilitet och andra kommentarer",
+  "LisÃ¤Ã¤ kuvat": "Lägg till bilder",
+  "Ei valittuja osia": "Inga valda delar",
+  "Palaa kategoriaan ja valitse myytÃ¤vÃ¤t osat tai koko ajoneuvo.": "Gå tillbaka till kategorin och välj delarna som säljs eller hela fordonet.",
+  "Ehdotus": "Förslag",
+  "Haetaan...": "Hämtar...",
+  "Poista ilmoitus": "Ta bort annons",
+  "Poista kuva": "Ta bort bild",
+  "Sijainti ja toimitus": "Plats och leverans",
+  "Kaupunki tai paikkakunta": "Stad eller ort"
+});
+
+Object.assign(extraSellTranslations.no, {
+  "Monikategoriointi": "Multikategorisering",
+  "Valitse koko ajoneuvo tai poimi myytÃ¤vÃ¤t osat pÃ¤Ã¤kategorian ja alakategorian kautta.": "Velg hele kjøretøyet eller plukk delene som selges via hovedkategori og underkategori.",
+  "valittu": "valgt",
+  "valittua": "valgte",
+  "osa": "del",
+  "osaa": "deler",
+  "nÃ¤kyy": "vises",
+  "pÃ¤Ã¤kategoriaa valittu": "hovedkategorier valgt",
+  "Myyn koko ajoneuvon": "Jeg selger hele kjøretøyet",
+  "valitsee kaikki ajoneuvon osakategoriat kerralla.": "velger alle kjøretøyets delkategorier samtidig.",
+  "Kategoriat ja osat": "Kategorier og deler",
+  "Hae kategoriaa tai osaa": "Søk kategori eller del",
+  "Ei osumia": "Ingen treff",
+  "Kokeile toista hakusanaa.": "Prøv et annet søkeord.",
+  "Valittuja kategorioita": "Valgte kategorier",
+  "Ilmoituksesi nÃ¤kyy": "Annonsen din vises i",
+  "kategoriassa": "kategorier",
+  "NÃ¤ytÃ¤ valitut": "Vis valgte",
+  "Piilota valitut": "Skjul valgte",
+  "Ei valittuja kategorioita": "Ingen valgte kategorier",
+  "Valitse osia listasta, niin ne nÃ¤kyvÃ¤t tÃ¤ssÃ¤.": "Velg deler fra listen, så vises de her.",
+  "LisÃ¤Ã¤ myytÃ¤vÃ¤t osat": "Legg til delene som selges",
+  "ilmoitusta tÃ¤ytetty": "annonser utfylt",
+  "valittua tuotetta": "valgte produkter",
+  "Osanumero / OEM": "Delenummer / OEM",
+  "Kirjoita osanumero": "Skriv delenummer",
+  "LisÃ¤tiedot": "Tilleggsinformasjon",
+  "Kirjoita lisÃ¤tiedot, viat, sopivuus tai muut huomiot": "Skriv tilleggsinformasjon, feil, kompatibilitet eller andre merknader",
+  "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot": "Skriv beltemattens mål, tilstand, kompatibilitet og andre merknader",
+  "LisÃ¤Ã¤ kuvat": "Legg til bilder",
+  "Ei valittuja osia": "Ingen valgte deler",
+  "Palaa kategoriaan ja valitse myytÃ¤vÃ¤t osat tai koko ajoneuvo.": "Gå tilbake til kategorien og velg delene som selges eller hele kjøretøyet.",
+  "Ehdotus": "Forslag",
+  "Haetaan...": "Henter...",
+  "Poista ilmoitus": "Fjern annonse",
+  "Poista kuva": "Fjern bilde",
+  "Sijainti ja toimitus": "Sted og levering",
+  "Kaupunki tai paikkakunta": "By eller sted"
+});
+
+Object.assign(extraSellTranslations.et, {
+  "Monikategoriointi": "Mitme kategooria valik",
+  "Valitse koko ajoneuvo tai poimi myytÃ¤vÃ¤t osat pÃ¤Ã¤kategorian ja alakategorian kautta.": "Vali kogu sõiduk või vali müüdavad osad põhi- ja alamkategooria kaudu.",
+  "valittu": "valitud",
+  "valittua": "valitud",
+  "osa": "osa",
+  "osaa": "osa",
+  "nÃ¤kyy": "kuvatakse",
+  "pÃ¤Ã¤kategoriaa valittu": "põhikategooriat valitud",
+  "Myyn koko ajoneuvon": "Müün kogu sõiduki",
+  "valitsee kaikki ajoneuvon osakategoriat kerralla.": "valib kõik sõiduki osakategooriad korraga.",
+  "Kategoriat ja osat": "Kategooriad ja osad",
+  "Hae kategoriaa tai osaa": "Otsi kategooriat või osa",
+  "Ei osumia": "Tulemusi pole",
+  "Kokeile toista hakusanaa.": "Proovi teist otsingusõna.",
+  "Valittuja kategorioita": "Valitud kategooriad",
+  "Ilmoituksesi nÃ¤kyy": "Sinu kuulutus kuvatakse",
+  "kategoriassa": "kategoorias",
+  "NÃ¤ytÃ¤ valitut": "Näita valituid",
+  "Piilota valitut": "Peida valitud",
+  "Ei valittuja kategorioita": "Valitud kategooriaid pole",
+  "Valitse osia listasta, niin ne nÃ¤kyvÃ¤t tÃ¤ssÃ¤.": "Vali loendist osad ja need kuvatakse siin.",
+  "LisÃ¤Ã¤ myytÃ¤vÃ¤t osat": "Lisa müüdavad osad",
+  "ilmoitusta tÃ¤ytetty": "kuulutust täidetud",
+  "valittua tuotetta": "valitud toodet",
+  "Osanumero / OEM": "Osanumber / OEM",
+  "Kirjoita osanumero": "Sisesta osanumber",
+  "LisÃ¤tiedot": "Lisainfo",
+  "Kirjoita lisÃ¤tiedot, viat, sopivuus tai muut huomiot": "Sisesta lisainfo, vead, sobivus või muud märkused",
+  "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot": "Sisesta roomikumati mõõdud, seisukord, sobivus ja muud märkused",
+  "LisÃ¤Ã¤ kuvat": "Lisa pildid",
+  "Ei valittuja osia": "Valitud osi pole",
+  "Palaa kategoriaan ja valitse myytÃ¤vÃ¤t osat tai koko ajoneuvo.": "Mine tagasi kategooriasse ja vali müüdavad osad või kogu sõiduk.",
+  "Ehdotus": "Soovitus",
+  "Haetaan...": "Laaditakse...",
+  "Poista ilmoitus": "Eemalda kuulutus",
+  "Poista kuva": "Eemalda pilt",
+  "Sijainti ja toimitus": "Asukoht ja tarne",
+  "Kaupunki tai paikkakunta": "Linn või asula"
+});
+
 function translateSell(locale: Locale, text: string) {
   if (locale === "fi") return text;
-  return sellTranslations[locale][text] ?? extraSellTranslations[locale][text] ?? text;
+  const directTranslation = sellTranslations[locale][text] ?? extraSellTranslations[locale][text];
+  if (directTranslation) return directTranslation;
+
+  try {
+    const mojibakeKey = unescape(encodeURIComponent(text));
+    return sellTranslations[locale][mojibakeKey] ?? extraSellTranslations[locale][mojibakeKey] ?? text;
+  } catch {
+    return text;
+  }
 }
 
 type UploadedImage = {
@@ -2119,6 +2291,14 @@ export default function SellPage() {
   const taxonomy = useTaxonomy();
   const { locale } = useLanguage();
   const st = useCallback((text: string) => translateSell(locale, text), [locale]);
+  const formatSelectedCount = useCallback(
+    (count: number) => `${count} ${st(count === 1 ? "valittu" : "valittua")}`,
+    [st]
+  );
+  const formatPartCount = useCallback(
+    (count: number) => `${count} ${st(count === 1 ? "osa" : "osaa")}`,
+    [st]
+  );
   const translateCategoryText = useCallback((text: string) => {
     const parts = splitCategoryPath(text);
     if (parts.length > 1) return parts.map((part) => st(part)).join(" / ");
@@ -3228,8 +3408,8 @@ export default function SellPage() {
             </span>
           )}
           <span className={styles.multiChoiceText}>
-            <strong>{groupLabel}</strong>
-            <small>{groupSelectedCount > 0 ? `${groupSelectedCount} valittu` : `${groupItem.parts.length} osaa`}</small>
+            <strong>{translateCategoryText(groupLabel)}</strong>
+            <small>{groupSelectedCount > 0 ? formatSelectedCount(groupSelectedCount) : formatPartCount(groupItem.parts.length)}</small>
           </span>
           {groupHasDetails ? <ChevronDown size={17} aria-hidden="true" /> : null}
         </button>
@@ -3250,7 +3430,7 @@ export default function SellPage() {
                   <span className={`${styles.multiCheck} ${partChecked ? styles.multiCheckOn : ""}`}>
                     {partChecked ? <Check size={14} aria-hidden="true" /> : null}
                   </span>
-                  <span>{part.detail}</span>
+                  <span>{translateCategoryText(part.detail)}</span>
                 </button>
               );
             })}
@@ -3983,16 +4163,16 @@ export default function SellPage() {
               <strong className={styles.multiListingIndex}>{index + 1}</strong>
               <span className={styles.multiPartIdentity}>
                 <b>{part.title || translatedAutomaticTitle}</b>
-                <small>{part.category} &gt; {part.group}</small>
+                <small>{translateCategoryText(part.category)} &gt; {translateCategoryText(part.group)}</small>
               </span>
               <span className={styles.multiPriceCell}>
                 <input
                   inputMode="numeric"
-                  placeholder="Hinta"
+                  placeholder={st("Hinta")}
                   value={part.price}
                   onClick={(event) => event.stopPropagation()}
                   onChange={(event) => updateMultiPartPrice(part.id, event.target.value)}
-                  aria-label="Hinta"
+                  aria-label={st("Hinta")}
                 />
                 {multiPriceSuggestions[part.id] ? (
                   <button
@@ -4003,10 +4183,10 @@ export default function SellPage() {
                       updateMultiPartPrice(part.id, String(multiPriceSuggestions[part.id].avg));
                     }}
                   >
-                    Ehdotus {formatSuggestionPrice(multiPriceSuggestions[part.id].avg)}
+                    {st("Ehdotus")} {formatSuggestionPrice(multiPriceSuggestions[part.id].avg)}
                   </button>
                 ) : multiPriceSuggestionsLoading ? (
-                  <small className={styles.multiPriceSuggestionMuted}>Haetaan...</small>
+                  <small className={styles.multiPriceSuggestionMuted}>{st("Haetaan...")}</small>
                 ) : null}
               </span>
               <ConditionSelect
@@ -4022,7 +4202,7 @@ export default function SellPage() {
                     event.stopPropagation();
                     removeMultiPartSelection(part.id);
                   }}
-                  aria-label="Poista ilmoitus"
+                  aria-label={st("Poista ilmoitus")}
                 >
                   <Trash2 size={16} aria-hidden="true" />
                 </button>
@@ -4032,33 +4212,33 @@ export default function SellPage() {
               {openMultiListingPartId === part.id ? (
               <div className={styles.multiListingDetails}>
                 <label>
-                  <span>Otsikko</span>
+                  <span>{st("Otsikko")}</span>
                   <input
                     value={part.title}
                     onChange={(event) => updateMultiPartField(part.id, "title", event.target.value)}
                     placeholder={translatedAutomaticTitle}
                   />
                   <small className={styles.automaticTitleHint}>
-                    {st("Tämä on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
+                    {st("TÃ¤mÃ¤ on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
                   </small>
                 </label>
                 <label>
-                  <span>Osanumero / OEM</span>
+                  <span>{st("Osanumero / OEM")}</span>
                   <input
                     value={part.partNumber}
                     onChange={(event) => updateMultiPartField(part.id, "partNumber", event.target.value)}
-                    placeholder="Kirjoita osanumero"
+                    placeholder={st("Kirjoita osanumero")}
                   />
                 </label>
                 <label className={styles.multiListingWideField}>
-                  <span>Lisätiedot</span>
+                  <span>{st("Lisätiedot")}</span>
                   <textarea
                     value={part.description}
                     onChange={(event) => updateMultiPartField(part.id, "description", event.target.value)}
                     placeholder={
                       partNeedsTrackMatDimensions
-                        ? "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot"
-                        : "Kirjoita lisätiedot, viat, sopivuus tai muut huomiot"
+                        ? st("Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot")
+                        : st("Kirjoita lisätiedot, viat, sopivuus tai muut huomiot")
                     }
                   />
                 </label>
@@ -4066,7 +4246,7 @@ export default function SellPage() {
                 <div className={styles.multiPartPhotos}>
                   <label className={styles.multiPartPhotoAdd}>
                     <Camera size={17} aria-hidden="true" />
-                    <span>Lisää kuvat</span>
+                    <span>{st("Lisää kuvat")}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -4090,7 +4270,7 @@ export default function SellPage() {
                         role="button"
                         tabIndex={0}
                         className={styles.multiPartPhotoRemove}
-                        aria-label={`Poista kuva ${image.name}`}
+                        aria-label={`${st("Poista kuva")} ${image.name}`}
                         onClick={(event) => {
                           event.stopPropagation();
                           removeMultiPartImage(part.id, image.id);
@@ -4122,14 +4302,14 @@ export default function SellPage() {
     if (!part) {
       return (
         <div className={styles.multiListingEmpty}>
-          <strong>Ei valittuja osia</strong>
-          <span>Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.</span>
+          <strong>{st("Ei valittuja osia")}</strong>
+          <span>{st("Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.")}</span>
         </div>
       );
     }
 
     const activeIndex = Math.min(activeMultiListingIndex, selectedMultiPartList.length - 1);
-    const listingProgressLabel = `${activeIndex + 1}/${selectedMultiPartList.length} ilmoitusta täytetty`;
+    const listingProgressLabel = `${activeIndex + 1}/${selectedMultiPartList.length} ${st("ilmoitusta täytetty")}`;
     const translatedAutomaticTitle = getTranslatedAutomaticListingTitle(part);
     const partNeedsTrackMatDimensions = [part.category, part.group, part.detail].some(isTrackMatText);
 
@@ -4139,7 +4319,7 @@ export default function SellPage() {
           <div className={`${styles.multiListingCategoryHeader} ${styles.multiListingStaticHeader}`}>
             <span className={styles.multiListingHeaderTitle}>
               <span className={styles.multiListingHeaderIcon}>{getMultiCategoryIcon(part.category)}</span>
-              <strong>{part.category}</strong>
+              <strong>{translateCategoryText(part.category)}</strong>
               <small>{listingProgressLabel}</small>
             </span>
             <span
@@ -4153,8 +4333,8 @@ export default function SellPage() {
             <section className={styles.multiListingGroup}>
               <div className={`${styles.multiListingGroupHeader} ${styles.multiListingStaticHeader}`}>
                 <span className={styles.multiListingGroupTitle}>
-                  <strong>{part.group}</strong>
-                  <small>{part.detail}</small>
+                  <strong>{translateCategoryText(part.group)}</strong>
+                  <small>{translateCategoryText(part.detail)}</small>
                 </span>
               </div>
 
@@ -4166,15 +4346,15 @@ export default function SellPage() {
                   <strong className={styles.multiListingIndex}>{activeIndex + 1}</strong>
                   <span className={styles.multiPartIdentity}>
                     <b>{part.title || translatedAutomaticTitle}</b>
-                    <small>{part.category} &gt; {part.group}</small>
+                    <small>{translateCategoryText(part.category)} &gt; {translateCategoryText(part.group)}</small>
                   </span>
                   <span className={styles.multiPriceCell}>
                     <input
                       inputMode="numeric"
-                      placeholder="Hinta"
+                      placeholder={st("Hinta")}
                       value={part.price}
                       onChange={(event) => updateMultiPartPrice(part.id, event.target.value)}
-                      aria-label="Hinta"
+                      aria-label={st("Hinta")}
                     />
                     {multiPriceSuggestions[part.id] ? (
                       <button
@@ -4182,10 +4362,10 @@ export default function SellPage() {
                         className={styles.multiPriceSuggestion}
                         onClick={() => updateMultiPartPrice(part.id, String(multiPriceSuggestions[part.id].avg))}
                       >
-                        Ehdotus {formatSuggestionPrice(multiPriceSuggestions[part.id].avg)}
+                        {st("Ehdotus")} {formatSuggestionPrice(multiPriceSuggestions[part.id].avg)}
                       </button>
                     ) : multiPriceSuggestionsLoading ? (
-                      <small className={styles.multiPriceSuggestionMuted}>Haetaan...</small>
+                      <small className={styles.multiPriceSuggestionMuted}>{st("Haetaan...")}</small>
                     ) : null}
                   </span>
                   <ConditionSelect
@@ -4198,7 +4378,7 @@ export default function SellPage() {
                     <button
                       type="button"
                       onClick={() => removeMultiPartSelection(part.id)}
-                      aria-label="Poista ilmoitus"
+                      aria-label={st("Poista ilmoitus")}
                     >
                       <Trash2 size={16} aria-hidden="true" />
                     </button>
@@ -4207,33 +4387,33 @@ export default function SellPage() {
 
                 <div className={styles.multiListingDetails}>
                   <label>
-                    <span>Otsikko</span>
+                    <span>{st("Otsikko")}</span>
                     <input
                       value={part.title}
                       onChange={(event) => updateMultiPartField(part.id, "title", event.target.value)}
                       placeholder={translatedAutomaticTitle}
                     />
                     <small className={styles.automaticTitleHint}>
-                      {st("Tämä on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
+                      {st("TÃ¤mÃ¤ on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
                     </small>
                   </label>
                   <label>
-                    <span>Osanumero / OEM</span>
+                    <span>{st("Osanumero / OEM")}</span>
                     <input
                       value={part.partNumber}
                       onChange={(event) => updateMultiPartField(part.id, "partNumber", event.target.value)}
-                      placeholder="Kirjoita osanumero"
+                      placeholder={st("Kirjoita osanumero")}
                     />
                   </label>
                   <label className={styles.multiListingWideField}>
-                    <span>Lisätiedot</span>
+                    <span>{st("Lisätiedot")}</span>
                     <textarea
                       value={part.description}
                       onChange={(event) => updateMultiPartField(part.id, "description", event.target.value)}
                       placeholder={
                         partNeedsTrackMatDimensions
-                          ? "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot"
-                          : "Kirjoita lisätiedot, viat, sopivuus tai muut huomiot"
+                          ? st("Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot")
+                          : st("Kirjoita lisätiedot, viat, sopivuus tai muut huomiot")
                       }
                     />
                   </label>
@@ -4241,7 +4421,7 @@ export default function SellPage() {
                   <div className={styles.multiPartPhotos}>
                     <label className={styles.multiPartPhotoAdd}>
                       <Camera size={17} aria-hidden="true" />
-                      <span>Lisää kuvat</span>
+                      <span>{st("Lisää kuvat")}</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -4265,7 +4445,7 @@ export default function SellPage() {
                           role="button"
                           tabIndex={0}
                           className={styles.multiPartPhotoRemove}
-                          aria-label={`Poista kuva ${image.name}`}
+                          aria-label={`${st("Poista kuva")} ${image.name}`}
                           onClick={(event) => {
                             event.stopPropagation();
                             removeMultiPartImage(part.id, image.id);
@@ -4370,11 +4550,11 @@ export default function SellPage() {
 
   function renderMultiDeliveryStep() {
     return (
-      <section className={styles.multiListingMetaPanel} aria-label="Sijainti ja toimitus">
+      <section className={styles.multiListingMetaPanel} aria-label={st("Sijainti ja toimitus")}>
         <PlainIconInput
-          label="Sijainti"
+          label={st("Sijainti")}
           icon={MapPin}
-          placeholder="Kaupunki tai paikkakunta"
+          placeholder={st("Kaupunki tai paikkakunta")}
           value={listingLocation}
           onChange={updateListingLocation}
         />
@@ -4533,13 +4713,13 @@ export default function SellPage() {
       if (mode === "multiple") {
         return (
           <div className={styles.multiCategoryStep}>
-            <section className={styles.multiCategoryPanel} aria-label="Monikategoriointi">
+            <section className={styles.multiCategoryPanel} aria-label={st("Monikategoriointi")}>
               <header className={styles.multiCategoryHeader}>
                 <div>
-                  <h2>Monikategoriointi</h2>
-                  <p>Valitse koko ajoneuvo tai poimi myytävät osat pääkategorian ja alakategorian kautta.</p>
+                  <h2>{st("Monikategoriointi")}</h2>
+                  <p>{st("Valitse koko ajoneuvo tai poimi myytävät osat pääkategorian ja alakategorian kautta.")}</p>
                 </div>
-                <span>{selectedMultiPartList.length} valittu</span>
+                <span>{formatSelectedCount(selectedMultiPartList.length)}</span>
               </header>
 
               <button
@@ -4552,15 +4732,15 @@ export default function SellPage() {
                   {allMultiPartsSelected ? <Check size={16} aria-hidden="true" /> : null}
                 </span>
                 <span>
-                  <strong>Myyn koko ajoneuvon</strong>
-                  <small>{wholeVehicleOption.detail}: valitsee kaikki ajoneuvon osakategoriat kerralla.</small>
+                  <strong>{st("Myyn koko ajoneuvon")}</strong>
+                  <small>{translateCategoryText(wholeVehicleOption.detail)}: {st("valitsee kaikki ajoneuvon osakategoriat kerralla.")}</small>
                 </span>
               </button>
 
               <div className={styles.multiTreePanel}>
                 <div className={styles.multiColumnHead}>
-                  <strong>Kategoriat ja osat</strong>
-                  <span>{selectedMultiCategoryCount} / {multiPartTree.length} pääkategoriaa valittu</span>
+                  <strong>{st("Kategoriat ja osat")}</strong>
+                  <span>{selectedMultiCategoryCount} / {multiPartTree.length} {st("pääkategoriaa valittu")}</span>
                 </div>
 
                 <div className={styles.multiTreeTools}>
@@ -4570,10 +4750,10 @@ export default function SellPage() {
                       type="search"
                       value={multiPartSearch}
                       onChange={(event) => setMultiPartSearch(event.target.value)}
-                      placeholder="Hae kategoriaa tai osaa"
+                      placeholder={st("Hae kategoriaa tai osaa")}
                     />
                   </label>
-                  <span>{displayedMultiPartTree.length} / {multiPartTree.length} näkyy</span>
+                  <span>{displayedMultiPartTree.length} / {multiPartTree.length} {st("näkyy")}</span>
                 </div>
 
                 <div className={styles.multiTreeList}>
@@ -4618,8 +4798,8 @@ export default function SellPage() {
                             </span>
                           )}
                           <span className={styles.multiChoiceText}>
-                            <strong>{categoryItem.name}</strong>
-                            <small>{categorySelectedCount > 0 ? `${categorySelectedCount} valittu` : `${categoryItem.parts.length} osaa`}</small>
+                            <strong>{translateCategoryText(categoryItem.name)}</strong>
+                            <small>{categorySelectedCount > 0 ? formatSelectedCount(categorySelectedCount) : formatPartCount(categoryItem.parts.length)}</small>
                           </span>
                           <ChevronDown size={17} aria-hidden="true" />
                         </button>
@@ -4688,8 +4868,8 @@ export default function SellPage() {
                                         </span>
                                       )}
                                       <span className={styles.multiChoiceText}>
-                                        <strong>{sectionItem.name}</strong>
-                                        <small>{sectionSelectedCount > 0 ? `${sectionSelectedCount} valittu` : `${sectionItem.parts.length} osaa`}</small>
+                                        <strong>{translateCategoryText(sectionItem.name)}</strong>
+                                        <small>{sectionSelectedCount > 0 ? formatSelectedCount(sectionSelectedCount) : formatPartCount(sectionItem.parts.length)}</small>
                                       </span>
                                       {sectionHasChildren ? <ChevronDown size={17} aria-hidden="true" /> : null}
                                     </button>
@@ -4710,8 +4890,8 @@ export default function SellPage() {
                   })}
                   {displayedMultiPartTree.length === 0 ? (
                     <div className={styles.multiTreeEmpty}>
-                      <strong>Ei osumia</strong>
-                      <span>Kokeile toista hakusanaa.</span>
+                      <strong>{st("Ei osumia")}</strong>
+                      <span>{st("Kokeile toista hakusanaa.")}</span>
                     </div>
                   ) : null}
                 </div>
@@ -4721,8 +4901,8 @@ export default function SellPage() {
                 <div>
                   <ClipboardList size={22} aria-hidden="true" />
                   <span>
-                    <strong>Valittuja kategorioita: {selectedMultiPartList.length}</strong>
-                    <small>Ilmoituksesi näkyy {selectedMultiPartList.length} kategoriassa</small>
+                    <strong>{st("Valittuja kategorioita")}: {selectedMultiPartList.length}</strong>
+                    <small>{st("Ilmoituksesi näkyy")} {selectedMultiPartList.length} {st("kategoriassa")}</small>
                   </span>
                 </div>
                 <button
@@ -4731,7 +4911,7 @@ export default function SellPage() {
                   aria-expanded={showSelectedMultiParts}
                   aria-controls="selected-multi-parts"
                 >
-                  Näytä valitut
+                  {st(showSelectedMultiParts ? "Piilota valitut" : "Näytä valitut")}
                   <ChevronDown size={15} aria-hidden="true" />
                 </button>
               </footer>
@@ -4746,16 +4926,16 @@ export default function SellPage() {
                         onClick={() => toggleMultiPart(part)}
                       >
                         <span>
-                          <strong>{part.detail}</strong>
-                          <small>{part.category} / {part.group}</small>
+                          <strong>{translateCategoryText(part.detail)}</strong>
+                          <small>{translateCategoryText(part.category)} / {translateCategoryText(part.group)}</small>
                         </span>
                         <X size={15} aria-hidden="true" />
                       </button>
                     ))
                   ) : (
                     <div className={styles.multiSelectedEmpty}>
-                      <strong>Ei valittuja kategorioita</strong>
-                      <span>Valitse osia listasta, niin ne näkyvät tässä.</span>
+                      <strong>{st("Ei valittuja kategorioita")}</strong>
+                      <span>{st("Valitse osia listasta, niin ne näkyvät tässä.")}</span>
                     </div>
                   )}
                 </div>
