@@ -13029,6 +13029,7 @@
 .listingsPlainPanel .card .cardMetaRow span {
   align-items: center !important;
   display: inline-flex !important;
+  font-size: 10.5px !important;
   gap: 6px !important;
   min-width: 0 !important;
   white-space: nowrap !important;
@@ -13037,7 +13038,9 @@
 .cardLocationMeta {
   color: rgba(236, 245, 255, 0.88) !important;
   flex: 1 1 auto !important;
+  font-size: 10px !important;
   font-weight: 850 !important;
+  letter-spacing: 0 !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
@@ -13072,8 +13075,12 @@
   .card .cardMetaRow span,
   .cardsGrid .card .cardMetaRow span,
   .listingsPlainPanel .card .cardMetaRow span {
-    font-size: 9.5px !important;
+    font-size: 9px !important;
     gap: 4px !important;
+  }
+
+  .cardLocationMeta {
+    font-size: 8.8px !important;
   }
 
   .listingCountryFlag {
