@@ -175,30 +175,38 @@ function matchCountryCode(candidate: string) {
   return getCountryNameIndex().get(normalizeCountryName(trimmed)) ?? null;
 }
 
-export function getCountryFlagFromLocation(
-  location: string | null | undefined,
-  fallbackCountry?: string | null
-): CountryFlagInfo | null {
-  const source = [location, fallbackCountry].filter(Boolean).join(", ");
-  if (!source.trim()) return null;
+function findCountryCodeInText(source: string | null | undefined) {
+  const cleanSource = (source ?? "").trim();
+  if (!cleanSource) return null;
 
-  const candidates = source
+  const commaParts = cleanSource
     .split(",")
     .map((part) => part.trim())
     .filter(Boolean)
     .reverse();
 
-  for (const candidate of candidates) {
-    const code = matchCountryCode(candidate);
-    if (code) return buildCountryFlagInfo(code);
+  for (const part of commaParts) {
+    const code = matchCountryCode(part);
+    if (code) return code;
   }
 
-  for (const token of source.split(/[\s,;/|]+/)) {
+  for (const token of cleanSource.split(/[\s,;/|]+/)) {
     const code = matchCountryCode(token);
-    if (code) return buildCountryFlagInfo(code);
+    if (code) return code;
   }
 
   return null;
+}
+
+export function getCountryFlagFromLocation(
+  location: string | null | undefined,
+  fallbackCountry?: string | null
+): CountryFlagInfo | null {
+  const locationCode = findCountryCodeInText(location);
+  if (locationCode) return buildCountryFlagInfo(locationCode);
+
+  const fallbackCode = findCountryCodeInText(fallbackCountry);
+  return fallbackCode ? buildCountryFlagInfo(fallbackCode) : null;
 }
 
 export function formatLocationWithCountry(
@@ -211,13 +219,26 @@ export function formatLocationWithCountry(
   if (!cleanLocation) return cleanCountry;
   if (!cleanCountry) return cleanLocation;
 
-  const normalizedCountry = normalizeCountryName(cleanCountry);
-  const hasCountry = cleanLocation
+  const fallbackCode = matchCountryCode(cleanCountry);
+  const locationParts = cleanLocation
     .split(",")
-    .map((part) => normalizeCountryName(part))
-    .some((part) => part === normalizedCountry);
+    .map((part) => part.trim())
+    .filter(Boolean);
 
-  return hasCountry ? cleanLocation : `${cleanLocation}, ${cleanCountry}`;
+  for (let index = locationParts.length - 1; index >= 0; index -= 1) {
+    const locationCountryCode = matchCountryCode(locationParts[index]);
+    if (!locationCountryCode) continue;
+
+    if (fallbackCode && locationCountryCode === fallbackCode) {
+      const nextParts = [...locationParts];
+      nextParts[index] = cleanCountry;
+      return nextParts.join(", ");
+    }
+
+    return locationParts.join(", ");
+  }
+
+  return `${cleanLocation}, ${cleanCountry}`;
 }
 
 export function buildCountryFlagInfo(code: string): CountryFlagInfo | null {
