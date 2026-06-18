@@ -117,6 +117,15 @@ const COUNTRY_ALIASES: Record<string, string> = {
   yhdysvallat: "US"
 };
 
+const LOCALIZED_COUNTRY_NAMES: Record<string, Record<string, string>> = {
+  FI: { fi: "Suomi", en: "Finland", sv: "Finland", no: "Finland", nb: "Finland", et: "Soome" },
+  SE: { fi: "Ruotsi", en: "Sweden", sv: "Sverige", no: "Sverige", nb: "Sverige", et: "Rootsi" },
+  NO: { fi: "Norja", en: "Norway", sv: "Norge", no: "Norge", nb: "Norge", et: "Norra" },
+  EE: { fi: "Viro", en: "Estonia", sv: "Estland", no: "Estland", nb: "Estland", et: "Eesti" },
+  DE: { fi: "Saksa", en: "Germany", sv: "Tyskland", no: "Tyskland", nb: "Tyskland", et: "Saksamaa" },
+  DK: { fi: "Tanska", en: "Denmark", sv: "Danmark", no: "Danmark", nb: "Danmark", et: "Taani" }
+};
+
 let countryNameIndex: Map<string, string> | null = null;
 
 function normalizeCountryName(value: string) {
@@ -202,9 +211,13 @@ function getLocalizedCountryName(code: string, locale?: string | null, fallbackN
   const upper = code.trim().toUpperCase();
   if (!REGION_CODE_SET.has(upper)) return fallbackName?.trim() || code;
 
+  const normalizedLocale = locale === "no" ? "nb" : locale?.trim().toLowerCase();
+  const localName = normalizedLocale ? LOCALIZED_COUNTRY_NAMES[upper]?.[normalizedLocale] : null;
+  if (localName) return localName;
+
   if (locale && typeof Intl !== "undefined" && "DisplayNames" in Intl) {
     try {
-      const displayLocale = locale === "no" ? "nb" : locale;
+      const displayLocale = normalizedLocale || locale;
       const displayNames = new Intl.DisplayNames([displayLocale], { type: "region" });
       const name = displayNames.of(upper);
       if (name) return name;
