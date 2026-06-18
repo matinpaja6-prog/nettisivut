@@ -350,11 +350,113 @@ function formatLocation(value: string | null | undefined) {
     .join(", ");
 }
 
+const listingExtraText: Record<
+  Locale,
+  {
+    vehicleSubtype: string;
+    delivery: string;
+    businessId: string;
+    memberSince: string;
+    verifiedCompany: string;
+    company: string;
+    privateSeller: string;
+    verifiedSellerSuffix: string;
+    noReviews: string;
+    oneReview: string;
+    reviews: (count: number) => string;
+    successfulDeal: string;
+    successfulDeals: string;
+    sellerStatsAria: string;
+  }
+> = {
+  fi: {
+    vehicleSubtype: "Ajoneuvotyyppi",
+    delivery: "Toimitus",
+    businessId: "Y-tunnus",
+    memberSince: "J\u00e4senen\u00e4 vuodesta",
+    verifiedCompany: "Vahvistettu yritys",
+    company: "Yritys",
+    privateSeller: "Yksityinen myyj\u00e4",
+    verifiedSellerSuffix: " myyj\u00e4",
+    noReviews: "Ei arvioita",
+    oneReview: "1 arvio",
+    reviews: (count) => `${count} arviota`,
+    successfulDeal: "Onnistunut kauppa",
+    successfulDeals: "Onnistunutta kauppaa",
+    sellerStatsAria: "Myyj\u00e4n arviot ja kaupat"
+  },
+  en: {
+    vehicleSubtype: "Vehicle type",
+    delivery: "Delivery",
+    businessId: "Business ID",
+    memberSince: "Member since",
+    verifiedCompany: "Verified company",
+    company: "Company",
+    privateSeller: "Private seller",
+    verifiedSellerSuffix: " seller",
+    noReviews: "No reviews",
+    oneReview: "1 review",
+    reviews: (count) => `${count} reviews`,
+    successfulDeal: "Successful deal",
+    successfulDeals: "Successful deals",
+    sellerStatsAria: "Seller reviews and deals"
+  },
+  sv: {
+    vehicleSubtype: "Fordonstyp",
+    delivery: "Leverans",
+    businessId: "FO-nummer",
+    memberSince: "Medlem sedan",
+    verifiedCompany: "Verifierat f\u00f6retag",
+    company: "F\u00f6retag",
+    privateSeller: "Privat s\u00e4ljare",
+    verifiedSellerSuffix: " s\u00e4ljare",
+    noReviews: "Inga recensioner",
+    oneReview: "1 recension",
+    reviews: (count) => `${count} recensioner`,
+    successfulDeal: "Lyckad aff\u00e4r",
+    successfulDeals: "Lyckade aff\u00e4rer",
+    sellerStatsAria: "S\u00e4ljarens recensioner och aff\u00e4rer"
+  },
+  no: {
+    vehicleSubtype: "Kj\u00f8ret\u00f8ytype",
+    delivery: "Levering",
+    businessId: "Organisasjonsnummer",
+    memberSince: "Medlem siden",
+    verifiedCompany: "Verifisert bedrift",
+    company: "Bedrift",
+    privateSeller: "Privat selger",
+    verifiedSellerSuffix: " selger",
+    noReviews: "Ingen anmeldelser",
+    oneReview: "1 anmeldelse",
+    reviews: (count) => `${count} anmeldelser`,
+    successfulDeal: "Vellykket handel",
+    successfulDeals: "Vellykkede handler",
+    sellerStatsAria: "Selgerens anmeldelser og handler"
+  },
+  et: {
+    vehicleSubtype: "S\u00f5iduki t\u00fc\u00fcp",
+    delivery: "Tarne",
+    businessId: "Registrikood",
+    memberSince: "Liige alates",
+    verifiedCompany: "Kinnitatud ettev\u00f5te",
+    company: "Ettev\u00f5te",
+    privateSeller: "Eram\u00fc\u00fcja",
+    verifiedSellerSuffix: " m\u00fc\u00fcja",
+    noReviews: "Arvustusi pole",
+    oneReview: "1 arvustus",
+    reviews: (count) => `${count} arvustust`,
+    successfulDeal: "\u00d5nnestunud tehing",
+    successfulDeals: "\u00d5nnestunud tehingut",
+    sellerStatsAria: "M\u00fc\u00fcja arvustused ja tehingud"
+  }
+};
+
 export default function ListingPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { locale } = useLanguage();
   const ui = listingUiText[locale];
+  const extraUi = listingExtraText[locale];
   const fallbackCountry = locale === "et" ? "Soome" : locale === "fi" ? "Suomi" : "Finland";
 
   const [listing, setListing] =
@@ -1043,10 +1145,10 @@ export default function ListingPage() {
   })();
   const vehicleTypeMap: Record<Locale, Record<string, string>> = {
     fi: {},
-    en: { Moottorikelkka: "Snowmobile", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-    sv: { Moottorikelkka: "Snöskoter", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-    no: { Moottorikelkka: "Snøscooter", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-    et: { Moottorikelkka: "Mootorsaan", Mönkijä: "ATV", Motocross: "Motokross", Mopot: "Mopeed" }
+    en: { Moottorikelkka: "Snowmobile", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motocross", Mopot: "Moped" },
+    sv: { Moottorikelkka: "Sn\u00f6skoter", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motocross", Mopot: "Moped" },
+    no: { Moottorikelkka: "Sn\u00f8scooter", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motocross", Mopot: "Moped" },
+    et: { Moottorikelkka: "Mootorsaan", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motokross", Mopot: "Mopeed" }
   };
   const baseListingText = getLocalizedListingText(listing, locale);
   const listingPartNumber = getListingPartNumber(listing);
@@ -1070,9 +1172,9 @@ export default function ListingPage() {
     Number(hasSellerReviewStats) + Number(hasSellerSoldStats);
   const sellerAccountTypeLabel =
     sellerAccountType === "company"
-      ? sellerCompanyVerifiedAt ? "Vahvistettu yritys" : "Yritys"
+      ? sellerCompanyVerifiedAt ? extraUi.verifiedCompany : extraUi.company
       : sellerAccountType === "private"
-        ? "Yksityinen myyjä"
+        ? extraUi.privateSeller
         : null;
   const showSellerBusinessId = sellerAccountType !== "private";
   const listingText = (() => {
@@ -1396,8 +1498,8 @@ export default function ListingPage() {
                   {translateVehicleTypeLabel(listing.vehicle_type)}
                 </span>
                 <span>
-                  <strong>Ajoneuvotyyppi</strong>
-                  {listingVehicleSubtype || ui.notSpecified}
+                  <strong>{extraUi.vehicleSubtype}</strong>
+                  {listingVehicleSubtype ? translateCategory(locale, listingVehicleSubtype) : ui.notSpecified}
                 </span>
                 {listingPartNumber && (
                   <span>
@@ -1418,8 +1520,8 @@ export default function ListingPage() {
                   {translateConditionLabel(listing.condition)}
                 </span>
                 <span>
-                  <strong>Toimitus</strong>
-                  {listingDeliveryMethod || ui.notSpecified}
+                  <strong>{extraUi.delivery}</strong>
+                  {listingDeliveryMethod ? translateCategory(locale, listingDeliveryMethod) : ui.notSpecified}
                 </span>
               </div>
 
@@ -1470,7 +1572,7 @@ export default function ListingPage() {
                     <div className="seller-name-row">
                       <strong>{sellerDisplayName}</strong>
                       {listing.seller_phone_verified && (
-                        <span className="verified-chip"><ShieldCheck size={11} /> {ui.verified}{locale === "fi" ? " myyjä" : ""}</span>
+                        <span className="verified-chip"><ShieldCheck size={11} /> {ui.verified}{extraUi.verifiedSellerSuffix}</span>
                       )}
                     </div>
 
@@ -1501,7 +1603,7 @@ export default function ListingPage() {
                     <>
                       <div className="seller-meta-row">
                         <Building2 size={14} />
-                        <span>Y-tunnus:</span>
+                        <span>{extraUi.businessId}:</span>
                         <strong>{sellerBusinessId || ui.notSpecified}</strong>
                       </div>
                     </>
@@ -1509,14 +1611,14 @@ export default function ListingPage() {
                   {listingLocation && (
                     <div className="seller-meta-row">
                       <MapPin size={14} />
-                      <span>Sijainti:</span>
+                      <span>{ui.location}:</span>
                       <strong>{listingLocation}</strong>
                     </div>
                   )}
                   {sellerMemberYear && (
                     <div className="seller-meta-row">
                       <UserRound size={14} />
-                      <span>Jäsenenä vuodesta:</span>
+                      <span>{extraUi.memberSince}:</span>
                       <strong>{sellerMemberYear}</strong>
                     </div>
                   )}
@@ -1524,7 +1626,7 @@ export default function ListingPage() {
                 {(hasSellerReviewStats || hasSellerSoldStats) && (
                   <div
                     className={`seller-stats-row${sellerStatsCount === 1 ? " seller-stats-row-single" : ""}`}
-                    aria-label="Myyjän arviot ja kaupat"
+                    aria-label={extraUi.sellerStatsAria}
                   >
                     {hasSellerReviewStats && (
                       <div className="seller-stat seller-stat-rating">
@@ -1533,12 +1635,12 @@ export default function ListingPage() {
                           <strong>
                             {sellerReviewAverage !== null
                               ? sellerReviewAverage.toFixed(1)
-                              : "Ei arvioita"}
+                              : extraUi.noReviews}
                           </strong>
                           <small>
                             {sellerReviewCount === 1
-                              ? "1 arvio"
-                              : `${sellerReviewCount} arviota`}
+                              ? extraUi.oneReview
+                              : extraUi.reviews(sellerReviewCount)}
                           </small>
                         </span>
                       </div>
@@ -1550,8 +1652,8 @@ export default function ListingPage() {
                           <strong>{sellerSoldCount}</strong>
                           <small>
                             {sellerSoldCount === 1
-                              ? "Onnistunut kauppa"
-                              : "Onnistunutta kauppaa"}
+                              ? extraUi.successfulDeal
+                              : extraUi.successfulDeals}
                           </small>
                         </span>
                       </div>

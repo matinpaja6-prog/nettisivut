@@ -2630,6 +2630,78 @@ export const categoryTranslations: Record<Locale, Record<string, string>> = {
   }
 };
 
+Object.assign(categoryTranslations.en, {
+  "Moottorikelkka": "Snowmobile",
+  "M\u00f6nkij\u00e4": "ATV",
+  "ATV - m\u00f6nkij\u00e4": "ATV",
+  "UTV - m\u00f6nkij\u00e4": "UTV",
+  "Sport - m\u00f6nkij\u00e4": "Sport ATV",
+  "Ty\u00f6 - m\u00f6nkij\u00e4": "Utility ATV",
+  "Maasto - m\u00f6nkij\u00e4": "Off-road ATV",
+  "6x6 - m\u00f6nkij\u00e4": "6x6 ATV",
+  "Lasten - m\u00f6nkij\u00e4": "Kids ATV",
+  "Crossover - moottorikelkka": "Crossover snowmobile",
+  "Deep snow - moottorikelkka": "Deep snow snowmobile",
+  "Sport - moottorikelkka": "Sport snowmobile",
+  "Touring - moottorikelkka": "Touring snowmobile",
+  "Ty\u00f6 - moottorikelkka": "Utility snowmobile",
+  "Watercross - moottorikelkka": "Watercross snowmobile"
+});
+
+Object.assign(categoryTranslations.sv, {
+  "Moottorikelkka": "Sn\u00f6skoter",
+  "M\u00f6nkij\u00e4": "Fyrhjuling",
+  "ATV - m\u00f6nkij\u00e4": "ATV",
+  "UTV - m\u00f6nkij\u00e4": "UTV",
+  "Sport - m\u00f6nkij\u00e4": "Sportfyrhjuling",
+  "Ty\u00f6 - m\u00f6nkij\u00e4": "Arbetsfyrhjuling",
+  "Maasto - m\u00f6nkij\u00e4": "Terr\u00e4ngfyrhjuling",
+  "6x6 - m\u00f6nkij\u00e4": "6x6-fyrhjuling",
+  "Lasten - m\u00f6nkij\u00e4": "Barnfyrhjuling",
+  "Crossover - moottorikelkka": "Crossover-sn\u00f6skoter",
+  "Deep snow - moottorikelkka": "Djupsn\u00f6skoter",
+  "Sport - moottorikelkka": "Sportsn\u00f6skoter",
+  "Touring - moottorikelkka": "Touringsn\u00f6skoter",
+  "Ty\u00f6 - moottorikelkka": "Arbetssn\u00f6skoter",
+  "Watercross - moottorikelkka": "Watercross-sn\u00f6skoter"
+});
+
+Object.assign(categoryTranslations.no, {
+  "Moottorikelkka": "Sn\u00f8scooter",
+  "M\u00f6nkij\u00e4": "ATV",
+  "ATV - m\u00f6nkij\u00e4": "ATV",
+  "UTV - m\u00f6nkij\u00e4": "UTV",
+  "Sport - m\u00f6nkij\u00e4": "Sport-ATV",
+  "Ty\u00f6 - m\u00f6nkij\u00e4": "Arbeids-ATV",
+  "Maasto - m\u00f6nkij\u00e4": "Terreng-ATV",
+  "6x6 - m\u00f6nkij\u00e4": "6x6-ATV",
+  "Lasten - m\u00f6nkij\u00e4": "Barne-ATV",
+  "Crossover - moottorikelkka": "Crossover-sn\u00f8scooter",
+  "Deep snow - moottorikelkka": "Dypsn\u00f8-sn\u00f8scooter",
+  "Sport - moottorikelkka": "Sportssn\u00f8scooter",
+  "Touring - moottorikelkka": "Touringsn\u00f8scooter",
+  "Ty\u00f6 - moottorikelkka": "Arbeidssn\u00f8scooter",
+  "Watercross - moottorikelkka": "Watercross-sn\u00f8scooter"
+});
+
+Object.assign(categoryTranslations.et, {
+  "Moottorikelkka": "Mootorsaan",
+  "M\u00f6nkij\u00e4": "ATV",
+  "ATV - m\u00f6nkij\u00e4": "ATV",
+  "UTV - m\u00f6nkij\u00e4": "UTV",
+  "Sport - m\u00f6nkij\u00e4": "Sport-ATV",
+  "Ty\u00f6 - m\u00f6nkij\u00e4": "T\u00f6\u00f6-ATV",
+  "Maasto - m\u00f6nkij\u00e4": "Maastiku-ATV",
+  "6x6 - m\u00f6nkij\u00e4": "6x6 ATV",
+  "Lasten - m\u00f6nkij\u00e4": "Laste ATV",
+  "Crossover - moottorikelkka": "Crossover-mootorsaan",
+  "Deep snow - moottorikelkka": "S\u00fcgava lume mootorsaan",
+  "Sport - moottorikelkka": "Sport-mootorsaan",
+  "Touring - moottorikelkka": "Touring-mootorsaan",
+  "Ty\u00f6 - moottorikelkka": "T\u00f6\u00f6-mootorsaan",
+  "Watercross - moottorikelkka": "Watercross-mootorsaan"
+});
+
 export function translateCategory(locale: Locale, value: string) {
   const directTranslation = categoryTranslations[locale][value];
   if (directTranslation) {
