@@ -1059,7 +1059,7 @@ export default function ListingPage() {
       .map((value) => value?.trim())
       .filter(Boolean)
       .join(" ");
-  const listingLocation = formatLocation(formatLocationWithCountry(listing.location, fallbackCountry));
+  const listingLocation = formatLocation(formatLocationWithCountry(listing.location, fallbackCountry, locale));
   const sellerMemberYear =
     sellerProfileCreatedAt
       ? new Date(sellerProfileCreatedAt).getFullYear()
@@ -1744,7 +1744,7 @@ export default function ListingPage() {
                           ) : (
                             <MapPin size={14} />
                           )}
-                          {formatLocation(formatLocationWithCountry(item.location, fallbackCountry))}
+                          {formatLocation(formatLocationWithCountry(item.location, fallbackCountry, locale))}
                         </span>
                         <span>
                           <Clock3 size={14} />

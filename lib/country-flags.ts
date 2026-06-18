@@ -198,6 +198,22 @@ function findCountryCodeInText(source: string | null | undefined) {
   return null;
 }
 
+function getLocalizedCountryName(code: string, locale?: string | null, fallbackName?: string | null) {
+  const upper = code.trim().toUpperCase();
+  if (!REGION_CODE_SET.has(upper)) return fallbackName?.trim() || code;
+
+  if (locale && typeof Intl !== "undefined" && "DisplayNames" in Intl) {
+    try {
+      const displayLocale = locale === "no" ? "nb" : locale;
+      const displayNames = new Intl.DisplayNames([displayLocale], { type: "region" });
+      const name = displayNames.of(upper);
+      if (name) return name;
+    } catch {}
+  }
+
+  return fallbackName?.trim() || upper;
+}
+
 export function getCountryFlagFromLocation(
   location: string | null | undefined,
   fallbackCountry?: string | null
@@ -211,7 +227,8 @@ export function getCountryFlagFromLocation(
 
 export function formatLocationWithCountry(
   location: string | null | undefined,
-  fallbackCountry?: string | null
+  fallbackCountry?: string | null,
+  locale?: string | null
 ) {
   const cleanLocation = (location ?? "").trim();
   const cleanCountry = (fallbackCountry ?? "").trim();
@@ -231,14 +248,16 @@ export function formatLocationWithCountry(
 
     if (fallbackCode && locationCountryCode === fallbackCode) {
       const nextParts = [...locationParts];
-      nextParts[index] = cleanCountry;
+      nextParts[index] = getLocalizedCountryName(locationCountryCode, locale, cleanCountry);
       return nextParts.join(", ");
     }
 
-    return locationParts.join(", ");
+    const nextParts = [...locationParts];
+    nextParts[index] = getLocalizedCountryName(locationCountryCode, locale, locationParts[index]);
+    return nextParts.join(", ");
   }
 
-  return `${cleanLocation}, ${cleanCountry}`;
+  return `${cleanLocation}, ${fallbackCode ? getLocalizedCountryName(fallbackCode, locale, cleanCountry) : cleanCountry}`;
 }
 
 export function buildCountryFlagInfo(code: string): CountryFlagInfo | null {

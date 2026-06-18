@@ -301,7 +301,7 @@ export default function SavedListingsPage() {
                             loading="lazy"
                           />
                         ) : null}
-                        {formatLocationWithCountry(listing.location, t.country)}
+                        {formatLocationWithCountry(listing.location, t.country, locale)}
                       </span>
                       <span>
                         <Clock3 size={14} />

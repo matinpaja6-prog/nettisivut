@@ -293,7 +293,7 @@ export default function ListingsIndexPage() {
                           loading="lazy"
                         />
                       ) : null}
-                      {formatLocationWithCountry(listing.location, t.country)}
+                      {formatLocationWithCountry(listing.location, t.country, locale)}
                     </span>
                     <span>
                       <Clock3 size={14} />

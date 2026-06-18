@@ -2686,7 +2686,7 @@ export default function Home() {
                                   loading="lazy"
                                 />
                               ) : null}
-                              {formatLocationWithCountry(listing.location, t.country)}
+                              {formatLocationWithCountry(listing.location, t.country, locale)}
                             </span>
                             <span><Clock3 size={14} />{formatDate(listing.created_at)}</span>
                           </div>
@@ -2846,7 +2846,7 @@ export default function Home() {
                               loading="lazy"
                             />
                           ) : null}
-                          {formatLocationWithCountry(listing.location, t.country)}
+                          {formatLocationWithCountry(listing.location, t.country, locale)}
                         </span>
                         <span>
                           <Clock3 size={14} />
