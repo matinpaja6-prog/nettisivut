@@ -290,9 +290,308 @@ const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = 
   }
 };
 
+const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = {
+  en: {
+    "Luo myynti-ilmoitus": "Create sales listing",
+    "Valitse ilmoitustyyppi": "Choose listing type",
+    "Valitse, haluatko myydä useita osia samasta ajoneuvosta vai yksittäisen osan.": "Choose whether to sell several parts from the same vehicle or one individual part.",
+    "Useampi ilmoitus": "Multiple listings",
+    "Yksittäinen ilmoitus": "Single listing",
+    "Myy useita osia samasta ajoneuvosta yhdellä ilmoituksella.": "Sell several parts from the same vehicle in one flow.",
+    "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa.": "Save time and manage all parts in one place.",
+    "Myy yksi osa kerrallaan.": "Sell one part at a time.",
+    "Sopii yksittäisille osille tai harvinaisille tuotteille.": "Best for individual parts or rare products.",
+    "Ilmoituksesi on turvallinen ja näkyvissä tuhansille ostajille.": "Your listing is secure and visible to thousands of buyers.",
+    "Ajoneuvon tiedot": "Vehicle details",
+    "Täytä ajoneuvon tiedot": "Fill in vehicle details",
+    "Valitse ajoneuvoluokka": "Choose vehicle class",
+    "Moottorikelkka": "Snowmobile",
+    "Kelkat, telastot, moottorit": "Sleds, tracks, engines",
+    "Mönkijä": "ATV",
+    "ATV ja UTV osat": "ATV and UTV parts",
+    "Motocross": "Motocross",
+    "Crossi ja enduro": "Motocross and enduro",
+    "Mopo": "Moped",
+    "Mopot ja piikit": "Mopeds and 125cc bikes",
+    "Tyyppi": "Type",
+    "Merkki": "Brand",
+    "Malli": "Model",
+    "Vuosimalli": "Model year",
+    "Moottorin koko (cc)": "Engine size (cc)",
+    "Moottori / moottorityyppi": "Engine / engine type",
+    "Valitse tyyppi": "Choose type",
+    "Valitse merkki": "Choose brand",
+    "Valitse malli": "Choose model",
+    "Valitse vuosimalli": "Choose model year",
+    "Valitse cc": "Choose cc",
+    "Valitse moottorityyppi": "Choose engine type",
+    "Kirjoita tyyppi": "Type manually",
+    "Kirjoita merkki": "Type brand",
+    "Kirjoita malli": "Type model",
+    "Kirjoita vuosimalli": "Type model year",
+    "Kirjoita cc": "Type cc",
+    "Kirjoita moottori": "Type engine",
+    "Mopo - mopo": "Moped - moped",
+    "Skootteri - mopo": "Scooter - moped",
+    "Supermoto - mopo": "Supermoto - moped",
+    "Enduro - mopo": "Enduro - moped",
+    "Manki / monkey - mopo": "Monkey bike - moped",
+    "Piikki 125 - mopo": "125cc bike - moped",
+    "Jatka": "Continue",
+    "Edellinen": "Previous",
+    "Seuraava": "Next",
+    "Nollaa": "Reset",
+    "Muu": "Other",
+    "Siirry vaiheeseen": "Go to step",
+    "Ilmoitustyyppi": "Listing type",
+    "Ilmoituksen tyyppi": "Listing type",
+    "Valitse myyntityyppi": "Choose selling type",
+    "Kategoria ja hinta": "Category and price",
+    "Valitse kategoria ja hinta": "Choose category and price",
+    "Valitse kategoriointi": "Choose categorization",
+    "Valitse tuotteen kategoria ja lisää hinta.": "Choose the product category and add a price.",
+    "Valitse yhteinen kategoriointi ilmoituksille.": "Choose shared categorization for the listings.",
+    "Kunto & sijainti": "Condition & location",
+    "Valitse kunto ja paikka": "Choose condition and location",
+    "Kuvat": "Photos",
+    "Lisää tuotteen kuvat": "Add product photos",
+    "Otsikko ja kuvaus": "Title and description",
+    "Lisää otsikko ja kuvaus": "Add title and description",
+    "Julkaise": "Publish",
+    "Tarkista ja julkaise": "Review and publish",
+    "Tarkista tiedot ennen julkaisua.": "Review the details before publishing.",
+    "Julkaistaan...": "Publishing...",
+    "Seuraava osa": "Next part",
+    "Toimitukseen": "To delivery",
+    "Julkaisuun": "To publishing"
+  },
+  sv: {
+    "Luo myynti-ilmoitus": "Skapa försäljningsannons",
+    "Valitse ilmoitustyyppi": "Välj annonstyp",
+    "Valitse, haluatko myydä useita osia samasta ajoneuvosta vai yksittäisen osan.": "Välj om du vill sälja flera delar från samma fordon eller en enskild del.",
+    "Useampi ilmoitus": "Flera annonser",
+    "Yksittäinen ilmoitus": "Enskild annons",
+    "Myy useita osia samasta ajoneuvosta yhdellä ilmoituksella.": "Sälj flera delar från samma fordon i ett flöde.",
+    "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa.": "Spara tid och hantera alla delar på ett ställe.",
+    "Myy yksi osa kerrallaan.": "Sälj en del åt gången.",
+    "Sopii yksittäisille osille tai harvinaisille tuotteille.": "Passar enskilda delar eller sällsynta produkter.",
+    "Ilmoituksesi on turvallinen ja näkyvissä tuhansille ostajille.": "Din annons är säker och synlig för tusentals köpare.",
+    "Ajoneuvon tiedot": "Fordonsuppgifter",
+    "Täytä ajoneuvon tiedot": "Fyll i fordonsuppgifter",
+    "Valitse ajoneuvoluokka": "Välj fordonsklass",
+    "Moottorikelkka": "Snöskoter",
+    "Kelkat, telastot, moottorit": "Skotrar, boggier, motorer",
+    "Mönkijä": "Fyrhjuling",
+    "ATV ja UTV osat": "ATV- och UTV-delar",
+    "Motocross": "Motocross",
+    "Crossi ja enduro": "Cross och enduro",
+    "Mopo": "Moped",
+    "Mopot ja piikit": "Mopeder och 125:or",
+    "Tyyppi": "Typ",
+    "Merkki": "Märke",
+    "Malli": "Modell",
+    "Vuosimalli": "Årsmodell",
+    "Moottorin koko (cc)": "Motorstorlek (cc)",
+    "Moottori / moottorityyppi": "Motor / motortyp",
+    "Valitse tyyppi": "Välj typ",
+    "Valitse merkki": "Välj märke",
+    "Valitse malli": "Välj modell",
+    "Valitse vuosimalli": "Välj årsmodell",
+    "Valitse cc": "Välj cc",
+    "Valitse moottorityyppi": "Välj motortyp",
+    "Kirjoita tyyppi": "Skriv typ",
+    "Kirjoita merkki": "Skriv märke",
+    "Kirjoita malli": "Skriv modell",
+    "Kirjoita vuosimalli": "Skriv årsmodell",
+    "Kirjoita cc": "Skriv cc",
+    "Kirjoita moottori": "Skriv motor",
+    "Mopo - mopo": "Moped - moped",
+    "Skootteri - mopo": "Skoter - moped",
+    "Supermoto - mopo": "Supermoto - moped",
+    "Enduro - mopo": "Enduro - moped",
+    "Manki / monkey - mopo": "Monkey - moped",
+    "Piikki 125 - mopo": "125:a - moped",
+    "Jatka": "Fortsätt",
+    "Edellinen": "Föregående",
+    "Seuraava": "Nästa",
+    "Nollaa": "Återställ",
+    "Muu": "Annat",
+    "Siirry vaiheeseen": "Gå till steg",
+    "Ilmoitustyyppi": "Annonstyp",
+    "Ilmoituksen tyyppi": "Annonstyp",
+    "Valitse myyntityyppi": "Välj försäljningstyp",
+    "Kategoria ja hinta": "Kategori och pris",
+    "Valitse kategoria ja hinta": "Välj kategori och pris",
+    "Valitse kategoriointi": "Välj kategorisering",
+    "Valitse tuotteen kategoria ja lisää hinta.": "Välj produktkategori och lägg till pris.",
+    "Valitse yhteinen kategoriointi ilmoituksille.": "Välj gemensam kategorisering för annonserna.",
+    "Kunto & sijainti": "Skick & plats",
+    "Valitse kunto ja paikka": "Välj skick och plats",
+    "Kuvat": "Bilder",
+    "Lisää tuotteen kuvat": "Lägg till produktbilder",
+    "Otsikko ja kuvaus": "Rubrik och beskrivning",
+    "Lisää otsikko ja kuvaus": "Lägg till rubrik och beskrivning",
+    "Julkaise": "Publicera",
+    "Tarkista ja julkaise": "Granska och publicera",
+    "Tarkista tiedot ennen julkaisua.": "Granska uppgifterna innan publicering.",
+    "Julkaistaan...": "Publicerar...",
+    "Seuraava osa": "Nästa del",
+    "Toimitukseen": "Till leverans",
+    "Julkaisuun": "Till publicering"
+  },
+  no: {
+    "Luo myynti-ilmoitus": "Opprett salgsannonse",
+    "Valitse ilmoitustyyppi": "Velg annonsetype",
+    "Valitse, haluatko myydä useita osia samasta ajoneuvosta vai yksittäisen osan.": "Velg om du vil selge flere deler fra samme kjøretøy eller én enkelt del.",
+    "Useampi ilmoitus": "Flere annonser",
+    "Yksittäinen ilmoitus": "Enkelt annonse",
+    "Myy useita osia samasta ajoneuvosta yhdellä ilmoituksella.": "Selg flere deler fra samme kjøretøy i én flyt.",
+    "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa.": "Spar tid og håndter alle deler på ett sted.",
+    "Myy yksi osa kerrallaan.": "Selg én del om gangen.",
+    "Sopii yksittäisille osille tai harvinaisille tuotteille.": "Passer for enkeltdeler eller sjeldne produkter.",
+    "Ilmoituksesi on turvallinen ja näkyvissä tuhansille ostajille.": "Annonsen din er trygg og synlig for tusenvis av kjøpere.",
+    "Ajoneuvon tiedot": "Kjøretøydetaljer",
+    "Täytä ajoneuvon tiedot": "Fyll inn kjøretøydetaljer",
+    "Valitse ajoneuvoluokka": "Velg kjøretøyklasse",
+    "Moottorikelkka": "Snøscooter",
+    "Kelkat, telastot, moottorit": "Scootere, beltesystem, motorer",
+    "Mönkijä": "ATV",
+    "ATV ja UTV osat": "ATV- og UTV-deler",
+    "Motocross": "Motocross",
+    "Crossi ja enduro": "Cross og enduro",
+    "Mopo": "Moped",
+    "Mopot ja piikit": "Mopeder og 125cc",
+    "Tyyppi": "Type",
+    "Merkki": "Merke",
+    "Malli": "Modell",
+    "Vuosimalli": "Årsmodell",
+    "Moottorin koko (cc)": "Motorstørrelse (cc)",
+    "Moottori / moottorityyppi": "Motor / motortype",
+    "Valitse tyyppi": "Velg type",
+    "Valitse merkki": "Velg merke",
+    "Valitse malli": "Velg modell",
+    "Valitse vuosimalli": "Velg årsmodell",
+    "Valitse cc": "Velg cc",
+    "Valitse moottorityyppi": "Velg motortype",
+    "Kirjoita tyyppi": "Skriv type",
+    "Kirjoita merkki": "Skriv merke",
+    "Kirjoita malli": "Skriv modell",
+    "Kirjoita vuosimalli": "Skriv årsmodell",
+    "Kirjoita cc": "Skriv cc",
+    "Kirjoita moottori": "Skriv motor",
+    "Mopo - mopo": "Moped - moped",
+    "Skootteri - mopo": "Scooter - moped",
+    "Supermoto - mopo": "Supermoto - moped",
+    "Enduro - mopo": "Enduro - moped",
+    "Manki / monkey - mopo": "Monkey - moped",
+    "Piikki 125 - mopo": "125cc - moped",
+    "Jatka": "Fortsett",
+    "Edellinen": "Forrige",
+    "Seuraava": "Neste",
+    "Nollaa": "Nullstill",
+    "Muu": "Annet",
+    "Siirry vaiheeseen": "Gå til steg",
+    "Ilmoitustyyppi": "Annonsetype",
+    "Ilmoituksen tyyppi": "Annonsetype",
+    "Valitse myyntityyppi": "Velg salgstype",
+    "Kategoria ja hinta": "Kategori og pris",
+    "Valitse kategoria ja hinta": "Velg kategori og pris",
+    "Valitse kategoriointi": "Velg kategorisering",
+    "Valitse tuotteen kategoria ja lisää hinta.": "Velg produktkategori og legg til pris.",
+    "Valitse yhteinen kategoriointi ilmoituksille.": "Velg felles kategorisering for annonsene.",
+    "Kunto & sijainti": "Tilstand og sted",
+    "Valitse kunto ja paikka": "Velg tilstand og sted",
+    "Kuvat": "Bilder",
+    "Lisää tuotteen kuvat": "Legg til produktbilder",
+    "Otsikko ja kuvaus": "Tittel og beskrivelse",
+    "Lisää otsikko ja kuvaus": "Legg til tittel og beskrivelse",
+    "Julkaise": "Publiser",
+    "Tarkista ja julkaise": "Kontroller og publiser",
+    "Tarkista tiedot ennen julkaisua.": "Kontroller opplysningene før publisering.",
+    "Julkaistaan...": "Publiserer...",
+    "Seuraava osa": "Neste del",
+    "Toimitukseen": "Til levering",
+    "Julkaisuun": "Til publisering"
+  },
+  et: {
+    "Luo myynti-ilmoitus": "Loo müügikuulutus",
+    "Valitse ilmoitustyyppi": "Vali kuulutuse tüüp",
+    "Valitse, haluatko myydä useita osia samasta ajoneuvosta vai yksittäisen osan.": "Vali, kas müüd mitu osa samast sõidukist või ühe üksiku osa.",
+    "Useampi ilmoitus": "Mitu kuulutust",
+    "Yksittäinen ilmoitus": "Üks kuulutus",
+    "Myy useita osia samasta ajoneuvosta yhdellä ilmoituksella.": "Müü mitu osa samast sõidukist ühes voos.",
+    "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa.": "Säästa aega ja halda kõiki osi ühes kohas.",
+    "Myy yksi osa kerrallaan.": "Müü üks osa korraga.",
+    "Sopii yksittäisille osille tai harvinaisille tuotteille.": "Sobib üksikutele osadele või haruldastele toodetele.",
+    "Ilmoituksesi on turvallinen ja näkyvissä tuhansille ostajille.": "Sinu kuulutus on turvaline ja nähtav tuhandetele ostjatele.",
+    "Ajoneuvon tiedot": "Sõiduki andmed",
+    "Täytä ajoneuvon tiedot": "Täida sõiduki andmed",
+    "Valitse ajoneuvoluokka": "Vali sõidukiklass",
+    "Moottorikelkka": "Mootorsaan",
+    "Kelkat, telastot, moottorit": "Saanid, roomikud, mootorid",
+    "Mönkijä": "ATV",
+    "ATV ja UTV osat": "ATV ja UTV osad",
+    "Motocross": "Motokross",
+    "Crossi ja enduro": "Kross ja enduro",
+    "Mopo": "Mopeed",
+    "Mopot ja piikit": "Mopeedid ja 125cc rattad",
+    "Tyyppi": "Tüüp",
+    "Merkki": "Mark",
+    "Malli": "Mudel",
+    "Vuosimalli": "Aasta",
+    "Moottorin koko (cc)": "Mootori suurus (cc)",
+    "Moottori / moottorityyppi": "Mootor / mootoritüüp",
+    "Valitse tyyppi": "Vali tüüp",
+    "Valitse merkki": "Vali mark",
+    "Valitse malli": "Vali mudel",
+    "Valitse vuosimalli": "Vali aasta",
+    "Valitse cc": "Vali cc",
+    "Valitse moottorityyppi": "Vali mootoritüüp",
+    "Kirjoita tyyppi": "Sisesta tüüp",
+    "Kirjoita merkki": "Sisesta mark",
+    "Kirjoita malli": "Sisesta mudel",
+    "Kirjoita vuosimalli": "Sisesta aasta",
+    "Kirjoita cc": "Sisesta cc",
+    "Kirjoita moottori": "Sisesta mootor",
+    "Mopo - mopo": "Mopeed - mopeed",
+    "Skootteri - mopo": "Roller - mopeed",
+    "Supermoto - mopo": "Supermoto - mopeed",
+    "Enduro - mopo": "Enduro - mopeed",
+    "Manki / monkey - mopo": "Monkey - mopeed",
+    "Piikki 125 - mopo": "125cc - mopeed",
+    "Jatka": "Jätka",
+    "Edellinen": "Eelmine",
+    "Seuraava": "Järgmine",
+    "Nollaa": "Lähtesta",
+    "Muu": "Muu",
+    "Siirry vaiheeseen": "Mine sammu",
+    "Ilmoitustyyppi": "Kuulutuse tüüp",
+    "Ilmoituksen tyyppi": "Kuulutuse tüüp",
+    "Valitse myyntityyppi": "Vali müügitüüp",
+    "Kategoria ja hinta": "Kategooria ja hind",
+    "Valitse kategoria ja hinta": "Vali kategooria ja hind",
+    "Valitse kategoriointi": "Vali kategoriseerimine",
+    "Valitse tuotteen kategoria ja lisää hinta.": "Vali tootekategooria ja lisa hind.",
+    "Valitse yhteinen kategoriointi ilmoituksille.": "Vali kuulutustele ühine kategoriseerimine.",
+    "Kunto & sijainti": "Seisukord ja asukoht",
+    "Valitse kunto ja paikka": "Vali seisukord ja asukoht",
+    "Kuvat": "Pildid",
+    "Lisää tuotteen kuvat": "Lisa tootepildid",
+    "Otsikko ja kuvaus": "Pealkiri ja kirjeldus",
+    "Lisää otsikko ja kuvaus": "Lisa pealkiri ja kirjeldus",
+    "Julkaise": "Avalda",
+    "Tarkista ja julkaise": "Kontrolli ja avalda",
+    "Tarkista tiedot ennen julkaisua.": "Kontrolli andmed enne avaldamist üle.",
+    "Julkaistaan...": "Avaldatakse...",
+    "Seuraava osa": "Järgmine osa",
+    "Toimitukseen": "Tarne juurde",
+    "Julkaisuun": "Avaldamise juurde"
+  }
+};
+
 function translateSell(locale: Locale, text: string) {
   if (locale === "fi") return text;
-  return sellTranslations[locale][text] ?? text;
+  return sellTranslations[locale][text] ?? extraSellTranslations[locale][text] ?? text;
 }
 
 type UploadedImage = {
@@ -3289,24 +3588,24 @@ export default function SellPage() {
   }
 
   function getPrimaryActionLabel() {
-    if (isPublishing) return "Julkaistaan...";
-    if (isLastStep) return "Julkaise";
+    if (isPublishing) return st("Julkaistaan...");
+    if (isLastStep) return st("Julkaise");
     if (mode === "multiple" && currentStep === 4) {
       return activeMultiListingIndex < selectedMultiPartList.length - 1
-        ? "Seuraava osa"
-        : "Toimitukseen";
+        ? st("Seuraava osa")
+        : st("Toimitukseen");
     }
     if (mode === "multiple" && currentStep === 5) {
-      return "Julkaisuun";
+      return st("Julkaisuun");
     }
-    return "Seuraava";
+    return st("Seuraava");
   }
 
   function getStepLead() {
-    if (currentStep === 2) return "Valitse ajoneuvoluokka";
+    if (currentStep === 2) return st("Valitse ajoneuvoluokka");
     if (currentStep === 3) return mode === "single"
-      ? "Valitse tuotteen kategoria ja lisää hinta."
-      : "Valitse yhteinen kategoriointi ilmoituksille.";
+      ? st("Valitse tuotteen kategoria ja lisää hinta.")
+      : st("Valitse yhteinen kategoriointi ilmoituksille.");
     if (false && mode === "multiple" && currentStep === 4) {
       return (
         <div className={styles.listingStack}>
@@ -3437,8 +3736,8 @@ export default function SellPage() {
     if (false && mode === "multiple" && currentStep === 4) {
       return "Lisää jokainen myytävä osa omaksi ilmoituksekseen.";
     }
-    if (currentStepInfo.title === "Julkaise") return "Tarkista tiedot ennen julkaisua.";
-    return currentStepInfo.description;
+    if (currentStepInfo.title === "Julkaise") return st("Tarkista tiedot ennen julkaisua.");
+    return st(currentStepInfo.description);
   }
 
   function renderMultiListingPartRows(parts: MultiPartSelection[]) {
@@ -3906,8 +4205,8 @@ export default function SellPage() {
                   }}
                 >
                   <img src={vehicle.image} alt="" />
-                  <strong>{vehicle.title}</strong>
-                  <small>{vehicle.description}</small>
+                  <strong>{st(vehicle.title)}</strong>
+                  <small>{st(vehicle.description)}</small>
                 </button>
               );
             })}
@@ -3916,7 +4215,7 @@ export default function SellPage() {
           <form className={styles.vehicleForm}>
             <PresetField
               fieldKey="vehicleSubtype"
-              label="Tyyppi"
+              label={st("Tyyppi")}
               value={vehicleDetails.vehicleSubtype}
               options={vehiclePreset.typeOptions}
               open={openVehiclePresetField === "vehicleSubtype"}
@@ -3928,12 +4227,13 @@ export default function SellPage() {
               inputRef={(element) => {
                 vehicleFieldRefs.current.vehicleSubtype = element;
               }}
-              placeholder="Valitse tyyppi"
-              customPlaceholder="Kirjoita tyyppi"
+              placeholder={st("Valitse tyyppi")}
+              customPlaceholder={st("Kirjoita tyyppi")}
+              translateText={st}
             />
             <PresetField
               fieldKey="brand"
-              label="Merkki"
+              label={st("Merkki")}
               value={vehicleDetails.brand}
               options={taxonomyBrandOptions}
               open={openVehiclePresetField === "brand"}
@@ -3945,12 +4245,13 @@ export default function SellPage() {
               inputRef={(element) => {
                 vehicleFieldRefs.current.brand = element;
               }}
-              placeholder="Valitse merkki"
-              customPlaceholder="Kirjoita merkki"
+              placeholder={st("Valitse merkki")}
+              customPlaceholder={st("Kirjoita merkki")}
+              translateText={st}
             />
             <PresetField
               fieldKey="model"
-              label="Malli"
+              label={st("Malli")}
               value={vehicleDetails.model}
               options={modelOptions}
               open={openVehiclePresetField === "model"}
@@ -3962,12 +4263,13 @@ export default function SellPage() {
               inputRef={(element) => {
                 vehicleFieldRefs.current.model = element;
               }}
-              placeholder="Valitse malli"
-              customPlaceholder="Kirjoita malli"
+              placeholder={st("Valitse malli")}
+              customPlaceholder={st("Kirjoita malli")}
+              translateText={st}
             />
             <PresetField
               fieldKey="year"
-              label="Vuosimalli"
+              label={st("Vuosimalli")}
               value={vehicleDetails.year}
               options={vehicleYearOptions}
               open={openVehiclePresetField === "year"}
@@ -3979,12 +4281,13 @@ export default function SellPage() {
               inputRef={(element) => {
                 vehicleFieldRefs.current.year = element;
               }}
-              placeholder="Valitse vuosimalli"
-              customPlaceholder="Kirjoita vuosimalli"
+              placeholder={st("Valitse vuosimalli")}
+              customPlaceholder={st("Kirjoita vuosimalli")}
+              translateText={st}
             />
             <PresetField
               fieldKey="engineCc"
-              label="Moottorin koko (cc)"
+              label={st("Moottorin koko (cc)")}
               value={vehicleDetails.engineCc}
               options={vehiclePreset.engineCcs}
               open={openVehiclePresetField === "engineCc"}
@@ -3996,12 +4299,13 @@ export default function SellPage() {
               inputRef={(element) => {
                 vehicleFieldRefs.current.engineCc = element;
               }}
-              placeholder="Valitse cc"
-              customPlaceholder="Kirjoita cc"
+              placeholder={st("Valitse cc")}
+              customPlaceholder={st("Kirjoita cc")}
+              translateText={st}
             />
             <PresetField
               fieldKey="engineType"
-              label="Moottori / moottorityyppi"
+              label={st("Moottori / moottorityyppi")}
               value={vehicleDetails.engineType}
               options={engineTypeOptions}
               open={openVehiclePresetField === "engineType"}
@@ -4013,8 +4317,9 @@ export default function SellPage() {
               inputRef={(element) => {
                 vehicleFieldRefs.current.engineType = element;
               }}
-              placeholder="Valitse moottorityyppi"
-              customPlaceholder="Kirjoita moottori"
+              placeholder={st("Valitse moottorityyppi")}
+              customPlaceholder={st("Kirjoita moottori")}
+              translateText={st}
             />
           </form>
         </div>
@@ -4848,7 +5153,7 @@ export default function SellPage() {
   }
 
   return (
-    <main className={styles.page} aria-label="Luo myynti-ilmoitus">
+    <main className={styles.page} aria-label={st("Luo myynti-ilmoitus")}>
       <section className={styles.shell} ref={shellRef}>
         <aside className={`${styles.stepper} ${styles.stepperCompact}`} aria-label="Ilmoituksen vaiheet">
           {steps.map((step, index) => {
@@ -4883,8 +5188,8 @@ export default function SellPage() {
                   disabled={!canNavigate}
                 >
                   <Icon size={22} aria-hidden="true" />
-                  <strong>{step.title}</strong>
-                  <small>{step.description}</small>
+                  <strong>{st(step.title)}</strong>
+                  <small>{st(step.description)}</small>
                 </button>
               </div>
             );
@@ -4895,7 +5200,7 @@ export default function SellPage() {
             onClick={() => setShowResetConfirm(true)}
           >
             <X size={15} aria-hidden="true" />
-            <span>Nollaa</span>
+            <span>{st("Nollaa")}</span>
           </button>
         </aside>
 
@@ -4906,8 +5211,8 @@ export default function SellPage() {
           <div className={styles.mobileStepSummary}>
             <span>{currentStepInfo.number}</span>
             <div>
-              <strong>{currentStepInfo.title}</strong>
-              <small>{currentStepInfo.description}</small>
+              <strong>{st(currentStepInfo.title)}</strong>
+              <small>{st(currentStepInfo.description)}</small>
             </div>
             <em>{currentStep}/{steps.length}</em>
           </div>
@@ -4923,10 +5228,10 @@ export default function SellPage() {
               type="button"
               className={step.number === currentStep ? styles.mobileStepActive : ""}
               onClick={() => setCurrentStep(step.number)}
-              aria-label={`Siirry vaiheeseen ${step.number}: ${step.title}`}
+              aria-label={`${st("Siirry vaiheeseen")} ${step.number}: ${st(step.title)}`}
             >
               <span>{step.number}</span>
-              <small>{step.title}</small>
+              <small>{st(step.title)}</small>
             </button>
           ))}
             <button
@@ -4935,7 +5240,7 @@ export default function SellPage() {
               onClick={() => setShowResetConfirm(true)}
             >
               <X size={14} aria-hidden="true" />
-              <span>Nollaa</span>
+              <span>{st("Nollaa")}</span>
             </button>
           </div>
         </nav>
@@ -4943,12 +5248,12 @@ export default function SellPage() {
         {currentStep === 1 ? (
           <section className={styles.content}>
             <header className={styles.header}>
-              <h1>Luo myynti-ilmoitus</h1>
-              <h2>Valitse ilmoitustyyppi</h2>
-              <p>Valitse, haluatko myydä useita osia samasta ajoneuvosta vai yksittäisen osan.</p>
+              <h1>{st("Luo myynti-ilmoitus")}</h1>
+              <h2>{st("Valitse ilmoitustyyppi")}</h2>
+              <p>{st("Valitse, haluatko myydä useita osia samasta ajoneuvosta vai yksittäisen osan.")}</p>
             </header>
 
-            <div className={styles.modeGrid} role="radiogroup" aria-label="Ilmoitustyyppi">
+            <div className={styles.modeGrid} role="radiogroup" aria-label={st("Ilmoitustyyppi")}>
               {modeCards.map((card) => {
                 const Icon = card.icon;
                 const active = mode === card.value;
@@ -4970,11 +5275,11 @@ export default function SellPage() {
                     <span className={styles.modeIcon} aria-hidden="true">
                       <Icon size={50} strokeWidth={1.9} />
                     </span>
-                    <strong>{card.title}</strong>
+                    <strong>{st(card.title)}</strong>
                     <i aria-hidden="true" />
                     <span className={styles.modeCopy}>
                       {card.text.map((line) => (
-                        <span key={line}>{line}</span>
+                        <span key={line}>{st(line)}</span>
                       ))}
                     </span>
                   </button>
@@ -4983,19 +5288,19 @@ export default function SellPage() {
             </div>
 
             <button type="button" className={styles.continueButton} onClick={continueToNextStep}>
-              <span>Jatka</span>
+              <span>{st("Jatka")}</span>
               <ArrowRight size={30} aria-hidden="true" />
             </button>
 
             <p className={styles.safeNote}>
               <ShieldCheck size={22} aria-hidden="true" />
-              <span>Ilmoituksesi on turvallinen ja näkyvissä tuhansille ostajille.</span>
+              <span>{st("Ilmoituksesi on turvallinen ja näkyvissä tuhansille ostajille.")}</span>
             </p>
           </section>
         ) : (
           <section className={styles.vehicleContent} ref={vehicleContentRef}>
             <header className={styles.vehicleHeader}>
-              <h1><span>{currentStepInfo.number}.</span> {currentStepInfo.title}</h1>
+              <h1><span>{currentStepInfo.number}.</span> {st(currentStepInfo.title)}</h1>
               <p>{getStepLead()}</p>
             </header>
 
@@ -5010,7 +5315,7 @@ export default function SellPage() {
             <div className={styles.vehicleActions}>
               <button type="button" className={styles.backButton} onClick={goToPreviousStep}>
                 <ArrowLeft size={22} aria-hidden="true" />
-                <span>Edellinen</span>
+                <span>{st("Edellinen")}</span>
               </button>
               <button
                 type="button"
@@ -5090,7 +5395,8 @@ function PresetField({
   onComplete,
   inputRef,
   open,
-  onOpenChange
+  onOpenChange,
+  translateText = (text: string) => text
 }: {
   fieldKey: VehicleDetailKey;
   label: string;
@@ -5105,6 +5411,7 @@ function PresetField({
   inputRef: (element: HTMLInputElement | null) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  translateText?: (text: string) => string;
 }) {
   const cleanOptions = uniqueOptions(options);
   const otherLabel = "Muu";
@@ -5116,6 +5423,7 @@ function PresetField({
   );
   const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const innerInputRef = useRef<HTMLInputElement | null>(null);
+  const displayValue = effectiveCustomMode ? value : translateText(value);
 
   useEffect(() => {
     return () => {
@@ -5169,7 +5477,7 @@ function PresetField({
             innerInputRef.current = element;
             inputRef(element);
           }}
-          value={value}
+          value={displayValue}
           onFocus={() => {
             if (!effectiveCustomMode) onOpenChange(true);
           }}
@@ -5244,7 +5552,7 @@ function PresetField({
                     selectOption(option);
                   }}
                 >
-                  {option}
+                  {translateText(option)}
                 </button>
               );
             })}
@@ -5264,7 +5572,7 @@ function PresetField({
                 selectOther();
               }}
             >
-              {otherLabel}
+              {translateText(otherLabel)}
             </button>
           </div>
         ) : null}
