@@ -352,7 +352,9 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Valitse tuotteen kategoria ja lisää hinta.": "Choose the product category and add a price.",
     "Valitse yhteinen kategoriointi ilmoituksille.": "Choose shared categorization for the listings.",
     "Kunto & sijainti": "Condition & location",
+    "Kunto ja sijainti": "Condition and location",
     "Valitse kunto ja paikka": "Choose condition and location",
+    "Kuntoluokitus": "Condition rating",
     "Kuvat": "Photos",
     "Lisää tuotteen kuvat": "Add product photos",
     "Otsikko ja kuvaus": "Title and description",
@@ -468,7 +470,9 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Valitse tuotteen kategoria ja lisää hinta.": "Välj produktkategori och lägg till pris.",
     "Valitse yhteinen kategoriointi ilmoituksille.": "Välj gemensam kategorisering för annonserna.",
     "Kunto & sijainti": "Skick & plats",
+    "Kunto ja sijainti": "Skick och plats",
     "Valitse kunto ja paikka": "Välj skick och plats",
+    "Kuntoluokitus": "Skickklassning",
     "Kuvat": "Bilder",
     "Lisää tuotteen kuvat": "Lägg till produktbilder",
     "Otsikko ja kuvaus": "Rubrik och beskrivning",
@@ -584,7 +588,9 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Valitse tuotteen kategoria ja lisää hinta.": "Velg produktkategori og legg til pris.",
     "Valitse yhteinen kategoriointi ilmoituksille.": "Velg felles kategorisering for annonsene.",
     "Kunto & sijainti": "Tilstand og sted",
+    "Kunto ja sijainti": "Tilstand og sted",
     "Valitse kunto ja paikka": "Velg tilstand og sted",
+    "Kuntoluokitus": "Tilstandsklassifisering",
     "Kuvat": "Bilder",
     "Lisää tuotteen kuvat": "Legg til produktbilder",
     "Otsikko ja kuvaus": "Tittel og beskrivelse",
@@ -700,7 +706,9 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Valitse tuotteen kategoria ja lisää hinta.": "Vali tootekategooria ja lisa hind.",
     "Valitse yhteinen kategoriointi ilmoituksille.": "Vali kuulutustele ühine kategoriseerimine.",
     "Kunto & sijainti": "Seisukord ja asukoht",
+    "Kunto ja sijainti": "Seisukord ja asukoht",
     "Valitse kunto ja paikka": "Vali seisukord ja asukoht",
+    "Kuntoluokitus": "Seisukorra hinnang",
     "Kuvat": "Pildid",
     "Lisää tuotteen kuvat": "Lisa tootepildid",
     "Otsikko ja kuvaus": "Pealkiri ja kirjeldus",
@@ -4163,6 +4171,7 @@ export default function SellPage() {
                     compact
                     value={part.condition}
                     onChange={(value) => updateMultiPartField(part.id, "condition", value)}
+                    translateText={st}
                   />
                   <span className={styles.multiListingActions}>
                     <button
@@ -5052,16 +5061,17 @@ export default function SellPage() {
     if (mode === "single" && currentStep === 4) {
       return (
         <div className={styles.conditionStep}>
-          <section className={styles.conditionPanel} aria-label="Kunto ja sijainti">
-            <h2>Kunto</h2>
+          <section className={styles.conditionPanel} aria-label={st("Kunto ja sijainti")}>
+            <h2>{st("Kunto")}</h2>
             <div className={styles.conditionGrid}>
               <ConditionSelect
-                label="Kunto"
+                label={st("Kunto")}
                 value={condition}
                 onChange={(value) => {
                   setCondition(value);
                   window.setTimeout(() => listingLocationInputRef.current?.focus(), 60);
                 }}
+                translateText={st}
               />
               <PlainIconInput
                 label="Sijainti"
@@ -5776,17 +5786,19 @@ function ConditionSelect({
   compact = false,
   label = "Kunto",
   onChange,
-  value
+  value,
+  translateText = (text: string) => text
 }: {
   compact?: boolean;
   label?: string;
   onChange: (value: string) => void;
   value: string;
+  translateText?: (text: string) => string;
 }) {
   const [open, setOpen] = useState(false);
   const pointerSelectionRef = useRef<string | null>(null);
   const selectedOption = conditionOptions.find((option) => option.value === value);
-  const displayValue = selectedOption?.label ?? "Kuntoluokitus";
+  const displayValue = translateText(selectedOption?.label ?? "Kuntoluokitus");
 
   function chooseOption(nextValue: string) {
     setOpen(false);
@@ -5860,7 +5872,7 @@ function ConditionSelect({
                   aria-selected={active}
                 >
                   <span className={`${styles.conditionSelectDot} ${getConditionDotClass(option.value)}`} />
-                  <span>{option.label}</span>
+                  <span>{translateText(option.label)}</span>
                 </button>
               );
             })}
