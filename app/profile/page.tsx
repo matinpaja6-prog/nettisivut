@@ -198,6 +198,8 @@ export default function ProfilePage() {
     postalCode: { fi: "Postinumero", en: "Postal code", sv: "Postnummer", no: "Postnummer", et: "Postiindeks" }[locale],
     birthDate: { fi: "Syntymäaika", en: "Date of birth", sv: "Födelsedatum", no: "Fødselsdato", et: "Sünnikuupäev" }[locale],
     publicProfile: { fi: "Julkinen profiili", en: "Public seller profile", sv: "Offentlig säljarprofil", no: "Offentlig selgerprofil", et: "Avalik müüja profiil" }[locale],
+    profileDetails: { fi: "Profiilin tiedot", en: "Profile details", sv: "Profiluppgifter", no: "Profildetaljer", et: "Profiili andmed" }[locale],
+    addressDetails: { fi: "Osoitetiedot", en: "Address details", sv: "Adressuppgifter", no: "Adresseopplysninger", et: "Aadressiandmed" }[locale],
     publicHelp: {
       fi: "Nämä tiedot näkyvät muille Marketplace-käyttäjille.",
       en: "Name, ID, exact address and your intro are shown publicly.",
@@ -440,6 +442,55 @@ export default function ProfilePage() {
       sv: "Avbryt",
       no: "Avbryt",
       et: "Tühista"
+    }[locale],
+    close: {
+      fi: "Sulje",
+      en: "Close",
+      sv: "Stäng",
+      no: "Lukk",
+      et: "Sulge"
+    }[locale],
+    addPhoto: {
+      fi: "Lisää kuva",
+      en: "Add photo",
+      sv: "Lägg till bild",
+      no: "Legg til bilde",
+      et: "Lisa pilt"
+    }[locale],
+    remove: {
+      fi: "Poista",
+      en: "Remove",
+      sv: "Ta bort",
+      no: "Fjern",
+      et: "Eemalda"
+    }[locale],
+    editProfilePhoto: {
+      fi: "Muokkaa profiilikuvaa",
+      en: "Edit profile photo",
+      sv: "Redigera profilbild",
+      no: "Rediger profilbilde",
+      et: "Muuda profiilipilti"
+    }[locale],
+    avatarCropHelp: {
+      fi: "Zoomaa ja raahaa kuva sopivaan kohtaan.",
+      en: "Zoom and drag the photo into position.",
+      sv: "Zooma och dra bilden till rätt läge.",
+      no: "Zoom og dra bildet til riktig posisjon.",
+      et: "Suumi ja lohista pilt sobivasse kohta."
+    }[locale],
+    saving: {
+      fi: "Tallennetaan...",
+      en: "Saving...",
+      sv: "Sparar...",
+      no: "Lagrer...",
+      et: "Salvestatakse..."
+    }[locale],
+    savePhoto: {
+      fi: "Tallenna kuva",
+      en: "Save photo",
+      sv: "Spara bild",
+      no: "Lagre bilde",
+      et: "Salvesta pilt"
     }[locale],
     edit: {
       fi: "Muokkaa",
@@ -1199,7 +1250,7 @@ export default function ProfilePage() {
                   }}
                 >
                   <Camera size={13} />
-                  Lisää kuva
+                  {profileText.addPhoto}
                 </button>
                 {avatarUrl && (
                   <button
@@ -1208,7 +1259,7 @@ export default function ProfilePage() {
                     disabled={avatarUploading}
                     onClick={handleRemoveAvatar}
                   >
-                    Poista
+                    {profileText.remove}
                   </button>
                 )}
               </div>
@@ -1217,12 +1268,12 @@ export default function ProfilePage() {
           <nav className="pf-nav">
             <a href={profile?.account_type === "company" ? "#yritys" : "#tiedot"} className="pf-nav-item pf-nav-active">
               <Building2 size={19} />
-              {profile?.account_type === "company" ? profileText.companyDetails : "Profiilin tiedot"}
+              {profile?.account_type === "company" ? profileText.companyDetails : profileText.profileDetails}
             </a>
             {profile?.account_type === "company" && (
               <a href="#myyjat" className="pf-nav-item">
                 <Users size={19} />
-                Yrityksen myyjät
+                {profileText.companySellersTitle}
               </a>
             )}
             <Link
@@ -1231,12 +1282,12 @@ export default function ProfilePage() {
               target="_blank"
             >
               <Globe size={19} />
-              Julkinen profiili
+              {profileText.publicProfile}
               <ExternalLink size={13} className="pf-nav-external" />
             </Link>
             <a href="#osoite" className="pf-nav-item">
               <Home size={19} />
-              Osoitetiedot
+              {profileText.addressDetails}
             </a>
             <a href="#tilin-turvallisuus" className="pf-nav-item">
               <ShieldCheck size={19} />
@@ -2061,7 +2112,7 @@ export default function ProfilePage() {
           className="pf-modal-backdrop"
           role="dialog"
           aria-modal="true"
-          aria-label="Muokkaa profiilikuvaa"
+          aria-label={profileText.editProfilePhoto}
         >
           <div className="pf-phone-modal pf-avatar-crop-modal">
             <button
@@ -2069,12 +2120,12 @@ export default function ProfilePage() {
               className="pf-modal-close"
               onClick={resetAvatarCrop}
               disabled={avatarUploading}
-              aria-label="Sulje"
+              aria-label={profileText.close}
             >
               ×
             </button>
-            <h2>Muokkaa profiilikuvaa</h2>
-            <p>Zoomaa ja raahaa kuva sopivaan kohtaan.</p>
+            <h2>{profileText.editProfilePhoto}</h2>
+            <p>{profileText.avatarCropHelp}</p>
             <div
               className="pf-avatar-crop-frame"
               onPointerDown={startAvatarDrag}
@@ -2109,7 +2160,7 @@ export default function ProfilePage() {
                 onClick={resetAvatarCrop}
                 disabled={avatarUploading}
               >
-                Peruuta
+                {profileText.cancel}
               </button>
               <button
                 type="button"
@@ -2117,7 +2168,7 @@ export default function ProfilePage() {
                 onClick={saveCroppedAvatar}
                 disabled={avatarUploading}
               >
-                {avatarUploading ? "Tallennetaan..." : "Tallenna kuva"}
+                {avatarUploading ? profileText.saving : profileText.savePhoto}
               </button>
             </div>
           </div>
