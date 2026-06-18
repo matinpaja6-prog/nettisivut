@@ -363,7 +363,49 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Julkaistaan...": "Publishing...",
     "Seuraava osa": "Next part",
     "Toimitukseen": "To delivery",
-    "Julkaisuun": "To publishing"
+    "Julkaisuun": "To publishing",
+    "Kategorisoi tuote": "Categorize product",
+    "Kategorisoi tuotteesi": "Categorize your product",
+    "Pääkategoria": "Main category",
+    "Alakategoria": "Subcategory",
+    "Tarkempi kategoria": "Detailed category",
+    "Ei kategorioita": "No categories",
+    "Valitse pääkategoria": "Choose main category",
+    "Valitse alakategoria": "Choose subcategory",
+    "Hinta (€)": "Price (€)",
+    "Tarkat tiedot rakentavat luottamusta ja auttavat myymään nopeammin.": "Accurate details build trust and help you sell faster.",
+    "Esim. Ski-Doo variaattori 850 E-TEC": "E.g. Ski-Doo variator 850 E-TEC",
+    "Ilmoitus valmis julkaistavaksi": "Listing ready to publish",
+    "Ilmoitukset valmiina julkaisuun": "Listings ready to publish",
+    "Ilmoituksen myyjä": "Listing seller",
+    "Voit valita erillisen myyjän. Jos et valitse, ilmoitus julkaistaan yrityksen tiedoilla.": "You can choose a separate seller. If you do not choose one, the listing is published with the company details.",
+    "Yrityksen tiedot": "Company details",
+    "Erillisiä myyjiä ei ole lisätty. Ilmoitus julkaistaan yrityksen tiedoilla.": "No separate sellers have been added. The listing will be published with the company details.",
+    "Ilmoituksen pikatiedot": "Listing quick details",
+    "Ilmoituksen yhteenveto": "Listing summary",
+    "Yksittäinen ilmoitus valmis julkaistavaksi": "Single listing ready to publish",
+    "Multi-ilmoitukset valmiina julkaisuun": "Multiple listings ready to publish",
+    "Tarkista vielä otsikot, hinnat, kuvat ja sijainti ennen julkaisua.": "Review the titles, prices, photos and location before publishing.",
+    "euroa": "euros",
+    "Uusi": "New",
+    "Hyvä": "Good",
+    "Käytetty": "Used",
+    "Korjattava": "Needs repair",
+    "ATV - mönkijä": "ATV - quad",
+    "UTV - mönkijä": "UTV - quad",
+    "Sport - mönkijä": "Sport - quad",
+    "Työ - mönkijä": "Utility - quad",
+    "Maasto - mönkijä": "Off-road - quad",
+    "6x6 - mönkijä": "6x6 - quad",
+    "Lasten - mönkijä": "Kids - quad",
+    "Motocross - crossi": "Motocross - dirt bike",
+    "Enduro - crossi": "Enduro - dirt bike",
+    "Supermoto - crossi": "Supermoto - dirt bike",
+    "Trial - crossi": "Trial - dirt bike",
+    "Pitbike - crossi": "Pit bike - dirt bike",
+    "Minicross - crossi": "Mini cross - dirt bike",
+    "Moottori & voimansiirto": "Engine & drivetrain",
+    "Kokonainen moottori": "Complete engine"
   },
   sv: {
     "Luo myynti-ilmoitus": "Skapa försäljningsannons",
@@ -437,7 +479,49 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Julkaistaan...": "Publicerar...",
     "Seuraava osa": "Nästa del",
     "Toimitukseen": "Till leverans",
-    "Julkaisuun": "Till publicering"
+    "Julkaisuun": "Till publicering",
+    "Kategorisoi tuote": "Kategorisera produkten",
+    "Kategorisoi tuotteesi": "Kategorisera din produkt",
+    "Pääkategoria": "Huvudkategori",
+    "Alakategoria": "Underkategori",
+    "Tarkempi kategoria": "Mer specifik kategori",
+    "Ei kategorioita": "Inga kategorier",
+    "Valitse pääkategoria": "Välj huvudkategori",
+    "Valitse alakategoria": "Välj underkategori",
+    "Hinta (€)": "Pris (€)",
+    "Tarkat tiedot rakentavat luottamusta ja auttavat myymään nopeammin.": "Noggranna uppgifter bygger förtroende och hjälper dig att sälja snabbare.",
+    "Esim. Ski-Doo variaattori 850 E-TEC": "T.ex. Ski-Doo variator 850 E-TEC",
+    "Ilmoitus valmis julkaistavaksi": "Annonsen är redo att publiceras",
+    "Ilmoitukset valmiina julkaisuun": "Annonserna är redo att publiceras",
+    "Ilmoituksen myyjä": "Annonsens säljare",
+    "Voit valita erillisen myyjän. Jos et valitse, ilmoitus julkaistaan yrityksen tiedoilla.": "Du kan välja en separat säljare. Om du inte väljer någon publiceras annonsen med företagets uppgifter.",
+    "Yrityksen tiedot": "Företagets uppgifter",
+    "Erillisiä myyjiä ei ole lisätty. Ilmoitus julkaistaan yrityksen tiedoilla.": "Inga separata säljare har lagts till. Annonsen publiceras med företagets uppgifter.",
+    "Ilmoituksen pikatiedot": "Annonsens snabbuppgifter",
+    "Ilmoituksen yhteenveto": "Annonssammanfattning",
+    "Yksittäinen ilmoitus valmis julkaistavaksi": "Enskild annons redo att publiceras",
+    "Multi-ilmoitukset valmiina julkaisuun": "Flera annonser redo att publiceras",
+    "Tarkista vielä otsikot, hinnat, kuvat ja sijainti ennen julkaisua.": "Granska rubriker, priser, bilder och plats innan publicering.",
+    "euroa": "euro",
+    "Uusi": "Ny",
+    "Hyvä": "Bra",
+    "Käytetty": "Begagnad",
+    "Korjattava": "Behöver repareras",
+    "ATV - mönkijä": "ATV - fyrhjuling",
+    "UTV - mönkijä": "UTV - fyrhjuling",
+    "Sport - mönkijä": "Sport - fyrhjuling",
+    "Työ - mönkijä": "Arbete - fyrhjuling",
+    "Maasto - mönkijä": "Terräng - fyrhjuling",
+    "6x6 - mönkijä": "6x6 - fyrhjuling",
+    "Lasten - mönkijä": "Barn - fyrhjuling",
+    "Motocross - crossi": "Motocross - cross",
+    "Enduro - crossi": "Enduro - cross",
+    "Supermoto - crossi": "Supermoto - cross",
+    "Trial - crossi": "Trial - cross",
+    "Pitbike - crossi": "Pitbike - cross",
+    "Minicross - crossi": "Minicross - cross",
+    "Moottori & voimansiirto": "Motor & drivlina",
+    "Kokonainen moottori": "Komplett motor"
   },
   no: {
     "Luo myynti-ilmoitus": "Opprett salgsannonse",
@@ -511,7 +595,49 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Julkaistaan...": "Publiserer...",
     "Seuraava osa": "Neste del",
     "Toimitukseen": "Til levering",
-    "Julkaisuun": "Til publisering"
+    "Julkaisuun": "Til publisering",
+    "Kategorisoi tuote": "Kategoriser produkt",
+    "Kategorisoi tuotteesi": "Kategoriser produktet ditt",
+    "Pääkategoria": "Hovedkategori",
+    "Alakategoria": "Underkategori",
+    "Tarkempi kategoria": "Mer detaljert kategori",
+    "Ei kategorioita": "Ingen kategorier",
+    "Valitse pääkategoria": "Velg hovedkategori",
+    "Valitse alakategoria": "Velg underkategori",
+    "Hinta (€)": "Pris (€)",
+    "Tarkat tiedot rakentavat luottamusta ja auttavat myymään nopeammin.": "Nøyaktige opplysninger bygger tillit og hjelper deg å selge raskere.",
+    "Esim. Ski-Doo variaattori 850 E-TEC": "F.eks. Ski-Doo variator 850 E-TEC",
+    "Ilmoitus valmis julkaistavaksi": "Annonsen er klar til publisering",
+    "Ilmoitukset valmiina julkaisuun": "Annonsene er klare til publisering",
+    "Ilmoituksen myyjä": "Annonsens selger",
+    "Voit valita erillisen myyjän. Jos et valitse, ilmoitus julkaistaan yrityksen tiedoilla.": "Du kan velge en egen selger. Hvis du ikke velger en, publiseres annonsen med bedriftens opplysninger.",
+    "Yrityksen tiedot": "Bedriftens opplysninger",
+    "Erillisiä myyjiä ei ole lisätty. Ilmoitus julkaistaan yrityksen tiedoilla.": "Ingen egne selgere er lagt til. Annonsen publiseres med bedriftens opplysninger.",
+    "Ilmoituksen pikatiedot": "Annonsens hurtiginfo",
+    "Ilmoituksen yhteenveto": "Annonseoversikt",
+    "Yksittäinen ilmoitus valmis julkaistavaksi": "Enkeltannonse klar til publisering",
+    "Multi-ilmoitukset valmiina julkaisuun": "Flere annonser klare til publisering",
+    "Tarkista vielä otsikot, hinnat, kuvat ja sijainti ennen julkaisua.": "Kontroller titler, priser, bilder og sted før publisering.",
+    "euroa": "euro",
+    "Uusi": "Ny",
+    "Hyvä": "God",
+    "Käytetty": "Brukt",
+    "Korjattava": "Må repareres",
+    "ATV - mönkijä": "ATV - firehjuling",
+    "UTV - mönkijä": "UTV - firehjuling",
+    "Sport - mönkijä": "Sport - firehjuling",
+    "Työ - mönkijä": "Arbeid - firehjuling",
+    "Maasto - mönkijä": "Terreng - firehjuling",
+    "6x6 - mönkijä": "6x6 - firehjuling",
+    "Lasten - mönkijä": "Barn - firehjuling",
+    "Motocross - crossi": "Motocross - cross",
+    "Enduro - crossi": "Enduro - cross",
+    "Supermoto - crossi": "Supermoto - cross",
+    "Trial - crossi": "Trial - cross",
+    "Pitbike - crossi": "Pitbike - cross",
+    "Minicross - crossi": "Minicross - cross",
+    "Moottori & voimansiirto": "Motor og drivverk",
+    "Kokonainen moottori": "Komplett motor"
   },
   et: {
     "Luo myynti-ilmoitus": "Loo müügikuulutus",
@@ -585,7 +711,49 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Julkaistaan...": "Avaldatakse...",
     "Seuraava osa": "Järgmine osa",
     "Toimitukseen": "Tarne juurde",
-    "Julkaisuun": "Avaldamise juurde"
+    "Julkaisuun": "Avaldamise juurde",
+    "Kategorisoi tuote": "Kategoriseeri toode",
+    "Kategorisoi tuotteesi": "Kategoriseeri oma toode",
+    "Pääkategoria": "Põhikategooria",
+    "Alakategoria": "Alamkategooria",
+    "Tarkempi kategoria": "Täpsem kategooria",
+    "Ei kategorioita": "Kategooriaid pole",
+    "Valitse pääkategoria": "Vali põhikategooria",
+    "Valitse alakategoria": "Vali alamkategooria",
+    "Hinta (€)": "Hind (€)",
+    "Tarkat tiedot rakentavat luottamusta ja auttavat myymään nopeammin.": "Täpsed andmed loovad usaldust ja aitavad kiiremini müüa.",
+    "Esim. Ski-Doo variaattori 850 E-TEC": "Nt Ski-Doo variaator 850 E-TEC",
+    "Ilmoitus valmis julkaistavaksi": "Kuulutus on avaldamiseks valmis",
+    "Ilmoitukset valmiina julkaisuun": "Kuulutused on avaldamiseks valmis",
+    "Ilmoituksen myyjä": "Kuulutuse müüja",
+    "Voit valita erillisen myyjän. Jos et valitse, ilmoitus julkaistaan yrityksen tiedoilla.": "Saad valida eraldi müüja. Kui sa ei vali, avaldatakse kuulutus ettevõtte andmetega.",
+    "Yrityksen tiedot": "Ettevõtte andmed",
+    "Erillisiä myyjiä ei ole lisätty. Ilmoitus julkaistaan yrityksen tiedoilla.": "Eraldi müüjaid pole lisatud. Kuulutus avaldatakse ettevõtte andmetega.",
+    "Ilmoituksen pikatiedot": "Kuulutuse kiirinfo",
+    "Ilmoituksen yhteenveto": "Kuulutuse kokkuvõte",
+    "Yksittäinen ilmoitus valmis julkaistavaksi": "Üks kuulutus on avaldamiseks valmis",
+    "Multi-ilmoitukset valmiina julkaisuun": "Mitu kuulutust on avaldamiseks valmis",
+    "Tarkista vielä otsikot, hinnat, kuvat ja sijainti ennen julkaisua.": "Kontrolli enne avaldamist pealkirjad, hinnad, pildid ja asukoht üle.",
+    "euroa": "eurot",
+    "Uusi": "Uus",
+    "Hyvä": "Hea",
+    "Käytetty": "Kasutatud",
+    "Korjattava": "Vajab remonti",
+    "ATV - mönkijä": "ATV - nelik",
+    "UTV - mönkijä": "UTV - nelik",
+    "Sport - mönkijä": "Sport - nelik",
+    "Työ - mönkijä": "Töö - nelik",
+    "Maasto - mönkijä": "Maastik - nelik",
+    "6x6 - mönkijä": "6x6 - nelik",
+    "Lasten - mönkijä": "Laste - nelik",
+    "Motocross - crossi": "Motokross - kross",
+    "Enduro - crossi": "Enduro - kross",
+    "Supermoto - crossi": "Supermoto - kross",
+    "Trial - crossi": "Trial - kross",
+    "Pitbike - crossi": "Pitbike - kross",
+    "Minicross - crossi": "Minicross - kross",
+    "Moottori & voimansiirto": "Mootor ja jõuülekanne",
+    "Kokonainen moottori": "Komplektne mootor"
   }
 };
 
@@ -1939,6 +2107,11 @@ export default function SellPage() {
   const taxonomy = useTaxonomy();
   const { locale } = useLanguage();
   const st = useCallback((text: string) => translateSell(locale, text), [locale]);
+  const translateCategoryText = useCallback((text: string) => {
+    const parts = splitCategoryPath(text);
+    if (parts.length > 1) return parts.map((part) => st(part)).join(" / ");
+    return st(text);
+  }, [st]);
   const garagePrefillAppliedRef = useRef(false);
   const shellRef = useRef<HTMLElement | null>(null);
   const vehicleContentRef = useRef<HTMLElement | null>(null);
@@ -4565,11 +4738,11 @@ export default function SellPage() {
 
       return (
         <div className={styles.categoryStep}>
-          <section className={styles.categoryPanel} aria-label="Kategorisoi tuote">
-            <h2>Kategorisoi tuotteesi</h2>
+          <section className={styles.categoryPanel} aria-label={st("Kategorisoi tuote")}>
+            <h2>{st("Kategorisoi tuotteesi")}</h2>
             <div className={styles.categorySelectGrid}>
               <CategorySelect
-                label="Pääkategoria"
+                label={st("Pääkategoria")}
                 icon={Layers3}
                 value={selectedCategory}
                 onChange={(value) => {
@@ -4581,7 +4754,8 @@ export default function SellPage() {
                   });
                 }}
                 options={categoryOptions.map((value) => ({ value, label: value }))}
-                placeholder="Ei kategorioita"
+                placeholder={st("Ei kategorioita")}
+                translateText={translateCategoryText}
                 autoOpenNonce={categoryAutoOpenTarget?.field === "category" ? categoryAutoOpenTarget.nonce : 0}
                 open={categoryAutoOpenTarget?.field === "category"}
                 onOpenChange={(open) => {
@@ -4596,7 +4770,7 @@ export default function SellPage() {
                 }}
               />
               <CategorySelect
-                label="Alakategoria"
+                label={st("Alakategoria")}
                 icon={FolderTree}
                 value={selectedCategoryGroup}
                 onChange={(value) => {
@@ -4619,10 +4793,11 @@ export default function SellPage() {
                     current?.field === "group" ? null : current
                   );
                 }}
-                placeholder="Valitse pääkategoria"
+                placeholder={st("Valitse pääkategoria")}
+                translateText={translateCategoryText}
               />
               <CategorySelect
-                label="Tarkempi kategoria"
+                label={st("Tarkempi kategoria")}
                 icon={Tags}
                 value={selectedDetailCategory}
                 onChange={(value) => {
@@ -4644,23 +4819,24 @@ export default function SellPage() {
                     current?.field === "detail" ? null : current
                   );
                 }}
-                placeholder="Valitse alakategoria"
+                placeholder={st("Valitse alakategoria")}
+                translateText={translateCategoryText}
               />
             </div>
           </section>
 
-          <section className={styles.productDetailsPanel} aria-label="Lisää tuotetiedot">
-            <h2>Lisää tuotetiedot</h2>
+          <section className={styles.productDetailsPanel} aria-label={st("Lisää tuotetiedot")}>
+            <h2>{st("Lisää tuotetiedot")}</h2>
             <div className={styles.productDetailsGrid}>
               <DetailInput
-                label="Varaosanumero / OEM-numero (vapaaehtoinen)"
+                label={st("Varaosanumero / OEM-numero (vapaaehtoinen)")}
                 icon={Barcode}
-                placeholder="Lisää jos tiedossa"
+                placeholder={st("Lisää jos tiedossa")}
                 value={partNumber}
                 onChange={setPartNumber}
               />
               <DetailInput
-                label="Hinta (€)"
+                label={st("Hinta (€)")}
                 icon={Euro}
                 inputMode="numeric"
                 value={listingPrice}
@@ -4901,8 +5077,8 @@ export default function SellPage() {
 
           <aside className={styles.conditionTip}>
             <div>
-              <strong>Ole rehellinen ja tarkka</strong>
-              <p>Tarkat tiedot rakentavat luottamusta ja auttavat myymään nopeammin.</p>
+              <strong>{st("Ole rehellinen ja tarkka")}</strong>
+              <p>{st("Tarkat tiedot rakentavat luottamusta ja auttavat myymään nopeammin.")}</p>
             </div>
           </aside>
         </div>
@@ -5004,7 +5180,7 @@ export default function SellPage() {
               maxLength={80}
               value={listingTitle}
               onChange={(event) => setListingTitle(event.target.value)}
-              placeholder="Esim. Ski-Doo variaattori 850 E-TEC"
+              placeholder={st("Esim. Ski-Doo variaattori 850 E-TEC")}
             />
             <small className={styles.automaticTitleHint}>
               {st("T\u00e4m\u00e4 on otsikko jos et itse otsikoi:")} {getAutomaticListingTitle()}
@@ -5052,7 +5228,7 @@ export default function SellPage() {
       vehicleDetails.brand,
       vehicleDetails.model,
       vehicleDetails.year
-    ]).join(" ");
+    ]).map((part) => st(part)).join(" ");
     const technicalSummary = uniqueOptions([
       vehicleDetails.engineCc ? `${vehicleDetails.engineCc} cc` : "",
       vehicleDetails.engineType
@@ -5061,10 +5237,10 @@ export default function SellPage() {
       selectedCategory,
       selectedCategoryGroup,
       selectedDetailCategory
-    ]).join(" / ");
+    ]).map((part) => translateCategoryText(part)).join(" / ");
     const publishStats = [
       { label: st("Tyyppi"), value: mode === "single" ? st("Yksitt\u00e4inen ilmoitus") : st("Useampi ilmoitus") },
-      { label: st("Hinta"), value: listingPrice.trim() ? `${listingPrice.trim()} euroa` : st("Ei lisatty") },
+      { label: st("Hinta"), value: listingPrice.trim() ? `${listingPrice.trim()} ${st("euroa")}` : st("Ei lisatty") },
       { label: st("Kunto"), value: condition ? st(condition) : st("Ei lisatty") },
       { label: st("Kuvat"), value: `${uploadedImages.length} ${st("kpl")}` },
       ...(isCompanyAccount
@@ -5087,25 +5263,25 @@ export default function SellPage() {
             <ShieldCheck size={30} />
           </span>
           <div>
-            <strong>{mode === "single" ? "Ilmoitus valmis julkaistavaksi" : "Ilmoitukset valmiina julkaisuun"}</strong>
+            <strong>{mode === "single" ? st("Ilmoitus valmis julkaistavaksi") : st("Ilmoitukset valmiina julkaisuun")}</strong>
             <p>{st("Tarkista viel\u00e4 t\u00e4rkeimm\u00e4t tiedot ennen kuin ilmoitus l\u00e4htee ostajille n\u00e4kyviin.")}</p>
           </div>
         </div>
 
         {isCompanyAccount ? (
-          <section className={styles.companySellerPanel} aria-label="Ilmoituksen myyjä">
+          <section className={styles.companySellerPanel} aria-label={st("Ilmoituksen myyjä")}>
             <div>
-              <strong>Ilmoituksen myyjä</strong>
-              <p>Voit valita erillisen myyjän. Jos et valitse, ilmoitus julkaistaan yrityksen tiedoilla.</p>
+              <strong>{st("Ilmoituksen myyjä")}</strong>
+              <p>{st("Voit valita erillisen myyjän. Jos et valitse, ilmoitus julkaistaan yrityksen tiedoilla.")}</p>
             </div>
             {companySellers.length > 0 ? (
               <label className={styles.companySellerSelect}>
-                <span>Myyjä</span>
+                <span>{st("Myyjä")}</span>
                 <select
                   value={selectedCompanySellerId}
                   onChange={(event) => setSelectedCompanySellerId(event.target.value)}
                 >
-                  <option value="">Yrityksen tiedot</option>
+                  <option value="">{st("Yrityksen tiedot")}</option>
                   {companySellers.map((seller) => (
                     <option key={seller.id} value={seller.id}>
                       {seller.name} - {seller.phone}
@@ -5115,13 +5291,13 @@ export default function SellPage() {
               </label>
             ) : (
               <div className={styles.companySellerMissing}>
-                Erillisiä myyjiä ei ole lisätty. Ilmoitus julkaistaan yrityksen tiedoilla.
+                {st("Erillisiä myyjiä ei ole lisätty. Ilmoitus julkaistaan yrityksen tiedoilla.")}
               </div>
             )}
           </section>
         ) : null}
 
-        <div className={styles.publishStats} aria-label="Ilmoituksen pikatiedot">
+        <div className={styles.publishStats} aria-label={st("Ilmoituksen pikatiedot")}>
           {publishStats.map((item) => (
             <div key={item.label}>
               <span>{item.label}</span>
@@ -5130,9 +5306,9 @@ export default function SellPage() {
           ))}
         </div>
 
-        <section className={styles.publishSummary} aria-label="Ilmoituksen yhteenveto">
+        <section className={styles.publishSummary} aria-label={st("Ilmoituksen yhteenveto")}>
           <div className={styles.publishTitleBlock}>
-            <span>Otsikko</span>
+            <span>{st("Otsikko")}</span>
             <strong>{listingTitle.trim() || getAutomaticListingTitle()}</strong>
             <p>{listingDescription.trim() || st("Kuvausta ei ole viela lisatty.")}</p>
           </div>
@@ -5146,8 +5322,8 @@ export default function SellPage() {
             ))}
           </div>
         </section>
-        <strong>{mode === "single" ? "Yksittäinen ilmoitus valmis julkaistavaksi" : "Multi-ilmoitukset valmiina julkaisuun"}</strong>
-        <p>Tarkista vielä otsikot, hinnat, kuvat ja sijainti ennen julkaisua.</p>
+        <strong>{mode === "single" ? st("Yksittäinen ilmoitus valmis julkaistavaksi") : st("Multi-ilmoitukset valmiina julkaisuun")}</strong>
+        <p>{st("Tarkista vielä otsikot, hinnat, kuvat ja sijainti ennen julkaisua.")}</p>
       </div>
     );
   }
@@ -5704,7 +5880,8 @@ function CategorySelect({
   autoOpenNonce,
   open: controlledOpen,
   onOpenChange,
-  onChange
+  onChange,
+  translateText = (text: string) => text
 }: {
   label: string;
   icon: LucideIcon;
@@ -5715,13 +5892,14 @@ function CategorySelect({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onChange: (value: string) => void;
+  translateText?: (text: string) => string;
 }) {
   const hasOptions = options.length > 0;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const pointerSelectionRef = useRef<string | null>(null);
   const open = controlledOpen ?? uncontrolledOpen;
   const selectedOption = options.find((option) => option.value === value);
-  const displayValue = hasOptions ? selectedOption?.label ?? placeholder : placeholder;
+  const displayValue = hasOptions ? translateText(selectedOption?.label ?? placeholder) : placeholder;
 
   const setSelectOpen = useCallback((nextOpen: boolean) => {
     if (onOpenChange) {
@@ -5823,7 +6001,7 @@ function CategorySelect({
                   <span className={styles.categorySelectOptionIcon}>
                     {getMultiCategoryIcon(option.value)}
                   </span>
-                  <span>{option.label}</span>
+                  <span>{translateText(option.label)}</span>
                 </button>
               );
             })}
