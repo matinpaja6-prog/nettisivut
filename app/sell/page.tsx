@@ -344,6 +344,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Muu": "Other",
     "Siirry vaiheeseen": "Go to step",
     "Ilmoitustyyppi": "Listing type",
+    "Ilmoitus": "Listing",
     "Ilmoituksen tyyppi": "Listing type",
     "Valitse myyntityyppi": "Choose selling type",
     "Kategoria ja hinta": "Category and price",
@@ -462,6 +463,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Muu": "Annat",
     "Siirry vaiheeseen": "Gå till steg",
     "Ilmoitustyyppi": "Annonstyp",
+    "Ilmoitus": "Annons",
     "Ilmoituksen tyyppi": "Annonstyp",
     "Valitse myyntityyppi": "Välj försäljningstyp",
     "Kategoria ja hinta": "Kategori och pris",
@@ -580,6 +582,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Muu": "Annet",
     "Siirry vaiheeseen": "Gå til steg",
     "Ilmoitustyyppi": "Annonsetype",
+    "Ilmoitus": "Annonse",
     "Ilmoituksen tyyppi": "Annonsetype",
     "Valitse myyntityyppi": "Velg salgstype",
     "Kategoria ja hinta": "Kategori og pris",
@@ -698,6 +701,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Muu": "Muu",
     "Siirry vaiheeseen": "Mine sammu",
     "Ilmoitustyyppi": "Kuulutuse tüüp",
+    "Ilmoitus": "Kuulutus",
     "Ilmoituksen tyyppi": "Kuulutuse tüüp",
     "Valitse myyntityyppi": "Vali müügitüüp",
     "Kategoria ja hinta": "Kategooria ja hind",
@@ -3562,6 +3566,23 @@ export default function SellPage() {
     return fallbackTitle.trim() || "Ilmoitus";
   }
 
+  function getTranslatedAutomaticListingTitle(part?: MultiPartSelection) {
+    const partTitle = part
+      ? part.detail || part.group || part.category
+      : selectedDetailCategory || selectedCategoryGroup || selectedCategory;
+    const translatedPartTitle = partTitle ? translateCategoryText(partTitle.trim()) : "";
+    const vehicleTitle = [
+      vehicleDetails.brand.trim(),
+      vehicleDetails.model.trim()
+    ].filter(Boolean).join(" ");
+    const fallbackTitle = [
+      vehicleTitle,
+      translatedPartTitle
+    ].filter(Boolean).join(" ");
+
+    return fallbackTitle.trim() || st("Ilmoitus");
+  }
+
   function getDeliveryMethodLabel(method: DeliveryMethod = deliveryMethod) {
     return deliveryMethodOptions.find((option) => option.value === method)?.label ?? "L\u00e4hetys ja nouto";
   }
@@ -3934,7 +3955,7 @@ export default function SellPage() {
           <span />
         </div>
         {parts.map((part, index) => {
-          const automaticTitle = getAutomaticListingTitle(part);
+          const translatedAutomaticTitle = getTranslatedAutomaticListingTitle(part);
           const partNeedsTrackMatDimensions = [part.category, part.group, part.detail].some(isTrackMatText);
 
           return (
@@ -3961,7 +3982,7 @@ export default function SellPage() {
               <span className={styles.multiDragDots} aria-hidden="true">::</span>
               <strong className={styles.multiListingIndex}>{index + 1}</strong>
               <span className={styles.multiPartIdentity}>
-                <b>{part.title || automaticTitle}</b>
+                <b>{part.title || translatedAutomaticTitle}</b>
                 <small>{part.category} &gt; {part.group}</small>
               </span>
               <span className={styles.multiPriceCell}>
@@ -4015,10 +4036,10 @@ export default function SellPage() {
                   <input
                     value={part.title}
                     onChange={(event) => updateMultiPartField(part.id, "title", event.target.value)}
-                    placeholder={automaticTitle}
+                    placeholder={translatedAutomaticTitle}
                   />
                   <small className={styles.automaticTitleHint}>
-                    Tämä on otsikko jos et itse otsikoi: {automaticTitle}
+                    {st("Tämä on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
                   </small>
                 </label>
                 <label>
@@ -4109,7 +4130,7 @@ export default function SellPage() {
 
     const activeIndex = Math.min(activeMultiListingIndex, selectedMultiPartList.length - 1);
     const listingProgressLabel = `${activeIndex + 1}/${selectedMultiPartList.length} ilmoitusta täytetty`;
-    const automaticTitle = getAutomaticListingTitle(part);
+    const translatedAutomaticTitle = getTranslatedAutomaticListingTitle(part);
     const partNeedsTrackMatDimensions = [part.category, part.group, part.detail].some(isTrackMatText);
 
     return (
@@ -4144,7 +4165,7 @@ export default function SellPage() {
                   </span>
                   <strong className={styles.multiListingIndex}>{activeIndex + 1}</strong>
                   <span className={styles.multiPartIdentity}>
-                    <b>{part.title || automaticTitle}</b>
+                    <b>{part.title || translatedAutomaticTitle}</b>
                     <small>{part.category} &gt; {part.group}</small>
                   </span>
                   <span className={styles.multiPriceCell}>
@@ -4190,10 +4211,10 @@ export default function SellPage() {
                     <input
                       value={part.title}
                       onChange={(event) => updateMultiPartField(part.id, "title", event.target.value)}
-                      placeholder={automaticTitle}
+                      placeholder={translatedAutomaticTitle}
                     />
                     <small className={styles.automaticTitleHint}>
-                      Tämä on otsikko jos et itse otsikoi: {automaticTitle}
+                      {st("Tämä on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
                     </small>
                   </label>
                   <label>
@@ -4900,7 +4921,7 @@ export default function SellPage() {
                   {groupOpen ? (
                     <div className={styles.multiListingTable}>
                       {groupItem.parts.map((part, index) => {
-                        const automaticTitle = getAutomaticListingTitle(part);
+                        const translatedAutomaticTitle = getTranslatedAutomaticListingTitle(part);
 
                         return (
                           <details className={styles.multiListingRow} key={part.id}>
@@ -4908,7 +4929,7 @@ export default function SellPage() {
                               <span className={styles.multiDragDots} aria-hidden="true">::</span>
                               <strong>{index + 1}</strong>
                               <span className={styles.multiPartIdentity}>
-                                <b>{part.title || automaticTitle}</b>
+                                <b>{part.title || translatedAutomaticTitle}</b>
                                 <small>{part.category} / {part.group}</small>
                               </span>
                               <input
@@ -4937,10 +4958,10 @@ export default function SellPage() {
                                 <input
                                   value={part.title}
                                   onChange={(event) => updateMultiPartField(part.id, "title", event.target.value)}
-                                  placeholder={automaticTitle}
+                                  placeholder={translatedAutomaticTitle}
                                 />
                                 <small className={styles.automaticTitleHint}>
-                                  Tämä on otsikko jos et itse otsikoi: {automaticTitle}
+                                  {st("Tämä on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
                                 </small>
                               </label>
                               <label>
@@ -5193,7 +5214,7 @@ export default function SellPage() {
               placeholder={st("Esim. Ski-Doo variaattori 850 E-TEC")}
             />
             <small className={styles.automaticTitleHint}>
-              {st("T\u00e4m\u00e4 on otsikko jos et itse otsikoi:")} {getAutomaticListingTitle()}
+              {st("T\u00e4m\u00e4 on otsikko jos et itse otsikoi:")} {getTranslatedAutomaticListingTitle()}
             </small>
           </label>
 
@@ -5319,7 +5340,7 @@ export default function SellPage() {
         <section className={styles.publishSummary} aria-label={st("Ilmoituksen yhteenveto")}>
           <div className={styles.publishTitleBlock}>
             <span>{st("Otsikko")}</span>
-            <strong>{listingTitle.trim() || getAutomaticListingTitle()}</strong>
+            <strong>{listingTitle.trim() || getTranslatedAutomaticListingTitle()}</strong>
             <p>{listingDescription.trim() || st("Kuvausta ei ole viela lisatty.")}</p>
           </div>
 
