@@ -957,17 +957,51 @@ Object.assign(extraSellTranslations.et, {
   "Kaupunki tai paikkakunta": "Linn või asula"
 });
 
-function translateSell(locale: Locale, text: string) {
-  if (locale === "fi") return text;
-  const directTranslation = sellTranslations[locale][text] ?? extraSellTranslations[locale][text];
-  if (directTranslation) return directTranslation;
+function decodeMojibake(text: string) {
+  if (!/[ÃÂ]/.test(text)) return text;
 
+  let current = text;
+
+  for (let round = 0; round < 3; round += 1) {
+    try {
+      const bytes = Uint8Array.from(current, (char) => char.charCodeAt(0));
+      const decoded = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      if (decoded === current) break;
+      current = decoded;
+    } catch {
+      break;
+    }
+  }
+
+  return current;
+}
+
+function encodeMojibake(text: string) {
   try {
-    const mojibakeKey = unescape(encodeURIComponent(text));
-    return sellTranslations[locale][mojibakeKey] ?? extraSellTranslations[locale][mojibakeKey] ?? text;
+    return unescape(encodeURIComponent(text));
   } catch {
     return text;
   }
+}
+
+function translateSell(locale: Locale, text: string) {
+  const normalizedText = decodeMojibake(text);
+  if (locale === "fi") return normalizedText;
+
+  const candidates = Array.from(new Set([
+    text,
+    normalizedText,
+    encodeMojibake(text),
+    encodeMojibake(normalizedText),
+    encodeMojibake(encodeMojibake(normalizedText))
+  ]));
+
+  for (const candidate of candidates) {
+    const translation = sellTranslations[locale][candidate] ?? extraSellTranslations[locale][candidate];
+    if (translation) return decodeMojibake(translation);
+  }
+
+  return normalizedText;
 }
 
 type UploadedImage = {
