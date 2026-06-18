@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
+import { useLanguage, type Locale } from "@/lib/i18n";
 import { subcategoryGroups, type ListingInput } from "@/lib/listings";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import type {
@@ -97,6 +98,202 @@ const conditionOptions: SelectOption[] = [
   { value: "Käytetty", label: "Käytetty" },
   { value: "Korjattava", label: "Korjattava" }
 ];
+
+const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = {
+  en: {
+    "Lähetys ja nouto": "Shipping and pickup",
+    "Lähetys": "Shipping",
+    "Nouto": "Pickup",
+    "Toimitustapa": "Delivery method",
+    "Lisää tuotetiedot": "Add product details",
+    "Varaosanumero / OEM-numero (vapaaehtoinen)": "Part number / OEM number (optional)",
+    "Lisää jos tiedossa": "Add if known",
+    "Vedä ja pudota kuvat tähän": "Drag and drop images here",
+    "tai": "or",
+    "Valitse kuvat": "Choose images",
+    "PNG, JPG tai WEBP · isot kuvat muunnetaan automaattisesti 1080p-kokoon": "PNG, JPG or WEBP · large images are automatically converted to 1080p",
+    "Kuvavinkit": "Photo tips",
+    "Hyvä valaistus": "Good lighting",
+    "Käytä luonnonvaloa tai kirkasta sisävaloa.": "Use natural light or bright indoor lighting.",
+    "Tarkka ja selkeä": "Sharp and clear",
+    "Varmista, että kuva on terävä ja hyvälaatuinen.": "Make sure the image is sharp and high quality.",
+    "Näytä kaikki kulmat": "Show all angles",
+    "Lisää useampi kuva eri suunnista.": "Add several photos from different angles.",
+    "Otsikko ja kuvaus": "Title and description",
+    "Otsikko": "Title",
+    "Tämä on otsikko jos et itse otsikoi:": "This title is used if you do not write one:",
+    "Kuvaus": "Description",
+    "Kerro kunto, ominaisuudet, sopivuus ja muut tärkeät tiedot...": "Describe condition, features, compatibility and other important details...",
+    "Vinkit hyvään kuvaukseen": "Tips for a good description",
+    "Kerro tärkeimmät ominaisuudet": "Mention the most important features",
+    "Mainitse kunto": "Mention condition",
+    "Lisää sopivuustiedot": "Add compatibility details",
+    "Ole rehellinen ja tarkka": "Be honest and accurate",
+    "Tyyppi": "Type",
+    "Yksittäinen ilmoitus": "Single listing",
+    "Useampi ilmoitus": "Multiple listings",
+    "Hinta": "Price",
+    "Ei lisatty": "Not added",
+    "Kunto": "Condition",
+    "Kuvat": "Images",
+    "kpl": "pcs",
+    "Myyjä": "Seller",
+    "Valitsematta": "Not selected",
+    "Ajoneuvo": "Vehicle",
+    "Tekniikka": "Technical details",
+    "Kategoria": "Category",
+    "Sijainti": "Location",
+    "Varaosanumero": "Part number",
+    "Tarkista vielä tärkeimmät tiedot ennen kuin ilmoitus lähtee ostajille näkyviin.": "Review the most important details before the listing becomes visible to buyers.",
+    "Kuvausta ei ole viela lisatty.": "No description added yet."
+  },
+  sv: {
+    "Lähetys ja nouto": "Frakt och avhämtning",
+    "Lähetys": "Frakt",
+    "Nouto": "Avhämtning",
+    "Toimitustapa": "Leveranssätt",
+    "Lisää tuotetiedot": "Lägg till produktuppgifter",
+    "Varaosanumero / OEM-numero (vapaaehtoinen)": "Reservdelsnummer / OEM-nummer (valfritt)",
+    "Lisää jos tiedossa": "Lägg till om känt",
+    "Vedä ja pudota kuvat tähän": "Dra och släpp bilderna här",
+    "tai": "eller",
+    "Valitse kuvat": "Välj bilder",
+    "PNG, JPG tai WEBP · isot kuvat muunnetaan automaattisesti 1080p-kokoon": "PNG, JPG eller WEBP · stora bilder konverteras automatiskt till 1080p",
+    "Kuvavinkit": "Bildtips",
+    "Hyvä valaistus": "Bra belysning",
+    "Käytä luonnonvaloa tai kirkasta sisävaloa.": "Använd naturligt ljus eller stark inomhusbelysning.",
+    "Tarkka ja selkeä": "Skarp och tydlig",
+    "Varmista, että kuva on terävä ja hyvälaatuinen.": "Se till att bilden är skarp och av god kvalitet.",
+    "Näytä kaikki kulmat": "Visa alla vinklar",
+    "Lisää useampi kuva eri suunnista.": "Lägg till flera bilder från olika vinklar.",
+    "Otsikko ja kuvaus": "Rubrik och beskrivning",
+    "Otsikko": "Rubrik",
+    "Tämä on otsikko jos et itse otsikoi:": "Den här rubriken används om du inte skriver en egen:",
+    "Kuvaus": "Beskrivning",
+    "Kerro kunto, ominaisuudet, sopivuus ja muut tärkeät tiedot...": "Beskriv skick, egenskaper, kompatibilitet och andra viktiga uppgifter...",
+    "Vinkit hyvään kuvaukseen": "Tips för en bra beskrivning",
+    "Kerro tärkeimmät ominaisuudet": "Berätta de viktigaste egenskaperna",
+    "Mainitse kunto": "Nämn skicket",
+    "Lisää sopivuustiedot": "Lägg till kompatibilitetsuppgifter",
+    "Ole rehellinen ja tarkka": "Var ärlig och noggrann",
+    "Tyyppi": "Typ",
+    "Yksittäinen ilmoitus": "Enskild annons",
+    "Useampi ilmoitus": "Flera annonser",
+    "Hinta": "Pris",
+    "Ei lisatty": "Inte tillagt",
+    "Kunto": "Skick",
+    "Kuvat": "Bilder",
+    "kpl": "st",
+    "Myyjä": "Säljare",
+    "Valitsematta": "Inte valt",
+    "Ajoneuvo": "Fordon",
+    "Tekniikka": "Teknik",
+    "Kategoria": "Kategori",
+    "Sijainti": "Plats",
+    "Varaosanumero": "Reservdelsnummer",
+    "Tarkista vielä tärkeimmät tiedot ennen kuin ilmoitus lähtee ostajille näkyviin.": "Granska de viktigaste uppgifterna innan annonsen visas för köpare.",
+    "Kuvausta ei ole viela lisatty.": "Ingen beskrivning har lagts till ännu."
+  },
+  no: {
+    "Lähetys ja nouto": "Frakt og henting",
+    "Lähetys": "Frakt",
+    "Nouto": "Henting",
+    "Toimitustapa": "Leveringsmåte",
+    "Lisää tuotetiedot": "Legg til produktdetaljer",
+    "Varaosanumero / OEM-numero (vapaaehtoinen)": "Delenummer / OEM-nummer (valgfritt)",
+    "Lisää jos tiedossa": "Legg til hvis kjent",
+    "Vedä ja pudota kuvat tähän": "Dra og slipp bildene her",
+    "tai": "eller",
+    "Valitse kuvat": "Velg bilder",
+    "PNG, JPG tai WEBP · isot kuvat muunnetaan automaattisesti 1080p-kokoon": "PNG, JPG eller WEBP · store bilder konverteres automatisk til 1080p",
+    "Kuvavinkit": "Bildetips",
+    "Hyvä valaistus": "God belysning",
+    "Käytä luonnonvaloa tai kirkasta sisävaloa.": "Bruk naturlig lys eller sterkt innelys.",
+    "Tarkka ja selkeä": "Skarpt og tydelig",
+    "Varmista, että kuva on terävä ja hyvälaatuinen.": "Sørg for at bildet er skarpt og av god kvalitet.",
+    "Näytä kaikki kulmat": "Vis alle vinkler",
+    "Lisää useampi kuva eri suunnista.": "Legg til flere bilder fra ulike vinkler.",
+    "Otsikko ja kuvaus": "Tittel og beskrivelse",
+    "Otsikko": "Tittel",
+    "Tämä on otsikko jos et itse otsikoi:": "Denne tittelen brukes hvis du ikke skriver en selv:",
+    "Kuvaus": "Beskrivelse",
+    "Kerro kunto, ominaisuudet, sopivuus ja muut tärkeät tiedot...": "Beskriv tilstand, egenskaper, kompatibilitet og andre viktige detaljer...",
+    "Vinkit hyvään kuvaukseen": "Tips for en god beskrivelse",
+    "Kerro tärkeimmät ominaisuudet": "Fortell de viktigste egenskapene",
+    "Mainitse kunto": "Nevn tilstanden",
+    "Lisää sopivuustiedot": "Legg til kompatibilitetsinformasjon",
+    "Ole rehellinen ja tarkka": "Vær ærlig og nøyaktig",
+    "Tyyppi": "Type",
+    "Yksittäinen ilmoitus": "Enkelt annonse",
+    "Useampi ilmoitus": "Flere annonser",
+    "Hinta": "Pris",
+    "Ei lisatty": "Ikke lagt til",
+    "Kunto": "Tilstand",
+    "Kuvat": "Bilder",
+    "kpl": "stk",
+    "Myyjä": "Selger",
+    "Valitsematta": "Ikke valgt",
+    "Ajoneuvo": "Kjøretøy",
+    "Tekniikka": "Teknikk",
+    "Kategoria": "Kategori",
+    "Sijainti": "Sted",
+    "Varaosanumero": "Delenummer",
+    "Tarkista vielä tärkeimmät tiedot ennen kuin ilmoitus lähtee ostajille näkyviin.": "Kontroller de viktigste opplysningene før annonsen blir synlig for kjøpere.",
+    "Kuvausta ei ole viela lisatty.": "Ingen beskrivelse lagt til ennå."
+  },
+  et: {
+    "Lähetys ja nouto": "Saatmine ja järeletulemine",
+    "Lähetys": "Saatmine",
+    "Nouto": "Järeletulemine",
+    "Toimitustapa": "Tarneviis",
+    "Lisää tuotetiedot": "Lisa tooteandmed",
+    "Varaosanumero / OEM-numero (vapaaehtoinen)": "Varuosa number / OEM-number (valikuline)",
+    "Lisää jos tiedossa": "Lisa, kui teada",
+    "Vedä ja pudota kuvat tähän": "Lohista pildid siia",
+    "tai": "või",
+    "Valitse kuvat": "Vali pildid",
+    "PNG, JPG tai WEBP · isot kuvat muunnetaan automaattisesti 1080p-kokoon": "PNG, JPG või WEBP · suured pildid teisendatakse automaatselt 1080p suuruseks",
+    "Kuvavinkit": "Pildinõuanded",
+    "Hyvä valaistus": "Hea valgustus",
+    "Käytä luonnonvaloa tai kirkasta sisävaloa.": "Kasuta loomulikku valgust või eredat sisevalgust.",
+    "Tarkka ja selkeä": "Terav ja selge",
+    "Varmista, että kuva on terävä ja hyvälaatuinen.": "Veendu, et pilt oleks terav ja kvaliteetne.",
+    "Näytä kaikki kulmat": "Näita kõiki nurki",
+    "Lisää useampi kuva eri suunnista.": "Lisa mitu pilti eri suundadest.",
+    "Otsikko ja kuvaus": "Pealkiri ja kirjeldus",
+    "Otsikko": "Pealkiri",
+    "Tämä on otsikko jos et itse otsikoi:": "Seda pealkirja kasutatakse, kui sa ise pealkirja ei kirjuta:",
+    "Kuvaus": "Kirjeldus",
+    "Kerro kunto, ominaisuudet, sopivuus ja muut tärkeät tiedot...": "Kirjelda seisukorda, omadusi, sobivust ja muud olulist infot...",
+    "Vinkit hyvään kuvaukseen": "Hea kirjelduse nõuanded",
+    "Kerro tärkeimmät ominaisuudet": "Too välja olulisemad omadused",
+    "Mainitse kunto": "Maini seisukorda",
+    "Lisää sopivuustiedot": "Lisa sobivuse info",
+    "Ole rehellinen ja tarkka": "Ole aus ja täpne",
+    "Tyyppi": "Tüüp",
+    "Yksittäinen ilmoitus": "Üks kuulutus",
+    "Useampi ilmoitus": "Mitu kuulutust",
+    "Hinta": "Hind",
+    "Ei lisatty": "Lisamata",
+    "Kunto": "Seisukord",
+    "Kuvat": "Pildid",
+    "kpl": "tk",
+    "Myyjä": "Müüja",
+    "Valitsematta": "Valimata",
+    "Ajoneuvo": "Sõiduk",
+    "Tekniikka": "Tehnika",
+    "Kategoria": "Kategooria",
+    "Sijainti": "Asukoht",
+    "Varaosanumero": "Varuosa number",
+    "Tarkista vielä tärkeimmät tiedot ennen kuin ilmoitus lähtee ostajille näkyviin.": "Kontrolli tähtsaimad andmed enne, kui kuulutus ostjatele nähtavaks muutub.",
+    "Kuvausta ei ole viela lisatty.": "Kirjeldust pole veel lisatud."
+  }
+};
+
+function translateSell(locale: Locale, text: string) {
+  if (locale === "fi") return text;
+  return sellTranslations[locale][text] ?? text;
+}
 
 type UploadedImage = {
   id: string;
@@ -494,7 +691,7 @@ const vehicleBrandModels: Record<string, Record<string, string[]>> = {
     Polaris: ["IQR", "600R", "XCR", "Indy XC", "Indy VR1", "RMK", "Switchback", "Voyageur", "Titan", "Matryx"],
     "Arctic Cat": ["ZR 600 R-XC", "ZR 6000 R XC", "ZR 600", "M 8000", "Riot", "Norseman", "Pantera", "Blast"]
   },
-  "MÃ¶nkijÃ¤": {
+  "Mönkijä": {
     "Can-Am": ["Outlander", "Renegade", "Commander", "Maverick", "Traxter", "DS"],
     Polaris: ["Sportsman", "Scrambler", "Ranger", "RZR", "General", "Trail Boss"],
     Yamaha: ["Grizzly", "Kodiak", "YFZ", "Raptor", "Wolverine", "Viking"],
@@ -567,7 +764,7 @@ const vehicleModelEngines: Record<string, Record<string, Record<string, string[]
       Blast: ["C-TEC2 4000"]
     }
   },
-  "MÃƒÂ¶nkijÃƒÂ¤": {
+  "Mönkijä": {
     "Can-Am": {
       Outlander: ["Rotax 450", "Rotax 570", "Rotax 650", "Rotax 850", "Rotax 1000R"],
       Renegade: ["Rotax 650", "Rotax 850", "Rotax 1000R"],
@@ -1096,7 +1293,7 @@ function getBrandModelOptions(vehicleKey: string, brand: string, fallbackModels:
 }
 
 function getVehicleMap<T>(map: Record<string, T>, vehicleKey: string) {
-  return map[vehicleKey] ?? map[vehicleKey.replace("Ã¶", "ÃƒÂ¶").replace("Ã¤", "ÃƒÂ¤")];
+  return map[vehicleKey] ?? map[vehicleKey.replace("?", "\\u00f6").replace("?", "\\u00e4")];
 }
 
 function getModelEngineOptions(
@@ -1427,7 +1624,7 @@ function getMultiCategoryIcon(name: string) {
     return <Wrench size={18} aria-hidden="true" />;
   }
   if (normalized.includes("renka") || normalized.includes("vante")) return <CircleDot size={18} aria-hidden="true" />;
-  if (normalized.includes("jÃ¤Ã¤hdy") || normalized.includes("polttoaine")) return <Droplets size={18} aria-hidden="true" />;
+  if (normalized.includes("jäähdy") || normalized.includes("polttoaine")) return <Droplets size={18} aria-hidden="true" />;
   if (normalized.includes("akku")) return <BatteryCharging size={18} aria-hidden="true" />;
   if (normalized.includes("runko")) return <ShieldCheck size={18} aria-hidden="true" />;
   if (normalized.includes("sähkö")) return <Zap size={18} aria-hidden="true" />;
@@ -1441,6 +1638,8 @@ export default function SellPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const taxonomy = useTaxonomy();
+  const { locale } = useLanguage();
+  const st = useCallback((text: string) => translateSell(locale, text), [locale]);
   const garagePrefillAppliedRef = useRef(false);
   const shellRef = useRef<HTMLElement | null>(null);
   const vehicleContentRef = useRef<HTMLElement | null>(null);
@@ -2884,7 +3083,7 @@ export default function SellPage() {
   }
 
   function getDeliveryMethodLabel(method: DeliveryMethod = deliveryMethod) {
-    return deliveryMethodOptions.find((option) => option.value === method)?.label ?? "Lähetys ja nouto";
+    return deliveryMethodOptions.find((option) => option.value === method)?.label ?? "L\u00e4hetys ja nouto";
   }
 
   function appendDeliveryMethod(description: string) {
@@ -2900,16 +3099,16 @@ export default function SellPage() {
   function renderDeliveryMethodSelector() {
     return (
       <div className={styles.deliveryMethodField}>
-        <span>Toimitustapa</span>
+        <span>{st("Toimitustapa")}</span>
         <div className={styles.deliveryMethodSelectShell}>
           <select
             value={deliveryMethod}
             onChange={(event) => setDeliveryMethod(event.target.value as DeliveryMethod)}
-            aria-label="Toimitustapa"
+            aria-label={st("Toimitustapa")}
           >
             {deliveryMethodOptions.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.label}
+                {st(option.label)}
               </option>
             ))}
           </select>
@@ -4428,10 +4627,10 @@ export default function SellPage() {
             <span className={styles.photoUploadIcon} aria-hidden="true">
               <Camera size={30} />
             </span>
-            <strong>Vedä ja pudota kuvat tähän</strong>
-            <small>tai</small>
-            <span className={styles.photoChooseButton}>Valitse kuvat</span>
-            <em>PNG, JPG tai WEBP · isot kuvat muunnetaan automaattisesti 1080p-kokoon</em>
+            <strong>{st("Ved\u00e4 ja pudota kuvat t\u00e4h\u00e4n")}</strong>
+            <small>{st("tai")}</small>
+            <span className={styles.photoChooseButton}>{st("Valitse kuvat")}</span>
+            <em>{st("PNG, JPG tai WEBP \u00b7 isot kuvat muunnetaan automaattisesti 1080p-kokoon")}</em>
           </label>
 
           {uploadedImages.length > 0 ? (
@@ -4468,20 +4667,20 @@ export default function SellPage() {
             </div>
           ) : null}
 
-          <section className={styles.photoTips} aria-label="Kuvavinkit">
+          <section className={styles.photoTips} aria-label={st("Kuvavinkit")}>
             <div>
-              <strong>Hyvä valaistus</strong>
-              <p>Käytä luonnonvaloa tai kirkasta sisävaloa.</p>
+              <strong>{st("Hyv\u00e4 valaistus")}</strong>
+              <p>{st("K\u00e4yt\u00e4 luonnonvaloa tai kirkasta sis\u00e4valoa.")}</p>
             </div>
             <div>
               <Check size={20} aria-hidden="true" />
-              <strong>Tarkka ja selkeä</strong>
-              <p>Varmista, että kuva on terävä ja hyvälaatuinen.</p>
+              <strong>{st("Tarkka ja selke\u00e4")}</strong>
+              <p>{st("Varmista, ett\u00e4 kuva on ter\u00e4v\u00e4 ja hyv\u00e4laatuinen.")}</p>
             </div>
             <div>
               <Camera size={20} aria-hidden="true" />
-              <strong>Näytä kaikki kulmat</strong>
-              <p>Lisää useampi kuva eri suunnista.</p>
+              <strong>{st("N\u00e4yt\u00e4 kaikki kulmat")}</strong>
+              <p>{st("Lis\u00e4\u00e4 useampi kuva eri suunnista.")}</p>
             </div>
           </section>
         </div>
@@ -4490,10 +4689,10 @@ export default function SellPage() {
 
     if (mode === "single" && currentStep === 6) {
       return (
-        <section className={styles.detailsPanel} aria-label="Otsikko ja kuvaus">
+        <section className={styles.detailsPanel} aria-label={st("Otsikko ja kuvaus")}>
           <label className={styles.detailsField}>
             <span>
-              <strong>Otsikko</strong>
+              <strong>{st("Otsikko")}</strong>
               <em>{listingTitle.length} / 80</em>
             </span>
             <input
@@ -4503,13 +4702,13 @@ export default function SellPage() {
               placeholder="Esim. Ski-Doo variaattori 850 E-TEC"
             />
             <small className={styles.automaticTitleHint}>
-              Tämä on otsikko jos et itse otsikoi: {getAutomaticListingTitle()}
+              {st("T\u00e4m\u00e4 on otsikko jos et itse otsikoi:")} {getAutomaticListingTitle()}
             </small>
           </label>
 
           <label className={styles.detailsField}>
             <span>
-              <strong>Kuvaus</strong>
+              <strong>{st("Kuvaus")}</strong>
               <em>{listingDescription.length} / 5000</em>
             </span>
             <textarea
@@ -4519,23 +4718,23 @@ export default function SellPage() {
               placeholder={
                 selectedSinglePartNeedsTrackMatDimensions
                   ? "Kirjoita telamaton mitat, kunto, sopivuus ja muut tärkeät tiedot..."
-                  : "Kerro kunto, ominaisuudet, sopivuus ja muut tärkeät tiedot..."
+                  : st("Kerro kunto, ominaisuudet, sopivuus ja muut t\u00e4rke\u00e4t tiedot...")
               }
             />
           </label>
 
-          <section className={styles.descriptionTips} aria-label="Vinkit hyvään kuvaukseen">
+          <section className={styles.descriptionTips} aria-label={st("Vinkit hyv\u00e4\u00e4n kuvaukseen")}>
             <h2>
-              Vinkit hyvään kuvaukseen
+              {st("Vinkit hyv\u00e4\u00e4n kuvaukseen")}
             </h2>
             <div>
-              <span><Check size={18} aria-hidden="true" /> Kerro tärkeimmät ominaisuudet</span>
-              <span><Check size={18} aria-hidden="true" /> Mainitse kunto</span>
+              <span><Check size={18} aria-hidden="true" /> {st("Kerro t\u00e4rkeimm\u00e4t ominaisuudet")}</span>
+              <span><Check size={18} aria-hidden="true" /> {st("Mainitse kunto")}</span>
               {selectedSinglePartNeedsTrackMatDimensions ? (
                 <span><Check size={18} aria-hidden="true" /> Kirjoita telamaton mitat</span>
               ) : null}
-              <span><Check size={18} aria-hidden="true" /> Lisää sopivuustiedot</span>
-              <span><Check size={18} aria-hidden="true" /> Ole rehellinen ja tarkka</span>
+              <span><Check size={18} aria-hidden="true" /> {st("Lis\u00e4\u00e4 sopivuustiedot")}</span>
+              <span><Check size={18} aria-hidden="true" /> {st("Ole rehellinen ja tarkka")}</span>
             </div>
           </section>
         </section>
@@ -4559,21 +4758,21 @@ export default function SellPage() {
       selectedDetailCategory
     ]).join(" / ");
     const publishStats = [
-      { label: "Tyyppi", value: mode === "single" ? "Yksittainen ilmoitus" : "Useampi ilmoitus" },
-      { label: "Hinta", value: listingPrice.trim() ? `${listingPrice.trim()} euroa` : "Ei lisatty" },
-      { label: "Kunto", value: condition || "Ei lisatty" },
-      { label: "Kuvat", value: `${uploadedImages.length} kpl` },
+      { label: st("Tyyppi"), value: mode === "single" ? st("Yksitt\u00e4inen ilmoitus") : st("Useampi ilmoitus") },
+      { label: st("Hinta"), value: listingPrice.trim() ? `${listingPrice.trim()} euroa` : st("Ei lisatty") },
+      { label: st("Kunto"), value: condition ? st(condition) : st("Ei lisatty") },
+      { label: st("Kuvat"), value: `${uploadedImages.length} ${st("kpl")}` },
       ...(isCompanyAccount
-        ? [{ label: "Myyjä", value: selectedCompanySeller?.name ?? "Valitsematta" }]
+        ? [{ label: st("Myyj\u00e4"), value: selectedCompanySeller?.name ?? st("Valitsematta") }]
         : [])
     ];
     const publishRows = [
-      { label: "Ajoneuvo", value: vehicleSummary || "Ei lisatty" },
-      { label: "Tekniikka", value: technicalSummary || "Ei lisatty" },
-      { label: "Kategoria", value: categorySummary || "Ei lisatty" },
-      { label: "Sijainti", value: buildListingLocation(listingLocation, profileCity, profileCountry) || "Ei lisatty" },
-      { label: "Toimitustapa", value: getDeliveryMethodLabel() },
-      { label: "Varaosanumero", value: partNumber.trim() || "Ei lisatty" }
+      { label: st("Ajoneuvo"), value: vehicleSummary || st("Ei lisatty") },
+      { label: st("Tekniikka"), value: technicalSummary || st("Ei lisatty") },
+      { label: st("Kategoria"), value: categorySummary || st("Ei lisatty") },
+      { label: st("Sijainti"), value: buildListingLocation(listingLocation, profileCity, profileCountry) || st("Ei lisatty") },
+      { label: st("Toimitustapa"), value: st(getDeliveryMethodLabel()) },
+      { label: st("Varaosanumero"), value: partNumber.trim() || st("Ei lisatty") }
     ];
 
     return (
@@ -4584,7 +4783,7 @@ export default function SellPage() {
           </span>
           <div>
             <strong>{mode === "single" ? "Ilmoitus valmis julkaistavaksi" : "Ilmoitukset valmiina julkaisuun"}</strong>
-            <p>Tarkista viela tarkeimmat tiedot ennen kuin ilmoitus lahtee ostajille nakyviin.</p>
+            <p>{st("Tarkista viel\u00e4 t\u00e4rkeimm\u00e4t tiedot ennen kuin ilmoitus l\u00e4htee ostajille n\u00e4kyviin.")}</p>
           </div>
         </div>
 
@@ -4630,7 +4829,7 @@ export default function SellPage() {
           <div className={styles.publishTitleBlock}>
             <span>Otsikko</span>
             <strong>{listingTitle.trim() || getAutomaticListingTitle()}</strong>
-            <p>{listingDescription.trim() || "Kuvausta ei ole viela lisatty."}</p>
+            <p>{listingDescription.trim() || st("Kuvausta ei ole viela lisatty.")}</p>
           </div>
 
           <div className={styles.publishRows}>
