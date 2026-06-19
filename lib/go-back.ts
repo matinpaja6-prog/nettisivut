@@ -43,11 +43,15 @@ function writeInternalHistoryStack(stack: string[]) {
   }
 }
 
+function isMessagesRedirectHref(href: string) {
+  return /^\/messages\/[^/?#]+/.test(href);
+}
+
 export function rememberInternalPageVisit(href: string) {
   if (typeof window === "undefined") return;
 
   const normalizedHref = normalizeHref(href);
-  if (!normalizedHref) return;
+  if (!normalizedHref || isMessagesRedirectHref(normalizedHref)) return;
 
   const stack = readInternalHistoryStack();
   let backPending = false;
@@ -88,7 +92,10 @@ export function goBackOrFallback(
   const currentHref = normalizeHref(window.location.href);
   const stack = readInternalHistoryStack();
 
-  while (stack.length > 0 && stack.at(-1) === currentHref) {
+  while (
+    stack.length > 0 &&
+    (stack.at(-1) === currentHref || isMessagesRedirectHref(stack.at(-1) ?? ""))
+  ) {
     stack.pop();
   }
 

@@ -952,6 +952,14 @@ export default function MessagesPage() {
     selectedConversationId
   ]);
 
+  function closeMobileConversation() {
+    setMobileConversationOpen(false);
+
+    if (requestedConversationId) {
+      router.replace("/messages");
+    }
+  }
+
   function deleteConversationForMe(conversationId: string) {
     if (!userId) {
       return;
@@ -1561,7 +1569,7 @@ export default function MessagesPage() {
                   type="button"
                   className="mobile-chat-back"
                   aria-label="Takaisin keskusteluihin"
-                  onClick={() => setMobileConversationOpen(false)}
+                  onClick={closeMobileConversation}
                 >
                   <ArrowLeft size={17} />
                 </button>
