@@ -4060,12 +4060,14 @@
 }
 
 .feedbackRating {
-  background: #0a2947;
+  background:
+    radial-gradient(240px 110px at 88% 0%, rgba(255, 122, 26, 0.12), transparent 70%),
+    #0a2947;
   border: 1px solid rgba(255, 122, 26, 0.72);
   border-radius: 12px;
   display: grid;
   gap: 10px;
-  padding: 14px;
+  padding: 16px;
 }
 
 .feedbackRating > span {
@@ -4076,27 +4078,38 @@
 
 .feedbackRating div {
   display: flex;
-  gap: 5px;
+  gap: 8px;
 }
 
 .feedbackRating button {
   align-items: center;
-  background: rgba(6, 18, 30, 0.82);
-  border: 1px solid rgba(112, 154, 195, 0.28);
-  border-radius: 9px;
-  color: rgba(169, 190, 211, 0.6);
+  background: rgba(3, 12, 24, 0.72);
+  border: 1px solid rgba(255, 122, 26, 0.32);
+  border-radius: 999px;
+  color: rgba(255, 138, 42, 0.38);
   cursor: pointer;
   display: inline-flex;
-  height: 36px;
+  height: 42px;
   justify-content: center;
   padding: 0;
-  width: 36px;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+  width: 42px;
 }
 
 .feedbackRating button:hover,
 .feedbackRating button.feedbackStarActive {
+  background: rgba(255, 122, 26, 0.14);
   border-color: rgba(255, 122, 26, 0.92);
   color: #ff8a2a;
+  box-shadow:
+    0 0 0 1px rgba(255, 122, 26, 0.14),
+    0 8px 22px rgba(255, 122, 26, 0.22);
+  transform: translateY(-1px);
 }
 
 .feedbackComment {
@@ -4111,17 +4124,26 @@
 }
 
 .feedbackComment textarea {
-  background: #061827;
-  border: 1px solid rgba(112, 154, 195, 0.38);
+  background:
+    linear-gradient(180deg, rgba(6, 24, 39, 0.98), rgba(3, 14, 25, 0.98)) !important;
+  border: 1px solid rgba(255, 122, 26, 0.44);
   border-radius: 12px;
-  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(160, 205, 246, 0.08);
+  color: #f8fbff !important;
   min-height: 100px;
   padding: 13px 14px;
   resize: vertical;
 }
 
+.feedbackComment textarea::placeholder {
+  color: rgba(210, 226, 241, 0.42);
+}
+
 .feedbackComment textarea:focus {
   border-color: rgba(255, 122, 26, 0.9);
+  box-shadow:
+    0 0 0 3px rgba(255, 122, 26, 0.16),
+    inset 0 1px 0 rgba(160, 205, 246, 0.08);
   outline: none;
 }
 
