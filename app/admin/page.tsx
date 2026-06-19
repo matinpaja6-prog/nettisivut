@@ -30,6 +30,7 @@ import {
 
 import AppearancePanel from "./AppearancePanel";
 import CategoriesPanel from "./CategoriesPanel";
+import { sanitizePhoneInput } from "@/lib/phone-input";
 import { listingPath, listingUrlId } from "@/lib/routes";
 
 import {
@@ -2424,7 +2425,14 @@ function ConfirmDialogs({
             </p>
             <label>
               Puhelinnumero (jätä tyhjäksi pitääksesi nykyisen)
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+358..." />
+              <input
+                type="tel"
+                inputMode="tel"
+                pattern="[+0-9]*"
+                value={phone}
+                onChange={(e) => setPhone(sanitizePhoneInput(e.target.value))}
+                placeholder="+358..."
+              />
             </label>
             <div className={styles.modalActions}>
               <button type="button" className={styles.ghostBtn} onClick={onClose}>Peruuta</button>

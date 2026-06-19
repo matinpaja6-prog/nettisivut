@@ -4,6 +4,7 @@ import { FormEvent, PointerEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/lib/i18n";
+import { sanitizePhoneInput } from "@/lib/phone-input";
 import { profilePath } from "@/lib/routes";
 
 import {
@@ -160,10 +161,7 @@ function formatPhoneChangeUnlockDate(value: Date) {
 }
 
 function normalizePhoneNumber(value: string) {
-  const compact =
-    value
-      .trim()
-      .replace(/[\s().-]/g, "");
+  const compact = sanitizePhoneInput(value.trim());
 
   if (!compact) return "";
   if (compact.startsWith("+")) return compact;
@@ -822,7 +820,10 @@ export default function ProfilePage() {
 
     setSellerStatus("Tallennetaan myyjää...");
     const { data, error } =
-      await createCompanySeller(profile.id, sellerDraft);
+      await createCompanySeller(profile.id, {
+        ...sellerDraft,
+        phone: normalizePhoneNumber(sellerDraft.phone)
+      });
     if (error || !data) {
       setSellerStatus(getPhoneDatabaseErrorMessage(error));
       return;
@@ -1557,8 +1558,11 @@ export default function ProfilePage() {
                               placeholder={profileText.sellerName}
                             />
                             <input
+                              type="tel"
+                              inputMode="tel"
+                              pattern="[+0-9]*"
                               value={sellerEditDraft.phone}
-                              onChange={(event) => setSellerEditDraft({ ...sellerEditDraft, phone: event.target.value })}
+                              onChange={(event) => setSellerEditDraft({ ...sellerEditDraft, phone: sanitizePhoneInput(event.target.value) })}
                               placeholder="+358401234567"
                             />
                           </div>
@@ -1626,9 +1630,12 @@ export default function ProfilePage() {
                       <label>
                         {profileText.phoneNumber}
                         <input
+                          type="tel"
+                          inputMode="tel"
+                          pattern="[+0-9]*"
                           value={sellerDraft.phone}
                           disabled={companySellers.length >= 8}
-                          onChange={(event) => setSellerDraft({ ...sellerDraft, phone: event.target.value })}
+                          onChange={(event) => setSellerDraft({ ...sellerDraft, phone: sanitizePhoneInput(event.target.value) })}
                           placeholder="+358401234567"
                         />
                       </label>
@@ -1985,9 +1992,12 @@ export default function ProfilePage() {
             <div className="pf-phone-edit">
               <input
                 ref={phoneInputRef}
+                type="tel"
+                inputMode="tel"
+                pattern="[+0-9]*"
                 value={phoneDraft}
                 onChange={(event) =>
-                  setPhoneDraft(event.target.value)
+                  setPhoneDraft(sanitizePhoneInput(event.target.value))
                 }
                 placeholder="+358401234567"
               />

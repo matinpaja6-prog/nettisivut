@@ -5,6 +5,7 @@ import Link from "next/link";
 import OptimizedListingImage from "@/app/components/OptimizedListingImage";
 import { translateCategory, useLanguage } from "@/lib/i18n";
 import { listingPath, listingUrlId } from "@/lib/routes";
+import { sanitizePhoneInput } from "@/lib/phone-input";
 
 import {
   ArrowUp,
@@ -1382,6 +1383,7 @@ export default function MyListingsPage() {
       active: Listing[];
       sold: SoldListing[];
       completed: boolean;
+      hasMultiListing: boolean;
       latestAt: string;
     }>();
 
@@ -1394,9 +1396,11 @@ export default function MyListingsPage() {
         active: [],
         sold: [],
         completed: false,
+        hasMultiListing: listing.listing_mode === "multiple",
         latestAt: listing.created_at || ""
       };
       group.active.push(listing);
+      group.hasMultiListing ||= listing.listing_mode === "multiple";
       if ((listing.created_at || "") > group.latestAt) group.latestAt = listing.created_at || "";
       groupMap.set(key, group);
     }
@@ -1410,9 +1414,11 @@ export default function MyListingsPage() {
         active: [],
         sold: [],
         completed: false,
+        hasMultiListing: sold.listing_mode === "multiple",
         latestAt: sold.sold_at || sold.created_at || ""
       };
       group.sold.push(sold);
+      group.hasMultiListing ||= sold.listing_mode === "multiple";
       const soldAt = sold.sold_at || sold.created_at || "";
       if (soldAt > group.latestAt) group.latestAt = soldAt;
       groupMap.set(key, group);
@@ -1425,6 +1431,9 @@ export default function MyListingsPage() {
       }))
       .filter((group) => {
         if (group.completed && dismissedCompletedGroupKeys.has(group.key)) return false;
+        const totalListings = group.active.length + group.sold.length;
+        const isMultiGroup = group.hasMultiListing || totalListings >= 2;
+        if (!isMultiGroup) return false;
         if (group.active.length >= 2) return true;
         if (group.active.length > 0 && group.sold.length > 0) return true;
         return group.completed && isWithinHours(group.latestAt, 12);
@@ -2419,9 +2428,12 @@ export default function MyListingsPage() {
                   <div className="delete-phone-lookup">
                     <div className="delete-phone-lookup-row">
                       <input
+                        type="tel"
+                        inputMode="tel"
+                        pattern="[+0-9]*"
                         value={buyerPhone}
                         onChange={(event) => {
-                          setBuyerPhone(event.target.value);
+                          setBuyerPhone(sanitizePhoneInput(event.target.value));
                           setPhoneBuyer(null);
                           setPhoneLookupStatus("");
                         }}

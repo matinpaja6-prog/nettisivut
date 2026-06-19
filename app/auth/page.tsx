@@ -8,6 +8,7 @@ import type { User } from "@supabase/supabase-js";
 import { BirthDateField } from "@/app/components/BirthDateField";
 import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage, type Locale } from "@/lib/i18n";
+import { sanitizePhoneDigits, sanitizePhoneInput } from "@/lib/phone-input";
 import {
   awardReferralPoints,
   getProfile,
@@ -180,8 +181,7 @@ const countryValueByFinnishName: Record<string, string> = {
 };
 
 function compactPhone(value: string) {
-  const cleaned =
-    value.replace(/[^\d+]/g, "");
+  const cleaned = sanitizePhoneInput(value);
 
   if (cleaned.startsWith("00")) {
     return `+${cleaned.slice(2)}`;
@@ -1418,6 +1418,7 @@ function AuthPageContent() {
                         required
                         type="tel"
                         inputMode="tel"
+                        pattern="[0-9]*"
                         autoComplete="tel-national"
                         name="tel-national"
                         value={phoneParts.national}
@@ -1425,7 +1426,7 @@ function AuthPageContent() {
                           setPhoneDialingCode(phoneParts.code);
                           setForm({
                             ...form,
-                            phone: buildPhoneNumber(phoneParts.code, event.target.value)
+                            phone: buildPhoneNumber(phoneParts.code, sanitizePhoneDigits(event.target.value))
                           });
                         }}
                         placeholder="401234567"
