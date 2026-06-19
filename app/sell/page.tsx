@@ -5952,10 +5952,10 @@ function ListingCreationFeedbackModal({
   onDone: () => void;
 }) {
   const [ratings, setRatings] = useState({
-    categoryRating: 0,
-    detailsRating: 0,
-    photosRating: 0,
-    overallRating: 0
+    categoryRating: 1,
+    detailsRating: 1,
+    photosRating: 1,
+    overallRating: 1
   });
   const [comment, setComment] = useState("");
   const [saving, setSaving] = useState(false);
@@ -6076,7 +6076,7 @@ function FeedbackRating({
             key={rating}
             type="button"
             className={rating <= value ? styles.feedbackStarActive : ""}
-            onClick={() => onChange(rating)}
+            onClick={() => onChange(rating === value ? Math.max(1, rating - 1) : rating)}
             aria-label={`${label}: ${rating} tähteä`}
           >
             <Star size={22} fill="currentColor" />
