@@ -803,6 +803,74 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
 };
 
 Object.assign(extraSellTranslations.en, {
+  "Ensimmäinen ilmoitus julkaistu": "First listing published",
+  "Arvioi ilmoituksen luonti": "Rate the listing creation",
+  "Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.": "Give a quick rating for the category, details and photo upload. You will see the listing right after this.",
+  "Kategorian valinta": "Category selection",
+  "Tuotetietojen lisääminen": "Adding product details",
+  "Kuvien lisääminen": "Adding photos",
+  "Kokonaisuus": "Overall",
+  "Kommentti ylläpidolle (vapaaehtoinen)": "Comment for support (optional)",
+  "Mikä toimi hyvin tai mikä tuntui hankalalta?": "What worked well or felt difficult?",
+  "Ohita": "Skip",
+  "Tallennetaan...": "Saving...",
+  "Lähetä arvio": "Send rating",
+  "Anna ainakin kokonaisarvio tähdillä.": "Give at least an overall star rating.",
+  "Arvion tallennus epäonnistui.": "Saving the rating failed."
+});
+
+Object.assign(extraSellTranslations.sv, {
+  "Ensimmäinen ilmoitus julkaistu": "Första annonsen publicerad",
+  "Arvioi ilmoituksen luonti": "Betygsätt skapandet av annonsen",
+  "Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.": "Ge ett snabbt betyg för kategori, uppgifter och bilduppladdning. Du ser annonsen direkt efter detta.",
+  "Kategorian valinta": "Kategorival",
+  "Tuotetietojen lisääminen": "Lägga till produktuppgifter",
+  "Kuvien lisääminen": "Lägga till bilder",
+  "Kokonaisuus": "Helhet",
+  "Kommentti ylläpidolle (vapaaehtoinen)": "Kommentar till supporten (valfritt)",
+  "Mikä toimi hyvin tai mikä tuntui hankalalta?": "Vad fungerade bra eller kändes svårt?",
+  "Ohita": "Hoppa över",
+  "Tallennetaan...": "Sparar...",
+  "Lähetä arvio": "Skicka betyg",
+  "Anna ainakin kokonaisarvio tähdillä.": "Ge åtminstone ett helhetsbetyg med stjärnor.",
+  "Arvion tallennus epäonnistui.": "Det gick inte att spara betyget."
+});
+
+Object.assign(extraSellTranslations.no, {
+  "Ensimmäinen ilmoitus julkaistu": "Første annonse publisert",
+  "Arvioi ilmoituksen luonti": "Vurder opprettelsen av annonsen",
+  "Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.": "Gi en rask vurdering av kategori, opplysninger og bildeopplasting. Du ser annonsen rett etter dette.",
+  "Kategorian valinta": "Kategorivalg",
+  "Tuotetietojen lisääminen": "Legge til produktopplysninger",
+  "Kuvien lisääminen": "Legge til bilder",
+  "Kokonaisuus": "Helhet",
+  "Kommentti ylläpidolle (vapaaehtoinen)": "Kommentar til support (valgfritt)",
+  "Mikä toimi hyvin tai mikä tuntui hankalalta?": "Hva fungerte bra eller føltes vanskelig?",
+  "Ohita": "Hopp over",
+  "Tallennetaan...": "Lagrer...",
+  "Lähetä arvio": "Send vurdering",
+  "Anna ainakin kokonaisarvio tähdillä.": "Gi minst en samlet stjernevurdering.",
+  "Arvion tallennus epäonnistui.": "Kunne ikke lagre vurderingen."
+});
+
+Object.assign(extraSellTranslations.et, {
+  "Ensimmäinen ilmoitus julkaistu": "Esimene kuulutus avaldatud",
+  "Arvioi ilmoituksen luonti": "Hinda kuulutuse loomist",
+  "Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.": "Anna kiire hinnang kategooriale, andmetele ja piltide lisamisele. Näed kuulutust kohe pärast seda.",
+  "Kategorian valinta": "Kategooria valik",
+  "Tuotetietojen lisääminen": "Tooteandmete lisamine",
+  "Kuvien lisääminen": "Piltide lisamine",
+  "Kokonaisuus": "Üldhinnang",
+  "Kommentti ylläpidolle (vapaaehtoinen)": "Kommentaar toele (valikuline)",
+  "Mikä toimi hyvin tai mikä tuntui hankalalta?": "Mis toimis hästi või tundus keeruline?",
+  "Ohita": "Jäta vahele",
+  "Tallennetaan...": "Salvestatakse...",
+  "Lähetä arvio": "Saada hinnang",
+  "Anna ainakin kokonaisarvio tähdillä.": "Anna vähemalt üldine tärnihinnang.",
+  "Arvion tallennus epäonnistui.": "Hinnangu salvestamine ebaõnnestus."
+});
+
+Object.assign(extraSellTranslations.en, {
   "Monikategoriointi": "Multi-categorization",
   "Valitse koko ajoneuvo tai poimi myytÃ¤vÃ¤t osat pÃ¤Ã¤kategorian ja alakategorian kautta.": "Select the whole vehicle or pick the parts for sale through main and subcategories.",
   "valittu": "selected",
@@ -5862,6 +5930,7 @@ export default function SellPage() {
       {feedbackPrompt ? (
         <ListingCreationFeedbackModal
           prompt={feedbackPrompt}
+          translate={st}
           onDone={() => {
             const href = feedbackPrompt.returnHref;
             setFeedbackPrompt(null);
@@ -5875,9 +5944,11 @@ export default function SellPage() {
 
 function ListingCreationFeedbackModal({
   prompt,
+  translate,
   onDone
 }: {
   prompt: ListingFeedbackPrompt;
+  translate: (text: string) => string;
   onDone: () => void;
 }) {
   const [ratings, setRatings] = useState({
@@ -5891,11 +5962,12 @@ function ListingCreationFeedbackModal({
   const [error, setError] = useState("");
 
   const canSubmit = ratings.overallRating > 0;
+  const tt = translate;
 
   async function save(skipped = false) {
     if (saving) return;
     if (!skipped && !canSubmit) {
-      setError("Anna ainakin kokonaisarvio tähdillä.");
+      setError(tt("Anna ainakin kokonaisarvio tähdillä."));
       return;
     }
 
@@ -5919,7 +5991,7 @@ function ListingCreationFeedbackModal({
       });
 
       if (saveError) {
-        setError(saveError instanceof Error ? saveError.message : "Arvion tallennus epäonnistui.");
+        setError(saveError instanceof Error ? saveError.message : tt("Arvion tallennus epäonnistui."));
         return;
       }
 
@@ -5935,40 +6007,40 @@ function ListingCreationFeedbackModal({
         <div className={styles.feedbackIcon} aria-hidden="true">
           <Star size={26} />
         </div>
-        <span>Ensimmäinen ilmoitus julkaistu</span>
-        <h2 id="listing-feedback-title">Arvioi ilmoituksen luonti</h2>
-        <p>Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.</p>
+        <span>{tt("Ensimmäinen ilmoitus julkaistu")}</span>
+        <h2 id="listing-feedback-title">{tt("Arvioi ilmoituksen luonti")}</h2>
+        <p>{tt("Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.")}</p>
 
         <div className={styles.feedbackRatingGrid}>
           <FeedbackRating
-            label="Kategorian valinta"
+            label={tt("Kategorian valinta")}
             value={ratings.categoryRating}
             onChange={(value) => setRatings((current) => ({ ...current, categoryRating: value }))}
           />
           <FeedbackRating
-            label="Tuotetietojen lisääminen"
+            label={tt("Tuotetietojen lisääminen")}
             value={ratings.detailsRating}
             onChange={(value) => setRatings((current) => ({ ...current, detailsRating: value }))}
           />
           <FeedbackRating
-            label="Kuvien lisääminen"
+            label={tt("Kuvien lisääminen")}
             value={ratings.photosRating}
             onChange={(value) => setRatings((current) => ({ ...current, photosRating: value }))}
           />
           <FeedbackRating
-            label="Kokonaisuus"
+            label={tt("Kokonaisuus")}
             value={ratings.overallRating}
             onChange={(value) => setRatings((current) => ({ ...current, overallRating: value }))}
           />
         </div>
 
         <label className={styles.feedbackComment}>
-          <span>Kommentti ylläpidolle (vapaaehtoinen)</span>
+          <span>{tt("Kommentti ylläpidolle (vapaaehtoinen)")}</span>
           <textarea
             value={comment}
             onChange={(event) => setComment(event.target.value)}
             maxLength={700}
-            placeholder="Mikä toimi hyvin tai mikä tuntui hankalalta?"
+            placeholder={tt("Mikä toimi hyvin tai mikä tuntui hankalalta?")}
           />
         </label>
 
@@ -5976,10 +6048,10 @@ function ListingCreationFeedbackModal({
 
         <div className={styles.feedbackActions}>
           <button type="button" onClick={() => void save(true)} disabled={saving}>
-            Ohita
+            {tt("Ohita")}
           </button>
           <button type="button" onClick={() => void save(false)} disabled={saving || !canSubmit}>
-            {saving ? "Tallennetaan..." : "Lähetä arvio"}
+            {saving ? tt("Tallennetaan...") : tt("Lähetä arvio")}
           </button>
         </div>
       </section>

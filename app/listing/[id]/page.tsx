@@ -451,6 +451,48 @@ const listingExtraText: Record<
   }
 };
 
+function translateDeliveryMethod(locale: Locale, value: string) {
+  const normalized = value.trim().toLowerCase();
+  const key =
+    normalized.includes("nouto") && (normalized.includes("lähetys") || normalized.includes("lÃ¤hetys"))
+      ? "both"
+      : normalized.includes("nouto")
+        ? "pickup"
+        : normalized.includes("lähetys") || normalized.includes("lÃ¤hetys")
+          ? "shipping"
+          : "";
+
+  const labels = {
+    fi: {
+      both: "Lähetys ja nouto",
+      shipping: "Lähetys",
+      pickup: "Nouto"
+    },
+    en: {
+      both: "Shipping and pickup",
+      shipping: "Shipping",
+      pickup: "Pickup"
+    },
+    sv: {
+      both: "Frakt och avhämtning",
+      shipping: "Frakt",
+      pickup: "Avhämtning"
+    },
+    no: {
+      both: "Frakt og henting",
+      shipping: "Frakt",
+      pickup: "Henting"
+    },
+    et: {
+      both: "Saatmine ja järeletulemine",
+      shipping: "Saatmine",
+      pickup: "Järeletulemine"
+    }
+  } satisfies Record<Locale, Record<string, string>>;
+
+  return key ? labels[locale][key] : translateCategory(locale, value);
+}
+
 export default function ListingPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -1521,7 +1563,7 @@ export default function ListingPage() {
                 </span>
                 <span>
                   <strong>{extraUi.delivery}</strong>
-                  {listingDeliveryMethod ? translateCategory(locale, listingDeliveryMethod) : ui.notSpecified}
+                  {listingDeliveryMethod ? translateDeliveryMethod(locale, listingDeliveryMethod) : ui.notSpecified}
                 </span>
               </div>
 
