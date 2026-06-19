@@ -14,6 +14,7 @@ const LANGUAGES: Array<{ code: Locale; country: string; flag: string; language: 
 
 const STORAGE_PREFIX = "visitor-language:";
 const RETURN_PATH_KEY = "visitor-language-return-path";
+const FORCE_PROMPT_PARAM = "languagePrompt";
 
 type VisitorLanguageResponse = {
   fingerprint?: string;
@@ -80,6 +81,8 @@ export default function VisitorLanguageGate() {
   useEffect(() => {
     let cancelled = false;
     let openTimer: ReturnType<typeof setTimeout> | undefined;
+    const params = new URLSearchParams(window.location.search);
+    const forcePromptOnce = params.get(FORCE_PROMPT_PARAM) === "1";
 
     fetch("/api/visitor-language", { cache: "no-store" })
       .then((response) => response.json() as Promise<VisitorLanguageResponse>)
@@ -87,6 +90,21 @@ export default function VisitorLanguageGate() {
         if (cancelled || !nextFingerprint) return;
 
         setFingerprint(nextFingerprint);
+        if (forcePromptOnce) {
+          localStorage.removeItem(`${STORAGE_PREFIX}${nextFingerprint}`);
+          params.delete(FORCE_PROMPT_PARAM);
+          const nextSearch = params.toString();
+          window.history.replaceState(
+            null,
+            "",
+            `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""}${window.location.hash}`
+          );
+          openTimer = setTimeout(() => {
+            if (!cancelled) setOpen(true);
+          }, 450);
+          return;
+        }
+
         if (isLocale(selectedLocale)) {
           localStorage.setItem(`${STORAGE_PREFIX}${nextFingerprint}`, selectedLocale);
           applyLocale(selectedLocale);
