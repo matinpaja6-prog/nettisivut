@@ -16,7 +16,8 @@ type AdminActionBody =
   | { action: "unban-ip"; ip?: string }
   | { action: "delete-listing"; listingId?: string; reason?: string | null }
   | { action: "list-profiles"; query?: string; limit?: number; offset?: number }
-  | { action: "list-banned-ips" };
+  | { action: "list-banned-ips" }
+  | { action: "list-listing-feedback" };
 
 function getBearerToken(request: Request) {
   const header = request.headers.get("authorization") ?? "";
@@ -259,6 +260,68 @@ export async function POST(request: Request) {
 
       if (error) throw error;
       return NextResponse.json({ data: data ?? [] });
+    }
+
+    if (body.action === "list-listing-feedback") {
+      const { data, error } = await admin
+        .from("listing_creation_feedback")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(500);
+
+      if (error) throw error;
+
+      const feedbackRows = data ?? [];
+      const userIds = Array.from(new Set(feedbackRows.map((row) => String(row.user_id)).filter(Boolean)));
+      const listingIds = Array.from(new Set(feedbackRows.map((row) => String(row.listing_id ?? "")).filter(Boolean)));
+
+      const { data: profiles } = userIds.length
+        ? await admin
+            .from("profiles")
+            .select("id,email,full_name,name,first_name,last_name,company_name")
+            .in("id", userIds)
+        : { data: [] };
+
+      const { data: listings } = listingIds.length
+        ? await admin
+            .from("listings")
+            .select("id,title")
+            .in("id", listingIds)
+        : { data: [] };
+
+      const profileById = new Map(
+        (profiles ?? []).map((profile) => {
+          const name =
+            String(profile.full_name ?? "").trim() ||
+            String(profile.name ?? "").trim() ||
+            [profile.first_name, profile.last_name].filter(Boolean).join(" ").trim() ||
+            String(profile.company_name ?? "").trim() ||
+            null;
+
+          return [
+            String(profile.id),
+            {
+              name,
+              email: profile.email ? String(profile.email) : null
+            }
+          ];
+        })
+      );
+      const listingById = new Map((listings ?? []).map((listing) => [String(listing.id), String(listing.title ?? "")]));
+
+      return NextResponse.json({
+        data: feedbackRows.map((row) => {
+          const profile = profileById.get(String(row.user_id));
+          const listingId = row.listing_id ? String(row.listing_id) : "";
+
+          return {
+            ...row,
+            user_name: profile?.name ?? null,
+            user_email: profile?.email ?? null,
+            listing_title: listingId ? listingById.get(listingId) ?? null : null
+          };
+        })
+      });
     }
 
     if (body.action === "list-profiles") {

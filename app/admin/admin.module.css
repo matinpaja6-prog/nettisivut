@@ -1646,6 +1646,139 @@
   flex-wrap: wrap;
 }
 
+.feedbackStats {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.feedbackStats article,
+.feedbackCard,
+.feedbackScoreRow {
+  background: rgba(7, 26, 47, 0.86) !important;
+  border: 1px solid rgba(105, 174, 218, 0.24);
+  border-radius: 16px;
+}
+
+.feedbackStats article {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.feedbackStats span,
+.feedbackCard small,
+.feedbackCard footer,
+.feedbackScoreRow span {
+  color: rgba(205, 226, 244, 0.68);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.feedbackStats strong {
+  color: #f8fbff;
+  font-size: 1.7rem;
+}
+
+.feedbackList {
+  display: grid;
+  gap: 12px;
+}
+
+.feedbackCard {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.feedbackCard header {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.feedbackCard header div {
+  display: grid;
+  gap: 3px;
+}
+
+.feedbackCard header strong {
+  color: #fff;
+}
+
+.feedbackScore,
+.feedbackSkipped {
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  padding: 7px 10px;
+  white-space: nowrap;
+}
+
+.feedbackScore {
+  background: rgba(255, 122, 26, 0.12);
+  border: 1px solid rgba(255, 122, 26, 0.68);
+  color: #ffb36d;
+}
+
+.feedbackSkipped {
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  color: #cbd5e1;
+}
+
+.feedbackRatingRows {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.feedbackScoreRow {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+
+.feedbackScoreRow div {
+  color: rgba(148, 163, 184, 0.42);
+  display: flex;
+  gap: 2px;
+}
+
+.feedbackScoreStarOn {
+  color: #ff8a2a;
+}
+
+.feedbackCard p {
+  background: rgba(3, 12, 24, 0.42);
+  border: 1px solid rgba(105, 174, 218, 0.2);
+  border-radius: 12px;
+  color: rgba(235, 244, 252, 0.9);
+  margin: 0;
+  padding: 12px;
+}
+
+.feedbackCard footer {
+  border-top: 1px solid rgba(105, 174, 218, 0.2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .feedbackStats,
+  .feedbackRatingRows {
+    grid-template-columns: 1fr;
+  }
+
+  .feedbackCard header {
+    flex-direction: column;
+  }
+}
+
 /* ===== Banned IP list ===== */
 .bannedIpRow {
   display: grid;

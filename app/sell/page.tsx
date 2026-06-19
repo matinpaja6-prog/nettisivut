@@ -68,6 +68,15 @@ type SelectOption = {
   label: string;
 };
 
+type ListingFeedbackPrompt = {
+  listingId: string;
+  returnHref: string;
+  listingMode: ListingMode;
+  vehicleType: string;
+  category: string;
+  subcategory: string;
+};
+
 function buildListingLocation(cityOrLocation: string, fallbackCity: string, fallbackCountry: string) {
   const location = cityOrLocation.trim() || fallbackCity.trim();
   const country = fallbackCountry.trim();
@@ -2406,6 +2415,7 @@ export default function SellPage() {
   const [publishError, setPublishError] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [feedbackPrompt, setFeedbackPrompt] = useState<ListingFeedbackPrompt | null>(null);
   const [categoryAutoOpenTarget, setCategoryAutoOpenTarget] = useState<{
     field: "category" | "group" | "detail";
     nonce: number;
@@ -3991,6 +4001,7 @@ export default function SellPage() {
 
       let firstListingId = "";
       let firstListingUrlId: string | number = "";
+      let firstListingFeedbackMeta: Omit<ListingFeedbackPrompt, "listingId" | "returnHref"> | null = null;
       const { createListing } = await import("@/lib/supabase");
 
       for (const part of listingParts) {
@@ -4006,11 +4017,36 @@ export default function SellPage() {
 
         firstListingId ||= data.id;
         firstListingUrlId ||= listingUrlId(data);
+        if (!firstListingFeedbackMeta) {
+          firstListingFeedbackMeta = {
+            listingMode: mode,
+            vehicleType: payload.vehicle_type || vehicleType.title,
+            category: payload.category || "",
+            subcategory: payload.subcategory || ""
+          };
+        }
       }
 
       draftClearedOrPublishedRef.current = true;
       await deleteSellDraft().catch(() => undefined);
-      router.push(firstListingId ? listingPath(firstListingUrlId || firstListingId) : "/my-listings");
+      const returnHref = firstListingId ? listingPath(firstListingUrlId || firstListingId) : "/my-listings";
+
+      try {
+        const { shouldAskListingCreationFeedback } = await import("@/lib/supabase");
+        const { data } = await shouldAskListingCreationFeedback();
+        if (data?.hasFeedback === false && firstListingId && firstListingFeedbackMeta) {
+          setFeedbackPrompt({
+            listingId: firstListingId,
+            returnHref,
+            ...firstListingFeedbackMeta
+          });
+          return;
+        }
+      } catch {
+        /* Publishing succeeded; feedback is optional and must not block the redirect. */
+      }
+
+      router.push(returnHref);
     } catch (error) {
       setPublishError(getErrorMessage(error));
     } finally {
@@ -5823,7 +5859,160 @@ export default function SellPage() {
           </section>
         </div>
       ) : null}
+      {feedbackPrompt ? (
+        <ListingCreationFeedbackModal
+          prompt={feedbackPrompt}
+          onDone={() => {
+            const href = feedbackPrompt.returnHref;
+            setFeedbackPrompt(null);
+            router.push(href);
+          }}
+        />
+      ) : null}
     </main>
+  );
+}
+
+function ListingCreationFeedbackModal({
+  prompt,
+  onDone
+}: {
+  prompt: ListingFeedbackPrompt;
+  onDone: () => void;
+}) {
+  const [ratings, setRatings] = useState({
+    categoryRating: 0,
+    detailsRating: 0,
+    photosRating: 0,
+    overallRating: 0
+  });
+  const [comment, setComment] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const canSubmit = ratings.overallRating > 0;
+
+  async function save(skipped = false) {
+    if (saving) return;
+    if (!skipped && !canSubmit) {
+      setError("Anna ainakin kokonaisarvio tähdillä.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+
+    try {
+      const { saveListingCreationFeedback } = await import("@/lib/supabase");
+      const { error: saveError } = await saveListingCreationFeedback({
+        listingId: prompt.listingId,
+        listingMode: prompt.listingMode,
+        vehicleType: prompt.vehicleType,
+        category: prompt.category,
+        subcategory: prompt.subcategory,
+        categoryRating: ratings.categoryRating || undefined,
+        detailsRating: ratings.detailsRating || undefined,
+        photosRating: ratings.photosRating || undefined,
+        overallRating: ratings.overallRating || undefined,
+        comment,
+        skipped
+      });
+
+      if (saveError) {
+        setError(saveError instanceof Error ? saveError.message : "Arvion tallennus epäonnistui.");
+        return;
+      }
+
+      onDone();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className={styles.feedbackOverlay} role="presentation">
+      <section className={styles.feedbackModal} role="dialog" aria-modal="true" aria-labelledby="listing-feedback-title">
+        <div className={styles.feedbackIcon} aria-hidden="true">
+          <Star size={26} />
+        </div>
+        <span>Ensimmäinen ilmoitus julkaistu</span>
+        <h2 id="listing-feedback-title">Arvioi ilmoituksen luonti</h2>
+        <p>Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.</p>
+
+        <div className={styles.feedbackRatingGrid}>
+          <FeedbackRating
+            label="Kategorian valinta"
+            value={ratings.categoryRating}
+            onChange={(value) => setRatings((current) => ({ ...current, categoryRating: value }))}
+          />
+          <FeedbackRating
+            label="Tuotetietojen lisääminen"
+            value={ratings.detailsRating}
+            onChange={(value) => setRatings((current) => ({ ...current, detailsRating: value }))}
+          />
+          <FeedbackRating
+            label="Kuvien lisääminen"
+            value={ratings.photosRating}
+            onChange={(value) => setRatings((current) => ({ ...current, photosRating: value }))}
+          />
+          <FeedbackRating
+            label="Kokonaisuus"
+            value={ratings.overallRating}
+            onChange={(value) => setRatings((current) => ({ ...current, overallRating: value }))}
+          />
+        </div>
+
+        <label className={styles.feedbackComment}>
+          <span>Kommentti adminille (vapaaehtoinen)</span>
+          <textarea
+            value={comment}
+            onChange={(event) => setComment(event.target.value)}
+            maxLength={700}
+            placeholder="Mikä toimi hyvin tai mikä tuntui hankalalta?"
+          />
+        </label>
+
+        {error ? <div className={styles.feedbackError}>{error}</div> : null}
+
+        <div className={styles.feedbackActions}>
+          <button type="button" onClick={() => void save(true)} disabled={saving}>
+            Ohita
+          </button>
+          <button type="button" onClick={() => void save(false)} disabled={saving || !canSubmit}>
+            {saving ? "Tallennetaan..." : "Lähetä arvio"}
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function FeedbackRating({
+  label,
+  value,
+  onChange
+}: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div className={styles.feedbackRating}>
+      <span>{label}</span>
+      <div>
+        {[1, 2, 3, 4, 5].map((rating) => (
+          <button
+            key={rating}
+            type="button"
+            className={rating <= value ? styles.feedbackStarActive : ""}
+            onClick={() => onChange(rating)}
+            aria-label={`${label}: ${rating} tähteä`}
+          >
+            <Star size={22} fill="currentColor" />
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 

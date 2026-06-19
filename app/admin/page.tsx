@@ -20,6 +20,7 @@ import {
   LogOut,
   Search,
   ShieldCheck,
+  Star,
   Trash2,
   Truck,
   UserCog,
@@ -42,6 +43,7 @@ import {
   adminForceVerifyPhone,
   adminListBannedIps,
   adminListProfiles,
+  adminListListingCreationFeedback,
   adminOverviewStats,
   adminSetPoints,
   adminSetCompanyVerified,
@@ -51,6 +53,7 @@ import {
   isSupabaseConfigured,
   supabase,
   type AdminBannedIp,
+  type ListingCreationFeedback,
   type AdminOverviewStats,
   type AdminProfileRow
 } from "@/lib/supabase";
@@ -59,7 +62,7 @@ import { BASE_LISTING_SLOT_LIMIT } from "@/lib/listing-slots";
 
 import styles from "./admin.module.css";
 
-type TabKey = "overview" | "users" | "listings" | "bans" | "appearance" | "categories";
+type TabKey = "overview" | "users" | "listings" | "feedback" | "bans" | "appearance" | "categories";
 
 type AdminListing = {
   id: string;
@@ -181,6 +184,8 @@ export default function AdminPage() {
   const [listingQuery, setListingQuery] = useState("");
   const [listingStatus, setListingStatus] = useState<ListingStatus>("all");
   const [listingVehicle, setListingVehicle] = useState<string>("all");
+  const [feedbackRows, setFeedbackRows] = useState<ListingCreationFeedback[]>([]);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
 
   const [bannedIps, setBannedIps] = useState<AdminBannedIp[]>([]);
   const [bannedIpsLoading, setBannedIpsLoading] = useState(false);
@@ -423,6 +428,21 @@ export default function AdminPage() {
     if (isAdmin && pinUnlocked && activeTab === "listings") void loadListings();
   }, [isAdmin, pinUnlocked, activeTab, loadListings]);
 
+  const loadListingFeedback = useCallback(async () => {
+    setFeedbackLoading(true);
+    const { data, error } = await adminListListingCreationFeedback();
+    if (error) {
+      showError("Arvioiden lataus epäonnistui. Aja Supabasessa supabase/listing-creation-feedback.sql.");
+    } else {
+      setFeedbackRows(data);
+    }
+    setFeedbackLoading(false);
+  }, [showError]);
+
+  useEffect(() => {
+    if (isAdmin && pinUnlocked && activeTab === "feedback") void loadListingFeedback();
+  }, [isAdmin, pinUnlocked, activeTab, loadListingFeedback]);
+
   /* Load banned IPs */
   const loadBannedIps = useCallback(async () => {
     if (!isAdmin) return;
@@ -571,6 +591,7 @@ export default function AdminPage() {
     { key: "overview", label: "Yleiskatsaus", icon: Home },
     { key: "users", label: "Käyttäjät", icon: Truck },
     { key: "listings", label: "Ilmoitukset", icon: ClipboardList },
+    { key: "feedback", label: "Arviot", icon: Star },
     { key: "bans", label: "Bannit", icon: Users },
     { key: "categories", label: "Kategoriat", icon: Car },
     { key: "appearance", label: "Ulkoasu", icon: BarChart3 }
@@ -611,6 +632,7 @@ export default function AdminPage() {
     void loadStats();
     void loadUsers();
     void loadListings();
+    void loadListingFeedback();
   }
 
   return (
@@ -875,6 +897,14 @@ export default function AdminPage() {
                 onStatusChange={setListingStatus}
                 vehicle={listingVehicle}
                 onVehicleChange={setListingVehicle}
+              />
+            )}
+
+            {activeTab === "feedback" && (
+              <ListingFeedbackPanel
+                rows={feedbackRows}
+                loading={feedbackLoading}
+                onRefresh={loadListingFeedback}
               />
             )}
 
@@ -1991,6 +2021,114 @@ function ListingsPanel({
         })}
       </div>
     </section>
+  );
+}
+
+/* =================================================================
+   LISTING CREATION FEEDBACK PANEL
+================================================================= */
+
+function ListingFeedbackPanel({
+  rows,
+  loading,
+  onRefresh
+}: {
+  rows: ListingCreationFeedback[];
+  loading: boolean;
+  onRefresh: () => void | Promise<void>;
+}) {
+  const submittedRows = rows.filter((row) => !row.skipped);
+  const avg =
+    submittedRows.length > 0
+      ? submittedRows.reduce((sum, row) => sum + (row.overall_rating ?? 0), 0) / submittedRows.length
+      : 0;
+
+  return (
+    <section className={styles.panel}>
+      <div className={styles.panelHeader}>
+        <div>
+          <span>Ensimmäisen ilmoituksen palaute</span>
+          <h2>Arviot</h2>
+        </div>
+        <button type="button" className={styles.ghostBtn} onClick={onRefresh}>
+          {loading ? "Ladataan..." : "Päivitä"}
+        </button>
+      </div>
+
+      <div className={styles.feedbackStats}>
+        <article>
+          <span>Arvioita</span>
+          <strong>{submittedRows.length}</strong>
+        </article>
+        <article>
+          <span>Ohitettu</span>
+          <strong>{rows.filter((row) => row.skipped).length}</strong>
+        </article>
+        <article>
+          <span>Keskiarvo</span>
+          <strong>{avg ? avg.toFixed(1) : "-"}</strong>
+        </article>
+      </div>
+
+      <div className={styles.feedbackList}>
+        {rows.length === 0 && !loading ? (
+          <div className={styles.empty}>Ei arvioita vielä.</div>
+        ) : null}
+
+        {rows.map((row) => (
+          <article key={row.id} className={styles.feedbackCard}>
+            <header>
+              <div>
+                <strong>{row.user_name || row.user_email || row.user_id.slice(0, 8)}</strong>
+                <small>{row.user_email || row.user_id}</small>
+              </div>
+              <span className={row.skipped ? styles.feedbackSkipped : styles.feedbackScore}>
+                {row.skipped ? "Ohitettu" : `${row.overall_rating ?? "-"} / 5`}
+              </span>
+            </header>
+
+            <div className={styles.feedbackRatingRows}>
+              <FeedbackScore label="Kategoria" value={row.category_rating} />
+              <FeedbackScore label="Tiedot" value={row.details_rating} />
+              <FeedbackScore label="Kuvat" value={row.photos_rating} />
+              <FeedbackScore label="Kokonaisuus" value={row.overall_rating} />
+            </div>
+
+            {row.comment ? <p>{row.comment}</p> : null}
+
+            <footer>
+              <span>{row.listing_title || row.listing_id || "Ei ilmoitusta"}</span>
+              <span>{[row.vehicle_type, row.category, row.subcategory].filter(Boolean).join(" / ") || "Ei kategoriaa"}</span>
+              <time>{formatDate(row.created_at)}</time>
+            </footer>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function FeedbackScore({
+  label,
+  value
+}: {
+  label: string;
+  value: number | null;
+}) {
+  return (
+    <div className={styles.feedbackScoreRow}>
+      <span>{label}</span>
+      <div aria-label={`${label}: ${value ?? 0} / 5`}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            size={14}
+            fill="currentColor"
+            className={value && star <= value ? styles.feedbackScoreStarOn : ""}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 

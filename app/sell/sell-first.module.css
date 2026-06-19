@@ -3988,7 +3988,215 @@
   line-height: 1.35;
 }
 
+.feedbackOverlay {
+  align-items: center;
+  background: rgba(2, 10, 19, 0.62);
+  display: grid;
+  inset: 0;
+  justify-items: center;
+  padding: 18px;
+  position: fixed;
+  z-index: 2147483645;
+}
+
+.feedbackModal {
+  background: #08233d;
+  border: 1px solid rgba(255, 122, 26, 0.86);
+  border-radius: 16px;
+  box-shadow:
+    0 34px 96px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(255, 122, 26, 0.18),
+    inset 0 1px 0 rgba(160, 205, 246, 0.12);
+  color: #fff;
+  display: grid;
+  gap: 16px;
+  max-height: calc(100dvh - 36px);
+  max-width: 720px;
+  overflow: auto;
+  padding: clamp(20px, 4vw, 34px);
+  width: min(720px, 100%);
+}
+
+.feedbackIcon {
+  align-items: center;
+  border: 1px dashed rgba(255, 122, 26, 0.8);
+  border-radius: 999px;
+  color: #ff8a2a;
+  display: inline-flex;
+  height: 52px;
+  justify-content: center;
+  justify-self: center;
+  width: 52px;
+}
+
+.feedbackModal > span {
+  color: #ff8a2a;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.feedbackModal h2 {
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.04;
+  margin: 0;
+  text-align: center;
+}
+
+.feedbackModal p {
+  color: rgba(218, 232, 245, 0.76);
+  font-size: 14px;
+  margin: 0 auto;
+  max-width: 560px;
+  text-align: center;
+}
+
+.feedbackRatingGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.feedbackRating {
+  background: #0a2947;
+  border: 1px solid rgba(255, 122, 26, 0.72);
+  border-radius: 12px;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.feedbackRating > span {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.feedbackRating div {
+  display: flex;
+  gap: 5px;
+}
+
+.feedbackRating button {
+  align-items: center;
+  background: rgba(6, 18, 30, 0.82);
+  border: 1px solid rgba(112, 154, 195, 0.28);
+  border-radius: 9px;
+  color: rgba(169, 190, 211, 0.6);
+  cursor: pointer;
+  display: inline-flex;
+  height: 36px;
+  justify-content: center;
+  padding: 0;
+  width: 36px;
+}
+
+.feedbackRating button:hover,
+.feedbackRating button.feedbackStarActive {
+  border-color: rgba(255, 122, 26, 0.92);
+  color: #ff8a2a;
+}
+
+.feedbackComment {
+  display: grid;
+  gap: 8px;
+}
+
+.feedbackComment span {
+  color: rgba(218, 232, 245, 0.82);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.feedbackComment textarea {
+  background: #061827;
+  border: 1px solid rgba(112, 154, 195, 0.38);
+  border-radius: 12px;
+  color: #fff;
+  min-height: 100px;
+  padding: 13px 14px;
+  resize: vertical;
+}
+
+.feedbackComment textarea:focus {
+  border-color: rgba(255, 122, 26, 0.9);
+  outline: none;
+}
+
+.feedbackError {
+  background: rgba(99, 16, 26, 0.58);
+  border: 1px solid rgba(255, 108, 108, 0.55);
+  border-radius: 10px;
+  color: #ffd8d8;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 10px 12px;
+}
+
+.feedbackActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.feedbackActions button {
+  align-items: center;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+}
+
+.feedbackActions button:first-child {
+  background: transparent;
+  border: 1px solid rgba(112, 154, 195, 0.45);
+  color: rgba(218, 232, 245, 0.84);
+}
+
+.feedbackActions button:last-child {
+  background: linear-gradient(135deg, #ff9d2e, #ff6d00);
+  border: 1px solid rgba(255, 122, 26, 0.9);
+  color: #fff;
+}
+
+.feedbackActions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 @media (max-width: 980px) {
+  .feedbackOverlay {
+    padding: 10px;
+  }
+
+  .feedbackModal {
+    border-radius: 14px;
+    gap: 13px;
+    max-height: calc(100dvh - 20px);
+    padding: 18px 13px;
+  }
+
+  .feedbackRatingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .feedbackRating {
+    padding: 12px;
+  }
+
+  .feedbackActions {
+    flex-direction: column-reverse;
+  }
+
+  .feedbackActions button {
+    width: 100%;
+  }
+
   .vehicleContent {
     padding: 30px 22px 24px;
   }
