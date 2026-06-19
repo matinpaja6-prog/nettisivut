@@ -1,4 +1,5 @@
 ﻿import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import "./styles/header.css";
 import "./styles/home.css";
@@ -39,6 +40,7 @@ import TaxonomyProvider from "./components/TaxonomyProvider";
 import VisitorLanguageGate from "./components/VisitorLanguageGate";
 import GlobalNavigationSpinner from "./components/GlobalNavigationSpinner";
 import InstantNavigation from "./components/InstantNavigation";
+import NavigationHistory from "./components/NavigationHistory";
 import AutoTranslate from "./components/AutoTranslate";
 
 export const metadata: Metadata = {
@@ -168,6 +170,9 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <TaxonomyProvider>
           <InstantNavigation />
+          <Suspense fallback={null}>
+            <NavigationHistory />
+          </Suspense>
           <GlobalNavigationSpinner />
           <VisitorLanguageGate />
           <AutoTranslate />

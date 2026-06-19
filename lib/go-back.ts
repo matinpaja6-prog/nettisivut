@@ -5,12 +5,108 @@ type RouterLike = {
   push: (href: string) => void;
 };
 
+export const INTERNAL_HISTORY_STACK_KEY = "maskines:internal-history-stack:v1";
+export const INTERNAL_HISTORY_BACK_PENDING_KEY = "maskines:internal-history-back-pending:v1";
+
+const MAX_INTERNAL_HISTORY_ITEMS = 30;
+
+function normalizeHref(href: string) {
+  try {
+    const url = new URL(href, window.location.origin);
+    if (url.origin !== window.location.origin) return null;
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return null;
+  }
+}
+
+function readInternalHistoryStack() {
+  try {
+    const raw = sessionStorage.getItem(INTERNAL_HISTORY_STACK_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeInternalHistoryStack(stack: string[]) {
+  try {
+    sessionStorage.setItem(
+      INTERNAL_HISTORY_STACK_KEY,
+      JSON.stringify(stack.slice(-MAX_INTERNAL_HISTORY_ITEMS))
+    );
+  } catch {
+    /* Session storage can be unavailable in private/browser-restricted contexts. */
+  }
+}
+
+export function rememberInternalPageVisit(href: string) {
+  if (typeof window === "undefined") return;
+
+  const normalizedHref = normalizeHref(href);
+  if (!normalizedHref) return;
+
+  const stack = readInternalHistoryStack();
+  let backPending = false;
+
+  try {
+    backPending = sessionStorage.getItem(INTERNAL_HISTORY_BACK_PENDING_KEY) === "1";
+    if (backPending) {
+      sessionStorage.removeItem(INTERNAL_HISTORY_BACK_PENDING_KEY);
+    }
+  } catch {
+    backPending = false;
+  }
+
+  if (backPending) {
+    if (stack.at(-1) !== normalizedHref) {
+      stack.push(normalizedHref);
+    }
+
+    writeInternalHistoryStack(stack);
+    return;
+  }
+
+  if (stack.at(-1) === normalizedHref) return;
+
+  stack.push(normalizedHref);
+  writeInternalHistoryStack(stack);
+}
+
 export function goBackOrFallback(
   router: RouterLike,
   fallback = "/"
 ) {
   if (typeof window === "undefined") {
     router.push(fallback);
+    return;
+  }
+
+  const currentHref = normalizeHref(window.location.href);
+  const stack = readInternalHistoryStack();
+
+  while (stack.length > 0 && stack.at(-1) === currentHref) {
+    stack.pop();
+  }
+
+  const previousHref = stack.at(-1);
+  if (previousHref) {
+    writeInternalHistoryStack(stack);
+    try {
+      sessionStorage.setItem(INTERNAL_HISTORY_BACK_PENDING_KEY, "1");
+    } catch {
+      /* ok */
+    }
+    router.push(previousHref);
+    return;
+  }
+
+  const referrerHref = document.referrer ? normalizeHref(document.referrer) : null;
+  if (referrerHref && referrerHref !== currentHref) {
+    router.push(referrerHref);
     return;
   }
 
