@@ -5963,7 +5963,7 @@ function ListingCreationFeedbackModal({
         </div>
 
         <label className={styles.feedbackComment}>
-          <span>Kommentti adminille (vapaaehtoinen)</span>
+          <span>Kommentti ylläpidolle (vapaaehtoinen)</span>
           <textarea
             value={comment}
             onChange={(event) => setComment(event.target.value)}

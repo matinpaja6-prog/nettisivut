@@ -4086,7 +4086,7 @@
   background: transparent;
   border: 0;
   border-radius: 0;
-  color: rgba(255, 138, 42, 0.32);
+  color: rgba(158, 181, 203, 0.46);
   cursor: pointer;
   display: inline-flex;
   height: 26px;
@@ -4105,8 +4105,15 @@
 
 .feedbackRating button:hover,
 .feedbackRating button.feedbackStarActive {
-  color: #ff8a2a;
   transform: translateY(-1px) scale(1.08);
+}
+
+.feedbackRating button:hover {
+  color: rgba(255, 138, 42, 0.72);
+}
+
+.feedbackRating button.feedbackStarActive {
+  color: #ffd43b;
 }
 
 .feedbackComment {
