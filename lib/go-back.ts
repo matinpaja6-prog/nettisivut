@@ -47,11 +47,28 @@ function isMessagesRedirectHref(href: string) {
   return /^\/messages\/[^/?#]+/.test(href);
 }
 
+function isMessagesConversationHref(href: string) {
+  if (!href.startsWith("/messages?")) return false;
+
+  try {
+    const url = new URL(href, window.location.origin);
+    return Boolean(url.searchParams.get("conversation"));
+  } catch {
+    return href.includes("conversation=");
+  }
+}
+
 export function rememberInternalPageVisit(href: string) {
   if (typeof window === "undefined") return;
 
   const normalizedHref = normalizeHref(href);
-  if (!normalizedHref || isMessagesRedirectHref(normalizedHref)) return;
+  if (
+    !normalizedHref ||
+    isMessagesRedirectHref(normalizedHref) ||
+    isMessagesConversationHref(normalizedHref)
+  ) {
+    return;
+  }
 
   const stack = readInternalHistoryStack();
   let backPending = false;
@@ -90,11 +107,20 @@ export function goBackOrFallback(
   }
 
   const currentHref = normalizeHref(window.location.href);
+  if (currentHref && isMessagesConversationHref(currentHref)) {
+    router.push("/messages");
+    return;
+  }
+
   const stack = readInternalHistoryStack();
 
   while (
     stack.length > 0 &&
-    (stack.at(-1) === currentHref || isMessagesRedirectHref(stack.at(-1) ?? ""))
+    (
+      stack.at(-1) === currentHref ||
+      isMessagesRedirectHref(stack.at(-1) ?? "") ||
+      isMessagesConversationHref(stack.at(-1) ?? "")
+    )
   ) {
     stack.pop();
   }
