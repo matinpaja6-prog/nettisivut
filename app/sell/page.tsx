@@ -5991,8 +5991,7 @@ function ListingCreationFeedbackModal({
       });
 
       if (saveError) {
-        setError(saveError instanceof Error ? saveError.message : tt("Arvion tallennus epäonnistui."));
-        return;
+        console.error("Listing feedback save failed", saveError);
       }
 
       onDone();

@@ -82,6 +82,13 @@ function text(value: unknown, maxLength = 500) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
 }
 
+function uuid(value: unknown) {
+  const stringValue = text(value, 80);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(stringValue)
+    ? stringValue
+    : null;
+}
+
 export async function GET(request: Request) {
   const guard = await requireUser(request);
   if ("error" in guard) return guard.error;
@@ -116,7 +123,7 @@ export async function POST(request: Request) {
     const skipped = body.skipped === true;
     const payload = {
       user_id: guard.userId,
-      listing_id: text(body.listingId, 80) || null,
+      listing_id: uuid(body.listingId),
       category_rating: skipped ? null : rating(body.categoryRating),
       details_rating: skipped ? null : rating(body.detailsRating),
       photos_rating: skipped ? null : rating(body.photosRating),
