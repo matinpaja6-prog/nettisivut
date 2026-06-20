@@ -106,7 +106,7 @@ export default function LanguageSwitcher() {
     setOpen(false);
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
-      url.searchParams.set("lang", code);
+      url.searchParams.delete("lang");
       url.pathname = translateLocalizedPath(url.pathname, code);
       window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
     }

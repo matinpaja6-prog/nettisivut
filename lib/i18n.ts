@@ -20,7 +20,16 @@ export function applyLocale(nextLocale: Locale) {
     }
   }
   document.documentElement.lang = nextLocale;
+  removeLocaleSearchParam();
   window.dispatchEvent(new CustomEvent("localechange", { detail: nextLocale }));
+}
+
+function removeLocaleSearchParam() {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("lang")) return;
+
+  url.searchParams.delete("lang");
+  window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
 }
 
 export const languageOptions: Array<{ code: Locale; label: string }> = [

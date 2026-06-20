@@ -21,7 +21,7 @@ import {
 } from "@/lib/supabase";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage } from "@/lib/i18n";
-import { listingPath, listingUrlId } from "@/lib/routes";
+import { listingPath, listingUrlId, translateLocalizedPath } from "@/lib/routes";
 
 const LOCALES = [
   { code: "fi", label: "Suomi", iso: "fi" },
@@ -201,6 +201,13 @@ export default function BottomNav() {
   const selectLocale = (nextLocale: Parameters<typeof setLocale>[0]) => {
     setLocale(nextLocale);
     setProfileOpen(false);
+
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("lang");
+      url.pathname = translateLocalizedPath(url.pathname, nextLocale);
+      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    }
   };
 
   return (
