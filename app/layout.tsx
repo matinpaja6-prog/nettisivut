@@ -44,7 +44,7 @@ import NavigationHistory from "./components/NavigationHistory";
 import AutoTranslate from "./components/AutoTranslate";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://arcticparts.fi"),
+  metadataBase: new URL("https://maskines.com"),
   applicationName: "Maskines",
   title: {
     default: "Maskines | Moottorikelkkojen, mönkijöiden, motocrossien ja mopojen varaosat",
