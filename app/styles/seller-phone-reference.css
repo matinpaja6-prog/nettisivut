@@ -545,3 +545,135 @@
     font-size: 24px !important;
   }
 }
+
+/* Final device-fluid seller profile override: keep the hero inside every mobile viewport. */
+@media (max-width: 760px) {
+  html body .seller-page,
+  html body .seller-page * {
+    box-sizing: border-box !important;
+  }
+
+  html body .seller-page {
+    overflow-x: hidden !important;
+  }
+
+  html body .seller-page .sp-wrap {
+    max-width: 100% !important;
+    overflow-x: clip !important;
+    padding-inline: clamp(8px, 3vw, 14px) !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-hero {
+    border-radius: clamp(16px, 5vw, 24px) !important;
+    margin-inline: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding: clamp(16px, 4.8vw, 26px) !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-identity {
+    column-gap: clamp(11px, 3.4vw, 16px) !important;
+    grid-template-columns: clamp(56px, 17vw, 74px) minmax(0, 1fr) !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-avatar {
+    height: clamp(56px, 17vw, 74px) !important;
+    min-width: 0 !important;
+    width: clamp(56px, 17vw, 74px) !important;
+  }
+
+  html body .seller-page .seller-ref-copy,
+  html body .seller-page .seller-ref-copy > *,
+  html body .seller-page .seller-ref-about-highlight,
+  html body .seller-page .seller-ref-stats,
+  html body .seller-page .seller-ref-stat {
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html body .seller-page .seller-ref-copy h1 {
+    font-size: clamp(23px, 8.2vw, 38px) !important;
+    line-height: 1.04 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    overflow-wrap: anywhere !important;
+    text-wrap: balance !important;
+    white-space: normal !important;
+    word-break: normal !important;
+  }
+
+  html body .seller-page .seller-ref-copy p,
+  html body .seller-page .seller-ref-title-verified {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+  }
+
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row {
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    justify-items: stretch !important;
+    margin-inline: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-phone-pill,
+  html body .seller-page .seller-ref-mini-row > span,
+  html body .seller-page .seller-ref-mini-row > a {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-follow-row,
+  html body .seller-page .seller-ref-follow-button {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-about-highlight {
+    padding: clamp(17px, 5vw, 24px) !important;
+  }
+
+  html body .seller-page .seller-ref-stats,
+  html body .seller-page .seller-ref-hero .seller-ref-stats,
+  html body main.seller-page .seller-ref-stats {
+    gap: 10px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-stat,
+  html body .seller-page .seller-ref-stat.is-rating {
+    min-height: clamp(104px, 27vw, 134px) !important;
+    padding: 13px 8px !important;
+  }
+
+  html body .seller-page .seller-ref-stat strong {
+    font-size: clamp(26px, 7.6vw, 40px) !important;
+  }
+
+  html body .seller-page .seller-ref-stat span {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+  }
+}
+
+@media (max-width: 360px) {
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
