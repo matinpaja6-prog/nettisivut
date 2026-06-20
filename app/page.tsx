@@ -42,7 +42,7 @@ import { readCachedListings, writeCachedListings } from "@/lib/client-listings-c
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 
 import { buildRecoProfile, getRecommendedListings, setRecoUserId } from "@/lib/recommendations";
-import { listingPath, listingUrlId } from "@/lib/routes";
+import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
 
 import {
   getProfile,
@@ -2464,7 +2464,7 @@ export default function Home() {
                             </button>
                           </div>
                           {garageVehicles.length === 0 ? (
-                            <Link href="/garage" className={styles.garageDropdownEmpty} onClick={() => setGarageDropdownOpen(false)}>
+                            <Link href={pagePath("garage", locale)} className={styles.garageDropdownEmpty} onClick={() => setGarageDropdownOpen(false)}>
                               {t.garageAddVehicle} →
                             </Link>
                           ) : (
@@ -2498,7 +2498,7 @@ export default function Home() {
                                   <span className={styles.garageDropdownYear}>{v.year}</span>
                                 </button>
                                 <Link
-                                  href={`/sell?make=${encodeURIComponent(v.make)}&model=${encodeURIComponent(v.model)}&year=${v.year}&vehicleType=${encodeURIComponent(v.vehicle_class === "Auto" ? "Motocross" : v.vehicle_class || "Moottorikelkka")}`}
+                                  href={`${pagePath("sell", locale)}?make=${encodeURIComponent(v.make)}&model=${encodeURIComponent(v.model)}&year=${v.year}&vehicleType=${encodeURIComponent(v.vehicle_class === "Auto" ? "Motocross" : v.vehicle_class || "Moottorikelkka")}`}
                                   className={styles.garageDropdownSell}
                                   onClick={() => setGarageDropdownOpen(false)}
                                 >
@@ -2506,7 +2506,7 @@ export default function Home() {
                                 </Link>
                               </div>
                             ))}
-                            <Link href="/garage" className={styles.garageDropdownLink} onClick={() => setGarageDropdownOpen(false)}>
+                            <Link href={pagePath("garage", locale)} className={styles.garageDropdownLink} onClick={() => setGarageDropdownOpen(false)}>
                               {t.garageTitle} →
                             </Link>
                           </>

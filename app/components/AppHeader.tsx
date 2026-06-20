@@ -29,6 +29,8 @@ import type { User } from "@supabase/supabase-js";
 
 import { getSafeAuthUser, supabase } from "@/lib/supabase";
 import { branding } from "@/lib/branding";
+import { useLanguage } from "@/lib/i18n";
+import { pagePath, profileRootPath } from "@/lib/routes";
 
 import styles from "./AppHeader.module.css";
 
@@ -61,6 +63,7 @@ export default function AppHeader({
   notificationCount = 0,
   messageCount = 0
 }: Props) {
+  const { locale } = useLanguage();
   const [user, setUser] = useState<User | null>(userProp ?? null);
   const [localSearch, setLocalSearch] = useState(searchValue ?? "");
   const searchRef = useRef<HTMLInputElement>(null);
@@ -155,7 +158,7 @@ export default function AppHeader({
         {/* Oikea puoli */}
         <div className={styles.right}>
           {/* Ilmoitukset */}
-          <Link href="/search-alerts" className={styles.iconBtn} aria-label="Ilmoitukset">
+          <Link href={pagePath("search-alerts", locale)} className={styles.iconBtn} aria-label="Ilmoitukset">
             <Bell size={18} />
             {notificationCount > 0 && (
               <span className={styles.badge}>{notificationCount > 9 ? "9+" : notificationCount}</span>
@@ -163,7 +166,7 @@ export default function AppHeader({
           </Link>
 
           {/* Viestit */}
-          <Link href="/messages" className={styles.iconBtn} aria-label="Viestit">
+          <Link href={pagePath("messages", locale)} className={styles.iconBtn} aria-label="Viestit">
             <MessageSquare size={18} />
             {messageCount > 0 && (
               <span className={styles.badge}>{messageCount > 9 ? "9+" : messageCount}</span>
@@ -172,7 +175,7 @@ export default function AppHeader({
 
           {/* Käyttäjä */}
           {user ? (
-            <Link href="/profile" className={styles.userPill}>
+            <Link href={profileRootPath(locale)} className={styles.userPill}>
               <span className={styles.userPillAvatar}>
                 <UserIcon size={14} />
               </span>
@@ -180,7 +183,7 @@ export default function AppHeader({
               <ChevronDown size={14} className={styles.userPillChevron} />
             </Link>
           ) : (
-            <Link href="/auth" className={styles.loginBtn}>
+            <Link href={pagePath("auth", locale)} className={styles.loginBtn}>
               Kirjaudu
             </Link>
           )}

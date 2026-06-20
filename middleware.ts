@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  canonicalPathFromLocalized,
+  localizedPathFromCanonical,
+  normalizeRouteLocale
+} from "@/lib/routes";
 
 const PUBLIC_FILE = /\.(.*)$/;
 
@@ -54,6 +59,22 @@ export async function middleware(request: NextRequest) {
   const ip = getClientIp(request);
   if (ip && await isIpBanned(ip)) {
     return new NextResponse("IP-osoite on estetty.", { status: 403 });
+  }
+
+  const locale = normalizeRouteLocale(request.cookies.get("locale")?.value);
+  const canonicalPath = canonicalPathFromLocalized(pathname);
+  const localizedPath = localizedPathFromCanonical(canonicalPath, locale);
+
+  if (pathname === canonicalPath && localizedPath !== pathname) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = localizedPath;
+    return NextResponse.redirect(redirectUrl);
+  }
+
+  if (canonicalPath !== pathname) {
+    const rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.pathname = canonicalPath;
+    return NextResponse.rewrite(rewriteUrl);
   }
 
   return NextResponse.next();

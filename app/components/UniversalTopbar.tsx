@@ -31,7 +31,7 @@ import { calculateSellerLevel } from "@/lib/seller-level";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage, type Locale } from "@/lib/i18n";
-import { listingPath, listingUrlId, profilePath } from "@/lib/routes";
+import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profilePath, profileRootPath } from "@/lib/routes";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
@@ -528,15 +528,16 @@ export default function UniversalTopbar() {
   const hasNotifications = notificationItemCount > 0;
   const hasNotificationItems =
     visibleReviewRequests.length + visibleAlertNotifications.length + visibleUnreadConversations.length > 0;
-  const isHomePage = pathname === "/";
+  const canonicalPathname = canonicalPathFromLocalized(pathname);
+  const isHomePage = canonicalPathname === "/";
   const guestLocked = !authChecked || !userId;
   const sellerLevel = calculateSellerLevel(sellerLevelStats);
   const sellerLevelTooltip = sellerLevel.maxLevel
     ? `${ui.maxLevel} - ${ui.level} ${sellerLevel.level}`
     : `${sellerLevel.currentLevelXp}/${sellerLevel.xpForNextLevel} XP - ${ui.level} ${sellerLevel.level}`;
   const hideUniversalTopbar =
-    pathname.startsWith("/auth") ||
-    pathname.startsWith("/admin");
+    canonicalPathname.startsWith("/auth") ||
+    canonicalPathname.startsWith("/admin");
 
   function goBack() {
     if (typeof window !== "undefined") {
@@ -553,9 +554,21 @@ export default function UniversalTopbar() {
   }
 
   function isActiveRoute(href: string) {
-    if (href === "/") return pathname === "/";
-    return pathname === href || pathname.startsWith(`${href}/`);
+    if (href === "/") return canonicalPathname === "/";
+    return canonicalPathname === href || canonicalPathname.startsWith(`${href}/`);
   }
+
+  const authHref = pagePath("auth", locale);
+  const sellHref = pagePath("sell", locale);
+  const messagesHref = pagePath("messages", locale);
+  const profileHref = profileRootPath(locale);
+  const myListingsHref = pagePath("my-listings", locale);
+  const garageHref = pagePath("garage", locale);
+  const savedHref = pagePath("saved", locale);
+  const followedHref = pagePath("followed", locale);
+  const searchAlertsHref = pagePath("search-alerts", locale);
+  const rewardsHref = pagePath("rewards", locale);
+  const shopHref = pagePath("shop", locale);
 
   function toggleNotifications() {
     if (guestLocked) return;
@@ -741,7 +754,7 @@ export default function UniversalTopbar() {
         ) : null}
         <nav className="universal-topbar-actions universal-topbar-actions-guest" aria-label={ui.quickActions}>
           <Link
-            href="/auth"
+            href={authHref}
             className={`rebuilt-login-button rebuilt-login-button-guest${isActiveRoute("/auth") ? " is-active" : ""}`}
             aria-label={t.login}
             title={t.login}
@@ -792,7 +805,7 @@ export default function UniversalTopbar() {
             </small>
           </Link>
         ) : null}
-        <Link href="/sell" className={`universal-create-button${isActiveRoute("/sell") ? " is-active" : ""}`}>
+        <Link href={sellHref} className={`universal-create-button${isActiveRoute("/sell") ? " is-active" : ""}`}>
           <Plus size={17} aria-hidden="true" />
           <strong>{t.createListing}</strong>
         </Link>
@@ -850,7 +863,7 @@ export default function UniversalTopbar() {
                       <div key={conversation.id} className="universal-notification-item-wrap">
                         <span className="universal-notification-dot is-unread" aria-hidden="true" />
                         <Link
-                          href={`/messages/${conversation.listing_id}?conversation=${conversation.id}`}
+                          href={`${messagesHref}/${conversation.listing_id}?conversation=${conversation.id}`}
                           className="universal-notification-item"
                           role="menuitem"
                           onClick={() => {
@@ -982,7 +995,7 @@ export default function UniversalTopbar() {
               ) : null}
               </div>
               <Link
-                href="/messages"
+                href={messagesHref}
                 className="universal-notification-footer"
                 role="menuitem"
                 onClick={() => setNotificationOpen(false)}
@@ -1074,33 +1087,33 @@ export default function UniversalTopbar() {
                       <Home size={16} /> {t.home}
                     </Link>
                   ) : null}
-                  <Link href="/profile" className={`universal-profile-menu-link${isActiveRoute("/profile") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Link href={profileHref} className={`universal-profile-menu-link${isActiveRoute("/profile") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <UserRound size={16} /> {ownProfileLabel}
                   </Link>
-                  <Link href="/my-listings" className={`universal-profile-menu-link${isActiveRoute("/my-listings") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Link href={myListingsHref} className={`universal-profile-menu-link${isActiveRoute("/my-listings") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <ClipboardList size={16} /> {t.myListings}
                   </Link>
-                  <Link href="/garage" className={`universal-profile-menu-link${isActiveRoute("/garage") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Link href={garageHref} className={`universal-profile-menu-link${isActiveRoute("/garage") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <Car size={16} /> {t.garageTitle}
                   </Link>
-                  <Link href="/messages" className={`universal-profile-menu-link${isActiveRoute("/messages") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Link href={messagesHref} className={`universal-profile-menu-link${isActiveRoute("/messages") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <Mail size={16} /> {t.messages}
                   </Link>
-                  <Link href="/saved" className={`universal-profile-menu-link${isActiveRoute("/saved") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Link href={savedHref} className={`universal-profile-menu-link${isActiveRoute("/saved") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <Heart size={16} /> {t.savedListings}
                   </Link>
-                  <Link href="/followed" className={`universal-profile-menu-link${isActiveRoute("/followed") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Link href={followedHref} className={`universal-profile-menu-link${isActiveRoute("/followed") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <Users size={16} /> {ui.followed}
                   </Link>
-                  <Link href="/search-alerts" className={`universal-profile-menu-link${isActiveRoute("/search-alerts") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Link href={searchAlertsHref} className={`universal-profile-menu-link${isActiveRoute("/search-alerts") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <Bell size={16} /> {ui.searchAlert}
                   </Link>
                   {FEATURE_FLAGS.rewardsAndShop ? (
                     <>
-                      <Link href="/rewards" className={`universal-profile-menu-link${isActiveRoute("/rewards") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                      <Link href={rewardsHref} className={`universal-profile-menu-link${isActiveRoute("/rewards") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                         <Award size={16} /> {t.rewards}
                       </Link>
-                      <Link href="/shop" className={`universal-profile-menu-link${isActiveRoute("/shop") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                      <Link href={shopHref} className={`universal-profile-menu-link${isActiveRoute("/shop") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                         <Store size={16} /> {t.shop}
                       </Link>
                     </>
@@ -1116,7 +1129,7 @@ export default function UniversalTopbar() {
                   </button>
                 </>
               ) : (
-                <Link href="/auth" className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
+                <Link href={authHref} className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
                   <LockKeyhole size={16} /> {t.login}
                 </Link>
               )}

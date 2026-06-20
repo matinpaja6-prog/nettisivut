@@ -28,7 +28,7 @@ import {
 import { useLanguage } from "@/lib/i18n";
 import { playNotificationSound } from "@/lib/notification-sound";
 import { resizeMessageImageTo1080p } from "@/app/components/chat/image-processing";
-import { listingPath, listingUrlId } from "@/lib/routes";
+import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
 
 /* ======================================================
    HELPERS
@@ -607,7 +607,7 @@ export default function FloatingChat() {
                     <span><Check size={16} /></span>
                     Mark all as read
                   </button>
-                  <Link href="/messages" className="fc-view-all" onClick={() => setOpen(false)}>
+                  <Link href={pagePath("messages", locale)} className="fc-view-all" onClick={() => setOpen(false)}>
                     View all messages
                     <ChevronRight size={18} />
                   </Link>

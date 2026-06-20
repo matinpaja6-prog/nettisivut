@@ -8,6 +8,8 @@ import {
   getOrCreateConversationForListing,
   supabase
 } from "@/lib/supabase";
+import { useLanguage } from "@/lib/i18n";
+import { pagePath } from "@/lib/routes";
 
 function getParamValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? "" : value ?? "";
@@ -17,19 +19,21 @@ export default function StartListingConversationPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { locale } = useLanguage();
+  const messagesHref = pagePath("messages", locale);
 
   useEffect(() => {
     let stopped = false;
 
     function fallbackToMessages() {
-      if (!stopped) router.replace("/messages");
+      if (!stopped) router.replace(messagesHref);
     }
 
     async function openConversation() {
       const existingConversationId = searchParams.get("conversation");
 
       if (existingConversationId) {
-        router.replace(`/messages?conversation=${encodeURIComponent(existingConversationId)}`);
+        router.replace(`${messagesHref}?conversation=${encodeURIComponent(existingConversationId)}`);
         return;
       }
 
@@ -46,7 +50,7 @@ export default function StartListingConversationPage() {
       if (stopped) return;
 
       if (!user) {
-        router.replace("/auth");
+        router.replace(pagePath("auth", locale));
         return;
       }
 
@@ -79,7 +83,7 @@ export default function StartListingConversationPage() {
         return;
       }
 
-      router.replace(`/messages?conversation=${encodeURIComponent(conversation.id)}`);
+      router.replace(`${messagesHref}?conversation=${encodeURIComponent(conversation.id)}`);
     }
 
     void openConversation();
@@ -87,7 +91,7 @@ export default function StartListingConversationPage() {
     return () => {
       stopped = true;
     };
-  }, [params.id, router, searchParams]);
+  }, [locale, messagesHref, params.id, router, searchParams]);
 
   return null;
 }

@@ -21,7 +21,7 @@ import {
 } from "@/lib/supabase";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage } from "@/lib/i18n";
-import { listingPath, listingUrlId, translateLocalizedPath } from "@/lib/routes";
+import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profileRootPath, translateLocalizedPath } from "@/lib/routes";
 
 const LOCALES = [
   { code: "fi", label: "Suomi", iso: "fi" },
@@ -47,6 +47,18 @@ export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { t, locale, setLocale } = useLanguage();
+  const canonicalPathname = canonicalPathFromLocalized(pathname || "/");
+  const authHref = pagePath("auth", locale);
+  const sellHref = pagePath("sell", locale);
+  const messagesHref = pagePath("messages", locale);
+  const profileHref = profileRootPath(locale);
+  const myListingsHref = pagePath("my-listings", locale);
+  const garageHref = pagePath("garage", locale);
+  const savedHref = pagePath("saved", locale);
+  const followedHref = pagePath("followed", locale);
+  const rewardsHref = pagePath("rewards", locale);
+  const shopHref = pagePath("shop", locale);
+  const searchAlertsHref = pagePath("search-alerts", locale);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [notifCount, setNotifCount] = useState(0);
   const [reviewRequests, setReviewRequests] = useState<PurchaseReviewRequest[]>([]);
@@ -213,7 +225,7 @@ export default function BottomNav() {
   return (
     <>
       <nav className="bottom-nav" aria-label="Päänavigaatio">
-        <Link href="/" className={`bottom-nav-item${pathname === "/" ? " active" : ""}`}>
+        <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Home size={22} /></span>
           <span className="bottom-nav-label">{l0}</span>
         </Link>
@@ -235,12 +247,12 @@ export default function BottomNav() {
           <span className="bottom-nav-label">{l1}</span>
         </button>
 
-        <Link href="/sell" className={`bottom-nav-item bottom-nav-solid${pathname.startsWith("/sell") ? " active" : ""}`}>
+        <Link href={sellHref} className={`bottom-nav-item bottom-nav-solid${canonicalPathname.startsWith("/sell") ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Plus size={24} /></span>
           <span className="bottom-nav-label">{l2}</span>
         </Link>
 
-        <Link href="/messages" className={`bottom-nav-item${pathname.startsWith("/messages") ? " active" : ""}`}>
+        <Link href={messagesHref} className={`bottom-nav-item${canonicalPathname.startsWith("/messages") ? " active" : ""}`}>
           <span className="bottom-nav-icon">
             <MessageCircle size={22} />
             {unreadMessages > 0 && <span className="bottom-nav-badge">{unreadMessages > 9 ? "9+" : unreadMessages}</span>}
@@ -249,7 +261,7 @@ export default function BottomNav() {
         </Link>
 
         <button type="button"
-          className={`bottom-nav-item${pathname.startsWith("/profile") || pathname.startsWith("/my-listings") ? " active" : ""}`}
+          className={`bottom-nav-item${canonicalPathname.startsWith("/profile") || canonicalPathname.startsWith("/my-listings") ? " active" : ""}`}
           onClick={() => setProfileOpen(true)}>
           <span className="bottom-nav-icon"><UserRound size={22} /></span>
           <span className="bottom-nav-label">{l4}</span>
@@ -263,16 +275,16 @@ export default function BottomNav() {
 
             {userId ? (
               <>
-                <Link href="/profile"    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><UserRound size={18} />{t.editProfile}</Link>
-                <Link href="/my-listings" className="bn-sheet-link" onClick={() => setProfileOpen(false)}><ClipboardList size={18} />{t.myListings}</Link>
-                <Link href="/garage"     className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Car size={18} />{t.garageTitle}</Link>
-                <Link href="/messages"   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Mail size={18} />{t.messages}</Link>
-                <Link href="/saved"      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Heart size={18} />{t.savedListings}</Link>
-                <Link href="/followed"   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Users size={18} />Seuratut</Link>
+                <Link href={profileHref}    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><UserRound size={18} />{t.editProfile}</Link>
+                <Link href={myListingsHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><ClipboardList size={18} />{t.myListings}</Link>
+                <Link href={garageHref}     className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Car size={18} />{t.garageTitle}</Link>
+                <Link href={messagesHref}   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Mail size={18} />{t.messages}</Link>
+                <Link href={savedHref}      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Heart size={18} />{t.savedListings}</Link>
+                <Link href={followedHref}   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Users size={18} />Seuratut</Link>
                 {FEATURE_FLAGS.rewardsAndShop ? (
                   <>
-                    <Link href="/rewards"    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Award size={18} />{t.rewards}</Link>
-                    <Link href="/shop"      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Store size={18} />{t.shop}</Link>
+                    <Link href={rewardsHref}    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Award size={18} />{t.rewards}</Link>
+                    <Link href={shopHref}      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Store size={18} />{t.shop}</Link>
                   </>
                 ) : null}
                 <div className="bn-sheet-divider" />
@@ -306,7 +318,7 @@ export default function BottomNav() {
               </>
             ) : (
               <>
-                <Link href="/auth" className="bn-sheet-link" onClick={() => setProfileOpen(false)}><LockKeyhole size={18} />{t.login}</Link>
+                <Link href={authHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><LockKeyhole size={18} />{t.login}</Link>
                 <div className="bn-sheet-lang">
                   {LOCALES.map((loc) => (
                     <button key={loc.code} type="button"
@@ -359,7 +371,7 @@ export default function BottomNav() {
                   return (
                     <Link
                       key={c.id}
-                      href={`/messages/${c.listing_id}?conversation=${c.id}`}
+                      href={`${messagesHref}/${c.listing_id}?conversation=${c.id}`}
                       className="bn-notif-item"
                       onClick={() => {
                         markConversationNotificationRead(c);
@@ -410,8 +422,8 @@ export default function BottomNav() {
             )}
 
             <div className="bn-notif-footer">
-              <Link href="/search-alerts" className="bn-notif-all" onClick={() => setNotifOpen(false)}>{t.saTitle} →</Link>
-              <Link href="/messages" className="bn-notif-all" onClick={() => setNotifOpen(false)}>{t.messages} →</Link>
+              <Link href={searchAlertsHref} className="bn-notif-all" onClick={() => setNotifOpen(false)}>{t.saTitle} →</Link>
+              <Link href={messagesHref} className="bn-notif-all" onClick={() => setNotifOpen(false)}>{t.messages} →</Link>
             </div>
           </div>
         </div>

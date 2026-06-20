@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage, type Locale } from "@/lib/i18n";
+import { canonicalPathFromLocalized, pagePath } from "@/lib/routes";
 
 const footerText = {
   fi: {
@@ -123,13 +124,14 @@ export default function Footer() {
   const pathname = usePathname();
   const year = new Date().getFullYear();
   const text = footerText[locale];
+  const canonicalPathname = canonicalPathFromLocalized(pathname || "/");
 
   const hideFooter =
-    pathname?.startsWith("/auth") ||
-    pathname?.startsWith("/messages") ||
-    pathname?.startsWith("/profile") ||
-    pathname?.startsWith("/privacy") ||
-    pathname?.startsWith("/terms");
+    canonicalPathname.startsWith("/auth") ||
+    canonicalPathname.startsWith("/messages") ||
+    canonicalPathname.startsWith("/profile") ||
+    canonicalPathname.startsWith("/privacy") ||
+    canonicalPathname.startsWith("/terms");
 
   if (hideFooter) return null;
 
@@ -324,27 +326,27 @@ export default function Footer() {
             <h4>{text.service}</h4>
             <ul>
               <li><Link href="/">{text.home}</Link></li>
-              <li><Link href="/sell">{text.sell}</Link></li>
-              <li><Link href="/garage">{text.garage}</Link></li>
-              {FEATURE_FLAGS.rewardsAndShop ? <li><Link href="/rewards">{text.rewards}</Link></li> : null}
+              <li><Link href={pagePath("sell", locale)}>{text.sell}</Link></li>
+              <li><Link href={pagePath("garage", locale)}>{text.garage}</Link></li>
+              {FEATURE_FLAGS.rewardsAndShop ? <li><Link href={pagePath("rewards", locale)}>{text.rewards}</Link></li> : null}
             </ul>
           </div>
 
           <div className="footer-col">
             <h4>{text.company}</h4>
             <ul>
-              <li><Link href="/about">{text.about}</Link></li>
-              <li><Link href="/contact">{text.contact}</Link></li>
+              <li><Link href={pagePath("about", locale)}>{text.about}</Link></li>
+              <li><Link href={pagePath("contact", locale)}>{text.contact}</Link></li>
             </ul>
           </div>
 
           <div className="footer-col">
             <h4>{text.support}</h4>
             <ul>
-              <li><Link href="/faq">{text.faq}</Link></li>
-              <li><Link href="/safety">{text.safety}</Link></li>
-              <li><Link href="/terms">{text.terms}</Link></li>
-              <li><Link href="/privacy">{text.privacy}</Link></li>
+              <li><Link href={pagePath("faq", locale)}>{text.faq}</Link></li>
+              <li><Link href={pagePath("safety", locale)}>{text.safety}</Link></li>
+              <li><Link href={pagePath("terms", locale)}>{text.terms}</Link></li>
+              <li><Link href={pagePath("privacy", locale)}>{text.privacy}</Link></li>
             </ul>
           </div>
 
@@ -363,9 +365,9 @@ export default function Footer() {
       <div className="footer-bottom">
         <span>© {year} Maskines. {text.rights}</span>
         <span className="footer-bottom-links">
-          <Link href="/terms">{text.terms}</Link>
-          <Link href="/privacy">{text.privacy}</Link>
-          <Link href="/cookies">{text.cookies}</Link>
+          <Link href={pagePath("terms", locale)}>{text.terms}</Link>
+          <Link href={pagePath("privacy", locale)}>{text.privacy}</Link>
+          <Link href={pagePath("cookies", locale)}>{text.cookies}</Link>
         </span>
       </div>
     </footer>

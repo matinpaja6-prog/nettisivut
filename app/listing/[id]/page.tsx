@@ -39,7 +39,7 @@ import { getLocalizedListingText } from "@/lib/listing-translations";
 import { readCachedListing, readCachedListings, writeCachedListings } from "@/lib/client-listings-cache";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
-import { listingPath, listingUrlId, profilePath } from "@/lib/routes";
+import { listingPath, listingUrlId, pagePath, profilePath } from "@/lib/routes";
 
 import { trackListingView, setRecoUserId } from "@/lib/recommendations";
 
@@ -1707,7 +1707,7 @@ export default function ListingPage() {
                   {isLoggedIn ? (
                     <>
                       <Link
-                        href={`/messages/${listing.id}`}
+                        href={`${pagePath("messages", locale)}/${listing.id}`}
                         className="message-btn"
                       >
                         <Mail size={20} />
@@ -1741,7 +1741,7 @@ export default function ListingPage() {
                     </>
                   ) : (
                     <Link
-                      href="/auth"
+                      href={pagePath("auth", locale)}
                       className="login-contact"
                     >
                       <LockKeyhole size={20} />
@@ -1793,7 +1793,7 @@ export default function ListingPage() {
 
                   )}
                   <Link
-                    href={`/messages/${listing.id}`}
+                    href={`${pagePath("messages", locale)}/${listing.id}`}
                     className="message-btn"
                   >
                     <Mail size={20} />
@@ -1802,7 +1802,7 @@ export default function ListingPage() {
                 </>
               ) : (
                 <Link
-                  href="/auth"
+                  href={pagePath("auth", locale)}
                   className="login-contact"
                 >
                   <LockKeyhole size={20} />

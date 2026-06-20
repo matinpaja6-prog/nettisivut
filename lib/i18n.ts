@@ -13,6 +13,7 @@ export function applyLocale(nextLocale: Locale) {
   if (typeof window === "undefined") return;
 
   localStorage.setItem("locale", nextLocale);
+  document.cookie = `locale=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
   for (let index = 0; index < localStorage.length; index += 1) {
     const key = localStorage.key(index);
     if (key?.startsWith("visitor-language:")) {
