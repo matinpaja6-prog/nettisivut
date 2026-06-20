@@ -1,5 +1,7 @@
 "use client";
 
+import { canonicalPathFromLocalized } from "@/lib/routes";
+
 type RouterLike = {
   back: () => void;
   push: (href: string) => void;
@@ -43,12 +45,27 @@ function writeInternalHistoryStack(stack: string[]) {
   }
 }
 
+function pathnameFromHref(href: string) {
+  try {
+    return new URL(href, window.location.origin).pathname;
+  } catch {
+    return href.split(/[?#]/)[0] || "/";
+  }
+}
+
+function isListingDetailHref(href: string) {
+  const pathname = canonicalPathFromLocalized(pathnameFromHref(href));
+  return /^\/listing\/[^/?#]+/.test(pathname);
+}
+
 function isMessagesRedirectHref(href: string) {
-  return /^\/messages\/[^/?#]+/.test(href);
+  const pathname = canonicalPathFromLocalized(pathnameFromHref(href));
+  return /^\/messages\/[^/?#]+/.test(pathname);
 }
 
 function isMessagesConversationHref(href: string) {
-  if (!href.startsWith("/messages?")) return false;
+  const pathname = canonicalPathFromLocalized(pathnameFromHref(href));
+  if (pathname !== "/messages") return false;
 
   try {
     const url = new URL(href, window.location.origin);
@@ -113,11 +130,13 @@ export function goBackOrFallback(
   }
 
   const stack = readInternalHistoryStack();
+  const skipListingDetails = currentHref ? isListingDetailHref(currentHref) : false;
 
   while (
     stack.length > 0 &&
     (
       stack.at(-1) === currentHref ||
+      (skipListingDetails && isListingDetailHref(stack.at(-1) ?? "")) ||
       isMessagesRedirectHref(stack.at(-1) ?? "") ||
       isMessagesConversationHref(stack.at(-1) ?? "")
     )
