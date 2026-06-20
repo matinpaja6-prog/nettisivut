@@ -8,7 +8,7 @@ import { canonicalPathFromLocalized, pagePath } from "@/lib/routes";
 
 const footerText = {
   fi: {
-    tagline: "Pohjoisen paras varaosamarketpaikka moottorikelkoille, mönkijöille, motocrossille ja mopoille.",
+    tagline: "Pohjoismaiden paras varaosamarketpaikka moottorikelkoille, mönkijöille, motocrossille ja mopoille.",
     follow: "Seuraa meitä",
     email: "Sähköposti",
     service: "Palvelu",
