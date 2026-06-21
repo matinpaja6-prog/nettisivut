@@ -38,7 +38,11 @@ import {
 } from "@/lib/taxonomy";
 import { useTaxonomy } from "./components/TaxonomyProvider";
 import { getLocalizedListingText } from "@/lib/listing-translations";
-import { readCachedListings, writeCachedListings } from "@/lib/client-listings-cache";
+import {
+  readCachedListings,
+  updateCachedListing,
+  writeCachedListings
+} from "@/lib/client-listings-cache";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 
 import { buildRecoProfile, getRecommendedListings, setRecoUserId } from "@/lib/recommendations";
@@ -1166,9 +1170,10 @@ export default function Home() {
     yearQuery
   ]);
 
-  const openListing = useCallback((listingId: string | number) => {
+  const openListing = useCallback((listing: Listing) => {
     saveHomeReturnState();
-    router.push(listingPath(listingId, locale));
+    updateCachedListing(listing);
+    router.push(listingPath(listingUrlId(listing), locale));
   }, [locale, router, saveHomeReturnState]);
 
   const handleSortChange = useCallback((value: string) => {
@@ -2638,11 +2643,11 @@ export default function Home() {
                         role="link"
                         tabIndex={0}
                         aria-label={`${t.openListing} ${listingText.title}`}
-                        onClick={() => openListing(listingUrlId(listing))}
+                        onClick={() => openListing(listing)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
-                            openListing(listingUrlId(listing));
+                            openListing(listing);
                           }
                         }}
                       >
@@ -2777,11 +2782,11 @@ export default function Home() {
                     role="link"
                     tabIndex={0}
                     aria-label={`${t.openListing} ${listingText.title}`}
-                    onClick={() => openListing(listingUrlId(listing))}
+                    onClick={() => openListing(listing)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
-                        openListing(listingUrlId(listing));
+                        openListing(listing);
                       }
                     }}
                   >

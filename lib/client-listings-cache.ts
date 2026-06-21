@@ -99,14 +99,16 @@ export function updateCachedListing(nextListing: Listing) {
   if (typeof window === "undefined") return;
 
   const listings = readCachedListings();
-  if (listings.length === 0) return;
+  const listingExists = listings.some((listing) => listing.id === nextListing.id);
 
   const nextListings =
     nextListing.is_hidden || nextListing.is_sold
       ? listings.filter((listing) => listing.id !== nextListing.id)
-      : listings.map((listing) =>
-          listing.id === nextListing.id ? { ...listing, ...nextListing } : listing
-        );
+      : listingExists
+        ? listings.map((listing) =>
+            listing.id === nextListing.id ? { ...listing, ...nextListing } : listing
+          )
+        : [...listings, nextListing];
 
   memoryCache = {
     cachedAt: Date.now(),
