@@ -3,7 +3,7 @@
 import { FormEvent, PointerEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useLanguage } from "@/lib/i18n";
+import { useLanguage, type Locale } from "@/lib/i18n";
 import { sanitizePhoneInput } from "@/lib/phone-input";
 import { profilePath } from "@/lib/routes";
 
@@ -13,6 +13,7 @@ import {
   CalendarDays,
   Camera,
   Check,
+  ChevronDown,
   ExternalLink,
   FileText,
   Globe,
@@ -85,6 +86,14 @@ const addressCountryOptions = [
   { code: "DE", value: "Saksa" }
 ];
 
+const addressCountryLabels: Record<Locale, Record<string, string>> = {
+  fi: { Suomi: "Suomi", Ruotsi: "Ruotsi", Norja: "Norja", Tanska: "Tanska", Viro: "Viro", Saksa: "Saksa" },
+  en: { Suomi: "Finland", Ruotsi: "Sweden", Norja: "Norway", Tanska: "Denmark", Viro: "Estonia", Saksa: "Germany" },
+  sv: { Suomi: "Finland", Ruotsi: "Sverige", Norja: "Norge", Tanska: "Danmark", Viro: "Estland", Saksa: "Tyskland" },
+  no: { Suomi: "Finland", Ruotsi: "Sverige", Norja: "Norge", Tanska: "Danmark", Viro: "Estland", Saksa: "Tyskland" },
+  et: { Suomi: "Soome", Ruotsi: "Rootsi", Norja: "Norra", Tanska: "Taani", Viro: "Eesti", Saksa: "Saksamaa" }
+};
+
 const addressCountryAliases: Record<string, string> = {
   da: "Tanska",
   de: "Saksa",
@@ -139,6 +148,10 @@ function getCountryCodeForAddress(value: string | null | undefined) {
 function getCountryValueFromGooglePlace(place: GooglePlace) {
   const countryCode = getGoogleAddressPart(place, "country", true).toUpperCase();
   return addressCountryOptions.find((country) => country.code === countryCode)?.value ?? "";
+}
+
+function getAddressCountryLabel(locale: Locale, value: string) {
+  return addressCountryLabels[locale]?.[value] ?? addressCountryLabels.fi[value] ?? value;
 }
 
 function getErrorMessage(error: unknown) {
@@ -715,6 +728,7 @@ export default function ProfilePage() {
   const [companyVerifyModalOpen, setCompanyVerifyModalOpen] = useState(false);
   const [companyVerifySaving, setCompanyVerifySaving] = useState(false);
   const [companyVerifyStatus, setCompanyVerifyStatus] = useState("");
+  const [countryMenuOpen, setCountryMenuOpen] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarCropFile, setAvatarCropFile] = useState<File | null>(null);
@@ -1979,23 +1993,58 @@ export default function ProfilePage() {
                     </span>
                     <span className="pf-info-label">{profileText.country}</span>
                     <div className="pf-info-value">
-                      <select
-                        autoComplete="country-name"
-                        name="country-name"
-                        value={normalizeAddressCountry(profile.country)}
-                        onChange={e => setProfile({ ...profile, country: e.target.value })}
+                      <div
+                        className={`pf-country-combobox${countryMenuOpen ? " is-open" : ""}`}
+                        onBlur={(event) => {
+                          if (!event.currentTarget.contains(event.relatedTarget)) {
+                            setCountryMenuOpen(false);
+                          }
+                        }}
                       >
-                        {!addressCountryOptions.some((country) => country.value === normalizeAddressCountry(profile.country)) && (
-                          <option value={normalizeAddressCountry(profile.country)}>
-                            {normalizeAddressCountry(profile.country)}
-                          </option>
+                        <button
+                          type="button"
+                          className="pf-country-button"
+                          aria-haspopup="listbox"
+                          aria-expanded={countryMenuOpen}
+                          onClick={() => setCountryMenuOpen((open) => !open)}
+                        >
+                          <span>{getAddressCountryLabel(locale, normalizeAddressCountry(profile.country))}</span>
+                          <ChevronDown size={15} aria-hidden="true" />
+                        </button>
+                        {countryMenuOpen && (
+                          <div className="pf-country-menu" role="listbox" aria-label={profileText.country}>
+                            {!addressCountryOptions.some((country) => country.value === normalizeAddressCountry(profile.country)) && (
+                              <button
+                                type="button"
+                                role="option"
+                                aria-selected="true"
+                                className="pf-country-option is-active"
+                                onClick={() => setCountryMenuOpen(false)}
+                              >
+                                {normalizeAddressCountry(profile.country)}
+                              </button>
+                            )}
+                            {addressCountryOptions.map((country) => {
+                              const active = normalizeAddressCountry(profile.country) === country.value;
+                              return (
+                                <button
+                                  key={country.code}
+                                  type="button"
+                                  role="option"
+                                  aria-selected={active}
+                                  className={`pf-country-option${active ? " is-active" : ""}`}
+                                  onClick={() => {
+                                    setProfile({ ...profile, country: country.value });
+                                    setCountryMenuOpen(false);
+                                  }}
+                                >
+                                  {getAddressCountryLabel(locale, country.value)}
+                                </button>
+                              );
+                            })}
+                          </div>
                         )}
-                        {addressCountryOptions.map((country) => (
-                          <option key={country.code} value={country.value}>
-                            {country.value}
-                          </option>
-                        ))}
-                      </select>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3423,6 +3472,93 @@ export default function ProfilePage() {
         #julkinen-profiili .pf-readonly-value {
           align-items: center !important;
           display: flex !important;
+        }
+
+        .pf-country-combobox {
+          position: relative !important;
+          width: min(100%, 260px) !important;
+        }
+
+        .pf-country-button {
+          align-items: center !important;
+          background: rgba(9, 30, 52, 0.88) !important;
+          border: 1px solid rgba(91, 141, 184, 0.42) !important;
+          border-radius: 6px !important;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+          color: #ffffff !important;
+          cursor: pointer !important;
+          display: flex !important;
+          font-size: 15px !important;
+          font-weight: 900 !important;
+          gap: 10px !important;
+          height: 42px !important;
+          justify-content: space-between !important;
+          line-height: 1 !important;
+          padding: 0 12px !important;
+          width: 100% !important;
+        }
+
+        .pf-country-button svg {
+          color: #ff8a1f !important;
+          flex: 0 0 auto !important;
+          transition: transform 140ms ease !important;
+        }
+
+        .pf-country-combobox.is-open .pf-country-button svg {
+          transform: rotate(180deg) !important;
+        }
+
+        .pf-country-menu {
+          background: #071827 !important;
+          border: 1px solid rgba(91, 141, 184, 0.58) !important;
+          border-radius: 8px !important;
+          box-shadow: 0 18px 42px rgba(0, 0, 0, 0.46) !important;
+          display: grid !important;
+          gap: 4px !important;
+          left: 0 !important;
+          max-height: 232px !important;
+          overflow-y: auto !important;
+          padding: 6px !important;
+          position: absolute !important;
+          right: 0 !important;
+          top: calc(100% + 6px) !important;
+          z-index: 40 !important;
+        }
+
+        .pf-country-option {
+          background: transparent !important;
+          border: 0 !important;
+          border-radius: 6px !important;
+          color: rgba(230, 238, 247, 0.86) !important;
+          cursor: pointer !important;
+          font-size: 14px !important;
+          font-weight: 850 !important;
+          min-height: 34px !important;
+          padding: 8px 10px !important;
+          text-align: left !important;
+        }
+
+        .pf-country-option:hover,
+        .pf-country-option:focus-visible,
+        .pf-country-option.is-active {
+          background: rgba(255, 122, 26, 0.15) !important;
+          color: #ffffff !important;
+          outline: 0 !important;
+        }
+
+        @media (max-width: 760px) {
+          .pf-country-combobox {
+            width: 100% !important;
+          }
+
+          .pf-country-button {
+            height: 40px !important;
+            font-size: 14px !important;
+          }
+
+          .pf-country-menu {
+            max-height: 198px !important;
+          }
         }
 
         #julkinen-profiili textarea {

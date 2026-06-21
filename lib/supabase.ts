@@ -1347,6 +1347,54 @@ export async function deleteListing(
 
     }
 
+    const sessionResult =
+      await supabase.auth.getSession();
+    const token =
+      sessionResult.data.session?.access_token;
+
+    if (token) {
+      try {
+        const response =
+          await fetch(`/api/listings/${encodeURIComponent(listingId)}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+        const payload =
+          await response
+            .json()
+            .catch(() => null) as {
+              error?: string;
+              imageCleanupErrors?: string[];
+            } | null;
+
+        if (response.ok) {
+          return {
+            data: { id: listingId },
+            error: null,
+            imageCleanupError:
+              payload?.imageCleanupErrors?.length
+                ? new Error(payload.imageCleanupErrors.join(", "))
+                : null
+          };
+        }
+
+        const canFallbackToClientDelete =
+          response.status === 404 ||
+          response.status >= 500;
+
+        if (!canFallbackToClientDelete) {
+          return {
+            data: null,
+            error: new Error(payload?.error ?? "Ilmoituksen poisto epäonnistui.")
+          };
+        }
+      } catch {
+        // Fall back to direct Supabase delete below when the local API is not reachable.
+      }
+    }
+
     const listingResult =
       await supabase
         .from("listings")

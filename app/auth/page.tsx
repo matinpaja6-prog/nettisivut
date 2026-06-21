@@ -3,7 +3,7 @@
 import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Building2, Check, LockKeyhole, Mail, UserRound, X } from "lucide-react";
+import { ArrowLeft, Building2, Check, ChevronDown, LockKeyhole, Mail, UserRound, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { BirthDateField } from "@/app/components/BirthDateField";
 import { goBackOrFallback } from "@/lib/go-back";
@@ -357,6 +357,7 @@ function AuthPageContent() {
   const [pendingEmail, setPendingEmail] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [phoneDialingCode, setPhoneDialingCode] = useState("+358");
+  const [phoneCodeMenuOpen, setPhoneCodeMenuOpen] = useState(false);
   const [customCountry, setCustomCountry] = useState("");
   const companyAddressInputRef = useRef<HTMLInputElement | null>(null);
   const googlePlacesApiKey =
@@ -1389,31 +1390,56 @@ function AuthPageContent() {
                   <label>
                     {form.account_type === "company" ? t.authCompanyPhone : t.authPhone}
                     <div className="phone-field-row phone-field-row-polished">
-                      <span className="phone-code-select-wrap">
-                        <span className="phone-code-selected" aria-hidden="true">
-                          <span className="phone-code-flag">{currentPhoneDialingOption.flag}</span>
-                          <span>{phoneParts.code}</span>
-                        </span>
-                        <select
-                          aria-label="Suuntanumero"
-                          autoComplete="tel-country-code"
-                          name="tel-country-code"
-                          value={phoneParts.code}
-                          onChange={(event) => {
-                            setPhoneDialingCode(event.target.value);
-                            setForm({
-                              ...form,
-                              phone: buildPhoneNumber(event.target.value, phoneParts.national)
-                            });
-                          }}
+                      <div
+                        className={`phone-code-select-wrap${phoneCodeMenuOpen ? " is-open" : ""}`}
+                        onBlur={(event) => {
+                          if (!event.currentTarget.contains(event.relatedTarget)) {
+                            setPhoneCodeMenuOpen(false);
+                          }
+                        }}
+                      >
+                        <button
+                          type="button"
+                          className="phone-code-selected"
+                          aria-label="Valitse suuntanumero"
+                          aria-haspopup="listbox"
+                          aria-expanded={phoneCodeMenuOpen}
+                          onClick={() => setPhoneCodeMenuOpen((open) => !open)}
                         >
+                          <span className="phone-code-flag">{currentPhoneDialingOption.flag}</span>
+                          <span className="phone-code-country">{currentPhoneDialingOption.country}</span>
+                          <span>{phoneParts.code}</span>
+                          <ChevronDown size={14} strokeWidth={2.4} aria-hidden="true" />
+                        </button>
+                        <input type="hidden" name="tel-country-code" value={phoneParts.code} />
+                        {phoneCodeMenuOpen && (
+                          <div className="phone-code-menu" role="listbox" aria-label="Suuntanumero">
                           {phoneDialingOptions.map((option) => (
-                            <option key={`${option.country}-${option.code}`} value={option.code}>
-                              {option.flag} {option.code} {getCountryName(locale, option.country)}
-                            </option>
+                            <button
+                              key={`${option.country}-${option.code}`}
+                              type="button"
+                              className={`phone-code-option${option.code === phoneParts.code ? " is-selected" : ""}`}
+                              role="option"
+                              aria-selected={option.code === phoneParts.code}
+                              onMouseDown={(event) => event.preventDefault()}
+                              onClick={() => {
+                                setPhoneDialingCode(option.code);
+                                setForm({
+                                  ...form,
+                                  phone: buildPhoneNumber(option.code, phoneParts.national)
+                                });
+                                setPhoneCodeMenuOpen(false);
+                              }}
+                            >
+                              <span className="phone-code-flag">{option.flag}</span>
+                              <span className="phone-code-country">{option.country}</span>
+                              <strong>{option.code}</strong>
+                              <span className="phone-code-name">{getCountryName(locale, option.country)}</span>
+                            </button>
                           ))}
-                        </select>
-                      </span>
+                          </div>
+                        )}
+                      </div>
                       <input
                         required
                         type="tel"
