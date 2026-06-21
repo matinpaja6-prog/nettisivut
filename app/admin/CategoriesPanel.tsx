@@ -331,7 +331,7 @@ export default function CategoriesPanel({ onToastAction: onToast }: Props) {
             <FolderTree size={18} /> Kategoriat
           </h2>
         </header>
-        <p className={styles.empty}>Ladataan...</p>
+        <p className={styles.empty} aria-busy="true" />
       </section>
     );
   }

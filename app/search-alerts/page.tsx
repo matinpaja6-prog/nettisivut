@@ -488,10 +488,7 @@ export default function SearchAlertsPage() {
 
             <div className="sa-list">
               {loading ? (
-                <div className="sa-empty">
-                  <div className="sa-empty-icon"><Bell size={32} /></div>
-                  <p>Ladataan...</p>
-                </div>
+                <div className="sa-empty" aria-busy="true" />
               ) : alerts.length === 0 ? (
                 <div className="sa-empty">
                   <div className="sa-empty-icon"><BellOff size={36} /></div>
@@ -657,7 +654,7 @@ export default function SearchAlertsPage() {
                 {expanded === alert.id && (
                   <div className="sa-matches">
                     {matchLoading === alert.id ? (
-                      <div className="sa-matches-empty">{t.saLoading}</div>
+                      <div className="sa-matches-empty" aria-busy="true" />
                     ) : (matches[alert.id]?.length ?? 0) === 0 ? (
                       <div className="sa-matches-empty">{t.saNoMatches}</div>
                     ) : (

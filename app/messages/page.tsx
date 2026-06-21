@@ -846,12 +846,12 @@ export default function MessagesPage() {
   const activeConversation =
     useMemo(
       () =>
-        visibleConversations.find(
-          (conversation) =>
-            conversation.id === selectedConversationId
-        ) ||
-        visibleConversations[0] ||
-        null,
+        selectedConversationId
+          ? visibleConversations.find(
+              (conversation) =>
+                conversation.id === selectedConversationId
+            ) ?? null
+          : null,
       [
         visibleConversations,
         selectedConversationId
@@ -928,28 +928,6 @@ export default function MessagesPage() {
     requestedConversationId,
     router,
     userId
-  ]);
-
-  useEffect(() => {
-    if (
-      (
-        selectedConversationId &&
-        visibleConversations.some(
-          (conversation) =>
-            conversation.id === selectedConversationId
-        )
-      ) ||
-      visibleConversations.length === 0
-    ) {
-      return;
-    }
-
-    setSelectedConversationId(
-      visibleConversations[0].id
-    );
-  }, [
-    visibleConversations,
-    selectedConversationId
   ]);
 
   function closeMobileConversation() {
@@ -1549,13 +1527,7 @@ export default function MessagesPage() {
         <section className="chat-wrapper" aria-label="Aktiivinen keskustelu">
 
           {loading ? (
-            <div className="messages-empty messages-loading-panel">
-              <span className="messages-empty-icon">
-                <MessageCircle size={28} />
-              </span>
-              <h2>Ladataan viestejä...</h2>
-              <p>Haetaan keskustelut ja luetuksi-tilat.</p>
-            </div>
+            <div className="messages-empty messages-loading-panel" aria-busy="true" />
           ) : !userId ? (
             <div className="messages-login-panel">
               <LockKeyhole size={24} />
@@ -1657,12 +1629,21 @@ export default function MessagesPage() {
               <span className="messages-empty-icon">
                 <MessageCircle size={28} />
               </span>
-              <h2>Ei keskusteluja vielä.</h2>
-              <p>Kun saat viestejä ilmoituksiisi, ne näkyvät täällä.</p>
-              <Link href="/" className="messages-empty-cta">
-                <Plus size={16} />
-                Selaa ilmoituksia
-              </Link>
+              {visibleConversations.length > 0 ? (
+                <>
+                  <h2>Valitse keskustelu</h2>
+                  <p>Avaa viesti vasemmalta jatkaaksesi keskustelua.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Ei keskusteluja vielä.</h2>
+                  <p>Kun saat viestejä ilmoituksiisi, ne näkyvät täällä.</p>
+                  <Link href="/" className="messages-empty-cta">
+                    <Plus size={16} />
+                    Selaa ilmoituksia
+                  </Link>
+                </>
+              )}
             </div>
           )}
 

@@ -303,9 +303,7 @@ export default function GaragePage() {
 
   if (loading) {
     return (
-      <main className="garage-page">
-        <div className="garage-loading">{t.garageLoadingParts}</div>
-      </main>
+      <main className="garage-page" aria-busy="true" />
     );
   }
 
@@ -625,9 +623,7 @@ export default function GaragePage() {
                         </div>
 
                         {listingsLoading ? (
-                          <p className="garage-parts-loading">
-                            {t.garageLoadingParts}
-                          </p>
+                          null
                         ) : vehicleListings.length === 0 ? (
                           <p className="garage-parts-empty">
                             {t.garageNoParts}

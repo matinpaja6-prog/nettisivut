@@ -282,9 +282,7 @@ export default function FollowedProfilesPage() {
   if (!authChecked || loading) {
     return (
       <main className="followed-page">
-        <div className="followed-container">
-          <div className="followed-loading">{text.loading}</div>
-        </div>
+        <div className="followed-container" aria-busy="true" />
       </main>
     );
   }

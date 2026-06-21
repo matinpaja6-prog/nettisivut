@@ -1643,10 +1643,7 @@ export default function MyListingsPage() {
           </div>
 
           {!listingsCacheReady && listings.length === 0 ? (
-            <div className={styles.emptyState}>
-              <Tag size={28} />
-              <span>Ladataan omia ilmoituksia...</span>
-            </div>
+            <div className={styles.emptyState} aria-busy="true" />
           ) : filteredListings.length === 0 && multiGroups.length === 0 ? (
             <div className={styles.emptyState}>
               <Tag size={28} />

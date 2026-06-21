@@ -536,7 +536,7 @@ export default function FloatingChat() {
           {!userId && (
             <div className="fc-login-state">
               <MessageCircle size={24} />
-              <strong>{authChecked ? t.login : "Ladataan..."}</strong>
+              <strong>{authChecked ? t.login : ""}</strong>
               <span>{authChecked ? "Kirjaudu sisään nähdäksesi viestit." : "Tarkistetaan kirjautumista."}</span>
               {authChecked && (
                 <button type="button" onClick={() => router.push("/auth")}>

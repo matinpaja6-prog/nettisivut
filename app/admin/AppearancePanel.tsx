@@ -356,7 +356,7 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
             <Palette size={18} /> Ulkoasu
           </h2>
         </header>
-        <p className={styles.empty}>Ladataan…</p>
+        <p className={styles.empty} aria-busy="true" />
       </section>
     );
   }
@@ -447,7 +447,7 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
               disabled={uploading}
             >
               <Upload size={15} />
-              {uploading ? "Ladataan…" : "Lataa uusi kuva"}
+              {uploading ? "..." : "Lataa uusi kuva"}
             </button>
           </div>
 

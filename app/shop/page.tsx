@@ -200,11 +200,7 @@ function ShopEnabledPage() {
           </div>
         )}
 
-        {user && loading && (
-          <div className="profile-alert">
-            <span>{sh.loading}</span>
-          </div>
-        )}
+        {user && loading && null}
 
         {user && !loading && (
           <>

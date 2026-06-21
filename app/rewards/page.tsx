@@ -332,11 +332,7 @@ function RewardsEnabledPage() {
           </div>
         )}
 
-        {user && loading && (
-          <div className="profile-alert">
-            <span>{rw.loading}</span>
-          </div>
-        )}
+        {user && loading && null}
 
         {user && !loading && (
           <>

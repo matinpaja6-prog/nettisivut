@@ -209,7 +209,7 @@ export default function SavedListingsPage() {
             </Link>
           </div>
         ) : listingsLoading ? (
-          <div className={`${marketplaceStyles.cardsGrid} saved-grid`} aria-label="Ladataan tallennettuja ilmoituksia">
+          <div className={`${marketplaceStyles.cardsGrid} saved-grid`} aria-busy="true">
             {[0, 1, 2].map((item) => (
               <div className="saved-card saved-card-skeleton" key={item}>
                 <div className="saved-card-image" />

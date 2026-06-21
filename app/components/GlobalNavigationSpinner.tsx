@@ -90,7 +90,7 @@ export default function GlobalNavigationSpinner() {
   if (!visible) return null;
 
   return (
-    <div className="global-navigation-spinner" role="status" aria-live="polite" aria-label="Ladataan">
+    <div className="global-navigation-spinner" role="status" aria-live="polite" aria-label="Siirrytään">
       <span aria-hidden="true" />
     </div>
   );

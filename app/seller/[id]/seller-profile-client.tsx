@@ -301,11 +301,10 @@ function writeSellerProfileCachePatch(
   });
 }
 
-function SellerTabLoading({ label }: { label: string }) {
+function SellerTabLoading({ label: _label }: { label: string }) {
   return (
-    <div className="seller-tab-loading" role="status" aria-live="polite">
+    <div className="seller-tab-loading" role="status" aria-live="polite" aria-busy="true">
       <span className="seller-tab-spinner" aria-hidden="true" />
-      <span>{label}</span>
     </div>
   );
 }

@@ -76,7 +76,7 @@ export default function ListingsIndexPage() {
   const { locale, t } = useLanguage();
   const [listings, setListings] =
     useState<Listing[]>(fallbackListings);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
   const [favorites, setFavorites] = useState<string[]>([]);
   const favoritesHydrated = useRef(false);
@@ -221,12 +221,6 @@ export default function ListingsIndexPage() {
         </h1>
 
         <div style={{ height: 14 }} />
-
-        {loading ? (
-          <div className={homeStyles.emptyState}>
-            <strong>Ladataan ilmoituksia...</strong>
-          </div>
-        ) : null}
 
         <div className={homeStyles.cardsGrid}>
           {sorted.map((listing) => {

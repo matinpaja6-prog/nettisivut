@@ -92,7 +92,7 @@ const listingUiText = {
     viewProfile: "Katso profiili",
     contactHeading: "Kysyttävää kohteesta?",
     sendMessage: "Lähetä viesti",
-    fetchingPhone: "Haetaan numeroa...",
+    fetchingPhone: "...",
     showPhone: "Näytä numero",
     missingPhone: "Numero puuttuu",
     loginContact: "Kirjaudu nähdäksesi yhteystiedot"
@@ -133,7 +133,7 @@ const listingUiText = {
     viewProfile: "View profile",
     contactHeading: "Questions about this listing?",
     sendMessage: "Send message",
-    fetchingPhone: "Fetching number...",
+    fetchingPhone: "...",
     showPhone: "Show number",
     missingPhone: "Number missing",
     loginContact: "Log in to see contact details"
@@ -174,7 +174,7 @@ const listingUiText = {
     viewProfile: "Visa profil",
     contactHeading: "Frågor om annonsen?",
     sendMessage: "Skicka meddelande",
-    fetchingPhone: "Hämtar nummer...",
+    fetchingPhone: "...",
     showPhone: "Visa nummer",
     missingPhone: "Nummer saknas",
     loginContact: "Logga in för att se kontaktuppgifter"
@@ -215,7 +215,7 @@ const listingUiText = {
     viewProfile: "Vis profil",
     contactHeading: "Spørsmål om annonsen?",
     sendMessage: "Send melding",
-    fetchingPhone: "Henter nummer...",
+    fetchingPhone: "...",
     showPhone: "Vis nummer",
     missingPhone: "Nummer mangler",
     loginContact: "Logg inn for å se kontaktopplysninger"
@@ -256,7 +256,7 @@ const listingUiText = {
     viewProfile: "Vaata profiili",
     contactHeading: "Küsimusi kuulutuse kohta?",
     sendMessage: "Saada sõnum",
-    fetchingPhone: "Laadin numbrit...",
+    fetchingPhone: "...",
     showPhone: "Näita numbrit",
     missingPhone: "Number puudub",
     loginContact: "Kontaktandmete nägemiseks logi sisse"
@@ -1703,7 +1703,7 @@ export default function ListingPage() {
                   {isLoggedIn ? (
                     <>
                       <Link
-                        href={`${pagePath("messages", locale)}/${listing.id}`}
+                        href={pagePath("messages", locale)}
                         className="message-btn"
                       >
                         <Mail size={20} />
@@ -1789,7 +1789,7 @@ export default function ListingPage() {
 
                   )}
                   <Link
-                    href={`${pagePath("messages", locale)}/${listing.id}`}
+                    href={pagePath("messages", locale)}
                     className="message-btn"
                   >
                     <Mail size={20} />

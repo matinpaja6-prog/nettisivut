@@ -1474,7 +1474,7 @@ function UsersPanel({
           onChange={(e) => onQueryChange(e.target.value)}
         />
         <button type="button" className={styles.ghostBtn} onClick={onRefresh}>
-          {loading ? "Ladataan..." : "Päivitä"}
+          {loading ? "..." : "Päivitä"}
         </button>
       </div>
 
@@ -1851,7 +1851,7 @@ function ListingsPanel({
             window.setTimeout(onRefresh, 0);
           }}
         >
-          {loading ? "Ladataan..." : "Näytä kaikki ilmoitukset"}
+          {loading ? "..." : "Näytä kaikki ilmoitukset"}
         </button>
       </div>
 
@@ -1915,7 +1915,7 @@ function ListingsPanel({
           </button>
         </div>
         <button type="button" className={styles.ghostBtn} onClick={onRefresh}>
-          {loading ? "Ladataan..." : "Päivitä"}
+          {loading ? "..." : "Päivitä"}
         </button>
       </div>
 
@@ -1948,7 +1948,7 @@ function ListingsPanel({
           onChange={(e) => onQueryChange(e.target.value)}
         />
         <button type="button" className={styles.ghostBtn} onClick={onRefresh}>
-          {loading ? "Ladataan..." : "Päivitä"}
+          {loading ? "..." : "Päivitä"}
         </button>
       </div>
       {listings.length < counts.all && !query.trim() && vehicle === "all" && (
@@ -2052,7 +2052,7 @@ function ListingFeedbackPanel({
           <h2>Arviot</h2>
         </div>
         <button type="button" className={styles.ghostBtn} onClick={onRefresh}>
-          {loading ? "Ladataan..." : "Päivitä"}
+          {loading ? "..." : "Päivitä"}
         </button>
       </div>
 
@@ -2165,7 +2165,7 @@ function BansPanel({
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button type="button" className={styles.ghostBtn} onClick={onRefresh}>
-            {loading || usersLoading ? "Ladataan..." : "Päivitä"}
+            {loading || usersLoading ? "..." : "Päivitä"}
           </button>
           <button type="button" className={styles.primaryBtn} onClick={onAddIp}>
             <Ban size={14} /> Bannaa IP

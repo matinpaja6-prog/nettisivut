@@ -2737,7 +2737,7 @@ export default function Home() {
                 </div>
               ) : (
                 <span className={styles.resultsCount}>
-                  {listingsLoading ? t.loadingListings : `${filteredListings.length} ${t.content}`}
+                  {listingsLoading ? "" : `${filteredListings.length} ${t.content}`}
                 </span>
               )}
               <div className={styles.listingToolbar}>
@@ -2750,14 +2750,7 @@ export default function Home() {
               style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
             >
               <div className={styles.cardsGrid}>
-              {listingsLoading ? (
-                <div
-                  className={styles.listingsPlainState}
-                  style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
-                >
-                  <strong>{t.loadingListings}</strong>
-                </div>
-              ) : displayedListings.length === 0 ? (
+              {listingsLoading ? null : displayedListings.length === 0 ? (
                 <div
                   className={styles.listingsPlainState}
                   style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
