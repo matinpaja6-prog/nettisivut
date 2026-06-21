@@ -1060,7 +1060,7 @@ function AuthPageContent() {
   const showBackHome =
     !user && !emailPending;
   const profilePrivacyHref =
-    "/privacy?from=profile-completion&returnTo=%2Fauth";
+    "/privacy";
 
   function persistProfileCompletionDraft() {
     if (typeof window === "undefined") return;
@@ -1555,7 +1555,16 @@ function AuthPageContent() {
                   />
                   <label htmlFor="privacy-accept" className="privacy-checkbox-label">
                     {t.authPrivacyAcceptText}{" "}
-                    <Link href={profilePrivacyHref} className="privacy-link" onClick={persistProfileCompletionDraft}>
+                    <Link
+                      href={profilePrivacyHref}
+                      className="privacy-link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        persistProfileCompletionDraft();
+                      }}
+                    >
                       {t.authPrivacyLink}
                     </Link>
                   </label>
