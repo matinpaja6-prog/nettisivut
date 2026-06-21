@@ -667,6 +667,10 @@ export default function ListingPage() {
     let mounted = true;
 
     setListingDisplayNumber(null);
+    setActiveImage(null);
+    setPreviewImage(null);
+    setShowPhone(false);
+    setSellerPhone("");
 
     const cached =
       readCachedListing(params.id);
@@ -679,6 +683,9 @@ export default function ListingPage() {
     if (initialListing) {
       setListing(initialListing);
       setLoading(false);
+    } else {
+      setListing(null);
+      setLoading(true);
     }
 
     getListingById(params.id)
@@ -1703,7 +1710,7 @@ export default function ListingPage() {
                   {isLoggedIn ? (
                     <>
                       <Link
-                        href={pagePath("messages", locale)}
+                        href={`${pagePath("messages", locale)}/${listing.id}`}
                         className="message-btn"
                       >
                         <Mail size={20} />
@@ -1789,7 +1796,7 @@ export default function ListingPage() {
 
                   )}
                   <Link
-                    href={pagePath("messages", locale)}
+                    href={`${pagePath("messages", locale)}/${listing.id}`}
                     className="message-btn"
                   >
                     <Mail size={20} />
