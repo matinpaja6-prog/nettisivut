@@ -728,7 +728,6 @@ export default function ProfilePage() {
   const [companyVerifyModalOpen, setCompanyVerifyModalOpen] = useState(false);
   const [companyVerifySaving, setCompanyVerifySaving] = useState(false);
   const [companyVerifyStatus, setCompanyVerifyStatus] = useState("");
-  const [countryMenuOpen, setCountryMenuOpen] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarCropFile, setAvatarCropFile] = useState<File | null>(null);
@@ -1987,66 +1986,20 @@ export default function ProfilePage() {
                       />
                     </div>
                   </div>
-                  <div className={`pf-info-row pf-country-info-row${countryMenuOpen ? " is-open" : ""}`}>
+                  <div className="pf-info-row pf-country-info-row">
                     <span className="pf-info-row-icon">
                       <Globe size={16} />
                     </span>
                     <span className="pf-info-label">{profileText.country}</span>
                     <div className="pf-info-value">
-                      <div
-                        className={`pf-country-combobox${countryMenuOpen ? " is-open" : ""}`}
-                        onBlur={(event) => {
-                          if (!event.currentTarget.contains(event.relatedTarget)) {
-                            setCountryMenuOpen(false);
-                          }
-                        }}
-                      >
-                        <button
-                          type="button"
-                          className="pf-country-button"
-                          aria-haspopup="listbox"
-                          aria-expanded={countryMenuOpen}
-                          onClick={() => setCountryMenuOpen((open) => !open)}
-                        >
-                          <span>{getAddressCountryLabel(locale, normalizeAddressCountry(profile.country))}</span>
-                          <ChevronDown size={15} aria-hidden="true" />
-                        </button>
-                        {countryMenuOpen && (
-                          <div className="pf-country-menu" role="listbox" aria-label={profileText.country}>
-                            {!addressCountryOptions.some((country) => country.value === normalizeAddressCountry(profile.country)) && (
-                              <button
-                                type="button"
-                                role="option"
-                                aria-selected="true"
-                                className="pf-country-option is-active"
-                                onMouseDown={(event) => event.preventDefault()}
-                                onClick={() => setCountryMenuOpen(false)}
-                              >
-                                {normalizeAddressCountry(profile.country)}
-                              </button>
-                            )}
-                            {addressCountryOptions.map((country) => {
-                              const active = normalizeAddressCountry(profile.country) === country.value;
-                              return (
-                                <button
-                                  key={country.code}
-                                  type="button"
-                                  role="option"
-                                  aria-selected={active}
-                                  className={`pf-country-option${active ? " is-active" : ""}`}
-                                  onMouseDown={(event) => event.preventDefault()}
-                                  onClick={() => {
-                                    setProfile({ ...profile, country: country.value });
-                                    setCountryMenuOpen(false);
-                                  }}
-                                >
-                                  {getAddressCountryLabel(locale, country.value)}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
+                      <input
+                        className="pf-country-input"
+                        autoComplete="country-name"
+                        name="country-name"
+                        value={profile.country ?? ""}
+                        onChange={(event) => setProfile({ ...profile, country: event.target.value })}
+                        placeholder={profileText.country}
+                      />
                     </div>
                   </div>
                 </div>
@@ -3476,90 +3429,36 @@ export default function ProfilePage() {
           display: flex !important;
         }
 
-        .pf-country-combobox {
-          position: relative !important;
-          width: min(100%, 260px) !important;
-        }
-
-        .pf-country-button {
-          align-items: center !important;
+        .pf-country-input {
           background: rgba(9, 30, 52, 0.88) !important;
-          border: 1px solid rgba(91, 141, 184, 0.42) !important;
+          border: 1px solid rgba(126, 197, 240, 0.42) !important;
           border-radius: 6px !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            0 10px 24px rgba(0, 7, 18, 0.16) !important;
           color: #ffffff !important;
-          cursor: pointer !important;
-          display: flex !important;
           font-size: 15px !important;
           font-weight: 900 !important;
-          gap: 10px !important;
           height: 42px !important;
-          justify-content: space-between !important;
           line-height: 1 !important;
           padding: 0 12px !important;
-          width: 100% !important;
+          width: min(100%, 260px) !important;
+          -webkit-text-fill-color: #ffffff !important;
         }
 
-        .pf-country-button svg {
-          color: #ff8a1f !important;
-          flex: 0 0 auto !important;
-          transition: transform 140ms ease !important;
-        }
-
-        .pf-country-combobox.is-open .pf-country-button svg {
-          transform: rotate(180deg) !important;
-        }
-
-        .pf-country-menu {
-          background: #071827 !important;
-          border: 1px solid rgba(91, 141, 184, 0.58) !important;
-          border-radius: 8px !important;
-          box-shadow: 0 18px 42px rgba(0, 0, 0, 0.46) !important;
-          display: grid !important;
-          gap: 4px !important;
-          left: 0 !important;
-          max-height: 232px !important;
-          overflow-y: auto !important;
-          padding: 6px !important;
-          position: absolute !important;
-          right: 0 !important;
-          top: calc(100% + 6px) !important;
-          z-index: 40 !important;
-        }
-
-        .pf-country-option {
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 6px !important;
-          color: rgba(230, 238, 247, 0.86) !important;
-          cursor: pointer !important;
-          font-size: 14px !important;
-          font-weight: 850 !important;
-          min-height: 34px !important;
-          padding: 8px 10px !important;
-          text-align: left !important;
-        }
-
-        .pf-country-option:hover,
-        .pf-country-option:focus-visible,
-        .pf-country-option.is-active {
-          background: rgba(255, 122, 26, 0.15) !important;
-          color: #ffffff !important;
-          outline: 0 !important;
+        .pf-country-input:focus {
+          border-color: rgba(255, 138, 34, 0.86) !important;
+          box-shadow:
+            0 0 0 3px rgba(255, 138, 34, 0.14),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+          outline: none !important;
         }
 
         @media (max-width: 760px) {
-          .pf-country-combobox {
-            width: 100% !important;
-          }
-
-          .pf-country-button {
+          .pf-country-input {
             height: 40px !important;
             font-size: 14px !important;
-          }
-
-          .pf-country-menu {
-            max-height: 198px !important;
+            width: 100% !important;
           }
         }
 
@@ -6250,35 +6149,9 @@ export default function ProfilePage() {
             z-index: 30 !important;
           }
 
-          html body .pf-page #osoite .pf-country-info-row.is-open {
-            min-height: 214px !important;
-            padding-bottom: 12px !important;
-            padding-top: 10px !important;
-          }
-
-          html body .pf-page #osoite .pf-country-info-row.is-open .pf-info-row-icon,
-          html body .pf-page #osoite .pf-country-info-row.is-open .pf-info-label {
-            margin-top: 2px !important;
-          }
-
           html body .pf-page #osoite .pf-country-info-row .pf-info-value {
             align-self: start !important;
             display: block !important;
-          }
-
-          html body .pf-page #osoite .pf-country-combobox {
-            display: grid !important;
-            gap: 6px !important;
-            position: relative !important;
-            z-index: 31 !important;
-          }
-
-          html body .pf-page #osoite .pf-country-menu {
-            box-sizing: border-box !important;
-            min-width: 100% !important;
-            position: static !important;
-            width: 100% !important;
-            z-index: 9999 !important;
           }
 
           @media (max-width: 640px) {
@@ -6595,6 +6468,13 @@ export default function ProfilePage() {
           html body .pf-phone-modal.pf-delete-modal .pf-modal-close {
             right: 16px !important;
             top: 16px !important;
+          }
+
+          html body .pf-page #osoite,
+          html body .pf-page #osoite > .pf-address-rows,
+          html body .pf-page #osoite .pf-country-info-row,
+          html body .pf-page #osoite .pf-country-info-row > .pf-info-value {
+            overflow: visible !important;
           }
 
           @media (max-width: 640px) {
