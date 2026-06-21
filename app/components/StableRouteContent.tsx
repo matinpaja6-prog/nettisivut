@@ -1,58 +1,93 @@
 "use client";
 
-import { useLayoutEffect, useRef, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode
+} from "react";
+import { usePathname } from "next/navigation";
 
-function renderableChildren(container: HTMLElement) {
-  return Array.from(container.children).filter(
-    (element) => element.tagName !== "SCRIPT" && element.tagName !== "STYLE"
+type RouteLayer = {
+  key: string;
+  content: ReactNode;
+};
+
+function PendingRouteLayer({
+  children,
+  onReady
+}: {
+  children: ReactNode;
+  onReady: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const container = ref.current;
+    if (!container) return;
+
+    const hasContent = () =>
+      Array.from(container.children).some(
+        (element) => element.tagName !== "SCRIPT" && element.tagName !== "STYLE"
+      );
+
+    if (hasContent()) {
+      onReady();
+      return;
+    }
+
+    const observer = new MutationObserver(() => {
+      if (!hasContent()) return;
+      observer.disconnect();
+      onReady();
+    });
+    observer.observe(container, { childList: true });
+
+    return () => observer.disconnect();
+  }, [onReady]);
+
+  return (
+    <div ref={ref} className="stable-route-layer stable-route-pending" aria-hidden="true">
+      {children}
+    </div>
   );
 }
 
 export default function StableRouteContent({ children }: { children: ReactNode }) {
-  const liveRef = useRef<HTMLDivElement>(null);
-  const snapshotRef = useRef<HTMLDivElement>(null);
-  const lastContentRef = useRef<Element[]>([]);
+  const pathname = usePathname();
+  const [activeKey, setActiveKey] = useState(pathname);
+  const [layers, setLayers] = useState<RouteLayer[]>([
+    { key: pathname, content: children }
+  ]);
 
-  useLayoutEffect(() => {
-    const live = liveRef.current;
-    const snapshot = snapshotRef.current;
-    if (!live || !snapshot) return;
+  useEffect(() => {
+    setLayers((current) => {
+      const existing = current.find((layer) => layer.key === pathname);
+      if (!existing) return [...current, { key: pathname, content: children }];
+      if (existing.content === children) return current;
 
-    const syncSnapshot = () => {
-      const currentContent = renderableChildren(live);
+      return current.map((layer) =>
+        layer.key === pathname ? { ...layer, content: children } : layer
+      );
+    });
+  }, [children, pathname]);
 
-      if (currentContent.length > 0) {
-        lastContentRef.current = currentContent.map((element) =>
-          element.cloneNode(true) as Element
-        );
-        snapshot.replaceChildren();
-        return;
-      }
-
-      if (snapshot.childElementCount === 0 && lastContentRef.current.length > 0) {
-        snapshot.replaceChildren(
-          ...lastContentRef.current.map((element) => element.cloneNode(true))
-        );
-      }
-    };
-
-    syncSnapshot();
-    const observer = new MutationObserver(syncSnapshot);
-    observer.observe(live, { childList: true });
-
-    return () => observer.disconnect();
+  const activate = useCallback((key: string) => {
+    setActiveKey(key);
+    setLayers((current) => current.filter((layer) => layer.key === key));
   }, []);
 
-  return (
-    <>
-      <div ref={liveRef} className="stable-route-live">
-        {children}
+  return layers.map((layer) =>
+    layer.key === activeKey ? (
+      <div className="stable-route-layer" key={layer.key}>
+        {layer.content}
       </div>
-      <div
-        ref={snapshotRef}
-        className="stable-route-snapshot"
-        aria-hidden="true"
-      />
-    </>
+    ) : (
+      <PendingRouteLayer key={layer.key} onReady={() => activate(layer.key)}>
+        {layer.content}
+      </PendingRouteLayer>
+    )
   );
 }

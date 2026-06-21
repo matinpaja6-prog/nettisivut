@@ -23,13 +23,12 @@ body {
   }
 }
 
-.stable-route-live,
-.stable-route-snapshot {
+.stable-route-layer {
   display: contents;
 }
 
-.stable-route-snapshot > * {
-  pointer-events: none !important;
+.stable-route-pending {
+  display: none;
 }
 
 .global-navigation-spinner {
