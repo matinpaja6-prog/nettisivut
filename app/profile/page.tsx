@@ -49,6 +49,98 @@ import {
   type UserProfile
 } from "@/lib/supabase";
 
+type GooglePlace = {
+  address_components?: Array<{
+    long_name: string;
+    short_name: string;
+    types: string[];
+  }>;
+  formatted_address?: string;
+};
+
+type GoogleAutocomplete = {
+  addListener: (eventName: "place_changed", handler: () => void) => void;
+  getPlace: () => GooglePlace;
+};
+
+type GoogleMapsWindow = Window & {
+  google?: {
+    maps?: {
+      places?: {
+        Autocomplete: new (
+          input: HTMLInputElement,
+          options: Record<string, unknown>
+        ) => GoogleAutocomplete;
+      };
+    };
+  };
+};
+
+const addressCountryOptions = [
+  { code: "FI", value: "Suomi" },
+  { code: "SE", value: "Ruotsi" },
+  { code: "NO", value: "Norja" },
+  { code: "DK", value: "Tanska" },
+  { code: "EE", value: "Viro" },
+  { code: "DE", value: "Saksa" }
+];
+
+const addressCountryAliases: Record<string, string> = {
+  da: "Tanska",
+  de: "Saksa",
+  denmark: "Tanska",
+  dk: "Tanska",
+  ee: "Viro",
+  eest: "Viro",
+  eesti: "Viro",
+  estonia: "Viro",
+  fi: "Suomi",
+  finland: "Suomi",
+  germany: "Saksa",
+  no: "Norja",
+  norge: "Norja",
+  norway: "Norja",
+  ruotsi: "Ruotsi",
+  saksa: "Saksa",
+  se: "Ruotsi",
+  soome: "Suomi",
+  suomi: "Suomi",
+  sverige: "Ruotsi",
+  sweden: "Ruotsi",
+  tanska: "Tanska",
+  viro: "Viro"
+};
+
+function getGoogleAddressPart(place: GooglePlace, type: string, short = false) {
+  const part = place.address_components?.find((component) =>
+    component.types.includes(type)
+  );
+  return short ? part?.short_name ?? "" : part?.long_name ?? "";
+}
+
+function getStreetAddressFromGooglePlace(place: GooglePlace) {
+  const route = getGoogleAddressPart(place, "route");
+  const streetNumber = getGoogleAddressPart(place, "street_number");
+  const streetAddress = [route, streetNumber].filter(Boolean).join(" ");
+  return streetAddress || place.formatted_address || "";
+}
+
+function normalizeAddressCountry(value: string | null | undefined) {
+  const trimmed = value?.trim() ?? "";
+  if (!trimmed) return "Suomi";
+  return addressCountryAliases[trimmed.toLocaleLowerCase("fi-FI")] ?? trimmed;
+}
+
+function getCountryCodeForAddress(value: string | null | undefined) {
+  const normalized = normalizeAddressCountry(value);
+  return addressCountryOptions.find((country) => country.value === normalized)?.code.toLowerCase();
+}
+
+function getCountryValueFromGooglePlace(place: GooglePlace) {
+  const countryCode = getGoogleAddressPart(place, "country", true).toUpperCase();
+  return addressCountryOptions.find((country) => country.code === countryCode)?.value ?? "";
+}
+
 function getErrorMessage(error: unknown) {
 
   if (!error) return "Tuntematon virhe.";
@@ -649,6 +741,12 @@ export default function ProfilePage() {
     useState({ name: "", phone: "" });
   const phoneInputRef =
     useRef<HTMLInputElement | null>(null);
+  const addressInputRef =
+    useRef<HTMLInputElement | null>(null);
+  const googlePlacesApiKey =
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+    process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY ||
+    "";
   const [deleteStatus, setDeleteStatus] =
     useState("");
   const [deleteLoading, setDeleteLoading] =
@@ -728,6 +826,87 @@ export default function ProfilePage() {
       });
 
   }, [user]);
+
+  useEffect(() => {
+    if (!googlePlacesApiKey || !profile) return;
+    if (typeof window === "undefined") return;
+
+    let cancelled = false;
+
+    const setupAutocomplete = () => {
+      const addressInput = addressInputRef.current;
+      const Autocomplete =
+        (window as GoogleMapsWindow).google?.maps?.places?.Autocomplete;
+
+      if (!addressInput || !Autocomplete || cancelled) return;
+
+      const selectedCountryCode =
+        getCountryCodeForAddress(profile.country);
+
+      const autocomplete = new Autocomplete(addressInput, {
+        componentRestrictions: {
+          country: selectedCountryCode
+            ? [selectedCountryCode]
+            : addressCountryOptions.map((country) => country.code.toLowerCase())
+        },
+        fields: ["address_components", "formatted_address"],
+        types: ["address"]
+      });
+
+      autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        const address = getStreetAddressFromGooglePlace(place);
+        const postalCode = getGoogleAddressPart(place, "postal_code");
+        const city =
+          getGoogleAddressPart(place, "postal_town") ||
+          getGoogleAddressPart(place, "locality") ||
+          getGoogleAddressPart(place, "administrative_area_level_3");
+        const country = getCountryValueFromGooglePlace(place);
+
+        setProfile((current) => current
+          ? {
+              ...current,
+              address: address || current.address,
+              city: city || current.city,
+              country: country || current.country,
+              postal_code: postalCode || current.postal_code
+            }
+          : current
+        );
+      });
+    };
+
+    if ((window as GoogleMapsWindow).google?.maps?.places?.Autocomplete) {
+      setupAutocomplete();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const scriptId = "google-places-autocomplete";
+    const existingScript = document.getElementById(scriptId) as HTMLScriptElement | null;
+
+    if (existingScript) {
+      existingScript.addEventListener("load", setupAutocomplete, { once: true });
+      return () => {
+        cancelled = true;
+        existingScript.removeEventListener("load", setupAutocomplete);
+      };
+    }
+
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.async = true;
+    script.src =
+      `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googlePlacesApiKey)}&libraries=places&language=${locale}`;
+    script.addEventListener("load", setupAutocomplete, { once: true });
+    document.head.appendChild(script);
+
+    return () => {
+      cancelled = true;
+      script.removeEventListener("load", setupAutocomplete);
+    };
+  }, [googlePlacesApiKey, locale, profile?.country]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -1757,8 +1936,12 @@ export default function ProfilePage() {
                     <span className="pf-info-label">{profileText.address}</span>
                     <div className="pf-info-value">
                       <input
+                        ref={addressInputRef}
+                        autoComplete="street-address"
+                        name="street-address"
                         value={profile.address ?? ""}
                         onChange={e => setProfile({ ...profile, address: e.target.value })}
+                        placeholder="Aloita kirjoittamalla osoite"
                       />
                     </div>
                   </div>
@@ -1769,6 +1952,8 @@ export default function ProfilePage() {
                     <span className="pf-info-label">{profileText.postalCode}</span>
                     <div className="pf-info-value">
                       <input
+                        autoComplete="postal-code"
+                        name="postal-code"
                         value={profile.postal_code ?? ""}
                         onChange={e => setProfile({ ...profile, postal_code: e.target.value })}
                       />
@@ -1781,6 +1966,8 @@ export default function ProfilePage() {
                     <span className="pf-info-label">{profileText.city}</span>
                     <div className="pf-info-value">
                       <input
+                        autoComplete="address-level2"
+                        name="address-level2"
                         value={profile.city ?? ""}
                         onChange={e => setProfile({ ...profile, city: e.target.value })}
                       />
@@ -1792,10 +1979,23 @@ export default function ProfilePage() {
                     </span>
                     <span className="pf-info-label">{profileText.country}</span>
                     <div className="pf-info-value">
-                      <input
-                        value={profile.country ?? ""}
+                      <select
+                        autoComplete="country-name"
+                        name="country-name"
+                        value={normalizeAddressCountry(profile.country)}
                         onChange={e => setProfile({ ...profile, country: e.target.value })}
-                      />
+                      >
+                        {!addressCountryOptions.some((country) => country.value === normalizeAddressCountry(profile.country)) && (
+                          <option value={normalizeAddressCountry(profile.country)}>
+                            {normalizeAddressCountry(profile.country)}
+                          </option>
+                        )}
+                        {addressCountryOptions.map((country) => (
+                          <option key={country.code} value={country.value}>
+                            {country.value}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -3184,14 +3384,14 @@ export default function ProfilePage() {
         #julkinen-profiili .pf-readonly-value,
         #julkinen-profiili input,
         #julkinen-profiili textarea,
-        #osoite input {
+        #osoite :is(input, select) {
           grid-column: 3 !important;
           min-width: 0 !important;
           width: 100% !important;
         }
 
-        .pf-info-value input,
-        .pf-info-value input:disabled,
+        .pf-info-value :is(input, select),
+        .pf-info-value :is(input, select):disabled,
         .pf-info-value > span,
         .pf-phone-number,
         #julkinen-profiili .pf-locked input,
@@ -3200,7 +3400,7 @@ export default function ProfilePage() {
         #julkinen-profiili .pf-readonly-value span,
         #julkinen-profiili input,
         #julkinen-profiili textarea,
-        #osoite input {
+        #osoite :is(input, select) {
           background: rgba(9, 30, 52, 0.88) !important;
           border: 1px solid rgba(91, 141, 184, 0.36) !important;
           border-radius: 6px !important;
@@ -3364,7 +3564,7 @@ export default function ProfilePage() {
           #julkinen-profiili .pf-readonly-value,
           #julkinen-profiili input,
           #julkinen-profiili textarea,
-          #osoite input {
+          #osoite :is(input, select) {
             grid-column: 1 / -1 !important;
           }
 
@@ -3562,8 +3762,8 @@ export default function ProfilePage() {
           width: 100% !important;
         }
 
-        .pf-info-value input,
-        .pf-info-value input:disabled,
+        .pf-info-value :is(input, select),
+        .pf-info-value :is(input, select):disabled,
         .pf-info-value > span,
         .pf-phone-number,
         #julkinen-profiili .pf-locked input,
@@ -4112,7 +4312,7 @@ export default function ProfilePage() {
           text-transform: none !important;
         }
 
-        .pf-page :is(.pf-info-value, #julkinen-profiili .pf-locked, #julkinen-profiili .pf-readonly-value, #julkinen-profiili input, #julkinen-profiili textarea, #osoite input) {
+        .pf-page :is(.pf-info-value, #julkinen-profiili .pf-locked, #julkinen-profiili .pf-readonly-value, #julkinen-profiili input, #julkinen-profiili textarea, #osoite input, #osoite select) {
           align-items: center !important;
           display: flex !important;
           grid-column: 3 !important;
@@ -4122,8 +4322,8 @@ export default function ProfilePage() {
         }
 
         .pf-page :is(
-          .pf-info-value input,
-          .pf-info-value input:disabled,
+          .pf-info-value :is(input, select),
+          .pf-info-value :is(input, select):disabled,
           .pf-info-value > span,
           .pf-phone-number,
           #julkinen-profiili .pf-locked input,
@@ -4132,7 +4332,7 @@ export default function ProfilePage() {
           #julkinen-profiili .pf-readonly-value span,
           #julkinen-profiili input,
           #julkinen-profiili textarea,
-          #osoite input
+          #osoite :is(input, select)
         ) {
           background: transparent !important;
           border: 0 !important;
@@ -4163,7 +4363,7 @@ export default function ProfilePage() {
           white-space: nowrap !important;
         }
 
-        .pf-page :is(#julkinen-profiili input:focus, #julkinen-profiili textarea:focus, #osoite input:focus, .pf-info-value input:focus) {
+        .pf-page :is(#julkinen-profiili input:focus, #julkinen-profiili textarea:focus, #osoite input:focus, #osoite select:focus, .pf-info-value input:focus, .pf-info-value select:focus) {
           background: rgba(9, 30, 52, 0.74) !important;
           border: 1px solid rgba(91, 141, 184, 0.42) !important;
           border-radius: 5px !important;
@@ -4347,7 +4547,7 @@ export default function ProfilePage() {
             padding: 10px !important;
           }
 
-          .pf-page :is(.pf-info-value, #julkinen-profiili .pf-locked, #julkinen-profiili .pf-readonly-value, #julkinen-profiili input, #julkinen-profiili textarea, #osoite input) {
+          .pf-page :is(.pf-info-value, #julkinen-profiili .pf-locked, #julkinen-profiili .pf-readonly-value, #julkinen-profiili input, #julkinen-profiili textarea, #osoite input, #osoite select) {
             grid-column: 1 / -1 !important;
           }
 
@@ -4427,7 +4627,7 @@ export default function ProfilePage() {
           #julkinen-profiili input,
           #julkinen-profiili textarea,
           #osoite .pf-info-value,
-          #osoite input
+          #osoite :is(input, select)
         ) {
           justify-content: flex-start !important;
           justify-self: start !important;
@@ -4435,8 +4635,8 @@ export default function ProfilePage() {
         }
 
         .pf-page :is(
-          .pf-info-value input,
-          .pf-info-value input:disabled,
+          .pf-info-value :is(input, select),
+          .pf-info-value :is(input, select):disabled,
           .pf-info-value > span,
           .pf-phone-number,
           #julkinen-profiili .pf-locked input,
@@ -4445,7 +4645,7 @@ export default function ProfilePage() {
           #julkinen-profiili .pf-readonly-value span,
           #julkinen-profiili input,
           #julkinen-profiili textarea,
-          #osoite input
+          #osoite :is(input, select)
         ) {
           text-align: left !important;
         }
@@ -4512,7 +4712,7 @@ export default function ProfilePage() {
         }
 
         .pf-page #julkinen-profiili :is(.pf-locked input, .pf-locked input:disabled, .pf-readonly-value, .pf-readonly-value span, input, textarea),
-        .pf-page #osoite .pf-info-value :is(input, span),
+        .pf-page #osoite .pf-info-value :is(input, select, span),
         .pf-page #yritys .pf-info-value :is(input, span),
         .pf-page #tiedot .pf-info-value :is(input, span) {
           padding-left: 0 !important;
@@ -4716,8 +4916,8 @@ export default function ProfilePage() {
         }
 
         html body .pf-page :is(
-          .pf-info-value input,
-          .pf-info-value input:disabled,
+          .pf-info-value :is(input, select),
+          .pf-info-value :is(input, select):disabled,
           .pf-info-value > span,
           .pf-phone-number,
           #julkinen-profiili .pf-locked input,
@@ -4726,7 +4926,7 @@ export default function ProfilePage() {
           #julkinen-profiili .pf-readonly-value span,
           #julkinen-profiili input,
           #julkinen-profiili textarea,
-          #osoite input
+          #osoite :is(input, select)
         ) {
           padding-left: 0 !important;
           text-align: left !important;

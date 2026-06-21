@@ -303,14 +303,14 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
   en: {
     "Luo myynti-ilmoitus": "Create sales listing",
     "Valitse ilmoitustyyppi": "Choose listing type",
-    "Valitse, haluatko myydä useita osia samasta ajoneuvosta vai yksittäisen osan.": "Choose whether to sell several parts from the same vehicle or one individual part.",
+    "Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.": "Choose whether to list several parts from the same vehicle or one individual part.",
+    "Useampi osa samasta ajoneuvosta": "Several parts from one vehicle",
     "Useampi ilmoitus": "Multiple listings",
     "Yksittäinen ilmoitus": "Single listing",
-    "Myy useita osia samasta ajoneuvosta yhdellä ilmoituksella.": "Sell several parts from the same vehicle in one flow.",
+    "Listaa vain saman ajoneuvon osia samalla kertaa.": "List only parts from the same vehicle at the same time.",
     "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa.": "Save time and manage all parts in one place.",
     "Myy yksi osa kerrallaan.": "Sell one part at a time.",
     "Sopii yksittäisille osille tai harvinaisille tuotteille.": "Best for individual parts or rare products.",
-    "Ilmoituksesi on turvallinen ja näkyvissä tuhansille ostajille.": "Your listing is secure and visible to thousands of buyers.",
     "Ajoneuvon tiedot": "Vehicle details",
     "Täytä ajoneuvon tiedot": "Fill in vehicle details",
     "Valitse ajoneuvoluokka": "Choose vehicle class",
@@ -428,14 +428,14 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
   sv: {
     "Luo myynti-ilmoitus": "Skapa försäljningsannons",
     "Valitse ilmoitustyyppi": "Välj annonstyp",
-    "Valitse, haluatko myydä useita osia samasta ajoneuvosta vai yksittäisen osan.": "Välj om du vill sälja flera delar från samma fordon eller en enskild del.",
+    "Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.": "Välj om du vill lista flera delar från samma fordon eller en enskild del.",
+    "Useampi osa samasta ajoneuvosta": "Flera delar från samma fordon",
     "Useampi ilmoitus": "Flera annonser",
     "Yksittäinen ilmoitus": "Enskild annons",
-    "Myy useita osia samasta ajoneuvosta yhdellä ilmoituksella.": "Sälj flera delar från samma fordon i ett flöde.",
+    "Listaa vain saman ajoneuvon osia samalla kertaa.": "Lista bara delar från samma fordon åt gången.",
     "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa.": "Spara tid och hantera alla delar på ett ställe.",
     "Myy yksi osa kerrallaan.": "Sälj en del åt gången.",
     "Sopii yksittäisille osille tai harvinaisille tuotteille.": "Passar enskilda delar eller sällsynta produkter.",
-    "Ilmoituksesi on turvallinen ja näkyvissä tuhansille ostajille.": "Din annons är säker och synlig för tusentals köpare.",
     "Ajoneuvon tiedot": "Fordonsuppgifter",
     "Täytä ajoneuvon tiedot": "Fyll i fordonsuppgifter",
     "Valitse ajoneuvoluokka": "Välj fordonsklass",
@@ -553,14 +553,14 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
   no: {
     "Luo myynti-ilmoitus": "Opprett salgsannonse",
     "Valitse ilmoitustyyppi": "Velg annonsetype",
-    "Valitse, haluatko myydä useita osia samasta ajoneuvosta vai yksittäisen osan.": "Velg om du vil selge flere deler fra samme kjøretøy eller én enkelt del.",
+    "Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.": "Velg om du vil liste flere deler fra samme kjøretøy eller én enkelt del.",
+    "Useampi osa samasta ajoneuvosta": "Flere deler fra samme kjøretøy",
     "Useampi ilmoitus": "Flere annonser",
     "Yksittäinen ilmoitus": "Enkelt annonse",
-    "Myy useita osia samasta ajoneuvosta yhdellä ilmoituksella.": "Selg flere deler fra samme kjøretøy i én flyt.",
+    "Listaa vain saman ajoneuvon osia samalla kertaa.": "List bare deler fra samme kjøretøy om gangen.",
     "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa.": "Spar tid og håndter alle deler på ett sted.",
     "Myy yksi osa kerrallaan.": "Selg én del om gangen.",
     "Sopii yksittäisille osille tai harvinaisille tuotteille.": "Passer for enkeltdeler eller sjeldne produkter.",
-    "Ilmoituksesi on turvallinen ja näkyvissä tuhansille ostajille.": "Annonsen din er trygg og synlig for tusenvis av kjøpere.",
     "Ajoneuvon tiedot": "Kjøretøydetaljer",
     "Täytä ajoneuvon tiedot": "Fyll inn kjøretøydetaljer",
     "Valitse ajoneuvoluokka": "Velg kjøretøyklasse",
@@ -678,14 +678,14 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
   et: {
     "Luo myynti-ilmoitus": "Loo müügikuulutus",
     "Valitse ilmoitustyyppi": "Vali kuulutuse tüüp",
-    "Valitse, haluatko myydä useita osia samasta ajoneuvosta vai yksittäisen osan.": "Vali, kas müüd mitu osa samast sõidukist või ühe üksiku osa.",
+    "Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.": "Vali, kas lisad mitu osa samast sõidukist või ühe üksiku osa.",
+    "Useampi osa samasta ajoneuvosta": "Mitu osa samast sõidukist",
     "Useampi ilmoitus": "Mitu kuulutust",
     "Yksittäinen ilmoitus": "Üks kuulutus",
-    "Myy useita osia samasta ajoneuvosta yhdellä ilmoituksella.": "Müü mitu osa samast sõidukist ühes voos.",
+    "Listaa vain saman ajoneuvon osia samalla kertaa.": "Lisa korraga ainult sama sõiduki osi.",
     "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa.": "Säästa aega ja halda kõiki osi ühes kohas.",
     "Myy yksi osa kerrallaan.": "Müü üks osa korraga.",
     "Sopii yksittäisille osille tai harvinaisille tuotteille.": "Sobib üksikutele osadele või haruldastele toodetele.",
-    "Ilmoituksesi on turvallinen ja näkyvissä tuhansille ostajille.": "Sinu kuulutus on turvaline ja nähtav tuhandetele ostjatele.",
     "Ajoneuvon tiedot": "Sõiduki andmed",
     "Täytä ajoneuvon tiedot": "Täida sõiduki andmed",
     "Valitse ajoneuvoluokka": "Vali sõidukiklass",
@@ -1285,9 +1285,9 @@ const modeCards: Array<{
 }> = [
   {
     value: "multiple",
-    title: "Useampi ilmoitus",
+    title: "Useampi osa samasta ajoneuvosta",
     text: [
-      "Myy useita osia samasta ajoneuvosta yhdellä ilmoituksella.",
+      "Listaa vain saman ajoneuvon osia samalla kertaa.",
       "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa."
     ],
     icon: Layers3
@@ -5799,7 +5799,7 @@ export default function SellPage() {
             <header className={styles.header}>
               <h1>{st("Luo myynti-ilmoitus")}</h1>
               <h2>{st("Valitse ilmoitustyyppi")}</h2>
-              <p>{st("Valitse, haluatko myydä useita osia samasta ajoneuvosta vai yksittäisen osan.")}</p>
+              <p>{st("Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.")}</p>
             </header>
 
             <div className={styles.modeGrid} role="radiogroup" aria-label={st("Ilmoitustyyppi")}>
@@ -5841,10 +5841,6 @@ export default function SellPage() {
               <ArrowRight size={30} aria-hidden="true" />
             </button>
 
-            <p className={styles.safeNote}>
-              <ShieldCheck size={22} aria-hidden="true" />
-              <span>{st("Ilmoituksesi on turvallinen ja näkyvissä tuhansille ostajille.")}</span>
-            </p>
           </section>
         ) : (
           <section className={styles.vehicleContent} ref={vehicleContentRef}>
