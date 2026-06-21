@@ -83,10 +83,10 @@ export const metadata: Metadata = {
     url: "/",
     images: [
       {
-        url: "/hero-bg.png",
-        width: 1200,
-        height: 630,
-        alt: "Maskines varaosakauppa"
+        url: "/maskines-share-logo.png",
+        width: 479,
+        height: 479,
+        alt: "Maskines-logo"
       }
     ]
   },
@@ -95,7 +95,7 @@ export const metadata: Metadata = {
     title: "Maskines | Käytetyt ajoneuvojen varaosat",
     description:
       "Osta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin.",
-    images: ["/hero-bg.png"]
+    images: ["/maskines-share-logo.png"]
   }
 };
 
