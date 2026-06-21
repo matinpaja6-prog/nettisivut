@@ -1388,6 +1388,8 @@ export default function MyListingsPage() {
     }>();
 
     for (const listing of filteredListings) {
+      if (listing.listing_mode !== "multiple") continue;
+
       const key = getVehicleGroupKey(listing);
       if (!key) continue;
       const group = groupMap.get(key) ?? {
@@ -1406,6 +1408,8 @@ export default function MyListingsPage() {
     }
 
     for (const sold of soldListings) {
+      if (sold.listing_mode !== "multiple") continue;
+
       const key = getVehicleGroupKey(sold);
       if (!key) continue;
       const group = groupMap.get(key) ?? {
@@ -1431,11 +1435,8 @@ export default function MyListingsPage() {
       }))
       .filter((group) => {
         if (group.completed && dismissedCompletedGroupKeys.has(group.key)) return false;
-        const totalListings = group.active.length + group.sold.length;
-        const isMultiGroup = group.hasMultiListing || totalListings >= 2;
-        if (!isMultiGroup) return false;
-        if (group.active.length >= 2) return true;
-        if (group.active.length > 0 && group.sold.length > 0) return true;
+        if (!group.hasMultiListing) return false;
+        if (group.active.length > 0) return true;
         return group.completed && isWithinHours(group.latestAt, 12);
       })
       .sort((a, b) => b.latestAt.localeCompare(a.latestAt));
@@ -1738,7 +1739,7 @@ export default function MyListingsPage() {
                           type="button"
                           className={`${styles.actionBtn} ${styles.actionDanger}`}
                           onClick={() => dismissCompletedGroup(group.key)}
-                          title="Valmis koonti poistuu myös itsestään 12 tunnin jälkeen."
+                          title="Koonti piilotetaan pysyvästi tästä näkymästä. Myyntisumma säilyy tilastoissa."
                         >
                           <Trash2 size={14} />
                           Poista koonti
