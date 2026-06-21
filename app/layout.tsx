@@ -38,7 +38,6 @@ import SiteVisitTracker from "./components/SiteVisitTracker";
 import UniversalTopbar from "./components/UniversalTopbar";
 import TaxonomyProvider from "./components/TaxonomyProvider";
 import VisitorLanguageGate from "./components/VisitorLanguageGate";
-import GlobalNavigationSpinner from "./components/GlobalNavigationSpinner";
 import InstantNavigation from "./components/InstantNavigation";
 import NavigationHistory from "./components/NavigationHistory";
 import AutoTranslate from "./components/AutoTranslate";
@@ -176,7 +175,6 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <NavigationHistory />
           </Suspense>
-          <GlobalNavigationSpinner />
           <VisitorLanguageGate />
           <AutoTranslate />
           <SiteAppearance />

@@ -1142,11 +1142,7 @@ export default function ListingPage() {
   }
 
   if (loading) {
-    return (
-      <div className="loading">
-        {ui.loading}
-      </div>
-    );
+    return null;
   }
 
   if (!listing) {

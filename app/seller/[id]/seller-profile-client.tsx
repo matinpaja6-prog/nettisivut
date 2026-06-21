@@ -1631,8 +1631,8 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             <button
               type="button"
               className={`sp-menu-trigger sp-category-trigger${categoryFilterSummary ? " has-selection" : ""}`}
-              aria-label={categoryFilterSummary || refLabels.advancedSearch}
-              title={categoryFilterSummary || refLabels.advancedSearch}
+              aria-label={refLabels.advancedSearch}
+              title={refLabels.advancedSearch}
               onClick={() => {
                 setDrawerOpenStep(2);
                 setDrawerOpen(true);
@@ -1640,11 +1640,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             >
               <Menu size={20} aria-hidden="true" />
             </button>
-            {categoryFilterSummary && (
-              <span className="sp-filter-summary" title={categoryFilterSummary}>
-                {categoryFilterSummary}
-              </span>
-            )}
             {hasAdvancedFilters && (
               <div className="sp-filter-actions">
                 <button type="button" className="sp-filter-reset" onClick={resetListingFilters}>
