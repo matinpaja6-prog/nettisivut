@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -15,7 +15,7 @@ function getParamValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] ?? "" : value ?? "";
 }
 
-export default function StartListingConversationPage() {
+function StartListingConversationPageContent() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -94,4 +94,12 @@ export default function StartListingConversationPage() {
   }, [locale, messagesHref, params.id, router, searchParams]);
 
   return null;
+}
+
+export default function StartListingConversationPage() {
+  return (
+    <Suspense fallback={null}>
+      <StartListingConversationPageContent />
+    </Suspense>
+  );
 }

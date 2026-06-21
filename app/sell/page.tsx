@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -2463,7 +2464,7 @@ function getMultiCategoryIcon(name: string) {
   return <Layers3 size={18} aria-hidden="true" />;
 }
 
-export default function SellPage() {
+function SellPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const taxonomy = useTaxonomy();
@@ -5978,6 +5979,14 @@ export default function SellPage() {
         />
       ) : null}
     </main>
+  );
+}
+
+export default function SellPage() {
+  return (
+    <Suspense fallback={null}>
+      <SellPageContent />
+    </Suspense>
   );
 }
 

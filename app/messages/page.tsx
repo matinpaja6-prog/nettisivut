@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import {
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -462,7 +463,7 @@ function restoreStoredConversation(userId: string, conversationId: string) {
   }
 }
 
-export default function MessagesPage() {
+function MessagesPageContent() {
   const { t, locale } = useLanguage();
   const router = useRouter();
   const searchParams =
@@ -8327,5 +8328,13 @@ export default function MessagesPage() {
 
   );
 
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={null}>
+      <MessagesPageContent />
+    </Suspense>
+  );
 }
 
