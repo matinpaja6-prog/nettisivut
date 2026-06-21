@@ -128,6 +128,7 @@ export default function Footer() {
 
   const hideFooter =
     canonicalPathname.startsWith("/auth") ||
+    canonicalPathname.startsWith("/listing") ||
     canonicalPathname.startsWith("/messages") ||
     canonicalPathname.startsWith("/profile") ||
     canonicalPathname.startsWith("/privacy") ||

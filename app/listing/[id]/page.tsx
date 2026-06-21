@@ -47,6 +47,7 @@ import {
   getSavedListingIds,
   getListingById,
   getListingDisplayNumber,
+  getOrCreateConversationForListing,
   getListings,
   incrementListingView,
   saveListing,
@@ -493,6 +494,37 @@ function translateDeliveryMethod(locale: Locale, value: string) {
   return key ? labels[locale][key] : translateCategory(locale, value);
 }
 
+function restoreConversationVisibility(userId: string, conversationId: string) {
+  if (typeof window === "undefined" || !userId || !conversationId) {
+    return;
+  }
+
+  for (const key of [
+    `hiddenConversations:${userId}`,
+    `deletedConversations:${userId}`
+  ]) {
+    try {
+      const stored = JSON.parse(
+        localStorage.getItem(key) || "[]"
+      );
+
+      if (!Array.isArray(stored)) {
+        continue;
+      }
+
+      const next =
+        stored.filter((id) => id !== conversationId);
+
+      if (next.length !== stored.length) {
+        localStorage.setItem(
+          key,
+          JSON.stringify(next)
+        );
+      }
+    } catch {}
+  }
+}
+
 export default function ListingPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -554,6 +586,16 @@ export default function ListingPage() {
 
   const [phoneLoading, setPhoneLoading] =
     useState(false);
+
+  const [messageLoading, setMessageLoading] =
+    useState(false);
+  const messagesNavigationPendingRef =
+    useRef(false);
+
+  function setMessagesNavigationPending(value: boolean) {
+    messagesNavigationPendingRef.current = value;
+    setMessageLoading(value);
+  }
 
   const [saved, setSaved] =
     useState(false);
@@ -1148,6 +1190,64 @@ export default function ListingPage() {
     setPhoneLoading(false);
   }
 
+  async function handleSendMessage() {
+    if (!listing || messageLoading) {
+      return;
+    }
+
+    if (!supabase) {
+      router.push(pagePath("messages", locale));
+      return;
+    }
+
+    setMessageLoading(true);
+
+    try {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push(pagePath("auth", locale));
+        return;
+      }
+
+      const sellerId =
+        listing.seller_id || listing.user_id || "";
+
+      if (!sellerId) {
+        router.push(pagePath("messages", locale));
+        return;
+      }
+
+      const { data: conversation } =
+        await getOrCreateConversationForListing({
+          listing_id: listing.id,
+          buyer_id: user.id,
+          seller_id: sellerId
+        });
+
+      if (conversation?.id) {
+        restoreConversationVisibility(
+          user.id,
+          conversation.id
+        );
+        setMessagesNavigationPending(true);
+        router.push(
+          `${pagePath("messages", locale)}?conversation=${encodeURIComponent(conversation.id)}`
+        );
+        return;
+      }
+
+      setMessagesNavigationPending(true);
+      router.push(pagePath("messages", locale));
+    } finally {
+      if (!messagesNavigationPendingRef.current) {
+        setMessageLoading(false);
+      }
+    }
+  }
+
   if (loading) {
     return null;
   }
@@ -1709,13 +1809,15 @@ export default function ListingPage() {
                 <div className="seller-contact-merged">
                   {isLoggedIn ? (
                     <>
-                      <Link
-                        href={`${pagePath("messages", locale)}/${listing.id}`}
+                      <button
+                        type="button"
+                        onClick={handleSendMessage}
+                        disabled={messageLoading}
                         className="message-btn"
                       >
                         <Mail size={20} />
                         {ui.sendMessage}
-                      </Link>
+                      </button>
                       {!showPhone ? (
                         <button
                           className="phone-btn"
@@ -1795,13 +1897,15 @@ export default function ListingPage() {
                     </a>
 
                   )}
-                  <Link
-                    href={`${pagePath("messages", locale)}/${listing.id}`}
+                  <button
+                    type="button"
+                    onClick={handleSendMessage}
+                    disabled={messageLoading}
                     className="message-btn"
                   >
                     <Mail size={20} />
                     {ui.sendMessage}
-                  </Link>
+                  </button>
                 </>
               ) : (
                 <Link

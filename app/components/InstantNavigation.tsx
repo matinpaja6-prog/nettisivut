@@ -19,9 +19,13 @@ function getLocalHrefFromAnchor(link: HTMLAnchorElement) {
   }
 
   if (url.origin !== window.location.origin) return null;
-  if (url.pathname === window.location.pathname && url.search === window.location.search) return null;
+  if (
+    url.pathname === window.location.pathname &&
+    url.search === window.location.search &&
+    url.hash === window.location.hash
+  ) return null;
 
-  return `${url.pathname}${url.search}`;
+  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 function getLocalHref(target: EventTarget | null) {
@@ -77,6 +81,24 @@ export default function InstantNavigation() {
     const handlePointerDown = (event: PointerEvent) => prefetch(event.target);
     const handleFocusIn = (event: FocusEvent) => prefetch(event.target);
     const handleScroll = () => scheduleVisiblePrefetch();
+    const handleClick = (event: MouseEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      const href = getLocalHref(event.target);
+      if (!href) return;
+
+      event.preventDefault();
+      router.push(href);
+    };
 
     const observer = new MutationObserver(scheduleVisiblePrefetch);
     observer.observe(document.body, { childList: true, subtree: true });
@@ -84,6 +106,7 @@ export default function InstantNavigation() {
     document.addEventListener("pointerover", handlePointerEnter, true);
     document.addEventListener("pointerdown", handlePointerDown, true);
     document.addEventListener("focusin", handleFocusIn, true);
+    document.addEventListener("click", handleClick);
     window.addEventListener("scroll", handleScroll, { passive: true });
     scheduleVisiblePrefetch();
 
@@ -92,6 +115,7 @@ export default function InstantNavigation() {
       document.removeEventListener("pointerover", handlePointerEnter, true);
       document.removeEventListener("pointerdown", handlePointerDown, true);
       document.removeEventListener("focusin", handleFocusIn, true);
+      document.removeEventListener("click", handleClick);
       window.removeEventListener("scroll", handleScroll);
     };
   }, [router]);

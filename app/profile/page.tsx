@@ -6477,6 +6477,111 @@ export default function ProfilePage() {
             overflow: visible !important;
           }
 
+          html body .pf-page .pf-nav-item,
+          html body .pf-page .pf-nav-item * {
+            min-width: 0 !important;
+            overflow-wrap: normal !important;
+            text-wrap: nowrap !important;
+            white-space: nowrap !important;
+            word-break: keep-all !important;
+          }
+
+          html body .pf-page .pf-nav-item {
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+          }
+
+          @media (max-width: 1180px) {
+            html body .pf-page .pf-layout {
+              align-items: stretch !important;
+              display: grid !important;
+              gap: 16px !important;
+              grid-template-columns: 1fr !important;
+              padding: 16px 18px 28px !important;
+              width: min(100%, 980px) !important;
+            }
+
+            html body .pf-page .pf-sidebar {
+              display: grid !important;
+              gap: 12px !important;
+              grid-template-columns: minmax(220px, 0.42fr) minmax(0, 1fr) !important;
+              position: static !important;
+              top: auto !important;
+              width: 100% !important;
+            }
+
+            html body .pf-page .pf-user-card {
+              min-width: 0 !important;
+              width: 100% !important;
+            }
+
+            html body .pf-page .pf-user-name {
+              max-width: none !important;
+            }
+
+            html body .pf-page .pf-nav {
+              align-self: stretch !important;
+              display: grid !important;
+              grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+              overflow: hidden !important;
+              width: 100% !important;
+            }
+
+            html body .pf-page .pf-nav-item {
+              border-bottom: 1px solid rgba(96, 148, 192, 0.2) !important;
+              border-left: 0 !important;
+              border-top: 3px solid transparent !important;
+              font-size: 12px !important;
+              justify-content: flex-start !important;
+              min-height: 48px !important;
+              padding: 0 12px !important;
+            }
+
+            html body .pf-page .pf-nav-active,
+            html body .pf-page .pf-nav-item:hover {
+              border-left-color: transparent !important;
+              border-top-color: #ff8a1f !important;
+            }
+          }
+
+          @media (max-width: 820px) {
+            html body .pf-page .pf-layout {
+              padding: 12px 10px 24px !important;
+              width: 100% !important;
+            }
+
+            html body .pf-page .pf-sidebar {
+              grid-template-columns: 1fr !important;
+            }
+
+            html body .pf-page .pf-nav {
+              grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+
+            html body .pf-page .pf-nav-item {
+              min-height: 46px !important;
+            }
+          }
+
+          @media (max-width: 520px) {
+            html body .pf-page .pf-nav {
+              grid-template-columns: 1fr !important;
+            }
+
+            html body .pf-page .pf-nav-item {
+              border-top: 0 !important;
+              border-left: 3px solid transparent !important;
+              font-size: 13px !important;
+              min-height: 50px !important;
+            }
+
+            html body .pf-page .pf-nav-active,
+            html body .pf-page .pf-nav-item:hover {
+              border-left-color: #ff8a1f !important;
+              border-top-color: transparent !important;
+            }
+          }
+
           @media (max-width: 640px) {
             html body .pf-page .pf-form > section#myyjat.pf-company-sellers-section > div.company-seller-list.pf-card-body,
             html body .pf-page .pf-form > section#myyjat.pf-company-sellers-section > div.company-seller-add.pf-card-body {

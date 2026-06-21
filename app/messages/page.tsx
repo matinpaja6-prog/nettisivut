@@ -432,6 +432,36 @@ function readDeletedConversationIds(userId: string) {
   return readStoredConversationIds(deletedConversationsKey(userId));
 }
 
+function restoreStoredConversation(userId: string, conversationId: string) {
+  if (!conversationId) {
+    return;
+  }
+
+  const hiddenIds =
+    readHiddenConversationIds(userId);
+  const deletedIds =
+    readDeletedConversationIds(userId);
+
+  const nextHiddenIds =
+    hiddenIds.filter((id) => id !== conversationId);
+  const nextDeletedIds =
+    deletedIds.filter((id) => id !== conversationId);
+
+  if (nextHiddenIds.length !== hiddenIds.length) {
+    writeStoredConversationIds(
+      hiddenConversationsKey(userId),
+      nextHiddenIds
+    );
+  }
+
+  if (nextDeletedIds.length !== deletedIds.length) {
+    writeStoredConversationIds(
+      deletedConversationsKey(userId),
+      nextDeletedIds
+    );
+  }
+}
+
 export default function MessagesPage() {
   const { t, locale } = useLanguage();
   const router = useRouter();
@@ -561,6 +591,11 @@ export default function MessagesPage() {
       try {
         setUserId(nextUserId);
 
+        restoreStoredConversation(
+          nextUserId,
+          requestedConversationId
+        );
+
         const hiddenIds = readHiddenConversationIds(nextUserId);
         const archivedIds = readArchivedConversationIds(nextUserId);
         const deletedIds = Array.from(
@@ -574,7 +609,14 @@ export default function MessagesPage() {
 
         const cacheKey = `conversations:${nextUserId}`;
         const cached = readCachedResource<ConversationSummary[]>(cacheKey);
-        if (cached && !stopped) {
+        const cachedHasRequestedConversation =
+          !requestedConversationId ||
+          cached?.some(
+            (conversation) =>
+              conversation.id === requestedConversationId
+          );
+
+        if (cached && cachedHasRequestedConversation && !stopped) {
           setConversations(cached);
           setLoading(false);
         }
@@ -898,10 +940,21 @@ export default function MessagesPage() {
     }
 
     if (deletedConversationIds.includes(requestedConversationId)) {
-      router.replace("/messages");
-      setSelectedConversationId("");
-      setMobileConversationOpen(false);
-      return;
+      const next =
+        deletedConversationIds.filter(
+          (conversationId) =>
+            conversationId !== requestedConversationId
+        );
+
+      setDeletedConversationIds(next);
+      writeStoredConversationIds(
+        deletedConversationsKey(userId),
+        next
+      );
+      writeStoredConversationIds(
+        hiddenConversationsKey(userId),
+        next
+      );
     }
 
     if (archivedConversationIds.includes(requestedConversationId)) {
