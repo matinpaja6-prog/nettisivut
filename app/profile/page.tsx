@@ -1987,7 +1987,7 @@ export default function ProfilePage() {
                       />
                     </div>
                   </div>
-                  <div className="pf-info-row pf-country-info-row">
+                  <div className={`pf-info-row pf-country-info-row${countryMenuOpen ? " is-open" : ""}`}>
                     <span className="pf-info-row-icon">
                       <Globe size={16} />
                     </span>
@@ -6244,18 +6244,40 @@ export default function ProfilePage() {
           }
 
           html body .pf-page #osoite .pf-country-info-row {
+            align-items: start !important;
             isolation: isolate !important;
             position: relative !important;
             z-index: 30 !important;
           }
 
+          html body .pf-page #osoite .pf-country-info-row.is-open {
+            min-height: 214px !important;
+            padding-bottom: 12px !important;
+            padding-top: 10px !important;
+          }
+
+          html body .pf-page #osoite .pf-country-info-row.is-open .pf-info-row-icon,
+          html body .pf-page #osoite .pf-country-info-row.is-open .pf-info-label {
+            margin-top: 2px !important;
+          }
+
+          html body .pf-page #osoite .pf-country-info-row .pf-info-value {
+            align-self: start !important;
+            display: block !important;
+          }
+
           html body .pf-page #osoite .pf-country-combobox {
+            display: grid !important;
+            gap: 6px !important;
             position: relative !important;
             z-index: 31 !important;
           }
 
           html body .pf-page #osoite .pf-country-menu {
+            box-sizing: border-box !important;
             min-width: 100% !important;
+            position: static !important;
+            width: 100% !important;
             z-index: 9999 !important;
           }
 
