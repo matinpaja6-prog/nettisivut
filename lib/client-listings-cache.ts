@@ -69,7 +69,12 @@ export function writeCachedListings(listings: Listing[]) {
 }
 
 export function readCachedListing(listingId: string) {
-  return readCachedListings().find((listing) => listing.id === listingId) ?? null;
+  const targetId = String(listingId);
+
+  return readCachedListings().find((listing) =>
+    String(listing.id) === targetId ||
+    String(listing.listing_number ?? "") === targetId
+  ) ?? null;
 }
 
 export function removeCachedListing(listingId: string) {

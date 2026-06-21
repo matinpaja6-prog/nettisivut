@@ -533,11 +533,22 @@ export default function ListingPage() {
   const extraUi = listingExtraText[locale];
   const fallbackCountry = locale === "et" ? "Soome" : locale === "fi" ? "Suomi" : "Finland";
 
+  const initialListingRef = useRef<Listing | null | undefined>(undefined);
+  if (initialListingRef.current === undefined) {
+    initialListingRef.current =
+      readCachedListing(params.id) ??
+      fallbackListings.find((item) =>
+        String(item.id) === String(params.id) ||
+        String(item.listing_number ?? "") === String(params.id)
+      ) ??
+      null;
+  }
+
   const [listing, setListing] =
-    useState<Listing | null>(null);
+    useState<Listing | null>(() => initialListingRef.current ?? null);
 
   const [loading, setLoading] =
-    useState(true);
+    useState(() => !initialListingRef.current);
 
   const [activeImage, setActiveImage] =
     useState<string | null>(null);
