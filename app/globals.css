@@ -23,6 +23,15 @@ body {
   }
 }
 
+.stable-route-live,
+.stable-route-snapshot {
+  display: contents;
+}
+
+.stable-route-snapshot > * {
+  pointer-events: none !important;
+}
+
 .global-navigation-spinner {
   align-items: center;
   display: grid;
