@@ -1987,7 +1987,7 @@ export default function ProfilePage() {
                       />
                     </div>
                   </div>
-                  <div className="pf-info-row">
+                  <div className="pf-info-row pf-country-info-row">
                     <span className="pf-info-row-icon">
                       <Globe size={16} />
                     </span>
@@ -2019,6 +2019,7 @@ export default function ProfilePage() {
                                 role="option"
                                 aria-selected="true"
                                 className="pf-country-option is-active"
+                                onMouseDown={(event) => event.preventDefault()}
                                 onClick={() => setCountryMenuOpen(false)}
                               >
                                 {normalizeAddressCountry(profile.country)}
@@ -2033,6 +2034,7 @@ export default function ProfilePage() {
                                   role="option"
                                   aria-selected={active}
                                   className={`pf-country-option${active ? " is-active" : ""}`}
+                                  onMouseDown={(event) => event.preventDefault()}
                                   onClick={() => {
                                     setProfile({ ...profile, country: country.value });
                                     setCountryMenuOpen(false);
@@ -6233,6 +6235,28 @@ export default function ProfilePage() {
 
           html body .pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-fields.pf-public-fields.pf-card-body > .pf-public-bio-field textarea {
             min-height: 72px !important;
+          }
+
+          html body .pf-page #osoite .pf-address-rows,
+          html body .pf-page #osoite .pf-country-info-row,
+          html body .pf-page #osoite .pf-country-info-row .pf-info-value {
+            overflow: visible !important;
+          }
+
+          html body .pf-page #osoite .pf-country-info-row {
+            isolation: isolate !important;
+            position: relative !important;
+            z-index: 30 !important;
+          }
+
+          html body .pf-page #osoite .pf-country-combobox {
+            position: relative !important;
+            z-index: 31 !important;
+          }
+
+          html body .pf-page #osoite .pf-country-menu {
+            min-width: 100% !important;
+            z-index: 9999 !important;
           }
 
           @media (max-width: 640px) {
