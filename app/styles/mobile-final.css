@@ -2627,7 +2627,7 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
     align-items: center !important;
     box-sizing: border-box !important;
     display: grid !important;
-    grid-template-columns: 114px minmax(0, 1fr) !important;
+    grid-template-columns: 132px minmax(0, 1fr) !important;
     height: 58px !important;
     isolation: isolate !important;
     max-width: 100% !important;
@@ -2640,11 +2640,11 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
 
   html body main.auth-page.simple-auth-page .profile-finalize-card .phone-code-select-wrap {
     height: 100% !important;
-    max-width: 114px !important;
+    max-width: 132px !important;
     min-width: 0 !important;
     overflow: visible !important;
     position: relative !important;
-    width: 114px !important;
+    width: 132px !important;
     z-index: 80 !important;
   }
 
