@@ -633,16 +633,6 @@ export default function ListingPage() {
     listing?.seller_id ?? null;
 
   useEffect(() => {
-    if (!listing?.listing_number) return;
-
-    const currentId = String(params.id ?? "");
-    const targetId = String(listingUrlId(listing));
-    if (currentId === targetId) return;
-
-    router.replace(listingPath(targetId, locale), { scroll: false });
-  }, [listing, locale, params.id, router]);
-
-  useEffect(() => {
     if (!previewImage) return;
 
     const scrollY = window.scrollY;
