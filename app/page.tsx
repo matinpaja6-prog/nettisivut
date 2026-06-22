@@ -15,12 +15,19 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Gauge,
   Heart,
+  Home as HomeIcon,
   MapPin,
+  MessageCircle,
+  Plus,
   Search,
   Settings2,
+  ShieldCheck,
+  Tag,
   TrendingDown,
   TrendingUp,
+  Users,
   X
 } from "lucide-react";
 
@@ -122,6 +129,29 @@ const translations = {
     heroLeadStart: "Nopea haku",
     heroLeadHighlight: "Myy käytetyt varaosat helposti",
     heroLeadEnd: "Luotettavat myyjät",
+    heroTrustFast: "Nopea ja helppo listaaminen",
+    heroTrustFree: "Ilmainen myynti ostajalle",
+    heroTrustSafe: "Turvallinen kauppa Suomessa",
+    heroTrustService: "Palvelemme suomeksi ja englanniksi",
+    heroBenefitSafeTitle: "Turvallinen kauppa",
+    heroBenefitSafeText: "kauppa Suomessa",
+    heroBenefitFreeTitle: "Ilmainen myynti",
+    heroBenefitFreeText: "ostajalle",
+    heroBenefitFastTitle: "Nopeasti myyntiin",
+    heroBenefitFastText: "muutamassa minuutissa",
+    heroBenefitServiceTitle: "Palvelemme",
+    heroBenefitServiceText: "Suomessa ja Pohjoismaissa",
+    sellPromoTitle: "Myy varaosat 2 minuutissa",
+    sellPromoBulletOne: "Lisää kuvat",
+    sellPromoBulletTwo: "Kirjoita tiedot",
+    sellPromoBulletThree: "Julkaise ilmaiseksi",
+    addListingNow: "Lisää ilmoitus nyt",
+    instructions: "Ohjeet",
+    sellGuideTitle: "Näin myyt varaosat",
+    sellGuideStepOne: "Lisää selkeät kuvat osasta ja mahdollisesta osanumerosta.",
+    sellGuideStepTwo: "Kirjoita merkki, malli, kunto, hinta ja sijainti.",
+    sellGuideStepThree: "Julkaise ilmoitus — ostajat voivat ottaa sinuun yhteyttä.",
+    sellGuideStepFour: "Sovi maksu ja toimitus turvallisesti viestien kautta.",
     brandTagline: "Kaikki varaosat. Kaikilta. Sinulle.",
     searchLabel: "Haku",
     searchCta: "Hae varaosia",
@@ -179,6 +209,7 @@ const translations = {
     sellParts: "Myy osia",
     forYou: "Sinulle suosituksia",
     basedOnBrowsing: "Selaamasi perusteella",
+    showMoreListings: "Näytä lisää ilmoituksia",
     newBadge: "Uusi",
     allListings: "Kaikki ilmoitukset",
     selectedVehicle: "Valittu ajoneuvo",
@@ -202,6 +233,29 @@ const translations = {
     heroLeadStart: "Fast search",
     heroLeadHighlight: "Wide selection",
     heroLeadEnd: "Trusted sellers",
+    heroTrustFast: "Fast and easy listing",
+    heroTrustFree: "Free selling for buyers",
+    heroTrustSafe: "Safe marketplace in Finland",
+    heroTrustService: "Service in Finnish and English",
+    heroBenefitSafeTitle: "Safe marketplace",
+    heroBenefitSafeText: "in Finland",
+    heroBenefitFreeTitle: "Free selling",
+    heroBenefitFreeText: "for buyers",
+    heroBenefitFastTitle: "Quick to publish",
+    heroBenefitFastText: "in a few minutes",
+    heroBenefitServiceTitle: "We serve",
+    heroBenefitServiceText: "Finland and the Nordics",
+    sellPromoTitle: "Sell parts in 2 minutes",
+    sellPromoBulletOne: "Add photos",
+    sellPromoBulletTwo: "Write details",
+    sellPromoBulletThree: "Publish for free",
+    addListingNow: "Add listing now",
+    instructions: "Instructions",
+    sellGuideTitle: "How to sell parts",
+    sellGuideStepOne: "Add clear photos of the part and possible part number.",
+    sellGuideStepTwo: "Write brand, model, condition, price and location.",
+    sellGuideStepThree: "Publish the listing — buyers can contact you.",
+    sellGuideStepFour: "Agree payment and delivery safely through messages.",
     brandTagline: "All parts. From everyone. For you.",
     searchLabel: "Search",
     searchCta: "Search",
@@ -259,6 +313,7 @@ const translations = {
     sellParts: "Sell parts",
     forYou: "Recommendations for you",
     basedOnBrowsing: "Based on your browsing",
+    showMoreListings: "Show more listings",
     newBadge: "New",
     allListings: "All listings",
     selectedVehicle: "Selected vehicle",
@@ -282,6 +337,29 @@ const translations = {
     heroLeadStart: "Snabb sökning",
     heroLeadHighlight: "Brett utbud",
     heroLeadEnd: "Pålitliga säljare",
+    heroTrustFast: "Snabb och enkel annonsering",
+    heroTrustFree: "Gratis försäljning för köparen",
+    heroTrustSafe: "Trygg handel i Finland",
+    heroTrustService: "Service på finska och engelska",
+    heroBenefitSafeTitle: "Trygg handel",
+    heroBenefitSafeText: "i Finland",
+    heroBenefitFreeTitle: "Gratis försäljning",
+    heroBenefitFreeText: "för köparen",
+    heroBenefitFastTitle: "Snabbt till salu",
+    heroBenefitFastText: "på några minuter",
+    heroBenefitServiceTitle: "Vi betjänar",
+    heroBenefitServiceText: "Finland och Norden",
+    sellPromoTitle: "Sälj reservdelar på 2 minuter",
+    sellPromoBulletOne: "Lägg till bilder",
+    sellPromoBulletTwo: "Skriv uppgifter",
+    sellPromoBulletThree: "Publicera gratis",
+    addListingNow: "Lägg till annons nu",
+    instructions: "Instruktioner",
+    sellGuideTitle: "Så säljer du delar",
+    sellGuideStepOne: "Lägg till tydliga bilder på delen och eventuellt artikelnummer.",
+    sellGuideStepTwo: "Skriv märke, modell, skick, pris och plats.",
+    sellGuideStepThree: "Publicera annonsen — köpare kan kontakta dig.",
+    sellGuideStepFour: "Kom överens om betalning och leverans tryggt via meddelanden.",
     brandTagline: "Alla delar. Från alla. För dig.",
     searchLabel: "Sök",
     searchCta: "Sök",
@@ -339,6 +417,7 @@ const translations = {
     sellParts: "Sälj delar",
     forYou: "Rekommendationer för dig",
     basedOnBrowsing: "Baserat på ditt bläddring",
+    showMoreListings: "Visa fler annonser",
     newBadge: "Ny",
     allListings: "Alla annonser",
     selectedVehicle: "Valt fordon",
@@ -362,6 +441,29 @@ const translations = {
     heroLeadStart: "Raskt søk",
     heroLeadHighlight: "Stort utvalg",
     heroLeadEnd: "Pålitelige selgere",
+    heroTrustFast: "Rask og enkel annonsering",
+    heroTrustFree: "Gratis salg for kjøperen",
+    heroTrustSafe: "Trygg handel i Finland",
+    heroTrustService: "Service på finsk og engelsk",
+    heroBenefitSafeTitle: "Trygg handel",
+    heroBenefitSafeText: "i Finland",
+    heroBenefitFreeTitle: "Gratis salg",
+    heroBenefitFreeText: "for kjøperen",
+    heroBenefitFastTitle: "Raskt til salgs",
+    heroBenefitFastText: "på noen minutter",
+    heroBenefitServiceTitle: "Vi hjelper",
+    heroBenefitServiceText: "Finland og Norden",
+    sellPromoTitle: "Selg deler på 2 minutter",
+    sellPromoBulletOne: "Legg til bilder",
+    sellPromoBulletTwo: "Skriv detaljer",
+    sellPromoBulletThree: "Publiser gratis",
+    addListingNow: "Legg til annonse nå",
+    instructions: "Instruksjoner",
+    sellGuideTitle: "Slik selger du deler",
+    sellGuideStepOne: "Legg til tydelige bilder av delen og eventuelt delenummer.",
+    sellGuideStepTwo: "Skriv merke, modell, tilstand, pris og sted.",
+    sellGuideStepThree: "Publiser annonsen — kjøpere kan kontakte deg.",
+    sellGuideStepFour: "Avtal betaling og levering trygt via meldinger.",
     brandTagline: "Alle deler. Fra alle. For deg.",
     searchLabel: "Søk",
     searchCta: "Søk",
@@ -419,6 +521,7 @@ const translations = {
     sellParts: "Selg deler",
     forYou: "Anbefalinger for deg",
     basedOnBrowsing: "Basert på din søking",
+    showMoreListings: "Vis flere annonser",
     newBadge: "Ny",
     allListings: "Alle annonser",
     selectedVehicle: "Valgt kjøretøy",
@@ -442,6 +545,29 @@ const translations = {
     heroLeadStart: "Kiire otsing",
     heroLeadHighlight: "Lai valik",
     heroLeadEnd: "Usaldusväärsed müüjad",
+    heroTrustFast: "Kiire ja lihtne kuulutamine",
+    heroTrustFree: "Ostjale tasuta müük",
+    heroTrustSafe: "Turvaline kauplemine Soomes",
+    heroTrustService: "Teenindus soome ja inglise keeles",
+    heroBenefitSafeTitle: "Turvaline kauplemine",
+    heroBenefitSafeText: "Soomes",
+    heroBenefitFreeTitle: "Tasuta müük",
+    heroBenefitFreeText: "ostjale",
+    heroBenefitFastTitle: "Kiirelt müüki",
+    heroBenefitFastText: "mõne minutiga",
+    heroBenefitServiceTitle: "Teenindame",
+    heroBenefitServiceText: "Soomes ja Põhjamaades",
+    sellPromoTitle: "Müü varuosi 2 minutiga",
+    sellPromoBulletOne: "Lisa pildid",
+    sellPromoBulletTwo: "Kirjuta andmed",
+    sellPromoBulletThree: "Avalda tasuta",
+    addListingNow: "Lisa kuulutus nüüd",
+    instructions: "Juhised",
+    sellGuideTitle: "Kuidas varuosi müüa",
+    sellGuideStepOne: "Lisa selged pildid varuosast ja võimalikust osanumbrist.",
+    sellGuideStepTwo: "Kirjuta mark, mudel, seisukord, hind ja asukoht.",
+    sellGuideStepThree: "Avalda kuulutus — ostjad saavad sinuga ühendust võtta.",
+    sellGuideStepFour: "Lepi makse ja tarne turvaliselt sõnumites kokku.",
     brandTagline: "Kõik osad. Kõigilt. Sulle.",
     searchLabel: "Otsing",
     searchCta: "Otsi",
@@ -499,6 +625,7 @@ const translations = {
     sellParts: "Müü osi",
     forYou: "Soovitused sulle",
     basedOnBrowsing: "Põhineb sirvimisajaloole",
+    showMoreListings: "Näita rohkem kuulutusi",
     newBadge: "Uus",
     allListings: "Kõik kuulutused",
     selectedVehicle: "Valitud sõiduk",
@@ -1073,6 +1200,7 @@ export default function Home() {
   const [pageJumpOpen, setPageJumpOpen] = useState(false);
   const [mobilePagination, setMobilePagination] = useState(false);
   const PAGE_SIZE = 40;
+  const RECOMMENDED_PREVIEW_SIZE = 4;
   const INITIAL_LISTING_FETCH_LIMIT = 240;
 
   const [category, setCategory] = useState("");
@@ -1100,6 +1228,7 @@ export default function Home() {
   const [garageVehicles, setGarageVehicles] = useState<GarageVehicle[]>([]);
   const [garageFilter, setGarageFilter] = useState<GarageVehicle | null>(null);
   const [garageDropdownOpen, setGarageDropdownOpen] = useState(false);
+  const [sellGuideOpen, setSellGuideOpen] = useState(false);
 
   const [openCategory, setOpenCategory] = useState<string | null>(null);
 
@@ -2097,8 +2226,8 @@ export default function Home() {
         seen.add(listing.id);
         return true;
       })
-      .slice(0, PAGE_SIZE);
-  }, [recommendationsEnabled, sortedRecommendedListings]);
+      .slice(0, RECOMMENDED_PREVIEW_SIZE);
+  }, [RECOMMENDED_PREVIEW_SIZE, recommendationsEnabled, sortedRecommendedListings]);
 
   const firstPageRecommendedIds = useMemo(
     () => new Set(firstPageRecommendedListings.map((listing) => listing.id)),
@@ -2130,7 +2259,7 @@ export default function Home() {
 
   const firstPageListingSlots =
     recommendationsEnabled
-      ? Math.max(0, PAGE_SIZE - firstPageRecommendedListings.length)
+      ? 0
       : PAGE_SIZE;
 
   const visibleRecommendedListings = useMemo(() => (
@@ -2139,7 +2268,12 @@ export default function Home() {
       : []
   ), [showRecoContent, firstPageRecommendedListings]);
 
-  const totalPages = Math.max(1, Math.ceil(totalDisplayListings / PAGE_SIZE));
+  const totalPages = recommendationsEnabled
+    ? Math.max(
+        1,
+        1 + Math.ceil(Math.max(0, totalDisplayListings - firstPageRecommendedListings.length) / PAGE_SIZE)
+      )
+    : Math.max(1, Math.ceil(totalDisplayListings / PAGE_SIZE));
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(1);
@@ -2159,8 +2293,8 @@ export default function Home() {
     const requiredListings =
       recommendationsEnabled
         ? currentPage === 1
-          ? firstPageListingSlots
-          : firstPageListingSlots + (currentPage - 1) * PAGE_SIZE
+          ? RECOMMENDED_PREVIEW_SIZE
+          : (currentPage - 1) * PAGE_SIZE
         : currentPage * PAGE_SIZE;
 
     if (requiredListings <= listings.length) return;
@@ -2257,16 +2391,16 @@ export default function Home() {
   const featuredListings = useMemo(() => {
     if (recommendationsEnabled) {
       if (currentPage === 1) {
-        return listingsForPaging.slice(0, firstPageListingSlots);
+        return [];
       }
 
-      const start = firstPageListingSlots + (currentPage - 2) * PAGE_SIZE;
+      const start = (currentPage - 2) * PAGE_SIZE;
       return listingsForPaging.slice(start, start + PAGE_SIZE);
     }
 
     const start = (currentPage - 1) * PAGE_SIZE;
     return filteredListings.slice(start, start + PAGE_SIZE);
-  }, [filteredListings, listingsForPaging, currentPage, recommendationsEnabled, firstPageListingSlots]);
+  }, [filteredListings, listingsForPaging, currentPage, recommendationsEnabled]);
 
   const displayedListings = useMemo(() => (
     showRecoContent
@@ -2385,6 +2519,20 @@ export default function Home() {
                 <span style={{ display: "block", width: "100%" }}>{t.heroLeadStart}</span>
                 <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>{t.heroLeadHighlight}</span>
               </h1>
+
+              <div className={styles.heroTrustRow} aria-label={t.heroLeadEnd}>
+                {[
+                  t.heroTrustFast,
+                  t.heroTrustFree,
+                  t.heroTrustSafe,
+                  t.heroTrustService
+                ].map((item) => (
+                  <span key={item} className={styles.heroTrustItem}>
+                    <Check size={15} strokeWidth={3.2} aria-hidden="true" />
+                    {item}
+                  </span>
+                ))}
+              </div>
 
               <form
                 className={styles.heroSearch}
@@ -2593,6 +2741,106 @@ export default function Home() {
               </button>
             </div>
 
+            <div className={styles.heroMarketplaceStrip}>
+              <div className={styles.heroBenefitsPanel}>
+                {[
+                  {
+                    icon: ShieldCheck,
+                    title: t.heroBenefitSafeTitle,
+                    text: t.heroBenefitSafeText,
+                    tone: "green"
+                  },
+                  {
+                    icon: Tag,
+                    title: t.heroBenefitFreeTitle,
+                    text: t.heroBenefitFreeText,
+                    tone: "orange"
+                  },
+                  {
+                    icon: Gauge,
+                    title: t.heroBenefitFastTitle,
+                    text: t.heroBenefitFastText,
+                    tone: "blue"
+                  },
+                  {
+                    icon: Users,
+                    title: t.heroBenefitServiceTitle,
+                    text: t.heroBenefitServiceText,
+                    tone: "purple"
+                  }
+                ].map(({ icon: Icon, title, text, tone }) => (
+                  <div key={title} className={`${styles.heroBenefitItem} ${styles[`heroBenefit${tone}`]}`}>
+                    <span className={styles.heroBenefitIcon}>
+                      <Icon size={32} strokeWidth={2.2} aria-hidden="true" />
+                    </span>
+                    <span className={styles.heroBenefitText}>
+                      <strong>{title}</strong>
+                      <small>{text}</small>
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className={styles.heroSellPromo}>
+                <div className={styles.heroSellPromoText}>
+                  <strong>{t.sellPromoTitle}</strong>
+                  <div className={styles.heroSellBullets}>
+                    {[t.sellPromoBulletOne, t.sellPromoBulletTwo, t.sellPromoBulletThree].map((item) => (
+                      <span key={item}>
+                        <Check size={12} strokeWidth={3.2} aria-hidden="true" />
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                  <div className={styles.heroSellActions}>
+                    <Link href={pagePath("sell", locale)} className={styles.heroSellPrimary}>
+                      <Plus size={17} strokeWidth={3} aria-hidden="true" />
+                      {t.addListingNow}
+                    </Link>
+                    <button
+                      type="button"
+                      className={styles.heroSellSecondary}
+                      onClick={() => setSellGuideOpen((open) => !open)}
+                      aria-expanded={sellGuideOpen}
+                    >
+                      <HomeIcon size={15} strokeWidth={2.6} aria-hidden="true" />
+                      {t.instructions}
+                    </button>
+                  </div>
+                  {sellGuideOpen && (
+                    <div className={styles.heroSellGuide} role="region" aria-label={t.sellGuideTitle}>
+                      <div className={styles.heroSellGuideHeader}>
+                        <strong>{t.sellGuideTitle}</strong>
+                        <button
+                          type="button"
+                          onClick={() => setSellGuideOpen(false)}
+                          aria-label="Sulje ohjeet"
+                        >
+                          <X size={14} strokeWidth={3} aria-hidden="true" />
+                        </button>
+                      </div>
+                      <ol>
+                        <li>{t.sellGuideStepOne}</li>
+                        <li>{t.sellGuideStepTwo}</li>
+                        <li>{t.sellGuideStepThree}</li>
+                        <li>{t.sellGuideStepFour}</li>
+                      </ol>
+                    </div>
+                  )}
+                </div>
+                <img
+                  className={styles.heroPhoneRealistic}
+                  src="/sell-phone-realistic.png"
+                  alt=""
+                  aria-hidden="true"
+                  loading="eager"
+                />
+                <span className={styles.heroChatBubble} aria-hidden="true">
+                  <MessageCircle size={24} fill="currentColor" />
+                </span>
+              </div>
+            </div>
+
           </div>
         </section>
       </div>
@@ -2738,6 +2986,16 @@ export default function Home() {
                 </span>
               )}
               <div className={styles.listingToolbar}>
+                {showRecoSection && totalPages > 1 ? (
+                  <button
+                    type="button"
+                    className={styles.showMoreListingsButton}
+                    onClick={() => goToPage(2)}
+                  >
+                    <span>{t.showMoreListings}</span>
+                    <ChevronRight size={16} strokeWidth={3} aria-hidden="true" />
+                  </button>
+                ) : null}
                 {renderSortControl(styles.sectionSortControl)}
               </div>
             </div>
@@ -2850,7 +3108,7 @@ export default function Home() {
               })}
               </div>
 
-              {!listingsLoading && totalPages > 1 && (
+              {!listingsLoading && totalPages > 1 && !showRecoSection && (
                 <div className={styles.pagination}>
                   <button
                     type="button"

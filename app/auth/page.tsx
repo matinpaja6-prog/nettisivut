@@ -1324,7 +1324,21 @@ function AuthPageContent() {
                   </div>
                 )}
 
-                <div className="registration-fields">
+                <div
+                  className="registration-fields"
+                  onPointerDownCapture={(event) => {
+                    const target = event.target as HTMLElement | null;
+                    if (!target?.closest(".phone-code-select-wrap")) {
+                      setPhoneCodeMenuOpen(false);
+                    }
+                  }}
+                  onFocusCapture={(event) => {
+                    const target = event.target as HTMLElement | null;
+                    if (!target?.closest(".phone-code-select-wrap")) {
+                      setPhoneCodeMenuOpen(false);
+                    }
+                  }}
+                >
                   {form.account_type === "company" && (
                     <>
                       <label>

@@ -3,6 +3,399 @@
   background: transparent;
 }
 
+/* Reference-style desktop home hero: dark spare-parts stage, centered headline, category rail and trust/sell cards. */
+@media (min-width: 721px) {
+  .heroWrap {
+    background:
+      radial-gradient(460px 220px at 91% 38%, rgba(255, 111, 0, 0.48), transparent 68%),
+      radial-gradient(380px 220px at 9% 44%, rgba(255, 113, 15, 0.24), transparent 70%),
+      linear-gradient(180deg, rgba(3, 11, 20, 0.32) 0%, rgba(3, 12, 22, 0.12) 46%, rgba(3, 12, 22, 0.94) 100%),
+      var(--hero-bg-url, url("/hero-bg.png")) center 38% / cover no-repeat !important;
+    border-bottom: 1px solid rgba(255, 122, 26, 0.12) !important;
+    box-shadow: inset 0 -90px 120px rgba(2, 10, 18, 0.76) !important;
+    min-height: 690px !important;
+    overflow: visible !important;
+    padding: 0 16px 28px !important;
+  }
+
+  .heroWrap > .container {
+    height: auto !important;
+    max-width: 1280px !important;
+  }
+
+  .hero {
+    align-items: start !important;
+    display: grid !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 26px 0 0 !important;
+  }
+
+  .heroInner {
+    align-content: start !important;
+    display: grid !important;
+    gap: 16px !important;
+    justify-items: center !important;
+    left: auto !important;
+    margin: 0 auto !important;
+    max-width: 1248px !important;
+    position: relative !important;
+    top: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    z-index: 2 !important;
+  }
+
+  .heroHeadline {
+    color: #f8fbff !important;
+    display: grid !important;
+    font-size: clamp(44px, 5.2vw, 64px) !important;
+    font-weight: 1000 !important;
+    gap: 0 !important;
+    letter-spacing: -0.065em !important;
+    line-height: 0.92 !important;
+    margin: 0 auto 8px !important;
+    max-width: 720px !important;
+    text-align: center !important;
+    text-shadow:
+      0 5px 0 rgba(0, 0, 0, 0.28),
+      0 18px 34px rgba(0, 0, 0, 0.62) !important;
+  }
+
+  .heroHeadlineAccent {
+    color: #ff760c !important;
+    text-shadow:
+      0 5px 0 rgba(68, 20, 0, 0.42),
+      0 18px 36px rgba(0, 0, 0, 0.68) !important;
+  }
+
+  .heroTrustRow {
+    align-items: center !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 18px 30px !important;
+    justify-content: center !important;
+    margin: 2px auto 10px !important;
+    max-width: 760px !important;
+  }
+
+  .heroTrustItem {
+    align-items: center !important;
+    color: rgba(246, 251, 255, 0.94) !important;
+    display: inline-flex !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    gap: 7px !important;
+    line-height: 1.15 !important;
+    text-shadow: 0 7px 18px rgba(0, 0, 0, 0.65) !important;
+  }
+
+  .heroTrustItem svg {
+    background: #61d657 !important;
+    border-radius: 999px !important;
+    color: #073414 !important;
+    flex: 0 0 auto !important;
+    padding: 2px !important;
+  }
+
+  .heroSearch,
+  .categoryRowWrap {
+    display: none !important;
+  }
+
+  .heroQuickCategoryRow {
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    margin: 0 auto !important;
+    max-width: 970px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    width: min(970px, 100%) !important;
+  }
+
+  .heroQuickCategoryItem,
+  .heroGaragePillWrap {
+    min-width: 0 !important;
+  }
+
+  .heroQuickCategory {
+    align-items: center !important;
+    background: linear-gradient(180deg, rgba(12, 25, 41, 0.94), rgba(7, 17, 30, 0.98)) !important;
+    border: 1px solid rgba(170, 194, 218, 0.35) !important;
+    border-radius: 10px !important;
+    box-shadow:
+      0 16px 36px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+    color: #f8fbff !important;
+    display: inline-flex !important;
+    font-size: 14px !important;
+    font-weight: 950 !important;
+    gap: 10px !important;
+    height: 52px !important;
+    justify-content: center !important;
+    padding: 0 14px !important;
+    width: 100% !important;
+  }
+
+  .heroQuickCategory svg {
+    color: #ffffff !important;
+    height: 22px !important;
+    width: 22px !important;
+  }
+
+  .heroQuickCategory:hover,
+  .heroQuickCategoryActive {
+    background: linear-gradient(180deg, #ff9324 0%, #ff6d0c 100%) !important;
+    border-color: rgba(255, 204, 149, 0.85) !important;
+    box-shadow:
+      0 16px 42px rgba(255, 103, 0, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+  }
+
+  .heroRefineCategoryButton {
+    align-items: center !important;
+    background: rgba(2, 12, 22, 0.78) !important;
+    border: 1px solid rgba(255, 122, 26, 0.96) !important;
+    border-radius: 10px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    color: #ff8b22 !important;
+    display: inline-flex !important;
+    font-size: 14px !important;
+    font-weight: 950 !important;
+    gap: 10px !important;
+    grid-column: 1 / -1 !important;
+    height: 36px !important;
+    justify-content: center !important;
+    letter-spacing: 0 !important;
+    margin-top: 2px !important;
+    width: 100% !important;
+  }
+
+  .heroMarketplaceStrip {
+    display: grid !important;
+    gap: 14px !important;
+    grid-template-columns: minmax(0, 1fr) minmax(330px, 500px) !important;
+    margin: 2px auto 0 !important;
+    max-width: 1240px !important;
+    width: 100% !important;
+  }
+
+  .heroBenefitsPanel,
+  .heroSellPromo {
+    background:
+      radial-gradient(380px 120px at 100% 0%, rgba(58, 142, 255, 0.1), transparent 70%),
+      linear-gradient(180deg, rgba(10, 26, 43, 0.92), rgba(5, 17, 31, 0.96)) !important;
+    border: 1px solid rgba(126, 158, 190, 0.24) !important;
+    border-radius: 9px !important;
+    box-shadow: 0 22px 54px rgba(0, 7, 18, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+    min-height: 92px !important;
+  }
+
+  .heroBenefitsPanel {
+    align-items: stretch !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    overflow: hidden !important;
+  }
+
+  .heroBenefitItem {
+    align-items: center !important;
+    display: flex !important;
+    gap: 13px !important;
+    min-width: 0 !important;
+    padding: 18px 18px !important;
+    position: relative !important;
+  }
+
+  .heroBenefitItem:not(:last-child)::after {
+    background: linear-gradient(180deg, transparent, rgba(142, 172, 201, 0.2), transparent) !important;
+    content: "" !important;
+    height: 56px !important;
+    position: absolute !important;
+    right: 0 !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 1px !important;
+  }
+
+  .heroBenefitIcon {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+  }
+
+  .heroBenefitText {
+    color: #ffffff !important;
+    display: grid !important;
+    gap: 3px !important;
+    min-width: 0 !important;
+  }
+
+  .heroBenefitText strong {
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    line-height: 1.12 !important;
+  }
+
+  .heroBenefitText small {
+    color: rgba(225, 236, 247, 0.74) !important;
+    font-size: 12px !important;
+    font-weight: 650 !important;
+    line-height: 1.22 !important;
+  }
+
+  .heroBenefitgreen .heroBenefitIcon { color: #7ce252 !important; }
+  .heroBenefitorange .heroBenefitIcon { color: #ff7a1a !important; }
+  .heroBenefitblue .heroBenefitIcon { color: #3a8bff !important; }
+  .heroBenefitpurple .heroBenefitIcon { color: #a35cff !important; }
+
+  .heroSellPromo {
+    align-items: center !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 118px !important;
+    overflow: hidden !important;
+    padding: 14px 120px 14px 18px !important;
+    position: relative !important;
+  }
+
+  .heroSellPromoText {
+    display: grid !important;
+    gap: 9px !important;
+    min-width: 0 !important;
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  .heroSellPromoText > strong {
+    color: #ffffff !important;
+    font-size: 20px !important;
+    font-weight: 1000 !important;
+    line-height: 1.04 !important;
+    text-shadow: 0 12px 24px rgba(0, 0, 0, 0.35) !important;
+  }
+
+  .heroSellPromoText > strong::first-line {
+    color: #ff8b22 !important;
+  }
+
+  .heroSellBullets {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 7px 10px !important;
+  }
+
+  .heroSellBullets span {
+    align-items: center !important;
+    color: rgba(238, 247, 255, 0.9) !important;
+    display: inline-flex !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    gap: 4px !important;
+  }
+
+  .heroSellBullets svg {
+    color: #62e25a !important;
+  }
+
+  .heroSellActions {
+    display: flex !important;
+    gap: 10px !important;
+  }
+
+  .heroSellPrimary,
+  .heroSellSecondary {
+    align-items: center !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    gap: 8px !important;
+    min-height: 38px !important;
+    padding: 0 15px !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+  }
+
+  .heroSellPrimary {
+    background: linear-gradient(180deg, #ff9528 0%, #ff6c0b 100%) !important;
+    border: 1px solid rgba(255, 214, 170, 0.65) !important;
+    box-shadow: 0 12px 26px rgba(255, 106, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+  }
+
+  .heroSellSecondary {
+    background: rgba(4, 14, 25, 0.74) !important;
+    border: 1px solid rgba(191, 209, 227, 0.28) !important;
+    color: #f7fbff !important;
+  }
+
+  .heroPhoneMockup {
+    align-self: end !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent), #101c2b !important;
+    border: 5px solid #0a121d !important;
+    border-radius: 24px !important;
+    bottom: -20px !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.45) !important;
+    height: 138px !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    right: 34px !important;
+    transform: rotate(10deg) !important;
+    width: 78px !important;
+    z-index: 1 !important;
+  }
+
+  .heroPhoneMockup img {
+    height: 100% !important;
+    object-fit: cover !important;
+    opacity: 0.95 !important;
+    width: 100% !important;
+  }
+
+  .heroChatBubble {
+    align-items: center !important;
+    background: linear-gradient(180deg, #ff9824, #ff6d0b) !important;
+    border-radius: 999px !important;
+    box-shadow: 0 14px 30px rgba(255, 110, 0, 0.32) !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    height: 52px !important;
+    justify-content: center !important;
+    position: absolute !important;
+    right: 8px !important;
+    top: 20px !important;
+    width: 52px !important;
+    z-index: 3 !important;
+  }
+
+  .mainGrid,
+  .listingsPlainSection {
+    background: #03101d !important;
+    padding-top: 20px !important;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1080px) {
+  .heroQuickCategoryRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    max-width: 760px !important;
+  }
+
+  .heroMarketplaceStrip {
+    grid-template-columns: 1fr !important;
+    max-width: 860px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .heroTrustRow,
+  .heroMarketplaceStrip {
+    display: none !important;
+  }
+}
+
 /* Final mobile category text fix: show full vehicle labels instead of ellipsis. */
 @media (max-width: 640px) {
   .categoryRow .categoryPill,
@@ -1160,6 +1553,36 @@
   align-items: center;
   gap: 12px;
   margin-left: auto;
+}
+
+.showMoreListingsButton {
+  align-items: center;
+  background:
+    radial-gradient(120px 46px at 100% 0%, rgba(255, 170, 58, 0.25), transparent 72%),
+    linear-gradient(180deg, rgba(10, 26, 43, 0.96), rgba(5, 17, 31, 0.98));
+  border: 1px solid rgba(255, 122, 26, 0.52);
+  border-radius: 8px;
+  box-shadow:
+    0 14px 34px rgba(0, 7, 18, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.11);
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 900;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.showMoreListingsButton:hover {
+  border-color: rgba(255, 154, 36, 0.82);
+  box-shadow:
+    0 18px 42px rgba(0, 7, 18, 0.34),
+    0 0 0 1px rgba(255, 122, 26, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
 }
 
 .sortControl {
@@ -14961,5 +15384,350 @@
   .heroGarageDropdown a {
     min-height: 40px !important;
     white-space: normal !important;
+  }
+}
+
+/* Exact sell strip pass: match the provided dark card reference and use the realistic phone asset. */
+@media (min-width: 721px) {
+  .heroMarketplaceStrip {
+    align-items: stretch !important;
+    display: grid !important;
+    gap: 16px !important;
+    grid-template-columns: minmax(0, 1.42fr) minmax(430px, 0.86fr) !important;
+    margin-top: 4px !important;
+    max-width: 1240px !important;
+  }
+
+  .heroBenefitsPanel,
+  .heroSellPromo {
+    background:
+      radial-gradient(420px 160px at 100% 0%, rgba(35, 96, 148, 0.12), transparent 72%),
+      linear-gradient(180deg, rgba(9, 28, 47, 0.94) 0%, rgba(5, 17, 31, 0.97) 100%) !important;
+    border: 1px solid rgba(119, 151, 183, 0.34) !important;
+    border-radius: 7px !important;
+    box-shadow:
+      0 18px 50px rgba(0, 7, 18, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    min-height: 142px !important;
+  }
+
+  .heroBenefitsPanel {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .heroBenefitItem {
+    gap: 18px !important;
+    justify-content: center !important;
+    padding: 22px 18px !important;
+  }
+
+  .heroBenefitIcon svg {
+    height: 38px !important;
+    width: 38px !important;
+  }
+
+  .heroBenefitText {
+    justify-items: center !important;
+  }
+
+  .heroBenefitText strong {
+    color: #f8fbff !important;
+    font-size: 16px !important;
+    font-weight: 1000 !important;
+    line-height: 0.98 !important;
+    max-width: 106px !important;
+    text-align: center !important;
+  }
+
+  .heroBenefitText small {
+    color: rgba(233, 242, 250, 0.82) !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    line-height: 1.15 !important;
+    max-width: 118px !important;
+    text-align: center !important;
+  }
+
+  .heroSellPromo {
+    min-height: 142px !important;
+    padding: 18px 172px 18px 22px !important;
+  }
+
+  .heroSellPromoText {
+    gap: 9px !important;
+  }
+
+  .heroSellPromoText > strong {
+    color: #ffffff !important;
+    font-size: 21px !important;
+    font-weight: 1000 !important;
+    letter-spacing: -0.04em !important;
+    line-height: 0.98 !important;
+    max-width: 220px !important;
+  }
+
+  .heroSellPromoText > strong::first-line {
+    color: #ff8617 !important;
+  }
+
+  .heroSellBullets {
+    gap: 6px 11px !important;
+    max-width: 250px !important;
+  }
+
+  .heroSellBullets span {
+    color: rgba(246, 251, 255, 0.92) !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+  }
+
+  .heroSellActions {
+    gap: 10px !important;
+  }
+
+  .heroSellPrimary {
+    border-radius: 7px !important;
+    font-size: 14px !important;
+    height: 42px !important;
+    padding: 0 20px !important;
+  }
+
+  .heroSellSecondary {
+    appearance: none !important;
+    background: rgba(3, 13, 25, 0.62) !important;
+    border: 1px solid rgba(183, 204, 224, 0.35) !important;
+    border-radius: 7px !important;
+    color: #f8fbff !important;
+    cursor: pointer !important;
+    font-size: 13px !important;
+    height: 42px !important;
+    padding: 0 18px !important;
+  }
+
+  .heroPhoneMockup {
+    display: none !important;
+  }
+
+  .heroPhoneRealistic {
+    bottom: -10px !important;
+    filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.48)) !important;
+    height: 168px !important;
+    object-fit: contain !important;
+    object-position: center bottom !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    right: 34px !important;
+    transform: rotate(4deg) !important;
+    width: 142px !important;
+    z-index: 1 !important;
+  }
+
+  .heroChatBubble {
+    height: 52px !important;
+    right: 18px !important;
+    top: 22px !important;
+    width: 52px !important;
+    z-index: 3 !important;
+  }
+
+  .heroSellGuide {
+    background:
+      radial-gradient(180px 70px at 0% 0%, rgba(255, 122, 26, 0.12), transparent 75%),
+      rgba(2, 11, 22, 0.96) !important;
+    border: 1px solid rgba(255, 122, 26, 0.34) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.42) !important;
+    left: 18px !important;
+    max-width: 370px !important;
+    padding: 14px 16px !important;
+    position: absolute !important;
+    top: calc(100% + 10px) !important;
+    z-index: 30 !important;
+  }
+
+  .heroSellGuideHeader {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-bottom: 8px !important;
+  }
+
+  .heroSellGuideHeader strong {
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 1000 !important;
+  }
+
+  .heroSellGuideHeader button {
+    align-items: center !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 999px !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    height: 26px !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    width: 26px !important;
+  }
+
+  .heroSellGuide ol {
+    color: rgba(234, 244, 252, 0.9) !important;
+    display: grid !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+    gap: 6px !important;
+    line-height: 1.32 !important;
+    margin: 0 !important;
+    padding-left: 18px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .heroPhoneRealistic,
+  .heroSellGuide {
+    display: none !important;
+  }
+}
+
+/* Absolute final desktop reference hero override. */
+@media (min-width: 721px) {
+  .heroWrap {
+    background:
+      radial-gradient(460px 220px at 91% 38%, rgba(255, 111, 0, 0.48), transparent 68%),
+      radial-gradient(380px 220px at 9% 44%, rgba(255, 113, 15, 0.24), transparent 70%),
+      linear-gradient(180deg, rgba(3, 11, 20, 0.28) 0%, rgba(3, 12, 22, 0.12) 46%, rgba(3, 12, 22, 0.96) 100%),
+      url("/hero-bg.png") center 38% / cover no-repeat !important;
+    min-height: 690px !important;
+    overflow: visible !important;
+    padding: 0 16px 28px !important;
+  }
+
+  .heroWrap > .container {
+    height: auto !important;
+    max-width: 1280px !important;
+  }
+
+  .hero {
+    align-items: start !important;
+    display: grid !important;
+    min-height: 0 !important;
+    padding: 26px 0 0 !important;
+  }
+
+  .heroInner {
+    align-content: start !important;
+    display: grid !important;
+    gap: 16px !important;
+    justify-items: center !important;
+    left: auto !important;
+    max-width: 1248px !important;
+    position: relative !important;
+    top: auto !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  .heroHeadline {
+    color: #f8fbff !important;
+    font-size: clamp(44px, 5.2vw, 64px) !important;
+    font-weight: 1000 !important;
+    letter-spacing: -0.065em !important;
+    line-height: 0.92 !important;
+    margin: 0 auto 8px !important;
+    max-width: 720px !important;
+    text-align: center !important;
+    text-shadow: 0 5px 0 rgba(0, 0, 0, 0.28), 0 18px 34px rgba(0, 0, 0, 0.62) !important;
+  }
+
+  .heroHeadlineAccent {
+    color: #ff760c !important;
+  }
+
+  .heroTrustRow {
+    display: flex !important;
+  }
+
+  .heroSearch,
+  .categoryRowWrap {
+    display: none !important;
+  }
+
+  .heroQuickCategoryRow {
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    max-width: 970px !important;
+    width: min(970px, 100%) !important;
+  }
+
+  .heroQuickCategory {
+    background: linear-gradient(180deg, rgba(12, 25, 41, 0.94), rgba(7, 17, 30, 0.98)) !important;
+    border: 1px solid rgba(170, 194, 218, 0.35) !important;
+    border-radius: 10px !important;
+    color: #f8fbff !important;
+    height: 52px !important;
+  }
+
+  .heroQuickCategory:hover,
+  .heroQuickCategoryActive {
+    background: linear-gradient(180deg, #ff9324 0%, #ff6d0c 100%) !important;
+    border-color: rgba(255, 204, 149, 0.85) !important;
+  }
+
+  .heroRefineCategoryButton {
+    background: rgba(2, 12, 22, 0.78) !important;
+    border: 1px solid rgba(255, 122, 26, 0.96) !important;
+    border-radius: 10px !important;
+    color: #ff8b22 !important;
+    grid-column: 1 / -1 !important;
+    height: 36px !important;
+    width: 100% !important;
+  }
+
+  .heroMarketplaceStrip {
+    display: grid !important;
+    gap: 14px !important;
+    grid-template-columns: minmax(0, 1fr) minmax(330px, 500px) !important;
+    max-width: 1240px !important;
+    width: 100% !important;
+  }
+
+  .heroBenefitsPanel {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .heroPhoneMockup {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent),
+      repeating-linear-gradient(180deg, #f8fbff 0 12px, #dbe7f2 12px 22px) !important;
+    border: 5px solid #0a121d !important;
+    border-radius: 24px !important;
+    bottom: -20px !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.45) !important;
+    height: 138px !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    right: 34px !important;
+    transform: rotate(10deg) !important;
+    width: 78px !important;
+    z-index: 1 !important;
+  }
+
+  .heroPhoneMockup::before {
+    background:
+      radial-gradient(circle at 50% 35%, #ff7a1a 0 5px, transparent 6px),
+      radial-gradient(circle at 28% 58%, #0d2034 0 6px, transparent 7px),
+      radial-gradient(circle at 72% 58%, #0d2034 0 6px, transparent 7px),
+      linear-gradient(180deg, rgba(255, 122, 26, 0.18), transparent) !important;
+    content: "" !important;
+    inset: 12px 9px !important;
+    position: absolute !important;
+  }
+
+  .heroPhoneMockup img {
+    display: none !important;
   }
 }
