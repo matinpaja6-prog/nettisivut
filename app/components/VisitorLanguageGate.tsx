@@ -13,7 +13,6 @@ const LANGUAGES: Array<{ code: Locale; country: string; flag: string; language: 
 ];
 
 const STORAGE_PREFIX = "visitor-language:";
-const RETURN_PATH_KEY = "visitor-language-return-path";
 const FORCE_PROMPT_PARAM = "languagePrompt";
 
 type VisitorLanguageResponse = {
@@ -118,15 +117,6 @@ export default function VisitorLanguageGate() {
           return;
         }
 
-        if (window.location.pathname !== "/") {
-          sessionStorage.setItem(
-            RETURN_PATH_KEY,
-            `${window.location.pathname}${window.location.search}${window.location.hash}`
-          );
-          window.location.replace("/");
-          return;
-        }
-
         openTimer = setTimeout(() => {
           if (!cancelled) setOpen(true);
         }, 450);
@@ -190,12 +180,6 @@ export default function VisitorLanguageGate() {
     rememberOnServer(locale);
     applyLocale(locale);
     setOpen(false);
-
-    const returnPath = sessionStorage.getItem(RETURN_PATH_KEY);
-    if (returnPath && returnPath !== "/") {
-      sessionStorage.removeItem(RETURN_PATH_KEY);
-      window.location.replace(returnPath);
-    }
   }
 
   if (!open) return null;

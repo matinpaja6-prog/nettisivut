@@ -55,7 +55,6 @@ import {
   ensureListingTranslations,
   getListings,
   getUserPreferenceProfile,
-  isProfileCompleted,
   saveListing,
   supabase,
   trackUserActivity,
@@ -1658,13 +1657,6 @@ export default function Home() {
 
         setUser(user);
 
-        if (user) {
-          const { data: profileData } = await getProfile(user.id);
-          if (!isProfileCompleted(profileData)) {
-            router.push("/auth");
-            return;
-          }
-        }
       } catch {
         setUser(null);
       }

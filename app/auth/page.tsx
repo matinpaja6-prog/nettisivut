@@ -996,7 +996,7 @@ function AuthPageContent() {
     }
   }
 
-  function handleSignOut() {
+  async function handleSignOut() {
     setUser(null);
     setProfile(null);
     setRecoveryMode(false);
@@ -1007,10 +1007,11 @@ function AuthPageContent() {
       sessionStorage.removeItem("home_return_pending_v1");
       sessionStorage.removeItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY);
     } catch {}
-    void signOut().finally(() => {
-      router.refresh();
-    });
-    router.push("/");
+    try {
+      await signOut();
+    } finally {
+      router.replace("/");
+    }
   }
 
   async function handleGoogleLogin() {
