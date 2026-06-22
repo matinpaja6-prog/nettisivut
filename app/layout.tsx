@@ -41,7 +41,6 @@ import VisitorLanguageGate from "./components/VisitorLanguageGate";
 import InstantNavigation from "./components/InstantNavigation";
 import NavigationHistory from "./components/NavigationHistory";
 import AutoTranslate from "./components/AutoTranslate";
-import StableRouteContent from "./components/StableRouteContent";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://maskines.com"),
@@ -183,7 +182,7 @@ export default function RootLayout({
           <SiteVisitTracker />
           <ProfileCompletionGate />
           <UniversalTopbar />
-          <StableRouteContent>{children}</StableRouteContent>
+          {children}
           <RequiredReviewGate />
           <FloatingChat />
           <Footer />

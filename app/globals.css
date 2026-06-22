@@ -23,14 +23,6 @@ body {
   }
 }
 
-.stable-route-layer {
-  display: contents;
-}
-
-.stable-route-pending {
-  display: none;
-}
-
 .global-navigation-spinner {
   align-items: center;
   display: grid;
