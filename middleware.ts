@@ -54,7 +54,14 @@ async function isIpBanned(ip: string) {
 }
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { hostname, pathname } = request.nextUrl;
+
+  if (hostname.toLowerCase() === "maskines.com") {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.hostname = "www.maskines.com";
+    redirectUrl.protocol = "https:";
+    return NextResponse.redirect(redirectUrl, 308);
+  }
 
   if (
     pathname.startsWith("/_next") ||

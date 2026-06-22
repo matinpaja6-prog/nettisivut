@@ -43,7 +43,7 @@ import NavigationHistory from "./components/NavigationHistory";
 import AutoTranslate from "./components/AutoTranslate";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://maskines.com"),
+  metadataBase: new URL("https://www.maskines.com"),
   applicationName: "Maskines",
   title: {
     default: "Maskines | Moottorikelkkojen, mönkijöiden, motocrossien ja mopojen varaosat",
