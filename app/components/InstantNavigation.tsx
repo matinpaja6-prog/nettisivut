@@ -80,7 +80,6 @@ export default function InstantNavigation() {
     const handlePointerEnter = (event: PointerEvent) => prefetch(event.target);
     const handlePointerDown = (event: PointerEvent) => prefetch(event.target);
     const handleFocusIn = (event: FocusEvent) => prefetch(event.target);
-    const handleScroll = () => scheduleVisiblePrefetch();
     const handleClick = (event: MouseEvent) => {
       if (
         event.defaultPrevented ||
@@ -100,23 +99,17 @@ export default function InstantNavigation() {
       router.push(href);
     };
 
-    const observer = new MutationObserver(scheduleVisiblePrefetch);
-    observer.observe(document.body, { childList: true, subtree: true });
-
     document.addEventListener("pointerover", handlePointerEnter, true);
     document.addEventListener("pointerdown", handlePointerDown, true);
     document.addEventListener("focusin", handleFocusIn, true);
     document.addEventListener("click", handleClick);
-    window.addEventListener("scroll", handleScroll, { passive: true });
     scheduleVisiblePrefetch();
 
     return () => {
-      observer.disconnect();
       document.removeEventListener("pointerover", handlePointerEnter, true);
       document.removeEventListener("pointerdown", handlePointerDown, true);
       document.removeEventListener("focusin", handleFocusIn, true);
       document.removeEventListener("click", handleClick);
-      window.removeEventListener("scroll", handleScroll);
     };
   }, [router]);
 

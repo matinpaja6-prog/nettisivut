@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n";
 
 type AttrName = "placeholder" | "title" | "aria-label";
@@ -12,7 +13,6 @@ type AttrEntry = {
 };
 
 const ATTRS: AttrName[] = ["placeholder", "title", "aria-label"];
-const TRANSLATION_BATCH_SIZE = 80;
 const TRANSLATION_CACHE_VERSION = "v3";
 
 const staticUiTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = {
@@ -545,16 +545,6 @@ function shouldTranslateText(text: string) {
   return true;
 }
 
-function chunkTexts(texts: string[]) {
-  const chunks: string[][] = [];
-
-  for (let index = 0; index < texts.length; index += TRANSLATION_BATCH_SIZE) {
-    chunks.push(texts.slice(index, index + TRANSLATION_BATCH_SIZE));
-  }
-
-  return chunks;
-}
-
 function getStaticTranslation(locale: Locale, text: string) {
   if (locale === "fi") return null;
 
@@ -578,6 +568,7 @@ function getStaticTranslation(locale: Locale, text: string) {
 }
 
 export default function AutoTranslate() {
+  const pathname = usePathname();
   const [locale, setLocale] = useState<Locale>("fi");
   const translationCache = useRef<Map<string, string>>(new Map());
   const originalTextNodes = useRef<WeakMap<Text, string>>(new WeakMap());
@@ -737,27 +728,6 @@ export default function AutoTranslate() {
       applyTranslations(textNodes, attrs);
       saveCache();
 
-      const missing = texts.filter((text) => !translationCache.current.has(text));
-
-      if (missing.length > 0) {
-        for (const batch of chunkTexts(missing)) {
-          const response = await fetch("/api/translate-ui", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ targetLocale: locale, texts: batch })
-          });
-
-          if (response.ok) {
-            const data = (await response.json()) as { translations?: Record<string, string> };
-            for (const [source, translated] of Object.entries(data.translations ?? {})) {
-              translationCache.current.set(source, translated);
-            }
-          }
-        }
-
-        saveCache();
-        applyTranslations(textNodes, attrs);
-      }
     } finally {
       translating.current = false;
     }
@@ -775,27 +745,17 @@ export default function AutoTranslate() {
       }
       pendingRequest.current = window.setTimeout(() => {
         void translatePage();
-      }, 0);
+      }, 120);
     }
 
     scheduleTranslate();
 
-    const observer = new MutationObserver(() => scheduleTranslate());
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-      attributes: true,
-      attributeFilter: ATTRS
-    });
-
     return () => {
-      observer.disconnect();
       if (pendingRequest.current) {
         window.clearTimeout(pendingRequest.current);
       }
     };
-  }, [locale, translatePage]);
+  }, [locale, pathname, translatePage]);
 
   return null;
 }
