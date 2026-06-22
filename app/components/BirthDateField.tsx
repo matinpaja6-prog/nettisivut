@@ -74,6 +74,7 @@ function isCompleteDate(year: string, month: string, day: string) {
 function DatePartSelect({
   disabled,
   label,
+  onAdvance,
   onChange,
   onOpen,
   open,
@@ -83,6 +84,7 @@ function DatePartSelect({
 }: {
   disabled: boolean;
   label: string;
+  onAdvance?: () => void;
   onChange: (value: string) => void;
   onOpen: (open: boolean) => void;
   open: boolean;
@@ -94,8 +96,12 @@ function DatePartSelect({
 
   function choose(nextValue: string) {
     onChange(nextValue);
-    onOpen(false);
-    if (typeof document !== "undefined") {
+    if (nextValue && onAdvance) {
+      onAdvance();
+    } else {
+      onOpen(false);
+    }
+    if (!nextValue || !onAdvance) {
       const activeElement = document.activeElement;
       if (activeElement instanceof HTMLElement) {
         activeElement.blur();
@@ -225,6 +231,7 @@ export function BirthDateField({
           label="Päivä"
           open={openPart === "day"}
           onOpen={(open) => setOpenPart(open ? "day" : null)}
+          onAdvance={!parts.month ? () => setOpenPart("month") : undefined}
           options={dayOptions}
           placeholder="Pv"
           value={parts.day ? String(Number(parts.day)) : ""}
@@ -235,6 +242,7 @@ export function BirthDateField({
           label="Kuukausi"
           open={openPart === "month"}
           onOpen={(open) => setOpenPart(open ? "month" : null)}
+          onAdvance={!parts.year ? () => setOpenPart("year") : undefined}
           options={monthOptions}
           placeholder="Kuukausi"
           value={parts.month ? String(Number(parts.month)) : ""}

@@ -2709,6 +2709,7 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
   }
 
   html body main.auth-page.simple-auth-page .profile-finalize-card .date-field {
+    overflow: visible !important;
     position: relative !important;
     z-index: 10 !important;
   }
@@ -2749,8 +2750,18 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
     right: auto !important;
     top: calc(100% + 8px) !important;
     transform: translateZ(0) !important;
-    width: min(240px, calc(100dvw - 32px)) !important;
+    width: min(220px, calc(100dvw - 32px)) !important;
     z-index: 900 !important;
     -webkit-overflow-scrolling: touch !important;
+  }
+
+  html body main.auth-page.simple-auth-page .profile-finalize-card .date-part-select:nth-of-type(2) .date-part-menu {
+    left: 50% !important;
+    transform: translateX(-50%) translateZ(0) !important;
+  }
+
+  html body main.auth-page.simple-auth-page .profile-finalize-card .date-part-select:nth-of-type(3) .date-part-menu {
+    left: auto !important;
+    right: 0 !important;
   }
 }
