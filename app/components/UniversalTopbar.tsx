@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import {
   CHAT_NOTIFICATIONS_CHANGED_EVENT,
   deleteAlertNotification,
@@ -38,6 +39,24 @@ const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications"
 const HOME_RETURN_STATE_KEY = "home_return_state_v1";
 const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
 const NOTIFICATION_REFRESH_DEBOUNCE_MS = 120;
+
+function getAuthUserDisplayName(user: User | null) {
+  if (!user) return "";
+
+  const metadata = user.user_metadata ?? {};
+  const firstAndLastName =
+    `${String(metadata.first_name ?? "")} ${String(metadata.last_name ?? "")}`.trim();
+
+  return [
+    metadata.company_name,
+    firstAndLastName,
+    metadata.full_name,
+    metadata.name
+  ]
+    .map((value) => String(value ?? "").trim())
+    .find((value) => value && value.toLowerCase() !== user.email?.toLowerCase()) ?? "";
+}
+
 const emptySellerLevelStats: SellerLevelStats = {
   listings_created: 0,
   single_listings_created: 0,
@@ -284,7 +303,11 @@ export default function UniversalTopbar() {
     const client = supabase;
     let cancelled = false;
 
-    async function syncUser(nextUserId: string | null, fallbackEmail?: string | null) {
+    async function syncUser(
+      nextUserId: string | null,
+      fallbackEmail?: string | null,
+      fallbackName?: string | null
+    ) {
       if (cancelled) return;
       setUserId(nextUserId);
 
@@ -306,11 +329,18 @@ export default function UniversalTopbar() {
         .maybeSingle<Pick<UserProfile, "avatar_url" | "is_completed" | "account_type" | "first_name" | "last_name" | "full_name" | "name" | "company_name" | "business_id" | "email" | "phone" | "address" | "postal_code" | "city" | "country" | "birth_date" | "phone_verified_at">>();
       if (cancelled) return;
       setAvatarUrl(profile?.avatar_url ?? null);
+      const firstAndLastName =
+        `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim();
       const displayName =
-        profile?.company_name ||
-        profile?.full_name ||
-        profile?.name ||
-        `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim() ||
+        [
+          profile?.company_name,
+          firstAndLastName,
+          profile?.full_name,
+          profile?.name,
+          fallbackName
+        ]
+          .map((value) => String(value ?? "").trim())
+          .find((value) => value && value.toLowerCase() !== fallbackEmail?.toLowerCase()) ||
         fallbackEmail ||
         "";
       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "?");
@@ -327,7 +357,7 @@ export default function UniversalTopbar() {
 
     getSafeAuthUser()
       .then(async (user) => {
-        await syncUser(user?.id ?? null, user?.email ?? null);
+        await syncUser(user?.id ?? null, user?.email ?? null, getAuthUserDisplayName(user));
       })
       .catch(() => {
         if (!cancelled) void syncUser(null, null);
@@ -338,7 +368,11 @@ export default function UniversalTopbar() {
 
     const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
       setAuthChecked(true);
-      void syncUser(session?.user?.id ?? null, session?.user?.email ?? null);
+      void syncUser(
+        session?.user?.id ?? null,
+        session?.user?.email ?? null,
+        getAuthUserDisplayName(session?.user ?? null)
+      );
     });
 
     return () => {

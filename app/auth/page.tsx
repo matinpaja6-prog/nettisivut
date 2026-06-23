@@ -256,6 +256,24 @@ const countryNameByLocale: Record<Locale, Record<string, string>> = {
   et: { FI: "Soome", SE: "Rootsi", NO: "Norra", DK: "Taani", EE: "Eesti", DE: "Saksamaa", OTHER: "Muu", da: "Taani", sv: "Rootsi", no: "Norra", ee: "Eesti" }
 };
 
+const registrationPinText: Record<Locale, {
+  eyebrow: string;
+  title: string;
+  sent: string;
+  instruction: string;
+  label: string;
+  submitting: string;
+  confirm: string;
+  resend: string;
+  edit: string;
+}> = {
+  fi: { eyebrow: "Vahvista sähköposti", title: "Syötä vahvistuskoodi", sent: "Lähetimme 6-numeroisen koodin osoitteeseen", instruction: "Syötä koodi alle viimeistelläksesi rekisteröitymisen.", label: "Vahvistuskoodi", submitting: "Vahvistetaan...", confirm: "Vahvista ja luo tili", resend: "Lähetä uusi koodi", edit: "Muokkaa tietoja" },
+  en: { eyebrow: "Verify your email", title: "Enter verification code", sent: "We sent a 6-digit code to", instruction: "Enter the code below to finish your registration.", label: "Verification code", submitting: "Verifying...", confirm: "Verify and create account", resend: "Send a new code", edit: "Edit details" },
+  sv: { eyebrow: "Bekräfta din e-post", title: "Ange bekräftelsekoden", sent: "Vi skickade en sexsiffrig kod till", instruction: "Ange koden nedan för att slutföra registreringen.", label: "Bekräftelsekod", submitting: "Bekräftar...", confirm: "Bekräfta och skapa konto", resend: "Skicka en ny kod", edit: "Redigera uppgifter" },
+  no: { eyebrow: "Bekreft e-posten din", title: "Skriv inn bekreftelseskoden", sent: "Vi sendte en sekssifret kode til", instruction: "Skriv inn koden nedenfor for å fullføre registreringen.", label: "Bekreftelseskode", submitting: "Bekrefter...", confirm: "Bekreft og opprett konto", resend: "Send en ny kode", edit: "Rediger opplysninger" },
+  et: { eyebrow: "Kinnita oma e-post", title: "Sisesta kinnituskood", sent: "Saatsime kuuekohalise koodi aadressile", instruction: "Registreerimise lõpetamiseks sisesta kood allolevasse välja.", label: "Kinnituskood", submitting: "Kinnitamine...", confirm: "Kinnita ja loo konto", resend: "Saada uus kood", edit: "Muuda andmeid" }
+};
+
 function getCountryName(locale: Locale, country: string) {
   return countryNameByLocale[locale][country] ?? countryNameByLocale.fi[country] ?? country;
 }
@@ -494,6 +512,7 @@ function AuthPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { locale, t } = useLanguage();
+  const pinText = registrationPinText[locale];
   const [authMode, setAuthMode] = useState<AuthMode>(() => getAuthModeFromSearchParams(searchParams));
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -830,7 +849,7 @@ function AuthPageContent() {
       if (event === "PASSWORD_RECOVERY") {
         setRecoveryMode(true);
         setResetModalOpen(false);
-        setStatus(t.authPasswordRecovery);
+        setStatus("");
       }
 
       if (event === "SIGNED_IN" && session?.user) {
@@ -1312,7 +1331,7 @@ function AuthPageContent() {
       setStatus("Lähetetään uusi PIN-koodi...");
       const pinResult =
         await withTimeout(
-          sendRegistrationPin(targetEmail),
+          sendRegistrationPin(targetEmail, { locale }),
           10000,
           "PIN-koodin lähetys kesti liian kauan."
         );
@@ -1351,7 +1370,7 @@ function AuthPageContent() {
     setResetStatus(t.authSendingResetLink);
     const { error } =
       await withTimeout(
-        resetPassword(resetEmail),
+        resetPassword(resetEmail, locale),
         10000,
         "Palautuslinkin lähetys kesti liian kauan."
       );
@@ -1579,25 +1598,25 @@ function AuthPageContent() {
           </form>
         ) : registrationPinPending ? (
           <form
-            className="auth-card simple-card profile-completion-card email-confirm-card"
+            className="auth-card simple-card profile-completion-card email-confirm-card registration-pin-card"
             onSubmit={handleRegistrationPinSubmit}
           >
             <div className="email-confirm-icon" aria-hidden="true">
               <Mail size={28} />
             </div>
             <div className="profile-completion-head">
-              <span className="eyebrow">Vahvista sähköposti</span>
-              <h1>Syötä PIN-koodi</h1>
+              <span className="eyebrow">{pinText.eyebrow}</span>
+              <h1>{pinText.title}</h1>
             </div>
             <div className="profile-alert">
               <Mail size={20} />
               <span>
-                Lähetimme 6-numeroisen PIN-koodin osoitteeseen{" "}
-                <strong>{registrationPinEmail}</strong>. Syötä koodi alle jatkaaksesi rekisteröintiä.
+                {pinText.sent} <strong>{registrationPinEmail}</strong>.
+                <small>{pinText.instruction}</small>
               </span>
             </div>
             <label>
-              PIN-koodi
+              {pinText.label}
               <input
                 required
                 autoFocus
@@ -1611,29 +1630,33 @@ function AuthPageContent() {
             </label>
             <button type="submit" disabled={authSubmitting || registrationPin.length !== 6}>
               <Check size={18} />
-              {authSubmitting ? "Hetki..." : "Vahvista ja luo tili"}
+              {authSubmitting ? pinText.submitting : pinText.confirm}
             </button>
-            <button
-              className="secondary-button"
-              type="button"
-              disabled={authSubmitting}
-              onClick={() => void resendRegistrationPin()}
-            >
-              Lähetä uusi PIN-koodi
-            </button>
-            <button
-              className="secondary-button"
-              type="button"
-              disabled={authSubmitting}
-              onClick={() => {
-                setRegistrationPinPending(false);
-                setRegistrationPin("");
-                setStatus("");
-              }}
-            >
-              Palaa muokkaamaan tietoja
-            </button>
-            <span className="form-note">{status}</span>
+            <div className="registration-pin-actions">
+              <button
+                className="secondary-button"
+                type="button"
+                disabled={authSubmitting}
+                onClick={() => void resendRegistrationPin()}
+              >
+                <Mail size={16} />
+                {pinText.resend}
+              </button>
+              <button
+                className="secondary-button"
+                type="button"
+                disabled={authSubmitting}
+                onClick={() => {
+                  setRegistrationPinPending(false);
+                  setRegistrationPin("");
+                  setStatus("");
+                }}
+              >
+                <ArrowLeft size={16} />
+                {pinText.edit}
+              </button>
+            </div>
+            {status && <span className="form-note registration-pin-status">{status}</span>}
           </form>
         ) : emailPending ? (
           <div className="auth-card simple-card profile-completion-card email-confirm-card">

@@ -1298,6 +1298,179 @@ body .simple-auth-page .profile-finalize-card .secondary-button {
   min-height: 46px !important;
 }
 
+/* Registration verification step */
+html body .simple-auth-page .registration-pin-card {
+  background:
+    radial-gradient(440px 240px at 50% -70px, rgba(255, 122, 26, 0.2), transparent 72%),
+    linear-gradient(155deg, #102c45 0%, #0a2034 52%, #071827 100%) !important;
+  border: 1px solid rgba(255, 143, 56, 0.54) !important;
+  border-radius: 24px !important;
+  box-shadow:
+    0 28px 70px rgba(0, 7, 18, 0.48),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  gap: 20px !important;
+  max-width: 590px !important;
+  padding: clamp(28px, 5vw, 46px) !important;
+  width: min(590px, calc(100vw - 32px)) !important;
+}
+
+html body .simple-auth-page .registration-pin-card .email-confirm-icon {
+  background: linear-gradient(145deg, #ff9b3d 0%, #ff6f0b 100%) !important;
+  border: 1px solid rgba(255, 219, 185, 0.7) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 16px 34px rgba(255, 111, 11, 0.27) !important;
+  color: #ffffff !important;
+  height: 68px !important;
+  width: 68px !important;
+}
+
+html body .simple-auth-page .registration-pin-card .profile-completion-head {
+  gap: 12px !important;
+}
+
+html body .simple-auth-page .registration-pin-card .profile-completion-head h1 {
+  font-size: clamp(30px, 5vw, 42px) !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1.05 !important;
+}
+
+html body .simple-auth-page .registration-pin-card > .profile-alert {
+  background: rgba(138, 177, 207, 0.12) !important;
+  border: 1px solid rgba(176, 207, 231, 0.28) !important;
+  border-radius: 14px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  display: grid !important;
+  grid-template-columns: 38px minmax(0, 1fr) !important;
+  padding: 15px 17px !important;
+  text-align: left !important;
+}
+
+html body .simple-auth-page .registration-pin-card > .profile-alert svg {
+  background: rgba(255, 122, 26, 0.16) !important;
+  border-radius: 10px !important;
+  color: #ff9b42 !important;
+  height: 20px !important;
+  padding: 8px !important;
+  width: 20px !important;
+}
+
+html body .simple-auth-page .registration-pin-card > .profile-alert span {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.45 !important;
+}
+
+html body .simple-auth-page .registration-pin-card > .profile-alert small {
+  color: rgba(220, 233, 244, 0.72) !important;
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  margin-top: 3px !important;
+}
+
+html body .simple-auth-page .registration-pin-card > label {
+  align-items: center !important;
+  color: rgba(231, 241, 249, 0.82) !important;
+  font-size: 12px !important;
+  gap: 8px !important;
+  text-align: center !important;
+  width: min(100%, 300px) !important;
+}
+
+html body .simple-auth-page .registration-pin-card > label input {
+  background: rgba(2, 12, 23, 0.82) !important;
+  border: 1px solid rgba(159, 190, 216, 0.34) !important;
+  border-radius: 13px !important;
+  box-shadow: inset 0 2px 9px rgba(0, 0, 0, 0.2) !important;
+  font-size: 25px !important;
+  font-variant-numeric: tabular-nums !important;
+  font-weight: 850 !important;
+  height: 58px !important;
+  letter-spacing: 0.32em !important;
+  padding: 0 14px 0 22px !important;
+  text-align: center !important;
+}
+
+html body .simple-auth-page .registration-pin-card > label input:focus {
+  border-color: #ff963b !important;
+  box-shadow: 0 0 0 4px rgba(255, 122, 26, 0.14) !important;
+}
+
+html body .simple-auth-page .registration-pin-card > button[type="submit"] {
+  background: linear-gradient(135deg, #ff9638 0%, #ff7212 58%, #e95b00 100%) !important;
+  border: 1px solid rgba(255, 212, 172, 0.55) !important;
+  border-radius: 13px !important;
+  box-shadow: 0 14px 30px rgba(255, 103, 13, 0.24) !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  min-height: 52px !important;
+  width: 100% !important;
+}
+
+html body .simple-auth-page .registration-pin-card > button[type="submit"]:disabled {
+  background: rgba(151, 178, 205, 0.14) !important;
+  border-color: rgba(151, 178, 205, 0.2) !important;
+  box-shadow: none !important;
+  color: rgba(222, 234, 244, 0.42) !important;
+}
+
+.registration-pin-actions {
+  display: flex !important;
+  gap: 10px !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+html body .simple-auth-page .registration-pin-card .registration-pin-actions .secondary-button {
+  align-items: center !important;
+  background: rgba(239, 246, 252, 0.08) !important;
+  border: 1px solid rgba(184, 208, 228, 0.24) !important;
+  border-radius: 11px !important;
+  color: #edf5fb !important;
+  display: inline-flex !important;
+  flex: 1 1 0 !important;
+  font-size: 13px !important;
+  gap: 7px !important;
+  justify-content: center !important;
+  min-height: 44px !important;
+  min-width: 0 !important;
+  padding: 0 14px !important;
+}
+
+html body .simple-auth-page .registration-pin-card .registration-pin-actions .secondary-button:hover {
+  background: rgba(239, 246, 252, 0.14) !important;
+  border-color: rgba(255, 157, 72, 0.42) !important;
+}
+
+.registration-pin-status {
+  background: rgba(5, 16, 28, 0.52) !important;
+  border-radius: 9px !important;
+  color: rgba(222, 234, 244, 0.78) !important;
+  font-size: 12px !important;
+  margin: 0 !important;
+  padding: 9px 12px !important;
+  text-align: center !important;
+  width: 100% !important;
+}
+
+@media (max-width: 560px) {
+  html body .simple-auth-page .registration-pin-card {
+    border-radius: 19px !important;
+    gap: 17px !important;
+    padding: 25px 20px !important;
+    width: calc(100vw - 24px) !important;
+  }
+
+  .registration-pin-actions {
+    flex-direction: column !important;
+  }
+
+  html body .simple-auth-page .registration-pin-card .registration-pin-actions .secondary-button {
+    flex-basis: auto !important;
+    width: 100% !important;
+  }
+}
+
 body .simple-auth-page .profile-finalize-card .phone-field-row {
   background:
     linear-gradient(180deg, rgba(7, 28, 50, 0.94), rgba(3, 13, 25, 0.98)) !important;

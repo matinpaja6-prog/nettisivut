@@ -2565,7 +2565,8 @@ export async function signInWithGoogle(
 }
 
 export async function resetPassword(
-  email: string
+  email: string,
+  locale?: "fi" | "en" | "sv" | "no" | "et"
 ) {
 
   if (!supabase) {
@@ -2581,6 +2582,14 @@ export async function resetPassword(
 
   try {
 
+    if (locale) {
+      const { data: sessionData } = await supabase.auth.getSession();
+
+      if (sessionData.session?.user) {
+        await supabase.auth.updateUser({ data: { locale } });
+      }
+    }
+
     return await supabase.auth
       .resetPasswordForEmail(
         email,
@@ -2588,7 +2597,7 @@ export async function resetPassword(
           redirectTo:
             typeof window !==
             "undefined"
-              ? `${window.location.origin}/auth`
+              ? `${window.location.origin}/auth${locale ? `?lang=${locale}` : ""}`
               : undefined
         }
       );

@@ -617,14 +617,14 @@ export default function ProfilePage() {
       et: "Konto turvalisus"
     }[locale],
     passwordHelp: {
-      fi: "Laheta salasanan vaihtolinkki tilisi sahkopostiin.",
+      fi: "Lähetä salasanan vaihtolinkki tilisi sähköpostiin.",
       en: "Send a password change link to your account email.",
-      sv: "Skicka en lank for att byta losenord till kontots e-post.",
+      sv: "Skicka en länk för att byta lösenord till kontots e-post.",
       no: "Send en lenke for passordbytte til kontoens e-post.",
       et: "Saada parooli muutmise link konto e-posti aadressile."
     }[locale],
     passwordEmail: {
-      fi: "Tilin sahkoposti",
+      fi: "Tilin sähköposti",
       en: "Account email",
       sv: "Kontots e-post",
       no: "Kontoens e-post",
@@ -633,21 +633,21 @@ export default function ProfilePage() {
     sendPasswordLink: {
       fi: "Vaihda salasana",
       en: "Change password",
-      sv: "Byt losenord",
+      sv: "Byt lösenord",
       no: "Bytt passord",
       et: "Muuda parooli"
     }[locale],
     passwordLinkSent: {
-      fi: "Salasanan vaihtolinkki lahetetty sahkopostiisi.",
+      fi: "Salasanan vaihtolinkki lähetettiin sähköpostiisi.",
       en: "Password change link sent to your email.",
-      sv: "Lanken for att byta losenord har skickats.",
+      sv: "Länken för att byta lösenord har skickats.",
       no: "Lenke for passordbytte er sendt til e-posten din.",
       et: "Parooli muutmise link saadeti sinu e-posti."
     }[locale],
     passwordLinkSending: {
-      fi: "Lahetetaan linkkia...",
+      fi: "Lähetetään linkkiä...",
       en: "Sending link...",
-      sv: "Skickar lank...",
+      sv: "Skickar länk...",
       no: "Sender lenke...",
       et: "Saadan linki..."
     }[locale],
@@ -958,7 +958,7 @@ export default function ProfilePage() {
     if (!profile?.email || passwordSending) return;
     setPasswordSending(true);
     setPasswordStatus(profileText.passwordLinkSending);
-    const { error } = await resetPassword(profile.email);
+    const { error } = await resetPassword(profile.email, locale);
     if (error) {
       setPasswordStatus(getErrorMessage(error));
       setPasswordSending(false);

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="{{ if eq .Data.locale "sv" }}sv{{ else if eq .Data.locale "no" }}no{{ else if eq .Data.locale "et" }}et{{ else if eq .Data.locale "en" }}en{{ else }}fi{{ end }}">
+  <body style="margin:0;padding:0;background-color:#e8eef5;font-family:Arial,Helvetica,sans-serif;color:#10243e;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+      {{ if eq .Data.locale "sv" }}Byt lösenordet till ditt Maskines-konto.{{ else if eq .Data.locale "no" }}Bytt passordet til Maskines-kontoen din.{{ else if eq .Data.locale "et" }}Muuda oma Maskinesi konto parooli.{{ else if eq .Data.locale "en" }}Change the password for your Maskines account.{{ else }}Vaihda Maskines-tilisi salasana.{{ end }}
+    </div>
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#e8eef5;background-image:linear-gradient(135deg,#f4f7fb 0%,#e4ebf3 100%);">
+      <tr>
+        <td align="center" style="padding:36px 14px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:580px;background-color:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 18px 50px rgba(10,35,66,.16);">
+            <tr>
+              <td align="center" style="background-color:#071c31;background-image:linear-gradient(135deg,#061729 0%,#0c2b49 100%);padding:35px 24px 31px;border-bottom:5px solid #ff7817;">
+                <div style="color:#ffffff;font-size:30px;font-weight:800;letter-spacing:-.4px;">maskines</div>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding:42px 34px 15px;">
+                <div style="width:64px;height:64px;line-height:64px;border-radius:20px;background-color:#fff1e7;border:1px solid #ffd8bc;color:#ff7817;font-size:27px;font-weight:700;margin-bottom:24px;box-shadow:0 8px 20px rgba(255,120,23,.12);">●</div>
+
+                {{ if eq .Data.locale "sv" }}
+                  <h1 style="margin:0 0 13px;font-size:28px;line-height:1.25;color:#10243e;">Skapa ett nytt lösenord</h1>
+                  <p style="max-width:420px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Vi fick en begäran om att byta lösenordet till ditt Maskines-konto. Fortsätt säkert med knappen nedan.</p>
+                {{ else if eq .Data.locale "no" }}
+                  <h1 style="margin:0 0 13px;font-size:28px;line-height:1.25;color:#10243e;">Opprett et nytt passord</h1>
+                  <p style="max-width:420px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Vi mottok en forespørsel om å bytte passordet til Maskines-kontoen din. Fortsett trygt med knappen nedenfor.</p>
+                {{ else if eq .Data.locale "et" }}
+                  <h1 style="margin:0 0 13px;font-size:28px;line-height:1.25;color:#10243e;">Loo uus parool</h1>
+                  <p style="max-width:420px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Saime taotluse sinu Maskinesi konto parooli muutmiseks. Jätkamiseks vajuta allolevat nuppu.</p>
+                {{ else if eq .Data.locale "en" }}
+                  <h1 style="margin:0 0 13px;font-size:28px;line-height:1.25;color:#10243e;">Create a new password</h1>
+                  <p style="max-width:420px;margin:0;color:#607189;font-size:16px;line-height:1.65;">We received a request to change the password for your Maskines account. Continue securely using the button below.</p>
+                {{ else }}
+                  <h1 style="margin:0 0 13px;font-size:28px;line-height:1.25;color:#10243e;">Luo uusi salasana</h1>
+                  <p style="max-width:420px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Saimme pyynnön vaihtaa Maskines-tilisi salasanan. Jatka turvallisesti alla olevasta painikkeesta.</p>
+                {{ end }}
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding:20px 34px 29px;">
+                <a href="{{ .ConfirmationURL }}" style="display:inline-block;background-color:#ff7817;background-image:linear-gradient(135deg,#ff8b32 0%,#f56800 100%);color:#ffffff;text-decoration:none;font-size:16px;font-weight:800;border-radius:12px;padding:16px 30px;box-shadow:0 10px 22px rgba(255,120,23,.28);">
+                  {{ if eq .Data.locale "sv" }}Byt lösenord{{ else if eq .Data.locale "no" }}Bytt passord{{ else if eq .Data.locale "et" }}Muuda parooli{{ else if eq .Data.locale "en" }}Change password{{ else }}Vaihda salasana{{ end }}
+                </a>
+                <div style="margin-top:17px;color:#8a98aa;font-size:12px;line-height:1.5;">
+                  {{ if eq .Data.locale "sv" }}Länken upphör snart att gälla av säkerhetsskäl.{{ else if eq .Data.locale "no" }}Lenken utløper snart av sikkerhetsgrunner.{{ else if eq .Data.locale "et" }}Turvalisuse huvides aegub link peagi.{{ else if eq .Data.locale "en" }}For your security, this link will expire soon.{{ else }}Turvallisuussyistä linkki vanhenee pian.{{ end }}
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding:0 34px 34px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:440px;background-color:#fff8f2;border:1px solid #ffe1ca;border-radius:14px;">
+                  <tr>
+                    <td style="width:30px;padding:16px 0 16px 17px;color:#ff7817;font-size:18px;vertical-align:top;">●</td>
+                    <td style="padding:15px 17px 15px 8px;color:#695c51;font-size:13px;line-height:1.55;">
+                      {{ if eq .Data.locale "sv" }}Begärde du inte detta? Ditt lösenord har inte ändrats. Du kan tryggt ignorera meddelandet.{{ else if eq .Data.locale "no" }}Ba du ikke om dette? Passordet ditt er ikke endret. Du kan trygt se bort fra meldingen.{{ else if eq .Data.locale "et" }}Sa ei taotlenud seda? Sinu parooli ei ole muudetud ja võid kirja eirata.{{ else if eq .Data.locale "en" }}Didn’t request this? Your password has not been changed, and you can safely ignore this message.{{ else }}Etkö pyytänyt tätä? Salasanaasi ei ole vaihdettu, ja voit jättää viestin turvallisesti huomiotta.{{ end }}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="background-color:#f8fafc;border-top:1px solid #e7edf4;padding:21px 28px 25px;color:#8796a9;font-size:12px;line-height:1.6;">
+                {{ if eq .Data.locale "sv" }}Detta är ett automatiskt säkerhetsmeddelande från Maskines.{{ else if eq .Data.locale "no" }}Dette er en automatisk sikkerhetsmelding fra Maskines.{{ else if eq .Data.locale "et" }}See on Maskinesi automaatne turvateade.{{ else if eq .Data.locale "en" }}This is an automated security message from Maskines.{{ else }}Tämä on Maskinesin automaattinen turvallisuusviesti.{{ end }}
+                <div style="margin-top:8px;font-weight:700;color:#607189;">© Maskines</div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

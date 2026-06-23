@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="{{ if eq .Data.locale "sv" }}sv{{ else if eq .Data.locale "no" }}no{{ else if eq .Data.locale "et" }}et{{ else if eq .Data.locale "en" }}en{{ else }}fi{{ end }}">
+  <body style="margin:0;padding:0;background-color:#e8eef5;font-family:Arial,Helvetica,sans-serif;color:#10243e;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+      {{ if eq .Data.locale "sv" }}Din sexsiffriga bekräftelsekod för Maskines.{{ else if eq .Data.locale "no" }}Din sekssifrede bekreftelseskode for Maskines.{{ else if eq .Data.locale "et" }}Sinu kuuekohaline Maskinesi kinnituskood.{{ else if eq .Data.locale "en" }}Your six-digit Maskines verification code.{{ else }}Kuusinumeroinen Maskines-vahvistuskoodisi.{{ end }}
+    </div>
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#e8eef5;background-image:linear-gradient(135deg,#f4f7fb 0%,#e4ebf3 100%);">
+      <tr>
+        <td align="center" style="padding:36px 14px;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:580px;background-color:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 18px 50px rgba(10,35,66,.16);">
+            <tr>
+              <td align="center" style="background-color:#071c31;background-image:linear-gradient(135deg,#061729 0%,#0c2b49 100%);padding:35px 24px 31px;border-bottom:5px solid #ff7817;">
+                <div style="color:#ffffff;font-size:30px;font-weight:800;letter-spacing:-.4px;">maskines</div>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding:42px 34px 18px;">
+                <div style="width:64px;height:64px;line-height:64px;border-radius:20px;background-color:#fff1e7;border:1px solid #ffd8bc;color:#ff7817;font-size:29px;font-weight:700;margin-bottom:24px;box-shadow:0 8px 20px rgba(255,120,23,.12);">✓</div>
+
+                {{ if eq .Data.locale "sv" }}
+                  <h1 style="margin:0 0 12px;font-size:28px;line-height:1.25;color:#10243e;">Bekräfta din registrering</h1>
+                  <p style="max-width:410px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Välkommen till Maskines! Ange koden nedan på registreringssidan för att slutföra ditt konto.</p>
+                {{ else if eq .Data.locale "no" }}
+                  <h1 style="margin:0 0 12px;font-size:28px;line-height:1.25;color:#10243e;">Bekreft registreringen din</h1>
+                  <p style="max-width:410px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Velkommen til Maskines! Skriv inn koden nedenfor på registreringssiden for å fullføre kontoen din.</p>
+                {{ else if eq .Data.locale "et" }}
+                  <h1 style="margin:0 0 12px;font-size:28px;line-height:1.25;color:#10243e;">Kinnita registreerimine</h1>
+                  <p style="max-width:410px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Tere tulemast Maskinesisse! Konto loomise lõpetamiseks sisesta allolev kood registreerimislehel.</p>
+                {{ else if eq .Data.locale "en" }}
+                  <h1 style="margin:0 0 12px;font-size:28px;line-height:1.25;color:#10243e;">Confirm your registration</h1>
+                  <p style="max-width:410px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Welcome to Maskines! Enter the code below on the registration page to finish creating your account.</p>
+                {{ else }}
+                  <h1 style="margin:0 0 12px;font-size:28px;line-height:1.25;color:#10243e;">Vahvista rekisteröityminen</h1>
+                  <p style="max-width:410px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Tervetuloa Maskinesiin! Viimeistele tilisi syöttämällä alla oleva koodi rekisteröitymissivulle.</p>
+                {{ end }}
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding:15px 32px 26px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:410px;background-color:#f5f9fe;border:1px solid #d5e2ef;border-top:4px solid #ff7817;border-radius:18px;box-shadow:0 9px 24px rgba(17,63,103,.08);">
+                  <tr>
+                    <td align="center" style="padding:15px 18px 5px;color:#7c8da3;font-size:11px;font-weight:700;letter-spacing:1.7px;text-transform:uppercase;">
+                      {{ if eq .Data.locale "sv" }}Bekräftelsekod{{ else if eq .Data.locale "no" }}Bekreftelseskode{{ else if eq .Data.locale "et" }}Kinnituskood{{ else if eq .Data.locale "en" }}Verification code{{ else }}Vahvistuskoodi{{ end }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="center" style="padding:4px 12px 17px;color:#0c4f91;font-size:38px;line-height:1.2;font-weight:800;letter-spacing:10px;white-space:nowrap;">{{ .Token }}</td>
+                  </tr>
+                  <tr>
+                    <td align="center" style="border-top:1px solid #e2eaf3;padding:11px 15px 13px;color:#7b8ba0;font-size:12px;line-height:1.5;">
+                      {{ if eq .Data.locale "sv" }}Koden är avsedd endast för dig och upphör snart att gälla.{{ else if eq .Data.locale "no" }}Koden er kun ment for deg og utløper snart.{{ else if eq .Data.locale "et" }}Kood on mõeldud ainult sulle ja aegub peagi.{{ else if eq .Data.locale "en" }}This code is for you only and will expire soon.{{ else }}Koodi on tarkoitettu vain sinulle ja se vanhenee pian.{{ end }}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="padding:0 32px 32px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:430px;background-color:#fff8f2;border-radius:12px;">
+                  <tr>
+                    <td style="width:28px;padding:15px 0 15px 16px;color:#ff7817;font-size:18px;vertical-align:top;">●</td>
+                    <td style="padding:14px 16px 14px 7px;color:#695c51;font-size:13px;line-height:1.55;">
+                      {{ if eq .Data.locale "sv" }}Dela aldrig koden med någon. Maskines frågar aldrig efter den via telefon eller meddelanden.{{ else if eq .Data.locale "no" }}Del aldri koden med noen. Maskines ber aldri om den på telefon eller i meldinger.{{ else if eq .Data.locale "et" }}Ära jaga koodi kellegagi. Maskines ei küsi seda kunagi telefoni ega sõnumi teel.{{ else if eq .Data.locale "en" }}Never share this code with anyone. Maskines will never ask for it by phone or message.{{ else }}Älä koskaan jaa koodia muille. Maskines ei pyydä sitä puhelimitse tai viestillä.{{ end }}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td align="center" style="background-color:#f8fafc;border-top:1px solid #e7edf4;padding:21px 28px 25px;color:#8796a9;font-size:12px;line-height:1.6;">
+                {{ if eq .Data.locale "sv" }}Om du inte skapade ett konto kan du tryggt ignorera meddelandet.{{ else if eq .Data.locale "no" }}Hvis du ikke opprettet en konto, kan du trygt se bort fra meldingen.{{ else if eq .Data.locale "et" }}Kui sa kontot ei loonud, võid selle kirja tähelepanuta jätta.{{ else if eq .Data.locale "en" }}If you did not create an account, you can safely ignore this message.{{ else }}Jos et luonut tiliä, voit jättää tämän viestin turvallisesti huomiotta.{{ end }}
+                <div style="margin-top:8px;font-weight:700;color:#607189;">© Maskines</div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
