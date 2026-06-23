@@ -372,6 +372,17 @@ function formatCooldownSeconds(milliseconds: number) {
   return Math.max(1, Math.ceil(milliseconds / 1000));
 }
 
+function isRegistrationPinAlreadySentMessage(message: string | undefined) {
+  const lower = (message ?? "").toLowerCase();
+
+  return (
+    lower.includes("pin-koodi on jo lähetetty") ||
+    lower.includes("vahvistussähköposteja") ||
+    lower.includes("too many requests") ||
+    lower.includes("over_email_send_rate_limit")
+  );
+}
+
 function getProfileCompletionDraftForm(form: AuthFormState): Partial<AuthFormState> {
   return {
     account_type: form.account_type,
@@ -1222,7 +1233,15 @@ function AuthPageContent() {
       );
 
     if (!pinResult.sent) {
-      setStatus(pinResult.error || "PIN-koodin lähetys epäonnistui.");
+      if (isRegistrationPinAlreadySentMessage(pinResult.error)) {
+        rememberRegistrationPinSent(form.email);
+        setRegistrationPinEmail(form.email);
+        setRegistrationPin("");
+        setRegistrationPinPending(true);
+        setStatus(pinResult.error || "PIN-koodi on jo lähetetty. Tarkista sähköpostisi.");
+      } else {
+        setStatus(pinResult.error || "PIN-koodin lähetys epäonnistui.");
+      }
       setAuthSubmitting(false);
       return;
     }
@@ -1299,7 +1318,15 @@ function AuthPageContent() {
         );
 
       if (!pinResult.sent) {
-        setStatus(pinResult.error || "PIN-koodin lähetys epäonnistui.");
+        if (isRegistrationPinAlreadySentMessage(pinResult.error)) {
+          rememberRegistrationPinSent(targetEmail);
+          setRegistrationPinEmail(targetEmail);
+          setRegistrationPin("");
+          setRegistrationPinPending(true);
+          setStatus(pinResult.error || "PIN-koodi on jo lähetetty. Tarkista sähköpostisi.");
+        } else {
+          setStatus(pinResult.error || "PIN-koodin lähetys epäonnistui.");
+        }
         setAuthSubmitting(false);
         return;
       }
@@ -1550,30 +1577,6 @@ function AuthPageContent() {
 
             <span className="form-note">{status}</span>
           </form>
-        ) : emailPending ? (
-          <div className="auth-card simple-card profile-completion-card email-confirm-card">
-            <div className="email-confirm-icon" aria-hidden="true">
-              <Mail size={28} />
-            </div>
-            <div className="profile-completion-head">
-              <span className="eyebrow">{t.authAccountCreated}</span>
-              <h1>{t.authConfirmEmailTitle}</h1>
-            </div>
-            <div className="profile-alert">
-              <Mail size={20} />
-              <span>
-                {t.authEmailSentTo} <strong>{pendingEmail}</strong>.
-                {t.authEmailClickLink}
-              </span>
-            </div>
-            <button
-              className="secondary-button"
-              type="button"
-              onClick={() => { setEmailPending(false); setAuthMode("login"); }}
-            >
-              {t.authLoginExisting}
-            </button>
-          </div>
         ) : registrationPinPending ? (
           <form
             className="auth-card simple-card profile-completion-card email-confirm-card"
@@ -1632,6 +1635,30 @@ function AuthPageContent() {
             </button>
             <span className="form-note">{status}</span>
           </form>
+        ) : emailPending ? (
+          <div className="auth-card simple-card profile-completion-card email-confirm-card">
+            <div className="email-confirm-icon" aria-hidden="true">
+              <Mail size={28} />
+            </div>
+            <div className="profile-completion-head">
+              <span className="eyebrow">{t.authAccountCreated}</span>
+              <h1>{t.authConfirmEmailTitle}</h1>
+            </div>
+            <div className="profile-alert">
+              <Mail size={20} />
+              <span>
+                {t.authEmailSentTo} <strong>{pendingEmail}</strong>.
+                {t.authEmailClickLink}
+              </span>
+            </div>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={() => { setEmailPending(false); setAuthMode("login"); }}
+            >
+              {t.authLoginExisting}
+            </button>
+          </div>
         ) : !user ? (
           <form className={`auth-card simple-card${authMode === "register" ? " registration-inline-card profile-finalize-card" : ""}`} onSubmit={handleSubmit}>
             <div className="auth-form-head">
