@@ -1,83 +1,29 @@
    ▲ Next.js 15.5.15
-   - Local:        http://localhost:3000
-   - Network:      http://25.45.81.154:3000
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.1.104:3001
    - Environments: .env.local
 
  ✓ Starting...
- ✓ Ready in 8.3s
- ✓ Compiled /middleware in 248ms (114 modules)
+ ✓ Ready in 2.6s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 769ms (115 modules)
  ○ Compiling / ...
- ✓ Compiled / in 8.1s (1390 modules)
- GET / 200 in 8688ms
- GET / 200 in 87ms
- GET / 200 in 629ms
- ○ Compiling /api/visitor-language ...
- ✓ Compiled /api/visitor-language in 1450ms (1039 modules)
- ✓ Compiled /_not-found in 455ms (1044 modules)
- GET /api/visitor-language 404 in 2148ms
- GET /api/visitor-language 404 in 2544ms
- ○ Compiling /listing/[id] ...
- ✓ Compiled /listing/[id] in 582ms (1063 modules)
- GET /listing/4d4752b3-29dc-4fe5-92dd-cb74ea81ee3d 200 in 1267ms
- GET /keuliminen.png 404 in 360ms
- ✓ Compiled in 1451ms (1032 modules)
- ✓ Compiled /_not-found in 236ms (1027 modules)
- GET / 404 in 455ms
- GET / 404 in 426ms
- GET / 200 in 426ms
- GET / 200 in 144ms
- ✓ Compiled /api/visitor-language in 148ms (588 modules)
- GET /api/visitor-language 200 in 367ms
- GET /api/visitor-language 200 in 21ms
- POST /api/visitor-language 200 in 34ms
- ✓ Compiled in 1241ms (1032 modules)
- GET / 200 in 206ms
- ✓ Compiled /_not-found in 222ms (1027 modules)
- GET / 404 in 333ms
- GET / 200 in 369ms
- ✓ Compiled /api/visitor-language in 120ms (588 modules)
- GET /api/visitor-language 200 in 240ms
- POST /api/visitor-language 200 in 28ms
- ✓ Compiled in 888ms (1022 modules)
- ✓ Compiled in 466ms (1022 modules)
- ✓ Compiled /api/visitor-language in 149ms (587 modules)
- POST /api/visitor-language 200 in 312ms
- POST /api/visitor-language 200 in 39ms
- ○ Compiling /profile ...
- ✓ Compiled /profile in 557ms (1080 modules)
- GET /profile 200 in 716ms
- ○ Compiling /seller/[id] ...
- ✓ Compiled /seller/[id] in 761ms (1081 modules)
- GET /seller/6d55c781-057a-4d85-a357-66109adf05ba 200 in 1143ms
- GET / 200 in 143ms
- ✓ Compiled in 602ms (1080 modules)
- GET /profile 200 in 211ms
- GET / 200 in 206ms
- ✓ Compiled in 473ms (1080 modules)
- GET /profile 200 in 228ms
- GET / 200 in 230ms
- ✓ Compiled in 527ms (1080 modules)
- GET /profile 200 in 138ms
- GET / 200 in 67ms
- ✓ Compiled in 445ms (1080 modules)
- GET /profile 200 in 160ms
- GET / 200 in 162ms
- ✓ Compiled in 511ms (1080 modules)
- GET /profile 200 in 163ms
- ✓ Compiled /_not-found in 391ms (1071 modules)
- GET / 404 in 548ms
- GET / 200 in 62ms
- GET / 200 in 372ms
- GET /profile 200 in 62ms
- ✓ Compiled /api/visitor-language in 265ms (607 modules)
- GET /api/visitor-language 200 in 396ms
- ✓ Compiled in 527ms (1096 modules)
- ✓ Compiled in 372ms (1066 modules)
- ✓ Compiled in 335ms (1066 modules)
- ✓ Compiled in 394ms (1066 modules)
- ✓ Compiled in 502ms (1066 modules)
- ✓ Compiled /api/visitor-language in 336ms (606 modules)
- POST /api/visitor-language 200 in 487ms
- ○ Compiling /admin ...
- ✓ Compiled /admin in 933ms (1164 modules)
- GET /admin 200 in 1123ms
+ ✓ Compiled / in 10s (1400 modules)
+ GET / 200 in 10846ms
+ ✓ Compiled in 478ms (467 modules)
+ ○ Compiling /auth ...
+ ✓ Compiled /auth in 683ms (986 modules)
+ GET /kirjaudu 200 in 1165ms
+ ✓ Compiled in 450ms (474 modules)
+ ✓ Compiled /auth in 257ms (526 modules)
+ GET /kirjaudu 200 in 719ms
+ ✓ Compiled in 485ms (474 modules)
+ ✓ Compiled /auth in 283ms (526 modules)
+ GET /kirjaudu 200 in 892ms
+ ✓ Compiled in 388ms (474 modules)
+ ✓ Compiled /auth in 259ms (526 modules)
+ GET /kirjaudu 200 in 844ms
+ ✓ Compiled in 561ms (460 modules)
+ ○ Compiling /auth ...
+ ✓ Compiled /auth in 661ms (526 modules)
+ GET /kirjaudu 200 in 1368ms

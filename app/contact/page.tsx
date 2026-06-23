@@ -2,7 +2,7 @@ import InfoPage, { type InfoPageCopy } from "@/app/components/InfoPage";
 import type { Locale } from "@/lib/i18n";
 
 const sharedActions = [
-  { href: "mailto:info@arcticparts.fi", label: "info@arcticparts.fi", primary: true },
+  { href: "mailto:info@maskines.com", label: "info@maskines.com", primary: true },
   { href: "https://www.instagram.com/maskines1/", label: "Instagram", external: true },
   { href: "https://www.facebook.com/profile.php?id=61590753577719&locale=fi_FI", label: "Facebook", external: true }
 ];

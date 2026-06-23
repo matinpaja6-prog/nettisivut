@@ -314,7 +314,7 @@ export default function Footer() {
             <a href="https://www.facebook.com/profile.php?id=61590753577719&locale=fi_FI" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
             </a>
-            <a href="mailto:info@arcticparts.fi" aria-label={text.email}>
+            <a href="mailto:info@maskines.com" aria-label={text.email}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             </a>
           </div>
@@ -354,7 +354,7 @@ export default function Footer() {
           <div className="footer-col">
             <h4>{text.contact}</h4>
             <ul>
-              <li><a href="mailto:info@arcticparts.fi">info@arcticparts.fi</a></li>
+              <li><a href="mailto:info@maskines.com">info@maskines.com</a></li>
               <li><a href="https://www.instagram.com/maskines1/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
               <li><a href="https://www.facebook.com/profile.php?id=61590753577719&locale=fi_FI" target="_blank" rel="noopener noreferrer">Facebook</a></li>
             </ul>

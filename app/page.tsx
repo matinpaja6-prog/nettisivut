@@ -14,10 +14,10 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  CircleHelp,
   Clock3,
   Gauge,
   Heart,
-  Home as HomeIcon,
   MapPin,
   MessageCircle,
   Plus,
@@ -2520,20 +2520,6 @@ export default function Home() {
                 <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>{t.heroLeadHighlight}</span>
               </h1>
 
-              <div className={styles.heroTrustRow} aria-label={t.heroLeadEnd}>
-                {[
-                  t.heroTrustFast,
-                  t.heroTrustFree,
-                  t.heroTrustSafe,
-                  t.heroTrustService
-                ].map((item) => (
-                  <span key={item} className={styles.heroTrustItem}>
-                    <Check size={15} strokeWidth={3.2} aria-hidden="true" />
-                    {item}
-                  </span>
-                ))}
-              </div>
-
               <form
                 className={styles.heroSearch}
                 role="search"
@@ -2803,7 +2789,7 @@ export default function Home() {
                       onClick={() => setSellGuideOpen((open) => !open)}
                       aria-expanded={sellGuideOpen}
                     >
-                      <HomeIcon size={15} strokeWidth={2.6} aria-hidden="true" />
+                      <CircleHelp size={16} strokeWidth={2.6} aria-hidden="true" />
                       {t.instructions}
                     </button>
                   </div>
