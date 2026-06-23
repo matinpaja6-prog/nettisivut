@@ -16,13 +16,14 @@ import {
   isProfileCompleted,
   isSupabaseConfigured,
   resetPassword,
+  sendRegistrationOtpWithEmail,
   signInWithEmail,
   signInWithGoogle,
   signOut,
-  signUpWithEmail,
   supabase,
   updatePassword,
   upsertProfileFromApi,
+  verifyRegistrationOtpWithEmail,
   type UserProfile
 } from "@/lib/supabase";
 
@@ -30,6 +31,8 @@ const REFERRAL_STORAGE_KEY = "pending_referral_code";
 const ACCOUNT_TYPE_STORAGE_KEY = "pending_account_type";
 const GOOGLE_AUTH_INTENT_STORAGE_KEY = "pending_google_auth_intent";
 const PROFILE_COMPLETION_DRAFT_STORAGE_KEY = "profile_completion_draft_v1";
+const REGISTRATION_PIN_COOLDOWN_STORAGE_KEY = "registration_pin_sent_at_v1";
+const REGISTRATION_PIN_COOLDOWN_MS = 65_000;
 type AuthMode = "login" | "register";
 
 type GooglePlace = {
@@ -93,6 +96,60 @@ async function checkPhoneBeforeRegistration(phone: string): Promise<{
   return {
     available: Boolean(payload.available),
     reason: payload.reason
+  };
+}
+
+async function sendRegistrationPin(
+  email: string,
+  metadata?: Record<string, string>,
+  emailRedirectTo?: string
+): Promise<{
+  sent: boolean;
+  error?: string;
+}> {
+  const { error } =
+    await sendRegistrationOtpWithEmail(
+      email,
+      metadata,
+      emailRedirectTo
+    );
+
+  if (error) {
+    return {
+      sent: false,
+      error: getErrorMessage(error)
+    };
+  }
+
+  return {
+    sent: true
+  };
+}
+
+async function verifyRegistrationPin(input: {
+  email: string;
+  pin: string;
+}): Promise<{
+  verified: boolean;
+  user?: User;
+  error?: string;
+}> {
+  const { data, error } =
+    await verifyRegistrationOtpWithEmail(
+      input.email,
+      input.pin
+    );
+
+  if (error) {
+    return {
+      verified: false,
+      error: getErrorMessage(error)
+    };
+  }
+
+  return {
+    verified: Boolean(data?.user),
+    user: data?.user ?? undefined
   };
 }
 
@@ -268,6 +325,53 @@ type ProfileCompletionDraft = {
   scrollY?: number;
 };
 
+function normalizeEmail(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function readRegistrationPinCooldown(email: string) {
+  if (typeof window === "undefined") return 0;
+
+  try {
+    const raw = sessionStorage.getItem(REGISTRATION_PIN_COOLDOWN_STORAGE_KEY);
+    if (!raw) return 0;
+
+    const parsed = JSON.parse(raw) as {
+      email?: string;
+      sentAt?: number;
+    };
+
+    if (normalizeEmail(parsed.email ?? "") !== normalizeEmail(email)) {
+      return 0;
+    }
+
+    const sentAt = Number(parsed.sentAt ?? 0);
+    const remaining = REGISTRATION_PIN_COOLDOWN_MS - (Date.now() - sentAt);
+
+    return remaining > 0 ? remaining : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function rememberRegistrationPinSent(email: string) {
+  if (typeof window === "undefined") return;
+
+  try {
+    sessionStorage.setItem(
+      REGISTRATION_PIN_COOLDOWN_STORAGE_KEY,
+      JSON.stringify({
+        email: normalizeEmail(email),
+        sentAt: Date.now()
+      })
+    );
+  } catch {}
+}
+
+function formatCooldownSeconds(milliseconds: number) {
+  return Math.max(1, Math.ceil(milliseconds / 1000));
+}
+
 function getProfileCompletionDraftForm(form: AuthFormState): Partial<AuthFormState> {
   return {
     account_type: form.account_type,
@@ -335,7 +439,7 @@ function normalizeAuthErrorMessage(message: string) {
     lower.includes("too many requests") ||
     lower.includes("over_email_send_rate_limit")
   ) {
-    return "Vahvistussähköposteja on pyydetty liian monta. Odota hetki ja yritä sitten uudelleen.";
+    return "PIN-koodi on jo lähetetty. Tarkista sähköpostisi tai odota hetki ennen uuden koodin pyytämistä.";
   }
 
   return message;
@@ -400,6 +504,9 @@ function AuthPageContent() {
   const [profileLookupDone, setProfileLookupDone] = useState(false);
   const [emailPending, setEmailPending] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
+  const [registrationPinPending, setRegistrationPinPending] = useState(false);
+  const [registrationPinEmail, setRegistrationPinEmail] = useState("");
+  const [registrationPin, setRegistrationPin] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [phoneDialingCode, setPhoneDialingCode] = useState("+358");
   const [phoneCodeMenuOpen, setPhoneCodeMenuOpen] = useState(false);
@@ -930,6 +1037,54 @@ function AuthPageContent() {
     }
   }, [profile, profileLookupDone, router, user]);
 
+  async function createAccountAfterRegistrationPin(
+    selectedCountry: string,
+    targetUser: User
+  ) {
+    persistProfileCompletionDraft();
+
+    setStatus("Viimeistellään rekisteröintiä...");
+
+    const existingProfileResult =
+      await withTimeout(
+        getProfile(targetUser.id),
+        8000,
+        "Profiilin tarkistus kesti liian kauan."
+      );
+
+    if (isProfileCompleted(existingProfileResult.data)) {
+      await signOut();
+      setUser(null);
+      setRegistrationPinPending(false);
+      setRegistrationPin("");
+      setRegistrationPinEmail("");
+      setStatus("Tämä sähköposti on jo rekisteröity. Kirjaudu sisään.");
+      setAuthMode("login");
+      setAuthSubmitting(false);
+      return;
+    }
+
+    const passwordResult =
+      await withTimeout(
+        updatePassword(form.password),
+        10000,
+        "Salasanan tallennus kesti liian kauan."
+      );
+
+    if (passwordResult.error) {
+      setStatus(getErrorMessage(passwordResult.error));
+      setAuthSubmitting(false);
+      return;
+    }
+
+    setRegistrationPinPending(false);
+    setRegistrationPin("");
+    setRegistrationPinEmail("");
+    setUser(targetUser);
+    void tryClaimReferral(targetUser.id);
+    await saveProfile(targetUser);
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (authSubmitInFlightRef.current) return;
@@ -1023,20 +1178,28 @@ function AuthPageContent() {
       return;
     }
 
-    persistProfileCompletionDraft();
+    const pinCooldownMs = readRegistrationPinCooldown(form.email);
+    if (pinCooldownMs > 0) {
+      setRegistrationPinEmail(form.email);
+      setRegistrationPin("");
+      setRegistrationPinPending(true);
+      setStatus(`PIN-koodi on jo lähetetty. Tarkista sähköpostisi tai odota ${formatCooldownSeconds(pinCooldownMs)} sekuntia ennen uuden koodin pyytämistä.`);
+      setAuthSubmitting(false);
+      return;
+    }
 
-    setStatus(t.authCreatingUser);
+    setStatus("Lähetetään PIN-koodi sähköpostiin...");
     const redirectTo =
       typeof window !== "undefined"
         ? `${window.location.origin}/auth`
         : undefined;
-    const { data, error } =
+    const pinResult =
       await withTimeout(
-        signUpWithEmail(
+        sendRegistrationPin(
           form.email,
-          form.password,
           {
             registration_form_complete: "true",
+            locale,
             privacy_accepted: privacyAccepted ? "true" : "false",
             account_type: form.account_type,
             first_name: form.first_name,
@@ -1055,37 +1218,99 @@ function AuthPageContent() {
           redirectTo
         ),
         10000,
-        "Tunnuksen luonti kesti liian kauan."
+        "PIN-koodin lähetys kesti liian kauan."
       );
 
-    if (error) {
-      setStatus(getErrorMessage(error));
+    if (!pinResult.sent) {
+      setStatus(pinResult.error || "PIN-koodin lähetys epäonnistui.");
       setAuthSubmitting(false);
       return;
     }
 
-    if (data?.user && data.session) {
-      setUser(data.user);
-      void tryClaimReferral(data.user.id);
-      await saveProfile(data.user);
-      return;
-    }
-
-    if (data?.user && !data.session) {
-      setPendingEmail(form.email);
-      setEmailPending(true);
-      setStatus("");
-      setAuthSubmitting(false);
-      return;
-    }
-
-    setStatus(t.authAccountCreatedEmailMsg);
+    rememberRegistrationPinSent(form.email);
+    setRegistrationPinEmail(form.email);
+    setRegistrationPin("");
+    setRegistrationPinPending(true);
+    setStatus(`Lähetimme PIN-koodin osoitteeseen ${form.email}.`);
     setAuthSubmitting(false);
     } catch (error) {
       setAuthSubmitting(false);
       setStatus(getErrorMessage(error));
     } finally {
       authSubmitInFlightRef.current = false;
+    }
+  }
+
+  async function handleRegistrationPinSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (authSubmitInFlightRef.current) return;
+    authSubmitInFlightRef.current = true;
+
+    try {
+      setAuthSubmitting(true);
+      setStatus("Tarkistetaan PIN-koodia...");
+
+      const result =
+        await withTimeout(
+          verifyRegistrationPin({
+            email: registrationPinEmail,
+            pin: registrationPin
+          }),
+          8000,
+          "PIN-koodin tarkistus kesti liian kauan."
+        );
+
+      if (!result.verified || !result.user) {
+        setStatus(result.error || "PIN-koodi on väärä.");
+        setAuthSubmitting(false);
+        return;
+      }
+
+      const selectedCountry = form.country === OTHER_COUNTRY_VALUE
+        ? customCountry.trim()
+        : countryNameByLocale.fi[form.country] ?? form.country;
+
+      await createAccountAfterRegistrationPin(selectedCountry, result.user);
+    } catch (error) {
+      setAuthSubmitting(false);
+      setStatus(getErrorMessage(error));
+    } finally {
+      authSubmitInFlightRef.current = false;
+    }
+  }
+
+  async function resendRegistrationPin() {
+    try {
+      setAuthSubmitting(true);
+      const targetEmail = registrationPinEmail || form.email;
+      const pinCooldownMs = readRegistrationPinCooldown(targetEmail);
+      if (pinCooldownMs > 0) {
+        setStatus(`PIN-koodi on jo lähetetty. Odota ${formatCooldownSeconds(pinCooldownMs)} sekuntia ennen uuden koodin pyytämistä.`);
+        setAuthSubmitting(false);
+        return;
+      }
+
+      setStatus("Lähetetään uusi PIN-koodi...");
+      const pinResult =
+        await withTimeout(
+          sendRegistrationPin(targetEmail),
+          10000,
+          "PIN-koodin lähetys kesti liian kauan."
+        );
+
+      if (!pinResult.sent) {
+        setStatus(pinResult.error || "PIN-koodin lähetys epäonnistui.");
+        setAuthSubmitting(false);
+        return;
+      }
+
+      rememberRegistrationPinSent(targetEmail);
+      setRegistrationPin("");
+      setStatus(`Uusi PIN-koodi lähetettiin osoitteeseen ${targetEmail}.`);
+      setAuthSubmitting(false);
+    } catch (error) {
+      setAuthSubmitting(false);
+      setStatus(getErrorMessage(error));
     }
   }
 
@@ -1349,6 +1574,64 @@ function AuthPageContent() {
               {t.authLoginExisting}
             </button>
           </div>
+        ) : registrationPinPending ? (
+          <form
+            className="auth-card simple-card profile-completion-card email-confirm-card"
+            onSubmit={handleRegistrationPinSubmit}
+          >
+            <div className="email-confirm-icon" aria-hidden="true">
+              <Mail size={28} />
+            </div>
+            <div className="profile-completion-head">
+              <span className="eyebrow">Vahvista sähköposti</span>
+              <h1>Syötä PIN-koodi</h1>
+            </div>
+            <div className="profile-alert">
+              <Mail size={20} />
+              <span>
+                Lähetimme 6-numeroisen PIN-koodin osoitteeseen{" "}
+                <strong>{registrationPinEmail}</strong>. Syötä koodi alle jatkaaksesi rekisteröintiä.
+              </span>
+            </div>
+            <label>
+              PIN-koodi
+              <input
+                required
+                autoFocus
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={registrationPin}
+                onChange={(event) => setRegistrationPin(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="123456"
+              />
+            </label>
+            <button type="submit" disabled={authSubmitting || registrationPin.length !== 6}>
+              <Check size={18} />
+              {authSubmitting ? "Hetki..." : "Vahvista ja luo tili"}
+            </button>
+            <button
+              className="secondary-button"
+              type="button"
+              disabled={authSubmitting}
+              onClick={() => void resendRegistrationPin()}
+            >
+              Lähetä uusi PIN-koodi
+            </button>
+            <button
+              className="secondary-button"
+              type="button"
+              disabled={authSubmitting}
+              onClick={() => {
+                setRegistrationPinPending(false);
+                setRegistrationPin("");
+                setStatus("");
+              }}
+            >
+              Palaa muokkaamaan tietoja
+            </button>
+            <span className="form-note">{status}</span>
+          </form>
         ) : !user ? (
           <form className={`auth-card simple-card${authMode === "register" ? " registration-inline-card profile-finalize-card" : ""}`} onSubmit={handleSubmit}>
             <div className="auth-form-head">

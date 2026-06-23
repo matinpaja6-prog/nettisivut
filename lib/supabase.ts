@@ -2403,6 +2403,85 @@ export async function signUpWithEmail(
 
 }
 
+export async function sendRegistrationOtpWithEmail(
+  email: string,
+  metadata?: Record<string, string>,
+  emailRedirectTo?: string
+) {
+
+  if (!supabase) {
+
+    return {
+      data: null,
+      error: new Error(
+        "Supabase ei ole konfiguroitu."
+      )
+    };
+
+  }
+
+  try {
+
+    return await supabase.auth
+      .signInWithOtp({
+
+        email,
+
+        options: {
+          shouldCreateUser: true,
+          ...(metadata ? { data: metadata } : {}),
+          ...(emailRedirectTo ? { emailRedirectTo } : {})
+        }
+
+      });
+
+  } catch (error) {
+
+    return {
+      data: null,
+      error
+    };
+
+  }
+
+}
+
+export async function verifyRegistrationOtpWithEmail(
+  email: string,
+  token: string
+) {
+
+  if (!supabase) {
+
+    return {
+      data: null,
+      error: new Error(
+        "Supabase ei ole konfiguroitu."
+      )
+    };
+
+  }
+
+  try {
+
+    return await supabase.auth
+      .verifyOtp({
+        email,
+        token,
+        type: "email"
+      });
+
+  } catch (error) {
+
+    return {
+      data: null,
+      error
+    };
+
+  }
+
+}
+
 export async function signInWithEmail(
   email: string,
   password: string
