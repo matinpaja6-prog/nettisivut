@@ -63,6 +63,39 @@ type GoogleMapsWindow = Window & {
   };
 };
 
+async function checkPhoneBeforeRegistration(phone: string): Promise<{
+  available: boolean;
+  reason?: "in_use" | "reserved";
+  error?: string;
+}> {
+  const response = await fetch("/api/profiles/check-phone", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({ phone })
+  });
+
+  const payload =
+    await response.json().catch(() => ({})) as {
+      available?: boolean;
+      reason?: "in_use" | "reserved";
+      error?: string;
+    };
+
+  if (!response.ok) {
+    return {
+      available: false,
+      error: payload.error || "Puhelinnumeron tarkistus epäonnistui."
+    };
+  }
+
+  return {
+    available: Boolean(payload.available),
+    reason: payload.reason
+  };
+}
+
 function rememberAccountType(type: "private" | "company") {
   try {
     localStorage.setItem(ACCOUNT_TYPE_STORAGE_KEY, type);
@@ -878,7 +911,6 @@ function AuthPageContent() {
     if (!hasAllRequiredFields) return;
 
     automaticProfileSaveInFlightRef.current = true;
-    setStatus("Tallennetaan rekisteröintitietoja...");
     void saveProfile(user).finally(() => {
       automaticProfileSaveInFlightRef.current = false;
     });
@@ -970,6 +1002,27 @@ function AuthPageContent() {
       setAuthSubmitting(false);
       return;
     }
+
+    setStatus("Tarkistetaan puhelinnumeroa...");
+    const phoneCheck =
+      await withTimeout(
+        checkPhoneBeforeRegistration(form.phone),
+        8000,
+        "Puhelinnumeron tarkistus kesti liian kauan."
+      );
+
+    if (!phoneCheck.available) {
+      if (phoneCheck.reason === "reserved") {
+        setStatus("Tämä puhelinnumero on varattu poistetulle tilille 3 kuukaudeksi.");
+      } else if (phoneCheck.reason === "in_use") {
+        setStatus(t.authPhoneUnique);
+      } else {
+        setStatus(phoneCheck.error || "Puhelinnumeron tarkistus epäonnistui.");
+      }
+      setAuthSubmitting(false);
+      return;
+    }
+
     persistProfileCompletionDraft();
 
     setStatus(t.authCreatingUser);
@@ -1854,7 +1907,9 @@ function AuthPageContent() {
               <span className="eyebrow">Hetki...</span>
               <h1>Viimeistellään rekisteröintiä</h1>
             </div>
-            <span className="form-note">{status || "Tallennetaan antamasi tiedot automaattisesti."}</span>
+            {status && status !== t.authCreatingUser && status !== t.authProfileSavedMsg && (
+              <span className="form-note">{status}</span>
+            )}
           </div>
         )}
       </section>
