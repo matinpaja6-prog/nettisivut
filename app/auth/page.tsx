@@ -11,6 +11,8 @@ import { useLanguage, type Locale } from "@/lib/i18n";
 import { sanitizePhoneDigits, sanitizePhoneInput } from "@/lib/phone-input";
 import {
   awardReferralPoints,
+  getSafeAuthSession,
+  getSafeAuthUser,
   getProfile,
   getReferrerIdByCode,
   isProfileCompleted,
@@ -33,6 +35,7 @@ const GOOGLE_AUTH_INTENT_STORAGE_KEY = "pending_google_auth_intent";
 const PROFILE_COMPLETION_DRAFT_STORAGE_KEY = "profile_completion_draft_v1";
 const REGISTRATION_PIN_COOLDOWN_STORAGE_KEY = "registration_pin_sent_at_v1";
 const REGISTRATION_PIN_COOLDOWN_MS = 65_000;
+const AUTH_SUBMIT_AUTO_UNLOCK_MS = 15_000;
 type AuthMode = "login" | "register";
 
 type GooglePlace = {
@@ -508,6 +511,16 @@ function withTimeout<T>(
   });
 }
 
+async function getFreshAuthUser(fallbackUser?: User | null): Promise<User | null> {
+  const [session, currentUser] =
+    await Promise.all([
+      getSafeAuthSession().catch(() => null),
+      getSafeAuthUser().catch(() => null)
+    ]);
+
+  return currentUser ?? session?.user ?? fallbackUser ?? null;
+}
+
 function AuthPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -546,6 +559,21 @@ function AuthPageContent() {
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
     process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY ||
     "";
+
+  useEffect(() => {
+    if (!authSubmitting) return;
+
+    const timeoutId = window.setTimeout(() => {
+      authSubmitInFlightRef.current = false;
+      setAuthSubmitting(false);
+      setStatus((currentStatus) =>
+        currentStatus ||
+        "Yhteys kesti liian kauan. Painike vapautettiin, voit yrittää uudelleen."
+      );
+    }, AUTH_SUBMIT_AUTO_UNLOCK_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [authSubmitting]);
 
   // Capture ?ref=CODE from URL once
   useEffect(() => {
@@ -1013,8 +1041,10 @@ function AuthPageContent() {
     // where the session arrived after the initial useEffect)
     await tryClaimReferral(targetUser.id);
     setStatus(t.authProfileSavedMsg);
+    setAuthSubmitting(false);
     router.push(form.account_type === "company" ? "/profile#yritys" : "/");
     } catch (error) {
+      setAuthSubmitting(false);
       setStatus(getErrorMessage(error));
     }
   }
@@ -1094,6 +1124,19 @@ function AuthPageContent() {
       return;
     }
 
+    const freshUser =
+      await withTimeout(
+        getFreshAuthUser(targetUser),
+        5000,
+        "Käyttäjän lataus kesti liian kauan."
+      );
+
+    if (!freshUser) {
+      setStatus("Koodi hyväksyttiin, mutta käyttäjää ei saatu ladattua. Päivitä sivu ja kirjaudu sisään.");
+      setAuthSubmitting(false);
+      return;
+    }
+
     const passwordResult =
       await withTimeout(
         updatePassword(form.password),
@@ -1110,9 +1153,9 @@ function AuthPageContent() {
     setRegistrationPinPending(false);
     setRegistrationPin("");
     setRegistrationPinEmail("");
-    setUser(targetUser);
-    void tryClaimReferral(targetUser.id);
-    await saveProfile(targetUser);
+    setUser(freshUser);
+    void tryClaimReferral(freshUser.id);
+    await saveProfile(freshUser);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -1153,6 +1196,7 @@ function AuthPageContent() {
 
         if (isProfileCompleted(profileResult.data)) {
           setStatus(t.authLoginSuccess);
+          setAuthSubmitting(false);
           router.push("/");
           return;
         }
@@ -1620,6 +1664,8 @@ function AuthPageContent() {
               <input
                 required
                 autoFocus
+                autoComplete="one-time-code"
+                enterKeyHint="done"
                 inputMode="numeric"
                 pattern="[0-9]{6}"
                 maxLength={6}
