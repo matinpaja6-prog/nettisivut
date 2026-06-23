@@ -233,7 +233,7 @@ export function BirthDateField({
           onOpen={(open) => setOpenPart(open ? "day" : null)}
           onAdvance={!parts.month ? () => setOpenPart("month") : undefined}
           options={dayOptions}
-          placeholder="Pv"
+          placeholder="Päivä"
           value={parts.day ? String(Number(parts.day)) : ""}
           onChange={(nextValue) => updatePart("day", nextValue)}
         />

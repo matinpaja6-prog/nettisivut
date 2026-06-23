@@ -3,7 +3,7 @@
 import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Building2, Check, ChevronDown, LockKeyhole, Mail, UserRound, X } from "lucide-react";
+import { ArrowLeft, Building2, Check, ChevronDown, Eye, EyeOff, LockKeyhole, Mail, UserRound, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { BirthDateField } from "@/app/components/BirthDateField";
 import { goBackOrFallback } from "@/lib/go-back";
@@ -297,6 +297,14 @@ function normalizeAuthErrorMessage(message: string) {
     return "Tällä sähköpostilla on jo tili. Kirjaudu sisään.";
   }
 
+  if (
+    lower.includes("rate limit") ||
+    lower.includes("too many requests") ||
+    lower.includes("over_email_send_rate_limit")
+  ) {
+    return "Vahvistussähköposteja on pyydetty liian monta. Odota hetki ja yritä sitten uudelleen.";
+  }
+
   return message;
 }
 
@@ -348,8 +356,11 @@ function AuthPageContent() {
   }));
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [registrationPasswordConfirm, setRegistrationPasswordConfirm] = useState("");
+  const [showAuthPasswords, setShowAuthPasswords] = useState(false);
   const [status, setStatus] = useState("");
   const [authSubmitting, setAuthSubmitting] = useState(false);
+  const authSubmitInFlightRef = useRef(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLookupDone, setProfileLookupDone] = useState(false);
@@ -836,7 +847,8 @@ function AuthPageContent() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (authSubmitting) return;
+    if (authSubmitInFlightRef.current) return;
+    authSubmitInFlightRef.current = true;
 
     try {
     if (!isSupabaseConfigured) {
@@ -882,6 +894,31 @@ function AuthPageContent() {
       return;
     }
 
+    const selectedCountry = form.country === OTHER_COUNTRY_VALUE
+      ? customCountry.trim()
+      : countryNameByLocale.fi[form.country] ?? form.country;
+
+    if (form.password !== registrationPasswordConfirm) {
+      setStatus("Salasanat eivät täsmää. Kirjoita sama salasana molempiin kenttiin.");
+      setAuthSubmitting(false);
+      return;
+    }
+    if (!privacyAccepted) {
+      setStatus(t.authPrivacyRequired);
+      setAuthSubmitting(false);
+      return;
+    }
+    if (
+      !form.phone || !form.address || !form.postal_code || !form.city || !selectedCountry ||
+      (form.account_type === "private" && (!form.first_name || !form.last_name || !form.birth_date)) ||
+      (form.account_type === "company" && (!form.company_name || !form.business_id))
+    ) {
+      setStatus(form.account_type === "company" ? t.authCompanyFieldsRequired : t.authPersonalFieldsRequired);
+      setAuthSubmitting(false);
+      return;
+    }
+    persistProfileCompletionDraft();
+
     setStatus(t.authCreatingUser);
     const redirectTo =
       typeof window !== "undefined"
@@ -906,13 +943,9 @@ function AuthPageContent() {
     }
 
     if (data?.user && data.session) {
-      setForm((current) => ({
-        ...current
-      }));
       setUser(data.user);
       void tryClaimReferral(data.user.id);
-      setStatus(t.authAccountCreatedMsg);
-      setAuthSubmitting(false);
+      await saveProfile(data.user);
       return;
     }
 
@@ -929,6 +962,8 @@ function AuthPageContent() {
     } catch (error) {
       setAuthSubmitting(false);
       setStatus(getErrorMessage(error));
+    } finally {
+      authSubmitInFlightRef.current = false;
     }
   }
 
@@ -1057,6 +1092,28 @@ function AuthPageContent() {
     authMode === "register"
       ? "Rekisteröidy"
       : t.login;
+  const registrationPasswordStrengthScore = [
+    form.password.length >= 8,
+    form.password.length >= 12,
+    /[a-zåäö]/.test(form.password) && /[A-ZÅÄÖ]/.test(form.password),
+    /\d/.test(form.password),
+    /[^A-Za-zÅÄÖåäö0-9]/.test(form.password)
+  ].filter(Boolean).length;
+  const registrationPasswordStrength =
+    registrationPasswordStrengthScore >= 4
+      ? "strong"
+      : registrationPasswordStrengthScore >= 2
+        ? "medium"
+        : "weak";
+  const registrationPasswordStrengthLabel =
+    registrationPasswordStrength === "strong"
+      ? "Vahva salasana"
+      : registrationPasswordStrength === "medium"
+        ? "Keskitasoinen salasana"
+        : "Heikko salasana";
+  const registrationPasswordsMatch =
+    registrationPasswordConfirm.length > 0 &&
+    form.password === registrationPasswordConfirm;
   const nextAuthMode: AuthMode = authMode === "login" ? "register" : "login";
   const showBackHome =
     !user && !emailPending;
@@ -1171,36 +1228,42 @@ function AuthPageContent() {
             </button>
           </div>
         ) : !user ? (
-          <form className="auth-card simple-card" onSubmit={handleSubmit}>
+          <form className={`auth-card simple-card${authMode === "register" ? " registration-inline-card profile-finalize-card" : ""}`} onSubmit={handleSubmit}>
             <div className="auth-form-head">
               <h1>{authMode === "login" ? "Kirjaudu sisään" : t.register}</h1>
+              {authMode === "register" && <p>Luo tili ja aloita palvelun käyttö</p>}
             </div>
 
             <label>
               {t.email}
-              <input
-                required
-                type="email"
-                value={form.email}
-                onChange={(event) => {
-                  setForm({ ...form, email: event.target.value });
-                  setResetEmail(event.target.value);
-                }}
-                placeholder="nimi@gmail.com"
-              />
+              <span className={authMode === "register" ? "auth-input-with-icon" : undefined}>
+                {authMode === "register" && <Mail size={17} aria-hidden="true" />}
+                <input
+                  required
+                  type="email"
+                  value={form.email}
+                  onChange={(event) => {
+                    setForm({ ...form, email: event.target.value });
+                    setResetEmail(event.target.value);
+                  }}
+                  placeholder="nimi@gmail.com"
+                />
+              </span>
             </label>
+            <div className={authMode === "register" ? "auth-password-pair" : undefined}>
             <label className="auth-password-label">
               <span className="auth-label-row">
                 <span>{t.password}</span>
               </span>
-              <input
-                required
-                minLength={6}
-                type="password"
-                value={form.password}
-                onChange={(event) => setForm({ ...form, password: event.target.value })}
-                placeholder={t.authPasswordMinPlaceholder}
-              />
+              <span className={authMode === "register" ? "auth-input-with-icon auth-password-input" : undefined}>
+                {authMode === "register" && <LockKeyhole size={17} aria-hidden="true" />}
+                <input required minLength={6} type={showAuthPasswords ? "text" : "password"} value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder={t.authPasswordMinPlaceholder} />
+                {authMode === "register" && (
+                  <button type="button" className="auth-password-eye" aria-label={showAuthPasswords ? "Piilota salasanat" : "Näytä salasanat"} aria-pressed={showAuthPasswords} onClick={() => setShowAuthPasswords((shown) => !shown)}>
+                    {showAuthPasswords ? <EyeOff size={17} /> : <Eye size={17} />}
+                  </button>
+                )}
+              </span>
               {authMode === "login" && (
                 <button
                   className="auth-forgot-inline"
@@ -1215,6 +1278,58 @@ function AuthPageContent() {
                 </button>
               )}
             </label>
+            {authMode === "register" && (
+              <label className="auth-password-label">
+                <span className="auth-label-row"><span>Salasana uudelleen</span></span>
+                <span className={`auth-input-with-icon auth-confirm-password-input${registrationPasswordsMatch ? " passwords-match" : ""}`}>
+                  <LockKeyhole size={17} aria-hidden="true" />
+                  <input required minLength={6} type={showAuthPasswords ? "text" : "password"} value={registrationPasswordConfirm} onChange={(event) => setRegistrationPasswordConfirm(event.target.value)} placeholder="Kirjoita salasana uudelleen" />
+                  <button type="button" className="auth-password-eye" aria-label={showAuthPasswords ? "Piilota salasanat" : "Näytä salasanat"} aria-pressed={showAuthPasswords} onClick={() => setShowAuthPasswords((shown) => !shown)}>
+                    {showAuthPasswords ? <EyeOff size={17} /> : <Eye size={17} />}
+                  </button>
+                </span>
+              </label>
+            )}
+            </div>
+            {authMode === "register" && form.password.length > 0 && (
+              <div className={`auth-password-strength strength-${registrationPasswordStrength}`} aria-live="polite">
+                <span className="auth-password-strength-track"><span /></span>
+                <span className="auth-password-match"><Check size={13} /> {registrationPasswordStrengthLabel}</span>
+              </div>
+            )}
+
+            {authMode === "register" && (
+              <>
+                <div className="account-type-picker register-account-type" aria-label={t.authAccountType}>
+                  <button type="button" className={form.account_type === "private" ? "account-type-card active" : "account-type-card"} onClick={() => setForm({ ...form, account_type: "private" })}>
+                    <UserRound size={22} /><span className="account-type-copy"><strong>{t.authPrivateSellerLabel}</strong><span>Myy omia tavaroitasi</span></span><span className="account-type-check"><Check size={14} /></span>
+                  </button>
+                  <button type="button" className={form.account_type === "company" ? "account-type-card active" : "account-type-card"} onClick={() => setForm({ ...form, account_type: "company" })}>
+                    <Building2 size={22} /><span className="account-type-copy"><strong>{t.authCompanyLabel}</strong><span>Myy yrityksesi nimissä</span></span><span className="account-type-check"><Check size={14} /></span>
+                  </button>
+                </div>
+                <div className="registration-fields register-details-grid">
+                  {form.account_type === "private" ? <>
+                    <label>{t.authFirstName}<input required autoComplete="given-name" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} /></label>
+                    <label>{t.authLastName}<input required autoComplete="family-name" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} /></label>
+                    <BirthDateField required value={form.birth_date} onChange={(value) => setForm({ ...form, birth_date: value })} />
+                  </> : <>
+                    <label>{t.authCompanyName}<input required autoComplete="organization" value={form.company_name} onChange={(e) => setForm({ ...form, company_name: e.target.value })} /></label>
+                    <label>{t.authBusinessId}<input required value={form.business_id} onChange={(e) => setForm({ ...form, business_id: e.target.value })} /></label>
+                    <label>{t.authCompanyWebsite}<input autoComplete="url" value={form.company_website} onChange={(e) => setForm({ ...form, company_website: e.target.value })} placeholder="https://yritys.fi" /></label>
+                  </>}
+                  <label>{form.account_type === "company" ? t.authCompanyPhone : t.authPhone}<input required type="tel" autoComplete="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: sanitizePhoneInput(e.target.value) })} placeholder="+358 40 123 4567" /></label>
+                  <label className="register-address-wide">{form.account_type === "company" ? t.authCompanyAddress : t.authAddress}<input required autoComplete="street-address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></label>
+                  <label>{t.authPostalCode}<input required autoComplete="postal-code" value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} /></label>
+                  <label>{t.authCity}<input required autoComplete="address-level2" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></label>
+                  <label>{t.authCountry}<select required value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })}>{countryOptions.map((country) => <option key={country} value={country}>{countryNameByLocale[locale][country]}</option>)}</select></label>
+                </div>
+                <div className="privacy-checkbox-row register-privacy-row">
+                  <input id="register-privacy-accept" type="checkbox" checked={privacyAccepted} onChange={(e) => setPrivacyAccepted(e.target.checked)} />
+                  <label htmlFor="register-privacy-accept" className="privacy-checkbox-label">{t.authPrivacyAcceptText} <Link href={profilePrivacyHref} target="_blank">{t.authPrivacyLink}</Link></label>
+                </div>
+              </>
+            )}
 
             <button type="submit" disabled={authSubmitting}>
               {authMode === "register" ? <Check size={18} /> : <LockKeyhole size={18} />}
