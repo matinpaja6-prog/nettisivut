@@ -109,15 +109,6 @@ function DatePartSelect({
     }
   }
 
-  function chooseFromPointer(
-    event: React.PointerEvent<HTMLButtonElement>,
-    nextValue: string
-  ) {
-    event.preventDefault();
-    event.stopPropagation();
-    choose(nextValue);
-  }
-
   function chooseFromClick(
     event: React.MouseEvent<HTMLButtonElement>,
     nextValue: string
@@ -153,7 +144,6 @@ function DatePartSelect({
           <button
             type="button"
             className={!value ? "date-part-option is-active" : "date-part-option"}
-            onPointerDown={(event) => chooseFromPointer(event, "")}
             onClick={(event) => chooseFromClick(event, "")}
             role="option"
             aria-selected={!value}
@@ -165,7 +155,6 @@ function DatePartSelect({
               key={option.value}
               type="button"
               className={option.value === value ? "date-part-option is-active" : "date-part-option"}
-              onPointerDown={(event) => chooseFromPointer(event, option.value)}
               onClick={(event) => chooseFromClick(event, option.value)}
               role="option"
               aria-selected={option.value === value}
