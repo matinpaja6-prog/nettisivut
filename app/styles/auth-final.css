@@ -413,6 +413,23 @@ body .simple-auth-page .registration-inline-card .strength-strong .auth-password
   color: #32c95a !important;
 }
 
+body .simple-auth-page .registration-inline-card .auth-password-mismatch {
+  align-items: center !important;
+  color: #ff6b6b !important;
+  display: flex !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  gap: 5px !important;
+  margin-left: calc(50% + 8px) !important;
+  margin-top: -6px !important;
+  width: calc(50% - 8px) !important;
+}
+
+body .simple-auth-page .registration-inline-card > button[type="submit"]:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
+
 body .simple-auth-page .registration-inline-card .auth-password-pair {
   gap: 16px !important;
 }
@@ -522,6 +539,11 @@ body .simple-auth-page .registration-inline-card > button[type="submit"] {
   }
 
   body .simple-auth-page .registration-inline-card .auth-password-strength {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  body .simple-auth-page .registration-inline-card .auth-password-mismatch {
     margin-left: 0 !important;
     width: 100% !important;
   }

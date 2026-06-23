@@ -361,6 +361,7 @@ function AuthPageContent() {
   const [status, setStatus] = useState("");
   const [authSubmitting, setAuthSubmitting] = useState(false);
   const authSubmitInFlightRef = useRef(false);
+  const automaticProfileSaveInFlightRef = useRef(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLookupDone, setProfileLookupDone] = useState(false);
@@ -760,6 +761,9 @@ function AuthPageContent() {
             })(),
             birth_date: current.birth_date || data?.birth_date || String(metadata.birth_date ?? "")
           }));
+          if (metadata.privacy_accepted === "true") {
+            setPrivacyAccepted(true);
+          }
         }
       })
       .catch(() => setProfile(null))
@@ -845,6 +849,55 @@ function AuthPageContent() {
     }
   }
 
+  useEffect(() => {
+    if (
+      !user ||
+      !profileLookupDone ||
+      isProfileCompleted(profile) ||
+      automaticProfileSaveInFlightRef.current
+    ) return;
+
+    const metadata = user.user_metadata ?? {};
+    let hasRegistrationDraft = metadata.registration_form_complete === "true";
+    try {
+      hasRegistrationDraft ||= Boolean(sessionStorage.getItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY));
+    } catch {}
+
+    if (!hasRegistrationDraft) return;
+
+    const selectedCountry = form.country === OTHER_COUNTRY_VALUE
+      ? customCountry.trim()
+      : countryNameByLocale.fi[form.country] ?? form.country;
+    const hasAllRequiredFields = Boolean(
+      privacyAccepted && form.phone && form.address && form.postal_code && form.city && selectedCountry &&
+      (form.account_type === "private"
+        ? form.first_name && form.last_name && form.birth_date
+        : form.company_name && form.business_id)
+    );
+
+    if (!hasAllRequiredFields) return;
+
+    automaticProfileSaveInFlightRef.current = true;
+    setStatus("Tallennetaan rekisteröintitietoja...");
+    void saveProfile(user).finally(() => {
+      automaticProfileSaveInFlightRef.current = false;
+    });
+  }, [customCountry, form, privacyAccepted, profile, profileLookupDone, user]);
+
+  useEffect(() => {
+    if (!user || !profileLookupDone || isProfileCompleted(profile)) return;
+
+    const metadata = user.user_metadata ?? {};
+    let hasRegistrationDraft = metadata.registration_form_complete === "true";
+    try {
+      hasRegistrationDraft ||= Boolean(sessionStorage.getItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY));
+    } catch {}
+
+    if (!hasRegistrationDraft) {
+      router.replace("/profile");
+    }
+  }, [profile, profileLookupDone, router, user]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (authSubmitInFlightRef.current) return;
@@ -929,7 +982,23 @@ function AuthPageContent() {
         signUpWithEmail(
           form.email,
           form.password,
-          undefined,
+          {
+            registration_form_complete: "true",
+            privacy_accepted: privacyAccepted ? "true" : "false",
+            account_type: form.account_type,
+            first_name: form.first_name,
+            last_name: form.last_name,
+            company_name: form.company_name,
+            business_id: form.business_id,
+            company_website: form.company_website,
+            billing_email: form.billing_email,
+            phone: form.phone,
+            address: form.address,
+            postal_code: form.postal_code,
+            city: form.city,
+            country: selectedCountry,
+            birth_date: form.birth_date
+          },
           redirectTo
         ),
         10000,
@@ -1297,6 +1366,11 @@ function AuthPageContent() {
                 <span className="auth-password-match"><Check size={13} /> {registrationPasswordStrengthLabel}</span>
               </div>
             )}
+            {authMode === "register" && registrationPasswordConfirm.length > 0 && !registrationPasswordsMatch && (
+              <div className="auth-password-mismatch" role="alert">
+                <X size={14} /> Salasanat eivät ole samat
+              </div>
+            )}
 
             {authMode === "register" && (
               <>
@@ -1318,7 +1392,60 @@ function AuthPageContent() {
                     <label>{t.authBusinessId}<input required value={form.business_id} onChange={(e) => setForm({ ...form, business_id: e.target.value })} /></label>
                     <label>{t.authCompanyWebsite}<input autoComplete="url" value={form.company_website} onChange={(e) => setForm({ ...form, company_website: e.target.value })} placeholder="https://yritys.fi" /></label>
                   </>}
-                  <label>{form.account_type === "company" ? t.authCompanyPhone : t.authPhone}<input required type="tel" autoComplete="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: sanitizePhoneInput(e.target.value) })} placeholder="+358 40 123 4567" /></label>
+                  <label>
+                    {form.account_type === "company" ? t.authCompanyPhone : t.authPhone}
+                    <div className="phone-field-row phone-field-row-polished register-phone-field">
+                      <div
+                        className={`phone-code-select-wrap${phoneCodeMenuOpen ? " is-open" : ""}`}
+                        onBlur={(event) => {
+                          if (!event.currentTarget.contains(event.relatedTarget)) setPhoneCodeMenuOpen(false);
+                        }}
+                      >
+                        <button
+                          type="button"
+                          className="phone-code-selected"
+                          aria-label="Valitse maan suuntanumero"
+                          aria-haspopup="listbox"
+                          aria-expanded={phoneCodeMenuOpen}
+                          onClick={() => setPhoneCodeMenuOpen((open) => !open)}
+                        >
+                          <img className="phone-code-flag-img" src={`https://flagcdn.com/24x18/${currentPhoneDialingOption.country.toLowerCase()}.png`} alt="" aria-hidden="true" />
+                          <span>{phoneParts.code}</span>
+                          <ChevronDown size={14} aria-hidden="true" />
+                        </button>
+                        {phoneCodeMenuOpen && (
+                          <div className="phone-code-menu" role="listbox" aria-label="Maan suuntanumero">
+                            {phoneDialingOptions.map((option) => (
+                              <button
+                                key={`${option.country}-${option.code}`}
+                                type="button"
+                                className={`phone-code-option${option.code === phoneParts.code ? " is-selected" : ""}`}
+                                role="option"
+                                aria-selected={option.code === phoneParts.code}
+                                onClick={() => {
+                                  setPhoneDialingCode(option.code);
+                                  setForm({ ...form, phone: buildPhoneNumber(option.code, phoneParts.national) });
+                                  setPhoneCodeMenuOpen(false);
+                                }}
+                              >
+                                <img className="phone-code-flag-img" src={`https://flagcdn.com/24x18/${option.country.toLowerCase()}.png`} alt="" aria-hidden="true" />
+                                <strong>{option.code}</strong>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <input
+                        required
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel-national"
+                        value={phoneParts.national}
+                        onChange={(event) => setForm({ ...form, phone: buildPhoneNumber(phoneParts.code, sanitizePhoneDigits(event.target.value)) })}
+                        placeholder="401234567"
+                      />
+                    </div>
+                  </label>
                   <label className="register-address-wide">{form.account_type === "company" ? t.authCompanyAddress : t.authAddress}<input required autoComplete="street-address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></label>
                   <label>{t.authPostalCode}<input required autoComplete="postal-code" value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} /></label>
                   <label>{t.authCity}<input required autoComplete="address-level2" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></label>
@@ -1331,7 +1458,11 @@ function AuthPageContent() {
               </>
             )}
 
-            <button type="submit" disabled={authSubmitting}>
+            <button
+              type="submit"
+              disabled={authSubmitting || (authMode === "register" && !registrationPasswordsMatch)}
+              title={authMode === "register" && !registrationPasswordsMatch ? "Kirjoita sama salasana molempiin kenttiin" : undefined}
+            >
               {authMode === "register" ? <Check size={18} /> : <LockKeyhole size={18} />}
               {authSubmitting ? "Hetki..." : primaryAuthActionLabel}
             </button>
@@ -1365,10 +1496,10 @@ function AuthPageContent() {
             </p>
             {status ? <span className="form-note">{status}</span> : null}
           </form>
-        ) : !profileLookupDone ? null : (
+        ) : !profileLookupDone ? null : false ? (
           <form className={`auth-card simple-card profile-completion-card profile-finalize-card profile-type-${form.account_type} ${needsProfile ? "" : "profile-ready-card"}`} onSubmit={(event) => {
             event.preventDefault();
-            saveProfile(user);
+            saveProfile(user!);
           }}>
             <div className="profile-completion-head">
               <div className="profile-completion-topline">
@@ -1714,6 +1845,14 @@ function AuthPageContent() {
             </button>
             <span className="form-note">{status}</span>
           </form>
+        ) : (
+          <div className="auth-card simple-card email-confirm-card">
+            <div className="profile-completion-head">
+              <span className="eyebrow">Hetki...</span>
+              <h1>Viimeistellään rekisteröintiä</h1>
+            </div>
+            <span className="form-note">{status || "Tallennetaan antamasi tiedot automaattisesti."}</span>
+          </div>
         )}
       </section>
 

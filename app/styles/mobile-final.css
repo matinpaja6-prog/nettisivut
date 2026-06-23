@@ -2559,7 +2559,7 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
   padding: 6px !important;
   position: absolute !important;
   top: calc(100% + 6px) !important;
-  width: min(258px, calc(100vw - 28px)) !important;
+  width: min(160px, calc(100vw - 28px)) !important;
   z-index: 200 !important;
 }
 
@@ -2574,7 +2574,7 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
   display: grid !important;
   font: inherit !important;
   gap: 8px !important;
-  grid-template-columns: 24px 30px 48px minmax(0, 1fr) !important;
+  grid-template-columns: 24px 58px !important;
   min-height: 36px !important;
   padding: 8px 10px !important;
   text-align: left !important;
@@ -2589,6 +2589,14 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
 
 html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished .phone-code-option strong {
   font-weight: 950 !important;
+}
+
+html body main.auth-page.simple-auth-page .profile-finalize-card .phone-code-flag-img {
+  border-radius: 2px !important;
+  display: block !important;
+  height: 18px !important;
+  object-fit: cover !important;
+  width: 24px !important;
 }
 
 html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished .phone-code-name {
@@ -2654,7 +2662,7 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
     box-sizing: border-box !important;
     display: grid !important;
     gap: 4px !important;
-    grid-template-columns: auto auto minmax(0, 1fr) auto !important;
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
     height: 100% !important;
     min-width: 0 !important;
     width: 100% !important;
@@ -2693,14 +2701,14 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
     right: auto !important;
     top: calc(100% + 8px) !important;
     transform: translateZ(0) !important;
-    width: min(320px, calc(100dvw - 32px)) !important;
+    width: min(170px, calc(100dvw - 32px)) !important;
     z-index: 1000 !important;
     -webkit-overflow-scrolling: touch !important;
   }
 
   html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-row.phone-field-row-polished .phone-code-option {
     box-sizing: border-box !important;
-    grid-template-columns: 22px 30px 52px minmax(0, 1fr) !important;
+    grid-template-columns: 22px 58px !important;
     min-width: 0 !important;
     width: 100% !important;
   }
@@ -2764,5 +2772,129 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
   html body main.auth-page.simple-auth-page .profile-finalize-card .date-part-select:nth-of-type(3) .date-part-menu {
     left: auto !important;
     right: 0 !important;
+  }
+}
+
+/* Compact registration phone field: matches the other inputs and stays in-bounds. */
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field {
+  background: #061427 !important;
+  border: 1px solid rgba(66, 101, 138, 0.55) !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+  display: grid !important;
+  grid-template-columns: 116px minmax(0, 1fr) !important;
+  height: 44px !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  width: 100% !important;
+}
+
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field:focus-within {
+  border-color: #4387ff !important;
+  box-shadow: 0 0 0 2px rgba(67, 135, 255, 0.18) !important;
+}
+
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field .phone-code-select-wrap {
+  background: transparent !important;
+  border-right: 1px solid rgba(66, 101, 138, 0.55) !important;
+  height: 42px !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  position: relative !important;
+  width: auto !important;
+}
+
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field .phone-code-selected {
+  align-items: center !important;
+  display: flex !important;
+  gap: 8px !important;
+  height: 100% !important;
+  left: 0 !important;
+  max-width: none !important;
+  padding: 0 10px !important;
+  position: relative !important;
+  top: 0 !important;
+  transform: none !important;
+  white-space: nowrap !important;
+  width: 100% !important;
+}
+
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field .phone-code-selected svg {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+}
+
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field .phone-code-flag-img {
+  border-radius: 2px !important;
+  flex: 0 0 24px !important;
+  height: 18px !important;
+  object-fit: cover !important;
+  width: 24px !important;
+}
+
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field > input {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 7px 7px 0 !important;
+  box-shadow: none !important;
+  height: 42px !important;
+  min-width: 0 !important;
+  padding: 0 14px !important;
+  width: 100% !important;
+}
+
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field .phone-code-menu {
+  background: #061427 !important;
+  border: 1px solid rgba(66, 101, 138, 0.82) !important;
+  border-radius: 7px !important;
+  box-sizing: border-box !important;
+  left: 0 !important;
+  max-height: min(42vh, 230px) !important;
+  max-width: calc(100dvw - 28px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  padding: 5px !important;
+  right: auto !important;
+  top: calc(100% + 6px) !important;
+  touch-action: pan-y !important;
+  width: 150px !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field .phone-code-option {
+  align-items: center !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  gap: 10px !important;
+  grid-template-columns: 24px minmax(0, 1fr) !important;
+  min-height: 38px !important;
+  min-width: 0 !important;
+  padding: 6px 9px !important;
+  touch-action: pan-y !important;
+  width: 100% !important;
+}
+
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field .phone-code-option:hover,
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field .phone-code-option.is-selected {
+  background: rgba(67, 135, 255, 0.16) !important;
+  color: #ffffff !important;
+}
+
+html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field .phone-code-option strong {
+  overflow: visible !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 480px) {
+  html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field {
+    grid-template-columns: 108px minmax(0, 1fr) !important;
+  }
+
+  html body main.auth-page.simple-auth-page .registration-inline-card.profile-finalize-card .register-phone-field .phone-code-menu {
+    width: 142px !important;
   }
 }
