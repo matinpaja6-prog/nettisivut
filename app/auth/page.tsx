@@ -1422,10 +1422,13 @@ function AuthPageContent() {
                                 className={`phone-code-option${option.code === phoneParts.code ? " is-selected" : ""}`}
                                 role="option"
                                 aria-selected={option.code === phoneParts.code}
-                                onClick={() => {
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  event.stopPropagation();
+                                  setPhoneCodeMenuOpen(false);
                                   setPhoneDialingCode(option.code);
                                   setForm({ ...form, phone: buildPhoneNumber(option.code, phoneParts.national) });
-                                  setPhoneCodeMenuOpen(false);
+                                  event.currentTarget.blur();
                                 }}
                               >
                                 <img className="phone-code-flag-img" src={`https://flagcdn.com/24x18/${option.country.toLowerCase()}.png`} alt="" aria-hidden="true" />
