@@ -739,7 +739,7 @@ select,
 :where(.chip.active, .auth-tabs button.active, .garage-class-btn.selected, .garage-vehicle-card.selected, .pf-nav-active, .sa-card-has-notif, .sa-tag-blue, .listing-detail-category) {
   background: rgba(255, 107, 22, 0.14) !important;
   border-color: rgba(255, 107, 22, 0.38) !important;
-  color: #9a3b00 !important;
+  color: #0f172a !important;
 }
 
 body .seller-page.auth-page {
@@ -781,7 +781,7 @@ body .seller-page .auth-topbar {
 :where(.chip.active, .auth-tabs button.active, .garage-class-btn.selected, .garage-vehicle-card.selected, .pf-nav-active, .sa-card-has-notif, .sa-tag-blue, .listing-detail-category, .category-chip.active, .filter-chip.active) {
   background: rgba(255, 107, 22, 0.15) !important;
   border-color: rgba(255, 107, 22, 0.44) !important;
-  color: #9a3b00 !important;
+  color: #0f172a !important;
 }
 
 :where(

@@ -1953,7 +1953,7 @@
 .listingStatusTabActive {
   background: rgba(56, 189, 248, 0.15) !important;
   border-color: rgba(56, 189, 248, 0.44) !important;
-  color: #9a3b00 !important;
+  color: #0f172a !important;
 }
 
 /* White-to-gray pass for admin module. Prices stay white. */

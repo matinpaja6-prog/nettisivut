@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Award, Bell, Car, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, MessageCircle, Plus, Store, UserRound, Users } from "lucide-react";
+import { Award, Bell, Car, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, MessageCircle, Plus, Search, Store, UserRound, Users, Wrench } from "lucide-react";
 import {
   CHAT_NOTIFICATIONS_CHANGED_EVENT,
   getPendingPurchaseReviewRequests,
   getAlertNotifications,
+  getGarageVehicles,
   getSafeAuthUser,
   getUnreadConversationSummaries,
   isConversationLastMessageUnread,
@@ -17,6 +18,7 @@ import {
   supabase,
   type AlertNotification,
   type ConversationSummary,
+  type GarageVehicle,
   type PurchaseReviewRequest,
 } from "@/lib/supabase";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
@@ -59,22 +61,68 @@ export default function BottomNav() {
   const rewardsHref = pagePath("rewards", locale);
   const shopHref = pagePath("shop", locale);
   const searchAlertsHref = pagePath("search-alerts", locale);
+  const contactHref = pagePath("contact", locale);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [notifCount, setNotifCount] = useState(0);
   const [reviewRequests, setReviewRequests] = useState<PurchaseReviewRequest[]>([]);
   const [alertNotifs, setAlertNotifs] = useState<AlertNotification[]>([]);
   const [unreadConvs, setUnreadConvs] = useState<ConversationSummary[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [garageOpen, setGarageOpen] = useState(false);
+  const [garageVehicles, setGarageVehicles] = useState<GarageVehicle[]>([]);
   const sheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!supabase) return;
+    if (!supabase) {
+      setAuthChecked(true);
+      return;
+    }
+
     getSafeAuthUser()
-      .then((user) => setUserId(user?.id ?? null))
-      .catch(() => setUserId(null));
+      .then((user) => {
+        setUserId(user?.id ?? null);
+        setAuthChecked(true);
+      })
+      .catch(() => {
+        setUserId(null);
+        setAuthChecked(true);
+      });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id ?? null);
+      setAuthChecked(true);
+      if (!session?.user) {
+        setProfileOpen(false);
+        setNotifOpen(false);
+        setGarageOpen(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!userId) {
+      setGarageVehicles([]);
+      return;
+    }
+
+    let cancelled = false;
+    getGarageVehicles(userId)
+      .then(({ data }) => {
+        if (!cancelled) setGarageVehicles(data ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setGarageVehicles([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -181,7 +229,29 @@ export default function BottomNav() {
     no: ["Hjem", "Varsler", "Ny", "Meldinger", "Profil"],
     et: ["Avaleht", "Teated", "Uus", "Sõnumid", "Profiil"],
   };
-  const [l0, l1, l2, l3, l4] = labels[locale] ?? labels.fi;
+  const [, , , , l4] = labels[locale] ?? labels.fi;
+
+  const buildVehicleSellHref = (vehicle: GarageVehicle) => {
+    const vehicleType = vehicle.vehicle_class === "Auto"
+      ? "Motocross"
+      : vehicle.vehicle_class || "Moottorikelkka";
+    const params = new URLSearchParams({
+      make: vehicle.make,
+      model: vehicle.model,
+      year: String(vehicle.year ?? ""),
+      vehicleType,
+    });
+    return `${sellHref}?${params.toString()}`;
+  };
+
+  const buildVehicleBuyHref = (vehicle: GarageVehicle) => {
+    const params = new URLSearchParams({
+      garageMake: vehicle.make,
+      garageModel: vehicle.model,
+      garageYear: String(vehicle.year ?? ""),
+    });
+    return `/?${params.toString()}`;
+  };
 
   const handleSignOut = async () => {
     setProfileOpen(false);
@@ -222,12 +292,53 @@ export default function BottomNav() {
     }
   };
 
+  if (!authChecked || !userId) {
+    return null;
+  }
+
   return (
     <>
+      <nav className="bottom-nav bottom-nav-main" aria-label="Paanavigaatio">
+        <Link
+          href={profileHref}
+          className={`bottom-nav-item${canonicalPathname.startsWith("/profile") || canonicalPathname.startsWith("/my-listings") ? " active" : ""}`}
+        >
+          <span className="bottom-nav-icon"><UserRound size={22} /></span>
+          <span className="bottom-nav-label">Oma profiili</span>
+        </Link>
+
+        <Link href={messagesHref} className={`bottom-nav-item${canonicalPathname.startsWith("/messages") ? " active" : ""}`}>
+          <span className="bottom-nav-icon">
+            <MessageCircle size={22} />
+            {unreadMessages > 0 && <span className="bottom-nav-badge">{unreadMessages > 9 ? "9+" : unreadMessages}</span>}
+          </span>
+          <span className="bottom-nav-label">Viestit</span>
+        </Link>
+
+        <Link href={sellHref} className={`bottom-nav-item bottom-nav-center-action${canonicalPathname.startsWith("/sell") ? " active" : ""}`} aria-label="Luo ilmoitus">
+          <span className="bottom-nav-icon"><Plus size={24} /></span>
+          <span className="bottom-nav-label">Luo ilmoitus</span>
+        </Link>
+
+        <button
+          type="button"
+          className={`bottom-nav-item${garageOpen || canonicalPathname.startsWith("/garage") ? " active" : ""}`}
+          onClick={() => setGarageOpen(true)}
+        >
+          <span className="bottom-nav-icon"><Car size={22} /></span>
+          <span className="bottom-nav-label">Oma talli</span>
+        </button>
+
+        <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
+          <span className="bottom-nav-icon"><Home size={22} /></span>
+          <span className="bottom-nav-label">Etusivu</span>
+        </Link>
+      </nav>
+
       <nav className="bottom-nav" aria-label="Päänavigaatio">
         <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Home size={22} /></span>
-          <span className="bottom-nav-label">{l0}</span>
+          <span className="bottom-nav-label">Etusivu</span>
         </Link>
 
         <button type="button" className={`bottom-nav-item${notifOpen ? " active" : ""}`} onClick={() => {
@@ -244,12 +355,12 @@ export default function BottomNav() {
             <Bell size={22} />
             {notifCount > 0 && <span className="bottom-nav-badge">{notifCount > 9 ? "9+" : notifCount}</span>}
           </span>
-          <span className="bottom-nav-label">{l1}</span>
+          <span className="bottom-nav-label">Myy osa</span>
         </button>
 
         <Link href={sellHref} className={`bottom-nav-item bottom-nav-solid${canonicalPathname.startsWith("/sell") ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Plus size={24} /></span>
-          <span className="bottom-nav-label">{l2}</span>
+          <span className="bottom-nav-label">Oma talli</span>
         </Link>
 
         <Link href={messagesHref} className={`bottom-nav-item${canonicalPathname.startsWith("/messages") ? " active" : ""}`}>
@@ -257,7 +368,7 @@ export default function BottomNav() {
             <MessageCircle size={22} />
             {unreadMessages > 0 && <span className="bottom-nav-badge">{unreadMessages > 9 ? "9+" : unreadMessages}</span>}
           </span>
-          <span className="bottom-nav-label">{l3}</span>
+          <span className="bottom-nav-label">Ota yhteytta</span>
         </Link>
 
         <button type="button"
@@ -268,6 +379,59 @@ export default function BottomNav() {
         </button>
       </nav>
 
+      {garageOpen && (
+        <div className="bn-garage-backdrop" onClick={() => setGarageOpen(false)}>
+          <div className="bn-garage-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="bn-garage-header">
+              <div>
+                <strong>Oma talli</strong>
+                <span>{garageVehicles.length ? "Valitse ajoneuvo ja jatka suoraan osiin" : "Lisää ajoneuvo, niin osat löytyvät nopeammin"}</span>
+              </div>
+              <button type="button" className="bn-garage-close" onClick={() => setGarageOpen(false)}>x</button>
+            </div>
+
+            {!userId ? (
+              <Link href={authHref} className="bn-garage-empty-action" onClick={() => setGarageOpen(false)}>
+                <LockKeyhole size={18} />
+                Kirjaudu sisään
+              </Link>
+            ) : garageVehicles.length === 0 ? (
+              <Link href={garageHref} className="bn-garage-empty-action" onClick={() => setGarageOpen(false)}>
+                <Plus size={18} />
+                Lisää ajoneuvo
+              </Link>
+            ) : (
+              <div className="bn-garage-list">
+                {garageVehicles.slice(0, 4).map((vehicle) => (
+                  <div key={vehicle.id} className="bn-garage-vehicle">
+                    <Link href={garageHref} className="bn-garage-main" onClick={() => setGarageOpen(false)}>
+                      <Car size={18} />
+                      <span>
+                        <strong>{vehicle.make} {vehicle.model}</strong>
+                        <small>{vehicle.year}</small>
+                      </span>
+                    </Link>
+                    <div className="bn-garage-actions">
+                      <Link href={buildVehicleBuyHref(vehicle)} onClick={() => setGarageOpen(false)}>
+                        <Search size={15} />
+                        Osta osia
+                      </Link>
+                      <Link href={buildVehicleSellHref(vehicle)} onClick={() => setGarageOpen(false)}>
+                        <Wrench size={15} />
+                        Myy osa
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+                <Link href={garageHref} className="bn-garage-all" onClick={() => setGarageOpen(false)}>
+                  Avaa koko talli
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {profileOpen && (
         <div className="bn-sheet-backdrop" onClick={() => setProfileOpen(false)}>
           <div ref={sheetRef} className="bn-sheet" onClick={(e) => e.stopPropagation()}>
@@ -276,6 +440,7 @@ export default function BottomNav() {
             {userId ? (
               <>
                 <Link href={profileHref}    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><UserRound size={18} />{t.editProfile}</Link>
+                <Link href={contactHref}    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><MessageCircle size={18} />Ota yhteyttä Maskinesiin</Link>
                 <Link href={myListingsHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><ClipboardList size={18} />{t.myListings}</Link>
                 <Link href={garageHref}     className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Car size={18} />{t.garageTitle}</Link>
                 <Link href={messagesHref}   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Mail size={18} />{t.messages}</Link>
@@ -319,6 +484,7 @@ export default function BottomNav() {
             ) : (
               <>
                 <Link href={authHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><LockKeyhole size={18} />{t.login}</Link>
+                <Link href={contactHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><MessageCircle size={18} />Ota yhteyttä Maskinesiin</Link>
                 <div className="bn-sheet-lang">
                   {LOCALES.map((loc) => (
                     <button key={loc.code} type="button"

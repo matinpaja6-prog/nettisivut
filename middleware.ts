@@ -8,6 +8,36 @@ import {
 const PUBLIC_FILE = /\.(.*)$/;
 const IP_BAN_CACHE_TTL_MS = 60_000;
 const ipBanCache = new Map<string, { banned: boolean; expiresAt: number }>();
+const SENSITIVE_PATH_PATTERN =
+  /(?:^|\/)(?:\.(?!well-known\/)|\.env|\.git|\.svn|\.hg|node_modules|supabase|package-lock\.json|pnpm-lock\.yaml|yarn\.lock|tsconfig(?:\..*)?\.json|next\.config\.(?:js|mjs|ts)|middleware\.ts|Dockerfile|docker-compose\.ya?ml)(?:$|\/)/i;
+const SENSITIVE_FILE_PATTERN =
+  /\.(?:env|local|log|bak|backup|old|orig|sql|sqlite|sqlite3|db|pem|key|crt|p12|pfx|map)$/i;
+
+function applySecurityHeaders(response: NextResponse) {
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+  );
+  response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  return response;
+}
+
+function isSensitivePath(pathname: string) {
+  let decodedPathname = pathname;
+  try {
+    decodedPathname = decodeURIComponent(pathname);
+  } catch {
+    return true;
+  }
+
+  return (
+    SENSITIVE_PATH_PATTERN.test(decodedPathname) ||
+    SENSITIVE_FILE_PATTERN.test(decodedPathname)
+  );
+}
 
 function getClientIp(request: NextRequest) {
   const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
@@ -56,26 +86,35 @@ async function isIpBanned(ip: string) {
 export async function middleware(request: NextRequest) {
   const { hostname, pathname } = request.nextUrl;
 
+  if (isSensitivePath(pathname)) {
+    return applySecurityHeaders(new NextResponse(null, { status: 404 }));
+  }
+
   if (hostname.toLowerCase() === "maskines.com") {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.hostname = "www.maskines.com";
     redirectUrl.protocol = "https:";
-    return NextResponse.redirect(redirectUrl, 308);
+    return applySecurityHeaders(NextResponse.redirect(redirectUrl, 308));
   }
 
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
     pathname.startsWith("/admin") ||
     pathname === "/favicon.ico" ||
     PUBLIC_FILE.test(pathname)
   ) {
-    return NextResponse.next();
+    return applySecurityHeaders(NextResponse.next());
+  }
+
+  if (pathname.startsWith("/api")) {
+    const response = NextResponse.next();
+    response.headers.set("Cache-Control", "no-store, max-age=0");
+    return applySecurityHeaders(response);
   }
 
   const ip = getClientIp(request);
   if (ip && await isIpBanned(ip)) {
-    return new NextResponse("IP-osoite on estetty.", { status: 403 });
+    return applySecurityHeaders(new NextResponse("IP-osoite on estetty.", { status: 403 }));
   }
 
   const locale = normalizeRouteLocale(request.cookies.get("locale")?.value);
@@ -85,16 +124,16 @@ export async function middleware(request: NextRequest) {
   if (pathname === canonicalPath && localizedPath !== pathname) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = localizedPath;
-    return NextResponse.redirect(redirectUrl);
+    return applySecurityHeaders(NextResponse.redirect(redirectUrl));
   }
 
   if (canonicalPath !== pathname) {
     const rewriteUrl = request.nextUrl.clone();
     rewriteUrl.pathname = canonicalPath;
-    return NextResponse.rewrite(rewriteUrl);
+    return applySecurityHeaders(NextResponse.rewrite(rewriteUrl));
   }
 
-  return NextResponse.next();
+  return applySecurityHeaders(NextResponse.next());
 }
 
 export const config = {

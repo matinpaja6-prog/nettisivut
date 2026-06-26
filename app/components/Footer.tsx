@@ -171,7 +171,7 @@ export default function Footer() {
                 </linearGradient>
                 <linearGradient id="footerMaskinesGearEdge" x1="0" x2="1" y1="0" y2="1">
                   <stop offset="0%" stopColor="#ff9b2a" />
-                  <stop offset="100%" stopColor="#873400" />
+                  <stop offset="100%" stopColor="#061827" />
                 </linearGradient>
                 <linearGradient id="footerMaskinesUnderline" x1="0" x2="1" y1="0" y2="0">
                   <stop offset="0%" stopColor="#ff7a1a" stopOpacity="0" />

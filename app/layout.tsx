@@ -18,19 +18,21 @@ import "./styles/listing-detail.css";
 import "./styles/profile.css";
 import "./styles/shop.css";
 import "./styles/final-clean.css";
-import "./styles/topbar-final.css";
 import "./styles/seller-profile-final.css";
 import "./styles/profile-cards-final.css";
 import "./styles/profile-reference.css";
 import "./styles/profile-absolute-final.css";
 import "./styles/auth-final.css";
+import "./styles/mobile-home-final.css";
 import "./styles/profile-symmetry-final.css";
 import "./styles/mobile-final.css";
 import "./styles/seller-phone-reference.css";
 import "./styles/info-pages.css";
+import "./styles/topbar-final.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";
+import BottomNav from "./components/BottomNav";
 import SiteAppearance from "./components/SiteAppearance";
 import RequiredReviewGate from "./components/RequiredReviewGate";
 import ProfileCompletionGate from "./components/ProfileCompletionGate";
@@ -185,6 +187,7 @@ export default function RootLayout({
           {children}
           <RequiredReviewGate />
           <FloatingChat />
+          <BottomNav />
           <Footer />
         </TaxonomyProvider>
       </body>

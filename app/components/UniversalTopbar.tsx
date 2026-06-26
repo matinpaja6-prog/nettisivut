@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { ArrowLeft, Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Star, Store, UserRound, Users, X } from "lucide-react";
+import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Star, Store, UserRound, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ import {
   dismissPurchaseReviewRequest,
   getAlertNotifications,
   getCurrentUserIsAdmin,
+  getGarageVehicles,
   getSafeAuthUser,
   getUnreadConversationSummaries,
   getPublicSellerLevelStats,
@@ -24,20 +25,18 @@ import {
   supabase,
   type AlertNotification,
   type ConversationSummary,
+  type GarageVehicle,
   type PurchaseReviewRequest,
   type SellerLevelStats,
   type UserProfile,
 } from "@/lib/supabase";
 import { calculateSellerLevel } from "@/lib/seller-level";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
-import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profilePath, profileRootPath } from "@/lib/routes";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
-const HOME_RETURN_STATE_KEY = "home_return_state_v1";
-const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
 const NOTIFICATION_REFRESH_DEBOUNCE_MS = 120;
 
 function getAuthUserDisplayName(user: User | null) {
@@ -220,7 +219,7 @@ function TopbarMaskinesLogo() {
         </linearGradient>
         <linearGradient id="topbarMaskinesGearEdge" x1="0" x2="1" y1="0" y2="1">
           <stop offset="0%" stopColor="#ff9b2a" />
-          <stop offset="100%" stopColor="#873400" />
+          <stop offset="100%" stopColor="#061827" />
         </linearGradient>
         <linearGradient id="topbarMaskinesUnderline" x1="0" x2="1" y1="0" y2="0">
           <stop offset="0%" stopColor="#ff7a1a" stopOpacity="0" />
@@ -280,6 +279,8 @@ export default function UniversalTopbar() {
   const ownProfileLabel = ui.ownProfile;
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [garageMenuOpen, setGarageMenuOpen] = useState(false);
+  const [garageVehicles, setGarageVehicles] = useState<GarageVehicle[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [profileInitial, setProfileInitial] = useState("?");
@@ -294,6 +295,7 @@ export default function UniversalTopbar() {
   const [sellerLevelStats, setSellerLevelStats] = useState<SellerLevelStats>(emptySellerLevelStats);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
+  const garageMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!supabase) {
@@ -537,6 +539,48 @@ export default function UniversalTopbar() {
     };
   }, [profileOpen]);
 
+  useEffect(() => {
+    if (!garageMenuOpen) return;
+
+    function closeOnOutsideClick(event: MouseEvent) {
+      const target = event.target as Node;
+      if (!garageMenuRef.current?.contains(target)) {
+        setGarageMenuOpen(false);
+      }
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setGarageMenuOpen(false);
+    }
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [garageMenuOpen]);
+
+  useEffect(() => {
+    if (!userId) {
+      setGarageVehicles([]);
+      return;
+    }
+
+    let cancelled = false;
+    getGarageVehicles(userId)
+      .then(({ data }) => {
+        if (!cancelled) setGarageVehicles(data ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setGarageVehicles([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
   async function handleSignOut() {
     setProfileOpen(false);
     setNotificationOpen(false);
@@ -563,30 +607,12 @@ export default function UniversalTopbar() {
   const hasNotificationItems =
     visibleReviewRequests.length + visibleAlertNotifications.length + visibleUnreadConversations.length > 0;
   const canonicalPathname = canonicalPathFromLocalized(pathname);
-  const isHomePage = canonicalPathname === "/";
-  const guestLocked = !authChecked || !userId;
+  const controlsLocked = !authChecked;
+  const notificationLocked = !authChecked || !userId;
   const sellerLevel = calculateSellerLevel(sellerLevelStats);
   const sellerLevelTooltip = sellerLevel.maxLevel
     ? `${ui.maxLevel} - ${ui.level} ${sellerLevel.level}`
     : `${sellerLevel.currentLevelXp}/${sellerLevel.xpForNextLevel} XP - ${ui.level} ${sellerLevel.level}`;
-  const hideUniversalTopbar =
-    canonicalPathname.startsWith("/auth") ||
-    canonicalPathname.startsWith("/admin");
-
-  function goBack() {
-    if (typeof window !== "undefined") {
-      try {
-        if (sessionStorage.getItem(HOME_RETURN_STATE_KEY)) {
-          sessionStorage.setItem(HOME_RETURN_PENDING_KEY, "1");
-        }
-      } catch {
-        // Session storage can be unavailable in private/browser-restricted contexts.
-      }
-    }
-
-    goBackOrFallback(router);
-  }
-
   function isActiveRoute(href: string) {
     if (href === "/") return canonicalPathname === "/";
     return canonicalPathname === href || canonicalPathname.startsWith(`${href}/`);
@@ -603,9 +629,11 @@ export default function UniversalTopbar() {
   const searchAlertsHref = pagePath("search-alerts", locale);
   const rewardsHref = pagePath("rewards", locale);
   const shopHref = pagePath("shop", locale);
+  const aboutHref = pagePath("about", locale);
+  const faqHref = pagePath("faq", locale);
 
   function toggleNotifications() {
-    if (guestLocked) return;
+    if (notificationLocked) return;
     setProfileOpen(false);
     setNotificationOpen((open) => {
       if (!open) setNotificationRefreshNonce((value) => value + 1);
@@ -700,13 +728,34 @@ export default function UniversalTopbar() {
     acknowledgeVisibleNotificationItems();
   }
 
-  const homeNavigation = isHomePage ? (
-    <div className="universal-home-navigation">
+  const primaryNavigation = (
+    <div className="universal-home-navigation universal-primary-navigation">
       <Link href="/" className="universal-home-brand" aria-label="Maskines">
         <TopbarMaskinesLogo />
       </Link>
+      <nav className="universal-home-primary-nav" aria-label="Päänavigaatio">
+        <Link
+          href="/?catalog=all#listings"
+          className={isActiveRoute("/") ? "is-active" : ""}
+          onClick={() => window.dispatchEvent(new Event("maskines-show-all-listings"))}
+        >
+          Varaosat
+          <ChevronDown size={13} aria-hidden="true" />
+        </Link>
+        <Link href="/?catalog=all#listings">
+          Merkit
+          <ChevronDown size={13} aria-hidden="true" />
+        </Link>
+        <Link href="/?catalog=all#listings">
+          Mallit
+          <ChevronDown size={13} aria-hidden="true" />
+        </Link>
+        <Link href={sellHref} className={isActiveRoute("/sell") ? "is-active" : ""}>Myy osa</Link>
+        <Link href={aboutHref} className={isActiveRoute("/about") ? "is-active" : ""}>Tietoa meistä</Link>
+        <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>Ohjeet</Link>
+      </nav>
     </div>
-  ) : null;
+  );
 
   function dismissConversationNotification(conversation: ConversationSummary) {
     const lastMessageAt = conversation.last_message?.created_at
@@ -772,46 +821,11 @@ export default function UniversalTopbar() {
     acknowledgeVisibleNotificationItems();
   }, [acknowledgeVisibleNotificationItems, notificationOpen]);
 
-  if (hideUniversalTopbar) {
-    return null;
-  }
-
-  if (guestLocked) {
-    return (
-      <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}`}>
-        {homeNavigation}
-        {!isHomePage ? (
-          <button type="button" className="universal-return-button" onClick={goBack}>
-            <ArrowLeft size={16} aria-hidden="true" />
-            <strong>{t.back}</strong>
-          </button>
-        ) : null}
-        <nav className="universal-topbar-actions universal-topbar-actions-guest" aria-label={ui.quickActions}>
-          <Link
-            href={authHref}
-            className={`rebuilt-login-button rebuilt-login-button-guest${isActiveRoute("/auth") ? " is-active" : ""}`}
-            aria-label={t.login}
-            title={t.login}
-          >
-            <LockKeyhole size={17} aria-hidden="true" />
-            <strong>{t.login}</strong>
-          </Link>
-        </nav>
-      </header>
-    );
-  }
-
   return (
-    <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}`}>
-      {homeNavigation}
-      {!isHomePage ? (
-        <button type="button" className="universal-return-button" onClick={goBack} disabled={guestLocked}>
-          <ArrowLeft size={16} aria-hidden="true" />
-          <strong>{t.back}</strong>
-        </button>
-      ) : null}
+    <header className="universal-app-topbar">
+      {primaryNavigation}
       <nav className="universal-topbar-actions" aria-label={ui.quickActions}>
-        {false && isHomePage && userId ? (
+        {false && userId ? (
           <Link
             href={profilePath(userId, profileDisplayName, locale)}
             className="universal-level-pill"
@@ -850,7 +864,7 @@ export default function UniversalTopbar() {
             aria-label={t.notifications}
             aria-haspopup="menu"
             aria-expanded={notificationOpen}
-            disabled={guestLocked}
+            disabled={notificationLocked}
             onClick={toggleNotifications}
           >
             <Bell size={17} aria-hidden="true" />
@@ -1116,11 +1130,9 @@ export default function UniversalTopbar() {
                       </span>
                     </span>
                   </div>
-                  {!isHomePage ? (
-                    <Link href="/" className={`universal-profile-menu-link${isActiveRoute("/") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                      <Home size={16} /> {t.home}
-                    </Link>
-                  ) : null}
+                  <Link href="/" className={`universal-profile-menu-link${isActiveRoute("/") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <Home size={16} /> {t.home}
+                  </Link>
                   <Link href={profileHref} className={`universal-profile-menu-link${isActiveRoute("/profile") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                     <UserRound size={16} /> {ownProfileLabel}
                   </Link>
@@ -1163,30 +1175,18 @@ export default function UniversalTopbar() {
                   </button>
                 </>
               ) : (
-                <Link href={authHref} className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
-                  <LockKeyhole size={16} /> {t.login}
-                </Link>
+                <>
+                  <Link href={authHref} className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <LockKeyhole size={16} /> {t.login}
+                  </Link>
+                </>
               )}
             </div>
           )}
         </div>
-        <div className={`universal-language-wrap${guestLocked ? " universal-guest-disabled" : ""}`} aria-disabled={guestLocked}>
+        <div className={`universal-language-wrap${controlsLocked ? " universal-guest-disabled" : ""}`} aria-disabled={controlsLocked}>
           <LanguageSwitcher />
         </div>
-        {!isHomePage ? (
-          <Link
-            href="/"
-            className="universal-icon-button universal-home-button"
-            aria-label={t.home}
-            title={t.home}
-            onClick={() => {
-              setProfileOpen(false);
-              setNotificationOpen(false);
-            }}
-          >
-            <Home size={17} aria-hidden="true" />
-          </Link>
-        ) : null}
       </nav>
     </header>
   );

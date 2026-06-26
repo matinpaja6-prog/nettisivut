@@ -1,9 +1,9 @@
 ﻿"use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import styles from "./page.module.css";
 
@@ -17,6 +17,7 @@ import {
   CircleHelp,
   Clock3,
   Gauge,
+  Grid2X2,
   Heart,
   MapPin,
   MessageCircle,
@@ -30,6 +31,47 @@ import {
   Users,
   X
 } from "lucide-react";
+
+type VehicleCategoryIconKind = "snowflake" | "atv" | "motocross" | "moped";
+
+function VehicleCategoryIcon({ kind }: { kind: VehicleCategoryIconKind }) {
+  if (kind === "snowflake") {
+    return (
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 3v26M4.75 9.5l22.5 13M4.75 22.5l22.5-13" />
+        <path d="m11.5 5.6 4.5 3 4.5-3M11.5 26.4l4.5-3 4.5 3M5.7 14.4l4.8-2.4-.3-5.4M26.3 17.6 21.5 20l.3 5.4M5.7 17.6l4.8 2.4-.3 5.4M26.3 14.4 21.5 12l.3-5.4" />
+      </svg>
+    );
+  }
+
+  if (kind === "atv") {
+    return (
+      <svg viewBox="0 0 36 28" aria-hidden="true">
+        <circle cx="8" cy="21" r="4.2" />
+        <circle cx="28" cy="21" r="4.2" />
+        <path d="M4 16.5h4.5l3-6.5h9.2l4.1 6.5H32M12 10l-2.1-3H6.5M20.7 10l3.8-3.2M15 7h6M11 16.5h13.8M16.5 10v6.5" />
+      </svg>
+    );
+  }
+
+  if (kind === "motocross") {
+    return (
+      <svg viewBox="0 0 36 28" aria-hidden="true">
+        <circle cx="8" cy="21" r="4.4" />
+        <circle cx="28" cy="21" r="4.4" />
+        <path d="m8 21 6.5-9 5 9H8Zm6.5-9h7.3l3.3 9M18.5 8h6l3.5-2M13.2 9.5l3.7-2.7M19.5 21l5.6-7.2M10.5 13h-4" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 36 28" aria-hidden="true">
+      <circle cx="8.5" cy="21" r="4.2" />
+      <circle cx="27.5" cy="21" r="4.2" />
+      <path d="M8.5 21h9.2l3.8-8.2h5.7M17.7 21 15 13.8h-4.8M15 13.8h7.2l-1.8-5.3M20.4 8.5h5.8M25.7 8.5l2-2.5M21.5 12.8l4.7 8.2" />
+    </svg>
+  );
+}
 
 import {
   fallbackListings,
@@ -61,11 +103,13 @@ import {
   getGarageVehicles,
   ensureListingTranslations,
   getListings,
+  getVehicleListingCounts,
   getUserPreferenceProfile,
   saveListing,
   supabase,
   trackUserActivity,
   unsaveListing,
+  type VehicleListingCounts,
   type GarageVehicle,
   type UserPreferenceProfile
 } from "@/lib/supabase";
@@ -125,9 +169,9 @@ const translations = {
     login: "Kirjaudu",
     signOut: "Kirjaudu ulos",
     heroTitle: "Maskines",
-    heroSubtitle: "Nopea haku. Myy käytetyt varaosat helposti.",
-    heroLeadStart: "Nopea haku",
-    heroLeadHighlight: "Myy käytetyt varaosat helposti",
+    heroSubtitle: "Suomen kattava varaosamarketplace moottorikelkoille, mönkijöille, motocrossiin ja mopoihin.",
+    heroLeadStart: "Löydä oikea varaosa",
+    heroLeadHighlight: "Myy helposti enemmän",
     heroLeadEnd: "Luotettavat myyjät",
     heroTrustFast: "Nopea ja helppo listaaminen",
     heroTrustFree: "Ilmainen myynti ostajalle",
@@ -1145,7 +1189,16 @@ function withTimeout<T>(
 ====================================================== */
 
 export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+function HomeContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const taxonomy = useTaxonomy();
   const partsCategories = useMemo(() => categoriesAsRecord(taxonomy), [taxonomy]);
@@ -1182,6 +1235,7 @@ export default function Home() {
   const resultsRef = useRef<HTMLElement | null>(null);
   const favoritesHydrated = useRef(false);
   const listingsPageFetchRef = useRef(false);
+  const garageUrlFilterAppliedRef = useRef(false);
 
   const [locale, setLocale] = useState<Locale>("fi");
   const [localeReady, setLocaleReady] = useState(false);
@@ -1189,13 +1243,18 @@ export default function Home() {
   const [listings, setListings] = useState<Listing[]>(fallbackListings);
   const [listingsLoading, setListingsLoading] = useState(fallbackListings.length === 0);
   const [listingsTotalCount, setListingsTotalCount] = useState<number | null>(null);
+  const [vehicleListingCounts, setVehicleListingCounts] = useState<VehicleListingCounts | null>(null);
 
   const [favorites, setFavorites] = useState<string[]>([]);
 
   const [query, setQuery] = useState("");
-  const [compactHeroSearch, setCompactHeroSearch] = useState(false);
+  const [compactHeroSearch, setCompactHeroSearch] = useState(() => (
+    typeof window !== "undefined" ? window.matchMedia("(max-width: 720px)").matches : false
+  ));
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [listingsExpanded, setListingsExpanded] = useState(false);
+  const [catalogOnlyView, setCatalogOnlyView] = useState(false);
   const [pageJumpValue, setPageJumpValue] = useState("");
   const [pageJumpOpen, setPageJumpOpen] = useState(false);
   const [mobilePagination, setMobilePagination] = useState(false);
@@ -1359,7 +1418,9 @@ export default function Home() {
       setMaxPrice(typeof saved.maxPrice === "number" ? saved.maxPrice : 100000);
       setSort(saved.sort ?? "Osuvimmat ensin");
       setRecommendationsMode(saved.recommendationsMode ?? true);
-      setCurrentPage(typeof saved.currentPage === "number" ? saved.currentPage : 1);
+      const savedPage = typeof saved.currentPage === "number" ? saved.currentPage : 1;
+      setCurrentPage(savedPage);
+      setListingsExpanded(savedPage > 1);
       setGarageFilter(
         saved.garageFilterId
           ? garageVehicles.find((vehicle) => vehicle.id === saved.garageFilterId) ?? null
@@ -1472,7 +1533,45 @@ export default function Home() {
     setDrawerOpen(false);
     setGarageDropdownOpen(false);
     setCurrentPage(1);
+    setListingsExpanded(false);
+    setCatalogOnlyView(false);
   }
+
+  function showAllListings() {
+    clearListingFilters();
+    setRecommendationsMode(false);
+    setSort("Uusimmat ensin");
+    setListingsExpanded(true);
+    setCatalogOnlyView(false);
+    setCurrentPage(1);
+    window.requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  useEffect(() => {
+    const openAllListings = () => showAllListings();
+    window.addEventListener("maskines-show-all-listings", openAllListings);
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("catalog") === "all") {
+      openAllListings();
+    }
+
+    const garageSearch = params.get("garageSearch")?.trim();
+    if (garageSearch) {
+      setQuery(garageSearch);
+      setRecommendationsMode(false);
+      setListingsExpanded(true);
+      setCatalogOnlyView(false);
+      setCurrentPage(1);
+      window.requestAnimationFrame(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
+    return () => window.removeEventListener("maskines-show-all-listings", openAllListings);
+  }, []);
 
   function applyListingFilters() {
     setRecommendationsMode(false);
@@ -1729,6 +1828,27 @@ export default function Home() {
       mounted = false;
     };
   }, [router]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    withTimeout(getVehicleListingCounts(), 8000, "Ajoneuvokohtaisten määrien lataus kesti liian kauan.")
+      .then(({ data, error }) => {
+        if (error) {
+          console.warn("Ajoneuvokohtaisten määrien lataus epäonnistui.", error);
+        }
+        if (mounted && data) {
+          setVehicleListingCounts(data);
+        }
+      })
+      .catch((error) => {
+        console.warn("Ajoneuvokohtaisten määrien lataus aikakatkaistiin.", error);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const urlLocale = new URLSearchParams(window.location.search).get("lang");
@@ -2060,6 +2180,58 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (garageUrlFilterAppliedRef.current) return;
+
+    const make = searchParams.get("garageMake")?.trim() ?? "";
+    const model = searchParams.get("garageModel")?.trim() ?? "";
+    const year = searchParams.get("garageYear")?.trim() ?? "";
+
+    if (!make && !model && !year) return;
+
+    garageUrlFilterAppliedRef.current = true;
+    setGarageDropdownOpen(false);
+    setGarageFilter(null);
+    setSelectedBrand(make || "Kaikki");
+    setModelQuery(model);
+    setYearQuery(year);
+    setEngineCcQuery("");
+    setEngineModelQuery("");
+    setDrawerOpenStep(2);
+    setRecommendationsMode(false);
+    setCurrentPage(1);
+  }, [searchParams]);
+
+  useEffect(() => {
+    const categoryParam = searchParams.get("category")?.trim() ?? "";
+    const brandParam = searchParams.get("brand")?.trim() ?? "";
+    const vehicleTypeParam = searchParams.get("vehicleType")?.trim() as VehicleFilter;
+
+    if (!categoryParam && !brandParam && !vehicleTypeParam) return;
+
+    setGarageDropdownOpen(false);
+    setGarageFilter(null);
+    setQuery("");
+    setCategory(categoryParam);
+    setSubcategory("");
+    setSelectedBrand(brandParam || "Kaikki");
+    setVehicleType(vehicleTypeParam || "");
+    setModelQuery("");
+    setYearQuery("");
+    setEngineCcQuery("");
+    setEngineModelQuery("");
+    setDrawerOpen(false);
+    setDrawerOpenStep(undefined);
+    setRecommendationsMode(false);
+    setListingsExpanded(true);
+    setCatalogOnlyView(false);
+    setCurrentPage(1);
+
+    window.requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [searchParams]);
+
+  useEffect(() => {
     try {
       setFavorites(readSavedListingIds());
       getSavedListingIds()
@@ -2112,15 +2284,9 @@ export default function Home() {
     minPrice !== 0 ||
     maxPrice !== 100000;
 
-  const canShowRecommendations =
-    !listingsLoading &&
-    recommendedListings.length > 0 &&
-    !hasActiveListingFilters;
+  const canShowRecommendations = false;
 
-  const recommendationsEnabled =
-    canShowRecommendations &&
-    recommendationsMode &&
-    sort === "Osuvimmat ensin";
+  const recommendationsEnabled = false;
 
   const canUseRemoteListingPages =
     !hasActiveListingFilters &&
@@ -2346,6 +2512,7 @@ export default function Home() {
   ]);
 
   const goToPage = useCallback((page: number) => {
+    setListingsExpanded(true);
     const nextPage =
       Math.min(totalPages, Math.max(1, page));
 
@@ -2389,24 +2556,17 @@ export default function Home() {
   }, [goToPage, pageJumpValue, resetPageJump, suggestedPageJump]);
 
   const featuredListings = useMemo(() => {
-    if (recommendationsEnabled) {
-      if (currentPage === 1) {
-        return [];
-      }
-
-      const start = (currentPage - 2) * PAGE_SIZE;
-      return listingsForPaging.slice(start, start + PAGE_SIZE);
+    if (!listingsExpanded && currentPage === 1) {
+      return [...filteredListings]
+        .sort((a, b) => new Date(b.created_at ?? "").getTime() - new Date(a.created_at ?? "").getTime())
+        .slice(0, RECOMMENDED_PREVIEW_SIZE);
     }
 
     const start = (currentPage - 1) * PAGE_SIZE;
     return filteredListings.slice(start, start + PAGE_SIZE);
-  }, [filteredListings, listingsForPaging, currentPage, recommendationsEnabled]);
+  }, [RECOMMENDED_PREVIEW_SIZE, filteredListings, currentPage, listingsExpanded]);
 
-  const displayedListings = useMemo(() => (
-    showRecoContent
-      ? [...visibleRecommendedListings, ...featuredListings]
-      : featuredListings
-  ), [featuredListings, showRecoContent, visibleRecommendedListings]);
+  const displayedListings = featuredListings;
 
   useEffect(() => {
     if (listingsLoading || locale === "fi") return;
@@ -2498,6 +2658,12 @@ export default function Home() {
     }
 
     setCurrentPage(1);
+    setListingsExpanded(true);
+    setCatalogOnlyView(false);
+    setRecommendationsMode(false);
+    window.requestAnimationFrame(() => {
+      document.getElementById("listings")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 
   function getVehiclePillLabel(vehicle: string) {
@@ -2510,6 +2676,8 @@ export default function Home() {
 
   return (
     <main className={styles.shell}>
+      {!catalogOnlyView ? (
+      <>
       <div className={styles.heroWrap}>
         <div className={styles.container}>
         <section className={styles.hero} aria-label="Hero">
@@ -2519,30 +2687,56 @@ export default function Home() {
                 <span style={{ display: "block", width: "100%" }}>{t.heroLeadStart}</span>
                 <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>{t.heroLeadHighlight}</span>
               </h1>
+              <p className={styles.heroReferenceSubtitle}>{t.heroSubtitle}</p>
 
-              <form
-                className={styles.heroSearch}
-                role="search"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  applyListingFilters();
-                }}
-              >
-                <span className={styles.heroSearchIcon} aria-hidden="true">
-                  <Search size={20} />
-                </span>
-                <input
-                  className={styles.heroSearchInput}
-                  type="search"
-                  placeholder={compactHeroSearch ? t.searchCta : t.searchPlaceholder}
-                  value={query}
-                  onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
-                  aria-label={t.searchLabel}
-                  spellCheck={false}
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                />
-              </form>
+              <div className={styles.heroSearchRow}>
+                {!compactHeroSearch ? (
+                  <button
+                    type="button"
+                    className={styles.heroCategoryButton}
+                    onClick={() => {
+                      setDrawerOpenStep(2);
+                      setDrawerOpen(true);
+                    }}
+                  >
+                    <Grid2X2 size={20} aria-hidden="true" />
+                    <span>Alakategoria</span>
+                  </button>
+                ) : null}
+
+                <form
+                  className={`${styles.heroSearch} ${compactHeroSearch ? styles.heroSearchMobile : ""}`}
+                  role="search"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    applyListingFilters();
+                  }}
+                >
+                  {compactHeroSearch ? (
+                    <button type="submit" className={styles.heroSearchButton} aria-label="Hae">
+                      <Search size={18} />
+                      <span>Hae</span>
+                    </button>
+                  ) : null}
+                  <input
+                    className={styles.heroSearchInput}
+                    type="search"
+                    placeholder={compactHeroSearch ? "Hae malli yms" : t.searchPlaceholder}
+                    value={query}
+                    onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
+                    aria-label={t.searchLabel}
+                    spellCheck={false}
+                    autoCorrect="off"
+                    autoCapitalize="none"
+                  />
+                  {!compactHeroSearch ? (
+                    <button type="submit" className={styles.heroSearchButton}>
+                      <Search size={18} />
+                      <span>Hae</span>
+                    </button>
+                  ) : null}
+                </form>
+              </div>
 
             </div>
 
@@ -2832,6 +3026,156 @@ export default function Home() {
       </div>
       </div>{/* heroWrap */}
 
+      <section
+        className={`${styles.homeDiscoverySection} ${
+          hasActiveListingFilters ? styles.homeDiscoverySectionFiltered : ""
+        }`}
+      >
+        <div className={styles.homeVehicleCards} aria-label={t.vehicleSelection}>
+          {[
+            {
+              type: "Moottorikelkka",
+              label: "Moottorikelkat",
+              image: "/vehicle-card-snowmobile-v2.png",
+              icon: "snowflake" as VehicleCategoryIconKind,
+              accent: "#1f8bff"
+            },
+            {
+              type: "Mönkijä",
+              label: "Mönkijät",
+              image: "/vehicle-card-atv-v2.png",
+              icon: "atv" as VehicleCategoryIconKind,
+              accent: "#ff8a12"
+            },
+            {
+              type: "Motocross",
+              label: "Motocross",
+              image: "/vehicle-card-motocross-v2.png",
+              icon: "motocross" as VehicleCategoryIconKind,
+              accent: "#8b48ff"
+            },
+            {
+              type: "Mopot",
+              label: "Mopot",
+              image: "/vehicle-card-moped-v2.png",
+              icon: "moped" as VehicleCategoryIconKind,
+              accent: "#38c84a"
+            }
+          ].map((item) => {
+            const loadedCount = listings.filter((listing) => {
+              const listingText = getListingText(listing);
+              return listingMatchesVehicleType(listing, listingText, item.type);
+            }).length;
+            const count =
+              vehicleListingCounts?.[item.type as keyof VehicleListingCounts] ?? loadedCount;
+
+            return (
+              <button
+                key={item.type}
+                type="button"
+                className={`${styles.homeVehicleCard} ${
+                  normalizeVehicleType(vehicleType) === normalizeVehicleType(item.type)
+                    ? styles.homeVehicleCardActive
+                    : ""
+                }`}
+                style={{
+                  "--vehicle-card-image": `url("${item.image}")`,
+                  "--vehicle-card-accent": item.accent
+                } as CSSProperties}
+                onClick={() => selectVehicleType(normalizeVehicleType(item.type))}
+              >
+                <span className={styles.homeVehicleCardGlow} aria-hidden="true" />
+                <span className={styles.homeVehicleCardIcon}>
+                  <VehicleCategoryIcon kind={item.icon} />
+                </span>
+                <span className={styles.vehicleTileCaption}>
+                  <span className={styles.vehicleTileTitle}>{item.label}</span>
+                  <span className={styles.vehicleTileCount}>
+                    {count.toLocaleString("fi-FI")} {count === 1 ? "varaosa" : "varaosaa"}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {!hasActiveListingFilters ? (
+        <section className={styles.homeSellProcess} aria-label="Myy enemmän yhdellä ilmoituksella">
+          <div className={styles.homeSellProcessHead}>
+            <h2>Myy <span>enemmän</span> yhdellä ilmoituksella</h2>
+            <p>Lisäät ajoneuvon ja valitset jäljellä olevat osat — Maskines tekee loput.</p>
+          </div>
+          <div className={styles.homeSellSteps}>
+            {[
+              {
+                title: "Lisää ajoneuvo",
+                text: "Valitse merkki, malli ja vuosimalli.",
+                body: "Polaris RMK 800 2016"
+              },
+              {
+                title: "Valitse jäljellä olevat osat",
+                text: "Moottori, variaattori, etupukki ja muut osat.",
+                body: "Moottori • Variaattori • Telasto"
+              },
+              {
+                title: "Maskines luo ilmoitukset",
+                text: "Osat tulevat ostajille löydettäväksi nopeasti.",
+                body: "Automaattisesti saatavilla"
+              },
+              {
+                title: "Ostajat löytävät osat helposti",
+                text: "Haulla merkin, mallin ja osan mukaan.",
+                body: "Nopea haku ja yhteydenotto"
+              }
+            ].map((step, index) => (
+              <div key={step.title} className={styles.homeSellStep}>
+                <span className={styles.homeSellStepNumber}>{index + 1}</span>
+                <strong>{step.title}</strong>
+                <p>{step.text}</p>
+                <span className={styles.homeSellStepMobileVisual} aria-hidden="true">
+                  {index === 0 ? <Car /> : index === 1 ? <Check /> : index === 2 ? <Tag /> : <TrendingUp />}
+                </span>
+                {index === 0 && (
+                  <div className={styles.homeSellVehiclePreview} aria-hidden="true">
+                    <span />
+                    <b>{step.body}</b>
+                  </div>
+                )}
+                {index === 1 && (
+                  <div className={styles.homeSellChecklist} aria-hidden="true">
+                    {["Moottori", "Variaattori", "Etupukki", "Telasto", "ECU"].map((part) => (
+                      <span key={part}><Check size={11} /> {part}</span>
+                    ))}
+                    <small>+12 muuta osaa</small>
+                  </div>
+                )}
+                {index === 2 && (
+                  <div className={styles.homeSellGenerated} aria-hidden="true">
+                    {["Polaris RMK 800 moottori", "Polaris RMK 800 telasto", "Polaris RMK 800 etupukki"].map((part) => (
+                      <span key={part}><i /><b>{part}</b><em>Saatavilla</em></span>
+                    ))}
+                    <small>+12 muuta osaa</small>
+                  </div>
+                )}
+                {index === 3 && (
+                  <div className={styles.homeSellChart} aria-hidden="true">
+                    <span className={styles.homeSellChartSearch}><Search size={18} /></span>
+                    <TrendingUp className={styles.homeSellChartArrow} size={66} />
+                    <span className={styles.homeSellChartBars}>
+                      {[24, 38, 54, 76, 100].map((height) => <i key={height} style={{ height: `${height}%` }} />)}
+                    </span>
+                  </div>
+                )}
+                {index < 3 && <ChevronRight size={28} className={styles.homeSellStepArrow} aria-hidden="true" />}
+              </div>
+            ))}
+          </div>
+        </section>
+        ) : null}
+      </section>
+      </>
+      ) : null}
+
         {false && showRecoSection && (
           <div className={styles.recoFullBleed}>
             <div className={styles.recoSection}>
@@ -2959,30 +3303,25 @@ export default function Home() {
             style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
           >
             <div className={styles.sectionHead}>
-              {showRecoSection ? (
-                <div className={styles.recoHeading}>
-                  <div className={styles.recoHeadingText}>
-                    <span className={styles.recoEyebrow}>{t.forYou}</span>
-                    <h2 className={styles.recoTitle}>{t.basedOnBrowsing}</h2>
-                  </div>
-                </div>
-              ) : (
-                <span className={styles.resultsCount}>
-                  {listingsLoading ? "" : `${filteredListings.length} ${t.content}`}
-                </span>
-              )}
+              <span className={styles.resultsCount}>
+                {listingsLoading
+                  ? ""
+                  : listingsExpanded
+                  ? `${filteredListings.length} ${t.content}`
+                  : "Uusimmat varaosat"}
+              </span>
               <div className={styles.listingToolbar}>
-                {showRecoSection && totalPages > 1 ? (
+                {!listingsExpanded && !listingsLoading && totalDisplayListings > displayedListings.length ? (
                   <button
                     type="button"
-                    className={styles.showMoreListingsButton}
-                    onClick={() => goToPage(2)}
+                    className={`${styles.showMoreListingsButton} ${styles.showAllListingsInlineButton}`}
+                    onClick={showAllListings}
                   >
-                    <span>{t.showMoreListings}</span>
+                    <span>Näytä kaikki</span>
                     <ChevronRight size={16} strokeWidth={3} aria-hidden="true" />
                   </button>
                 ) : null}
-                {renderSortControl(styles.sectionSortControl)}
+                {listingsExpanded ? renderSortControl(styles.sectionSortControl) : null}
               </div>
             </div>
 
@@ -3094,7 +3433,7 @@ export default function Home() {
               })}
               </div>
 
-              {!listingsLoading && totalPages > 1 && !showRecoSection && (
+              {!listingsLoading && listingsExpanded && totalPages > 1 && !showRecoSection && (
                 <div className={styles.pagination}>
                   <button
                     type="button"
@@ -3448,6 +3787,22 @@ export default function Home() {
           </aside>}
         </section>
 
+        {!catalogOnlyView && !hasActiveListingFilters ? (
+        <section className={styles.homeListingCta} aria-label="Luo varaosailmoitus">
+          <span className={styles.homeListingCtaIcon} aria-hidden="true">
+            <Tag size={24} />
+          </span>
+          <span className={styles.homeListingCtaCopy}>
+            <strong>Myy varaosasi helposti ja nopeasti – jopa 2 minuutissa!</strong>
+            <small>Luo ilmoitus muutamassa minuutissa ja tavoita tuhannet ostajat.</small>
+          </span>
+          <Link href={pagePath("sell", locale)} className={styles.homeListingCtaButton}>
+            <span>Luo ilmoitus</span>
+            <Plus size={17} aria-hidden="true" />
+          </Link>
+        </section>
+        ) : null}
+
       <CategoryDrawer
         isOpen={drawerOpen}
         onClose={() => { setDrawerOpen(false); setDrawerOpenStep(undefined); }}
@@ -3475,6 +3830,8 @@ export default function Home() {
           setCategory(cat);
           setSubcategory(sub);
           setRecommendationsMode(false);
+          setListingsExpanded(true);
+          setCatalogOnlyView(false);
           setCurrentPage(1);
           requestAnimationFrame(() => {
             resultsRef.current?.scrollIntoView({

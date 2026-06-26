@@ -1,0 +1,84 @@
+/* Loaded last: definitive phone header for the homepage. */
+@media (max-width: 720px) {
+  html body header.universal-app-topbar.universal-home-topbar {
+    align-items: center !important;
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: minmax(58px, 1fr) auto !important;
+    min-height: 64px !important;
+    padding: 0 10px !important;
+  }
+
+  html body .universal-home-topbar .universal-home-navigation {
+    align-items: center !important;
+    display: flex !important;
+    min-width: 0 !important;
+  }
+
+  html body .universal-home-topbar .universal-mobile-home-menu,
+  html body .universal-home-topbar .universal-category-button-left,
+  html body .universal-home-topbar .universal-home-primary-nav {
+    display: none !important;
+  }
+
+  html body .universal-home-topbar .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 50px !important;
+    justify-content: flex-start !important;
+    width: 64px !important;
+  }
+
+  html body .universal-home-topbar .universal-home-brand svg,
+  html body .universal-home-topbar .universal-home-brand img {
+    height: 46px !important;
+    max-width: 64px !important;
+    object-fit: contain !important;
+    width: auto !important;
+  }
+
+  html body .universal-home-topbar .universal-topbar-actions,
+  html body .universal-home-topbar .universal-topbar-actions-guest {
+    align-items: center !important;
+    display: flex !important;
+    gap: 7px !important;
+    justify-content: flex-end !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    width: auto !important;
+  }
+
+  html body .universal-home-topbar .universal-language-wrap {
+    display: block !important;
+    flex: 0 0 auto !important;
+  }
+
+  html body .universal-home-topbar .language-switcher {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 42px !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+    min-width: 46px !important;
+    padding: 0 !important;
+    width: 46px !important;
+  }
+
+  html body .universal-home-topbar .language-switcher span[aria-hidden="true"],
+  html body .universal-home-topbar .language-switcher img {
+    display: block !important;
+    height: 22px !important;
+    width: 30px !important;
+  }
+
+  html body .universal-home-topbar .rebuilt-login-button-guest {
+    min-height: 42px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+    width: 44px !important;
+  }
+
+  html body .universal-home-topbar .rebuilt-login-button-guest strong {
+    display: none !important;
+  }
+}

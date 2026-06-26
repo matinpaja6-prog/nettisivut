@@ -12,6 +12,7 @@ import {
   MapPin,
   MoreVertical,
   Plus,
+  Search,
   Star,
   Trash2,
   Wrench,
@@ -31,7 +32,7 @@ import { formatPrice, type Listing } from "@/lib/listings";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 import { useLanguage, translateCategory } from "@/lib/i18n";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
-import { listingPath, listingUrlId } from "@/lib/routes";
+import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
 
 type VehicleClass = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopo";
 
@@ -299,6 +300,28 @@ export default function GaragePage() {
     setVehicleListings(next);
     writeCachedResource(cacheKey, next);
     setListingsLoading(false);
+  }
+
+  function vehicleSellHref(vehicle: GarageVehicle) {
+    const vehicleType = vehicle.vehicle_class === "Auto"
+      ? "Motocross"
+      : vehicle.vehicle_class || "Moottorikelkka";
+    const params = new URLSearchParams({
+      make: vehicle.make,
+      model: vehicle.model,
+      year: String(vehicle.year ?? ""),
+      vehicleType,
+    });
+    return `${pagePath("sell", locale)}?${params.toString()}`;
+  }
+
+  function vehicleBuyHref(vehicle: GarageVehicle) {
+    const params = new URLSearchParams({
+      garageMake: vehicle.make,
+      garageModel: vehicle.model,
+      garageYear: String(vehicle.year ?? ""),
+    });
+    return `/?${params.toString()}`;
   }
 
   if (loading) {
@@ -615,6 +638,16 @@ export default function GaragePage() {
 
                     {isSelected && (
                       <div className="garage-parts-panel">
+                        <div className="garage-parts-actions">
+                          <Link href={vehicleBuyHref(vehicle)} className="garage-parts-action garage-parts-action-secondary">
+                            <Search size={16} />
+                            Osta osia
+                          </Link>
+                          <Link href={vehicleSellHref(vehicle)} className="garage-parts-action garage-parts-action-primary">
+                            <Plus size={16} />
+                              Myy osa tästä ajoneuvosta
+                          </Link>
+                        </div>
                         <div className="garage-parts-header">
                           <h3>
                             {t.garagePartsFor} —{" "}
@@ -1416,6 +1449,39 @@ export default function GaragePage() {
           background: transparent !important;
         }
 
+        .garage-parts-actions {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+
+        .garage-parts-action {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          min-height: 44px;
+          padding: 0 14px;
+          border-radius: 14px;
+          font-size: 13px;
+          font-weight: 950;
+          text-decoration: none;
+        }
+
+        .garage-parts-action-secondary {
+          border: 1px solid rgba(126, 197, 240, 0.28);
+          background: rgba(255,255,255,0.06);
+          color: #eef7ff;
+        }
+
+        .garage-parts-action-primary {
+          border: 1px solid rgba(255, 197, 142, 0.68);
+          background: linear-gradient(135deg, #ffab20 0%, #ff7418 52%, #ff4d00 100%);
+          color: #ffffff;
+          box-shadow: 0 14px 30px rgba(255, 107, 22, 0.24), inset 0 1px 0 rgba(255,255,255,0.22);
+        }
+
         .garage-parts-loading,
         .garage-parts-empty {
           color: rgba(226,244,255,0.7);
@@ -1563,6 +1629,9 @@ export default function GaragePage() {
           }
           .garage-parts-grid {
             grid-template-columns: 1fr 1fr;
+          }
+          .garage-parts-actions {
+            grid-template-columns: 1fr;
           }
         }
 

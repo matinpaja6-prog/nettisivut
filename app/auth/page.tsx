@@ -555,11 +555,6 @@ function AuthPageContent() {
   const [phoneCodeMenuOpen, setPhoneCodeMenuOpen] = useState(false);
   const [customCountry, setCustomCountry] = useState("");
   const companyAddressInputRef = useRef<HTMLInputElement | null>(null);
-  const googlePlacesApiKey =
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
-    process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY ||
-    "";
-
   useEffect(() => {
     if (!authSubmitting) return;
 
@@ -646,7 +641,7 @@ function AuthPageContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (!googlePlacesApiKey || form.account_type !== "company") return;
+    if (form.account_type !== "company") return;
     if (typeof window === "undefined") return;
 
     let cancelled = false;
@@ -719,8 +714,7 @@ function AuthPageContent() {
     const script = document.createElement("script");
     script.id = scriptId;
     script.async = true;
-    script.src =
-      `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googlePlacesApiKey)}&libraries=places&language=${locale}`;
+    script.src = `/api/google-maps-script?language=${encodeURIComponent(locale)}`;
     script.addEventListener("load", setupAutocomplete, { once: true });
     document.head.appendChild(script);
 
@@ -728,7 +722,7 @@ function AuthPageContent() {
       cancelled = true;
       script.removeEventListener("load", setupAutocomplete);
     };
-  }, [form.account_type, googlePlacesApiKey, locale]);
+  }, [form.account_type, locale]);
 
   // Try to award referral points when a logged-in user lands here with pending code
   async function tryClaimReferral(userId: string) {

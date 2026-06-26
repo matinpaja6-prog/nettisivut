@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { cleanOptionalUserText, cleanUserText } from "@/lib/text-input";
 
 type ProfileUpsertBody = {
   profile?: {
@@ -20,6 +21,25 @@ type ProfileUpsertBody = {
     birth_date?: string | null;
   };
 };
+
+function cleanProfileInput(profile: NonNullable<ProfileUpsertBody["profile"]>) {
+  return {
+    ...profile,
+    first_name: cleanUserText(profile.first_name, 80),
+    last_name: cleanUserText(profile.last_name, 80),
+    company_name: cleanOptionalUserText(profile.company_name, 160),
+    business_id: cleanOptionalUserText(profile.business_id, 80),
+    company_website: cleanOptionalUserText(profile.company_website, 240),
+    billing_email: cleanOptionalUserText(profile.billing_email, 180),
+    email: cleanUserText(profile.email, 180),
+    phone: cleanUserText(profile.phone, 40),
+    address: cleanUserText(profile.address, 180),
+    postal_code: cleanUserText(profile.postal_code, 40),
+    city: cleanUserText(profile.city, 100),
+    country: cleanUserText(profile.country, 100),
+    birth_date: cleanOptionalUserText(profile.birth_date, 20)
+  };
+}
 
 export async function POST(request: Request) {
   try {
@@ -79,13 +99,15 @@ export async function POST(request: Request) {
       );
     }
 
+    const cleanProfile = cleanProfileInput(profile);
+
     const contactName =
-      `${profile.first_name ?? ""} ${profile.last_name ?? ""}`
+      `${cleanProfile.first_name ?? ""} ${cleanProfile.last_name ?? ""}`
         .replace(/\s+/g, " ")
         .trim();
     const fullName =
-      profile.account_type === "company" && profile.company_name
-        ? profile.company_name.trim()
+      cleanProfile.account_type === "company" && cleanProfile.company_name
+        ? cleanProfile.company_name.trim()
         : contactName;
 
     const { data: existingProfile, error: existingError } =
@@ -106,7 +128,7 @@ export async function POST(request: Request) {
       await supabase
         .from("profiles")
         .upsert({
-          ...profile,
+          ...cleanProfile,
           public_id: existingProfile?.public_id || `KP${Date.now()}`,
           full_name: fullName,
           name: fullName,

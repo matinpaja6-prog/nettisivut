@@ -13,6 +13,7 @@ import {
   type ListingLocale
 } from "./listing-translations";
 import { isUuidLike, slugifyProfileName } from "./routes";
+import { cleanOptionalUserText, cleanUserText } from "./text-input";
 
 /* =========================
    TYPES
@@ -621,6 +622,57 @@ const BASE_LISTING_CARD_SELECT =
 
 const escapeIlikeTerm = (value: string) =>
   value.trim().replace(/[%_]/g, "");
+
+export type VehicleListingCounts = Record<
+  "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopot",
+  number
+>;
+
+const VEHICLE_LISTING_COUNT_TYPES: Record<keyof VehicleListingCounts, string[]> = {
+  Moottorikelkka: ["Moottorikelkka", "Moottorikelkat"],
+  Mönkijä: ["Mönkijä", "Mönkijät"],
+  Motocross: ["Motocross"],
+  Mopot: ["Mopo", "Mopot"]
+};
+
+export async function getVehicleListingCounts() {
+  const emptyCounts: VehicleListingCounts = {
+    Moottorikelkka: 0,
+    Mönkijä: 0,
+    Motocross: 0,
+    Mopot: 0
+  };
+
+  if (!supabase) {
+    return { data: emptyCounts, error: null };
+  }
+
+  try {
+    const entries = await Promise.all(
+      Object.entries(VEHICLE_LISTING_COUNT_TYPES).map(async ([vehicleType, storedTypes]) => {
+        const { count, error } = await supabase
+          .from("listings")
+          .select("id", { count: "exact", head: true })
+          .eq("is_sold", false)
+          .eq("is_hidden", false)
+          .in("vehicle_type", storedTypes);
+
+        return [vehicleType, count ?? 0, error] as const;
+      })
+    );
+
+    const firstError = entries.find(([, , error]) => error)?.[2] ?? null;
+    const counts = { ...emptyCounts };
+
+    for (const [vehicleType, count] of entries) {
+      counts[vehicleType as keyof VehicleListingCounts] = count;
+    }
+
+    return { data: counts, error: firstError };
+  } catch (error) {
+    return { data: emptyCounts, error };
+  }
+}
 
 export async function getListings(options: GetListingsOptions = {}) {
 
@@ -2015,6 +2067,30 @@ async function getUserBanStatus(userId: string) {
   }
 }
 
+function cleanListingInput(listing: ListingInput): ListingInput {
+  return {
+    ...listing,
+    title: cleanUserText(listing.title, 80),
+    vehicle_type: cleanOptionalUserText(listing.vehicle_type, 80),
+    vehicle_subtype: cleanOptionalUserText(listing.vehicle_subtype, 80),
+    brand: cleanOptionalUserText(listing.brand, 120),
+    model: cleanOptionalUserText(listing.model, 120),
+    year: cleanOptionalUserText(listing.year, 40),
+    engine_cc: cleanOptionalUserText(listing.engine_cc, 40),
+    engine_model: cleanOptionalUserText(listing.engine_model, 120),
+    category: cleanOptionalUserText(listing.category, 160),
+    subcategory: cleanOptionalUserText(listing.subcategory, 160),
+    part_number: cleanOptionalUserText(listing.part_number, 80),
+    location: cleanUserText(listing.location, 160),
+    condition: cleanUserText(listing.condition, 80),
+    description: cleanUserText(listing.description, 5000),
+    seller_name: cleanUserText(listing.seller_name, 160),
+    company_name: cleanOptionalUserText(listing.company_name, 160),
+    seller_email: cleanUserText(listing.seller_email, 180),
+    seller_phone: cleanOptionalUserText(listing.seller_phone, 40)
+  };
+}
+
 export async function createListing(
   listing: ListingInput
 ) {
@@ -2080,15 +2156,16 @@ export async function createListing(
           profile?.name ||
           [profile?.first_name, profile?.last_name].filter(Boolean).join(" ");
 
+    const cleanedListing = cleanListingInput(listing);
     const listingPayload = withInitialListingTranslations({
-      ...listing,
-      location: listing.location?.trim() || profile?.city?.trim() || "Ei maaritetty",
-      seller_name: listing.seller_name || profileName?.trim() || user.email || "Myyja",
-      seller_email: listing.seller_email || user.email || "",
-      seller_phone: listing.seller_phone ?? profile?.phone ?? null,
+      ...cleanedListing,
+      location: cleanedListing.location || profile?.city?.trim() || "Ei maaritetty",
+      seller_name: cleanedListing.seller_name || profileName?.trim() || user.email || "Myyja",
+      seller_email: cleanedListing.seller_email || user.email || "",
+      seller_phone: cleanedListing.seller_phone ?? profile?.phone ?? null,
       seller_avatar_url: listing.seller_avatar_url ?? profile?.avatar_url ?? null,
       company_name:
-        listing.company_name ??
+        cleanedListing.company_name ??
         (profile?.account_type === "company" ? profile.company_name ?? null : null)
     });
     delete listingPayload.user_id;

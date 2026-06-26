@@ -30,3 +30,188 @@
   font-size: 11px;
   font-weight: 800;
 }
+
+.bottom-nav:not(.bottom-nav-main) {
+  display: none !important;
+}
+
+.bn-garage-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  background: rgba(0, 6, 16, 0.55);
+  backdrop-filter: blur(8px);
+}
+
+.bn-garage-panel {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 82px;
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid rgba(97, 150, 196, 0.3);
+  border-radius: 18px;
+  background:
+    radial-gradient(420px 160px at 85% 0%, rgba(255, 122, 26, 0.13), transparent 70%),
+    rgba(4, 13, 28, 0.98);
+  box-shadow: 0 22px 60px rgba(0, 6, 18, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.bn-garage-header,
+.bn-garage-main,
+.bn-garage-actions,
+.bn-garage-empty-action,
+.bn-garage-all {
+  display: flex;
+  align-items: center;
+}
+
+.bn-garage-header {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bn-garage-header strong {
+  display: block;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.bn-garage-header span {
+  display: block;
+  margin-top: 3px;
+  color: rgba(210, 226, 242, 0.72);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.bn-garage-close {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.bn-garage-list {
+  display: grid;
+  gap: 10px;
+}
+
+.bn-garage-vehicle {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(126, 197, 240, 0.18);
+  border-radius: 14px;
+  background: rgba(8, 24, 42, 0.76);
+}
+
+.bn-garage-main {
+  gap: 10px;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.bn-garage-main span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.bn-garage-main strong {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 950;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bn-garage-main small {
+  color: rgba(207, 223, 238, 0.68);
+  font-weight: 800;
+}
+
+.bn-garage-actions {
+  gap: 8px;
+}
+
+.bn-garage-actions a,
+.bn-garage-empty-action,
+.bn-garage-all {
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 950;
+  text-decoration: none;
+}
+
+.bn-garage-actions a {
+  flex: 1;
+  border: 1px solid rgba(255, 122, 26, 0.35);
+  background: rgba(255, 122, 26, 0.1);
+  color: #ffffff;
+}
+
+.bn-garage-actions a:last-child,
+.bn-garage-empty-action {
+  border-color: rgba(255, 197, 142, 0.65);
+  background: linear-gradient(135deg, #ffab20, #ff7418 52%, #ff4d00);
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(255, 107, 22, 0.24);
+}
+
+.bn-garage-all {
+  border: 1px solid rgba(126, 197, 240, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(229, 241, 252, 0.9);
+}
+
+@media (max-width: 720px) {
+  .bottom-nav.bottom-nav-main {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .bottom-nav.bottom-nav-main .bottom-nav-center-action {
+    gap: 3px;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    box-shadow: none;
+    color: #ff7a1a;
+    transform: none;
+  }
+
+  .bottom-nav.bottom-nav-main .bottom-nav-center-action .bottom-nav-icon {
+    width: auto;
+    height: 22px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .bottom-nav.bottom-nav-main .bottom-nav-center-action .bottom-nav-icon,
+  .bottom-nav.bottom-nav-main .bottom-nav-center-action .bottom-nav-label {
+    color: #ff7a1a;
+  }
+
+  .bottom-nav.bottom-nav-main .bottom-nav-center-action .bottom-nav-label {
+    display: block;
+    max-width: none;
+    color: #ffd4b0;
+    font-size: 10px;
+    line-height: 1;
+    text-shadow: none;
+    white-space: nowrap;
+  }
+}

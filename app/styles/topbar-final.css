@@ -9,6 +9,131 @@ html body header.universal-app-topbar.universal-home-topbar {
   padding-right: 8px !important;
 }
 
+/* Final Oma talli menu polish and mobile availability. */
+html body header.universal-app-topbar {
+  position: relative !important;
+}
+
+html body header.universal-app-topbar .universal-mobile-garage-wrap {
+  display: none !important;
+}
+
+@media (min-width: 1025px) {
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    left: 50% !important;
+    position: absolute !important;
+    transform: translateX(-50%) !important;
+    width: max-content !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu {
+    gap: 6px !important;
+    min-width: 300px !important;
+    padding: 10px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu > strong {
+    border-bottom: 1px solid rgba(126, 197, 240, 0.14) !important;
+    margin: 0 0 2px !important;
+    padding: 4px 8px 10px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu a {
+    background: rgba(126, 197, 240, 0.06) !important;
+    border: 1px solid rgba(126, 197, 240, 0.12) !important;
+    min-height: 48px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu a:hover {
+    background: rgba(255, 122, 26, 0.16) !important;
+    border-color: rgba(255, 157, 46, 0.42) !important;
+  }
+}
+
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  html body header.universal-app-topbar .universal-mobile-garage-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-garage-wrap {
+    align-items: center !important;
+    display: inline-flex !important;
+    flex: 0 0 42px !important;
+    justify-content: center !important;
+    min-width: 42px !important;
+    position: relative !important;
+    width: 42px !important;
+  }
+
+  html body header.universal-app-topbar .universal-mobile-garage-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-garage-button {
+    align-items: center !important;
+    display: inline-flex !important;
+    justify-content: center !important;
+  }
+
+  html body header.universal-app-topbar .universal-mobile-garage-menu,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-garage-menu {
+    background: linear-gradient(180deg, rgba(9, 27, 45, 0.99), rgba(5, 17, 31, 1)) !important;
+    border: 1px solid rgba(255, 157, 46, 0.34) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 18px 42px rgba(0, 7, 18, 0.5) !important;
+    display: grid !important;
+    gap: 7px !important;
+    min-width: min(310px, calc(100vw - 24px)) !important;
+    padding: 10px !important;
+    position: fixed !important;
+    right: 10px !important;
+    top: calc(var(--topbar-h, 56px) + 8px) !important;
+    transform: none !important;
+    z-index: 2147482000 !important;
+  }
+
+  html body header.universal-app-topbar .universal-mobile-garage-menu > strong,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-garage-menu > strong {
+    border-bottom: 1px solid rgba(126, 197, 240, 0.14) !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    padding: 4px 8px 10px !important;
+  }
+
+  html body header.universal-app-topbar .universal-mobile-garage-menu a,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-garage-menu a {
+    align-items: center !important;
+    background: rgba(126, 197, 240, 0.07) !important;
+    border: 1px solid rgba(126, 197, 240, 0.13) !important;
+    border-radius: 9px !important;
+    color: #f4f8fc !important;
+    display: flex !important;
+    gap: 10px !important;
+    min-height: 50px !important;
+    padding: 0 11px !important;
+    text-decoration: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-mobile-garage-menu a span,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-garage-menu a span {
+    display: grid !important;
+    gap: 2px !important;
+    min-width: 0 !important;
+  }
+
+  html body header.universal-app-topbar .universal-mobile-garage-menu a b,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-garage-menu a b {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-mobile-garage-menu a small,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-garage-menu a small {
+    color: rgba(190, 213, 231, 0.74) !important;
+    font-size: 11px !important;
+    font-weight: 750 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+}
+
 html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation {
   align-items: center !important;
   display: inline-flex !important;
@@ -989,3 +1114,1567 @@ html body header.universal-app-topbar.universal-home-topbar .universal-notificat
   display: block !important;
   flex: 0 0 auto !important;
 }
+
+/* Centered primary navigation on the homepage. */
+@media (min-width: 1025px) {
+  html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: auto minmax(360px, 1fr) auto !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation {
+    display: contents !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    grid-column: 1 !important;
+    justify-self: start !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: stretch !important;
+    align-self: stretch !important;
+    display: flex !important;
+    gap: 28px !important;
+    grid-column: 2 !important;
+    justify-content: center !important;
+    justify-self: center !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    align-items: center !important;
+    color: rgba(230, 241, 251, 0.76) !important;
+    display: inline-flex !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    position: relative !important;
+    text-decoration: none !important;
+    transition: color 140ms ease !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active {
+    color: #ffffff !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a::after {
+    background: var(--brand-primary, #ff7a1a) !important;
+    bottom: 5px !important;
+    content: "" !important;
+    height: 2px !important;
+    left: 50% !important;
+    position: absolute !important;
+    transform: translateX(-50%) scaleX(0) !important;
+    transition: transform 140ms ease !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active::after {
+    transform: translateX(-50%) scaleX(1) !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    background: #07111d !important;
+    border: 1px solid rgba(255, 157, 46, 0.48) !important;
+    border-radius: 8px !important;
+    color: #fff5eb !important;
+    min-height: 38px !important;
+    padding: 0 14px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta::after {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta:hover {
+    background: #0b1724 !important;
+    border-color: rgba(255, 157, 46, 0.68) !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions-guest {
+    grid-column: 3 !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none !important;
+  }
+}
+
+/* Keep the homepage text navigation visually centered in the full viewport. */
+@media (min-width: 1025px) {
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    left: 50% !important;
+    position: absolute !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    z-index: 5 !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-wrap {
+    align-items: stretch !important;
+    display: inline-flex !important;
+    position: relative !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-button {
+    align-items: center !important;
+    appearance: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    color: rgba(230, 241, 251, 0.76) !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    font: inherit !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    gap: 4px !important;
+    letter-spacing: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-button:hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-button.is-open {
+    color: #ffffff !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-button::after {
+    background: var(--brand-primary, #ff7a1a) !important;
+    bottom: 5px !important;
+    content: "" !important;
+    height: 2px !important;
+    left: 50% !important;
+    position: absolute !important;
+    transform: translateX(-50%) scaleX(0) !important;
+    transition: transform 140ms ease !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-button:hover::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-button.is-open::after {
+    transform: translateX(-50%) scaleX(1) !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-menu {
+    background: linear-gradient(180deg, rgba(9, 27, 45, 0.98), rgba(5, 17, 31, 0.99)) !important;
+    border: 1px solid rgba(255, 157, 46, 0.32) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 18px 42px rgba(0, 7, 18, 0.42) !important;
+    display: grid !important;
+    gap: 4px !important;
+    left: 50% !important;
+    min-width: 190px !important;
+    padding: 8px !important;
+    position: absolute !important;
+    top: calc(100% - 4px) !important;
+    transform: translateX(-50%) !important;
+    z-index: 1000 !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-menu a {
+    align-items: center !important;
+    border-radius: 7px !important;
+    color: rgba(238, 248, 255, 0.9) !important;
+    display: flex !important;
+    font-size: 12px !important;
+    font-weight: 820 !important;
+    gap: 9px !important;
+    min-height: 34px !important;
+    padding: 0 10px !important;
+    text-decoration: none !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-menu a::after {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-menu a:hover {
+    background: rgba(255, 122, 26, 0.14) !important;
+    color: #ffffff !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-menu svg {
+    color: #ff9d2e !important;
+    flex: 0 0 auto !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu {
+    min-width: 250px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu > strong {
+    color: #ffffff !important;
+    display: block !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    padding: 5px 8px 7px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu a span {
+    display: grid !important;
+    gap: 2px !important;
+    min-width: 0 !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu a b {
+    color: inherit !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu a small {
+    color: rgba(190, 213, 231, 0.72) !important;
+    font-size: 10.5px !important;
+    font-weight: 750 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-empty {
+    display: grid !important;
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-empty > span {
+    color: rgba(226, 239, 250, 0.78) !important;
+    font-size: 12px !important;
+    font-weight: 760 !important;
+    line-height: 1.35 !important;
+    padding: 2px 2px 0 !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-empty > a {
+    background: linear-gradient(135deg, #ff8a1c, #ff6b16) !important;
+    border: 1px solid rgba(255, 201, 142, 0.44) !important;
+    color: #ffffff !important;
+    justify-content: center !important;
+  }
+}
+
+/* Absolute final lock: centered home nav and Oma talli dropdown on desktop + phone. */
+html body header.universal-app-topbar {
+  position: relative !important;
+}
+
+html body header.universal-app-topbar .universal-mobile-garage-wrap {
+  display: none !important;
+}
+
+@media (min-width: 1025px) {
+  html body header.universal-app-topbar .universal-primary-navigation {
+    display: contents !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav {
+    align-items: stretch !important;
+    display: flex !important;
+    gap: 28px !important;
+    justify-content: center !important;
+    left: 50% !important;
+    position: absolute !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    width: max-content !important;
+    z-index: 5 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a,
+  html body header.universal-app-topbar .universal-home-garage-button {
+    align-items: center !important;
+    color: rgba(230, 241, 251, 0.76) !important;
+    display: inline-flex !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    min-height: 0 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover,
+  html body header.universal-app-topbar .universal-home-primary-nav a.is-active,
+  html body header.universal-app-topbar .universal-home-garage-button:hover,
+  html body header.universal-app-topbar .universal-home-garage-button.is-open {
+    color: #ffffff !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: rgba(230, 241, 251, 0.76) !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta:hover,
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta.is-active {
+    background: transparent !important;
+    border: 0 !important;
+    color: #ffffff !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-garage-wrap {
+    align-items: stretch !important;
+    display: inline-flex !important;
+    position: relative !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-garage-button {
+    appearance: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    cursor: pointer !important;
+    font: inherit !important;
+    gap: 4px !important;
+    letter-spacing: 0 !important;
+    padding: 0 !important;
+    position: relative !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a::after,
+  html body header.universal-app-topbar .universal-home-garage-button::after {
+    background: var(--brand-primary, #ff7a1a) !important;
+    bottom: 5px !important;
+    content: "" !important;
+    height: 2px !important;
+    left: 50% !important;
+    position: absolute !important;
+    transform: translateX(-50%) scaleX(0) !important;
+    transition: transform 140ms ease !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover::after,
+  html body header.universal-app-topbar .universal-home-primary-nav a.is-active::after,
+  html body header.universal-app-topbar .universal-home-garage-button:hover::after,
+  html body header.universal-app-topbar .universal-home-garage-button.is-open::after {
+    transform: translateX(-50%) scaleX(1) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta::after {
+    background: var(--brand-primary, #ff7a1a) !important;
+    display: block !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-garage-menu {
+    background: linear-gradient(180deg, rgba(9, 27, 45, 0.99), rgba(5, 17, 31, 1)) !important;
+    border: 1px solid rgba(255, 157, 46, 0.34) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 18px 42px rgba(0, 7, 18, 0.5) !important;
+    display: grid !important;
+    gap: 6px !important;
+    left: 50% !important;
+    min-width: 300px !important;
+    padding: 10px !important;
+    position: absolute !important;
+    top: calc(100% - 4px) !important;
+    transform: translateX(-50%) !important;
+    z-index: 2147482000 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-garage-menu a {
+    align-items: center !important;
+    background: rgba(126, 197, 240, 0.06) !important;
+    border: 1px solid rgba(126, 197, 240, 0.12) !important;
+    border-radius: 9px !important;
+    color: rgba(238, 248, 255, 0.92) !important;
+    display: flex !important;
+    gap: 10px !important;
+    min-height: 48px !important;
+    padding: 0 11px !important;
+    text-decoration: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-garage-menu a::after {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    left: 50% !important;
+    position: absolute !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    width: max-content !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu {
+    gap: 6px !important;
+    min-width: 300px !important;
+    padding: 10px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu > strong {
+    border-bottom: 1px solid rgba(126, 197, 240, 0.14) !important;
+    margin: 0 0 2px !important;
+    padding: 4px 8px 10px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-vehicles-menu a {
+    background: rgba(126, 197, 240, 0.06) !important;
+    border: 1px solid rgba(126, 197, 240, 0.12) !important;
+    min-height: 48px !important;
+  }
+}
+
+@media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+  html body header.universal-app-topbar .universal-mobile-garage-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-garage-wrap {
+    align-items: center !important;
+    display: inline-flex !important;
+    flex: 0 0 42px !important;
+    justify-content: center !important;
+    min-width: 42px !important;
+    position: relative !important;
+    width: 42px !important;
+  }
+
+  html body header.universal-app-topbar .universal-mobile-garage-menu,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-garage-menu {
+    background: linear-gradient(180deg, rgba(9, 27, 45, 0.99), rgba(5, 17, 31, 1)) !important;
+    border: 1px solid rgba(255, 157, 46, 0.34) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 18px 42px rgba(0, 7, 18, 0.5) !important;
+    display: grid !important;
+    gap: 7px !important;
+    min-width: min(310px, calc(100vw - 24px)) !important;
+    padding: 10px !important;
+    position: fixed !important;
+    right: 10px !important;
+    top: calc(var(--topbar-h, 56px) + 8px) !important;
+    transform: none !important;
+    z-index: 2147482000 !important;
+  }
+}
+
+/* Absolute final contact link: plain text, no button frame. */
+@media (min-width: 1025px) {
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: rgba(230, 241, 251, 0.76) !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta:hover,
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta.is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta:hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta.is-active {
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Keep the homepage logo in the corner while centering the text navigation. */
+@media (min-width: 1025px) {
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation {
+    align-items: center !important;
+    display: inline-flex !important;
+    grid-column: 1 / 2 !important;
+    justify-content: flex-start !important;
+    justify-self: start !important;
+    left: auto !important;
+    position: static !important;
+    top: auto !important;
+    transform: none !important;
+    width: auto !important;
+    z-index: auto !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    flex: 0 0 auto !important;
+    transform: none !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center !important;
+    align-self: center !important;
+    left: 50vw !important;
+    position: absolute !important;
+    top: 8px !important;
+    transform: translateX(-50%) !important;
+    width: max-content !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-garage-button::after {
+    display: none !important;
+  }
+}
+
+/* Viewport-center the homepage text nav with the hero composition. */
+@media (min-width: 1025px) {
+  html body header.universal-app-topbar.universal-home-topbar {
+    position: relative !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation {
+    align-items: center !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    inset: 0 !important;
+    justify-items: center !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    width: 100% !important;
+    z-index: 2 !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    justify-self: start !important;
+    left: 8px !important;
+    pointer-events: auto !important;
+    position: absolute !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    grid-column: 2 !important;
+    justify-self: center !important;
+    left: auto !important;
+    pointer-events: auto !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    transform: translateX(-142px) !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions-guest {
+    position: relative !important;
+    z-index: 3 !important;
+  }
+}
+
+/* Final desktop topbar polish: cleaner spacing and aligned controls. */
+@media (min-width: 1025px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    --topbar-h: 64px !important;
+    align-items: center !important;
+    background:
+      linear-gradient(180deg, rgba(2, 8, 16, 0.98), rgba(2, 9, 18, 0.96)) !important;
+    border-bottom: 1px solid rgba(126, 197, 240, 0.18) !important;
+    box-shadow: 0 14px 36px rgba(0, 7, 18, 0.22) !important;
+    display: grid !important;
+    grid-template-columns: minmax(180px, 1fr) auto minmax(420px, 1fr) !important;
+    gap: 14px !important;
+    height: var(--topbar-h) !important;
+    min-height: var(--topbar-h) !important;
+    padding: 0 18px 0 20px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation {
+    align-items: center !important;
+    display: contents !important;
+    inset: auto !important;
+    pointer-events: auto !important;
+    position: static !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    grid-column: 1 !important;
+    justify-self: start !important;
+    left: auto !important;
+    position: static !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 56px !important;
+    max-height: 56px !important;
+    width: 86px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    gap: clamp(10px, 1.35vw, 22px) !important;
+    grid-column: 2 !important;
+    justify-content: center !important;
+    justify-self: center !important;
+    left: auto !important;
+    margin: 0 !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    max-width: max-content !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    width: max-content !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    align-items: center !important;
+    border-radius: 8px !important;
+    color: rgba(231, 242, 252, 0.82) !important;
+    display: inline-flex !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    gap: 4px !important;
+    min-height: 34px !important;
+    padding: 0 2px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active {
+    color: #ffffff !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center !important;
+    display: flex !important;
+    gap: 8px !important;
+    grid-column: 3 !important;
+    justify-content: flex-end !important;
+    justify-self: end !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    border-color: rgba(255, 201, 145, 0.58) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 12px 28px rgba(255, 107, 22, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    min-width: 132px !important;
+    padding: 0 14px !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
+    font-size: 13px !important;
+    font-weight: 950 !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button svg {
+    height: 16px !important;
+    width: 16px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-button,
+  html body header.universal-app-topbar.universal-home-topbar .language-switcher,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    border: 1px solid rgba(126, 197, 240, 0.28) !important;
+    border-radius: 8px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-button,
+  html body header.universal-app-topbar.universal-home-topbar .language-switcher {
+    width: 48px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    min-width: 118px !important;
+    padding: 0 10px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar {
+    height: 34px !important;
+    width: 34px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    font-size: 13px !important;
+    max-width: 64px !important;
+  }
+}
+
+/* Final collision guard: on compact desktop/tablet widths the text nav must not sit over the action cluster. */
+@media (max-width: 1380px), (hover: none) and (pointer: coarse) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: auto 1fr !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation {
+    display: flex !important;
+    grid-column: 1 !important;
+    min-width: 0 !important;
+    pointer-events: auto !important;
+    position: static !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    grid-column: 2 !important;
+    justify-self: end !important;
+  }
+}
+
+/* Compact desktop hard lock: keep the right controls clean and remove the center nav. */
+@media (min-width: 721px) and (max-width: 1380px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    overflow: hidden !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar .universal-topbar-actions-guest,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions-guest {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    grid-column: 2 !important;
+    justify-self: end !important;
+    max-width: calc(100vw - 24px) !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    position: static !important;
+    transform: none !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    flex: 0 0 auto !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    flex: 0 1 136px !important;
+    min-width: 0 !important;
+  }
+}
+
+/* Site-wide desktop nav lock: keep the text navigation identical on every page. */
+@media (min-width: 721px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    --topbar-h: 64px !important;
+    align-items: center !important;
+    min-height: var(--topbar-h) !important;
+  }
+
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: contents !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    gap: clamp(18px, 2.25vw, 30px) !important;
+    height: var(--topbar-h) !important;
+    justify-content: center !important;
+    left: 50% !important;
+    margin: 0 !important;
+    max-width: calc(100vw - 420px) !important;
+    min-height: var(--topbar-h) !important;
+    overflow: visible !important;
+    position: absolute !important;
+    right: auto !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    width: max-content !important;
+    z-index: 4 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: rgba(230, 241, 251, 0.78) !important;
+    display: inline-flex !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    gap: 4px !important;
+    height: var(--topbar-h) !important;
+    line-height: 1 !important;
+    min-height: var(--topbar-h) !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    position: relative !important;
+    text-decoration: none !important;
+    text-decoration-line: none !important;
+    text-shadow: none !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover,
+  html body header.universal-app-topbar .universal-home-primary-nav a.is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    text-decoration-line: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a::after {
+    background: #ff7a1a !important;
+    bottom: 13px !important;
+    content: "" !important;
+    display: block !important;
+    height: 2px !important;
+    left: 0 !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    right: 0 !important;
+    transform: scaleX(0.72) !important;
+    transition: opacity 140ms ease, transform 140ms ease !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover::after,
+  html body header.universal-app-topbar .universal-home-primary-nav a.is-active::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active::after {
+    opacity: 1 !important;
+    transform: scaleX(1) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a:focus-visible,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:focus-visible {
+    outline: none !important;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1380px) {
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none !important;
+  }
+}
+
+/* Final responsive topbar fix: hide text nav before it can collide with action buttons. */
+@media (max-width: 1499px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    overflow: hidden !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar .universal-topbar-actions-guest,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions-guest {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 7px !important;
+    grid-column: 2 !important;
+    justify-content: flex-end !important;
+    justify-self: end !important;
+    max-width: calc(100vw - 16px) !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+  }
+}
+
+@media (max-width: 720px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    gap: 6px !important;
+    grid-column: 1 !important;
+    max-width: calc(100vw - 8px) !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    flex: 0 0 134px !important;
+    max-width: 134px !important;
+    min-width: 134px !important;
+    width: 134px !important;
+  }
+
+  html body header.universal-app-topbar .universal-notification-wrap,
+  html body header.universal-app-topbar .universal-language-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-language-wrap {
+    flex: 0 0 44px !important;
+    max-width: 44px !important;
+    min-width: 44px !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar .universal-notification-button,
+  html body header.universal-app-topbar .language-switcher,
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-button,
+  html body header.universal-app-topbar.universal-home-topbar .language-switcher {
+    flex: 0 0 44px !important;
+    max-width: 44px !important;
+    min-width: 44px !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    flex: 0 1 116px !important;
+    max-width: 116px !important;
+    min-width: 0 !important;
+    width: 116px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button-copy,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy {
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button-copy strong,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    max-width: 44px !important;
+  }
+}
+
+@media (min-width: 1500px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    overflow: visible !important;
+  }
+}
+
+/* Real final topbar layout: keep nav buttons visible and prevent action overlap. */
+@media (min-width: 861px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    --topbar-h: 64px !important;
+    align-items: center !important;
+    display: grid !important;
+    gap: clamp(8px, 1.2vw, 18px) !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    height: var(--topbar-h) !important;
+    min-height: var(--topbar-h) !important;
+    overflow: visible !important;
+    padding-left: clamp(12px, 2vw, 24px) !important;
+    padding-right: clamp(8px, 1.5vw, 18px) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center !important;
+    display: flex !important;
+    grid-column: 1 !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: static !important;
+    visibility: visible !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    margin-right: clamp(8px, 1.4vw, 20px) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    gap: clamp(12px, 1.45vw, 24px) !important;
+    height: var(--topbar-h) !important;
+    justify-content: center !important;
+    left: auto !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    min-height: var(--topbar-h) !important;
+    min-width: 0 !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: auto !important;
+    z-index: 4 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: rgba(230, 241, 251, 0.8) !important;
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    font-size: clamp(11px, 0.9vw, 12px) !important;
+    font-weight: 900 !important;
+    gap: 4px !important;
+    height: var(--topbar-h) !important;
+    line-height: 1 !important;
+    min-height: var(--topbar-h) !important;
+    padding: 0 !important;
+    position: relative !important;
+    text-decoration: none !important;
+    text-decoration-line: none !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a::after {
+    background: #ff7a1a !important;
+    bottom: 12px !important;
+    content: "" !important;
+    display: block !important;
+    height: 2px !important;
+    left: 0 !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    right: 0 !important;
+    transform: scaleX(0.72) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover,
+  html body header.universal-app-topbar .universal-home-primary-nav a.is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active {
+    color: #ffffff !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover::after,
+  html body header.universal-app-topbar .universal-home-primary-nav a.is-active::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active::after {
+    opacity: 1 !important;
+    transform: scaleX(1) !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-wrap: nowrap !important;
+    gap: clamp(6px, 0.8vw, 10px) !important;
+    grid-column: 2 !important;
+    justify-content: flex-end !important;
+    justify-self: end !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+    z-index: 5 !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    flex: 0 0 auto !important;
+    min-width: clamp(118px, 9.5vw, 136px) !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    flex: 0 0 clamp(112px, 9vw, 136px) !important;
+    min-width: clamp(112px, 9vw, 136px) !important;
+    width: clamp(112px, 9vw, 136px) !important;
+  }
+
+  html body header.universal-app-topbar .universal-language-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-language-wrap,
+  html body header.universal-app-topbar .language-switcher,
+  html body header.universal-app-topbar.universal-home-topbar .language-switcher,
+  html body header.universal-app-topbar .universal-notification-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-wrap,
+  html body header.universal-app-topbar .universal-notification-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-button {
+    flex: 0 0 44px !important;
+    min-width: 44px !important;
+    width: 44px !important;
+  }
+}
+
+@media (min-width: 861px) and (max-width: 1180px) {
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: 12px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    font-size: 11px !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button strong,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 860px) {
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none !important;
+  }
+}
+
+/* Absolute site-wide topbar: same header layout on every route. */
+@media (min-width: 861px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    --topbar-h: 64px !important;
+    align-items: center !important;
+    background:
+      linear-gradient(180deg, rgba(4, 12, 22, 0.98), rgba(3, 10, 18, 0.96)) !important;
+    border-bottom: 1px solid rgba(72, 123, 155, 0.26) !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 14px 32px rgba(0, 0, 0, 0.22) !important;
+    display: grid !important;
+    gap: clamp(14px, 1.8vw, 28px) !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    height: var(--topbar-h) !important;
+    min-height: var(--topbar-h) !important;
+    overflow: visible !important;
+    padding: 0 clamp(20px, 2vw, 30px) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center !important;
+    display: flex !important;
+    gap: clamp(26px, 5vw, 260px) !important;
+    grid-column: 1 !important;
+    height: var(--topbar-h) !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: static !important;
+    visibility: visible !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    flex: 0 0 74px !important;
+    height: var(--topbar-h) !important;
+    justify-content: flex-start !important;
+    margin: 0 !important;
+    min-width: 74px !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+    width: 74px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    display: block !important;
+    height: 48px !important;
+    max-height: 48px !important;
+    width: 68px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    flex: 0 1 auto !important;
+    gap: clamp(18px, 1.8vw, 28px) !important;
+    height: var(--topbar-h) !important;
+    justify-content: flex-start !important;
+    left: auto !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    min-height: var(--topbar-h) !important;
+    min-width: 0 !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: auto !important;
+    z-index: 4 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: rgba(230, 241, 251, 0.82) !important;
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    gap: 4px !important;
+    height: var(--topbar-h) !important;
+    line-height: 1 !important;
+    min-height: var(--topbar-h) !important;
+    padding: 0 !important;
+    position: relative !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a::after {
+    background: #ff7a1a !important;
+    bottom: 10px !important;
+    content: "" !important;
+    display: block !important;
+    height: 2px !important;
+    left: 0 !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    right: 0 !important;
+    transform: scaleX(0.72) !important;
+    transition: opacity 140ms ease, transform 140ms ease !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover,
+  html body header.universal-app-topbar .universal-home-primary-nav a.is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active {
+    color: #ffffff !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a:hover::after,
+  html body header.universal-app-topbar .universal-home-primary-nav a.is-active::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a:hover::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.is-active::after {
+    opacity: 1 !important;
+    transform: scaleX(1) !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    grid-column: 2 !important;
+    height: var(--topbar-h) !important;
+    justify-content: flex-end !important;
+    justify-self: end !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+    z-index: 5 !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    border-radius: 8px !important;
+    flex: 0 0 auto !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    min-width: 136px !important;
+    padding: 0 18px !important;
+  }
+
+  html body header.universal-app-topbar .universal-notification-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-wrap,
+  html body header.universal-app-topbar .universal-language-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-language-wrap {
+    flex: 0 0 44px !important;
+    height: 44px !important;
+    max-width: 44px !important;
+    min-width: 44px !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar .universal-notification-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-button,
+  html body header.universal-app-topbar .language-switcher,
+  html body header.universal-app-topbar.universal-home-topbar .language-switcher {
+    border-radius: 8px !important;
+    flex: 0 0 44px !important;
+    height: 44px !important;
+    max-height: 44px !important;
+    max-width: 44px !important;
+    min-height: 44px !important;
+    min-width: 44px !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    border-radius: 8px !important;
+    flex: 0 0 130px !important;
+    height: 44px !important;
+    max-width: 130px !important;
+    min-height: 44px !important;
+    min-width: 130px !important;
+    width: 130px !important;
+  }
+}
+
+/* Hard lock: center the primary links at the same viewport position on every page. */
+@media (min-width: 861px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    display: block !important;
+    position: sticky !important;
+    top: 0 !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: contents !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    left: clamp(22px, 2vw, 32px) !important;
+    position: absolute !important;
+    top: 0 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: flex !important;
+    gap: clamp(18px, 1.7vw, 28px) !important;
+    justify-content: center !important;
+    left: clamp(390px, 48vw, 50%) !important;
+    max-width: min(640px, calc(100vw - 560px)) !important;
+    position: absolute !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    width: max-content !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    position: absolute !important;
+    right: clamp(28px, 2.4vw, 42px) !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
+}
+
+@media (min-width: 861px) and (max-width: 1220px) {
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: 14px !important;
+    left: clamp(330px, 43vw, 410px) !important;
+    max-width: calc(100vw - 500px) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav a,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+    font-size: 11px !important;
+  }
+}
+
+/* Final exact topbar grid: identical logo, center nav and right controls on every page. */
+@media (min-width: 861px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    --topbar-h: 64px !important;
+    align-items: center !important;
+    display: grid !important;
+    gap: 16px !important;
+    grid-template-columns: 96px minmax(0, 1fr) auto !important;
+    height: var(--topbar-h) !important;
+    min-height: var(--topbar-h) !important;
+    overflow: visible !important;
+    padding: 0 24px !important;
+    position: sticky !important;
+    top: 0 !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center !important;
+    display: contents !important;
+    height: var(--topbar-h) !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    display: inline-flex !important;
+    grid-column: 1 !important;
+    height: var(--topbar-h) !important;
+    justify-content: flex-start !important;
+    left: auto !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    opacity: 1 !important;
+    position: static !important;
+    top: auto !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: 96px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    gap: clamp(18px, 1.55vw, 26px) !important;
+    grid-column: 2 !important;
+    height: var(--topbar-h) !important;
+    justify-content: center !important;
+    justify-self: center !important;
+    left: auto !important;
+    margin: 0 !important;
+    max-width: min(650px, 100%) !important;
+    min-width: 0 !important;
+    opacity: 1 !important;
+    position: static !important;
+    top: auto !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: max-content !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center !important;
+    display: flex !important;
+    gap: 10px !important;
+    grid-column: 3 !important;
+    height: var(--topbar-h) !important;
+    justify-content: flex-end !important;
+    justify-self: end !important;
+    margin-right: 16px !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    width: auto !important;
+  }
+}
+
+@media (min-width: 861px) and (max-width: 1220px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: 70px minmax(0, 1fr) auto !important;
+    padding: 0 16px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    width: 70px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: 14px !important;
+    max-width: 100% !important;
+  }
+}
+

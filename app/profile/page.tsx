@@ -756,10 +756,6 @@ export default function ProfilePage() {
     useRef<HTMLInputElement | null>(null);
   const addressInputRef =
     useRef<HTMLInputElement | null>(null);
-  const googlePlacesApiKey =
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
-    process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY ||
-    "";
   const [deleteStatus, setDeleteStatus] =
     useState("");
   const [deleteLoading, setDeleteLoading] =
@@ -841,7 +837,7 @@ export default function ProfilePage() {
   }, [user]);
 
   useEffect(() => {
-    if (!googlePlacesApiKey || !profile) return;
+    if (!profile) return;
     if (typeof window === "undefined") return;
 
     let cancelled = false;
@@ -910,8 +906,7 @@ export default function ProfilePage() {
     const script = document.createElement("script");
     script.id = scriptId;
     script.async = true;
-    script.src =
-      `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(googlePlacesApiKey)}&libraries=places&language=${locale}`;
+    script.src = `/api/google-maps-script?language=${encodeURIComponent(locale)}`;
     script.addEventListener("load", setupAutocomplete, { once: true });
     document.head.appendChild(script);
 
@@ -919,7 +914,7 @@ export default function ProfilePage() {
       cancelled = true;
       script.removeEventListener("load", setupAutocomplete);
     };
-  }, [googlePlacesApiKey, locale, profile?.country]);
+  }, [locale, profile?.country]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();

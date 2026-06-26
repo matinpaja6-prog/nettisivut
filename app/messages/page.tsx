@@ -2992,9 +2992,7 @@ function MessagesPageContent() {
         .messages-inbox-page {
           min-height: calc(100vh - 74px) !important;
           padding: 14px 16px 18px !important;
-          background:
-            radial-gradient(900px 420px at 68% 16%, rgba(24, 96, 156, 0.2), transparent 66%),
-            linear-gradient(180deg, #07131f 0%, #05101b 100%) !important;
+          background: var(--site-bg, var(--bg, #0b1118)) !important;
           color: #eef7ff !important;
         }
 
@@ -4346,9 +4344,7 @@ function MessagesPageContent() {
           min-height: calc(100vh - var(--topbar-h, 0px)) !important;
           padding: 0 !important;
           overflow: hidden !important;
-          background:
-            radial-gradient(520px 260px at 62% 0%, rgba(15, 62, 94, 0.2), transparent 70%),
-            linear-gradient(180deg, #06111d 0%, #05101a 100%) !important;
+          background: var(--site-bg, var(--bg, #0b1118)) !important;
         }
 
         .messages-inbox-page .messages-desktop-shell {
@@ -6699,8 +6695,8 @@ function MessagesPageContent() {
           gap: 7px !important;
           border: 1px solid #ff7a12 !important;
           border-radius: 4px !important;
-          background: #2b1d16 !important;
-          color: #ff901f !important;
+          background: #07111d !important;
+          color: #ffffff !important;
         }
 
         .messages-inbox-page .message-tabs button span,
@@ -8286,6 +8282,11 @@ function MessagesPageContent() {
 
         .messages-inbox-page .message-tabs button span {
           flex: 0 0 auto !important;
+        }
+
+        body .messages-inbox-page.messages-page {
+          background: var(--site-bg, var(--bg, #0b1118)) !important;
+          background-image: none !important;
         }
 
         .messages-inbox-page .chat-window .message-meta.is-read .read-state,

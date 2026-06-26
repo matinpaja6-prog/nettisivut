@@ -11451,3 +11451,11 @@ html body [class*="sell-first_page"] select option {
   stroke-width: 3px !important;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.32)) !important;
 }
+
+@media (max-width: 720px) {
+  html body .universal-app-topbar .universal-create-button,
+  html body .universal-app-topbar .universal-home-button,
+  html body .universal-app-topbar .universal-mobile-garage-wrap {
+    display: none !important;
+  }
+}
