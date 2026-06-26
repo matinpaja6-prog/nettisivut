@@ -320,6 +320,11 @@ export default function BottomNav() {
   return (
     <>
       <nav className="bottom-nav bottom-nav-main" aria-label="Paanavigaatio">
+        <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
+          <span className="bottom-nav-icon"><Home size={22} /></span>
+          <span className="bottom-nav-label">Etusivu</span>
+        </Link>
+
         <button
           type="button"
           className="bottom-nav-item bottom-nav-search-action"
@@ -330,17 +335,17 @@ export default function BottomNav() {
           <span className="bottom-nav-label">Hae</span>
         </button>
 
+        <Link href={sellHref} className={`bottom-nav-item bottom-nav-center-action${canonicalPathname.startsWith("/sell") ? " active" : ""}`} aria-label="Luo ilmoitus">
+          <span className="bottom-nav-icon"><Plus size={24} /></span>
+          <span className="bottom-nav-label">Luo ilmoitus</span>
+        </Link>
+
         <Link href={messagesHref} className={`bottom-nav-item${canonicalPathname.startsWith("/messages") ? " active" : ""}`}>
           <span className="bottom-nav-icon">
             <MessageCircle size={22} />
             {unreadMessages > 0 && <span className="bottom-nav-badge">{unreadMessages > 9 ? "9+" : unreadMessages}</span>}
           </span>
           <span className="bottom-nav-label">Viestit</span>
-        </Link>
-
-        <Link href={sellHref} className={`bottom-nav-item bottom-nav-center-action${canonicalPathname.startsWith("/sell") ? " active" : ""}`} aria-label="Luo ilmoitus">
-          <span className="bottom-nav-icon"><Plus size={24} /></span>
-          <span className="bottom-nav-label">Luo ilmoitus</span>
         </Link>
 
         <button
@@ -351,11 +356,6 @@ export default function BottomNav() {
           <span className="bottom-nav-icon"><Car size={22} /></span>
           <span className="bottom-nav-label">Oma talli</span>
         </button>
-
-        <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
-          <span className="bottom-nav-icon"><Home size={22} /></span>
-          <span className="bottom-nav-label">Etusivu</span>
-        </Link>
       </nav>
 
       <nav className="bottom-nav" aria-label="Päänavigaatio">
