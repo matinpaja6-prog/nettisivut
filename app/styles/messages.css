@@ -1,7 +1,6 @@
 /* Extracted from app/globals.css. Keep imported after globals.css to preserve override behavior. */
 
 
-.panel-title h2,
 .section-heading h2,
 .messages-band h2 {
   font-size: 1.45rem;

@@ -67,7 +67,6 @@
 }
 
 .hero-search,
-.filters,
 .listing-card,
 .sell-section,
 .auth-card,
@@ -631,7 +630,6 @@ select,
   .auth-hero,
   .marketplace-topbar,
   .simple-auth,
-  .market-grid,
   .listing-grid,
   .review-form {
     grid-template-columns: 1fr;
@@ -667,7 +665,6 @@ select,
 }
 
 .hero-search,
-.filters,
 .listing-card,
 .sell-section,
 .auth-card,
@@ -704,7 +701,6 @@ select,
   color: var(--text) !important;
 }
 
-.chip.active,
 .auth-tabs button.active,
 .garage-class-btn.selected,
 .garage-vehicle-card.selected,
@@ -736,7 +732,7 @@ select,
   color: #ffffff !important;
 }
 
-:where(.chip.active, .auth-tabs button.active, .garage-class-btn.selected, .garage-vehicle-card.selected, .pf-nav-active, .sa-card-has-notif, .sa-tag-blue, .listing-detail-category) {
+:where(.auth-tabs button.active, .garage-class-btn.selected, .garage-vehicle-card.selected, .pf-nav-active, .sa-card-has-notif, .sa-tag-blue, .listing-detail-category) {
   background: rgba(255, 107, 22, 0.14) !important;
   border-color: rgba(255, 107, 22, 0.38) !important;
   color: #0f172a !important;
@@ -778,7 +774,7 @@ body .seller-page .auth-topbar {
   color: #061a2e !important;
 }
 
-:where(.chip.active, .auth-tabs button.active, .garage-class-btn.selected, .garage-vehicle-card.selected, .pf-nav-active, .sa-card-has-notif, .sa-tag-blue, .listing-detail-category, .category-chip.active, .filter-chip.active) {
+:where(.auth-tabs button.active, .garage-class-btn.selected, .garage-vehicle-card.selected, .pf-nav-active, .sa-card-has-notif, .sa-tag-blue, .listing-detail-category, .category-chip.active, .filter-chip.active) {
   background: rgba(255, 107, 22, 0.15) !important;
   border-color: rgba(255, 107, 22, 0.44) !important;
   color: #0f172a !important;
@@ -790,7 +786,6 @@ body .seller-page .auth-topbar {
   .language-switcher-menu,
   .hero-actions,
   .hero-search,
-  .filters,
   .listing-card,
   .sell-workspace,
   .profile-workspace,
