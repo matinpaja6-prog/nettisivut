@@ -2738,7 +2738,7 @@ function HomeContent() {
                   <input
                     className={styles.heroSearchInput}
                     type="search"
-                    placeholder={compactHeroSearch ? "Hae varaosia yms" : t.searchPlaceholder}
+                    placeholder={compactHeroSearch ? "Hae varaosia tai mallia" : t.searchPlaceholder}
                     value={query}
                     onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
                     aria-label={t.searchLabel}
