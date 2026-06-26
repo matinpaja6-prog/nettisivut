@@ -20962,3 +20962,15 @@
     z-index: 1 !important;
   }
 }
+
+.heroSearchRow .heroSearchInput,
+.heroSearchRow .heroSearchInput:focus,
+.heroSearchRow .heroSearchInput:focus-visible {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.heroSearchRow .heroSearchInput::placeholder {
+  color: #475569 !important;
+  opacity: 1 !important;
+}

@@ -214,4 +214,13 @@
     text-shadow: none;
     white-space: nowrap;
   }
+
+  .bottom-nav.bottom-nav-main .bottom-nav-search-action {
+    color: #ff7a1a;
+  }
+
+  .bottom-nav.bottom-nav-main .bottom-nav-search-action .bottom-nav-icon,
+  .bottom-nav.bottom-nav-main .bottom-nav-search-action .bottom-nav-label {
+    color: #ff7a1a;
+  }
 }

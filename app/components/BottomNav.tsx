@@ -33,6 +33,8 @@ const LOCALES = [
   { code: "et", label: "Eesti", iso: "ee" },
 ];
 
+const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
+
 function FlagImg({ iso }: { iso: string }) {
   return (
     <img
@@ -259,6 +261,25 @@ export default function BottomNav() {
     router.push("/");
   };
 
+  const openCategorySearch = () => {
+    setProfileOpen(false);
+    setNotifOpen(false);
+    setGarageOpen(false);
+
+    if (canonicalPathname === "/") {
+      window.dispatchEvent(new Event("open-category-drawer"));
+      return;
+    }
+
+    try {
+      sessionStorage.setItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY, "1");
+    } catch {
+      /* ok */
+    }
+
+    router.push("/");
+  };
+
   function markConversationNotificationRead(conversation: ConversationSummary) {
     if (!userId) return;
 
@@ -299,13 +320,15 @@ export default function BottomNav() {
   return (
     <>
       <nav className="bottom-nav bottom-nav-main" aria-label="Paanavigaatio">
-        <Link
-          href={profileHref}
-          className={`bottom-nav-item${canonicalPathname.startsWith("/profile") || canonicalPathname.startsWith("/my-listings") ? " active" : ""}`}
+        <button
+          type="button"
+          className="bottom-nav-item bottom-nav-search-action"
+          onClick={openCategorySearch}
+          aria-label="Hae varaosia"
         >
-          <span className="bottom-nav-icon"><UserRound size={22} /></span>
-          <span className="bottom-nav-label">Oma profiili</span>
-        </Link>
+          <span className="bottom-nav-icon"><Search size={22} /></span>
+          <span className="bottom-nav-label">Hae</span>
+        </button>
 
         <Link href={messagesHref} className={`bottom-nav-item${canonicalPathname.startsWith("/messages") ? " active" : ""}`}>
           <span className="bottom-nav-icon">

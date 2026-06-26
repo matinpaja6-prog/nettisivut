@@ -3124,3 +3124,50 @@ html body header.universal-app-topbar .universal-mobile-search-button {
   }
 }
 
+@media (max-width: 760px) {
+  html body header.universal-app-topbar .universal-mobile-search-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-search-button {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-profile-menu-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    overflow: visible !important;
+    position: relative !important;
+    visibility: visible !important;
+    width: 42px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    align-items: center !important;
+    border-radius: 9px !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    height: 42px !important;
+    justify-content: center !important;
+    max-height: 42px !important;
+    min-height: 42px !important;
+    min-width: 42px !important;
+    padding: 0 !important;
+    width: 42px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button-copy,
+  html body header.universal-app-topbar .rebuilt-profile-button > svg,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button > svg {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar {
+    height: 30px !important;
+    width: 30px !important;
+  }
+}
+
