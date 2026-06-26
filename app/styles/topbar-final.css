@@ -2678,3 +2678,277 @@ html body header.universal-app-topbar .universal-mobile-garage-wrap {
   }
 }
 
+/* Final polish: centered desktop navigation, flatter controls, and no clipped profile text. */
+html body header.universal-app-topbar,
+html body header.universal-app-topbar.universal-home-topbar {
+  box-shadow: none !important;
+}
+
+html body header.universal-app-topbar::after,
+html body header.universal-app-topbar.universal-home-topbar::after {
+  display: none !important;
+}
+
+html body header.universal-app-topbar :is(
+  .universal-home-primary-nav a,
+  .universal-create-button,
+  .universal-icon-button,
+  .language-switcher,
+  .rebuilt-profile-button,
+  .universal-profile-avatar,
+  .profile-avatar-initial,
+  .rebuilt-profile-xp-track
+) {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+html body header.universal-app-topbar .universal-home-primary-nav a,
+html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a {
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+html body header.universal-app-topbar .rebuilt-profile-button,
+html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+  align-items: center !important;
+  flex: 0 0 auto !important;
+  gap: 8px !important;
+  height: 48px !important;
+  max-height: none !important;
+  max-width: none !important;
+  min-height: 48px !important;
+  min-width: 152px !important;
+  overflow: visible !important;
+  padding: 0 12px 0 8px !important;
+  width: auto !important;
+}
+
+html body header.universal-app-topbar .rebuilt-profile-button-copy,
+html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy {
+  display: grid !important;
+  flex: 1 1 auto !important;
+  gap: 4px !important;
+  line-height: 1 !important;
+  min-width: 72px !important;
+  overflow: visible !important;
+}
+
+html body header.universal-app-topbar .rebuilt-profile-button-copy strong,
+html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+  display: block !important;
+  line-height: 1.05 !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+html body header.universal-app-topbar .rebuilt-profile-xp-row,
+html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-row {
+  align-items: center !important;
+  display: grid !important;
+  gap: 5px !important;
+  grid-template-columns: auto minmax(44px, 1fr) !important;
+  line-height: 1 !important;
+  min-height: 12px !important;
+  overflow: visible !important;
+}
+
+html body header.universal-app-topbar .rebuilt-profile-xp-row small,
+html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-row small {
+  display: block !important;
+  line-height: 1 !important;
+  min-width: 10px !important;
+  overflow: visible !important;
+}
+
+html body header.universal-app-topbar .rebuilt-profile-xp-track,
+html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-track {
+  height: 5px !important;
+  min-width: 44px !important;
+  overflow: hidden !important;
+}
+
+html body header.universal-app-topbar .universal-profile-avatar,
+html body header.universal-app-topbar.universal-home-topbar .universal-profile-avatar {
+  flex: 0 0 34px !important;
+  height: 34px !important;
+  width: 34px !important;
+}
+
+@media (min-width: 1180px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: 110px minmax(0, 1fr) auto !important;
+    position: sticky !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    left: 50% !important;
+    max-width: min(650px, calc(100vw - 560px)) !important;
+    position: absolute !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    width: max-content !important;
+  }
+}
+
+/* Absolute topbar anchors: keep the logo visible in the left corner while links stay centered. */
+@media (min-width: 861px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    display: block !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    position: sticky !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: block !important;
+    height: 64px !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    left: 22px !important;
+    margin: 0 !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+    position: absolute !important;
+    top: 0 !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: 100px !important;
+    z-index: 20 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    display: block !important;
+    flex: 0 0 auto !important;
+    height: 54px !important;
+    max-height: 54px !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    visibility: visible !important;
+    width: 96px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    gap: clamp(18px, 1.55vw, 26px) !important;
+    height: 64px !important;
+    justify-content: center !important;
+    left: 50% !important;
+    max-width: min(650px, calc(100vw - 560px)) !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    position: absolute !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    width: max-content !important;
+    z-index: 12 !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center !important;
+    display: flex !important;
+    height: 64px !important;
+    justify-content: flex-end !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    position: absolute !important;
+    right: 24px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: auto !important;
+    z-index: 14 !important;
+  }
+}
+
+@media (min-width: 861px) and (max-width: 1220px) {
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    left: 14px !important;
+    width: 82px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 48px !important;
+    width: 78px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: 13px !important;
+    max-width: calc(100vw - 480px) !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    right: 14px !important;
+  }
+}
+
+@media (min-width: 861px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    left: 22px !important;
+    margin: 0 !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    pointer-events: auto !important;
+    position: absolute !important;
+    top: 0 !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: 100px !important;
+    z-index: 20 !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand-logo {
+    display: block !important;
+    flex: 0 0 auto !important;
+    height: 54px !important;
+    max-height: 54px !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    visibility: visible !important;
+    width: 96px !important;
+  }
+}
+
+@media (min-width: 861px) and (max-width: 1220px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    left: 14px !important;
+    width: 82px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand-logo {
+    height: 48px !important;
+    width: 78px !important;
+  }
+}
+
