@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Star, Store, UserRound, Users, X } from "lucide-react";
+import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Search, Star, Store, UserRound, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -38,6 +38,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
 const NOTIFICATION_REFRESH_DEBOUNCE_MS = 120;
+const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
 
 function getAuthUserDisplayName(user: User | null) {
   if (!user) return "";
@@ -728,6 +729,24 @@ export default function UniversalTopbar() {
     acknowledgeVisibleNotificationItems();
   }
 
+  function openMobileCategorySearch() {
+    setNotificationOpen(false);
+    setProfileOpen(false);
+
+    if (canonicalPathname === "/") {
+      window.dispatchEvent(new Event("open-category-drawer"));
+      return;
+    }
+
+    try {
+      sessionStorage.setItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY, "1");
+    } catch {
+      /* ok */
+    }
+
+    router.push("/");
+  }
+
   const primaryNavigation = (
     <div className="universal-home-navigation universal-primary-navigation">
       <Link href="/" className="universal-home-brand" aria-label="Maskines">
@@ -1055,6 +1074,15 @@ export default function UniversalTopbar() {
             </div>
           )}
         </div>
+        <button
+          type="button"
+          className="universal-mobile-search-button"
+          aria-label="Hae varaosia"
+          onClick={openMobileCategorySearch}
+        >
+          <Search size={16} aria-hidden="true" />
+          <span>Hae</span>
+        </button>
         <div className="universal-profile-menu-wrap" ref={profileMenuRef}>
           <button
             type="button"

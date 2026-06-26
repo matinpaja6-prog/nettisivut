@@ -1377,3 +1377,359 @@ body:has(main.help-page) {
     padding: 0 18px;
   }
 }
+
+/* Final help center: dark support hub with working topic, guide and FAQ controls. */
+body:has(main.help-page),
+html:has(body main.help-page) {
+  background: #050b12 !important;
+  background-image:
+    radial-gradient(circle at 12% 0%, rgba(255, 122, 26, 0.11), transparent 26%),
+    radial-gradient(circle at 86% 8%, rgba(63, 132, 214, 0.12), transparent 30%),
+    linear-gradient(180deg, #050b12 0%, #07111a 54%, #050b12 100%) !important;
+}
+
+main.help-page {
+  background:
+    radial-gradient(circle at 16% 8%, rgba(255, 122, 26, 0.12), transparent 28%),
+    radial-gradient(circle at 84% 8%, rgba(64, 133, 216, 0.13), transparent 30%),
+    linear-gradient(180deg, #050b12 0%, #07111a 58%, #050b12 100%) !important;
+  color: #eef6ff !important;
+}
+
+main.help-page .help-shell {
+  max-width: 1180px !important;
+  padding-left: clamp(16px, 4vw, 34px) !important;
+  padding-right: clamp(16px, 4vw, 34px) !important;
+}
+
+main.help-page .help-hero {
+  background: transparent !important;
+}
+
+main.help-page .help-hero-inner {
+  align-items: end !important;
+  gap: clamp(26px, 6vw, 74px) !important;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 390px) !important;
+  min-height: 248px !important;
+  padding-bottom: 30px !important;
+  padding-top: clamp(36px, 7vw, 64px) !important;
+}
+
+main.help-page .help-kicker {
+  color: #ff7a1a !important;
+  font-size: 11px !important;
+  letter-spacing: 0.06em !important;
+  margin-bottom: 10px !important;
+}
+
+main.help-page .help-hero h1 {
+  color: #ffffff !important;
+  font-size: clamp(45px, 6.2vw, 72px) !important;
+  letter-spacing: -0.02em !important;
+  text-shadow: none !important;
+}
+
+main.help-page .help-hero p {
+  color: rgba(226, 237, 248, 0.78) !important;
+  font-size: 15px !important;
+  max-width: 520px !important;
+}
+
+main.help-page .help-search {
+  align-self: end !important;
+}
+
+main.help-page .help-search > div {
+  background: rgba(10, 22, 33, 0.92) !important;
+  border-color: rgba(111, 144, 173, 0.22) !important;
+  box-shadow: none !important;
+}
+
+main.help-page .help-search input {
+  color: #ffffff !important;
+}
+
+main.help-page .help-search input::placeholder {
+  color: rgba(222, 234, 246, 0.48) !important;
+}
+
+main.help-page .help-body {
+  background: transparent !important;
+  padding-bottom: clamp(50px, 7vw, 86px) !important;
+  padding-top: 16px !important;
+}
+
+main.help-page .help-body h2 {
+  color: #eaf4ff !important;
+  font-size: 14px !important;
+  margin-bottom: 12px !important;
+}
+
+main.help-page .help-topic-grid {
+  gap: 14px !important;
+}
+
+main.help-page .help-topic-card {
+  appearance: none !important;
+  background: rgba(12, 24, 35, 0.92) !important;
+  border: 1px solid rgba(109, 140, 168, 0.18) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  color: #eef6ff !important;
+  cursor: pointer !important;
+  font: inherit !important;
+  min-height: 100px !important;
+  padding: 16px !important;
+  text-align: left !important;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease !important;
+}
+
+main.help-page .help-topic-card:hover,
+main.help-page .help-topic-card[data-active="true"] {
+  background: rgba(15, 31, 45, 0.98) !important;
+  border-color: rgba(255, 122, 26, 0.34) !important;
+  transform: translateY(-1px) !important;
+}
+
+main.help-page .help-topic-card strong {
+  color: #f7fbff !important;
+}
+
+main.help-page .help-topic-card small {
+  color: rgba(214, 228, 242, 0.66) !important;
+}
+
+main.help-page .help-topic-card > svg:last-child {
+  color: #ff7a1a !important;
+}
+
+main.help-page .help-columns {
+  background: rgba(8, 18, 28, 0.7) !important;
+  border: 1px solid rgba(91, 122, 149, 0.14) !important;
+  border-radius: 8px !important;
+  gap: 0 !important;
+  margin-top: 28px !important;
+  overflow: hidden !important;
+}
+
+main.help-page .help-column {
+  padding: 22px !important;
+}
+
+main.help-page .help-column + .help-column {
+  border-left: 1px solid rgba(91, 122, 149, 0.14) !important;
+}
+
+main.help-page .help-column h3 {
+  color: #eef6ff !important;
+  font-size: 16px !important;
+}
+
+main.help-page .help-guide-item,
+main.help-page .help-faq-item > button {
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(91, 122, 149, 0.16) !important;
+  color: #eef6ff !important;
+  cursor: pointer !important;
+  display: grid !important;
+  font: inherit !important;
+  gap: 13px !important;
+  min-height: 62px !important;
+  padding: 0 !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+main.help-page .help-guide-item {
+  align-items: center !important;
+  grid-template-columns: 24px minmax(0, 1fr) 18px !important;
+}
+
+main.help-page .help-faq-item > button {
+  align-items: center !important;
+  grid-template-columns: minmax(0, 1fr) 18px !important;
+}
+
+main.help-page .help-guide-item:hover,
+main.help-page .help-guide-item[data-active="true"],
+main.help-page .help-faq-item > button:hover,
+main.help-page .help-faq-item[data-open="true"] > button {
+  color: #ffffff !important;
+}
+
+main.help-page .help-guide-item > svg,
+main.help-page .help-faq-item svg {
+  color: #ff7a1a !important;
+}
+
+main.help-page .help-column:nth-child(2) .help-guide-item > svg {
+  color: #22c55e !important;
+}
+
+main.help-page .help-column:nth-child(3) .help-faq-item svg {
+  color: #60a5fa !important;
+}
+
+main.help-page .help-guide-item strong,
+main.help-page .help-faq-item span {
+  color: #eef6ff !important;
+  font-size: 13px !important;
+}
+
+main.help-page .help-guide-item small {
+  color: rgba(205, 220, 234, 0.62) !important;
+}
+
+main.help-page .help-faq-item p {
+  border-bottom: 1px solid rgba(91, 122, 149, 0.16) !important;
+  color: rgba(218, 231, 244, 0.78) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.55 !important;
+  margin: 0 !important;
+  padding: 0 18px 16px 0 !important;
+}
+
+main.help-page .help-column-link {
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: #ff7a1a !important;
+  cursor: pointer !important;
+  font: inherit !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  padding: 0 !important;
+}
+
+main.help-page .help-answer-panel {
+  align-items: start !important;
+  background: rgba(12, 24, 35, 0.92) !important;
+  border: 1px solid rgba(255, 122, 26, 0.22) !important;
+  border-radius: 8px !important;
+  display: grid !important;
+  gap: 18px !important;
+  grid-template-columns: 58px minmax(0, 1fr) !important;
+  margin-top: 18px !important;
+  padding: clamp(20px, 3vw, 28px) !important;
+}
+
+main.help-page .help-answer-icon {
+  align-items: center !important;
+  background: rgba(255, 122, 26, 0.13) !important;
+  border-radius: 999px !important;
+  color: #ff7a1a !important;
+  display: inline-flex !important;
+  height: 58px !important;
+  justify-content: center !important;
+  width: 58px !important;
+}
+
+main.help-page .help-answer-kicker {
+  color: #ff7a1a !important;
+  display: block !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.08em !important;
+  margin-bottom: 7px !important;
+  text-transform: uppercase !important;
+}
+
+main.help-page .help-answer-panel h2 {
+  color: #ffffff !important;
+  font-size: clamp(22px, 3vw, 32px) !important;
+  line-height: 1.08 !important;
+  margin: 0 !important;
+}
+
+main.help-page .help-answer-panel p {
+  color: rgba(218, 231, 244, 0.72) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.5 !important;
+  margin: 8px 0 0 !important;
+}
+
+main.help-page .help-answer-panel ol {
+  color: rgba(235, 244, 255, 0.84) !important;
+  display: grid !important;
+  gap: 8px !important;
+  margin: 16px 0 0 !important;
+  padding-left: 20px !important;
+}
+
+main.help-page .help-answer-panel li {
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+}
+
+main.help-page .help-answer-panel li::marker {
+  color: #ff7a1a !important;
+  font-weight: 950 !important;
+}
+
+main.help-page .help-support {
+  background: rgba(12, 24, 35, 0.92) !important;
+  border-color: rgba(91, 122, 149, 0.18) !important;
+  box-shadow: none !important;
+}
+
+main.help-page .help-support > *,
+main.help-page .help-support a {
+  color: #eef6ff !important;
+}
+
+main.help-page .help-support > * + * {
+  border-color: rgba(91, 122, 149, 0.16) !important;
+}
+
+main.help-page .help-support strong {
+  color: #ffffff !important;
+}
+
+main.help-page .help-support small {
+  color: rgba(214, 228, 242, 0.64) !important;
+}
+
+main.help-page .help-support svg {
+  color: #ff7a1a !important;
+}
+
+@media (max-width: 980px) {
+  main.help-page .help-hero-inner,
+  main.help-page .help-topic-grid,
+  main.help-page .help-columns,
+  main.help-page .help-support {
+    grid-template-columns: 1fr !important;
+  }
+
+  main.help-page .help-column + .help-column,
+  main.help-page .help-support > * + * {
+    border-left: 0 !important;
+    border-top: 1px solid rgba(91, 122, 149, 0.16) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  main.help-page .help-hero-inner {
+    padding-top: 34px !important;
+  }
+
+  main.help-page .help-hero h1 {
+    font-size: clamp(42px, 14vw, 58px) !important;
+  }
+
+  main.help-page .help-topic-card {
+    min-height: 92px !important;
+  }
+
+  main.help-page .help-column {
+    padding: 18px !important;
+  }
+
+  main.help-page .help-answer-panel {
+    grid-template-columns: 1fr !important;
+  }
+}

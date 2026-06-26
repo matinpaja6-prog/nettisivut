@@ -2952,3 +2952,175 @@ html body header.universal-app-topbar.universal-home-topbar .universal-profile-a
   }
 }
 
+html body header.universal-app-topbar .universal-mobile-search-button {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    align-items: center !important;
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: 64px minmax(0, 1fr) auto !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    overflow: visible !important;
+    padding: 0 8px !important;
+    position: sticky !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center !important;
+    display: flex !important;
+    grid-column: 1 !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    width: 64px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    left: auto !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    position: static !important;
+    top: auto !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: 64px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand-logo {
+    display: block !important;
+    height: 46px !important;
+    max-height: 46px !important;
+    opacity: 1 !important;
+    width: 62px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar .universal-create-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button,
+  html body header.universal-app-topbar .universal-profile-menu-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center !important;
+    display: flex !important;
+    gap: 6px !important;
+    grid-column: 3 !important;
+    height: 64px !important;
+    justify-content: flex-end !important;
+    justify-self: end !important;
+    margin: 0 !important;
+    max-width: calc(100vw - 82px) !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-mobile-search-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-search-button {
+    align-items: center !important;
+    background: linear-gradient(135deg, #ff8a1c, #ff6b16) !important;
+    border: 1px solid rgba(255, 210, 165, 0.42) !important;
+    border-radius: 9px !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    gap: 6px !important;
+    height: 42px !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+    min-width: 76px !important;
+    padding: 0 12px !important;
+    text-shadow: none !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-mobile-search-button svg {
+    height: 16px !important;
+    width: 16px !important;
+  }
+
+  html body header.universal-app-topbar .universal-notification-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-wrap,
+  html body header.universal-app-topbar .universal-language-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-language-wrap {
+    flex: 0 0 auto !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-notification-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-button,
+  html body header.universal-app-topbar .language-switcher,
+  html body header.universal-app-topbar.universal-home-topbar .language-switcher {
+    border-radius: 9px !important;
+    box-shadow: none !important;
+    height: 42px !important;
+    max-height: 42px !important;
+    min-height: 42px !important;
+    min-width: 42px !important;
+    width: 42px !important;
+  }
+
+  html body header.universal-app-topbar .language-switcher span[aria-hidden="true"],
+  html body header.universal-app-topbar .language-switcher img {
+    border-radius: 6px !important;
+    height: 25px !important;
+    width: 34px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: 56px minmax(0, 1fr) auto !important;
+    padding: 0 6px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation {
+    width: 56px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 42px !important;
+    width: 54px !important;
+  }
+
+  html body header.universal-app-topbar .universal-mobile-search-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-mobile-search-button {
+    min-width: 68px !important;
+    padding: 0 9px !important;
+  }
+}
+

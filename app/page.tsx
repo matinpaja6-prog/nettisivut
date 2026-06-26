@@ -126,6 +126,7 @@ type Locale = "fi" | "en" | "sv" | "no" | "et";
 
 const HOME_RETURN_STATE_KEY = "home_return_state_v1";
 const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
+const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
 
 function isPublicListing(listing: Listing) {
   return !listing.is_sold && !listing.is_hidden;
@@ -1465,6 +1466,22 @@ function HomeContent() {
   }, [vehicleType]);
 
   useEffect(() => {
+    let shouldOpen = false;
+
+    try {
+      shouldOpen = sessionStorage.getItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY) === "1";
+      if (shouldOpen) sessionStorage.removeItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY);
+    } catch {
+      shouldOpen = false;
+    }
+
+    if (!shouldOpen) return;
+
+    setDrawerOpenStep(2);
+    setDrawerOpen(true);
+  }, []);
+
+  useEffect(() => {
     if (!drawerOpen) return;
 
     const scrollY = window.scrollY;
@@ -2721,7 +2738,7 @@ function HomeContent() {
                   <input
                     className={styles.heroSearchInput}
                     type="search"
-                    placeholder={compactHeroSearch ? "Hae malli yms" : t.searchPlaceholder}
+                    placeholder={compactHeroSearch ? "Hae varaosia yms" : t.searchPlaceholder}
                     value={query}
                     onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
                     aria-label={t.searchLabel}
