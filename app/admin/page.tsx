@@ -333,7 +333,7 @@ export default function AdminPage() {
 
     const interval = window.setInterval(() => {
       void loadStats();
-    }, 15000);
+    }, 5000);
 
     const channel = client
       .channel("admin-overview-live")
@@ -347,6 +347,7 @@ export default function AdminPage() {
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "sold_listings" }, () => void loadStats())
       .on("postgres_changes", { event: "*", schema: "public", table: "deleted_listings_log" }, () => void loadStats())
+      .on("postgres_changes", { event: "*", schema: "public", table: "site_visits" }, () => void loadStats())
       .on("postgres_changes", { event: "*", schema: "public", table: "user_activity" }, () => void loadStats())
       .subscribe();
 

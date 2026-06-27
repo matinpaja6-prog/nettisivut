@@ -15,13 +15,40 @@ function getBearerToken(request: Request) {
   return type?.toLowerCase() === "bearer" && token ? token : null;
 }
 
+type SiteVisitBody = {
+  path?: string | null;
+  userAgent?: string | null;
+};
+
+function cleanText(value: unknown, maxLength: number) {
+  return typeof value === "string" ? value.trim().slice(0, maxLength) : null;
+}
+
+function normalizeIp(value: string | null) {
+  const ip = value?.trim();
+  if (!ip) return null;
+  if (ip === "::1") return "127.0.0.1";
+  if (ip.startsWith("::ffff:")) return ip.slice(7);
+  return ip;
+}
+
 function getForwardedIp(request: Request) {
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return (
+  const forwarded = request.headers
+    .get("x-forwarded-for")
+    ?.split(",")
+    .map((part) => normalizeIp(part))
+    .find(Boolean);
+
+  return normalizeIp(
     forwarded ||
-    request.headers.get("x-real-ip") ||
     request.headers.get("cf-connecting-ip") ||
-    null
+    request.headers.get("true-client-ip") ||
+    request.headers.get("x-nf-client-connection-ip") ||
+    request.headers.get("x-real-ip") ||
+    request.headers.get("x-client-ip") ||
+    (/^(localhost|127\.0\.0\.1|\[::1\])/.test(request.headers.get("host") ?? "")
+      ? "127.0.0.1"
+      : null)
   );
 }
 
@@ -30,11 +57,32 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false }, { status: 200 });
   }
 
-  const body = await request.json().catch(() => ({})) as { ip?: string | null };
-  const ip = body.ip?.trim() || getForwardedIp(request);
+  const body = await request.json().catch(() => ({})) as SiteVisitBody;
+  const ip = getForwardedIp(request);
+  const path = cleanText(body.path, 500);
+  const userAgent = cleanText(body.userAgent ?? request.headers.get("user-agent"), 500);
   const token = getBearerToken(request);
 
-  if (!ip || !token) {
+  if (!ip) {
+    return NextResponse.json({ ok: true });
+  }
+
+  const admin = createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+
+  await admin
+    .from("site_visits")
+    .insert({
+      ip,
+      path,
+      user_agent: userAgent
+    });
+
+  if (!token) {
     return NextResponse.json({ ok: true });
   }
 
@@ -50,13 +98,6 @@ export async function POST(request: Request) {
   if (userError || !userId) {
     return NextResponse.json({ ok: true });
   }
-
-  const admin = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  });
 
   const { data: current } = await admin
     .from("profiles")

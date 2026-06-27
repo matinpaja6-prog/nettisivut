@@ -21163,3 +21163,43 @@
     word-break: keep-all !important;
   }
 }
+
+/* Final vehicle card cleanup: no orange outer glow on home vehicle tiles. */
+.homeVehicleCard,
+.homeVehicleCard:nth-child(1),
+.homeVehicleCard:nth-child(2),
+.homeVehicleCard:nth-child(3),
+.homeVehicleCard:nth-child(4),
+.homeVehicleCard:hover,
+.homeVehicleCardActive,
+.homeDiscoverySectionFiltered .homeVehicleCard,
+.homeDiscoverySectionFiltered .homeVehicleCard:hover,
+.homeDiscoverySectionFiltered .homeVehicleCardActive {
+  border-color: rgba(126, 197, 240, 0.28) !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+/* Final hero headline spacing: keep descenders and ascenders from touching. */
+.heroHeadline {
+  line-height: 1.12 !important;
+}
+
+.heroHeadline span {
+  display: block !important;
+  line-height: 1.12 !important;
+}
+
+.heroHeadline span + span {
+  margin-top: 0.06em !important;
+}
+
+@media (max-width: 720px) {
+  .heroHeadline {
+    line-height: 1.12 !important;
+  }
+
+  .heroHeadline span {
+    line-height: 1.12 !important;
+  }
+}

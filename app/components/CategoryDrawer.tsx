@@ -1981,9 +1981,6 @@ export default function CategoryDrawer({
                 <button className="cd-skip-btn cd-vehicle-next" type="button" onClick={() => setStep(3)}>
                   Jatka osiin
                 </button>
-                <button className="cd-apply cd-vehicle-results" type="button" onClick={apply}>
-                  Näytä tulokset
-                </button>
                 <button
                   className="cd-reset cd-vehicle-clear"
                   type="button"
@@ -2231,6 +2228,12 @@ export default function CategoryDrawer({
           )}
         </div>
 
+        <div className="cd-results-footer">
+          <button className="cd-results-button" type="button" onClick={apply}>
+            N&auml;yt&auml; tulokset
+          </button>
+        </div>
+
       </aside>
       )}
 
@@ -2302,7 +2305,7 @@ export default function CategoryDrawer({
           transition: color .12s, background .12s;
         }
         .cd-crumb-x:hover { color: #ef4444; background: #fee2e2; }
-        .cd-body { flex: 1; overflow-y: auto; padding: 8px 0; }
+        .cd-body { flex: 1; overflow-y: auto; padding: 8px 0 14px; }
         .cd-list { list-style: none; margin: 0; padding: 0; }
         .cd-item {
           width: 100%; display: flex; align-items: center; gap: 12px;
@@ -2353,6 +2356,39 @@ export default function CategoryDrawer({
           background: #2563eb; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;
         }
         .cd-apply:hover { background: #ff8a24; }
+        .cd-results-footer {
+          background:
+            linear-gradient(180deg, rgba(3, 19, 38, 0.74), rgba(3, 19, 38, 0.98)) !important;
+          border-top: 1px solid rgba(126, 197, 240, 0.24) !important;
+          box-shadow: 0 -16px 34px rgba(0, 8, 22, 0.28) !important;
+          flex-shrink: 0 !important;
+          padding: 12px 14px calc(12px + env(safe-area-inset-bottom)) !important;
+        }
+        .cd-results-button {
+          align-items: center !important;
+          background: linear-gradient(135deg, #ffad45 0%, #ff7a1f 48%, #e85a00 100%) !important;
+          border: 1px solid rgba(255, 207, 160, 0.82) !important;
+          border-radius: 12px !important;
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.22),
+            0 14px 28px rgba(255, 106, 18, 0.25) !important;
+          color: #ffffff !important;
+          cursor: pointer !important;
+          display: inline-flex !important;
+          font-size: 15px !important;
+          font-weight: 950 !important;
+          justify-content: center !important;
+          letter-spacing: 0 !important;
+          line-height: 1.1 !important;
+          min-height: 50px !important;
+          padding: 0 18px !important;
+          text-align: center !important;
+          touch-action: manipulation !important;
+          width: 100% !important;
+        }
+        .cd-results-button:hover {
+          filter: brightness(1.05) !important;
+        }
         .cd-step-hint {
           font-size: 11px; color: #94a3b8; padding: 10px 18px 4px;
           font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
@@ -2826,7 +2862,7 @@ export default function CategoryDrawer({
           align-self: start !important;
           display: grid !important;
           gap: 9px !important;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto !important;
+          grid-template-columns: minmax(0, 1fr) auto !important;
         }
         .cd-vehicle-actions button {
           align-items: center !important;
@@ -2845,12 +2881,6 @@ export default function CategoryDrawer({
         .cd-vehicle-actions .cd-vehicle-next {
           background: linear-gradient(135deg, #ffad45 0%, #ff7a1f 48%, #e85a00 100%) !important;
           border: 1px solid rgba(255, 190, 120, 0.72) !important;
-          color: #ffffff !important;
-        }
-        .cd-vehicle-actions .cd-vehicle-results {
-          background: linear-gradient(180deg, rgba(14, 45, 74, 0.98), rgba(5, 23, 43, 0.98)) !important;
-          border: 1px solid rgba(255, 154, 36, 0.54) !important;
-          box-shadow: none !important;
           color: #ffffff !important;
         }
         .cd-vehicle-actions .cd-vehicle-clear {
@@ -5172,6 +5202,22 @@ export default function CategoryDrawer({
               0 12px 26px rgba(0, 8, 22, 0.28),
               0 0 0 1px rgba(255, 122, 31, 0.14) !important;
           }
+        }
+
+        .cd-drawer .cd-body {
+          padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important;
+        }
+
+        .cd-drawer .cd-results-footer {
+          bottom: 0 !important;
+          left: 0 !important;
+          position: absolute !important;
+          right: 0 !important;
+          z-index: 4090 !important;
+        }
+
+        .cd-drawer .cd-results-button {
+          min-height: 52px !important;
         }
       `}</style>
     </>

@@ -15,17 +15,6 @@ function cleanMetaText(value?: string | null, fallback = "") {
     .trim();
 }
 
-function firstListingImage(listing: {
-  image_url?: string | null;
-  image_urls?: string[] | null;
-}) {
-  return (
-    listing.image_urls?.find((url) => cleanMetaText(url)) ||
-    cleanMetaText(listing.image_url) ||
-    "/maskines-share-logo.png"
-  );
-}
-
 function buildDescription(listing: Awaited<ReturnType<typeof getListingById>>["data"]) {
   if (!listing) {
     return "Katso ajoneuvojen varaosailmoitus Maskines-palvelussa.";
@@ -43,7 +32,7 @@ function buildDescription(listing: Awaited<ReturnType<typeof getListingById>>["d
     cleanMetaText(listing.description).slice(0, 150)
   ].filter(Boolean);
 
-  return parts.join(" · ");
+  return parts.join(" - ");
 }
 
 export async function generateListingMetadata({ params }: ListingPageParams): Promise<Metadata> {
@@ -89,7 +78,7 @@ export async function generateListingMetadata({ params }: ListingPageParams): Pr
   const displayNumber = await getListingDisplayNumber(listing.created_at, listing.listing_number);
   const urlId = listingNumberUrlId(displayNumber) || listing.id;
   const url = absoluteSiteUrl(listingPath(urlId));
-  const imageUrl = absoluteSiteUrl(firstListingImage(listing));
+  const imageUrl = absoluteSiteUrl(`/api/og/listing/${encodeURIComponent(urlId)}`);
 
   return {
     metadataBase: new URL(PUBLIC_SITE_URL),

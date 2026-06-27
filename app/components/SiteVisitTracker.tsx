@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-import { trackSiteVisit } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 export default function SiteVisitTracker() {
   const pathname = usePathname();
@@ -14,11 +14,22 @@ export default function SiteVisitTracker() {
     async function track() {
       if (cancelled) return;
 
-      await trackSiteVisit({
-        ip: null,
-        path: pathname,
-        userAgent: navigator.userAgent
-      });
+      const token = supabase
+        ? (await supabase.auth.getSession()).data.session?.access_token
+        : null;
+
+      await fetch("/api/site-visit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        keepalive: true,
+        body: JSON.stringify({
+          path: pathname,
+          userAgent: navigator.userAgent
+        })
+      }).catch(() => undefined);
     }
 
     void track();
