@@ -21139,3 +21139,27 @@
   }
 
 }
+
+/* Phone hero headline lock: exactly three text rows on every mobile width. */
+@media (max-width: 720px) {
+  .heroHeadline {
+    box-sizing: border-box !important;
+    font-size: clamp(24px, 8.35vw, 31px) !important;
+    line-height: 1.08 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: calc(100vw - 28px) !important;
+    overflow-wrap: normal !important;
+    text-align: center !important;
+    width: calc(100vw - 28px) !important;
+    word-break: keep-all !important;
+  }
+
+  .heroHeadline span {
+    display: block !important;
+    max-width: 100% !important;
+    overflow-wrap: normal !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+  }
+}

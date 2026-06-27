@@ -257,39 +257,15 @@ const faqItems: FaqItem[] = [
 
 export default function FaqPage() {
   const [activeTopic, setActiveTopic] = useState<TopicId>("buyer");
-  const [openGuideId, setOpenGuideId] = useState(allGuides[0].id);
-  const [openFaqId, setOpenFaqId] = useState(faqItems[0].id);
-  const [query, setQuery] = useState("");
-
-  const normalizedQuery = query.trim().toLowerCase();
-
-  const visibleGuides = useMemo(() => {
-    return allGuides.filter((item) => {
-      const matchesTopic = activeTopic === "general" ? true : item.topic === activeTopic;
-      const matchesQuery =
-        !normalizedQuery ||
-        `${item.title} ${item.text} ${item.answer.join(" ")}`.toLowerCase().includes(normalizedQuery);
-
-      return matchesTopic && matchesQuery;
-    });
-  }, [activeTopic, normalizedQuery]);
 
   const visibleFaqs = useMemo(() => {
     return faqItems.filter((item) => {
-      const matchesTopic = activeTopic === "general" ? true : item.topic === activeTopic || item.topic === "general";
-      const matchesQuery =
-        !normalizedQuery ||
-        `${item.question} ${item.answer}`.toLowerCase().includes(normalizedQuery);
-
-      return matchesTopic && matchesQuery;
+      return activeTopic === "general" ? true : item.topic === activeTopic || item.topic === "general";
     });
-  }, [activeTopic, normalizedQuery]);
+  }, [activeTopic]);
 
   function chooseTopic(topic: TopicId) {
     setActiveTopic(topic);
-    const firstGuide = allGuides.find((item) => topic === "general" || item.topic === topic);
-    if (firstGuide) setOpenGuideId(firstGuide.id);
-    setOpenFaqId(faqItems.find((item) => topic === "general" || item.topic === topic || item.topic === "general")?.id ?? faqItems[0].id);
     document.getElementById("ohjeet")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -302,24 +278,6 @@ export default function FaqPage() {
             <h1>Ohjeet</h1>
             <p>Kaikki ohjeet ostajalle ja myyjälle. Turvallinen kaupankäynti ja helppo ilmoittaminen.</p>
           </div>
-          <form
-            className="help-search"
-            role="search"
-            onSubmit={(event) => event.preventDefault()}
-          >
-            <label htmlFor="help-search">Hae ohjeista</label>
-            <div>
-              <Search size={17} aria-hidden="true" />
-              <input
-                id="help-search"
-                type="search"
-                placeholder="Hae ohjeista..."
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-            </div>
-            <small>Esim. ilmoituksen lisääminen, maksaminen, turvallinen kauppa</small>
-          </form>
         </div>
       </section>
 
@@ -358,29 +316,23 @@ export default function FaqPage() {
             <HelpColumn
               title="Ostajan ohjeet"
               items={buyerGuides}
-              openGuideId={openGuideId}
-              onChoose={(id) => setOpenGuideId(openGuideId === id ? "" : id)}
             />
             <HelpColumn
               title="Myyjän ohjeet"
               items={sellerGuides}
-              openGuideId={openGuideId}
-              onChoose={(id) => setOpenGuideId(openGuideId === id ? "" : id)}
             />
             <section className="help-column">
               <h3>Usein kysytyt kysymykset</h3>
               <div className="help-faq-list">
                 {visibleFaqs.map((item) => {
-                  const open = openFaqId === item.id;
-
                   return (
-                    <article className="help-faq-item" data-open={open ? "true" : "false"} key={item.id}>
-                      <button type="button" data-faq-id={item.id} onClick={() => setOpenFaqId(open ? "" : item.id)}>
+                    <details className="help-faq-item" key={item.id}>
+                      <summary data-faq-id={item.id}>
                         <span>{item.question}</span>
                         <ChevronRight size={17} aria-hidden="true" />
-                      </button>
-                      {open ? <p>{item.answer}</p> : null}
-                    </article>
+                      </summary>
+                      <p>{item.answer}</p>
+                    </details>
                   );
                 })}
               </div>
@@ -420,14 +372,10 @@ export default function FaqPage() {
 
 function HelpColumn({
   title,
-  items,
-  openGuideId,
-  onChoose
+  items
 }: {
   title: string;
   items: HelpItem[];
-  openGuideId: string;
-  onChoose: (id: string) => void;
 }) {
   return (
     <section className="help-column">
@@ -435,14 +383,11 @@ function HelpColumn({
       <div className="help-guide-list">
         {items.map((item) => {
           const Icon = item.icon;
-          const open = item.id === openGuideId;
 
           return (
-            <article className="help-guide-entry" data-open={open ? "true" : "false"} key={item.title}>
-              <button
+            <details className="help-guide-entry" key={item.title}>
+              <summary
                 className="help-guide-item"
-                type="button"
-                onClick={() => onChoose(item.id)}
               >
                 <Icon size={19} aria-hidden="true" />
                 <span>
@@ -450,15 +395,13 @@ function HelpColumn({
                   <small>{item.text}</small>
                 </span>
                 <ChevronRight size={17} aria-hidden="true" />
-              </button>
-              {open ? (
-                <ol className="help-guide-answer">
-                  {item.answer.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ol>
-              ) : null}
-            </article>
+              </summary>
+              <ol className="help-guide-answer">
+                {item.answer.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </details>
           );
         })}
       </div>

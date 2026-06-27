@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { User } from "@supabase/supabase-js";
 import {
   CHAT_NOTIFICATIONS_CHANGED_EVENT,
@@ -253,7 +254,7 @@ export default function UniversalTopbar() {
   const [authChecked, setAuthChecked] = useState(false);
   const [sellerLevelStats, setSellerLevelStats] = useState<SellerLevelStats>(emptySellerLevelStats);
   const profileMenuRef = useRef<HTMLDivElement>(null);
-  const profilePointerToggleRef = useRef(false);
+  const profileMenuOverlayRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
   const garageMenuRef = useRef<HTMLDivElement>(null);
 
@@ -481,9 +482,13 @@ export default function UniversalTopbar() {
   useEffect(() => {
     if (!profileOpen) return;
 
-    function closeOnOutsideClick(event: MouseEvent | PointerEvent | TouchEvent) {
+    function closeOnOutsideClick(event: PointerEvent | MouseEvent) {
       const target = event.target;
-      if (target instanceof Node && !profileMenuRef.current?.contains(target)) {
+      if (
+        target instanceof Node &&
+        !profileMenuRef.current?.contains(target) &&
+        !profileMenuOverlayRef.current?.contains(target)
+      ) {
         setProfileOpen(false);
       }
     }
@@ -492,14 +497,12 @@ export default function UniversalTopbar() {
       if (event.key === "Escape") setProfileOpen(false);
     }
 
-    document.addEventListener("pointerdown", closeOnOutsideClick, true);
-    document.addEventListener("mousedown", closeOnOutsideClick, true);
-    document.addEventListener("touchstart", closeOnOutsideClick, true);
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("mousedown", closeOnOutsideClick);
     document.addEventListener("keydown", closeOnEscape);
     return () => {
-      document.removeEventListener("pointerdown", closeOnOutsideClick, true);
-      document.removeEventListener("mousedown", closeOnOutsideClick, true);
-      document.removeEventListener("touchstart", closeOnOutsideClick, true);
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("mousedown", closeOnOutsideClick);
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [profileOpen]);
@@ -848,7 +851,121 @@ export default function UniversalTopbar() {
     acknowledgeVisibleNotificationItems();
   }, [acknowledgeVisibleNotificationItems, notificationOpen]);
 
+  const profileMenuPortal = profileOpen && typeof document !== "undefined"
+    ? createPortal(
+      <>
+        <button
+          type="button"
+          className="universal-profile-menu-backdrop"
+          aria-label="Sulje profiilivalikko"
+          onClick={() => setProfileOpen(false)}
+          onPointerDown={(event) => {
+            event.stopPropagation();
+            setProfileOpen(false);
+          }}
+          onTouchStart={(event) => {
+            event.stopPropagation();
+            setProfileOpen(false);
+          }}
+        />
+        <div
+          ref={profileMenuOverlayRef}
+          className="universal-profile-menu universal-profile-menu-portal"
+          role="menu"
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
+        >
+          {userId ? (
+            <>
+              <div className="universal-profile-menu-head" aria-hidden="true">
+                <span className="universal-profile-menu-avatar">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" referrerPolicy="no-referrer" />
+                  ) : (
+                    <span className="profile-avatar-initial">{profileInitial}</span>
+                  )}
+                </span>
+                <span className="universal-profile-menu-title">
+                  <strong>{profileDisplayName}</strong>
+                  <small>{ui.manageAccount}</small>
+                </span>
+              </div>
+              <div className="universal-profile-level-card" aria-label={sellerLevelTooltip}>
+                <span className="universal-profile-level-badge" aria-hidden="true">
+                  {sellerLevel.level}
+                </span>
+                <span className="universal-profile-level-copy">
+                  <span className="universal-profile-level-head">
+                    <strong>{ui.level} {sellerLevel.level}</strong>
+                    <small>
+                      {sellerLevel.maxLevel ? ui.maxLevel : ui.xpToNextLevel(sellerLevel.nextLevelXp)}
+                    </small>
+                  </span>
+                  <span className="universal-profile-level-track" aria-hidden="true">
+                    <span style={{ width: `${sellerLevel.progressPercent}%` }} />
+                  </span>
+                </span>
+              </div>
+              <Link href="/" className={`universal-profile-menu-link${isActiveRoute("/") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                <Home size={16} /> {t.home}
+              </Link>
+              <Link href={profileHref} className={`universal-profile-menu-link${isActiveRoute("/profile") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                <UserRound size={16} /> {ownProfileLabel}
+              </Link>
+              <Link href={myListingsHref} className={`universal-profile-menu-link${isActiveRoute("/my-listings") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                <ClipboardList size={16} /> {t.myListings}
+              </Link>
+              <Link href={garageHref} className={`universal-profile-menu-link${isActiveRoute("/garage") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                <Car size={16} /> {t.garageTitle}
+              </Link>
+              <Link href={messagesHref} className={`universal-profile-menu-link${isActiveRoute("/messages") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                <Mail size={16} /> {t.messages}
+              </Link>
+              <Link href={savedHref} className={`universal-profile-menu-link${isActiveRoute("/saved") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                <Heart size={16} /> {t.savedListings}
+              </Link>
+              <Link href={followedHref} className={`universal-profile-menu-link${isActiveRoute("/followed") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                <Users size={16} /> {ui.followed}
+              </Link>
+              <Link href={searchAlertsHref} className={`universal-profile-menu-link${isActiveRoute("/search-alerts") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                <Bell size={16} /> {ui.searchAlert}
+              </Link>
+              {FEATURE_FLAGS.rewardsAndShop ? (
+                <>
+                  <Link href={rewardsHref} className={`universal-profile-menu-link${isActiveRoute("/rewards") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <Award size={16} /> {t.rewards}
+                  </Link>
+                  <Link href={shopHref} className={`universal-profile-menu-link${isActiveRoute("/shop") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <Store size={16} /> {t.shop}
+                  </Link>
+                </>
+              ) : null}
+              {isAdmin && (
+                <Link href="/admin" className={`universal-profile-menu-link admin${isActiveRoute("/admin") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Menu size={16} /> Admin
+                </Link>
+              )}
+              <div className="universal-profile-menu-divider" />
+              <button type="button" className="universal-profile-menu-link danger" role="menuitem" onClick={handleSignOut}>
+                <DoorOpen size={16} /> {t.signOut}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href={authHref} className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
+                <LockKeyhole size={16} /> {t.login}
+              </Link>
+            </>
+          )}
+        </div>
+      </>,
+      document.body
+    )
+    : null;
+
   return (
+    <>
+    {profileMenuPortal}
     <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}`}>
       {primaryNavigation}
       <nav className="universal-topbar-actions" aria-label={ui.quickActions}>
@@ -1098,22 +1215,6 @@ export default function UniversalTopbar() {
           <Search size={16} aria-hidden="true" />
           <span>Hae</span>
         </button>
-        {profileOpen && (
-          <button
-            type="button"
-            className="universal-profile-menu-backdrop"
-            aria-label="Sulje profiilivalikko"
-            onClick={() => setProfileOpen(false)}
-            onPointerDown={(event) => {
-              event.stopPropagation();
-              setProfileOpen(false);
-            }}
-            onTouchStart={(event) => {
-              event.stopPropagation();
-              setProfileOpen(false);
-            }}
-          />
-        )}
         <div
           className="universal-profile-menu-wrap"
           ref={profileMenuRef}
@@ -1123,20 +1224,9 @@ export default function UniversalTopbar() {
             className={`rebuilt-profile-button${profileOpen ? " is-open" : ""}`}
             aria-haspopup="menu"
             aria-expanded={profileOpen}
-            onPointerDown={(event) => {
-              if (event.button !== 0) return;
-              event.preventDefault();
-              event.stopPropagation();
-              profilePointerToggleRef.current = true;
-              toggleProfileMenu();
-            }}
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
-              if (profilePointerToggleRef.current) {
-                profilePointerToggleRef.current = false;
-                return;
-              }
               toggleProfileMenu();
             }}
             onKeyDown={(event) => {
@@ -1167,93 +1257,6 @@ export default function UniversalTopbar() {
             </span>
             <ChevronDown size={14} aria-hidden="true" />
           </button>
-
-          {profileOpen && (
-            <div className="universal-profile-menu" role="menu">
-              {userId ? (
-                <>
-                  <div className="universal-profile-menu-head" aria-hidden="true">
-                    <span className="universal-profile-menu-avatar">
-                      {avatarUrl ? (
-                        <img src={avatarUrl} alt="" referrerPolicy="no-referrer" />
-                      ) : (
-                        <span className="profile-avatar-initial">{profileInitial}</span>
-                      )}
-                    </span>
-                    <span className="universal-profile-menu-title">
-                      <strong>{profileDisplayName}</strong>
-                      <small>{ui.manageAccount}</small>
-                    </span>
-                  </div>
-                  <div className="universal-profile-level-card" aria-label={sellerLevelTooltip}>
-                    <span className="universal-profile-level-badge" aria-hidden="true">
-                      {sellerLevel.level}
-                    </span>
-                    <span className="universal-profile-level-copy">
-                      <span className="universal-profile-level-head">
-                        <strong>{ui.level} {sellerLevel.level}</strong>
-                        <small>
-                          {sellerLevel.maxLevel ? ui.maxLevel : ui.xpToNextLevel(sellerLevel.nextLevelXp)}
-                        </small>
-                      </span>
-                      <span className="universal-profile-level-track" aria-hidden="true">
-                        <span style={{ width: `${sellerLevel.progressPercent}%` }} />
-                      </span>
-                    </span>
-                  </div>
-                  <Link href="/" className={`universal-profile-menu-link${isActiveRoute("/") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Home size={16} /> {t.home}
-                  </Link>
-                  <Link href={profileHref} className={`universal-profile-menu-link${isActiveRoute("/profile") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <UserRound size={16} /> {ownProfileLabel}
-                  </Link>
-                  <Link href={myListingsHref} className={`universal-profile-menu-link${isActiveRoute("/my-listings") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <ClipboardList size={16} /> {t.myListings}
-                  </Link>
-                  <Link href={garageHref} className={`universal-profile-menu-link${isActiveRoute("/garage") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Car size={16} /> {t.garageTitle}
-                  </Link>
-                  <Link href={messagesHref} className={`universal-profile-menu-link${isActiveRoute("/messages") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Mail size={16} /> {t.messages}
-                  </Link>
-                  <Link href={savedHref} className={`universal-profile-menu-link${isActiveRoute("/saved") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Heart size={16} /> {t.savedListings}
-                  </Link>
-                  <Link href={followedHref} className={`universal-profile-menu-link${isActiveRoute("/followed") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Users size={16} /> {ui.followed}
-                  </Link>
-                  <Link href={searchAlertsHref} className={`universal-profile-menu-link${isActiveRoute("/search-alerts") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Bell size={16} /> {ui.searchAlert}
-                  </Link>
-                  {FEATURE_FLAGS.rewardsAndShop ? (
-                    <>
-                      <Link href={rewardsHref} className={`universal-profile-menu-link${isActiveRoute("/rewards") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                        <Award size={16} /> {t.rewards}
-                      </Link>
-                      <Link href={shopHref} className={`universal-profile-menu-link${isActiveRoute("/shop") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                        <Store size={16} /> {t.shop}
-                      </Link>
-                    </>
-                  ) : null}
-                  {isAdmin && (
-                    <Link href="/admin" className={`universal-profile-menu-link admin${isActiveRoute("/admin") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                      <Menu size={16} /> Admin
-                    </Link>
-                  )}
-                  <div className="universal-profile-menu-divider" />
-                  <button type="button" className="universal-profile-menu-link danger" role="menuitem" onClick={handleSignOut}>
-                    <DoorOpen size={16} /> {t.signOut}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link href={authHref} className="universal-profile-menu-link" role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <LockKeyhole size={16} /> {t.login}
-                  </Link>
-                </>
-              )}
-            </div>
-          )}
         </div>
             <div className={`universal-language-wrap${controlsLocked ? " universal-guest-disabled" : ""}`} aria-disabled={controlsLocked}>
               <LanguageSwitcher />
@@ -1262,5 +1265,6 @@ export default function UniversalTopbar() {
         )}
       </nav>
     </header>
+    </>
   );
 }
