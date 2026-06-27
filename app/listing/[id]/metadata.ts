@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 import { formatPrice } from "@/lib/listings";
-import { listingPath } from "@/lib/routes";
+import { listingNumberUrlId, listingPath } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
-import { getListingById } from "@/lib/supabase";
+import { getListingById, getListingDisplayNumber } from "@/lib/supabase";
 
 type ListingPageParams = {
   params: Promise<{ id: string }>;
@@ -86,7 +86,9 @@ export async function generateListingMetadata({ params }: ListingPageParams): Pr
 
   const title = `${cleanMetaText(listing.title, "Ilmoitus")} - ${formatPrice(Number(listing.price) || 0)}`;
   const description = buildDescription(listing);
-  const url = absoluteSiteUrl(listingPath(listing.listing_number || listing.id));
+  const displayNumber = await getListingDisplayNumber(listing.created_at, listing.listing_number);
+  const urlId = listingNumberUrlId(displayNumber) || listing.id;
+  const url = absoluteSiteUrl(listingPath(urlId));
   const imageUrl = absoluteSiteUrl(firstListingImage(listing));
 
   return {

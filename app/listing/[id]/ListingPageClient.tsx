@@ -39,7 +39,7 @@ import { getLocalizedListingText } from "@/lib/listing-translations";
 import { readCachedListing, readCachedListings, writeCachedListings } from "@/lib/client-listings-cache";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
-import { listingPath, listingUrlId, pagePath, profilePath } from "@/lib/routes";
+import { listingNumberUrlId, listingPath, listingUrlId, pagePath, profilePath } from "@/lib/routes";
 import { absoluteSiteUrl } from "@/lib/site-url";
 
 import { trackListingView, setRecoUserId } from "@/lib/recommendations";
@@ -1138,7 +1138,11 @@ export default function ListingPage() {
   async function shareListing() {
     if (!listing) return;
 
-    const url = absoluteSiteUrl(listingPath(listingUrlId(listing), locale));
+    const shareUrlId =
+      listingNumberUrlId(listing.listing_number) ||
+      listingNumberUrlId(listingDisplayNumber) ||
+      listingUrlId(listing);
+    const url = absoluteSiteUrl(listingPath(shareUrlId, locale));
     const listingText = getLocalizedListingText(listing, locale);
 
     if (navigator.share) {

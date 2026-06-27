@@ -7,7 +7,7 @@ import {
 
 const PUBLIC_FILE = /\.(.*)$/;
 const CANONICAL_HOST = "maskines.com";
-const LEGACY_HOSTS = new Set(["www.maskines.com", "maskinet.com", "www.maskinet.com"]);
+const LEGACY_HOSTS = new Set(["maskinet.com", "www.maskinet.com"]);
 const IP_BAN_CACHE_TTL_MS = 60_000;
 const ipBanCache = new Map<string, { banned: boolean; expiresAt: number }>();
 const SENSITIVE_PATH_PATTERN =

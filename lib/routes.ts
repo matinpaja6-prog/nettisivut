@@ -89,6 +89,13 @@ export function listingPath(id?: string | number | null, locale?: string | null)
   return `/ilmoitukset/${encodeURIComponent(urlId)}`;
 }
 
+export function listingNumberUrlId(value?: string | number | null) {
+  const text = String(value ?? "").trim();
+  const numeric = text.match(/^id(\d+)$/i)?.[1] ?? (/^\d+$/.test(text) ? text : "");
+
+  return numeric ? `id${numeric}` : "";
+}
+
 export function listingUrlId(
   listing?: {
     id?: string | number | null;
@@ -96,7 +103,8 @@ export function listingUrlId(
     listing_number?: number | null;
   } | null
 ) {
-  if (listing?.listing_number) return `id${listing.listing_number}`;
+  const numberUrlId = listingNumberUrlId(listing?.listing_number);
+  if (numberUrlId) return numberUrlId;
 
   return listing?.id || listing?.listing_id || "";
 }
