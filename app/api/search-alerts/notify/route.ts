@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import { getListingPartNumber, type Listing } from "@/lib/listings";
 import { listingPath, listingUrlId } from "@/lib/routes";
+import { absoluteSiteUrl } from "@/lib/site-url";
 import type { AlertNotification, SearchAlert } from "@/lib/supabase";
 
 type NotifyResult = {
@@ -172,8 +173,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: alertsError.message }, { status: 500 });
   }
 
-  const origin = request.headers.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";
-  const listingUrl = `${origin.replace(/\/$/, "")}${listingPath(listingUrlId(listing))}`;
+  const listingUrl = absoluteSiteUrl(listingPath(listingUrlId(listing)));
   const results: NotifyResult[] = [];
 
   for (const alert of alerts ?? []) {

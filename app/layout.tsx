@@ -43,9 +43,10 @@ import VisitorLanguageGate from "./components/VisitorLanguageGate";
 import InstantNavigation from "./components/InstantNavigation";
 import NavigationHistory from "./components/NavigationHistory";
 import AutoTranslate from "./components/AutoTranslate";
+import { PUBLIC_SITE_URL } from "@/lib/site-url";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.maskines.com"),
+  metadataBase: new URL(PUBLIC_SITE_URL),
   applicationName: "Maskines",
   title: {
     default: "Maskines | Moottorikelkkojen, mönkijöiden, motocrossien ja mopojen varaosat",

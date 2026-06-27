@@ -1032,12 +1032,13 @@ export async function getListingDisplayNumber(
 
 async function resolveListingId(listingIdOrDisplayId: string) {
   const value = listingIdOrDisplayId.trim();
+  const displayValue = value.match(/^id(\d+)$/i)?.[1] ?? value;
 
-  if (!/^\d+$/.test(value)) {
+  if (!/^\d+$/.test(displayValue)) {
     return value;
   }
 
-  const displayNumber = Number(value);
+  const displayNumber = Number(displayValue);
 
   if (!Number.isInteger(displayNumber) || displayNumber < 1) {
     return value;

@@ -1186,14 +1186,33 @@ function VehicleComboField({
     setOpen(true);
   }
 
-  function selectOption(option: string) {
+  function focusInputForKeyboard() {
+    const input = inputRef?.current;
+    if (!input) return;
+
+    input.readOnly = false;
+    input.focus({ preventScroll: true });
+
+    const valueLength = input.value.length;
+    try {
+      input.setSelectionRange(valueLength, valueLength);
+    } catch {
+      /* Some input types do not support text selection. */
+    }
+  }
+
+  function selectOption(option: string, focusCustomInput = false) {
     const isCustomOption = option === CUSTOM_OPTION_LABEL;
     setCustomSelected(isCustomOption);
     onChange(customValue(option));
     setShowAll(true);
     setOpen(false);
     if (isCustomOption) {
-      window.setTimeout(() => inputRef?.current?.focus(), 60);
+      if (focusCustomInput) {
+        focusInputForKeyboard();
+      } else {
+        window.setTimeout(focusInputForKeyboard, 60);
+      }
     }
   }
 
@@ -1257,7 +1276,12 @@ function VehicleComboField({
                 className={`cd-combo-option${option === value ? " cd-combo-option-active" : ""}${option === CUSTOM_OPTION_LABEL ? " cd-combo-option-custom" : ""}`}
                 type="button"
                 onMouseDown={(event) => event.preventDefault()}
-                onClick={() => selectOption(option)}
+                onPointerDown={(event) => {
+                  if (option !== CUSTOM_OPTION_LABEL || event.pointerType === "mouse") return;
+                  event.preventDefault();
+                  selectOption(option, true);
+                }}
+                onClick={() => selectOption(option, option === CUSTOM_OPTION_LABEL)}
               >
                 {option}
               </button>

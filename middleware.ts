@@ -6,6 +6,8 @@ import {
 } from "@/lib/routes";
 
 const PUBLIC_FILE = /\.(.*)$/;
+const CANONICAL_HOST = "maskines.com";
+const LEGACY_HOSTS = new Set(["www.maskines.com", "maskinet.com", "www.maskinet.com"]);
 const IP_BAN_CACHE_TTL_MS = 60_000;
 const ipBanCache = new Map<string, { banned: boolean; expiresAt: number }>();
 const SENSITIVE_PATH_PATTERN =
@@ -90,9 +92,11 @@ export async function middleware(request: NextRequest) {
     return applySecurityHeaders(new NextResponse(null, { status: 404 }));
   }
 
-  if (hostname.toLowerCase() === "maskines.com") {
+  const normalizedHostname = hostname.toLowerCase();
+
+  if (LEGACY_HOSTS.has(normalizedHostname)) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.hostname = "www.maskines.com";
+    redirectUrl.hostname = CANONICAL_HOST;
     redirectUrl.protocol = "https:";
     return applySecurityHeaders(NextResponse.redirect(redirectUrl, 308));
   }

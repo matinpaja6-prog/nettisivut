@@ -82,8 +82,11 @@ export function slugifyProfileName(value?: string | null) {
 }
 
 export function listingPath(id?: string | number | null, locale?: string | null) {
-  const segment = listingSegments[routeLocale(locale)];
-  return `/${segment}/${encodeURIComponent(String(id ?? ""))}`;
+  void locale;
+  const value = String(id ?? "");
+  const urlId = /^\d+$/.test(value) ? `id${value}` : value;
+
+  return `/ilmoitukset/${encodeURIComponent(urlId)}`;
 }
 
 export function listingUrlId(
@@ -93,7 +96,9 @@ export function listingUrlId(
     listing_number?: number | null;
   } | null
 ) {
-  return listing?.listing_number || listing?.id || listing?.listing_id || "";
+  if (listing?.listing_number) return `id${listing.listing_number}`;
+
+  return listing?.id || listing?.listing_id || "";
 }
 
 export function profilePath(id?: string | null, name?: string | null, locale?: string | null) {
