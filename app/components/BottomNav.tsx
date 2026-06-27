@@ -351,7 +351,7 @@ export default function BottomNav() {
         <button
           type="button"
           className={`bottom-nav-item${garageOpen || canonicalPathname.startsWith("/garage") ? " active" : ""}`}
-          onClick={() => setGarageOpen(true)}
+          onClick={() => setGarageOpen((open) => !open)}
         >
           <span className="bottom-nav-icon"><Car size={22} /></span>
           <span className="bottom-nav-label">Oma talli</span>
@@ -403,14 +403,27 @@ export default function BottomNav() {
       </nav>
 
       {garageOpen && (
-        <div className="bn-garage-backdrop" onClick={() => setGarageOpen(false)}>
-          <div className="bn-garage-panel" onClick={(e) => e.stopPropagation()}>
+        <>
+          <button
+            type="button"
+            className="bn-garage-outside-close"
+            aria-label="Sulje Oma talli"
+            onClick={() => setGarageOpen(false)}
+          />
+          <div className="bn-garage-panel" role="dialog" aria-label="Oma talli">
             <div className="bn-garage-header">
               <div>
                 <strong>Oma talli</strong>
                 <span>{garageVehicles.length ? "Valitse ajoneuvo ja jatka suoraan osiin" : "Lisää ajoneuvo, niin osat löytyvät nopeammin"}</span>
               </div>
-              <button type="button" className="bn-garage-close" onClick={() => setGarageOpen(false)}>x</button>
+              <button
+                type="button"
+                className="bn-garage-close"
+                aria-label="Sulje Oma talli"
+                onClick={() => setGarageOpen(false)}
+              >
+                X
+              </button>
             </div>
 
             {!userId ? (
@@ -452,7 +465,7 @@ export default function BottomNav() {
               </div>
             )}
           </div>
-        </div>
+        </>
       )}
 
       {profileOpen && (

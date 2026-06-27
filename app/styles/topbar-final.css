@@ -876,6 +876,162 @@ html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-
   }
 }
 
+/* Absolute last mobile header lock: home logo, other pages back arrow. */
+@media (max-width: 760px) {
+  html body header.universal-app-topbar {
+    grid-template-columns: 56px minmax(0, 1fr) auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center !important;
+    display: flex !important;
+    grid-column: 1 !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    width: 56px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    opacity: 1 !important;
+    position: static !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: 56px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    display: block !important;
+    height: 42px !important;
+    max-height: 42px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    width: 54px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-button {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    flex: 0 0 44px !important;
+    height: 44px !important;
+    justify-content: center !important;
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-button svg {
+    color: #ff7a1a !important;
+    height: 25px !important;
+    stroke-width: 2.8 !important;
+    width: 25px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button {
+    display: none !important;
+  }
+}
+
+/* Final phone left control: logo on home, orange back arrow elsewhere. */
+.universal-page-back-button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #ff7a1a;
+  cursor: pointer;
+  display: none;
+  justify-content: center;
+  padding: 0;
+}
+
+@media (max-width: 760px) {
+  html body header.universal-app-topbar {
+    grid-template-columns: 56px minmax(0, 1fr) auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation {
+    align-items: center !important;
+    display: flex !important;
+    grid-column: 1 !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    width: 56px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    left: auto !important;
+    opacity: 1 !important;
+    position: static !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: 56px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    display: block !important;
+    height: 42px !important;
+    max-height: 42px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    width: 54px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-button {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    flex: 0 0 44px !important;
+    height: 44px !important;
+    justify-content: center !important;
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-button svg {
+    color: #ff7a1a !important;
+    height: 25px !important;
+    stroke-width: 2.8 !important;
+    width: 25px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button {
+    display: none !important;
+  }
+}
+
 /* Phone topbar: keep the action cluster compact and icon-only. */
 @media (max-width: 1024px), (hover: none) and (pointer: coarse) {
   html body header.universal-app-topbar,
@@ -3168,6 +3324,79 @@ html body header.universal-app-topbar .universal-mobile-search-button {
   html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar {
     height: 30px !important;
     width: 30px !important;
+  }
+}
+
+/* Absolute final mobile header lock: home logo, other pages back arrow. */
+@media (max-width: 760px) {
+  html body header.universal-app-topbar {
+    grid-template-columns: 56px minmax(0, 1fr) auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center !important;
+    display: flex !important;
+    grid-column: 1 !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    width: 56px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    opacity: 1 !important;
+    position: static !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: 56px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    display: block !important;
+    height: 42px !important;
+    max-height: 42px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    width: 54px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-button {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    flex: 0 0 44px !important;
+    height: 44px !important;
+    justify-content: center !important;
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-button svg {
+    color: #ff7a1a !important;
+    height: 25px !important;
+    stroke-width: 2.8 !important;
+    width: 25px !important;
+  }
+
+  html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button {
+    display: none !important;
   }
 }
 

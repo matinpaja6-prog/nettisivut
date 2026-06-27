@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Search, Star, Store, UserRound, Users, X } from "lucide-react";
+import { ArrowLeft, Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Search, Star, Store, UserRound, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -608,6 +608,7 @@ export default function UniversalTopbar() {
   const hasNotificationItems =
     visibleReviewRequests.length + visibleAlertNotifications.length + visibleUnreadConversations.length > 0;
   const canonicalPathname = canonicalPathFromLocalized(pathname);
+  const isHomePage = canonicalPathname === "/";
   const controlsLocked = !authChecked;
   const notificationLocked = !authChecked || !userId;
   const sellerLevel = calculateSellerLevel(sellerLevelStats);
@@ -617,6 +618,15 @@ export default function UniversalTopbar() {
   function isActiveRoute(href: string) {
     if (href === "/") return canonicalPathname === "/";
     return canonicalPathname === href || canonicalPathname.startsWith(`${href}/`);
+  }
+
+  function handleBackNavigation() {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    router.push("/");
   }
 
   const authHref = pagePath("auth", locale);
@@ -749,9 +759,20 @@ export default function UniversalTopbar() {
 
   const primaryNavigation = (
     <div className="universal-home-navigation universal-primary-navigation">
-      <Link href="/" className="universal-home-brand" aria-label="Maskines">
-        <TopbarMaskinesLogo />
-      </Link>
+      {isHomePage ? (
+        <Link href="/" className="universal-home-brand" aria-label="Maskines">
+          <TopbarMaskinesLogo />
+        </Link>
+      ) : (
+        <button
+          type="button"
+          className="universal-page-back-button"
+          aria-label="Takaisin edelliselle sivulle"
+          onClick={handleBackNavigation}
+        >
+          <ArrowLeft size={24} aria-hidden="true" />
+        </button>
+      )}
       <nav className="universal-home-primary-nav" aria-label="Päänavigaatio">
         <Link
           href="/?catalog=all#listings"
@@ -841,7 +862,7 @@ export default function UniversalTopbar() {
   }, [acknowledgeVisibleNotificationItems, notificationOpen]);
 
   return (
-    <header className="universal-app-topbar">
+    <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}`}>
       {primaryNavigation}
       <nav className="universal-topbar-actions" aria-label={ui.quickActions}>
         {false && userId ? (

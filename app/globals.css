@@ -48,6 +48,50 @@ body {
   width: min(52vw, 520px);
 }
 
+.mobile-corner-nav {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .mobile-corner-nav {
+    align-items: center;
+    border: 0;
+    border-radius: 12px;
+    display: inline-flex;
+    height: 48px;
+    justify-content: center;
+    left: max(8px, env(safe-area-inset-left));
+    padding: 0;
+    position: fixed;
+    top: max(8px, env(safe-area-inset-top));
+    width: 48px;
+    z-index: 2147483647;
+  }
+
+  .mobile-corner-logo {
+    background: transparent;
+  }
+
+  .mobile-corner-logo img {
+    border-radius: 10px;
+    display: block;
+    height: 44px;
+    object-fit: contain;
+    width: 44px;
+  }
+
+  .mobile-corner-back {
+    background: transparent;
+    color: #ff7a1a;
+    cursor: pointer;
+  }
+
+  .mobile-corner-back svg {
+    color: #ff7a1a;
+    stroke-width: 2.9;
+  }
+}
+
 @keyframes global-loading-bar {
   0% {
     opacity: 0.35;

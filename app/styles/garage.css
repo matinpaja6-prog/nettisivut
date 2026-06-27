@@ -745,40 +745,6 @@ html body .garage-page .garage-empty p {
   }
 }
 
-@media (max-width: 640px) {
-  html body .garage-page .garage-heading {
-    min-height: 0 !important;
-    grid-template-columns: 58px minmax(0, 1fr) !important;
-    padding: 20px 16px !important;
-  }
-
-  html body .garage-page .garage-heading-icon {
-    width: 58px !important;
-    height: 58px !important;
-  }
-
-  html body .garage-page .garage-heading h1 {
-    font-size: 30px !important;
-  }
-
-  html body .garage-page .garage-heading-metrics {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-  }
-
-  html body .garage-page .garage-heading-metric,
-  html body .garage-page .garage-heading-metric-wide {
-    width: 100% !important;
-    min-width: 0 !important;
-    justify-content: flex-start !important;
-  }
-
-  html body .garage-page .garage-empty {
-    align-items: flex-start !important;
-    padding: 16px !important;
-  }
-}
-
 /* Oma Talli reference layout refresh */
 body .garage-page {
   background:
@@ -1864,5 +1830,175 @@ html body .garage-page .garage-empty p {
   html body .garage-page .garage-empty {
     align-items: flex-start !important;
     padding: 16px !important;
+  }
+}
+
+/* Phone final lock: keep Oma Talli compact after all older garage overrides. */
+@media (max-width: 640px) {
+  html body .garage-page {
+    padding-top: 12px !important;
+    padding-bottom: 96px !important;
+  }
+
+  html body .garage-page .garage-container {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  html body .garage-page .garage-heading {
+    min-height: 0 !important;
+    grid-template-columns: 52px minmax(0, 1fr) !important;
+    column-gap: 12px !important;
+    row-gap: 12px !important;
+    margin-bottom: 14px !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
+  }
+
+  html body .garage-page .garage-heading-icon {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 8px !important;
+  }
+
+  html body .garage-page .garage-heading-icon svg {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  html body .garage-page .garage-heading h1 {
+    margin-bottom: 6px !important;
+    font-size: 28px !important;
+    line-height: 1.05 !important;
+  }
+
+  html body .garage-page .garage-heading h1::after {
+    height: 3px !important;
+    margin-top: 7px !important;
+    width: 40px !important;
+  }
+
+  html body .garage-page .garage-heading p {
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+  }
+
+  html body .garage-page .garage-heading-metrics {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  html body .garage-page .garage-heading-metric,
+  html body .garage-page .garage-heading-metric-wide {
+    height: 50px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 10px !important;
+    border-radius: 8px !important;
+    justify-content: flex-start !important;
+  }
+
+  html body .garage-page .garage-heading-metric-wide {
+    grid-column: 1 / -1 !important;
+  }
+
+  html body .garage-page .garage-heading-metric strong {
+    font-size: 16px !important;
+  }
+
+  html body .garage-page .garage-heading-metric span {
+    font-size: 9px !important;
+  }
+
+  html body .garage-page .garage-heading-stats {
+    min-height: 48px !important;
+    border-radius: 8px !important;
+    padding: 9px 12px !important;
+  }
+
+  html body .garage-page .garage-login-prompt {
+    min-height: 0 !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
+  }
+
+  html body .garage-page .garage-toolbar {
+    min-height: 0 !important;
+    margin-bottom: 12px !important;
+    padding: 14px !important;
+    border-radius: 8px !important;
+  }
+
+  html body .garage-page .garage-toolbar-copy strong {
+    font-size: 16px !important;
+  }
+
+  html body .garage-page .garage-toolbar-copy span:last-child {
+    font-size: 12px !important;
+  }
+
+  html body .garage-page .garage-add-btn {
+    min-height: 44px !important;
+    border-radius: 8px !important;
+  }
+
+  html body .garage-page .garage-vehicle-card {
+    padding: 12px !important;
+    border-radius: 8px !important;
+  }
+
+  html body .garage-page .garage-vehicle-info {
+    grid-template-columns: 82px minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  html body .garage-page .garage-vehicle-icon {
+    width: 82px !important;
+    height: 70px !important;
+    border-radius: 8px !important;
+  }
+
+  html body .garage-page .garage-vehicle-name {
+    font-size: 20px !important;
+    line-height: 1.05 !important;
+  }
+
+  html body .garage-page .garage-vehicle-year {
+    font-size: 14px !important;
+  }
+
+  html body .garage-page .garage-vehicle-class-tag {
+    font-size: 12px !important;
+    padding: 6px 9px !important;
+  }
+
+  html body .garage-page .garage-vehicle-arrow,
+  html body .garage-page .garage-vehicle-delete {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  html body .garage-page .garage-parts-panel {
+    padding: 12px !important;
+    border-bottom-left-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+  }
+
+  html body .garage-page .garage-parts-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  html body .garage-page .garage-parts-action {
+    min-height: 42px !important;
+    border-radius: 8px !important;
+    font-size: 12px !important;
+  }
+
+  html body .garage-page .garage-empty {
+    align-items: flex-start !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
   }
 }

@@ -2048,99 +2048,154 @@ export default function GaragePage() {
 
         @media (max-width: 640px) {
           .garage-page {
-            padding-top: 22px;
+            padding-top: 12px;
+            padding-bottom: 96px;
           }
 
           .garage-container {
-            padding: 0 14px;
+            padding: 0 12px;
           }
 
           .garage-heading {
-            min-height: 328px;
-            grid-template-columns: 72px minmax(0, 1fr);
-            gap: 18px;
-            padding: 26px 20px;
+            min-height: 0;
+            grid-template-columns: 52px minmax(0, 1fr);
+            gap: 12px;
+            margin-bottom: 14px;
+            padding: 16px;
+            border-radius: 8px !important;
           }
 
           .garage-heading h1 {
-            font-size: 34px;
+            font-size: 28px;
+            line-height: 1.05;
+          }
+
+          .garage-heading p {
+            font-size: 13px;
+            line-height: 1.35;
+          }
+
+          .garage-heading-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 8px !important;
+          }
+
+          .garage-heading-icon svg {
+            width: 26px;
+            height: 26px;
           }
 
           .garage-heading-vehicle {
-            right: -94px;
-            bottom: -8px;
-            width: 370px;
-            opacity: 0.54;
+            right: -72px;
+            bottom: -18px;
+            width: 260px;
+            opacity: 0.32;
           }
 
           .garage-heading-stats {
             grid-column: 1 / -1;
             width: 100%;
-            min-height: 58px;
+            min-height: 48px;
             grid-template-columns: auto auto;
+            border-radius: 8px !important;
+            padding: 9px 12px;
           }
 
           .garage-toolbar {
-            padding: 24px;
+            min-height: 0;
+            margin-bottom: 12px;
+            padding: 14px;
+            border-radius: 8px !important;
+          }
+
+          .garage-toolbar-copy strong {
+            font-size: 16px;
+          }
+
+          .garage-toolbar-copy span:last-child {
+            font-size: 12px;
           }
 
           .garage-add-btn {
             width: 100%;
             min-width: 0;
+            min-height: 44px;
+            border-radius: 8px !important;
           }
 
           .garage-vehicle-card {
             min-height: 0;
-            padding: 18px;
+            padding: 12px;
+            border-radius: 8px !important;
           }
 
           .garage-vehicle-info {
-            grid-template-columns: 106px minmax(0, 1fr);
-            gap: 14px;
+            grid-template-columns: 82px minmax(0, 1fr);
+            gap: 12px;
           }
 
           .garage-vehicle-icon {
-            width: 106px;
-            height: 94px;
+            width: 82px;
+            height: 70px;
+            border-radius: 8px !important;
           }
 
           .garage-vehicle-primary-image {
-            border-radius: 14px;
+            border-radius: 8px;
           }
 
           .garage-vehicle-type {
-            font-size: 11px;
+            font-size: 10px;
           }
 
           .garage-vehicle-name {
-            font-size: 24px;
+            font-size: 20px;
+            line-height: 1.05;
           }
 
           .garage-vehicle-year {
-            font-size: 16px;
+            font-size: 14px;
           }
 
           .garage-vehicle-class-tag {
-            font-size: 14px;
-            padding: 8px 12px !important;
+            font-size: 12px;
+            padding: 6px 9px !important;
           }
 
           .garage-vehicle-arrow {
             grid-column: 1 / -1;
             justify-self: end;
-            width: 48px;
-            height: 48px;
+            width: 40px;
+            height: 40px;
             margin: 0;
           }
 
           .garage-vehicle-delete {
             position: absolute;
-            right: 18px;
-            top: 18px;
-            width: 48px;
-            height: 48px;
+            right: 12px;
+            top: 12px;
+            width: 40px;
+            height: 40px;
             margin: 0;
             transform: none;
+          }
+
+          .garage-parts-panel {
+            padding: 12px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+          }
+
+          .garage-parts-actions {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+          }
+
+          .garage-parts-action {
+            min-height: 42px;
+            border-radius: 8px !important;
+            font-size: 12px;
           }
         }
       `}</style>
