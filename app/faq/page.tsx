@@ -17,7 +17,6 @@ import {
   ShieldCheck,
   ShoppingCart,
   SquarePlus,
-  Timer,
   type LucideIcon
 } from "lucide-react";
 import Link from "next/link";
@@ -258,7 +257,7 @@ const faqItems: FaqItem[] = [
 
 export default function FaqPage() {
   const [activeTopic, setActiveTopic] = useState<TopicId>("buyer");
-  const [activeGuideId, setActiveGuideId] = useState(allGuides[0].id);
+  const [openGuideId, setOpenGuideId] = useState(allGuides[0].id);
   const [openFaqId, setOpenFaqId] = useState(faqItems[0].id);
   const [query, setQuery] = useState("");
 
@@ -286,13 +285,10 @@ export default function FaqPage() {
     });
   }, [activeTopic, normalizedQuery]);
 
-  const activeGuide = allGuides.find((item) => item.id === activeGuideId) ?? visibleGuides[0] ?? allGuides[0];
-  const ActiveGuideIcon = activeGuide.icon;
-
   function chooseTopic(topic: TopicId) {
     setActiveTopic(topic);
     const firstGuide = allGuides.find((item) => topic === "general" || item.topic === topic);
-    if (firstGuide) setActiveGuideId(firstGuide.id);
+    if (firstGuide) setOpenGuideId(firstGuide.id);
     setOpenFaqId(faqItems.find((item) => topic === "general" || item.topic === topic || item.topic === "general")?.id ?? faqItems[0].id);
     document.getElementById("ohjeet")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -362,18 +358,14 @@ export default function FaqPage() {
             <HelpColumn
               title="Ostajan ohjeet"
               items={buyerGuides}
-              activeGuideId={activeGuide.id}
-              linkLabel="Näytä kaikki ostajan ohjeet"
-              onChoose={(id) => setActiveGuideId(id)}
-              onShowAll={() => chooseTopic("buyer")}
+              openGuideId={openGuideId}
+              onChoose={(id) => setOpenGuideId(openGuideId === id ? "" : id)}
             />
             <HelpColumn
               title="Myyjän ohjeet"
               items={sellerGuides}
-              activeGuideId={activeGuide.id}
-              linkLabel="Näytä kaikki myyjän ohjeet"
-              onChoose={(id) => setActiveGuideId(id)}
-              onShowAll={() => chooseTopic("seller")}
+              openGuideId={openGuideId}
+              onChoose={(id) => setOpenGuideId(openGuideId === id ? "" : id)}
             />
             <section className="help-column">
               <h3>Usein kysytyt kysymykset</h3>
@@ -392,28 +384,8 @@ export default function FaqPage() {
                   );
                 })}
               </div>
-              <button className="help-column-link" type="button" onClick={() => chooseTopic("general")}>
-                Näytä kaikki usein kysytyt kysymykset
-                <ChevronRight size={15} aria-hidden="true" />
-              </button>
             </section>
           </div>
-
-          <section className="help-answer-panel" aria-live="polite">
-            <span className="help-answer-icon">
-              <ActiveGuideIcon size={26} aria-hidden="true" />
-            </span>
-            <div>
-              <span className="help-answer-kicker">Avaa ohje</span>
-              <h2>{activeGuide.title}</h2>
-              <p>{activeGuide.text}</p>
-              <ol>
-                {activeGuide.answer.map((step) => (
-                  <li key={step}>{step}</li>
-                ))}
-              </ol>
-            </div>
-          </section>
 
           <section className="help-support">
             <div className="help-support-main">
@@ -439,13 +411,6 @@ export default function FaqPage() {
                 <small>info@maskines.com</small>
               </span>
             </a>
-            <div>
-              <Timer size={25} aria-hidden="true" />
-              <span>
-                <strong>Ma-Pe 9-17</strong>
-                <small>Vastaamme nopeasti</small>
-              </span>
-            </div>
           </section>
         </div>
       </section>
@@ -456,17 +421,13 @@ export default function FaqPage() {
 function HelpColumn({
   title,
   items,
-  activeGuideId,
-  linkLabel,
-  onChoose,
-  onShowAll
+  openGuideId,
+  onChoose
 }: {
   title: string;
   items: HelpItem[];
-  activeGuideId: string;
-  linkLabel: string;
+  openGuideId: string;
   onChoose: (id: string) => void;
-  onShowAll: () => void;
 }) {
   return (
     <section className="help-column">
@@ -474,30 +435,33 @@ function HelpColumn({
       <div className="help-guide-list">
         {items.map((item) => {
           const Icon = item.icon;
-          const active = item.id === activeGuideId;
+          const open = item.id === openGuideId;
 
           return (
-            <button
-              className="help-guide-item"
-              data-active={active ? "true" : "false"}
-              type="button"
-              key={item.title}
-              onClick={() => onChoose(item.id)}
-            >
-              <Icon size={19} aria-hidden="true" />
-              <span>
-                <strong>{item.title}</strong>
-                <small>{item.text}</small>
-              </span>
-              <ChevronRight size={17} aria-hidden="true" />
-            </button>
+            <article className="help-guide-entry" data-open={open ? "true" : "false"} key={item.title}>
+              <button
+                className="help-guide-item"
+                type="button"
+                onClick={() => onChoose(item.id)}
+              >
+                <Icon size={19} aria-hidden="true" />
+                <span>
+                  <strong>{item.title}</strong>
+                  <small>{item.text}</small>
+                </span>
+                <ChevronRight size={17} aria-hidden="true" />
+              </button>
+              {open ? (
+                <ol className="help-guide-answer">
+                  {item.answer.map((step) => (
+                    <li key={step}>{step}</li>
+                  ))}
+                </ol>
+              ) : null}
+            </article>
           );
         })}
       </div>
-      <button className="help-column-link" type="button" onClick={onShowAll}>
-        {linkLabel}
-        <ChevronRight size={15} aria-hidden="true" />
-      </button>
     </section>
   );
 }

@@ -34,6 +34,7 @@ const LOCALES = [
 ];
 
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
+const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
 
 function FlagImg({ iso }: { iso: string }) {
   return (
@@ -76,6 +77,10 @@ export default function BottomNav() {
   const [garageOpen, setGarageOpen] = useState(false);
   const [garageVehicles, setGarageVehicles] = useState<GarageVehicle[]>([]);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const sellActionHref =
+    userId
+      ? sellHref
+      : `${authHref}?mode=login&next=${encodeURIComponent(sellHref)}&reason=sell`;
 
   useEffect(() => {
     if (!supabase) {
@@ -267,12 +272,13 @@ export default function BottomNav() {
     setGarageOpen(false);
 
     if (canonicalPathname === "/") {
-      window.dispatchEvent(new Event("open-category-drawer"));
+      window.dispatchEvent(new CustomEvent("open-category-drawer", { detail: { step: 2 } }));
       return;
     }
 
     try {
       sessionStorage.setItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY, "1");
+      sessionStorage.setItem(OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY, "2");
     } catch {
       /* ok */
     }
@@ -335,7 +341,7 @@ export default function BottomNav() {
           <span className="bottom-nav-label">Hae</span>
         </button>
 
-        <Link href={sellHref} className={`bottom-nav-item bottom-nav-center-action${canonicalPathname.startsWith("/sell") ? " active" : ""}`} aria-label="Luo ilmoitus">
+        <Link href={sellActionHref} className={`bottom-nav-item bottom-nav-center-action${canonicalPathname.startsWith("/sell") ? " active" : ""}`} aria-label="Luo ilmoitus">
           <span className="bottom-nav-icon"><Plus size={24} /></span>
           <span className="bottom-nav-label">Luo ilmoitus</span>
         </Link>
@@ -381,7 +387,7 @@ export default function BottomNav() {
           <span className="bottom-nav-label">Myy osa</span>
         </button>
 
-        <Link href={sellHref} className={`bottom-nav-item bottom-nav-solid${canonicalPathname.startsWith("/sell") ? " active" : ""}`}>
+        <Link href={sellActionHref} className={`bottom-nav-item bottom-nav-solid${canonicalPathname.startsWith("/sell") ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Plus size={24} /></span>
           <span className="bottom-nav-label">Oma talli</span>
         </Link>

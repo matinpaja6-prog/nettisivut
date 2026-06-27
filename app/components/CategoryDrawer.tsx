@@ -503,7 +503,6 @@ function PartPicture({ kind }: { kind: PartPictureKind }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getPartIcon(...values: Array<string | undefined>) {
   return <PartPicture kind={getPartPictureKind(...values)} />;
 
@@ -1141,7 +1140,6 @@ function VehicleComboField({
   disabled,
   onChange,
   inputRef,
-  onMobileSelect,
 }: {
   label: string;
   value: string;
@@ -1150,11 +1148,12 @@ function VehicleComboField({
   disabled?: boolean;
   onChange: (value: string) => void;
   inputRef?: RefObject<HTMLInputElement | null>;
-  onMobileSelect?: () => void;
 }) {
   const comboId = useId();
   const [open, setOpen] = useState(false);
   const [showAll, setShowAll] = useState(true);
+  const [customSelected, setCustomSelected] = useState(false);
+  const [mobilePickerMode, setMobilePickerMode] = useState(false);
   const normalizedValue = normalizeIconText(value);
   const visibleOptions = showAll || !normalizedValue
     ? options
@@ -1171,6 +1170,15 @@ function VehicleComboField({
     return () => window.removeEventListener("cd-combo-open", closeOtherCombos);
   }, [comboId]);
 
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 760px)");
+    const syncMobilePickerMode = () => setMobilePickerMode(media.matches);
+
+    syncMobilePickerMode();
+    media.addEventListener("change", syncMobilePickerMode);
+    return () => media.removeEventListener("change", syncMobilePickerMode);
+  }, []);
+
   function openMenu(showEveryOption = true) {
     if (disabled) return;
     setShowAll(showEveryOption);
@@ -1179,13 +1187,17 @@ function VehicleComboField({
   }
 
   function selectOption(option: string) {
+    const isCustomOption = option === CUSTOM_OPTION_LABEL;
+    setCustomSelected(isCustomOption);
     onChange(customValue(option));
     setShowAll(true);
     setOpen(false);
-    if (window.matchMedia("(max-width: 760px)").matches) {
-      window.setTimeout(() => onMobileSelect?.(), 60);
+    if (isCustomOption) {
+      window.setTimeout(() => inputRef?.current?.focus(), 60);
     }
   }
+
+  const inputIsReadOnly = mobilePickerMode && !customSelected;
 
   return (
     <div className="cd-detail-field">
@@ -1203,14 +1215,20 @@ function VehicleComboField({
             className="cd-cc-select cd-combo-input"
             value={value}
             onChange={(event) => {
+              setCustomSelected(true);
               onChange(customValue(event.target.value));
-              openMenu(false);
+              if (!customSelected) openMenu(false);
             }}
             onFocus={() => {
-              openMenu(true);
+              if (customSelected) {
+                setOpen(false);
+              } else {
+                openMenu(true);
+              }
             }}
+            readOnly={inputIsReadOnly}
             disabled={disabled}
-            placeholder={placeholder}
+            placeholder={customSelected ? "Kirjoita itse" : placeholder}
           />
           <button
             className="cd-combo-toggle"
@@ -1440,11 +1458,6 @@ export default function CategoryDrawer({
     ...Object.keys(COMMON_BRAND_MODELS_BY_VEHICLE[getCommonVehicleKey(vehicle)] ?? {})
   ]);
   const modelOptions = brand ? getBrandModelOptions(vehicle, brand) : [];
-
-  function focusNextMobileField(ref: RefObject<HTMLInputElement | null>) {
-    if (!window.matchMedia("(max-width: 760px)").matches) return;
-    ref.current?.focus();
-  }
 
   useEffect(() => {
     if (!engineModel || engineModel === "muu" || engineModelOptions.includes(engineModel)) return;
@@ -1775,15 +1788,6 @@ export default function CategoryDrawer({
 
         {/* Header */}
         <div className="cd-header">
-          <button
-            type="button"
-            className="cd-filter-submit"
-            onClick={apply}
-            aria-label={t.cdShowResults}
-            title={t.cdShowResults}
-          >
-            <Settings2 size={17} />
-          </button>
           {step > 2 && (
             <button
               type="button"
@@ -1890,7 +1894,6 @@ export default function CategoryDrawer({
                   disabled={!vehicle}
                   placeholder="Kaikki merkit"
                   inputRef={brandInputRef}
-                  onMobileSelect={() => focusNextMobileField(modelInputRef)}
                   onChange={(nextValue) => {
                       setBrand(nextValue);
                       setModel("");
@@ -1907,7 +1910,6 @@ export default function CategoryDrawer({
                   disabled={!vehicle || !brand}
                   placeholder={brand ? "Kaikki mallit" : "Valitse ensin merkki"}
                   inputRef={modelInputRef}
-                  onMobileSelect={() => focusNextMobileField(yearInputRef)}
                   onChange={(nextValue) => {
                       setModel(nextValue);
                       setEngineModel("");
@@ -1922,7 +1924,6 @@ export default function CategoryDrawer({
                   disabled={!vehicle}
                   placeholder="Vuosi tai kirjoita itse"
                   inputRef={yearInputRef}
-                  onMobileSelect={() => focusNextMobileField(engineCcInputRef)}
                   onChange={setYear}
                 />
 
@@ -1933,7 +1934,6 @@ export default function CategoryDrawer({
                   disabled={!vehicle}
                   placeholder={t.all}
                   inputRef={engineCcInputRef}
-                  onMobileSelect={() => focusNextMobileField(engineModelInputRef)}
                   onChange={(nextValue) => {
                     setEngineCc(nextValue);
                     setEngineCcOther("");
@@ -1947,7 +1947,6 @@ export default function CategoryDrawer({
                   disabled={!vehicle || !brand}
                   placeholder={brand ? "Kaikki moottorit" : t.sellSelectBrandFirst}
                   inputRef={engineModelInputRef}
-                  onMobileSelect={() => setStep(3)}
                   onChange={(nextValue) => {
                     setEngineModel(nextValue);
                     setEngineModelOther("");

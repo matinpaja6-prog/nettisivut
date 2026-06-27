@@ -364,3 +364,115 @@ body:has(.bn-garage-panel) .fc-button {
     color: #ff7a1a;
   }
 }
+
+@media (max-width: 760px) {
+  html body .bottom-nav:not(.bottom-nav-main) {
+    display: none !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main {
+    align-items: center !important;
+    background:
+      linear-gradient(180deg, rgba(3, 12, 23, 0.98), rgba(1, 7, 15, 0.98)) !important;
+    border: 1px solid rgba(32, 72, 106, 0.82) !important;
+    border-radius: 8px !important;
+    bottom: max(7px, env(safe-area-inset-bottom)) !important;
+    box-shadow:
+      0 14px 30px rgba(0, 0, 0, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    display: grid !important;
+    gap: 3px !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    left: 6px !important;
+    min-height: 50px !important;
+    padding: 4px !important;
+    right: 6px !important;
+    z-index: 2147481800 !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main .bottom-nav-item {
+    align-items: center !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 7px !important;
+    box-shadow: none !important;
+    color: rgba(222, 232, 241, 0.86) !important;
+    display: grid !important;
+    gap: 1px !important;
+    grid-template-rows: 22px 12px !important;
+    justify-items: center !important;
+    min-height: 42px !important;
+    min-width: 0 !important;
+    padding: 3px 2px 2px !important;
+    text-decoration: none !important;
+    transform: none !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main .bottom-nav-icon {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: currentColor !important;
+    display: inline-flex !important;
+    height: 22px !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    width: 22px !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main .bottom-nav-icon svg {
+    height: 17px !important;
+    stroke-width: 2.15 !important;
+    width: 17px !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main .bottom-nav-label {
+    color: currentColor !important;
+    display: block !important;
+    font-size: 8px !important;
+    font-weight: 850 !important;
+    letter-spacing: 0 !important;
+    line-height: 1 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-align: center !important;
+    text-overflow: ellipsis !important;
+    text-shadow: none !important;
+    white-space: nowrap !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main .bottom-nav-item.active {
+    background:
+      radial-gradient(38px 26px at 50% 10%, rgba(255, 122, 26, 0.14), transparent 74%),
+      rgba(5, 18, 31, 0.94) !important;
+    border-color: rgba(255, 122, 26, 0.72) !important;
+    color: #ff7a1a !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main .bottom-nav-center-action {
+    color: rgba(236, 244, 251, 0.92) !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main .bottom-nav-center-action .bottom-nav-icon {
+    background: linear-gradient(135deg, #ff9a24, #ff6815) !important;
+    border: 1px solid rgba(255, 215, 174, 0.68) !important;
+    border-radius: 999px !important;
+    box-shadow: 0 5px 12px rgba(255, 104, 21, 0.34) !important;
+    color: #ffffff !important;
+    height: 23px !important;
+    width: 23px !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main .bottom-nav-center-action .bottom-nav-icon svg {
+    height: 16px !important;
+    stroke-width: 3 !important;
+    width: 16px !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main .bottom-nav-center-action.active {
+    border-color: transparent !important;
+    color: #ffb56e !important;
+  }
+}

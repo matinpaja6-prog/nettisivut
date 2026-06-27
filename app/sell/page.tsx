@@ -2124,7 +2124,6 @@ function buildEmptyVehicleDetails(): VehicleDetails {
 
 const maxUploadImageSide = 1080;
 const compressedImageQuality = 0.84;
-const listingImageWatermarkText = "maskines";
 const fallbackListingImage =
   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80";
 const listingImageBucket = "listing-images";
@@ -2165,47 +2164,6 @@ async function imageFileToBitmap(file: File) {
   }
 }
 
-function drawListingImageWatermark(
-  context: CanvasRenderingContext2D,
-  width: number,
-  height: number
-) {
-  const shortSide = Math.min(width, height);
-  const fontSize = Math.max(16, Math.round(shortSide * 0.032));
-  const paddingX = Math.round(fontSize * 0.72);
-  const paddingY = Math.round(fontSize * 0.42);
-  const margin = Math.max(14, Math.round(shortSide * 0.025));
-
-  context.save();
-  context.font = `800 ${fontSize}px Arial, Helvetica, sans-serif`;
-  context.textBaseline = "middle";
-
-  const textWidth = context.measureText(listingImageWatermarkText).width;
-  const boxWidth = Math.ceil(textWidth + paddingX * 2);
-  const boxHeight = Math.ceil(fontSize + paddingY * 2);
-  const x = width - boxWidth - margin;
-  const y = height - boxHeight - margin;
-  const radius = Math.min(12, Math.round(boxHeight * 0.28));
-
-  context.globalAlpha = 0.72;
-  context.fillStyle = "#06111d";
-  context.beginPath();
-  context.roundRect(x, y, boxWidth, boxHeight, radius);
-  context.fill();
-
-  context.globalAlpha = 0.95;
-  context.fillStyle = "#ffffff";
-  context.shadowColor = "rgba(0, 0, 0, 0.45)";
-  context.shadowBlur = Math.max(2, Math.round(fontSize * 0.16));
-  context.fillText(
-    listingImageWatermarkText,
-    x + paddingX,
-    y + boxHeight / 2
-  );
-
-  context.restore();
-}
-
 async function prepareUploadImage(file: File) {
   const source = await imageFileToBitmap(file);
   const sourceWidth = source.width;
@@ -2227,7 +2185,6 @@ async function prepareUploadImage(file: File) {
   context.imageSmoothingEnabled = true;
   context.imageSmoothingQuality = "high";
   context.drawImage(source, 0, 0, targetWidth, targetHeight);
-  drawListingImageWatermark(context, targetWidth, targetHeight);
 
   if ("close" in source && typeof source.close === "function") {
     source.close();
@@ -2237,7 +2194,7 @@ async function prepareUploadImage(file: File) {
   const blob = await canvasToBlob(canvas, outputType, compressedImageQuality);
   const extension = outputType === "image/webp" ? "webp" : "jpg";
   const baseName = file.name.replace(/\.[^.]+$/, "") || "kuva";
-  const compressedFile = new File([blob], `${baseName}-1080p-maskines.${extension}`, {
+  const compressedFile = new File([blob], `${baseName}-1080p.${extension}`, {
     type: outputType,
     lastModified: Date.now()
   });
@@ -3877,10 +3834,7 @@ function SellPageContent() {
     const uploadedUrls: string[] = [];
 
     for (const image of images) {
-      const uploadFile =
-        /-maskines\.(jpe?g|png|webp)$/i.test(image.file.name)
-          ? image.file
-          : (await prepareUploadImage(image.file)).file;
+      const uploadFile = (await prepareUploadImage(image.file)).file;
       const extension =
         uploadFile.name.split(".").pop()?.replace(/[^a-zA-Z0-9]/g, "").toLowerCase() ||
         (uploadFile.type === "image/png" ? "png" : "webp");

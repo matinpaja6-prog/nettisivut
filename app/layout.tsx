@@ -38,7 +38,6 @@ import RequiredReviewGate from "./components/RequiredReviewGate";
 import ProfileCompletionGate from "./components/ProfileCompletionGate";
 import SiteVisitTracker from "./components/SiteVisitTracker";
 import UniversalTopbar from "./components/UniversalTopbar";
-import MobileCornerNav from "./components/MobileCornerNav";
 import TaxonomyProvider from "./components/TaxonomyProvider";
 import VisitorLanguageGate from "./components/VisitorLanguageGate";
 import InstantNavigation from "./components/InstantNavigation";
@@ -185,7 +184,6 @@ export default function RootLayout({
           <SiteVisitTracker />
           <ProfileCompletionGate />
           <UniversalTopbar />
-          <MobileCornerNav />
           {children}
           <RequiredReviewGate />
           <FloatingChat />

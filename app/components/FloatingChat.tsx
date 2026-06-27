@@ -198,7 +198,6 @@ export default function FloatingChat() {
       setMessages([]);
       setUnread(0);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   /* --- unread count --- */
@@ -307,7 +306,6 @@ export default function FloatingChat() {
       );
       supabase?.removeChannel(channel);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   /* --- load messages for active conversation --- */
@@ -377,7 +375,6 @@ export default function FloatingChat() {
       )
       .subscribe();
     return () => { supabase?.removeChannel(channel); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeConv?.id]);
 
   /* --- scroll to bottom --- */

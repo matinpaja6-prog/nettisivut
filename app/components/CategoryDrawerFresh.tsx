@@ -501,7 +501,6 @@ function PartPicture({ kind }: { kind: PartPictureKind }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getPartIcon(...values: Array<string | undefined>) {
   return <PartPicture kind={getPartPictureKind(...values)} />;
 

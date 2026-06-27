@@ -192,6 +192,12 @@ function getAuthModeFromSearchParams(searchParams: URLSearchParams | ReadonlyURL
   return searchParams.get("mode") === "register" ? "register" : "login";
 }
 
+function getSafeAuthRedirectPath(value: string | null) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/";
+
+  return value;
+}
+
 type ReadonlyURLSearchParamsLike = {
   get: (name: string) => string | null;
 };
@@ -526,7 +532,12 @@ function AuthPageContent() {
   const searchParams = useSearchParams();
   const { locale, t } = useLanguage();
   const pinText = registrationPinText[locale];
+  const authRedirectPath = getSafeAuthRedirectPath(searchParams.get("next"));
   const [authMode, setAuthMode] = useState<AuthMode>(() => getAuthModeFromSearchParams(searchParams));
+  const sellLoginPrompt =
+    authMode === "login" && searchParams.get("reason") === "sell"
+      ? "Kirjaudu sisään jatkaaksesi ilmoituksen luontia."
+      : "";
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetStatus, setResetStatus] = useState("");
@@ -914,7 +925,7 @@ function AuthPageContent() {
       .then(({ data }) => {
         if (isProfileCompleted(data)) {
           setProfile(data);
-          router.replace("/");
+          router.replace(authRedirectPath);
           return;
         }
 
@@ -1191,7 +1202,7 @@ function AuthPageContent() {
         if (isProfileCompleted(profileResult.data)) {
           setStatus(t.authLoginSuccess);
           setAuthSubmitting(false);
-          router.push("/");
+          router.push(authRedirectPath);
           return;
         }
 
@@ -1585,8 +1596,7 @@ function AuthPageContent() {
           className="auth-back-home"
           onClick={() => goBackOrFallback(router)}
         >
-          <ArrowLeft size={17} />
-          <span>Takaisin</span>
+          <ArrowLeft size={20} aria-hidden="true" />
         </button>
       )}
       <section className="simple-auth auth-centered">
@@ -1726,6 +1736,7 @@ function AuthPageContent() {
           <form className={`auth-card simple-card${authMode === "register" ? " registration-inline-card profile-finalize-card" : ""}`} onSubmit={handleSubmit}>
             <div className="auth-form-head">
               <h1>{authMode === "login" ? "Kirjaudu sisään" : t.register}</h1>
+              {sellLoginPrompt && <p>{sellLoginPrompt}</p>}
               {authMode === "register" && <p>Luo tili ja aloita palvelun käyttö</p>}
             </div>
 

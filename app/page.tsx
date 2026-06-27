@@ -127,6 +127,7 @@ type Locale = "fi" | "en" | "sv" | "no" | "et";
 const HOME_RETURN_STATE_KEY = "home_return_state_v1";
 const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
+const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
 
 function isPublicListing(listing: Listing) {
   return !listing.is_sold && !listing.is_hidden;
@@ -171,9 +172,9 @@ const translations = {
     signOut: "Kirjaudu ulos",
     heroTitle: "Maskines",
     heroSubtitle: "Suomen kattava varaosamarketplace moottorikelkoille, mönkijöille, motocrossiin ja mopoihin.",
-    heroLeadStart: "Löydä oikea varaosa",
-    heroLeadHighlight: "Myy helposti enemmän",
-    heroLeadEnd: "Luotettavat myyjät",
+    heroLeadStart: "Nopea haku",
+    heroLeadHighlight: "myy käytetyt",
+    heroLeadEnd: "varaosat helposti",
     heroTrustFast: "Nopea ja helppo listaaminen",
     heroTrustFree: "Ilmainen myynti ostajalle",
     heroTrustSafe: "Turvallinen kauppa Suomessa",
@@ -276,8 +277,8 @@ const translations = {
     heroTitle: "Vehicle parts that move you forward.",
     heroSubtitle: "Fast search. Wide selection. Trusted sellers.",
     heroLeadStart: "Fast search",
-    heroLeadHighlight: "Wide selection",
-    heroLeadEnd: "Trusted sellers",
+    heroLeadHighlight: "sell used",
+    heroLeadEnd: "spare parts easily",
     heroTrustFast: "Fast and easy listing",
     heroTrustFree: "Free selling for buyers",
     heroTrustSafe: "Safe marketplace in Finland",
@@ -380,8 +381,8 @@ const translations = {
     heroTitle: "Fordonsdelar som tar dig framåt.",
     heroSubtitle: "Snabb sökning. Brett utbud. Pålitliga säljare.",
     heroLeadStart: "Snabb sökning",
-    heroLeadHighlight: "Brett utbud",
-    heroLeadEnd: "Pålitliga säljare",
+    heroLeadHighlight: "sälj begagnade",
+    heroLeadEnd: "reservdelar enkelt",
     heroTrustFast: "Snabb och enkel annonsering",
     heroTrustFree: "Gratis försäljning för köparen",
     heroTrustSafe: "Trygg handel i Finland",
@@ -484,8 +485,8 @@ const translations = {
     heroTitle: "Kjøretøydeler som tar deg videre.",
     heroSubtitle: "Raskt søk. Stort utvalg. Pålitelige selgere.",
     heroLeadStart: "Raskt søk",
-    heroLeadHighlight: "Stort utvalg",
-    heroLeadEnd: "Pålitelige selgere",
+    heroLeadHighlight: "selg brukte",
+    heroLeadEnd: "reservedeler enkelt",
     heroTrustFast: "Rask og enkel annonsering",
     heroTrustFree: "Gratis salg for kjøperen",
     heroTrustSafe: "Trygg handel i Finland",
@@ -588,8 +589,8 @@ const translations = {
     heroTitle: "Sõidukiosad, mis viivad sind edasi.",
     heroSubtitle: "Kiire otsing. Lai valik. Usaldusväärsed müüjad.",
     heroLeadStart: "Kiire otsing",
-    heroLeadHighlight: "Lai valik",
-    heroLeadEnd: "Usaldusväärsed müüjad",
+    heroLeadHighlight: "müü kasutatud",
+    heroLeadEnd: "varuosi lihtsalt",
     heroTrustFast: "Kiire ja lihtne kuulutamine",
     heroTrustFree: "Ostjale tasuta müük",
     heroTrustSafe: "Turvaline kauplemine Soomes",
@@ -1449,14 +1450,15 @@ function HomeContent() {
   }, []);
 
   useEffect(() => {
-    function openCategoryDrawerFromTopbar() {
-      setDrawerOpen((open) => {
-        if (open) {
-          setDrawerOpenStep(undefined);
-          return false;
-        }
+    function openCategoryDrawerFromTopbar(event: Event) {
+      const requestedStep =
+        event instanceof CustomEvent && typeof event.detail?.step === "number"
+          ? event.detail.step
+          : 2;
+      const nextStep = requestedStep === 2 ? 2 : 3;
 
-        setDrawerOpenStep(2);
+      setDrawerOpen(() => {
+        setDrawerOpenStep(nextStep);
         return true;
       });
     }
@@ -1467,17 +1469,21 @@ function HomeContent() {
 
   useEffect(() => {
     let shouldOpen = false;
+    let requestedStep = 2;
 
     try {
       shouldOpen = sessionStorage.getItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY) === "1";
       if (shouldOpen) sessionStorage.removeItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY);
+      const storedStep = Number(sessionStorage.getItem(OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY));
+      sessionStorage.removeItem(OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY);
+      requestedStep = storedStep === 2 ? 2 : 3;
     } catch {
       shouldOpen = false;
     }
 
     if (!shouldOpen) return;
 
-    setDrawerOpenStep(2);
+    setDrawerOpenStep(requestedStep);
     setDrawerOpen(true);
   }, []);
 
@@ -2703,6 +2709,7 @@ function HomeContent() {
               <h1 className={styles.heroHeadline}>
                 <span style={{ display: "block", width: "100%" }}>{t.heroLeadStart}</span>
                 <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>{t.heroLeadHighlight}</span>
+                <span style={{ display: "block", width: "100%" }}>{t.heroLeadEnd}</span>
               </h1>
               <p className={styles.heroReferenceSubtitle}>{t.heroSubtitle}</p>
 

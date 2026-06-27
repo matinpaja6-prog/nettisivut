@@ -325,7 +325,6 @@ export default function AdminPage() {
       if (users.length === 0) void loadUsers();
       if (listings.length === 0) void loadListings();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin, pinUnlocked, activeTab, loadStats]);
 
   useEffect(() => {
@@ -355,7 +354,6 @@ export default function AdminPage() {
       window.clearInterval(interval);
       void client.removeChannel(channel);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isAdmin, loadStats, pinUnlocked]);
 
   /* Debounce user search */
@@ -981,7 +979,6 @@ function relativeTime(value?: string | null) {
   return `${d} pv sitten`;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function RecentEventsPanel({ users, listings }: {
   users: AdminProfileRow[];
   listings: AdminListing[];
@@ -1115,7 +1112,6 @@ function trendBadge(current: number, previous: number) {
   return { className: "flat", icon: "·", text: "0%" };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function OverviewPanel({ stats, loading, onRefresh }: {
   stats: AdminOverviewStats | null;
   loading: boolean;

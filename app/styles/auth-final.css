@@ -271,6 +271,71 @@ html body .simple-auth-page:has(.registration-inline-card) .auth-centered {
   }
 }
 
+/* Final auth page back arrow: one plain orange arrow, no extra button chrome. */
+html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button {
+  background: transparent !important;
+  border: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  box-shadow: none !important;
+  color: #ff7a1a !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  min-width: 28px !important;
+  padding: 0 !important;
+  width: 28px !important;
+}
+
+html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button::before,
+html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button::after {
+  content: none !important;
+  display: none !important;
+}
+
+html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button svg {
+  color: #ff7a1a !important;
+  height: 20px !important;
+  stroke-width: 3 !important;
+  width: 20px !important;
+}
+
+html body:has(.simple-auth-page) .auth-back-home {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #ff7a1a !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  gap: 0 !important;
+  height: 28px !important;
+  justify-content: center !important;
+  left: 14px !important;
+  min-height: 28px !important;
+  min-width: 28px !important;
+  padding: 0 !important;
+  top: 14px !important;
+  width: 28px !important;
+}
+
+html body:has(.simple-auth-page) .auth-back-home::before,
+html body:has(.simple-auth-page) .auth-back-home::after,
+html body:has(.simple-auth-page) .auth-back-home span {
+  content: none !important;
+  display: none !important;
+}
+
+html body:has(.simple-auth-page) .auth-back-home svg {
+  background: transparent !important;
+  color: #ff7a1a !important;
+  height: 20px !important;
+  stroke-width: 3 !important;
+  width: 20px !important;
+}
+
 /* Keep registration text clear of the leading/trailing field icons. */
 html body .simple-auth-page .registration-inline-card.profile-finalize-card .auth-input-with-icon > input:not([type="checkbox"]) {
   padding-left: 44px !important;

@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { ArrowLeft, Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Search, Star, Store, UserRound, Users, X } from "lucide-react";
+import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Search, Star, Store, UserRound, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -39,6 +39,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
 const NOTIFICATION_REFRESH_DEBOUNCE_MS = 120;
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
+const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
 
 function getAuthUserDisplayName(user: User | null) {
   if (!user) return "";
@@ -197,68 +198,25 @@ const topbarText: Record<Locale, {
 
 function TopbarMaskinesLogo() {
   return (
-    <svg className="universal-home-brand-logo" viewBox="120 0 480 380" role="img" aria-label="Maskines">
-      <defs>
-        <linearGradient id="topbarMaskinesOrange" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stopColor="#ffb13b" />
-          <stop offset="48%" stopColor="#ff7a1a" />
-          <stop offset="100%" stopColor="#f05200" />
-        </linearGradient>
-        <linearGradient id="topbarMaskinesLight" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stopColor="#f7fbff" />
-          <stop offset="48%" stopColor="#cbd7e2" />
-          <stop offset="100%" stopColor="#7f8d9d" />
-        </linearGradient>
-        <linearGradient id="topbarMaskinesText" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stopColor="#f9fcff" />
-          <stop offset="100%" stopColor="#d4e0ea" />
-        </linearGradient>
-        <linearGradient id="topbarMaskinesGear" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stopColor="#2b3540" />
-          <stop offset="45%" stopColor="#141b24" />
-          <stop offset="100%" stopColor="#050910" />
-        </linearGradient>
-        <linearGradient id="topbarMaskinesGearEdge" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stopColor="#ff9b2a" />
-          <stop offset="100%" stopColor="#061827" />
-        </linearGradient>
-        <linearGradient id="topbarMaskinesUnderline" x1="0" x2="1" y1="0" y2="0">
-          <stop offset="0%" stopColor="#ff7a1a" stopOpacity="0" />
-          <stop offset="20%" stopColor="#ff8a1c" stopOpacity="0.95" />
-          <stop offset="50%" stopColor="#ffb14a" stopOpacity="1" />
-          <stop offset="80%" stopColor="#ff7a1a" stopOpacity="0.95" />
-          <stop offset="100%" stopColor="#ff7a1a" stopOpacity="0" />
-        </linearGradient>
-        <filter id="topbarMaskinesGlow" x="-20%" y="-24%" width="140%" height="150%">
-          <feDropShadow dx="0" dy="16" stdDeviation="13" floodColor="#000814" floodOpacity="0.56" />
-          <feDropShadow dx="0" dy="0" stdDeviation="8" floodColor="#ff7a1a" floodOpacity="0.22" />
-        </filter>
-        <filter id="topbarMaskinesTextShadow" x="-20%" y="-40%" width="140%" height="180%">
-          <feDropShadow dx="0" dy="9" stdDeviation="5" floodColor="#000814" floodOpacity="0.62" />
-          <feDropShadow dx="0" dy="0" stdDeviation="2.5" floodColor="#7dd3fc" floodOpacity="0.18" />
-        </filter>
-      </defs>
-      <g filter="url(#topbarMaskinesGlow)" transform="translate(162 24)">
-        <path d="M0 18 L180 132 L180 214 L74 146 L74 336 L0 286 Z" fill="url(#topbarMaskinesOrange)" />
-        <path d="M32 72 L150 147 L150 176 L58 118 L58 300 L32 282 Z" fill="#ffad36" opacity="0.28" />
-        <path d="M18 48 L166 142" fill="none" opacity="0.42" stroke="#ffd29a" strokeLinecap="round" strokeWidth="7" />
-        <path d="M396 18 L216 132 L216 214 L322 146 L322 336 L396 286 Z" fill="url(#topbarMaskinesLight)" />
-        <path d="M364 72 L246 147 L246 176 L338 118 L338 300 L364 282 Z" fill="#ffffff" opacity="0.18" />
-        <path d="M378 48 L230 142" fill="none" opacity="0.36" stroke="#ffffff" strokeLinecap="round" strokeWidth="7" />
-        <g transform="translate(198 222)">
-          <path
-            d="M-24 -92 H24 L30 -62 A66 66 0 0 1 56 -47 L86 -58 L110 -17 L85 1 A66 66 0 0 1 85 31 L110 49 L86 90 L56 79 A66 66 0 0 1 30 94 L24 124 H-24 L-30 94 A66 66 0 0 1 -56 79 L-86 90 L-110 49 L-85 31 A66 66 0 0 1 -85 1 L-110 -17 L-86 -58 L-56 -47 A66 66 0 0 1 -30 -62 Z M0 -56 A56 56 0 1 0 0 56 A56 56 0 1 0 0 -56 M0 -25 A25 25 0 1 1 0 25 A25 25 0 1 1 0 -25"
-            fill="url(#topbarMaskinesGear)"
-            fillRule="evenodd"
-            stroke="url(#topbarMaskinesGearEdge)"
-            strokeOpacity="0.62"
-            strokeWidth="5"
-          />
-          <path d="M-58 -3 A58 58 0 0 0 58 -3" fill="none" opacity="0.78" stroke="#ff8a1c" strokeLinecap="round" strokeWidth="7" />
-          <circle cx="0" cy="0" fill="#07111d" r="25" stroke="#dce8f4" strokeOpacity="0.28" strokeWidth="5" />
-          <path d="M-39 -31 A50 50 0 0 1 39 -31" fill="none" opacity="0.28" stroke="#ffffff" strokeLinecap="round" strokeWidth="5" />
-        </g>
-      </g>
+    <img className="universal-home-brand-logo" src="/maskines-icon.png" alt="Maskines" />
+  );
+}
+
+function BackChevronIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="universal-page-back-icon"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M15 6 9 12l6 6"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="3.2"
+      />
     </svg>
   );
 }
@@ -295,6 +253,7 @@ export default function UniversalTopbar() {
   const [authChecked, setAuthChecked] = useState(false);
   const [sellerLevelStats, setSellerLevelStats] = useState<SellerLevelStats>(emptySellerLevelStats);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const profilePointerToggleRef = useRef(false);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
   const garageMenuRef = useRef<HTMLDivElement>(null);
 
@@ -522,8 +481,9 @@ export default function UniversalTopbar() {
   useEffect(() => {
     if (!profileOpen) return;
 
-    function closeOnOutsideClick(event: MouseEvent) {
-      if (!profileMenuRef.current?.contains(event.target as Node)) {
+    function closeOnOutsideClick(event: MouseEvent | PointerEvent | TouchEvent) {
+      const target = event.target;
+      if (target instanceof Node && !profileMenuRef.current?.contains(target)) {
         setProfileOpen(false);
       }
     }
@@ -532,10 +492,14 @@ export default function UniversalTopbar() {
       if (event.key === "Escape") setProfileOpen(false);
     }
 
-    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("pointerdown", closeOnOutsideClick, true);
+    document.addEventListener("mousedown", closeOnOutsideClick, true);
+    document.addEventListener("touchstart", closeOnOutsideClick, true);
     document.addEventListener("keydown", closeOnEscape);
     return () => {
-      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("pointerdown", closeOnOutsideClick, true);
+      document.removeEventListener("mousedown", closeOnOutsideClick, true);
+      document.removeEventListener("touchstart", closeOnOutsideClick, true);
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [profileOpen]);
@@ -620,17 +584,12 @@ export default function UniversalTopbar() {
     return canonicalPathname === href || canonicalPathname.startsWith(`${href}/`);
   }
 
-  function handleBackNavigation() {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return;
-    }
-
-    router.push("/");
-  }
-
   const authHref = pagePath("auth", locale);
   const sellHref = pagePath("sell", locale);
+  const sellActionHref =
+    userId
+      ? sellHref
+      : `${authHref}?mode=login&next=${encodeURIComponent(sellHref)}&reason=sell`;
   const messagesHref = pagePath("messages", locale);
   const profileHref = profileRootPath(locale);
   const myListingsHref = pagePath("my-listings", locale);
@@ -739,19 +698,39 @@ export default function UniversalTopbar() {
     acknowledgeVisibleNotificationItems();
   }
 
-  function openMobileCategorySearch() {
+  function toggleProfileMenu() {
+    setNotificationOpen(false);
+    setGarageMenuOpen(false);
+    setProfileOpen((open) => !open);
+  }
+
+  function openCategoryDrawerAtStep(step: 2 | 3) {
     setNotificationOpen(false);
     setProfileOpen(false);
 
     if (canonicalPathname === "/") {
-      window.dispatchEvent(new Event("open-category-drawer"));
+      window.dispatchEvent(new CustomEvent("open-category-drawer", { detail: { step } }));
       return;
     }
 
     try {
       sessionStorage.setItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY, "1");
+      sessionStorage.setItem(OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY, String(step));
     } catch {
       /* ok */
+    }
+
+    router.push("/");
+  }
+
+  function openMobileCategorySearch() {
+    openCategoryDrawerAtStep(2);
+  }
+
+  function handleBackNavigation() {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
     }
 
     router.push("/");
@@ -770,27 +749,35 @@ export default function UniversalTopbar() {
           aria-label="Takaisin edelliselle sivulle"
           onClick={handleBackNavigation}
         >
-          <ArrowLeft size={24} aria-hidden="true" />
+          <BackChevronIcon />
         </button>
       )}
       <nav className="universal-home-primary-nav" aria-label="Päänavigaatio">
-        <Link
-          href="/?catalog=all#listings"
-          className={isActiveRoute("/") ? "is-active" : ""}
-          onClick={() => window.dispatchEvent(new Event("maskines-show-all-listings"))}
+        <button
+          type="button"
+          className="universal-nav-action"
+          onClick={() => openCategoryDrawerAtStep(2)}
         >
           Varaosat
           <ChevronDown size={13} aria-hidden="true" />
-        </Link>
-        <Link href="/?catalog=all#listings">
+        </button>
+        <button
+          type="button"
+          className="universal-nav-action"
+          onClick={() => openCategoryDrawerAtStep(2)}
+        >
           Merkit
           <ChevronDown size={13} aria-hidden="true" />
-        </Link>
-        <Link href="/?catalog=all#listings">
+        </button>
+        <button
+          type="button"
+          className="universal-nav-action"
+          onClick={() => openCategoryDrawerAtStep(2)}
+        >
           Mallit
           <ChevronDown size={13} aria-hidden="true" />
-        </Link>
-        <Link href={sellHref} className={isActiveRoute("/sell") ? "is-active" : ""}>Myy osa</Link>
+        </button>
+        <Link href={sellActionHref} className={isActiveRoute("/sell") ? "is-active" : ""}>Myy osa</Link>
         <Link href={aboutHref} className={isActiveRoute("/about") ? "is-active" : ""}>Tietoa meistä</Link>
         <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>Ohjeet</Link>
       </nav>
@@ -865,55 +852,62 @@ export default function UniversalTopbar() {
     <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}`}>
       {primaryNavigation}
       <nav className="universal-topbar-actions" aria-label={ui.quickActions}>
-        {false && userId ? (
-          <Link
-            href={profilePath(userId, profileDisplayName, locale)}
-            className="universal-level-pill"
-            title={sellerLevelTooltip}
-            aria-label={sellerLevelTooltip}
-          >
-            <span className="universal-level-pill-badge" aria-hidden="true">
-              <span>{ui.level}</span>
-              <strong>{sellerLevel.level}</strong>
-            </span>
-            <span className="universal-level-pill-head">
-              <span>
-                <Award size={13} aria-hidden="true" />
-                {ui.sellerLevel}
-              </span>
-              <strong>{ui.level} {sellerLevel.level}</strong>
-            </span>
-            <span className="universal-level-pill-track" aria-hidden="true">
-              <span style={{ width: `${sellerLevel.progressPercent}%` }} />
-            </span>
-            <small>
-              {sellerLevel.maxLevel
-                ? ui.maxLevel
-                : ui.xpToNextLevel(sellerLevel.nextLevelXp)}
-            </small>
+        {!userId ? (
+          <Link href={authHref} className="rebuilt-login-button rebuilt-login-button-guest">
+            <LockKeyhole size={17} aria-hidden="true" />
+            <strong>{t.login}</strong>
           </Link>
-        ) : null}
-        <Link href={sellHref} className={`universal-create-button${isActiveRoute("/sell") ? " is-active" : ""}`}>
-          <Plus size={17} aria-hidden="true" />
-          <strong>{t.createListing}</strong>
-        </Link>
-        <div className="universal-notification-wrap" ref={notificationMenuRef}>
-          <button
-            type="button"
-            className={`universal-icon-button universal-notification-button${notificationOpen ? " is-open" : ""}`}
-            aria-label={t.notifications}
-            aria-haspopup="menu"
-            aria-expanded={notificationOpen}
-            disabled={notificationLocked}
-            onClick={toggleNotifications}
-          >
-            <Bell size={17} aria-hidden="true" />
-            {hasNotifications ? (
-              <span className="universal-notification-badge">
-                {notificationItemCount > 9 ? "9+" : notificationItemCount}
-              </span>
+        ) : (
+          <>
+            {false && userId ? (
+              <Link
+                href={profilePath(userId, profileDisplayName, locale)}
+                className="universal-level-pill"
+                title={sellerLevelTooltip}
+                aria-label={sellerLevelTooltip}
+              >
+                <span className="universal-level-pill-badge" aria-hidden="true">
+                  <span>{ui.level}</span>
+                  <strong>{sellerLevel.level}</strong>
+                </span>
+                <span className="universal-level-pill-head">
+                  <span>
+                    <Award size={13} aria-hidden="true" />
+                    {ui.sellerLevel}
+                  </span>
+                  <strong>{ui.level} {sellerLevel.level}</strong>
+                </span>
+                <span className="universal-level-pill-track" aria-hidden="true">
+                  <span style={{ width: `${sellerLevel.progressPercent}%` }} />
+                </span>
+                <small>
+                  {sellerLevel.maxLevel
+                    ? ui.maxLevel
+                    : ui.xpToNextLevel(sellerLevel.nextLevelXp)}
+                </small>
+              </Link>
             ) : null}
-          </button>
+            <Link href={sellActionHref} className={`universal-create-button${isActiveRoute("/sell") ? " is-active" : ""}`}>
+              <Plus size={17} aria-hidden="true" />
+              <strong>{t.createListing}</strong>
+            </Link>
+            <div className="universal-notification-wrap" ref={notificationMenuRef}>
+              <button
+                type="button"
+                className={`universal-icon-button universal-notification-button${notificationOpen ? " is-open" : ""}`}
+                aria-label={t.notifications}
+                aria-haspopup="menu"
+                aria-expanded={notificationOpen}
+                disabled={notificationLocked}
+                onClick={toggleNotifications}
+              >
+                <Bell size={17} aria-hidden="true" />
+                {hasNotifications ? (
+                  <span className="universal-notification-badge">
+                    {notificationItemCount > 9 ? "9+" : notificationItemCount}
+                  </span>
+                ) : null}
+              </button>
 
           {notificationOpen && (
             <div className="universal-notification-menu" role="menu">
@@ -1104,23 +1098,51 @@ export default function UniversalTopbar() {
           <Search size={16} aria-hidden="true" />
           <span>Hae</span>
         </button>
-        <div className="universal-profile-menu-wrap" ref={profileMenuRef}>
+        {profileOpen && (
+          <button
+            type="button"
+            className="universal-profile-menu-backdrop"
+            aria-label="Sulje profiilivalikko"
+            onClick={() => setProfileOpen(false)}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+              setProfileOpen(false);
+            }}
+            onTouchStart={(event) => {
+              event.stopPropagation();
+              setProfileOpen(false);
+            }}
+          />
+        )}
+        <div
+          className="universal-profile-menu-wrap"
+          ref={profileMenuRef}
+        >
           <button
             type="button"
             className={`rebuilt-profile-button${profileOpen ? " is-open" : ""}`}
             aria-haspopup="menu"
             aria-expanded={profileOpen}
             onPointerDown={(event) => {
+              if (event.button !== 0) return;
               event.preventDefault();
               event.stopPropagation();
-              setNotificationOpen(false);
-              setProfileOpen((open) => !open);
+              profilePointerToggleRef.current = true;
+              toggleProfileMenu();
+            }}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              if (profilePointerToggleRef.current) {
+                profilePointerToggleRef.current = false;
+                return;
+              }
+              toggleProfileMenu();
             }}
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
-                setNotificationOpen(false);
-                setProfileOpen((open) => !open);
+                toggleProfileMenu();
               }
             }}
           >
@@ -1233,9 +1255,11 @@ export default function UniversalTopbar() {
             </div>
           )}
         </div>
-        <div className={`universal-language-wrap${controlsLocked ? " universal-guest-disabled" : ""}`} aria-disabled={controlsLocked}>
-          <LanguageSwitcher />
-        </div>
+            <div className={`universal-language-wrap${controlsLocked ? " universal-guest-disabled" : ""}`} aria-disabled={controlsLocked}>
+              <LanguageSwitcher />
+            </div>
+          </>
+        )}
       </nav>
     </header>
   );

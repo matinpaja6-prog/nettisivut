@@ -1,8 +1,6 @@
 "use client";
 
 import { ArrowLeft } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { canonicalPathFromLocalized } from "@/lib/routes";
@@ -22,13 +20,7 @@ export default function MobileCornerNav() {
     router.push("/");
   }
 
-  if (isHomePage) {
-    return (
-      <Link href="/" className="mobile-corner-nav mobile-corner-logo" aria-label="Maskines etusivu">
-        <Image src="/maskines-icon.png" alt="Maskines" width={44} height={44} priority />
-      </Link>
-    );
-  }
+  if (isHomePage) return null;
 
   return (
     <button

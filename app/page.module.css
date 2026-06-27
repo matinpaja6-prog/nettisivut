@@ -20974,3 +20974,164 @@
   color: #475569 !important;
   opacity: 1 !important;
 }
+
+/* Final homepage hero headline: text-only promo, no baked image text. */
+@media (min-width: 721px) {
+  .heroInner > div:first-child {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: min(940px, calc(100vw - 64px)) !important;
+    width: min(940px, calc(100vw - 64px)) !important;
+  }
+
+  .heroHeadline {
+    color: #f8fbff !important;
+    font-size: clamp(52px, 6vw, 88px) !important;
+    font-weight: 950 !important;
+    letter-spacing: 0 !important;
+    line-height: 0.96 !important;
+    margin: 0 auto 28px !important;
+    max-width: 900px !important;
+    text-align: center !important;
+    text-shadow:
+      0 4px 0 rgba(0, 0, 0, 0.2),
+      0 18px 42px rgba(0, 0, 0, 0.74) !important;
+  }
+
+  .heroHeadlineAccent {
+    color: #ff760c !important;
+  }
+
+  .heroReferenceSubtitle {
+    display: none !important;
+  }
+
+}
+
+/* Final mobile selling process: readable 2x2 guide instead of four squeezed columns. */
+@media (max-width: 720px) {
+  .homeSellProcess {
+    border-radius: 10px !important;
+    margin: 0 auto 18px !important;
+    max-width: min(100%, 390px) !important;
+    padding: 18px 14px 16px !important;
+    width: calc(100vw - 20px) !important;
+  }
+
+  .homeSellProcessHead {
+    margin-bottom: 14px !important;
+  }
+
+  .homeSellProcessHead h2 {
+    font-size: clamp(21px, 6.1vw, 25px) !important;
+    line-height: 1.08 !important;
+    margin-bottom: 7px !important;
+    max-width: 320px !important;
+  }
+
+  .homeSellProcessHead p {
+    font-size: 11px !important;
+    line-height: 1.45 !important;
+    max-width: 330px !important;
+  }
+
+  .homeSellSteps {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    overflow: visible !important;
+  }
+
+  .homeSellStep,
+  .homeSellStep:first-child,
+  .homeSellStep:nth-child(2),
+  .homeSellStep:last-child {
+    background: rgba(2, 11, 20, 0.34) !important;
+    border: 1px solid rgba(117, 148, 178, 0.22) !important;
+    border-radius: 8px !important;
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) !important;
+    grid-template-rows: auto auto 44px !important;
+    min-height: 138px !important;
+    padding: 10px !important;
+  }
+
+  .homeSellStepNumber {
+    font-size: 12px !important;
+    grid-column: 1 !important;
+    grid-row: 1 / 3 !important;
+    height: 24px !important;
+    margin: 0 !important;
+    width: 24px !important;
+  }
+
+  .homeSellStep > strong {
+    font-size: 11px !important;
+    grid-column: 2 !important;
+    line-height: 1.12 !important;
+    margin: 0 0 4px !important;
+  }
+
+  .homeSellStep > p {
+    font-size: 9px !important;
+    grid-column: 2 !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+  }
+
+  .homeSellStepMobileVisual {
+    align-items: end !important;
+    display: flex !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    justify-content: flex-start !important;
+    margin: 0 !important;
+    min-height: 44px !important;
+    padding-left: 2px !important;
+  }
+
+  .homeSellStepMobileVisual svg {
+    height: 30px !important;
+    stroke-width: 2.7 !important;
+    width: 30px !important;
+  }
+
+  .homeSellVehiclePreview,
+  .homeSellChecklist,
+  .homeSellGenerated,
+  .homeSellChart,
+  .homeSellStepArrow {
+    display: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .heroInner > div:first-child {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: calc(100vw - 28px) !important;
+    width: calc(100vw - 28px) !important;
+  }
+
+  .heroHeadline {
+    font-size: clamp(31px, 8.4vw, 39px) !important;
+    font-weight: 950 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.02 !important;
+    margin-bottom: 18px !important;
+    max-width: 360px !important;
+    text-align: center !important;
+    text-shadow:
+      0 3px 0 rgba(0, 0, 0, 0.18),
+      0 14px 34px rgba(0, 0, 0, 0.78) !important;
+  }
+
+  .heroHeadlineAccent {
+    color: #ff760c !important;
+  }
+
+  .heroReferenceSubtitle {
+    display: none !important;
+  }
+
+}

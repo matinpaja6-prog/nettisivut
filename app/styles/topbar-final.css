@@ -876,6 +876,52 @@ html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-
   }
 }
 
+/* Final mobile back arrow cleanup: draw exactly one crisp arrow. */
+@media (max-width: 760px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button,
+  html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    height: 44px !important;
+    justify-content: center !important;
+    min-height: 44px !important;
+    min-width: 44px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button::before,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button::after,
+  html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button::before,
+  html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button .universal-page-back-icon,
+  html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button .universal-page-back-icon {
+    color: #ff7a1a !important;
+    display: block !important;
+    flex: 0 0 24px !important;
+    height: 24px !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+    width: 24px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button .universal-page-back-icon path,
+  html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button .universal-page-back-icon path {
+    stroke: currentColor !important;
+    stroke-width: 2.75 !important;
+  }
+}
+
 /* Absolute last mobile header lock: home logo, other pages back arrow. */
 @media (max-width: 760px) {
   html body header.universal-app-topbar {
@@ -2074,7 +2120,7 @@ html body header.universal-app-topbar .universal-mobile-garage-wrap {
     gap: clamp(18px, 2.25vw, 30px) !important;
     height: var(--topbar-h) !important;
     justify-content: center !important;
-    left: 50% !important;
+    left: calc(50% - 7px) !important;
     margin: 0 !important;
     max-width: calc(100vw - 420px) !important;
     min-height: var(--topbar-h) !important;
@@ -2272,7 +2318,7 @@ html body header.universal-app-topbar .universal-mobile-garage-wrap {
 }
 
 /* Real final topbar layout: keep nav buttons visible and prevent action overlap. */
-@media (min-width: 861px) {
+@media (min-width: 1180px) {
   html body header.universal-app-topbar,
   html body header.universal-app-topbar.universal-home-topbar {
     --topbar-h: 64px !important;
@@ -2942,7 +2988,7 @@ html body header.universal-app-topbar.universal-home-topbar .universal-profile-a
 
   html body header.universal-app-topbar .universal-home-primary-nav,
   html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
-    left: 50% !important;
+    left: calc(50% - 7px) !important;
     max-width: min(650px, calc(100vw - 560px)) !important;
     position: absolute !important;
     top: 0 !important;
@@ -3327,10 +3373,40 @@ html body header.universal-app-topbar .universal-mobile-search-button {
   }
 }
 
-/* Absolute final mobile header lock: home logo, other pages back arrow. */
+/* Absolute final desktop logo: same square Maskines icon everywhere. */
+@media (min-width: 861px) {
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 64px !important;
+    justify-content: center !important;
+    left: 22px !important;
+    position: absolute !important;
+    top: 0 !important;
+    width: 56px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand-logo {
+    display: block !important;
+    height: 46px !important;
+    max-height: 46px !important;
+    object-fit: contain !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    width: 46px !important;
+  }
+}
+
+/* Absolute final mobile header lock: same logo everywhere, no sticky follow. */
 @media (max-width: 760px) {
   html body header.universal-app-topbar {
     grid-template-columns: 56px minmax(0, 1fr) auto !important;
+    position: static !important;
+    top: auto !important;
   }
 
   html body header.universal-app-topbar .universal-home-navigation,
@@ -3347,7 +3423,9 @@ html body header.universal-app-topbar .universal-mobile-search-button {
     width: 56px !important;
   }
 
-  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
     align-items: center !important;
     display: inline-flex !important;
     height: 64px !important;
@@ -3359,17 +3437,20 @@ html body header.universal-app-topbar .universal-mobile-search-button {
     width: 56px !important;
   }
 
-  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand-logo {
     display: block !important;
     height: 42px !important;
     max-height: 42px !important;
+    object-fit: contain !important;
     opacity: 1 !important;
     visibility: visible !important;
-    width: 54px !important;
+    width: 42px !important;
   }
 
   html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
-    display: none !important;
+    display: inline-flex !important;
   }
 
   html body header.universal-app-topbar .universal-page-back-button {
@@ -3398,5 +3479,766 @@ html body header.universal-app-topbar .universal-mobile-search-button {
   html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button {
     display: none !important;
   }
+}
+
+/* Final desktop navigation actions: links and drawer-opening buttons share one polished surface. */
+@media (min-width: 861px) {
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    gap: clamp(8px, 1vw, 14px) !important;
+    height: 64px !important;
+    max-width: min(650px, calc(100vw - 560px)) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) {
+    align-items: center !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background:
+      linear-gradient(180deg, rgba(17, 34, 51, 0.52), rgba(7, 18, 31, 0.18)) !important;
+    border: 1px solid transparent !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    color: rgba(235, 245, 255, 0.82) !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    font: inherit !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    gap: 5px !important;
+    height: 38px !important;
+    justify-content: center !important;
+    letter-spacing: 0 !important;
+    line-height: 1 !important;
+    min-height: 38px !important;
+    padding: 0 10px !important;
+    position: relative !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+    transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button)::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button)::after {
+    background: linear-gradient(90deg, transparent, #ff8a1c, transparent) !important;
+    border-radius: 999px !important;
+    bottom: 4px !important;
+    content: "" !important;
+    height: 2px !important;
+    left: 10px !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    right: 10px !important;
+    transform: scaleX(0.72) !important;
+    transition: opacity 140ms ease, transform 140ms ease !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover,
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active {
+    background:
+      linear-gradient(180deg, rgba(28, 56, 82, 0.76), rgba(10, 27, 45, 0.48)) !important;
+    border-color: rgba(255, 138, 28, 0.32) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover::after,
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active::after {
+    opacity: 1 !important;
+    transform: scaleX(1) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):focus-visible,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):focus-visible {
+    outline: 2px solid rgba(255, 138, 28, 0.82) !important;
+    outline-offset: 3px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button) svg,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) svg {
+    flex: 0 0 auto !important;
+    height: 13px !important;
+    transition: transform 140ms ease !important;
+    width: 13px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover svg,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover svg {
+    transform: translateY(1px) !important;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1179px) {
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    position: static !important;
+    top: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    gap: 2px !important;
+    width: 48px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button > svg,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button > svg {
+    color: #f6fbff !important;
+    display: block !important;
+    flex: 0 0 auto !important;
+    height: 12px !important;
+    margin: 0 !important;
+    transform: rotate(0deg) !important;
+    width: 12px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button.is-open > svg,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button.is-open > svg {
+    transform: rotate(180deg) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    gap: 4px !important;
+  }
+
+  html body header.universal-app-topbar .universal-profile-menu-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap {
+    min-width: 50px !important;
+    width: 50px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    background:
+      radial-gradient(34px 28px at 30% 50%, rgba(111, 181, 234, 0.2), transparent 74%),
+      linear-gradient(180deg, rgba(8, 28, 48, 0.98), rgba(3, 13, 25, 0.99)) !important;
+    border: 1px solid rgba(255, 122, 26, 0.72) !important;
+    border-radius: 9px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 8px 16px rgba(0, 3, 10, 0.26) !important;
+    display: grid !important;
+    gap: 2px !important;
+    grid-template-columns: 29px 9px !important;
+    height: 42px !important;
+    justify-content: center !important;
+    min-width: 50px !important;
+    padding: 0 5px 0 4px !important;
+    width: 50px !important;
+    z-index: 2 !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar {
+    grid-column: 1 !important;
+    height: 29px !important;
+    justify-self: center !important;
+    width: 29px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar-lock,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar-lock {
+    bottom: -2px !important;
+    height: 13px !important;
+    right: -2px !important;
+    width: 13px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar-lock svg,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar-lock svg {
+    height: 8px !important;
+    width: 8px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button > svg,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button > svg {
+    grid-column: 2 !important;
+    height: 10px !important;
+    justify-self: center !important;
+    opacity: 0.92 !important;
+    width: 10px !important;
+  }
+}
+
+html body header.universal-app-topbar .universal-profile-menu-backdrop {
+  background: transparent !important;
+  border: 0 !important;
+  bottom: 0 !important;
+  cursor: default !important;
+  display: block !important;
+  left: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: fixed !important;
+  right: 0 !important;
+  top: 0 !important;
+  z-index: 2147482300 !important;
+}
+
+html body header.universal-app-topbar .universal-profile-menu-wrap,
+html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap {
+  z-index: 2147482600 !important;
+}
+
+html body header.universal-app-topbar .universal-profile-menu,
+html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu {
+  z-index: 2147482700 !important;
+}
+
+@media (min-width: 761px) {
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    border-radius: 8px !important;
+    gap: 7px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    min-width: 128px !important;
+    padding: 0 10px 0 8px !important;
+    width: 128px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar {
+    height: 32px !important;
+    width: 32px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar-lock,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar-lock {
+    bottom: -2px !important;
+    height: 13px !important;
+    right: -2px !important;
+    width: 13px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button .universal-profile-avatar-lock svg,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button .universal-profile-avatar-lock svg {
+    height: 8px !important;
+    width: 8px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button-copy,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy {
+    gap: 3px !important;
+    min-width: 0 !important;
+    width: 58px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button-copy strong,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    font-size: 12px !important;
+    line-height: 1 !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-xp-row,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-row {
+    gap: 4px !important;
+    height: 8px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-xp-row small,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-row small {
+    font-size: 10px !important;
+    line-height: 1 !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-xp-track,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-xp-track {
+    height: 4px !important;
+    width: 42px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button > svg,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button > svg {
+    height: 12px !important;
+    transform: rotate(0deg) !important;
+    transition: transform 140ms ease !important;
+    width: 12px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button.is-open > svg,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button.is-open > svg {
+    transform: rotate(180deg) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body header.universal-app-topbar .universal-profile-menu-backdrop {
+    background: rgba(0, 7, 16, 0.54) !important;
+    top: var(--topbar-h, 64px) !important;
+  }
+
+  html body header.universal-app-topbar .universal-profile-menu,
+  html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu {
+    background:
+      radial-gradient(460px 260px at 100% 0%, rgba(255, 122, 26, 0.11), transparent 72%),
+      linear-gradient(180deg, rgba(6, 19, 33, 0.99), rgba(2, 12, 23, 0.99)) !important;
+    border: 1px solid rgba(255, 122, 26, 0.72) !important;
+    border-radius: 9px !important;
+    box-shadow:
+      0 20px 46px rgba(0, 3, 12, 0.62),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+    left: 8px !important;
+    max-height: calc(100dvh - var(--topbar-h, 64px) - 18px) !important;
+    overflow-y: auto !important;
+    padding: 14px !important;
+    position: fixed !important;
+    right: 8px !important;
+    top: calc(var(--topbar-h, 64px) + 8px) !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-profile-menu-link,
+  html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-link {
+    min-height: 42px !important;
+  }
+}
+
+/* Final desktop nav: identical boxed items, no underline strokes. */
+@media (min-width: 861px) {
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    align-items: center !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background:
+      linear-gradient(180deg, rgba(13, 30, 48, 0.94), rgba(6, 19, 33, 0.94)) !important;
+    border: 1px solid rgba(35, 74, 105, 0.58) !important;
+    border-radius: 7px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 8px 16px rgba(0, 3, 10, 0.16) !important;
+    color: rgba(242, 248, 255, 0.94) !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    font: inherit !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    gap: 6px !important;
+    height: 38px !important;
+    justify-content: center !important;
+    letter-spacing: 0 !important;
+    line-height: 1 !important;
+    min-height: 38px !important;
+    padding: 0 12px !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+    transform: none !important;
+    transition: background 140ms ease, border-color 140ms ease, color 140ms ease !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button)::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button)::after,
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta::after {
+    content: none !important;
+    display: none !important;
+    opacity: 0 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover,
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active,
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta:hover,
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta.is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta:hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta.is-active {
+    background:
+      linear-gradient(180deg, rgba(18, 42, 66, 0.98), rgba(8, 25, 43, 0.98)) !important;
+    border-color: rgba(255, 138, 28, 0.48) !important;
+    color: #ffffff !important;
+    transform: none !important;
+  }
+}
+
+/* Final brand/back behavior: logo only on home, orange back arrow elsewhere. */
+html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand {
+  display: none !important;
+}
+
+html body header.universal-app-topbar .universal-page-back-button {
+  align-items: center !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #ff7a1a !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  flex: 0 0 48px !important;
+  height: 48px !important;
+  justify-content: center !important;
+  min-height: 48px !important;
+  min-width: 48px !important;
+  padding: 0 !important;
+  width: 48px !important;
+}
+
+html body header.universal-app-topbar .universal-page-back-button svg {
+  color: #ff7a1a !important;
+  height: 28px !important;
+  stroke-width: 3 !important;
+  width: 28px !important;
+}
+
+html body header.universal-app-topbar .universal-page-back-button .universal-page-back-icon {
+  color: #ff7a1a !important;
+  display: block !important;
+  height: 25px !important;
+  overflow: visible !important;
+  width: 25px !important;
+}
+
+html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button {
+  display: none !important;
+}
+
+@media (min-width: 861px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-primary-navigation {
+    align-items: center !important;
+    display: flex !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    left: 22px !important;
+    min-width: 56px !important;
+    position: absolute !important;
+    top: 0 !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button {
+    height: 56px !important;
+    width: 56px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-primary-navigation {
+    align-items: center !important;
+    display: flex !important;
+    grid-column: 1 !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    min-width: 56px !important;
+    width: 56px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button {
+    display: inline-flex !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    min-width: 44px !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button svg {
+    height: 26px !important;
+    width: 26px !important;
+  }
+}
+
+/* Final non-home desktop layout: keep the back arrow and nav inside the viewport. */
+@media (min-width: 861px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-primary-navigation {
+    align-items: center !important;
+    display: flex !important;
+    gap: 0 !important;
+    grid-column: 1 / 3 !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    left: 0 !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    padding-left: 22px !important;
+    position: absolute !important;
+    top: 0 !important;
+    transform: none !important;
+    width: 100vw !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    flex: 0 0 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    min-width: 44px !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button svg {
+    height: 24px !important;
+    stroke-width: 3 !important;
+    width: 24px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav {
+    display: flex !important;
+    flex: 0 1 auto !important;
+    gap: 14px !important;
+    grid-column: auto !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    left: calc(50% - 7px) !important;
+    margin: 0 !important;
+    max-width: min(650px, calc(100vw - 560px)) !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    position: absolute !important;
+    right: auto !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+  }
+}
+
+/* Final clean desktop nav: centered text links, visible also for guests. */
+@media (min-width: 861px) {
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    gap: clamp(24px, 2.6vw, 38px) !important;
+    height: 64px !important;
+    justify-content: center !important;
+    left: 50% !important;
+    margin: 0 !important;
+    max-width: min(720px, calc(100vw - 420px)) !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    position: absolute !important;
+    right: auto !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    align-items: center !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: rgba(247, 251, 255, 0.94) !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    font: inherit !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    gap: 6px !important;
+    height: 40px !important;
+    justify-content: center !important;
+    letter-spacing: 0 !important;
+    line-height: 1 !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    text-decoration: none !important;
+    text-shadow: 0 1px 8px rgba(0, 4, 12, 0.44) !important;
+    transform: none !important;
+    transition: color 140ms ease !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button)::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button)::after,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button)::after,
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover,
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button):hover,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button).is-active {
+    background: transparent !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+    transform: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button) svg,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) svg,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button) svg {
+    height: 12px !important;
+    stroke-width: 2.6 !important;
+    transform: none !important;
+    width: 12px !important;
+  }
+}
+
+/* Final desktop create button size. */
+@media (min-width: 861px) {
+  html body header.universal-app-topbar .universal-create-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    border-radius: 8px !important;
+    gap: 7px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    min-width: 128px !important;
+    padding: 0 14px !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button strong,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
+    font-size: 13px !important;
+    line-height: 1 !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button svg,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button svg {
+    height: 15px !important;
+    width: 15px !important;
+  }
+}
+
+/* True final profile menu interaction lock: keep the account button tappable and its menu above overlays. */
+html body header.universal-app-topbar .universal-profile-menu-wrap,
+html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap {
+  display: inline-flex !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  visibility: visible !important;
+  z-index: 2147482600 !important;
+}
+
+html body header.universal-app-topbar .rebuilt-profile-button,
+html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+
+html body header.universal-app-topbar .universal-profile-menu,
+html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu {
+  display: grid !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  z-index: 2147482700 !important;
+}
+
+/* True final mobile back arrow cleanup: draw exactly one crisp arrow. */
+@media (max-width: 760px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button,
+  html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    height: 44px !important;
+    justify-content: center !important;
+    min-height: 44px !important;
+    min-width: 44px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button::before,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button::after,
+  html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button::before,
+  html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button .universal-page-back-icon,
+  html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button .universal-page-back-icon {
+    color: #ff7a1a !important;
+    display: block !important;
+    flex: 0 0 22px !important;
+    height: 22px !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    transform: none !important;
+    width: 22px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button .universal-page-back-icon path,
+  html body:has(.simple-auth-page) header.universal-app-topbar .universal-page-back-button .universal-page-back-icon path {
+    stroke: currentColor !important;
+    stroke-width: 2.6 !important;
+  }
+}
+
+/* True final profile dropdown behavior: keep the trigger tappable and the menu unclipped. */
+html body header.universal-app-topbar,
+html body header.universal-app-topbar.universal-home-topbar,
+html body header.universal-app-topbar .universal-topbar-actions,
+html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions,
+html body header.universal-app-topbar .universal-profile-menu-wrap,
+html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu-wrap {
+  overflow: visible !important;
+}
+
+html body header.universal-app-topbar .rebuilt-profile-button,
+html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+
+html body header.universal-app-topbar .universal-profile-menu,
+html body header.universal-app-topbar.universal-home-topbar .universal-profile-menu {
+  display: grid !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
 }
 

@@ -450,6 +450,9 @@ export async function getSafeAuthUser(): Promise<User | null> {
   if (!supabase) return null;
 
   try {
+    const session = await getSafeAuthSession();
+    if (!session) return null;
+
     const { data, error } = await supabase.auth.getUser();
     if (error) throw error;
     return data.user ?? null;
