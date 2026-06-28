@@ -11221,6 +11221,12 @@ html body [data-sell-category-menu="true"] {
   box-shadow: 0 24px 58px rgba(0, 0, 0, 0.58) !important;
   color: #dce8f7 !important;
   color-scheme: dark !important;
+  max-height: min(360px, 42vh) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 
 html body [data-sell-category-menu="true"] *,
@@ -11538,8 +11544,14 @@ html body :where(input, select, textarea, button) {
 
   html body .cd-drawer :where(.cd-combo-menu, .cd-vehicle-type-options) {
     left: 0 !important;
+    max-height: min(360px, 42vh) !important;
     max-width: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
     right: 0 !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch !important;
     width: 100% !important;
   }
 

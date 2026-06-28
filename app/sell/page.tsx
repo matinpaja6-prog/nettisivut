@@ -6374,6 +6374,7 @@ function ConditionSelect({
                   className={active ? styles.categorySelectOptionActive : styles.categorySelectOption}
                   data-active={active ? "true" : "false"}
                   onPointerDown={(event) => {
+                    if (event.pointerType !== "mouse") return;
                     event.preventDefault();
                     event.stopPropagation();
                     pointerSelectionRef.current = option.value;
@@ -6513,6 +6514,7 @@ function CategorySelect({
                     color: "#dce8f7"
                   }}
                   onPointerDown={(event) => {
+                    if (event.pointerType !== "mouse") return;
                     event.preventDefault();
                     event.stopPropagation();
                     pointerSelectionRef.current = option.value;

@@ -1275,10 +1275,8 @@ function VehicleComboField({
                 key={option}
                 className={`cd-combo-option${option === value ? " cd-combo-option-active" : ""}${option === CUSTOM_OPTION_LABEL ? " cd-combo-option-custom" : ""}`}
                 type="button"
-                onMouseDown={(event) => event.preventDefault()}
                 onPointerDown={(event) => {
                   if (option !== CUSTOM_OPTION_LABEL || event.pointerType === "mouse") return;
-                  event.preventDefault();
                   selectOption(option, true);
                 }}
                 onClick={() => selectOption(option, option === CUSTOM_OPTION_LABEL)}
