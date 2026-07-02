@@ -2601,7 +2601,8 @@ export async function signInWithEmail(
 }
 
 export async function signInWithGoogle(
-  intent: "login" | "register" = "login"
+  intent: "login" | "register" = "login",
+  redirectPath = "/auth"
 ) {
 
   if (!supabase) {
@@ -2627,7 +2628,7 @@ export async function signInWithGoogle(
           redirectTo:
             typeof window !==
             "undefined"
-              ? `${window.location.origin}/auth?oauth=${intent}`
+              ? `${window.location.origin}${redirectPath}?oauth=${intent}`
               : undefined
 
         }

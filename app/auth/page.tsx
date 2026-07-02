@@ -9,6 +9,7 @@ import { BirthDateField } from "@/app/components/BirthDateField";
 import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { sanitizePhoneDigits, sanitizePhoneInput } from "@/lib/phone-input";
+import { pagePath } from "@/lib/routes";
 import {
   awardReferralPoints,
   getSafeAuthSession,
@@ -532,6 +533,7 @@ function AuthPageContent() {
   const searchParams = useSearchParams();
   const { locale, t } = useLanguage();
   const pinText = registrationPinText[locale];
+  const authPagePath = pagePath("auth", locale);
   const authRedirectPath = getSafeAuthRedirectPath(searchParams.get("next"));
   const [authMode, setAuthMode] = useState<AuthMode>(() => getAuthModeFromSearchParams(searchParams));
   const sellLoginPrompt =
@@ -799,7 +801,7 @@ function AuthPageContent() {
               setUser(null);
               setProfile(null);
               setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
-              window.history.replaceState(null, "", "/auth?mode=login");
+              window.history.replaceState(null, "", `${authPagePath}?mode=login`);
               void signOut();
               return;
             }
@@ -819,7 +821,7 @@ function AuthPageContent() {
         if (googleIntent === "register") {
           clearGoogleAuthIntent();
           setAuthMode("register");
-          window.history.replaceState(null, "", "/auth?mode=register");
+          window.history.replaceState(null, "", `${authPagePath}?mode=register`);
         }
 
         setUser(sessionUser);
@@ -853,7 +855,7 @@ function AuthPageContent() {
             setUser(null);
             setProfile(null);
             setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
-            window.history.replaceState(null, "", "/auth?mode=login");
+            window.history.replaceState(null, "", `${authPagePath}?mode=login`);
             void signOut();
             return;
           }
@@ -873,7 +875,7 @@ function AuthPageContent() {
       if (event === "SIGNED_IN" && nextUser && googleIntent === "register") {
         clearGoogleAuthIntent();
         setAuthMode("register");
-        window.history.replaceState(null, "", "/auth?mode=register");
+        window.history.replaceState(null, "", `${authPagePath}?mode=register`);
       }
 
       setUser(nextUser);
@@ -1270,7 +1272,7 @@ function AuthPageContent() {
     setStatus("Lähetetään PIN-koodi sähköpostiin...");
     const redirectTo =
       typeof window !== "undefined"
-        ? `${window.location.origin}/auth`
+        ? `${window.location.origin}${authPagePath}`
         : undefined;
     const pinResult =
       await withTimeout(
@@ -1497,7 +1499,7 @@ function AuthPageContent() {
     rememberGoogleAuthIntent(authMode);
     const { error } =
       await withTimeout(
-        signInWithGoogle(authMode),
+        signInWithGoogle(authMode, authPagePath),
         10000,
         "Google-kirjautuminen kesti liian kauan."
       );
@@ -1585,7 +1587,7 @@ function AuthPageContent() {
 
     if (typeof window === "undefined") return;
 
-    window.history.replaceState(null, "", `/auth?mode=${mode}`);
+    window.history.replaceState(null, "", `${authPagePath}?mode=${mode}`);
   }
 
   return (

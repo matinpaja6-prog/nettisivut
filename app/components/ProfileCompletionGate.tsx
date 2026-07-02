@@ -11,9 +11,28 @@ import {
   supabase,
   type UserProfile
 } from "@/lib/supabase";
+import {
+  canonicalPathFromLocalized,
+  pagePath,
+  profileRootPath
+} from "@/lib/routes";
 
 const REFERRAL_STORAGE_KEY = "pending_referral_code";
-const ALLOWED_PATHS = ["/auth", "/profile", "/privacy"];
+const ALLOWED_CANONICAL_PATHS = ["/auth", "/profile", "/privacy"];
+
+function isProfileCompletionAllowedPath(pathname: string) {
+  const canonicalPath = canonicalPathFromLocalized(pathname);
+
+  if (ALLOWED_CANONICAL_PATHS.some((path) => canonicalPath.startsWith(path))) {
+    return true;
+  }
+
+  return ["fi", "en", "sv", "no", "et"].some((locale) =>
+    pathname.startsWith(pagePath("auth", locale)) ||
+    pathname.startsWith(profileRootPath(locale)) ||
+    pathname.startsWith(pagePath("privacy", locale))
+  );
+}
 
 async function tryClaimPendingReferral(userId: string) {
   if (typeof window === "undefined") return;
@@ -70,8 +89,8 @@ export default function ProfileCompletionGate() {
       setNeedsProfile(incomplete);
       setChecked(true);
 
-      if (incomplete && !ALLOWED_PATHS.some((path) => pathname.startsWith(path))) {
-        router.replace("/auth");
+      if (incomplete && !isProfileCompletionAllowedPath(pathname)) {
+        router.replace(pagePath("auth"));
       }
     }
 
