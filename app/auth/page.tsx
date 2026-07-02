@@ -37,6 +37,7 @@ const PROFILE_COMPLETION_DRAFT_STORAGE_KEY = "profile_completion_draft_v1";
 const REGISTRATION_PIN_COOLDOWN_STORAGE_KEY = "registration_pin_sent_at_v1";
 const REGISTRATION_PIN_COOLDOWN_MS = 65_000;
 const AUTH_SUBMIT_AUTO_UNLOCK_MS = 15_000;
+const GOOGLE_AUTH_CALLBACK_PATH = "/auth";
 type AuthMode = "login" | "register";
 
 type GooglePlace = {
@@ -187,6 +188,11 @@ function clearGoogleAuthIntent() {
   try {
     sessionStorage.removeItem(GOOGLE_AUTH_INTENT_STORAGE_KEY);
   } catch {}
+}
+
+function replaceAuthModeUrl(authPagePath: string, mode: AuthMode) {
+  if (typeof window === "undefined") return;
+  window.history.replaceState(null, "", `${authPagePath}?mode=${mode}`);
 }
 
 function getAuthModeFromSearchParams(searchParams: URLSearchParams | ReadonlyURLSearchParamsLike): AuthMode {
@@ -801,12 +807,13 @@ function AuthPageContent() {
               setUser(null);
               setProfile(null);
               setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
-              window.history.replaceState(null, "", `${authPagePath}?mode=login`);
+              replaceAuthModeUrl(authPagePath, "login");
               void signOut();
               return;
             }
 
             clearGoogleAuthIntent();
+            replaceAuthModeUrl(authPagePath, "login");
             setUser(sessionUser);
             void tryClaimReferral(sessionUser.id);
           }).catch(() => {
@@ -821,7 +828,7 @@ function AuthPageContent() {
         if (googleIntent === "register") {
           clearGoogleAuthIntent();
           setAuthMode("register");
-          window.history.replaceState(null, "", `${authPagePath}?mode=register`);
+          replaceAuthModeUrl(authPagePath, "register");
         }
 
         setUser(sessionUser);
@@ -855,12 +862,13 @@ function AuthPageContent() {
             setUser(null);
             setProfile(null);
             setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
-            window.history.replaceState(null, "", `${authPagePath}?mode=login`);
+            replaceAuthModeUrl(authPagePath, "login");
             void signOut();
             return;
           }
 
           clearGoogleAuthIntent();
+          replaceAuthModeUrl(authPagePath, "login");
           setUser(nextUser);
           setStatus("");
         }).catch(() => {
@@ -875,7 +883,7 @@ function AuthPageContent() {
       if (event === "SIGNED_IN" && nextUser && googleIntent === "register") {
         clearGoogleAuthIntent();
         setAuthMode("register");
-        window.history.replaceState(null, "", `${authPagePath}?mode=register`);
+        replaceAuthModeUrl(authPagePath, "register");
       }
 
       setUser(nextUser);
@@ -1499,7 +1507,7 @@ function AuthPageContent() {
     rememberGoogleAuthIntent(authMode);
     const { error } =
       await withTimeout(
-        signInWithGoogle(authMode, authPagePath),
+        signInWithGoogle(authMode, GOOGLE_AUTH_CALLBACK_PATH),
         10000,
         "Google-kirjautuminen kesti liian kauan."
       );
@@ -1587,7 +1595,7 @@ function AuthPageContent() {
 
     if (typeof window === "undefined") return;
 
-    window.history.replaceState(null, "", `${authPagePath}?mode=${mode}`);
+    replaceAuthModeUrl(authPagePath, mode);
   }
 
   return (
