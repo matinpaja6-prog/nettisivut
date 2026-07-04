@@ -1099,20 +1099,6 @@ function AuthPageContent() {
     });
   }, [customCountry, form, privacyAccepted, profile, profileLookupDone, user]);
 
-  useEffect(() => {
-    if (!user || !profileLookupDone || isProfileCompleted(profile)) return;
-
-    const metadata = user.user_metadata ?? {};
-    let hasRegistrationDraft = metadata.registration_form_complete === "true";
-    try {
-      hasRegistrationDraft ||= Boolean(sessionStorage.getItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY));
-    } catch {}
-
-    if (!hasRegistrationDraft) {
-      router.replace(profilePagePath);
-    }
-  }, [profile, profileLookupDone, profilePagePath, router, user]);
-
   async function createAccountAfterRegistrationPin(
     selectedCountry: string,
     targetUser: User
