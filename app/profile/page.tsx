@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { sanitizePhoneInput } from "@/lib/phone-input";
-import { profilePath } from "@/lib/routes";
+import { pagePath, profilePath } from "@/lib/routes";
 
 import {
   ArrowRight,
@@ -279,6 +279,7 @@ function normalizePhoneNumber(value: string) {
 export default function ProfilePage() {
   const router = useRouter();
   const { locale, t } = useLanguage();
+  const authPagePath = pagePath("auth", locale);
   const profileText = {
     privateDetails: {
       fi: "Henkilökohtaiset tiedot",
@@ -795,9 +796,9 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (user && profileLoaded && profile === null) {
-      router.replace("/auth");
+      router.replace(authPagePath);
     }
-  }, [user, profileLoaded, profile, router]);
+  }, [authPagePath, user, profileLoaded, profile, router]);
 
   useEffect(() => {
 
@@ -1515,7 +1516,7 @@ export default function ProfilePage() {
             <div className="pf-login-prompt">
               <LockKeyhole size={22} />
               <span>{profileText.loginToViewProfile}</span>
-              <Link href="/auth">{t.login}</Link>
+              <Link href={authPagePath}>{t.login}</Link>
             </div>
           )}
 
@@ -1523,7 +1524,7 @@ export default function ProfilePage() {
             <div className="pf-login-prompt">
               <LockKeyhole size={22} />
               <span>{profileText.profileNotCompleted}</span>
-              <Link href="/auth">{profileText.completeProfile}</Link>
+              <Link href={authPagePath}>{profileText.completeProfile}</Link>
             </div>
           )}
 

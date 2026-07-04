@@ -9,7 +9,7 @@ import { BirthDateField } from "@/app/components/BirthDateField";
 import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { sanitizePhoneDigits, sanitizePhoneInput } from "@/lib/phone-input";
-import { pagePath } from "@/lib/routes";
+import { pagePath, profileRootPath } from "@/lib/routes";
 import {
   awardReferralPoints,
   getSafeAuthSession,
@@ -540,6 +540,7 @@ function AuthPageContent() {
   const { locale, t } = useLanguage();
   const pinText = registrationPinText[locale];
   const authPagePath = pagePath("auth", locale);
+  const profilePagePath = profileRootPath(locale);
   const authRedirectPath = getSafeAuthRedirectPath(searchParams.get("next"));
   const [authMode, setAuthMode] = useState<AuthMode>(() => getAuthModeFromSearchParams(searchParams));
   const sellLoginPrompt =
@@ -1057,7 +1058,7 @@ function AuthPageContent() {
     await tryClaimReferral(targetUser.id);
     setStatus(t.authProfileSavedMsg);
     setAuthSubmitting(false);
-    router.push(form.account_type === "company" ? "/profile#yritys" : "/");
+    router.push(form.account_type === "company" ? `${profilePagePath}#yritys` : "/");
     } catch (error) {
       setAuthSubmitting(false);
       setStatus(getErrorMessage(error));
@@ -1108,7 +1109,7 @@ function AuthPageContent() {
     } catch {}
 
     if (!hasRegistrationDraft) {
-      router.replace("/profile");
+      router.replace(profilePagePath);
     }
   }, [profile, profileLookupDone, router, user]);
 
