@@ -136,6 +136,15 @@ const nextConfig: NextConfig = {
   webpack(config, { dev }) {
     if (!dev) {
       config.module?.rules?.forEach(obscureCssModuleNames);
+      config.optimization = {
+        ...config.optimization,
+        chunkIds: "deterministic",
+        concatenateModules: true,
+        mangleExports: "deterministic",
+        moduleIds: "deterministic",
+        providedExports: true,
+        usedExports: true
+      };
     }
 
     return config;

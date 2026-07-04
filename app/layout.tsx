@@ -43,6 +43,7 @@ import VisitorLanguageGate from "./components/VisitorLanguageGate";
 import InstantNavigation from "./components/InstantNavigation";
 import NavigationHistory from "./components/NavigationHistory";
 import AutoTranslate from "./components/AutoTranslate";
+import SourceFog from "./components/SourceFog";
 import { PUBLIC_SITE_URL } from "@/lib/site-url";
 
 export const metadata: Metadata = {
@@ -171,6 +172,7 @@ export default function RootLayout({
     <html lang="fi" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: earlyAppearance }} />
+        <SourceFog />
       </head>
       <body suppressHydrationWarning>
         <TaxonomyProvider>
