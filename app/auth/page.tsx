@@ -1111,7 +1111,7 @@ function AuthPageContent() {
     if (!hasRegistrationDraft) {
       router.replace(profilePagePath);
     }
-  }, [profile, profileLookupDone, router, user]);
+  }, [profile, profileLookupDone, profilePagePath, router, user]);
 
   async function createAccountAfterRegistrationPin(
     selectedCountry: string,
@@ -1947,7 +1947,7 @@ function AuthPageContent() {
             </p>
             {status ? <span className="form-note">{status}</span> : null}
           </form>
-        ) : !profileLookupDone ? null : false ? (
+        ) : !profileLookupDone ? null : needsProfile ? (
           <form className={`auth-card simple-card profile-completion-card profile-finalize-card profile-type-${form.account_type} ${needsProfile ? "" : "profile-ready-card"}`} onSubmit={(event) => {
             event.preventDefault();
             saveProfile(user!);
