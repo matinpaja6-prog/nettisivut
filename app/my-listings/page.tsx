@@ -476,6 +476,7 @@ export default function MyListingsPage() {
       price: "",
       category: "",
       subcategory: "",
+      part_model: "",
       part_number: "",
       location: "",
       location_country: "Suomi",
@@ -710,6 +711,7 @@ export default function MyListingsPage() {
       price: String(listing.price),
       category: listing.category ?? "",
       subcategory: listing.subcategory ?? "",
+      part_model: listing.part_model ?? "",
       part_number: listing.part_number ?? "",
       location: listing.location,
       location_country: locationParts.country,
@@ -736,6 +738,7 @@ export default function MyListingsPage() {
           price: String(data.price),
           category: data.category ?? "",
           subcategory: data.subcategory ?? "",
+          part_model: data.part_model ?? "",
           part_number: data.part_number ?? "",
           location: data.location,
           location_country: freshLocationParts.country,
@@ -902,6 +905,7 @@ export default function MyListingsPage() {
           price: normalizeListingPriceForSave(listingForm.price),
           category: listingForm.category,
           subcategory: listingForm.subcategory,
+          part_model: listingForm.part_model.trim() || null,
           part_number: listingForm.part_number.trim() || null,
           location: nextLocation,
           condition: listingForm.condition,
@@ -1872,6 +1876,20 @@ export default function MyListingsPage() {
                                     />
                                     <b>€</b>
                                   </div>
+                                </label>
+                                <label className="own-listing-field">
+                                  <span>Osan tarkka malli</span>
+                                  <input
+                                    className="own-listing-part-input"
+                                    value={listingForm.part_model}
+                                    onChange={(event) =>
+                                      setListingForm({
+                                        ...listingForm,
+                                        part_model: event.target.value
+                                      })
+                                    }
+                                    placeholder="Stage6, Airsal, Malossi..."
+                                  />
                                 </label>
                                 <label className="own-listing-field">
                                   <span>Varaosanumero</span>

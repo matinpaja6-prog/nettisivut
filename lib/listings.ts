@@ -64,6 +64,9 @@ export type Listing = {
   // varaosanumero / OEM-numero
   part_number?: string | null;
 
+  // osan tarkka malli / valmistajasarja, esim. Stage6 tai Airsal
+  part_model?: string | null;
+
   location: string;
 
   condition: string;
@@ -117,6 +120,7 @@ export type SoldListing = {
   category?: string | null;
   subcategory?: string | null;
   part_number?: string | null;
+  part_model?: string | null;
   condition?: string | null;
   location?: string | null;
   image_url?: string | null;

@@ -116,6 +116,8 @@ const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = 
     "Nouto": "Pickup",
     "Toimitustapa": "Delivery method",
     "Lisää tuotetiedot": "Add product details",
+    "Osan tarkka malli / valmistaja (vapaaehtoinen)": "Exact part model / manufacturer (optional)",
+    "Esim. Stage6, Airsal, Malossi...": "E.g. Stage6, Airsal, Malossi...",
     "Varaosanumero / OEM-numero (vapaaehtoinen)": "Part number / OEM number (optional)",
     "Lisää jos tiedossa": "Add if known",
     "Vedä ja pudota kuvat tähän": "Drag and drop images here",
@@ -154,6 +156,7 @@ const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = 
     "Kategoria": "Category",
     "Sijainti": "Location",
     "Varaosanumero": "Part number",
+    "Osan malli": "Part model",
     "Tarkista vielä tärkeimmät tiedot ennen kuin ilmoitus lähtee ostajille näkyviin.": "Review the most important details before the listing becomes visible to buyers.",
     "Kuvausta ei ole viela lisatty.": "No description added yet."
   },
@@ -163,6 +166,8 @@ const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = 
     "Nouto": "Avhämtning",
     "Toimitustapa": "Leveranssätt",
     "Lisää tuotetiedot": "Lägg till produktuppgifter",
+    "Osan tarkka malli / valmistaja (vapaaehtoinen)": "Exakt delmodell / tillverkare (valfritt)",
+    "Esim. Stage6, Airsal, Malossi...": "T.ex. Stage6, Airsal, Malossi...",
     "Varaosanumero / OEM-numero (vapaaehtoinen)": "Reservdelsnummer / OEM-nummer (valfritt)",
     "Lisää jos tiedossa": "Lägg till om känt",
     "Vedä ja pudota kuvat tähän": "Dra och släpp bilderna här",
@@ -201,6 +206,7 @@ const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = 
     "Kategoria": "Kategori",
     "Sijainti": "Plats",
     "Varaosanumero": "Reservdelsnummer",
+    "Osan malli": "Delmodell",
     "Tarkista vielä tärkeimmät tiedot ennen kuin ilmoitus lähtee ostajille näkyviin.": "Granska de viktigaste uppgifterna innan annonsen visas för köpare.",
     "Kuvausta ei ole viela lisatty.": "Ingen beskrivning har lagts till ännu."
   },
@@ -210,6 +216,8 @@ const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = 
     "Nouto": "Henting",
     "Toimitustapa": "Leveringsmåte",
     "Lisää tuotetiedot": "Legg til produktdetaljer",
+    "Osan tarkka malli / valmistaja (vapaaehtoinen)": "Nøyaktig delmodell / produsent (valgfritt)",
+    "Esim. Stage6, Airsal, Malossi...": "F.eks. Stage6, Airsal, Malossi...",
     "Varaosanumero / OEM-numero (vapaaehtoinen)": "Delenummer / OEM-nummer (valgfritt)",
     "Lisää jos tiedossa": "Legg til hvis kjent",
     "Vedä ja pudota kuvat tähän": "Dra og slipp bildene her",
@@ -248,6 +256,7 @@ const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = 
     "Kategoria": "Kategori",
     "Sijainti": "Sted",
     "Varaosanumero": "Delenummer",
+    "Osan malli": "Delmodell",
     "Tarkista vielä tärkeimmät tiedot ennen kuin ilmoitus lähtee ostajille näkyviin.": "Kontroller de viktigste opplysningene før annonsen blir synlig for kjøpere.",
     "Kuvausta ei ole viela lisatty.": "Ingen beskrivelse lagt til ennå."
   },
@@ -257,6 +266,8 @@ const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = 
     "Nouto": "Järeletulemine",
     "Toimitustapa": "Tarneviis",
     "Lisää tuotetiedot": "Lisa tooteandmed",
+    "Osan tarkka malli / valmistaja (vapaaehtoinen)": "Täpne osa mudel / tootja (valikuline)",
+    "Esim. Stage6, Airsal, Malossi...": "Nt Stage6, Airsal, Malossi...",
     "Varaosanumero / OEM-numero (vapaaehtoinen)": "Varuosa number / OEM-number (valikuline)",
     "Lisää jos tiedossa": "Lisa, kui teada",
     "Vedä ja pudota kuvat tähän": "Lohista pildid siia",
@@ -295,6 +306,7 @@ const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = 
     "Kategoria": "Kategooria",
     "Sijainti": "Asukoht",
     "Varaosanumero": "Varuosa number",
+    "Osan malli": "Osa mudel",
     "Tarkista vielä tärkeimmät tiedot ennen kuin ilmoitus lähtee ostajille näkyviin.": "Kontrolli tähtsaimad andmed enne, kui kuulutus ostjatele nähtavaks muutub.",
     "Kuvausta ei ole viela lisatty.": "Kirjeldust pole veel lisatud."
   }
@@ -896,6 +908,8 @@ Object.assign(extraSellTranslations.en, {
   "LisÃ¤Ã¤ myytÃ¤vÃ¤t osat": "Add the parts for sale",
   "ilmoitusta tÃ¤ytetty": "listings completed",
   "valittua tuotetta": "selected products",
+  "Osan tarkka malli": "Exact part model",
+  "Kirjoita osan malli": "Enter part model",
   "Osanumero / OEM": "Part number / OEM",
   "Kirjoita osanumero": "Enter part number",
   "LisÃ¤tiedot": "Additional details",
@@ -1121,12 +1135,13 @@ type MultiPartSelection = {
   title: string;
   price: string;
   condition: string;
+  partModel: string;
   partNumber: string;
   description: string;
   images: UploadedImage[];
 };
 
-type MultiPartOption = Omit<MultiPartSelection, "title" | "price" | "condition" | "partNumber" | "description" | "images">;
+type MultiPartOption = Omit<MultiPartSelection, "title" | "price" | "condition" | "partModel" | "partNumber" | "description" | "images">;
 
 type MultiPartGroup = {
   name: string;
@@ -1157,6 +1172,7 @@ type SellDraftState = {
   subcategory: string;
   condition: string;
   uploadedImages: SellDraftImage[];
+  partModel: string;
   partNumber: string;
   listingPrice: string;
   multiParts: Record<string, SellDraftPart>;
@@ -2462,6 +2478,7 @@ function SellPageContent() {
   const [condition, setCondition] = useState("");
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [previewImage, setPreviewImage] = useState<UploadedImage | null>(null);
+  const [partModel, setPartModel] = useState("");
   const [partNumber, setPartNumber] = useState("");
   const [listingPrice, setListingPrice] = useState("");
   const [singlePriceSuggestion, setSinglePriceSuggestion] = useState<PriceSuggestion | null>(null);
@@ -2788,7 +2805,7 @@ function SellPageContent() {
     if (vehicleType.key !== vehicleCards[1].key) return true;
     if (Object.values(vehicleDetails).some((value) => value.trim())) return true;
     if (category || categoryGroup || subcategory || condition) return true;
-    if (partNumber || listingPrice || listingLocation || listingTitle || listingDescription) return true;
+    if (partModel || partNumber || listingPrice || listingLocation || listingTitle || listingDescription) return true;
     if (deliveryMethod !== "both" || selectedCompanySellerId) return true;
     if (uploadedImages.length > 0 || Object.keys(multiParts).length > 0) return true;
     return false;
@@ -2804,6 +2821,7 @@ function SellPageContent() {
     listingTitle,
     mode,
     multiParts,
+    partModel,
     partNumber,
     selectedCompanySellerId,
     subcategory,
@@ -2824,6 +2842,7 @@ function SellPageContent() {
     subcategory,
     condition,
     uploadedImages: uploadedImages.map(toDraftImage),
+    partModel,
     partNumber,
     listingPrice,
     multiParts: Object.fromEntries(
@@ -2870,6 +2889,7 @@ function SellPageContent() {
     multiPartSearch,
     multiParts,
     openMultiListingPartId,
+    partModel,
     partNumber,
     selectedCompanySellerId,
     showSelectedMultiParts,
@@ -2944,6 +2964,7 @@ function SellPageContent() {
         setSubcategory(draft.subcategory);
         setCondition(draft.condition);
         setUploadedImages(draft.uploadedImages.map(createImageFromDraft));
+        setPartModel(draft.partModel ?? "");
         setPartNumber(draft.partNumber);
         setListingPrice(draft.listingPrice);
         setMultiParts(
@@ -3407,6 +3428,7 @@ function SellPageContent() {
           title: "",
           price: "",
           condition: "",
+          partModel: "",
           partNumber: "",
           description: "",
           images: []
@@ -3433,6 +3455,7 @@ function SellPageContent() {
             title: "",
             price: "",
             condition: "",
+            partModel: "",
             partNumber: "",
             description: "",
             images: []
@@ -3591,6 +3614,7 @@ function SellPageContent() {
           title: "",
           price: "",
           condition: "",
+          partModel: "",
           partNumber: "",
           description: "",
           images: []
@@ -3618,7 +3642,7 @@ function SellPageContent() {
 
   function updateMultiPartField(
     id: string,
-    field: "title" | "condition" | "partNumber" | "description",
+    field: "title" | "condition" | "partModel" | "partNumber" | "description",
     value: string
   ) {
     setMultiParts((current) => {
@@ -3735,6 +3759,7 @@ function SellPageContent() {
     setSubcategory("");
     setCondition("");
     setUploadedImages([]);
+    setPartModel("");
     setPartNumber("");
     setListingPrice("");
     setSinglePriceSuggestion(null);
@@ -3960,6 +3985,7 @@ function SellPageContent() {
       engine_model: vehicleDetails.engineType.trim(),
       category: part?.category ?? selectedCategory,
       subcategory: part?.detail ?? selectedDetailCategory,
+      part_model: mode === "single" ? partModel.trim() || null : part?.partModel.trim() || null,
       part_number: mode === "single" ? partNumber.trim() || null : part?.partNumber.trim() || null,
       location: buildListingLocation(listingLocation, profileCity, profileCountry),
       condition: part?.condition ?? condition,
@@ -4556,6 +4582,14 @@ function SellPageContent() {
                     <small className={styles.automaticTitleHint}>
                       {st("TÃ¤mÃ¤ on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
                     </small>
+                  </label>
+                  <label>
+                    <span>{st("Osan tarkka malli")}</span>
+                    <input
+                      value={part.partModel}
+                      onChange={(event) => updateMultiPartField(part.id, "partModel", event.target.value)}
+                      placeholder={st("Kirjoita osan malli")}
+                    />
                   </label>
                   <label>
                     <span>{st("Osanumero / OEM")}</span>
@@ -5199,6 +5233,13 @@ function SellPageContent() {
             <h2>{st("Lisää tuotetiedot")}</h2>
             <div className={styles.productDetailsGrid}>
               <DetailInput
+                label={st("Osan tarkka malli / valmistaja (vapaaehtoinen)")}
+                icon={Tags}
+                placeholder={st("Esim. Stage6, Airsal, Malossi...")}
+                value={partModel}
+                onChange={setPartModel}
+              />
+              <DetailInput
                 label={st("Varaosanumero / OEM-numero (vapaaehtoinen)")}
                 icon={Barcode}
                 placeholder={st("Lisää jos tiedossa")}
@@ -5624,6 +5665,7 @@ function SellPageContent() {
       { label: st("Kategoria"), value: categorySummary || st("Ei lisatty") },
       { label: st("Sijainti"), value: buildListingLocation(listingLocation, profileCity, profileCountry) || st("Ei lisatty") },
       { label: st("Toimitustapa"), value: st(getDeliveryMethodLabel()) },
+      { label: st("Osan malli"), value: partModel.trim() || st("Ei lisatty") },
       { label: st("Varaosanumero"), value: partNumber.trim() || st("Ei lisatty") }
     ];
 

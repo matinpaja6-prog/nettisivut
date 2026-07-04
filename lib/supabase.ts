@@ -262,6 +262,7 @@ export type ListingUpdateInput = Pick<
   | "category"
   | "subcategory"
   | "part_number"
+  | "part_model"
   | "location"
   | "condition"
   | "description"
@@ -601,6 +602,7 @@ const OPTIONAL_LISTING_CARD_COLUMN_LIST = [
   "translations",
   "vehicle_subtype",
   "part_number",
+  "part_model",
   "image_urls",
   "company_name",
   "seller_avatar_url",
@@ -615,6 +617,11 @@ const OPTIONAL_LISTING_CARD_COLUMN_LIST = [
 const LISTING_CARD_COLUMN_LIST = [
   ...BASE_LISTING_CARD_COLUMN_LIST,
   ...OPTIONAL_LISTING_CARD_COLUMN_LIST
+];
+
+const LISTING_CARD_COLUMN_LIST_WITHOUT_PART_MODEL = [
+  ...BASE_LISTING_CARD_COLUMN_LIST,
+  ...OPTIONAL_LISTING_CARD_COLUMN_LIST.filter((column) => column !== "part_model")
 ];
 
 const LISTING_CARD_SELECT =
@@ -760,6 +767,15 @@ export async function getListings(options: GetListingsOptions = {}) {
 
       if (includeOptionalFields && error && hasMissingListingColumns(error)) {
         ({ data, error, count } = await fetchListingsRange(
+          LISTING_CARD_COLUMN_LIST_WITHOUT_PART_MODEL,
+          offset,
+          offset + limit - 1,
+          Boolean(options.includeCount)
+        ));
+      }
+
+      if (includeOptionalFields && error && hasMissingListingColumns(error)) {
+        ({ data, error, count } = await fetchListingsRange(
           BASE_LISTING_CARD_COLUMN_LIST,
           offset,
           offset + limit - 1,
@@ -777,6 +793,10 @@ export async function getListings(options: GetListingsOptions = {}) {
     let { data, error } = await fetchAllListings(
       selectedColumns
     );
+
+    if (includeOptionalFields && error && hasMissingListingColumns(error)) {
+      ({ data, error } = await fetchAllListings(LISTING_CARD_COLUMN_LIST_WITHOUT_PART_MODEL));
+    }
 
     if (includeOptionalFields && error && hasMissingListingColumns(error)) {
       ({ data, error } = await fetchAllListings(BASE_LISTING_CARD_COLUMN_LIST));
@@ -869,6 +889,11 @@ export async function getListingsByIds(listingIds: string[]) {
 
     let { data, error } =
       await fetchListingsByIds(LISTING_CARD_COLUMN_LIST);
+
+    if (error && hasMissingListingColumns(error)) {
+      ({ data, error } =
+        await fetchListingsByIds(LISTING_CARD_COLUMN_LIST_WITHOUT_PART_MODEL));
+    }
 
     if (error && hasMissingListingColumns(error)) {
       ({ data, error } =
@@ -1203,6 +1228,7 @@ export async function getPublicListingsBySeller(
       "category",
       "subcategory",
       "part_number",
+      "part_model",
       "location",
       "condition",
       "description",
@@ -1226,6 +1252,22 @@ export async function getPublicListingsBySeller(
 
     if (!hasMissingListingColumns(result.error)) {
       return result;
+    }
+
+    const withoutPartModelResult = await supabase
+      .from("listings")
+      .select(
+        publicListingSelect
+          .split(",")
+          .filter((column) => column !== "part_model")
+          .join(",")
+      )
+      .eq("seller_id", sellerId)
+      .order("created_at", { ascending: false })
+      .returns<Listing[]>();
+
+    if (!hasMissingListingColumns(withoutPartModelResult.error)) {
+      return withoutPartModelResult;
     }
 
     return await supabase
@@ -1349,6 +1391,7 @@ export async function updateListing(
       delete fallbackListing.original_language;
       delete fallbackListing.translations;
       delete fallbackListing.part_number;
+      delete fallbackListing.part_model;
 
       result = await supabase
         .from("listings")
@@ -1591,6 +1634,7 @@ export async function recordSoldListing(
       category: listing.category ?? null,
       subcategory: listing.subcategory ?? null,
       part_number: listing.part_number ?? null,
+      part_model: listing.part_model ?? null,
       condition: listing.condition ?? null,
       location: listing.location ?? null,
       image_url: null,
@@ -1611,6 +1655,7 @@ export async function recordSoldListing(
         "engine_cc",
         "engine_model",
         "part_number",
+        "part_model",
         "condition",
         "location"
       ]);
@@ -2085,6 +2130,7 @@ function cleanListingInput(listing: ListingInput): ListingInput {
     category: cleanOptionalUserText(listing.category, 160),
     subcategory: cleanOptionalUserText(listing.subcategory, 160),
     part_number: cleanOptionalUserText(listing.part_number, 80),
+    part_model: cleanOptionalUserText(listing.part_model, 120),
     location: cleanUserText(listing.location, 160),
     condition: cleanUserText(listing.condition, 80),
     description: cleanUserText(listing.description, 5000),
@@ -2191,6 +2237,7 @@ export async function createListing(
       delete fallbackPayload.original_language;
       delete fallbackPayload.translations;
       delete fallbackPayload.part_number;
+      delete fallbackPayload.part_model;
       delete fallbackPayload.listing_mode;
       delete fallbackPayload.vehicle_subtype;
 
@@ -2233,7 +2280,8 @@ function hasMissingListingColumns(error: unknown) {
     message.includes("column") ||
     message.includes("original_language") ||
     message.includes("translations") ||
-    message.includes("part_number")
+    message.includes("part_number") ||
+    message.includes("part_model")
   );
 }
 
@@ -6209,7 +6257,10 @@ export async function getListingsMatchingAlert(alert: SearchAlert) {
           `description.ilike.%${term}%`,
           `brand.ilike.%${term}%`
         ];
-        if (includePartNumber) fields.push(`part_number.ilike.%${term}%`);
+        if (includePartNumber) {
+          fields.push(`part_number.ilike.%${term}%`);
+          fields.push(`part_model.ilike.%${term}%`);
+        }
         q = q.or(fields.join(","));
       }
       return q.order("created_at", { ascending: false }).limit(20).returns<Listing[]>();

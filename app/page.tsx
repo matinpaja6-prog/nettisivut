@@ -1990,6 +1990,7 @@ function HomeContent() {
           ${listing.description ?? ""}
           ${listing.brand ?? ""}
           ${listing.model ?? ""}
+          ${listing.part_model ?? ""}
           ${listingVehicleSubtypeText}
           ${listing.engine_cc ?? ""}
           ${listingPartNumber}
@@ -2008,6 +2009,7 @@ function HomeContent() {
           const haystack = [
             listing.brand ?? "",
             listing.model ?? "",
+            listing.part_model ?? "",
             listingPartNumber,
             listingText.title,
             listingText.description
@@ -2038,7 +2040,7 @@ function HomeContent() {
         const matchesModel =
           !modelQuery ||
           allSearchWordsMatch(
-            `${listing.model ?? ""} ${listingText.title} ${listingText.description} ${listingPartNumber}`,
+            `${listing.model ?? ""} ${listing.part_model ?? ""} ${listingText.title} ${listingText.description} ${listingPartNumber}`,
             modelQuery
           );
 

@@ -76,6 +76,7 @@ const listingUiText = {
     additionalInfo: "Lisätiedot",
     noDescription: "Ei kuvausta.",
     vehicle: "Ajoneuvo",
+    partModel: "Osan malli",
     partNumber: "Varaosanumero",
     brand: "Merkki",
     model: "Malli",
@@ -117,6 +118,7 @@ const listingUiText = {
     additionalInfo: "Additional details",
     noDescription: "No description.",
     vehicle: "Vehicle",
+    partModel: "Part model",
     partNumber: "Part number",
     brand: "Brand",
     model: "Model",
@@ -158,6 +160,7 @@ const listingUiText = {
     additionalInfo: "Tilläggsinformation",
     noDescription: "Ingen beskrivning.",
     vehicle: "Fordon",
+    partModel: "Delmodell",
     partNumber: "Artikelnummer",
     brand: "Märke",
     model: "Modell",
@@ -199,6 +202,7 @@ const listingUiText = {
     additionalInfo: "Tilleggsinformasjon",
     noDescription: "Ingen beskrivelse.",
     vehicle: "Kjøretøy",
+    partModel: "Delmodell",
     partNumber: "Delenummer",
     brand: "Merke",
     model: "Modell",
@@ -240,6 +244,7 @@ const listingUiText = {
     additionalInfo: "Lisainfo",
     noDescription: "Kirjeldus puudub.",
     vehicle: "Sõiduk",
+    partModel: "Osa mudel",
     partNumber: "Varuosanumber",
     brand: "Mark",
     model: "Mudel",
@@ -1652,6 +1657,12 @@ export default function ListingPage() {
                   <strong>{extraUi.vehicleSubtype}</strong>
                   {listingVehicleSubtype ? translateCategory(locale, listingVehicleSubtype) : ui.notSpecified}
                 </span>
+                {listing.part_model?.trim() && (
+                  <span>
+                    <strong>{ui.partModel}</strong>
+                    {listing.part_model.trim()}
+                  </span>
+                )}
                 {listingPartNumber && (
                   <span>
                     <strong>{ui.partNumber}</strong>
