@@ -9,7 +9,7 @@ import { BirthDateField } from "@/app/components/BirthDateField";
 import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { sanitizePhoneDigits, sanitizePhoneInput } from "@/lib/phone-input";
-import { pagePath, profileRootPath } from "@/lib/routes";
+import { canonicalPathFromLocalized, pagePath, profileRootPath } from "@/lib/routes";
 import {
   awardReferralPoints,
   getSafeAuthSession,
@@ -203,6 +203,32 @@ function getSafeAuthRedirectPath(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) return "/";
 
   return value;
+}
+
+function isProtectedAuthRedirectPath(value: string | null) {
+  const redirectPath = getSafeAuthRedirectPath(value);
+  const pathname = redirectPath.split(/[?#]/)[0] || "/";
+  const canonical = canonicalPathFromLocalized(pathname);
+
+  if (
+    canonical === "/garage" ||
+    canonical === "/my-listings" ||
+    canonical === "/saved" ||
+    canonical === "/followed" ||
+    canonical === "/rewards" ||
+    canonical === "/shop" ||
+    canonical === "/search-alerts" ||
+    canonical === "/profile"
+  ) {
+    return true;
+  }
+
+  return (
+    canonical === "/sell" ||
+    canonical.startsWith("/sell/") ||
+    canonical === "/messages" ||
+    canonical.startsWith("/messages/")
+  );
 }
 
 type ReadonlyURLSearchParamsLike = {
@@ -1585,13 +1611,22 @@ function AuthPageContent() {
     replaceAuthModeUrl(authPagePath, mode);
   }
 
+  function handleBackFromAuth() {
+    if (isProtectedAuthRedirectPath(searchParams.get("next"))) {
+      router.push("/");
+      return;
+    }
+
+    goBackOrFallback(router);
+  }
+
   return (
     <main className="auth-page simple-auth-page">
       {showBackHome && (
         <button
           type="button"
           className="auth-back-home"
-          onClick={() => goBackOrFallback(router)}
+          onClick={handleBackFromAuth}
         >
           <ArrowLeft size={20} aria-hidden="true" />
         </button>
