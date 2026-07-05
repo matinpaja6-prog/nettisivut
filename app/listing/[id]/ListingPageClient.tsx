@@ -78,6 +78,7 @@ const listingUiText = {
     vehicle: "Ajoneuvo",
     partModel: "Osan malli",
     trackMatDetails: "Telamaton tiedot",
+    trackMatDimensions: "Telamaton mitat",
     partNumber: "Varaosanumero",
     brand: "Merkki",
     model: "Malli",
@@ -121,6 +122,7 @@ const listingUiText = {
     vehicle: "Vehicle",
     partModel: "Part model",
     trackMatDetails: "Track mat details",
+    trackMatDimensions: "Track mat dimensions",
     partNumber: "Part number",
     brand: "Brand",
     model: "Model",
@@ -164,6 +166,7 @@ const listingUiText = {
     vehicle: "Fordon",
     partModel: "Delmodell",
     trackMatDetails: "Mattans uppgifter",
+    trackMatDimensions: "Mattans mått",
     partNumber: "Artikelnummer",
     brand: "Märke",
     model: "Modell",
@@ -207,6 +210,7 @@ const listingUiText = {
     vehicle: "Kjøretøy",
     partModel: "Delmodell",
     trackMatDetails: "Beltemattedetaljer",
+    trackMatDimensions: "Beltemattemål",
     partNumber: "Delenummer",
     brand: "Merke",
     model: "Modell",
@@ -250,6 +254,7 @@ const listingUiText = {
     vehicle: "Sõiduk",
     partModel: "Osa mudel",
     trackMatDetails: "Roomikumati andmed",
+    trackMatDimensions: "Roomikumati mõõdud",
     partNumber: "Varuosanumber",
     brand: "Mark",
     model: "Mudel",
@@ -1318,6 +1323,32 @@ export default function ListingPage() {
     listing.subcategory,
     listing.title
   ].some((value) => (value ?? "").trim().toLowerCase().includes("telamat"));
+  const parsedPartModelDetails = (() => {
+    const raw = listing.part_model?.trim() ?? "";
+    if (!raw) return { partModel: "", trackMatDimensions: "" };
+
+    let partModel = "";
+    let trackMatDimensions = "";
+
+    for (const line of raw.split(/\r?\n/)) {
+      const cleanLine = line.trim();
+      const separatorIndex = cleanLine.indexOf(":");
+      const label = separatorIndex >= 0 ? cleanLine.slice(0, separatorIndex).trim().toLowerCase() : "";
+      const value = separatorIndex >= 0 ? cleanLine.slice(separatorIndex + 1).trim() : cleanLine;
+
+      if (label === "osan tarkka malli" || label === "osan malli") {
+        partModel = value;
+      } else if (label === "telamaton mitat" || label === "telamaton tiedot") {
+        trackMatDimensions = value;
+      } else if (!partModel && !listingIsTrackMat) {
+        partModel = cleanLine;
+      } else if (!trackMatDimensions && listingIsTrackMat) {
+        trackMatDimensions = cleanLine;
+      }
+    }
+
+    return { partModel, trackMatDimensions };
+  })();
   const translateConditionLabel = (value: string | null | undefined) =>
     value ? conditionLabels[locale][value] ?? value : ui.notSpecified;
   const translateVehicleTypeLabel = (value: string | null | undefined) =>
@@ -1667,10 +1698,16 @@ export default function ListingPage() {
                   <strong>{extraUi.vehicleSubtype}</strong>
                   {listingVehicleSubtype ? translateCategory(locale, listingVehicleSubtype) : ui.notSpecified}
                 </span>
-                {listing.part_model?.trim() && (
+                {parsedPartModelDetails.partModel && (
                   <span>
-                    <strong>{listingIsTrackMat ? ui.trackMatDetails : ui.partModel}</strong>
-                    {listing.part_model.trim()}
+                    <strong>{ui.partModel}</strong>
+                    {parsedPartModelDetails.partModel}
+                  </span>
+                )}
+                {parsedPartModelDetails.trackMatDimensions && (
+                  <span>
+                    <strong>{ui.trackMatDimensions}</strong>
+                    {parsedPartModelDetails.trackMatDimensions}
                   </span>
                 )}
                 {listingPartNumber && (

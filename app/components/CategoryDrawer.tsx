@@ -184,6 +184,18 @@ function normalizeIconText(value: string) {
     .toLowerCase();
 }
 
+function getCategorySearchText(value: string) {
+  const normalized = normalizeIconText(value);
+  if (!normalized.includes("telamat")) return normalized;
+
+  return [
+    normalized,
+    "telamatto tela matto track drivmatta belte",
+    "mitta mitat koko leveys levea pituus harjakorkeus harja jako pitch lug",
+    "15 16 20 38 381 40 406 41 410 51 154 155 156 163 165 174 175 137 141 144 146"
+  ].join(" ");
+}
+
 type PartPictureKind =
   | "engine"
   | "drivetrain"
@@ -1157,7 +1169,7 @@ function VehicleComboField({
   const normalizedValue = normalizeIconText(value);
   const visibleOptions = showAll || !normalizedValue
     ? options
-    : options.filter((option) => normalizeIconText(option).includes(normalizedValue));
+    : options.filter((option) => getCategorySearchText(option).includes(normalizedValue));
   const menuOptions = uniqueOptions([...visibleOptions, CUSTOM_OPTION_LABEL]);
 
   useEffect(() => {

@@ -30,6 +30,7 @@ import {
   Layers3,
   MapPin,
   PackagePlus,
+  Ruler,
   Send,
   Search,
   ShieldCheck,
@@ -1142,12 +1143,13 @@ type MultiPartSelection = {
   price: string;
   condition: string;
   partModel: string;
+  trackMatDetails: string;
   partNumber: string;
   description: string;
   images: UploadedImage[];
 };
 
-type MultiPartOption = Omit<MultiPartSelection, "title" | "price" | "condition" | "partModel" | "partNumber" | "description" | "images">;
+type MultiPartOption = Omit<MultiPartSelection, "title" | "price" | "condition" | "partModel" | "trackMatDetails" | "partNumber" | "description" | "images">;
 
 type MultiPartGroup = {
   name: string;
@@ -1179,6 +1181,7 @@ type SellDraftState = {
   condition: string;
   uploadedImages: SellDraftImage[];
   partModel: string;
+  trackMatDetails?: string;
   partNumber: string;
   listingPrice: string;
   multiParts: Record<string, SellDraftPart>;
@@ -1385,6 +1388,30 @@ function normalizeSellVehicleType(value?: string | null) {
 
 function isTrackMatText(value?: string | null) {
   return (value ?? "").trim().toLowerCase().includes("telamat");
+}
+
+function getPartCategorySearchText(value: string) {
+  const normalized = value.trim().toLowerCase();
+  if (!isTrackMatText(normalized)) return normalized;
+
+  return [
+    normalized,
+    "telamatto tela matto track",
+    "mitta mitat koko leveys levea pituus harjakorkeus harja jako pitch lug",
+    "15 16 20 38 381 40 406 41 410 51 154 155 156 163 165 174 175 137 141 144 146"
+  ].join(" ");
+}
+
+function buildPartModelDetails(partModelValue: string, trackMatDetailsValue: string, includeTrackMatDetails: boolean) {
+  const cleanPartModel = partModelValue.trim();
+  const cleanTrackMatDetails = trackMatDetailsValue.trim();
+
+  if (!includeTrackMatDetails) return cleanPartModel || null;
+
+  return [
+    cleanPartModel ? `Osan tarkka malli: ${cleanPartModel}` : "",
+    cleanTrackMatDetails ? `Telamaton mitat: ${cleanTrackMatDetails}` : ""
+  ].filter(Boolean).join("\n") || null;
 }
 
 function listingNeedsTrackMatDimensions(payload: ListingInput) {
@@ -2485,6 +2512,7 @@ function SellPageContent() {
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [previewImage, setPreviewImage] = useState<UploadedImage | null>(null);
   const [partModel, setPartModel] = useState("");
+  const [trackMatDetails, setTrackMatDetails] = useState("");
   const [partNumber, setPartNumber] = useState("");
   const [listingPrice, setListingPrice] = useState("");
   const [singlePriceSuggestion, setSinglePriceSuggestion] = useState<PriceSuggestion | null>(null);
@@ -2633,14 +2661,14 @@ function SellPageContent() {
 
       return multiPartTree
         .map((categoryItem) => {
-          const categoryMatches = categoryItem.name.toLowerCase().includes(query);
+          const categoryMatches = getPartCategorySearchText(categoryItem.name).includes(query);
           const groups = categoryItem.groups
             .map((groupItem) => {
-              const groupMatches = groupItem.name.toLowerCase().includes(query);
+              const groupMatches = getPartCategorySearchText(groupItem.name).includes(query);
               const parts =
                 categoryMatches || groupMatches
                   ? groupItem.parts
-                  : groupItem.parts.filter((part) => part.detail.toLowerCase().includes(query));
+                  : groupItem.parts.filter((part) => getPartCategorySearchText(part.detail).includes(query));
 
               return {
                 ...groupItem,
@@ -2650,14 +2678,14 @@ function SellPageContent() {
             .filter((groupItem) => groupItem.parts.length > 0);
           const sections = categoryItem.sections
             .map((sectionItem) => {
-              const sectionMatches = sectionItem.name.toLowerCase().includes(query);
+              const sectionMatches = getPartCategorySearchText(sectionItem.name).includes(query);
               const sectionGroups = sectionItem.groups
                 .map((groupItem) => {
-                  const groupMatches = groupItem.name.toLowerCase().includes(query);
+                  const groupMatches = getPartCategorySearchText(groupItem.name).includes(query);
                   const parts =
                     categoryMatches || sectionMatches || groupMatches
                       ? groupItem.parts
-                      : groupItem.parts.filter((part) => part.detail.toLowerCase().includes(query));
+                      : groupItem.parts.filter((part) => getPartCategorySearchText(part.detail).includes(query));
 
                   return {
                     ...groupItem,
@@ -2811,7 +2839,7 @@ function SellPageContent() {
     if (vehicleType.key !== vehicleCards[1].key) return true;
     if (Object.values(vehicleDetails).some((value) => value.trim())) return true;
     if (category || categoryGroup || subcategory || condition) return true;
-    if (partModel || partNumber || listingPrice || listingLocation || listingTitle || listingDescription) return true;
+    if (partModel || trackMatDetails || partNumber || listingPrice || listingLocation || listingTitle || listingDescription) return true;
     if (deliveryMethod !== "both" || selectedCompanySellerId) return true;
     if (uploadedImages.length > 0 || Object.keys(multiParts).length > 0) return true;
     return false;
@@ -2828,6 +2856,7 @@ function SellPageContent() {
     mode,
     multiParts,
     partModel,
+    trackMatDetails,
     partNumber,
     selectedCompanySellerId,
     subcategory,
@@ -2849,6 +2878,7 @@ function SellPageContent() {
     condition,
     uploadedImages: uploadedImages.map(toDraftImage),
     partModel,
+    trackMatDetails,
     partNumber,
     listingPrice,
     multiParts: Object.fromEntries(
@@ -2896,6 +2926,7 @@ function SellPageContent() {
     multiParts,
     openMultiListingPartId,
     partModel,
+    trackMatDetails,
     partNumber,
     selectedCompanySellerId,
     showSelectedMultiParts,
@@ -2971,6 +3002,7 @@ function SellPageContent() {
         setCondition(draft.condition);
         setUploadedImages(draft.uploadedImages.map(createImageFromDraft));
         setPartModel(draft.partModel ?? "");
+        setTrackMatDetails(draft.trackMatDetails ?? "");
         setPartNumber(draft.partNumber);
         setListingPrice(draft.listingPrice);
         setMultiParts(
@@ -2979,6 +3011,7 @@ function SellPageContent() {
               id,
               {
                 ...part,
+                trackMatDetails: part.trackMatDetails ?? "",
                 images: part.images.map(createImageFromDraft)
               }
             ])
@@ -3435,6 +3468,7 @@ function SellPageContent() {
           price: "",
           condition: "",
           partModel: "",
+          trackMatDetails: "",
           partNumber: "",
           description: "",
           images: []
@@ -3462,6 +3496,7 @@ function SellPageContent() {
             price: "",
             condition: "",
             partModel: "",
+            trackMatDetails: "",
             partNumber: "",
             description: "",
             images: []
@@ -3621,6 +3656,7 @@ function SellPageContent() {
           price: "",
           condition: "",
           partModel: "",
+          trackMatDetails: "",
           partNumber: "",
           description: "",
           images: []
@@ -3648,7 +3684,7 @@ function SellPageContent() {
 
   function updateMultiPartField(
     id: string,
-    field: "title" | "condition" | "partModel" | "partNumber" | "description",
+    field: "title" | "condition" | "partModel" | "trackMatDetails" | "partNumber" | "description",
     value: string
   ) {
     setMultiParts((current) => {
@@ -3766,6 +3802,7 @@ function SellPageContent() {
     setCondition("");
     setUploadedImages([]);
     setPartModel("");
+    setTrackMatDetails("");
     setPartNumber("");
     setListingPrice("");
     setSinglePriceSuggestion(null);
@@ -3991,7 +4028,13 @@ function SellPageContent() {
       engine_model: vehicleDetails.engineType.trim(),
       category: part?.category ?? selectedCategory,
       subcategory: part?.detail ?? selectedDetailCategory,
-      part_model: mode === "single" ? partModel.trim() || null : part?.partModel.trim() || null,
+      part_model: mode === "single"
+        ? buildPartModelDetails(partModel, trackMatDetails, selectedSinglePartNeedsTrackMatDimensions)
+        : buildPartModelDetails(
+            part?.partModel ?? "",
+            part?.trackMatDetails ?? "",
+            Boolean(part && [part.category, part.group, part.detail].some(isTrackMatText))
+          ),
       part_number: mode === "single" ? partNumber.trim() || null : part?.partNumber.trim() || null,
       location: buildListingLocation(listingLocation, profileCity, profileCountry),
       condition: part?.condition ?? condition,
@@ -4590,7 +4633,7 @@ function SellPageContent() {
                     </small>
                   </label>
                   <label>
-                    <span>{partNeedsTrackMatDimensions ? st("Telamaton tarkat tiedot") : st("Osan tarkka malli")}</span>
+                    <span>{st("Osan tarkka malli")}</span>
                     <input
                       value={part.partModel}
                       onChange={(event) => updateMultiPartField(part.id, "partModel", event.target.value)}
@@ -4601,6 +4644,16 @@ function SellPageContent() {
                       }
                     />
                   </label>
+                  {partNeedsTrackMatDimensions ? (
+                  <label>
+                    <span>{st("Telamaton mitat")}</span>
+                    <input
+                      value={part.trackMatDetails}
+                      onChange={(event) => updateMultiPartField(part.id, "trackMatDetails", event.target.value)}
+                      placeholder={st("Esim. 154 x 15 x 2.5, 3.0 jako, hyvÃ¤kuntoinen")}
+                    />
+                  </label>
+                  ) : null}
                   <label>
                     <span>{st("Osanumero / OEM")}</span>
                     <input
@@ -5243,20 +5296,25 @@ function SellPageContent() {
             <h2>{st("Lisää tuotetiedot")}</h2>
             <div className={styles.productDetailsGrid}>
               <DetailInput
-                label={
-                  selectedSinglePartNeedsTrackMatDimensions
-                    ? st("Telamaton tarkat tiedot")
-                    : st("Osan tarkka malli / valmistaja (vapaaehtoinen)")
-                }
+                label={st("Osan tarkka malli / valmistaja (vapaaehtoinen)")}
                 icon={Tags}
                 placeholder={
-                  selectedSinglePartNeedsTrackMatDimensions
+                  false
                     ? st("Esim. 154 x 15 x 2.5, 3.0 jako, hyväkuntoinen")
                     : st("Esim. Stage6, Airsal, Malossi...")
                 }
                 value={partModel}
                 onChange={setPartModel}
               />
+              {selectedSinglePartNeedsTrackMatDimensions ? (
+              <DetailInput
+                label={st("Telamaton mitat")}
+                icon={Ruler}
+                placeholder={st("Esim. 154 x 15 x 2.5, 3.0 jako, hyvÃ¤kuntoinen")}
+                value={trackMatDetails}
+                onChange={setTrackMatDetails}
+              />
+              ) : null}
               <DetailInput
                 label={st("Varaosanumero / OEM-numero (vapaaehtoinen)")}
                 icon={Barcode}
@@ -5683,10 +5741,10 @@ function SellPageContent() {
       { label: st("Kategoria"), value: categorySummary || st("Ei lisatty") },
       { label: st("Sijainti"), value: buildListingLocation(listingLocation, profileCity, profileCountry) || st("Ei lisatty") },
       { label: st("Toimitustapa"), value: st(getDeliveryMethodLabel()) },
-      {
-        label: selectedSinglePartNeedsTrackMatDimensions ? st("Telamaton tarkat tiedot") : st("Osan malli"),
-        value: partModel.trim() || st("Ei lisatty")
-      },
+      { label: st("Osan malli"), value: partModel.trim() || st("Ei lisatty") },
+      ...(selectedSinglePartNeedsTrackMatDimensions
+        ? [{ label: st("Telamaton mitat"), value: trackMatDetails.trim() || st("Ei lisatty") }]
+        : []),
       { label: st("Varaosanumero"), value: partNumber.trim() || st("Ei lisatty") }
     ];
 
