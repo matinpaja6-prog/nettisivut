@@ -42,6 +42,7 @@ import TaxonomyProvider from "./components/TaxonomyProvider";
 import VisitorLanguageGate from "./components/VisitorLanguageGate";
 import InstantNavigation from "./components/InstantNavigation";
 import NavigationHistory from "./components/NavigationHistory";
+import AuthRouteGuard from "./components/AuthRouteGuard";
 import AutoTranslate from "./components/AutoTranslate";
 import SourceFog from "./components/SourceFog";
 import { PUBLIC_SITE_URL } from "@/lib/site-url";
@@ -177,6 +178,7 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <TaxonomyProvider>
           <InstantNavigation />
+          <AuthRouteGuard />
           <Suspense fallback={null}>
             <NavigationHistory />
           </Suspense>

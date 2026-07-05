@@ -136,6 +136,9 @@ const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = 
     "Tämä on otsikko jos et itse otsikoi:": "This title is used if you do not write one:",
     "Kuvaus": "Description",
     "Kerro kunto, ominaisuudet, sopivuus ja muut tärkeät tiedot...": "Describe condition, features, compatibility and other important details...",
+    "Telamaton tarkat tiedot": "Track mat details",
+    "Pituus, leveys, harjakorkeus, jako tai muut tarkat tiedot": "Length, width, lug height, pitch or other exact details",
+    "Esim. 154 x 15 x 2.5, 3.0 jako, hyväkuntoinen": "E.g. 154 x 15 x 2.5, 3.0 pitch, good condition",
     "Vinkit hyvään kuvaukseen": "Tips for a good description",
     "Kerro tärkeimmät ominaisuudet": "Mention the most important features",
     "Mainitse kunto": "Mention condition",
@@ -909,6 +912,9 @@ Object.assign(extraSellTranslations.en, {
   "ilmoitusta tÃ¤ytetty": "listings completed",
   "valittua tuotetta": "selected products",
   "Osan tarkka malli": "Exact part model",
+  "Telamaton tarkat tiedot": "Track mat details",
+  "Pituus, leveys, harjakorkeus, jako tai muut tarkat tiedot": "Length, width, lug height, pitch or other exact details",
+  "Esim. 154 x 15 x 2.5, 3.0 jako, hyväkuntoinen": "E.g. 154 x 15 x 2.5, 3.0 pitch, good condition",
   "Kirjoita osan malli": "Enter part model",
   "Osanumero / OEM": "Part number / OEM",
   "Kirjoita osanumero": "Enter part number",
@@ -4584,11 +4590,15 @@ function SellPageContent() {
                     </small>
                   </label>
                   <label>
-                    <span>{st("Osan tarkka malli")}</span>
+                    <span>{partNeedsTrackMatDimensions ? st("Telamaton tarkat tiedot") : st("Osan tarkka malli")}</span>
                     <input
                       value={part.partModel}
                       onChange={(event) => updateMultiPartField(part.id, "partModel", event.target.value)}
-                      placeholder={st("Kirjoita osan malli")}
+                      placeholder={
+                        partNeedsTrackMatDimensions
+                          ? st("Esim. 154 x 15 x 2.5, 3.0 jako, hyväkuntoinen")
+                          : st("Kirjoita osan malli")
+                      }
                     />
                   </label>
                   <label>
@@ -5233,9 +5243,17 @@ function SellPageContent() {
             <h2>{st("Lisää tuotetiedot")}</h2>
             <div className={styles.productDetailsGrid}>
               <DetailInput
-                label={st("Osan tarkka malli / valmistaja (vapaaehtoinen)")}
+                label={
+                  selectedSinglePartNeedsTrackMatDimensions
+                    ? st("Telamaton tarkat tiedot")
+                    : st("Osan tarkka malli / valmistaja (vapaaehtoinen)")
+                }
                 icon={Tags}
-                placeholder={st("Esim. Stage6, Airsal, Malossi...")}
+                placeholder={
+                  selectedSinglePartNeedsTrackMatDimensions
+                    ? st("Esim. 154 x 15 x 2.5, 3.0 jako, hyväkuntoinen")
+                    : st("Esim. Stage6, Airsal, Malossi...")
+                }
                 value={partModel}
                 onChange={setPartModel}
               />
@@ -5665,7 +5683,10 @@ function SellPageContent() {
       { label: st("Kategoria"), value: categorySummary || st("Ei lisatty") },
       { label: st("Sijainti"), value: buildListingLocation(listingLocation, profileCity, profileCountry) || st("Ei lisatty") },
       { label: st("Toimitustapa"), value: st(getDeliveryMethodLabel()) },
-      { label: st("Osan malli"), value: partModel.trim() || st("Ei lisatty") },
+      {
+        label: selectedSinglePartNeedsTrackMatDimensions ? st("Telamaton tarkat tiedot") : st("Osan malli"),
+        value: partModel.trim() || st("Ei lisatty")
+      },
       { label: st("Varaosanumero"), value: partNumber.trim() || st("Ei lisatty") }
     ];
 

@@ -476,3 +476,17 @@ body:has(.bn-garage-panel) .fc-button {
     color: #ffb56e !important;
   }
 }
+
+@media (max-width: 760px) {
+  html body .bottom-nav.bottom-nav-main.bottom-nav-guest {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main.bottom-nav-guest .bottom-nav-item {
+    min-height: 46px !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main.bottom-nav-guest .bottom-nav-label {
+    font-size: 9px !important;
+  }
+}

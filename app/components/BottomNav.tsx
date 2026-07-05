@@ -319,8 +319,46 @@ export default function BottomNav() {
     }
   };
 
-  if (!authChecked || !userId) {
+  const goToLogin = () => {
+    setProfileOpen(false);
+    setNotifOpen(false);
+    setGarageOpen(false);
+    router.push(`${authHref}?mode=login`);
+  };
+
+  if (!authChecked) {
     return null;
+  }
+
+  if (!userId) {
+    return (
+      <nav className="bottom-nav bottom-nav-main bottom-nav-guest" aria-label="Paanavigaatio">
+        <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
+          <span className="bottom-nav-icon"><Home size={22} /></span>
+          <span className="bottom-nav-label">Etusivu</span>
+        </Link>
+
+        <button
+          type="button"
+          className="bottom-nav-item bottom-nav-center-action"
+          onClick={goToLogin}
+          aria-label="Kirjaudu"
+        >
+          <span className="bottom-nav-icon"><LockKeyhole size={24} /></span>
+          <span className="bottom-nav-label">Kirjaudu</span>
+        </button>
+
+        <button
+          type="button"
+          className="bottom-nav-item bottom-nav-search-action"
+          onClick={openCategorySearch}
+          aria-label="Hae varaosia"
+        >
+          <span className="bottom-nav-icon"><Search size={22} /></span>
+          <span className="bottom-nav-label">Hae</span>
+        </button>
+      </nav>
+    );
   }
 
   return (
@@ -343,9 +381,10 @@ export default function BottomNav() {
 
         <Link href={sellActionHref} className={`bottom-nav-item bottom-nav-center-action${canonicalPathname.startsWith("/sell") ? " active" : ""}`} aria-label="Luo ilmoitus">
           <span className="bottom-nav-icon"><Plus size={24} /></span>
-          <span className="bottom-nav-label">Luo ilmoitus</span>
+          <span className="bottom-nav-label">{userId ? "Luo ilmoitus" : "Kirjaudu"}</span>
         </Link>
 
+        {userId ? (
         <Link href={messagesHref} className={`bottom-nav-item${canonicalPathname.startsWith("/messages") ? " active" : ""}`}>
           <span className="bottom-nav-icon">
             <MessageCircle size={22} />
@@ -353,14 +392,26 @@ export default function BottomNav() {
           </span>
           <span className="bottom-nav-label">Viestit</span>
         </Link>
+        ) : (
+        <button type="button" className="bottom-nav-item" onClick={goToLogin} aria-label="Kirjaudu">
+          <span className="bottom-nav-icon"><LockKeyhole size={22} /></span>
+          <span className="bottom-nav-label">Kirjaudu</span>
+        </button>
+        )}
 
         <button
           type="button"
           className={`bottom-nav-item${garageOpen || canonicalPathname.startsWith("/garage") ? " active" : ""}`}
-          onClick={() => setGarageOpen((open) => !open)}
+          onClick={() => {
+            if (!userId) {
+              goToLogin();
+              return;
+            }
+            setGarageOpen((open) => !open);
+          }}
         >
           <span className="bottom-nav-icon"><Car size={22} /></span>
-          <span className="bottom-nav-label">Oma talli</span>
+          <span className="bottom-nav-label">{userId ? "Oma talli" : "Kirjaudu"}</span>
         </button>
       </nav>
 
@@ -371,6 +422,10 @@ export default function BottomNav() {
         </Link>
 
         <button type="button" className={`bottom-nav-item${notifOpen ? " active" : ""}`} onClick={() => {
+          if (!userId) {
+            goToLogin();
+            return;
+          }
           setNotifOpen(true);
           if (userId) {
             unreadConvs.forEach(markConversationNotificationRead);
@@ -389,9 +444,10 @@ export default function BottomNav() {
 
         <Link href={sellActionHref} className={`bottom-nav-item bottom-nav-solid${canonicalPathname.startsWith("/sell") ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Plus size={24} /></span>
-          <span className="bottom-nav-label">Oma talli</span>
+          <span className="bottom-nav-label">{userId ? "Oma talli" : "Kirjaudu"}</span>
         </Link>
 
+        {userId ? (
         <Link href={messagesHref} className={`bottom-nav-item${canonicalPathname.startsWith("/messages") ? " active" : ""}`}>
           <span className="bottom-nav-icon">
             <MessageCircle size={22} />
@@ -399,12 +455,24 @@ export default function BottomNav() {
           </span>
           <span className="bottom-nav-label">Ota yhteytta</span>
         </Link>
+        ) : (
+        <button type="button" className="bottom-nav-item" onClick={goToLogin} aria-label="Kirjaudu">
+          <span className="bottom-nav-icon"><LockKeyhole size={22} /></span>
+          <span className="bottom-nav-label">Kirjaudu</span>
+        </button>
+        )}
 
         <button type="button"
           className={`bottom-nav-item${canonicalPathname.startsWith("/profile") || canonicalPathname.startsWith("/my-listings") ? " active" : ""}`}
-          onClick={() => setProfileOpen(true)}>
-          <span className="bottom-nav-icon"><UserRound size={22} /></span>
-          <span className="bottom-nav-label">{l4}</span>
+          onClick={() => {
+            if (!userId) {
+              goToLogin();
+              return;
+            }
+            setProfileOpen(true);
+          }}>
+          <span className="bottom-nav-icon">{userId ? <UserRound size={22} /> : <LockKeyhole size={22} />}</span>
+          <span className="bottom-nav-label">{userId ? l4 : "Kirjaudu"}</span>
         </button>
       </nav>
 

@@ -77,6 +77,7 @@ const listingUiText = {
     noDescription: "Ei kuvausta.",
     vehicle: "Ajoneuvo",
     partModel: "Osan malli",
+    trackMatDetails: "Telamaton tiedot",
     partNumber: "Varaosanumero",
     brand: "Merkki",
     model: "Malli",
@@ -119,6 +120,7 @@ const listingUiText = {
     noDescription: "No description.",
     vehicle: "Vehicle",
     partModel: "Part model",
+    trackMatDetails: "Track mat details",
     partNumber: "Part number",
     brand: "Brand",
     model: "Model",
@@ -161,6 +163,7 @@ const listingUiText = {
     noDescription: "Ingen beskrivning.",
     vehicle: "Fordon",
     partModel: "Delmodell",
+    trackMatDetails: "Mattans uppgifter",
     partNumber: "Artikelnummer",
     brand: "Märke",
     model: "Modell",
@@ -203,6 +206,7 @@ const listingUiText = {
     noDescription: "Ingen beskrivelse.",
     vehicle: "Kjøretøy",
     partModel: "Delmodell",
+    trackMatDetails: "Beltemattedetaljer",
     partNumber: "Delenummer",
     brand: "Merke",
     model: "Modell",
@@ -245,6 +249,7 @@ const listingUiText = {
     noDescription: "Kirjeldus puudub.",
     vehicle: "Sõiduk",
     partModel: "Osa mudel",
+    trackMatDetails: "Roomikumati andmed",
     partNumber: "Varuosanumber",
     brand: "Mark",
     model: "Mudel",
@@ -1308,6 +1313,11 @@ export default function ListingPage() {
   };
   const baseListingText = getLocalizedListingText(listing, locale);
   const listingPartNumber = getListingPartNumber(listing);
+  const listingIsTrackMat = [
+    listing.category,
+    listing.subcategory,
+    listing.title
+  ].some((value) => (value ?? "").trim().toLowerCase().includes("telamat"));
   const translateConditionLabel = (value: string | null | undefined) =>
     value ? conditionLabels[locale][value] ?? value : ui.notSpecified;
   const translateVehicleTypeLabel = (value: string | null | undefined) =>
@@ -1659,7 +1669,7 @@ export default function ListingPage() {
                 </span>
                 {listing.part_model?.trim() && (
                   <span>
-                    <strong>{ui.partModel}</strong>
+                    <strong>{listingIsTrackMat ? ui.trackMatDetails : ui.partModel}</strong>
                     {listing.part_model.trim()}
                   </span>
                 )}
@@ -7914,6 +7924,39 @@ export default function ListingPage() {
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified svg) {
           color: #4ade80 !important;
           stroke: #4ade80 !important;
+        }
+
+        @media (max-width: 760px) {
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid) {
+            gap: 0 !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span) {
+            align-items: start !important;
+            column-gap: 14px !important;
+            grid-template-columns: minmax(108px, 0.42fr) minmax(0, 1fr) !important;
+            min-width: 0 !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span > strong) {
+            font-size: clamp(13px, 3.6vw, 15px) !important;
+            line-height: 1.25 !important;
+            min-width: 0 !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span) {
+            font-size: clamp(14px, 4vw, 17px) !important;
+            line-height: 1.35 !important;
+            overflow-wrap: anywhere !important;
+            word-break: normal !important;
+          }
+        }
+
+        @media (max-width: 360px) {
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span) {
+            grid-template-columns: 1fr !important;
+            row-gap: 6px !important;
+          }
         }
 
       `}</style>

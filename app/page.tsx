@@ -1250,9 +1250,7 @@ function HomeContent() {
   const [favorites, setFavorites] = useState<string[]>([]);
 
   const [query, setQuery] = useState("");
-  const [compactHeroSearch, setCompactHeroSearch] = useState(() => (
-    typeof window !== "undefined" ? window.matchMedia("(max-width: 720px)").matches : false
-  ));
+  const [compactHeroSearch, setCompactHeroSearch] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [listingsExpanded, setListingsExpanded] = useState(false);
@@ -3198,6 +3196,22 @@ function HomeContent() {
           </div>
         </section>
         ) : null}
+
+        {!catalogOnlyView && !hasActiveListingFilters ? (
+        <section className={styles.homeListingCta} aria-label="Luo varaosailmoitus">
+          <span className={styles.homeListingCtaIcon} aria-hidden="true">
+            <Tag size={24} />
+          </span>
+          <span className={styles.homeListingCtaCopy}>
+            <strong>Myy varaosasi helposti ja nopeasti – jopa 2 minuutissa!</strong>
+            <small>Luo ilmoitus muutamassa minuutissa ja tavoita tuhannet ostajat.</small>
+          </span>
+          <Link href={pagePath("sell", locale)} className={styles.homeListingCtaButton}>
+            <span>Luo ilmoitus</span>
+            <Plus size={17} aria-hidden="true" />
+          </Link>
+        </section>
+        ) : null}
       </section>
       </>
       ) : null}
@@ -3812,22 +3826,6 @@ function HomeContent() {
             </div>
           </aside>}
         </section>
-
-        {!catalogOnlyView && !hasActiveListingFilters ? (
-        <section className={styles.homeListingCta} aria-label="Luo varaosailmoitus">
-          <span className={styles.homeListingCtaIcon} aria-hidden="true">
-            <Tag size={24} />
-          </span>
-          <span className={styles.homeListingCtaCopy}>
-            <strong>Myy varaosasi helposti ja nopeasti – jopa 2 minuutissa!</strong>
-            <small>Luo ilmoitus muutamassa minuutissa ja tavoita tuhannet ostajat.</small>
-          </span>
-          <Link href={pagePath("sell", locale)} className={styles.homeListingCtaButton}>
-            <span>Luo ilmoitus</span>
-            <Plus size={17} aria-hidden="true" />
-          </Link>
-        </section>
-        ) : null}
 
       <CategoryDrawer
         isOpen={drawerOpen}

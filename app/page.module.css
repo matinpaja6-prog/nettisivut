@@ -20123,9 +20123,10 @@
   }
 
   .homeListingCta {
+    align-items: center !important;
     gap: 10px !important;
-    grid-template-columns: 34px minmax(0, 1fr) auto !important;
-    margin: 18px 10px 24px !important;
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    margin: 6px 10px 24px !important;
     max-width: none !important;
     padding: 12px !important;
   }
@@ -20137,17 +20138,22 @@
 
   .homeListingCtaCopy strong {
     font-size: 12px !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
   }
 
   .homeListingCtaCopy small {
     font-size: 8px !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
   }
 
   .homeListingCtaButton {
-    grid-column: 3 !important;
+    grid-column: 1 / -1 !important;
     min-height: 42px !important;
+    min-width: 0 !important;
     padding: 0 12px !important;
-    width: auto !important;
+    width: 100% !important;
   }
 
   .homeListingCtaButton span {
@@ -21012,7 +21018,7 @@
 @media (max-width: 720px) {
   .homeSellProcess {
     border-radius: 10px !important;
-    margin: 0 auto 18px !important;
+    margin: 34px auto 18px !important;
     max-width: min(100%, 390px) !important;
     padding: 14px 14px 15px !important;
     width: calc(100vw - 16px) !important;
@@ -21221,5 +21227,26 @@
 
   .heroHeadline span {
     line-height: 1.12 !important;
+  }
+}
+
+/* Final mobile hero image framing: show more of the lower artwork and scale it fluidly. */
+@media (max-width: 720px) {
+  .heroWrap {
+    background-image:
+      linear-gradient(90deg, rgba(2, 8, 18, 0.72) 0%, rgba(4, 14, 28, 0.42) 46%, rgba(2, 8, 18, 0.62) 100%),
+      linear-gradient(180deg, rgba(2, 8, 18, 0.08) 0%, rgba(2, 8, 18, 0.24) 58%, rgba(2, 8, 18, 0.68) 100%),
+      url("/maskines-main-hero.png") !important;
+    background-position: center top, center top, center top !important;
+    background-repeat: no-repeat, no-repeat, no-repeat !important;
+    background-size: 100% auto, 100% auto, 100% auto !important;
+    min-height: calc(100vw * 941 / 1672) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .heroWrap {
+    background-position: center top, center top, center top !important;
+    background-size: 100% auto, 100% auto, 100% auto !important;
   }
 }
