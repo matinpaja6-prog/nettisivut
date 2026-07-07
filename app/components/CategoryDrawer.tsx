@@ -8,7 +8,7 @@ import {
   Navigation, Circle, MoreHorizontal, Check,
   Battery, Box, Boxes, Cable, CircleDot, Cog, Component,
   Cylinder, Disc3, Fan, Fuel, Gauge, Layers, Nut, Package, ChevronDown,
-  Snowflake
+  Snowflake, CalendarDays, ListFilter, Search, RotateCcw, BarChart3, Tag, WrenchIcon, CarFront
 } from "lucide-react";
 
 /* ── types ─────────────────────────────────────────── */
@@ -194,6 +194,86 @@ function getCategorySearchText(value: string) {
     "mitta mitat koko leveys levea pituus harjakorkeus harja jako pitch lug",
     "15 16 20 38 381 40 406 41 410 51 154 155 156 163 165 174 175 137 141 144 146"
   ].join(" ");
+}
+
+const customTrackMatDimensionValue = "__custom_track_mat_dimension__";
+
+const trackMatDimensionOptions = [
+  { cm: "307 cm x 38 cm x 6,4 cm", inch: "121 x 15 x 2.52" },
+  { cm: "307 cm x 41 cm x 6,4 cm", inch: "121 x 16 x 2.52" },
+  { cm: "325 cm x 38 cm x 6,4 cm", inch: "128 x 15 x 2.52" },
+  { cm: "345 cm x 38 cm x 6,4 cm", inch: "136 x 15 x 2.52" },
+  { cm: "348 cm x 38 cm x 7,3 cm", inch: "137 x 15 x 2.86" },
+  { cm: "358 cm x 38 cm x 6,4 cm", inch: "141 x 15 x 2.52" },
+  { cm: "366 cm x 34 cm x 6,4 cm", inch: "144 x 13.5 x 2.52" },
+  { cm: "366 cm x 36 cm x 6,4 cm", inch: "144 x 14 x 2.52" },
+  { cm: "366 cm x 38 cm x 6,4 cm", inch: "144 x 15 x 2.52" },
+  { cm: "371 cm x 38 cm x 7,3 cm", inch: "146 x 15 x 2.86" },
+  { cm: "383 cm x 38 cm x 6,4 cm", inch: "151 x 15 x 2.52" },
+  { cm: "391 cm x 38 cm x 7,3 cm", inch: "154 x 15 x 2.86" },
+  { cm: "391 cm x 41 cm x 7,3 cm", inch: "154 x 16 x 2.86" },
+  { cm: "391 cm x 51 cm x 6,4 cm", inch: "154 x 20 x 2.52" },
+  { cm: "396 cm x 38 cm x 6,4 cm", inch: "156 x 15 x 2.52" },
+  { cm: "396 cm x 41 cm x 6,4 cm", inch: "156 x 16 x 2.52" },
+  { cm: "396 cm x 51 cm x 6,4 cm", inch: "156 x 20 x 2.52" },
+  { cm: "411 cm x 38 cm x 7,6 cm", inch: "162 x 15 x 3.00" },
+  { cm: "414 cm x 41 cm x 7,6 cm", inch: "163 x 16 x 3.00" },
+  { cm: "419 cm x 38 cm x 7,6 cm", inch: "165 x 15 x 3.00" },
+  { cm: "442 cm x 38 cm x 7,6 cm", inch: "174 x 15 x 3.00" },
+  { cm: "445 cm x 38 cm x 7,6 cm", inch: "175 x 15 x 3.00" }
+].map((option) => ({
+  value: `${option.cm} / ${option.inch}"`,
+  label: `${option.cm} / ${option.inch}"`,
+  ...option
+}));
+
+function isPresetTrackMatDimension(value: string) {
+  return trackMatDimensionOptions.some((option) => option.value === value);
+}
+
+function isTrackMatContext(...values: string[]) {
+  const text = normalizeIconText(values.join(" "));
+  return text.includes("telamat") || text.includes("tela matto");
+}
+
+function isEngineContext(...values: string[]) {
+  const text = normalizeIconText(values.join(" "));
+  return text.includes("moottori") || text.includes("engine");
+}
+
+function isWheelModelContext(...values: string[]) {
+  const text = normalizeIconText(values.join(" "));
+  return text.includes("vante") || text.includes("vanne");
+}
+
+function isSuspensionModelContext(...values: string[]) {
+  const text = normalizeIconText(values.join(" "));
+  return (
+    text.includes("iskunvaiment") ||
+    text.includes("alusta") ||
+    text.includes("tukivar") ||
+    text.includes("olka aksel") ||
+    text.includes("vetoaksel")
+  );
+}
+
+function getPartDetailLabel(vehicle: string, category: string, group: string, detail: string) {
+  if (isEngineContext(category, group, detail)) return "Moottorin tarkempi malli";
+  if (isWheelModelContext(detail)) {
+    const vehicleKey = getCommonVehicleKey(vehicle);
+    if (vehicleKey === "atv") return "Mönkijän vanteen tarkempi malli";
+    if (vehicleKey === "motocross") return "Crossin vanteen tarkempi malli";
+    if (vehicleKey === "moped") return "Mopon vanteen tarkempi malli";
+    return "Vanteen tarkempi malli";
+  }
+  if (isSuspensionModelContext(group, detail)) {
+    if (isEngineContext(category, group, detail)) return "Tarkempi malli";
+    if (normalizeIconText([group, detail].join(" ")).includes("iskunvaiment")) {
+      return "Iskunvaimentimen tarkempi malli";
+    }
+    return "Alustan tarkempi malli";
+  }
+  return "Tarkempi malli";
 }
 
 type PartPictureKind =
@@ -905,7 +985,7 @@ const BRAND_MODELS: Record<string, Record<string, string[]>> = {
     "TM":        ["MX", "EN", "MX 125", "MX 250F", "MX 450F"],
   },
   Mopot: {
-    "Yamaha":  ["Aerox", "Slider", "Jog", "BWs", "Neos", "Zuma", "DT 50", "DT 50 R", "DT 50 MX", "DT 80", "TZR 50"],
+    "Yamaha":  ["BWS Naked", "BWS Original", "Zuma", "BWS Next Generation", "BWS 10", "BWS 12", "Aerox", "Slider", "Jog", "Neos", "DT 50", "DT 50 R", "DT 50 MX", "DT 80", "TZR 50"],
     "Honda":   ["SH", "PCX", "Zoomer", "Dio", "Lead", "Vision"],
     "KTM":     ["Duke 125", "RC 125"],
     "Derbi":   ["Senda", "GPR", "Variant", "Atlantis"],
@@ -952,8 +1032,8 @@ const COMMON_BRAND_MODELS_BY_VEHICLE: Record<string, Record<string, string[]>> =
     Fantic: ["XX", "XE", "XEF", "Caballero"]
   },
   moped: {
-    Yamaha: ["DT", "Aerox", "BW's", "BWS", "Booster", "Jog", "Slider", "Neos", "TZR", "WR", "Why"],
-    MBK: ["Booster", "Nitro", "Ovetto", "X-Limit", "Stunt", "Rocket"],
+    Yamaha: ["BWS Naked", "BWS Original", "Zuma", "BWS Next Generation", "BWS 10", "BWS 12", "DT", "Aerox", "Jog", "Slider", "Neos", "TZR", "WR", "Why"],
+    MBK: ["Booster Naked", "Booster Spirit 10", "Booster Spirit 12", "Booster Next Generation", "Nitro", "Ovetto", "X-Limit", "Stunt", "Rocket"],
     Derbi: ["Senda", "DRD", "Xtreme", "Racing", "GPR", "Atlantis", "Variant", "Terra"],
     Rieju: ["MRT", "MRX", "RRX", "RS", "RS2", "SMX", "Tango", "Spike"],
     Aprilia: ["SX", "RX", "RS", "SR", "Rally", "Sonic", "Mojito", "Tuono", "Pegaso"],
@@ -1000,6 +1080,12 @@ const COMMON_MODEL_ENGINES_BY_VEHICLE: Record<string, Record<string, Record<stri
     Yamaha: {
       DT: ["Minarelli AM6"],
       Aerox: ["Minarelli horizontal AC", "Minarelli horizontal LC"],
+      "BWS Naked": ["Minarelli vertical AC"],
+      "BWS Original": ["Minarelli vertical AC"],
+      Zuma: ["Minarelli vertical AC"],
+      "BWS Next Generation": ["Minarelli vertical AC"],
+      "BWS 10": ["Minarelli vertical AC"],
+      "BWS 12": ["Minarelli vertical AC"],
       "BW's": ["Minarelli vertical AC"],
       BWS: ["Minarelli vertical AC"],
       Booster: ["Minarelli vertical AC"],
@@ -1011,6 +1097,10 @@ const COMMON_MODEL_ENGINES_BY_VEHICLE: Record<string, Record<string, Record<stri
       Why: ["Minarelli horizontal AC"]
     },
     MBK: {
+      "Booster Naked": ["Minarelli vertical AC"],
+      "Booster Spirit 10": ["Minarelli vertical AC"],
+      "Booster Spirit 12": ["Minarelli vertical AC"],
+      "Booster Next Generation": ["Minarelli vertical AC"],
       Booster: ["Minarelli vertical AC"],
       Nitro: ["Minarelli horizontal LC"],
       Ovetto: ["Minarelli horizontal AC"],
@@ -1146,31 +1236,39 @@ const COMMON_MODEL_ENGINES_BY_VEHICLE: Record<string, Record<string, Record<stri
 
 function VehicleComboField({
   label,
+  icon,
   value,
   options,
   placeholder,
   disabled,
   onChange,
+  onOptionSelected,
   inputRef,
+  allowCustom = true,
 }: {
   label: string;
+  icon?: ReactNode;
   value: string;
-  options: string[];
+  options: readonly string[];
   placeholder: string;
   disabled?: boolean;
   onChange: (value: string) => void;
+  onOptionSelected?: (value: string) => void;
   inputRef?: RefObject<HTMLInputElement | null>;
+  allowCustom?: boolean;
 }) {
   const comboId = useId();
   const [open, setOpen] = useState(false);
   const [showAll, setShowAll] = useState(true);
   const [customSelected, setCustomSelected] = useState(false);
   const [mobilePickerMode, setMobilePickerMode] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const normalizedValue = normalizeIconText(value);
   const visibleOptions = showAll || !normalizedValue
     ? options
     : options.filter((option) => getCategorySearchText(option).includes(normalizedValue));
-  const menuOptions = uniqueOptions([...visibleOptions, CUSTOM_OPTION_LABEL]);
+  const menuOptions = allowCustom ? uniqueOptions([...visibleOptions, CUSTOM_OPTION_LABEL]) : visibleOptions;
+  const showFullMenu = menuOptions.length <= 12;
 
   useEffect(() => {
     function closeOtherCombos(event: Event) {
@@ -1190,6 +1288,16 @@ function VehicleComboField({
     media.addEventListener("change", syncMobilePickerMode);
     return () => media.removeEventListener("change", syncMobilePickerMode);
   }, []);
+
+  useEffect(() => {
+    if (!open || !showFullMenu) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      menuRef.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [open, showFullMenu]);
 
   function openMenu(showEveryOption = true) {
     if (disabled) return;
@@ -1215,8 +1323,9 @@ function VehicleComboField({
 
   function selectOption(option: string, focusCustomInput = false) {
     const isCustomOption = option === CUSTOM_OPTION_LABEL;
+    const nextValue = customValue(option);
     setCustomSelected(isCustomOption);
-    onChange(customValue(option));
+    onChange(nextValue);
     setShowAll(true);
     setOpen(false);
     if (isCustomOption) {
@@ -1225,10 +1334,12 @@ function VehicleComboField({
       } else {
         window.setTimeout(focusInputForKeyboard, 60);
       }
+    } else {
+      onOptionSelected?.(nextValue);
     }
   }
 
-  const inputIsReadOnly = mobilePickerMode && !customSelected;
+  const inputIsReadOnly = !allowCustom || (mobilePickerMode && !customSelected);
 
   return (
     <div className="cd-detail-field">
@@ -1241,6 +1352,7 @@ function VehicleComboField({
         }}
       >
         <div className="cd-combo-control">
+          {icon ? <span className="cd-combo-icon" aria-hidden="true">{icon}</span> : null}
           <input
             ref={inputRef}
             className="cd-cc-select cd-combo-input"
@@ -1281,7 +1393,13 @@ function VehicleComboField({
           </button>
         </div>
         {open && !disabled && (
-          <div className="cd-combo-menu" role="listbox" tabIndex={-1}>
+          <div
+            ref={menuRef}
+            className="cd-combo-menu"
+            data-full-menu={showFullMenu ? "true" : "false"}
+            role="listbox"
+            tabIndex={-1}
+          >
             {menuOptions.map((option) => (
               <button
                 key={option}
@@ -1300,6 +1418,116 @@ function VehicleComboField({
         )}
       </div>
     </div>
+  );
+}
+
+function TrackMatDimensionField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const isPresetValue = isPresetTrackMatDimension(value);
+  const isCustomValue = Boolean(value.trim()) && !isPresetValue;
+  const [open, setOpen] = useState(false);
+  const [customSelected, setCustomSelected] = useState(false);
+  const selectValue = isPresetValue ? value : isCustomValue ? customTrackMatDimensionValue : "";
+  const selectedOption = trackMatDimensionOptions.find((option) => option.value === selectValue);
+
+  useEffect(() => {
+    if (isPresetValue) setCustomSelected(false);
+  }, [isPresetValue]);
+
+  function chooseTrackMatDimension(nextValue: string) {
+    setOpen(false);
+
+    if (nextValue === customTrackMatDimensionValue) {
+      setCustomSelected(true);
+      onChange("");
+      return;
+    }
+
+    setCustomSelected(false);
+    onChange(nextValue);
+  }
+
+  return (
+    <label
+      className="cd-extra-field cd-track-mat-field"
+      onBlur={(event) => {
+        const nextTarget = event.relatedTarget as Node | null;
+        if (!nextTarget || !event.currentTarget.contains(nextTarget)) setOpen(false);
+      }}
+    >
+      <span className="cd-extra-label">Telamaton mitat (Pituus x Leveys x Jako)</span>
+      <button
+        className={`cd-track-mat-select-shell${open ? " is-open" : ""}`}
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+      >
+        <span className="cd-track-mat-icon" aria-hidden="true">
+          <Snowflake size={18} />
+        </span>
+        <span className={`cd-track-mat-value${selectedOption ? "" : " cd-track-mat-value-empty"}`}>
+          {selectedOption ? (
+            <>
+              <strong>{selectedOption.cm}</strong>
+              <small>{selectedOption.inch}"</small>
+            </>
+          ) : (
+            <strong>Valitse maton mitta</strong>
+          )}
+        </span>
+        <ChevronDown size={17} aria-hidden="true" />
+      </button>
+      {open ? (
+        <div className="cd-track-mat-menu" role="listbox" tabIndex={-1}>
+          {trackMatDimensionOptions.map((option) => {
+            const active = option.value === value;
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                className={`cd-track-mat-option${active ? " is-active" : ""}`}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => chooseTrackMatDimension(option.value)}
+                role="option"
+                aria-selected={active}
+              >
+                <strong>{option.cm}</strong>
+                <span>{option.inch}"</span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            className="cd-track-mat-option cd-track-mat-option-custom"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => chooseTrackMatDimension(customTrackMatDimensionValue)}
+            role="option"
+            aria-selected={customSelected}
+          >
+            <strong>Muu mitta</strong>
+            <span>Kirjoita itse</span>
+          </button>
+        </div>
+      ) : null}
+      {(customSelected || isCustomValue) ? (
+        <input
+          className="cd-extra-input"
+          value={isCustomValue ? value : ""}
+          onChange={(event) => {
+            setCustomSelected(true);
+            onChange(event.target.value);
+          }}
+          placeholder="Kirjoita mitat, esim. 154 x 15 x 2.5"
+        />
+      ) : null}
+    </label>
   );
 }
 
@@ -1349,6 +1577,8 @@ export default function CategoryDrawer({
   const [engineCcOther, setEngineCcOther]   = useState("");
   const [engineModel, setEngineModel]       = useState(initEngineModel ?? "");
   const [engineModelOther, setEngineModelOther] = useState("");
+  const [trackMatDimension, setTrackMatDimension] = useState("");
+  const [partEngineDetail, setPartEngineDetail] = useState("");
   const [vehicleTypeMenuOpen, setVehicleTypeMenuOpen] = useState(false);
   const [vehicleTypeWasSelected, setVehicleTypeWasSelected] = useState(Boolean(initVehicle));
   const [vehicleSubtypeMenuOpen, setVehicleSubtypeMenuOpen] = useState(false);
@@ -1360,7 +1590,58 @@ export default function CategoryDrawer({
   const yearInputRef = useRef<HTMLInputElement | null>(null);
   const engineCcInputRef = useRef<HTMLInputElement | null>(null);
   const engineModelInputRef = useRef<HTMLInputElement | null>(null);
+  const partCategoryInputRef = useRef<HTMLInputElement | null>(null);
+  const partGroupInputRef = useRef<HTMLInputElement | null>(null);
+  const partLeafInputRef = useRef<HTMLInputElement | null>(null);
   const categoryVehicleMenuAutoOpenedRef = useRef(false);
+
+  function focusVehicleCombo(ref: RefObject<HTMLInputElement | null>) {
+    window.setTimeout(() => {
+      ref.current?.focus({ preventScroll: true });
+    }, 90);
+  }
+
+  function openNextVehicleDetail(
+    nextField: "brand" | "model" | "year" | "engineCc" | "engineModel" | "parts"
+  ) {
+    if (nextField === "brand") {
+      focusVehicleCombo(brandInputRef);
+      return;
+    }
+
+    if (nextField === "model") {
+      focusVehicleCombo(modelInputRef);
+      return;
+    }
+
+    if (nextField === "year") {
+      focusVehicleCombo(yearInputRef);
+      return;
+    }
+
+    if (nextField === "engineCc") {
+      focusVehicleCombo(engineCcInputRef);
+      return;
+    }
+
+    if (nextField === "engineModel") {
+      if (brand) {
+        focusVehicleCombo(engineModelInputRef);
+        return;
+      }
+
+      window.setTimeout(() => setStep(3), 120);
+      return;
+    }
+
+    focusPartCombo(partCategoryInputRef);
+  }
+
+  function focusPartCombo(ref: RefObject<HTMLInputElement | null>) {
+    window.setTimeout(() => {
+      ref.current?.focus({ preventScroll: true });
+    }, 90);
+  }
 
   useEffect(() => {
     setVehicle(initVehicle);
@@ -1385,12 +1666,12 @@ export default function CategoryDrawer({
       setVehicleSubtypeMenuOpen(false);
       categoryVehicleMenuAutoOpenedRef.current = false;
       setModelOpen(false);
-      setCat("");
-      setSubGroup("");
-      setSub("");
+      setCat(initCat);
+      setSubGroup(resolveSubGroupFor(initCat, initSub));
+      setSub(initSub);
       setStep(nextStep);
     }
-  }, [isOpen, initVehicle, initVehicleSubtype, initBrand, initModel, initYear, initCc, initEngineModel, openAtStep]);
+  }, [isOpen, initVehicle, initVehicleSubtype, initBrand, initModel, initYear, initCc, initEngineModel, initCat, initSub, openAtStep]);
 
   useEffect(() => {
     if (isOpen && step < 2) setStep(2);
@@ -1414,10 +1695,46 @@ export default function CategoryDrawer({
     setVehicleSubtypeMenuOpen(false);
   }
 
+  function clearAllDrawerFilters() {
+    setVehicle("");
+    setVehicleSubtype("");
+    setVehicleTypeWasSelected(false);
+    setVehicleTypeMenuOpen(false);
+    setVehicleSubtypeMenuOpen(false);
+    categoryVehicleMenuAutoOpenedRef.current = false;
+    setBrand("");
+    setModel("");
+    setModelOpen(false);
+    setYear("");
+    setEngineCc("");
+    setEngineCcOther("");
+    setEngineModel("");
+    setEngineModelOther("");
+    setTrackMatDimension("");
+    setPartEngineDetail("");
+    setCat("");
+    setSubGroup("");
+    setSub("");
+    onApply({
+      vehicleType: "",
+      vehicleSubtype: "",
+      brand: "",
+      model: "",
+      year: "",
+      engineCc: "",
+      engineModel: "",
+      category: "",
+      subcategory: ""
+    });
+  }
+
   function apply() {
+    const appliedEngineModel = engineModel === "muu"
+      ? engineModelOther
+      : (engineModel || partEngineDetail);
     onApply({ vehicleType: vehicle, vehicleSubtype, brand, model, year,
       engineCc: engineCc === "muu" ? engineCcOther : engineCc,
-      engineModel: engineModel === "muu" ? engineModelOther : engineModel,
+      engineModel: appliedEngineModel,
       category: cat, subcategory: sub });
     onClose();
   }
@@ -1425,6 +1742,14 @@ export default function CategoryDrawer({
   function applyFinalCategory(nextSub: string, nextSubGroup = subGroup) {
     setSubGroup(nextSubGroup);
     setSub(nextSub);
+    if (
+      isTrackMatContext(cat, nextSubGroup, nextSub) ||
+      isEngineContext(cat, nextSubGroup, nextSub) ||
+      isWheelModelContext(nextSub) ||
+      isSuspensionModelContext(nextSubGroup, nextSub)
+    ) {
+      return;
+    }
     onApply({
       vehicleType: vehicle,
       vehicleSubtype,
@@ -1557,6 +1882,23 @@ export default function CategoryDrawer({
     }
     return Object.keys(result).length > 0 ? result : null;
   }
+
+  function resolveSubGroupFor(categoryName: string, subcategoryName: string) {
+    if (!categoryName || !subcategoryName) return "";
+
+    const groups = getFilteredSubcategoryGroups(categoryName);
+    if (!groups) return "";
+
+    for (const [groupName, children] of Object.entries(groups)) {
+      if (groupName === subcategoryName || children.includes(subcategoryName)) {
+        return groupName;
+      }
+    }
+
+    const slashIdx = subcategoryName.indexOf(" / ");
+    return slashIdx === -1 ? "" : subcategoryName.slice(0, slashIdx).trim();
+  }
+
   const startText = {
     fi: {
       title: "Mitä haluat kategorioida?",
@@ -1620,8 +1962,11 @@ export default function CategoryDrawer({
 
   function selectVehicleType(nextKind: CategoryStartKind) {
     const nextVehicle = nextKind === "all" ? "" : (nextKind as VehicleType);
+    const hasSubtypeOptions = nextVehicle
+      ? (VEHICLE_SUBTYPE_OPTIONS[nextVehicle] ?? []).length > 0
+      : false;
     setVehicleTypeMenuOpen(false);
-    setVehicleSubtypeMenuOpen(false);
+    setVehicleSubtypeMenuOpen(hasSubtypeOptions);
     setVehicleTypeWasSelected(true);
     setVehicle(nextVehicle);
     setBrand("");
@@ -1636,6 +1981,11 @@ export default function CategoryDrawer({
     setCat("");
     setSubGroup("");
     setSub("");
+    if (!nextVehicle) {
+      openNextVehicleDetail("parts");
+    } else if (!hasSubtypeOptions) {
+      openNextVehicleDetail("brand");
+    }
   }
 
   function renderVehicleTypeMenu() {
@@ -1660,6 +2010,7 @@ export default function CategoryDrawer({
           aria-haspopup="listbox"
           aria-expanded={vehicleTypeMenuOpen}
         >
+          <Snowflake size={21} aria-hidden="true" />
           <strong>{selectedLabel}</strong>
           <ChevronDown size={16} aria-hidden="true" />
         </button>
@@ -1721,6 +2072,7 @@ export default function CategoryDrawer({
           aria-expanded={vehicleSubtypeMenuOpen}
           disabled={disabled}
         >
+          <ListFilter size={21} aria-hidden="true" />
           <strong>{selectedLabel}</strong>
           <ChevronDown size={16} aria-hidden="true" />
         </button>
@@ -1750,6 +2102,7 @@ export default function CategoryDrawer({
                   onClick={() => {
                     setVehicleSubtype(option);
                     setVehicleSubtypeMenuOpen(false);
+                    openNextVehicleDetail("brand");
                   }}
                   role="option"
                   aria-selected={active}
@@ -1766,6 +2119,64 @@ export default function CategoryDrawer({
 
   const currentSubcategoryGroups =
     cat ? getFilteredSubcategoryGroups(cat) : null;
+  const partCategoryOptions = Object.keys(cats);
+  const partGroupOptions = currentSubcategoryGroups ? Object.keys(currentSubcategoryGroups) : [];
+  const partLeafOptions = cat
+    ? subGroup
+      ? (currentSubcategoryGroups?.[subGroup] ?? subs)
+      : currentSubcategoryGroups
+        ? []
+        : subs
+    : [];
+  const showTrackMatDimensionField = isTrackMatContext(cat, subGroup, sub);
+  const showPartDetailField =
+    isEngineContext(cat, subGroup, sub) ||
+    isWheelModelContext(sub) ||
+    isSuspensionModelContext(subGroup, sub);
+  const partDetailLabel = getPartDetailLabel(vehicle, cat, subGroup, sub);
+
+  useEffect(() => {
+    if (!showTrackMatDimensionField) setTrackMatDimension("");
+  }, [showTrackMatDimensionField]);
+
+  useEffect(() => {
+    if (!showPartDetailField) setPartEngineDetail("");
+  }, [showPartDetailField]);
+
+  function selectPartCategory(nextCategory: string) {
+    setCat(nextCategory);
+    setSubGroup("");
+    setSub("");
+
+    const groups = getFilteredSubcategoryGroups(nextCategory);
+    const groupEntries = groups ? Object.entries(groups) : [];
+    if (groupEntries.length === 1 && groupEntries[0][0] === nextCategory && groupEntries[0][1].length > 0) {
+      setSubGroup(nextCategory);
+      focusPartCombo(partLeafInputRef);
+      return;
+    }
+
+    if (groups) {
+      focusPartCombo(partGroupInputRef);
+      return;
+    }
+
+    if ((cats[nextCategory] ?? []).length > 0) {
+      focusPartCombo(partLeafInputRef);
+    }
+  }
+
+  function selectPartGroup(nextGroup: string) {
+    const children = currentSubcategoryGroups?.[nextGroup] ?? [];
+    if (children.length === 0) {
+      applyFinalCategory(nextGroup, "");
+      return;
+    }
+
+    setSubGroup(nextGroup);
+    setSub("");
+    focusPartCombo(partLeafInputRef);
+  }
 
   function displayCategoryLabel(categoryName: string) {
     const vehicleForCategory = vehicle === "Mopot" ? "Mopo" : vehicle;
@@ -1846,7 +2257,7 @@ export default function CategoryDrawer({
         </div>
 
         {/* Breadcrumb */}
-        {crumbs.length > 0 && (
+        {false && crumbs.length > 0 && (
           <nav className="cd-crumbs" aria-label="Sijaintisi">
             {crumbs.map((c, i) => (
               <span key={i} className="cd-crumb-seg">
@@ -1910,7 +2321,12 @@ export default function CategoryDrawer({
           {step === 2 && (
             <section className="cd-vehicle-step" aria-label="Ajoneuvon tarkennus">
               <div className="cd-vehicle-step-head">
-                <span className="cd-step-hint">{t.cdRefineVehicle}</span>
+                <span className="cd-step-hint">
+                  <span className="cd-step-hint-icon" aria-hidden="true">
+                    <CarFront size={21} />
+                  </span>
+                  <span>{t.cdRefineVehicle}</span>
+                </span>
                 <div className="cd-vehicle-head-fields">
                   {renderVehicleTypeMenu()}
                   {renderVehicleSubtypeMenu()}
@@ -1923,6 +2339,7 @@ export default function CategoryDrawer({
               >
                 <VehicleComboField
                   label="Merkki"
+                  icon={<Tag size={20} />}
                   value={brand}
                   options={brandOptions}
                   disabled={!vehicle}
@@ -1935,10 +2352,12 @@ export default function CategoryDrawer({
                       setEngineModel("");
                       setEngineModelOther("");
                   }}
+                  onOptionSelected={() => openNextVehicleDetail("model")}
                 />
 
                 <VehicleComboField
                   label="Malli"
+                  icon={<Tag size={20} />}
                   value={model}
                   options={modelOptions}
                   disabled={!vehicle || !brand}
@@ -1949,20 +2368,24 @@ export default function CategoryDrawer({
                       setEngineModel("");
                       setEngineModelOther("");
                   }}
+                  onOptionSelected={() => openNextVehicleDetail("year")}
                 />
 
                 <VehicleComboField
                   label="Vuosimalli"
+                  icon={<CalendarDays size={20} />}
                   value={year}
                   options={YEAR_OPTIONS}
                   disabled={!vehicle}
                   placeholder="Vuosi tai kirjoita itse"
                   inputRef={yearInputRef}
                   onChange={setYear}
+                  onOptionSelected={() => openNextVehicleDetail("engineCc")}
                 />
 
                 <VehicleComboField
                   label="Moottorin koko (cc)"
+                  icon={<Gauge size={20} />}
                   value={engineCc}
                   options={vehicle ? (CC_OPTIONS[vehicle] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS}
                   disabled={!vehicle}
@@ -1972,39 +2395,113 @@ export default function CategoryDrawer({
                     setEngineCc(nextValue);
                     setEngineCcOther("");
                   }}
+                  onOptionSelected={() => openNextVehicleDetail("engineModel")}
                 />
 
                 <VehicleComboField
                   label="Moottori"
+                  icon={<Cog size={20} />}
                   value={engineModel}
                   options={engineModelOptions}
                   disabled={!vehicle || !brand}
-                  placeholder={brand ? "Kaikki moottorit" : t.sellSelectBrandFirst}
+                  placeholder={brand ? "Kaikki moottorit" : "Valitse merkki"}
                   inputRef={engineModelInputRef}
                   onChange={(nextValue) => {
                     setEngineModel(nextValue);
                     setEngineModelOther("");
                   }}
+                  onOptionSelected={() => openNextVehicleDetail("parts")}
                 />
               </div>
+              <div className="cd-parts-inline-panel">
+                <span className="cd-step-hint">
+                  <span className="cd-step-hint-icon" aria-hidden="true">
+                    <Box size={21} />
+                  </span>
+                  <span>Valitse osan kategoria</span>
+                </span>
+                <div className="cd-vehicle-detail-grid">
+                  <VehicleComboField
+                    label="Pääkategoria"
+                    icon={<Box size={20} />}
+                    value={cat}
+                    options={partCategoryOptions}
+                    placeholder="Valitse"
+                    inputRef={partCategoryInputRef}
+                    onChange={selectPartCategory}
+                    onOptionSelected={selectPartCategory}
+                    allowCustom={false}
+                  />
+
+                  <VehicleComboField
+                    label="Alakategoria"
+                    icon={<Boxes size={20} />}
+                    value={subGroup}
+                    options={partGroupOptions}
+                    disabled={!cat || partGroupOptions.length === 0}
+                    placeholder={cat ? "Valitse" : "Valitse ensin"}
+                    inputRef={partGroupInputRef}
+                    onChange={selectPartGroup}
+                    onOptionSelected={selectPartGroup}
+                    allowCustom={false}
+                  />
+
+                  <VehicleComboField
+                    label="Tarkempi osa"
+                    icon={<WrenchIcon size={20} />}
+                    value={sub}
+                    options={partLeafOptions}
+                    disabled={!cat || partLeafOptions.length === 0}
+                    placeholder={
+                      cat
+                        ? partGroupOptions.length > 0 && !subGroup
+                          ? "Valitse alakategoria"
+                          : "Valitse tarkempi osa"
+                        : "Valitse ensin"
+                    }
+                    inputRef={partLeafInputRef}
+                    onChange={setSub}
+                    onOptionSelected={(nextValue) => applyFinalCategory(nextValue)}
+                    allowCustom={false}
+                  />
+                </div>
+                {(showTrackMatDimensionField || showPartDetailField) ? (
+                  <div className="cd-extra-detail-panel">
+                    {showTrackMatDimensionField ? (
+                      <TrackMatDimensionField
+                        value={trackMatDimension}
+                        onChange={setTrackMatDimension}
+                      />
+                    ) : null}
+
+                    {showPartDetailField ? (
+                      <label className="cd-extra-field cd-engine-detail-field">
+                        <span className="cd-extra-label">{partDetailLabel}</span>
+                        <span className="cd-extra-input-shell">
+                          <Cog size={18} aria-hidden="true" />
+                          <input
+                            className="cd-extra-input"
+                            value={partEngineDetail}
+                            onChange={(event) => setPartEngineDetail(event.target.value)}
+                            placeholder={engineModel || "Kirjoita tarkempi malli"}
+                          />
+                        </span>
+                      </label>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
               <div className="cd-vehicle-actions">
-                <button className="cd-skip-btn cd-vehicle-next" type="button" onClick={() => setStep(3)}>
+                <button className="cd-skip-btn cd-vehicle-next" type="button" onClick={() => focusPartCombo(partCategoryInputRef)}>
+                  <Search size={21} aria-hidden="true" />
                   Jatka osiin
                 </button>
                 <button
                   className="cd-reset cd-vehicle-clear"
                   type="button"
-                  onClick={() => {
-                    setBrand("");
-                    setModel("");
-                    setModelOpen(false);
-                    setYear("");
-                    setEngineCc("");
-                    setEngineCcOther("");
-                    setEngineModel("");
-                    setEngineModelOther("");
-                  }}
+                  onClick={clearAllDrawerFilters}
                 >
+                  <RotateCcw size={21} aria-hidden="true" />
                   Tyhjennä
                 </button>
               </div>
@@ -2240,7 +2737,17 @@ export default function CategoryDrawer({
 
         <div className="cd-results-footer">
           <button className="cd-results-button" type="button" onClick={apply}>
+            <BarChart3 size={22} aria-hidden="true" />
             N&auml;yt&auml; tulokset
+            <ChevronRight size={24} aria-hidden="true" />
+          </button>
+          <button
+            className="cd-results-clear-button"
+            type="button"
+            onClick={clearAllDrawerFilters}
+          >
+            <RotateCcw size={21} aria-hidden="true" />
+            Tyhjenn&auml;
           </button>
         </div>
 
@@ -2840,6 +3347,14 @@ export default function CategoryDrawer({
           scrollbar-width: thin !important;
           top: calc(100% + 6px) !important;
           z-index: 80 !important;
+        }
+        .cd-combo-menu[data-full-menu="true"] {
+          max-height: none !important;
+          overflow-y: visible !important;
+          scrollbar-width: none !important;
+        }
+        .cd-combo-menu[data-full-menu="true"]::-webkit-scrollbar {
+          display: none !important;
         }
         .cd-combo-option {
           background: rgba(8, 31, 52, 0.72) !important;
@@ -4482,7 +4997,10 @@ export default function CategoryDrawer({
         }
 
         body:has(.cd-drawer-open) .universal-app-topbar {
+          background: rgba(3, 9, 20, 0.96) !important;
+          display: grid !important;
           left: 0 !important;
+          min-height: var(--topbar-h, 72px) !important;
           opacity: 1 !important;
           position: fixed !important;
           right: 0 !important;
@@ -4490,20 +5008,46 @@ export default function CategoryDrawer({
           transform: none !important;
           visibility: visible !important;
           width: 100% !important;
-          z-index: 1100 !important;
+          z-index: 4000 !important;
+        }
+
+        body:has(.cd-drawer-open) .universal-app-topbar.universal-home-topbar,
+        body:has(.cd-drawer-open) header.universal-app-topbar,
+        body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar {
+          background: rgba(3, 9, 20, 0.96) !important;
+          display: grid !important;
+          left: 0 !important;
+          opacity: 1 !important;
+          pointer-events: auto !important;
+          position: fixed !important;
+          right: 0 !important;
+          top: 0 !important;
+          transform: none !important;
+          visibility: visible !important;
+          width: 100% !important;
+          z-index: 4000 !important;
+        }
+
+        body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-navigation,
+        body:has(.cd-drawer-open) header.universal-app-topbar .universal-primary-navigation,
+        body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-brand,
+        body:has(.cd-drawer-open) header.universal-app-topbar .universal-topbar-actions {
+          opacity: 1 !important;
+          pointer-events: auto !important;
+          visibility: visible !important;
         }
 
         @media (max-width: 520px) {
           .cd-backdrop {
-            top: 0 !important;
-            z-index: 3000 !important;
+            top: var(--topbar-h, 72px) !important;
+            z-index: 980 !important;
           }
 
           .cd-drawer {
-            border-top: 0 !important;
-            top: 0 !important;
-            height: 100dvh !important;
-            z-index: 3010 !important;
+            border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
+            top: var(--topbar-h, 72px) !important;
+            height: calc(100dvh - var(--topbar-h, 72px)) !important;
+            z-index: 990 !important;
           }
 
           .cd-header {
@@ -4515,21 +5059,21 @@ export default function CategoryDrawer({
 
         @media (max-width: 720px) {
           .cd-backdrop {
-            inset: 0 !important;
-            top: 0 !important;
-            z-index: 3000 !important;
+            inset: var(--topbar-h, 72px) 0 0 0 !important;
+            top: var(--topbar-h, 72px) !important;
+            z-index: 980 !important;
           }
 
           .cd-drawer {
             border-radius: 0 !important;
-            border-top: 0 !important;
-            inset: 0 !important;
-            height: 100dvh !important;
-            max-height: 100dvh !important;
+            border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
+            inset: var(--topbar-h, 72px) 0 0 0 !important;
+            height: calc(100dvh - var(--topbar-h, 72px)) !important;
+            max-height: calc(100dvh - var(--topbar-h, 72px)) !important;
             max-width: 100vw !important;
-            top: 0 !important;
+            top: var(--topbar-h, 72px) !important;
             width: 100vw !important;
-            z-index: 3010 !important;
+            z-index: 990 !important;
           }
 
           .cd-body {
@@ -4575,7 +5119,6 @@ export default function CategoryDrawer({
             padding-top: 8px !important;
           }
 
-          body:has(.cd-drawer-open) .universal-app-topbar,
           body:has(.cd-drawer-open) .heroWrap,
           body:has(.cd-drawer-open) .topbar,
           body:has(.cd-drawer-open) .bottom-nav,
@@ -4725,6 +5268,64 @@ export default function CategoryDrawer({
           gap: 12px !important;
           margin: 0 !important;
           padding: 14px !important;
+        }
+        .cd-drawer .cd-vehicle-step .cd-parts-inline-panel {
+          align-content: start !important;
+          background:
+            linear-gradient(180deg, rgba(7, 31, 54, 0.98), rgba(3, 17, 32, 0.98)) !important;
+          border: 1px solid rgba(126, 197, 240, 0.24) !important;
+          border-radius: 12px !important;
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.06),
+            0 16px 34px rgba(0, 8, 22, 0.2) !important;
+          display: grid !important;
+          gap: 10px !important;
+          margin: 0 !important;
+          padding: 14px !important;
+        }
+        .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-step-hint {
+          background: transparent !important;
+          border: 0 !important;
+          color: rgba(216, 226, 236, 0.72) !important;
+          font-size: 11px !important;
+          font-weight: 950 !important;
+          line-height: 1 !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          text-transform: uppercase !important;
+        }
+        .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid {
+          background: transparent !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          display: grid !important;
+          gap: 12px !important;
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        .cd-drawer .cd-vehicle-step .cd-parts-inline-panel .cd-detail-field:last-child {
+          grid-column: 1 / -1 !important;
+        }
+
+        .cd-drawer .cd-field-label {
+          font-size: 12px !important;
+          line-height: 1.05 !important;
+        }
+
+        .cd-drawer .cd-combo-control,
+        .cd-drawer .cd-vehicle-type-trigger {
+          min-height: 48px !important;
+        }
+
+        .cd-drawer .cd-combo-input,
+        .cd-drawer .cd-vehicle-type-trigger strong {
+          font-size: 13px !important;
+        }
+
+        .cd-drawer .cd-combo-control {
+          grid-template-columns: 28px minmax(0, 1fr) 24px !important;
+          padding: 0 10px !important;
         }
         .cd-drawer .cd-vehicle-step .cd-detail-field {
           min-width: 0 !important;
@@ -5228,6 +5829,1128 @@ export default function CategoryDrawer({
 
         .cd-drawer .cd-results-button {
           min-height: 52px !important;
+        }
+
+        /* Reference-style side drawer requested from the mockup. */
+        .cd-backdrop {
+          background:
+            radial-gradient(800px 520px at 40% 0%, rgba(22, 52, 78, 0.28), transparent 72%),
+            rgba(0, 7, 16, 0.72) !important;
+          backdrop-filter: blur(5px) saturate(1.05) !important;
+        }
+
+        .cd-drawer {
+          background:
+            radial-gradient(540px 420px at 78% 12%, rgba(28, 68, 102, 0.24), transparent 72%),
+            linear-gradient(180deg, rgba(9, 25, 42, 0.98), rgba(3, 13, 25, 0.99)) !important;
+          border: 1px solid rgba(126, 158, 190, 0.38) !important;
+          border-radius: 18px 0 0 18px !important;
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.05),
+            0 34px 90px rgba(0, 8, 22, 0.44) !important;
+          bottom: 0 !important;
+          height: calc(100dvh - var(--topbar-h, 72px)) !important;
+          left: auto !important;
+          max-height: calc(100dvh - var(--topbar-h, 72px)) !important;
+          max-width: min(465px, 100vw) !important;
+          overflow: hidden !important;
+          right: 0 !important;
+          top: var(--topbar-h, 72px) !important;
+          transform: translateX(0) !important;
+          width: min(465px, 100vw) !important;
+        }
+
+        .cd-drawer-open {
+          transform: translateX(0) !important;
+        }
+
+        .cd-header {
+          background: transparent !important;
+          border: 0 !important;
+          min-height: 62px !important;
+          padding: 12px 14px 0 18px !important;
+        }
+
+        .cd-drawer:not(:has(.cd-crumbs)) .cd-body {
+          padding-top: 0 !important;
+        }
+
+        .cd-close,
+        .cd-back {
+          background: rgba(8, 22, 38, 0.86) !important;
+          border: 1px solid rgba(126, 158, 190, 0.42) !important;
+          border-radius: 999px !important;
+          color: #ffffff !important;
+        }
+
+        .cd-close {
+          height: 46px !important;
+          width: 46px !important;
+        }
+
+        .cd-back {
+          height: 46px !important;
+          width: 46px !important;
+        }
+
+        .cd-crumbs {
+          background: rgba(2, 13, 24, 0.78) !important;
+          border: 1px solid rgba(126, 158, 190, 0.22) !important;
+          border-radius: 22px !important;
+          margin: 8px 18px 16px !important;
+          min-height: 70px !important;
+          padding: 12px !important;
+        }
+
+        .cd-crumb-item {
+          background: linear-gradient(180deg, rgba(18, 41, 64, 0.92), rgba(8, 23, 40, 0.96)) !important;
+          border: 1px solid rgba(126, 158, 190, 0.28) !important;
+          border-radius: 999px !important;
+          min-height: 44px !important;
+          padding: 0 12px 0 20px !important;
+        }
+
+        .cd-crumb-btn {
+          color: #ffffff !important;
+          font-size: 15px !important;
+          font-weight: 950 !important;
+        }
+
+        .cd-crumb-x {
+          color: #ffffff !important;
+          font-size: 24px !important;
+        }
+
+        .cd-body {
+          padding: 0 18px !important;
+        }
+
+        .cd-drawer .cd-body {
+          padding-bottom: 0 !important;
+        }
+
+        .cd-drawer .cd-body > .cd-vehicle-step {
+          gap: 14px !important;
+          min-height: 0 !important;
+          padding: 0 !important;
+        }
+
+        .cd-drawer .cd-vehicle-step .cd-vehicle-step-head,
+        .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
+        .cd-drawer .cd-vehicle-step .cd-parts-inline-panel {
+          background:
+            radial-gradient(420px 180px at 18% 0%, rgba(21, 65, 104, 0.28), transparent 72%),
+            linear-gradient(180deg, rgba(8, 31, 52, 0.82), rgba(4, 18, 34, 0.9)) !important;
+          border: 1px solid rgba(126, 158, 190, 0.28) !important;
+          border-radius: 14px !important;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
+          padding: 14px !important;
+        }
+
+        .cd-drawer .cd-vehicle-step .cd-step-hint,
+        .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-step-hint {
+          color: rgba(216, 226, 236, 0.78) !important;
+          font-size: 12px !important;
+          font-weight: 950 !important;
+          letter-spacing: 0.08em !important;
+          line-height: 1.1 !important;
+          text-transform: uppercase !important;
+        }
+
+        .cd-drawer .cd-vehicle-head-fields,
+        .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
+        .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid {
+          gap: 12px !important;
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+
+        .cd-drawer .cd-vehicle-step .cd-parts-inline-panel .cd-detail-field:last-child {
+          grid-column: 1 / -1 !important;
+        }
+
+        .cd-drawer .cd-vehicle-step .cd-field-label,
+        .cd-drawer .cd-vehicle-type-menu span {
+          color: rgba(216, 226, 236, 0.78) !important;
+          font-size: 13px !important;
+          font-weight: 950 !important;
+          letter-spacing: 0.055em !important;
+          text-transform: uppercase !important;
+        }
+
+        .cd-drawer .cd-combo-control,
+        .cd-drawer .cd-vehicle-type-trigger {
+          background:
+            linear-gradient(180deg, rgba(10, 30, 50, 0.96), rgba(5, 18, 34, 0.98)) !important;
+          border: 1.5px solid rgba(126, 158, 190, 0.44) !important;
+          border-radius: 12px !important;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
+          min-height: 48px !important;
+        }
+
+        .cd-drawer .cd-combo-open .cd-combo-control,
+        .cd-drawer .cd-vehicle-type-menu.is-open .cd-vehicle-type-trigger {
+          border-color: #ff8a1c !important;
+          box-shadow:
+            0 0 0 1px rgba(255, 138, 28, 0.22),
+            0 18px 34px rgba(255, 122, 31, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .cd-drawer .cd-combo-control {
+          grid-template-columns: 38px minmax(0, 1fr) 38px !important;
+        }
+
+        .cd-drawer .cd-combo-icon {
+          align-items: center !important;
+          color: rgba(226, 238, 248, 0.86) !important;
+          display: inline-flex !important;
+          justify-content: center !important;
+          min-width: 38px !important;
+        }
+
+        .cd-drawer .cd-combo-input,
+        .cd-drawer .cd-vehicle-type-trigger strong {
+          color: #ffffff !important;
+          font-size: 15px !important;
+          font-weight: 950 !important;
+          -webkit-text-fill-color: #ffffff !important;
+        }
+
+        .cd-drawer .cd-combo-input::placeholder {
+          color: rgba(216, 226, 236, 0.52) !important;
+          -webkit-text-fill-color: rgba(216, 226, 236, 0.52) !important;
+        }
+
+        .cd-drawer .cd-vehicle-type-trigger {
+          grid-template-columns: 32px minmax(0, 1fr) 28px !important;
+          padding: 0 12px !important;
+        }
+
+        .cd-drawer .cd-vehicle-type-trigger > svg:first-child {
+          color: rgba(226, 238, 248, 0.86) !important;
+        }
+
+        .cd-drawer .cd-combo-toggle svg,
+        .cd-drawer .cd-vehicle-type-trigger > svg:last-child {
+          color: rgba(226, 238, 248, 0.9) !important;
+        }
+
+        .cd-drawer .cd-vehicle-actions {
+          border-bottom: 1px solid rgba(126, 197, 240, 0.16) !important;
+          display: grid !important;
+          gap: 10px !important;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+          padding-bottom: 14px !important;
+        }
+
+        .cd-drawer .cd-vehicle-actions button {
+          border-radius: 12px !important;
+          display: inline-flex !important;
+          font-size: 14px !important;
+          font-weight: 950 !important;
+          gap: 8px !important;
+          min-height: 46px !important;
+        }
+
+        .cd-drawer .cd-vehicle-actions .cd-vehicle-next {
+          background: linear-gradient(135deg, #ffb047 0%, #ff7a1f 48%, #f05c00 100%) !important;
+          border: 1px solid rgba(255, 190, 120, 0.76) !important;
+          box-shadow: 0 18px 34px rgba(255, 104, 18, 0.24) !important;
+          color: #ffffff !important;
+        }
+
+        .cd-drawer .cd-vehicle-actions .cd-vehicle-clear {
+          background: linear-gradient(180deg, rgba(18, 41, 64, 0.92), rgba(8, 23, 40, 0.96)) !important;
+          border: 1px solid rgba(126, 158, 190, 0.46) !important;
+          color: #ffffff !important;
+        }
+
+        .cd-drawer .cd-results-footer {
+          background: transparent !important;
+          border-top: 0 !important;
+          padding: 12px 18px 18px !important;
+          position: static !important;
+        }
+
+        .cd-drawer .cd-results-button {
+          align-items: center !important;
+          background:
+            radial-gradient(140px 80px at 100% 50%, rgba(255, 122, 31, 0.34), transparent 74%),
+            linear-gradient(180deg, rgba(13, 34, 55, 0.98), rgba(5, 17, 32, 0.98)) !important;
+          border: 1.5px solid rgba(255, 122, 31, 0.9) !important;
+          border-radius: 16px !important;
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            0 20px 44px rgba(0, 8, 22, 0.22) !important;
+          color: #ffffff !important;
+          display: grid !important;
+          font-size: 18px !important;
+          font-weight: 950 !important;
+          grid-template-columns: 38px minmax(0, 1fr) 30px !important;
+          justify-items: start !important;
+          min-height: 66px !important;
+          padding: 0 18px !important;
+          text-align: left !important;
+        }
+
+        .cd-drawer .cd-results-button svg:first-child {
+          color: #ff8a1c !important;
+        }
+
+        .cd-drawer .cd-results-button svg:last-child {
+          color: #ffffff !important;
+          justify-self: end !important;
+        }
+
+        .cd-drawer .cd-vehicle-actions,
+        .cd-drawer .cd-vehicle-step .cd-vehicle-actions {
+          display: none !important;
+        }
+
+        .cd-drawer .cd-results-footer {
+          display: grid !important;
+          gap: 10px !important;
+          grid-template-columns: minmax(0, 1.35fr) minmax(132px, 0.65fr) !important;
+        }
+
+        .cd-drawer .cd-results-clear-button {
+          align-items: center !important;
+          background: linear-gradient(180deg, rgba(18, 41, 64, 0.92), rgba(8, 23, 40, 0.96)) !important;
+          border: 1px solid rgba(126, 158, 190, 0.52) !important;
+          border-radius: 16px !important;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+          color: #ffffff !important;
+          cursor: pointer !important;
+          display: inline-flex !important;
+          font-size: 15px !important;
+          font-weight: 950 !important;
+          gap: 8px !important;
+          justify-content: center !important;
+          min-height: 66px !important;
+          padding: 0 14px !important;
+          white-space: nowrap !important;
+        }
+
+        .cd-drawer .cd-results-clear-button svg {
+          color: #ffffff !important;
+          flex: 0 0 auto !important;
+        }
+
+        @media (max-width: 760px) {
+          .cd-drawer {
+            border-radius: 0 !important;
+            left: auto !important;
+            max-height: calc(100dvh - var(--topbar-h, 72px)) !important;
+            max-width: 100vw !important;
+            right: 0 !important;
+            top: var(--topbar-h, 72px) !important;
+            transform: none !important;
+            width: min(465px, 100vw) !important;
+          }
+
+          .cd-drawer-open {
+            transform: none !important;
+          }
+
+          .cd-header {
+            min-height: 58px !important;
+            padding: 10px 12px 0 !important;
+          }
+
+          .cd-close {
+            height: 42px !important;
+            width: 42px !important;
+          }
+
+          .cd-crumbs {
+            margin: 8px 16px 16px !important;
+            min-height: 68px !important;
+            padding: 12px !important;
+          }
+
+          .cd-body {
+            padding: 0 16px !important;
+          }
+
+          .cd-drawer .cd-vehicle-head-fields,
+          .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
+          .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid,
+          .cd-drawer .cd-vehicle-actions {
+            grid-template-columns: 1fr !important;
+          }
+
+          .cd-drawer .cd-vehicle-step .cd-vehicle-step-head,
+          .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
+          .cd-drawer .cd-vehicle-step .cd-parts-inline-panel {
+            border-radius: 14px !important;
+            padding: 16px !important;
+          }
+
+          .cd-drawer .cd-results-footer {
+            padding: 16px !important;
+          }
+
+          .cd-drawer .cd-results-button {
+            font-size: 18px !important;
+            min-height: 62px !important;
+          }
+        }
+
+        /* Actual final cleanup: compact side drawer, no overlapped header, readable fields. */
+        body:has(.cd-drawer-open) header.universal-app-topbar,
+        body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar {
+          display: grid !important;
+          min-height: 64px !important;
+          opacity: 1 !important;
+          position: fixed !important;
+          top: 0 !important;
+          visibility: visible !important;
+          z-index: 7000 !important;
+        }
+
+        .cd-backdrop {
+          inset: 64px 0 0 0 !important;
+          top: 64px !important;
+          z-index: 980 !important;
+        }
+
+        .cd-drawer {
+          border-radius: 14px 0 0 14px !important;
+          bottom: 0 !important;
+          display: grid !important;
+          grid-template-rows: 58px minmax(0, 1fr) auto !important;
+          height: calc(100dvh - 64px) !important;
+          left: auto !important;
+          max-height: calc(100dvh - 64px) !important;
+          max-width: min(465px, 100vw) !important;
+          overflow: hidden !important;
+          right: 0 !important;
+          top: 64px !important;
+          width: min(465px, 100vw) !important;
+          z-index: 990 !important;
+        }
+
+        .cd-header {
+          align-items: center !important;
+          background: transparent !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          display: flex !important;
+          grid-row: 1 !important;
+          justify-content: flex-end !important;
+          min-height: 58px !important;
+          padding: 10px 12px 0 12px !important;
+          position: static !important;
+          width: auto !important;
+        }
+
+        .cd-close {
+          flex: 0 0 42px !important;
+          height: 42px !important;
+          margin-left: auto !important;
+          min-height: 42px !important;
+          min-width: 42px !important;
+          width: 42px !important;
+        }
+
+        .cd-body {
+          grid-row: 2 !important;
+          min-height: 0 !important;
+          overflow-x: hidden !important;
+          overflow-y: auto !important;
+          padding: 0 14px 12px !important;
+        }
+
+        .cd-results-footer {
+          grid-row: 3 !important;
+        }
+
+        .cd-drawer .cd-vehicle-head-fields,
+        .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
+        .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+
+        .cd-drawer .cd-vehicle-step .cd-parts-inline-panel .cd-detail-field:last-child {
+          grid-column: 1 / -1 !important;
+        }
+
+        .cd-drawer .cd-vehicle-actions,
+        .cd-drawer .cd-vehicle-step .cd-vehicle-actions {
+          display: none !important;
+        }
+
+        .cd-drawer .cd-vehicle-step .cd-vehicle-step-head,
+        .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
+        .cd-drawer .cd-vehicle-step .cd-parts-inline-panel {
+          padding: 14px !important;
+        }
+
+        .cd-drawer .cd-combo-input,
+        .cd-drawer .cd-vehicle-type-trigger strong {
+          font-size: 11.5px !important;
+          font-weight: 950 !important;
+          line-height: 1.08 !important;
+          min-width: 0 !important;
+          overflow: hidden !important;
+          text-overflow: clip !important;
+          white-space: nowrap !important;
+          word-break: normal !important;
+        }
+
+        .cd-drawer .cd-combo-control,
+        .cd-drawer .cd-vehicle-type-trigger {
+          align-items: center !important;
+          gap: 4px !important;
+          grid-template-columns: 18px minmax(0, 1fr) 16px !important;
+          min-height: 50px !important;
+          padding: 0 7px !important;
+        }
+
+        .cd-drawer .cd-combo-icon,
+        .cd-drawer .cd-vehicle-type-trigger > svg:first-child {
+          height: 17px !important;
+          width: 17px !important;
+        }
+
+        .cd-drawer .cd-combo-toggle,
+        .cd-drawer .cd-vehicle-type-trigger > svg:last-child {
+          height: 16px !important;
+          min-width: 16px !important;
+          width: 16px !important;
+        }
+
+        .cd-drawer .cd-combo-input {
+          background: transparent !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          height: 100% !important;
+          padding: 0 !important;
+          width: 100% !important;
+        }
+
+        .cd-drawer .cd-combo-input::placeholder {
+          color: rgba(222, 233, 242, 0.78) !important;
+          -webkit-text-fill-color: rgba(222, 233, 242, 0.78) !important;
+          opacity: 1 !important;
+        }
+
+        .cd-drawer .cd-combo-disabled .cd-combo-input,
+        .cd-drawer .cd-combo-disabled .cd-combo-input::placeholder,
+        .cd-drawer .cd-vehicle-type-trigger:disabled strong {
+          color: rgba(205, 220, 232, 0.72) !important;
+          -webkit-text-fill-color: rgba(205, 220, 232, 0.72) !important;
+          opacity: 1 !important;
+        }
+
+        .cd-drawer .cd-combo-disabled .cd-combo-control,
+        .cd-drawer .cd-vehicle-type-trigger:disabled {
+          opacity: 0.76 !important;
+        }
+
+        .cd-drawer .cd-combo-control,
+        .cd-drawer .cd-vehicle-type-trigger,
+        .cd-drawer .cd-vehicle-step .cd-combo-control,
+        .cd-drawer .cd-vehicle-step .cd-vehicle-type-trigger {
+          column-gap: 8px !important;
+          display: grid !important;
+          grid-template-columns: 18px minmax(0, 1fr) 18px !important;
+          padding-left: 12px !important;
+          padding-right: 10px !important;
+        }
+
+        .cd-drawer .cd-combo-icon,
+        .cd-drawer .cd-vehicle-type-trigger > svg:first-child {
+          align-items: center !important;
+          color: rgba(219, 234, 247, 0.9) !important;
+          display: inline-flex !important;
+          grid-column: 1 !important;
+          justify-content: center !important;
+          justify-self: center !important;
+          margin: 0 !important;
+        }
+
+        .cd-drawer .cd-combo-icon svg {
+          height: 17px !important;
+          width: 17px !important;
+        }
+
+        .cd-drawer .cd-combo-input,
+        .cd-drawer .cd-vehicle-type-trigger strong {
+          grid-column: 2 !important;
+          justify-self: stretch !important;
+        }
+
+        .cd-drawer .cd-combo-input {
+          padding-left: 7px !important;
+        }
+
+        .cd-drawer .cd-vehicle-type-trigger strong {
+          padding-left: 2px !important;
+        }
+
+        .cd-drawer .cd-combo-toggle,
+        .cd-drawer .cd-vehicle-type-trigger > svg:last-child {
+          grid-column: 3 !important;
+          justify-self: end !important;
+          margin: 0 !important;
+        }
+
+        .cd-drawer .cd-extra-detail-panel {
+          border-top: 1px solid rgba(126, 197, 240, 0.14) !important;
+          display: grid !important;
+          gap: 10px !important;
+          grid-column: 1 / -1 !important;
+          margin-top: 2px !important;
+          padding-top: 12px !important;
+        }
+
+        .cd-drawer .cd-extra-field {
+          display: grid !important;
+          gap: 7px !important;
+          min-width: 0 !important;
+        }
+
+        .cd-drawer .cd-extra-label {
+          color: rgba(216, 226, 236, 0.84) !important;
+          font-size: 12px !important;
+          font-weight: 950 !important;
+          letter-spacing: 0 !important;
+          line-height: 1.1 !important;
+          text-transform: uppercase !important;
+        }
+
+        .cd-drawer .cd-track-mat-select-shell,
+        .cd-drawer .cd-extra-input-shell {
+          align-items: center !important;
+          background: linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98)) !important;
+          border: 1px solid rgba(126, 197, 240, 0.42) !important;
+          border-radius: 10px !important;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+          color: #ffffff !important;
+          display: grid !important;
+          grid-template-columns: 22px minmax(0, 1fr) 18px !important;
+          min-height: 52px !important;
+          padding: 0 12px !important;
+          position: relative !important;
+          width: 100% !important;
+        }
+
+        .cd-drawer button.cd-track-mat-select-shell {
+          cursor: pointer !important;
+          font: inherit !important;
+          text-align: left !important;
+        }
+
+        .cd-drawer .cd-track-mat-icon,
+        .cd-drawer .cd-extra-input-shell > svg {
+          align-items: center !important;
+          color: #ff8a1c !important;
+          display: inline-flex !important;
+          justify-content: center !important;
+        }
+
+        .cd-drawer .cd-track-mat-value {
+          display: grid !important;
+          gap: 2px !important;
+          min-width: 0 !important;
+          padding: 0 8px !important;
+        }
+
+        .cd-drawer .cd-track-mat-value strong,
+        .cd-drawer .cd-track-mat-value small {
+          display: block !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
+        }
+
+        .cd-drawer .cd-track-mat-value strong {
+          color: #ffffff !important;
+          font-size: 13px !important;
+          font-weight: 950 !important;
+          line-height: 1.05 !important;
+        }
+
+        .cd-drawer .cd-track-mat-value small {
+          color: rgba(216, 226, 236, 0.78) !important;
+          font-size: 11px !important;
+          font-weight: 850 !important;
+        }
+
+        .cd-drawer .cd-track-mat-value-empty strong {
+          color: rgba(216, 226, 236, 0.76) !important;
+        }
+
+        .cd-drawer .cd-track-mat-select-shell > svg:last-child {
+          color: rgba(226, 238, 248, 0.92) !important;
+          justify-self: end !important;
+        }
+
+        .cd-drawer .cd-track-mat-select-shell.is-open {
+          border-color: rgba(255, 122, 26, 0.78) !important;
+          box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.12) !important;
+        }
+
+        .cd-drawer .cd-track-mat-select-shell.is-open > svg:last-child {
+          transform: rotate(180deg) !important;
+        }
+
+        .cd-drawer .cd-track-mat-menu {
+          background:
+            radial-gradient(240px 160px at 12% 0%, rgba(36, 96, 142, 0.18), transparent 72%),
+            #06182a !important;
+          border: 1px solid rgba(126, 197, 240, 0.36) !important;
+          border-radius: 12px !important;
+          box-shadow: 0 18px 38px rgba(0, 8, 22, 0.5) !important;
+          display: grid !important;
+          gap: 4px !important;
+          margin-top: 7px !important;
+          max-height: min(300px, 42dvh) !important;
+          overflow-x: hidden !important;
+          overflow-y: auto !important;
+          overscroll-behavior: contain !important;
+          padding: 6px !important;
+          scrollbar-color: rgba(126, 197, 240, 0.5) transparent !important;
+          scrollbar-width: thin !important;
+          width: 100% !important;
+          -webkit-overflow-scrolling: touch !important;
+        }
+
+        .cd-drawer .cd-track-mat-option {
+          align-items: center !important;
+          background: rgba(8, 31, 52, 0.72) !important;
+          border: 1px solid rgba(126, 197, 240, 0.12) !important;
+          border-radius: 9px !important;
+          color: #ffffff !important;
+          cursor: pointer !important;
+          display: grid !important;
+          gap: 3px !important;
+          grid-template-columns: minmax(0, 1fr) auto !important;
+          min-height: 40px !important;
+          padding: 8px 10px !important;
+          text-align: left !important;
+          width: 100% !important;
+        }
+
+        .cd-drawer .cd-track-mat-option strong,
+        .cd-drawer .cd-track-mat-option span {
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
+        }
+
+        .cd-drawer .cd-track-mat-option strong {
+          font-size: 13px !important;
+          font-weight: 950 !important;
+        }
+
+        .cd-drawer .cd-track-mat-option span {
+          color: rgba(216, 226, 236, 0.72) !important;
+          font-size: 12px !important;
+          font-weight: 850 !important;
+        }
+
+        .cd-drawer .cd-track-mat-option:hover,
+        .cd-drawer .cd-track-mat-option.is-active {
+          background: rgba(146, 194, 241, 0.96) !important;
+          border-color: rgba(210, 232, 255, 0.7) !important;
+          color: #031326 !important;
+        }
+
+        .cd-drawer .cd-track-mat-option:hover span,
+        .cd-drawer .cd-track-mat-option.is-active span {
+          color: rgba(3, 19, 38, 0.72) !important;
+        }
+
+        .cd-drawer .cd-track-mat-option-custom {
+          border-color: rgba(255, 122, 26, 0.34) !important;
+        }
+
+        .cd-drawer .cd-extra-input {
+          background: transparent !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          color: #ffffff !important;
+          font: inherit !important;
+          font-size: 13px !important;
+          font-weight: 900 !important;
+          min-width: 0 !important;
+          outline: 0 !important;
+          padding: 0 0 0 8px !important;
+          width: 100% !important;
+          -webkit-text-fill-color: #ffffff !important;
+        }
+
+        .cd-drawer .cd-extra-input::placeholder {
+          color: rgba(216, 226, 236, 0.62) !important;
+          opacity: 1 !important;
+          -webkit-text-fill-color: rgba(216, 226, 236, 0.62) !important;
+        }
+
+        @media (min-width: 861px) {
+          body:has(.cd-drawer-open) header.universal-app-topbar,
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar {
+            display: block !important;
+            height: 64px !important;
+            min-height: 64px !important;
+            overflow: visible !important;
+            padding: 0 !important;
+          }
+
+          body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-navigation,
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+          body:has(.cd-drawer-open) header.universal-app-topbar .universal-primary-navigation,
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+            display: block !important;
+            height: 64px !important;
+            overflow: visible !important;
+            width: 100% !important;
+          }
+
+          body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-brand,
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+            align-items: center !important;
+            display: inline-flex !important;
+            height: 64px !important;
+            left: 14px !important;
+            opacity: 1 !important;
+            position: absolute !important;
+            top: 0 !important;
+            transform: none !important;
+            visibility: visible !important;
+            width: 82px !important;
+            z-index: 20 !important;
+          }
+
+          body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-brand-logo,
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+            display: block !important;
+            height: auto !important;
+            max-height: 50px !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            width: 78px !important;
+          }
+
+          body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav,
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+            align-items: center !important;
+            display: flex !important;
+            gap: clamp(14px, 1.8vw, 28px) !important;
+            height: 64px !important;
+            justify-content: center !important;
+            left: 50% !important;
+            margin: 0 !important;
+            max-width: calc(100vw - 560px) !important;
+            min-width: 0 !important;
+            overflow: hidden !important;
+            position: absolute !important;
+            right: auto !important;
+            top: 0 !important;
+            transform: translateX(-50%) !important;
+            width: max-content !important;
+            z-index: 12 !important;
+          }
+
+          body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
+          body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+            flex: 0 1 auto !important;
+            font-size: 13px !important;
+            max-width: 116px !important;
+            min-width: 0 !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+          }
+
+          body:has(.cd-drawer-open) header.universal-app-topbar .universal-topbar-actions,
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+            align-items: center !important;
+            display: flex !important;
+            gap: 8px !important;
+            height: 64px !important;
+            justify-content: flex-end !important;
+            margin: 0 !important;
+            max-width: calc(100vw - 116px) !important;
+            min-width: 0 !important;
+            position: absolute !important;
+            right: 14px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            width: auto !important;
+            z-index: 14 !important;
+          }
+        }
+
+        @media (min-width: 861px) and (max-width: 1160px) {
+          body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav,
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+            gap: 12px !important;
+            left: 42% !important;
+            max-width: calc(100vw - 520px) !important;
+          }
+
+          body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
+          body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+            font-size: 12px !important;
+            max-width: 94px !important;
+          }
+        }
+
+        @media (max-width: 520px) {
+          body:has(.cd-drawer-open) header.universal-app-topbar,
+          body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar {
+            min-height: 72px !important;
+          }
+
+          .cd-backdrop {
+            background:
+              radial-gradient(520px 360px at 40% 0%, rgba(24, 74, 116, 0.28), transparent 70%),
+              rgba(0, 7, 16, 0.76) !important;
+            inset: 72px 0 0 0 !important;
+            top: 72px !important;
+          }
+
+          .cd-drawer {
+            background:
+              radial-gradient(480px 320px at 20% 8%, rgba(34, 87, 126, 0.24), transparent 72%),
+              linear-gradient(180deg, rgba(9, 26, 45, 0.99), rgba(2, 11, 22, 0.995)) !important;
+            border: 1px solid rgba(126, 158, 190, 0.26) !important;
+            border-radius: 18px 18px 0 0 !important;
+            box-shadow:
+              inset 0 1px 0 rgba(255, 255, 255, 0.06),
+              0 -18px 70px rgba(0, 8, 22, 0.44) !important;
+            grid-template-rows: 64px minmax(0, 1fr) auto !important;
+            height: calc(100dvh - 84px) !important;
+            left: 6px !important;
+            max-height: calc(100dvh - 84px) !important;
+            max-width: calc(100vw - 12px) !important;
+            right: 6px !important;
+            top: 84px !important;
+            width: calc(100vw - 12px) !important;
+          }
+
+          .cd-header {
+            min-height: 64px !important;
+            padding: 12px 12px 0 !important;
+          }
+
+          .cd-close {
+            background: rgba(8, 22, 38, 0.9) !important;
+            border-color: rgba(126, 158, 190, 0.42) !important;
+            flex-basis: 44px !important;
+            height: 44px !important;
+            min-height: 44px !important;
+            min-width: 44px !important;
+            width: 44px !important;
+          }
+
+          .cd-body {
+            padding: 0 16px 14px !important;
+          }
+
+          .cd-drawer .cd-body > .cd-vehicle-step {
+            gap: 14px !important;
+          }
+
+          .cd-drawer .cd-vehicle-step .cd-vehicle-step-head,
+          .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
+          .cd-drawer .cd-vehicle-step .cd-parts-inline-panel {
+            background:
+              radial-gradient(380px 180px at 14% 0%, rgba(38, 94, 136, 0.24), transparent 72%),
+              linear-gradient(180deg, rgba(8, 31, 52, 0.9), rgba(4, 18, 34, 0.94)) !important;
+            border: 1px solid rgba(126, 158, 190, 0.34) !important;
+            border-radius: 18px !important;
+            box-shadow:
+              inset 0 1px 0 rgba(255, 255, 255, 0.055),
+              0 12px 30px rgba(0, 8, 22, 0.18) !important;
+            padding: 14px !important;
+          }
+
+          .cd-drawer .cd-vehicle-head-fields,
+          .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
+          .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid {
+            gap: 13px !important;
+            grid-template-columns: 1fr !important;
+          }
+
+          .cd-drawer .cd-vehicle-step .cd-parts-inline-panel .cd-detail-field:last-child {
+            grid-column: auto !important;
+          }
+
+          .cd-drawer .cd-field-label,
+          .cd-drawer .cd-vehicle-step .cd-step-hint,
+          .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-step-hint {
+            color: rgba(226, 238, 248, 0.84) !important;
+            font-size: 13px !important;
+            letter-spacing: 0.08em !important;
+            line-height: 1.15 !important;
+          }
+
+          .cd-drawer .cd-vehicle-step .cd-vehicle-step-head > .cd-step-hint,
+          .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-step-hint {
+            align-items: center !important;
+            color: #ffffff !important;
+            display: flex !important;
+            font-size: clamp(17px, 5.2vw, 22px) !important;
+            font-weight: 1000 !important;
+            gap: 12px !important;
+            letter-spacing: 0 !important;
+            margin: 0 0 18px !important;
+            text-transform: uppercase !important;
+          }
+
+          .cd-drawer .cd-step-hint-icon {
+            align-items: center !important;
+            background:
+              radial-gradient(circle at 35% 30%, rgba(255, 154, 36, 0.34), transparent 46%),
+              rgba(255, 122, 26, 0.08) !important;
+            border: 1px solid rgba(255, 122, 26, 0.42) !important;
+            border-radius: 999px !important;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            color: #ff8a1c !important;
+            display: inline-flex !important;
+            flex: 0 0 38px !important;
+            height: 38px !important;
+            justify-content: center !important;
+            width: 38px !important;
+          }
+
+          .cd-drawer .cd-combo-control,
+          .cd-drawer .cd-vehicle-type-trigger,
+          .cd-drawer .cd-vehicle-step .cd-combo-control,
+          .cd-drawer .cd-vehicle-step .cd-vehicle-type-trigger {
+            background: rgba(3, 15, 28, 0.72) !important;
+            border: 1px solid rgba(148, 178, 207, 0.42) !important;
+            border-radius: 14px !important;
+            gap: 11px !important;
+            grid-template-columns: 24px minmax(0, 1fr) 20px !important;
+            min-height: 62px !important;
+            padding: 0 14px !important;
+          }
+
+          .cd-drawer .cd-combo-input,
+          .cd-drawer .cd-vehicle-type-trigger strong {
+            color: #ffffff !important;
+            font-size: clamp(14px, 4.3vw, 17px) !important;
+            font-weight: 950 !important;
+            line-height: 1.15 !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            -webkit-text-fill-color: #ffffff !important;
+          }
+
+          .cd-drawer .cd-combo-icon,
+          .cd-drawer .cd-vehicle-type-trigger > svg:first-child {
+            color: rgba(226, 238, 248, 0.88) !important;
+            height: 24px !important;
+            width: 24px !important;
+          }
+
+          body:has(.cd-drawer-open) .rebuilt-chat-button,
+          body:has(.cd-drawer-open) .floating-chat,
+          body:has(.cd-drawer-open) .fc-button {
+            display: none !important;
+          }
+
+          .cd-drawer .cd-vehicle-type-menu {
+            min-width: 0 !important;
+            position: relative !important;
+            width: 100% !important;
+          }
+
+          .cd-drawer .cd-vehicle-type-options {
+            border-radius: 10px !important;
+            box-shadow: 0 18px 34px rgba(0, 8, 22, 0.52) !important;
+            left: 0 !important;
+            min-width: 100% !important;
+            padding: 5px !important;
+            right: 0 !important;
+            width: 100% !important;
+            z-index: 160 !important;
+          }
+
+          .cd-drawer .cd-vehicle-head-fields .cd-vehicle-type-menu:not(.cd-vehicle-subtype-menu) .cd-vehicle-type-options {
+            left: 0 !important;
+            right: auto !important;
+            min-width: 100% !important;
+            width: 100% !important;
+          }
+
+          .cd-drawer .cd-vehicle-head-fields .cd-vehicle-subtype-menu .cd-vehicle-type-options {
+            left: auto !important;
+            right: 0 !important;
+            min-width: 100% !important;
+            width: 100% !important;
+          }
+
+          .cd-drawer .cd-vehicle-type-option,
+          .cd-drawer .cd-combo-option {
+            border-radius: 10px !important;
+            font-size: 15px !important;
+            font-weight: 950 !important;
+            line-height: 1.15 !important;
+            min-height: 48px !important;
+            padding: 12px 14px !important;
+            white-space: normal !important;
+          }
+
+          .cd-results-footer {
+            background: linear-gradient(180deg, rgba(2, 11, 22, 0.68), rgba(2, 11, 22, 0.98)) !important;
+            border-top: 1px solid rgba(126, 158, 190, 0.2) !important;
+            gap: 10px !important;
+            grid-template-columns: minmax(0, 1.18fr) minmax(108px, 0.82fr) !important;
+            padding: 10px calc(14px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left)) !important;
+          }
+
+          .cd-drawer .cd-results-button,
+          .cd-drawer .cd-results-clear-button {
+            border-radius: 14px !important;
+            font-size: clamp(14px, 4vw, 17px) !important;
+            min-height: 54px !important;
+            padding: 0 12px !important;
+          }
+
+          .cd-drawer .cd-results-button {
+            box-shadow:
+              0 10px 24px rgba(255, 107, 22, 0.24),
+              inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+            grid-template-columns: 26px minmax(0, 1fr) 16px !important;
+          }
+
+          .cd-drawer .cd-results-clear-button {
+            gap: 7px !important;
+          }
+
+          .cd-drawer .cd-results-button svg,
+          .cd-drawer .cd-results-clear-button svg {
+            height: 20px !important;
+            width: 20px !important;
+          }
+
+          .cd-drawer .cd-results-button span,
+          .cd-drawer .cd-results-clear-button span {
+            min-width: 0 !important;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .cd-drawer .cd-vehicle-head-fields,
+          .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
+          .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid {
+            grid-template-columns: 1fr !important;
+          }
+
+          .cd-drawer .cd-vehicle-step .cd-parts-inline-panel .cd-detail-field:last-child {
+            grid-column: auto !important;
+          }
         }
       `}</style>
     </>

@@ -4,7 +4,7 @@ import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, H
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -36,11 +36,62 @@ import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profilePath, profileRootPath } from "@/lib/routes";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { useTaxonomy } from "./TaxonomyProvider";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
 const NOTIFICATION_REFRESH_DEBOUNCE_MS = 120;
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
 const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
+
+type TopbarDropdownKey = "parts" | "brands" | "models" | null;
+
+const TOPBAR_MODEL_GROUPS = [
+  {
+    vehicleType: "Moottorikelkka",
+    label: "Moottorikelkat",
+    brands: [
+      { brand: "Lynx", models: ["Rave", "Xtrim", "Adventure", "Xterrain", "Boondocker", "Shredder"] },
+      { brand: "Ski-Doo", models: ["MXZ", "Renegade", "Summit", "Backcountry", "Freeride"] },
+      { brand: "Polaris", models: ["Indy", "Rush", "Switchback", "RMK", "Khaos", "Assault"] },
+      { brand: "Arctic Cat", models: ["ZR", "M", "Riot", "Norseman", "Crossfire"] }
+    ]
+  },
+  {
+    vehicleType: "Mönkijä",
+    label: "Mönkijät",
+    brands: [
+      { brand: "Can-Am", models: ["Outlander", "Renegade", "Commander", "Maverick"] },
+      { brand: "Polaris", models: ["Sportsman", "Scrambler", "Ranger", "RZR"] },
+      { brand: "Yamaha", models: ["Raptor 700", "YFM700R", "Grizzly", "Kodiak", "YFZ450R"] },
+      { brand: "Honda", models: ["TRX", "FourTrax", "Foreman", "Rincon"] },
+      { brand: "CFMOTO", models: ["CForce", "UForce", "ZForce"] }
+    ]
+  },
+  {
+    vehicleType: "Motocross",
+    label: "Motocross",
+    brands: [
+      { brand: "KTM", models: ["SX", "SX-F", "EXC", "EXC-F"] },
+      { brand: "Yamaha", models: ["YZ125", "YZ250", "YZ250F", "YZ450F", "WR450F"] },
+      { brand: "Honda", models: ["CRF250R", "CRF450R", "CRF250X", "CRF450X"] },
+      { brand: "Kawasaki", models: ["KX250", "KX450", "KX250F", "KX450F"] },
+      { brand: "Husqvarna", models: ["TC", "FC", "TE", "FE"] },
+      { brand: "GasGas", models: ["MC", "MC-F", "EC", "EC-F"] }
+    ]
+  },
+  {
+    vehicleType: "Mopo",
+    label: "Mopot",
+    brands: [
+      { brand: "Yamaha", models: ["BWS Naked", "BWS Original", "Zuma", "BWS Next Generation", "BWS 10", "BWS 12", "Aerox", "DT", "Slider", "Neos"] },
+      { brand: "Derbi", models: ["Senda", "DRD", "Xtreme", "Racing"] },
+      { brand: "Rieju", models: ["MRT", "RR", "SMX", "MRX"] },
+      { brand: "Aprilia", models: ["SR", "RX", "SX", "RS"] },
+      { brand: "Beta", models: ["RR", "Ark", "Track"] },
+      { brand: "MBK", models: ["Booster Naked", "Booster Spirit 10", "Booster Spirit 12", "Booster Next Generation", "Nitro", "Stunt", "X-Limit"] }
+    ]
+  }
+] as const;
 
 function getAuthUserDisplayName(user: User | null) {
   if (!user) return "";
@@ -235,6 +286,7 @@ export default function UniversalTopbar() {
   const router = useRouter();
   const pathname = usePathname() || "/";
   const { t, locale } = useLanguage();
+  const taxonomy = useTaxonomy();
   const ui = topbarText[locale] ?? topbarText.fi;
   const ownProfileLabel = ui.ownProfile;
   const [profileOpen, setProfileOpen] = useState(false);
@@ -253,10 +305,31 @@ export default function UniversalTopbar() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [sellerLevelStats, setSellerLevelStats] = useState<SellerLevelStats>(emptySellerLevelStats);
+  const [topbarDropdownOpen, setTopbarDropdownOpen] = useState<TopbarDropdownKey>(null);
+  const [topbarDropdownRect, setTopbarDropdownRect] = useState<DOMRect | null>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuOverlayRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
   const garageMenuRef = useRef<HTMLDivElement>(null);
+  const topbarDropdownRef = useRef<HTMLDivElement>(null);
+  const topbarDropdownPortalRef = useRef<HTMLDivElement>(null);
+
+  const partNavigationItems = useMemo(
+    () => taxonomy.categories.map((category) => category.key).filter(Boolean),
+    [taxonomy]
+  );
+
+  const brandNavigationGroups = useMemo(
+    () =>
+      taxonomy.vehicles
+        .map((vehicle) => ({
+          vehicleType: vehicle.key,
+          label: vehicle.pillLabel || vehicle.label || vehicle.key,
+          brands: vehicle.brands.filter(Boolean)
+        }))
+        .filter((group) => group.brands.length > 0),
+    [taxonomy]
+  );
 
   useEffect(() => {
     if (!supabase) {
@@ -530,6 +603,31 @@ export default function UniversalTopbar() {
   }, [garageMenuOpen]);
 
   useEffect(() => {
+    if (!topbarDropdownOpen) return;
+
+    function closeOnOutsideClick(event: MouseEvent) {
+      const target = event.target as Node;
+      if (
+        !topbarDropdownRef.current?.contains(target) &&
+        !topbarDropdownPortalRef.current?.contains(target)
+      ) {
+        setTopbarDropdownOpen(null);
+      }
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setTopbarDropdownOpen(null);
+    }
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [topbarDropdownOpen]);
+
+  useEffect(() => {
     if (!userId) {
       setGarageVehicles([]);
       return;
@@ -730,6 +828,134 @@ export default function UniversalTopbar() {
     openCategoryDrawerAtStep(2);
   }
 
+  function homeFilterHref(filters: {
+    category?: string;
+    brand?: string;
+    model?: string;
+    vehicleType?: string;
+  }) {
+    const params = new URLSearchParams();
+    if (filters.category) params.set("category", filters.category);
+    if (filters.vehicleType) params.set("vehicleType", filters.vehicleType);
+    if (filters.brand) params.set("brand", filters.brand);
+    if (filters.model) params.set("model", filters.model);
+    const query = params.toString();
+    return query ? `/?${query}` : "/";
+  }
+
+  function toggleTopbarDropdown(next: Exclude<TopbarDropdownKey, null>, anchor: HTMLElement) {
+    setTopbarDropdownRect(anchor.getBoundingClientRect());
+    setTopbarDropdownOpen((current) => (current === next ? null : next));
+  }
+
+  const topbarDropdownWidth =
+    topbarDropdownOpen === "models" ? 460 : 320;
+
+  const topbarDropdownPortal =
+    topbarDropdownOpen && topbarDropdownRect
+      ? createPortal(
+          <div
+            ref={topbarDropdownPortalRef}
+            className={`universal-nav-menu universal-nav-menu-portal${
+              topbarDropdownOpen === "brands" ? " universal-nav-menu-wide" : ""
+            }${topbarDropdownOpen === "models" ? " universal-nav-menu-wide universal-nav-menu-models" : ""}`}
+            role="menu"
+            style={{
+              left:
+                typeof window === "undefined"
+                  ? topbarDropdownRect.left
+                  : Math.max(8, Math.min(topbarDropdownRect.left, window.innerWidth - topbarDropdownWidth - 8)),
+              top: topbarDropdownRect.bottom + 10
+            }}
+          >
+            {topbarDropdownOpen === "parts" ? (
+              <>
+                <div className="universal-nav-menu-grid">
+                  {partNavigationItems.map((categoryName) => (
+                    <Link
+                      key={categoryName}
+                      href={homeFilterHref({ category: categoryName })}
+                      className="universal-nav-menu-item"
+                      role="menuitem"
+                      onClick={() => setTopbarDropdownOpen(null)}
+                    >
+                      {categoryName}
+                    </Link>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className="universal-nav-menu-secondary"
+                  onClick={() => {
+                    setTopbarDropdownOpen(null);
+                    openCategoryDrawerAtStep(2);
+                  }}
+                >
+                  Avaa tarkempi varaosahaku
+                  <ChevronRight size={16} aria-hidden="true" />
+                </button>
+              </>
+            ) : null}
+
+            {topbarDropdownOpen === "brands"
+              ? brandNavigationGroups.map((group) => (
+                  <section key={group.vehicleType} className="universal-nav-menu-section">
+                    <strong>{group.label}</strong>
+                    <div className="universal-nav-menu-grid">
+                      {group.brands.map((brand) => (
+                        <Link
+                          key={`${group.vehicleType}-${brand}`}
+                          href={homeFilterHref({ vehicleType: group.vehicleType, brand })}
+                          className="universal-nav-menu-item"
+                          role="menuitem"
+                          onClick={() => setTopbarDropdownOpen(null)}
+                        >
+                          {brand}
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                ))
+              : null}
+
+            {topbarDropdownOpen === "models"
+              ? (
+                  <div className="universal-model-mega">
+                    {TOPBAR_MODEL_GROUPS.map((vehicleGroup) => (
+                      <section key={vehicleGroup.vehicleType} className="universal-model-card">
+                        <strong>{vehicleGroup.label}</strong>
+                        {vehicleGroup.brands.map((brandGroup) => (
+                          <div key={`${vehicleGroup.vehicleType}-${brandGroup.brand}`} className="universal-model-brand-row">
+                            <span>{brandGroup.brand}</span>
+                            <div className="universal-model-chip-grid">
+                              {brandGroup.models.map((model) => (
+                                <Link
+                                  key={`${vehicleGroup.vehicleType}-${brandGroup.brand}-${model}`}
+                                  href={homeFilterHref({
+                                    vehicleType: vehicleGroup.vehicleType,
+                                    brand: brandGroup.brand,
+                                    model
+                                  })}
+                                  className="universal-nav-menu-item universal-model-chip"
+                                  role="menuitem"
+                                  onClick={() => setTopbarDropdownOpen(null)}
+                                >
+                                  {model}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </section>
+                    ))}
+                  </div>
+                )
+              : null}
+          </div>,
+          document.body
+        )
+      : null;
+
   function handleBackNavigation() {
     if (typeof window !== "undefined" && window.history.length > 1) {
       router.back();
@@ -755,31 +981,43 @@ export default function UniversalTopbar() {
           <BackChevronIcon />
         </button>
       )}
-      <nav className="universal-home-primary-nav" aria-label="Päänavigaatio">
-        <button
-          type="button"
-          className="universal-nav-action"
-          onClick={() => openCategoryDrawerAtStep(2)}
-        >
-          Varaosat
-          <ChevronDown size={13} aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          className="universal-nav-action"
-          onClick={() => openCategoryDrawerAtStep(2)}
-        >
-          Merkit
-          <ChevronDown size={13} aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          className="universal-nav-action"
-          onClick={() => openCategoryDrawerAtStep(2)}
-        >
-          Mallit
-          <ChevronDown size={13} aria-hidden="true" />
-        </button>
+      <nav className="universal-home-primary-nav" aria-label="Päänavigaatio" ref={topbarDropdownRef}>
+        <div className="universal-nav-dropdown">
+          <button
+            type="button"
+            className={`universal-nav-action${topbarDropdownOpen === "parts" ? " is-active" : ""}`}
+            aria-haspopup="menu"
+            aria-expanded={topbarDropdownOpen === "parts"}
+            onClick={(event) => toggleTopbarDropdown("parts", event.currentTarget)}
+          >
+            Varaosat
+            <ChevronDown size={13} aria-hidden="true" />
+          </button>
+        </div>
+        <div className="universal-nav-dropdown">
+          <button
+            type="button"
+            className={`universal-nav-action${topbarDropdownOpen === "brands" ? " is-active" : ""}`}
+            aria-haspopup="menu"
+            aria-expanded={topbarDropdownOpen === "brands"}
+            onClick={(event) => toggleTopbarDropdown("brands", event.currentTarget)}
+          >
+            Merkit
+            <ChevronDown size={13} aria-hidden="true" />
+          </button>
+        </div>
+        <div className="universal-nav-dropdown">
+          <button
+            type="button"
+            className={`universal-nav-action${topbarDropdownOpen === "models" ? " is-active" : ""}`}
+            aria-haspopup="menu"
+            aria-expanded={topbarDropdownOpen === "models"}
+            onClick={(event) => toggleTopbarDropdown("models", event.currentTarget)}
+          >
+            Mallit
+            <ChevronDown size={13} aria-hidden="true" />
+          </button>
+        </div>
         <Link href={sellActionHref} className={isActiveRoute("/sell") ? "is-active" : ""}>Myy osa</Link>
         <Link href={aboutHref} className={isActiveRoute("/about") ? "is-active" : ""}>Tietoa meistä</Link>
         <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>Ohjeet</Link>
@@ -966,6 +1204,7 @@ export default function UniversalTopbar() {
   return (
     <>
     {profileMenuPortal}
+    {topbarDropdownPortal}
     <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}`}>
       {primaryNavigation}
       <nav className="universal-topbar-actions" aria-label={ui.quickActions}>

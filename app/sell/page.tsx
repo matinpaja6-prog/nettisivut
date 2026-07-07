@@ -1390,6 +1390,57 @@ function isTrackMatText(value?: string | null) {
   return (value ?? "").trim().toLowerCase().includes("telamat");
 }
 
+function normalizePartContextText(...values: Array<string | null | undefined>) {
+  return values
+    .join(" ")
+    .toLowerCase()
+    .replace(/[äå]/g, "a")
+    .replace(/ö/g, "o");
+}
+
+function isWheelModelText(...values: Array<string | null | undefined>) {
+  const text = normalizePartContextText(...values);
+  return text.includes("vante") || text.includes("vanne");
+}
+
+function isSuspensionModelText(...values: Array<string | null | undefined>) {
+  const text = normalizePartContextText(...values);
+  return (
+    text.includes("iskunvaiment") ||
+    text.includes("alusta") ||
+    text.includes("tukivar") ||
+    text.includes("olka-aksel") ||
+    text.includes("olka aksel") ||
+    text.includes("vetoaksel")
+  );
+}
+
+function getPartModelFieldLabel(
+  translateText: (text: string) => string,
+  vehicle: string,
+  category: string,
+  group: string,
+  detail: string
+) {
+  if (isWheelModelText(detail)) {
+    const vehicleText = normalizePartContextText(vehicle);
+    if (vehicleText.includes("monkija")) return "Mönkijän vanteen tarkempi malli";
+    if (vehicleText.includes("motocross") || vehicleText.includes("cross")) return "Crossin vanteen tarkempi malli";
+    if (vehicleText.includes("mopo")) return "Mopon vanteen tarkempi malli";
+    return "Vanteen tarkempi malli";
+  }
+
+  if (isSuspensionModelText(group, detail)) {
+    if (normalizePartContextText(group, detail).includes("iskunvaiment")) {
+      return "Iskunvaimentimen tarkempi malli";
+    }
+
+    return "Alustan tarkempi malli";
+  }
+
+  return translateText("Osan tarkka malli / valmistaja (vapaaehtoinen)");
+}
+
 function getPartCategorySearchText(value: string) {
   const normalized = value.trim().toLowerCase();
   if (!isTrackMatText(normalized)) return normalized;
@@ -1400,6 +1451,61 @@ function getPartCategorySearchText(value: string) {
     "mitta mitat koko leveys levea pituus harjakorkeus harja jako pitch lug",
     "15 16 20 38 381 40 406 41 410 51 154 155 156 163 165 174 175 137 141 144 146"
   ].join(" ");
+}
+
+const customTrackMatDimensionValue = "__custom_track_mat_dimension__";
+
+const trackMatDimensionOptions = [
+  { cm: "307 cm x 38 cm x 6,4 cm", inch: "121 x 15 x 2.52" },
+  { cm: "307 cm x 38 cm x 7,3 cm", inch: "121 x 15 x 2.86" },
+  { cm: "307 cm x 41 cm x 6,4 cm", inch: "121 x 16 x 2.52" },
+  { cm: "325 cm x 34 cm x 6,4 cm", inch: "128 x 13.5 x 2.52" },
+  { cm: "325 cm x 36 cm x 6,4 cm", inch: "128 x 14 x 2.52" },
+  { cm: "325 cm x 38 cm x 6,4 cm", inch: "128 x 15 x 2.52" },
+  { cm: "328 cm x 38 cm x 7,3 cm", inch: "129 x 15 x 2.86" },
+  { cm: "339 cm x 38 cm x 6,4 cm", inch: "133.5 x 15 x 2.52" },
+  { cm: "345 cm x 38 cm x 6,4 cm", inch: "136 x 15 x 2.52" },
+  { cm: "345 cm x 38 cm x 7,3 cm", inch: "136 x 15 x 2.86" },
+  { cm: "348 cm x 38 cm x 7,3 cm", inch: "137 x 15 x 2.86" },
+  { cm: "348 cm x 41 cm x 7,3 cm", inch: "137 x 16 x 2.86" },
+  { cm: "358 cm x 38 cm x 6,4 cm", inch: "141 x 15 x 2.52" },
+  { cm: "358 cm x 38 cm x 7,6 cm", inch: "141 x 15 x 3.00" },
+  { cm: "366 cm x 34 cm x 6,4 cm", inch: "144 x 13.5 x 2.52" },
+  { cm: "366 cm x 36 cm x 6,4 cm", inch: "144 x 14 x 2.52" },
+  { cm: "366 cm x 38 cm x 6,4 cm", inch: "144 x 15 x 2.52" },
+  { cm: "366 cm x 38 cm x 7,3 cm", inch: "144 x 15 x 2.86" },
+  { cm: "371 cm x 38 cm x 7,3 cm", inch: "146 x 15 x 2.86" },
+  { cm: "371 cm x 41 cm x 7,3 cm", inch: "146 x 16 x 2.86" },
+  { cm: "383 cm x 38 cm x 6,4 cm", inch: "151 x 15 x 2.52" },
+  { cm: "389 cm x 38 cm x 7,6 cm", inch: "153 x 15 x 3.00" },
+  { cm: "391 cm x 38 cm x 7,3 cm", inch: "154 x 15 x 2.86" },
+  { cm: "391 cm x 41 cm x 7,3 cm", inch: "154 x 16 x 2.86" },
+  { cm: "391 cm x 41 cm x 7,6 cm", inch: "154 x 16 x 3.00" },
+  { cm: "391 cm x 51 cm x 6,4 cm", inch: "154 x 20 x 2.52" },
+  { cm: "391 cm x 51 cm x 7,3 cm", inch: "154 x 20 x 2.86" },
+  { cm: "396 cm x 38 cm x 6,4 cm", inch: "156 x 15 x 2.52" },
+  { cm: "396 cm x 38 cm x 7,6 cm", inch: "156 x 15 x 3.00" },
+  { cm: "396 cm x 41 cm x 6,4 cm", inch: "156 x 16 x 2.52" },
+  { cm: "396 cm x 51 cm x 6,4 cm", inch: "156 x 20 x 2.52" },
+  { cm: "396 cm x 61 cm x 6,4 cm", inch: "156 x 24 x 2.52" },
+  { cm: "404 cm x 38 cm x 6,4 cm", inch: "159 x 15 x 2.52" },
+  { cm: "411 cm x 38 cm x 7,3 cm", inch: "162 x 15 x 2.86" },
+  { cm: "411 cm x 38 cm x 7,6 cm", inch: "162 x 15 x 3.00" },
+  { cm: "414 cm x 41 cm x 7,3 cm", inch: "163 x 16 x 2.86" },
+  { cm: "414 cm x 41 cm x 7,6 cm", inch: "163 x 16 x 3.00" },
+  { cm: "419 cm x 38 cm x 7,6 cm", inch: "165 x 15 x 3.00" },
+  { cm: "419 cm x 38 cm x 8,9 cm", inch: "165 x 15 x 3.50" },
+  { cm: "442 cm x 38 cm x 7,6 cm", inch: "174 x 15 x 3.00" },
+  { cm: "442 cm x 38 cm x 8,9 cm", inch: "174 x 15 x 3.50" },
+  { cm: "445 cm x 38 cm x 7,6 cm", inch: "175 x 15 x 3.00" }
+].map((option) => ({
+  value: `${option.cm} / ${option.inch}"`,
+  label: `${option.cm} / ${option.inch}"`,
+  ...option
+}));
+
+function isPresetTrackMatDimension(value: string) {
+  return trackMatDimensionOptions.some((option) => option.value === value);
 }
 
 function buildPartModelDetails(partModelValue: string, trackMatDetailsValue: string, includeTrackMatDetails: boolean) {
@@ -2633,6 +2739,13 @@ function SellPageContent() {
     selectedCategoryGroup,
     selectedDetailCategory
   ].some(isTrackMatText);
+  const selectedPartModelFieldLabel = getPartModelFieldLabel(
+    st,
+    vehicleType.title,
+    selectedCategory,
+    selectedCategoryGroup,
+    selectedDetailCategory
+  );
   const isCompanyAccount = accountProfile?.account_type === "company";
   const selectedCompanySeller =
     companySellers.find((seller) => seller.id === selectedCompanySellerId) ?? null;
@@ -4547,6 +4660,13 @@ function SellPageContent() {
     const listingProgressLabel = `${activeIndex + 1}/${selectedMultiPartList.length} ${st("ilmoitusta täytetty")}`;
     const translatedAutomaticTitle = getTranslatedAutomaticListingTitle(part);
     const partNeedsTrackMatDimensions = [part.category, part.group, part.detail].some(isTrackMatText);
+    const partModelFieldLabel = getPartModelFieldLabel(
+      st,
+      vehicleType.title,
+      part.category,
+      part.group,
+      part.detail
+    );
 
     return (
       <div className={`${styles.listingStack} ${styles.multiListingWizard}`}>
@@ -4633,7 +4753,7 @@ function SellPageContent() {
                     </small>
                   </label>
                   <label>
-                    <span>{st("Osan tarkka malli")}</span>
+                    <span>{partModelFieldLabel}</span>
                     <input
                       value={part.partModel}
                       onChange={(event) => updateMultiPartField(part.id, "partModel", event.target.value)}
@@ -4645,14 +4765,12 @@ function SellPageContent() {
                     />
                   </label>
                   {partNeedsTrackMatDimensions ? (
-                  <label>
-                    <span>{st("Telamaton mitat")}</span>
-                    <input
+                    <TrackMatDimensionField
+                      label={`${st("Telamaton mitat")} (Pituus x Leveys x Jako)`}
                       value={part.trackMatDetails}
-                      onChange={(event) => updateMultiPartField(part.id, "trackMatDetails", event.target.value)}
-                      placeholder={st("Esim. 154 x 15 x 2.5, 3.0 jako, hyvÃ¤kuntoinen")}
+                      onChange={(value) => updateMultiPartField(part.id, "trackMatDetails", value)}
+                      placeholder="Kirjoita muu mitta esim. 360 cm x 38 cm x 7,3 cm"
                     />
-                  </label>
                   ) : null}
                   <label>
                     <span>{st("Osanumero / OEM")}</span>
@@ -5296,10 +5414,10 @@ function SellPageContent() {
             <h2>{st("Lisää tuotetiedot")}</h2>
             <div className={styles.productDetailsGrid}>
               <DetailInput
-                label={st("Osan tarkka malli / valmistaja (vapaaehtoinen)")}
+                label={selectedPartModelFieldLabel}
                 icon={Tags}
                 placeholder={
-                  false
+                  selectedSinglePartNeedsTrackMatDimensions
                     ? st("Esim. 154 x 15 x 2.5, 3.0 jako, hyväkuntoinen")
                     : st("Esim. Stage6, Airsal, Malossi...")
                 }
@@ -5307,13 +5425,13 @@ function SellPageContent() {
                 onChange={setPartModel}
               />
               {selectedSinglePartNeedsTrackMatDimensions ? (
-              <DetailInput
-                label={st("Telamaton mitat")}
-                icon={Ruler}
-                placeholder={st("Esim. 154 x 15 x 2.5, 3.0 jako, hyvÃ¤kuntoinen")}
-                value={trackMatDetails}
-                onChange={setTrackMatDetails}
-              />
+                <TrackMatDimensionField
+                  label={`${st("Telamaton mitat")} (Pituus x Leveys x Jako)`}
+                  icon={Ruler}
+                  value={trackMatDetails}
+                  onChange={setTrackMatDetails}
+                  placeholder="Kirjoita muu mitta esim. 360 cm x 38 cm x 7,3 cm"
+                />
               ) : null}
               <DetailInput
                 label={st("Varaosanumero / OEM-numero (vapaaehtoinen)")}
@@ -6551,10 +6669,12 @@ function CategorySelect({
 }) {
   const hasOptions = options.length > 0;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const pointerSelectionRef = useRef<string | null>(null);
   const open = controlledOpen ?? uncontrolledOpen;
   const selectedOption = options.find((option) => option.value === value);
   const displayValue = hasOptions ? translateText(selectedOption?.label ?? placeholder) : placeholder;
+  const showFullMenu = options.length <= 12;
 
   const setSelectOpen = useCallback((nextOpen: boolean) => {
     if (onOpenChange) {
@@ -6569,6 +6689,28 @@ function CategorySelect({
     if (!autoOpenNonce || !hasOptions || open) return;
     setSelectOpen(true);
   }, [autoOpenNonce, hasOptions, open, setSelectOpen]);
+
+  useEffect(() => {
+    if (!open || !showFullMenu) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      const menu = menuRef.current;
+      if (!menu) return;
+
+      const rect = menu.getBoundingClientRect();
+      const viewportPadding = 16;
+      const bottomOverflow = rect.bottom - (window.innerHeight - viewportPadding);
+      const topOverflow = viewportPadding - rect.top;
+
+      if (bottomOverflow > 0) {
+        window.scrollBy({ top: bottomOverflow, behavior: "auto" });
+      } else if (topOverflow > 0) {
+        window.scrollBy({ top: -topOverflow, behavior: "auto" });
+      }
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [open, showFullMenu]);
 
   function chooseOption(nextValue: string) {
     setSelectOpen(false);
@@ -6607,9 +6749,11 @@ function CategorySelect({
         <ChevronDown size={20} aria-hidden="true" />
         {open && hasOptions ? (
           <div
+            ref={menuRef}
             className={styles.categorySelectMenu}
             data-sell-category-menu="true"
             data-option-count={options.length}
+            data-full-menu={showFullMenu ? "true" : "false"}
             role="listbox"
             style={{
               background: "#061726",
@@ -6693,6 +6837,72 @@ function PriceSuggestionCard({
         Käytä ehdotusta
       </button>
     </div>
+  );
+}
+
+function TrackMatDimensionField({
+  label,
+  icon: Icon,
+  value,
+  onChange,
+  placeholder
+}: {
+  label: string;
+  icon?: LucideIcon;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  const isPresetValue = isPresetTrackMatDimension(value);
+  const isCustomValue = Boolean(value.trim()) && !isPresetValue;
+  const selectValue = isPresetValue ? value : isCustomValue ? customTrackMatDimensionValue : "";
+  const customInputId = `${label.replace(/\W+/g, "-").toLowerCase()}-custom`;
+  const selectedOption = trackMatDimensionOptions.find((option) => option.value === selectValue);
+
+  return (
+    <label className={styles.trackMatDimensionField}>
+      <span>{label}</span>
+      <span className={styles.trackMatDimensionSelectShell}>
+        <span className={styles.trackMatDimensionIconSlot}>
+          {Icon ? <Icon size={22} aria-hidden="true" /> : null}
+        </span>
+        <span className={`${styles.trackMatDimensionValue} ${selectedOption ? "" : styles.trackMatDimensionValueEmpty}`}>
+          {selectedOption ? (
+            <>
+              <strong>{selectedOption.cm}</strong>
+              <small>{selectedOption.inch}"</small>
+            </>
+          ) : (
+            <strong>Valitse maton mitta</strong>
+          )}
+        </span>
+        <select
+          value={selectValue}
+          onChange={(event) => {
+            const nextValue = event.target.value;
+            onChange(nextValue === customTrackMatDimensionValue ? "" : nextValue);
+          }}
+        >
+          <option value="">Valitse maton mitta</option>
+          {trackMatDimensionOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+          <option value={customTrackMatDimensionValue}>Muu</option>
+        </select>
+        <ChevronDown size={18} aria-hidden="true" />
+      </span>
+      {(selectValue === customTrackMatDimensionValue || isCustomValue) ? (
+        <input
+          id={customInputId}
+          className={styles.trackMatDimensionCustomInput}
+          value={isCustomValue ? value : ""}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+        />
+      ) : null}
+    </label>
   );
 }
 

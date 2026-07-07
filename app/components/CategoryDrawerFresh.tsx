@@ -2619,7 +2619,10 @@ export default function CategoryDrawer({
         }
 
         body:has(.cd-drawer-open) .universal-app-topbar {
+          background: rgba(3, 9, 20, 0.96) !important;
+          display: grid !important;
           left: 0 !important;
+          min-height: var(--topbar-h, 72px) !important;
           opacity: 1 !important;
           position: fixed !important;
           right: 0 !important;
@@ -2627,20 +2630,46 @@ export default function CategoryDrawer({
           transform: none !important;
           visibility: visible !important;
           width: 100% !important;
-          z-index: 1100 !important;
+          z-index: 4000 !important;
+        }
+
+        body:has(.cd-drawer-open) .universal-app-topbar.universal-home-topbar,
+        body:has(.cd-drawer-open) header.universal-app-topbar,
+        body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar {
+          background: rgba(3, 9, 20, 0.96) !important;
+          display: grid !important;
+          left: 0 !important;
+          opacity: 1 !important;
+          pointer-events: auto !important;
+          position: fixed !important;
+          right: 0 !important;
+          top: 0 !important;
+          transform: none !important;
+          visibility: visible !important;
+          width: 100% !important;
+          z-index: 4000 !important;
+        }
+
+        body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-navigation,
+        body:has(.cd-drawer-open) header.universal-app-topbar .universal-primary-navigation,
+        body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-brand,
+        body:has(.cd-drawer-open) header.universal-app-topbar .universal-topbar-actions {
+          opacity: 1 !important;
+          pointer-events: auto !important;
+          visibility: visible !important;
         }
 
         @media (max-width: 520px) {
           .cd-backdrop {
-            top: 0 !important;
-            z-index: 3000 !important;
+            top: var(--topbar-h, 72px) !important;
+            z-index: 980 !important;
           }
 
           .cd-drawer {
-            border-top: 0 !important;
-            top: 0 !important;
-            height: 100dvh !important;
-            z-index: 3010 !important;
+            border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
+            top: var(--topbar-h, 72px) !important;
+            height: calc(100dvh - var(--topbar-h, 72px)) !important;
+            z-index: 990 !important;
           }
 
           .cd-header {
@@ -2652,21 +2681,21 @@ export default function CategoryDrawer({
 
         @media (max-width: 720px) {
           .cd-backdrop {
-            inset: 0 !important;
-            top: 0 !important;
-            z-index: 3000 !important;
+            inset: var(--topbar-h, 72px) 0 0 0 !important;
+            top: var(--topbar-h, 72px) !important;
+            z-index: 980 !important;
           }
 
           .cd-drawer {
             border-radius: 0 !important;
-            border-top: 0 !important;
-            inset: 0 !important;
-            height: 100dvh !important;
-            max-height: 100dvh !important;
+            border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
+            inset: var(--topbar-h, 72px) 0 0 0 !important;
+            height: calc(100dvh - var(--topbar-h, 72px)) !important;
+            max-height: calc(100dvh - var(--topbar-h, 72px)) !important;
             max-width: 100vw !important;
-            top: 0 !important;
+            top: var(--topbar-h, 72px) !important;
             width: 100vw !important;
-            z-index: 3010 !important;
+            z-index: 990 !important;
           }
 
           .cd-body {
@@ -2712,7 +2741,6 @@ export default function CategoryDrawer({
             padding-top: 8px !important;
           }
 
-          body:has(.cd-drawer-open) .universal-app-topbar,
           body:has(.cd-drawer-open) .heroWrap,
           body:has(.cd-drawer-open) .topbar,
           body:has(.cd-drawer-open) .bottom-nav,

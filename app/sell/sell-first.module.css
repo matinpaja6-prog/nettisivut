@@ -2104,6 +2104,145 @@
   color: #7f8fa3;
 }
 
+.trackMatDimensionField {
+  display: grid;
+  align-self: start;
+  gap: 10px;
+  min-width: 0;
+  color: #d9e2ee;
+}
+
+.trackMatDimensionField > span:first-child {
+  color: #d9e2ee;
+  font-size: 15px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.trackMatDimensionSelectShell {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 20px;
+  align-items: center;
+  column-gap: 8px;
+  min-height: 48px;
+  border: 1px solid rgba(255, 122, 26, 0.08);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(9, 26, 45, 0.96), rgba(4, 15, 28, 0.98));
+  color-scheme: dark;
+  overflow: hidden;
+  padding: 0 12px 0 10px;
+}
+
+.trackMatDimensionSelectShell svg {
+  color: #ff7a1a;
+}
+
+.trackMatDimensionIconSlot {
+  display: grid;
+  place-items: center;
+  min-width: 28px;
+  min-height: 28px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.trackMatDimensionSelectShell svg:last-child {
+  color: #fff;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.trackMatDimensionValue {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.trackMatDimensionValue strong,
+.trackMatDimensionValue small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trackMatDimensionValue strong {
+  color: #f7f9fc;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.08;
+}
+
+.trackMatDimensionValue small {
+  color: #a8b7c8;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.trackMatDimensionValueEmpty strong {
+  color: #a8b7c8;
+  line-height: 1.2;
+}
+
+.trackMatDimensionSelectShell select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 100%;
+  border: 0;
+  background: transparent !important;
+  color: #f7f9fc !important;
+  cursor: pointer;
+  opacity: 0;
+  outline: none;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 850;
+  appearance: none;
+  color-scheme: dark;
+}
+
+.trackMatDimensionSelectShell select option {
+  background: #061726;
+  color: #f7f9fc;
+}
+
+.trackMatDimensionSelectShell:focus-within {
+  border-color: rgba(255, 122, 26, 0.22);
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.1);
+}
+
+.trackMatDimensionCustomInput {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(121, 153, 187, 0.16);
+  border-radius: 8px;
+  background: #041322 !important;
+  color: #f7f9fc !important;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  outline: none;
+  color-scheme: dark;
+}
+
+.trackMatDimensionCustomInput::placeholder {
+  color: #7f8fa3;
+}
+
+.trackMatDimensionCustomInput:focus {
+  border-color: rgba(255, 122, 26, 0.22);
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.1);
+}
+
 .productDetailsGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(220px, 0.72fr);
@@ -4914,6 +5053,11 @@
   box-shadow:
     0 22px 54px rgba(0, 0, 0, 0.5),
     inset 0 0 0 9999px #061726 !important;
+}
+
+.categorySelectMenu[data-sell-category-menu="true"][data-full-menu="true"] {
+  max-height: none;
+  overflow-y: visible;
 }
 
 .categorySelectMenu[data-sell-category-menu="true"] > [data-sell-category-option="true"] {

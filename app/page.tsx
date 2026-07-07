@@ -93,6 +93,11 @@ import {
   writeCachedListings
 } from "@/lib/client-listings-cache";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
+import {
+  buildFitmentProfile,
+  hasFitmentProfile,
+  listingMatchesCompatibleFitment
+} from "@/lib/fitments";
 
 import { buildRecoProfile, getRecommendedListings, setRecoUserId } from "@/lib/recommendations";
 import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
@@ -966,6 +971,32 @@ function allSearchWordsMatch(haystack: string, needle: string) {
     .filter(Boolean)
     .filter((word) => !ignoredSearchWords.has(word))
     .every((word) => textMatchesSearch(haystack, word));
+}
+
+function queryWithoutVehicleIdentityTerms(
+  queryText: string,
+  values: Array<string | null | undefined>
+) {
+  const ignoredWords = new Set<string>();
+
+  for (const value of values) {
+    for (const word of normalizeSearchText(value).split(" ").filter(Boolean)) {
+      ignoredWords.add(word);
+    }
+  }
+
+  const yearWords = new Set(
+    normalizeSearchText(queryText)
+      .split(" ")
+      .filter((word) => /^(19|20)\d{2}$/.test(word))
+  );
+
+  return normalizeSearchText(queryText)
+    .split(" ")
+    .filter(Boolean)
+    .filter((word) => !ignoredWords.has(word))
+    .filter((word) => !yearWords.has(word))
+    .join(" ");
 }
 
 function brandMatchesListing(
@@ -1976,6 +2007,30 @@ function HomeContent() {
   ====================================================== */
 
   const filteredListings = useMemo(() => {
+    const selectedFitmentProfile = buildFitmentProfile({
+      vehicleType,
+      brand: selectedBrand === "Kaikki" ? "" : selectedBrand,
+      model: [modelQuery, query].filter(Boolean).join(" "),
+      year: [yearQuery, query].filter(Boolean).join(" "),
+      engine: [engineModelQuery, engineCcQuery, query].filter(Boolean).join(" ")
+    });
+    const compatibleQuery = queryWithoutVehicleIdentityTerms(query, [
+      selectedBrand === "Kaikki" ? "" : selectedBrand,
+      modelQuery,
+      yearQuery,
+      engineModelQuery,
+      engineCcQuery
+    ]);
+    const hasVehicleIdentityFilter =
+      (selectedBrand !== "Kaikki" && Boolean(selectedBrand)) ||
+      Boolean(modelQuery.trim()) ||
+      Boolean(yearQuery.trim()) ||
+      Boolean(engineModelQuery.trim()) ||
+      Boolean(engineCcQuery.trim()) ||
+      Boolean(query.trim());
+    const compatibleFitmentActive =
+      hasFitmentProfile(selectedFitmentProfile) && hasVehicleIdentityFilter;
+
     return listings
       .filter(isPublicListing)
       .filter((listing) => {
@@ -1995,8 +2050,6 @@ function HomeContent() {
           ${listing.location}
         `;
 
-        const matchesQuery =
-          !query || allSearchWordsMatch(search, query);
         const directPartNumberMatch =
           Boolean(query) &&
           Boolean(listingPartNumber) &&
@@ -2055,6 +2108,18 @@ function HomeContent() {
           !engineModelQuery ||
           textMatchesSearch(listing.engine_model ?? "", engineModelQuery);
 
+        const matchesCompatibleFitment =
+          compatibleFitmentActive &&
+          listingMatchesCompatibleFitment(listing, selectedFitmentProfile);
+        const matchesQuery =
+          !query ||
+          allSearchWordsMatch(search, query) ||
+          (matchesCompatibleFitment && allSearchWordsMatch(search, compatibleQuery));
+
+        const matchesVehicleIdentity =
+          matchesCompatibleFitment ||
+          (matchesBrand && matchesModel && matchesYear && matchesEngineModel);
+
         const matchesPrice =
           listing.price >= minPrice &&
           listing.price <= maxPrice;
@@ -2069,11 +2134,8 @@ function HomeContent() {
           matchesVehicleSubtype &&
           matchesCategory &&
           matchesSubcategory &&
-          matchesBrand &&
-          matchesModel &&
-          matchesYear &&
+          matchesVehicleIdentity &&
           matchesEngineCc &&
-          matchesEngineModel &&
           matchesPrice &&
           matchesGarage
         );
@@ -2227,9 +2289,10 @@ function HomeContent() {
   useEffect(() => {
     const categoryParam = searchParams.get("category")?.trim() ?? "";
     const brandParam = searchParams.get("brand")?.trim() ?? "";
+    const modelParam = searchParams.get("model")?.trim() ?? "";
     const vehicleTypeParam = searchParams.get("vehicleType")?.trim() as VehicleFilter;
 
-    if (!categoryParam && !brandParam && !vehicleTypeParam) return;
+    if (!categoryParam && !brandParam && !modelParam && !vehicleTypeParam) return;
 
     setGarageDropdownOpen(false);
     setGarageFilter(null);
@@ -2238,7 +2301,7 @@ function HomeContent() {
     setSubcategory("");
     setSelectedBrand(brandParam || "Kaikki");
     setVehicleType(vehicleTypeParam || "");
-    setModelQuery("");
+    setModelQuery(modelParam);
     setYearQuery("");
     setEngineCcQuery("");
     setEngineModelQuery("");
@@ -3844,6 +3907,33 @@ function HomeContent() {
         vehicleCategories={vehicleCategories}
         partsCategories={partsCategories}
         onApply={({ vehicleType: vt, vehicleSubtype: vst, brand, model, year, engineCc, engineModel, category: cat, subcategory: sub }) => {
+          const hasAnyDrawerFilter = [vt, vst, brand, model, year, engineCc, engineModel, cat, sub].some(Boolean);
+
+          if (!hasAnyDrawerFilter) {
+            setQuery("");
+            setVehicleType("");
+            setVehicleSubtype("");
+            setGarageFilter(null);
+            setGarageDropdownOpen(false);
+            setSelectedBrand("Kaikki");
+            setModelQuery("");
+            setYearQuery("");
+            setEngineCcQuery("");
+            setEngineModelQuery("");
+            setCategory("");
+            setSubcategory("");
+            setOpenCategory(null);
+            setCategorySearch("");
+            setMinPrice(0);
+            setMaxPrice(100000);
+            setListingsExpanded(false);
+            setCatalogOnlyView(false);
+            setCurrentPage(1);
+            return;
+          }
+
+          setGarageFilter(null);
+          setGarageDropdownOpen(false);
           setVehicleType(vt);
           setVehicleSubtype(vst);
           setSelectedBrand(brand || "Kaikki");

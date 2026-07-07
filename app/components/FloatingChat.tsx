@@ -2133,6 +2133,14 @@ export default function FloatingChat() {
           box-shadow: 0 0 0 3px rgba(255, 138, 31, 0.1) !important;
         }
 
+        html body:has(.cd-drawer-open) .rebuilt-chat-button,
+        html body:has(.cd-drawer-open) .fc-panel {
+          display: none !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+          visibility: hidden !important;
+        }
+
         @media (max-width: 480px) {
           html body .fc-panel {
             width: min(330px, calc(100vw - 24px)) !important;

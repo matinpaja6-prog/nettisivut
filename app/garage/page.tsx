@@ -105,8 +105,8 @@ const garageBrandModels: Record<string, Record<string, string[]>> = {
     Fantic: ["XX", "XE", "XEF", "Caballero"]
   },
   Mopo: {
-    Yamaha: ["DT", "Aerox", "BW's", "BWS", "Booster", "Jog", "Slider", "Neos", "TZR", "WR", "Why"],
-    MBK: ["Booster", "Nitro", "Ovetto", "X-Limit", "Stunt", "Rocket"],
+    Yamaha: ["BWS Naked", "BWS Original", "Zuma", "BWS Next Generation", "BWS 10", "BWS 12", "DT", "Aerox", "Jog", "Slider", "Neos", "TZR", "WR", "Why"],
+    MBK: ["Booster Naked", "Booster Spirit 10", "Booster Spirit 12", "Booster Next Generation", "Nitro", "Ovetto", "X-Limit", "Stunt", "Rocket"],
     Derbi: ["Senda", "DRD", "Xtreme", "Racing", "GPR", "Atlantis", "Variant", "Terra"],
     Rieju: ["MRT", "MRX", "RRX", "RS", "RS2", "SMX", "Tango", "Spike"],
     Aprilia: ["SX", "RX", "RS", "SR", "Rally", "Sonic", "Mojito", "Tuono", "Pegaso"],
