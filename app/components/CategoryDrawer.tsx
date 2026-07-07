@@ -918,6 +918,12 @@ function getCommonVehicleKey(vehicle: string) {
 function getBrandModelOptions(vehicle: string, brand: string) {
   const vehicleKey = getCategoryVehicleKey(vehicle);
   const commonVehicleKey = getCommonVehicleKey(vehicle);
+  if (!vehicle) {
+    const localModels = Object.values(BRAND_MODELS).flatMap((modelsByBrand) => modelsByBrand[brand] ?? []);
+    const commonModels = Object.values(COMMON_BRAND_MODELS_BY_VEHICLE).flatMap((modelsByBrand) => modelsByBrand[brand] ?? []);
+    return uniqueOptions([...localModels, ...commonModels]);
+  }
+
   const localModels = BRAND_MODELS[vehicle]?.[brand] ?? BRAND_MODELS[vehicleKey]?.[brand] ?? [];
   const commonModels = COMMON_BRAND_MODELS_BY_VEHICLE[commonVehicleKey]?.[brand] ?? [];
   return uniqueOptions([...localModels, ...commonModels]);
@@ -1434,10 +1440,28 @@ function TrackMatDimensionField({
   const [customSelected, setCustomSelected] = useState(false);
   const selectValue = isPresetValue ? value : isCustomValue ? customTrackMatDimensionValue : "";
   const selectedOption = trackMatDimensionOptions.find((option) => option.value === selectValue);
+  const fieldRef = useRef<HTMLLabelElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (isPresetValue) setCustomSelected(false);
   }, [isPresetValue]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      const isMobile = window.matchMedia("(max-width: 760px)").matches;
+      const target = isMobile ? fieldRef.current : menuRef.current;
+      target?.scrollIntoView({
+        block: isMobile ? "center" : "nearest",
+        inline: "nearest",
+        behavior: "smooth"
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [open]);
 
   function chooseTrackMatDimension(nextValue: string) {
     setOpen(false);
@@ -1454,6 +1478,7 @@ function TrackMatDimensionField({
 
   return (
     <label
+      ref={fieldRef}
       className="cd-extra-field cd-track-mat-field"
       onBlur={(event) => {
         const nextTarget = event.relatedTarget as Node | null;
@@ -1484,7 +1509,7 @@ function TrackMatDimensionField({
         <ChevronDown size={17} aria-hidden="true" />
       </button>
       {open ? (
-        <div className="cd-track-mat-menu" role="listbox" tabIndex={-1}>
+        <div ref={menuRef} className="cd-track-mat-menu" role="listbox" tabIndex={-1}>
           {trackMatDimensionOptions.map((option) => {
             const active = option.value === value;
 
@@ -1814,7 +1839,9 @@ export default function CategoryDrawer({
     ...((vehicle ? vehicleBrands[vehicle as VehicleType] : []) ?? []).filter((b) => b !== "Kaikki"),
     ...Object.keys(BRAND_MODELS[vehicle] ?? {}),
     ...Object.keys(BRAND_MODELS[getCategoryVehicleKey(vehicle)] ?? {}),
-    ...Object.keys(COMMON_BRAND_MODELS_BY_VEHICLE[getCommonVehicleKey(vehicle)] ?? {})
+    ...Object.keys(COMMON_BRAND_MODELS_BY_VEHICLE[getCommonVehicleKey(vehicle)] ?? {}),
+    ...(!vehicle ? Object.values(BRAND_MODELS).flatMap((modelsByBrand) => Object.keys(modelsByBrand)) : []),
+    ...(!vehicle ? Object.values(COMMON_BRAND_MODELS_BY_VEHICLE).flatMap((modelsByBrand) => Object.keys(modelsByBrand)) : [])
   ]);
   const modelOptions = brand ? getBrandModelOptions(vehicle, brand) : [];
 
@@ -1981,11 +2008,6 @@ export default function CategoryDrawer({
     setCat("");
     setSubGroup("");
     setSub("");
-    if (!nextVehicle) {
-      openNextVehicleDetail("parts");
-    } else if (!hasSubtypeOptions) {
-      openNextVehicleDetail("brand");
-    }
   }
 
   function renderVehicleTypeMenu() {
@@ -2102,7 +2124,6 @@ export default function CategoryDrawer({
                   onClick={() => {
                     setVehicleSubtype(option);
                     setVehicleSubtypeMenuOpen(false);
-                    openNextVehicleDetail("brand");
                   }}
                   role="option"
                   aria-selected={active}
@@ -2152,17 +2173,7 @@ export default function CategoryDrawer({
     const groupEntries = groups ? Object.entries(groups) : [];
     if (groupEntries.length === 1 && groupEntries[0][0] === nextCategory && groupEntries[0][1].length > 0) {
       setSubGroup(nextCategory);
-      focusPartCombo(partLeafInputRef);
       return;
-    }
-
-    if (groups) {
-      focusPartCombo(partGroupInputRef);
-      return;
-    }
-
-    if ((cats[nextCategory] ?? []).length > 0) {
-      focusPartCombo(partLeafInputRef);
     }
   }
 
@@ -2175,7 +2186,6 @@ export default function CategoryDrawer({
 
     setSubGroup(nextGroup);
     setSub("");
-    focusPartCombo(partLeafInputRef);
   }
 
   function displayCategoryLabel(categoryName: string) {
@@ -2342,7 +2352,7 @@ export default function CategoryDrawer({
                   icon={<Tag size={20} />}
                   value={brand}
                   options={brandOptions}
-                  disabled={!vehicle}
+                  disabled={false}
                   placeholder="Kaikki merkit"
                   inputRef={brandInputRef}
                   onChange={(nextValue) => {
@@ -2352,7 +2362,6 @@ export default function CategoryDrawer({
                       setEngineModel("");
                       setEngineModelOther("");
                   }}
-                  onOptionSelected={() => openNextVehicleDetail("model")}
                 />
 
                 <VehicleComboField
@@ -2360,7 +2369,7 @@ export default function CategoryDrawer({
                   icon={<Tag size={20} />}
                   value={model}
                   options={modelOptions}
-                  disabled={!vehicle || !brand}
+                  disabled={!brand}
                   placeholder={brand ? "Kaikki mallit" : "Valitse ensin merkki"}
                   inputRef={modelInputRef}
                   onChange={(nextValue) => {
@@ -2368,7 +2377,6 @@ export default function CategoryDrawer({
                       setEngineModel("");
                       setEngineModelOther("");
                   }}
-                  onOptionSelected={() => openNextVehicleDetail("year")}
                 />
 
                 <VehicleComboField
@@ -2376,11 +2384,10 @@ export default function CategoryDrawer({
                   icon={<CalendarDays size={20} />}
                   value={year}
                   options={YEAR_OPTIONS}
-                  disabled={!vehicle}
+                  disabled={false}
                   placeholder="Vuosi tai kirjoita itse"
                   inputRef={yearInputRef}
                   onChange={setYear}
-                  onOptionSelected={() => openNextVehicleDetail("engineCc")}
                 />
 
                 <VehicleComboField
@@ -2388,14 +2395,13 @@ export default function CategoryDrawer({
                   icon={<Gauge size={20} />}
                   value={engineCc}
                   options={vehicle ? (CC_OPTIONS[vehicle] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS}
-                  disabled={!vehicle}
+                  disabled={false}
                   placeholder={t.all}
                   inputRef={engineCcInputRef}
                   onChange={(nextValue) => {
                     setEngineCc(nextValue);
                     setEngineCcOther("");
                   }}
-                  onOptionSelected={() => openNextVehicleDetail("engineModel")}
                 />
 
                 <VehicleComboField
@@ -2403,14 +2409,13 @@ export default function CategoryDrawer({
                   icon={<Cog size={20} />}
                   value={engineModel}
                   options={engineModelOptions}
-                  disabled={!vehicle || !brand}
+                  disabled={!brand}
                   placeholder={brand ? "Kaikki moottorit" : "Valitse merkki"}
                   inputRef={engineModelInputRef}
                   onChange={(nextValue) => {
                     setEngineModel(nextValue);
                     setEngineModelOther("");
                   }}
-                  onOptionSelected={() => openNextVehicleDetail("parts")}
                 />
               </div>
               <div className="cd-parts-inline-panel">
@@ -2429,7 +2434,6 @@ export default function CategoryDrawer({
                     placeholder="Valitse"
                     inputRef={partCategoryInputRef}
                     onChange={selectPartCategory}
-                    onOptionSelected={selectPartCategory}
                     allowCustom={false}
                   />
 
@@ -2442,7 +2446,6 @@ export default function CategoryDrawer({
                     placeholder={cat ? "Valitse" : "Valitse ensin"}
                     inputRef={partGroupInputRef}
                     onChange={selectPartGroup}
-                    onOptionSelected={selectPartGroup}
                     allowCustom={false}
                   />
 
