@@ -27062,3 +27062,145 @@
     margin-left: auto !important;
   }
 }
+
+/* Absolute final mobile search sheet lock: keep the phone search as a bottom drawer. */
+@media (max-width: 720px), (pointer: coarse) {
+  :global(html body) .mobileFilterBackdrop {
+    background: rgba(0, 0, 0, 0.54) !important;
+    border: 0 !important;
+    display: block !important;
+    inset: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: fixed !important;
+    z-index: 9000 !important;
+  }
+
+  :global(html body) .heroRightRail.mobileFilterSheet,
+  :global(html body) .heroRightRailOpen.mobileFilterSheet,
+  .heroRightRail.mobileFilterSheet,
+  .heroRightRailOpen.mobileFilterSheet {
+    background: #15171d !important;
+    border: 1px solid rgba(83, 105, 133, 0.48) !important;
+    border-bottom: 0 !important;
+    border-radius: 20px 20px 0 0 !important;
+    bottom: 0 !important;
+    box-shadow: 0 -24px 46px rgba(0, 0, 0, 0.5) !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    left: 0 !important;
+    margin: 0 !important;
+    max-height: min(62dvh, 520px) !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 12px 16px 0 !important;
+    position: fixed !important;
+    right: 0 !important;
+    top: auto !important;
+    transform: translateY(var(--mobile-sheet-offset, 0px)) !important;
+    width: 100vw !important;
+    z-index: 9001 !important;
+  }
+
+  :global(html body) .heroRightRail.mobileFilterSheetExpanded,
+  :global(html body) .heroRightRailOpen.mobileFilterSheetExpanded,
+  .heroRightRail.mobileFilterSheetExpanded,
+  .heroRightRailOpen.mobileFilterSheetExpanded {
+    max-height: min(88dvh, 760px) !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileFilterDragHandle,
+  .mobileFilterSheet .mobileFilterDragHandle {
+    align-items: center !important;
+    cursor: grab !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    height: 16px !important;
+    justify-content: center !important;
+    margin: 0 0 10px !important;
+    touch-action: none !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileFilterDragHandle > span,
+  .mobileFilterSheet .mobileFilterDragHandle > span {
+    background: rgba(137, 148, 165, 0.78) !important;
+    border-radius: 999px !important;
+    display: block !important;
+    height: 5px !important;
+    width: 52px !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileFilterSheetHeader,
+  .mobileFilterSheet .mobileFilterSheetHeader {
+    align-items: center !important;
+    display: grid !important;
+    flex: 0 0 auto !important;
+    grid-template-columns: 40px minmax(0, 1fr) 40px !important;
+    margin: 0 0 14px !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileFilterSheetHeader > strong,
+  .mobileFilterSheet .mobileFilterSheetHeader > strong {
+    color: #ffffff !important;
+    font-size: 20px !important;
+    font-weight: 950 !important;
+    grid-column: 2 !important;
+    line-height: 1.1 !important;
+    text-align: center !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileFilterSheetHeader > button,
+  .mobileFilterSheet .mobileFilterSheetHeader > button {
+    align-items: center !important;
+    background: #101720 !important;
+    border: 1px solid rgba(82, 105, 133, 0.62) !important;
+    border-radius: 999px !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    grid-column: 3 !important;
+    height: 38px !important;
+    justify-content: center !important;
+    justify-self: end !important;
+    padding: 0 !important;
+    width: 38px !important;
+  }
+
+  :global(html body) .mobileFilterSheet > .heroRailHeader,
+  :global(html body) .mobileFilterSheet > .heroRailEdgeToggle,
+  :global(html body) .mobileFilterSheet > .heroSearchPanel,
+  :global(html body) .mobileFilterSheet > .heroLatestPanel,
+  .mobileFilterSheet > .heroRailHeader,
+  .mobileFilterSheet > .heroRailEdgeToggle,
+  .mobileFilterSheet > .heroSearchPanel,
+  .mobileFilterSheet > .heroLatestPanel {
+    display: none !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileSheetForm,
+  .mobileFilterSheet .mobileSheetForm {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    gap: 11px !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 0 0 14px !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileSheetActions,
+  .mobileFilterSheet .mobileSheetActions {
+    background: #15171d !important;
+    bottom: 0 !important;
+    box-shadow: 0 -14px 22px #15171d !important;
+    margin-top: 2px !important;
+    padding: 14px 0 max(14px, env(safe-area-inset-bottom, 0px)) !important;
+    position: sticky !important;
+  }
+}
