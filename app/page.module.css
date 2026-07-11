@@ -27065,6 +27065,14 @@
 
 /* Absolute final mobile search sheet lock: keep the phone search as a bottom drawer. */
 @media (max-width: 720px), (pointer: coarse) {
+  :global(html:has(body[data-home-search-locked="true"])),
+  :global(body[data-home-search-locked="true"]) {
+    height: 100% !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+    touch-action: none !important;
+  }
+
   :global(html body) .mobileFilterBackdrop {
     background: rgba(0, 0, 0, 0.54) !important;
     border: 0 !important;
@@ -27102,6 +27110,8 @@
     transform: translateY(var(--mobile-sheet-offset, 0px)) !important;
     width: 100vw !important;
     z-index: 9001 !important;
+    overscroll-behavior: contain !important;
+    touch-action: none !important;
   }
 
   :global(html body) .heroRightRail.mobileFilterSheetExpanded,
@@ -27192,6 +27202,8 @@
     padding: 0 0 14px !important;
     width: 100% !important;
     -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    touch-action: pan-y !important;
   }
 
   :global(html body) .mobileFilterSheet .mobileSheetActions,
