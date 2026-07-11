@@ -317,7 +317,7 @@ html body:has(.simple-auth-page) .auth-back-home {
   min-height: 28px !important;
   min-width: 28px !important;
   padding: 0 !important;
-  top: 14px !important;
+  top: calc((var(--topbar-h, 76px) - 28px) / 2) !important;
   width: 28px !important;
 }
 

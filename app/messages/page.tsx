@@ -43,6 +43,7 @@ import {
 
 import { formatPrice } from "@/lib/listings";
 import { playNotificationSound } from "@/lib/notification-sound";
+import { userNotificationsEnabled } from "@/lib/user-settings";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
 import { listingPath, listingUrlId, profilePath } from "@/lib/routes";
 import ChatWindow from "@/app/components/chat/ChatWindow";
@@ -344,6 +345,7 @@ function notifyIncomingMessage(
   content?: string
 ) {
   playNotificationSound();
+  if (!userNotificationsEnabled()) return;
 
   if (
     typeof window === "undefined" ||

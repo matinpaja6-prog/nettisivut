@@ -17,6 +17,16 @@ body {
   overflow-x: clip !important;
 }
 
+html[data-user-background-tone] body {
+  background: var(--maskines-page-background, #0b1118) !important;
+  background-color: var(--maskines-page-background, #0b1118) !important;
+  background-image: none !important;
+}
+
+html[data-user-background-tone] main {
+  background-color: var(--maskines-page-background, #0b1118);
+}
+
 @media (max-width: 760px) {
   body {
     padding-bottom: 0 !important;
@@ -105,4 +115,10 @@ body {
     opacity: 0.35;
     transform: translateX(45vw) scaleX(0.45);
   }
+}
+
+html,
+body,
+#__next {
+  background-color: var(--site-bg, var(--bg, #06111d)) !important;
 }

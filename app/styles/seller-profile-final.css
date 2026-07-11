@@ -89,7 +89,7 @@ html body .seller-page .seller-profile-pagination {
 }
 
 html body .seller-page .seller-profile-pagination::-webkit-scrollbar {
-  display: none !important;
+  display: block !important;
 }
 
 html body .seller-page .seller-profile-page-button,
@@ -247,7 +247,7 @@ html body .seller-page .sp-condition-select {
 
 html body .seller-page .sp-filter-select-icon {
   color: rgba(210, 226, 240, 0.78) !important;
-  pointer-events: none !important;
+  pointer-events: auto !important;
 }
 
 html body .seller-page .sp-filter-summary {
@@ -545,6 +545,134 @@ html body .seller-page .seller-listing-country-flag {
     right: 8px !important;
     top: 8px !important;
     width: 30px !important;
+  }
+}
+
+/* Match the seller-profile mobile filters to the marketplace mobile sheet. */
+@media (max-width: 760px) {
+  html body .seller-page .sp-filter-panel {
+    align-content: start !important;
+    background: #15171d !important;
+    border-color: rgba(132, 143, 158, 0.28) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 11px !important;
+    max-width: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 82px 14px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+    scrollbar-width: none !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-field,
+  html body .seller-page .sp-filter-panel .sp-filter-field-compact {
+    display: grid !important;
+    flex: 0 0 auto !important;
+    gap: 5px !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-field > span {
+    color: rgba(225, 234, 243, 0.86) !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    line-height: 1.15 !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-select-wrap,
+  html body .seller-page .sp-filter-panel .sp-filter-select-button {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-select-button {
+    background: #071522 !important;
+    border: 1px solid rgba(70, 111, 147, 0.58) !important;
+    border-radius: 5px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 11px !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-year-row {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    gap: 10px !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-year-row > .sp-filter-select-wrap {
+    flex: 1 1 0 !important;
+    max-width: calc((100% - 32px) / 2) !important;
+    min-width: 0 !important;
+    width: calc((100% - 32px) / 2) !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-year-row .sp-filter-select-button {
+    height: 42px !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-year-row small {
+    display: block !important;
+    flex: 0 0 12px !important;
+    margin: 0 !important;
+    text-align: center !important;
+    width: 12px !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-year-range-clean {
+    border: 0 !important;
+    box-shadow: none !important;
+    height: 18px !important;
+    margin: 5px 5px 2px !important;
+    padding: 0 !important;
+    width: calc(100% - 10px) !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-section-title {
+    border-top: 1px solid rgba(74, 110, 143, 0.32) !important;
+    color: #ffffff !important;
+    display: block !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    margin: 3px 0 0 !important;
+    opacity: 1 !important;
+    padding-top: 13px !important;
+  }
+
+  html body .seller-page .sp-filter-panel-actions {
+    flex: 0 0 auto !important;
+    margin-top: 11px !important;
+  }
+
+  html body .seller-page .sp-filter-show-results {
+    background: linear-gradient(180deg, #ff861f, #ff6810) !important;
+    border: 1px solid rgba(255, 182, 99, 0.5) !important;
+    border-radius: 5px !important;
+    font-size: 13px !important;
+    height: 44px !important;
+  }
+
+  html body .seller-page .sp-filter-clear {
+    background: #071522 !important;
+    border: 1px solid rgba(70, 111, 147, 0.58) !important;
+    border-radius: 5px !important;
+    font-size: 13px !important;
+    height: 44px !important;
   }
 }
 
@@ -1195,7 +1323,7 @@ html body .seller-page .seller-ref-hero::after {
   content: "" !important;
   inset: 0 !important;
   opacity: 0.22 !important;
-  pointer-events: none !important;
+  pointer-events: auto !important;
   position: absolute !important;
 }
 
@@ -2960,6 +3088,11 @@ html body .seller-page .sp-sort-wrap.is-open .sp-sort-chevron {
   transform: rotate(180deg) !important;
 }
 
+html body .seller-page .sp-sort-wrap.is-open {
+  isolation: isolate !important;
+  z-index: 10000 !important;
+}
+
 html body .seller-page .sp-sort-menu {
   background:
     linear-gradient(180deg, rgba(5, 16, 28, 0.98), rgba(3, 12, 22, 0.99)) !important;
@@ -2977,6 +3110,9 @@ html body .seller-page .sp-sort-menu {
   position: absolute !important;
   top: 100% !important;
   width: 210px !important;
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  z-index: 10001 !important;
 }
 
 html body .seller-page .sp-sort-option {
@@ -4815,5 +4951,1111 @@ html body .seller-page .seller-ref-title-verified svg {
   html body .seller-page .seller-ref-title-verified svg {
     height: 12px !important;
     width: 12px !important;
+  }
+}
+
+/* Desktop profile info boxes */
+@media (min-width: 761px) {
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: repeat(2, minmax(178px, 1fr)) !important;
+    justify-content: flex-start !important;
+    justify-items: start !important;
+    margin-left: -12px !important;
+    max-width: 520px !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-phone-pill {
+    align-items: center !important;
+    background: rgba(4, 18, 34, 0.88) !important;
+    border: 1px solid rgba(82, 125, 158, 0.48) !important;
+    border-radius: 7px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    gap: 12px !important;
+    height: 58px !important;
+    justify-content: flex-start !important;
+    line-height: 1 !important;
+    min-height: 58px !important;
+    min-width: 0 !important;
+    padding: 0 16px !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-phone-pill svg {
+    color: #ff7a1a !important;
+    flex: 0 0 auto !important;
+    height: 17px !important;
+    stroke: #ff7a1a !important;
+    width: 17px !important;
+  }
+
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-pill-text {
+    display: grid !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+  }
+
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-pill-text small {
+    color: rgba(226, 244, 255, 0.72) !important;
+    display: block !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+  }
+
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-pill-text strong {
+    color: #ffffff !important;
+    display: block !important;
+    font-size: 15px !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+  }
+
+  html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-link-pill {
+    grid-column: 1 / -1 !important;
+    width: fit-content !important;
+  }
+}
+
+/* Seller profile right-side filter panel */
+html body .seller-page .sp-filter-toggle {
+  align-items: center !important;
+  background: rgba(2, 15, 30, 0.82) !important;
+  border: 1px solid rgba(255, 122, 26, 0.92) !important;
+  border-radius: 14px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  gap: 8px !important;
+  height: 48px !important;
+  justify-content: center !important;
+  min-height: 48px !important;
+  padding: 0 20px !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .sp-advanced-search {
+  align-items: center !important;
+  display: grid !important;
+  gap: 14px !important;
+  grid-template-columns: minmax(260px, 1fr) 204px 126px auto !important;
+}
+
+html body .seller-page .sp-advanced-search .sp-search-field {
+  min-width: 0 !important;
+}
+
+html body .seller-page .sp-advanced-search .sp-sort-wrap {
+  width: 204px !important;
+}
+
+html body .seller-page .sp-advanced-search .sp-filter-actions {
+  margin: 0 !important;
+  min-width: 0 !important;
+}
+
+html body .seller-page .sp-filter-toggle svg {
+  color: #ff7a1a !important;
+  stroke: #ff7a1a !important;
+}
+
+html body .seller-page .sp-filter-toggle.is-open,
+html body .seller-page .sp-filter-toggle:hover,
+html body .seller-page .sp-filter-toggle:focus-visible {
+  background: rgba(255, 122, 26, 0.1) !important;
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.16) !important;
+  outline: 0 !important;
+}
+
+html body .seller-page .sp-filter-panel-backdrop {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border: 0 !important;
+  bottom: 0 !important;
+  cursor: default !important;
+  left: 0 !important;
+  position: fixed !important;
+  right: 0 !important;
+  top: calc(var(--topbar-h, 64px) + 18px) !important;
+  z-index: 80 !important;
+}
+
+html body .seller-page .sp-filter-panel {
+  background: #061522 !important;
+  border: 1px solid rgba(86, 126, 158, 0.42) !important;
+  border-right: 0 !important;
+  border-radius: 0 !important;
+  bottom: 0 !important;
+  box-shadow: -20px 0 60px rgba(0, 7, 18, 0.42), inset 0 3px 0 #ff7a1a !important;
+  color: #ffffff !important;
+  display: grid !important;
+  gap: 10px !important;
+  grid-auto-rows: max-content !important;
+  max-width: min(420px, calc(100vw - 18px)) !important;
+  overflow-y: auto !important;
+  padding: 8px 16px 18px !important;
+  position: fixed !important;
+  right: 0 !important;
+  top: calc(var(--topbar-h, 64px) + 18px) !important;
+  width: 420px !important;
+  z-index: 90 !important;
+}
+
+html body .seller-page .sp-filter-panel-head {
+  align-items: center !important;
+  border-bottom: 1px solid rgba(86, 126, 158, 0.35) !important;
+  display: none !important;
+  justify-content: space-between !important;
+  margin-bottom: 2px !important;
+  padding-bottom: 12px !important;
+}
+
+html body .seller-page .sp-filter-panel-head strong {
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 950 !important;
+}
+
+html body .seller-page .sp-filter-panel-head button {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: rgba(226, 244, 255, 0.84) !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 34px !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  width: 34px !important;
+}
+
+html body .seller-page .sp-filter-field {
+  display: grid !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+
+html body .seller-page .sp-filter-field-compact {
+  max-width: 184px !important;
+}
+
+html body .seller-page .sp-filter-field > span,
+html body .seller-page .sp-filter-section-title {
+  color: rgba(226, 244, 255, 0.8) !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  line-height: 1.15 !important;
+}
+
+html body .seller-page .sp-filter-section-title {
+  margin-top: 4px !important;
+}
+
+html body .seller-page .sp-filter-field select {
+  appearance: none !important;
+  background:
+    linear-gradient(45deg, transparent 50%, rgba(226, 244, 255, 0.86) 50%) calc(100% - 18px) 50% / 6px 6px no-repeat,
+    linear-gradient(135deg, rgba(226, 244, 255, 0.86) 50%, transparent 50%) calc(100% - 14px) 50% / 6px 6px no-repeat,
+    #04101c !important;
+  border: 1px solid rgba(86, 126, 158, 0.46) !important;
+  border-radius: 6px !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  height: 44px !important;
+  line-height: 44px !important;
+  outline: 0 !important;
+  padding: 0 38px 0 10px !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-filter-field select:focus {
+  border-color: rgba(255, 122, 26, 0.92) !important;
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.14) !important;
+}
+
+html body .seller-page .sp-filter-field option {
+  background: #061522 !important;
+  color: #ffffff !important;
+}
+
+html body .seller-page .sp-filter-select-wrap {
+  min-width: 0 !important;
+  position: relative !important;
+  width: 100% !important;
+  z-index: 1 !important;
+}
+
+html body .seller-page .sp-filter-select-wrap.is-open {
+  z-index: 40 !important;
+}
+
+html body .seller-page .sp-filter-select-button {
+  align-items: center !important;
+  background: #04101c !important;
+  border: 1px solid rgba(86, 126, 158, 0.46) !important;
+  border-radius: 6px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: flex !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  height: 44px !important;
+  justify-content: space-between !important;
+  line-height: 1 !important;
+  min-width: 0 !important;
+  padding: 0 11px !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-filter-field:not(.sp-filter-field-compact) .sp-filter-select-wrap,
+html body .seller-page .sp-filter-field:not(.sp-filter-field-compact) .sp-filter-select-button {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-filter-select-button span {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .sp-filter-select-button svg {
+  color: rgba(226, 244, 255, 0.86) !important;
+  flex: 0 0 auto !important;
+  stroke: rgba(226, 244, 255, 0.86) !important;
+}
+
+html body .seller-page .sp-filter-select-wrap.is-open .sp-filter-select-button,
+html body .seller-page .sp-filter-select-button:focus-visible {
+  border-color: rgba(255, 122, 26, 0.92) !important;
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.14) !important;
+  outline: 0 !important;
+}
+
+html body .seller-page .sp-filter-select-menu {
+  background: #061522 !important;
+  border: 1px solid rgba(86, 126, 158, 0.58) !important;
+  border-radius: 0 0 6px 6px !important;
+  box-shadow: 0 16px 34px rgba(0, 7, 18, 0.34) !important;
+  display: grid !important;
+  left: 0 !important;
+  max-height: 236px !important;
+  overflow-y: auto !important;
+  padding: 4px 0 !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: calc(100% + 2px) !important;
+  z-index: 60 !important;
+}
+
+html body .seller-page .sp-filter-select-menu::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+html body .seller-page .sp-filter-select-menu::-webkit-scrollbar-thumb {
+  background: rgba(86, 126, 158, 0.8) !important;
+  border-radius: 999px !important;
+}
+
+html body .seller-page .sp-filter-select-option {
+  background: transparent !important;
+  border: 0 !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  min-height: 34px !important;
+  padding: 0 11px !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-filter-select-option:hover,
+html body .seller-page .sp-filter-select-option:focus-visible,
+html body .seller-page .sp-filter-select-option.is-selected {
+  background: rgba(255, 122, 26, 0.12) !important;
+  color: #ffb45f !important;
+  outline: 0 !important;
+}
+
+html body .seller-page .sp-filter-panel .sp-filter-select-wrap {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+html body .seller-page .sp-filter-panel .sp-filter-field {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+html body .seller-page .sp-filter-panel .sp-filter-select-button {
+  background: #04101c !important;
+  border: 1px solid rgba(86, 126, 158, 0.58) !important;
+  border-radius: 4px !important;
+}
+
+html body .seller-page .sp-filter-panel .sp-filter-section-title {
+  margin: 2px 0 0 !important;
+}
+
+html body .seller-page .sp-filter-year-row {
+  align-items: center !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+}
+
+/* Final exact profile filter visual match */
+html body .seller-page .sp-filter-panel {
+  background: #04111d !important;
+  border-color: rgba(86, 126, 158, 0.42) !important;
+  gap: 9px !important;
+  padding: 8px 16px 18px !important;
+  width: 420px !important;
+}
+
+html body .seller-page .sp-filter-panel .sp-filter-field > span,
+html body .seller-page .sp-filter-panel .sp-filter-section-title {
+  color: rgba(226, 244, 255, 0.78) !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+}
+
+html body .seller-page .sp-filter-panel .sp-filter-select-button {
+  background: #04101c !important;
+  border: 1px solid rgba(86, 126, 158, 0.55) !important;
+  border-radius: 4px !important;
+  height: 44px !important;
+  padding: 0 10px !important;
+}
+
+html body .seller-page .sp-filter-field-compact {
+  max-width: 184px !important;
+}
+
+html body .seller-page .sp-filter-year-row {
+  border: 1px solid rgba(86, 126, 158, 0.42) !important;
+  border-radius: 4px !important;
+  gap: 12px !important;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+  padding: 6px 10px !important;
+}
+
+html body .seller-page .sp-filter-year-row .sp-filter-select-button {
+  height: 38px !important;
+}
+
+html body .seller-page .sp-year-range {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: 24px !important;
+  margin: 8px 0 18px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+html body .seller-page .sp-year-range-track {
+  background: #ff7a1a !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.18) !important;
+  height: 4px !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 10px !important;
+}
+
+html body .seller-page .sp-year-range::before,
+html body .seller-page .sp-year-range::after {
+  background: #ffffff !important;
+  border: 3px solid #ff7a1a !important;
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.5) !important;
+  height: 20px !important;
+  top: 2px !important;
+  width: 20px !important;
+}
+
+html body .seller-page .sp-filter-show-results {
+  border-radius: 4px !important;
+  height: 44px !important;
+  margin-top: 4px !important;
+}
+
+html body .seller-page .sp-filter-clear {
+  border-radius: 4px !important;
+  height: 44px !important;
+  margin-top: 4px !important;
+}
+
+html body .seller-page .sp-filter-year-row small {
+  color: rgba(226, 244, 255, 0.72) !important;
+  font-weight: 950 !important;
+}
+
+html body .seller-page .sp-year-range {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  height: 24px !important;
+  margin: 8px 2px 16px !important;
+  position: relative !important;
+  touch-action: none !important;
+  user-select: none !important;
+}
+
+html body .seller-page .sp-year-range::before,
+html body .seller-page .sp-year-range::after {
+  background: #ffffff !important;
+  border: 3px solid #ff7a1a !important;
+  border-radius: 999px !important;
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.42) !important;
+  content: "" !important;
+  height: 16px !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: 4px !important;
+  transform: translateX(-50%) !important;
+  width: 16px !important;
+  z-index: 8 !important;
+}
+
+html body .seller-page .sp-year-range::before {
+  left: var(--year-range-left) !important;
+}
+
+html body .seller-page .sp-year-range::after {
+  left: calc(100% - var(--year-range-right)) !important;
+}
+
+html body .seller-page .sp-year-range-track {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(86, 126, 158, 0.42) 0%,
+      rgba(86, 126, 158, 0.42) var(--year-range-left),
+      #ff7a1a var(--year-range-left),
+      #ff7a1a calc(100% - var(--year-range-right)),
+      rgba(86, 126, 158, 0.42) calc(100% - var(--year-range-right)),
+      rgba(86, 126, 158, 0.42) 100%
+    ) !important;
+  border-radius: 999px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  height: 4px !important;
+  left: 0 !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 10px !important;
+}
+
+html body .seller-page .sp-year-range input[type="range"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  height: 24px !important;
+  left: 0 !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: 0 !important;
+  width: 100% !important;
+}
+
+html body .seller-page .sp-year-range .sp-year-range-min {
+  z-index: 5 !important;
+}
+
+html body .seller-page .sp-year-range .sp-year-range-max {
+  z-index: 4 !important;
+}
+
+html body .seller-page .sp-year-range input[type="range"]::-webkit-slider-runnable-track {
+  background: transparent !important;
+  border: 0 !important;
+  height: 4px !important;
+}
+
+html body .seller-page .sp-year-range input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  cursor: grab !important;
+  height: 32px !important;
+  margin-top: -14px !important;
+  opacity: 0 !important;
+  pointer-events: auto !important;
+  width: 32px !important;
+}
+
+html body .seller-page .sp-year-range .sp-year-range-min::-webkit-slider-thumb,
+html body .seller-page .sp-year-range .sp-year-range-max::-webkit-slider-thumb {
+  background-color: transparent !important;
+  opacity: 0 !important;
+}
+
+html body .seller-page .sp-year-range input[type="range"]::-moz-range-track {
+  background: transparent !important;
+  border: 0 !important;
+  height: 4px !important;
+}
+
+html body .seller-page .sp-year-range input[type="range"]::-moz-range-thumb {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  cursor: grab !important;
+  height: 32px !important;
+  opacity: 0 !important;
+  pointer-events: auto !important;
+  width: 32px !important;
+}
+
+html body .seller-page .sp-year-range .sp-year-range-min::-moz-range-thumb,
+html body .seller-page .sp-year-range .sp-year-range-max::-moz-range-thumb {
+  background-color: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Final year slider cleanup: one thin line with two compact thumbs. */
+html body .seller-page .sp-year-range {
+  height: 18px !important;
+  margin: 8px 5px 14px !important;
+  width: calc(100% - 10px) !important;
+}
+
+html body .seller-page .sp-year-range::before,
+html body .seller-page .sp-year-range::after {
+  background: #ffffff !important;
+  border: 2px solid #ff7a1a !important;
+  box-shadow: none !important;
+  height: 10px !important;
+  top: 4px !important;
+  width: 10px !important;
+}
+
+html body .seller-page .sp-year-range-track {
+  background: #ff7a1a !important;
+  height: 2px !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 8px !important;
+}
+
+html body .seller-page .sp-year-range input[type="range"]::-webkit-slider-runnable-track,
+html body .seller-page .sp-year-range input[type="range"]::-moz-range-track {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+html body .seller-page .sp-filter-show-results,
+html body .seller-page .sp-filter-clear {
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  height: 44px !important;
+  margin-top: 6px !important;
+  width: 100% !important;
+}
+
+/* Rebuilt seller profile year slider from a clean namespace. */
+html body .seller-page .sp-year-range-clean {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  height: 18px !important;
+  margin: 8px 5px 14px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  position: relative !important;
+  touch-action: none !important;
+  user-select: none !important;
+  width: calc(100% - 10px) !important;
+}
+
+html body .seller-page .sp-year-range-clean::before,
+html body .seller-page .sp-year-range-clean::after {
+  content: none !important;
+  display: none !important;
+}
+
+html body .seller-page .sp-year-range-clean-line {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(72, 112, 147, 0.45) 0%,
+      rgba(72, 112, 147, 0.45) var(--sp-year-min),
+      #ff7a1a var(--sp-year-min),
+      #ff7a1a var(--sp-year-max),
+      rgba(72, 112, 147, 0.45) var(--sp-year-max),
+      rgba(72, 112, 147, 0.45) 100%
+    ) !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  display: block !important;
+  height: 2px !important;
+  left: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 8px !important;
+  width: auto !important;
+  z-index: 1 !important;
+}
+
+html body .seller-page .sp-year-range-clean-thumb {
+  background: #ffffff !important;
+  border: 2px solid #ff7a1a !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  cursor: grab !important;
+  display: block !important;
+  height: 10px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  top: 4px !important;
+  transform: translateX(-50%) !important;
+  width: 10px !important;
+  z-index: 2 !important;
+}
+
+html body .seller-page .sp-year-range-clean-thumb:active {
+  cursor: grabbing !important;
+}
+
+html body .seller-page .sp-year-range-clean .sp-year-range-track {
+  display: none !important;
+}
+
+html body .seller-page .sp-year-range-clean .sp-year-range-input {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  display: block !important;
+  height: 18px !important;
+  inset: 0 0 auto !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  width: 100% !important;
+  z-index: 5 !important;
+}
+
+html body .seller-page .sp-year-range-clean .sp-year-range-input::-webkit-slider-runnable-track {
+  background: transparent !important;
+  border: 0 !important;
+  height: 2px !important;
+}
+
+html body .seller-page .sp-year-range-clean .sp-year-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  background: #ffffff !important;
+  border: 2px solid #ff7a1a !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  cursor: grab !important;
+  height: 10px !important;
+  margin-top: -4px !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  transition: transform 90ms ease !important;
+  width: 10px !important;
+}
+
+html body .seller-page .sp-year-range-clean .sp-year-range-input::-moz-range-track {
+  background: transparent !important;
+  border: 0 !important;
+  height: 2px !important;
+}
+
+html body .seller-page .sp-year-range-clean .sp-year-range-input::-moz-range-thumb {
+  background: #ffffff !important;
+  border: 2px solid #ff7a1a !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  cursor: grab !important;
+  height: 10px !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  width: 10px !important;
+}
+
+html body .seller-page .sp-year-range-clean .sp-year-range-input:active::-webkit-slider-thumb {
+  cursor: grabbing !important;
+  transform: scale(1.18) !important;
+}
+
+html body .seller-page .sp-year-range-clean .sp-year-range-input:active::-moz-range-thumb {
+  cursor: grabbing !important;
+  transform: scale(1.18) !important;
+}
+
+html body .seller-page .sp-year-range-clean .sp-year-range-min {
+  clip-path: inset(0 calc(100% - var(--sp-year-mid)) 0 0) !important;
+  z-index: 7 !important;
+}
+
+html body .seller-page .sp-year-range-clean .sp-year-range-max {
+  clip-path: inset(0 0 0 var(--sp-year-mid)) !important;
+  z-index: 6 !important;
+}
+
+html body .seller-page .sp-year-range-clean > .sp-year-range-clean-thumb {
+  display: none !important;
+}
+
+html body .seller-page .sp-filter-show-results {
+  background: #ff7a1a !important;
+  border: 1px solid #ff7a1a !important;
+  color: #ffffff !important;
+}
+
+html body .seller-page .sp-filter-clear {
+  background: transparent !important;
+  border: 1px solid rgba(86, 126, 158, 0.5) !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .sp-advanced-search {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body .seller-page .sp-advanced-search .sp-sort-wrap {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-toggle {
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 12px !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel {
+    background: #15171d !important;
+    border: 1px solid rgba(132, 143, 158, 0.28) !important;
+    border-bottom: 0 !important;
+    border-radius: 24px 24px 0 0 !important;
+    bottom: 0 !important;
+    box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.48) !important;
+    height: 92dvh !important;
+    left: 0 !important;
+    max-width: none !important;
+    padding: 82px 14px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    right: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    z-index: 2147483647 !important;
+  }
+
+  html body .seller-page .sp-filter-panel-backdrop {
+    background: rgba(0, 0, 0, 0.56) !important;
+    inset: 0 !important;
+    top: 0 !important;
+    z-index: 2147483646 !important;
+  }
+
+  html body .seller-page .sp-filter-panel-head {
+    background: #15171d !important;
+    border: 0 !important;
+    display: flex !important;
+    height: 76px !important;
+    justify-content: center !important;
+    left: 14px !important;
+    margin: 0 !important;
+    padding: 20px 0 10px !important;
+    position: absolute !important;
+    right: 14px !important;
+    top: 0 !important;
+    z-index: 70 !important;
+  }
+
+  html body .seller-page .sp-filter-panel-head::before {
+    background: rgba(156, 164, 181, 0.5) !important;
+    border-radius: 999px !important;
+    content: "" !important;
+    height: 5px !important;
+    left: 50% !important;
+    position: absolute !important;
+    top: 9px !important;
+    transform: translateX(-50%) !important;
+    width: 52px !important;
+  }
+
+  html body .seller-page .sp-filter-panel-head strong {
+    font-size: 20px !important;
+  }
+
+  html body .seller-page .sp-filter-panel-head button {
+    border: 1px solid rgba(116, 139, 168, 0.4) !important;
+    border-radius: 999px !important;
+    color: #ff8a2a !important;
+    position: absolute !important;
+    right: 0 !important;
+  }
+
+  html body .seller-page .sp-filter-panel-actions {
+    background: #15171d !important;
+    bottom: -12px !important;
+    box-shadow: 0 -12px 18px #15171d !important;
+    display: grid !important;
+    gap: 8px !important;
+    padding: 12px 0 max(12px, env(safe-area-inset-bottom, 0px)) !important;
+    position: sticky !important;
+    z-index: 80 !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-field {
+    scroll-margin-top: 8px !important;
+    scroll-margin-bottom: 160px !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-select-menu {
+    border-radius: 6px !important;
+    left: auto !important;
+    max-height: min(320px, 46dvh) !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-year-range-clean-thumb {
+    height: 10px !important;
+    top: 4px !important;
+    width: 10px !important;
+  }
+
+  html body .seller-page .sp-year-range-clean-thumb::before {
+    content: "" !important;
+    inset: -12px !important;
+    position: absolute !important;
+  }
+
+  html body:has(.seller-page .sp-filter-panel) .site-footer,
+  html body:has(.seller-page .sp-filter-panel) .rebuilt-chat-button,
+  html body:has(.seller-page .sp-filter-panel) .fc-panel {
+    display: none !important;
+  }
+}
+
+/* Final mobile seller filters: mirror the marketplace filter sheet. */
+.sp-applied-filter-actions {
+  display: flex !important;
+  gap: 10px !important;
+  margin: 16px 0 10px !important;
+  width: 100% !important;
+}
+
+.sp-applied-filter-actions button {
+  align-items: center !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  gap: 7px !important;
+  height: 42px !important;
+  justify-content: center !important;
+  padding: 0 15px !important;
+}
+
+.sp-applied-filter-clear {
+  background: #071522 !important;
+  border: 1px solid rgba(70, 111, 147, 0.62) !important;
+  color: #eef5fb !important;
+}
+
+.sp-applied-filter-edit {
+  background: linear-gradient(180deg, #ff861f, #ff6810) !important;
+  border: 1px solid rgba(255, 182, 99, 0.5) !important;
+  color: #ffffff !important;
+}
+
+.sp-applied-filter-actions button svg {
+  flex: 0 0 auto !important;
+}
+
+@media (max-width: 760px) {
+  html body .seller-page .sp-applied-filter-actions {
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    margin: 14px 0 8px !important;
+    padding: 0 !important;
+  }
+
+  html body .seller-page .sp-applied-filter-actions button {
+    font-size: 12px !important;
+    height: 42px !important;
+    min-width: 0 !important;
+    padding: 0 8px !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-year-row.sp-filter-year-row-inline {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    gap: 10px !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-year-row.sp-filter-year-row-inline > .sp-filter-select-wrap {
+    flex: 1 1 0 !important;
+    max-width: calc((100% - 32px) / 2) !important;
+    min-width: 0 !important;
+    width: calc((100% - 32px) / 2) !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-year-row.sp-filter-year-row-inline > small {
+    display: block !important;
+    flex: 0 0 12px !important;
+    margin: 0 !important;
+    text-align: center !important;
+    width: 12px !important;
+  }
+
+  html body .seller-page .sp-filter-panel {
+    align-content: start !important;
+    background: #15171d !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 11px !important;
+    max-width: none !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 82px 14px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+    scrollbar-width: none !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  html body .seller-page .sp-filter-panel :is(.sp-filter-field, .sp-filter-field-compact) {
+    display: grid !important;
+    flex: 0 0 auto !important;
+    gap: 5px !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-field > span {
+    color: rgba(225, 234, 243, 0.86) !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+  }
+
+  html body .seller-page .sp-filter-panel :is(.sp-filter-select-wrap, .sp-filter-select-button) {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-select-button {
+    background: #071522 !important;
+    border: 1px solid rgba(70, 111, 147, 0.58) !important;
+    border-radius: 5px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 11px !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-year-row {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) 12px minmax(0, 1fr) !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-year-row > .sp-filter-select-wrap {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-year-row .sp-filter-select-button {
+    height: 42px !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-year-row small {
+    text-align: center !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-year-range-clean {
+    margin: 5px 5px 2px !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-section-title {
+    border-top: 1px solid rgba(74, 110, 143, 0.32) !important;
+    color: #ffffff !important;
+    display: block !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    margin: 3px 0 0 !important;
+    opacity: 1 !important;
+    padding-top: 13px !important;
+  }
+
+  html body .seller-page .sp-filter-panel-actions {
+    flex: 0 0 auto !important;
+    margin-top: 11px !important;
+  }
+
+  html body .seller-page .sp-filter-show-results {
+    background: linear-gradient(180deg, #ff861f, #ff6810) !important;
+    border: 1px solid rgba(255, 182, 99, 0.5) !important;
+    border-radius: 5px !important;
+    font-size: 13px !important;
+    height: 44px !important;
+  }
+
+  html body .seller-page .sp-filter-clear {
+    background: #071522 !important;
+    border: 1px solid rgba(70, 111, 147, 0.58) !important;
+    border-radius: 5px !important;
+    font-size: 13px !important;
+    height: 44px !important;
   }
 }

@@ -1,77 +1,30 @@
 ﻿"use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import styles from "./page.module.css";
 
 import {
-  Car,
   Check,
   CalendarDays,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  CircleHelp,
   Clock3,
-  Gauge,
-  Grid2X2,
+  Gift,
   Heart,
   MapPin,
-  MessageCircle,
-  Plus,
+  RotateCcw,
   Search,
   Settings2,
   ShieldCheck,
-  Tag,
+  SlidersHorizontal,
   TrendingDown,
   TrendingUp,
-  Users,
   X
 } from "lucide-react";
-
-type VehicleCategoryIconKind = "snowflake" | "atv" | "motocross" | "moped";
-
-function VehicleCategoryIcon({ kind }: { kind: VehicleCategoryIconKind }) {
-  if (kind === "snowflake") {
-    return (
-      <svg viewBox="0 0 32 32" aria-hidden="true">
-        <path d="M16 3v26M4.75 9.5l22.5 13M4.75 22.5l22.5-13" />
-        <path d="m11.5 5.6 4.5 3 4.5-3M11.5 26.4l4.5-3 4.5 3M5.7 14.4l4.8-2.4-.3-5.4M26.3 17.6 21.5 20l.3 5.4M5.7 17.6l4.8 2.4-.3 5.4M26.3 14.4 21.5 12l.3-5.4" />
-      </svg>
-    );
-  }
-
-  if (kind === "atv") {
-    return (
-      <svg viewBox="0 0 36 28" aria-hidden="true">
-        <circle cx="8" cy="21" r="4.2" />
-        <circle cx="28" cy="21" r="4.2" />
-        <path d="M4 16.5h4.5l3-6.5h9.2l4.1 6.5H32M12 10l-2.1-3H6.5M20.7 10l3.8-3.2M15 7h6M11 16.5h13.8M16.5 10v6.5" />
-      </svg>
-    );
-  }
-
-  if (kind === "motocross") {
-    return (
-      <svg viewBox="0 0 36 28" aria-hidden="true">
-        <circle cx="8" cy="21" r="4.4" />
-        <circle cx="28" cy="21" r="4.4" />
-        <path d="m8 21 6.5-9 5 9H8Zm6.5-9h7.3l3.3 9M18.5 8h6l3.5-2M13.2 9.5l3.7-2.7M19.5 21l5.6-7.2M10.5 13h-4" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 36 28" aria-hidden="true">
-      <circle cx="8.5" cy="21" r="4.2" />
-      <circle cx="27.5" cy="21" r="4.2" />
-      <path d="M8.5 21h9.2l3.8-8.2h5.7M17.7 21 15 13.8h-4.8M15 13.8h7.2l-1.8-5.3M20.4 8.5h5.8M25.7 8.5l2-2.5M21.5 12.8l4.7 8.2" />
-    </svg>
-  );
-}
 
 import {
   fallbackListings,
@@ -100,7 +53,15 @@ import {
 } from "@/lib/fitments";
 
 import { buildRecoProfile, getRecommendedListings, setRecoUserId } from "@/lib/recommendations";
-import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
+import { listingNumberUrlId, listingPath, listingUrlId, pagePath } from "@/lib/routes";
+import {
+  MARKETPLACE_YEAR_FILTER_MIN,
+  buildMarketplaceCategorySource,
+  buildMarketplaceFilterOptions,
+  buildMarketplaceSubcategoryGroups,
+  buildMarketplaceYearOptions,
+  getMarketplaceYearFilterMax
+} from "@/lib/marketplace-filter-options";
 
 import {
   getProfile,
@@ -108,31 +69,47 @@ import {
   getGarageVehicles,
   ensureListingTranslations,
   getListings,
-  getVehicleListingCounts,
   getUserPreferenceProfile,
   saveListing,
   supabase,
   trackUserActivity,
   unsaveListing,
-  type VehicleListingCounts,
   type GarageVehicle,
   type UserPreferenceProfile
 } from "@/lib/supabase";
 import { applyLocale, isLocale, translateCategory } from "@/lib/i18n";
 import OptimizedListingImage, { fallbackListingImage } from "./components/OptimizedListingImage";
 import { ListFilter } from "lucide-react";
-
-const CategoryDrawer = dynamic(() => import("./components/CategoryDrawer"), {
-  ssr: false,
-  loading: () => null
-});
+import { getCategoryVehicleKey } from "./components/CategoryDrawer";
 
 type Locale = "fi" | "en" | "sv" | "no" | "et";
 
 const HOME_RETURN_STATE_KEY = "home_return_state_v1";
 const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
-const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
-const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
+const TRACK_MAT_DIMENSION_OPTIONS = [
+  "307 cm x 38 cm x 6,4 cm / 121 x 15 x 2.52\"",
+  "307 cm x 41 cm x 6,4 cm / 121 x 16 x 2.52\"",
+  "325 cm x 38 cm x 6,4 cm / 128 x 15 x 2.52\"",
+  "345 cm x 38 cm x 6,4 cm / 136 x 15 x 2.52\"",
+  "348 cm x 38 cm x 7,3 cm / 137 x 15 x 2.86\"",
+  "358 cm x 38 cm x 6,4 cm / 141 x 15 x 2.52\"",
+  "366 cm x 34 cm x 6,4 cm / 144 x 13.5 x 2.52\"",
+  "366 cm x 36 cm x 6,4 cm / 144 x 14 x 2.52\"",
+  "366 cm x 38 cm x 6,4 cm / 144 x 15 x 2.52\"",
+  "371 cm x 38 cm x 7,3 cm / 146 x 15 x 2.86\"",
+  "383 cm x 38 cm x 6,4 cm / 151 x 15 x 2.52\"",
+  "391 cm x 38 cm x 7,3 cm / 154 x 15 x 2.86\"",
+  "391 cm x 41 cm x 7,3 cm / 154 x 16 x 2.86\"",
+  "391 cm x 51 cm x 6,4 cm / 154 x 20 x 2.52\"",
+  "396 cm x 38 cm x 6,4 cm / 156 x 15 x 2.52\"",
+  "396 cm x 41 cm x 6,4 cm / 156 x 16 x 2.52\"",
+  "396 cm x 51 cm x 6,4 cm / 156 x 20 x 2.52\"",
+  "411 cm x 38 cm x 7,6 cm / 162 x 15 x 3.00\"",
+  "414 cm x 41 cm x 7,6 cm / 163 x 16 x 3.00\"",
+  "419 cm x 38 cm x 7,6 cm / 165 x 15 x 3.00\"",
+  "442 cm x 38 cm x 7,6 cm / 174 x 15 x 3.00\"",
+  "445 cm x 38 cm x 7,6 cm / 175 x 15 x 3.00\""
+];
 
 function isPublicListing(listing: Listing) {
   return !listing.is_sold && !listing.is_hidden;
@@ -855,6 +832,27 @@ const categoryTranslations: Record<Locale, Record<string, string>> = {
 type VehicleType = string;
 type VehicleFilter = string;
 
+type AppliedListingFilters = {
+  query: string;
+  category: string;
+  subcategory: string;
+  vehicleType: VehicleFilter;
+  vehicleSubtype: string;
+  selectedBrand: string;
+  modelQuery: string;
+  identifierQuery: string;
+  locationQuery: string;
+  yearQuery: string;
+  yearMinQuery: string;
+  yearMaxQuery: string;
+  engineCcQuery: string;
+  engineModelQuery: string;
+  trackMatDimensionQuery: string;
+  minPrice: number;
+  maxPrice: number;
+  garageFilterId: string;
+};
+
 const modelPlaceholders: Record<string, string> = {
   Moottorikelkka: "e.g. Lynx 600",
   Mönkijä: "e.g. Can-Am Outlander",
@@ -1247,15 +1245,6 @@ function HomeContent() {
     () => mergeCategorySources(partsCategories, vehicleCategories),
     [partsCategories, vehicleCategories]
   );
-  const vehiclePills = useMemo(
-    () => [
-      { label: "Kaikki", type: "" as string },
-      ...taxonomy.vehicles
-        .filter((v) => ["Moottorikelkka", "Mönkijä", "Motocross", "Mopot", "Mopo"].includes(v.key))
-        .map((v) => ({ label: v.pillLabel, type: v.key }))
-    ],
-    [taxonomy]
-  );
   const taxonomyVehicleLabels = useMemo(() => {
     const labels: Record<string, string> = {};
     for (const vehicle of taxonomy.vehicles) {
@@ -1264,7 +1253,6 @@ function HomeContent() {
     return labels;
   }, [taxonomy]);
 
-  const garageDropdownRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLElement | null>(null);
   const favoritesHydrated = useRef(false);
   const listingsPageFetchRef = useRef(false);
@@ -1276,12 +1264,18 @@ function HomeContent() {
   const [listings, setListings] = useState<Listing[]>(fallbackListings);
   const [listingsLoading, setListingsLoading] = useState(fallbackListings.length === 0);
   const [listingsTotalCount, setListingsTotalCount] = useState<number | null>(null);
-  const [vehicleListingCounts, setVehicleListingCounts] = useState<VehicleListingCounts | null>(null);
 
   const [favorites, setFavorites] = useState<string[]>([]);
 
   const [query, setQuery] = useState("");
   const [compactHeroSearch, setCompactHeroSearch] = useState(false);
+  const [homeSearchPanelOpen, setHomeSearchPanelOpen] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return !window.matchMedia("(max-width: 720px)").matches;
+  });
+  const [mobileFilterExpanded, setMobileFilterExpanded] = useState(false);
+  const [mobileFilterDragOffset, setMobileFilterDragOffset] = useState(0);
+  const mobileFilterDragStartRef = useRef<number | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [listingsExpanded, setListingsExpanded] = useState(false);
@@ -1292,6 +1286,8 @@ function HomeContent() {
   const PAGE_SIZE = 40;
   const RECOMMENDED_PREVIEW_SIZE = 4;
   const INITIAL_LISTING_FETCH_LIMIT = 240;
+  const YEAR_FILTER_MIN = MARKETPLACE_YEAR_FILTER_MIN;
+  const YEAR_FILTER_MAX = getMarketplaceYearFilterMax();
 
   const [category, setCategory] = useState("");
 
@@ -1300,34 +1296,147 @@ function HomeContent() {
   const [vehicleSubtype, setVehicleSubtype] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("Kaikki");
   const [modelQuery, setModelQuery] = useState("");
+  const [identifierQuery, setIdentifierQuery] = useState("");
+  const [locationQuery, setLocationQuery] = useState("");
   const [yearQuery, setYearQuery] = useState("");
+  const [yearMinQuery, setYearMinQuery] = useState("");
+  const [yearMaxQuery, setYearMaxQuery] = useState("");
   const [engineCcQuery, setEngineCcQuery] = useState("");
   const [engineModelQuery, setEngineModelQuery] = useState("");
+  const [trackMatDimensionQuery, setTrackMatDimensionQuery] = useState("");
 
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(100000);
+  const [appliedListingFilters, setAppliedListingFilters] = useState<AppliedListingFilters>({
+    query: "",
+    category: "",
+    subcategory: "",
+    vehicleType: "",
+    vehicleSubtype: "",
+    selectedBrand: "Kaikki",
+    modelQuery: "",
+    identifierQuery: "",
+    locationQuery: "",
+    yearQuery: "",
+    yearMinQuery: "",
+    yearMaxQuery: "",
+    engineCcQuery: "",
+    engineModelQuery: "",
+    trackMatDimensionQuery: "",
+    minPrice: 0,
+    maxPrice: 100000,
+    garageFilterId: ""
+  });
 
   const [sort, setSort] = useState<SortValue>("Osuvimmat ensin");
   const [recommendationsMode, setRecommendationsMode] = useState(true);
   const [homeSortOpen, setHomeSortOpen] = useState(false);
+  const [homeLatestExpanded, setHomeLatestExpanded] = useState(false);
   const [sortSheetOpen, setSortSheetOpen] = useState(false);
+
+  useEffect(() => {
+    if (!compactHeroSearch || !homeSearchPanelOpen) return;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [compactHeroSearch, homeSearchPanelOpen]);
+
+  useEffect(() => {
+    const openMobileFilters = () => {
+      setMobileFilterExpanded(false);
+      setActiveHeroFilter(null);
+      setHomeSearchPanelOpen(true);
+    };
+
+    window.addEventListener("maskines-open-home-filters", openMobileFilters);
+
+    try {
+      if (sessionStorage.getItem("maskinesOpenHomeFilters") === "1") {
+        sessionStorage.removeItem("maskinesOpenHomeFilters");
+        window.requestAnimationFrame(openMobileFilters);
+      }
+    } catch {
+      /* Session storage may be unavailable in restricted browser contexts. */
+    }
+
+    return () => window.removeEventListener("maskines-open-home-filters", openMobileFilters);
+  }, []);
 
   const [user, setUser] = useState<User | null>(null);
   const [userLocationTerms, setUserLocationTerms] = useState<string[]>([]);
 
   const [garageVehicles, setGarageVehicles] = useState<GarageVehicle[]>([]);
   const [garageFilter, setGarageFilter] = useState<GarageVehicle | null>(null);
-  const [garageDropdownOpen, setGarageDropdownOpen] = useState(false);
+  const [, setGarageDropdownOpen] = useState(false);
   const [sellGuideOpen, setSellGuideOpen] = useState(false);
 
   const [openCategory, setOpenCategory] = useState<string | null>(null);
 
   const [categorySearch, setCategorySearch] = useState("");
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerOpenStep, setDrawerOpenStep] = useState<number | undefined>(undefined);
+  const [activeHeroFilter, setActiveHeroFilter] = useState<string | null>(null);
   const [dbPreferenceProfile, setDbPreferenceProfile] = useState<UserPreferenceProfile | null>(null);
 
   const t = translations[locale];
+
+  useEffect(() => {
+    let suppressRailClick = false;
+
+    const handleRailToggle = (event: Event) => {
+      if (event.type === "click" && suppressRailClick) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        suppressRailClick = false;
+        return;
+      }
+
+      const target = event.target;
+
+      if (!(target instanceof Element)) return;
+
+      if (target.closest('[class*="heroRailEdgeToggle"]')) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        if (event.type === "pointerdown" || event.type === "mousedown") {
+          suppressRailClick = true;
+          setHomeSearchPanelOpen(false);
+        } else if (suppressRailClick) {
+          suppressRailClick = false;
+        }
+        return;
+      }
+
+      if (target.closest('[class*="heroRailClosedButton"]')) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        if (event.type === "pointerdown" || event.type === "mousedown") {
+          suppressRailClick = true;
+          setHomeSearchPanelOpen(true);
+        } else if (suppressRailClick) {
+          suppressRailClick = false;
+        }
+      }
+    };
+
+    document.addEventListener("pointerdown", handleRailToggle, true);
+    document.addEventListener("mousedown", handleRailToggle, true);
+    document.addEventListener("click", handleRailToggle, true);
+
+    return () => {
+      document.removeEventListener("pointerdown", handleRailToggle, true);
+      document.removeEventListener("mousedown", handleRailToggle, true);
+      document.removeEventListener("click", handleRailToggle, true);
+    };
+  }, []);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 720px)");
@@ -1353,9 +1462,14 @@ function HomeContent() {
           vehicleSubtype,
           selectedBrand,
           modelQuery,
+          identifierQuery,
+          locationQuery,
           yearQuery,
+          yearMinQuery,
+          yearMaxQuery,
           engineCcQuery,
           engineModelQuery,
+          trackMatDimensionQuery,
           minPrice,
           maxPrice,
           sort,
@@ -1374,7 +1488,10 @@ function HomeContent() {
     currentPage,
     engineCcQuery,
     engineModelQuery,
+    trackMatDimensionQuery,
     garageFilter?.id,
+    identifierQuery,
+    locationQuery,
     maxPrice,
     minPrice,
     modelQuery,
@@ -1393,6 +1510,12 @@ function HomeContent() {
     updateCachedListing(listing);
     router.push(listingPath(listingUrlId(listing), locale));
   }, [locale, router, saveHomeReturnState]);
+
+  const openListingFromCard = useCallback((event: React.MouseEvent, listing: Listing) => {
+    const target = event.target;
+    if (target instanceof Element && target.closest("button")) return;
+    openListing(listing);
+  }, [openListing]);
 
   const handleSortChange = useCallback((value: string) => {
     if (value === "recommendations") {
@@ -1421,9 +1544,14 @@ function HomeContent() {
         vehicleSubtype?: string;
         selectedBrand?: string;
         modelQuery?: string;
+        identifierQuery?: string;
+        locationQuery?: string;
         yearQuery?: string;
+        yearMinQuery?: string;
+        yearMaxQuery?: string;
         engineCcQuery?: string;
         engineModelQuery?: string;
+        trackMatDimensionQuery?: string;
         minPrice?: number;
         maxPrice?: number;
         sort?: SortValue;
@@ -1442,11 +1570,36 @@ function HomeContent() {
       setVehicleSubtype(saved.vehicleSubtype ?? "");
       setSelectedBrand(saved.selectedBrand ?? "Kaikki");
       setModelQuery(saved.modelQuery ?? "");
+      setIdentifierQuery(saved.identifierQuery ?? "");
+      setLocationQuery(saved.locationQuery ?? "");
       setYearQuery(saved.yearQuery ?? "");
+      setYearMinQuery(saved.yearMinQuery ?? "");
+      setYearMaxQuery(saved.yearMaxQuery ?? "");
       setEngineCcQuery(saved.engineCcQuery ?? "");
       setEngineModelQuery(saved.engineModelQuery ?? "");
+      setTrackMatDimensionQuery(saved.trackMatDimensionQuery ?? "");
       setMinPrice(typeof saved.minPrice === "number" ? saved.minPrice : 0);
       setMaxPrice(typeof saved.maxPrice === "number" ? saved.maxPrice : 100000);
+      setAppliedListingFilters({
+        query: saved.query ?? "",
+        category: saved.category ?? "",
+        subcategory: saved.subcategory ?? "",
+        vehicleType: saved.vehicleType ?? "",
+        vehicleSubtype: saved.vehicleSubtype ?? "",
+        selectedBrand: saved.selectedBrand ?? "Kaikki",
+        modelQuery: saved.modelQuery ?? "",
+        identifierQuery: saved.identifierQuery ?? "",
+        locationQuery: saved.locationQuery ?? "",
+        yearQuery: saved.yearQuery ?? "",
+        yearMinQuery: saved.yearMinQuery ?? "",
+        yearMaxQuery: saved.yearMaxQuery ?? "",
+        engineCcQuery: saved.engineCcQuery ?? "",
+        engineModelQuery: saved.engineModelQuery ?? "",
+        trackMatDimensionQuery: saved.trackMatDimensionQuery ?? "",
+        minPrice: typeof saved.minPrice === "number" ? saved.minPrice : 0,
+        maxPrice: typeof saved.maxPrice === "number" ? saved.maxPrice : 100000,
+        garageFilterId: saved.garageFilterId ?? ""
+      });
       setSort(saved.sort ?? "Osuvimmat ensin");
       setRecommendationsMode(saved.recommendationsMode ?? true);
       const savedPage = typeof saved.currentPage === "number" ? saved.currentPage : 1;
@@ -1470,87 +1623,16 @@ function HomeContent() {
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 720px)");
-    const syncCompactSearch = () => setCompactHeroSearch(media.matches);
+    const syncCompactSearch = () => {
+      setCompactHeroSearch(media.matches);
+      if (media.matches) setHomeSearchPanelOpen(false);
+    };
 
     syncCompactSearch();
     media.addEventListener("change", syncCompactSearch);
 
     return () => media.removeEventListener("change", syncCompactSearch);
   }, []);
-
-  useEffect(() => {
-    function openCategoryDrawerFromTopbar(event: Event) {
-      const requestedStep =
-        event instanceof CustomEvent && typeof event.detail?.step === "number"
-          ? event.detail.step
-          : 2;
-      const nextStep = requestedStep === 2 ? 2 : 3;
-
-      setDrawerOpen(() => {
-        setDrawerOpenStep(nextStep);
-        return true;
-      });
-    }
-
-    window.addEventListener("open-category-drawer", openCategoryDrawerFromTopbar);
-    return () => window.removeEventListener("open-category-drawer", openCategoryDrawerFromTopbar);
-  }, [vehicleType]);
-
-  useEffect(() => {
-    let shouldOpen = false;
-    let requestedStep = 2;
-
-    try {
-      shouldOpen = sessionStorage.getItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY) === "1";
-      if (shouldOpen) sessionStorage.removeItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY);
-      const storedStep = Number(sessionStorage.getItem(OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY));
-      sessionStorage.removeItem(OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY);
-      requestedStep = storedStep === 2 ? 2 : 3;
-    } catch {
-      shouldOpen = false;
-    }
-
-    if (!shouldOpen) return;
-
-    setDrawerOpenStep(requestedStep);
-    setDrawerOpen(true);
-  }, []);
-
-  useEffect(() => {
-    if (!drawerOpen) return;
-
-    const scrollY = window.scrollY;
-    const body = document.body;
-    const html = document.documentElement;
-    const previousBodyStyle = {
-      overflow: body.style.overflow,
-      position: body.style.position,
-      top: body.style.top,
-      left: body.style.left,
-      right: body.style.right,
-      width: body.style.width
-    };
-    const previousHtmlOverflow = html.style.overflow;
-
-    html.style.overflow = "hidden";
-    body.style.overflow = "hidden";
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.left = "0";
-    body.style.right = "0";
-    body.style.width = "100%";
-
-    return () => {
-      html.style.overflow = previousHtmlOverflow;
-      body.style.overflow = previousBodyStyle.overflow;
-      body.style.position = previousBodyStyle.position;
-      body.style.top = previousBodyStyle.top;
-      body.style.left = previousBodyStyle.left;
-      body.style.right = previousBodyStyle.right;
-      body.style.width = previousBodyStyle.width;
-      window.scrollTo(0, scrollY);
-    };
-  }, [drawerOpen]);
 
   const sortLabel = useCallback((value: SortValue) => {
     return value === "Osuvimmat ensin"
@@ -1573,16 +1655,41 @@ function HomeContent() {
     setGarageFilter(null);
     setSelectedBrand("Kaikki");
     setModelQuery("");
+    setIdentifierQuery("");
+    setLocationQuery("");
     setYearQuery("");
+    setYearMinQuery("");
+    setYearMaxQuery("");
     setEngineCcQuery("");
     setEngineModelQuery("");
+    setTrackMatDimensionQuery("");
     setCategory("");
     setSubcategory("");
     setOpenCategory(null);
     setCategorySearch("");
     setMinPrice(0);
     setMaxPrice(100000);
-    setDrawerOpen(false);
+    setAppliedListingFilters({
+      query: "",
+      category: "",
+      subcategory: "",
+      vehicleType: "",
+      vehicleSubtype: "",
+      selectedBrand: "Kaikki",
+      modelQuery: "",
+      identifierQuery: "",
+      locationQuery: "",
+      yearQuery: "",
+      yearMinQuery: "",
+      yearMaxQuery: "",
+      engineCcQuery: "",
+      engineModelQuery: "",
+      trackMatDimensionQuery: "",
+      minPrice: 0,
+      maxPrice: 100000,
+      garageFilterId: ""
+    });
+    setActiveHeroFilter(null);
     setGarageDropdownOpen(false);
     setCurrentPage(1);
     setListingsExpanded(false);
@@ -1591,6 +1698,7 @@ function HomeContent() {
 
   function showAllListings() {
     clearListingFilters();
+    setHomeLatestExpanded(true);
     setRecommendationsMode(false);
     setSort("Uusimmat ensin");
     setListingsExpanded(true);
@@ -1626,7 +1734,30 @@ function HomeContent() {
   }, []);
 
   function applyListingFilters() {
+    setAppliedListingFilters({
+      query,
+      category,
+      subcategory,
+      vehicleType,
+      vehicleSubtype,
+      selectedBrand,
+      modelQuery,
+      identifierQuery,
+      locationQuery,
+      yearQuery,
+      yearMinQuery,
+      yearMaxQuery,
+      engineCcQuery,
+      engineModelQuery,
+      trackMatDimensionQuery,
+      minPrice,
+      maxPrice,
+      garageFilterId: garageFilter?.id ?? ""
+    });
     setRecommendationsMode(false);
+    setListingsExpanded(true);
+    setCatalogOnlyView(true);
+    setActiveHeroFilter(null);
     setCurrentPage(1);
     requestAnimationFrame(() => {
       resultsRef.current?.scrollIntoView({
@@ -1638,36 +1769,12 @@ function HomeContent() {
 
   const activeFilterSignature = useMemo(() => (
     JSON.stringify({
-      query: query.trim(),
-      vehicleType,
-      vehicleSubtype,
-      garageFilterId: garageFilter?.id ?? "",
-      selectedBrand,
-      modelQuery: modelQuery.trim(),
-      yearQuery: yearQuery.trim(),
-      engineCcQuery: engineCcQuery.trim(),
-      engineModelQuery: engineModelQuery.trim(),
-      category,
-      subcategory,
-      minPrice,
-      maxPrice,
+      ...appliedListingFilters,
       sort,
       recommendationsMode
     })
   ), [
-    query,
-    vehicleType,
-    vehicleSubtype,
-    garageFilter?.id,
-    selectedBrand,
-    modelQuery,
-    yearQuery,
-    engineCcQuery,
-    engineModelQuery,
-    category,
-    subcategory,
-    minPrice,
-    maxPrice,
+    appliedListingFilters,
     sort,
     recommendationsMode
   ]);
@@ -1814,7 +1921,7 @@ function HomeContent() {
         const { data, error, count } =
           await withTimeout(
             getListings({
-              includeOptionalFields: false,
+              includeOptionalFields: true,
               includeCount: true,
               limit: INITIAL_LISTING_FETCH_LIMIT,
               offset: 0
@@ -1842,7 +1949,7 @@ function HomeContent() {
             const { data, error: retryError, count } =
               await withTimeout(
                 getListings({
-                  includeOptionalFields: false,
+                  includeOptionalFields: true,
                   includeCount: true,
                   limit: INITIAL_LISTING_FETCH_LIMIT,
                   offset: 0
@@ -1880,27 +1987,6 @@ function HomeContent() {
       mounted = false;
     };
   }, [router]);
-
-  useEffect(() => {
-    let mounted = true;
-
-    withTimeout(getVehicleListingCounts(), 8000, "Ajoneuvokohtaisten määrien lataus kesti liian kauan.")
-      .then(({ data, error }) => {
-        if (error) {
-          console.warn("Ajoneuvokohtaisten määrien lataus epäonnistui.", error);
-        }
-        if (mounted && data) {
-          setVehicleListingCounts(data);
-        }
-      })
-      .catch((error) => {
-        console.warn("Ajoneuvokohtaisten määrien lataus aikakatkaistiin.", error);
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
 
   useEffect(() => {
     const urlLocale = new URLSearchParams(window.location.search).get("lang");
@@ -1977,57 +2063,53 @@ function HomeContent() {
   }, [router]);
 
   /* ======================================================
-     CLOSE PROFILE MENU
-  ====================================================== */
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      const target = e.target as HTMLElement | null;
-      if (target?.closest("[data-garage-dropdown-root]")) {
-        return;
-      }
-
-      if (
-        garageDropdownRef.current &&
-        !garageDropdownRef.current.contains(e.target as Node)
-      ) {
-        setGarageDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClick);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClick);
-    };
-  }, []);
-
-  /* ======================================================
      FILTERED LISTINGS
   ====================================================== */
 
-  const filteredListings = useMemo(() => {
+  const buildFilteredListings = useCallback((filters: AppliedListingFilters) => {
+    const {
+      query: appliedQuery,
+      vehicleType: appliedVehicleType,
+      vehicleSubtype: appliedVehicleSubtype,
+      category: appliedCategory,
+      subcategory: appliedSubcategory,
+      identifierQuery: appliedIdentifierQuery,
+      locationQuery: appliedLocationQuery,
+      selectedBrand: appliedSelectedBrand,
+      modelQuery: appliedModelQuery,
+      yearQuery: appliedYearQuery,
+      yearMinQuery: appliedYearMinQuery,
+      yearMaxQuery: appliedYearMaxQuery,
+      engineCcQuery: appliedEngineCcQuery,
+      engineModelQuery: appliedEngineModelQuery,
+      trackMatDimensionQuery: appliedTrackMatDimensionQuery,
+      minPrice: appliedMinPrice,
+      maxPrice: appliedMaxPrice,
+      garageFilterId: appliedGarageFilterId
+    } = filters;
+    const appliedGarageFilter =
+      garageFilter && appliedGarageFilterId && garageFilter.id === appliedGarageFilterId
+        ? garageFilter
+        : null;
     const selectedFitmentProfile = buildFitmentProfile({
-      vehicleType,
-      brand: selectedBrand === "Kaikki" ? "" : selectedBrand,
-      model: [modelQuery, query].filter(Boolean).join(" "),
-      year: [yearQuery, query].filter(Boolean).join(" "),
-      engine: [engineModelQuery, engineCcQuery, query].filter(Boolean).join(" ")
+      vehicleType: appliedVehicleType,
+      brand: appliedSelectedBrand === "Kaikki" ? "" : appliedSelectedBrand,
+      model: [appliedModelQuery, appliedQuery].filter(Boolean).join(" "),
+      year: "",
+      engine: [appliedEngineModelQuery, appliedEngineCcQuery, appliedQuery].filter(Boolean).join(" ")
     });
-    const compatibleQuery = queryWithoutVehicleIdentityTerms(query, [
-      selectedBrand === "Kaikki" ? "" : selectedBrand,
-      modelQuery,
-      yearQuery,
-      engineModelQuery,
-      engineCcQuery
+    const compatibleQuery = queryWithoutVehicleIdentityTerms(appliedQuery, [
+      appliedSelectedBrand === "Kaikki" ? "" : appliedSelectedBrand,
+      appliedModelQuery,
+      appliedEngineModelQuery,
+      appliedEngineCcQuery
     ]);
     const hasVehicleIdentityFilter =
-      (selectedBrand !== "Kaikki" && Boolean(selectedBrand)) ||
-      Boolean(modelQuery.trim()) ||
-      Boolean(yearQuery.trim()) ||
-      Boolean(engineModelQuery.trim()) ||
-      Boolean(engineCcQuery.trim()) ||
-      Boolean(query.trim());
+      (appliedSelectedBrand !== "Kaikki" && Boolean(appliedSelectedBrand)) ||
+      Boolean(appliedModelQuery.trim()) ||
+      Boolean(appliedEngineModelQuery.trim()) ||
+      Boolean(appliedEngineCcQuery.trim()) ||
+      Boolean(appliedQuery.trim());
     const compatibleFitmentActive =
       hasFitmentProfile(selectedFitmentProfile) && hasVehicleIdentityFilter;
 
@@ -2051,12 +2133,12 @@ function HomeContent() {
         `;
 
         const directPartNumberMatch =
-          Boolean(query) &&
+          Boolean(appliedQuery) &&
           Boolean(listingPartNumber) &&
-          textMatchesSearch(listingPartNumber, query);
+          textMatchesSearch(listingPartNumber, appliedQuery);
 
         const matchesGarage = (() => {
-          if (!garageFilter) return true;
+          if (!appliedGarageFilter) return true;
           const haystack = [
             listing.brand ?? "",
             listing.model ?? "",
@@ -2066,54 +2148,90 @@ function HomeContent() {
             listingText.description
           ].join(" ");
           const matchesMake =
-            !garageFilter.make || textMatchesSearch(haystack, garageFilter.make);
+            !appliedGarageFilter.make || textMatchesSearch(haystack, appliedGarageFilter.make);
           const matchesModel =
-            !garageFilter.model || allSearchWordsMatch(haystack, garageFilter.model);
+            !appliedGarageFilter.model || allSearchWordsMatch(haystack, appliedGarageFilter.model);
           return matchesMake && matchesModel;
         })();
 
         const matchesVehicleType =
-          listingMatchesVehicleType(listing, listingText, vehicleType);
+          listingMatchesVehicleType(listing, listingText, appliedVehicleType);
         const matchesVehicleSubtype =
-          !vehicleSubtype ||
-          allSearchWordsMatch(listingVehicleSubtypeText, vehicleSubtype);
+          !appliedVehicleSubtype ||
+          allSearchWordsMatch(listingVehicleSubtypeText, appliedVehicleSubtype);
 
         const matchesCategory =
-          !category ||
-          normalizeCategoryMatch(listing.category) === normalizeCategoryMatch(category);
+          !appliedCategory ||
+          normalizeCategoryMatch(listing.category) === normalizeCategoryMatch(appliedCategory);
 
         const matchesSubcategory =
-          listingMatchesSubcategoryFilter(listing.subcategory, subcategory);
+          listingMatchesSubcategoryFilter(listing.subcategory, appliedSubcategory);
 
         const matchesBrand =
-          brandMatchesListing(selectedBrand, listing, listingText);
+          brandMatchesListing(appliedSelectedBrand, listing, listingText);
 
         const matchesModel =
-          !modelQuery ||
+          !appliedModelQuery ||
           allSearchWordsMatch(
             `${listing.model ?? ""} ${listing.part_model ?? ""} ${listingText.title} ${listingText.description} ${listingPartNumber}`,
-            modelQuery
+            appliedModelQuery
           );
 
-        const yearNeedle = yearQuery.trim();
-        const listingYearText = getListingYearText(listing, listingText);
+        const listingYear = Number(String(listing.year ?? "").match(/(19|20)\d{2}/)?.[0] ?? "");
+        const yearMin = Number(appliedYearMinQuery || appliedYearQuery || "");
+        const yearMax = Number(appliedYearMaxQuery || appliedYearQuery || "");
+        const hasYearFilter = Boolean(appliedYearQuery || appliedYearMinQuery || appliedYearMaxQuery);
         const matchesYear =
-          !yearNeedle || textMatchesSearch(listingYearText, yearNeedle);
+          !hasYearFilter ||
+          (Number.isFinite(listingYear) &&
+            listingYear > 0 &&
+            (!yearMin || listingYear >= yearMin) &&
+            (!yearMax || listingYear <= yearMax));
+
+        const identifierTerm = appliedIdentifierQuery.trim().toLowerCase().replace(/\s+/g, "");
+        const identifierNumber = identifierTerm.match(/^(?:ilmoitus|id|#)?(\d+)$/)?.[1] ?? "";
+        const normalizedIdentifierNumber = identifierNumber ? String(Number(identifierNumber)) : "";
+        const listingNumberText = String(listing.listing_number ?? "");
+        const listingNumberUrlText = listingNumberUrlId(listing.listing_number).toLowerCase();
+        const listingIdText = String(listing.id ?? "").toLowerCase();
+        const matchesIdentifier =
+          !identifierTerm ||
+          listingIdText === identifierTerm ||
+          listingNumberText === identifierNumber ||
+          listingNumberText === normalizedIdentifierNumber ||
+          listingNumberUrlText === identifierTerm;
+
+        const matchesLocation =
+          !appliedLocationQuery.trim() ||
+          textMatchesSearch(listing.location, appliedLocationQuery);
 
         const matchesEngineCc =
-          !engineCcQuery ||
-          textMatchesSearch(listing.engine_cc ?? "", engineCcQuery);
+          !appliedEngineCcQuery ||
+          textMatchesSearch(listing.engine_cc ?? "", appliedEngineCcQuery);
 
         const matchesEngineModel =
-          !engineModelQuery ||
-          textMatchesSearch(listing.engine_model ?? "", engineModelQuery);
+          !appliedEngineModelQuery ||
+          textMatchesSearch(listing.engine_model ?? "", appliedEngineModelQuery);
+
+        const matchesTrackMatDimension =
+          !appliedTrackMatDimensionQuery ||
+          appliedTrackMatDimensionQuery
+            .split(" / ")
+            .map((part) => part.trim())
+            .filter(Boolean)
+            .some((dimensionPart) =>
+              allSearchWordsMatch(
+                `${listing.part_model ?? ""} ${listingText.title} ${listingText.description}`,
+                dimensionPart
+              )
+            );
 
         const matchesCompatibleFitment =
           compatibleFitmentActive &&
           listingMatchesCompatibleFitment(listing, selectedFitmentProfile);
         const matchesQuery =
-          !query ||
-          allSearchWordsMatch(search, query) ||
+          !appliedQuery ||
+          allSearchWordsMatch(search, appliedQuery) ||
           (matchesCompatibleFitment && allSearchWordsMatch(search, compatibleQuery));
 
         const matchesVehicleIdentity =
@@ -2121,8 +2239,8 @@ function HomeContent() {
           (matchesBrand && matchesModel && matchesYear && matchesEngineModel);
 
         const matchesPrice =
-          listing.price >= minPrice &&
-          listing.price <= maxPrice;
+          listing.price >= appliedMinPrice &&
+          listing.price <= appliedMaxPrice;
 
         if (directPartNumberMatch) {
           return matchesPrice;
@@ -2135,7 +2253,10 @@ function HomeContent() {
           matchesCategory &&
           matchesSubcategory &&
           matchesVehicleIdentity &&
+          matchesIdentifier &&
+          matchesLocation &&
           matchesEngineCc &&
+          matchesTrackMatDimension &&
           matchesPrice &&
           matchesGarage
         );
@@ -2175,35 +2296,66 @@ function HomeContent() {
       });
   }, [
     listings,
-    query,
-    vehicleType,
-    vehicleSubtype,
-    category,
-    subcategory,
-    selectedBrand,
-    modelQuery,
-    yearQuery,
-    engineCcQuery,
-    engineModelQuery,
-    minPrice,
-    maxPrice,
     sort,
     userLocationTerms,
     garageFilter,
     getListingText
   ]);
 
-  function toggleFavorite(
-    event: React.MouseEvent,
-    listingId: string
-  ) {
-    event.preventDefault();
-    event.stopPropagation();
+  const currentDraftListingFilters = useMemo<AppliedListingFilters>(() => ({
+    query,
+    category,
+    subcategory,
+    vehicleType,
+    vehicleSubtype,
+    selectedBrand,
+    modelQuery,
+    identifierQuery,
+    locationQuery,
+    yearQuery,
+    yearMinQuery,
+    yearMaxQuery,
+    engineCcQuery,
+    engineModelQuery,
+    trackMatDimensionQuery,
+    minPrice,
+    maxPrice,
+    garageFilterId: garageFilter?.id ?? ""
+  }), [
+    query,
+    category,
+    subcategory,
+    vehicleType,
+    vehicleSubtype,
+    selectedBrand,
+    modelQuery,
+    identifierQuery,
+    locationQuery,
+    yearQuery,
+    yearMinQuery,
+    yearMaxQuery,
+    engineCcQuery,
+    engineModelQuery,
+    trackMatDimensionQuery,
+    minPrice,
+    maxPrice,
+    garageFilter?.id
+  ]);
 
-    if (!user) return;
+  const filteredListings = useMemo(
+    () => buildFilteredListings(appliedListingFilters),
+    [appliedListingFilters, buildFilteredListings]
+  );
 
+  const draftListingResultCount = useMemo(
+    () => buildFilteredListings(currentDraftListingFilters).length,
+    [buildFilteredListings, currentDraftListingFilters]
+  );
+
+  const toggleFavoriteById = useCallback((listingId: string) => {
     setFavorites((prev) => {
       const current = prev.length > 0 ? prev : readSavedListingIds();
+      const wasFavorite = current.includes(listingId);
       const next = current.includes(listingId)
         ? current.filter((id) => id !== listingId)
         : [...current, listingId];
@@ -2212,15 +2364,46 @@ function HomeContent() {
         localStorage.setItem("savedListings", JSON.stringify(next));
       } catch {}
 
-      void (
-        current.includes(listingId)
-          ? unsaveListing(listingId)
-          : saveListing(listingId)
-      );
+      if (user) {
+        void (wasFavorite ? unsaveListing(listingId) : saveListing(listingId));
+      }
 
       return next;
     });
+  }, [user]);
+
+  function toggleFavorite(
+    event: React.MouseEvent,
+    listingId: string
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleFavoriteById(listingId);
   }
+
+  useEffect(() => {
+    const handleHomeLatestFavorite = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const button = target.closest<HTMLButtonElement>("[data-home-latest-favorite]");
+      if (!button) return;
+
+      const listingId = button.dataset.listingId;
+      if (!listingId) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      toggleFavoriteById(listingId);
+    };
+
+    document.addEventListener("click", handleHomeLatestFavorite, true);
+
+    return () => {
+      document.removeEventListener("click", handleHomeLatestFavorite, true);
+    };
+  }, [toggleFavoriteById]);
 
   function getGarageVehicleType(vehicle: GarageVehicle): VehicleFilter {
     return vehicle.vehicle_class === "Motocross" || vehicle.vehicle_class === "Auto" ? "Motocross"
@@ -2243,9 +2426,11 @@ function HomeContent() {
       setSelectedBrand("Kaikki");
       setModelQuery("");
       setYearQuery("");
+      setYearMinQuery("");
+      setYearMaxQuery("");
       setEngineCcQuery("");
       setEngineModelQuery("");
-      setDrawerOpenStep(undefined);
+      setActiveHeroFilter(null);
       return;
     }
 
@@ -2256,10 +2441,11 @@ function HomeContent() {
     setSelectedBrand(vehicle.make);
     setModelQuery(vehicle.model);
     setYearQuery(String(vehicle.year));
+    setYearMinQuery(String(vehicle.year));
+    setYearMaxQuery(String(vehicle.year));
     setEngineCcQuery(getGarageVehicleEngineCc(vehicle));
     setEngineModelQuery("");
-    setDrawerOpenStep(2);
-    setDrawerOpen(true);
+    setActiveHeroFilter(null);
     setRecommendationsMode(false);
     setCurrentPage(1);
   }
@@ -2279,9 +2465,31 @@ function HomeContent() {
     setSelectedBrand(make || "Kaikki");
     setModelQuery(model);
     setYearQuery(year);
+    setYearMinQuery(year);
+    setYearMaxQuery(year);
     setEngineCcQuery("");
     setEngineModelQuery("");
-    setDrawerOpenStep(2);
+    setAppliedListingFilters({
+      query: "",
+      category: "",
+      subcategory: "",
+      vehicleType: "",
+      vehicleSubtype: "",
+      selectedBrand: make || "Kaikki",
+      modelQuery: model,
+      identifierQuery: "",
+      locationQuery: "",
+      yearQuery: year,
+      yearMinQuery: year,
+      yearMaxQuery: year,
+      engineCcQuery: "",
+      engineModelQuery: "",
+      trackMatDimensionQuery: "",
+      minPrice: 0,
+      maxPrice: 100000,
+      garageFilterId: ""
+    });
+    setActiveHeroFilter(null);
     setRecommendationsMode(false);
     setCurrentPage(1);
   }, [searchParams]);
@@ -2303,10 +2511,31 @@ function HomeContent() {
     setVehicleType(vehicleTypeParam || "");
     setModelQuery(modelParam);
     setYearQuery("");
+    setYearMinQuery("");
+    setYearMaxQuery("");
     setEngineCcQuery("");
     setEngineModelQuery("");
-    setDrawerOpen(false);
-    setDrawerOpenStep(undefined);
+    setAppliedListingFilters({
+      query: "",
+      category: categoryParam,
+      subcategory: "",
+      vehicleType: vehicleTypeParam || "",
+      vehicleSubtype: "",
+      selectedBrand: brandParam || "Kaikki",
+      modelQuery: modelParam,
+      identifierQuery: "",
+      locationQuery: "",
+      yearQuery: "",
+      yearMinQuery: "",
+      yearMaxQuery: "",
+      engineCcQuery: "",
+      engineModelQuery: "",
+      trackMatDimensionQuery: "",
+      minPrice: 0,
+      maxPrice: 100000,
+      garageFilterId: ""
+    });
+    setActiveHeroFilter(null);
     setRecommendationsMode(false);
     setListingsExpanded(true);
     setCatalogOnlyView(false);
@@ -2364,11 +2593,18 @@ function HomeContent() {
     Boolean(subcategory) ||
     Boolean(garageFilter) ||
     Boolean(modelQuery.trim()) ||
+    Boolean(identifierQuery.trim()) ||
+    Boolean(locationQuery.trim()) ||
     Boolean(yearQuery.trim()) ||
+    Boolean(yearMinQuery.trim()) ||
+    Boolean(yearMaxQuery.trim()) ||
     Boolean(engineCcQuery.trim()) ||
     Boolean(engineModelQuery.trim()) ||
+    Boolean(trackMatDimensionQuery.trim()) ||
     minPrice !== 0 ||
     maxPrice !== 100000;
+  const showListingResultsSection =
+    catalogOnlyView;
 
   const canShowRecommendations = false;
 
@@ -2405,6 +2641,11 @@ function HomeContent() {
   const activeSortOption = sortMenuOptions.find((option) => option.value === activeSortValue) ?? sortMenuOptions[0];
   const ActiveSortIcon = activeSortOption?.icon ?? Settings2;
 
+  const selectSortOption = useCallback((value: string) => {
+    handleSortChange(value);
+    setHomeSortOpen(false);
+  }, [handleSortChange]);
+
   const renderSortControl = (className: string) => (
     <div
       className={`${className} ${styles.sortControlRebuilt} ${homeSortOpen ? styles.sortControlOpen : ""}`}
@@ -2439,9 +2680,12 @@ function HomeContent() {
                 role="menuitemradio"
                 aria-checked={selected}
                 className={`${styles.sortMenuItem} ${selected ? styles.sortMenuItemActive : ""}`}
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  selectSortOption(option.value);
+                }}
                 onClick={() => {
-                  handleSortChange(option.value);
-                  setHomeSortOpen(false);
+                  selectSortOption(option.value);
                 }}
               >
                 <Icon size={15} aria-hidden="true" />
@@ -2654,6 +2898,50 @@ function HomeContent() {
 
   const displayedListings = featuredListings;
 
+  const heroLatestListings = useMemo(() => {
+    const sourceListings = hasActiveListingFilters
+      ? filteredListings
+      : listings.filter(isPublicListing);
+
+    return [...sourceListings]
+      .sort((a, b) => {
+        switch (sort) {
+          case "Lähimpänä sinua": {
+            const distanceDifference =
+              locationMatchScore(b.location, userLocationTerms) -
+              locationMatchScore(a.location, userLocationTerms);
+
+            return (
+              distanceDifference ||
+              new Date(b.created_at ?? "").getTime() -
+                new Date(a.created_at ?? "").getTime()
+            );
+          }
+
+          case "Alhaisin hinta":
+            return a.price - b.price;
+
+          case "Korkein hinta":
+            return b.price - a.price;
+
+          case "Vanhimmat ensin":
+            return (
+              new Date(a.created_at ?? "").getTime() -
+              new Date(b.created_at ?? "").getTime()
+            );
+
+          default:
+            return (
+              new Date(b.created_at ?? "").getTime() -
+              new Date(a.created_at ?? "").getTime()
+            );
+        }
+      })
+      .slice(0, 12);
+  }, [filteredListings, hasActiveListingFilters, listings, sort, userLocationTerms]);
+
+  const compactLatestListings = heroLatestListings.slice(0, homeLatestExpanded ? 12 : 4);
+
   useEffect(() => {
     if (listingsLoading || locale === "fi") return;
 
@@ -2696,8 +2984,42 @@ function HomeContent() {
     return () => clearTimeout(timer);
   }, [query]);
 
+  const selectedSubcategoryParts = useMemo(
+    () => subcategory.split("/").map((part) => part.trim()).filter(Boolean),
+    [subcategory]
+  );
+  const selectedSubcategoryParent = selectedSubcategoryParts.length > 1 ? selectedSubcategoryParts[0] : subcategory;
+  const selectedSubcategoryLeaf =
+    selectedSubcategoryParts.length > 1
+      ? selectedSubcategoryParts[selectedSubcategoryParts.length - 1]
+      : "";
+  const trackMatDimensionFieldVisible = selectedSubcategoryParts.some((part) =>
+    part.toLowerCase().includes("telamat")
+  );
+
+  useEffect(() => {
+    if (!trackMatDimensionFieldVisible && trackMatDimensionQuery) {
+      setTrackMatDimensionQuery("");
+    }
+  }, [trackMatDimensionFieldVisible, trackMatDimensionQuery]);
+
+  const sharedFilterOptions = useMemo(
+    () => buildMarketplaceFilterOptions({
+      taxonomyVehicles: taxonomy.vehicles,
+      vehicleBrands,
+      vehicleCategories,
+      allVehicleCategories,
+      vehicleType,
+      brand: selectedBrand === "Kaikki" ? "" : selectedBrand,
+      model: modelQuery,
+      category,
+      subcategoryParent: selectedSubcategoryParent
+    }),
+    [allVehicleCategories, category, modelQuery, selectedBrand, selectedSubcategoryParent, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleType]
+  );
+
   const categorySource = useMemo(() => {
-    return vehicleType ? vehicleCategories[vehicleType] : allVehicleCategories;
+    return buildMarketplaceCategorySource({ vehicleType, vehicleCategories, allVehicleCategories });
   }, [allVehicleCategories, vehicleCategories, vehicleType]);
 
   const categoryEntries = useMemo(() => {
@@ -2716,49 +3038,369 @@ function HomeContent() {
     });
   }, [categorySearch, categorySource, locale]);
 
-  const brandOptions = useMemo(() => {
-    return vehicleType ? vehicleBrands[vehicleType] : ["Kaikki"];
-  }, [vehicleBrands, vehicleType]);
+  const brandOptions = useMemo(() => ["Kaikki", ...sharedFilterOptions.brands], [sharedFilterOptions.brands]);
 
-  function selectVehicleType(nextVehicleType: VehicleFilter) {
-    if (!nextVehicleType) {
-      clearListingFilters();
-      return;
+  const vehicleTypeOptions = useMemo(
+    () => sharedFilterOptions.vehicleTypes,
+    [sharedFilterOptions.vehicleTypes]
+  );
+
+  const vehicleSubtypeOptions = useMemo(() => sharedFilterOptions.vehicleSubtypes, [sharedFilterOptions.vehicleSubtypes]);
+
+  const modelOptions = useMemo(() => sharedFilterOptions.models, [sharedFilterOptions.models]);
+
+  const engineCcOptions = useMemo(() => sharedFilterOptions.engineCcs, [sharedFilterOptions.engineCcs]);
+
+  const engineModelOptions = useMemo(() => sharedFilterOptions.engineModels, [sharedFilterOptions.engineModels]);
+
+  const railSubcategoryGroups = useMemo(
+    () => buildMarketplaceSubcategoryGroups({ category, categorySource }),
+    [category, categorySource]
+  );
+
+  const subcategoryParentOptions = useMemo(() => {
+    if (!category) return [];
+    if (railSubcategoryGroups) return Object.keys(railSubcategoryGroups);
+    return categorySource[category] ?? [];
+  }, [category, categorySource, railSubcategoryGroups]);
+
+  const detailedSubcategoryOptions = useMemo(() => {
+    if (!category) return [];
+    if (railSubcategoryGroups && selectedSubcategoryParent) {
+      return railSubcategoryGroups[selectedSubcategoryParent] ?? [];
     }
-
-    if (vehicleType !== nextVehicleType) {
-      setVehicleType(nextVehicleType);
-      setVehicleSubtype("");
-      setGarageFilter(null);
-      setSelectedBrand("Kaikki");
-      setModelQuery("");
-      setYearQuery("");
-      setEngineCcQuery("");
-      setEngineModelQuery("");
-      setCategory("");
-      setSubcategory("");
-      setOpenCategory(null);
-      setCategorySearch("");
-      setMinPrice(0);
-      setMaxPrice(100000);
-    }
-
-    setCurrentPage(1);
-    setListingsExpanded(true);
-    setCatalogOnlyView(false);
-    setRecommendationsMode(false);
-    window.requestAnimationFrame(() => {
-      document.getElementById("listings")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  }
+    const source = categorySource[category] ?? [];
+    if (!selectedSubcategoryParent) return source;
+    return source.filter((item) => item === selectedSubcategoryParent || item.startsWith(`${selectedSubcategoryParent} /`));
+  }, [category, categorySource, railSubcategoryGroups, selectedSubcategoryParent]);
 
   function getVehiclePillLabel(vehicle: string) {
+    if (taxonomyVehicleLabels[vehicle]) return taxonomyVehicleLabels[vehicle];
     if (vehicle === "Moottorikelkka") return t.snowmobiles;
     if (vehicle === "Mönkijä") return t.atvs;
     if (vehicle === "Motocross") return t.cars;
     if (vehicle === "Mopot" || vehicle === "Mopo") return t.mopeds;
     return vehicle;
   }
+
+  function afterHeroFilterChange() {
+    setGarageFilter(null);
+    setGarageDropdownOpen(false);
+    setRecommendationsMode(false);
+    setListingsExpanded(false);
+    setCatalogOnlyView(false);
+    setCurrentPage(1);
+  }
+
+  function toggleMobileHeroFilter(fieldKey: string, fieldElement: HTMLElement) {
+    setActiveHeroFilter((current) => {
+      const opening = current !== fieldKey;
+      if (opening) {
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            fieldElement.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+        });
+      }
+      return opening ? fieldKey : null;
+    });
+  }
+
+  function isTrackMatSelection(value: string) {
+    return value.toLowerCase().includes("telamat");
+  }
+
+  const yearOptions = useMemo(() => buildMarketplaceYearOptions(), []);
+
+  const selectedYearMin = Number(yearMinQuery || YEAR_FILTER_MIN);
+  const selectedYearMax = Number(yearMaxQuery || YEAR_FILTER_MAX);
+  const yearMinPercent =
+    ((Math.max(YEAR_FILTER_MIN, Math.min(selectedYearMin, YEAR_FILTER_MAX)) - YEAR_FILTER_MIN) /
+      (YEAR_FILTER_MAX - YEAR_FILTER_MIN)) *
+    100;
+  const yearMaxPercent =
+    ((Math.max(YEAR_FILTER_MIN, Math.min(selectedYearMax, YEAR_FILTER_MAX)) - YEAR_FILTER_MIN) /
+      (YEAR_FILTER_MAX - YEAR_FILTER_MIN)) *
+    100;
+
+  const yearSliderRef = useRef<HTMLDivElement | null>(null);
+
+  const updateYearRangeFromPointer = useCallback((clientX: number, handle?: "min" | "max") => {
+    const slider = yearSliderRef.current;
+    if (!slider) return;
+
+    const rect = slider.getBoundingClientRect();
+    const percent = rect.width > 0 ? Math.min(1, Math.max(0, (clientX - rect.left) / rect.width)) : 0;
+    const rawYear = Math.round(YEAR_FILTER_MIN + percent * (YEAR_FILTER_MAX - YEAR_FILTER_MIN));
+    const nextYear = Math.min(YEAR_FILTER_MAX, Math.max(YEAR_FILTER_MIN, rawYear));
+    const currentMin = Number(yearMinQuery || YEAR_FILTER_MIN);
+    const currentMax = Number(yearMaxQuery || YEAR_FILTER_MAX);
+    const targetHandle =
+      handle ??
+      (Math.abs(nextYear - currentMin) <= Math.abs(nextYear - currentMax) ? "min" : "max");
+
+    if (targetHandle === "min") {
+      const nextMin = Math.min(nextYear, currentMax);
+      setYearMinQuery(nextMin === YEAR_FILTER_MIN ? "" : String(nextMin));
+    } else {
+      const nextMax = Math.max(nextYear, currentMin);
+      setYearMaxQuery(nextMax === YEAR_FILTER_MAX ? "" : String(nextMax));
+    }
+
+    setYearQuery("");
+    afterHeroFilterChange();
+  }, [YEAR_FILTER_MAX, YEAR_FILTER_MIN, yearMaxQuery, yearMinQuery]);
+
+  const startYearRangeDrag = useCallback((
+    event: ReactPointerEvent<HTMLDivElement | HTMLSpanElement | HTMLButtonElement>,
+    handle?: "min" | "max"
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const pointerId = event.pointerId;
+    event.currentTarget.setPointerCapture?.(pointerId);
+    updateYearRangeFromPointer(event.clientX, handle);
+
+    const move = (moveEvent: PointerEvent) => {
+      if (moveEvent.pointerId !== pointerId) return;
+      moveEvent.preventDefault();
+      updateYearRangeFromPointer(moveEvent.clientX, handle);
+    };
+    const stop = (stopEvent: PointerEvent) => {
+      if (stopEvent.pointerId !== pointerId) return;
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+      window.removeEventListener("pointercancel", stop);
+    };
+
+    window.addEventListener("pointermove", move, { passive: false });
+    window.addEventListener("pointerup", stop);
+    window.addEventListener("pointercancel", stop);
+  }, [updateYearRangeFromPointer]);
+
+  const startYearRangeMouseDrag = useCallback((event: ReactMouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const slider = yearSliderRef.current;
+    if (!slider) return;
+    const rect = slider.getBoundingClientRect();
+    const minX = rect.left + (yearMinPercent / 100) * rect.width;
+    const maxX = rect.left + (yearMaxPercent / 100) * rect.width;
+    const handle: "min" | "max" = Math.abs(event.clientX - minX) <= Math.abs(event.clientX - maxX) ? "min" : "max";
+    updateYearRangeFromPointer(event.clientX, handle);
+    const move = (moveEvent: MouseEvent) => updateYearRangeFromPointer(moveEvent.clientX, handle);
+    const stop = () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", stop);
+    };
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", stop);
+  }, [updateYearRangeFromPointer, yearMaxPercent, yearMinPercent]);
+
+  const heroFilterFields = [
+    {
+      key: "vehicleType",
+      label: "Ajoneuvolaji",
+      value: vehicleType ? getVehiclePillLabel(vehicleType) : "Kaikki ajoneuvot",
+      options: [
+        { label: "Kaikki ajoneuvot", value: "" },
+        ...vehicleTypeOptions.map((option) => ({
+          label: getVehiclePillLabel(option),
+          value: option
+        }))
+      ],
+      onSelect: (value: string) => {
+        setVehicleType(value);
+        setVehicleSubtype("");
+        setSelectedBrand("Kaikki");
+        setModelQuery("");
+        setCategory("");
+        setSubcategory("");
+        afterHeroFilterChange();
+      }
+    },
+    {
+      key: "vehicleSubtype",
+      label: "Tyyppi",
+      value: vehicleSubtype || "Kaikki tyypit",
+      options: [
+        { label: "Kaikki tyypit", value: "" },
+        ...vehicleSubtypeOptions.map((option) => ({ label: option, value: option }))
+      ],
+      onSelect: (value: string) => {
+        setVehicleSubtype(value);
+        afterHeroFilterChange();
+      }
+    },
+    {
+      key: "brand",
+      label: "Merkki",
+      value: selectedBrand && selectedBrand !== "Kaikki" ? selectedBrand : "Kaikki merkit",
+      options: brandOptions.map((option) => ({
+        label: option === "Kaikki" ? "Kaikki merkit" : option,
+        value: option
+      })),
+      onSelect: (value: string) => {
+        setSelectedBrand(value || "Kaikki");
+        setModelQuery("");
+        afterHeroFilterChange();
+      }
+    },
+    {
+      key: "model",
+      label: "Malli",
+      value: modelQuery || "Kaikki mallit",
+      options: [
+        { label: "Kaikki mallit", value: "" },
+        ...modelOptions.map((option) => ({ label: option, value: option }))
+      ],
+      onSelect: (value: string) => {
+        setModelQuery(value);
+        afterHeroFilterChange();
+      }
+    },
+    {
+      key: "engineCc",
+      label: "Moottoritilavuus (cm³)",
+      value: engineCcQuery || "Kaikki koot",
+      options: [
+        { label: "Kaikki koot", value: "" },
+        ...engineCcOptions.map((option) => ({ label: option, value: option }))
+      ],
+      onSelect: (value: string) => {
+        setEngineCcQuery(value);
+        afterHeroFilterChange();
+      }
+    },
+    {
+      key: "engineModel",
+      label: "Moottori",
+      value: engineModelQuery || "Kaikki moottorit",
+      options: [
+        { label: "Kaikki moottorit", value: "" },
+        ...engineModelOptions.map((option) => ({ label: option, value: option }))
+      ],
+      onSelect: (value: string) => {
+        setEngineModelQuery(value);
+        afterHeroFilterChange();
+      }
+    },
+    {
+      key: "category",
+      label: "Pääkategoria",
+      value: category || "Valitse pääkategoria",
+      options: [
+        { label: "Kaikki kategoriat", value: "" },
+        ...Object.keys(categorySource).map((option) => ({ label: translateCategoryLabel(option), value: option }))
+      ],
+      onSelect: (value: string) => {
+        setCategory(value);
+        setSubcategory("");
+        afterHeroFilterChange();
+      }
+    },
+    {
+      key: "subcategory",
+      label: "Alakategoria",
+      value: selectedSubcategoryParent || "Valitse alakategoria",
+      options: [
+        { label: "Kaikki alakategoriat", value: "" },
+        ...subcategoryParentOptions.map((option) => ({ label: translateCategoryLabel(option), value: option }))
+      ],
+      onSelect: (value: string) => {
+        setSubcategory(value);
+        if (isTrackMatSelection(value)) {
+          setActiveHeroFilter("trackMatDimension");
+          window.setTimeout(() => {
+            document.getElementById("mobile-track-mat-dimension")?.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+          }, 0);
+        } else {
+          setTrackMatDimensionQuery("");
+        }
+        afterHeroFilterChange();
+      }
+    },
+    {
+      key: "detailSubcategory",
+      label: "Tarkempi osa",
+      value: selectedSubcategoryLeaf || (
+        isTrackMatSelection(subcategory)
+          ? "Telamatot"
+          : subcategory
+            ? "Kaikki tarkemmat osat"
+            : "Valitse tarkempi osa"
+      ),
+      options: [
+        { label: "Kaikki tarkemmat osat", value: selectedSubcategoryParent || "" },
+        ...detailedSubcategoryOptions.map((option) => ({
+          label: translateCategoryLabel(option.split("/").at(-1)?.trim() || option),
+          value: option
+        }))
+      ],
+      onSelect: (value: string) => {
+        const detailedValue =
+          value &&
+          selectedSubcategoryParent &&
+          value !== selectedSubcategoryParent &&
+          !value.includes("/")
+            ? `${selectedSubcategoryParent} / ${value}`
+            : value;
+        setSubcategory(detailedValue);
+        if (isTrackMatSelection(detailedValue)) {
+          setActiveHeroFilter("trackMatDimension");
+        } else {
+          setTrackMatDimensionQuery("");
+        }
+        afterHeroFilterChange();
+      }
+    }
+  ];
+
+  const heroRailFilterFields = heroFilterFields.filter((field) =>
+    ["vehicleType", "vehicleSubtype", "brand", "model"].includes(field.key)
+  );
+  const heroRailEngineFields = heroFilterFields.filter((field) =>
+    ["engineCc", "engineModel"].includes(field.key)
+  );
+  const heroRailPartCategoryFields = heroFilterFields.filter((field) =>
+    ["category", "subcategory", "detailSubcategory"].includes(field.key)
+  );
+
+  const startMobileFilterDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    mobileFilterDragStartRef.current = event.clientY;
+    setMobileFilterDragOffset(0);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const moveMobileFilterDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const startY = mobileFilterDragStartRef.current;
+    if (startY === null) return;
+    const delta = event.clientY - startY;
+    setMobileFilterDragOffset(Math.max(-100, Math.min(180, delta)));
+  };
+
+  const finishMobileFilterDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const startY = mobileFilterDragStartRef.current;
+    if (startY === null) return;
+    const delta = event.clientY - startY;
+    mobileFilterDragStartRef.current = null;
+    setMobileFilterDragOffset(0);
+
+    if (delta < -42) {
+      setMobileFilterExpanded(true);
+      return;
+    }
+
+    if (delta > 58) {
+      if (mobileFilterExpanded) {
+        setMobileFilterExpanded(false);
+      } else {
+        setHomeSearchPanelOpen(false);
+      }
+    }
+  };
 
   return (
     <main className={styles.shell}>
@@ -2768,47 +3410,45 @@ function HomeContent() {
         <div className={styles.container}>
         <section className={styles.hero} aria-label="Hero">
           <div className={styles.heroInner}>
-            <div style={{ margin: "0 auto", maxWidth: "100%", width: "min(720px, calc(100vw - 28px))" }}>
+            <div className={styles.heroLeadPanel}>
               <h1 className={styles.heroHeadline}>
-                <span style={{ display: "block", width: "100%" }}>{t.heroLeadStart}</span>
-                <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>{t.heroLeadHighlight}</span>
-                <span style={{ display: "block", width: "100%" }}>{t.heroLeadEnd}</span>
+                <span style={{ display: "block", width: "100%" }}>Suomen suurin</span>
+                <span style={{ display: "block", width: "100%" }}><span className={styles.heroHeadlineAccent}>käytettyjen varaosien</span>{" "}markkinapaikka</span>
               </h1>
               <p className={styles.heroReferenceSubtitle}>{t.heroSubtitle}</p>
+              <div className={styles.heroDesktopActions}>
+                <button
+                  type="button"
+                  className={styles.heroStartSearchButton}
+                  onClick={() => {
+                    setHomeSearchPanelOpen(true);
+                    setActiveHeroFilter("vehicleType");
+                  }}
+                >
+                  Aloita haku
+                </button>
+                <span className={styles.heroTrustMini}>
+                  <ShieldCheck size={17} aria-hidden="true" />
+                  Turvallinen kaupankäynti
+                </span>
+              </div>
 
-              <div className={styles.heroSearchRow}>
-                {!compactHeroSearch ? (
-                  <button
-                    type="button"
-                    className={styles.heroCategoryButton}
-                    onClick={() => {
-                      setDrawerOpenStep(2);
-                      setDrawerOpen(true);
-                    }}
-                  >
-                    <Grid2X2 size={20} aria-hidden="true" />
-                    <span>Alakategoria</span>
-                  </button>
-                ) : null}
-
+              <div className={styles.heroMainSearchPanel}>
                 <form
-                  className={`${styles.heroSearch} ${compactHeroSearch ? styles.heroSearchMobile : ""}`}
+                  className={styles.heroMainSearch}
                   role="search"
                   onSubmit={(event) => {
                     event.preventDefault();
                     applyListingFilters();
                   }}
                 >
-                  {compactHeroSearch ? (
-                    <button type="submit" className={styles.heroSearchButton} aria-label="Hae">
-                      <Search size={18} />
-                      <span>Hae</span>
-                    </button>
-                  ) : null}
+                  <span className={styles.heroMainSearchIcon} aria-hidden="true">
+                    <Search size={16} />
+                  </span>
                   <input
-                    className={styles.heroSearchInput}
+                    className={styles.heroMainSearchInput}
                     type="search"
-                    placeholder={compactHeroSearch ? "Hae varaosia tai mallia" : t.searchPlaceholder}
+                    placeholder={t.searchPlaceholder}
                     value={query}
                     onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
                     aria-label={t.searchLabel}
@@ -2816,466 +3456,912 @@ function HomeContent() {
                     autoCorrect="off"
                     autoCapitalize="none"
                   />
-                  {!compactHeroSearch ? (
-                    <button type="submit" className={styles.heroSearchButton}>
-                      <Search size={18} />
-                      <span>Hae</span>
-                    </button>
-                  ) : null}
+                  <button
+                    type={compactHeroSearch ? "button" : "submit"}
+                    className={styles.heroMainSearchButton}
+                    aria-label={compactHeroSearch ? "Avaa suodatus" : "Hae"}
+                    onClick={compactHeroSearch ? () => {
+                      setHomeSearchPanelOpen((open) => {
+                        if (open) setMobileFilterExpanded(false);
+                        return !open;
+                      });
+                      setActiveHeroFilter(null);
+                    } : undefined}
+                  >
+                    <Search size={18} aria-hidden="true" />
+                    <span>Hae</span>
+                  </button>
                 </form>
               </div>
 
-            </div>
-
-            <div className={styles.categoryRowWrap}>
-              <div className={styles.categoryRow} aria-label={t.vehicleSelection}>
-                {vehiclePills.map((pill) => (
-                  <button
-                    key={pill.type}
-                    type="button"
-                    className={`${styles.categoryPill} ${
-                      vehicleType === pill.type ? styles.categoryPillActive : ""
-                    }`}
-                    onClick={() => selectVehicleType(pill.type)}
-                  >
-                    <Settings2 size={16} />
-                    <span>{pill.type ? pill.label : t.all}</span>
-                  </button>
-                ))}
-
-                {user && garageVehicles.length > 0 && (
-                  <div ref={garageDropdownRef} className={styles.garagePillWrap} data-garage-dropdown-root>
-                    <button
-                      type="button"
-                      className={`${styles.categoryPill} ${garageFilter || garageDropdownOpen ? styles.garagePillActive : styles.garagePillBtn}`}
-                      onClick={() => setGarageDropdownOpen((o) => !o)}
-                    >
-                      <Car size={16} />
-                      {t.garageTitle}
-                      {garageFilter && <span className={styles.garagePillDot} />}
-                      <ChevronDown size={14} style={{ transform: garageDropdownOpen ? "rotate(180deg)" : undefined, transition: "transform 0.2s" }} />
-                    </button>
-
-                    {garageDropdownOpen && (
-                      <>
-                        <div
-                          className={styles.garageDropdownBackdrop}
-                          onClick={() => setGarageDropdownOpen(false)}
-                          aria-hidden="true"
-                        />
-                        <div className={styles.garageDropdown} role="dialog" aria-label={t.garageTitle}>
-                          <div className={styles.garageDropdownHeader}>
-                            <strong>{t.garageTitle}</strong>
-                            <button
-                              type="button"
-                              className={styles.garageDropdownClose}
-                              onClick={() => setGarageDropdownOpen(false)}
-                              aria-label="Sulje"
-                            >
-                              <X size={16} />
-                            </button>
-                          </div>
-                          {garageVehicles.length === 0 ? (
-                            <Link href={pagePath("garage", locale)} className={styles.garageDropdownEmpty} onClick={() => setGarageDropdownOpen(false)}>
-                              {t.garageAddVehicle} →
-                            </Link>
-                          ) : (
-                            <>
-                              <button
-                                type="button"
-                                className={`${styles.garageDropdownItem} ${!garageFilter ? styles.garageDropdownItemActive : ""}`}
-                                onPointerDown={(event) => {
-                                  event.preventDefault();
-                                  event.stopPropagation();
-                                  applyGarageVehicleToCategorization(null);
-                                }}
-                                onClick={() => applyGarageVehicleToCategorization(null)}
-                              >
-                                {t.all}
-                              </button>
-                              {garageVehicles.map((v) => (
-                              <div key={v.id} className={styles.garageDropdownRow}>
-                                <button
-                                  type="button"
-                                  className={`${styles.garageDropdownItem} ${garageFilter?.id === v.id ? styles.garageDropdownItemActive : ""}`}
-                                  onPointerDown={(event) => {
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    applyGarageVehicleToCategorization(v);
-                                  }}
-                                  onClick={() => applyGarageVehicleToCategorization(v)}
-                                >
-                                  <Car size={14} />
-                                  <span>{v.make} {v.model}</span>
-                                  <span className={styles.garageDropdownYear}>{v.year}</span>
-                                </button>
-                                <Link
-                                  href={`${pagePath("sell", locale)}?make=${encodeURIComponent(v.make)}&model=${encodeURIComponent(v.model)}&year=${v.year}&vehicleType=${encodeURIComponent(v.vehicle_class === "Auto" ? "Motocross" : v.vehicle_class || "Moottorikelkka")}`}
-                                  className={styles.garageDropdownSell}
-                                  onClick={() => setGarageDropdownOpen(false)}
-                                >
-                                  {t.sellParts}
-                                </Link>
-                              </div>
-                            ))}
-                            <Link href={pagePath("garage", locale)} className={styles.garageDropdownLink} onClick={() => setGarageDropdownOpen(false)}>
-                              {t.garageTitle} →
-                            </Link>
-                          </>
-                        )}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-
-              </div>
-
-            </div>
-
-            <div className={styles.heroQuickCategoryRow} aria-label={t.vehicleSelection}>
-              {vehiclePills.map((pill) => (
-                <div key={pill.type} className={styles.heroQuickCategoryItem}>
-                  <button
-                    type="button"
-                    className={`${styles.heroQuickCategory} ${vehicleType === pill.type ? styles.heroQuickCategoryActive : ""}`}
-                    onClick={() => selectVehicleType(pill.type)}
-                  >
-                    <Car size={15} />
-                    <span>{pill.type ? getVehiclePillLabel(pill.type) : t.all}</span>
-                  </button>
-                </div>
-              ))}
-              {user && garageVehicles.length > 0 && (
-                <div className={styles.heroGaragePillWrap} data-garage-dropdown-root>
-                  <button
-                    type="button"
-                    className={`${styles.heroQuickCategory} ${garageFilter || garageDropdownOpen ? styles.heroQuickCategoryActive : ""}`}
-                    onClick={() => setGarageDropdownOpen((open) => !open)}
-                  >
-                    <Car size={15} />
-                    <span>{t.garageTitle}</span>
-                    <ChevronDown size={13} />
-                  </button>
-                  {garageDropdownOpen && (
-                    <div className={styles.heroGarageDropdown}>
-                      <button
-                        type="button"
-                        className={!garageFilter ? styles.garageDropdownItemActive : ""}
-                        onPointerDown={(event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-                          applyGarageVehicleToCategorization(null);
-                        }}
-                        onClick={() => {
-                          applyGarageVehicleToCategorization(null);
-                        }}
-                      >
-                        {t.all}
-                      </button>
-                      {garageVehicles.map((vehicle) => (
-                        <button
-                          key={vehicle.id}
-                          type="button"
-                          className={garageFilter?.id === vehicle.id ? styles.garageDropdownItemActive : ""}
-                          onPointerDown={(event) => {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            applyGarageVehicleToCategorization(vehicle);
-                          }}
-                          onClick={() => applyGarageVehicleToCategorization(vehicle)}
-                        >
-                          {vehicle.make} {vehicle.model} {vehicle.year}
-                        </button>
-                      ))}
-                      <Link href="/garage" onClick={() => setGarageDropdownOpen(false)}>
-                        {t.garageTitle} →
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              )}
               <button
                 type="button"
-                className={styles.heroRefineCategoryButton}
-                onClick={() => {
-                  setDrawerOpenStep(2);
-                  setDrawerOpen(true);
-                }}
+                className={styles.heroMobileFilterToggle}
+                onClick={() => setHomeSearchPanelOpen((open) => !open)}
               >
-                <Settings2 size={14} strokeWidth={2.8} aria-hidden="true" />
-                <span>{t.openCategories}</span>
+                <SlidersHorizontal size={17} aria-hidden="true" />
+                <span>{homeSearchPanelOpen ? "Sulje suodatus" : "Suodata"}</span>
               </button>
+
+              <div className={styles.heroDesktopLatest}>
+                <div className={styles.heroDesktopLatestHead}>
+                  <strong>Viimeisimmät ilmoitukset</strong>
+                  <div className={styles.heroDesktopLatestActions}>
+                    {homeLatestExpanded ? renderSortControl(styles.heroDesktopLatestSort) : null}
+                    {!homeLatestExpanded ? (
+                      <button
+                        type="button"
+                        onClick={() => setHomeLatestExpanded(true)}
+                      >
+                        Näytä kaikki
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+                <div
+                  className={`${styles.heroDesktopLatestGrid} ${
+                    homeLatestExpanded ? styles.heroDesktopLatestGridExpanded : ""
+                  }`}
+                >
+                  {compactLatestListings.map((listing) => {
+                    const listingText = getListingText(listing);
+                    const isFavorite = favorites.includes(listing.id);
+                    const countryFlag = getCountryFlagFromLocation(listing.location, t.country);
+                    return (
+                      <article
+                        key={listing.id}
+                        className={styles.heroDesktopLatestCard}
+                        role="link"
+                        tabIndex={0}
+                        onClick={(event) => openListingFromCard(event, listing)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            openListing(listing);
+                          }
+                        }}
+                      >
+                        <span className={styles.heroDesktopLatestImage}>
+                          <OptimizedListingImage src={listingImageSrc(listing)} alt={listingText.title} />
+                          <button
+                            type="button"
+                            data-home-latest-favorite="true"
+                            data-listing-id={listing.id}
+                            className={`${styles.heroDesktopFavorite} ${
+                              isFavorite ? styles.heroDesktopFavoriteActive : ""
+                            }`}
+                            onMouseDown={(event) => {
+                              event.stopPropagation();
+                            }}
+                            onPointerDown={(event) => {
+                              event.stopPropagation();
+                            }}
+                            onPointerUp={(event) => event.stopPropagation()}
+                            onTouchStart={(event) => {
+                              event.stopPropagation();
+                            }}
+                            onTouchEnd={(event) => event.stopPropagation()}
+                            aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
+                          >
+                            <Heart size={17} fill={isFavorite ? "currentColor" : "none"} aria-hidden="true" />
+                          </button>
+                        </span>
+                        <span className={styles.heroDesktopLatestPrice}>{formatPrice(listing.price)}</span>
+                        <span className={styles.heroDesktopLatestTop}>
+                          <strong>{listingText.title}</strong>
+                        </span>
+                        <span className={styles.heroDesktopLatestModel}>
+                          {[listing.brand, listing.model].filter(Boolean).join(" ") || listing.category || "Varaosa"}
+                        </span>
+                        <span className={styles.heroDesktopLatestMeta} data-home-latest-meta>
+                          <span className={styles.cardLocationMeta} data-home-latest-location>
+                            {countryFlag ? (
+                              <img
+                                className={styles.listingCountryFlag}
+                                src={countryFlag.src}
+                                alt=""
+                                aria-hidden="true"
+                                loading="lazy"
+                              />
+                            ) : null}
+                            {formatLocationWithCountry(listing.location, t.country, locale)}
+                          </span>
+                          <span className={styles.cardDateMeta} data-home-latest-date>
+                            <Clock3 size={14} aria-hidden="true" />
+                            {formatDate(listing.created_at)}
+                          </span>
+                        </span>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+              {!homeLatestExpanded ? (
+                <div className={styles.heroReferenceBenefits} aria-label="Palvelun edut">
+                  <span>
+                    <ShieldCheck size={30} aria-hidden="true" />
+                    <strong>Turvallista kaupankäyntiä</strong>
+                    <small>Varmista turvallinen kauppa ilmoitusten avulla.</small>
+                  </span>
+                  <span>
+                    <Gift size={30} aria-hidden="true" />
+                    <strong>Ilmainen käyttää kaikille</strong>
+                    <small>Selaa ja julkaise ilmoituksia maksutta.</small>
+                  </span>
+                  <span>
+                    <Search size={30} aria-hidden="true" />
+                    <strong>Helppo ja nopea</strong>
+                    <small>Löydä, vertaa ja osta vaivattomasti.</small>
+                  </span>
+                  <span>
+                    <Check size={30} aria-hidden="true" />
+                    <strong>Apua saatavilla</strong>
+                    <small>Asiakastuki auttaa sinua jokaisessa vaiheessa.</small>
+                  </span>
+                </div>
+              ) : null}
             </div>
 
-            <div className={styles.heroMarketplaceStrip}>
-              <div className={styles.heroBenefitsPanel}>
-                {[
-                  {
-                    icon: ShieldCheck,
-                    title: t.heroBenefitSafeTitle,
-                    text: t.heroBenefitSafeText,
-                    tone: "green"
-                  },
-                  {
-                    icon: Tag,
-                    title: t.heroBenefitFreeTitle,
-                    text: t.heroBenefitFreeText,
-                    tone: "orange"
-                  },
-                  {
-                    icon: Gauge,
-                    title: t.heroBenefitFastTitle,
-                    text: t.heroBenefitFastText,
-                    tone: "blue"
-                  },
-                  {
-                    icon: Users,
-                    title: t.heroBenefitServiceTitle,
-                    text: t.heroBenefitServiceText,
-                    tone: "purple"
-                  }
-                ].map(({ icon: Icon, title, text, tone }) => (
-                  <div key={title} className={`${styles.heroBenefitItem} ${styles[`heroBenefit${tone}`]}`}>
-                    <span className={styles.heroBenefitIcon}>
-                      <Icon size={32} strokeWidth={2.2} aria-hidden="true" />
-                    </span>
-                    <span className={styles.heroBenefitText}>
-                      <strong>{title}</strong>
-                      <small>{text}</small>
-                    </span>
-                  </div>
-                ))}
-              </div>
+            {compactHeroSearch && homeSearchPanelOpen ? (
+              <button
+                type="button"
+                className={styles.mobileFilterBackdrop}
+                aria-label="Sulje suodatus"
+                onClick={() => {
+                  setHomeSearchPanelOpen(false);
+                  setMobileFilterExpanded(false);
+                }}
+              />
+            ) : null}
 
-              <div className={styles.heroSellPromo}>
-                <div className={styles.heroSellPromoText}>
-                  <strong>{t.sellPromoTitle}</strong>
-                  <div className={styles.heroSellBullets}>
-                    {[t.sellPromoBulletOne, t.sellPromoBulletTwo, t.sellPromoBulletThree].map((item) => (
-                      <span key={item}>
-                        <Check size={12} strokeWidth={3.2} aria-hidden="true" />
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                  <div className={styles.heroSellActions}>
-                    <Link href={pagePath("sell", locale)} className={styles.heroSellPrimary}>
-                      <Plus size={17} strokeWidth={3} aria-hidden="true" />
-                      {t.addListingNow}
-                    </Link>
-                    <button
-                      type="button"
-                      className={styles.heroSellSecondary}
-                      onClick={() => setSellGuideOpen((open) => !open)}
-                      aria-expanded={sellGuideOpen}
-                    >
-                      <CircleHelp size={16} strokeWidth={2.6} aria-hidden="true" />
-                      {t.instructions}
-                    </button>
-                  </div>
-                  {sellGuideOpen && (
-                    <div className={styles.heroSellGuide} role="region" aria-label={t.sellGuideTitle}>
-                      <div className={styles.heroSellGuideHeader}>
-                        <strong>{t.sellGuideTitle}</strong>
+            {(!compactHeroSearch || homeSearchPanelOpen) ? (
+            <aside
+              className={`${styles.heroRightRail} ${
+                homeSearchPanelOpen ? styles.heroRightRailOpen : styles.heroRightRailClosed
+              } ${compactHeroSearch ? styles.mobileFilterSheet : ""} ${
+                compactHeroSearch && mobileFilterExpanded ? styles.mobileFilterSheetExpanded : ""
+              }`}
+              style={
+                compactHeroSearch
+                  ? ({ "--mobile-sheet-offset": `${mobileFilterDragOffset}px` } as CSSProperties)
+                  : homeSearchPanelOpen ? {
+                    maxWidth: "410px",
+                    right: 0,
+                    width: "410px"
+                  } as CSSProperties : {
+                    maxWidth: "22px",
+                    right: 0,
+                    width: "22px"
+                  } as CSSProperties
+              }
+            >
+              {homeSearchPanelOpen ? (
+                <>
+                  {compactHeroSearch ? (
+                    <>
+                      <div
+                        className={styles.mobileFilterDragHandle}
+                        onPointerDown={startMobileFilterDrag}
+                        onPointerMove={moveMobileFilterDrag}
+                        onPointerUp={finishMobileFilterDrag}
+                        onPointerCancel={finishMobileFilterDrag}
+                      >
+                        <span aria-hidden="true" />
+                      </div>
+                      <div className={styles.mobileFilterSheetHeader}>
+                        <strong>Suodata hakua</strong>
                         <button
                           type="button"
-                          onClick={() => setSellGuideOpen(false)}
-                          aria-label="Sulje ohjeet"
+                          aria-label="Sulje suodatus"
+                          onClick={() => {
+                            setHomeSearchPanelOpen(false);
+                            setMobileFilterExpanded(false);
+                          }}
                         >
-                          <X size={14} strokeWidth={3} aria-hidden="true" />
+                          <X size={18} strokeWidth={2.8} aria-hidden="true" />
                         </button>
                       </div>
-                      <ol>
-                        <li>{t.sellGuideStepOne}</li>
-                        <li>{t.sellGuideStepTwo}</li>
-                        <li>{t.sellGuideStepThree}</li>
-                        <li>{t.sellGuideStepFour}</li>
-                      </ol>
+                      <div className={styles.mobileSheetForm}>
+                        <label className={styles.mobileSheetField}>
+                          <span>Ilmoituksen ID</span>
+                          <input
+                            value={identifierQuery}
+                            onChange={(event) => {
+                              setIdentifierQuery(event.target.value);
+                              afterHeroFilterChange();
+                            }}
+                            placeholder="Hae esim. ID 40"
+                            spellCheck={false}
+                          />
+                        </label>
+
+                        {heroFilterFields.slice(0, 4).map((field) => (
+                          <div key={`mobile-${field.key}`} className={styles.mobileSheetField}>
+                            <span>{field.label}</span>
+                            <button
+                              type="button"
+                              className={styles.mobileSheetSelect}
+                              onClick={(event) => toggleMobileHeroFilter(field.key, event.currentTarget.parentElement ?? event.currentTarget)}
+                            >
+                              <strong>{field.value}</strong>
+                              <ChevronDown size={15} aria-hidden="true" />
+                            </button>
+                            {activeHeroFilter === field.key ? (
+                              <div className={styles.mobileSheetMenu}>
+                                {field.options.length ? field.options.map((option) => (
+                                  <button
+                                    key={`mobile-${field.key}-${option.value || "all"}`}
+                                    type="button"
+                                    onClick={() => {
+                                      field.onSelect(option.value);
+                                      if (!(field.key === "detailSubcategory" && isTrackMatSelection(option.value))) {
+                                        setActiveHeroFilter(null);
+                                      }
+                                    }}
+                                  >
+                                    {option.label}
+                                  </button>
+                                )) : <span>Ei valintoja</span>}
+                              </div>
+                            ) : null}
+                          </div>
+                        ))}
+
+                        <div className={styles.mobileSheetField}>
+                          <span>Vuosimalli</span>
+                          <div className={styles.mobileSheetYearBoxes}>
+                            <button
+                              type="button"
+                              className={styles.mobileSheetSelect}
+                              onClick={() => setActiveHeroFilter((current) => current === "yearMin" ? null : "yearMin")}
+                            >
+                              <strong>{yearMinQuery || "Minimi"}</strong>
+                              <ChevronDown size={13} aria-hidden="true" />
+                            </button>
+                            <span aria-hidden="true">-</span>
+                            <button
+                              type="button"
+                              className={styles.mobileSheetSelect}
+                              onClick={() => setActiveHeroFilter((current) => current === "yearMax" ? null : "yearMax")}
+                            >
+                              <strong>{yearMaxQuery || "Maksimi"}</strong>
+                              <ChevronDown size={13} aria-hidden="true" />
+                            </button>
+                          </div>
+                          {activeHeroFilter === "yearMin" || activeHeroFilter === "yearMax" ? (
+                            <div className={styles.mobileSheetMenu}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (activeHeroFilter === "yearMin") setYearMinQuery("");
+                                  else setYearMaxQuery("");
+                                  setYearQuery("");
+                                  setActiveHeroFilter(null);
+                                }}
+                              >
+                                {activeHeroFilter === "yearMin" ? "Minimi" : "Maksimi"}
+                              </button>
+                              {yearOptions.map((year) => (
+                                <button
+                                  key={`mobile-${activeHeroFilter}-${year}`}
+                                  type="button"
+                                  onClick={() => {
+                                    if (activeHeroFilter === "yearMin") setYearMinQuery(year);
+                                    else setYearMaxQuery(year);
+                                    setYearQuery("");
+                                    setActiveHeroFilter(null);
+                                    afterHeroFilterChange();
+                                  }}
+                                >
+                                  {year}
+                                </button>
+                              ))}
+                            </div>
+                          ) : null}
+                          <div
+                            className={styles.yearRangeClean}
+                            data-year-range-clean="true"
+                            data-mobile-year-range="true"
+                            ref={yearSliderRef}
+                            role="group"
+                            aria-label="Vuosimallin rajaus"
+                            style={{
+                              "--year-min": `${yearMinPercent}%`,
+                              "--year-max": `${yearMaxPercent}%`,
+                              "--year-mid": `${(yearMinPercent + yearMaxPercent) / 2}%`
+                            } as CSSProperties}
+                          >
+                            <span className={styles.yearRangeCleanLine} aria-hidden="true" />
+                            <input
+                              type="range"
+                              className={`${styles.mobileYearRangeInput} ${styles.mobileYearRangeMin}`}
+                              min={YEAR_FILTER_MIN}
+                              max={YEAR_FILTER_MAX}
+                              step={1}
+                              value={selectedYearMin}
+                              aria-label="Vuosimallin minimi"
+                              onChange={(event) => {
+                                const next = Math.min(Number(event.target.value), selectedYearMax);
+                                setYearMinQuery(next === YEAR_FILTER_MIN ? "" : String(next));
+                                setYearQuery("");
+                                afterHeroFilterChange();
+                              }}
+                            />
+                            <input
+                              type="range"
+                              className={`${styles.mobileYearRangeInput} ${styles.mobileYearRangeMax}`}
+                              min={YEAR_FILTER_MIN}
+                              max={YEAR_FILTER_MAX}
+                              step={1}
+                              value={selectedYearMax}
+                              aria-label="Vuosimallin maksimi"
+                              onChange={(event) => {
+                                const next = Math.max(Number(event.target.value), selectedYearMin);
+                                setYearMaxQuery(next === YEAR_FILTER_MAX ? "" : String(next));
+                                setYearQuery("");
+                                afterHeroFilterChange();
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {heroFilterFields.slice(4).map((field) => (
+                          <div key={`mobile-${field.key}`} className={styles.mobileSheetField}>
+                            {field.key === "category" ? <b className={styles.mobileSheetSectionTitle}>Osakategoriointi</b> : null}
+                            <span>{field.label}</span>
+                            <button
+                              type="button"
+                              className={styles.mobileSheetSelect}
+                              onClick={(event) => toggleMobileHeroFilter(field.key, event.currentTarget.parentElement ?? event.currentTarget)}
+                            >
+                              <strong>{field.value}</strong>
+                              <ChevronDown size={15} aria-hidden="true" />
+                            </button>
+                            {activeHeroFilter === field.key ? (
+                              <div className={styles.mobileSheetMenu}>
+                                {field.options.length ? field.options.map((option) => (
+                                  <button
+                                    key={`mobile-${field.key}-${option.value || "all"}`}
+                                    type="button"
+                                    onClick={() => {
+                                      field.onSelect(option.value);
+                                      if (!(
+                                        (field.key === "subcategory" || field.key === "detailSubcategory") &&
+                                        isTrackMatSelection(option.value)
+                                      )) {
+                                        setActiveHeroFilter(null);
+                                      }
+                                    }}
+                                  >
+                                    {option.label}
+                                  </button>
+                                )) : <span>Ei valintoja</span>}
+                              </div>
+                            ) : null}
+                          </div>
+                        ))}
+
+                        {trackMatDimensionFieldVisible ? (
+                          <div id="mobile-track-mat-dimension" className={styles.mobileSheetField}>
+                            <span>Telamaton pituus</span>
+                            <button
+                              type="button"
+                              className={styles.mobileSheetSelect}
+                              onClick={(event) => toggleMobileHeroFilter(
+                                "trackMatDimension",
+                                event.currentTarget.parentElement ?? event.currentTarget
+                              )}
+                            >
+                              <strong>{trackMatDimensionQuery || "Kaikki pituudet"}</strong>
+                              <ChevronDown size={15} aria-hidden="true" />
+                            </button>
+                            {activeHeroFilter === "trackMatDimension" ? (
+                              <div className={styles.mobileSheetMenu}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setTrackMatDimensionQuery("");
+                                    setActiveHeroFilter(null);
+                                    afterHeroFilterChange();
+                                  }}
+                                >
+                                  Kaikki pituudet
+                                </button>
+                                {TRACK_MAT_DIMENSION_OPTIONS.map((option) => (
+                                  <button
+                                    key={`mobile-track-mat-${option}`}
+                                    type="button"
+                                    onClick={() => {
+                                      setTrackMatDimensionQuery(option);
+                                      setActiveHeroFilter(null);
+                                      afterHeroFilterChange();
+                                    }}
+                                  >
+                                    {option}
+                                  </button>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null}
+
+                        <div className={styles.mobileSheetActions}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              applyListingFilters();
+                              setHomeSearchPanelOpen(false);
+                              setMobileFilterExpanded(false);
+                            }}
+                          >
+                            Näytä tulokset ({draftListingResultCount.toLocaleString("fi-FI")})
+                          </button>
+                          <button type="button" onClick={clearListingFilters}>Tyhjennä hakuehdot</button>
+                        </div>
+                      </div>
+                    </>
+                  ) : null}
+                  <div className={styles.heroRailHeader}>
+                    <strong>Suodata hakua</strong>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.heroRailEdgeToggle}
+                    aria-label="Pienennä hakupalkki reunaan"
+                    onClickCapture={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      event.nativeEvent.stopImmediatePropagation();
+                      window.setTimeout(() => setHomeSearchPanelOpen(false), 0);
+                    }}
+                    onPointerDown={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      event.nativeEvent.stopImmediatePropagation();
+                      setHomeSearchPanelOpen(false);
+                    }}
+                    onPointerUp={(event) => {
+                      event.stopPropagation();
+                    }}
+                    onMouseDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      window.setTimeout(() => setHomeSearchPanelOpen(false), 0);
+                    }}
+                  >
+                    <ChevronRight size={18} aria-hidden="true" />
+                  </button>
+                  <div className={styles.heroSearchPanel}>
+                    <div className={styles.heroSearchRow}>
+                      <form
+                        className={`${styles.heroSearch} ${compactHeroSearch ? styles.heroSearchMobile : ""}`}
+                        role="search"
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          applyListingFilters();
+                        }}
+                      >
+                        {compactHeroSearch ? (
+                          <button type="submit" className={styles.heroSearchButton} aria-label="Hae">
+                            <Search size={18} />
+                            <span>Hae</span>
+                          </button>
+                        ) : null}
+                        <input
+                          className={styles.heroSearchInput}
+                          type="search"
+                          placeholder={compactHeroSearch ? "Hae varaosia tai mallia" : t.searchPlaceholder}
+                          value={query}
+                          onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
+                          aria-label={t.searchLabel}
+                          spellCheck={false}
+                          autoCorrect="off"
+                          autoCapitalize="none"
+                        />
+                        {!compactHeroSearch ? (
+                          <button type="submit" className={styles.heroSearchButton}>
+                            <Search size={18} />
+                            <span>Hae</span>
+                          </button>
+                        ) : null}
+                      </form>
                     </div>
-                  )}
-                </div>
-                <img
-                  className={styles.heroPhoneRealistic}
-                  src="/sell-phone-realistic.png"
-                  alt=""
-                  aria-hidden="true"
-                  loading="eager"
-                />
-                <span className={styles.heroChatBubble} aria-hidden="true">
-                  <MessageCircle size={24} fill="currentColor" />
-                </span>
-              </div>
-            </div>
+
+                    <div className={styles.heroFilterStack} aria-label="Hakuehdot">
+                      <label className={styles.heroIdentifierField}>
+                        <span className={styles.heroFilterLabel}>Ilmoituksen ID</span>
+                        <input
+                          className={styles.heroFilterInput}
+                          value={identifierQuery}
+                          onChange={(event) => {
+                            setIdentifierQuery(event.target.value);
+                            afterHeroFilterChange();
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              applyListingFilters();
+                            }
+                          }}
+                          placeholder="Hae esim. ID 40"
+                          spellCheck={false}
+                        />
+                      </label>
+                      {heroRailFilterFields.map((field) => (
+                        <div key={field.key} className={styles.heroFilterFieldWrap}>
+                          <span className={styles.heroFilterLabel}>{field.label}</span>
+                          <button
+                            type="button"
+                            className={styles.heroFilterSelect}
+                            onClick={() => setActiveHeroFilter((current) => current === field.key ? null : field.key)}
+                          >
+                            <strong>{field.value}</strong>
+                            <ChevronDown size={15} aria-hidden="true" />
+                          </button>
+                          {activeHeroFilter === field.key ? (
+                            <div className={styles.heroFilterMenu}>
+                              {field.options.length > 0 ? field.options.map((option) => (
+                                <button
+                                  key={`${field.key}-${option.value || "all"}`}
+                                  type="button"
+                                  className={styles.heroFilterMenuOption}
+                                  onClick={() => {
+                                    field.onSelect(option.value);
+                                    setActiveHeroFilter(null);
+                                  }}
+                                >
+                                  {option.label}
+                                </button>
+                              )) : (
+                                <span className={styles.heroFilterMenuEmpty}>Ei valintoja</span>
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+                      ))}
+                      <div className={styles.heroYearRangeField}>
+                        <span className={styles.heroYearRangeLabel}>Vuosimalli</span>
+                        <div className={styles.heroYearBoxes}>
+                          <div className={styles.heroYearSelectWrap}>
+                            <button
+                              type="button"
+                              className={styles.heroYearBox}
+                              onClick={() => setActiveHeroFilter((current) => current === "yearMin" ? null : "yearMin")}
+                            >
+                              <strong>{yearMinQuery || "Minimi"}</strong>
+                              <ChevronDown size={13} aria-hidden="true" />
+                            </button>
+                            {activeHeroFilter === "yearMin" ? (
+                              <div className={styles.heroFilterMenu}>
+                                <button
+                                  type="button"
+                                  className={styles.heroFilterMenuOption}
+                                  onClick={() => {
+                                    setYearMinQuery("");
+                                    setYearQuery("");
+                                    setActiveHeroFilter(null);
+                                  }}
+                                >
+                                  Minimi
+                                </button>
+                                {yearOptions.map((year) => (
+                                  <button
+                                    key={`year-min-${year}`}
+                                    type="button"
+                                    className={styles.heroFilterMenuOption}
+                                    onClick={() => {
+                                      setYearMinQuery(year);
+                                      setYearQuery("");
+                                      setActiveHeroFilter(null);
+                                    }}
+                                  >
+                                    {year}
+                                  </button>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                          <span className={styles.heroYearDash} aria-hidden="true">-</span>
+                          <div className={styles.heroYearSelectWrap}>
+                            <button
+                              type="button"
+                              className={styles.heroYearBox}
+                              onClick={() => setActiveHeroFilter((current) => current === "yearMax" ? null : "yearMax")}
+                            >
+                              <strong>{yearMaxQuery || "Maksimi"}</strong>
+                              <ChevronDown size={13} aria-hidden="true" />
+                            </button>
+                            {activeHeroFilter === "yearMax" ? (
+                              <div className={styles.heroFilterMenu}>
+                                <button
+                                  type="button"
+                                  className={styles.heroFilterMenuOption}
+                                  onClick={() => {
+                                    setYearMaxQuery("");
+                                    setYearQuery("");
+                                    setActiveHeroFilter(null);
+                                  }}
+                                >
+                                  Maksimi
+                                </button>
+                                {yearOptions.map((year) => (
+                                  <button
+                                    key={`year-max-${year}`}
+                                    type="button"
+                                    className={styles.heroFilterMenuOption}
+                                    onClick={() => {
+                                      setYearMaxQuery(year);
+                                      setYearQuery("");
+                                      setActiveHeroFilter(null);
+                                    }}
+                                  >
+                                    {year}
+                                  </button>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                        <div
+                          className={styles.yearRangeClean}
+                          data-year-range-clean="true"
+                          ref={yearSliderRef}
+                          role="group"
+                          aria-label="Vuosimallin rajaus"
+                          style={{
+                            "--year-min": `${yearMinPercent}%`,
+                            "--year-max": `${yearMaxPercent}%`,
+                            "--year-mid": `${(yearMinPercent + yearMaxPercent) / 2}%`
+                          } as CSSProperties}
+                          onMouseDown={startYearRangeMouseDrag}
+                        >
+                          <span className={styles.yearRangeCleanLine} aria-hidden="true" />
+                          <input
+                            type="range"
+                            className={`${styles.desktopYearRangeInput} ${styles.mobileYearRangeMin}`}
+                            min={YEAR_FILTER_MIN}
+                            max={YEAR_FILTER_MAX}
+                            step={1}
+                            value={selectedYearMin}
+                            aria-label="Vuosimallin minimi"
+                            onChange={(event) => {
+                              const next = Math.min(Number(event.target.value), selectedYearMax);
+                              setYearMinQuery(next === YEAR_FILTER_MIN ? "" : String(next));
+                              setYearQuery("");
+                              afterHeroFilterChange();
+                            }}
+                          />
+                          <input
+                            type="range"
+                            className={`${styles.desktopYearRangeInput} ${styles.mobileYearRangeMax}`}
+                            min={YEAR_FILTER_MIN}
+                            max={YEAR_FILTER_MAX}
+                            step={1}
+                            value={selectedYearMax}
+                            aria-label="Vuosimallin maksimi"
+                            onChange={(event) => {
+                              const next = Math.max(Number(event.target.value), selectedYearMin);
+                              setYearMaxQuery(next === YEAR_FILTER_MAX ? "" : String(next));
+                              setYearQuery("");
+                              afterHeroFilterChange();
+                            }}
+                          />
+                        </div>
+                      </div>
+                      {heroRailEngineFields.map((field) => (
+                        <div key={field.key} className={styles.heroFilterFieldWrap}>
+                          <span className={styles.heroFilterLabel}>{field.label}</span>
+                          <button
+                            type="button"
+                            className={styles.heroFilterSelect}
+                            onClick={() =>
+                              setActiveHeroFilter((current) =>
+                                current === field.key ? null : field.key
+                              )
+                            }
+                          >
+                            <strong>{field.value}</strong>
+                            <ChevronDown size={15} aria-hidden="true" />
+                          </button>
+                          {activeHeroFilter === field.key ? (
+                            <div className={styles.heroFilterMenu}>
+                              {field.options.length > 0 ? field.options.map((option) => (
+                                <button
+                                  key={`${field.key}-${option.value || "all"}`}
+                                  type="button"
+                                  className={styles.heroFilterMenuOption}
+                                  onClick={() => {
+                                    field.onSelect(option.value);
+                                    setActiveHeroFilter(null);
+                                  }}
+                                >
+                                  {option.label}
+                                </button>
+                              )) : (
+                                <span className={styles.heroFilterMenuEmpty}>Ei valintoja</span>
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className={styles.heroPartCategoryStack} aria-label="Osakategoriointi">
+                      <span className={styles.heroPartCategoryTitle}>Osakategoriointi</span>
+                      {heroRailPartCategoryFields.map((field) => (
+                        <div key={field.key} className={styles.heroFilterFieldWrap}>
+                          <span className={styles.heroFilterLabel}>{field.label}</span>
+                          <button
+                            type="button"
+                            className={styles.heroFilterSelect}
+                            onClick={() => setActiveHeroFilter((current) => current === field.key ? null : field.key)}
+                          >
+                            <strong>{field.value}</strong>
+                            <ChevronDown size={15} aria-hidden="true" />
+                          </button>
+                          {activeHeroFilter === field.key ? (
+                            <div className={styles.heroFilterMenu}>
+                              {field.options.length > 0 ? field.options.map((option) => (
+                                <button
+                                  key={`${field.key}-${option.value || "all"}`}
+                                  type="button"
+                                  className={styles.heroFilterMenuOption}
+                                  onClick={() => {
+                                    field.onSelect(option.value);
+                                    setActiveHeroFilter(null);
+                                  }}
+                                >
+                                  {option.label}
+                                </button>
+                              )) : (
+                                <span className={styles.heroFilterMenuEmpty}>Ei valintoja</span>
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+                      ))}
+                      {trackMatDimensionFieldVisible ? (
+                        <div className={styles.heroFilterFieldWrap}>
+                          <span className={styles.heroFilterLabel}>Telamaton koko</span>
+                          <button
+                            type="button"
+                            className={styles.heroFilterSelect}
+                            onClick={() =>
+                              setActiveHeroFilter((current) =>
+                                current === "trackMatDimension" ? null : "trackMatDimension"
+                              )
+                            }
+                          >
+                            <strong>{trackMatDimensionQuery || "Kaikki telamaton koot"}</strong>
+                            <ChevronDown size={15} aria-hidden="true" />
+                          </button>
+                          {activeHeroFilter === "trackMatDimension" ? (
+                            <div className={styles.heroFilterMenu}>
+                              <button
+                                type="button"
+                                className={styles.heroFilterMenuOption}
+                                onClick={() => {
+                                  setTrackMatDimensionQuery("");
+                                  setActiveHeroFilter(null);
+                                  afterHeroFilterChange();
+                                }}
+                              >
+                                Kaikki telamaton koot
+                              </button>
+                              {TRACK_MAT_DIMENSION_OPTIONS.map((option) => (
+                                <button
+                                  key={`track-mat-${option}`}
+                                  type="button"
+                                  className={styles.heroFilterMenuOption}
+                                  onClick={() => {
+                                    setTrackMatDimensionQuery(option);
+                                    setActiveHeroFilter(null);
+                                    afterHeroFilterChange();
+                                  }}
+                                >
+                                  {option}
+                                </button>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className={styles.heroRailActions}>
+                      <button
+                        type="button"
+                        className={styles.heroRailSubmit}
+                        onClick={() => {
+                          applyListingFilters();
+                          if (compactHeroSearch) {
+                            setHomeSearchPanelOpen(false);
+                            setMobileFilterExpanded(false);
+                          }
+                        }}
+                      >
+                        Näytä tulokset ({draftListingResultCount.toLocaleString("fi-FI")})
+                      </button>
+                      <button type="button" className={styles.heroRailClear} onClick={clearListingFilters}>
+                        Tyhjennä hakuehdot
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={styles.heroLatestPanel}>
+                    <div className={styles.heroLatestHeader}>
+                      <strong>Uusimmat ilmoitukset</strong>
+                      {!homeLatestExpanded ? (
+                        <button type="button" onClick={showAllListings}>Näytä kaikki</button>
+                      ) : null}
+                    </div>
+                    <div className={styles.heroLatestGrid}>
+                      {heroLatestListings.map((listing) => {
+                        const listingText = getListingText(listing);
+                        return (
+                          <button
+                            key={listing.id}
+                            type="button"
+                            className={styles.heroLatestCard}
+                            onClick={() => openListing(listing)}
+                          >
+                            <span className={styles.heroLatestImage}>
+                              <OptimizedListingImage src={listingImageSrc(listing)} alt={listingText.title} />
+                            </span>
+                            <span className={styles.heroLatestInfo}>
+                              <strong>{listingText.title}</strong>
+                              <span>{formatPrice(listing.price)}</span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.heroRailClosedButton}
+                  aria-label="Avaa hakupalkki"
+                  onClickCapture={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.nativeEvent.stopImmediatePropagation();
+                    window.setTimeout(() => setHomeSearchPanelOpen(true), 0);
+                  }}
+                  onPointerDown={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.nativeEvent.stopImmediatePropagation();
+                    setHomeSearchPanelOpen(true);
+                  }}
+                  onPointerUp={(event) => {
+                    event.stopPropagation();
+                  }}
+                  onMouseDown={(event) => {
+                    event.stopPropagation();
+                  }}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    window.setTimeout(() => setHomeSearchPanelOpen(true), 0);
+                  }}
+                >
+                  <ChevronLeft size={18} aria-hidden="true" />
+                  <span>Haku</span>
+                </button>
+              )}
+            </aside>
+            ) : null}
 
           </div>
         </section>
       </div>
       </div>{/* heroWrap */}
 
-      <section
-        className={`${styles.homeDiscoverySection} ${
-          hasActiveListingFilters ? styles.homeDiscoverySectionFiltered : ""
-        }`}
-      >
-        <div className={styles.homeVehicleCards} aria-label={t.vehicleSelection}>
-          {[
-            {
-              type: "Moottorikelkka",
-              label: "Moottorikelkat",
-              image: "/vehicle-card-snowmobile-v2.png",
-              icon: "snowflake" as VehicleCategoryIconKind,
-              accent: "#1f8bff"
-            },
-            {
-              type: "Mönkijä",
-              label: "Mönkijät",
-              image: "/vehicle-card-atv-v2.png",
-              icon: "atv" as VehicleCategoryIconKind,
-              accent: "#ff8a12"
-            },
-            {
-              type: "Motocross",
-              label: "Motocross",
-              image: "/vehicle-card-motocross-v2.png",
-              icon: "motocross" as VehicleCategoryIconKind,
-              accent: "#8b48ff"
-            },
-            {
-              type: "Mopot",
-              label: "Mopot",
-              image: "/vehicle-card-moped-v2.png",
-              icon: "moped" as VehicleCategoryIconKind,
-              accent: "#38c84a"
-            }
-          ].map((item) => {
-            const loadedCount = listings.filter((listing) => {
-              const listingText = getListingText(listing);
-              return listingMatchesVehicleType(listing, listingText, item.type);
-            }).length;
-            const count =
-              vehicleListingCounts?.[item.type as keyof VehicleListingCounts] ?? loadedCount;
-
-            return (
-              <button
-                key={item.type}
-                type="button"
-                className={`${styles.homeVehicleCard} ${
-                  normalizeVehicleType(vehicleType) === normalizeVehicleType(item.type)
-                    ? styles.homeVehicleCardActive
-                    : ""
-                }`}
-                style={{
-                  "--vehicle-card-image": `url("${item.image}")`,
-                  "--vehicle-card-accent": item.accent
-                } as CSSProperties}
-                onClick={() => selectVehicleType(normalizeVehicleType(item.type))}
-              >
-                <span className={styles.homeVehicleCardGlow} aria-hidden="true" />
-                <span className={styles.homeVehicleCardIcon}>
-                  <VehicleCategoryIcon kind={item.icon} />
-                </span>
-                <span className={styles.vehicleTileCaption}>
-                  <span className={styles.vehicleTileTitle}>{item.label}</span>
-                  <span className={styles.vehicleTileCount}>
-                    {count.toLocaleString("fi-FI")} {count === 1 ? "varaosa" : "varaosaa"}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {!hasActiveListingFilters ? (
-        <section className={styles.homeSellProcess} aria-label="Myy enemmän yhdellä ilmoituksella">
-          <div className={styles.homeSellProcessHead}>
-            <h2>Myy <span>enemmän</span> yhdellä ilmoituksella</h2>
-            <p>Lisäät ajoneuvon ja valitset jäljellä olevat osat — Maskines tekee loput.</p>
-          </div>
-          <div className={styles.homeSellSteps}>
-            {[
-              {
-                title: "Lisää ajoneuvo",
-                text: "Valitse merkki, malli ja vuosimalli.",
-                body: "Polaris RMK 800 2016"
-              },
-              {
-                title: "Valitse jäljellä olevat osat",
-                text: "Moottori, variaattori, etupukki ja muut osat.",
-                body: "Moottori • Variaattori • Telasto"
-              },
-              {
-                title: "Maskines luo ilmoitukset",
-                text: "Osat tulevat ostajille löydettäväksi nopeasti.",
-                body: "Automaattisesti saatavilla"
-              },
-              {
-                title: "Ostajat löytävät osat helposti",
-                text: "Haulla merkin, mallin ja osan mukaan.",
-                body: "Nopea haku ja yhteydenotto"
-              }
-            ].map((step, index) => (
-              <div key={step.title} className={styles.homeSellStep}>
-                <span className={styles.homeSellStepNumber}>{index + 1}</span>
-                <strong>{step.title}</strong>
-                <p>{step.text}</p>
-                <span className={styles.homeSellStepMobileVisual} aria-hidden="true">
-                  {index === 0 ? <Car /> : index === 1 ? <Check /> : index === 2 ? <Tag /> : <TrendingUp />}
-                </span>
-                {index === 0 && (
-                  <div className={styles.homeSellVehiclePreview} aria-hidden="true">
-                    <span />
-                    <b>{step.body}</b>
-                  </div>
-                )}
-                {index === 1 && (
-                  <div className={styles.homeSellChecklist} aria-hidden="true">
-                    {["Moottori", "Variaattori", "Etupukki", "Telasto", "ECU"].map((part) => (
-                      <span key={part}><Check size={11} /> {part}</span>
-                    ))}
-                    <small>+12 muuta osaa</small>
-                  </div>
-                )}
-                {index === 2 && (
-                  <div className={styles.homeSellGenerated} aria-hidden="true">
-                    {["Polaris RMK 800 moottori", "Polaris RMK 800 telasto", "Polaris RMK 800 etupukki"].map((part) => (
-                      <span key={part}><i /><b>{part}</b><em>Saatavilla</em></span>
-                    ))}
-                    <small>+12 muuta osaa</small>
-                  </div>
-                )}
-                {index === 3 && (
-                  <div className={styles.homeSellChart} aria-hidden="true">
-                    <span className={styles.homeSellChartSearch}><Search size={18} /></span>
-                    <TrendingUp className={styles.homeSellChartArrow} size={66} />
-                    <span className={styles.homeSellChartBars}>
-                      {[24, 38, 54, 76, 100].map((height) => <i key={height} style={{ height: `${height}%` }} />)}
-                    </span>
-                  </div>
-                )}
-                {index < 3 && <ChevronRight size={28} className={styles.homeSellStepArrow} aria-hidden="true" />}
-              </div>
-            ))}
-          </div>
-        </section>
-        ) : null}
-
-        {!catalogOnlyView && !hasActiveListingFilters ? (
-        <section className={styles.homeListingCta} aria-label="Luo varaosailmoitus">
-          <span className={styles.homeListingCtaIcon} aria-hidden="true">
-            <Tag size={24} />
-          </span>
-          <span className={styles.homeListingCtaCopy}>
-            <strong>Myy varaosasi helposti ja nopeasti – jopa 2 minuutissa!</strong>
-            <small>Luo ilmoitus muutamassa minuutissa ja tavoita tuhannet ostajat.</small>
-          </span>
-          <Link href={pagePath("sell", locale)} className={styles.homeListingCtaButton}>
-            <span>Luo ilmoitus</span>
-            <Plus size={17} aria-hidden="true" />
-          </Link>
-        </section>
-        ) : null}
-      </section>
       </>
       ) : null}
 
@@ -3334,13 +4420,12 @@ function HomeContent() {
                           />
                           <button
                             onClick={(e) => toggleFavorite(e, listing.id)}
+                            onMouseDown={(e) => e.stopPropagation()}
                             onPointerDown={(e) => e.stopPropagation()}
                             onTouchStart={(e) => e.stopPropagation()}
-                            className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteButtonActive : ""} ${!user ? styles.favoriteButtonDisabled : ""}`}
+                            className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteButtonActive : ""}`}
                             type="button"
-                            disabled={!user}
                             aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
-                            title={!user ? t.login : undefined}
                           >
                             <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
                           </button>
@@ -3366,7 +4451,7 @@ function HomeContent() {
                               ) : null}
                               {formatLocationWithCountry(listing.location, t.country, locale)}
                             </span>
-                            <span><Clock3 size={14} />{formatDate(listing.created_at)}</span>
+                            <span className={styles.cardDateMeta}><Clock3 size={14} />{formatDate(listing.created_at)}</span>
                           </div>
                         </div>
                       </article>
@@ -3379,7 +4464,7 @@ function HomeContent() {
           </div>
         )}
 
-        {showAllListingsHeader && (
+        {showListingResultsSection && showAllListingsHeader && (
           <div className={styles.allListingsHeader}>
             <span className={styles.allListingsHeaderLabel}>{t.allListings}</span>
             <button
@@ -3394,6 +4479,7 @@ function HomeContent() {
           </div>
         )}
 
+        {showListingResultsSection ? (
         <section
           id="listings"
           ref={resultsRef}
@@ -3405,6 +4491,35 @@ function HomeContent() {
             className={styles.listingsPlainContainer}
             style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
           >
+            <div className={styles.appliedFilterActions} aria-label="Suodatetun haun toiminnot">
+              <button
+                type="button"
+                className={styles.appliedFilterClear}
+                onClick={() => {
+                  clearListingFilters();
+                  window.requestAnimationFrame(() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  });
+                }}
+              >
+                <RotateCcw size={15} aria-hidden="true" />
+                <span>Poista suodatukset</span>
+              </button>
+              <button
+                type="button"
+                className={styles.appliedFilterEdit}
+                onClick={() => {
+                  setHomeSearchPanelOpen(true);
+                  setMobileFilterExpanded(true);
+                  window.requestAnimationFrame(() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  });
+                }}
+              >
+                <SlidersHorizontal size={15} aria-hidden="true" />
+                <span>Muokkaa hakua</span>
+              </button>
+            </div>
             <div className={styles.sectionHead}>
               <span className={styles.resultsCount}>
                 {listingsLoading
@@ -3484,15 +4599,14 @@ function HomeContent() {
                       )}
                       <button
                         onClick={(e) => toggleFavorite(e, listing.id)}
+                        onMouseDown={(e) => e.stopPropagation()}
                         onPointerDown={(e) => e.stopPropagation()}
                         onTouchStart={(e) => e.stopPropagation()}
                         className={`${styles.favoriteButton} ${
                           isFavorite ? styles.favoriteButtonActive : ""
-                        } ${!user ? styles.favoriteButtonDisabled : ""}`}
+                        }`}
                         type="button"
-                        disabled={!user}
                         aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
-                        title={!user ? t.login : undefined}
                       >
                         <Heart
                           size={14}
@@ -3524,7 +4638,7 @@ function HomeContent() {
                           ) : null}
                           {formatLocationWithCountry(listing.location, t.country, locale)}
                         </span>
-                        <span>
+                        <span className={styles.cardDateMeta}>
                           <Clock3 size={14} />
                           {formatDate(listing.created_at)}
                         </span>
@@ -3689,7 +4803,7 @@ function HomeContent() {
               {(category || subcategory || selectedBrand !== "Kaikki" || modelQuery || yearQuery) && (
                 <button
                   type="button"
-                  onClick={() => { setCategory(""); setSubcategory(""); setSelectedBrand("Kaikki"); setModelQuery(""); setYearQuery(""); setOpenCategory(null); setCategorySearch(""); }}
+                  onClick={() => { setCategory(""); setSubcategory(""); setSelectedBrand("Kaikki"); setModelQuery(""); setYearQuery(""); setYearMinQuery(""); setYearMaxQuery(""); setOpenCategory(null); setCategorySearch(""); }}
                   style={{ fontSize: 11, fontWeight: 700, color: "#ff7a1a", background: "none", border: "none", cursor: "pointer", padding: 0 }}
                 >
                   {t.resetFilters}
@@ -3889,72 +5003,8 @@ function HomeContent() {
             </div>
           </aside>}
         </section>
+        ) : null}
 
-      <CategoryDrawer
-        isOpen={drawerOpen}
-        onClose={() => { setDrawerOpen(false); setDrawerOpenStep(undefined); }}
-        vehicleType={vehicleType}
-        vehicleSubtype={vehicleSubtype}
-        brand={selectedBrand === "Kaikki" ? "" : selectedBrand}
-        model={modelQuery}
-        year={yearQuery}
-        engineCc={engineCcQuery}
-        engineModel={engineModelQuery}
-        category={category}
-        subcategory={subcategory}
-        openAtStep={drawerOpenStep}
-        vehicleBrands={vehicleBrands}
-        vehicleCategories={vehicleCategories}
-        partsCategories={partsCategories}
-        onApply={({ vehicleType: vt, vehicleSubtype: vst, brand, model, year, engineCc, engineModel, category: cat, subcategory: sub }) => {
-          const hasAnyDrawerFilter = [vt, vst, brand, model, year, engineCc, engineModel, cat, sub].some(Boolean);
-
-          if (!hasAnyDrawerFilter) {
-            setQuery("");
-            setVehicleType("");
-            setVehicleSubtype("");
-            setGarageFilter(null);
-            setGarageDropdownOpen(false);
-            setSelectedBrand("Kaikki");
-            setModelQuery("");
-            setYearQuery("");
-            setEngineCcQuery("");
-            setEngineModelQuery("");
-            setCategory("");
-            setSubcategory("");
-            setOpenCategory(null);
-            setCategorySearch("");
-            setMinPrice(0);
-            setMaxPrice(100000);
-            setListingsExpanded(false);
-            setCatalogOnlyView(false);
-            setCurrentPage(1);
-            return;
-          }
-
-          setGarageFilter(null);
-          setGarageDropdownOpen(false);
-          setVehicleType(vt);
-          setVehicleSubtype(vst);
-          setSelectedBrand(brand || "Kaikki");
-          setModelQuery(model);
-          setYearQuery(year);
-          setEngineCcQuery(engineCc);
-          setEngineModelQuery(engineModel);
-          setCategory(cat);
-          setSubcategory(sub);
-          setRecommendationsMode(false);
-          setListingsExpanded(true);
-          setCatalogOnlyView(false);
-          setCurrentPage(1);
-          requestAnimationFrame(() => {
-            resultsRef.current?.scrollIntoView({
-              behavior: "smooth",
-              block: "start"
-            });
-          });
-        }}
-      />
       {/* Mobile sort sheet */}
       {sortSheetOpen && (
         <div className={styles.mobileSortBackdrop} onClick={() => setSortSheetOpen(false)}>

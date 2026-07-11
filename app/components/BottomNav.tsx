@@ -35,6 +35,7 @@ const LOCALES = [
 
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
 const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
+const OPEN_HOME_FILTERS_STORAGE_KEY = "maskinesOpenHomeFilters";
 
 function FlagImg({ iso }: { iso: string }) {
   return (
@@ -272,13 +273,14 @@ export default function BottomNav() {
     setGarageOpen(false);
 
     if (canonicalPathname === "/") {
-      window.dispatchEvent(new CustomEvent("open-category-drawer", { detail: { step: 2 } }));
+      window.dispatchEvent(new CustomEvent("maskines-open-home-filters"));
       return;
     }
 
     try {
-      sessionStorage.setItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY, "1");
-      sessionStorage.setItem(OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY, "2");
+      sessionStorage.setItem(OPEN_HOME_FILTERS_STORAGE_KEY, "1");
+      sessionStorage.removeItem(OPEN_CATEGORY_DRAWER_STORAGE_KEY);
+      sessionStorage.removeItem(OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY);
     } catch {
       /* ok */
     }

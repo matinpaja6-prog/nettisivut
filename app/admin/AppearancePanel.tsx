@@ -75,7 +75,7 @@ const APPEARANCE_PRESETS: {
       accent_color: "#67e8f9",
       background_color: "#0b1118",
       surface_color: "#0e1721",
-      card_color: "#0e1721",
+      card_color: "#071321",
       topbar_color: "#040d1f",
       text_color: "#f4f8fc",
       muted_color: "#9aaabe",
@@ -474,7 +474,7 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
             />
             <ColorRow
               label="Myynti-ilmoitusten tausta"
-              value={form.card_color ?? DEFAULT_APPEARANCE.card_color ?? "#0e1721"}
+              value={form.card_color ?? DEFAULT_APPEARANCE.card_color ?? "#071321"}
               onChange={(v) => update("card_color", v)}
             />
             <ColorRow

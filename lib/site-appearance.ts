@@ -15,6 +15,17 @@ export type SiteAppearance = {
 };
 
 export const APPEARANCE_EVENT = "arctic-appearance-changed";
+export const DEFAULT_LISTING_CARD_COLOR = "#071321";
+const LEGACY_LISTING_CARD_COLORS = new Set([
+  "#000000",
+  "#020711",
+  "#040d1f",
+  "#050b13",
+  "#06111d",
+  "#08111d",
+  "#0b1118",
+  "#0e1721"
+]);
 
 export const DEFAULT_APPEARANCE: SiteAppearance = {
   hero_image_url: "/hero-bg.png",
@@ -26,9 +37,15 @@ export const DEFAULT_APPEARANCE: SiteAppearance = {
   muted_color: "#9aaabe",
   line_color: "#1a2a3e",
   topbar_color: "#040d1f",
-  card_color: "#0e1721",
+  card_color: DEFAULT_LISTING_CARD_COLOR,
   hero_overlay: "rgba(2, 10, 20, 0.55)"
 };
+
+export function normalizeCardColor(color: string | null | undefined) {
+  if (!color) return DEFAULT_APPEARANCE.card_color;
+  const normalized = color.trim().toLowerCase();
+  return LEGACY_LISTING_CARD_COLORS.has(normalized) ? DEFAULT_LISTING_CARD_COLOR : color;
+}
 
 function mergeAppearance(raw: unknown): SiteAppearance {
   const obj = (raw && typeof raw === "object" ? raw : {}) as Partial<SiteAppearance>;
@@ -42,7 +59,7 @@ function mergeAppearance(raw: unknown): SiteAppearance {
     muted_color: obj.muted_color ?? DEFAULT_APPEARANCE.muted_color,
     line_color: obj.line_color ?? DEFAULT_APPEARANCE.line_color,
     topbar_color: obj.topbar_color ?? DEFAULT_APPEARANCE.topbar_color,
-    card_color: obj.card_color ?? DEFAULT_APPEARANCE.card_color,
+    card_color: normalizeCardColor(obj.card_color),
     hero_overlay: obj.hero_overlay ?? DEFAULT_APPEARANCE.hero_overlay
   };
 }

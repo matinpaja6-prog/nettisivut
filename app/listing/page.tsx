@@ -289,7 +289,7 @@ export default function ListingsIndexPage() {
                       ) : null}
                       {formatLocationWithCountry(listing.location, t.country, locale)}
                     </span>
-                    <span>
+                    <span className={homeStyles.cardDateMeta}>
                       <Clock3 size={14} />
                       {formatDate(listing.created_at)}
                     </span>

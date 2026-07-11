@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { canonicalPathFromLocalized } from "@/lib/routes";
@@ -29,7 +29,7 @@ export default function MobileCornerNav() {
       aria-label="Takaisin edelliselle sivulle"
       onClick={goBack}
     >
-      <ArrowLeft size={25} aria-hidden="true" />
+      <ChevronLeft size={28} aria-hidden="true" />
     </button>
   );
 }

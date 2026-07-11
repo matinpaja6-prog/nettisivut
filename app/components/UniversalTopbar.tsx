@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Search, Star, Store, UserRound, Users, X } from "lucide-react";
+import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Search, Settings, Star, Store, UserRound, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -35,6 +35,7 @@ import { calculateSellerLevel } from "@/lib/seller-level";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profilePath, profileRootPath } from "@/lib/routes";
+import { readUserSettings, USER_SETTINGS_EVENT } from "@/lib/user-settings";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTaxonomy } from "./TaxonomyProvider";
 
@@ -42,7 +43,6 @@ const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications"
 const NOTIFICATION_REFRESH_DEBOUNCE_MS = 120;
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
 const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
-
 type TopbarDropdownKey = "parts" | "brands" | "models" | null;
 
 const TOPBAR_MODEL_GROUPS = [
@@ -133,6 +133,7 @@ const topbarText: Record<Locale, {
   defaultUser: string;
   delete: string;
   deleteNotification: string;
+  settings: string;
   showAllMessages: string;
   manageAccount: string;
   followed: string;
@@ -154,6 +155,7 @@ const topbarText: Record<Locale, {
     defaultUser: "Käyttäjä",
     delete: "Poista",
     deleteNotification: "Poista ilmoitus",
+    settings: "Asetukset",
     showAllMessages: "Näytä kaikki viestit",
     manageAccount: "Hallinnoi tiliäsi",
     followed: "Seuratut",
@@ -175,6 +177,7 @@ const topbarText: Record<Locale, {
     defaultUser: "User",
     delete: "Delete",
     deleteNotification: "Delete notification",
+    settings: "Page settings",
     showAllMessages: "Show all messages",
     manageAccount: "Manage your account",
     followed: "Following",
@@ -196,6 +199,7 @@ const topbarText: Record<Locale, {
     defaultUser: "Användare",
     delete: "Ta bort",
     deleteNotification: "Ta bort avisering",
+    settings: "Sidinställningar",
     showAllMessages: "Visa alla meddelanden",
     manageAccount: "Hantera ditt konto",
     followed: "Följer",
@@ -217,6 +221,7 @@ const topbarText: Record<Locale, {
     defaultUser: "Bruker",
     delete: "Fjern",
     deleteNotification: "Fjern varsel",
+    settings: "Sideinnstillinger",
     showAllMessages: "Vis alle meldinger",
     manageAccount: "Administrer kontoen din",
     followed: "Følger",
@@ -238,6 +243,7 @@ const topbarText: Record<Locale, {
     defaultUser: "Kasutaja",
     delete: "Eemalda",
     deleteNotification: "Eemalda teavitus",
+    settings: "Lehe seaded",
     showAllMessages: "Näita kõiki sõnumeid",
     manageAccount: "Halda oma kontot",
     followed: "Jälgitavad",
@@ -307,6 +313,7 @@ export default function UniversalTopbar() {
   const [sellerLevelStats, setSellerLevelStats] = useState<SellerLevelStats>(emptySellerLevelStats);
   const [topbarDropdownOpen, setTopbarDropdownOpen] = useState<TopbarDropdownKey>(null);
   const [topbarDropdownRect, setTopbarDropdownRect] = useState<DOMRect | null>(null);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuOverlayRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
@@ -318,6 +325,21 @@ export default function UniversalTopbar() {
     () => taxonomy.categories.map((category) => category.key).filter(Boolean),
     [taxonomy]
   );
+
+  useEffect(() => {
+    setNotificationsEnabled(readUserSettings().notificationsEnabled);
+
+    function onUserSettingsChanged() {
+      setNotificationsEnabled(readUserSettings().notificationsEnabled);
+    }
+
+    window.addEventListener(USER_SETTINGS_EVENT, onUserSettingsChanged);
+    window.addEventListener("storage", onUserSettingsChanged);
+    return () => {
+      window.removeEventListener(USER_SETTINGS_EVENT, onUserSettingsChanged);
+      window.removeEventListener("storage", onUserSettingsChanged);
+    };
+  }, []);
 
   const brandNavigationGroups = useMemo(
     () =>
@@ -669,13 +691,13 @@ export default function UniversalTopbar() {
     unreadReviewRequests.length +
     unreadAlertNotifications.length +
     unreadConversationsForBadge.length;
-  const hasNotifications = notificationItemCount > 0;
+  const hasNotifications = notificationsEnabled && notificationItemCount > 0;
   const hasNotificationItems =
     visibleReviewRequests.length + visibleAlertNotifications.length + visibleUnreadConversations.length > 0;
   const canonicalPathname = canonicalPathFromLocalized(pathname);
   const isHomePage = canonicalPathname === "/";
   const controlsLocked = !authChecked;
-  const notificationLocked = !authChecked || !userId;
+  const notificationLocked = !authChecked || !userId || !notificationsEnabled;
   const sellerLevel = calculateSellerLevel(sellerLevelStats);
   const sellerLevelTooltip = sellerLevel.maxLevel
     ? `${ui.maxLevel} - ${ui.level} ${sellerLevel.level}`
@@ -698,6 +720,7 @@ export default function UniversalTopbar() {
   const savedHref = pagePath("saved", locale);
   const followedHref = pagePath("followed", locale);
   const searchAlertsHref = pagePath("search-alerts", locale);
+  const settingsHref = pagePath("settings", locale);
   const rewardsHref = pagePath("rewards", locale);
   const shopHref = pagePath("shop", locale);
   const aboutHref = pagePath("about", locale);
@@ -970,55 +993,30 @@ export default function UniversalTopbar() {
       {isHomePage ? (
         <Link href="/" className="universal-home-brand" aria-label="Maskines">
           <TopbarMaskinesLogo />
+          <span className="universal-home-brand-copy" aria-hidden="true">
+            <strong>MASKINES</strong>
+            <small>MARKETPLACE</small>
+          </span>
         </Link>
       ) : (
-        <button
-          type="button"
-          className="universal-page-back-button"
-          aria-label="Takaisin edelliselle sivulle"
-          onClick={handleBackNavigation}
-        >
-          <BackChevronIcon />
-        </button>
+        <div className="universal-home-brand universal-page-back-brand" aria-hidden="false">
+          <button
+            type="button"
+            className="universal-page-back-button"
+            aria-label="Takaisin edelliselle sivulle"
+            onClick={handleBackNavigation}
+          >
+            <BackChevronIcon />
+          </button>
+        </div>
       )}
       <nav className="universal-home-primary-nav" aria-label="Päänavigaatio" ref={topbarDropdownRef}>
-        <div className="universal-nav-dropdown">
-          <button
-            type="button"
-            className={`universal-nav-action${topbarDropdownOpen === "parts" ? " is-active" : ""}`}
-            aria-haspopup="menu"
-            aria-expanded={topbarDropdownOpen === "parts"}
-            onClick={(event) => toggleTopbarDropdown("parts", event.currentTarget)}
-          >
-            Varaosat
-            <ChevronDown size={13} aria-hidden="true" />
-          </button>
-        </div>
-        <div className="universal-nav-dropdown">
-          <button
-            type="button"
-            className={`universal-nav-action${topbarDropdownOpen === "brands" ? " is-active" : ""}`}
-            aria-haspopup="menu"
-            aria-expanded={topbarDropdownOpen === "brands"}
-            onClick={(event) => toggleTopbarDropdown("brands", event.currentTarget)}
-          >
-            Merkit
-            <ChevronDown size={13} aria-hidden="true" />
-          </button>
-        </div>
-        <div className="universal-nav-dropdown">
-          <button
-            type="button"
-            className={`universal-nav-action${topbarDropdownOpen === "models" ? " is-active" : ""}`}
-            aria-haspopup="menu"
-            aria-expanded={topbarDropdownOpen === "models"}
-            onClick={(event) => toggleTopbarDropdown("models", event.currentTarget)}
-          >
-            Mallit
-            <ChevronDown size={13} aria-hidden="true" />
-          </button>
-        </div>
-        <Link href={sellActionHref} className={isActiveRoute("/sell") ? "is-active" : ""}>Myy osa</Link>
+        <Link href="/" className={isActiveRoute("/") ? "is-active" : ""}>
+          <Home size={18} aria-hidden="true" />
+          Etusivu
+        </Link>
+        <Link href={garageHref} className={isActiveRoute("/garage") ? "is-active" : ""}>Oma talli</Link>
+        <Link href={searchAlertsHref} className={isActiveRoute("/search-alerts") ? "is-active" : ""}>Hakuvahti</Link>
         <Link href={aboutHref} className={isActiveRoute("/about") ? "is-active" : ""}>Tietoa meistä</Link>
         <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>Ohjeet</Link>
       </nav>
@@ -1167,6 +1165,9 @@ export default function UniversalTopbar() {
               </Link>
               <Link href={searchAlertsHref} className={`universal-profile-menu-link${isActiveRoute("/search-alerts") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                 <Bell size={16} /> {ui.searchAlert}
+              </Link>
+              <Link href={settingsHref} className={`universal-profile-menu-link${isActiveRoute("/settings") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                <Settings size={16} /> {ui.settings}
               </Link>
               {FEATURE_FLAGS.rewardsAndShop ? (
                 <>

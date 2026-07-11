@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, Menu, MessageCircle, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, TrendingDown, TrendingUp, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
+import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, MessageCircle, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, TrendingDown, TrendingUp, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
 import { formatPrice, normalizeVehicleType, type Listing } from "@/lib/listings";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
@@ -13,8 +12,18 @@ import { calculateSellerLevel } from "@/lib/seller-level";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
 import { readCachedListings } from "@/lib/client-listings-cache";
 import { listingPath, listingUrlId, pagePath, profilePath } from "@/lib/routes";
-import { buildVehicleCategoriesFromTaxonomy, categoriesAsRecord, vehicleBrandsRecord } from "@/lib/taxonomy";
+import {
+  buildVehicleCategoriesFromTaxonomy,
+  categoriesAsRecord,
+  vehicleBrandsRecord
+} from "@/lib/taxonomy";
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
+import {
+  MARKETPLACE_YEAR_FILTER_MIN,
+  buildMarketplaceCategorySource,
+  buildMarketplaceFilterOptions,
+  getMarketplaceYearFilterMax
+} from "@/lib/marketplace-filter-options";
 import {
   getPublicListingsBySeller,
   getSavedListingIds,
@@ -34,11 +43,6 @@ import {
   type SellerReview,
   type UserProfile
 } from "@/lib/supabase";
-
-const CategoryDrawer = dynamic(() => import("@/app/components/CategoryDrawer"), {
-  ssr: false,
-  loading: () => null
-});
 
 type PublicProfile = Pick<
   UserProfile,
@@ -62,6 +66,93 @@ type PublicProfile = Pick<
   | "created_at"
   | "phone_verified_at"
 >;
+
+function SellerFilterSelect({
+  value,
+  placeholder,
+  options,
+  onChange,
+  getLabel = (option) => option
+}: {
+  value: string;
+  placeholder: string;
+  options: readonly string[];
+  onChange: (value: string) => void;
+  getLabel?: (value: string) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const activeLabel = value ? getLabel(value) : placeholder;
+
+  return (
+    <div
+      ref={wrapRef}
+      className={`sp-filter-select-wrap${open ? " is-open" : ""}`}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setOpen(false);
+        }
+      }}
+    >
+      <button
+        type="button"
+        className="sp-filter-select-button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => {
+          const opening = !current;
+          if (opening) {
+            window.requestAnimationFrame(() => {
+              window.requestAnimationFrame(() => {
+                (wrapRef.current?.closest(".sp-filter-field") ?? wrapRef.current)?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start"
+                });
+              });
+            });
+          }
+          return opening;
+        })}
+      >
+        <span>{activeLabel}</span>
+        <ChevronDown size={15} aria-hidden="true" />
+      </button>
+      {open && (
+        <div className="sp-filter-select-menu" role="listbox" tabIndex={-1}>
+          <button
+            type="button"
+            className={`sp-filter-select-option${value === "" ? " is-selected" : ""}`}
+            role="option"
+            aria-selected={value === ""}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              onChange("");
+              setOpen(false);
+            }}
+          >
+            {placeholder}
+          </button>
+          {options.map((option) => (
+            <button
+              type="button"
+              className={`sp-filter-select-option${value === option ? " is-selected" : ""}`}
+              role="option"
+              aria-selected={value === option}
+              key={option}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                onChange(option);
+                setOpen(false);
+              }}
+            >
+              {getLabel(option)}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function formatAccountAge(value: string | undefined, locale: string) {
   if (!value) return "";
@@ -225,6 +316,19 @@ function categoryLeaf(value: string) {
   return value.split("/").map((part) => part.trim()).filter(Boolean).at(-1) ?? value;
 }
 
+function sellerSubcategoryMatches(value: string | null | undefined, selected: string) {
+  if (!selected) return true;
+  const normalizedValue = normalizeSubcategoryFilter(value);
+  const normalizedSelected = normalizeSubcategoryFilter(selected);
+  const selectedLeaf = normalizeSubcategoryFilter(categoryLeaf(selected));
+  return (
+    normalizedValue === normalizedSelected ||
+    normalizedValue === selectedLeaf ||
+    normalizedValue.includes(normalizedSelected) ||
+    normalizedValue.includes(selectedLeaf)
+  );
+}
+
 function formatReviewAge(value: string | undefined, locale: Locale) {
   if (!value) return "";
   const date = new Date(value);
@@ -330,6 +434,15 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     }
     return out;
   }, [taxonomy]);
+  const allVehicleCategories = useMemo(() => {
+    const merged: Record<string, string[]> = {};
+    for (const source of [partsCategories, ...Object.values(vehicleCategories)]) {
+      for (const [category, subs] of Object.entries(source)) {
+        merged[category] = Array.from(new Set([...(merged[category] ?? []), ...subs]));
+      }
+    }
+    return merged;
+  }, [partsCategories, vehicleCategories]);
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [listings, setListings] = useState<Listing[]>(() =>
     readCachedListings().filter((listing) => listing.seller_id === sellerId)
@@ -348,18 +461,21 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const [searchQuery, setSearchQuery] = useState("");
   const [listingSort, setListingSort] = useState<ListingSort>("relevance");
   const [sortOpen, setSortOpen] = useState(false);
+  const [sellerFilterPanelOpen, setSellerFilterPanelOpen] = useState(false);
   const [reviewRatingFilter, setReviewRatingFilter] = useState(0);
   const [reviewSort, setReviewSort] = useState<ReviewSort>("newest");
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerOpenStep, setDrawerOpenStep] = useState<number | undefined>(undefined);
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
   const [modelFilter, setModelFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
+  const [yearMinFilter, setYearMinFilter] = useState("");
+  const [yearMaxFilter, setYearMaxFilter] = useState("");
   const [engineCcFilter, setEngineCcFilter] = useState("");
   const [engineModelFilter, setEngineModelFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [subcategoryFilter, setSubcategoryFilter] = useState("");
+  const [subcategoryParentFilter, setSubcategoryParentFilter] = useState("");
+  const [vehicleSubtypeFilter, setVehicleSubtypeFilter] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [followStats, setFollowStats] = useState<ProfileFollowStats>({
@@ -372,6 +488,34 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const [favorites, setFavorites] = useState<string[]>([]);
   const resolvedSellerId = profile?.id ?? sellerId;
   const listingsSellerId = resolvedSellerId;
+
+  const selectedSubcategoryParentChildren = useMemo(() => {
+    if (!categoryFilter || !subcategoryParentFilter) return [];
+    const vehicle = vehicleTypeFilter || "";
+    const categorySource = buildMarketplaceCategorySource({
+      vehicleType: vehicle,
+      vehicleCategories,
+      allVehicleCategories
+    });
+    const categorySubs = categorySource[categoryFilter] ?? [];
+    const groupOptions = buildMarketplaceFilterOptions({
+      taxonomyVehicles: taxonomy.vehicles,
+      vehicleBrands,
+      vehicleCategories,
+      allVehicleCategories,
+      vehicleType: vehicle,
+      brand: brandFilter,
+      model: modelFilter,
+      category: categoryFilter,
+      subcategoryParent: subcategoryParentFilter
+    });
+    const baseChildren = groupOptions.subcategoryGroups?.[subcategoryParentFilter] ?? [];
+    const dynamicChildren = categorySubs.filter((sub) => {
+      const parent = sub.split(" / ").map((part) => part.trim()).filter(Boolean)[0];
+      return normalizeSubcategoryFilter(parent) === normalizeSubcategoryFilter(subcategoryParentFilter);
+    });
+    return Array.from(new Set([...baseChildren, ...dynamicChildren]));
+  }, [allVehicleCategories, brandFilter, categoryFilter, modelFilter, subcategoryParentFilter, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleTypeFilter]);
 
   function getListingTitle(listing: Listing): string {
     const localized = getLocalizedListingText(listing, locale);
@@ -421,16 +565,26 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
           return false;
         }
       }
+      if (vehicleSubtypeFilter) {
+        const subtypeHaystack = [listing.vehicle_subtype, haystack].filter(Boolean).join(" ");
+        if (!sellerTextMatches(subtypeHaystack, vehicleSubtypeFilter)) return false;
+      }
       if (brandFilter && !sellerTextMatches([listing.brand, listing.model, haystack].filter(Boolean).join(" "), brandFilter)) return false;
       if (modelFilter && !sellerTextMatches([listing.model, haystack].filter(Boolean).join(" "), modelFilter)) return false;
       if (yearFilter && !sellerTextMatches([listing.year, haystack].filter(Boolean).join(" "), yearFilter)) return false;
+      const listingYear = Number.parseInt(String(listing.year ?? ""), 10);
+      if (yearMinFilter && (!Number.isFinite(listingYear) || listingYear < Number.parseInt(yearMinFilter, 10))) return false;
+      if (yearMaxFilter && (!Number.isFinite(listingYear) || listingYear > Number.parseInt(yearMaxFilter, 10))) return false;
       if (engineCcFilter && !sellerTextMatches([listing.engine_cc, haystack].filter(Boolean).join(" "), engineCcFilter)) return false;
       if (engineModelFilter && !sellerTextMatches([listing.engine_model, haystack].filter(Boolean).join(" "), engineModelFilter)) return false;
       if (categoryFilter && normalizeCategoryFilter(listing.category) !== normalizeCategoryFilter(categoryFilter)) return false;
+      if (subcategoryParentFilter) {
+        const parentMatches = sellerSubcategoryMatches(listing.subcategory, subcategoryParentFilter);
+        const childMatches = selectedSubcategoryParentChildren.some((child) => sellerSubcategoryMatches(listing.subcategory, child));
+        if (!parentMatches && !childMatches) return false;
+      }
       if (subcategoryFilter) {
-        const selectedSub = normalizeSubcategoryFilter(subcategoryFilter);
-        const listingSub = normalizeSubcategoryFilter(listing.subcategory);
-        if (listingSub !== selectedSub && !sellerTextMatches(haystack, categoryLeaf(subcategoryFilter))) return false;
+        if (!sellerSubcategoryMatches(listing.subcategory, subcategoryFilter) && !sellerTextMatches(haystack, categoryLeaf(subcategoryFilter))) return false;
       }
       return true;
     });
@@ -441,7 +595,99 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       if (listingSort === "priceDesc") return Number(b.price ?? 0) - Number(a.price ?? 0);
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
-  }, [brandFilter, categoryFilter, engineCcFilter, engineModelFilter, listingSort, listings, locale, modelFilter, searchQuery, subcategoryFilter, vehicleTypeFilter, yearFilter]);
+  }, [brandFilter, categoryFilter, engineCcFilter, engineModelFilter, listingSort, listings, locale, modelFilter, searchQuery, selectedSubcategoryParentChildren, subcategoryFilter, subcategoryParentFilter, vehicleSubtypeFilter, vehicleTypeFilter, yearFilter, yearMaxFilter, yearMinFilter]);
+
+  const sellerFilterOptions = useMemo(() => {
+    return buildMarketplaceFilterOptions({
+      taxonomyVehicles: taxonomy.vehicles,
+      vehicleBrands,
+      vehicleCategories,
+      allVehicleCategories,
+      vehicleType: vehicleTypeFilter,
+      brand: brandFilter,
+      model: modelFilter,
+      category: categoryFilter,
+      subcategoryParent: subcategoryParentFilter
+    });
+  }, [allVehicleCategories, brandFilter, categoryFilter, modelFilter, subcategoryParentFilter, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleTypeFilter]);
+  const yearSliderMin = MARKETPLACE_YEAR_FILTER_MIN;
+  const yearSliderMax = getMarketplaceYearFilterMax();
+  const selectedYearMin = yearMinFilter ? Number.parseInt(yearMinFilter, 10) : yearSliderMin;
+  const selectedYearMax = yearMaxFilter ? Number.parseInt(yearMaxFilter, 10) : yearSliderMax;
+  const yearSliderRange = Math.max(1, yearSliderMax - yearSliderMin);
+  const yearSliderLeft = ((selectedYearMin - yearSliderMin) / yearSliderRange) * 100;
+  const yearSliderRight = 100 - ((selectedYearMax - yearSliderMin) / yearSliderRange) * 100;
+  const sellerYearSliderRef = useRef<HTMLDivElement | null>(null);
+
+  const updateSellerYearRangeFromPointer = useCallback((clientX: number, handle?: "min" | "max") => {
+    const slider = sellerYearSliderRef.current;
+    if (!slider) return;
+
+    const rect = slider.getBoundingClientRect();
+    const percent = rect.width > 0 ? Math.min(1, Math.max(0, (clientX - rect.left) / rect.width)) : 0;
+    const nextYear = Math.min(
+      yearSliderMax,
+      Math.max(yearSliderMin, Math.round(yearSliderMin + percent * (yearSliderMax - yearSliderMin)))
+    );
+    const currentMin = yearMinFilter ? Number.parseInt(yearMinFilter, 10) : yearSliderMin;
+    const currentMax = yearMaxFilter ? Number.parseInt(yearMaxFilter, 10) : yearSliderMax;
+    const targetHandle =
+      handle ??
+      (Math.abs(nextYear - currentMin) <= Math.abs(nextYear - currentMax) ? "min" : "max");
+
+    if (targetHandle === "min") {
+      const nextMin = Math.min(nextYear, currentMax);
+      setYearMinFilter(nextMin === yearSliderMin ? "" : String(nextMin));
+    } else {
+      const nextMax = Math.max(nextYear, currentMin);
+      setYearMaxFilter(nextMax === yearSliderMax ? "" : String(nextMax));
+    }
+  }, [yearMaxFilter, yearMinFilter, yearSliderMax, yearSliderMin]);
+
+  const startSellerYearRangeDrag = useCallback((
+    event: ReactPointerEvent<HTMLDivElement | HTMLSpanElement>,
+    handle?: "min" | "max"
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const pointerId = event.pointerId;
+    event.currentTarget.setPointerCapture?.(pointerId);
+    updateSellerYearRangeFromPointer(event.clientX, handle);
+
+    const move = (moveEvent: PointerEvent) => {
+      if (moveEvent.pointerId !== pointerId) return;
+      moveEvent.preventDefault();
+      updateSellerYearRangeFromPointer(moveEvent.clientX, handle);
+    };
+    const stop = (stopEvent: PointerEvent) => {
+      if (stopEvent.pointerId !== pointerId) return;
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+      window.removeEventListener("pointercancel", stop);
+    };
+
+    window.addEventListener("pointermove", move, { passive: false });
+    window.addEventListener("pointerup", stop);
+    window.addEventListener("pointercancel", stop);
+  }, [updateSellerYearRangeFromPointer]);
+
+  const startSellerYearRangeMouseDrag = useCallback((event: ReactMouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const slider = sellerYearSliderRef.current;
+    if (!slider) return;
+    const rect = slider.getBoundingClientRect();
+    const minX = rect.left + (yearSliderLeft / 100) * rect.width;
+    const maxX = rect.left + ((100 - yearSliderRight) / 100) * rect.width;
+    const handle: "min" | "max" = Math.abs(event.clientX - minX) <= Math.abs(event.clientX - maxX) ? "min" : "max";
+    updateSellerYearRangeFromPointer(event.clientX, handle);
+    const move = (moveEvent: MouseEvent) => updateSellerYearRangeFromPointer(moveEvent.clientX, handle);
+    const stop = () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", stop);
+    };
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", stop);
+  }, [updateSellerYearRangeFromPointer, yearSliderLeft, yearSliderRight]);
 
   const sellerListingTotalPages = Math.max(
     1,
@@ -456,40 +702,34 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const hasAdvancedFilters =
     searchQuery.trim() !== "" ||
     vehicleTypeFilter.trim() !== "" ||
+    vehicleSubtypeFilter.trim() !== "" ||
     brandFilter.trim() !== "" ||
     modelFilter.trim() !== "" ||
     yearFilter.trim() !== "" ||
+    yearMinFilter.trim() !== "" ||
+    yearMaxFilter.trim() !== "" ||
     engineCcFilter.trim() !== "" ||
     engineModelFilter.trim() !== "" ||
     categoryFilter.trim() !== "" ||
+    subcategoryParentFilter.trim() !== "" ||
     subcategoryFilter.trim() !== "";
 
-  const categoryFilterSummary = useMemo(() => {
-    const parts = [
-      vehicleTypeFilter,
-      brandFilter,
-      modelFilter,
-      yearFilter,
-      engineCcFilter,
-      engineModelFilter,
-      categoryFilter ? translateCategory(locale, categoryFilter) : "",
-      subcategoryFilter ? translateCategory(locale, categoryLeaf(subcategoryFilter)) : ""
-    ].filter(Boolean);
-
-    return parts.join(" / ");
-  }, [brandFilter, categoryFilter, engineCcFilter, engineModelFilter, locale, modelFilter, subcategoryFilter, vehicleTypeFilter, yearFilter]);
   const reviewIds = useMemo(() => reviews.map((review) => review.id), [reviews]);
   const reviewIdsKey = reviewIds.join("|");
 
   function resetListingFilters() {
     setSearchQuery("");
     setVehicleTypeFilter("");
+    setVehicleSubtypeFilter("");
     setBrandFilter("");
     setModelFilter("");
     setYearFilter("");
+    setYearMinFilter("");
+    setYearMaxFilter("");
     setEngineCcFilter("");
     setEngineModelFilter("");
     setCategoryFilter("");
+    setSubcategoryParentFilter("");
     setSubcategoryFilter("");
   }
 
@@ -1387,12 +1627,18 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 {isCompany && profile?.business_id?.trim() && (
                   <span className="seller-ref-phone-pill">
                     <Building2 size={13} />
-                    {refLabels.businessId} {profile.business_id.trim()}
+                    <span className="seller-ref-pill-text">
+                      <small>{refLabels.businessId}</small>
+                      <strong>{profile.business_id.trim()}</strong>
+                    </span>
                   </span>
                 )}
                 <span className="seller-ref-phone-pill">
                   <Trophy size={13} />
-                  {refLabels.accountLevel} {sellerLevel.level}
+                  <span className="seller-ref-pill-text">
+                    <small>{refLabels.accountLevel}</small>
+                    <strong>{sellerLevel.level}</strong>
+                  </span>
                 </span>
                 {isCompany && companyWebsite && (
                   <a
@@ -1602,7 +1848,13 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 <ChevronDown size={16} className="sp-sort-chevron" aria-hidden="true" />
               </button>
               {sortOpen && (
-                <div className="sp-sort-menu" role="menu">
+                <div
+                  className="sp-sort-menu"
+                  role="menu"
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onPointerUp={(event) => event.stopPropagation()}
+                  onClick={(event) => event.stopPropagation()}
+                >
                   {sortOptions.map((option) => {
                     const Icon = option.icon;
                     const selected = option.value === listingSort;
@@ -1613,7 +1865,11 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                         role="menuitemradio"
                         aria-checked={selected}
                         key={option.value}
-                        onClick={() => {
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onPointerUp={(event) => event.stopPropagation()}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
                           setListingSort(option.value);
                           setSortOpen(false);
                         }}
@@ -1629,15 +1885,13 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             </div>
             <button
               type="button"
-              className={`sp-menu-trigger sp-category-trigger${categoryFilterSummary ? " has-selection" : ""}`}
-              aria-label={refLabels.advancedSearch}
-              title={refLabels.advancedSearch}
-              onClick={() => {
-                setDrawerOpenStep(2);
-                setDrawerOpen(true);
-              }}
+              className={`sp-filter-toggle${sellerFilterPanelOpen ? " is-open" : ""}`}
+              aria-expanded={sellerFilterPanelOpen}
+              aria-controls="seller-profile-filter-panel"
+              onClick={() => setSellerFilterPanelOpen((open) => !open)}
             >
-              <Menu size={20} aria-hidden="true" />
+              <SlidersHorizontal size={16} aria-hidden="true" />
+              <span>Suodata</span>
             </button>
             {hasAdvancedFilters && (
               <div className="sp-filter-actions">
@@ -1648,6 +1902,225 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               </div>
             )}
           </div>
+        )}
+
+        {activeTab === "listings" && sellerFilterPanelOpen && (
+          <>
+            <button
+              type="button"
+              className="sp-filter-panel-backdrop"
+              aria-label="Sulje suodattimet"
+              onClick={() => setSellerFilterPanelOpen(false)}
+            />
+            <aside className="sp-filter-panel" id="seller-profile-filter-panel" aria-label="Suodata ilmoituksia">
+              <div className="sp-filter-panel-head">
+                <strong>Suodata hakua</strong>
+                <button type="button" aria-label="Sulje suodattimet" onClick={() => setSellerFilterPanelOpen(false)}>
+                  <CircleX size={20} aria-hidden="true" />
+                </button>
+              </div>
+
+              <label className="sp-filter-field">
+                <span>Ajoneuvolaji</span>
+                <SellerFilterSelect
+                  value={vehicleTypeFilter}
+                  placeholder="Kaikki ajoneuvot"
+                  options={sellerFilterOptions.vehicleTypes}
+                  onChange={(value) => {
+                    setVehicleTypeFilter(value);
+                    setVehicleSubtypeFilter("");
+                    setBrandFilter("");
+                    setModelFilter("");
+                    setEngineModelFilter("");
+                  }}
+                />
+              </label>
+
+              <label className="sp-filter-field">
+                <span>Tyyppi</span>
+                <SellerFilterSelect
+                  value={vehicleSubtypeFilter}
+                  placeholder="Kaikki tyypit"
+                  options={sellerFilterOptions.vehicleSubtypes}
+                  onChange={setVehicleSubtypeFilter}
+                />
+              </label>
+
+              <label className="sp-filter-field">
+                <span>Merkki</span>
+                <SellerFilterSelect
+                  value={brandFilter}
+                  placeholder="Kaikki merkit"
+                  options={sellerFilterOptions.brands}
+                  onChange={(value) => {
+                    setBrandFilter(value);
+                    setModelFilter("");
+                  }}
+                />
+              </label>
+
+              <label className="sp-filter-field sp-filter-field-compact">
+                <span>Malli</span>
+                <SellerFilterSelect
+                  value={modelFilter}
+                  placeholder="Kaikki mallit"
+                  options={sellerFilterOptions.models}
+                  onChange={setModelFilter}
+                />
+              </label>
+
+              <div className="sp-filter-field">
+                <span>Vuosimalli</span>
+                <div className="sp-filter-year-row sp-filter-year-row-inline">
+                  <SellerFilterSelect
+                    value={yearMinFilter}
+                    placeholder="Minimi"
+                    options={sellerFilterOptions.years}
+                    onChange={setYearMinFilter}
+                  />
+                  <small>-</small>
+                  <SellerFilterSelect
+                    value={yearMaxFilter}
+                    placeholder="Maksimi"
+                    options={sellerFilterOptions.years}
+                    onChange={setYearMaxFilter}
+                  />
+                </div>
+                <div
+                  className="sp-year-range-clean"
+                  data-sp-year-range-clean="true"
+                  ref={sellerYearSliderRef}
+                  role="group"
+                  aria-label="Vuosimallin rajaus"
+                  style={{
+                    "--sp-year-min": `${yearSliderLeft}%`,
+                    "--sp-year-max": `${100 - yearSliderRight}%`,
+                    "--sp-year-mid": `${(yearSliderLeft + (100 - yearSliderRight)) / 2}%`
+                  } as CSSProperties}
+                  onMouseDown={startSellerYearRangeMouseDrag}
+                >
+                  <span className="sp-year-range-clean-line" aria-hidden="true" />
+                  <span
+                    role="slider"
+                    tabIndex={0}
+                    className="sp-year-range-clean-thumb"
+                    style={{ left: `${yearSliderLeft}%` } as CSSProperties}
+                    aria-label="Vuosimallin minimi"
+                    aria-valuemin={yearSliderMin}
+                    aria-valuemax={selectedYearMax}
+                    aria-valuenow={selectedYearMin}
+                    onPointerDown={(event) => startSellerYearRangeDrag(event, "min")}
+                  />
+                  <span
+                    role="slider"
+                    tabIndex={0}
+                    className="sp-year-range-clean-thumb"
+                    style={{ left: `${100 - yearSliderRight}%` } as CSSProperties}
+                    aria-label="Vuosimallin maksimi"
+                    aria-valuemin={selectedYearMin}
+                    aria-valuemax={yearSliderMax}
+                    aria-valuenow={selectedYearMax}
+                    onPointerDown={(event) => startSellerYearRangeDrag(event, "max")}
+                  />
+                  <span className="sp-year-range-track" aria-hidden="true" />
+                  <input
+                    type="range"
+                    className="sp-year-range-input sp-year-range-min"
+                    onPointerDown={(event) => event.stopPropagation()}
+                    min={yearSliderMin}
+                    max={yearSliderMax}
+                    value={selectedYearMin}
+                    aria-label="Vuosimalli minimi liukusäädin"
+                    onChange={(event) => {
+                      const next = Math.min(Number(event.target.value), selectedYearMax);
+                      setYearMinFilter(String(next));
+                    }}
+                  />
+                  <input
+                    type="range"
+                    className="sp-year-range-input sp-year-range-max"
+                    onPointerDown={(event) => event.stopPropagation()}
+                    min={yearSliderMin}
+                    max={yearSliderMax}
+                    value={selectedYearMax}
+                    aria-label="Vuosimalli maksimi liukusäädin"
+                    onChange={(event) => {
+                      const next = Math.max(Number(event.target.value), selectedYearMin);
+                      setYearMaxFilter(String(next));
+                    }}
+                  />
+                </div>
+              </div>
+
+              <label className="sp-filter-field">
+                <span>Moottoritilavuus (cm3)</span>
+                <SellerFilterSelect
+                  value={engineCcFilter}
+                  placeholder="Kaikki koot"
+                  options={sellerFilterOptions.engineCcs}
+                  onChange={setEngineCcFilter}
+                />
+              </label>
+
+              <div className="sp-filter-section-title">Osakategoriointi</div>
+
+              <label className="sp-filter-field">
+                <span>Pääkategoria</span>
+                <SellerFilterSelect
+                  value={categoryFilter}
+                  placeholder="Valitse pääkategoria"
+                  options={sellerFilterOptions.categories}
+                  getLabel={(option) => translateCategory(locale, option)}
+                  onChange={(value) => {
+                    setCategoryFilter(value);
+                    setSubcategoryParentFilter("");
+                    setSubcategoryFilter("");
+                  }}
+                />
+              </label>
+
+              <label className="sp-filter-field">
+                <span>Alakategoria</span>
+                <SellerFilterSelect
+                  value={subcategoryParentFilter}
+                  placeholder="Valitse alakategoria"
+                  options={sellerFilterOptions.subcategoryParents}
+                  getLabel={(option) => translateCategory(locale, categoryLeaf(option))}
+                  onChange={(value) => {
+                    setSubcategoryParentFilter(value);
+                    setSubcategoryFilter("");
+                  }}
+                />
+              </label>
+
+              <label className="sp-filter-field">
+                <span>Tarkempi osa</span>
+                <SellerFilterSelect
+                  value={subcategoryFilter}
+                  placeholder="Valitse tarkempi osa"
+                  options={sellerFilterOptions.subcategories}
+                  getLabel={(option) => translateCategory(locale, categoryLeaf(option))}
+                  onChange={setSubcategoryFilter}
+                />
+              </label>
+
+              <div className="sp-filter-panel-actions">
+              <button
+                type="button"
+                className="sp-filter-show-results"
+                onClick={() => {
+                  setSellerFilterPanelOpen(false);
+                  setSellerListingPage(1);
+                }}
+              >
+                Näytä tulokset ({filteredListings.length})
+              </button>
+              <button type="button" className="sp-filter-clear" onClick={resetListingFilters}>
+                Tyhjennä hakuehdot
+              </button>
+              </div>
+            </aside>
+          </>
         )}
 
         {activeTab === "listings" && (
@@ -1954,37 +2427,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
           </article>
         )}
 
-        <CategoryDrawer
-          isOpen={drawerOpen}
-          onClose={() => {
-            setDrawerOpen(false);
-            setDrawerOpenStep(undefined);
-          }}
-          vehicleType={vehicleTypeFilter}
-          vehicleSubtype=""
-          brand={brandFilter}
-          model={modelFilter}
-          year={yearFilter}
-          engineCc={engineCcFilter}
-          engineModel={engineModelFilter}
-          category={categoryFilter}
-          subcategory={subcategoryFilter}
-          openAtStep={drawerOpenStep}
-          vehicleBrands={vehicleBrands}
-          vehicleCategories={vehicleCategories}
-          partsCategories={partsCategories}
-          onApply={({ vehicleType, brand, model, year, engineCc, engineModel, category, subcategory }) => {
-            setVehicleTypeFilter(vehicleType);
-            setBrandFilter(brand);
-            setModelFilter(model);
-            setYearFilter(year);
-            setEngineCcFilter(engineCc);
-            setEngineModelFilter(engineModel);
-            setCategoryFilter(category);
-            setSubcategoryFilter(subcategory);
-            setActiveTab("listings");
-          }}
-        />
       </section>
 
       <style jsx>{`

@@ -29,6 +29,7 @@ import "./styles/mobile-final.css";
 import "./styles/seller-phone-reference.css";
 import "./styles/info-pages.css";
 import "./styles/topbar-final.css";
+import "./styles/home-latest-final.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";
@@ -151,8 +152,20 @@ export default function RootLayout({
           r.setProperty('--brand-dark-surface', a.surface_color);
         }
         if (a.card_color) {
-          r.setProperty('--site-card', a.card_color);
-          r.setProperty('--listing-card-bg', a.card_color);
+          var rawCardColor = String(a.card_color).trim().toLowerCase();
+          var legacyCardColors = {
+            '#000000': true,
+            '#020711': true,
+            '#040d1f': true,
+            '#050b13': true,
+            '#06111d': true,
+            '#08111d': true,
+            '#0b1118': true,
+            '#0e1721': true
+          };
+          var cardColor = legacyCardColors[rawCardColor] ? '#071321' : a.card_color;
+          r.setProperty('--site-card', cardColor);
+          r.setProperty('--listing-card-bg', cardColor);
         }
         if (a.text_color) {
           r.setProperty('--text', a.text_color);

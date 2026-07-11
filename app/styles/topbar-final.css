@@ -547,6 +547,78 @@ html body header.universal-app-topbar .language-switcher img {
   }
 }
 
+/* Final topbar cleanup: no divider line, and the back arrow sits vertically centered. */
+html body header.universal-app-topbar,
+html body header.universal-app-topbar.universal-home-topbar {
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+
+html body header.universal-app-topbar::before,
+html body header.universal-app-topbar::after,
+html body header.universal-app-topbar.universal-home-topbar::before,
+html body header.universal-app-topbar.universal-home-topbar::after {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  content: none !important;
+  display: none !important;
+  height: 0 !important;
+  opacity: 0 !important;
+}
+
+html body header.universal-app-topbar .universal-return-button {
+  align-items: center !important;
+  align-self: center !important;
+  display: inline-flex !important;
+  height: 44px !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+  min-height: 44px !important;
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
+  place-self: center start !important;
+}
+
+html body header.universal-app-topbar .universal-return-button > svg {
+  display: block !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  position: relative !important;
+  top: 0 !important;
+  transform: none !important;
+}
+
+@media (max-width: 720px) {
+  html body header.universal-app-topbar .universal-return-button {
+    left: clamp(18px, 6vw, 28px) !important;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
+
+  html body .mobile-corner-nav.mobile-corner-back {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 48px !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    top: max(env(safe-area-inset-top), calc((var(--topbar-h, 76px) - 48px) / 2)) !important;
+    width: 48px !important;
+  }
+
+  html body .mobile-corner-nav.mobile-corner-back > svg {
+    display: block !important;
+    margin: 0 !important;
+    position: relative !important;
+    top: 0 !important;
+    transform: none !important;
+  }
+}
+
 @media (max-width: 720px) {
   html body header.universal-app-topbar {
     min-height: 64px !important;
@@ -4428,6 +4500,13 @@ html body > .universal-profile-menu-portal {
     width: 100% !important;
   }
 
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-primary-navigation,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation.universal-primary-navigation {
+    padding: 0 !important;
+    padding-left: 0 !important;
+  }
+
   html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
     grid-column: 1 !important;
     height: 64px !important;
@@ -4493,6 +4572,234 @@ html body > .universal-profile-menu-portal {
 
   html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
     display: none !important;
+  }
+}
+
+/* Final sensible home topbar: compact lanes, readable nav, stable right actions. */
+@media (min-width: 981px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    align-items: center !important;
+    display: grid !important;
+    grid-template-columns: minmax(500px, 1fr) auto !important;
+    gap: 18px !important;
+    height: 66px !important;
+    min-height: 66px !important;
+    padding: 0 clamp(18px, 2vw, 34px) !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center !important;
+    display: grid !important;
+    grid-template-columns: 82px minmax(0, max-content) !important;
+    gap: clamp(22px, 3vw, 52px) !important;
+    grid-column: 1 !important;
+    height: 66px !important;
+    min-width: 0 !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    grid-column: 1 !important;
+    height: 66px !important;
+    justify-content: flex-start !important;
+    position: static !important;
+    width: 82px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 50px !important;
+    max-height: 50px !important;
+    width: 50px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    gap: clamp(8px, 1vw, 14px) !important;
+    grid-column: 2 !important;
+    height: 42px !important;
+    justify-content: flex-start !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    align-items: center !important;
+    border-radius: 999px !important;
+    color: rgba(239, 246, 255, 0.86) !important;
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    height: 38px !important;
+    justify-content: center !important;
+    letter-spacing: 0 !important;
+    line-height: 1 !important;
+    padding: 0 13px !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button):hover,
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button):hover,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active {
+    background: rgba(255, 122, 26, 0.14) !important;
+    color: #ffffff !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center !important;
+    display: flex !important;
+    gap: 8px !important;
+    grid-column: 2 !important;
+    height: 66px !important;
+    justify-content: flex-end !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 15px !important;
+  }
+}
+
+@media (min-width: 1181px) and (max-width: 1340px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    gap: 12px !important;
+    grid-template-columns: minmax(430px, 1fr) auto !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    gap: 18px !important;
+    grid-template-columns: 68px minmax(0, max-content) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) {
+    font-size: 12px !important;
+    padding-left: 9px !important;
+    padding-right: 9px !important;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1180px) {
+  html body header.universal-app-topbar .universal-home-primary-nav > a[href*="/meista"],
+  html body header.universal-app-topbar .universal-home-primary-nav > a[href*="/about"],
+  html body header.universal-app-topbar .universal-home-primary-nav > a.universal-contact-cta,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a[href*="/meista"],
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a[href*="/about"],
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a.universal-contact-cta {
+    display: none !important;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 980px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    height: 62px !important;
+    min-height: 62px !important;
+    padding: 0 10px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    display: grid !important;
+    gap: 10px !important;
+    grid-column: 1 !important;
+    grid-template-columns: 54px minmax(0, 1fr) !important;
+    height: 62px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    grid-column: 1 !important;
+    height: 62px !important;
+    position: static !important;
+    width: 54px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 42px !important;
+    max-height: 42px !important;
+    width: 42px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    display: flex !important;
+    gap: 7px !important;
+    grid-column: 2 !important;
+    height: 62px !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    position: static !important;
+    transform: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav > a[href*="/meista"],
+  html body header.universal-app-topbar .universal-home-primary-nav > a[href*="/about"],
+  html body header.universal-app-topbar .universal-home-primary-nav > a.universal-contact-cta,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a[href*="/meista"],
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a[href*="/about"],
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a.universal-contact-cta {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) {
+    font-size: 11px !important;
+    height: 36px !important;
+    padding: 0 8px !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    grid-column: 2 !important;
+    height: 62px !important;
+    justify-content: flex-end !important;
+    position: static !important;
+    width: auto !important;
   }
 }
 
@@ -4665,3 +4972,1663 @@ html body > .universal-profile-menu-portal {
   }
 }
 
+/* Motoparts-inspired final topbar, branded for Maskines. */
+@media (min-width: 981px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    align-items: center !important;
+    background:
+      radial-gradient(820px 120px at 42% 0%, rgba(37, 60, 78, 0.22), transparent 70%),
+      linear-gradient(180deg, #07121b 0%, #030a11 100%) !important;
+    border-bottom: 1px solid rgba(124, 152, 177, 0.18) !important;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28) !important;
+    display: grid !important;
+    gap: clamp(18px, 2.2vw, 42px) !important;
+    grid-template-columns: minmax(760px, 1fr) auto !important;
+    height: 150px !important;
+    min-height: 150px !important;
+    padding: 0 clamp(34px, 3.6vw, 64px) !important;
+    position: sticky !important;
+    top: 0 !important;
+    width: 100% !important;
+    z-index: 80 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center !important;
+    display: grid !important;
+    gap: clamp(28px, 3vw, 54px) !important;
+    grid-column: 1 !important;
+    grid-template-columns: max-content 1px minmax(0, 1fr) !important;
+    height: 150px !important;
+    min-width: 0 !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    gap: 18px !important;
+    grid-column: 1 !important;
+    height: 150px !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    position: static !important;
+    text-decoration: none !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    border-radius: 999px !important;
+    height: 86px !important;
+    max-height: 86px !important;
+    object-fit: contain !important;
+    width: 86px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy {
+    display: grid !important;
+    gap: 7px !important;
+    line-height: 1 !important;
+    min-width: 180px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy strong,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy strong {
+    color: #f8fbff !important;
+    font-size: 27px !important;
+    font-weight: 850 !important;
+    letter-spacing: 0.02em !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy small,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy small {
+    color: rgba(248, 251, 255, 0.78) !important;
+    font-size: 16px !important;
+    font-weight: 650 !important;
+    letter-spacing: 0.36em !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation::after {
+    background: rgba(139, 162, 184, 0.22) !important;
+    content: "" !important;
+    display: block !important;
+    grid-column: 2 !important;
+    height: 62px !important;
+    width: 1px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    gap: clamp(18px, 2vw, 34px) !important;
+    grid-column: 3 !important;
+    height: auto !important;
+    justify-content: flex-start !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 18px !important;
+    box-shadow: none !important;
+    color: rgba(248, 251, 255, 0.9) !important;
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    font-size: 20px !important;
+    font-weight: 850 !important;
+    gap: 10px !important;
+    height: 64px !important;
+    letter-spacing: 0 !important;
+    line-height: 1 !important;
+    padding: 0 18px !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button) svg,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) svg {
+    color: currentColor !important;
+    height: 21px !important;
+    width: 21px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active {
+    background: linear-gradient(180deg, rgba(255, 122, 26, 0.13), rgba(255, 122, 26, 0.07)) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 122, 26, 0.08), 0 16px 34px rgba(0, 0, 0, 0.36) !important;
+    color: #ff8a1f !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center !important;
+    display: flex !important;
+    gap: 24px !important;
+    grid-column: 2 !important;
+    height: 150px !important;
+    justify-content: flex-end !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    background: linear-gradient(180deg, #ff901f 0%, #ff5d13 100%) !important;
+    border: 0 !important;
+    border-radius: 11px !important;
+    box-shadow: 0 18px 34px rgba(255, 103, 20, 0.24) !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    font-size: 20px !important;
+    font-weight: 900 !important;
+    gap: 10px !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    min-width: 184px !important;
+    padding: 0 26px !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button strong,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
+    display: inline !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+  }
+
+  html body header.universal-app-topbar .universal-icon-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-icon-button,
+  html body header.universal-app-topbar .universal-notification-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-button {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 0 !important;
+    border-radius: 11px !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03) !important;
+    color: rgba(248, 251, 255, 0.9) !important;
+    height: 64px !important;
+    width: 64px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border: 0 !important;
+    border-radius: 20px !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    gap: 14px !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    min-width: 196px !important;
+    padding: 0 20px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button-copy strong,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    font-size: 20px !important;
+    font-weight: 850 !important;
+  }
+
+  html body header.universal-app-topbar .universal-profile-avatar,
+  html body header.universal-app-topbar.universal-home-topbar .universal-profile-avatar {
+    height: 36px !important;
+    width: 36px !important;
+  }
+
+  html body header.universal-app-topbar .universal-language-wrap,
+  html body header.universal-app-topbar.universal-home-topbar .universal-language-wrap {
+    display: none !important;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1500px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: minmax(620px, 1fr) auto !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: 10px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) {
+    font-size: 15px !important;
+    padding-left: 11px !important;
+    padding-right: 11px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 64px !important;
+    max-height: 64px !important;
+    width: 64px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy strong,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy strong {
+    font-size: 21px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy small,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy small {
+    font-size: 12px !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    font-size: 15px !important;
+    min-width: 148px !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    gap: 10px !important;
+  }
+}
+
+/* Compact final tuning: same style, less oversized. */
+@media (min-width: 981px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    gap: clamp(16px, 1.7vw, 30px) !important;
+    grid-template-columns: minmax(620px, 1fr) auto !important;
+    height: 92px !important;
+    min-height: 92px !important;
+    padding: 0 clamp(22px, 2.8vw, 44px) !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    gap: clamp(18px, 2vw, 34px) !important;
+    height: 92px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    gap: 13px !important;
+    height: 92px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 58px !important;
+    max-height: 58px !important;
+    width: 58px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy {
+    gap: 5px !important;
+    min-width: 140px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy strong,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy strong {
+    font-size: 19px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy small,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy small {
+    font-size: 10.5px !important;
+    letter-spacing: 0.34em !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation::after {
+    height: 46px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    gap: clamp(8px, 1.1vw, 16px) !important;
+    height: 46px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    border-radius: 13px !important;
+    font-size: 14px !important;
+    gap: 7px !important;
+    height: 44px !important;
+    padding: 0 12px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button) svg,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) svg {
+    height: 16px !important;
+    width: 16px !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    gap: 12px !important;
+    height: 92px !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    border-radius: 9px !important;
+    font-size: 14px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    min-width: 136px !important;
+    padding: 0 16px !important;
+  }
+
+  html body header.universal-app-topbar .universal-icon-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-icon-button,
+  html body header.universal-app-topbar .universal-notification-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-button {
+    border-radius: 9px !important;
+    height: 44px !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    border-radius: 14px !important;
+    gap: 10px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    min-width: 150px !important;
+    padding: 0 13px !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-profile-button-copy strong,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button-copy strong {
+    font-size: 14px !important;
+  }
+
+  html body header.universal-app-topbar .universal-profile-avatar,
+  html body header.universal-app-topbar.universal-home-topbar .universal-profile-avatar {
+    height: 30px !important;
+    width: 30px !important;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1280px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: minmax(540px, 1fr) auto !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button) {
+    font-size: 12.5px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy strong,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy strong {
+    font-size: 17px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy small,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-copy small {
+    font-size: 9.5px !important;
+  }
+}
+
+/* Same desktop topbar on every page: home gets logo, inner pages get the back arrow. */
+@media (min-width: 981px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    height: 92px !important;
+    min-height: 92px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center !important;
+    display: grid !important;
+    gap: clamp(18px, 2vw, 34px) !important;
+    grid-column: 1 !important;
+    grid-template-columns: clamp(250px, 20vw, 310px) 1px minmax(0, 1fr) !important;
+    height: 92px !important;
+    min-width: 0 !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {
+    grid-column: 1 !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    grid-column: 1 !important;
+    height: 92px !important;
+    justify-content: center !important;
+    left: auto !important;
+    margin: 0 !important;
+    min-height: 92px !important;
+    min-width: 72px !important;
+    padding: 0 !important;
+    position: static !important;
+    top: auto !important;
+    transform: none !important;
+    width: 72px !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-button::before,
+  html body header.universal-app-topbar .universal-page-back-button::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button::before,
+  html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button::after {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-button svg,
+  html body header.universal-app-topbar .universal-page-back-button .universal-page-back-icon,
+  html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button svg,
+  html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button .universal-page-back-icon {
+    color: #ff7a1a !important;
+    height: 27px !important;
+    width: 27px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation::after,
+  html body header.universal-app-topbar .universal-primary-navigation::after,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation::after {
+    background: rgba(139, 162, 184, 0.22) !important;
+    content: "" !important;
+    display: block !important;
+    grid-column: 2 !important;
+    height: 46px !important;
+    width: 1px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
+    grid-column: 3 !important;
+    justify-content: flex-start !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    border: 0 !important;
+    outline: 0 !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active {
+    background: linear-gradient(180deg, rgba(255, 122, 26, 0.13), rgba(255, 122, 26, 0.07)) !important;
+    border: 0 !important;
+    border-radius: 13px !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 122, 26, 0.08), 0 12px 26px rgba(0, 0, 0, 0.28) !important;
+    color: #ff8a1f !important;
+    outline: 0 !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    gap: clamp(8px, 1.1vw, 16px) !important;
+    grid-column: 3 !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav a.universal-contact-cta {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 13px !important;
+    box-shadow: none !important;
+    color: rgba(248, 251, 255, 0.9) !important;
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    font-size: 12.5px !important;
+    font-weight: 850 !important;
+    gap: 7px !important;
+    height: 44px !important;
+    justify-content: center !important;
+    letter-spacing: 0 !important;
+    line-height: 1 !important;
+    outline: 0 !important;
+    padding: 0 8px !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button).is-active {
+    background: linear-gradient(180deg, rgba(255, 122, 26, 0.13), rgba(255, 122, 26, 0.07)) !important;
+    border: 0 !important;
+    border-radius: 13px !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 122, 26, 0.08), 0 12px 26px rgba(0, 0, 0, 0.28) !important;
+    color: #ff8a1f !important;
+    height: 44px !important;
+    outline: 0 !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+}
+
+/* Final lock: inner pages use the same desktop topbar grid as the home page. */
+@media (min-width: 981px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-primary-navigation {
+    align-items: center !important;
+    display: grid !important;
+    gap: clamp(18px, 2vw, 34px) !important;
+    grid-column: 1 !important;
+    grid-template-columns: clamp(250px, 20vw, 310px) 1px minmax(0, 1fr) !important;
+    height: 92px !important;
+    min-width: 0 !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    grid-column: 1 !important;
+    height: 92px !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    min-height: 92px !important;
+    min-width: 72px !important;
+    padding: 0 !important;
+    position: static !important;
+    transform: none !important;
+    width: 72px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button::before,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button::after {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav {
+    grid-column: 3 !important;
+    margin: 0 0 0 -22px !important;
+    position: static !important;
+    transform: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation .universal-home-primary-nav {
+    justify-self: start !important;
+    left: auto !important;
+    place-self: center start !important;
+    right: auto !important;
+    transform: none !important;
+  }
+}
+
+/* Final compact centered desktop topbar. */
+@media (min-width: 981px) {
+  html body header.universal-app-topbar,
+  html body header.universal-app-topbar.universal-home-topbar {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    height: 76px !important;
+    min-height: 76px !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+    position: relative !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
+  html body header.universal-app-topbar .universal-primary-navigation,
+  html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
+    align-items: center !important;
+    display: grid !important;
+    gap: clamp(18px, 2vw, 34px) !important;
+    grid-column: 1 !important;
+    grid-template-columns: clamp(250px, 20vw, 310px) 1px minmax(0, 1fr) !important;
+    height: 76px !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand,
+  html body header.universal-app-topbar .universal-page-back-brand,
+  html body header.universal-app-topbar .universal-page-back-button,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button {
+    align-items: center !important;
+    display: inline-flex !important;
+    grid-column: 1 !important;
+    height: 76px !important;
+    justify-content: flex-start !important;
+    min-height: 76px !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-brand {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand.universal-page-back-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    grid-column: 1 !important;
+    height: 76px !important;
+    justify-content: flex-start !important;
+    min-height: 76px !important;
+    opacity: 1 !important;
+    position: static !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-brand .universal-page-back-button {
+    display: inline-flex !important;
+    height: 76px !important;
+    min-height: 76px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    width: 72px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
+    height: 56px !important;
+    max-height: 56px !important;
+    width: 56px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar .universal-home-navigation .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation .universal-home-primary-nav,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav {
+    display: flex !important;
+    grid-column: 3 !important;
+    justify-content: center !important;
+    justify-self: center !important;
+    left: auto !important;
+    margin: 0 !important;
+    place-self: center !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    transform: none !important;
+    width: 512px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav a.universal-contact-cta,
+  html body header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
+    box-sizing: border-box !important;
+    color: rgba(248, 251, 255, 0.9) !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    height: 40px !important;
+    line-height: 1 !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button).is-active,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button).is-active,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button).is-active {
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    height: 40px !important;
+    line-height: 1 !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav > a:nth-of-type(1),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a:nth-of-type(1) {
+    width: 98px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav > a:nth-of-type(2),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a:nth-of-type(2) {
+    width: 86px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav > a:nth-of-type(3),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a:nth-of-type(3) {
+    width: 88px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav > a:nth-of-type(4),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a:nth-of-type(4) {
+    width: 114px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav > a:nth-of-type(5),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav > a:nth-of-type(5) {
+    width: 70px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav {
+    margin-left: 0 !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
+    align-items: center !important;
+    display: flex !important;
+    gap: 10px !important;
+    height: 76px !important;
+    justify-content: flex-end !important;
+    position: absolute !important;
+    right: 18px !important;
+    top: 0 !important;
+    transform: none !important;
+    width: max-content !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+
+  html body header.universal-app-topbar .universal-icon-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-icon-button,
+  html body header.universal-app-topbar .universal-notification-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-notification-button,
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar.universal-home-topbar .rebuilt-profile-button {
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+}
+
+@media (min-width: 981px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-primary-navigation,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-navigation.universal-primary-navigation {
+    padding: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-home-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-topbar-actions {
+    align-items: center !important;
+    display: flex !important;
+    gap: 10px !important;
+    height: 76px !important;
+    justify-content: flex-end !important;
+    left: auto !important;
+    margin: 0 !important;
+    position: absolute !important;
+    right: 18px !important;
+    top: 0 !important;
+    transform: none !important;
+    width: max-content !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav,
+  html body header.universal-app-topbar .universal-home-navigation .universal-home-primary-nav,
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation .universal-home-primary-nav,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav {
+    justify-content: center !important;
+    justify-self: auto !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    left: 50vw !important;
+    place-self: center !important;
+    position: fixed !important;
+    right: auto !important;
+    top: 38px !important;
+    transform: translate(-50%, -50%) !important;
+    width: 512px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-primary-nav :is(a, button) {
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+  }
+}
+
+/* Absolute final cleanup: remove the mobile topbar divider and center every back arrow. */
+html body header.universal-app-topbar,
+html body header.universal-app-topbar.universal-home-topbar,
+html body header.universal-app-topbar:not(.universal-home-topbar) {
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+
+html body header.universal-app-topbar::before,
+html body header.universal-app-topbar::after,
+html body header.universal-app-topbar.universal-home-topbar::before,
+html body header.universal-app-topbar.universal-home-topbar::after,
+html body header.universal-app-topbar .universal-home-navigation::before,
+html body header.universal-app-topbar .universal-home-navigation::after,
+html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation::before,
+html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation::after,
+html body header.universal-app-topbar .universal-primary-navigation::before,
+html body header.universal-app-topbar .universal-primary-navigation::after,
+html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation::before,
+html body header.universal-app-topbar.universal-home-topbar .universal-primary-navigation::after {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  content: none !important;
+  display: none !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  width: 0 !important;
+}
+
+html body header.universal-app-topbar .universal-page-back-brand,
+html body header.universal-app-topbar.universal-home-topbar .universal-page-back-brand,
+html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-brand {
+  align-items: center !important;
+  align-self: stretch !important;
+  display: inline-flex !important;
+  grid-column: 1 !important;
+  height: 76px !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  max-height: none !important;
+  min-height: 76px !important;
+  padding: 0 !important;
+}
+
+html body header.universal-app-topbar .universal-page-back-button,
+html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button,
+html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button {
+  align-items: center !important;
+  align-self: stretch !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #ff7a1a !important;
+  display: inline-flex !important;
+  height: 76px !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  max-height: none !important;
+  min-height: 76px !important;
+  min-width: 72px !important;
+  padding: 0 !important;
+  position: static !important;
+  top: auto !important;
+  transform: none !important;
+  width: 72px !important;
+}
+
+html body header.universal-app-topbar .universal-page-back-button svg,
+html body header.universal-app-topbar .universal-page-back-button .universal-page-back-icon,
+html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button svg,
+html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button .universal-page-back-icon {
+  display: block !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  position: relative !important;
+  top: 0 !important;
+  transform: none !important;
+}
+
+@media (max-width: 720px) {
+  html body header.universal-app-topbar .universal-page-back-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-page-back-button,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button,
+  html body header.universal-app-topbar .universal-return-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-return-button,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-return-button {
+    align-items: center !important;
+    align-self: center !important;
+    display: inline-flex !important;
+    height: var(--topbar-h, 64px) !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    min-height: var(--topbar-h, 64px) !important;
+    padding: 0 !important;
+    place-self: center start !important;
+    top: auto !important;
+    transform: none !important;
+  }
+
+  html body .auth-back-home,
+  html body:has(.simple-auth-page) .auth-back-home {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 28px !important;
+    justify-content: center !important;
+    left: 42px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    min-height: 28px !important;
+    padding: 0 !important;
+    top: calc((var(--topbar-h, 64px) - 28px) / 2) !important;
+    transform: none !important;
+    width: 28px !important;
+  }
+
+  html body .mobile-corner-nav.mobile-corner-back {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 48px !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    top: max(env(safe-area-inset-top), calc((var(--topbar-h, 64px) - 48px) / 2)) !important;
+    transform: none !important;
+    width: 48px !important;
+  }
+
+  html body :is(.auth-back-home, .mobile-corner-nav.mobile-corner-back, .universal-page-back-button, .universal-return-button) > svg {
+    display: block !important;
+    margin: 0 !important;
+    position: relative !important;
+    top: 0 !important;
+    transform: none !important;
+  }
+}
+
+/* Reference-style mobile back button: compact dark bar with an orange glowing chevron. */
+@media (max-width: 720px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-brand,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand.universal-page-back-brand {
+    height: var(--topbar-h, 64px) !important;
+    justify-content: flex-start !important;
+    min-height: var(--topbar-h, 64px) !important;
+    padding-left: 0 !important;
+    width: 86px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button,
+  html body .mobile-corner-nav.mobile-corner-back {
+    align-items: center !important;
+    background:
+      radial-gradient(36px 28px at 43% 45%, rgba(255, 122, 26, 0.12), transparent 72%),
+      linear-gradient(180deg, rgba(4, 17, 28, 0.98), rgba(2, 12, 22, 0.98)) !important;
+    border: 1px solid rgba(18, 42, 61, 0.92) !important;
+    border-radius: 0 !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.035),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.34),
+      0 0 0 1px rgba(255, 122, 26, 0.06),
+      0 10px 22px rgba(0, 6, 16, 0.24) !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    height: 42px !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+    min-width: 86px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    width: 86px !important;
+  }
+
+  html body .mobile-corner-nav.mobile-corner-back {
+    left: 0 !important;
+    top: max(env(safe-area-inset-top), 0px) !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button:hover,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button:focus-visible,
+  html body .mobile-corner-nav.mobile-corner-back:hover,
+  html body .mobile-corner-nav.mobile-corner-back:focus-visible {
+    background:
+      radial-gradient(42px 32px at 43% 45%, rgba(255, 122, 26, 0.18), transparent 74%),
+      linear-gradient(180deg, rgba(6, 22, 35, 0.99), rgba(2, 12, 22, 0.99)) !important;
+    border-color: rgba(255, 122, 26, 0.3) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 0 16px rgba(255, 122, 26, 0.16),
+      0 12px 26px rgba(0, 6, 16, 0.28) !important;
+    outline: 0 !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button:active,
+  html body .mobile-corner-nav.mobile-corner-back:active {
+    transform: translateY(1px) !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button .universal-page-back-icon,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button svg,
+  html body .mobile-corner-nav.mobile-corner-back > svg {
+    color: #ff7a1a !important;
+    filter:
+      drop-shadow(0 0 5px rgba(255, 122, 26, 0.72))
+      drop-shadow(0 0 13px rgba(255, 122, 26, 0.3)) !important;
+    height: 19px !important;
+    stroke-width: 3.8 !important;
+    width: 19px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button .universal-page-back-icon path,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button svg path,
+  html body .mobile-corner-nav.mobile-corner-back > svg path {
+    stroke-width: 3.8 !important;
+  }
+}
+
+/* Reference-style desktop back button: same dark bar and orange glowing chevron. */
+@media (min-width: 721px) {
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-brand,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-home-brand.universal-page-back-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    height: 76px !important;
+    justify-content: center !important;
+    min-height: 76px !important;
+    padding-left: 0 !important;
+    width: 72px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button {
+    align-items: center !important;
+    align-self: center !important;
+    background:
+      linear-gradient(180deg, rgba(6, 20, 33, 0.96), rgba(3, 12, 22, 0.96)) !important;
+    border: 1px solid rgba(54, 80, 104, 0.62) !important;
+    border-radius: 12px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.045),
+      0 8px 18px rgba(0, 6, 16, 0.16) !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    height: 38px !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+    min-height: 38px !important;
+    min-width: 48px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    place-self: center !important;
+    width: 48px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button:hover,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button:focus-visible {
+    background:
+      linear-gradient(180deg, rgba(8, 25, 40, 0.98), rgba(4, 15, 26, 0.98)) !important;
+    border-color: rgba(255, 122, 26, 0.48) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.055),
+      0 8px 18px rgba(0, 6, 16, 0.18) !important;
+    outline: 0 !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button:active {
+    transform: translateY(1px) !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button .universal-page-back-icon,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button svg {
+    color: #ff7a1a !important;
+    filter: none !important;
+    height: 20px !important;
+    stroke-width: 3.8 !important;
+    width: 20px !important;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button .universal-page-back-icon path,
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button svg path {
+    stroke-width: 3.8 !important;
+  }
+}
+
+/* Final requested cleanup: thin orange divider, no glow around the create button. */
+html body header.universal-app-topbar,
+html body header.universal-app-topbar.universal-home-topbar,
+html body header.universal-app-topbar:not(.universal-home-topbar) {
+  border-bottom: 1px solid rgba(255, 122, 26, 0.72) !important;
+}
+
+html body .site-footer,
+html body:has([class*="heroDesktopLatest"]) .site-footer {
+  border-top: 0 !important;
+  position: relative !important;
+}
+
+html body .site-footer::before,
+html body:has([class*="heroDesktopLatest"]) .site-footer::before {
+  background: rgba(255, 122, 26, 0.72) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  content: "" !important;
+  display: block !important;
+  height: 1px !important;
+  left: 0 !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+}
+
+html body .site-footer::after,
+html body:has([class*="heroDesktopLatest"]) .site-footer::after {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  content: none !important;
+  display: none !important;
+  height: 0 !important;
+  opacity: 0 !important;
+}
+
+html body header.universal-app-topbar .universal-create-button,
+html body header.universal-app-topbar.universal-home-topbar .universal-create-button,
+html body header.universal-app-topbar:not(.universal-home-topbar) .universal-create-button {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+  filter: none !important;
+}
+
+html body header.universal-app-topbar .universal-create-button:hover,
+html body header.universal-app-topbar .universal-create-button:focus-visible,
+html body header.universal-app-topbar.universal-home-topbar .universal-create-button:hover,
+html body header.universal-app-topbar.universal-home-topbar .universal-create-button:focus-visible,
+html body header.universal-app-topbar:not(.universal-home-topbar) .universal-create-button:hover,
+html body header.universal-app-topbar:not(.universal-home-topbar) .universal-create-button:focus-visible {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  filter: none !important;
+}
+
+/* Final unified footer: same dark bar and homepage-width layout on every page. */
+html body .site-footer,
+html body:has([class*="heroDesktopLatest"]) .site-footer {
+  background: linear-gradient(180deg, #071321 0%, #08111d 100%) !important;
+  border-top: 0 !important;
+  color: rgba(226, 244, 255, 0.72) !important;
+  margin-top: 0 !important;
+  overflow: clip !important;
+  padding: 54px clamp(18px, 2.2vw, 38px) 0 !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+html body .site-footer::before,
+html body:has([class*="heroDesktopLatest"]) .site-footer::before {
+  background: rgba(255, 122, 26, 0.72) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  content: "" !important;
+  display: block !important;
+  height: 1px !important;
+  left: 0 !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+}
+
+html body .site-footer::after,
+html body:has([class*="heroDesktopLatest"]) .site-footer::after {
+  content: none !important;
+  display: none !important;
+}
+
+html body .site-footer .footer-inner,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-inner {
+  align-items: start !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: grid !important;
+  gap: clamp(28px, 3.2vw, 54px) !important;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) !important;
+  margin: 0 auto !important;
+  max-width: 1680px !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+html body .site-footer .footer-brand,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-brand {
+  align-items: flex-start !important;
+  border-right: 1px solid rgba(151, 178, 205, 0.12) !important;
+  display: grid !important;
+  gap: 13px !important;
+  justify-items: start !important;
+  padding: 0 clamp(20px, 2.4vw, 34px) 0 0 !important;
+}
+
+html body .site-footer .footer-logo,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-logo {
+  display: inline-flex !important;
+  height: auto !important;
+  max-width: 218px !important;
+  width: min(218px, 100%) !important;
+}
+
+html body .site-footer .footer-maskines-logo,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-maskines-logo {
+  display: block !important;
+  filter: none !important;
+  height: auto !important;
+  width: 100% !important;
+}
+
+html body .site-footer .footer-tagline,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-tagline {
+  color: rgba(222, 232, 244, 0.72) !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 1.55 !important;
+  margin: 0 !important;
+  max-width: 288px !important;
+}
+
+html body .site-footer .footer-socials,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-socials {
+  display: flex !important;
+  gap: 10px !important;
+  margin-top: 2px !important;
+}
+
+html body .site-footer .footer-socials a,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-socials a {
+  align-items: center !important;
+  background: rgba(13, 31, 49, 0.74) !important;
+  border: 1px solid rgba(123, 155, 188, 0.3) !important;
+  border-radius: 10px !important;
+  color: rgba(235, 244, 255, 0.82) !important;
+  display: inline-flex !important;
+  height: 38px !important;
+  justify-content: center !important;
+  width: 38px !important;
+}
+
+html body .site-footer .footer-socials a:hover,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-socials a:hover {
+  background: rgba(255, 122, 26, 0.16) !important;
+  border-color: rgba(255, 154, 36, 0.78) !important;
+  color: #ffffff !important;
+}
+
+html body .site-footer .footer-links-grid,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-links-grid {
+  display: grid !important;
+  gap: clamp(20px, 2.4vw, 40px) !important;
+  grid-template-columns: repeat(4, minmax(120px, 1fr)) !important;
+  min-height: 0 !important;
+  padding-left: clamp(10px, 1.2vw, 22px) !important;
+}
+
+html body .site-footer .footer-col,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col {
+  gap: 14px !important;
+  min-width: 0 !important;
+}
+
+html body .site-footer .footer-col h4,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col h4 {
+  color: #ffffff !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.06em !important;
+  margin: 0 !important;
+  padding-bottom: 12px !important;
+  position: relative !important;
+}
+
+html body .site-footer .footer-col h4::before,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col h4::before {
+  background: rgba(123, 155, 188, 0.22) !important;
+  bottom: 0 !important;
+  content: "" !important;
+  height: 1px !important;
+  left: 0 !important;
+  position: absolute !important;
+  width: 100% !important;
+}
+
+html body .site-footer .footer-col h4::after,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col h4::after {
+  background: #ff7a1a !important;
+  bottom: 0 !important;
+  content: "" !important;
+  height: 2px !important;
+  left: 0 !important;
+  position: absolute !important;
+  width: 22px !important;
+}
+
+html body .site-footer .footer-col ul,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col ul {
+  display: grid !important;
+  gap: 11px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html body .site-footer .footer-col a,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col a {
+  color: rgba(220, 232, 244, 0.72) !important;
+  display: inline-flex !important;
+  font-size: 13px !important;
+  font-weight: 750 !important;
+  line-height: 1.25 !important;
+}
+
+html body .site-footer .footer-col a:hover,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col a:hover {
+  color: #ffffff !important;
+}
+
+html body .site-footer .footer-bottom,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom {
+  align-items: center !important;
+  border-top: 1px solid rgba(151, 178, 205, 0.16) !important;
+  color: rgba(220, 232, 244, 0.62) !important;
+  display: flex !important;
+  gap: 16px !important;
+  justify-content: space-between !important;
+  margin: 24px auto 0 !important;
+  max-width: 1680px !important;
+  min-height: 54px !important;
+  padding: 14px 0 16px !important;
+  width: 100% !important;
+}
+
+html body .site-footer .footer-bottom a,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom a {
+  color: rgba(220, 232, 244, 0.62) !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+}
+
+html body .site-footer .footer-bottom a:hover,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom a:hover {
+  color: #ffffff !important;
+}
+
+html body .site-footer .footer-bottom-links,
+html body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom-links {
+  display: flex !important;
+  gap: 24px !important;
+}
+
+@media (max-width: 900px) {
+  html body .site-footer .footer-inner,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-inner {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .site-footer .footer-brand,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-brand {
+    border-bottom: 1px solid rgba(151, 178, 205, 0.16) !important;
+    border-right: 0 !important;
+    padding: 0 0 24px !important;
+  }
+
+  html body .site-footer .footer-links-grid,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-links-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    padding-left: 0 !important;
+  }
+
+  html body .site-footer .footer-bottom,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  html body .site-footer,
+  html body:has([class*="heroDesktopLatest"]) .site-footer {
+    padding: 34px 18px 0 !important;
+  }
+
+  html body .site-footer .footer-links-grid,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-links-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .site-footer .footer-bottom-links,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom-links {
+    flex-wrap: wrap !important;
+    gap: 12px 18px !important;
+  }
+}
+
+/* Light page backgrounds need darker homepage hero copy for contrast. */
+html[data-user-background-tone="light"] body [class*="heroLeadPanel"],
+html[data-user-background-tone="light"] body [class*="heroInner"] > div:first-child {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Reference-style phone footer. */
+@media (max-width: 560px) {
+  html body .site-footer,
+  html body:has([class*="heroDesktopLatest"]) .site-footer {
+    background: linear-gradient(180deg, #111d2d 0%, #071522 42%, #06131f 100%) !important;
+    padding: 20px 19px 10px !important;
+  }
+
+  html body .site-footer::before,
+  html body:has([class*="heroDesktopLatest"]) .site-footer::before {
+    background: rgba(91, 122, 151, 0.28) !important;
+  }
+
+  html body .site-footer .footer-inner,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-inner {
+    display: block !important;
+    max-width: 420px !important;
+  }
+
+  html body .site-footer .footer-brand,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-brand {
+    align-items: stretch !important;
+    border-bottom: 1px solid rgba(126, 157, 187, 0.24) !important;
+    display: flex !important;
+    gap: 16px !important;
+    justify-content: flex-start !important;
+    padding: 0 0 23px !important;
+  }
+
+  html body .site-footer .footer-logo,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-logo {
+    align-self: center !important;
+    max-width: 244px !important;
+    width: 244px !important;
+  }
+
+  html body .site-footer .footer-maskines-logo,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-maskines-logo {
+    filter: drop-shadow(0 7px 7px rgba(0, 0, 0, 0.46)) !important;
+  }
+
+  html body .site-footer .footer-tagline,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-tagline {
+    color: rgba(210, 220, 232, 0.76) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1.65 !important;
+    max-width: 340px !important;
+    width: 100% !important;
+  }
+
+  html body .site-footer .footer-socials,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-socials {
+    gap: 10px !important;
+    margin: 0 !important;
+  }
+
+  html body .site-footer .footer-socials a,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-socials a {
+    background: #112538 !important;
+    border-color: rgba(118, 151, 184, 0.42) !important;
+    border-radius: 10px !important;
+    height: 41px !important;
+    width: 41px !important;
+  }
+
+  html body .site-footer .footer-links-grid,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-links-grid {
+    display: grid !important;
+    gap: 27px 18px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    padding: 29px 0 22px !important;
+  }
+
+  html body .site-footer .footer-col,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col {
+    display: block !important;
+    min-width: 0 !important;
+  }
+
+  html body .site-footer .footer-col h4,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col h4 {
+    font-size: 13px !important;
+    letter-spacing: 0.055em !important;
+    margin-bottom: 17px !important;
+    padding-bottom: 10px !important;
+  }
+
+  html body .site-footer .footer-col h4::after,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col h4::after {
+    width: 22px !important;
+  }
+
+  html body .site-footer .footer-col ul,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col ul {
+    gap: 13px !important;
+  }
+
+  html body .site-footer .footer-col a,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col a {
+    color: rgba(205, 217, 230, 0.72) !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+  }
+
+  html body .site-footer .footer-bottom,
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom {
+    border-top: 1px solid rgba(126, 157, 187, 0.24) !important;
+    display: none !important;
+    margin-top: 0 !important;
+  }
+}
+
+html[data-user-background-tone="light"] body [class*="heroLeadPanel"]::before,
+html[data-user-background-tone="light"] body [class*="heroLeadPanel"]::after,
+html[data-user-background-tone="light"] body [class*="heroInner"] > div:first-child::before,
+html[data-user-background-tone="light"] body [class*="heroInner"] > div:first-child::after {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  content: none !important;
+  display: none !important;
+}
+
+html[data-user-background-tone="light"] body [class*="heroLeadPanel"] [class*="heroHeadline"],
+html[data-user-background-tone="light"] body [class*="heroHeadline"] {
+  color: #142232 !important;
+  text-shadow: none !important;
+}
+
+html[data-user-background-tone="light"] body [class*="heroLeadPanel"] [class*="heroHeadline"] span,
+html[data-user-background-tone="light"] body [class*="heroHeadline"] span {
+  color: #142232 !important;
+}
+
+html[data-user-background-tone="light"] body [class*="heroLeadPanel"] [class*="heroHeadlineAccent"],
+html[data-user-background-tone="light"] body [class*="heroHeadlineAccent"] {
+  color: #ff6f12 !important;
+  text-shadow: none !important;
+}
+
+html[data-user-background-tone="light"] body [class*="heroReferenceSubtitle"],
+html[data-user-background-tone="light"] body [class*="heroSubtitle"] {
+  color: rgba(20, 34, 50, 0.78) !important;
+  text-shadow: none !important;
+}
+
+html[data-user-background-tone="light"] body [class*="heroDesktopLatestHead"] strong,
+html[data-user-background-tone="light"] body [class*="heroDesktopLatestHead"] a {
+  color: #142232 !important;
+  text-shadow: none !important;
+}

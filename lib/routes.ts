@@ -27,6 +27,7 @@ const pageSegments = {
   saved: { fi: "tallennetut", en: "saved", sv: "sparade", no: "lagret", et: "salvestatud" },
   followed: { fi: "seuratut", en: "followed", sv: "foljer", no: "fulgte", et: "jalgitavad" },
   "search-alerts": { fi: "hakuvahti", en: "search-alerts", sv: "sokbevakning", no: "sokevarsel", et: "otsinguvalvur" },
+  settings: { fi: "asetukset", en: "settings", sv: "installningar", no: "innstillinger", et: "seaded" },
   "my-listings": { fi: "omat-ilmoitukset", en: "my-listings", sv: "mina-annonser", no: "mine-annonser", et: "minu-kuulutused" },
   rewards: { fi: "palkinnot", en: "rewards", sv: "beloningar", no: "belonninger", et: "preemiad" },
   shop: { fi: "kauppa", en: "shop", sv: "butik", no: "butikk", et: "pood" },

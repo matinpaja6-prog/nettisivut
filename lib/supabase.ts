@@ -577,6 +577,7 @@ const LISTINGS_FETCH_CHUNK_SIZE = 1000;
 
 const BASE_LISTING_CARD_COLUMN_LIST = [
   "id",
+  "listing_number",
   "seller_id",
   "title",
   "price",
@@ -597,7 +598,6 @@ const BASE_LISTING_CARD_COLUMN_LIST = [
 ];
 
 const OPTIONAL_LISTING_CARD_COLUMN_LIST = [
-  "listing_number",
   "original_language",
   "translations",
   "vehicle_subtype",

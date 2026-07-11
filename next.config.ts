@@ -71,6 +71,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   outputFileTracingRoot: process.cwd(),
   poweredByHeader: false,
   productionBrowserSourceMaps: false,

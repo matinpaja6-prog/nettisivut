@@ -1,8 +1,11 @@
+import { userNotificationSoundEnabled } from "@/lib/user-settings";
+
 let audioContext: AudioContext | null = null;
 let lastPlayedAt = 0;
 
 export function playNotificationSound() {
   if (typeof window === "undefined") return;
+  if (!userNotificationSoundEnabled()) return;
 
   const now = Date.now();
   if (now - lastPlayedAt < 900) return;

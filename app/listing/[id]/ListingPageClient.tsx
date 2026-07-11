@@ -1416,6 +1416,14 @@ export default function ListingPage() {
             <div className="title-row">
 
               <div className="title-left">
+                <span className="mobile-listing-id">
+                  ID <strong>{
+                    listingDisplayNumber ??
+                    listing.listing_number ??
+                    String(params.id).match(/^id(\d+)$/i)?.[1] ??
+                    "..."
+                  }</strong>
+                </span>
                 <h1>{listingText.title}</h1>
 
               </div>
@@ -7207,7 +7215,11 @@ export default function ListingPage() {
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-listing-id.mobile-listing-id strong) {
-            display: none !important;
+            color: #ff8a2a !important;
+            display: inline-flex !important;
+            font-size: 13px !important;
+            font-weight: 950 !important;
+            line-height: 1 !important;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-row.title-row h1) {
@@ -7789,12 +7801,19 @@ export default function ListingPage() {
             font-size: 13px !important;
             font-weight: 900 !important;
             gap: 6px !important;
+            justify-content: flex-end !important;
             letter-spacing: 0.01em !important;
             margin: 0 0 8px !important;
+            text-align: right !important;
+            width: 100% !important;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-listing-id.mobile-listing-id strong) {
-            display: none !important;
+            color: #ff8a2a !important;
+            display: inline-flex !important;
+            font-size: 13px !important;
+            font-weight: 950 !important;
+            line-height: 1 !important;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-row.title-row h1) {

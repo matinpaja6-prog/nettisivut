@@ -699,19 +699,19 @@ function removeDynamicGroupChild(
 }
 
 /* ── component ──────────────────────────────────────── */
-const CC_OPTIONS: Record<string, string[]> = {
+export const CC_OPTIONS: Record<string, string[]> = {
   Moottorikelkka: ["250", "300", "400", "440", "500", "550", "600", "650", "700", "800", "850", "900", "1000", "1200+"],
   "Mönkijä":      ["250", "300", "400", "450", "500", "570", "650", "700", "800", "850", "1000", "1200+"],
   Motocross:      ["50", "65", "85", "125", "150", "250", "300", "350", "450", "500"],
   Mopot:          ["50", "65", "80", "90", "100", "110", "125", "150"],
 };
-const DEFAULT_CC_OPTIONS = ["250", "300", "400", "500", "600", "700", "800", "1000", "1200+"];
+export const DEFAULT_CC_OPTIONS = ["250", "300", "400", "500", "600", "700", "800", "1000", "1200+"];
 const YEAR_OPTIONS = Array.from(
   { length: new Date().getFullYear() + 1 - 2000 },
   (_, index) => String(new Date().getFullYear() - index)
 );
 
-const ENGINE_MODELS: Record<string, Record<string, string[]>> = {
+export const ENGINE_MODELS: Record<string, Record<string, string[]>> = {
   Moottorikelkka: {
     Lynx:         ["Rotax 440", "Rotax 550F", "Rotax 600 ACE", "Rotax 600 H.O.", "Rotax 600 E-TEC", "Rotax 600 H.O. E-TEC", "Rotax 600RS", "Rotax 600R E-TEC", "Rotax 800R E-TEC", "Rotax 850 E-TEC", "Rotax 850 E-TEC Turbo", "Rotax 900 ACE", "Rotax 900 ACE Turbo", "Rotax 900 ACE Turbo R"],
     "Ski-Doo":    ["Rotax 440", "Rotax 550F", "Rotax 600 ACE", "Rotax 600 H.O.", "Rotax 600 E-TEC", "Rotax 600 H.O. E-TEC", "Rotax 600RS", "Rotax 600R E-TEC", "Rotax 650 H.O.", "Rotax 800R E-TEC", "Rotax 850 E-TEC", "Rotax 900 ACE", "Rotax 900 ACE Turbo", "Rotax 900 ACE Turbo R", "Rotax 1200 4-TEC"],
@@ -748,7 +748,7 @@ const ENGINE_MODELS: Record<string, Record<string, string[]>> = {
   }
 };
 
-const MODEL_ENGINE_OPTIONS: Record<string, Record<string, Record<string, string[]>>> = {
+export const MODEL_ENGINE_OPTIONS: Record<string, Record<string, Record<string, string[]>>> = {
   Moottorikelkka: {
     Lynx: {
       "Rave RS": ["Rotax 600RS", "Rotax 600 E-TEC"],
@@ -854,7 +854,7 @@ function uniqueOptions(values: Array<string | undefined>) {
   return Array.from(new Set(values.filter((value): value is string => Boolean(value?.trim()))));
 }
 
-const VEHICLE_SUBTYPE_OPTIONS: Record<string, string[]> = {
+export const VEHICLE_SUBTYPE_OPTIONS: Record<string, string[]> = {
   Moottorikelkka: [
     "Crossover - moottorikelkka",
     "Deep snow - moottorikelkka",
@@ -902,11 +902,11 @@ function customValue(value: string) {
   return value === CUSTOM_OPTION_LABEL ? "" : value;
 }
 
-function getCategoryVehicleKey(vehicle: string) {
+export function getCategoryVehicleKey(vehicle: string) {
   return vehicle === "Mopot" ? "Mopo" : vehicle;
 }
 
-function getCommonVehicleKey(vehicle: string) {
+export function getCommonVehicleKey(vehicle: string) {
   const normalized = normalizeIconText(vehicle);
   if (normalized.includes("moottorikelkka")) return "snowmobile";
   if (normalized.includes("monkija") || normalized.includes("nkij")) return "atv";
@@ -915,7 +915,7 @@ function getCommonVehicleKey(vehicle: string) {
   return normalized;
 }
 
-function getBrandModelOptions(vehicle: string, brand: string) {
+export function getBrandModelOptions(vehicle: string, brand: string) {
   const vehicleKey = getCategoryVehicleKey(vehicle);
   const commonVehicleKey = getCommonVehicleKey(vehicle);
   if (!vehicle) {
@@ -929,7 +929,7 @@ function getBrandModelOptions(vehicle: string, brand: string) {
   return uniqueOptions([...localModels, ...commonModels]);
 }
 
-function getModelEngineOptions(
+export function getModelEngineOptions(
   vehicle: string,
   brand: string,
   model: string,
@@ -964,7 +964,7 @@ function getModelEngineOptions(
 
 type CategoryStartKind = string;
 
-const BRAND_MODELS: Record<string, Record<string, string[]>> = {
+export const BRAND_MODELS: Record<string, Record<string, string[]>> = {
   Moottorikelkka: {
     "Lynx":       ["Rave RS", "Rave Racing", "Rave", "Shredder", "Commander", "BoonDocker", "Xterrain", "Xtrim", "Adventure", "Ranger", "Yeti", "Spirit"],
     "Ski-Doo":    ["MXZ RS", "MXZ", "Freeride", "Summit", "Backcountry", "Renegade", "Expedition", "Tundra", "Skandic", "Grand Touring", "Enduro"],
@@ -1000,7 +1000,7 @@ const BRAND_MODELS: Record<string, Record<string, string[]>> = {
   },
 };
 
-const COMMON_BRAND_MODELS_BY_VEHICLE: Record<string, Record<string, string[]>> = {
+export const COMMON_BRAND_MODELS_BY_VEHICLE: Record<string, Record<string, string[]>> = {
   snowmobile: {
     Lynx: ["Rave RS", "Rave Racing", "Rave", "Rave RE", "Xtrim", "Xterrain", "Boondocker", "Shredder", "Commander", "Adventure", "49 Ranger", "69 Ranger", "Yeti", "GLX"],
     "Ski-Doo": ["MXZ RS", "MXZ", "MXZ X-RS", "Summit", "Freeride", "Renegade", "Backcountry", "Expedition", "Skandic", "Tundra", "Grand Touring", "Formula", "Mach Z"],
@@ -2646,27 +2646,7 @@ export default function CategoryDrawer({
                 </section>
               )}
 
-              <ul className="cd-list cd-category-photo-list" onClickCapture={closeVehicleTypeMenus}>
-                {Object.keys(cats).map(c => (
-                  <li key={c}>
-                    <button
-                      className={`cd-category-photo-card ${partPictureClass(c)} ${mainCategoryPhotoClass(c)}${cat === c ? " cd-category-photo-active" : ""}`}
-                      onClick={() => {
-                        setCat(c); setSub(""); setSubGroup("");
-                        const groups = getFilteredSubcategoryGroups(c);
-                        const groupEntries = groups ? Object.entries(groups) : [];
-                        if (groupEntries.length === 1 && groupEntries[0][0] === c && groupEntries[0][1].length > 0) {
-                          setSubGroup(c);
-                          setStep(5);
-                        } else if (groups) setStep(4);
-                        else if ((cats[c] ?? []).length > 0) setStep(5);
-                      }}
-                    >
-                      <span className="cd-category-photo-title">{displayCategoryLabel(c)}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <div className="cd-main-category-list cd-main-category-list-empty" aria-hidden="true" />
             </>
           )}
 

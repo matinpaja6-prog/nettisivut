@@ -189,7 +189,7 @@ export default function Footer() {
                   <feDropShadow dx="0" dy="0" stdDeviation="2.5" floodColor="#7dd3fc" floodOpacity="0.18" />
                 </filter>
               </defs>
-              <g filter="url(#footerMaskinesGlow)" transform="translate(162 24)">
+              <g transform="translate(162 24)">
                 <path
                   d="M0 18 L180 132 L180 214 L74 146 L74 336 L0 286 Z"
                   fill="url(#footerMaskinesOrange)"
@@ -286,7 +286,6 @@ export default function Footer() {
                 fontSize="118"
                 fontStyle="italic"
                 fontWeight="900"
-                filter="url(#footerMaskinesTextShadow)"
                 letterSpacing="-9"
                 paintOrder="stroke fill"
                 stroke="#07111d"

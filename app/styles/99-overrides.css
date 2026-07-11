@@ -1171,6 +1171,1618 @@ body:has(.profile-ready-card) .site-footer {
   display: none !important;
 }
 
+/* Absolute final year slider lock: only the orange rail and handles should show. */
+body [class*="heroYearSlider"] {
+  box-sizing: border-box !important;
+  height: 22px !important;
+  margin: 3px 2px 8px !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+
+body [class*="heroYearSlider"]::before,
+body [class*="heroYearSlider"]::after {
+  border-radius: 999px !important;
+  content: "" !important;
+  height: 4px !important;
+  left: 10px !important;
+  position: absolute !important;
+  right: 10px !important;
+  top: 9px !important;
+}
+
+body [class*="heroYearSlider"]::before {
+  background: rgba(92, 127, 160, 0.3) !important;
+}
+
+body [class*="heroYearSlider"]::after {
+  background: #ff7a1a !important;
+  left: calc(10px + (100% - 20px) * var(--year-min-number, 0)) !important;
+  right: calc(10px + (100% - 20px) * (1 - var(--year-max-number, 1))) !important;
+}
+
+body [class*="heroYearSlider"] input,
+body [class*="heroYearSlider"] input[type="range"] {
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  height: 22px !important;
+  left: 0 !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  outline: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: 0 !important;
+  width: 100% !important;
+  z-index: 2 !important;
+}
+
+body [class*="heroYearSlider"] input:focus,
+body [class*="heroYearSlider"] input:focus-visible,
+body [class*="heroYearSlider"] input[type="range"]:focus,
+body [class*="heroYearSlider"] input[type="range"]:focus-visible {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+body [class*="heroYearSlider"] input::-webkit-slider-runnable-track {
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  height: 4px !important;
+}
+
+body [class*="heroYearSlider"] input::-webkit-slider-thumb {
+  appearance: none !important;
+  background: #ff7a1a !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 26, 0.34) !important;
+  cursor: grab !important;
+  height: 14px !important;
+  margin-top: -5px !important;
+  pointer-events: auto !important;
+  width: 14px !important;
+}
+
+body [class*="heroYearSlider"] input::-moz-range-track {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  height: 4px !important;
+}
+
+body [class*="heroYearSlider"] input::-moz-range-thumb {
+  background: #ff7a1a !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 26, 0.34) !important;
+  cursor: grab !important;
+  height: 14px !important;
+  pointer-events: auto !important;
+  width: 14px !important;
+}
+
+/* Absolute final right-rail pin lock. Keep this after later desktop/mobile overrides. */
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:checked) {
+  max-height: none !important;
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  position: relative !important;
+  top: auto !important;
+}
+
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:not(:checked)) {
+  max-height: calc(100vh - 92px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  position: sticky !important;
+  top: 74px !important;
+}
+
+body [class*="heroRailHeader"] [class*="heroRailHeaderActions"] {
+  display: flex !important;
+}
+
+body [class*="heroRailPinToggle"] {
+  display: inline-flex !important;
+}
+
+body [class*="heroRailPinOn"],
+body [class*="heroRailPinOff"] {
+  color: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+body [class*="heroRailHeader"] [class*="heroRailPinOn"] {
+  display: none !important;
+}
+
+body [class*="heroRailHeader"] [class*="heroRailPinOff"] {
+  display: inline !important;
+}
+
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:checked) [class*="heroRailHeader"] [class*="heroRailPinOn"] {
+  display: inline !important;
+}
+
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:checked) [class*="heroRailHeader"] [class*="heroRailPinOff"] {
+  display: none !important;
+}
+
+/* Absolute final home rail shape. This is intentionally last because earlier files contain many rail overrides. */
+body [class*="heroRightRail"] {
+  position: relative !important;
+  z-index: 30 !important;
+}
+
+body [class*="heroRailEdgeToggle"],
+body [class*="heroRailClosedButton"] {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  z-index: 60 !important;
+}
+
+body [class*="heroRailEdgeToggle"] {
+  align-items: center !important;
+  background: #ff7a1a !important;
+  border: 1px solid rgba(255, 220, 188, 0.72) !important;
+  border-left: 0 !important;
+  border-radius: 0 999px 999px 0 !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 46px !important;
+  justify-content: center !important;
+  left: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 46px !important;
+}
+
+body [class*="heroRightRail"][class*="heroRightRailClosed"] {
+  background: linear-gradient(180deg, rgba(255, 122, 26, 0.72), rgba(255, 122, 26, 0.3)) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: flex !important;
+  min-height: min(688px, calc(100vh - 170px)) !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+body [class*="heroRailClosedButton"] {
+  align-items: center !important;
+  background: #ff7a1a !important;
+  border: 1px solid rgba(255, 220, 188, 0.72) !important;
+  border-right: 0 !important;
+  border-radius: 999px 0 0 999px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 44px !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 44px !important;
+}
+
+body [class*="heroRailClosedButton"] span {
+  display: none !important;
+}
+
+@media (min-width: 901px) {
+  body [class*="heroWrap"] > [class*="container"] {
+    max-width: none !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroInner"] {
+    grid-template-columns: minmax(0, 1fr) 410px !important;
+    padding-right: 0 !important;
+  }
+
+  body [class*="heroRightRail"] {
+    border-radius: 7px 0 0 7px !important;
+    justify-self: end !important;
+    margin-right: 0 !important;
+    max-width: 410px !important;
+    right: 0 !important;
+    width: 410px !important;
+  }
+
+  body [class*="heroRightRail"][class*="heroRightRailClosed"] {
+    max-width: 22px !important;
+    width: 22px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  html body [class*="heroWrap"] > [class*="container"],
+  html body [class*="heroInner"] {
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroRightRail"] {
+    border-radius: 0 !important;
+    justify-self: end !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100vw !important;
+    right: 0 !important;
+    width: 100vw !important;
+  }
+
+  body [class*="heroRightRail"][class*="heroRightRailClosed"] {
+    max-width: 18px !important;
+    width: 18px !important;
+  }
+
+  html body [class*="heroInner"] > [class*="heroRightRail"] {
+    left: auto !important;
+    max-width: 100dvw !important;
+    right: 0 !important;
+    width: 100dvw !important;
+  }
+
+  html body [class*="heroInner"] > [class*="heroRightRail"][class*="heroRightRailClosed"] {
+    max-width: 18px !important;
+    width: 18px !important;
+  }
+
+  html body [class*="heroInner"] > [class*="heroRightRail"][class*="heroRightRailClosed"] [class*="heroRailClosedButton"] {
+    height: 44px !important;
+    max-width: 44px !important;
+    right: 0 !important;
+    width: 44px !important;
+  }
+
+  body [class*="heroRailEdgeToggle"] {
+    height: 44px !important;
+    width: 44px !important;
+  }
+}
+
+/* Final home search rail: flush to the viewport edge and collapsible from its left side. */
+body [class*="heroRightRail"] {
+  position: relative !important;
+}
+
+body [class*="heroRailEdgeToggle"] {
+  align-items: center !important;
+  background: #ff7a1a !important;
+  border: 1px solid rgba(255, 220, 188, 0.72) !important;
+  border-radius: 0 999px 999px 0 !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28) !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 46px !important;
+  justify-content: center !important;
+  left: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 46px !important;
+  z-index: 20 !important;
+}
+
+body [class*="heroRailEdgeToggle"]:hover,
+body [class*="heroRailClosedButton"]:hover {
+  background: #ff8a24 !important;
+}
+
+@media (min-width: 901px) {
+  body [class*="heroWrap"] > [class*="container"] {
+    max-width: none !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroInner"] {
+    grid-template-columns: minmax(0, 1fr) minmax(390px, 410px) !important;
+    padding-right: 0 !important;
+  }
+
+  body [class*="heroRightRail"] {
+    border-radius: 7px 0 0 7px !important;
+    justify-self: end !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    max-width: 410px !important;
+    right: 0 !important;
+    width: 410px !important;
+  }
+
+  body [class*="heroRightRail"][class*="heroRightRailClosed"] {
+    align-items: flex-end !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-height: min(680px, calc(100vh - 170px)) !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    width: 54px !important;
+    z-index: 25 !important;
+  }
+
+  body [class*="heroRailClosedButton"] {
+    align-items: center !important;
+    background: #ff7a1a !important;
+    border: 1px solid rgba(255, 220, 188, 0.72) !important;
+    border-radius: 999px 0 0 999px !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    height: 48px !important;
+    justify-content: center !important;
+    min-height: 48px !important;
+    padding: 0 !important;
+    width: 54px !important;
+  }
+
+  body [class*="heroRailClosedButton"] span {
+    display: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  body [class*="heroRightRail"] {
+    border-radius: 7px 0 0 7px !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    max-width: min(390px, calc(100vw - 16px)) !important;
+    right: 0 !important;
+    width: min(390px, calc(100vw - 16px)) !important;
+  }
+
+  body [class*="heroRailEdgeToggle"] {
+    height: 42px !important;
+    left: 0 !important;
+    width: 42px !important;
+  }
+
+  body [class*="heroRightRail"][class*="heroRightRailClosed"] {
+    align-items: flex-end !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-height: min(680px, calc(100vh - 170px)) !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    width: 44px !important;
+    z-index: 25 !important;
+  }
+
+  body [class*="heroRailClosedButton"] {
+    align-items: center !important;
+    background: #ff7a1a !important;
+    border: 1px solid rgba(255, 220, 188, 0.72) !important;
+    border-radius: 999px 0 0 999px !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    height: 44px !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    width: 44px !important;
+  }
+
+  body [class*="heroRailClosedButton"] span {
+    display: none !important;
+  }
+}
+
+/* Final mobile filter rail placement: keep the rail flush to the right edge. */
+@media (max-width: 900px) {
+  html body [class*="heroWrap"] {
+    padding-right: 0 !important;
+  }
+
+  html body [class*="heroWrap"] > [class*="container"],
+  html body [class*="heroInner"] {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  html body [class*="heroRightRail"] {
+    display: block !important;
+    justify-self: end !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    max-width: min(390px, 100vw) !important;
+    position: relative !important;
+    right: calc((100vw - 100%) / -2) !important;
+    width: min(390px, 100vw) !important;
+  }
+}
+
+/* Final home filter rail width: no top action buttons, wider, right edge flush. */
+body [class*="heroRightRail"] {
+  justify-self: stretch !important;
+  margin-right: 0 !important;
+  max-height: none !important;
+  max-width: none !important;
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  position: relative !important;
+  right: 0 !important;
+  top: auto !important;
+  width: 100% !important;
+}
+
+body [class*="heroRailHeader"],
+body [class*="heroRailHeaderActions"],
+body [class*="heroRailPinToggle"],
+body [class*="heroRailToggle"] {
+  display: none !important;
+}
+
+@media (min-width: 901px) {
+  body [class*="heroWrap"] > [class*="container"] {
+    max-width: none !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroInner"] {
+    grid-template-columns: minmax(0, 1fr) minmax(390px, 440px) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  body [class*="heroWrap"] {
+    padding-right: 0 !important;
+  }
+
+  body [class*="heroWrap"] > [class*="container"],
+  body [class*="heroInner"] {
+    padding-right: 0 !important;
+  }
+}
+
+/* Final lock for the right filter rail pin control and scroll behavior. */
+body [class*="heroRightRail"][class*="heroRightRailPinned"] {
+  max-height: none !important;
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  position: relative !important;
+  top: auto !important;
+}
+
+body [class*="heroRightRail"][class*="heroRightRailFloating"] {
+  max-height: calc(100vh - 92px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  position: sticky !important;
+  top: 74px !important;
+}
+
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:checked) {
+  max-height: none !important;
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  position: relative !important;
+  top: auto !important;
+}
+
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:not(:checked)) {
+  max-height: calc(100vh - 92px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  position: sticky !important;
+  top: 74px !important;
+}
+
+body [class*="heroRailHeaderActions"] {
+  align-items: center !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  gap: 8px !important;
+  justify-content: flex-end !important;
+  min-width: 0 !important;
+}
+
+body [class*="heroRailHeader"] [class*="heroRailHeaderActions"] {
+  display: flex !important;
+}
+
+body [class*="heroRailPinInput"] {
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  width: 1px !important;
+}
+
+body [class*="heroRailPinToggle"] {
+  align-items: center !important;
+  background: rgba(22, 47, 69, 0.84) !important;
+  border: 1px solid rgba(95, 139, 171, 0.5) !important;
+  border-radius: 999px !important;
+  color: #dce8f3 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  height: 28px !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding: 0 10px !important;
+  white-space: nowrap !important;
+}
+
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:checked) [class*="heroRailPinToggle"] {
+  background: rgba(255, 122, 26, 0.16) !important;
+  border-color: rgba(255, 122, 26, 0.72) !important;
+  color: #ffffff !important;
+}
+
+body [class*="heroRailPinOn"] {
+  display: none !important;
+}
+
+body [class*="heroRailPinOff"] {
+  display: inline !important;
+}
+
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:checked) [class*="heroRailPinOn"] {
+  display: inline !important;
+}
+
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:checked) [class*="heroRailPinOff"] {
+  display: none !important;
+}
+
+body [class*="heroRailToggle"] span {
+  display: inline !important;
+}
+
+/* Keep year min/max controls side by side. */
+body [class*="heroYearRangeField"] {
+  grid-column: 1 / -1 !important;
+}
+
+body [class*="heroYearRangeField"] [class*="heroYearBoxes"] {
+  align-items: center !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr) !important;
+  width: 100% !important;
+}
+
+body [class*="heroYearRangeField"] [class*="heroYearSelectWrap"] {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+body [class*="heroYearRangeField"] [class*="heroYearBox"] {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+body [class*="heroYearRangeField"] [class*="heroYearDash"] {
+  align-items: center !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  width: 14px !important;
+}
+
+/* Home hero must contain its own latest-listing cards instead of ending mid-card. */
+@media (min-width: 901px) {
+  body [class*="heroWrap"],
+  body [class*="heroWrap"] > [class*="container"],
+  body [class*="heroInner"],
+  body [class*="heroLeadPanel"],
+  body [class*="heroDesktopLatest"],
+  body [class*="heroDesktopLatestGrid"] {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  body [class*="heroWrap"] > [class*="container"] > [class*="hero"] {
+    display: block !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  body [class*="heroWrap"] {
+    border-bottom: 0 !important;
+    box-shadow: none !important;
+    padding-bottom: clamp(36px, 4vw, 72px) !important;
+  }
+
+  body [class*="heroWrap"]::before,
+  body [class*="heroWrap"]::after {
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body [class*="homeDiscoverySection"],
+  body [class*="listingsPlainSection"] {
+    margin-top: 0 !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer {
+    border-top: 0 !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .footer-bottom {
+    border-top: 0 !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer {
+    background: var(--site-bg, var(--bg, #06111d)) !important;
+    margin-top: 0 !important;
+    padding: clamp(28px, 2.2vw, 34px) clamp(18px, 2.2vw, 38px) 0 !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-inner {
+    align-items: start !important;
+    display: grid !important;
+    gap: clamp(28px, 3.2vw, 54px) !important;
+    grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) !important;
+    margin: 0 auto !important;
+    max-width: 1680px !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-brand {
+    align-items: flex-start !important;
+    border-right: 0 !important;
+    display: grid !important;
+    gap: 13px !important;
+    justify-items: start !important;
+    padding: 0 !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-logo {
+    display: inline-flex !important;
+    height: auto !important;
+    max-width: 218px !important;
+    width: min(218px, 100%) !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-maskines-logo {
+    display: block !important;
+    filter: none !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-tagline {
+    color: rgba(222, 232, 244, 0.72) !important;
+    font-size: 13px !important;
+    font-weight: 650 !important;
+    line-height: 1.55 !important;
+    margin: 0 !important;
+    max-width: 288px !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-socials {
+    display: flex !important;
+    gap: 10px !important;
+    margin-top: 2px !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-socials a {
+    align-items: center !important;
+    background: rgba(13, 31, 49, 0.74) !important;
+    border: 1px solid rgba(123, 155, 188, 0.3) !important;
+    border-radius: 10px !important;
+    color: rgba(235, 244, 255, 0.82) !important;
+    display: inline-flex !important;
+    height: 38px !important;
+    justify-content: center !important;
+    width: 38px !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-links-grid {
+    border-left: 1px solid rgba(123, 155, 188, 0.14) !important;
+    display: grid !important;
+    gap: clamp(20px, 2.4vw, 40px) !important;
+    grid-template-columns: repeat(4, minmax(120px, 1fr)) !important;
+    min-height: 0 !important;
+    padding-left: clamp(18px, 2vw, 34px) !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-col {
+    gap: 14px !important;
+    min-width: 0 !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-col h4 {
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    letter-spacing: 0.06em !important;
+    margin: 0 !important;
+    padding-bottom: 12px !important;
+    position: relative !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-col h4::before {
+    background: #ff7a1a !important;
+    bottom: 0 !important;
+    content: "" !important;
+    height: 2px !important;
+    left: 0 !important;
+    position: absolute !important;
+    width: 22px !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-col h4::after {
+    background: rgba(123, 155, 188, 0.22) !important;
+    bottom: 0 !important;
+    content: "" !important;
+    height: 1px !important;
+    left: 0 !important;
+    position: absolute !important;
+    width: 100% !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-col ul {
+    display: grid !important;
+    gap: 11px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-col a {
+    color: rgba(220, 232, 244, 0.72) !important;
+    font-size: 13px !important;
+    font-weight: 750 !important;
+    line-height: 1.25 !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-col a:hover {
+    color: #ffffff !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    margin: clamp(24px, 2.4vw, 34px) auto 0 !important;
+    max-width: 1680px !important;
+    min-height: 54px !important;
+    padding: 12px 0 18px !important;
+    width: 100% !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom,
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom a {
+    color: rgba(220, 232, 244, 0.62) !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom-links {
+    display: flex !important;
+    gap: 24px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-inner {
+    gap: 28px !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-links-grid {
+    border-left: 0 !important;
+    border-top: 1px solid rgba(123, 155, 188, 0.14) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    padding-left: 0 !important;
+    padding-top: 24px !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  body:has([class*="heroDesktopLatest"]) .site-footer {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-links-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom-links {
+    flex-wrap: wrap !important;
+    gap: 12px 18px !important;
+  }
+}
+
+/* Homepage hero listing cards follow admin listing card color. */
+@media (min-width: 901px) {
+  body [class*="heroDesktopLatestCard"] {
+    background: var(--listing-card-bg, var(--site-card, #0e1721)) !important;
+    border-color: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 64%, #ffffff 34%) !important;
+    border-radius: 7px !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: grid !important;
+    grid-template-rows: auto auto auto auto 1fr !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    text-align: left !important;
+  }
+
+  body [class*="heroDesktopLatestImage"] {
+    aspect-ratio: 16 / 10.55 !important;
+    background: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 74%, #000000 26%) !important;
+    display: block !important;
+    overflow: hidden !important;
+    position: relative !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroDesktopLatestImage"] img {
+    height: 100% !important;
+    object-fit: cover !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroDesktopFavorite"] {
+    align-items: center !important;
+    background: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 62%, #ffffff 16%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    border-radius: 999px !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3) !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    height: 34px !important;
+    justify-content: center !important;
+    padding: 8px !important;
+    position: absolute !important;
+    right: 10px !important;
+    top: 10px !important;
+    width: 34px !important;
+    z-index: 2 !important;
+  }
+
+  body [class*="heroDesktopFavorite"]:hover {
+    background: rgba(255, 122, 26, 0.92) !important;
+    border-color: rgba(255, 169, 88, 0.95) !important;
+    color: #ffffff !important;
+  }
+
+  body [class*="heroDesktopFavoriteActive"] {
+    background: rgba(255, 122, 26, 0.96) !important;
+    border-color: rgba(255, 169, 88, 0.96) !important;
+    color: #ffffff !important;
+  }
+
+  body [class*="heroDesktopFavoriteDisabled"] {
+    cursor: not-allowed !important;
+    opacity: 0.72 !important;
+  }
+
+  body [class*="heroDesktopFavorite"] svg {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: currentColor !important;
+    flex: 0 0 auto !important;
+    height: 19px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    position: static !important;
+    stroke: currentColor !important;
+    stroke-width: 2.5 !important;
+    width: 19px !important;
+  }
+
+  body [class*="heroDesktopFavoriteActive"] svg {
+    fill: currentColor !important;
+  }
+
+  body [class*="heroDesktopLatestTop"],
+  body [class*="heroDesktopLatestModel"],
+  body [class*="heroDesktopLatestPrice"],
+  body [class*="heroDesktopLatestMeta"] {
+    margin-left: 14px !important;
+    margin-right: 14px !important;
+    min-width: 0 !important;
+  }
+
+  body [class*="heroDesktopLatestTop"] {
+    margin-top: 13px !important;
+  }
+
+  body [class*="heroDesktopLatestTop"] strong {
+    color: #ffffff !important;
+    display: -webkit-box !important;
+    font-size: clamp(12px, 0.82vw, 14px) !important;
+    font-weight: 950 !important;
+    line-height: 1.16 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  body [class*="heroDesktopLatestModel"] {
+    color: color-mix(in srgb, var(--site-text, #f8fbff) 74%, transparent) !important;
+    display: block !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    margin-top: 3px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body [class*="heroDesktopLatestPrice"] {
+    color: #ffffff !important;
+    display: block !important;
+    font-size: clamp(25px, 2vw, 32px) !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    margin-bottom: 0 !important;
+    margin-top: 20px !important;
+  }
+
+  body [class*="heroDesktopLatestMeta"] {
+    align-items: center !important;
+    border-top: 1px solid color-mix(in srgb, var(--site-text, #f8fbff) 18%, transparent) !important;
+    color: color-mix(in srgb, var(--site-text, #f8fbff) 68%, transparent) !important;
+    display: flex !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    gap: 10px !important;
+    justify-content: space-between !important;
+    margin-bottom: 15px !important;
+    margin-top: 16px !important;
+    padding-top: 12px !important;
+  }
+
+  body [class*="heroDesktopLatestMeta"] span {
+    align-items: center !important;
+    display: inline-flex !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body [class*="heroDesktopLatestMeta"] span:first-child {
+    max-width: 58% !important;
+  }
+
+  body [class*="heroDesktopLatestMeta"] svg {
+    flex: 0 0 auto !important;
+    height: 14px !important;
+    width: 14px !important;
+  }
+
+  body [class*="heroDesktopLatestGrid"] {
+    align-items: stretch !important;
+    display: grid !important;
+    gap: 14px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroDesktopLatestActions"] {
+    align-items: center !important;
+    display: flex !important;
+    gap: 10px !important;
+    justify-content: flex-end !important;
+  }
+
+  body [class*="heroDesktopLatestSort"] {
+    flex: 0 0 218px !important;
+    max-width: 218px !important;
+    min-width: 218px !important;
+    position: relative !important;
+    width: 218px !important;
+  }
+
+  body [class*="heroDesktopLatestSort"] [class*="sortControlLabel"] {
+    display: none !important;
+  }
+
+  body [class*="heroDesktopLatestSort"] [class*="sortButtonFace"] {
+    align-items: center !important;
+    background: rgba(3, 13, 24, 0.74) !important;
+    border: 1px solid rgba(255, 255, 255, 0.86) !important;
+    border-radius: 7px !important;
+    color: #ffffff !important;
+    display: flex !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    gap: 9px !important;
+    height: 44px !important;
+    justify-content: center !important;
+    padding: 0 14px !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroDesktopLatestSort"] [class*="sortButtonFace"] svg {
+    color: #ff8a1f !important;
+    height: 15px !important;
+    width: 15px !important;
+  }
+
+  body [class*="heroDesktopLatestSort"] [class*="sortMenuPanel"] {
+    min-width: 100% !important;
+    right: 0 !important;
+    top: calc(100% + 7px) !important;
+    z-index: 50 !important;
+  }
+
+  body [class*="heroDesktopLatestActions"] > button {
+    flex: 0 0 auto !important;
+  }
+
+  body [class*="heroDesktopLatestGridExpanded"] {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+  }
+
+  body [class*="heroDesktopLatestGridExpanded"] [class*="heroDesktopLatestCard"] {
+    flex: 0 1 calc((100% - 42px) / 4) !important;
+    max-width: calc((100% - 42px) / 4) !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1280px) {
+  body [class*="heroDesktopLatestGrid"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  body [class*="heroDesktopLatestGridExpanded"] [class*="heroDesktopLatestCard"] {
+    flex-basis: calc((100% - 28px) / 3) !important;
+    max-width: calc((100% - 28px) / 3) !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1040px) {
+  body [class*="heroDesktopLatestGrid"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body [class*="heroDesktopLatestGridExpanded"] [class*="heroDesktopLatestCard"] {
+    flex-basis: calc((100% - 14px) / 2) !important;
+    max-width: calc((100% - 14px) / 2) !important;
+  }
+}
+
+/* Desktop search rail: closer to the compact marketplace filter style, with our part categories included. */
+@media (min-width: 901px) {
+  body [class*="heroRightRail"] {
+    background:
+      linear-gradient(180deg, rgba(10, 25, 39, 0.96), rgba(5, 15, 27, 0.98)) !important;
+    border: 1px solid rgba(92, 127, 160, 0.3) !important;
+    border-radius: 7px !important;
+    box-shadow: 0 22px 55px rgba(0, 0, 0, 0.28) !important;
+    gap: 13px !important;
+    padding: 16px !important;
+  }
+
+  body [class*="heroDesktopVehicleCards"],
+  body [class*="categoryRowWrap"],
+  body [class*="heroQuickCategoryRow"] {
+    display: none !important;
+  }
+
+  body [class*="heroRailHeader"] {
+    align-items: center !important;
+    border-bottom: 1px solid rgba(116, 146, 176, 0.18) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    padding-bottom: 10px !important;
+  }
+
+  body [class*="heroRailHeader"] span {
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 950 !important;
+    letter-spacing: 0 !important;
+    text-transform: uppercase !important;
+  }
+
+  body [class*="heroRailHeader"] strong {
+    display: none !important;
+  }
+
+  body [class*="heroRailToggle"] {
+    background: transparent !important;
+    border: 0 !important;
+    color: #7dbdff !important;
+    height: auto !important;
+    min-height: 0 !important;
+    width: auto !important;
+  }
+
+  body [class*="heroRailToggle"] svg {
+    display: none !important;
+  }
+
+  body [class*="heroRailToggle"]::before {
+    content: "ID / Rekisterinumero" !important;
+    font-size: 11px !important;
+    font-weight: 750 !important;
+    white-space: nowrap !important;
+  }
+
+  body [class*="heroRightRail"] [class*="heroSearchPanel"] {
+    background: transparent !important;
+    border: 0 !important;
+    display: grid !important;
+    gap: 10px !important;
+    padding: 0 !important;
+  }
+
+  body [class*="heroRightRail"] [class*="heroSearchRow"] form[class*="heroSearch"] {
+    border: 1px solid rgba(92, 127, 160, 0.34) !important;
+    border-radius: 4px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    overflow: hidden !important;
+  }
+
+  body [class*="heroRightRail"] [class*="heroSearchInput"] {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    min-width: 0 !important;
+    padding: 0 11px !important;
+  }
+
+  body [class*="heroRightRail"] [class*="heroSearchInput"]::placeholder {
+    color: rgba(214, 224, 236, 0.62) !important;
+  }
+
+  body [class*="heroRightRail"] [class*="heroSearchButton"] {
+    border-radius: 0 !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    min-height: 38px !important;
+    min-width: 76px !important;
+    padding: 0 14px !important;
+  }
+
+  body [class*="heroFilterStack"] {
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  body [class*="heroFilterFieldWrap"],
+  body [class*="heroYearSelectWrap"] {
+    min-width: 0 !important;
+    position: relative !important;
+  }
+
+  body [class*="heroFilterFieldWrap"]:is(:nth-child(1), :nth-child(2), :nth-child(3), :nth-child(4), :nth-child(7), :nth-child(8), :nth-child(9)) {
+    grid-column: 1 / -1 !important;
+  }
+
+  body [class*="heroFilterFieldWrap"]:nth-child(6) {
+    order: 7 !important;
+  }
+
+  body [class*="heroFilterFieldWrap"]:nth-child(7) {
+    order: 8 !important;
+  }
+
+  body [class*="heroFilterFieldWrap"]:nth-child(8) {
+    order: 9 !important;
+  }
+
+  body [class*="heroFilterFieldWrap"]:nth-child(9) {
+    order: 10 !important;
+  }
+
+  body [class*="heroFilterSelect"] {
+    background: rgba(3, 13, 24, 0.62) !important;
+    border: 1px solid rgba(92, 127, 160, 0.28) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    color: #f8fbff !important;
+    display: grid !important;
+    gap: 2px !important;
+    grid-template-columns: minmax(0, 1fr) 14px !important;
+    min-height: 44px !important;
+    padding: 7px 9px !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroFilterSelect"]:is(:nth-child(1), :nth-child(2), :nth-child(3), :nth-child(4), :nth-child(7), :nth-child(10)) {
+    grid-column: 1 / -1 !important;
+  }
+
+  body [class*="heroFilterSelect"]:nth-child(6) {
+    order: 7 !important;
+  }
+
+  body [class*="heroFilterSelect"]:nth-child(7) {
+    order: 8 !important;
+  }
+
+  body [class*="heroFilterSelect"]:nth-child(8) {
+    order: 9 !important;
+  }
+
+  body [class*="heroFilterSelect"]:nth-child(9) {
+    order: 10 !important;
+  }
+
+  body [class*="heroYearRangeField"] {
+    display: grid !important;
+    gap: 8px !important;
+    grid-column: 1 / -1 !important;
+    margin-bottom: 8px !important;
+    order: 6 !important;
+  }
+
+  body [class*="heroYearRangeLabel"] {
+    color: rgba(216, 226, 238, 0.86) !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+  }
+
+  body [class*="heroYearBoxes"] {
+    align-items: center !important;
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+  }
+
+  body [class*="heroYearBox"] {
+    background: rgba(3, 13, 24, 0.62) !important;
+    border: 1px solid rgba(92, 127, 160, 0.28) !important;
+    border-radius: 4px !important;
+    color: #ffffff !important;
+    align-items: center !important;
+    display: grid !important;
+    gap: 2px !important;
+    grid-template-columns: minmax(0, 1fr) 13px !important;
+    min-height: 38px !important;
+    padding: 6px 9px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroYearBox"] span {
+    color: rgba(216, 226, 238, 0.66) !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+  }
+
+  body [class*="heroYearBox"] strong {
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    line-height: 1.1 !important;
+  }
+
+  body [class*="heroYearDash"] {
+    color: rgba(216, 226, 238, 0.48) !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+  }
+
+  body [class*="heroYearMiniLine"] {
+    background: #ff7a1a !important;
+    border-radius: 999px !important;
+    display: block !important;
+    height: 4px !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroFilterMenu"] {
+    background: #071523 !important;
+    border: 1px solid rgba(92, 127, 160, 0.42) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.42) !important;
+    display: grid !important;
+    gap: 2px !important;
+    left: auto !important;
+    margin-top: 0 !important;
+    max-height: 238px !important;
+    overflow: auto !important;
+    padding: 6px !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    z-index: auto !important;
+  }
+
+  body [class*="heroFilterMenuOption"],
+  body [class*="heroFilterMenuEmpty"] {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 4px !important;
+    color: #f8fbff !important;
+    display: block !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    line-height: 1.2 !important;
+    min-height: 30px !important;
+    padding: 8px 9px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroFilterMenuOption"]:hover {
+    background: rgba(255, 122, 26, 0.18) !important;
+    color: #ffffff !important;
+  }
+
+  body [class*="heroYearSlider"] {
+    box-sizing: border-box !important;
+    height: 22px !important;
+    margin: 3px 2px 8px !important;
+    overflow: visible !important;
+    position: relative !important;
+  }
+
+  body [class*="heroYearSlider"]::before,
+  body [class*="heroYearSlider"]::after {
+    border-radius: 999px !important;
+    content: "" !important;
+    height: 4px !important;
+    left: 10px !important;
+    position: absolute !important;
+    right: 10px !important;
+    top: 9px !important;
+  }
+
+  body [class*="heroYearSlider"]::before {
+    background: rgba(92, 127, 160, 0.3) !important;
+  }
+
+  body [class*="heroYearSlider"]::after {
+    background: #ff7a1a !important;
+    left: calc(10px + (100% - 20px) * var(--year-min-number, 0)) !important;
+    right: calc(10px + (100% - 20px) * (1 - var(--year-max-number, 1))) !important;
+  }
+
+  body [class*="heroYearSlider"] input,
+  body [class*="heroYearSlider"] input[type="range"] {
+    appearance: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    height: 22px !important;
+    left: 0 !important;
+    margin: 0 !important;
+    outline: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    top: 0 !important;
+    width: 100% !important;
+    z-index: 2 !important;
+  }
+
+  body [class*="heroYearSlider"] input:focus,
+  body [class*="heroYearSlider"] input:focus-visible,
+  body [class*="heroYearSlider"] input[type="range"]:focus,
+  body [class*="heroYearSlider"] input[type="range"]:focus-visible {
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
+
+  body [class*="heroYearSlider"] input::-webkit-slider-runnable-track {
+    appearance: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    height: 4px !important;
+  }
+
+  body [class*="heroYearSlider"] input::-webkit-slider-thumb {
+    appearance: none !important;
+    background: #ff7a1a !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 999px !important;
+    box-shadow: 0 4px 12px rgba(255, 122, 26, 0.34) !important;
+    cursor: grab !important;
+    height: 14px !important;
+    margin-top: -5px !important;
+    pointer-events: auto !important;
+    width: 14px !important;
+  }
+
+  body [class*="heroYearSlider"] input::-moz-range-track {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    height: 4px !important;
+  }
+
+  body [class*="heroYearSlider"] input::-moz-range-thumb {
+    background: #ff7a1a !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 999px !important;
+    box-shadow: 0 4px 12px rgba(255, 122, 26, 0.34) !important;
+    cursor: grab !important;
+    height: 14px !important;
+    pointer-events: auto !important;
+    width: 14px !important;
+  }
+
+  body [class*="heroFilterSelect"] span {
+    color: rgba(216, 226, 238, 0.78) !important;
+    font-size: 10px !important;
+    font-weight: 850 !important;
+    grid-column: 1 / -1 !important;
+    line-height: 1.05 !important;
+    text-transform: none !important;
+  }
+
+  body [class*="heroFilterSelect"] strong {
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    line-height: 1.2 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body [class*="heroFilterSelect"] svg {
+    height: 13px !important;
+    width: 13px !important;
+  }
+
+  body [class*="heroPopularSearches"] {
+    gap: 7px !important;
+    justify-content: flex-start !important;
+    margin-top: 1px !important;
+  }
+
+  body [class*="heroPopularSearches"] > span {
+    color: rgba(216, 226, 238, 0.76) !important;
+    flex-basis: 100% !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    text-align: left !important;
+  }
+
+  body [class*="heroPopularSearches"] button {
+    background: rgba(31, 55, 78, 0.86) !important;
+    border: 1px solid rgba(117, 151, 184, 0.28) !important;
+    border-radius: 999px !important;
+    color: #f7fbff !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    min-height: 26px !important;
+    padding: 0 12px !important;
+  }
+
+  body [class*="heroRailActions"] {
+    gap: 8px !important;
+  }
+
+  body [class*="heroRailSubmit"],
+  body [class*="heroRailClear"] {
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    min-height: 38px !important;
+  }
+
+  body [class*="heroRailSubmit"] {
+    background: #ff7214 !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Let the latest listings use the empty middle space on wide desktop screens. */
+@media (min-width: 1400px) {
+  body [class*="heroWrap"] > [class*="container"] {
+    max-width: none !important;
+    padding-left: clamp(28px, 2vw, 44px) !important;
+    padding-right: clamp(28px, 2vw, 44px) !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroInner"] {
+    column-gap: clamp(26px, 2.2vw, 42px) !important;
+    grid-template-columns: minmax(0, 1fr) 390px !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroLeadPanel"],
+  body [class*="heroLeadPanel"] [class*="heroHeadline"],
+  body [class*="heroReferenceSubtitle"],
+  body [class*="heroMainSearchPanel"],
+  body [class*="heroDesktopVehicleCards"],
+  body [class*="heroDesktopLatest"] {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  body [class*="heroDesktopLatestGrid"] {
+    gap: clamp(16px, 1.2vw, 22px) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  body [class*="heroDesktopLatestGridExpanded"] [class*="heroDesktopLatestCard"] {
+    flex-basis: calc((100% - clamp(48px, 3.6vw, 66px)) / 4) !important;
+    max-width: calc((100% - clamp(48px, 3.6vw, 66px)) / 4) !important;
+  }
+
+  body [class*="heroDesktopLatestImage"] {
+    aspect-ratio: 16 / 11.4 !important;
+  }
+
+  body [class*="heroDesktopLatestTop"],
+  body [class*="heroDesktopLatestModel"],
+  body [class*="heroDesktopLatestPrice"],
+  body [class*="heroDesktopLatestMeta"] {
+    margin-left: clamp(16px, 1.15vw, 22px) !important;
+    margin-right: clamp(16px, 1.15vw, 22px) !important;
+  }
+
+  body [class*="heroDesktopLatestPrice"] {
+    font-size: clamp(30px, 1.9vw, 38px) !important;
+    margin-top: clamp(22px, 1.5vw, 28px) !important;
+  }
+
+  body [class*="heroDesktopLatestTop"] strong {
+    font-size: clamp(14px, 0.85vw, 17px) !important;
+  }
+
+  body [class*="heroDesktopLatestModel"],
+  body [class*="heroDesktopLatestMeta"] {
+    font-size: clamp(11px, 0.72vw, 13px) !important;
+  }
+
+  body [class*="heroDesktopLatestMeta"] {
+    margin-bottom: clamp(16px, 1.1vw, 22px) !important;
+    margin-top: clamp(18px, 1.2vw, 24px) !important;
+    padding-top: clamp(13px, 0.9vw, 17px) !important;
+  }
+}
+
 html body header.universal-app-topbar .universal-home-primary-nav .universal-nav-dropdown {
   display: inline-flex !important;
   position: relative !important;
@@ -5120,12 +6732,17 @@ main,
 
 /* Full-width footer finish. */
 .site-footer {
-  background:
-    radial-gradient(900px 260px at 8% 0%, rgba(255, 122, 26, 0.1), transparent 66%),
-    radial-gradient(900px 280px at 92% 12%, rgba(45, 156, 219, 0.13), transparent 64%),
-    linear-gradient(180deg, #071523 0%, #08111d 100%) !important;
-  border-top: 1px solid rgba(255, 122, 26, 0.58) !important;
-  padding: 46px clamp(28px, 5vw, 72px) 0 !important;
+  background: var(--site-bg, var(--bg, #06111d)) !important;
+  border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
+  padding: 34px clamp(18px, 2.2vw, 38px) 0 !important;
+}
+
+.site-footer::before {
+  background: none !important;
+  box-shadow: none !important;
+  content: none !important;
+  display: none !important;
+  opacity: 0 !important;
 }
 
 .site-footer .footer-inner {
@@ -5133,17 +6750,31 @@ main,
   border: 0 !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  gap: clamp(34px, 6vw, 96px) !important;
-  grid-template-columns: minmax(260px, 380px) minmax(0, 1fr) !important;
-  margin: 0 !important;
-  max-width: none !important;
+  gap: clamp(28px, 3.2vw, 54px) !important;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) !important;
+  margin: 0 auto !important;
+  max-width: 1680px !important;
   padding: 0 !important;
   width: 100% !important;
 }
 
 .site-footer .footer-brand {
-  border-right: 1px solid rgba(151, 178, 205, 0.16) !important;
-  padding-right: clamp(24px, 4vw, 52px) !important;
+  align-items: flex-start !important;
+  border-right: 1px solid rgba(151, 178, 205, 0.12) !important;
+  justify-items: start !important;
+  padding-right: clamp(20px, 2.4vw, 34px) !important;
+}
+
+.site-footer .footer-logo {
+  max-width: 218px !important;
+  width: min(218px, 100%) !important;
+}
+
+.site-footer .footer-maskines-logo {
+  display: block !important;
+  filter: none !important;
+  height: auto !important;
+  width: 100% !important;
 }
 
 .site-footer .footer-logo-icon {
@@ -5156,7 +6787,7 @@ main,
 }
 
 .site-footer .footer-tagline {
-  max-width: 340px !important;
+  max-width: 300px !important;
 }
 
 .site-footer .footer-socials a {
@@ -5170,8 +6801,9 @@ main,
 }
 
 .site-footer .footer-links-grid {
-  gap: clamp(24px, 4vw, 64px) !important;
-  grid-template-columns: repeat(4, minmax(140px, 1fr)) !important;
+  gap: clamp(20px, 2.4vw, 40px) !important;
+  grid-template-columns: repeat(4, minmax(120px, 1fr)) !important;
+  padding-left: clamp(10px, 1.2vw, 22px) !important;
 }
 
 .site-footer .footer-col h4 {
@@ -5188,10 +6820,10 @@ main,
 }
 
 .site-footer .footer-bottom {
-  max-width: none !important;
+  max-width: 1680px !important;
   width: 100% !important;
-  margin: 34px 0 0 !important;
-  padding: 18px 0 !important;
+  margin: 24px auto 0 !important;
+  padding: 14px 0 16px !important;
 }
 
 @media (max-width: 900px) {
@@ -12119,6 +13751,234 @@ html body main.auth-page.simple-auth-page .profile-finalize-card .phone-field-ro
 
   html body header.universal-app-topbar .universal-create-button strong,
   html body header.universal-app-topbar.universal-home-topbar .universal-create-button strong {
+    display: none !important;
+  }
+}
+
+/* Absolute final year slider lock: only the orange rail and handles should show. */
+body [class*="heroYearSlider"] {
+  box-sizing: border-box !important;
+  height: 22px !important;
+  margin: 3px 2px 8px !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+
+body [class*="heroYearSlider"]::before,
+body [class*="heroYearSlider"]::after {
+  border-radius: 999px !important;
+  content: "" !important;
+  height: 4px !important;
+  left: 10px !important;
+  position: absolute !important;
+  right: 10px !important;
+  top: 9px !important;
+}
+
+body [class*="heroYearSlider"]::before {
+  background: rgba(92, 127, 160, 0.3) !important;
+}
+
+body [class*="heroYearSlider"]::after {
+  background: #ff7a1a !important;
+  left: calc(10px + (100% - 20px) * var(--year-min-number, 0)) !important;
+  right: calc(10px + (100% - 20px) * (1 - var(--year-max-number, 1))) !important;
+}
+
+body [class*="heroYearSlider"] input,
+body [class*="heroYearSlider"] input[type="range"] {
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  height: 22px !important;
+  left: 0 !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  outline: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: 0 !important;
+  width: 100% !important;
+  z-index: 2 !important;
+}
+
+body [class*="heroYearSlider"] input:focus,
+body [class*="heroYearSlider"] input:focus-visible,
+body [class*="heroYearSlider"] input[type="range"]:focus,
+body [class*="heroYearSlider"] input[type="range"]:focus-visible {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+body [class*="heroYearSlider"] input::-webkit-slider-runnable-track {
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  height: 4px !important;
+}
+
+body [class*="heroYearSlider"] input::-webkit-slider-thumb {
+  appearance: none !important;
+  background: #ff7a1a !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 26, 0.34) !important;
+  cursor: grab !important;
+  height: 14px !important;
+  margin-top: -5px !important;
+  pointer-events: auto !important;
+  width: 14px !important;
+}
+
+body [class*="heroYearSlider"] input::-moz-range-track {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  height: 4px !important;
+}
+
+body [class*="heroYearSlider"] input::-moz-range-thumb {
+  background: #ff7a1a !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 26, 0.34) !important;
+  cursor: grab !important;
+  height: 14px !important;
+  pointer-events: auto !important;
+  width: 14px !important;
+}
+
+/* Absolute final right-rail pin lock. Keep this after later desktop/mobile overrides. */
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:checked) {
+  max-height: none !important;
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  position: relative !important;
+  top: auto !important;
+}
+
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:not(:checked)) {
+  max-height: calc(100vh - 92px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  position: sticky !important;
+  top: 74px !important;
+}
+
+body [class*="heroRailHeader"] [class*="heroRailHeaderActions"] {
+  display: flex !important;
+}
+
+body [class*="heroRailPinToggle"] {
+  display: inline-flex !important;
+}
+
+body [class*="heroRailPinOn"],
+body [class*="heroRailPinOff"] {
+  color: inherit !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+body [class*="heroRailHeader"] [class*="heroRailPinOn"] {
+  display: none !important;
+}
+
+body [class*="heroRailHeader"] [class*="heroRailPinOff"] {
+  display: inline !important;
+}
+
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:checked) [class*="heroRailHeader"] [class*="heroRailPinOn"] {
+  display: inline !important;
+}
+
+body [class*="heroRightRail"]:has([data-hero-rail-pin]:checked) [class*="heroRailHeader"] [class*="heroRailPinOff"] {
+  display: none !important;
+}
+/* Final home year slider cleanup: keep only the custom rail and two small thumbs. */
+body [data-hero-year-slider="true"] {
+  height: 18px !important;
+  margin: 8px 5px 10px !important;
+  overflow: visible !important;
+  position: relative !important;
+  width: calc(100% - 10px) !important;
+}
+
+body [data-hero-year-slider="true"]::before,
+body [data-hero-year-slider="true"]::after,
+body [class*="heroYearMiniLine"] {
+  content: none !important;
+  display: none !important;
+}
+
+body [data-hero-year-slider="true"] > span {
+  position: absolute !important;
+}
+
+body [data-hero-year-slider="true"] [class*="heroYearSliderRail"],
+body [data-hero-year-slider="true"] [class*="heroYearSliderActive"] {
+  border-radius: 999px !important;
+  display: block !important;
+  height: 2px !important;
+  top: 8px !important;
+}
+
+body [data-hero-year-slider="true"] [class*="heroYearSliderRail"] {
+  display: none !important;
+}
+
+body [data-hero-year-slider="true"] [class*="heroYearSliderActive"] {
+  background: #ff7a1a !important;
+  box-shadow: none !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: auto !important;
+}
+
+body [data-hero-year-slider="true"] [class*="heroYearSliderThumb"] {
+  background: #ffffff !important;
+  border: 2px solid #ff7a1a !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  height: 10px !important;
+  top: 4px !important;
+  transform: translateX(-50%) !important;
+  width: 10px !important;
+  z-index: 5 !important;
+}
+
+/* Final mobile home lock: filter rail opens only from the mobile filter button. */
+@media (max-width: 720px) {
+  body [class*="heroMobileFilterToggle"] {
+    display: inline-flex !important;
+  }
+
+  body [class*="heroRightRail"][class*="heroRightRailClosed"] {
+    display: none !important;
+  }
+
+  body [class*="heroRightRail"][class*="heroRightRailOpen"] {
+    display: block !important;
+    margin: 12px auto 0 !important;
+    max-width: calc(100vw - 28px) !important;
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    width: calc(100vw - 28px) !important;
+  }
+
+  body [class*="heroRightRail"] [class*="heroRailEdgeToggle"],
+  body [class*="heroRightRail"] [class*="heroRailClosedButton"],
+  body [class*="heroRightRail"] [class*="heroRailHeader"] {
     display: none !important;
   }
 }

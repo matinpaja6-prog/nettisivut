@@ -5,9 +5,16 @@ import {
   APPEARANCE_EVENT,
   DEFAULT_APPEARANCE,
   fetchSiteAppearance,
+  normalizeCardColor,
   type SiteAppearance
 } from "@/lib/site-appearance";
 import { supabase } from "@/lib/supabase";
+import {
+  applyUserBackgroundColor,
+  readUserSettings,
+  USER_SETTINGS_EVENT,
+  type UserSettings
+} from "@/lib/user-settings";
 
 const APPEARANCE_CACHE_KEY = "arctic-appearance-cache-v1";
 
@@ -42,8 +49,9 @@ function applyAppearance(a: SiteAppearance) {
     root.style.setProperty("--brand-dark-surface", a.surface_color);
   }
   if (a.card_color) {
-    root.style.setProperty("--site-card", a.card_color);
-    root.style.setProperty("--listing-card-bg", a.card_color);
+    const cardColor = normalizeCardColor(a.card_color);
+    root.style.setProperty("--site-card", cardColor);
+    root.style.setProperty("--listing-card-bg", cardColor);
   }
   if (a.text_color) {
     root.style.setProperty("--text", a.text_color);
@@ -70,7 +78,10 @@ export default function SiteAppearance() {
 
     async function load() {
       const a = await fetchSiteAppearance();
-      if (!cancelled) applyAppearance(a);
+      if (!cancelled) {
+        applyAppearance(a);
+        applyUserBackgroundColor(readUserSettings().backgroundColor);
+      }
     }
     void load();
 
@@ -78,6 +89,12 @@ export default function SiteAppearance() {
       void load();
     }
     window.addEventListener(APPEARANCE_EVENT, onChange);
+    function onUserSettingsChange(event: Event) {
+      const settings = (event as CustomEvent<UserSettings>).detail;
+      applyUserBackgroundColor(settings?.backgroundColor ?? readUserSettings().backgroundColor);
+    }
+    applyUserBackgroundColor(readUserSettings().backgroundColor);
+    window.addEventListener(USER_SETTINGS_EVENT, onUserSettingsChange);
 
     // Live updates from other admin tabs via Supabase realtime.
     const channel = supabase
@@ -92,6 +109,7 @@ export default function SiteAppearance() {
     return () => {
       cancelled = true;
       window.removeEventListener(APPEARANCE_EVENT, onChange);
+      window.removeEventListener(USER_SETTINGS_EVENT, onUserSettingsChange);
       if (channel && supabase) void supabase.removeChannel(channel);
     };
   }, []);

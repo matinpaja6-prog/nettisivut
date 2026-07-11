@@ -3,6 +3,27 @@
   background: transparent;
 }
 
+.heroRightRailPinned {
+}
+
+.heroRightRailFloating {
+}
+
+.heroRailHeaderActions {
+}
+
+.heroRailPinToggle {
+}
+
+.heroRailPinInput {
+}
+
+.heroRailPinOn {
+}
+
+.heroRailPinOff {
+}
+
 /* Reference-style desktop home hero: dark spare-parts stage, centered headline, category rail and trust/sell cards. */
 @media (min-width: 721px) {
   .heroWrap {
@@ -8112,10 +8133,20 @@
   justify-content: center !important;
   line-height: 0 !important;
   padding: 0 !important;
+  pointer-events: auto !important;
   place-items: center !important;
+  position: absolute !important;
   right: 10px !important;
+  touch-action: manipulation !important;
   top: 10px !important;
   width: 34px !important;
+  z-index: 80 !important;
+}
+
+.favoriteButton::before {
+  content: "" !important;
+  inset: -8px !important;
+  position: absolute !important;
 }
 
 .favoriteButton svg {
@@ -18573,6 +18604,8 @@
   display: block !important;
   left: auto !important;
   margin: 0 !important;
+  max-height: 18px !important;
+  min-height: 0 !important;
   max-width: 100% !important;
   opacity: 1 !important;
   padding: 0 !important;
@@ -21331,5 +21364,5697 @@
 @media (min-width: 1181px) {
   .homeVehicleCards {
     overflow: visible !important;
+  }
+}
+
+/* Final request: remove decorative home hero and vehicle card photos. */
+.heroWrap,
+.heroWrap::before {
+  background-image: none !important;
+}
+
+.heroWrap {
+  background:
+    radial-gradient(760px 320px at 50% 8%, rgba(35, 83, 122, 0.24), transparent 70%),
+    linear-gradient(180deg, #061525 0%, #071624 52%, #06111d 100%) !important;
+}
+
+.homeVehicleCard,
+.homeVehicleCard:nth-child(1),
+.homeVehicleCard:nth-child(2),
+.homeVehicleCard:nth-child(3),
+.homeVehicleCard:nth-child(4),
+.homeVehicleCard:hover,
+.homeVehicleCardActive,
+.homeDiscoverySectionFiltered .homeVehicleCard,
+.homeDiscoverySectionFiltered .homeVehicleCard:hover,
+.homeDiscoverySectionFiltered .homeVehicleCardActive {
+  background-image: none !important;
+  background:
+    linear-gradient(135deg, rgba(9, 34, 58, 0.98), rgba(4, 18, 32, 0.98)) !important;
+}
+
+.homeVehicleCard::before,
+.homeVehicleCard::after,
+.homeVehicleCardGlow {
+  background-image: none !important;
+}
+
+/* Final image-free home polish: premium dark surface without vehicle photos. */
+.shell {
+  background:
+    linear-gradient(115deg, rgba(255, 122, 26, 0.055) 0%, transparent 22%),
+    linear-gradient(245deg, rgba(72, 196, 116, 0.045) 0%, transparent 24%),
+    repeating-linear-gradient(90deg, rgba(148, 177, 207, 0.032) 0 1px, transparent 1px 96px),
+    repeating-linear-gradient(0deg, rgba(148, 177, 207, 0.022) 0 1px, transparent 1px 96px),
+    linear-gradient(180deg, #06121f 0%, #081725 44%, #050d17 100%) !important;
+}
+
+.heroWrap {
+  background:
+    linear-gradient(180deg, rgba(8, 22, 38, 0.92) 0%, rgba(4, 14, 26, 0.96) 68%, rgba(5, 13, 23, 1) 100%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 18px) !important;
+  border-bottom: 1px solid rgba(105, 137, 168, 0.16) !important;
+  box-shadow:
+    inset 0 -1px 0 rgba(255, 122, 26, 0.1),
+    0 24px 70px rgba(0, 0, 0, 0.22) !important;
+}
+
+.heroWrap::before {
+  background:
+    linear-gradient(90deg, rgba(255, 122, 26, 0.11), transparent 18%, transparent 82%, rgba(100, 181, 246, 0.09)),
+    linear-gradient(180deg, transparent 0%, rgba(255, 122, 26, 0.055) 46%, transparent 78%) !important;
+}
+
+.heroInner {
+  background:
+    linear-gradient(180deg, rgba(8, 28, 48, 0.52), rgba(3, 13, 24, 0.22)) !important;
+  border: 1px solid rgba(124, 158, 190, 0.13) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.055) !important;
+}
+
+.heroHeadline {
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.42) !important;
+}
+
+.heroSearchRow {
+  filter: drop-shadow(0 18px 34px rgba(0, 0, 0, 0.26)) !important;
+}
+
+.heroCategoryButton {
+  background:
+    linear-gradient(180deg, rgba(7, 27, 47, 0.96), rgba(3, 13, 25, 0.96)) !important;
+  border-color: rgba(255, 122, 26, 0.78) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px rgba(255, 122, 26, 0.08) !important;
+}
+
+.heroSearch {
+  border-color: rgba(255, 255, 255, 0.58) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58) !important;
+}
+
+.homeVehicleCards {
+  margin-top: 22px !important;
+}
+
+.homeVehicleCard,
+.homeVehicleCard:nth-child(1),
+.homeVehicleCard:nth-child(2),
+.homeVehicleCard:nth-child(3),
+.homeVehicleCard:nth-child(4) {
+  background:
+    linear-gradient(135deg, rgba(10, 39, 66, 0.98), rgba(4, 17, 31, 0.98)) !important;
+  border-color: rgba(97, 148, 192, 0.42) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 16px 34px rgba(0, 0, 0, 0.18) !important;
+  min-height: 104px !important;
+}
+
+.homeVehicleCard::before {
+  background:
+    linear-gradient(90deg, rgba(255, 122, 26, 0.16), transparent 42%),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 14px) !important;
+  opacity: 0.55 !important;
+}
+
+.homeVehicleCard:hover,
+.homeVehicleCardActive,
+.homeVehicleCard:focus-visible {
+  border-color: rgba(255, 138, 34, 0.76) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 18px 38px rgba(255, 122, 26, 0.13) !important;
+  transform: translateY(-2px) !important;
+}
+
+.heroMarketplaceStrip {
+  margin-top: 18px !important;
+}
+
+.heroBenefitsPanel,
+.heroSellPromo {
+  background:
+    linear-gradient(180deg, rgba(8, 29, 50, 0.88), rgba(3, 14, 25, 0.92)) !important;
+  border-color: rgba(110, 151, 190, 0.26) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 22px 54px rgba(0, 0, 0, 0.24) !important;
+}
+
+.heroSellPromo {
+  border-top-color: rgba(255, 122, 26, 0.72) !important;
+}
+
+/* M-PARTS inspired home composition: left pitch, right search panel, compact market rows. */
+@media (min-width: 901px) {
+  .heroWrap {
+    min-height: 420px !important;
+    padding: 0 !important;
+  }
+
+  .heroWrap > .container {
+    max-width: 1220px !important;
+    padding: 0 36px !important;
+  }
+
+  .hero {
+    align-items: center !important;
+    display: grid !important;
+    min-height: 420px !important;
+    padding: 34px 0 26px !important;
+  }
+
+  .heroInner {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    column-gap: clamp(34px, 5vw, 76px) !important;
+    display: grid !important;
+    grid-template-columns: minmax(360px, 0.9fr) minmax(520px, 1.1fr) !important;
+    justify-items: stretch !important;
+    margin: 0 auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .heroLeadPanel {
+    display: grid !important;
+    justify-items: start !important;
+    min-width: 0 !important;
+  }
+
+  .heroHeadline {
+    font-size: clamp(42px, 4.1vw, 58px) !important;
+    justify-items: start !important;
+    letter-spacing: 0 !important;
+    line-height: 1.08 !important;
+    margin: 0 0 20px !important;
+    max-width: 560px !important;
+    text-align: left !important;
+  }
+
+  .heroHeadline span {
+    text-align: left !important;
+  }
+
+  .heroHeadlineAccent {
+    color: #ff7417 !important;
+  }
+
+  .heroReferenceSubtitle {
+    color: rgba(226, 235, 244, 0.82) !important;
+    font-size: 17px !important;
+    line-height: 1.55 !important;
+    margin: 0 !important;
+    max-width: 520px !important;
+    text-align: left !important;
+  }
+
+  .heroSearchPanel {
+    align-self: center !important;
+    background:
+      linear-gradient(180deg, rgba(9, 29, 48, 0.92), rgba(5, 18, 32, 0.94)) !important;
+    border: 1px solid rgba(105, 137, 168, 0.3) !important;
+    border-radius: 8px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.055),
+      0 22px 55px rgba(0, 0, 0, 0.22) !important;
+    display: grid !important;
+    gap: 16px !important;
+    min-width: 0 !important;
+    padding: 0 18px 18px !important;
+  }
+
+  .heroSearchTabs {
+    border-bottom: 1px solid rgba(105, 137, 168, 0.2) !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    min-width: 0 !important;
+  }
+
+  .heroSearchTabs span {
+    color: rgba(217, 229, 241, 0.78) !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    padding: 16px 8px 13px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+  }
+
+  .heroSearchTabs .heroSearchTabActive {
+    color: #ffffff !important;
+    position: relative !important;
+  }
+
+  .heroSearchTabs .heroSearchTabActive::after {
+    background: #ff7417 !important;
+    bottom: -1px !important;
+    content: "" !important;
+    height: 2px !important;
+    left: 8px !important;
+    position: absolute !important;
+    right: 8px !important;
+  }
+
+  .heroSearchPanel .heroSearchRow {
+    display: grid !important;
+    filter: none !important;
+    gap: 12px !important;
+    grid-template-columns: minmax(148px, 180px) minmax(0, 1fr) !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  .heroSearchPanel .heroSearch {
+    background: rgba(2, 12, 23, 0.86) !important;
+    border: 1px solid rgba(105, 137, 168, 0.36) !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+    height: 48px !important;
+    max-width: none !important;
+  }
+
+  .heroSearchPanel .heroSearchInput {
+    color: #eef5fb !important;
+    font-size: 14px !important;
+    font-weight: 750 !important;
+    -webkit-text-fill-color: #eef5fb !important;
+  }
+
+  .heroSearchPanel .heroSearchInput::placeholder {
+    color: rgba(226, 235, 244, 0.62) !important;
+    -webkit-text-fill-color: rgba(226, 235, 244, 0.62) !important;
+  }
+
+  .heroSearchPanel .heroSearchButton {
+    border-radius: 0 5px 5px 0 !important;
+    min-width: 104px !important;
+  }
+
+  .heroSearchPanel .heroCategoryButton {
+    border-radius: 6px !important;
+    height: 48px !important;
+  }
+
+  .heroPopularSearches {
+    align-items: center !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .heroPopularSearches > span {
+    color: rgba(219, 231, 242, 0.78) !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    margin-right: 4px !important;
+  }
+
+  .heroPopularSearches button {
+    background: rgba(25, 44, 64, 0.94) !important;
+    border: 1px solid rgba(126, 158, 190, 0.18) !important;
+    border-radius: 999px !important;
+    color: rgba(238, 245, 251, 0.9) !important;
+    cursor: pointer !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    min-height: 28px !important;
+    padding: 0 13px !important;
+  }
+
+  .categoryRowWrap,
+  .heroQuickCategoryRow,
+  .heroMarketplaceStrip {
+    grid-column: 1 / -1 !important;
+  }
+
+  .categoryRowWrap,
+  .heroQuickCategoryRow {
+    display: none !important;
+  }
+
+  .homeDiscoverySection {
+    background: transparent !important;
+    margin-top: -6px !important;
+    padding: 0 36px 26px !important;
+  }
+
+  .homeVehicleCards {
+    gap: 0 !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    margin: 0 auto 26px !important;
+    max-width: 1220px !important;
+  }
+
+  .homeVehicleCard,
+  .homeVehicleCard:nth-child(1),
+  .homeVehicleCard:nth-child(2),
+  .homeVehicleCard:nth-child(3),
+  .homeVehicleCard:nth-child(4) {
+    border-radius: 0 !important;
+    min-height: 82px !important;
+  }
+
+  .homeVehicleCard:first-child {
+    border-radius: 7px 0 0 7px !important;
+  }
+
+  .homeVehicleCard:last-child {
+    border-radius: 0 7px 7px 0 !important;
+  }
+
+  .heroMarketplaceStrip {
+    margin: 26px auto 0 !important;
+    max-width: 1220px !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1120px) {
+  .heroInner {
+    grid-template-columns: minmax(300px, 0.85fr) minmax(470px, 1.15fr) !important;
+  }
+
+  .heroHeadline {
+    font-size: clamp(36px, 4.4vw, 48px) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .heroSearchPanel {
+    display: grid !important;
+    gap: 11px !important;
+    width: 100% !important;
+  }
+
+  .heroSearchTabs,
+  .heroPopularSearches {
+    display: none !important;
+  }
+}
+
+/* Desktop home: right-side open search rail with latest listings. */
+@media (min-width: 901px) {
+  .heroWrap {
+    min-height: 520px !important;
+  }
+
+  .hero {
+    min-height: 520px !important;
+    padding: 36px 0 34px !important;
+  }
+
+  .heroInner {
+    align-items: stretch !important;
+    column-gap: clamp(24px, 3vw, 42px) !important;
+    grid-template-columns: minmax(300px, 0.82fr) minmax(600px, 1.18fr) !important;
+  }
+
+  .heroLeadPanel {
+    align-content: center !important;
+    justify-self: start !important;
+    max-width: 460px !important;
+  }
+
+  .heroHeadline {
+    font-size: clamp(36px, 3.35vw, 48px) !important;
+    max-width: 460px !important;
+  }
+
+  .heroRightRail {
+    align-self: stretch !important;
+    background:
+      radial-gradient(circle at 16% 0%, rgba(255, 116, 23, 0.12), transparent 30%),
+      linear-gradient(180deg, rgba(10, 31, 51, 0.96), rgba(4, 15, 28, 0.98)) !important;
+    border: 1px solid rgba(103, 139, 174, 0.34) !important;
+    border-radius: 12px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 26px 70px rgba(0, 0, 0, 0.28) !important;
+    display: grid !important;
+    gap: 14px !important;
+    min-height: 414px !important;
+    min-width: 0 !important;
+    padding: 16px !important;
+  }
+
+  .heroRightRailClosed {
+    align-content: center !important;
+    justify-content: end !important;
+    min-height: 160px !important;
+    padding: 14px !important;
+  }
+
+  .heroRailHeader {
+    align-items: center !important;
+    display: flex !important;
+    gap: 12px !important;
+    justify-content: space-between !important;
+  }
+
+  .heroRailHeader div {
+    display: grid !important;
+    gap: 2px !important;
+  }
+
+  .heroRailHeader span {
+    color: #ff8a2b !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+  }
+
+  .heroRailHeader strong {
+    color: #f5f8fc !important;
+    font-size: 23px !important;
+    font-weight: 950 !important;
+    line-height: 1.05 !important;
+  }
+
+  .heroRailToggle,
+  .heroRailClosedButton {
+    align-items: center !important;
+    background: rgba(5, 18, 31, 0.92) !important;
+    border: 1px solid rgba(126, 160, 194, 0.34) !important;
+    color: #f4f8fc !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    font-weight: 900 !important;
+  }
+
+  .heroRailToggle {
+    border-radius: 999px !important;
+    height: 36px !important;
+    justify-content: center !important;
+    width: 36px !important;
+  }
+
+  .heroRailClosedButton {
+    border-radius: 10px !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24) !important;
+    gap: 9px !important;
+    min-height: 46px !important;
+    padding: 0 16px !important;
+  }
+
+  .heroRightRail .heroSearchPanel {
+    background: rgba(2, 12, 23, 0.48) !important;
+    border-color: rgba(104, 139, 176, 0.24) !important;
+    box-shadow: none !important;
+    padding: 0 12px 12px !important;
+  }
+
+  .heroRightRail .heroSearchTabs span {
+    font-size: 12px !important;
+    padding: 13px 4px 11px !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchRow {
+    grid-template-columns: 148px minmax(0, 1fr) !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearch,
+  .heroRightRail .heroSearchPanel .heroCategoryButton {
+    height: 44px !important;
+  }
+
+  .heroLatestPanel {
+    display: grid !important;
+    gap: 11px !important;
+    min-width: 0 !important;
+  }
+
+  .heroLatestHeader {
+    align-items: center !important;
+    display: flex !important;
+    gap: 12px !important;
+    justify-content: space-between !important;
+  }
+
+  .heroLatestHeader strong {
+    color: #f5f8fc !important;
+    font-size: 15px !important;
+    font-weight: 950 !important;
+  }
+
+  .heroLatestHeader button {
+    background: transparent !important;
+    border: 0 !important;
+    color: #ff8a2b !important;
+    cursor: pointer !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    padding: 4px 0 !important;
+  }
+
+  .heroLatestGrid {
+    display: grid !important;
+    gap: 9px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .heroLatestCard {
+    background: rgba(3, 15, 28, 0.9) !important;
+    border: 1px solid rgba(105, 139, 174, 0.28) !important;
+    border-radius: 9px !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: grid !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    text-align: left !important;
+  }
+
+  .heroLatestCard:hover {
+    border-color: rgba(255, 128, 28, 0.76) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  .heroLatestImage {
+    aspect-ratio: 16 / 10 !important;
+    background: rgba(10, 27, 43, 0.98) !important;
+    display: block !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  .heroLatestImage img {
+    height: 100% !important;
+    object-fit: cover !important;
+    width: 100% !important;
+  }
+
+  .heroLatestInfo {
+    display: grid !important;
+    gap: 3px !important;
+    min-width: 0 !important;
+    padding: 8px 9px 9px !important;
+  }
+
+  .heroLatestInfo strong {
+    color: #ffffff !important;
+    display: -webkit-box !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    line-height: 1.15 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  .heroLatestInfo span {
+    color: #ff8a2b !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1120px) {
+  .heroInner {
+    grid-template-columns: minmax(260px, 0.74fr) minmax(520px, 1.26fr) !important;
+  }
+
+  .heroLatestGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .heroHeadline {
+    font-size: clamp(31px, 3.6vw, 40px) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .heroRightRail {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .heroRailHeader,
+  .heroLatestPanel,
+  .heroRailClosedButton {
+    display: none !important;
+  }
+
+  .heroRightRail .heroSearchPanel {
+    width: 100% !important;
+  }
+}
+
+/* Final desktop rail collision fix: keep the pitch and search rail in separate columns. */
+@media (min-width: 901px) {
+  .heroLeadPanel {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    justify-self: start !important;
+    width: min(100%, 420px) !important;
+  }
+
+  .heroLeadPanel .heroHeadline,
+  .heroHeadline {
+    justify-self: start !important;
+    max-width: 420px !important;
+    width: 420px !important;
+  }
+
+  .heroRightRail {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    justify-self: stretch !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1120px) {
+  .heroLeadPanel {
+    width: min(100%, 330px) !important;
+  }
+
+  .heroLeadPanel .heroHeadline,
+  .heroHeadline {
+    font-size: 32px !important;
+    max-width: 330px !important;
+    width: 330px !important;
+  }
+}
+
+/* Reference desktop home: marketplace left side, compact filter rail on the right. */
+@media (min-width: 901px) {
+  .shell {
+    background:
+      radial-gradient(780px 420px at 22% 8%, rgba(34, 94, 134, 0.18), transparent 72%),
+      radial-gradient(680px 380px at 92% 18%, rgba(255, 116, 23, 0.08), transparent 72%),
+      linear-gradient(180deg, #06111d 0%, #071827 48%, #050d17 100%) !important;
+  }
+
+  .heroWrap {
+    background:
+      linear-gradient(90deg, rgba(6, 17, 29, 0.98), rgba(7, 23, 38, 0.94) 56%, rgba(5, 14, 25, 0.98)) !important;
+    min-height: 640px !important;
+  }
+
+  .heroWrap > .container {
+    max-width: 1240px !important;
+    padding: 0 28px !important;
+  }
+
+  .hero {
+    min-height: 640px !important;
+    padding: 28px 0 26px !important;
+  }
+
+  .heroInner {
+    align-items: start !important;
+    column-gap: 24px !important;
+    grid-template-columns: minmax(0, 1fr) 316px !important;
+  }
+
+  .heroLeadPanel {
+    align-content: start !important;
+    display: grid !important;
+    gap: 18px !important;
+    grid-column: 1 !important;
+    max-width: none !important;
+    padding-top: 28px !important;
+    width: 100% !important;
+  }
+
+  .heroLeadPanel .heroHeadline,
+  .heroHeadline {
+    font-size: clamp(34px, 3vw, 44px) !important;
+    line-height: 1.05 !important;
+    margin: 0 !important;
+    max-width: 620px !important;
+    width: min(100%, 620px) !important;
+  }
+
+  .heroReferenceSubtitle {
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+    max-width: 560px !important;
+  }
+
+  .heroDesktopActions {
+    align-items: center !important;
+    display: flex !important;
+    gap: 22px !important;
+    margin-top: 4px !important;
+  }
+
+  .heroStartSearchButton {
+    background: linear-gradient(180deg, #ff861c, #ff6506) !important;
+    border: 0 !important;
+    border-radius: 7px !important;
+    box-shadow: 0 12px 26px rgba(255, 101, 6, 0.22) !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    font-weight: 950 !important;
+    height: 42px !important;
+    min-width: 148px !important;
+    padding: 0 24px !important;
+  }
+
+  .heroTrustMini {
+    align-items: center !important;
+    color: rgba(226, 235, 244, 0.82) !important;
+    display: inline-flex !important;
+    font-size: 14px !important;
+    font-weight: 750 !important;
+    gap: 9px !important;
+  }
+
+  .heroDesktopVehicleCards {
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    margin-top: 10px !important;
+    max-width: 820px !important;
+  }
+
+  .heroDesktopVehicleCard {
+    align-items: center !important;
+    background: linear-gradient(180deg, rgba(11, 30, 48, 0.92), rgba(6, 19, 33, 0.94)) !important;
+    border: 1px solid rgba(102, 136, 169, 0.26) !important;
+    border-radius: 7px !important;
+    color: #f6f9fd !important;
+    cursor: pointer !important;
+    display: grid !important;
+    gap: 9px !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    min-height: 84px !important;
+    padding: 12px !important;
+    text-align: left !important;
+  }
+
+  .heroDesktopVehicleCard:hover,
+  .heroDesktopVehicleCardActive {
+    border-color: color-mix(in srgb, var(--vehicle-card-accent, #ff7a1a) 70%, #ffffff 10%) !important;
+    box-shadow: 0 16px 34px color-mix(in srgb, var(--vehicle-card-accent, #ff7a1a) 18%, transparent) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  .heroDesktopVehicleIcon {
+    align-items: center !important;
+    background: var(--vehicle-card-accent, #ff7a1a) !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    height: 44px !important;
+    justify-content: center !important;
+    width: 44px !important;
+  }
+
+  .heroDesktopVehicleIcon svg {
+    height: 25px !important;
+    stroke: #ffffff !important;
+    stroke-width: 2.2 !important;
+    width: 25px !important;
+  }
+
+  .heroDesktopVehicleCard strong,
+  .heroDesktopVehicleCard small {
+    display: block !important;
+    min-width: 0 !important;
+  }
+
+  .heroDesktopVehicleCard strong {
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 950 !important;
+    line-height: 1.1 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .heroDesktopVehicleCard small {
+    color: rgba(226, 235, 244, 0.74) !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    margin-top: 3px !important;
+  }
+
+  .heroDesktopLatest {
+    display: grid !important;
+    gap: 12px !important;
+    margin-top: 8px !important;
+    max-width: 820px !important;
+  }
+
+  .heroDesktopLatestHead {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: space-between !important;
+  }
+
+  .heroDesktopLatestHead strong {
+    color: #f7fbff !important;
+    font-size: 17px !important;
+    font-weight: 950 !important;
+  }
+
+  .heroDesktopLatestHead button {
+    background: transparent !important;
+    border: 0 !important;
+    color: #ff7a1a !important;
+    cursor: pointer !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+  }
+
+  .heroDesktopLatestGrid {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .heroDesktopLatestCard {
+    background: rgba(8, 25, 40, 0.9) !important;
+    border: 1px solid rgba(104, 139, 174, 0.24) !important;
+    border-radius: 7px !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: grid !important;
+    min-height: 108px !important;
+    min-width: 0 !important;
+    padding: 12px !important;
+    text-align: left !important;
+  }
+
+  .heroDesktopLatestCard:hover {
+    border-color: rgba(255, 122, 26, 0.7) !important;
+  }
+
+  .heroDesktopLatestTop {
+    align-items: start !important;
+    display: flex !important;
+    gap: 8px !important;
+    justify-content: space-between !important;
+    min-width: 0 !important;
+  }
+
+  .heroDesktopLatestTop strong {
+    color: #ffffff !important;
+    display: -webkit-box !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    line-height: 1.2 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  .heroDesktopLatestTop svg {
+    color: rgba(226, 235, 244, 0.7) !important;
+    flex: 0 0 auto !important;
+  }
+
+  .heroDesktopLatestModel {
+    color: rgba(226, 235, 244, 0.7) !important;
+    display: block !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    margin-top: 3px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .heroDesktopLatestPrice {
+    align-self: end !important;
+    color: #ff7a1a !important;
+    display: block !important;
+    font-size: 18px !important;
+    font-weight: 950 !important;
+    margin-top: 8px !important;
+  }
+
+  .heroRightRail {
+    align-self: start !important;
+    background: linear-gradient(180deg, rgba(9, 25, 40, 0.96), rgba(5, 16, 28, 0.98)) !important;
+    border-radius: 8px !important;
+    gap: 12px !important;
+    grid-column: 2 !important;
+    min-height: 0 !important;
+    padding: 15px !important;
+    position: sticky !important;
+    top: 78px !important;
+  }
+
+  .heroRailHeader strong {
+    font-size: 16px !important;
+  }
+
+  .heroRailToggle {
+    height: 28px !important;
+    width: 28px !important;
+  }
+
+  .heroRightRail .heroSearchPanel {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    display: grid !important;
+    gap: 12px !important;
+    padding: 0 !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchRow {
+    display: block !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearch {
+    border-radius: 6px !important;
+    height: 40px !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchButton {
+    min-width: 74px !important;
+  }
+
+  .heroFilterStack {
+    display: grid !important;
+    gap: 9px !important;
+  }
+
+  .heroFilterSelect {
+    background: rgba(4, 15, 27, 0.72) !important;
+    border: 1px solid rgba(100, 133, 166, 0.28) !important;
+    border-radius: 6px !important;
+    color: #eef5fb !important;
+    cursor: pointer !important;
+    display: grid !important;
+    gap: 5px !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    min-height: 54px !important;
+    padding: 8px 10px !important;
+    text-align: left !important;
+  }
+
+  .heroFilterSelect span {
+    color: rgba(226, 235, 244, 0.76) !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    grid-column: 1 / -1 !important;
+  }
+
+  .heroFilterSelect strong {
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .heroFilterSelect svg {
+    align-self: center !important;
+    color: rgba(226, 235, 244, 0.7) !important;
+  }
+
+  .heroRightRail .heroPopularSearches {
+    gap: 7px !important;
+  }
+
+  .heroRightRail .heroPopularSearches > span {
+    flex-basis: 100% !important;
+  }
+
+  .heroRailActions {
+    display: grid !important;
+    gap: 8px !important;
+  }
+
+  .heroRailSubmit,
+  .heroRailClear {
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    min-height: 42px !important;
+  }
+
+  .heroRailSubmit {
+    background: linear-gradient(180deg, #ff861c, #ff6506) !important;
+    border: 0 !important;
+    color: #ffffff !important;
+  }
+
+  .heroRailClear {
+    background: transparent !important;
+    border: 1px solid rgba(104, 139, 174, 0.28) !important;
+    color: rgba(238, 245, 251, 0.9) !important;
+  }
+
+  .heroRightRail .heroLatestPanel {
+    display: none !important;
+  }
+
+  .homeDiscoverySection {
+    padding-top: 0 !important;
+  }
+
+  .homeDiscoverySection .homeVehicleCards {
+    display: none !important;
+  }
+
+  .homeSellProcess {
+    margin-top: 0 !important;
+    max-width: 820px !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1120px) {
+  .heroWrap > .container {
+    padding: 0 18px !important;
+  }
+
+  .heroInner {
+    grid-template-columns: minmax(0, 1fr) 292px !important;
+  }
+
+  .heroDesktopVehicleCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    max-width: 520px !important;
+  }
+
+  .heroDesktopLatestGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    max-width: 520px !important;
+  }
+}
+
+/* Final cleanup: remove seller promo blocks and make the desktop search rail stronger. */
+.heroMarketplaceStrip,
+.heroSellPromo,
+.heroBenefitsPanel,
+.homeSellProcess,
+.homeListingCta {
+  display: none !important;
+}
+
+@media (min-width: 901px) {
+  .heroWrap {
+    min-height: 610px !important;
+  }
+
+  .hero {
+    min-height: 610px !important;
+  }
+
+  .heroInner {
+    grid-template-columns: minmax(0, 1fr) 354px !important;
+  }
+
+  .heroRightRail {
+    border-color: rgba(112, 148, 184, 0.34) !important;
+    border-radius: 10px !important;
+    gap: 14px !important;
+    padding: 18px !important;
+    width: 354px !important;
+  }
+
+  .heroRailHeader {
+    border-bottom: 1px solid rgba(113, 148, 184, 0.18) !important;
+    padding-bottom: 10px !important;
+  }
+
+  .heroRailHeader strong {
+    font-size: 18px !important;
+  }
+
+  .heroRightRail .heroSearchPanel {
+    gap: 14px !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearch {
+    border-radius: 8px !important;
+    height: 52px !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchInput {
+    font-size: 14px !important;
+    padding-left: 16px !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchButton {
+    border-radius: 0 8px 8px 0 !important;
+    font-size: 15px !important;
+    min-width: 104px !important;
+  }
+
+  .heroFilterStack {
+    gap: 10px !important;
+  }
+
+  .heroFilterSelect {
+    border-radius: 8px !important;
+    min-height: 58px !important;
+    padding: 9px 12px !important;
+  }
+
+  .heroRailSubmit,
+  .heroRailClear {
+    border-radius: 8px !important;
+    min-height: 46px !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1120px) {
+  .heroInner {
+    grid-template-columns: minmax(0, 1fr) 324px !important;
+  }
+
+  .heroRightRail {
+    width: 324px !important;
+  }
+}
+
+/* Desktop home final polish: balanced marketplace area and smarter filter rail. */
+@media (min-width: 901px) {
+  .heroWrap {
+    background:
+      radial-gradient(760px 460px at 30% 18%, rgba(23, 91, 134, 0.2), transparent 72%),
+      radial-gradient(520px 360px at 70% 14%, rgba(255, 116, 23, 0.08), transparent 72%),
+      linear-gradient(90deg, #06111d 0%, #071827 48%, #050d17 100%) !important;
+    min-height: 680px !important;
+  }
+
+  .heroWrap > .container {
+    max-width: 1380px !important;
+    padding: 0 34px !important;
+  }
+
+  .hero {
+    min-height: 680px !important;
+    padding: 48px 0 44px !important;
+  }
+
+  .heroInner {
+    align-items: start !important;
+    column-gap: 32px !important;
+    grid-template-columns: minmax(760px, 1fr) 390px !important;
+  }
+
+  .heroLeadPanel {
+    gap: 22px !important;
+    padding-top: 0 !important;
+  }
+
+  .heroLeadPanel .heroHeadline,
+  .heroHeadline {
+    font-size: clamp(42px, 3.35vw, 62px) !important;
+    line-height: 1.05 !important;
+    max-width: 760px !important;
+    text-wrap: balance !important;
+    width: min(100%, 760px) !important;
+  }
+
+  .heroReferenceSubtitle {
+    color: rgba(230, 239, 248, 0.82) !important;
+    font-size: 17px !important;
+    max-width: 650px !important;
+  }
+
+  .heroDesktopActions {
+    gap: 28px !important;
+    margin-top: -2px !important;
+  }
+
+  .heroStartSearchButton {
+    border-radius: 8px !important;
+    height: 48px !important;
+    min-width: 168px !important;
+  }
+
+  .heroDesktopVehicleCards {
+    gap: 14px !important;
+    max-width: 100% !important;
+  }
+
+  .heroDesktopVehicleCard {
+    border-color: rgba(105, 148, 190, 0.32) !important;
+    min-height: 92px !important;
+    padding: 15px !important;
+  }
+
+  .heroDesktopLatest {
+    max-width: 100% !important;
+  }
+
+  .heroDesktopLatestGrid {
+    gap: 12px !important;
+  }
+
+  .heroDesktopLatestCard {
+    min-height: 118px !important;
+    padding: 14px !important;
+  }
+
+  .heroRightRail {
+    align-self: start !important;
+    background:
+      radial-gradient(circle at 18% 0%, rgba(255, 122, 26, 0.1), transparent 34%),
+      linear-gradient(180deg, rgba(9, 27, 44, 0.98), rgba(4, 15, 27, 0.98)) !important;
+    border: 1px solid rgba(112, 148, 184, 0.38) !important;
+    border-radius: 12px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 26px 72px rgba(0, 0, 0, 0.28) !important;
+    gap: 16px !important;
+    padding: 20px !important;
+    position: sticky !important;
+    top: 92px !important;
+    width: 390px !important;
+  }
+
+  .heroRailHeader {
+    padding-bottom: 12px !important;
+  }
+
+  .heroRailHeader span {
+    font-size: 11px !important;
+  }
+
+  .heroRailHeader strong {
+    font-size: 21px !important;
+    line-height: 1.1 !important;
+  }
+
+  .heroRailToggle {
+    background: rgba(255, 255, 255, 0.07) !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearch {
+    height: 56px !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchInput {
+    font-size: 15px !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchButton {
+    min-width: 112px !important;
+  }
+
+  .heroFilterStack {
+    gap: 9px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .heroFilterSelect {
+    min-height: 64px !important;
+  }
+
+  .heroFilterSelect:nth-child(1),
+  .heroFilterSelect:nth-child(2),
+  .heroFilterSelect:nth-child(3),
+  .heroFilterSelect:nth-child(4),
+  .heroFilterSelect:nth-child(9) {
+    grid-column: 1 / -1 !important;
+  }
+
+  .heroFilterSelect span {
+    font-size: 11px !important;
+  }
+
+  .heroFilterSelect strong {
+    font-size: 14px !important;
+  }
+
+  .heroRightRail .heroPopularSearches {
+    justify-content: flex-start !important;
+    margin-top: 0 !important;
+  }
+
+  .heroRailSubmit,
+  .heroRailClear {
+    min-height: 48px !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1280px) {
+  .heroWrap > .container {
+    padding: 0 24px !important;
+  }
+
+  .heroInner {
+    column-gap: 22px !important;
+    grid-template-columns: minmax(600px, 1fr) 350px !important;
+  }
+
+  .heroRightRail {
+    width: 350px !important;
+  }
+
+  .heroLeadPanel .heroHeadline,
+  .heroHeadline {
+    font-size: clamp(36px, 3.2vw, 48px) !important;
+  }
+
+  .heroDesktopVehicleCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    max-width: 760px !important;
+  }
+
+  .heroDesktopLatestGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Final edge behavior: desktop rail hugs the right edge; mobile uses the main search. */
+@media (min-width: 901px) {
+  .heroWrap > .container {
+    padding-right: clamp(0px, 1vw, 16px) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .heroRightRail {
+    display: none !important;
+  }
+
+  .heroMainSearchPanel {
+    display: block !important;
+    width: 100% !important;
+  }
+}
+
+/* Keep the redesigned hero below the existing topbar without modifying the topbar. */
+@media (min-width: 901px) {
+  .heroWrap {
+    padding-top: var(--topbar-h, 64px) !important;
+  }
+
+  .hero {
+    padding-top: clamp(24px, 3.2vh, 38px) !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearch {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 100px !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchButton {
+    min-width: 0 !important;
+    width: 100px !important;
+  }
+}
+
+/* Admin theme lock: home and listing cards follow the admin-selected base/card colors. */
+.shell {
+  background:
+    radial-gradient(760px 460px at 30% 14%, color-mix(in srgb, var(--site-bg, #06111d) 74%, #185a86 26%), transparent 72%),
+    linear-gradient(180deg, var(--site-bg, #06111d), color-mix(in srgb, var(--site-bg, #06111d) 88%, #000000 12%)) !important;
+}
+
+.heroWrap,
+.listingsPlainSection,
+.homeDiscoverySection,
+.mainGrid,
+.listingsPlainContainer,
+.listingsPlainPanel {
+  background-color: var(--site-bg, #06111d) !important;
+}
+
+@media (min-width: 901px) {
+  .heroWrap {
+    background:
+      radial-gradient(760px 460px at 30% 18%, color-mix(in srgb, var(--site-bg, #06111d) 70%, #175b86 30%), transparent 72%),
+      radial-gradient(520px 360px at 70% 14%, rgba(255, 116, 23, 0.08), transparent 72%),
+      linear-gradient(90deg, var(--site-bg, #06111d) 0%, color-mix(in srgb, var(--site-bg, #06111d) 86%, #12324c 14%) 48%, var(--site-bg, #06111d) 100%) !important;
+  }
+}
+
+.card,
+.cardsGrid .card,
+.listingsPlainPanel .card {
+  background: var(--listing-card-bg, var(--site-card, #0e1721)) !important;
+  border-color: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 70%, #ffffff 22%) !important;
+}
+
+.cardBody,
+.cardsGrid .card .cardBody,
+.listingsPlainPanel .card .cardBody {
+  background: var(--listing-card-bg, var(--site-card, #0e1721)) !important;
+}
+
+.cardTitle,
+.cardsGrid .card .cardTitle,
+.listingsPlainPanel .card .cardTitle,
+.cardPrice,
+.cardsGrid .card .cardPrice,
+.listingsPlainPanel .card .cardPrice {
+  color: #ffffff !important;
+}
+
+.cardsGrid .card .cardMetaRow,
+.listingsPlainPanel .card .cardMetaRow {
+  border-top-color: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 72%, #ffffff 22%) !important;
+}
+
+/* Admin-aware listing-card style for the homepage hero latest listings. */
+@media (min-width: 901px) {
+  .heroDesktopLatestGrid {
+    align-items: stretch !important;
+    gap: 14px !important;
+  }
+
+  .heroDesktopLatestCard {
+    background: var(--listing-card-bg, var(--site-card, #0e1721)) !important;
+    border: 1px solid color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 64%, #ffffff 34%) !important;
+    border-radius: 7px !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+    display: grid !important;
+    grid-template-rows: auto auto auto auto !important;
+    min-height: 260px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    text-align: left !important;
+  }
+
+  .heroDesktopLatestCard:hover {
+    border-color: color-mix(in srgb, var(--orange, #ff7a1a) 78%, #ffffff 22%) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  .heroDesktopLatestImage {
+    aspect-ratio: 16 / 10.55 !important;
+    background: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 74%, #000000 26%) !important;
+    display: block !important;
+    overflow: hidden !important;
+    position: relative !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestImage img {
+    height: 100% !important;
+    object-fit: cover !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestImage svg {
+    background: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 62%, #ffffff 16%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    border-radius: 999px !important;
+    color: #ffffff !important;
+    height: 34px !important;
+    padding: 7px !important;
+    position: absolute !important;
+    right: 10px !important;
+    top: 10px !important;
+    width: 34px !important;
+    z-index: 2 !important;
+  }
+
+  .heroDesktopLatestTop,
+  .heroDesktopLatestModel,
+  .heroDesktopLatestPrice {
+    margin-left: 14px !important;
+    margin-right: 14px !important;
+    min-width: 0 !important;
+  }
+
+  .heroDesktopLatestTop {
+    display: block !important;
+    margin-top: 12px !important;
+  }
+
+  .heroDesktopLatestTop strong {
+    color: #ffffff !important;
+    display: -webkit-box !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    line-height: 1.16 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  .heroDesktopLatestModel {
+    color: color-mix(in srgb, var(--text, #ffffff) 72%, #8ba2b8 28%) !important;
+    display: block !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    line-height: 1.2 !important;
+    margin-top: 3px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .heroDesktopLatestPrice {
+    align-self: end !important;
+    color: var(--orange, #ff7a1a) !important;
+    display: block !important;
+    font-size: 22px !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    margin-bottom: 14px !important;
+    margin-top: 12px !important;
+  }
+}
+
+/* Responsive desktop lock: search rail stays on the right, content scales cleanly. */
+@media (min-width: 901px) {
+  .heroWrap {
+    min-height: clamp(620px, 72vh, 760px) !important;
+    overflow: hidden !important;
+  }
+
+  .heroWrap > .container {
+    max-width: none !important;
+    padding-left: clamp(22px, 4vw, 72px) !important;
+    padding-right: clamp(12px, 2.2vw, 36px) !important;
+    width: 100% !important;
+  }
+
+  .hero {
+    min-height: clamp(620px, 72vh, 760px) !important;
+    padding-bottom: clamp(28px, 4vh, 46px) !important;
+    padding-top: clamp(30px, 5vh, 58px) !important;
+  }
+
+  .heroInner {
+    column-gap: clamp(18px, 2.6vw, 42px) !important;
+    grid-template-columns: minmax(0, 1fr) clamp(320px, 25vw, 390px) !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  .heroLeadPanel {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  .heroLeadPanel .heroHeadline,
+  .heroHeadline {
+    font-size: clamp(34px, 3.6vw, 62px) !important;
+    max-width: min(760px, 100%) !important;
+    width: min(760px, 100%) !important;
+  }
+
+  .heroDesktopActions {
+    flex-wrap: wrap !important;
+  }
+
+  .heroDesktopVehicleCards {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+    max-width: min(860px, 100%) !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopVehicleCard {
+    min-width: 0 !important;
+  }
+
+  .heroDesktopLatest {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .heroDesktopLatestHead {
+    min-width: 0 !important;
+  }
+
+  .heroDesktopLatestGrid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestCard {
+    min-width: 0 !important;
+  }
+
+  .heroRightRail {
+    justify-self: end !important;
+    max-height: calc(100vh - 104px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+    top: clamp(72px, 9vh, 96px) !important;
+    width: clamp(320px, 25vw, 390px) !important;
+  }
+
+  .heroRightRail::-webkit-scrollbar {
+    width: 6px !important;
+  }
+
+  .heroRightRail::-webkit-scrollbar-thumb {
+    background: rgba(109, 145, 180, 0.45) !important;
+    border-radius: 999px !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .heroWrap > .container {
+    padding-left: 22px !important;
+    padding-right: 10px !important;
+  }
+
+  .heroInner {
+    column-gap: 16px !important;
+    grid-template-columns: minmax(0, 1fr) 316px !important;
+  }
+
+  .heroRightRail {
+    padding: 14px !important;
+    width: 316px !important;
+  }
+
+  .heroLeadPanel .heroHeadline,
+  .heroHeadline {
+    font-size: clamp(31px, 4vw, 43px) !important;
+  }
+
+  .heroDesktopVehicleCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .heroDesktopLatestGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .heroFilterStack {
+    grid-template-columns: 1fr !important;
+  }
+
+  .heroFilterSelect {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 980px) {
+  .heroInner {
+    grid-template-columns: minmax(0, 1fr) 292px !important;
+  }
+
+  .heroRightRail {
+    width: 292px !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearch {
+    height: 48px !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchButton {
+    min-width: 82px !important;
+  }
+
+  .heroDesktopVehicleCards,
+  .heroDesktopLatestGrid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .heroWrap {
+    overflow: visible !important;
+  }
+}
+
+/* Reference-style responsive home body. Topbar intentionally untouched. */
+@media (min-width: 901px) {
+  .heroWrap {
+    min-height: auto !important;
+    overflow: hidden !important;
+  }
+
+  .heroWrap > .container {
+    max-width: none !important;
+    padding-left: clamp(28px, 4vw, 74px) !important;
+    padding-right: clamp(12px, 2vw, 32px) !important;
+    width: 100% !important;
+  }
+
+  .hero {
+    min-height: auto !important;
+    padding: clamp(34px, 5vh, 56px) 0 clamp(38px, 6vh, 68px) !important;
+  }
+
+  .heroInner {
+    align-items: start !important;
+    column-gap: clamp(24px, 3vw, 46px) !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) clamp(330px, 25vw, 390px) !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  .heroLeadPanel {
+    align-content: start !important;
+    display: grid !important;
+    gap: 18px !important;
+    grid-column: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding-top: 0 !important;
+    width: 100% !important;
+  }
+
+  .heroLeadPanel .heroHeadline,
+  .heroHeadline {
+    font-size: clamp(32px, 2.8vw, 48px) !important;
+    line-height: 1.14 !important;
+    max-width: min(760px, 100%) !important;
+    width: min(760px, 100%) !important;
+  }
+
+  .heroReferenceSubtitle {
+    display: block !important;
+    font-size: 15px !important;
+    line-height: 1.45 !important;
+    max-width: 620px !important;
+  }
+
+  .heroDesktopActions {
+    display: none !important;
+  }
+
+  .heroMainSearchPanel {
+    display: block !important;
+    max-width: min(760px, 100%) !important;
+    width: 100% !important;
+  }
+
+  .heroMainSearch {
+    align-items: stretch !important;
+    background: rgba(4, 15, 27, 0.82) !important;
+    border: 1px solid rgba(101, 137, 174, 0.32) !important;
+    border-radius: 7px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(170px, 220px) 96px !important;
+    height: 46px !important;
+    overflow: hidden !important;
+  }
+
+  .heroMainSearchInput {
+    background: transparent !important;
+    border: 0 !important;
+    color: #eef5fb !important;
+    font-size: 14px !important;
+    font-weight: 750 !important;
+    min-width: 0 !important;
+    outline: 0 !important;
+    padding: 0 17px !important;
+    -webkit-text-fill-color: #eef5fb !important;
+  }
+
+  .heroMainSearchInput::placeholder {
+    color: rgba(226, 235, 244, 0.62) !important;
+    -webkit-text-fill-color: rgba(226, 235, 244, 0.62) !important;
+  }
+
+  .heroMainCategorySelect {
+    align-items: center !important;
+    background: rgba(3, 13, 24, 0.52) !important;
+    border: 0 !important;
+    border-left: 1px solid rgba(101, 137, 174, 0.22) !important;
+    color: #eef5fb !important;
+    cursor: pointer !important;
+    display: flex !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    gap: 10px !important;
+    justify-content: space-between !important;
+    min-width: 0 !important;
+    padding: 0 14px !important;
+  }
+
+  .heroMainCategorySelect span {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .heroMainSearchButton {
+    align-items: center !important;
+    background: linear-gradient(180deg, #ff861c, #ff6506) !important;
+    border: 0 !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    font-size: 14px !important;
+    font-weight: 950 !important;
+    gap: 8px !important;
+    justify-content: center !important;
+  }
+
+  .heroDesktopVehicleCards {
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    max-width: min(980px, 100%) !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopVehicleCard {
+    min-height: 86px !important;
+    min-width: 0 !important;
+    padding: 13px !important;
+  }
+
+  .heroDesktopAllCategories {
+    --vehicle-card-accent: #94a3b8;
+  }
+
+  .heroDesktopAllIcon {
+    align-items: center !important;
+    color: #dbe7f2 !important;
+    display: inline-flex !important;
+    height: 44px !important;
+    justify-content: center !important;
+    width: 44px !important;
+  }
+
+  .heroDesktopLatest {
+    max-width: min(980px, 100%) !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestGrid {
+    display: grid !important;
+    gap: 14px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestCard {
+    background: linear-gradient(180deg, rgba(10, 31, 50, 0.96), rgba(5, 17, 30, 0.98)) !important;
+    border-radius: 7px !important;
+    display: grid !important;
+    min-height: 254px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .heroDesktopLatestImage {
+    aspect-ratio: 16 / 10.6 !important;
+    background: rgba(10, 27, 43, 0.98) !important;
+    display: block !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestImage img {
+    height: 100% !important;
+    object-fit: cover !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestTop,
+  .heroDesktopLatestModel,
+  .heroDesktopLatestPrice {
+    margin-left: 14px !important;
+    margin-right: 14px !important;
+  }
+
+  .heroDesktopLatestTop {
+    margin-top: 13px !important;
+  }
+
+  .heroDesktopLatestPrice {
+    font-size: 20px !important;
+    margin-bottom: 13px !important;
+  }
+
+  .heroRightRail {
+    grid-column: 2 !important;
+    justify-self: end !important;
+    max-height: calc(100vh - 94px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    position: sticky !important;
+    top: 74px !important;
+    width: clamp(330px, 25vw, 390px) !important;
+  }
+}
+
+@media (min-width: 1281px) and (max-width: 1540px) {
+  .heroDesktopVehicleCards {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .heroDesktopLatestGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+.heroYearRangeField {
+  display: grid;
+}
+
+.heroYearRangeLabel {
+  display: block;
+}
+
+.heroYearBoxes {
+  display: grid;
+}
+
+.heroYearBox {
+  display: grid;
+}
+
+.heroYearDash {
+  display: inline-flex;
+}
+
+.heroYearSlider {
+  position: relative;
+}
+
+.heroFilterFieldWrap {
+  position: relative;
+}
+
+.heroFilterMenu {
+  position: absolute;
+}
+
+.heroFilterMenuOption {
+  display: block;
+}
+
+.heroFilterMenuEmpty {
+  display: block;
+}
+
+.heroYearSelectWrap {
+  position: relative;
+}
+
+.heroYearMiniLine {
+  display: block;
+}
+
+.heroDesktopLatestGridExpanded {
+  justify-content: center;
+}
+
+.heroDesktopLatestActions {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.heroDesktopLatestSort {
+  position: relative;
+}
+
+.heroDesktopFavorite {
+  align-items: center;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.heroDesktopFavoriteActive {
+  color: #ff7a1a;
+}
+
+.heroDesktopFavoriteDisabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.heroDesktopLatestMeta {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (min-width: 901px) and (max-width: 1280px) {
+  .heroWrap > .container {
+    padding-left: 24px !important;
+    padding-right: 10px !important;
+  }
+
+  .heroInner {
+    column-gap: 18px !important;
+    grid-template-columns: minmax(0, 1fr) 320px !important;
+  }
+
+  .heroRightRail {
+    padding: 14px !important;
+    width: 320px !important;
+  }
+
+  .heroMainSearch {
+    grid-template-columns: minmax(0, 1fr) 82px !important;
+  }
+
+  .heroMainCategorySelect {
+    display: none !important;
+  }
+
+  .heroDesktopVehicleCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    max-width: 620px !important;
+  }
+
+  .heroDesktopLatestGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .heroFilterStack {
+    grid-template-columns: 1fr !important;
+  }
+
+  .heroFilterSelect {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1040px) {
+  .heroInner {
+    grid-template-columns: minmax(0, 1fr) 290px !important;
+  }
+
+  .heroRightRail {
+    width: 290px !important;
+  }
+
+  .heroDesktopLatestGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Last responsive guard: old first-child hero rules must not widen the left column. */
+@media (min-width: 901px) {
+  .heroInner > .heroLeadPanel,
+  .heroInner > div.heroLeadPanel:first-child {
+    box-sizing: border-box !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    justify-self: stretch !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  .heroInner > .heroRightRail {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1280px) {
+  .heroLeadPanel .heroHeadline,
+  .heroHeadline,
+  .heroReferenceSubtitle,
+  .heroMainSearchPanel,
+  .heroDesktopVehicleCards,
+  .heroDesktopLatest {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}
+
+/* Let the hero finish naturally instead of cutting off the newest cards. */
+@media (min-width: 901px) {
+  .heroWrap,
+  .heroWrap > .container,
+  .hero,
+  .heroInner,
+  .heroLeadPanel,
+  .heroDesktopLatest,
+  .heroDesktopLatestGrid {
+    overflow: visible !important;
+  }
+
+  .heroWrap {
+    padding-bottom: clamp(32px, 4vw, 72px) !important;
+  }
+
+  .heroDesktopLatestCard {
+    min-height: 0 !important;
+    grid-template-rows: auto auto auto auto !important;
+  }
+
+  .heroDesktopLatestTop,
+  .heroDesktopLatestModel,
+  .heroDesktopLatestPrice {
+    min-width: 0 !important;
+  }
+
+  .homeDiscoverySection,
+  .listingsPlainSection {
+    margin-top: 0 !important;
+  }
+}
+
+/* Final hero height fix: the newest-card row must be inside the hero, not clipped by it. */
+@media (min-width: 901px) {
+  .heroWrap,
+  .hero {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .hero {
+    display: block !important;
+  }
+
+  .heroInner,
+  .heroLeadPanel {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .heroDesktopLatestGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Final reference lock: compact dark filter rail. */
+@media (min-width: 901px) {
+  .heroRightRail {
+    background:
+      radial-gradient(circle at 50% -18%, rgba(32, 93, 134, 0.24), transparent 42%),
+      linear-gradient(180deg, rgba(5, 22, 37, 0.98), rgba(3, 15, 27, 0.99)) !important;
+    border: 1px solid rgba(64, 103, 137, 0.46) !important;
+    border-radius: 8px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.055),
+      0 20px 54px rgba(0, 0, 0, 0.32) !important;
+    gap: 0 !important;
+    max-height: calc(100vh - 92px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 14px 18px 12px !important;
+    top: 74px !important;
+    width: clamp(316px, 23vw, 360px) !important;
+  }
+
+  .heroRailHeader {
+    align-items: center !important;
+    border-bottom: 1px solid rgba(64, 103, 137, 0.22) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    margin: 0 -18px 0 !important;
+    padding: 0 18px 14px !important;
+  }
+
+  .heroRailHeader div,
+  .heroRailHeader span {
+    display: none !important;
+  }
+
+  .heroRailHeader strong {
+    color: #f5f8fc !important;
+    font-size: 16px !important;
+    font-weight: 950 !important;
+    letter-spacing: 0.01em !important;
+    line-height: 1 !important;
+    text-transform: uppercase !important;
+  }
+
+  .heroRailToggle {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+    color: rgba(226, 235, 244, 0.78) !important;
+    gap: 6px !important;
+    height: 28px !important;
+    padding: 0 0 0 8px !important;
+    width: auto !important;
+  }
+
+  .heroRailToggle span {
+    display: inline !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+  }
+
+  .heroRailToggle svg {
+    color: rgba(226, 235, 244, 0.84) !important;
+  }
+
+  .heroRightRail .heroSearchPanel {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    gap: 13px !important;
+    padding: 0 !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchRow {
+    display: none !important;
+  }
+
+  .heroFilterStack {
+    display: grid !important;
+    gap: 10px !important;
+    padding-top: 0 !important;
+  }
+
+  .heroFilterFieldWrap {
+    display: grid !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+    position: relative !important;
+  }
+
+  .heroFilterLabel,
+  .heroYearRangeLabel {
+    color: rgba(226, 235, 244, 0.9) !important;
+    display: block !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    justify-self: start !important;
+    line-height: 1.1 !important;
+    margin: 0 !important;
+    text-align: left !important;
+  }
+
+  .heroIdentifierField {
+    display: grid !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+  }
+
+  .heroFilterInput,
+  .heroFilterSelect {
+    align-items: center !important;
+    background: rgba(2, 14, 25, 0.62) !important;
+    border: 1px solid rgba(72, 112, 147, 0.42) !important;
+    border-radius: 5px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+    color: #eef5fb !important;
+    cursor: pointer !important;
+    display: grid !important;
+    gap: 0 !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    min-height: 33px !important;
+    padding: 0 10px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .heroFilterInput {
+    display: block !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+    outline: 0 !important;
+  }
+
+  .heroFilterInput::placeholder {
+    color: rgba(226, 235, 244, 0.52) !important;
+  }
+
+  .heroFilterSelect strong,
+  .heroYearBox strong {
+    color: rgba(238, 245, 251, 0.88) !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .heroFilterSelect svg,
+  .heroYearBox svg {
+    color: rgba(226, 235, 244, 0.76) !important;
+  }
+
+  .heroFilterMenu {
+    background: #061a2c !important;
+    border: 1px solid rgba(80, 122, 157, 0.46) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.32) !important;
+    display: grid !important;
+    gap: 2px !important;
+    grid-column: 1 / -1 !important;
+    left: auto !important;
+    margin-top: 0 !important;
+    max-height: 260px !important;
+    overflow-y: auto !important;
+    padding: 5px !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    z-index: auto !important;
+  }
+
+  .heroFilterMenuOption,
+  .heroFilterMenuEmpty {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 5px !important;
+    color: rgba(238, 245, 251, 0.9) !important;
+    cursor: pointer !important;
+    display: flex !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    min-height: 31px !important;
+    padding: 8px 9px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .heroFilterMenuOption:hover {
+    background: rgba(255, 112, 16, 0.15) !important;
+    color: #ffffff !important;
+  }
+
+  .heroYearRangeField {
+    display: grid !important;
+    gap: 7px !important;
+  }
+
+  .heroYearBoxes {
+    align-items: center !important;
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+  }
+
+  .heroYearSelectWrap {
+    min-width: 0 !important;
+    position: relative !important;
+  }
+
+  .heroYearBox {
+    align-items: center !important;
+    background: rgba(2, 14, 25, 0.62) !important;
+    border: 1px solid rgba(72, 112, 147, 0.42) !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    min-height: 31px !important;
+    padding: 0 10px !important;
+    width: 100% !important;
+  }
+
+  .heroYearDash {
+    color: rgba(226, 235, 244, 0.7) !important;
+    font-size: 17px !important;
+    font-weight: 750 !important;
+    justify-content: center !important;
+  }
+
+  .heroYearMiniLine {
+    background: #ff6a00 !important;
+    border-radius: 999px !important;
+    display: block !important;
+    height: 3px !important;
+    margin-top: 2px !important;
+    position: relative !important;
+  }
+
+  .heroYearMiniLine::before,
+  .heroYearMiniLine::after {
+    background: #ffffff !important;
+    border: 3px solid #ff6a00 !important;
+    border-radius: 999px !important;
+    box-shadow: 0 0 0 1px rgba(255, 106, 0, 0.22) !important;
+    content: "" !important;
+    height: 9px !important;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 9px !important;
+  }
+
+  .heroYearMiniLine::before {
+    left: 0 !important;
+  }
+
+  .heroYearMiniLine::after {
+    right: 0 !important;
+  }
+
+  .heroStaticSelect {
+    cursor: default !important;
+  }
+
+  .heroPartCategoryStack {
+    border-top: 1px solid rgba(64, 103, 137, 0.22) !important;
+    display: grid !important;
+    gap: 10px !important;
+    margin-top: 2px !important;
+    padding-top: 12px !important;
+  }
+
+  .heroPartCategoryTitle {
+    color: #f5f8fc !important;
+    display: block !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    justify-self: start !important;
+    line-height: 1.1 !important;
+    text-align: left !important;
+  }
+
+  .heroRightRail .heroPopularSearches {
+    align-items: center !important;
+    display: flex !important;
+    gap: 7px !important;
+    margin-top: 1px !important;
+  }
+
+  .heroRightRail .heroPopularSearches > span {
+    color: rgba(226, 235, 244, 0.9) !important;
+    flex-basis: 100% !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    margin: 0 !important;
+  }
+
+  .heroRightRail .heroPopularSearches button {
+    background: rgba(35, 61, 86, 0.9) !important;
+    border: 1px solid rgba(100, 141, 177, 0.26) !important;
+    border-radius: 999px !important;
+    color: rgba(238, 245, 251, 0.9) !important;
+    font-size: 10px !important;
+    font-weight: 850 !important;
+    min-height: 20px !important;
+    padding: 0 10px !important;
+  }
+
+  .heroRailActions {
+    display: grid !important;
+    gap: 8px !important;
+  }
+
+  .heroRailSubmit,
+  .heroRailClear {
+    border-radius: 5px !important;
+    cursor: pointer !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    min-height: 31px !important;
+  }
+
+  .heroRailSubmit {
+    background: linear-gradient(180deg, #ff7917, #ff5f00) !important;
+    border: 0 !important;
+    color: #ffffff !important;
+  }
+
+  .heroRailClear {
+    background: rgba(2, 14, 25, 0.38) !important;
+    border: 1px solid rgba(72, 112, 147, 0.36) !important;
+    color: rgba(238, 245, 251, 0.92) !important;
+  }
+}
+
+/* Absolute dropdown visibility fix: rail menus must show real rows on every viewport. */
+.heroFilterMenu {
+  background: #061a2c !important;
+  border: 1px solid rgba(80, 122, 157, 0.46) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.32) !important;
+  display: grid !important;
+  gap: 2px !important;
+  grid-column: 1 / -1 !important;
+  left: auto !important;
+  margin-top: 0 !important;
+  max-height: 260px !important;
+  overflow-y: auto !important;
+  padding: 5px !important;
+  position: static !important;
+  right: auto !important;
+  top: auto !important;
+  width: 100% !important;
+  z-index: auto !important;
+}
+
+.heroFilterMenuOption,
+.heroFilterMenuEmpty {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 5px !important;
+  color: rgba(248, 251, 255, 0.96) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  min-height: 31px !important;
+  padding: 8px 9px !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+.heroFilterMenuOption:hover {
+  background: rgba(255, 112, 16, 0.15) !important;
+  color: #ffffff !important;
+}
+
+/* Final home background lock: follow the admin-controlled base color. */
+.shell,
+.heroWrap,
+.homeDiscoverySection,
+.homeDiscoverySectionFiltered,
+.listingsPlainSection,
+.mainGrid,
+.listingsPlainContainer,
+.listingsPlainPanel {
+  background: var(--site-bg, var(--bg, #06111d)) !important;
+  background-color: var(--site-bg, var(--bg, #06111d)) !important;
+  background-image: none !important;
+}
+
+.heroWrap {
+  box-shadow: none !important;
+}
+
+.heroWrap::before,
+.heroWrap::after {
+  background: none !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+}
+
+/* Final right search rail: open by default, flush right, collapsible from the left edge. */
+.heroRightRail {
+  position: relative !important;
+}
+
+.heroRailEdgeToggle {
+  align-items: center !important;
+  background: #ff7a1a !important;
+  border: 1px solid rgba(255, 220, 188, 0.72) !important;
+  border-radius: 0 999px 999px 0 !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28) !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 46px !important;
+  justify-content: center !important;
+  left: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 46px !important;
+  z-index: 8 !important;
+}
+
+.heroRailEdgeToggle:hover {
+  background: #ff8a24 !important;
+}
+
+.heroRightRailClosed .heroRailEdgeToggle {
+  display: none !important;
+}
+
+@media (min-width: 901px) {
+  .heroWrap > .container {
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+  }
+
+  .heroInner {
+    grid-template-columns: minmax(0, 1fr) minmax(390px, 410px) !important;
+    column-gap: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .heroRightRail {
+    border-radius: 7px 0 0 7px !important;
+    justify-self: end !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    max-width: 410px !important;
+    right: calc((100vw - 100%) / -2) !important;
+    width: 410px !important;
+  }
+
+  .heroRightRailClosed {
+    align-items: flex-end !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-height: min(680px, calc(100vh - 170px)) !important;
+    padding: 0 !important;
+    width: 54px !important;
+    z-index: 25 !important;
+  }
+
+  .heroRailClosedButton {
+    align-items: center !important;
+    background: #ff7a1a !important;
+    border: 1px solid rgba(255, 220, 188, 0.72) !important;
+    border-radius: 999px 0 0 999px !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    gap: 4px !important;
+    height: 48px !important;
+    justify-content: center !important;
+    min-height: 48px !important;
+    padding: 0 12px 0 10px !important;
+    transform: none !important;
+    width: 54px !important;
+  }
+
+  .heroRailClosedButton span {
+    display: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .heroWrap > .container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .heroInner {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .heroRightRail {
+    border-radius: 7px 0 0 7px !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    right: 0 !important;
+    width: 100% !important;
+  }
+
+  .heroRailEdgeToggle {
+    height: 42px !important;
+    left: 0 !important;
+    width: 42px !important;
+  }
+
+  .heroRightRailClosed {
+    align-items: flex-end !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-height: min(680px, calc(100vh - 170px)) !important;
+    padding: 0 !important;
+    width: 44px !important;
+    z-index: 25 !important;
+  }
+
+  .heroRailClosedButton {
+    align-items: center !important;
+    background: #ff7a1a !important;
+    border-radius: 999px 0 0 999px !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    height: 44px !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    width: 44px !important;
+  }
+
+  .heroRailClosedButton span {
+    display: none !important;
+  }
+}
+
+/* Final light-background hero cleanup: no shadow panel behind the headline. */
+:global(html[data-user-background-tone="light"]) .heroLeadPanel,
+:global(html[data-user-background-tone="light"]) .heroInner > div:first-child {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+:global(html[data-user-background-tone="light"]) .heroLeadPanel::before,
+:global(html[data-user-background-tone="light"]) .heroLeadPanel::after,
+:global(html[data-user-background-tone="light"]) .heroInner > div:first-child::before,
+:global(html[data-user-background-tone="light"]) .heroInner > div:first-child::after {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  content: none !important;
+  display: none !important;
+  filter: none !important;
+}
+
+/* Reference home lock: dark hero, left search, right filter rail. */
+.heroReferenceBenefits {
+  display: none;
+}
+
+@media (min-width: 901px) {
+  .shell {
+    background: #06111d !important;
+  }
+
+  .heroWrap {
+    background:
+      radial-gradient(900px 420px at 62% 8%, rgba(38, 75, 103, 0.42), transparent 62%),
+      radial-gradient(720px 360px at 18% 20%, rgba(255, 122, 26, 0.12), transparent 68%),
+      linear-gradient(90deg, rgba(4, 12, 21, 0.98) 0%, rgba(5, 17, 29, 0.94) 46%, rgba(4, 12, 21, 0.98) 100%),
+      linear-gradient(180deg, rgba(6, 17, 29, 0.18), #06111d 92%),
+      #06111d !important;
+    border-top: 1px solid rgba(255, 122, 26, 0.7) !important;
+    box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06) !important;
+    min-height: 760px !important;
+    overflow: hidden !important;
+    padding-top: 0 !important;
+  }
+
+  .heroWrap > .container {
+    max-width: none !important;
+    padding: 0 410px 0 0 !important;
+    width: 100% !important;
+  }
+
+  .hero {
+    min-height: 760px !important;
+    padding: 28px 26px 24px 26px !important;
+  }
+
+  .heroInner {
+    align-items: start !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    display: block !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .heroLeadPanel {
+    align-content: start !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    display: grid !important;
+    gap: 14px !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .heroHeadline,
+  .heroLeadPanel .heroHeadline {
+    color: #f7fbff !important;
+    font-size: clamp(34px, 3.4vw, 52px) !important;
+    font-weight: 950 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.08 !important;
+    margin: 0 !important;
+    max-width: 520px !important;
+    text-align: left !important;
+    text-shadow: 0 12px 30px rgba(0, 0, 0, 0.58) !important;
+    width: 520px !important;
+  }
+
+  .heroHeadlineAccent {
+    color: #ff7a1a !important;
+  }
+
+  .heroReferenceSubtitle {
+    color: rgba(238, 245, 251, 0.9) !important;
+    font-size: 17px !important;
+    font-weight: 650 !important;
+    line-height: 1.45 !important;
+    margin: 0 0 8px !important;
+    max-width: 560px !important;
+    text-align: left !important;
+  }
+
+  .heroDesktopActions {
+    display: none !important;
+  }
+
+  .heroMainSearchPanel {
+    max-width: 760px !important;
+    width: min(760px, 100%) !important;
+  }
+
+  .heroMainSearch {
+    background: rgba(4, 15, 27, 0.88) !important;
+    border: 1px solid rgba(105, 137, 168, 0.38) !important;
+    border-radius: 5px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 18px 44px rgba(0, 0, 0, 0.34) !important;
+    display: grid !important;
+    gap: 0 !important;
+    grid-template-columns: minmax(0, 1fr) 160px 86px !important;
+    min-height: 54px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .heroMainSearchInput {
+    background: transparent !important;
+    border: 0 !important;
+    color: #eef5fb !important;
+    font-size: 15px !important;
+    font-weight: 750 !important;
+    min-width: 0 !important;
+    padding: 0 18px !important;
+    -webkit-text-fill-color: #eef5fb !important;
+  }
+
+  .heroMainSearchInput::placeholder {
+    color: rgba(226, 235, 244, 0.72) !important;
+    -webkit-text-fill-color: rgba(226, 235, 244, 0.72) !important;
+  }
+
+  .heroMainCategorySelect {
+    background: rgba(5, 18, 31, 0.96) !important;
+    border: 0 !important;
+    border-left: 1px solid rgba(105, 137, 168, 0.34) !important;
+    border-radius: 0 !important;
+    color: #f4f8fc !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    min-width: 0 !important;
+    padding: 0 13px !important;
+  }
+
+  .heroMainSearchButton {
+    background: #ff7a1a !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    min-width: 0 !important;
+  }
+
+  .heroPopularSearches {
+    align-items: center !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    max-width: 760px !important;
+  }
+
+  .heroPopularSearches > span {
+    color: rgba(238, 245, 251, 0.92) !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    margin-right: 2px !important;
+  }
+
+  .heroPopularSearches button {
+    background: rgba(5, 18, 31, 0.72) !important;
+    border: 1px solid rgba(126, 160, 194, 0.36) !important;
+    border-radius: 999px !important;
+    color: rgba(238, 245, 251, 0.94) !important;
+    cursor: pointer !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    min-height: 30px !important;
+    padding: 0 14px !important;
+  }
+
+  .heroPopularSearches button:hover {
+    border-color: rgba(255, 122, 26, 0.78) !important;
+    color: #ffffff !important;
+  }
+
+  .heroDesktopLatest {
+    display: grid !important;
+    gap: 12px !important;
+    margin-top: 18px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestHead {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    max-width: 100% !important;
+  }
+
+  .heroDesktopLatestHead strong {
+    color: #f7fbff !important;
+    font-size: 22px !important;
+    font-weight: 950 !important;
+  }
+
+  .heroDesktopLatestActions button {
+    background: transparent !important;
+    border: 0 !important;
+    color: #ff7a1a !important;
+    cursor: pointer !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+  }
+
+  .heroDesktopLatestGrid {
+    display: grid !important;
+    gap: 14px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestCard {
+    background: rgba(4, 15, 27, 0.9) !important;
+    border: 1px solid rgba(105, 137, 168, 0.34) !important;
+    border-radius: 7px !important;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24) !important;
+    color: #f7fbff !important;
+    display: grid !important;
+    min-height: 270px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .heroDesktopLatestImage {
+    aspect-ratio: 16 / 8.7 !important;
+    background: #071827 !important;
+    display: block !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestImage img {
+    height: 100% !important;
+    object-fit: cover !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopFavorite {
+    background: rgba(2, 10, 18, 0.78) !important;
+    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    color: #ffffff !important;
+    height: 30px !important;
+    right: 9px !important;
+    top: 9px !important;
+    width: 30px !important;
+  }
+
+  .heroDesktopLatestPrice {
+    border: 0 !important;
+    border-bottom: 0 !important;
+    color: #ffffff !important;
+    font-size: 24px !important;
+    font-weight: 950 !important;
+    margin: 10px 14px 0 !important;
+  }
+
+  .heroDesktopLatestTop,
+  .heroDesktopLatestModel,
+  .heroDesktopLatestMeta {
+    margin-left: 14px !important;
+    margin-right: 14px !important;
+  }
+
+  .heroDesktopLatestTop strong {
+    color: #f7fbff !important;
+    font-size: 14px !important;
+    font-weight: 950 !important;
+  }
+
+  .heroDesktopLatestModel {
+    color: rgba(226, 235, 244, 0.76) !important;
+    font-size: 12px !important;
+    font-weight: 650 !important;
+  }
+
+  .heroDesktopLatestMeta {
+    align-items: center !important;
+    color: rgba(226, 235, 244, 0.78) !important;
+    display: flex !important;
+    font-size: 12px !important;
+    justify-content: space-between !important;
+    margin-bottom: 12px !important;
+    margin-top: auto !important;
+  }
+
+  .heroReferenceBenefits {
+    background: rgba(7, 24, 39, 0.92) !important;
+    border: 1px solid rgba(105, 137, 168, 0.28) !important;
+    border-radius: 7px !important;
+    display: grid !important;
+    gap: 0 !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    margin-top: 2px !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  .heroReferenceBenefits span {
+    align-items: center !important;
+    border-right: 1px solid rgba(105, 137, 168, 0.18) !important;
+    display: grid !important;
+    gap: 2px 14px !important;
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    min-height: 76px !important;
+    padding: 14px 18px !important;
+  }
+
+  .heroReferenceBenefits span:last-child {
+    border-right: 0 !important;
+  }
+
+  .heroReferenceBenefits svg {
+    color: #ff7a1a !important;
+    grid-row: 1 / span 2 !important;
+  }
+
+  .heroReferenceBenefits strong {
+    color: #f7fbff !important;
+    font-size: 14px !important;
+    font-weight: 950 !important;
+  }
+
+  .heroReferenceBenefits small {
+    color: rgba(226, 235, 244, 0.76) !important;
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+  }
+
+  .heroRightRail {
+    background: rgba(4, 15, 27, 0.94) !important;
+    border: 1px solid rgba(105, 137, 168, 0.34) !important;
+    border-radius: 5px 0 0 5px !important;
+    box-shadow: none !important;
+    display: block !important;
+    max-height: calc(100vh - 8px) !important;
+    max-width: 410px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 14px 16px 16px !important;
+    position: fixed !important;
+    right: 0 !important;
+    top: 4px !important;
+    width: 410px !important;
+    z-index: 40 !important;
+  }
+
+  .heroRailHeader {
+    border: 0 !important;
+    display: block !important;
+    margin: 0 0 12px !important;
+    padding: 0 !important;
+  }
+
+  .heroRailHeader strong {
+    color: #f7fbff !important;
+    display: block !important;
+    font-size: 18px !important;
+    font-weight: 950 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.1 !important;
+    text-transform: none !important;
+  }
+
+  .heroRailEdgeToggle {
+    display: none !important;
+  }
+
+  .heroRightRail .heroSearchPanel {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    display: grid !important;
+    gap: 12px !important;
+    padding: 0 !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchRow {
+    display: none !important;
+  }
+
+  .heroFilterStack,
+  .heroPartCategoryStack {
+    display: grid !important;
+    gap: 10px !important;
+  }
+
+  .heroPartCategoryStack {
+    border-top: 0 !important;
+    margin-top: 6px !important;
+    padding-top: 0 !important;
+  }
+
+  .heroPartCategoryTitle {
+    color: rgba(238, 245, 251, 0.9) !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+  }
+
+  .heroFilterLabel,
+  .heroYearRangeLabel {
+    color: rgba(226, 235, 244, 0.84) !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 1.1 !important;
+  }
+
+  .heroFilterInput,
+  .heroFilterSelect,
+  .heroYearBox {
+    background: rgba(2, 10, 18, 0.58) !important;
+    border: 1px solid rgba(105, 137, 168, 0.34) !important;
+    border-radius: 4px !important;
+    min-height: 34px !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1220px) {
+  .heroWrap > .container {
+    padding-right: 360px !important;
+  }
+
+  .heroRightRail {
+    width: 360px !important;
+  }
+
+  .heroDesktopLatestGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .heroReferenceBenefits {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .heroWrap {
+    background:
+      radial-gradient(560px 280px at 50% 0%, rgba(38, 75, 103, 0.34), transparent 66%),
+      linear-gradient(180deg, rgba(4, 12, 21, 0.86) 0%, #06111d 48%),
+      #06111d !important;
+    border-top: 1px solid rgba(255, 122, 26, 0.7) !important;
+    min-height: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .hero {
+    padding: 28px 0 0 !important;
+  }
+
+  .heroInner,
+  .heroLeadPanel {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    display: grid !important;
+    gap: 14px !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .heroLeadPanel {
+    padding: 0 14px !important;
+  }
+
+  .heroHeadline,
+  .heroLeadPanel .heroHeadline {
+    font-size: clamp(30px, 9vw, 42px) !important;
+    line-height: 1.1 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .heroReferenceSubtitle {
+    color: rgba(238, 245, 251, 0.88) !important;
+    font-size: 15px !important;
+    line-height: 1.45 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    text-align: left !important;
+  }
+
+  .heroDesktopActions {
+    display: none !important;
+  }
+
+  .heroMainSearchPanel,
+  .heroMainSearch {
+    width: 100% !important;
+  }
+
+  .heroMainSearch {
+    background: rgba(4, 15, 27, 0.9) !important;
+    border: 1px solid rgba(105, 137, 168, 0.38) !important;
+    border-radius: 5px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 74px !important;
+    min-height: 48px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+
+  .heroMainCategorySelect {
+    display: none !important;
+  }
+
+  .heroMainSearchInput {
+    background: transparent !important;
+    border: 0 !important;
+    color: #eef5fb !important;
+    padding: 0 14px !important;
+  }
+
+  .heroMainSearchButton {
+    background: #ff7a1a !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: #ffffff !important;
+  }
+
+  .heroPopularSearches {
+    display: flex !important;
+    gap: 7px !important;
+    overflow-x: auto !important;
+    padding-bottom: 2px !important;
+  }
+
+  .heroPopularSearches > span {
+    color: rgba(238, 245, 251, 0.9) !important;
+    flex: 0 0 auto !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+  }
+
+  .heroPopularSearches button {
+    background: rgba(5, 18, 31, 0.74) !important;
+    border: 1px solid rgba(126, 160, 194, 0.34) !important;
+    border-radius: 999px !important;
+    color: #eef5fb !important;
+    flex: 0 0 auto !important;
+    font-size: 12px !important;
+    min-height: 29px !important;
+    padding: 0 12px !important;
+  }
+
+  .heroDesktopLatest {
+    margin-top: 8px !important;
+  }
+
+  .heroDesktopLatestGrid {
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .heroReferenceBenefits {
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: 1fr !important;
+    margin: 0 0 12px !important;
+  }
+
+  .heroReferenceBenefits span {
+    align-items: center !important;
+    background: rgba(7, 24, 39, 0.92) !important;
+    border: 1px solid rgba(105, 137, 168, 0.28) !important;
+    border-radius: 6px !important;
+    display: grid !important;
+    gap: 2px 12px !important;
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    padding: 12px !important;
+  }
+
+  .heroReferenceBenefits svg {
+    color: #ff7a1a !important;
+    grid-row: 1 / span 2 !important;
+  }
+
+  .heroReferenceBenefits strong {
+    color: #f7fbff !important;
+    font-size: 13px !important;
+  }
+
+  .heroReferenceBenefits small {
+    color: rgba(226, 235, 244, 0.76) !important;
+    font-size: 12px !important;
+  }
+
+  .heroRightRail {
+    background: rgba(4, 15, 27, 0.96) !important;
+    border: 1px solid rgba(105, 137, 168, 0.34) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin-top: 0 !important;
+    max-width: 100% !important;
+    padding: 14px !important;
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    width: 100% !important;
+  }
+
+  .heroRailHeader {
+    display: block !important;
+    margin: 0 0 12px !important;
+  }
+
+  .heroRailHeader strong {
+    color: #f7fbff !important;
+    font-size: 18px !important;
+    font-weight: 950 !important;
+  }
+
+  .heroRailEdgeToggle {
+    display: none !important;
+  }
+}
+
+:global(html[data-user-background-tone="light"]) .heroHeadline,
+:global(html[data-user-background-tone="light"]) .heroHeadline span,
+:global(html[data-user-background-tone="light"]) .heroHeadlineAccent,
+:global(html[data-user-background-tone="light"]) .heroReferenceSubtitle {
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+/* Listing meta dates must stay fully visible even in narrow cards. */
+.cardMetaRow .cardDateMeta {
+  flex: 0 0 auto !important;
+  min-width: max-content !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+.cardMetaRow .cardLocationMeta {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+.heroDesktopLatestMeta {
+  gap: 10px !important;
+  overflow: visible !important;
+}
+
+.heroDesktopLatestMeta .cardDateMeta {
+  flex: 0 0 max-content !important;
+  min-width: max-content !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+.heroDesktopLatestMeta .cardLocationMeta {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+@media (min-width: 901px) {
+  .heroDesktopLatestCard {
+    grid-template-rows: auto auto auto auto minmax(42px, auto) !important;
+    min-height: 292px !important;
+  }
+
+  .heroDesktopLatestPrice {
+    margin-bottom: 8px !important;
+  }
+
+  .heroDesktopLatestMeta {
+    align-items: center !important;
+    align-self: end !important;
+    border-top: 1px solid color-mix(in srgb, var(--site-text, #f8fbff) 18%, transparent) !important;
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: minmax(0, 1fr) max-content !important;
+    justify-content: stretch !important;
+    justify-items: stretch !important;
+    margin: 10px 14px 14px !important;
+    min-height: 34px !important;
+    margin-left: 14px !important;
+    margin-right: 14px !important;
+    overflow: visible !important;
+    padding-top: 12px !important;
+    width: calc(100% - 28px) !important;
+  }
+
+  .heroDesktopLatestMeta .cardLocationMeta,
+  .heroDesktopLatestMeta .cardDateMeta {
+    align-items: center !important;
+    display: inline-flex !important;
+    gap: 6px !important;
+    justify-content: flex-start !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    width: auto !important;
+  }
+
+  .heroDesktopLatestMeta .cardDateMeta {
+    flex: none !important;
+    justify-self: end !important;
+    min-width: max-content !important;
+  }
+
+  .heroDesktopLatestMeta .listingCountryFlag {
+    display: inline-block !important;
+    flex: 0 0 auto !important;
+    height: 13px !important;
+    min-width: 18px !important;
+    object-fit: cover !important;
+    position: static !important;
+    width: 18px !important;
+  }
+}
+
+@media (min-width: 901px) {
+  :global(html body) .heroDesktopLatestMeta {
+    align-items: center !important;
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: minmax(0, 1fr) max-content !important;
+    justify-content: stretch !important;
+    justify-items: stretch !important;
+    min-height: 34px !important;
+    overflow: visible !important;
+  }
+
+  :global(html body) .heroDesktopLatestMeta span,
+  :global(html body) .heroDesktopLatestMeta .cardLocationMeta,
+  :global(html body) .heroDesktopLatestMeta .cardDateMeta {
+    align-items: center !important;
+    display: inline-flex !important;
+    flex: none !important;
+    gap: 6px !important;
+    justify-content: flex-start !important;
+    max-width: 100% !important;
+    min-height: 16px !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    position: static !important;
+    text-overflow: clip !important;
+    transform: none !important;
+    white-space: nowrap !important;
+    width: auto !important;
+  }
+
+  :global(html body) .heroDesktopLatestMeta .cardLocationMeta {
+    justify-self: start !important;
+    max-width: 100% !important;
+  }
+
+  :global(html body) .heroDesktopLatestMeta .cardDateMeta {
+    justify-self: end !important;
+    min-width: max-content !important;
+  }
+
+  :global(html body) .heroDesktopLatestMeta .listingCountryFlag {
+    display: inline-block !important;
+    flex: 0 0 auto !important;
+    height: 13px !important;
+    min-width: 18px !important;
+    object-fit: cover !important;
+    position: static !important;
+    width: 18px !important;
+  }
+}
+
+/* Absolute final home reference lock. Keep the hero image-free and the filter rail on the right edge. */
+@media (min-width: 901px) {
+  :global(html body) .heroWrap {
+    background-image:
+      radial-gradient(900px 420px at 62% 8%, rgba(38, 75, 103, 0.42), transparent 62%),
+      radial-gradient(720px 360px at 18% 20%, rgba(255, 122, 26, 0.12), transparent 68%),
+      linear-gradient(90deg, rgba(4, 12, 21, 0.98) 0%, rgba(5, 17, 29, 0.94) 46%, rgba(4, 12, 21, 0.98) 100%),
+      linear-gradient(180deg, rgba(6, 17, 29, 0.18), #06111d 92%) !important;
+    position: relative !important;
+  }
+
+  :global(html body) .heroWrap > .container {
+    padding-right: 410px !important;
+    position: static !important;
+  }
+
+  :global(html body) .hero {
+    position: static !important;
+  }
+
+  :global(html body) .heroInner {
+    position: static !important;
+  }
+
+  :global(html body) .heroRightRail {
+    background: rgba(4, 15, 27, 0.94) !important;
+    border: 1px solid rgba(105, 137, 168, 0.34) !important;
+    border-radius: 5px 0 0 5px !important;
+    box-shadow: none !important;
+    display: block !important;
+    left: auto !important;
+    margin: 0 !important;
+    max-height: calc(100vh - 8px) !important;
+    max-width: 410px !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 14px 16px 16px !important;
+    position: absolute !important;
+    right: 0 !important;
+    top: 4px !important;
+    transform: none !important;
+    width: 410px !important;
+    z-index: 40 !important;
+  }
+
+  :global(html body) .heroRightRail .heroRailEdgeToggle {
+    display: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  :global(html body) .heroWrap {
+    background-image:
+      radial-gradient(560px 280px at 50% 0%, rgba(38, 75, 103, 0.34), transparent 66%),
+      linear-gradient(180deg, rgba(4, 12, 21, 0.86) 0%, #06111d 48%) !important;
+  }
+}
+
+/* Final base-color sync: every page surface follows the user-selected background color. */
+:global(html body) .shell,
+:global(html body) .heroWrap,
+:global(html body) .heroWrap > .container,
+:global(html body) .homeDiscoverySection,
+:global(html body) .homeDiscoverySectionFiltered,
+:global(html body) .listingsPlainSection,
+:global(html body) .mainGrid,
+:global(html body) .listingsPlainContainer,
+:global(html body) .listingsPlainPanel {
+  background-color: var(--site-bg, var(--bg, #06111d)) !important;
+}
+
+:global(html body) .shell,
+:global(html body) .homeDiscoverySection,
+:global(html body) .homeDiscoverySectionFiltered,
+:global(html body) .listingsPlainSection,
+:global(html body) .mainGrid,
+:global(html body) .listingsPlainContainer,
+:global(html body) .listingsPlainPanel {
+  background-image: none !important;
+}
+
+:global(html body) .heroLeadPanel,
+:global(html body) .heroInner,
+:global(html body) .heroLeadPanel::before,
+:global(html body) .heroLeadPanel::after,
+:global(html body) .heroInner::before,
+:global(html body) .heroInner::after {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+:global(html body) .heroHeadline,
+:global(html body) .heroLeadPanel .heroHeadline {
+  text-shadow: none !important;
+}
+
+@media (min-width: 901px) {
+  :global(html body) .heroWrap {
+    background:
+      radial-gradient(900px 420px at 62% 8%, color-mix(in srgb, var(--site-bg, var(--bg, #06111d)) 68%, #315a75 32%), transparent 62%),
+      radial-gradient(720px 360px at 18% 20%, color-mix(in srgb, var(--site-bg, var(--bg, #06111d)) 76%, #ff7a1a 24%), transparent 68%),
+      linear-gradient(90deg,
+        color-mix(in srgb, var(--site-bg, var(--bg, #06111d)) 96%, #000000 4%) 0%,
+        color-mix(in srgb, var(--site-bg, var(--bg, #06111d)) 88%, #12324c 12%) 46%,
+        color-mix(in srgb, var(--site-bg, var(--bg, #06111d)) 96%, #000000 4%) 100%
+      ) !important;
+    background-color: var(--site-bg, var(--bg, #06111d)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  :global(html body) .heroWrap {
+    background:
+      radial-gradient(560px 280px at 50% 0%, color-mix(in srgb, var(--site-bg, var(--bg, #06111d)) 70%, #315a75 30%), transparent 66%),
+      linear-gradient(180deg,
+        color-mix(in srgb, var(--site-bg, var(--bg, #06111d)) 92%, #000000 8%) 0%,
+        var(--site-bg, var(--bg, #06111d)) 48%
+      ) !important;
+    background-color: var(--site-bg, var(--bg, #06111d)) !important;
+  }
+}
+
+/* Absolute final flat hero base: no separate color layer behind the headline. */
+:global(html body) .heroWrap,
+:global(html body) .heroWrap > .container,
+:global(html body) .hero,
+:global(html body) .heroInner,
+:global(html body) .heroLeadPanel {
+  background: var(--site-bg, var(--bg, #06111d)) !important;
+  background-color: var(--site-bg, var(--bg, #06111d)) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+:global(html body) .heroWrap::before,
+:global(html body) .heroWrap::after,
+:global(html body) .hero::before,
+:global(html body) .hero::after,
+:global(html body) .heroInner::before,
+:global(html body) .heroInner::after,
+:global(html body) .heroLeadPanel::before,
+:global(html body) .heroLeadPanel::after {
+  background: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  content: none !important;
+  display: none !important;
+}
+
+:global(html body) .heroHeadline,
+:global(html body) .heroHeadline span,
+:global(html body) .heroReferenceSubtitle {
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+/* Remove the extra search-area color wash behind the home search controls. */
+:global(html body) .heroMainSearchPanel,
+:global(html body) .heroPopularSearches {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+:global(html body) .heroMainSearchPanel::before,
+:global(html body) .heroMainSearchPanel::after,
+:global(html body) .heroPopularSearches::before,
+:global(html body) .heroPopularSearches::after {
+  background: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  content: none !important;
+  display: none !important;
+}
+
+:global(html body) .heroMainSearchInput,
+:global(html body) .heroMainCategorySelect {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+:global(html body) .heroMainSearch {
+  background: color-mix(in srgb, var(--site-bg, var(--bg, #06111d)) 78%, #000000 22%) !important;
+  background-color: color-mix(in srgb, var(--site-bg, var(--bg, #06111d)) 78%, #000000 22%) !important;
+  background-image: none !important;
+  border-color: color-mix(in srgb, var(--site-text, #f8fbff) 28%, transparent) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+:global(html body) .heroMainCategorySelect {
+  border-left-color: color-mix(in srgb, var(--site-text, #f8fbff) 22%, transparent) !important;
+}
+
+/* Final filter rail menus: dropdowns overlay the rail instead of stretching the form. */
+:global(html body) .heroRightRail .heroFilterFieldWrap,
+:global(html body) .heroRightRail .heroYearSelectWrap {
+  position: relative !important;
+}
+
+:global(html body) .heroRightRail .heroFilterMenu {
+  background: #061a2c !important;
+  border: 1px solid rgba(105, 137, 168, 0.56) !important;
+  border-radius: 5px !important;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.38) !important;
+  display: grid !important;
+  gap: 2px !important;
+  left: 0 !important;
+  margin-top: 4px !important;
+  max-height: 238px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding: 5px !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 100% !important;
+  width: auto !important;
+  z-index: 80 !important;
+}
+
+:global(html body) .heroRightRail .heroYearSelectWrap .heroFilterMenu {
+  min-width: 100% !important;
+}
+
+:global(html body) .heroRightRail .heroYearBoxes {
+  overflow: visible !important;
+}
+
+:global(html body) .heroRightRail .heroYearRangeField,
+:global(html body) .heroRightRail .heroFilterStack,
+:global(html body) .heroRightRail .heroPartCategoryStack {
+  overflow: visible !important;
+}
+
+:global(html body) .heroRightRail .heroFilterMenuOption,
+:global(html body) .heroRightRail .heroFilterMenuEmpty {
+  min-height: 33px !important;
+  white-space: nowrap !important;
+}
+
+/* Final request: hide the hero category dropdown and popular search chips. */
+:global(html body) .heroMainSearch {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+:global(html body) .heroMainCategorySelect,
+:global(html body) .heroPopularSearches {
+  display: none !important;
+}
+
+.heroMainSearch,
+.heroSearchRow .heroSearch {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+.heroMainCategorySelect,
+.heroCategoryButton,
+.heroPopularSearches {
+  display: none !important;
+}
+
+/* Smooth custom year range slider. */
+.heroYearSlider {
+  cursor: pointer !important;
+  height: 18px !important;
+  isolation: isolate !important;
+  margin: 8px 5px 10px !important;
+  position: relative !important;
+  touch-action: none !important;
+  user-select: none !important;
+  width: calc(100% - 10px) !important;
+}
+
+.heroYearSlider::before,
+.heroYearSlider::after {
+  background: #ffffff !important;
+  border: 3px solid #ff7a1a !important;
+  border-radius: 999px !important;
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.42) !important;
+  content: "" !important;
+  height: 18px !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: 5px !important;
+  transform: translateX(-50%) !important;
+  width: 18px !important;
+  z-index: 4 !important;
+}
+
+.heroYearSlider::before {
+  left: var(--year-min) !important;
+}
+
+.heroYearSlider::after {
+  left: var(--year-max) !important;
+}
+
+.heroYearSliderRail,
+.heroYearSliderActive {
+  border-radius: 999px !important;
+  content: "" !important;
+  height: 2px !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: 8px !important;
+}
+
+.heroYearSliderRail {
+  background: rgba(72, 112, 147, 0.52) !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 0 !important;
+}
+
+.heroYearSliderActive {
+  background: #ff7a1a !important;
+  box-shadow: none !important;
+  left: var(--year-min) !important;
+  right: calc(100% - var(--year-max)) !important;
+  z-index: 1 !important;
+}
+
+.heroYearSliderThumb {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  cursor: grab !important;
+  height: 32px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  top: -2px !important;
+  transform: translateX(-50%) !important;
+  width: 32px !important;
+  z-index: 5 !important;
+}
+
+.heroYearSliderThumb::before {
+  content: "" !important;
+  inset: -10px !important;
+  position: absolute !important;
+}
+
+.heroYearSliderThumb:active {
+  cursor: grabbing !important;
+}
+
+.heroYearSliderThumb:focus-visible {
+  outline: 3px solid rgba(255, 122, 26, 0.28) !important;
+  outline-offset: 4px !important;
+}
+
+/* Final stable slider rendering: visible thumbs are spans, not buttons. */
+.heroYearSlider::before,
+.heroYearSlider::after {
+  display: none !important;
+}
+
+.heroYearSliderThumb {
+  background: #ffffff !important;
+  border: 2px solid #ff7a1a !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  height: 8px !important;
+  pointer-events: auto !important;
+  position: absolute !important;
+  top: 5px !important;
+  transform: translateX(-50%) !important;
+  width: 8px !important;
+  z-index: 5 !important;
+}
+
+.heroYearSlider[data-hero-year-slider="true"] > span {
+  position: absolute !important;
+}
+
+.heroYearSlider[data-hero-year-slider="true"] .heroYearSliderRail,
+.heroYearSlider[data-hero-year-slider="true"] .heroYearSliderActive {
+  display: block !important;
+  height: 2px !important;
+  top: 8px !important;
+}
+
+.heroYearSlider[data-hero-year-slider="true"] .heroYearSliderRail {
+  left: 0 !important;
+  right: 0 !important;
+  width: auto !important;
+}
+
+.heroYearSlider[data-hero-year-slider="true"] .heroYearSliderActive {
+  left: 0 !important;
+  right: 0 !important;
+  width: auto !important;
+}
+
+.heroYearSlider[data-hero-year-slider="true"] .heroYearSliderThumb {
+  display: block !important;
+  height: 10px !important;
+  position: absolute !important;
+  top: 4px !important;
+  transform: translateX(-50%) !important;
+  width: 10px !important;
+}
+
+.heroRightRail .heroYearSlider[data-hero-year-slider="true"]::before,
+.heroRightRail .heroYearSlider[data-hero-year-slider="true"]::after,
+:global(html body) .heroRightRail [data-hero-year-slider="true"]::before,
+:global(html body) .heroRightRail [data-hero-year-slider="true"]::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Rebuilt year slider from a clean namespace. No legacy heroYearSlider overrides hit this. */
+.yearRangeClean {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  height: 18px !important;
+  margin: 8px 5px 10px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  position: relative !important;
+  touch-action: none !important;
+  user-select: none !important;
+  width: calc(100% - 10px) !important;
+}
+
+.yearRangeClean::before,
+.yearRangeClean::after {
+  content: none !important;
+  display: none !important;
+}
+
+.yearRangeCleanLine {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(72, 112, 147, 0.45) 0%,
+      rgba(72, 112, 147, 0.45) var(--year-min),
+      #ff7a1a var(--year-min),
+      #ff7a1a var(--year-max),
+      rgba(72, 112, 147, 0.45) var(--year-max),
+      rgba(72, 112, 147, 0.45) 100%
+    ) !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  display: block !important;
+  height: 2px !important;
+  left: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 8px !important;
+  width: auto !important;
+  z-index: 1 !important;
+}
+
+.yearRangeCleanThumb {
+  background: #ffffff !important;
+  border: 2px solid #ff7a1a !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  cursor: grab !important;
+  display: block !important;
+  height: 10px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  top: 4px !important;
+  transform: translateX(-50%) !important;
+  width: 10px !important;
+  z-index: 2 !important;
+}
+
+@media (pointer: coarse) {
+  .yearRangeCleanThumb {
+    height: 18px !important;
+    top: 0 !important;
+    width: 18px !important;
+  }
+}
+
+.yearRangeCleanThumb:active {
+  cursor: grabbing !important;
+}
+
+.yearRangeCleanThumb:focus-visible {
+  outline: 3px solid rgba(255, 122, 26, 0.26) !important;
+  outline-offset: 4px !important;
+}
+
+.yearRangeClean .desktopYearRangeInput {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  height: 18px !important;
+  left: 0 !important;
+  margin: 0 !important;
+  max-height: 18px !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: 0 !important;
+  width: 100% !important;
+}
+
+.appliedFilterActions {
+  display: flex !important;
+  gap: 10px !important;
+  margin: 0 0 14px !important;
+  width: 100% !important;
+}
+
+.appliedFilterActions button {
+  align-items: center !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  gap: 7px !important;
+  height: 42px !important;
+  justify-content: center !important;
+  padding: 0 15px !important;
+}
+
+.appliedFilterClear {
+  background: #071522 !important;
+  border: 1px solid rgba(70, 111, 147, 0.62) !important;
+  color: #eef5fb !important;
+}
+
+.appliedFilterEdit {
+  background: linear-gradient(180deg, #ff861f, #ff6810) !important;
+  border: 1px solid rgba(255, 182, 99, 0.5) !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 720px) {
+  .appliedFilterActions {
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    margin: 0 0 12px !important;
+  }
+
+  .appliedFilterActions button {
+    font-size: 11px !important;
+    min-width: 0 !important;
+    padding: 0 7px !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+  }
+}
+
+.yearRangeClean .desktopYearRangeInput::-webkit-slider-runnable-track {
+  background: transparent !important;
+  border: 0 !important;
+  height: 2px !important;
+}
+
+.yearRangeClean .desktopYearRangeInput::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  background: #ffffff !important;
+  border: 2px solid #ff7a1a !important;
+  border-radius: 50% !important;
+  cursor: grab !important;
+  height: 10px !important;
+  margin-top: -4px !important;
+  width: 10px !important;
+}
+
+.yearRangeClean .desktopYearRangeInput::-moz-range-track {
+  background: transparent !important;
+  border: 0 !important;
+  height: 2px !important;
+}
+
+.yearRangeClean .desktopYearRangeInput::-moz-range-thumb {
+  background: #ffffff !important;
+  border: 2px solid #ff7a1a !important;
+  border-radius: 50% !important;
+  cursor: grab !important;
+  height: 10px !important;
+  width: 10px !important;
+}
+
+.mobileYearRangeInput {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  display: block !important;
+  height: 18px !important;
+  left: 0 !important;
+  margin: 0 !important;
+  max-height: 18px !important;
+  min-height: 0 !important;
+  opacity: 1 !important;
+  padding: 0 !important;
+  pointer-events: auto !important;
+  position: absolute !important;
+  top: 0 !important;
+  width: 100% !important;
+}
+
+.mobileYearRangeInput::-webkit-slider-runnable-track {
+  background: transparent !important;
+  border: 0 !important;
+  height: 2px !important;
+}
+
+.mobileYearRangeInput::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  background: #ffffff !important;
+  border: 2px solid #ff7a1a !important;
+  border-radius: 999px !important;
+  cursor: grab !important;
+  height: 10px !important;
+  margin-top: -4px !important;
+  pointer-events: auto !important;
+  transition: transform 90ms ease !important;
+  width: 10px !important;
+}
+
+.mobileYearRangeInput::-moz-range-track {
+  background: transparent !important;
+  border: 0 !important;
+  height: 2px !important;
+}
+
+.mobileYearRangeInput::-moz-range-thumb {
+  background: #ffffff !important;
+  border: 2px solid #ff7a1a !important;
+  border-radius: 999px !important;
+  cursor: grab !important;
+  height: 10px !important;
+  pointer-events: auto !important;
+  width: 10px !important;
+}
+
+.mobileYearRangeInput:active::-webkit-slider-thumb,
+.mobileYearRangeInput:active::-moz-range-thumb {
+  cursor: grabbing !important;
+  transform: scale(1.16) !important;
+}
+
+.mobileYearRangeMin {
+  clip-path: inset(0 calc(100% - var(--year-mid)) 0 0) !important;
+  z-index: 4 !important;
+}
+
+.mobileYearRangeMax {
+  clip-path: inset(0 0 0 var(--year-mid)) !important;
+  z-index: 3 !important;
+}
+
+.mobileYearRangeHandle {
+  appearance: none !important;
+  background: radial-gradient(circle, #ff7a1a 0 5px, #15171d 5.5px 7px, transparent 7.5px) !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  cursor: grab !important;
+  height: 32px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  top: -7px !important;
+  touch-action: none !important;
+  transform: translateX(-50%) !important;
+  width: 32px !important;
+  z-index: 6 !important;
+}
+
+.mobileYearRangeHandle:active {
+  cursor: grabbing !important;
+}
+
+.heroMobileFilterToggle {
+  display: none;
+}
+
+.mobileFilterBackdrop,
+.mobileFilterDragHandle,
+.mobileFilterSheetHeader {
+  display: none;
+}
+
+.mobileFilterSheet,
+.mobileFilterSheetExpanded {
+  --mobile-sheet-offset: 0px;
+}
+
+.mobileFilterPriceField,
+.mobileFilterPriceBoxes {
+  display: grid;
+}
+
+/* Final mobile home usability: keep filters behind a clear button. */
+@media (max-width: 720px) {
+  .heroMobileFilterToggle {
+    align-items: center !important;
+    background: rgba(4, 15, 27, 0.94) !important;
+    border: 1px solid rgba(255, 122, 26, 0.72) !important;
+    border-radius: 6px !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    font-size: 14px !important;
+    font-weight: 950 !important;
+    gap: 8px !important;
+    height: 44px !important;
+    justify-content: center !important;
+    margin: 12px auto 0 !important;
+    max-width: 334px !important;
+    padding: 0 14px !important;
+    width: calc(100vw - 56px) !important;
+  }
+
+  .heroMobileFilterToggle svg {
+    color: #ff7a1a !important;
+    stroke: #ff7a1a !important;
+  }
+
+  .heroRightRail {
+    background: rgba(4, 15, 27, 0.96) !important;
+    border: 1px solid rgba(105, 137, 168, 0.34) !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    margin: 12px auto 0 !important;
+    max-width: calc(100vw - 28px) !important;
+    overflow: visible !important;
+    padding: 12px !important;
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    width: calc(100vw - 28px) !important;
+    z-index: 1 !important;
+  }
+
+  .heroRightRailClosed {
+    display: none !important;
+  }
+
+  .heroRightRailOpen {
+    display: block !important;
+  }
+
+  .heroRightRail .heroRailEdgeToggle,
+  .heroRightRail .heroRailClosedButton,
+  .heroRightRail .heroRailHeader {
+    display: none !important;
+  }
+
+  .heroRightRail .heroSearchPanel {
+    display: grid !important;
+    gap: 10px !important;
+  }
+
+  .heroRightRail .heroSearchPanel .heroSearchRow {
+    display: none !important;
+  }
+
+  .heroFilterStack,
+  .heroPartCategoryStack {
+    gap: 8px !important;
+  }
+
+  .heroFilterLabel,
+  .heroYearRangeLabel,
+  .heroPartCategoryTitle {
+    text-align: left !important;
+  }
+}
+
+/* Final polished home search bar. */
+:global(html body) .heroMainSearchPanel {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: min(100%, 1020px) !important;
+  width: 100% !important;
+}
+
+:global(html body) .heroMainSearch {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(9, 22, 35, 0.98), rgba(5, 14, 24, 0.98)) !important;
+  border: 1px solid rgba(112, 143, 173, 0.5) !important;
+  border-radius: 9px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 18px 36px rgba(0, 0, 0, 0.22) !important;
+  display: grid !important;
+  gap: 4px !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  height: 58px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  overflow: hidden !important;
+  padding: 4px !important;
+  width: 100% !important;
+}
+
+:global(html body) .heroMainSearch:focus-within {
+  border-color: rgba(255, 122, 26, 0.76) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 122, 26, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 18px 38px rgba(0, 0, 0, 0.26) !important;
+}
+
+:global(html body) .heroMainSearchInput {
+  background: transparent !important;
+  border: 0 !important;
+  color: #f8fbff !important;
+  font-size: 15px !important;
+  font-weight: 850 !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  outline: 0 !important;
+  padding: 0 18px !important;
+  width: 100% !important;
+  -webkit-text-fill-color: #f8fbff !important;
+}
+
+:global(html body) .heroMainSearchInput::placeholder {
+  color: rgba(220, 229, 239, 0.76) !important;
+  opacity: 1 !important;
+}
+
+:global(html body) .heroMainSearchButton {
+  align-items: center !important;
+  align-self: stretch !important;
+  background: linear-gradient(180deg, #ff8a2a 0%, #ff6f12 100%) !important;
+  border: 1px solid rgba(255, 177, 74, 0.58) !important;
+  border-radius: 7px !important;
+  box-shadow: 0 10px 22px rgba(255, 113, 18, 0.22) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  gap: 8px !important;
+  height: auto !important;
+  justify-content: center !important;
+  min-width: 82px !important;
+  padding: 0 18px !important;
+  transition: transform 140ms ease, filter 140ms ease !important;
+  white-space: nowrap !important;
+}
+
+:global(html body) .heroMainSearchButton:hover {
+  filter: brightness(1.06) !important;
+}
+
+:global(html body) .heroMainSearchButton:active {
+  transform: translateY(1px) !important;
+}
+
+:global(html body) .heroMainSearchButton svg {
+  height: 18px !important;
+  stroke-width: 2.4px !important;
+  width: 18px !important;
+}
+
+@media (max-width: 720px) {
+  :global(html body) .heroMainSearchPanel {
+    max-width: calc(100vw - 28px) !important;
+  }
+
+  :global(html body) .heroMainSearch {
+    border-radius: 8px !important;
+    height: 52px !important;
+    padding: 3px !important;
+  }
+
+  :global(html body) .heroMainSearchInput {
+    font-size: 13px !important;
+    padding-left: 12px !important;
+    padding-right: 8px !important;
+  }
+
+  :global(html body) .heroMainSearchButton {
+    gap: 0 !important;
+    min-width: 52px !important;
+    padding: 0 14px !important;
+  }
+
+  :global(html body) .heroMainSearchButton span {
+    display: none !important;
+  }
+}
+
+/* Same final search styling for CSS-module hashed home classes. */
+.heroMainSearchPanel {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: min(100%, 1020px) !important;
+  width: 100% !important;
+}
+
+.heroMainSearch {
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, rgba(9, 22, 35, 0.98), rgba(5, 14, 24, 0.98)) !important;
+  border: 1px solid rgba(112, 143, 173, 0.5) !important;
+  border-radius: 9px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 18px 36px rgba(0, 0, 0, 0.22) !important;
+  display: grid !important;
+  gap: 4px !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  height: 58px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  overflow: hidden !important;
+  padding: 4px !important;
+  width: 100% !important;
+}
+
+.heroMainSearch:focus-within {
+  border-color: rgba(255, 122, 26, 0.76) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 122, 26, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 18px 38px rgba(0, 0, 0, 0.26) !important;
+}
+
+.heroMainSearchInput {
+  background: transparent !important;
+  border: 0 !important;
+  color: #f8fbff !important;
+  font-size: 15px !important;
+  font-weight: 850 !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  outline: 0 !important;
+  padding: 0 18px !important;
+  width: 100% !important;
+  -webkit-text-fill-color: #f8fbff !important;
+}
+
+.heroMainSearchInput::placeholder {
+  color: rgba(220, 229, 239, 0.76) !important;
+  opacity: 1 !important;
+}
+
+.heroMainSearchButton {
+  align-items: center !important;
+  align-self: stretch !important;
+  background: linear-gradient(180deg, #ff8a2a 0%, #ff6f12 100%) !important;
+  border: 1px solid rgba(255, 177, 74, 0.58) !important;
+  border-radius: 7px !important;
+  box-shadow: 0 10px 22px rgba(255, 113, 18, 0.22) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  gap: 8px !important;
+  height: auto !important;
+  justify-content: center !important;
+  min-width: 82px !important;
+  padding: 0 18px !important;
+  transition: transform 140ms ease, filter 140ms ease !important;
+  white-space: nowrap !important;
+}
+
+.heroMainSearchButton:hover {
+  filter: brightness(1.06) !important;
+}
+
+.heroMainSearchButton:active {
+  transform: translateY(1px) !important;
+}
+
+.heroMainSearchButton svg {
+  height: 18px !important;
+  stroke-width: 2.4px !important;
+  width: 18px !important;
+}
+
+@media (max-width: 720px) {
+  .heroMainSearchPanel {
+    max-width: calc(100vw - 28px) !important;
+  }
+
+  .heroMainSearch {
+    border-radius: 8px !important;
+    height: 52px !important;
+    padding: 3px !important;
+  }
+
+  .heroMainSearchInput {
+    font-size: 13px !important;
+    padding-left: 12px !important;
+    padding-right: 8px !important;
+  }
+
+  .heroMainSearchButton {
+    gap: 0 !important;
+    min-width: 52px !important;
+    padding: 0 14px !important;
+  }
+
+  .heroMainSearchButton span {
+    display: none !important;
+  }
+}
+
+/* Final compact pill search bar matching the reference. */
+.heroMainSearchPanel {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: min(100%, 660px) !important;
+  width: 100% !important;
+}
+
+.heroMainSearch {
+  align-items: center !important;
+  background: linear-gradient(180deg, #081018 0%, #050b11 100%) !important;
+  border: 1px solid rgba(112, 143, 173, 0.28) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 12px 26px rgba(0, 0, 0, 0.26) !important;
+  display: grid !important;
+  gap: 8px !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  height: 39px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  overflow: hidden !important;
+  padding: 4px 5px 4px 14px !important;
+  width: 100% !important;
+}
+
+.heroMainSearch:focus-within {
+  border-color: rgba(255, 122, 26, 0.58) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 122, 26, 0.12),
+    0 12px 28px rgba(0, 0, 0, 0.3) !important;
+}
+
+.heroMainSearchIcon {
+  align-items: center !important;
+  color: rgba(235, 244, 252, 0.82) !important;
+  display: inline-flex !important;
+  height: 22px !important;
+  justify-content: center !important;
+  width: 18px !important;
+}
+
+.heroMainSearchIcon svg {
+  height: 16px !important;
+  stroke-width: 2px !important;
+  width: 16px !important;
+}
+
+.heroMainSearchInput {
+  background: transparent !important;
+  border: 0 !important;
+  color: rgba(244, 248, 252, 0.94) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  outline: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  -webkit-text-fill-color: rgba(244, 248, 252, 0.94) !important;
+}
+
+.heroMainSearchInput::placeholder {
+  color: rgba(219, 229, 239, 0.74) !important;
+  opacity: 1 !important;
+}
+
+.heroMainSearchButton {
+  align-items: center !important;
+  align-self: stretch !important;
+  background: linear-gradient(180deg, #ff8b24 0%, #ff6f12 100%) !important;
+  border: 1px solid rgba(255, 173, 82, 0.55) !important;
+  border-radius: 8px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 8px 16px rgba(255, 111, 18, 0.18) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  gap: 5px !important;
+  height: 29px !important;
+  justify-content: center !important;
+  min-width: 58px !important;
+  padding: 0 12px !important;
+  white-space: nowrap !important;
+}
+
+.heroMainSearchButton svg {
+  height: 13px !important;
+  stroke-width: 2.4px !important;
+  width: 13px !important;
+}
+
+@media (max-width: 720px) {
+  .heroMainSearchPanel {
+    max-width: calc(100vw - 28px) !important;
+  }
+
+  .heroMainSearch {
+    height: 40px !important;
+    padding-left: 12px !important;
+  }
+
+  .heroMainSearchButton {
+    min-width: 46px !important;
+    padding: 0 10px !important;
+  }
+}
+
+/* Final visual home search: left aligned, glassy and fully usable. */
+.heroLeadPanel .heroMainSearchPanel,
+.heroMainSearchPanel {
+  justify-self: start !important;
+  margin: 22px 0 0 !important;
+  max-width: min(780px, calc(100vw - 48px)) !important;
+  width: min(780px, calc(100vw - 48px)) !important;
+}
+
+.heroLeadPanel .heroMainSearch,
+.heroMainSearch {
+  align-items: center !important;
+  background:
+    radial-gradient(240px 80px at 88% 50%, rgba(255, 122, 26, 0.09), transparent 72%),
+    linear-gradient(180deg, rgba(9, 20, 31, 0.98), rgba(4, 11, 18, 0.98)) !important;
+  border: 1px solid rgba(99, 137, 173, 0.54) !important;
+  border-radius: 8px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    0 16px 34px rgba(0, 0, 0, 0.3) !important;
+  display: grid !important;
+  gap: 10px !important;
+  grid-template-columns: 18px minmax(0, 1fr) auto !important;
+  height: 50px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  padding: 5px 6px 5px 16px !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+.heroMainSearch::before,
+.heroMainSearch::after {
+  content: none !important;
+  display: none !important;
+}
+
+.heroLeadPanel .heroMainSearch:focus-within,
+.heroMainSearch:focus-within {
+  border-color: rgba(255, 122, 26, 0.72) !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 122, 26, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 18px 38px rgba(0, 0, 0, 0.34) !important;
+}
+
+.heroMainSearchIcon {
+  color: rgba(229, 239, 248, 0.9) !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+}
+
+.heroMainSearchInput {
+  background: transparent !important;
+  border: 0 !important;
+  color: #f8fbff !important;
+  direction: ltr !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  outline: 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
+  width: 100% !important;
+  -webkit-text-fill-color: #f8fbff !important;
+}
+
+.heroMainSearchInput::placeholder {
+  color: rgba(220, 230, 240, 0.72) !important;
+  opacity: 1 !important;
+  text-align: left !important;
+}
+
+.heroMainSearchButton {
+  align-items: center !important;
+  background: linear-gradient(180deg, #ff8c2a 0%, #ff7014 100%) !important;
+  border: 1px solid rgba(255, 185, 88, 0.62) !important;
+  border-radius: 6px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 10px 22px rgba(255, 112, 20, 0.24) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  gap: 7px !important;
+  height: 38px !important;
+  justify-content: center !important;
+  min-width: 76px !important;
+  opacity: 1 !important;
+  padding: 0 16px !important;
+  position: relative !important;
+  visibility: visible !important;
+  white-space: nowrap !important;
+  z-index: 2 !important;
+}
+
+.heroMainSearchButton span {
+  display: inline !important;
+}
+
+.heroMainSearchButton svg {
+  height: 15px !important;
+  width: 15px !important;
+}
+
+@media (max-width: 720px) {
+  .heroLeadPanel .heroMainSearchPanel,
+  .heroMainSearchPanel {
+    margin-top: 16px !important;
+    max-width: calc(100vw - 28px) !important;
+    width: calc(100vw - 28px) !important;
+  }
+
+  .heroLeadPanel .heroMainSearch,
+  .heroMainSearch {
+    height: 46px !important;
+    padding-left: 13px !important;
+  }
+
+  .heroMainSearchInput {
+    font-size: 12px !important;
+  }
+
+  .heroMainSearchButton {
+    height: 34px !important;
+    min-width: 58px !important;
+    padding: 0 11px !important;
+  }
+}
+
+/* Final fix: homepage latest favorite must be clickable above the card link. */
+.heroDesktopLatestImage {
+  position: relative !important;
+}
+
+.heroDesktopFavorite {
+  align-items: center !important;
+  background: rgba(3, 19, 38, 0.72) !important;
+  border: 1px solid rgba(226, 232, 240, 0.78) !important;
+  border-radius: 999px !important;
+  box-shadow:
+    0 10px 24px rgba(0, 10, 24, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 36px !important;
+  justify-content: center !important;
+  line-height: 0 !important;
+  padding: 0 !important;
+  pointer-events: auto !important;
+  position: absolute !important;
+  right: 10px !important;
+  top: 10px !important;
+  touch-action: manipulation !important;
+  width: 36px !important;
+  z-index: 200 !important;
+}
+
+.heroDesktopFavorite::before {
+  content: "" !important;
+  inset: -10px !important;
+  position: absolute !important;
+}
+
+.heroDesktopFavorite svg {
+  display: block !important;
+  height: 18px !important;
+  pointer-events: none !important;
+  width: 18px !important;
+}
+
+.heroDesktopFavoriteActive,
+.heroDesktopFavorite:hover {
+  background: rgba(255, 122, 26, 0.94) !important;
+  border-color: rgba(255, 210, 168, 0.9) !important;
+}
+
+/* Definitive phone homepage layout. Keep this last so older desktop iterations
+   cannot force content wider than the viewport. */
+@media (max-width: 720px) {
+  .shell,
+  .heroWrap,
+  .heroWrap > .container,
+  .container,
+  .hero,
+  .heroInner,
+  .heroLeadPanel {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .heroWrap {
+    overflow-x: clip !important;
+    padding: 0 14px 96px !important;
+  }
+
+  .heroWrap > .container,
+  .container {
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
+
+  .heroInner,
+  .heroLeadPanel {
+    display: block !important;
+  }
+
+  .heroLeadPanel {
+    padding: 30px 0 0 !important;
+    text-align: center !important;
+  }
+
+  .heroHeadline {
+    display: block !important;
+    font-size: clamp(34px, 10vw, 43px) !important;
+    line-height: 1.08 !important;
+    margin: 0 auto !important;
+    max-width: 390px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    text-align: center !important;
+    white-space: normal !important;
+    width: 100% !important;
+  }
+
+  .heroHeadline span,
+  .heroHeadlineAccent {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+  }
+
+  .heroReferenceSubtitle {
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+    margin: 14px auto 0 !important;
+    max-width: 350px !important;
+    padding: 0 6px !important;
+  }
+
+  .heroDesktopActions,
+  .heroReferenceBenefits {
+    display: none !important;
+  }
+
+  .heroLeadPanel .heroMainSearchPanel,
+  .heroMainSearchPanel {
+    margin: 24px 0 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .heroLeadPanel .heroMainSearch,
+  .heroMainSearch {
+    grid-template-columns: 18px minmax(0, 1fr) 48px !important;
+    height: 50px !important;
+    padding: 5px 5px 5px 14px !important;
+  }
+
+  .heroMainSearchInput {
+    font-size: 13px !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .heroMainSearchButton {
+    border-radius: 7px !important;
+    height: 38px !important;
+    min-width: 48px !important;
+    padding: 0 !important;
+    width: 48px !important;
+  }
+
+  .heroMainSearchButton span {
+    display: none !important;
+  }
+
+  .heroMobileFilterToggle {
+    margin: 14px 0 0 !important;
+    min-height: 44px !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatest {
+    margin: 24px 0 0 !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestHead {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    margin: 0 0 12px !important;
+    padding: 0 2px !important;
+  }
+
+  .heroDesktopLatestHead > strong {
+    font-size: 19px !important;
+    line-height: 1.2 !important;
+    text-align: left !important;
+  }
+
+  .heroDesktopLatestActions > button {
+    background: transparent !important;
+    border: 0 !important;
+    color: #ff7a1a !important;
+    font-size: 13px !important;
+    padding: 6px 0 6px 10px !important;
+    white-space: nowrap !important;
+  }
+
+  .heroDesktopLatestGrid,
+  .heroDesktopLatestGridExpanded {
+    display: grid !important;
+    gap: 12px !important;
+    grid-auto-columns: min(76vw, 286px) !important;
+    grid-auto-flow: column !important;
+    grid-template-columns: none !important;
+    margin: 0 -14px !important;
+    max-width: none !important;
+    overflow-x: auto !important;
+    padding: 0 14px 10px !important;
+    scroll-padding-inline: 14px !important;
+    scroll-snap-type: x proximity !important;
+    scrollbar-width: none !important;
+    width: calc(100% + 28px) !important;
+  }
+
+  .heroDesktopLatestGrid::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .heroDesktopLatestCard,
+  .heroDesktopLatestGridExpanded .heroDesktopLatestCard {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 350px !important;
+    min-height: 350px !important;
+    min-width: 0 !important;
+    scroll-snap-align: start !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestImage {
+    flex: 0 0 190px !important;
+    height: 190px !important;
+    min-height: 190px !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestImage img {
+    height: 100% !important;
+    object-fit: cover !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestPrice {
+    font-size: 28px !important;
+    line-height: 1 !important;
+    margin: 16px 16px 8px !important;
+  }
+
+  .heroDesktopLatestTop,
+  .heroDesktopLatestModel,
+  .heroDesktopLatestMeta {
+    margin-left: 16px !important;
+    margin-right: 16px !important;
+  }
+
+  .heroDesktopLatestTop strong {
+    display: -webkit-box !important;
+    font-size: 15px !important;
+    line-height: 1.2 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+  }
+
+  .heroDesktopLatestModel {
+    font-size: 12px !important;
+  }
+
+  .heroDesktopLatestMeta {
+    font-size: 11px !important;
+    margin-top: auto !important;
+    padding-bottom: 14px !important;
+  }
+}
+
+/* Phone listing grid: exactly two cards side by side. */
+@media (max-width: 720px) {
+  .heroDesktopLatestGrid,
+  .heroDesktopLatestGridExpanded {
+    display: grid !important;
+    gap: 10px !important;
+    grid-auto-columns: auto !important;
+    grid-auto-flow: row !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    padding: 0 0 10px !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestCard,
+  .heroDesktopLatestGridExpanded .heroDesktopLatestCard {
+    height: auto !important;
+    min-height: 300px !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestImage {
+    aspect-ratio: 1 / 1 !important;
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .heroDesktopLatestPrice {
+    font-size: clamp(22px, 6.5vw, 28px) !important;
+    margin: 12px 12px 7px !important;
+  }
+
+  .heroDesktopLatestTop,
+  .heroDesktopLatestModel,
+  .heroDesktopLatestMeta {
+    margin-left: 12px !important;
+    margin-right: 12px !important;
+  }
+
+  .heroDesktopLatestTop strong {
+    font-size: 13px !important;
+  }
+
+  .heroDesktopLatestMeta {
+    display: none !important;
+  }
+}
+
+/* Definitive phone filter panel. */
+@media (max-width: 720px) {
+  .heroRightRail,
+  .heroRightRailOpen {
+    background: #061522 !important;
+    border: 1px solid rgba(67, 105, 138, 0.62) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28) !important;
+    box-sizing: border-box !important;
+    margin: 14px 0 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    padding: 16px 14px !important;
+    width: 100% !important;
+  }
+
+  .heroRightRail .heroSearchPanel {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    display: grid !important;
+    gap: 14px !important;
+    padding: 0 !important;
+  }
+
+  .heroFilterStack,
+  .heroPartCategoryStack {
+    display: grid !important;
+    gap: 11px !important;
+    min-width: 0 !important;
+  }
+
+  .heroPartCategoryStack {
+    border-top: 1px solid rgba(67, 105, 138, 0.35) !important;
+    padding-top: 14px !important;
+  }
+
+  .heroIdentifierField,
+  .heroFilterFieldWrap,
+  .heroYearRangeField {
+    display: grid !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+    position: relative !important;
+  }
+
+  .heroFilterLabel,
+  .heroYearRangeLabel,
+  .heroPartCategoryTitle {
+    color: rgba(226, 235, 244, 0.88) !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+    text-align: left !important;
+  }
+
+  .heroPartCategoryTitle {
+    color: #f6f9fc !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+  }
+
+  .heroFilterInput,
+  .heroFilterSelect,
+  .heroYearBox {
+    align-items: center !important;
+    appearance: none !important;
+    background: #03111e !important;
+    border: 1px solid rgba(70, 111, 147, 0.58) !important;
+    border-radius: 6px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+    box-sizing: border-box !important;
+    color: #f3f7fb !important;
+    display: grid !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 12px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .heroFilterInput {
+    display: block !important;
+    outline: 0 !important;
+    -webkit-text-fill-color: #f3f7fb !important;
+  }
+
+  .heroFilterInput::placeholder {
+    color: rgba(202, 215, 227, 0.52) !important;
+    opacity: 1 !important;
+  }
+
+  .heroFilterSelect strong,
+  .heroYearBox strong {
+    color: #f3f7fb !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .heroFilterSelect svg,
+  .heroYearBox svg {
+    color: rgba(215, 228, 239, 0.82) !important;
+    flex: 0 0 auto !important;
+  }
+
+  .heroYearBoxes {
+    align-items: center !important;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) 12px minmax(0, 1fr) !important;
+  }
+
+  .heroYearSelectWrap {
+    min-width: 0 !important;
+    position: relative !important;
+  }
+
+  .heroYearDash {
+    color: rgba(226, 235, 244, 0.72) !important;
+    display: block !important;
+    text-align: center !important;
+  }
+
+  .heroFilterMenu {
+    background: #071b2d !important;
+    border: 1px solid rgba(77, 120, 157, 0.62) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.38) !important;
+    display: grid !important;
+    gap: 2px !important;
+    margin-top: 0 !important;
+    max-height: 240px !important;
+    overflow-y: auto !important;
+    padding: 5px !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  .heroFilterMenuOption,
+  .heroFilterMenuEmpty {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 5px !important;
+    color: #edf4fa !important;
+    display: flex !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    justify-content: flex-start !important;
+    min-height: 38px !important;
+    padding: 8px 10px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .heroRailActions {
+    display: grid !important;
+    gap: 8px !important;
+  }
+
+  .heroRailSubmit,
+  .heroRailClear {
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    width: 100% !important;
+  }
+
+  .heroRailSubmit {
+    background: linear-gradient(180deg, #ff861f, #ff6810) !important;
+    border: 1px solid rgba(255, 182, 99, 0.5) !important;
+    color: #ffffff !important;
+  }
+
+  .heroRailClear {
+    background: #03111e !important;
+    border: 1px solid rgba(70, 111, 147, 0.58) !important;
+    color: #edf4fa !important;
+  }
+
+  .yearRangeClean {
+    margin: 7px 5px 5px !important;
+  }
+}
+
+/* Reserve space for the fixed phone navigation. */
+@media (max-width: 720px) {
+  .shell {
+    padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .heroWrap {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .heroDesktopLatest,
+  .heroDesktopLatestGrid,
+  .heroDesktopLatestGridExpanded {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  .heroDesktopLatest {
+    margin-bottom: 48px !important;
+  }
+}
+
+/* Phone cards follow the desktop card hierarchy and the admin card color. */
+@media (max-width: 720px) {
+  .heroDesktopLatestCard,
+  .heroDesktopLatestGridExpanded .heroDesktopLatestCard {
+    background: var(--listing-card-bg, var(--site-card, #071321)) !important;
+    border: 1px solid rgba(92, 126, 158, 0.42) !important;
+    border-radius: 7px !important;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .heroDesktopLatestImage {
+    border-radius: 0 !important;
+    order: 1 !important;
+  }
+
+  .heroDesktopLatestTop {
+    border-bottom: 0 !important;
+    margin: 10px 9px 0 !important;
+    min-height: 34px !important;
+    order: 2 !important;
+  }
+
+  .heroDesktopLatestTop strong {
+    color: #f7f9fc !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    line-height: 1.18 !important;
+  }
+
+  .heroDesktopLatestPrice {
+    color: #ffffff !important;
+    font-size: clamp(22px, 6vw, 27px) !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    margin: 7px 9px 8px !important;
+    order: 3 !important;
+  }
+
+  .heroDesktopLatestModel {
+    display: none !important;
+  }
+
+  .heroDesktopLatestMeta {
+    align-items: center !important;
+    border: 0 !important;
+    border-top: 0 !important;
+    color: rgba(232, 240, 247, 0.88) !important;
+    display: flex !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    gap: 5px !important;
+    margin: auto 9px 0 !important;
+    min-height: 30px !important;
+    order: 4 !important;
+    overflow: hidden !important;
+    padding: 7px 0 8px !important;
+    white-space: nowrap !important;
+  }
+
+  .heroDesktopLatestMeta .cardLocationMeta {
+    align-items: center !important;
+    display: flex !important;
+    gap: 4px !important;
+    justify-content: flex-start !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-align: left !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+  }
+
+  .heroDesktopLatestMeta .listingCountryFlag {
+    display: block !important;
+    flex: 0 0 auto !important;
+    height: 11px !important;
+    margin: 0 !important;
+    object-fit: cover !important;
+    position: static !important;
+    transform: none !important;
+    width: 16px !important;
+  }
+
+  .heroDesktopLatestMeta .cardDateMeta {
+    display: none !important;
+  }
+
+  .heroDesktopFavorite {
+    height: 31px !important;
+    right: 7px !important;
+    top: 7px !important;
+    width: 31px !important;
+  }
+
+  .heroDesktopFavorite svg {
+    height: 16px !important;
+    width: 16px !important;
+  }
+}
+
+/* Let the complete phone homepage participate in normal document flow. */
+@media (max-width: 720px) {
+  .heroWrap {
+    --hero-stage-height: auto !important;
+    aspect-ratio: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  .heroWrap > .container,
+  .hero,
+  .heroInner,
+  .heroLeadPanel,
+  .heroDesktopLatest,
+  .heroDesktopLatestGrid,
+  .heroDesktopLatestGridExpanded {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow-y: visible !important;
+  }
+
+  .heroWrap > .container,
+  .hero,
+  .heroInner,
+  .heroLeadPanel {
+    display: block !important;
+  }
+
+  .heroDesktopLatestGrid,
+  .heroDesktopLatestGridExpanded {
+    display: grid !important;
+    overflow-x: visible !important;
+  }
+}
+
+/* The search icon opens phone filters; a separate filter button is unnecessary. */
+@media (max-width: 720px) {
+  .heroMobileFilterToggle {
+    display: none !important;
+  }
+}
+
+/* Isolated mobile sheet form: intentionally independent from legacy hero filters. */
+@media (max-width: 720px) {
+  .mobileFilterSheet > .heroRailHeader,
+  .mobileFilterSheet > .heroRailEdgeToggle,
+  .mobileFilterSheet > .heroSearchPanel,
+  .mobileFilterSheet > .heroLatestPanel {
+    display: none !important;
+  }
+
+  .mobileSheetForm {
+    align-content: start !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 11px !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 0 3px 14px !important;
+    scrollbar-width: none !important;
+    width: 100% !important;
+  }
+
+  .mobileSheetForm::-webkit-scrollbar,
+  .mobileSheetMenu::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+  }
+
+  .mobileSheetField {
+    display: grid !important;
+    flex: 0 0 auto !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+    position: relative !important;
+    width: 100% !important;
+    scroll-margin-top: 8px !important;
+    scroll-margin-bottom: 150px !important;
+  }
+
+  .mobileSheetField > span,
+  .mobileSheetSectionTitle {
+    color: rgba(225, 234, 243, 0.86) !important;
+    display: block !important;
+    font-size: 11px !important;
+    font-weight: 850 !important;
+    line-height: 1.15 !important;
+    margin: 0 !important;
+    text-align: left !important;
+  }
+
+  .mobileSheetSectionTitle {
+    border-top: 1px solid rgba(74, 110, 143, 0.32) !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    margin-top: 3px !important;
+    padding-top: 13px !important;
+  }
+
+  .mobileSheetField > input,
+  .mobileSheetSelect {
+    align-items: center !important;
+    appearance: none !important;
+    background: #071522 !important;
+    border: 1px solid rgba(70, 111, 147, 0.58) !important;
+    border-radius: 5px !important;
+    box-sizing: border-box !important;
+    color: #f5f8fb !important;
+    display: grid !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    outline: 0 !important;
+    padding: 0 11px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .mobileSheetField > input {
+    display: block !important;
+    -webkit-text-fill-color: #f5f8fb !important;
+  }
+
+  .mobileSheetField > input::placeholder {
+    color: rgba(205, 216, 227, 0.52) !important;
+    opacity: 1 !important;
+  }
+
+  .mobileSheetSelect strong {
+    color: #f5f8fb !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .mobileSheetYearBoxes {
+    align-items: center !important;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) 12px minmax(0, 1fr) !important;
+    width: 100% !important;
+  }
+
+  .mobileSheetYearBoxes > span {
+    color: rgba(226, 235, 244, 0.7) !important;
+    text-align: center !important;
+  }
+
+  .mobileSheetMenu {
+    background: #071b2d !important;
+    border: 1px solid rgba(77, 120, 157, 0.62) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.4) !important;
+    display: grid !important;
+    gap: 2px !important;
+    max-height: min(320px, 46dvh) !important;
+    overflow-y: auto !important;
+    padding: 5px !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  .mobileSheetMenu > button,
+  .mobileSheetMenu > span {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 5px !important;
+    color: #eef5fb !important;
+    display: flex !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    justify-content: flex-start !important;
+    min-height: 38px !important;
+    padding: 8px 10px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .mobileSheetActions {
+    background: #15171d !important;
+    bottom: -14px !important;
+    box-shadow: 0 -12px 18px #15171d !important;
+    display: grid !important;
+    flex: 0 0 auto !important;
+    gap: 8px !important;
+    margin-top: 22px !important;
+    padding: 14px 0 max(14px, env(safe-area-inset-bottom, 0px)) !important;
+    position: sticky !important;
+    width: 100% !important;
+    z-index: 10 !important;
+  }
+
+  .mobileSheetActions > button {
+    align-items: center !important;
+    border-radius: 5px !important;
+    display: flex !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    height: 44px !important;
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .mobileSheetActions > button:first-child {
+    background: linear-gradient(180deg, #ff861f, #ff6810) !important;
+    border: 1px solid rgba(255, 182, 99, 0.5) !important;
+    color: #ffffff !important;
+  }
+
+  .mobileSheetActions > button:last-child {
+    background: #071522 !important;
+    border: 1px solid rgba(70, 111, 147, 0.58) !important;
+    color: #eef5fb !important;
+  }
+
+  .heroDesktopLatestActions {
+    justify-content: flex-end !important;
+    margin-left: auto !important;
+  }
+
+  .heroDesktopLatestActions > button {
+    margin-left: auto !important;
   }
 }
