@@ -143,6 +143,12 @@
     z-index: 2147483646 !important;
   }
 
+  html body:not(:has([class*="mobileFilterBackdrop"])) [class*="heroRightRail"][class*="mobileFilterSheet"] {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+
   html body [class*="heroRightRail"][class*="mobileFilterSheet"] {
     background: #15171d !important;
     border: 1px solid rgba(132, 143, 158, 0.28) !important;

@@ -4340,6 +4340,20 @@ html body > .universal-profile-menu-backdrop {
   z-index: 2147483600 !important;
 }
 
+html body:not(:has(> .universal-profile-menu-portal)) > .universal-profile-menu-backdrop {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+@media (max-width: 760px) {
+  html:not(:has(body > .universal-profile-menu-portal)):not(:has(.visitor-language-backdrop)):not(:has([class*="mobileFilterBackdrop"])),
+  html:not(:has(body > .universal-profile-menu-portal)):not(:has(.visitor-language-backdrop)):not(:has([class*="mobileFilterBackdrop"])) body {
+    overflow-y: auto !important;
+    touch-action: pan-y !important;
+  }
+}
+
 html body > .universal-profile-menu-portal {
   background:
     radial-gradient(460px 260px at 100% 0%, rgba(255, 122, 26, 0.11), transparent 72%),
