@@ -33,6 +33,15 @@ html[data-user-background-tone] main {
   }
 }
 
+@media (max-width: 720px), (pointer: coarse) {
+  body[data-home-search-locked="true"] {
+    height: 100% !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+    touch-action: none !important;
+  }
+}
+
 .global-navigation-spinner {
   align-items: center;
   display: grid;
