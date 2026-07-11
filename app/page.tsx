@@ -1623,10 +1623,11 @@ function HomeContent() {
   }, [garageVehicles]);
 
   useEffect(() => {
-    const media = window.matchMedia("(max-width: 720px)");
+    const media = window.matchMedia("(max-width: 720px), (pointer: coarse)");
     const syncCompactSearch = () => {
-      setCompactHeroSearch(media.matches);
-      if (media.matches) setHomeSearchPanelOpen(false);
+      const isMobileSearch = media.matches || window.innerWidth <= 720;
+      setCompactHeroSearch(isMobileSearch);
+      if (isMobileSearch) setHomeSearchPanelOpen(false);
     };
 
     syncCompactSearch();
@@ -1634,6 +1635,31 @@ function HomeContent() {
 
     return () => media.removeEventListener("change", syncCompactSearch);
   }, []);
+
+  const openMobileHomeSearchSheet = useCallback(() => {
+    const isMobileSearch = typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 720px), (pointer: coarse)").matches || window.innerWidth <= 720
+      : compactHeroSearch;
+
+    if (isMobileSearch) {
+      setCompactHeroSearch(true);
+      setMobileFilterExpanded(false);
+    }
+
+    setHomeSearchPanelOpen(true);
+    setActiveHeroFilter(null);
+  }, [compactHeroSearch]);
+
+  const handleHeroMainSearchButtonClick = useCallback((event: ReactMouseEvent<HTMLButtonElement>) => {
+    const isMobileSearch = typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 720px), (pointer: coarse)").matches || window.innerWidth <= 720
+      : compactHeroSearch;
+
+    if (!isMobileSearch) return;
+
+    event.preventDefault();
+    openMobileHomeSearchSheet();
+  }, [compactHeroSearch, openMobileHomeSearchSheet]);
 
   const sortLabel = useCallback((value: SortValue) => {
     return value === "Osuvimmat ensin"
@@ -3467,13 +3493,7 @@ function HomeContent() {
                     type={compactHeroSearch ? "button" : "submit"}
                     className={styles.heroMainSearchButton}
                     aria-label={compactHeroSearch ? "Avaa suodatus" : "Hae"}
-                    onClick={compactHeroSearch ? () => {
-                      setHomeSearchPanelOpen((open) => {
-                        if (open) setMobileFilterExpanded(false);
-                        return !open;
-                      });
-                      setActiveHeroFilter(null);
-                    } : undefined}
+                    onClick={handleHeroMainSearchButtonClick}
                   >
                     <Search size={18} aria-hidden="true" />
                     <span>Hae</span>
@@ -3484,7 +3504,7 @@ function HomeContent() {
               <button
                 type="button"
                 className={styles.heroMobileFilterToggle}
-                onClick={() => setHomeSearchPanelOpen((open) => !open)}
+                onClick={openMobileHomeSearchSheet}
               >
                 <SlidersHorizontal size={17} aria-hidden="true" />
                 <span>{homeSearchPanelOpen ? "Sulje suodatus" : "Suodata"}</span>
