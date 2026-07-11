@@ -1276,6 +1276,7 @@ function HomeContent() {
   const [mobileFilterExpanded, setMobileFilterExpanded] = useState(false);
   const [mobileFilterDragOffset, setMobileFilterDragOffset] = useState(0);
   const mobileFilterDragStartRef = useRef<number | null>(null);
+  const mobileSheetFormRef = useRef<HTMLDivElement | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [listingsExpanded, setListingsExpanded] = useState(false);
@@ -3098,7 +3099,13 @@ function HomeContent() {
       if (opening) {
         window.requestAnimationFrame(() => {
           window.requestAnimationFrame(() => {
-            fieldElement.scrollIntoView({ behavior: "smooth", block: "start" });
+            const scroller = mobileSheetFormRef.current;
+            if (!scroller) return;
+
+            const scrollerRect = scroller.getBoundingClientRect();
+            const fieldRect = fieldElement.getBoundingClientRect();
+            const targetTop = scroller.scrollTop + fieldRect.top - scrollerRect.top - 8;
+            scroller.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
           });
         });
       }
@@ -3661,7 +3668,13 @@ function HomeContent() {
                           <X size={18} strokeWidth={2.8} aria-hidden="true" />
                         </button>
                       </div>
-                      <div className={styles.mobileSheetForm}>
+                      <div
+                        ref={mobileSheetFormRef}
+                        className={styles.mobileSheetForm}
+                        onClick={(event) => event.stopPropagation()}
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onTouchStart={(event) => event.stopPropagation()}
+                      >
                         <label className={styles.mobileSheetField}>
                           <span>Ilmoituksen ID</span>
                           <input

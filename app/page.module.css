@@ -26945,6 +26945,7 @@
     outline: 0 !important;
     padding: 0 11px !important;
     text-align: left !important;
+    touch-action: manipulation !important;
     width: 100% !important;
   }
 
@@ -26992,6 +26993,8 @@
     overflow-y: auto !important;
     padding: 5px !important;
     position: static !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch !important;
     width: 100% !important;
   }
 
@@ -27009,6 +27012,7 @@
     min-height: 38px !important;
     padding: 8px 10px !important;
     text-align: left !important;
+    touch-action: manipulation !important;
     width: 100% !important;
   }
 
