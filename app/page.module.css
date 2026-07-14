@@ -3,6 +3,83 @@
   background: transparent;
 }
 
+.heroNoResults {
+  align-content: center;
+  align-items: center;
+  background:
+    radial-gradient(circle at 50% 0, rgba(255, 122, 26, 0.1), transparent 42%),
+    linear-gradient(145deg, rgba(11, 28, 43, 0.96), rgba(5, 16, 27, 0.98));
+  border: 1px solid rgba(86, 125, 158, 0.42);
+  border-radius: 12px;
+  display: grid;
+  justify-items: center;
+  min-height: 260px;
+  padding: 34px 20px;
+  text-align: center;
+}
+
+.heroNoResultsIcon {
+  align-items: center;
+  background: rgba(255, 122, 26, 0.1);
+  border: 1px solid rgba(255, 122, 26, 0.48);
+  border-radius: 999px;
+  color: #ff7a1a;
+  display: inline-flex;
+  height: 54px;
+  justify-content: center;
+  margin-bottom: 14px;
+  width: 54px;
+}
+
+.heroNoResultsIcon svg {
+  height: 25px;
+  width: 25px;
+}
+
+.heroNoResults > strong {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.heroNoResults > p {
+  color: rgba(220, 231, 241, 0.7);
+  font-size: 13px;
+  font-weight: 650;
+  margin: 8px 0 18px;
+}
+
+.heroNoResults > button {
+  align-items: center;
+  background: linear-gradient(135deg, #ff9228, #ff650d);
+  border: 1px solid rgba(255, 190, 116, 0.62);
+  border-radius: 9px;
+  box-shadow: 0 9px 22px rgba(255, 101, 13, 0.24);
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 900;
+  gap: 8px;
+  height: 44px;
+  justify-content: center;
+  padding: 0 20px;
+}
+
+.heroNoResults > button:hover {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 720px) {
+  .heroNoResults {
+    border-radius: 10px;
+    min-height: 220px;
+    padding: 28px 16px;
+  }
+}
+
 .heroRightRailPinned {
 }
 
@@ -10695,6 +10772,14 @@
   z-index: 10000 !important;
 }
 
+.sortInteractionShield {
+  background: transparent;
+  inset: 0;
+  position: fixed;
+  touch-action: none;
+  z-index: 10025;
+}
+
 .sortMenuItem {
   align-items: center !important;
   background: transparent !important;
@@ -16777,6 +16862,158 @@
   }
 }
 
+/* Marketplace figures: polished responsive presentation for desktop and phone. */
+.heroMarketplaceStats.heroMarketplaceStats {
+  background:
+    radial-gradient(circle at 13% 18%, rgba(255, 122, 26, 0.08), transparent 30%),
+    linear-gradient(135deg, rgba(11, 27, 42, 0.98), rgba(5, 16, 27, 0.99)) !important;
+  border: 1px solid rgba(91, 129, 162, 0.42) !important;
+  border-radius: 15px !important;
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  overflow: hidden !important;
+}
+
+.heroMarketplaceStats > .heroMarketplaceStat {
+  align-items: center !important;
+  border-bottom: 0 !important;
+  border-right: 1px solid rgba(91, 129, 162, 0.34) !important;
+  display: grid !important;
+  gap: clamp(14px, 1.7vw, 24px) !important;
+  grid-template-columns: clamp(46px, 4vw, 62px) minmax(0, 1fr) !important;
+  min-height: 154px !important;
+  padding: clamp(22px, 2.3vw, 34px) !important;
+  position: relative !important;
+}
+
+.heroMarketplaceStats > .heroMarketplaceStat::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 122, 26, 0.75), transparent);
+  bottom: 0;
+  content: "";
+  height: 2px;
+  left: 20%;
+  opacity: 0;
+  position: absolute;
+  right: 20%;
+  transform: scaleX(0.5);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.heroMarketplaceStats > .heroMarketplaceStat:hover::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.heroMarketplaceStats > .heroMarketplaceStat:last-child {
+  border-right: 0 !important;
+}
+
+.heroMarketplaceStatIcon {
+  align-items: center;
+  align-self: start;
+  background: linear-gradient(145deg, rgba(255, 132, 35, 0.14), rgba(255, 104, 13, 0.04));
+  border: 1px solid rgba(255, 122, 26, 0.34);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(255, 103, 13, 0.08);
+  color: #ff7618;
+  display: inline-flex;
+  height: clamp(46px, 4vw, 62px);
+  justify-content: center;
+  width: clamp(46px, 4vw, 62px);
+}
+
+.heroMarketplaceStatIcon svg {
+  height: 58%;
+  stroke-width: 1.9;
+  width: 58%;
+}
+
+.heroMarketplaceStatCopy {
+  align-content: center;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.heroMarketplaceStats .heroMarketplaceStatValue {
+  color: #ffffff;
+  font-size: clamp(32px, 3.1vw, 48px) !important;
+  font-weight: 950;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+.heroMarketplaceStats .heroMarketplaceStatCopy strong {
+  color: #f7fafc;
+  font-size: clamp(14px, 1.25vw, 18px) !important;
+  font-weight: 900;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  margin-top: 5px;
+}
+
+.heroMarketplaceStats .heroMarketplaceStatCopy small {
+  color: rgba(213, 226, 238, 0.62);
+  font-size: clamp(11px, 0.92vw, 14px) !important;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-top: 13px;
+}
+
+@media (max-width: 720px) {
+  :global(html body) .heroLeadPanel > .heroMarketplaceStats.heroMarketplaceStats {
+    border-radius: 12px !important;
+    margin: 14px 0 0 !important;
+  }
+
+  .heroMarketplaceStats > .heroMarketplaceStat {
+    align-content: center !important;
+    gap: 8px !important;
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    min-height: 124px !important;
+    padding: 15px 6px 14px !important;
+    text-align: center !important;
+  }
+
+  .heroMarketplaceStatIcon {
+    align-self: center;
+    border-radius: 10px;
+    height: 36px;
+    width: 36px;
+  }
+
+  .heroMarketplaceStats .heroMarketplaceStatValue {
+    font-size: clamp(23px, 7vw, 30px) !important;
+  }
+
+  .heroMarketplaceStats .heroMarketplaceStatCopy strong {
+    font-size: clamp(9px, 2.8vw, 12px) !important;
+    margin-top: 3px;
+    overflow-wrap: anywhere;
+  }
+
+  .heroMarketplaceStats .heroMarketplaceStatCopy small {
+    display: none;
+  }
+}
+
+@media (max-width: 370px) {
+  .heroMarketplaceStats > .heroMarketplaceStat {
+    min-height: 112px !important;
+    padding-left: 3px !important;
+    padding-right: 3px !important;
+  }
+
+  .heroMarketplaceStatIcon {
+    height: 32px;
+    width: 32px;
+  }
+}
+
+
 /* Compact create-listing callout below the homepage listings. */
 .homeListingCta {
   align-items: center !important;
@@ -21739,6 +21976,320 @@
   }
 }
 
+
+/* Match the compact marketplace reference: left discovery column, right filter, full-width lower bands. */
+.heroHeaderSearch {
+  display: none;
+}
+
+.heroRailHeaderClear {
+  background: transparent;
+  border: 0;
+  color: #ff7a1a;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 0;
+}
+
+@media (min-width: 901px) {
+  :global(html body) .heroInner {
+    gap: 14px !important;
+    grid-template-columns: minmax(0, 1fr) clamp(240px, 22vw, 320px) !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroShowcase {
+    border-left: 0 !important;
+    border-radius: 0 !important;
+    border-right: 0 !important;
+    margin-left: -22px !important;
+    margin-right: -22px !important;
+    min-height: 350px !important;
+    width: calc(100% + 44px) !important;
+  }
+
+  .heroShowcaseCopy {
+    gap: 15px !important;
+    padding: 42px 0 44px 40px !important;
+    width: 50% !important;
+  }
+
+  .heroShowcase .heroHeadline {
+    font-size: clamp(39px, 3.4vw, 56px) !important;
+  }
+
+  .heroShowcase .heroReferenceSubtitle {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    max-width: 540px !important;
+  }
+
+  .heroShowcaseArt {
+    width: 62% !important;
+  }
+
+  .heroHeaderSearch {
+    align-items: center;
+    background: rgba(4, 14, 23, 0.98);
+    border: 1px solid rgba(90, 121, 149, 0.45);
+    border-radius: 6px;
+    box-sizing: border-box;
+    display: grid;
+    gap: 9px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    height: 42px;
+    left: clamp(220px, 22vw, 320px);
+    padding-left: 12px;
+    position: fixed;
+    top: 18px;
+    width: clamp(300px, 30vw, 440px);
+    z-index: 1000;
+  }
+
+  .heroHeaderSearch > svg {
+    color: rgba(220, 231, 240, 0.72);
+  }
+
+  .heroHeaderSearch input {
+    background: transparent;
+    border: 0;
+    color: #f6f9fc;
+    font-size: 12px;
+    height: 100%;
+    min-width: 0;
+    outline: 0;
+    padding: 0;
+  }
+
+  .heroHeaderSearch input::placeholder {
+    color: rgba(216, 227, 236, 0.64);
+    opacity: 1;
+  }
+
+  .heroHeaderSearch button {
+    align-items: center;
+    align-self: stretch;
+    background: linear-gradient(180deg, #ff851e, #ff650c);
+    border: 0;
+    border-radius: 0 5px 5px 0;
+    color: #ffffff;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 12px;
+    font-weight: 900;
+    gap: 6px;
+    justify-content: center;
+    min-width: 72px;
+    padding: 0 12px;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel {
+    grid-column: 1 !important;
+    justify-self: stretch !important;
+    margin: -42px 0 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
+    max-width: 100% !important;
+  }
+
+  :global(html body) .heroMainSearch {
+    height: 46px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroCategorySection {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+  }
+
+  .heroCategoryHeading strong {
+    font-size: 15px !important;
+  }
+
+  .heroCategoryHeading span {
+    color: #ff7a1a !important;
+    font-size: 10px !important;
+  }
+
+  .heroCategoryGrid {
+    gap: 7px !important;
+    grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
+  }
+
+  .heroCategoryGrid button {
+    border-radius: 6px !important;
+    font-size: 10px !important;
+    gap: 6px !important;
+    min-height: 76px !important;
+    padding: 9px 3px !important;
+  }
+
+  .heroCategoryGrid button svg {
+    height: 23px !important;
+    width: 23px !important;
+  }
+
+  :global(html body) .heroDesktopLatest {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+  }
+
+  :global(html body) .heroDesktopLatestHead {
+    min-height: 28px !important;
+  }
+
+  :global(html body) .heroDesktopLatestHead > strong {
+    font-size: 15px !important;
+  }
+
+  :global(html body) .heroDesktopLatestGrid,
+  :global(html body) .heroDesktopLatestGridExpanded {
+    gap: 9px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  :global(html body) .heroDesktopLatestImage {
+    aspect-ratio: 1.48 / 1 !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody {
+    min-height: 104px !important;
+    padding: 9px !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody .heroDesktopLatestPrice {
+    font-size: 20px !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody .heroDesktopLatestTop {
+    min-height: 29px !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody .heroDesktopLatestMeta {
+    font-size: 8px !important;
+  }
+
+  :global(html body) .heroInner > .heroRightRail,
+  :global(html body) .heroInner > .heroRightRail.heroRightRailOpen {
+    align-self: stretch !important;
+    grid-column: 2 !important;
+    grid-row: 3 / span 2 !important;
+    margin: -2px 0 0 !important;
+    padding: 13px !important;
+  }
+
+  :global(html body) .heroRightRail .heroRailHeader {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-bottom: 10px !important;
+    text-align: left !important;
+  }
+
+  :global(html body) .heroRightRail .heroRailHeader strong {
+    font-size: 15px !important;
+  }
+
+  :global(html body) .heroRightRail .heroSearchPanel {
+    gap: 9px !important;
+  }
+
+  :global(html body) .heroRightRail .heroFilterStack {
+    gap: 8px !important;
+  }
+
+  :global(html body) .heroRightRail .heroIdentifierField,
+  :global(html body) .heroRightRail .heroFilterFieldWrap,
+  :global(html body) .heroRightRail .heroYearRangeField {
+    gap: 4px !important;
+  }
+
+  :global(html body) .heroRightRail .heroFilterLabel,
+  :global(html body) .heroRightRail .heroYearRangeLabel {
+    font-size: 10px !important;
+  }
+
+  :global(html body) .heroRightRail .heroFilterInput,
+  :global(html body) .heroRightRail .heroFilterSelect,
+  :global(html body) .heroRightRail .heroYearBox {
+    min-height: 31px !important;
+  }
+
+  :global(html body) .heroRightRail .heroPartCategoryStack {
+    display: grid !important;
+    gap: 8px !important;
+    margin-top: 4px !important;
+  }
+
+  :global(html body) .heroRightRail .heroRailSubmit,
+  :global(html body) .heroRightRail .heroRailClear {
+    min-height: 34px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroReferenceBenefits {
+    grid-column: 1 / -1 !important;
+    grid-row: 5 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits span {
+    min-height: 68px !important;
+    padding: 10px 14px !important;
+  }
+
+  :global(html body) .heroReferenceBenefits strong {
+    font-size: 12px !important;
+  }
+
+  :global(html body) .heroReferenceBenefits small {
+    font-size: 10px !important;
+  }
+
+  .heroMarketplaceStats {
+    grid-column: 1 / -1 !important;
+    grid-row: 6 !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .heroMarketplaceStats > span {
+    min-height: 58px !important;
+    padding: 8px 14px !important;
+  }
+
+  .heroMarketplaceStats strong {
+    font-size: 17px !important;
+  }
+
+  .heroSellCallout {
+    grid-column: 1 / -1 !important;
+    grid-row: 7 !important;
+    min-height: 70px !important;
+    padding: 10px 16px !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1120px) {
+  :global(html body) .heroInner {
+    grid-template-columns: minmax(0, 1fr) 230px !important;
+  }
+
+  .heroHeaderSearch {
+    left: 245px;
+    width: 390px;
+  }
+
+  .heroCategoryGrid button {
+    font-size: 9px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .heroHeaderSearch {
+    display: none !important;
+  }
+}
+
 @media (min-width: 901px) and (max-width: 1120px) {
   .heroInner {
     grid-template-columns: minmax(300px, 0.85fr) minmax(470px, 1.15fr) !important;
@@ -22008,6 +22559,203 @@
 
   .heroRightRail .heroSearchPanel {
     width: 100% !important;
+  }
+}
+
+/* Definitive reference layout. Keep last so the accumulated legacy home rules cannot override it. */
+@media (min-width: 901px) {
+  :global(html body) .heroWrap > .container {
+    max-width: 1460px !important;
+    padding-left: 22px !important;
+    padding-right: 22px !important;
+  }
+
+  :global(html body) .heroInner {
+    gap: 14px !important;
+    grid-template-columns: minmax(0, 1fr) clamp(230px, 22vw, 320px) !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroShowcase {
+    border-left: 0 !important;
+    border-radius: 0 !important;
+    border-right: 0 !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+    min-height: clamp(350px, 26.7vw, 510px) !important;
+    width: 100vw !important;
+  }
+
+  .heroShowcaseCopy {
+    gap: 15px !important;
+    padding: clamp(42px, 3.1vw, 60px) 0 44px max(62px, calc((100vw - 1460px) / 2 + 40px)) !important;
+    width: 50% !important;
+  }
+
+  .heroShowcaseArt img {
+    display: block;
+    height: 100% !important;
+    max-width: none;
+    object-fit: cover !important;
+    width: 100% !important;
+  }
+
+  .heroShowcase .heroHeadline {
+    font-size: clamp(39px, 3.4vw, 56px) !important;
+  }
+
+  .heroShowcase .heroReferenceSubtitle {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    justify-self: stretch !important;
+    margin: -42px 0 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
+    height: 46px !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroCategorySection {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+  }
+
+  .heroCategoryGrid {
+    gap: 7px !important;
+    grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
+  }
+
+  .heroCategoryGrid button {
+    border-radius: 6px !important;
+    font-size: 9px !important;
+    gap: 6px !important;
+    min-height: 76px !important;
+    padding: 9px 3px !important;
+  }
+
+  .heroCategoryGrid button svg {
+    height: 23px !important;
+    width: 23px !important;
+  }
+
+  :global(html body) .heroDesktopLatest {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+    margin-top: 3px !important;
+  }
+
+  :global(html body) .heroDesktopLatestGrid,
+  :global(html body) .heroDesktopLatestGridExpanded {
+    gap: 9px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  :global(html body) .heroDesktopLatestImage {
+    aspect-ratio: 1.48 / 1 !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody {
+    gap: 5px !important;
+    min-height: 104px !important;
+    padding: 9px !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody .heroDesktopLatestPrice {
+    font-size: 20px !important;
+  }
+
+  :global(html body) .heroInner > .heroRightRail,
+  :global(html body) .heroInner > .heroRightRail.heroRightRailOpen {
+    align-self: stretch !important;
+    grid-column: 2 !important;
+    grid-row: 3 / span 2 !important;
+    height: auto !important;
+    margin: -2px 0 0 !important;
+    max-height: none !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    padding: 13px !important;
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroRightRail .heroRailHeader {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-bottom: 10px !important;
+    text-align: left !important;
+  }
+
+  :global(html body) .heroRightRail .heroRailHeader strong {
+    font-size: 15px !important;
+  }
+
+  :global(html body) .heroRightRail .heroSearchPanel,
+  :global(html body) .heroRightRail .heroFilterStack {
+    gap: 8px !important;
+  }
+
+  :global(html body) .heroRightRail .heroFilterLabel,
+  :global(html body) .heroRightRail .heroYearRangeLabel {
+    font-size: 10px !important;
+  }
+
+  :global(html body) .heroRightRail .heroFilterInput,
+  :global(html body) .heroRightRail .heroFilterSelect,
+  :global(html body) .heroRightRail .heroYearBox {
+    min-height: 31px !important;
+  }
+
+  :global(html body) .heroRightRail .heroPartCategoryStack {
+    display: none !important;
+  }
+
+  :global(html body) .heroRightRail .heroRailSubmit,
+  :global(html body) .heroRightRail .heroRailClear {
+    min-height: 34px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroReferenceBenefits {
+    grid-column: 1 / -1 !important;
+    grid-row: 5 !important;
+    margin: 0 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits span {
+    min-height: 68px !important;
+    padding: 10px 14px !important;
+  }
+
+  .heroMarketplaceStats {
+    grid-column: 1 / -1 !important;
+    grid-row: 6 !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .heroMarketplaceStats > span {
+    min-height: 58px !important;
+    padding: 8px 14px !important;
+  }
+
+  .heroSellCallout {
+    grid-column: 1 / -1 !important;
+    grid-row: 7 !important;
+    min-height: 70px !important;
+    padding: 10px 16px !important;
   }
 }
 
@@ -24136,6 +24884,33 @@
 /* Reference home lock: dark hero, left search, right filter rail. */
 .heroReferenceBenefits {
   display: none;
+}
+
+.heroBenefitIcon {
+  align-items: center;
+  background: rgba(255, 122, 26, 0.08);
+  border: 1px solid rgba(255, 122, 26, 0.48);
+  border-radius: 10px;
+  color: #ff7a1a;
+  display: inline-flex;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+.heroBenefitIcon svg {
+  color: currentColor;
+  display: block;
+  height: 24px;
+  stroke: currentColor;
+  width: 24px;
+}
+
+.heroBenefitIcon img {
+  display: block;
+  height: 24px;
+  object-fit: contain;
+  width: 24px;
 }
 
 @media (min-width: 901px) {
@@ -27204,7 +27979,2228 @@
     bottom: 0 !important;
     box-shadow: 0 -14px 22px #15171d !important;
     margin-top: 2px !important;
-    padding: 14px 0 max(14px, env(safe-area-inset-bottom, 0px)) !important;
+    padding: 14px 0 calc(76px + env(safe-area-inset-bottom, 0px)) !important;
     position: sticky !important;
+  }
+}
+
+/* Desktop home content must define the page height. Fixed hero bounds used to
+   crop both the latest listing cards and the right-hand filter panel. */
+@media (min-width: 901px) {
+  .heroWrap {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 760px !important;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+  }
+
+  .heroWrap > .container,
+  .hero,
+  .heroInner,
+  .heroLeadPanel,
+  .heroDesktopLatest,
+  .heroDesktopLatestGrid,
+  .heroDesktopLatestGridExpanded {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+
+  :global(html body) .heroRightRail,
+  :global(html body) .heroRightRailOpen,
+  .heroRightRail,
+  .heroRightRailOpen {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+/* Use a text heart so legacy SVG rules cannot collapse the icon into a dot. */
+:global(html body) .heroDesktopFavoriteHeart,
+.heroDesktopFavoriteHeart {
+  color: #ffffff !important;
+  display: block !important;
+  font-family: Arial, "Segoe UI Symbol", sans-serif !important;
+  font-size: 22px !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+  height: 24px !important;
+  letter-spacing: 0 !important;
+  line-height: 22px !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  text-align: center !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45) !important;
+  visibility: visible !important;
+  width: 24px !important;
+}
+
+/* Homepage latest listings use the same visual hierarchy as Saved listings. */
+.heroDesktopLatestCard,
+.heroDesktopLatestGridExpanded .heroDesktopLatestCard {
+  background: var(--listing-card-bg, var(--site-card, #0e1721)) !important;
+  border: 1px solid rgba(255, 122, 26, 0.48) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.heroDesktopLatestCard:hover,
+.heroDesktopLatestCard:focus-visible {
+  border-color: rgba(255, 122, 26, 0.78) !important;
+  box-shadow: 0 0 0 1px rgba(255, 122, 26, 0.12) !important;
+  outline: none !important;
+  transform: none !important;
+}
+
+.heroDesktopLatestImage {
+  aspect-ratio: 1 / 0.82 !important;
+  background: #071f38 !important;
+  border-bottom: 1px solid rgba(147, 197, 253, 0.16) !important;
+  display: block !important;
+  flex: 0 0 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  order: 1 !important;
+  overflow: hidden !important;
+  width: 100% !important;
+}
+
+.heroDesktopLatestImage img {
+  display: block !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  transform: none !important;
+  width: 100% !important;
+}
+
+.heroDesktopLatestBody {
+  background: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 92%, #ffffff 8%) !important;
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  min-height: 150px !important;
+  order: 2 !important;
+  padding: 14px !important;
+  width: 100% !important;
+}
+
+.heroDesktopLatestBody .heroDesktopLatestPrice {
+  color: #ffffff !important;
+  display: block !important;
+  font-size: 34px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  order: initial !important;
+  text-align: left !important;
+}
+
+.heroDesktopLatestBody .heroDesktopLatestTop {
+  border: 0 !important;
+  display: block !important;
+  margin: 2px 0 0 !important;
+  min-height: 38px !important;
+  order: initial !important;
+}
+
+.heroDesktopLatestBody .heroDesktopLatestTop strong {
+  color: #ffffff !important;
+  display: -webkit-box !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  line-height: 1.25 !important;
+  overflow: hidden !important;
+  overflow-wrap: anywhere !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+.heroDesktopLatestBody .heroDesktopLatestModel {
+  display: none !important;
+}
+
+.heroDesktopLatestBody .heroDesktopLatestMeta {
+  align-items: center !important;
+  border: 0 !important;
+  border-top: 1px solid rgba(226, 244, 255, 0.2) !important;
+  color: rgba(226, 244, 255, 0.72) !important;
+  display: grid !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  gap: 8px !important;
+  grid-template-columns: minmax(0, 1fr) max-content !important;
+  margin: auto 0 0 !important;
+  min-height: 30px !important;
+  order: initial !important;
+  overflow: visible !important;
+  padding: 10px 0 0 !important;
+  width: 100% !important;
+}
+
+.heroDesktopLatestBody .cardLocationMeta,
+.heroDesktopLatestBody .cardDateMeta {
+  align-items: center !important;
+  display: inline-flex !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.heroDesktopLatestBody .cardDateMeta {
+  justify-self: end !important;
+}
+
+.heroDesktopFavorite {
+  height: 36px !important;
+  right: 8px !important;
+  top: 8px !important;
+  width: 36px !important;
+}
+
+@media (max-width: 720px) {
+  .heroDesktopLatestCard,
+  .heroDesktopLatestGridExpanded .heroDesktopLatestCard {
+    border-radius: 12px !important;
+    min-height: 0 !important;
+  }
+
+  .heroDesktopLatestImage {
+    aspect-ratio: 1 / 1 !important;
+  }
+
+  .heroDesktopLatestBody {
+    gap: 7px !important;
+    min-height: 132px !important;
+    padding: 12px !important;
+  }
+
+  .heroDesktopLatestBody .heroDesktopLatestPrice {
+    font-size: clamp(22px, 6vw, 28px) !important;
+  }
+
+  .heroDesktopLatestBody .heroDesktopLatestTop {
+    margin-top: 0 !important;
+    min-height: 32px !important;
+  }
+
+  .heroDesktopLatestBody .heroDesktopLatestTop strong {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+
+  .heroDesktopLatestBody .heroDesktopLatestMeta {
+    display: flex !important;
+    font-size: 9px !important;
+    min-height: 26px !important;
+    padding-top: 8px !important;
+  }
+
+  .heroDesktopFavorite {
+    height: 30px !important;
+    right: 6px !important;
+    top: 6px !important;
+    width: 30px !important;
+  }
+
+  .heroDesktopFavoriteHeart {
+    font-size: 19px !important;
+    height: 20px !important;
+    line-height: 19px !important;
+    width: 20px !important;
+  }
+}
+
+/* Keep the desktop filter rail in the same clear single-column layout as mobile. */
+@media (min-width: 901px) {
+  :global(html body) .heroRightRail .heroSearchPanel {
+    display: grid !important;
+    gap: 12px !important;
+  }
+
+  :global(html body) .heroRightRail .heroFilterStack,
+  :global(html body) .heroRightRail .heroPartCategoryStack {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroRightRail .heroIdentifierField,
+  :global(html body) .heroRightRail .heroFilterFieldWrap,
+  :global(html body) .heroRightRail .heroYearRangeField {
+    display: grid !important;
+    gap: 5px !important;
+    grid-column: 1 / -1 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroRightRail .heroFilterInput,
+  :global(html body) .heroRightRail .heroFilterSelect,
+  :global(html body) .heroRightRail .heroYearBox {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroRightRail .heroYearBoxes {
+    align-items: center !important;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) 12px minmax(0, 1fr) !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroRightRail .heroYearSelectWrap,
+  :global(html body) .heroRightRail .heroYearMiniLine {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroRightRail .heroRailActions {
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroRightRail .heroRailSubmit,
+  :global(html body) .heroRightRail .heroRailClear {
+    width: 100% !important;
+  }
+}
+
+/* 2026 marketplace home: immersive showcase, category shortcuts and an inline filter rail. */
+.heroShowcase,
+.heroCategorySection,
+.heroMarketplaceStats,
+.heroSellCallout {
+  box-sizing: border-box;
+}
+
+.heroShowcase {
+  background:
+    radial-gradient(circle at 78% 42%, rgba(255, 113, 15, 0.14), transparent 27%),
+    radial-gradient(circle at 70% 46%, rgba(58, 91, 119, 0.22), transparent 48%),
+    linear-gradient(105deg, #07111b 0%, #07111b 48%, #0a1724 100%);
+  border: 1px solid rgba(95, 128, 157, 0.25);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.heroShowcase::after {
+  background: linear-gradient(90deg, #07111b 0%, rgba(7, 17, 27, 0.92) 38%, rgba(7, 17, 27, 0) 73%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.heroShowcaseCopy {
+  position: relative;
+  z-index: 2;
+}
+
+.heroShowcaseArt {
+  inset: 0 0 0 auto;
+  pointer-events: none;
+  position: absolute;
+  width: 64%;
+  z-index: 0;
+}
+
+.heroShowcaseArt img {
+  height: 100%;
+  object-fit: cover;
+  object-position: 56% 52%;
+  width: 100%;
+}
+
+.heroCategorySection {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.heroCategoryHeading {
+  align-items: end;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+.heroCategoryHeading strong {
+  color: #f8fbff;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.heroCategoryHeading span {
+  color: rgba(219, 230, 239, 0.62);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.heroCategoryGrid {
+  display: grid;
+  gap: 9px;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.heroCategoryGrid button {
+  align-items: center;
+  background: linear-gradient(180deg, rgba(12, 26, 39, 0.96), rgba(7, 18, 29, 0.96));
+  border: 1px solid rgba(87, 120, 150, 0.3);
+  border-radius: 8px;
+  color: #f2f7fb;
+  cursor: pointer;
+  display: grid;
+  font-size: 12px;
+  font-weight: 850;
+  gap: 8px;
+  justify-items: center;
+  min-height: 88px;
+  padding: 12px 7px;
+  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+.heroCategoryGrid button:hover {
+  background: linear-gradient(180deg, rgba(23, 39, 54, 0.98), rgba(9, 22, 34, 0.98));
+  border-color: rgba(255, 119, 18, 0.72);
+  transform: translateY(-2px);
+}
+
+.heroCategoryGrid button svg {
+  color: #ff7412;
+  stroke-width: 1.8;
+}
+
+.heroMarketplaceStats {
+  background: rgba(6, 17, 27, 0.9);
+  border: 1px solid rgba(87, 120, 150, 0.27);
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  overflow: hidden;
+}
+
+.heroMarketplaceStats > span {
+  align-items: center;
+  border-right: 1px solid rgba(87, 120, 150, 0.22);
+  display: grid;
+  gap: 2px;
+  min-height: 66px;
+  padding: 10px 16px;
+}
+
+.heroMarketplaceStats > span:last-child {
+  border-right: 0;
+}
+
+.heroMarketplaceStats strong {
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 950;
+}
+
+.heroMarketplaceStats small {
+  color: rgba(219, 230, 239, 0.65);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.heroSellCallout {
+  align-items: center;
+  background: linear-gradient(90deg, rgba(10, 24, 37, 0.98), rgba(6, 17, 27, 0.98));
+  border: 1px solid rgba(87, 120, 150, 0.3);
+  border-radius: 9px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-height: 82px;
+  padding: 14px 18px;
+}
+
+.heroSellCalloutIcon {
+  align-items: center;
+  color: #ff7412;
+  display: flex;
+  justify-content: center;
+}
+
+.heroSellCallout > span:nth-child(2) {
+  display: grid;
+  gap: 4px;
+}
+
+.heroSellCallout strong {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.heroSellCallout small {
+  color: rgba(219, 230, 239, 0.68);
+  font-size: 12px;
+}
+
+.heroSellCallout a {
+  align-items: center;
+  background: linear-gradient(180deg, #ff861f, #ff650d);
+  border: 1px solid rgba(255, 178, 92, 0.46);
+  border-radius: 6px;
+  color: #ffffff;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 950;
+  height: 42px;
+  justify-content: center;
+  min-width: 148px;
+  padding: 0 18px;
+  text-decoration: none;
+}
+
+@media (min-width: 901px) {
+  :global(html body) .heroWrap {
+    background:
+      radial-gradient(800px 440px at 74% 8%, rgba(41, 72, 98, 0.18), transparent 68%),
+      #07111b !important;
+    border-top: 1px solid rgba(255, 112, 16, 0.72) !important;
+    min-height: 0 !important;
+    padding: 0 0 34px !important;
+  }
+
+  :global(html body) .heroWrap > .container {
+    box-sizing: border-box !important;
+    max-width: 1460px !important;
+    padding: 0 22px !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .hero {
+    padding: 18px 0 0 !important;
+  }
+
+  :global(html body) .heroInner {
+    align-items: start !important;
+    display: grid !important;
+    gap: 16px !important;
+    grid-template-columns: minmax(0, 1fr) 360px !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  :global(html body) .heroLeadPanel {
+    display: contents !important;
+  }
+
+  .heroShowcase {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    min-height: 370px;
+  }
+
+  .heroShowcaseCopy {
+    display: grid;
+    gap: 18px;
+    max-width: 650px;
+    padding: 48px 0 48px 30px;
+    width: 49%;
+  }
+
+  .heroShowcase .heroHeadline {
+    font-size: clamp(42px, 3.6vw, 62px) !important;
+    line-height: 1.02 !important;
+    margin: 0 !important;
+    max-width: 640px !important;
+  }
+
+  .heroShowcase .heroReferenceSubtitle {
+    font-size: 15px !important;
+    line-height: 1.55 !important;
+    margin: 0 !important;
+    max-width: 590px !important;
+  }
+
+  .heroShowcase .heroDesktopActions {
+    display: flex !important;
+    margin: 2px 0 0 !important;
+  }
+
+  :global(html body) .heroMainSearchPanel {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    margin: -43px auto 2px !important;
+    max-width: 850px !important;
+    position: relative !important;
+    width: calc(100% - 44px) !important;
+    z-index: 5 !important;
+  }
+
+  :global(html body) .heroMainSearch {
+    background: rgba(4, 14, 23, 0.98) !important;
+    border-color: rgba(111, 144, 174, 0.58) !important;
+    height: 58px !important;
+  }
+
+  .heroCategorySection {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    margin-top: 2px;
+  }
+
+  :global(html body) .heroDesktopLatest {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+    margin: 3px 0 0 !important;
+    min-width: 0 !important;
+  }
+
+  :global(html body) .heroDesktopLatestGrid,
+  :global(html body) .heroDesktopLatestGridExpanded {
+    gap: 10px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  :global(html body) .heroDesktopLatestCard {
+    border-radius: 8px !important;
+    min-height: 0 !important;
+  }
+
+  :global(html body) .heroDesktopLatestImage {
+    aspect-ratio: 1.42 / 1 !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody {
+    gap: 6px !important;
+    min-height: 118px !important;
+    padding: 11px !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody .heroDesktopLatestPrice {
+    color: #ff7a1a !important;
+    font-size: 23px !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody .heroDesktopLatestTop {
+    margin: 0 !important;
+    min-height: 32px !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody .heroDesktopLatestTop strong {
+    font-size: 12px !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody .heroDesktopLatestMeta {
+    font-size: 9px !important;
+    min-height: 26px !important;
+    padding-top: 7px !important;
+  }
+
+  :global(html body) .heroReferenceBenefits {
+    grid-column: 1 !important;
+    grid-row: 5 !important;
+    margin: 0 !important;
+  }
+
+  .heroMarketplaceStats {
+    grid-column: 1 !important;
+    grid-row: 6 !important;
+  }
+
+  .heroSellCallout {
+    grid-column: 1 / -1 !important;
+    grid-row: 7 !important;
+  }
+
+  :global(html body) .mobileFilterBackdrop {
+    display: none !important;
+  }
+
+  :global(html body) .heroRightRail,
+  :global(html body) .heroRightRailOpen {
+    align-self: stretch !important;
+    border-radius: 8px !important;
+    display: block !important;
+    grid-column: 2 !important;
+    grid-row: 4 / span 3 !important;
+    height: auto !important;
+    margin: 3px 0 0 !important;
+    max-height: none !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    padding: 16px !important;
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    z-index: 4 !important;
+  }
+
+  :global(html body) .heroRailHeader {
+    text-align: left !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1220px) {
+  :global(html body) .heroInner {
+    grid-template-columns: minmax(0, 1fr) 330px !important;
+  }
+
+  .heroCategoryGrid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  :global(html body) .heroDesktopLatestGrid,
+  :global(html body) .heroDesktopLatestGridExpanded {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .heroShowcase {
+    border-left: 0;
+    border-radius: 0;
+    border-right: 0;
+    min-height: 440px;
+  }
+
+  .heroShowcaseCopy {
+    display: grid;
+    gap: 15px;
+    padding: 28px 18px 210px;
+  }
+
+  .heroShowcaseArt {
+    bottom: -18px;
+    height: 300px;
+    left: auto;
+    opacity: 0.78;
+    right: -112px;
+    top: auto;
+    width: 590px;
+  }
+
+  .heroShowcase::after {
+    background: linear-gradient(180deg, #07111b 0%, rgba(7, 17, 27, 0.9) 46%, rgba(7, 17, 27, 0.2) 100%);
+  }
+
+  .heroCategorySection,
+  .heroMarketplaceStats,
+  .heroSellCallout {
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+
+  .heroCategoryHeading span {
+    display: none;
+  }
+
+  .heroCategoryGrid {
+    gap: 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .heroCategoryGrid button {
+    min-height: 82px;
+  }
+
+  .heroMarketplaceStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .heroMarketplaceStats > span:nth-child(2) {
+    border-right: 0;
+  }
+
+  .heroMarketplaceStats > span:nth-child(-n + 2) {
+    border-bottom: 1px solid rgba(87, 120, 150, 0.22);
+  }
+
+  .heroSellCallout {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .heroSellCallout a {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .heroCategoryGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .heroCategoryGrid button {
+    font-size: 11px;
+    min-height: 76px;
+    padding: 10px 4px;
+  }
+
+  .heroShowcase {
+    min-height: 420px;
+  }
+
+  .heroShowcaseCopy {
+    padding-bottom: 190px;
+  }
+}
+
+/* The legacy rail placement targets the same element with two classes; keep the new grid position authoritative. */
+@media (min-width: 901px) {
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    justify-self: center !important;
+    margin: -43px auto 2px !important;
+    max-width: 850px !important;
+    width: calc(100% - 44px) !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 850px !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroInner > .heroRightRail,
+  :global(html body) .heroInner > .heroRightRail.heroRightRailOpen {
+    align-self: stretch !important;
+    grid-column: 2 !important;
+    grid-row: 4 / span 3 !important;
+    height: auto !important;
+    margin: 3px 0 0 !important;
+    max-height: none !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    width: 100% !important;
+  }
+}
+
+/* TRUE FINAL desktop reference layout. */
+@media (min-width: 901px) {
+  :global(html body) .heroInner {
+    gap: 14px !important;
+    grid-template-columns: minmax(0, 1fr) clamp(230px, 22vw, 320px) !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroShowcase {
+    border-left: 0 !important;
+    border-radius: 0 !important;
+    border-right: 0 !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    margin-left: -22px !important;
+    margin-right: -22px !important;
+    min-height: 350px !important;
+    width: calc(100% + 44px) !important;
+  }
+
+  .heroShowcaseCopy {
+    gap: 15px !important;
+    padding: 42px 0 44px 40px !important;
+    width: 50% !important;
+  }
+
+  .heroShowcase .heroHeadline {
+    font-size: clamp(39px, 3.4vw, 56px) !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    justify-self: stretch !important;
+    margin: 24px 0 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
+    height: 42px !important;
+    min-height: 42px !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroCategorySection {
+    display: none !important;
+  }
+
+  .heroCategoryGrid {
+    gap: 7px !important;
+    grid-template-columns: repeat(9, minmax(0, 1fr)) !important;
+  }
+
+  .heroCategoryGrid button {
+    border-radius: 6px !important;
+    font-size: 9px !important;
+    gap: 6px !important;
+    min-height: 76px !important;
+    padding: 9px 3px !important;
+  }
+
+  .heroCategoryGrid button svg {
+    height: 23px !important;
+    width: 23px !important;
+  }
+
+  :global(html body) .heroDesktopLatest {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+  }
+
+  :global(html body) .heroDesktopLatestGrid,
+  :global(html body) .heroDesktopLatestGridExpanded {
+    gap: 9px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  :global(html body) .heroDesktopLatestImage {
+    aspect-ratio: 1.3 / 1 !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody {
+    min-height: 116px !important;
+    padding: 9px !important;
+  }
+
+  :global(html body) .heroDesktopLatestBody .heroDesktopLatestPrice {
+    font-size: 20px !important;
+  }
+
+  :global(html body) .heroInner > .heroRightRail,
+  :global(html body) .heroInner > .heroRightRail.heroRightRailOpen {
+    align-self: stretch !important;
+    grid-column: 2 !important;
+    grid-row: 2 / span 4 !important;
+    height: auto !important;
+    margin: -2px 0 0 !important;
+    max-height: none !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 13px !important;
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroRightRail .heroRailHeader {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-bottom: 10px !important;
+    text-align: left !important;
+  }
+
+  :global(html body) .heroRightRail .heroSearchPanel,
+  :global(html body) .heroRightRail .heroFilterStack {
+    gap: 8px !important;
+  }
+
+  :global(html body) .heroRightRail .heroFilterInput,
+  :global(html body) .heroRightRail .heroFilterSelect,
+  :global(html body) .heroRightRail .heroYearBox {
+    min-height: 31px !important;
+  }
+
+  :global(html body) .heroRightRail .heroPartCategoryStack {
+    display: none !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroReferenceBenefits {
+    display: grid !important;
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    margin: 0 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits span {
+    min-height: 84px !important;
+  }
+
+  .heroMarketplaceStats {
+    grid-column: 1 !important;
+    grid-row: 5 !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .heroMarketplaceStats > span {
+    min-height: 66px !important;
+  }
+
+  .heroSellCallout {
+    grid-column: 1 / -1 !important;
+    grid-row: 6 !important;
+  }
+}
+
+/* Homepage background follows the color selected in the user's Settings page. */
+:global(html body) .shell {
+  background: var(--maskines-page-background, var(--site-bg, #0b1118)) !important;
+  background-color: var(--maskines-page-background, var(--site-bg, #0b1118)) !important;
+}
+
+/* Exact Saved-listing card styling for homepage cards. */
+.heroDesktopLatestCard.heroDesktopLatestCard {
+  background: var(--listing-card-bg, var(--site-card, #071321)) !important;
+  border: 1px solid rgba(255, 122, 26, 0.48) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+.heroDesktopLatestCard .heroDesktopLatestImage {
+  aspect-ratio: 1 / 0.82 !important;
+  background: #071f38 !important;
+  border-bottom: 1px solid rgba(147, 197, 253, 0.16) !important;
+  min-height: 0 !important;
+}
+
+.heroDesktopLatestCard .heroDesktopLatestImage > img {
+  object-fit: cover !important;
+}
+
+.heroDesktopLatestCard .heroDesktopLatestBody {
+  background: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 92%, #ffffff 8%) !important;
+  display: grid !important;
+  gap: 8px !important;
+  min-height: 0 !important;
+  padding: 12px !important;
+}
+
+.heroDesktopLatestCard .heroDesktopLatestPrice {
+  color: #f8fbff !important;
+  font-size: 34px !important;
+  padding: 0 !important;
+}
+
+.heroDesktopLatestCard .heroDesktopLatestTop {
+  color: #f8fbff !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  margin: 0 !important;
+  min-height: calc(1.18em * 2) !important;
+}
+
+.heroDesktopLatestCard .heroDesktopLatestMeta {
+  margin-top: auto !important;
+}
+
+.heroDesktopLatestCard .heroDesktopFavorite,
+.heroDesktopLatestCard .heroDesktopFavorite:hover,
+.heroDesktopLatestCard .heroDesktopFavorite:focus-visible {
+  align-items: center !important;
+  background: rgba(3, 19, 38, 0.72) !important;
+  border: 1px solid rgba(226, 232, 240, 0.72) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 10px 24px rgba(0, 10, 24, 0.34) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  height: 34px !important;
+  justify-content: center !important;
+  line-height: 0 !important;
+  padding: 0 !important;
+  right: 10px !important;
+  top: 10px !important;
+  transform: none !important;
+  width: 34px !important;
+  z-index: 50 !important;
+}
+
+.heroDesktopLatestCard .heroDesktopFavoriteActive,
+.heroDesktopLatestCard .heroDesktopFavoriteActive:hover,
+.heroDesktopLatestCard .heroDesktopFavoriteActive:focus-visible {
+  background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%) !important;
+  border-color: rgba(255, 210, 168, 0.9) !important;
+  box-shadow: 0 12px 28px rgba(255, 107, 22, 0.38) !important;
+}
+
+.heroDesktopLatestCard .heroDesktopFavorite svg {
+  color: #ffffff !important;
+  display: block !important;
+  fill: currentColor !important;
+  height: 17px !important;
+  margin: 0 !important;
+  min-height: 17px !important;
+  min-width: 17px !important;
+  opacity: 1 !important;
+  stroke: currentColor !important;
+  stroke-width: 2.4 !important;
+  visibility: visible !important;
+  width: 17px !important;
+}
+
+.heroMarketplaceStats {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+@media (max-width: 900px) {
+  .heroMarketplaceStats {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .heroMarketplaceStats > span {
+    border-bottom: 0 !important;
+  }
+
+  .heroMarketplaceStats > span:nth-child(2) {
+    border-right: 1px solid rgba(87, 120, 150, 0.22) !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .heroDesktopLatestCard .heroDesktopLatestBody {
+    gap: 7px !important;
+    min-height: 0 !important;
+    padding: 10px !important;
+  }
+
+  .heroDesktopLatestCard .heroDesktopLatestImage {
+    aspect-ratio: 1 / 1 !important;
+  }
+
+  .heroDesktopLatestCard .heroDesktopFavorite,
+  .heroDesktopLatestCard .heroDesktopFavorite:hover,
+  .heroDesktopLatestCard .heroDesktopFavorite:focus-visible {
+    height: 30px !important;
+    right: 7px !important;
+    top: 7px !important;
+    width: 30px !important;
+  }
+
+  .heroDesktopLatestCard .heroDesktopFavorite svg {
+    height: 15px !important;
+    min-height: 15px !important;
+    min-width: 15px !important;
+    width: 15px !important;
+  }
+
+  .heroMarketplaceStats strong {
+    font-size: 16px !important;
+  }
+
+  .heroMarketplaceStats small {
+    font-size: 9px !important;
+  }
+}
+
+/* Homepage listing cards use the exact color selected in Admin > Ulkoasu. */
+.heroDesktopLatestCard,
+.heroDesktopLatestGridExpanded .heroDesktopLatestCard,
+.heroDesktopLatestCard .heroDesktopLatestBody {
+  background: var(--listing-card-bg, var(--site-card, #0e1721)) !important;
+}
+
+.heroDesktopLatestCard {
+  border-color: color-mix(
+    in srgb,
+    var(--listing-card-bg, var(--site-card, #0e1721)) 68%,
+    #ffffff 32%
+  ) !important;
+}
+
+@media (min-width: 901px) {
+  :global(html body) .heroRightRail .heroPartCategoryStack {
+    display: grid !important;
+    gap: 8px !important;
+    margin-top: 4px !important;
+  }
+}
+
+/* Polished desktop search-to-listings transition. */
+@media (min-width: 901px) {
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel {
+    margin: 26px 0 8px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
+    background:
+      linear-gradient(90deg, rgba(7, 20, 34, 0.98), rgba(12, 24, 38, 0.96)) !important;
+    border: 1px solid rgba(107, 139, 168, 0.5) !important;
+    border-radius: 9px !important;
+    box-shadow:
+      0 10px 28px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+    gap: 11px !important;
+    grid-template-columns: 22px minmax(0, 1fr) 88px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    padding: 4px 5px 4px 13px !important;
+  }
+
+  .heroMainSearchIcon {
+    color: rgba(224, 236, 247, 0.82) !important;
+  }
+
+  .heroMainSearchInput {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+  }
+
+  .heroMainSearchInput::placeholder {
+    color: rgba(213, 224, 234, 0.64) !important;
+  }
+
+  .heroMainSearchButton {
+    border-radius: 7px !important;
+    height: 40px !important;
+    min-width: 88px !important;
+    padding: 0 15px !important;
+    width: 88px !important;
+  }
+
+  :global(html body) .heroDesktopLatestHead {
+    margin: 4px 0 14px !important;
+    padding: 0 1px !important;
+  }
+
+  :global(html body) .heroDesktopLatestHead > strong {
+    font-size: 18px !important;
+    letter-spacing: -0.015em !important;
+  }
+}
+
+/* Final phone homepage composition: compact hero, no category shortcuts, and
+   the two trust/selling sections between the hero tools and latest listings. */
+@media (max-width: 720px) {
+  :global(html body) .heroLeadPanel {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    padding-top: 16px !important;
+    text-align: left !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroShowcase {
+    border: 1px solid rgba(88, 122, 153, 0.34) !important;
+    border-radius: 12px !important;
+    height: 455px !important;
+    min-height: 455px !important;
+    order: 1 !important;
+    overflow: hidden !important;
+  }
+
+  .heroShowcaseArt {
+    bottom: 0 !important;
+    height: 100% !important;
+    inset: 0 !important;
+    opacity: 1 !important;
+    right: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+  }
+
+  .heroShowcaseArt img {
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: 55% center !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  .heroShowcase::after {
+    background:
+      linear-gradient(180deg, rgba(4, 14, 24, 0.18) 0%, rgba(4, 14, 24, 0.22) 58%, rgba(4, 14, 24, 0.7) 100%),
+      linear-gradient(90deg, rgba(3, 12, 22, 0.98) 0%, rgba(3, 12, 22, 0.82) 47%, rgba(3, 12, 22, 0.18) 100%) !important;
+  }
+
+  .heroShowcaseCopy {
+    align-content: start !important;
+    justify-items: start !important;
+    min-height: 455px !important;
+    padding: 42px 20px 0 !important;
+  }
+
+  .heroShowcase .heroHeadline {
+    font-size: clamp(35px, 10.2vw, 43px) !important;
+    line-height: 1.08 !important;
+    margin: 0 !important;
+    max-width: 340px !important;
+    text-align: left !important;
+    text-shadow: 0 4px 22px rgba(0, 0, 0, 0.7) !important;
+  }
+
+  .heroShowcase .heroReferenceSubtitle {
+    color: rgba(239, 245, 251, 0.88) !important;
+    display: block !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 1.55 !important;
+    margin: 18px 0 0 !important;
+    max-width: 292px !important;
+    padding: 0 !important;
+    text-align: left !important;
+  }
+
+  .heroShowcase .heroDesktopActions {
+    display: none !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMainSearchPanel {
+    margin: -72px 14px 0 !important;
+    max-width: calc(100% - 28px) !important;
+    order: 2 !important;
+    position: relative !important;
+    width: calc(100% - 28px) !important;
+    z-index: 5 !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMobileFilterToggle {
+    display: none !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
+    background: rgba(4, 16, 28, 0.94) !important;
+    border: 1px solid rgba(119, 151, 180, 0.54) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34) !important;
+    grid-template-columns: 20px minmax(0, 1fr) 76px !important;
+    height: 56px !important;
+    padding: 5px 5px 5px 14px !important;
+  }
+
+  .heroMainSearchInput {
+    font-size: 13px !important;
+  }
+
+  .heroMainSearchButton {
+    height: 44px !important;
+    min-width: 76px !important;
+    padding: 0 10px !important;
+    width: 76px !important;
+  }
+
+  .heroMainSearchButton span {
+    display: inline !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroCategorySection {
+    display: none !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroReferenceBenefits {
+    background: linear-gradient(145deg, rgba(12, 30, 47, 0.98), rgba(6, 18, 30, 0.98)) !important;
+    border: 1px solid rgba(86, 125, 158, 0.42) !important;
+    border-radius: 11px !important;
+    display: grid !important;
+    gap: 0 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    margin: 18px 0 0 !important;
+    order: 3 !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroReferenceBenefits > span {
+    align-content: center !important;
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    border-bottom: 1px solid rgba(86, 125, 158, 0.28) !important;
+    border-right: 1px solid rgba(86, 125, 158, 0.28) !important;
+    display: grid !important;
+    gap: 4px 10px !important;
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    justify-items: start !important;
+    min-height: 104px !important;
+    padding: 12px 10px !important;
+    text-align: left !important;
+  }
+
+  :global(html body) .heroReferenceBenefits > span:nth-child(2n) {
+    border-right: 0 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits > span:nth-last-child(-n + 2) {
+    border-bottom: 0 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits .heroBenefitIcon {
+    align-items: center !important;
+    align-self: center !important;
+    background: rgba(255, 122, 26, 0.09) !important;
+    border: 1px solid rgba(255, 122, 26, 0.52) !important;
+    border-radius: 9px !important;
+    box-sizing: border-box !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    gap: 0 !important;
+    grid-row: 1 / span 2 !important;
+    grid-template-columns: none !important;
+    height: 36px !important;
+    justify-content: center !important;
+    min-height: 36px !important;
+    min-width: 36px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    width: 36px !important;
+  }
+
+  :global(html body) .heroReferenceBenefits .heroBenefitIcon svg {
+    color: #ff7a1a !important;
+    display: block !important;
+    height: 21px !important;
+    margin: 0 !important;
+    min-height: 21px !important;
+    min-width: 21px !important;
+    opacity: 1 !important;
+    stroke: currentColor !important;
+    visibility: visible !important;
+    width: 21px !important;
+  }
+
+  :global(html body) .heroReferenceBenefits .heroBenefitIcon img {
+    display: block !important;
+    height: 21px !important;
+    margin: 0 !important;
+    max-height: 21px !important;
+    max-width: 21px !important;
+    min-height: 21px !important;
+    min-width: 21px !important;
+    object-fit: contain !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    width: 21px !important;
+  }
+
+  :global(html body) .heroReferenceBenefits strong {
+    color: #f8fbff !important;
+    align-self: end !important;
+    font-size: 11px !important;
+    font-weight: 950 !important;
+    line-height: 1.25 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits small {
+    color: rgba(221, 232, 241, 0.72) !important;
+    align-self: start !important;
+    font-size: 9px !important;
+    line-height: 1.35 !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroSellCallout {
+    background:
+      radial-gradient(circle at 0 50%, rgba(255, 122, 26, 0.13), transparent 42%),
+      linear-gradient(135deg, rgba(11, 29, 45, 0.99), rgba(5, 17, 28, 0.99)) !important;
+    border: 1px solid rgba(255, 122, 26, 0.54) !important;
+    border-radius: 11px !important;
+    gap: 5px 11px !important;
+    grid-template-columns: 38px minmax(0, 1fr) !important;
+    margin: 10px 0 0 !important;
+    min-height: 0 !important;
+    order: 4 !important;
+    padding: 14px !important;
+    text-align: left !important;
+  }
+
+  .heroSellCalloutIcon {
+    align-items: center !important;
+    background: rgba(255, 122, 26, 0.1) !important;
+    border: 1px solid rgba(255, 122, 26, 0.42) !important;
+    border-radius: 9px !important;
+    display: flex !important;
+    grid-row: 1 !important;
+    height: 38px !important;
+    justify-content: center !important;
+    width: 38px !important;
+  }
+
+  .heroSellCallout > span:nth-child(2) {
+    align-self: center !important;
+    gap: 3px !important;
+  }
+
+  .heroSellCallout strong {
+    font-size: 14px !important;
+    line-height: 1.22 !important;
+  }
+
+  .heroSellCallout small {
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+  }
+
+  .heroSellCallout a {
+    border-radius: 8px !important;
+    grid-column: 1 / -1 !important;
+    height: 44px !important;
+    margin-top: 7px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroDesktopLatest {
+    margin-top: 20px !important;
+    order: 5 !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMarketplaceStats {
+    margin: 2px 0 0 !important;
+    order: 6 !important;
+  }
+}
+
+@media (min-width: 721px) {
+  :global(html body) .heroReferenceBenefits .heroBenefitIcon {
+    align-items: center !important;
+    align-self: center !important;
+    background: rgba(255, 122, 26, 0.09) !important;
+    border: 1px solid rgba(255, 122, 26, 0.52) !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
+    color: #ff7a1a !important;
+    display: inline-flex !important;
+    gap: 0 !important;
+    grid-row: 1 / span 2 !important;
+    grid-template-columns: none !important;
+    height: 42px !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+    min-width: 42px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    width: 42px !important;
+  }
+
+  :global(html body) .heroReferenceBenefits .heroBenefitIcon svg {
+    color: #ff7a1a !important;
+    display: block !important;
+    grid-row: auto !important;
+    height: 24px !important;
+    margin: 0 !important;
+    min-height: 24px !important;
+    min-width: 24px !important;
+    opacity: 1 !important;
+    stroke: currentColor !important;
+    visibility: visible !important;
+    width: 24px !important;
+  }
+
+
+  :global(html body) .heroReferenceBenefits .heroBenefitIcon img {
+    display: block !important;
+    height: 24px !important;
+    margin: 0 !important;
+    max-height: 24px !important;
+    max-width: 24px !important;
+    min-height: 24px !important;
+    min-width: 24px !important;
+    object-fit: contain !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    width: 24px !important;
+  }
+}
+
+/* Final full-bleed desktop hero override. */
+@media (min-width: 901px) {
+  :global(html body) .hero {
+    padding-top: 0 !important;
+  }
+
+  :global(html body) .heroInner .heroLeadPanel .heroShowcase.heroShowcase {
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+    margin-top: -20px !important;
+    max-width: none !important;
+    min-height: clamp(480px, 34.5vw, 670px) !important;
+    width: 100vw !important;
+  }
+
+  :global(html body) .heroShowcase .heroShowcaseCopy.heroShowcaseCopy {
+    padding-left: max(62px, calc((100vw - 1460px) / 2 + 40px)) !important;
+    padding-top: clamp(42px, 3.1vw, 60px) !important;
+    width: 50% !important;
+  }
+
+  :global(html body) .heroShowcaseArt.heroShowcaseArt img {
+    display: block !important;
+    height: 100% !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    width: 100% !important;
+  }
+}
+
+/* Full-bleed, fluid phone hero: the image reaches every top edge and keeps the
+   snowmobile framed toward the right while its rear continues past the crop. */
+@media (max-width: 720px) {
+  :global(html body) .heroWrap,
+  :global(html body) .heroWrap > .container,
+  :global(html body) .hero,
+  :global(html body) .heroInner,
+  :global(html body) .heroLeadPanel {
+    margin-top: 0 !important;
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroShowcase.heroShowcase {
+    border: 0 !important;
+    border-radius: 0 !important;
+    height: clamp(455px, 118vw, 560px) !important;
+    margin-left: calc(50% - 50vw) !important;
+    margin-right: calc(50% - 50vw) !important;
+    min-height: clamp(455px, 118vw, 560px) !important;
+    width: 100vw !important;
+  }
+
+  :global(html body) .heroShowcase .heroShowcaseArt.heroShowcaseArt img {
+    object-position: 63% center !important;
+  }
+
+  :global(html body) .heroShowcase .heroShowcaseCopy.heroShowcaseCopy {
+    min-height: clamp(455px, 118vw, 560px) !important;
+  }
+}
+
+/* Compact reference-style phone home: concise copy over the image, search at
+   the lower edge and four marketplace benefits in one row. */
+@media (max-width: 720px) {
+  :global(html body) .heroLeadPanel > .heroShowcase.heroShowcase {
+    height: clamp(330px, 82vw, 390px) !important;
+    min-height: clamp(330px, 82vw, 390px) !important;
+  }
+
+  :global(html body) .heroShowcase .heroShowcaseArt.heroShowcaseArt img {
+    object-position: 50% 64% !important;
+  }
+
+  :global(html body) .heroShowcase .heroShowcaseCopy.heroShowcaseCopy {
+    align-content: start !important;
+    gap: 0 !important;
+    justify-items: start !important;
+    min-height: clamp(330px, 82vw, 390px) !important;
+    padding: 28px 18px 72px !important;
+    width: 60% !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline {
+    display: block !important;
+    font-size: clamp(27px, 7.4vw, 33px) !important;
+    letter-spacing: -0.045em !important;
+    line-height: 1.03 !important;
+    max-width: 285px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline > span {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroShowcase .heroReferenceSubtitle.heroReferenceSubtitle {
+    font-size: clamp(10px, 2.55vw, 12px) !important;
+    line-height: 1.45 !important;
+    margin-top: 13px !important;
+    max-width: 215px !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMainSearchPanel {
+    margin: -64px 14px 0 !important;
+    max-width: calc(100% - 28px) !important;
+    width: calc(100% - 28px) !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
+    border-radius: 8px !important;
+    grid-template-columns: 18px minmax(0, 1fr) 72px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    padding: 4px 4px 4px 12px !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchInput {
+    font-size: 11px !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton {
+    border-radius: 7px !important;
+    height: 42px !important;
+    min-width: 72px !important;
+    width: 72px !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroReferenceBenefits {
+    background:
+      linear-gradient(180deg, rgba(9, 25, 40, 0.98), rgba(5, 17, 29, 0.99)) !important;
+    border-color: rgba(93, 137, 174, 0.42) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    margin: 14px 14px 0 !important;
+    overflow: hidden !important;
+    width: calc(100% - 28px) !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroReferenceBenefits > span {
+    border-bottom: 0 !important;
+    border-right: 1px solid rgba(86, 125, 158, 0.24) !important;
+    gap: 4px !important;
+    grid-auto-flow: row !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 34px minmax(22px, auto) minmax(32px, auto) !important;
+    justify-items: center !important;
+    min-height: 124px !important;
+    padding: 12px 6px 10px !important;
+    text-align: center !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroReferenceBenefits > span:last-child {
+    border-right: 0 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits .heroBenefitIcon {
+    align-self: center !important;
+    background: rgba(255, 122, 26, 0.09) !important;
+    border: 1px solid rgba(255, 122, 26, 0.34) !important;
+    border-radius: 9px !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    height: 32px !important;
+    justify-self: center !important;
+    min-height: 32px !important;
+    min-width: 32px !important;
+    width: 32px !important;
+  }
+
+  :global(html body) .heroReferenceBenefits .heroBenefitIcon svg,
+  :global(html body) .heroReferenceBenefits .heroBenefitIcon img {
+    height: 24px !important;
+    min-height: 24px !important;
+    min-width: 24px !important;
+    width: 24px !important;
+  }
+
+  :global(html body) .heroReferenceBenefits strong {
+    align-self: end !important;
+    font-size: clamp(8px, 2.15vw, 9.5px) !important;
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    line-height: 1.2 !important;
+    max-width: 100% !important;
+  }
+
+  :global(html body) .heroReferenceBenefits small {
+    align-self: start !important;
+    font-size: clamp(6.5px, 1.75vw, 7.5px) !important;
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    line-height: 1.3 !important;
+    max-width: 100% !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroSellCallout {
+    align-items: center !important;
+    column-gap: 14px !important;
+    grid-template-columns: 44px minmax(0, 1fr) !important;
+    padding: 14px !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroSellCallout .heroSellCalloutIcon {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    height: 44px !important;
+    margin: 0 !important;
+    min-height: 44px !important;
+    min-width: 44px !important;
+    transform: none !important;
+    width: 44px !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroSellCallout > span:nth-child(2) {
+    align-self: center !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+    padding-left: 2px !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroSellCallout > span:nth-child(2) strong {
+    display: block !important;
+    font-size: 14px !important;
+    line-height: 1.22 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroSellCallout > span:nth-child(2) small {
+    display: block !important;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+    margin-top: 4px !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroSellCallout > a {
+    grid-column: 1 / -1 !important;
+    margin-top: 11px !important;
+  }
+}
+
+/* Desktop hero proportions from the compact homepage reference. Keep the
+   artwork shallow and let the search tools overlap its lower edge. */
+@media (min-width: 901px) {
+  :global(html body) .heroWrap > .container {
+    margin-left: max(24px, calc((100vw - 1336px) / 2 + 30px)) !important;
+    margin-right: 0 !important;
+    max-width: 1336px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: min(1336px, calc(100vw - 48px)) !important;
+  }
+
+  :global(html body) .heroInner .heroLeadPanel .heroShowcase.heroShowcase {
+    aspect-ratio: 3.55 / 1 !important;
+    height: auto !important;
+    margin-left: calc(0px - max(24px, calc((100vw - 1336px) / 2 + 30px))) !important;
+    margin-right: 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    width: 100vw !important;
+  }
+
+  :global(html body) .heroShowcase .heroShowcaseCopy.heroShowcaseCopy {
+    padding-left: max(24px, calc((100vw - 1336px) / 2 + 30px)) !important;
+    padding-top: 95px !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline {
+    font-size: 60px !important;
+    line-height: 1.08 !important;
+  }
+
+  :global(html body) .heroShowcase .heroReferenceSubtitle.heroReferenceSubtitle {
+    font-size: 16px !important;
+  }
+
+  :global(html body) .heroShowcase .heroShowcaseArt.heroShowcaseArt img {
+    object-fit: cover !important;
+    object-position: 50% 55% !important;
+  }
+
+  :global(html body) .heroShowcase .heroShowcaseArt.heroShowcaseArt {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel {
+    margin-top: -25px !important;
+  }
+
+  :global(html body) .heroInner > .heroRightRail,
+  :global(html body) .heroInner > .heroRightRail.heroRightRailOpen {
+    margin-top: -25px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  :global(html body) .heroShowcase .heroShowcaseCopy.heroShowcaseCopy {
+    box-sizing: border-box !important;
+    padding-left: 24px !important;
+    padding-right: 18px !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline {
+    font-size: clamp(29px, 8vw, 33px) !important;
+    justify-self: start !important;
+    max-width: none !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline > span {
+    text-align: left !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* Remove the full-width divider below the homepage hero on every viewport. */
+:global(html body) .heroWrap.heroWrap {
+  border-bottom: 0 !important;
+}
+
+/* Keep the homepage message visually centered over the full-width hero image. */
+@media (min-width: 901px) {
+  :global(html body) .heroShowcase .heroShowcaseCopy.heroShowcaseCopy {
+    box-sizing: border-box !important;
+    justify-items: center !important;
+    padding-left: clamp(24px, 5vw, 80px) !important;
+    padding-right: clamp(24px, 5vw, 80px) !important;
+    transform: translateX(max(24px, calc((100vw - 1336px) / 2 + 30px))) !important;
+    width: calc(min(1336px, 100vw - 48px) - clamp(230px, 22vw, 320px) - 14px) !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline,
+  :global(html body) .heroShowcase .heroReferenceSubtitle.heroReferenceSubtitle {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline {
+    max-width: 760px !important;
+    width: min(760px, 100%) !important;
+  }
+
+  :global(html body) .heroShowcase .heroReferenceSubtitle.heroReferenceSubtitle {
+    max-width: 520px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  :global(html body) .heroShowcase .heroShowcaseCopy.heroShowcaseCopy {
+    justify-items: center !important;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+    padding-top: clamp(38px, 12vw, 54px) !important;
+    transform: translateX(calc((100vw - 100%) / 2)) !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline,
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline > span,
+  :global(html body) .heroShowcase .heroReferenceSubtitle.heroReferenceSubtitle {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline {
+    justify-self: center !important;
+    max-width: 320px !important;
+  }
+
+  :global(html body) .heroShowcase .heroReferenceSubtitle.heroReferenceSubtitle {
+    font-size: clamp(11px, 2.8vw, 13px) !important;
+    max-width: 280px !important;
+  }
+
+  :global(html body) main[data-home-page][data-home-latest-expanded="true"] .heroWrap {
+    padding-bottom: 28px !important;
+  }
+
+  :global(html body) main[data-home-page][data-home-filtered-results="true"]
+    .heroLeadPanel > .heroMainSearchPanel {
+    margin: 10px 14px 0 !important;
+  }
+
+  .heroFilteredActions {
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    margin: 10px 14px 0 !important;
+    order: 3 !important;
+    position: relative !important;
+    width: calc(100% - 28px) !important;
+    z-index: 6 !important;
+  }
+
+  .heroFilteredActions button {
+    align-items: center !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    gap: 7px !important;
+    height: 44px !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    padding: 0 10px !important;
+    width: 100% !important;
+  }
+
+  .heroFilteredEdit {
+    background: linear-gradient(180deg, #ff861f, #ff6810) !important;
+    border: 1px solid rgba(255, 182, 99, 0.56) !important;
+    color: #ffffff !important;
+  }
+
+  .heroFilteredReset {
+    background: rgba(5, 19, 31, 0.94) !important;
+    border: 1px solid rgba(89, 130, 164, 0.65) !important;
+    color: #eef6fc !important;
+  }
+}
+
+/* Balanced desktop marketplace layout: center the full content area between
+   equal page gutters and give the filter rail more room in both directions. */
+@media (min-width: 901px) {
+  :global(html body) .heroWrap > .container {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 1450px !important;
+    width: min(1450px, calc(100vw - 48px)) !important;
+  }
+
+  :global(html body) .heroInner {
+    gap: 16px !important;
+    grid-template-columns: minmax(0, 1fr) clamp(340px, 20vw, 380px) !important;
+  }
+
+  :global(html body) .heroInner .heroLeadPanel .heroShowcase.heroShowcase {
+    margin-left: calc(0px - max(24px, calc((100vw - 1450px) / 2))) !important;
+  }
+
+  :global(html body) .heroShowcase .heroShowcaseCopy.heroShowcaseCopy {
+    transform: translateX(max(24px, calc((100vw - 1450px) / 2))) !important;
+    width: calc(min(1450px, 100vw - 48px) - clamp(340px, 20vw, 380px) - 16px) !important;
+  }
+
+  :global(html body) .heroInner > .heroRightRail,
+  :global(html body) .heroInner > .heroRightRail.heroRightRailOpen {
+    padding: 16px !important;
+  }
+
+  :global(html body) .heroRightRail .heroRailHeader {
+    margin-bottom: 12px !important;
+  }
+
+  :global(html body) .heroRightRail .heroSearchPanel,
+  :global(html body) .heroRightRail .heroFilterStack {
+    gap: 10px !important;
+  }
+
+  :global(html body) .heroRightRail .heroFilterInput,
+  :global(html body) .heroRightRail .heroFilterSelect,
+  :global(html body) .heroRightRail .heroYearBox {
+    min-height: 36px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroReferenceBenefits {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+    margin: 0 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits > span {
+    min-height: 66px !important;
+    padding: 8px 12px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMarketplaceStats {
+    grid-column: 1 !important;
+    grid-row: 6 !important;
+    margin: 0 !important;
+  }
+
+  :global(html body) .heroMarketplaceStats > .heroMarketplaceStat {
+    gap: 12px !important;
+    grid-template-columns: 44px minmax(0, 1fr) !important;
+    min-height: 96px !important;
+    padding: 12px 16px !important;
+  }
+
+  :global(html body) .heroMarketplaceStatIcon {
+    border-radius: 10px !important;
+    height: 44px !important;
+    width: 44px !important;
+  }
+
+  :global(html body) .heroMarketplaceStats .heroMarketplaceStatValue {
+    font-size: 31px !important;
+  }
+
+  :global(html body) .heroMarketplaceStats .heroMarketplaceStatCopy strong {
+    font-size: 13px !important;
+    margin-top: 3px !important;
+  }
+
+  :global(html body) .heroMarketplaceStats .heroMarketplaceStatCopy small {
+    font-size: 10px !important;
+    margin-top: 5px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroSellCallout {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+    margin: 0 !important;
+    min-height: 66px !important;
+    padding: 10px 14px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroDesktopLatest {
+    grid-column: 1 !important;
+    grid-row: 5 !important;
+    margin-top: 0 !important;
+  }
+
+  :global(html body) .heroInner > .heroRightRail,
+  :global(html body) .heroInner > .heroRightRail.heroRightRailOpen {
+    grid-row: 2 / span 5 !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton {
+    align-items: center !important;
+    align-self: center !important;
+    background: linear-gradient(135deg, #ff9b32 0%, #ff7417 52%, #f45a08 100%) !important;
+    border: 1px solid rgba(255, 202, 139, 0.72) !important;
+    border-radius: 10px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 7px 16px rgba(255, 101, 13, 0.3) !important;
+    display: inline-flex !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+    gap: 7px !important;
+    height: 40px !important;
+    justify-content: center !important;
+    justify-self: center !important;
+    letter-spacing: 0.01em !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    min-width: 104px !important;
+    padding: 0 17px !important;
+    text-shadow: 0 1px 1px rgba(119, 38, 0, 0.34) !important;
+    transition: transform 150ms ease, filter 150ms ease, box-shadow 150ms ease !important;
+    width: 104px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
+    grid-template-columns: 22px minmax(0, 1fr) 104px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton:hover {
+    filter: brightness(1.08) saturate(1.05) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.34),
+      0 10px 22px rgba(255, 101, 13, 0.38) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton:focus-visible {
+    outline: 3px solid rgba(255, 151, 64, 0.34) !important;
+    outline-offset: 2px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton svg {
+    height: 16px !important;
+    stroke-width: 2.6px !important;
+    width: 16px !important;
+  }
+
+  :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel,
+  :global(html body) .heroInner > .heroRightRail,
+  :global(html body) .heroInner > .heroRightRail.heroRightRailOpen {
+    margin-top: 10px !important;
+  }
+}
+
+/* Filtered desktop results form one compact stack. These rules live after the
+   legacy hero grid declarations so the controls cannot fall back to rows 2/5. */
+@media (min-width: 721px) {
+  .shell:global([data-home-filtered-results="true"]) [data-home-results-mode="true"] > [data-home-results-search] {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    margin: 0 !important;
+  }
+
+  .shell:global([data-home-filtered-results="true"]) [data-home-results-mode="true"] > [data-home-results-list] {
+    align-self: start !important;
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+  }
+}
+
+/* Phone hero: cancel the legacy 28px right inset on the artwork only. */
+@media (max-width: 720px) {
+  :global(html body) main[data-home-page] [data-home-intro-showcase].heroShowcase {
+    margin-right: -28px !important;
+    max-width: none !important;
+    width: calc(100% + 28px) !important;
+  }
+}
+
+/* Keep the compact listing sort pill against the phone's right edge. */
+@media (max-width: 760px) {
+  .sortControlRebuilt {
+    justify-items: end !important;
+  }
+
+  :global(html body) main[data-home-page] .sortControlRebuilt .sortButtonFace {
+    inset: auto !important;
+    justify-self: end !important;
+    left: auto !important;
+    right: auto !important;
+  }
+
+  .listingToolbar {
+    justify-items: end !important;
+  }
+
+  .sectionSortControl.sortControlRebuilt {
+    justify-self: end !important;
+    width: 184px !important;
+  }
+
+  .sectionSortControl.sortControlRebuilt .sortButtonFace {
+    width: 184px !important;
+  }
+}
+
+/* Keep the filter reset as a plain text action at the panel's right edge. */
+:global(html body) .heroRightRail .heroRailHeaderClear {
+  appearance: none !important;
+  align-self: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: auto !important;
+  margin: 0 0 0 auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  text-decoration: none !important;
+  width: auto !important;
+}
+
+/* Align the hero supporting copy and actions with the headline on larger screens. */
+@media (min-width: 721px) {
+  :global(html body) .heroShowcase .heroReferenceSubtitle.heroReferenceSubtitle {
+    justify-self: start !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  :global(html body) .heroShowcase .heroReferenceSubtitle.heroReferenceSubtitle {
+    text-align: left !important;
+  }
+
+  :global(html body) .heroShowcase .heroDesktopActions.heroDesktopActions {
+    justify-self: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
 }

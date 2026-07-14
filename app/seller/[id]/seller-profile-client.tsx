@@ -1891,7 +1891,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               onClick={() => setSellerFilterPanelOpen((open) => !open)}
             >
               <SlidersHorizontal size={16} aria-hidden="true" />
-              <span>Suodata</span>
+              <span>Suodatus</span>
             </button>
             {hasAdvancedFilters && (
               <div className="sp-filter-actions">
@@ -2195,18 +2195,16 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                           Uusi
                         </span>
                       )}
-                      <button
+                      {currentUserId && <button
                         type="button"
                         className={`seller-listing-heart${isFavorite ? " is-active" : ""}`}
-                        disabled={!currentUserId}
                         aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
-                        title={!currentUserId ? t.login : undefined}
                         onClick={(event) => toggleFavorite(event, listing.id)}
                         onPointerDown={(event) => event.stopPropagation()}
                         onTouchStart={(event) => event.stopPropagation()}
                       >
                         <Heart size={17} fill={isFavorite ? "currentColor" : "none"} />
-                      </button>
+                      </button>}
                     </span>
                     <div className="listing-body">
                       <strong className="seller-listing-price">{formatPrice(listing.price)}</strong>

@@ -547,6 +547,121 @@ html body header.universal-app-topbar .language-switcher img {
   }
 }
 
+/* Final home header positioning and home-only footer sizing. */
+html body header.universal-home-topbar .universal-home-header-search {
+  display: none;
+}
+
+@media (min-width: 901px) {
+  html body header.universal-home-topbar .universal-home-header-search {
+    align-self: auto !important;
+    display: grid !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    justify-self: auto !important;
+    left: calc(50% - 260px) !important;
+    margin: 0 !important;
+    max-width: 380px !important;
+    position: absolute !important;
+    right: auto !important;
+    top: 18px !important;
+    width: 380px !important;
+  }
+
+  html body header.universal-home-topbar .universal-home-primary-nav,
+  html body header.universal-home-topbar .universal-home-navigation .universal-home-primary-nav {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    justify-self: auto !important;
+    left: calc(50% + 142px) !important;
+    margin: 0 !important;
+    position: absolute !important;
+    right: auto !important;
+    top: 7px !important;
+    width: auto !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer {
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-inner {
+    align-items: start !important;
+    display: grid !important;
+    gap: 22px !important;
+    grid-template-columns: 190px minmax(0, 1fr) !important;
+    margin: 0 auto !important;
+    max-width: 970px !important;
+    padding: 18px 0 16px !important;
+    width: calc(100% - 44px) !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-brand {
+    display: block !important;
+    margin: 0 !important;
+    max-width: 190px !important;
+    padding: 0 !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-logo,
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-maskines-logo {
+    height: 48px !important;
+    margin: 0 0 6px !important;
+    max-width: 150px !important;
+    width: 150px !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-tagline {
+    font-size: 9px !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-socials,
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-bottom {
+    display: none !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-links-grid {
+    display: grid !important;
+    gap: 18px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    padding: 4px 0 0 !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-col h4 {
+    font-size: 10px !important;
+    margin: 0 0 8px !important;
+    padding: 0 0 6px !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-col ul {
+    gap: 5px !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-col a {
+    font-size: 9px !important;
+  }
+}
+
+@media (min-width: 901px) {
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation .universal-home-primary-nav {
+    display: flex !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    justify-content: flex-start !important;
+    justify-self: auto !important;
+    left: calc(50% + 142px) !important;
+    margin: 0 !important;
+    position: absolute !important;
+    right: auto !important;
+    top: 7px !important;
+    transform: none !important;
+    width: auto !important;
+  }
+}
+
 /* Final topbar cleanup: no divider line, and the back arrow sits vertically centered. */
 html body header.universal-app-topbar,
 html body header.universal-app-topbar.universal-home-topbar {
@@ -4377,6 +4492,10 @@ html body > .universal-profile-menu-portal {
   z-index: 2147483640 !important;
 }
 
+html body > .universal-profile-menu-portal > .universal-profile-menu-close {
+  display: none !important;
+}
+
 @media (max-width: 760px) {
   html body > .universal-profile-menu-portal {
     left: 4px !important;
@@ -4384,6 +4503,33 @@ html body > .universal-profile-menu-portal {
     right: 4px !important;
     top: max(6px, env(safe-area-inset-top)) !important;
     width: auto !important;
+  }
+
+  html body > .universal-profile-menu-portal > .universal-profile-menu-close {
+    align-items: center !important;
+    appearance: none !important;
+    background: rgba(255, 122, 26, 0.08) !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    color: #ff7a1a !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    height: 30px !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    position: absolute !important;
+    right: 9px !important;
+    top: 9px !important;
+    width: 30px !important;
+    z-index: 2 !important;
+  }
+
+  html body > .universal-profile-menu-portal > .universal-profile-menu-close:active {
+    background: rgba(255, 122, 26, 0.18) !important;
+  }
+
+  html body > .universal-profile-menu-portal > .universal-profile-menu-head {
+    padding-right: 32px !important;
   }
 }
 
@@ -6645,4 +6791,326 @@ html[data-user-background-tone="light"] body [class*="heroDesktopLatestHead"] st
 html[data-user-background-tone="light"] body [class*="heroDesktopLatestHead"] a {
   color: #142232 !important;
   text-shadow: none !important;
+}
+
+/* Home header matching the marketplace reference. */
+@media (min-width: 901px) {
+  html body header.universal-home-topbar .universal-home-navigation {
+    align-items: center !important;
+    display: grid !important;
+    grid-template-columns: 190px minmax(300px, 430px) auto !important;
+    height: 100% !important;
+    max-width: none !important;
+    padding: 0 24px !important;
+    position: relative !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-home-topbar .universal-home-header-search {
+    align-items: center !important;
+    background: rgba(4, 14, 23, 0.96) !important;
+    border: 1px solid rgba(90, 121, 149, 0.44) !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    gap: 9px !important;
+    grid-column: 2 !important;
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+    height: 42px !important;
+    justify-self: stretch !important;
+    margin-left: 18px !important;
+    max-width: 430px !important;
+    padding-left: 12px !important;
+    position: relative !important;
+    width: calc(100% - 18px) !important;
+    z-index: 3 !important;
+  }
+
+  html body header.universal-home-topbar .universal-home-header-search > svg {
+    color: rgba(220, 231, 240, 0.72) !important;
+  }
+
+  html body header.universal-home-topbar .universal-home-header-search input {
+    background: transparent !important;
+    border: 0 !important;
+    color: #f7fbff !important;
+    font-size: 12px !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    outline: 0 !important;
+    padding: 0 !important;
+  }
+
+  html body header.universal-home-topbar .universal-home-header-search input::placeholder {
+    color: rgba(212, 225, 236, 0.6) !important;
+    opacity: 1 !important;
+  }
+
+  html body header.universal-home-topbar .universal-home-header-search button {
+    align-items: center !important;
+    align-self: stretch !important;
+    background: linear-gradient(180deg, #ff851e, #ff650c) !important;
+    border: 0 !important;
+    border-radius: 0 5px 5px 0 !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    gap: 6px !important;
+    justify-content: center !important;
+    min-width: 72px !important;
+    padding: 0 12px !important;
+  }
+
+  html body header.universal-home-topbar .universal-home-primary-nav {
+    display: flex !important;
+    gap: 24px !important;
+    grid-column: 3 !important;
+    justify-content: flex-end !important;
+    margin-left: 28px !important;
+    position: static !important;
+    transform: none !important;
+  }
+
+  html body header.universal-home-topbar .universal-home-primary-nav a {
+    background: transparent !important;
+    border: 0 !important;
+    color: #f7fbff !important;
+    font-size: 13px !important;
+    min-height: 38px !important;
+    padding: 0 !important;
+  }
+
+  html body header.universal-home-topbar .universal-create-button {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1100px) and (min-width: 901px) {
+  html body header.universal-home-topbar .universal-home-navigation {
+    grid-template-columns: 190px minmax(260px, 380px) auto !important;
+  }
+
+  html body header.universal-home-topbar .universal-home-primary-nav {
+    gap: 16px !important;
+    margin-left: 18px !important;
+  }
+}
+
+/* Definitive home topbar and compact home footer. */
+@media (min-width: 901px) {
+  html body header.universal-home-topbar .universal-home-header-search {
+    display: grid !important;
+    left: calc(50vw - 260px) !important;
+    margin: 0 !important;
+    max-width: 380px !important;
+    position: fixed !important;
+    top: 18px !important;
+    width: 380px !important;
+    z-index: 1000002 !important;
+  }
+
+  html body header.universal-home-topbar .universal-home-primary-nav,
+  html body header.universal-home-topbar .universal-home-navigation .universal-home-primary-nav {
+    gap: 22px !important;
+    height: 64px !important;
+    justify-content: flex-start !important;
+    left: calc(50vw + 142px) !important;
+    margin: 0 !important;
+    position: fixed !important;
+    top: 7px !important;
+    transform: none !important;
+    width: auto !important;
+    z-index: 1000001 !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer {
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-inner {
+    align-items: start !important;
+    display: grid !important;
+    gap: 22px !important;
+    grid-template-columns: 190px minmax(0, 1fr) !important;
+    margin: 0 auto !important;
+    max-width: 970px !important;
+    padding: 18px 0 16px !important;
+    width: calc(100% - 44px) !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-brand {
+    display: block !important;
+    margin: 0 !important;
+    max-width: 190px !important;
+    padding: 0 !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-logo {
+    height: 48px !important;
+    margin: 0 0 6px !important;
+    max-width: 150px !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-maskines-logo {
+    height: 48px !important;
+    max-width: 150px !important;
+    width: 150px !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-tagline {
+    font-size: 9px !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-socials {
+    display: none !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-links-grid {
+    display: grid !important;
+    gap: 18px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    padding: 4px 0 0 !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col h4 {
+    font-size: 10px !important;
+    margin: 0 0 8px !important;
+    padding: 0 0 6px !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col ul {
+    gap: 5px !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-col a {
+    font-size: 9px !important;
+  }
+
+  html body:has([class*="heroDesktopLatest"]) .site-footer .footer-bottom {
+    display: none !important;
+  }
+}
+
+/* Authoritative home header and compact footer overrides. */
+@media (min-width: 901px) {
+  html body header.universal-app-topbar.universal-home-topbar .universal-home-navigation .universal-home-primary-nav {
+    display: flex !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    justify-content: flex-start !important;
+    justify-self: auto !important;
+    left: calc(50% + 142px) !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    place-self: auto !important;
+    position: absolute !important;
+    right: auto !important;
+    top: 7px !important;
+    transform: none !important;
+    width: auto !important;
+  }
+}
+
+html body header.universal-home-topbar .universal-home-header-search {
+  display: none;
+}
+
+@media (min-width: 901px) {
+  html body header.universal-home-topbar .universal-home-header-search {
+    align-self: auto !important;
+    display: grid !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+    justify-self: auto !important;
+    left: calc(50% - 260px) !important;
+    margin: 0 !important;
+    max-width: 380px !important;
+    position: absolute !important;
+    right: auto !important;
+    top: 18px !important;
+    width: 380px !important;
+  }
+
+  html body header.universal-home-topbar .universal-home-primary-nav,
+  html body header.universal-home-topbar .universal-home-navigation .universal-home-primary-nav {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    justify-self: auto !important;
+    left: calc(50% + 142px) !important;
+    margin: 0 !important;
+    position: absolute !important;
+    right: auto !important;
+    top: 7px !important;
+    width: auto !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer {
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-inner {
+    align-items: start !important;
+    display: grid !important;
+    gap: 22px !important;
+    grid-template-columns: 190px minmax(0, 1fr) !important;
+    margin: 0 auto !important;
+    max-width: 970px !important;
+    padding: 18px 0 16px !important;
+    width: calc(100% - 44px) !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-brand {
+    display: block !important;
+    margin: 0 !important;
+    max-width: 190px !important;
+    padding: 0 !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-logo,
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-maskines-logo {
+    height: 48px !important;
+    margin: 0 0 6px !important;
+    max-width: 150px !important;
+    width: 150px !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-tagline {
+    font-size: 9px !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-socials,
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-bottom {
+    display: none !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-links-grid {
+    display: grid !important;
+    gap: 18px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    padding: 4px 0 0 !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-col h4 {
+    font-size: 10px !important;
+    margin: 0 0 8px !important;
+    padding: 0 0 6px !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-col ul {
+    gap: 5px !important;
+  }
+
+  html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .footer-col a {
+    font-size: 9px !important;
+  }
 }

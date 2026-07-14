@@ -406,7 +406,7 @@
     border-radius: 0 0 12px 12px !important;
     display: grid !important;
     gap: 10px !important;
-    grid-template-columns: minmax(0, 1fr) 46px !important;
+    grid-template-columns: minmax(0, 1fr) 102px !important;
     min-height: 0 !important;
     padding: 10px !important;
     width: 100% !important;
@@ -483,6 +483,26 @@
     min-width: 46px !important;
     padding: 0 !important;
     width: 46px !important;
+  }
+
+  html body .seller-page .sp-filter-toggle {
+    align-items: center !important;
+    display: inline-flex !important;
+    font-size: 11px !important;
+    gap: 6px !important;
+    grid-column: 2 !important;
+    height: 42px !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+    min-width: 0 !important;
+    padding: 0 9px !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-toggle svg {
+    flex: 0 0 auto !important;
+    height: 15px !important;
+    width: 15px !important;
   }
 
   html body .seller-page .sp-sort-button svg,

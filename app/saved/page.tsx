@@ -17,6 +17,7 @@ import {
   getListingsByIds,
   getSavedListingIds,
   saveListing,
+  supabase,
   unsaveListing
 } from "@/lib/supabase";
 import { readCachedListings } from "@/lib/client-listings-cache";
@@ -67,6 +68,21 @@ export default function SavedListingsPage() {
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [listingsLoading, setListingsLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (!supabase) return;
+
+    supabase.auth.getSession().then(({ data }) => {
+      setIsLoggedIn(Boolean(data.session?.user));
+    }).catch(() => setIsLoggedIn(false));
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsLoggedIn(Boolean(session?.user));
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     setSavedIds(readSavedIds());
@@ -273,7 +289,7 @@ export default function SavedListingsPage() {
                         Uusi
                       </span>
                     )}
-                    <button
+                    {isLoggedIn && <button
                       onClick={(e) => toggleFavorite(e, listing.id)}
                       onPointerDown={(e) => e.stopPropagation()}
                       onTouchStart={(e) => e.stopPropagation()}
@@ -284,7 +300,7 @@ export default function SavedListingsPage() {
                       aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
                     >
                       <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
-                    </button>
+                    </button>}
                   </div>
 
                   <div className={`${marketplaceStyles.cardBody} saved-card-body`}>

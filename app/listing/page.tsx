@@ -17,7 +17,7 @@ import {
   type Listing
 } from "@/lib/listings";
 
-import { getListings } from "@/lib/supabase";
+import { getListings, supabase } from "@/lib/supabase";
 import { readCachedListings, writeCachedListings } from "@/lib/client-listings-cache";
 import { listingPath, listingUrlId, profilePath } from "@/lib/routes";
 
@@ -79,7 +79,22 @@ export default function ListingsIndexPage() {
   const [, setLoading] = useState(true);
 
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const favoritesHydrated = useRef(false);
+
+  useEffect(() => {
+    if (!supabase) return;
+
+    supabase.auth.getSession().then(({ data }) => {
+      setIsLoggedIn(Boolean(data.session?.user));
+    }).catch(() => setIsLoggedIn(false));
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setIsLoggedIn(Boolean(session?.user));
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     try {
@@ -248,7 +263,7 @@ export default function ListingsIndexPage() {
                     src={listingImageSrc(listing)}
                     alt={getListingTitle(listing)}
                   />
-                  <button
+                  {isLoggedIn && <button
                     onClick={(e) => toggleFavorite(e, listing.id)}
                     className={`${homeStyles.favoriteButton} ${
                       isFavorite ? homeStyles.favoriteButtonActive : ""
@@ -262,7 +277,7 @@ export default function ListingsIndexPage() {
                       size={14}
                       fill={isFavorite ? "currentColor" : "none"}
                     />
-                  </button>
+                  </button>}
                 </div>
 
                 <div className={homeStyles.cardBody}>

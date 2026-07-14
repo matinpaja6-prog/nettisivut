@@ -332,13 +332,9 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Täytä ajoneuvon tiedot": "Fill in vehicle details",
     "Valitse ajoneuvoluokka": "Choose vehicle class",
     "Moottorikelkka": "Snowmobile",
-    "Kelkat, telastot, moottorit": "Sleds, tracks, engines",
     "Mönkijä": "ATV",
-    "ATV ja UTV osat": "ATV and UTV parts",
     "Motocross": "Motocross",
-    "Crossi ja enduro": "Motocross and enduro",
     "Mopo": "Moped",
-    "Mopot ja piikit": "Mopeds and 125cc bikes",
     "Tyyppi": "Type",
     "Merkki": "Brand",
     "Malli": "Model",
@@ -457,13 +453,9 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Täytä ajoneuvon tiedot": "Fyll i fordonsuppgifter",
     "Valitse ajoneuvoluokka": "Välj fordonsklass",
     "Moottorikelkka": "Snöskoter",
-    "Kelkat, telastot, moottorit": "Skotrar, boggier, motorer",
     "Mönkijä": "Fyrhjuling",
-    "ATV ja UTV osat": "ATV- och UTV-delar",
     "Motocross": "Motocross",
-    "Crossi ja enduro": "Cross och enduro",
     "Mopo": "Moped",
-    "Mopot ja piikit": "Mopeder och 125:or",
     "Tyyppi": "Typ",
     "Merkki": "Märke",
     "Malli": "Modell",
@@ -582,13 +574,9 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Täytä ajoneuvon tiedot": "Fyll inn kjøretøydetaljer",
     "Valitse ajoneuvoluokka": "Velg kjøretøyklasse",
     "Moottorikelkka": "Snøscooter",
-    "Kelkat, telastot, moottorit": "Scootere, beltesystem, motorer",
     "Mönkijä": "ATV",
-    "ATV ja UTV osat": "ATV- og UTV-deler",
     "Motocross": "Motocross",
-    "Crossi ja enduro": "Cross og enduro",
     "Mopo": "Moped",
-    "Mopot ja piikit": "Mopeder og 125cc",
     "Tyyppi": "Type",
     "Merkki": "Merke",
     "Malli": "Modell",
@@ -707,13 +695,9 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Täytä ajoneuvon tiedot": "Täida sõiduki andmed",
     "Valitse ajoneuvoluokka": "Vali sõidukiklass",
     "Moottorikelkka": "Mootorsaan",
-    "Kelkat, telastot, moottorit": "Saanid, roomikud, mootorid",
     "Mönkijä": "ATV",
-    "ATV ja UTV osat": "ATV ja UTV osad",
     "Motocross": "Motokross",
-    "Crossi ja enduro": "Kross ja enduro",
     "Mopo": "Mopeed",
-    "Mopot ja piikit": "Mopeedid ja 125cc rattad",
     "Tyyppi": "Tüüp",
     "Merkki": "Mark",
     "Malli": "Mudel",
@@ -1333,29 +1317,21 @@ const vehicleCards = [
   {
     key: "Moottorikelkka",
     title: "Moottorikelkka",
-    description: "Kelkat, telastot, moottorit",
-    image: "/vehicles/selector-snowmobile-3d.png",
     brands: ["Lynx", "Ski-Doo", "Polaris", "Arctic Cat"]
   },
   {
     key: "Mönkijä",
     title: "Mönkijä",
-    description: "ATV ja UTV osat",
-    image: "/vehicles/selector-atv-3d.png",
     brands: ["Can-Am", "Polaris", "Yamaha", "Honda"]
   },
   {
     key: "Motocross",
     title: "Motocross",
-    description: "Crossi ja enduro",
-    image: "/vehicles/selector-motocross-3d.png",
     brands: ["KTM", "Yamaha", "Honda", "Husqvarna"]
   },
   {
     key: "Mopo",
     title: "Mopo",
-    description: "Mopot ja piikit",
-    image: "/vehicles/selector-moped-3d.png",
     brands: ["Yamaha", "Derbi", "Rieju", "Aprilia"]
   }
 ];
@@ -2598,12 +2574,14 @@ function SellPageContent() {
   const garagePrefillAppliedRef = useRef(false);
   const shellRef = useRef<HTMLElement | null>(null);
   const vehicleContentRef = useRef<HTMLElement | null>(null);
+  const vehicleTypeMenuRef = useRef<HTMLDivElement | null>(null);
   const skipInitialStepScrollRef = useRef(true);
   const vehicleAutoAdvancedFieldsRef = useRef<Partial<Record<VehicleDetailKey, boolean>>>({});
   const categoryEntryAutoOpenRef = useRef(false);
   const [mode, setMode] = useState<ListingMode>("single");
   const [currentStep, setCurrentStep] = useState(1);
   const [vehicleType, setVehicleType] = useState(vehicleCards[1]);
+  const [vehicleTypeMenuOpen, setVehicleTypeMenuOpen] = useState(false);
   const [vehicleDetails, setVehicleDetails] = useState<VehicleDetails>(
     () => buildEmptyVehicleDetails()
   );
@@ -3343,6 +3321,31 @@ function SellPageContent() {
   useEffect(() => {
     uploadedImagesRef.current = uploadedImages;
   }, [uploadedImages]);
+
+  useEffect(() => {
+    if (!vehicleTypeMenuOpen) return;
+
+    function closeVehicleTypeMenu(event: PointerEvent) {
+      if (
+        event.target instanceof Node &&
+        !vehicleTypeMenuRef.current?.contains(event.target)
+      ) {
+        setVehicleTypeMenuOpen(false);
+      }
+    }
+
+    function closeVehicleTypeMenuWithKeyboard(event: KeyboardEvent) {
+      if (event.key === "Escape") setVehicleTypeMenuOpen(false);
+    }
+
+    document.addEventListener("pointerdown", closeVehicleTypeMenu);
+    document.addEventListener("keydown", closeVehicleTypeMenuWithKeyboard);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeVehicleTypeMenu);
+      document.removeEventListener("keydown", closeVehicleTypeMenuWithKeyboard);
+    };
+  }, [vehicleTypeMenuOpen]);
 
   useEffect(() => {
     multiPartsRef.current = multiParts;
@@ -4942,35 +4945,66 @@ function SellPageContent() {
     if (currentStep === 2) {
       return (
         <div className={styles.vehicleWorkspace}>
-          <div className={styles.vehicleTypeGrid}>
-            {vehicleCards.map((vehicle) => {
-              const active = vehicle.key === vehicleType.key;
-
-              return (
-                <button
-                  key={vehicle.key}
-                  type="button"
-                  className={`${styles.vehicleTypeCard} ${active ? styles.vehicleTypeActive : ""}`}
-                  onClick={() => {
-                    setVehicleType(vehicle);
-                    setVehicleDetails(buildEmptyVehicleDetails());
-                    setCustomVehicleFields({});
-                    vehicleAutoAdvancedFieldsRef.current = {};
-                    setCategory("");
-                    setCategoryGroup("");
-                    setSubcategory("");
-                    focusVehicleField("vehicleSubtype");
-                  }}
-                >
-                  <img src={vehicle.image} alt="" />
-                  <strong>{st(vehicle.title)}</strong>
-                  <small>{st(vehicle.description)}</small>
-                </button>
-              );
-            })}
-          </div>
-
           <form className={styles.vehicleForm}>
+            <div
+              ref={vehicleTypeMenuRef}
+              className={`${styles.vehicleTypePicker} ${vehicleTypeMenuOpen ? styles.vehicleTypePickerOpen : ""}`}
+            >
+              <span className={styles.vehicleTypeLabel}>{st("Ajoneuvo")}</span>
+              <button
+                type="button"
+                className={styles.vehicleTypeTrigger}
+                onClick={() => {
+                  setOpenVehiclePresetField(null);
+                  setVehicleTypeMenuOpen((open) => !open);
+                }}
+                aria-expanded={vehicleTypeMenuOpen}
+                aria-haspopup="listbox"
+                aria-controls="sell-vehicle-type-menu"
+              >
+                <strong>{st(vehicleType.title)}</strong>
+                <ChevronDown size={18} aria-hidden="true" />
+              </button>
+
+              {vehicleTypeMenuOpen ? (
+                <div
+                  id="sell-vehicle-type-menu"
+                  className={styles.vehicleTypeMenu}
+                  role="listbox"
+                  aria-label={st("Valitse ajoneuvoluokka")}
+                >
+                  <div className={styles.vehicleTypeGrid}>
+                    {vehicleCards.map((vehicle) => {
+                      const active = vehicle.key === vehicleType.key;
+
+                      return (
+                        <button
+                          key={vehicle.key}
+                          type="button"
+                          role="option"
+                          aria-selected={active}
+                          className={`${styles.vehicleTypeCard} ${active ? styles.vehicleTypeActive : ""}`}
+                          onClick={() => {
+                            setVehicleType(vehicle);
+                            setVehicleTypeMenuOpen(false);
+                            setVehicleDetails(buildEmptyVehicleDetails());
+                            setCustomVehicleFields({});
+                            vehicleAutoAdvancedFieldsRef.current = {};
+                            setCategory("");
+                            setCategoryGroup("");
+                            setSubcategory("");
+                            focusVehicleField("vehicleSubtype");
+                          }}
+                        >
+                          <strong>{st(vehicle.title)}</strong>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
             <PresetField
               fieldKey="vehicleSubtype"
               label={st("Tyyppi")}

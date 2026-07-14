@@ -71,6 +71,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Keep development artifacts separate from production builds. Running
+  // `next dev` after `next build` in the same .next directory can leave the
+  // manifests pointing at assets that the dev compiler has already removed.
+  distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
   devIndicators: false,
   outputFileTracingRoot: process.cwd(),
   poweredByHeader: false,

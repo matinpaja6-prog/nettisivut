@@ -1439,7 +1439,7 @@ export default function ListingPage() {
                   <Share2 size={20} />
                 </button>
 
-                <button
+                {isLoggedIn && <button
                   onClick={toggleSave}
                   className={`icon-btn ${
                     saved ? "icon-saved" : ""
@@ -1455,7 +1455,7 @@ export default function ListingPage() {
                         : "none"
                     }
                   />
-                </button>
+                </button>}
               </div>
 
             </div>
@@ -1555,7 +1555,7 @@ export default function ListingPage() {
                   <Share2 size={20} />
                 </button>
 
-                <button
+                {isLoggedIn && <button
                   onClick={toggleSave}
                   className={`icon-btn ${
                     saved ? "icon-saved" : ""
@@ -1570,7 +1570,7 @@ export default function ListingPage() {
                         : "none"
                     }
                   />
-                </button>
+                </button>}
               </div>
 
               {gallery.length > 1 && (
@@ -1640,7 +1640,7 @@ export default function ListingPage() {
                     <Share2 size={20} />
                   </button>
 
-                  <button
+                  {isLoggedIn && <button
                     onClick={toggleSave}
                     className={`icon-btn ${
                       saved ? "icon-saved" : ""
@@ -1656,7 +1656,7 @@ export default function ListingPage() {
                           : "none"
                       }
                     />
-                  </button>
+                  </button>}
                 </div>
 
               </div>
@@ -2035,7 +2035,7 @@ export default function ListingPage() {
                           Uusi
                         </span>
                       )}
-                      <button
+                      {isLoggedIn && <button
                         onClick={(event) => toggleSimilarSave(event, item.id)}
                         onPointerDown={(event) => event.stopPropagation()}
                         onTouchStart={(event) => event.stopPropagation()}
@@ -2049,7 +2049,7 @@ export default function ListingPage() {
                           size={14}
                           fill={isFavorite ? "currentColor" : "none"}
                         />
-                      </button>
+                      </button>}
                     </div>
                     <div className={homeStyles.cardBody}>
                       <p className={homeStyles.cardPrice}>{formatPrice(item.price)}</p>

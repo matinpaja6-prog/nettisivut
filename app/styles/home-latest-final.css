@@ -69,6 +69,18 @@
 
 /* Loaded after topbar-final: keep the visible homepage phone actions at the right edge. */
 @media (max-width: 720px) {
+  /* The homepage marks the body while the mobile search sheet is open.
+     Use that explicit state so the floating chat cannot overlap the filters. */
+  html body[data-home-search-locked="true"] .floating-chat,
+  html body[data-home-search-locked="true"] .fc-button,
+  html body[data-home-search-locked="true"] .rebuilt-chat-button,
+  html body[data-home-search-locked="true"] .fc-panel {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+
   html body header.universal-app-topbar.universal-home-topbar {
     position: sticky !important;
   }

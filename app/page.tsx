@@ -13,9 +13,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Cog,
+  Disc3,
   Gift,
+  Gauge,
+  Grid2X2,
   Heart,
   MapPin,
+  Package,
   RotateCcw,
   Search,
   Settings2,
@@ -23,6 +28,9 @@ import {
   SlidersHorizontal,
   TrendingDown,
   TrendingUp,
+  UserRound,
+  Wrench,
+  Zap,
   X
 } from "lucide-react";
 
@@ -83,6 +91,12 @@ import { ListFilter } from "lucide-react";
 import { getCategoryVehicleKey } from "./components/CategoryDrawer";
 
 type Locale = "fi" | "en" | "sv" | "no" | "et";
+
+type HomeMarketplaceStats = {
+  activeListings: number;
+  activeSellers: number;
+  listingCountries: number;
+};
 
 const HOME_RETURN_STATE_KEY = "home_return_state_v1";
 const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
@@ -1264,6 +1278,7 @@ function HomeContent() {
   const [listings, setListings] = useState<Listing[]>(fallbackListings);
   const [listingsLoading, setListingsLoading] = useState(fallbackListings.length === 0);
   const [listingsTotalCount, setListingsTotalCount] = useState<number | null>(null);
+  const [homeMarketplaceStats, setHomeMarketplaceStats] = useState<HomeMarketplaceStats | null>(null);
 
   const [favorites, setFavorites] = useState<string[]>([]);
 
@@ -1332,6 +1347,8 @@ function HomeContent() {
   const [sort, setSort] = useState<SortValue>("Osuvimmat ensin");
   const [recommendationsMode, setRecommendationsMode] = useState(true);
   const [homeSortOpen, setHomeSortOpen] = useState(false);
+  const [sortInteractionShieldActive, setSortInteractionShieldActive] = useState(false);
+  const sortInteractionShieldTimerRef = useRef<number | null>(null);
   const [homeLatestExpanded, setHomeLatestExpanded] = useState(false);
   const [sortSheetOpen, setSortSheetOpen] = useState(false);
 
@@ -1371,7 +1388,7 @@ function HomeContent() {
 
   useEffect(() => {
     const openMobileFilters = () => {
-      setMobileFilterExpanded(false);
+      setMobileFilterExpanded(true);
       setActiveHeroFilter(null);
       setHomeSearchPanelOpen(true);
     };
@@ -1391,6 +1408,7 @@ function HomeContent() {
   }, []);
 
   const [user, setUser] = useState<User | null>(null);
+  const canUseFavorites = Boolean(user && !user.is_anonymous);
   const [userLocationTerms, setUserLocationTerms] = useState<string[]>([]);
 
   const [garageVehicles, setGarageVehicles] = useState<GarageVehicle[]>([]);
@@ -1405,59 +1423,6 @@ function HomeContent() {
   const [dbPreferenceProfile, setDbPreferenceProfile] = useState<UserPreferenceProfile | null>(null);
 
   const t = translations[locale];
-
-  useEffect(() => {
-    let suppressRailClick = false;
-
-    const handleRailToggle = (event: Event) => {
-      if (event.type === "click" && suppressRailClick) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        suppressRailClick = false;
-        return;
-      }
-
-      const target = event.target;
-
-      if (!(target instanceof Element)) return;
-
-      if (target.closest('[class*="heroRailEdgeToggle"]')) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        if (event.type === "pointerdown" || event.type === "mousedown") {
-          suppressRailClick = true;
-          setHomeSearchPanelOpen(false);
-        } else if (suppressRailClick) {
-          suppressRailClick = false;
-        }
-        return;
-      }
-
-      if (target.closest('[class*="heroRailClosedButton"]')) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        if (event.type === "pointerdown" || event.type === "mousedown") {
-          suppressRailClick = true;
-          setHomeSearchPanelOpen(true);
-        } else if (suppressRailClick) {
-          suppressRailClick = false;
-        }
-      }
-    };
-
-    document.addEventListener("pointerdown", handleRailToggle, true);
-    document.addEventListener("mousedown", handleRailToggle, true);
-    document.addEventListener("click", handleRailToggle, true);
-
-    return () => {
-      document.removeEventListener("pointerdown", handleRailToggle, true);
-      document.removeEventListener("mousedown", handleRailToggle, true);
-      document.removeEventListener("click", handleRailToggle, true);
-    };
-  }, []);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 720px)");
@@ -1643,6 +1608,22 @@ function HomeContent() {
   }, [garageVehicles]);
 
   useEffect(() => {
+    if (!homeLatestExpanded || catalogOnlyView) return;
+
+    window.requestAnimationFrame(() => {
+      if (compactHeroSearch) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      document.querySelector<HTMLElement>("[data-home-results-search]")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    });
+  }, [homeLatestExpanded, catalogOnlyView, compactHeroSearch]);
+
+  useEffect(() => {
     const media = window.matchMedia("(max-width: 720px), (pointer: coarse)");
     const syncCompactSearch = () => {
       const isMobileSearch = media.matches || window.innerWidth <= 720;
@@ -1663,11 +1644,17 @@ function HomeContent() {
 
     if (isMobileSearch) {
       setCompactHeroSearch(true);
-      setMobileFilterExpanded(false);
+      setMobileFilterExpanded(true);
     }
 
     setHomeSearchPanelOpen(true);
     setActiveHeroFilter(null);
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        mobileSheetFormRef.current?.scrollTo({ top: 0, behavior: "auto" });
+      });
+    });
   }, [compactHeroSearch]);
 
   const handleHeroMainSearchButtonClick = useCallback((event: ReactMouseEvent<HTMLButtonElement>) => {
@@ -1743,6 +1730,18 @@ function HomeContent() {
     setCatalogOnlyView(false);
   }
 
+  function resetFilteredHomeView() {
+    clearListingFilters();
+    setHomeLatestExpanded(false);
+    setHomeSearchPanelOpen(false);
+    setMobileFilterExpanded(false);
+    setRecommendationsMode(true);
+    setSort("Osuvimmat ensin");
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
   function showAllListings() {
     clearListingFilters();
     setHomeLatestExpanded(true);
@@ -1770,6 +1769,7 @@ function HomeContent() {
       setQuery(garageSearch);
       setRecommendationsMode(false);
       setListingsExpanded(true);
+      setHomeLatestExpanded(true);
       setCatalogOnlyView(false);
       setCurrentPage(1);
       window.requestAnimationFrame(() => {
@@ -1778,6 +1778,25 @@ function HomeContent() {
     }
 
     return () => window.removeEventListener("maskines-show-all-listings", openAllListings);
+  }, []);
+
+  useEffect(() => {
+    const runHeaderSearch = (event: Event) => {
+      const nextQuery = String((event as CustomEvent<string>).detail ?? "").trim();
+      setQuery(nextQuery);
+      setAppliedListingFilters((current) => ({ ...current, query: nextQuery }));
+      setRecommendationsMode(false);
+      setListingsExpanded(true);
+      setHomeLatestExpanded(true);
+      setCatalogOnlyView(false);
+      setCurrentPage(1);
+      window.requestAnimationFrame(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    };
+
+    window.addEventListener("maskines-home-search", runHeaderSearch);
+    return () => window.removeEventListener("maskines-home-search", runHeaderSearch);
   }, []);
 
   function applyListingFilters() {
@@ -1803,7 +1822,8 @@ function HomeContent() {
     });
     setRecommendationsMode(false);
     setListingsExpanded(true);
-    setCatalogOnlyView(true);
+    setHomeLatestExpanded(true);
+    setCatalogOnlyView(false);
     setActiveHeroFilter(null);
     setCurrentPage(1);
     requestAnimationFrame(() => {
@@ -2036,6 +2056,26 @@ function HomeContent() {
   }, [router]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/about-stats")
+      .then((response) => {
+        if (!response.ok) throw new Error("Markkinapaikan tilastojen lataus epäonnistui.");
+        return response.json() as Promise<HomeMarketplaceStats>;
+      })
+      .then((stats) => {
+        if (!cancelled) setHomeMarketplaceStats(stats);
+      })
+      .catch(() => {
+        if (!cancelled) setHomeMarketplaceStats(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     const urlLocale = new URLSearchParams(window.location.search).get("lang");
 
     if (isLocale(urlLocale)) {
@@ -2167,6 +2207,9 @@ function HomeContent() {
         const listingPartNumber = getListingPartNumber(listing);
         const listingVehicleSubtypeText = getListingVehicleSubtypeText(listing, listingText);
         const search = `
+          ${listing.id ?? ""}
+          ${listing.listing_number ?? ""}
+          ID ${listing.listing_number ?? ""}
           ${listingText.title}
           ${listingText.description}
           ${listing.description ?? ""}
@@ -2183,6 +2226,26 @@ function HomeContent() {
           Boolean(appliedQuery) &&
           Boolean(listingPartNumber) &&
           textMatchesSearch(listingPartNumber, appliedQuery);
+
+        const queryIdentifierTerm = appliedQuery.trim().toLowerCase().replace(/\s+/g, "");
+        const queryIdentifierNumber =
+          queryIdentifierTerm.match(/^(?:ilmoitus|id|#)?(\d+)$/)?.[1] ??
+          queryIdentifierTerm.match(/^(\d+)(?:id|ilmoitus)$/)?.[1] ??
+          "";
+        const queryIsUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+          queryIdentifierTerm
+        );
+        const queryIsIdentifierSearch = Boolean(queryIdentifierNumber || queryIsUuid);
+        const normalizedQueryIdentifierNumber = queryIdentifierNumber
+          ? String(Number(queryIdentifierNumber))
+          : "";
+        const directIdentifierMatch =
+          queryIsIdentifierSearch && (
+            String(listing.id ?? "").toLowerCase() === queryIdentifierTerm ||
+            String(listing.listing_number ?? "") === queryIdentifierNumber ||
+            String(listing.listing_number ?? "") === normalizedQueryIdentifierNumber ||
+            listingNumberUrlId(listing.listing_number).toLowerCase() === queryIdentifierTerm
+          );
 
         const matchesGarage = (() => {
           if (!appliedGarageFilter) return true;
@@ -2288,6 +2351,10 @@ function HomeContent() {
         const matchesPrice =
           listing.price >= appliedMinPrice &&
           listing.price <= appliedMaxPrice;
+
+        if (queryIsIdentifierSearch) {
+          return directIdentifierMatch && matchesPrice;
+        }
 
         if (directPartNumberMatch) {
           return matchesPrice;
@@ -2411,13 +2478,13 @@ function HomeContent() {
         localStorage.setItem("savedListings", JSON.stringify(next));
       } catch {}
 
-      if (user) {
+      if (canUseFavorites) {
         void (wasFavorite ? unsaveListing(listingId) : saveListing(listingId));
       }
 
       return next;
     });
-  }, [user]);
+  }, [canUseFavorites]);
 
   function toggleFavorite(
     event: React.MouseEvent,
@@ -2494,6 +2561,7 @@ function HomeContent() {
     setEngineModelQuery("");
     setActiveHeroFilter(null);
     setRecommendationsMode(false);
+    setHomeLatestExpanded(true);
     setCurrentPage(1);
   }
 
@@ -2538,6 +2606,7 @@ function HomeContent() {
     });
     setActiveHeroFilter(null);
     setRecommendationsMode(false);
+    setHomeLatestExpanded(true);
     setCurrentPage(1);
   }, [searchParams]);
 
@@ -2585,6 +2654,7 @@ function HomeContent() {
     setActiveHeroFilter(null);
     setRecommendationsMode(false);
     setListingsExpanded(true);
+    setHomeLatestExpanded(true);
     setCatalogOnlyView(false);
     setCurrentPage(1);
 
@@ -2650,6 +2720,25 @@ function HomeContent() {
     Boolean(trackMatDimensionQuery.trim()) ||
     minPrice !== 0 ||
     maxPrice !== 100000;
+  const hasAppliedListingFilters =
+    Boolean(appliedListingFilters.vehicleType) ||
+    Boolean(appliedListingFilters.query.trim()) ||
+    appliedListingFilters.selectedBrand !== "Kaikki" ||
+    Boolean(appliedListingFilters.vehicleSubtype.trim()) ||
+    Boolean(appliedListingFilters.category) ||
+    Boolean(appliedListingFilters.subcategory) ||
+    Boolean(appliedListingFilters.garageFilterId) ||
+    Boolean(appliedListingFilters.modelQuery.trim()) ||
+    Boolean(appliedListingFilters.identifierQuery.trim()) ||
+    Boolean(appliedListingFilters.locationQuery.trim()) ||
+    Boolean(appliedListingFilters.yearQuery.trim()) ||
+    Boolean(appliedListingFilters.yearMinQuery.trim()) ||
+    Boolean(appliedListingFilters.yearMaxQuery.trim()) ||
+    Boolean(appliedListingFilters.engineCcQuery.trim()) ||
+    Boolean(appliedListingFilters.engineModelQuery.trim()) ||
+    Boolean(appliedListingFilters.trackMatDimensionQuery.trim()) ||
+    appliedListingFilters.minPrice !== 0 ||
+    appliedListingFilters.maxPrice !== 100000;
   const showListingResultsSection =
     catalogOnlyView;
 
@@ -2689,9 +2778,24 @@ function HomeContent() {
   const ActiveSortIcon = activeSortOption?.icon ?? Settings2;
 
   const selectSortOption = useCallback((value: string) => {
+    if (sortInteractionShieldTimerRef.current) {
+      window.clearTimeout(sortInteractionShieldTimerRef.current);
+    }
+
+    setSortInteractionShieldActive(true);
     handleSortChange(value);
     setHomeSortOpen(false);
+    sortInteractionShieldTimerRef.current = window.setTimeout(() => {
+      setSortInteractionShieldActive(false);
+      sortInteractionShieldTimerRef.current = null;
+    }, 500);
   }, [handleSortChange]);
+
+  useEffect(() => () => {
+    if (sortInteractionShieldTimerRef.current) {
+      window.clearTimeout(sortInteractionShieldTimerRef.current);
+    }
+  }, []);
 
   const renderSortControl = (className: string) => (
     <div
@@ -2716,7 +2820,12 @@ function HomeContent() {
         <ChevronDown size={16} className={styles.sortButtonChevron} aria-hidden="true" />
       </button>
       {homeSortOpen && (
-        <div className={styles.sortMenuPanel} role="menu">
+        <div
+          className={styles.sortMenuPanel}
+          role="menu"
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
+        >
           {sortMenuOptions.map((option) => {
             const Icon = option.icon;
             const selected = option.value === activeSortValue;
@@ -2729,7 +2838,7 @@ function HomeContent() {
                 className={`${styles.sortMenuItem} ${selected ? styles.sortMenuItemActive : ""}`}
                 onPointerDown={(event) => {
                   event.preventDefault();
-                  selectSortOption(option.value);
+                  event.stopPropagation();
                 }}
                 onClick={() => {
                   selectSortOption(option.value);
@@ -2946,7 +3055,7 @@ function HomeContent() {
   const displayedListings = featuredListings;
 
   const heroLatestListings = useMemo(() => {
-    const sourceListings = hasActiveListingFilters
+    const sourceListings = hasAppliedListingFilters
       ? filteredListings
       : listings.filter(isPublicListing);
 
@@ -2985,9 +3094,14 @@ function HomeContent() {
         }
       })
       .slice(0, 12);
-  }, [filteredListings, hasActiveListingFilters, listings, sort, userLocationTerms]);
+  }, [filteredListings, hasAppliedListingFilters, listings, sort, userLocationTerms]);
 
-  const compactLatestListings = heroLatestListings.slice(0, homeLatestExpanded ? 12 : 4);
+  const compactLatestListings = heroLatestListings.slice(0, homeLatestExpanded ? 12 : 8);
+  const hasNoHomeSearchResults =
+    homeLatestExpanded &&
+    hasAppliedListingFilters &&
+    !listingsLoading &&
+    compactLatestListings.length === 0;
 
   useEffect(() => {
     if (listingsLoading || locale === "fi") return;
@@ -3462,37 +3576,68 @@ function HomeContent() {
   };
 
   return (
-    <main className={styles.shell}>
+    <main
+      data-home-page
+      data-home-latest-expanded={homeLatestExpanded ? "true" : "false"}
+      data-home-filtered-results={homeLatestExpanded && hasAppliedListingFilters ? "true" : "false"}
+      className={styles.shell}
+    >
+      {sortInteractionShieldActive ? (
+        <div
+          className={styles.sortInteractionShield}
+          aria-hidden="true"
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onPointerUp={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        />
+      ) : null}
       {!catalogOnlyView ? (
       <>
-      <div className={styles.heroWrap}>
-        <div className={styles.container}>
+      <div data-home-background-region className={styles.heroWrap}>
+        <div data-home-background-container className={styles.container}>
         <section className={styles.hero} aria-label="Hero">
           <div className={styles.heroInner}>
-            <div className={styles.heroLeadPanel}>
-              <h1 className={styles.heroHeadline}>
-                <span style={{ display: "block", width: "100%" }}>Suomen suurin</span>
-                <span style={{ display: "block", width: "100%" }}><span className={styles.heroHeadlineAccent}>käytettyjen varaosien</span>{" "}markkinapaikka</span>
-              </h1>
-              <p className={styles.heroReferenceSubtitle}>{t.heroSubtitle}</p>
-              <div className={styles.heroDesktopActions}>
-                <button
-                  type="button"
-                  className={styles.heroStartSearchButton}
-                  onClick={() => {
-                    setHomeSearchPanelOpen(true);
-                    setActiveHeroFilter("vehicleType");
-                  }}
-                >
-                  Aloita haku
-                </button>
-                <span className={styles.heroTrustMini}>
-                  <ShieldCheck size={17} aria-hidden="true" />
-                  Turvallinen kaupankäynti
-                </span>
+            <div data-home-results-mode={homeLatestExpanded ? "true" : "false"} className={styles.heroLeadPanel}>
+              <div data-home-intro-showcase className={styles.heroShowcase}>
+                <div className={styles.heroShowcaseCopy}>
+                  <h1 className={styles.heroHeadline}>
+                    <span style={{ display: "block", width: "100%" }}>Nopea haku</span>
+                    <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>Myy käytetyt</span>
+                    <span style={{ display: "block", width: "100%" }}>Varaosat helposti</span>
+                  </h1>
+                  <p className={styles.heroReferenceSubtitle}>Löydä oikea osa nopeasti tai listaa omat käytetyt varaosasi myyntiin muutamassa minuutissa.</p>
+                  <div className={styles.heroDesktopActions}>
+                    <button
+                      type="button"
+                      className={styles.heroStartSearchButton}
+                      onClick={() => {
+                        setHomeSearchPanelOpen(true);
+                        setActiveHeroFilter("vehicleType");
+                      }}
+                    >
+                      Aloita haku
+                    </button>
+                    <span className={styles.heroTrustMini}>
+                      <ShieldCheck size={17} aria-hidden="true" />
+                      Turvallinen kaupankäynti
+                    </span>
+                  </div>
+                </div>
+                <div data-home-hero-art className={styles.heroShowcaseArt} aria-hidden="true">
+                  <img src="/vehicles/hero-snowmobile-marketplace.png" alt="" />
+                </div>
               </div>
 
-              <div className={styles.heroMainSearchPanel}>
+              <div data-home-results-search className={styles.heroMainSearchPanel}>
                 <form
                   className={styles.heroMainSearch}
                   role="search"
@@ -3507,7 +3652,7 @@ function HomeContent() {
                   <input
                     className={styles.heroMainSearchInput}
                     type="search"
-                    placeholder={t.searchPlaceholder}
+                    placeholder="Hae varaosia, merkkiä, mallia tai ID:tä..."
                     value={query}
                     onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
                     aria-label={t.searchLabel}
@@ -3527,30 +3672,75 @@ function HomeContent() {
                 </form>
               </div>
 
-              <button
-                type="button"
-                className={styles.heroMobileFilterToggle}
-                onClick={openMobileHomeSearchSheet}
-              >
-                <SlidersHorizontal size={17} aria-hidden="true" />
-                <span>{homeSearchPanelOpen ? "Sulje suodatus" : "Suodata"}</span>
-              </button>
+              {compactHeroSearch && homeLatestExpanded && hasAppliedListingFilters ? (
+                <div data-home-filter-actions className={styles.heroFilteredActions}>
+                  <button
+                    type="button"
+                    className={styles.heroFilteredEdit}
+                    onClick={() => {
+                      setHomeSearchPanelOpen(true);
+                      setMobileFilterExpanded(true);
+                    }}
+                  >
+                    <SlidersHorizontal size={16} aria-hidden="true" />
+                    <span>Muokkaa hakua</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.heroFilteredReset}
+                    onClick={resetFilteredHomeView}
+                  >
+                    <RotateCcw size={16} aria-hidden="true" />
+                    <span>Nollaa</span>
+                  </button>
+                </div>
+              ) : null}
 
-              <div className={styles.heroDesktopLatest}>
+              {(!homeLatestExpanded || !compactHeroSearch) ? (
+                <button
+                  type="button"
+                  className={styles.heroMobileFilterToggle}
+                  onClick={openMobileHomeSearchSheet}
+                >
+                  <SlidersHorizontal size={17} aria-hidden="true" />
+                  <span>{homeSearchPanelOpen ? "Sulje suodatus" : "Suodata"}</span>
+                </button>
+              ) : null}
+
+              <div data-home-results-list className={styles.heroDesktopLatest}>
+                {!hasNoHomeSearchResults ? (
                 <div className={styles.heroDesktopLatestHead}>
-                  <strong>Viimeisimmät ilmoitukset</strong>
+                  {!homeLatestExpanded ? <strong>Viimeisimmät ilmoitukset</strong> : <span aria-hidden="true" />}
                   <div className={styles.heroDesktopLatestActions}>
                     {homeLatestExpanded ? renderSortControl(styles.heroDesktopLatestSort) : null}
                     {!homeLatestExpanded ? (
                       <button
                         type="button"
-                        onClick={() => setHomeLatestExpanded(true)}
+                        onClick={() => {
+                          setHomeLatestExpanded(true);
+                          if (compactHeroSearch) {
+                            setHomeSearchPanelOpen(false);
+                            setMobileFilterExpanded(false);
+                          }
+                        }}
                       >
                         Näytä kaikki
                       </button>
                     ) : null}
                   </div>
                 </div>
+                ) : null}
+                {hasNoHomeSearchResults ? (
+                  <div className={styles.heroNoResults} role="status">
+                    <span className={styles.heroNoResultsIcon} aria-hidden="true"><Search /></span>
+                    <strong>Ei löytynyt tuloksia</strong>
+                    <p>Kokeile muuttaa hakuehtoja tai nollaa suodattimet.</p>
+                    <button type="button" onClick={clearListingFilters}>
+                      <RotateCcw size={17} aria-hidden="true" />
+                      <span>Nollaa suodattimet</span>
+                    </button>
+                  </div>
+                ) : (
                 <div
                   className={`${styles.heroDesktopLatestGrid} ${
                     homeLatestExpanded ? styles.heroDesktopLatestGridExpanded : ""
@@ -3563,7 +3753,7 @@ function HomeContent() {
                     return (
                       <article
                         key={listing.id}
-                        className={styles.heroDesktopLatestCard}
+                        className={`${styles.card} ${styles.heroDesktopLatestCard}`}
                         role="link"
                         tabIndex={0}
                         onClick={(event) => openListingFromCard(event, listing)}
@@ -3574,14 +3764,17 @@ function HomeContent() {
                           }
                         }}
                       >
-                        <span className={styles.heroDesktopLatestImage}>
+                        <div className={`${styles.cardImage} ${styles.listingCardImage} ${styles.heroDesktopLatestImage}`}>
+                          <span className={styles.cardImageBlur} aria-hidden="true">
+                            <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
+                          </span>
                           <OptimizedListingImage src={listingImageSrc(listing)} alt={listingText.title} />
-                          <button
+                          {canUseFavorites && <button
                             type="button"
                             data-home-latest-favorite="true"
                             data-listing-id={listing.id}
-                            className={`${styles.heroDesktopFavorite} ${
-                              isFavorite ? styles.heroDesktopFavoriteActive : ""
+                            className={`${styles.favoriteButton} ${styles.heroDesktopFavorite} ${
+                              isFavorite ? `${styles.favoriteButtonActive} ${styles.heroDesktopFavoriteActive}` : ""
                             }`}
                             onMouseDown={(event) => {
                               event.stopPropagation();
@@ -3596,62 +3789,103 @@ function HomeContent() {
                             onTouchEnd={(event) => event.stopPropagation()}
                             aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
                           >
-                            <Heart size={17} fill={isFavorite ? "currentColor" : "none"} aria-hidden="true" />
-                          </button>
-                        </span>
-                        <span className={styles.heroDesktopLatestPrice}>{formatPrice(listing.price)}</span>
-                        <span className={styles.heroDesktopLatestTop}>
-                          <strong>{listingText.title}</strong>
-                        </span>
-                        <span className={styles.heroDesktopLatestModel}>
-                          {[listing.brand, listing.model].filter(Boolean).join(" ") || listing.category || "Varaosa"}
-                        </span>
-                        <span className={styles.heroDesktopLatestMeta} data-home-latest-meta>
-                          <span className={styles.cardLocationMeta} data-home-latest-location>
-                            {countryFlag ? (
-                              <img
-                                className={styles.listingCountryFlag}
-                                src={countryFlag.src}
-                                alt=""
-                                aria-hidden="true"
-                                loading="lazy"
-                              />
-                            ) : null}
-                            {formatLocationWithCountry(listing.location, t.country, locale)}
-                          </span>
-                          <span className={styles.cardDateMeta} data-home-latest-date>
-                            <Clock3 size={14} aria-hidden="true" />
-                            {formatDate(listing.created_at)}
-                          </span>
-                        </span>
+                            <span data-home-latest-heart aria-hidden="true">♥</span>
+                          </button>}
+                        </div>
+                        <div className={`${styles.cardBody} ${styles.heroDesktopLatestBody}`}>
+                          <p data-home-latest-price className={`${styles.cardPrice} ${styles.heroDesktopLatestPrice}`}>{formatPrice(listing.price)}</p>
+                          <h3 className={`${styles.cardTitle} ${styles.heroDesktopLatestTop}`}>{listingText.title}</h3>
+                          <div className={`${styles.cardMetaRow} ${styles.heroDesktopLatestMeta}`} data-home-latest-meta>
+                            <span className={styles.cardLocationMeta} data-home-latest-location>
+                              {countryFlag ? (
+                                <img
+                                  className={styles.listingCountryFlag}
+                                  src={countryFlag.src}
+                                  alt=""
+                                  aria-hidden="true"
+                                  loading="lazy"
+                                />
+                              ) : null}
+                              {formatLocationWithCountry(listing.location, t.country, locale)}
+                            </span>
+                            <span className={styles.cardDateMeta} data-home-latest-date>
+                              <Clock3 size={14} aria-hidden="true" />
+                              {formatDate(listing.created_at)}
+                            </span>
+                          </div>
+                        </div>
                       </article>
                     );
                   })}
                 </div>
+                )}
               </div>
               {!homeLatestExpanded ? (
-                <div className={styles.heroReferenceBenefits} aria-label="Palvelun edut">
+                <div data-home-benefits className={styles.heroReferenceBenefits} aria-label="Palvelun edut">
                   <span>
-                    <ShieldCheck size={30} aria-hidden="true" />
-                    <strong>Turvallista kaupankäyntiä</strong>
-                    <small>Varmista turvallinen kauppa ilmoitusten avulla.</small>
+                    <span className={styles.heroBenefitIcon} aria-hidden="true">
+                      <img src="/icons/benefit-shield-check.svg" alt="" width={24} height={24} />
+                    </span>
+                    <strong>Turvalliset yhteydenotot</strong>
+                    <small>Ostajan ja myyjän tiedot yhdessä paikassa.</small>
                   </span>
                   <span>
-                    <Gift size={30} aria-hidden="true" />
-                    <strong>Ilmainen käyttää kaikille</strong>
-                    <small>Selaa ja julkaise ilmoituksia maksutta.</small>
+                    <span className={styles.heroBenefitIcon} aria-hidden="true">
+                      <img src="/icons/benefit-gift.svg" alt="" width={24} height={24} />
+                    </span>
+                    <strong>Ei listausmaksua</strong>
+                    <small>Julkaisu ja selaaminen on ilmaista.</small>
                   </span>
                   <span>
-                    <Search size={30} aria-hidden="true" />
-                    <strong>Helppo ja nopea</strong>
-                    <small>Löydä, vertaa ja osta vaivattomasti.</small>
+                    <span className={styles.heroBenefitIcon} aria-hidden="true">
+                      <img src="/icons/benefit-clock.svg" alt="" width={24} height={24} />
+                    </span>
+                    <strong>Myyntiin 2 minuutissa</strong>
+                    <small>Lisää kuvat, hinta ja tiedot nopeasti.</small>
                   </span>
                   <span>
-                    <Check size={30} aria-hidden="true" />
-                    <strong>Apua saatavilla</strong>
-                    <small>Asiakastuki auttaa sinua jokaisessa vaiheessa.</small>
+                    <span className={styles.heroBenefitIcon} aria-hidden="true">
+                      <img src="/icons/benefit-check.svg" alt="" width={24} height={24} />
+                    </span>
+                    <strong>Tuki mukana</strong>
+                    <small>Apua ilmoituksesta onnistuneisiin kauppoihin.</small>
                   </span>
                 </div>
+              ) : null}
+              {!homeLatestExpanded ? (
+                <>
+                  <div data-home-marketplace-stats className={styles.heroMarketplaceStats} aria-label="Markkinapaikan tunnusluvut">
+                    <span className={styles.heroMarketplaceStat}>
+                      <span className={styles.heroMarketplaceStatIcon} aria-hidden="true"><ShieldCheck /></span>
+                      <span className={styles.heroMarketplaceStatCopy}>
+                        <span className={styles.heroMarketplaceStatValue}>{(homeMarketplaceStats?.activeListings ?? listingsTotalCount ?? listings.length).toLocaleString("fi-FI")}</span>
+                        <strong>varaosailmoitusta</strong>
+                        <small>Aktiivisia ilmoituksia</small>
+                      </span>
+                    </span>
+                    <span className={styles.heroMarketplaceStat}>
+                      <span className={styles.heroMarketplaceStatIcon} aria-hidden="true"><UserRound /></span>
+                      <span className={styles.heroMarketplaceStatCopy}>
+                        <span className={styles.heroMarketplaceStatValue}>{(homeMarketplaceStats?.activeSellers ?? new Set(listings.map((listing) => listing.seller_id).filter(Boolean)).size).toLocaleString("fi-FI")}</span>
+                        <strong>myyjää</strong>
+                        <small>Tunnistettuja myyjiä</small>
+                      </span>
+                    </span>
+                    <span className={styles.heroMarketplaceStat}>
+                      <span className={styles.heroMarketplaceStatIcon} aria-hidden="true"><MapPin /></span>
+                      <span className={styles.heroMarketplaceStatCopy}>
+                        <span className={styles.heroMarketplaceStatValue}>{(homeMarketplaceStats?.listingCountries ?? new Set(listings.map((listing) => listing.location.split(",").at(-1)?.trim()).filter(Boolean)).size).toLocaleString("fi-FI")}</span>
+                        <strong>maata</strong>
+                        <small>Ilmoitusten määrä</small>
+                      </span>
+                    </span>
+                  </div>
+                  <div data-home-sell-callout className={styles.heroSellCallout}>
+                    <span className={styles.heroSellCalloutIcon}><Package size={26} aria-hidden="true" /></span>
+                    <span><strong>Listaa ajoneuvosi varaosat myyntiin jopa kahdessa minuutissa</strong><small>Lisää kuvat ja tiedot helposti — tavoita ostajat ympäri Suomen.</small></span>
+                    <Link href="/sell">Aloita myynti</Link>
+                  </div>
+                </>
               ) : null}
             </div>
 
@@ -3669,26 +3903,20 @@ function HomeContent() {
 
             {(!compactHeroSearch || homeSearchPanelOpen) ? (
             <aside
-              className={`${styles.heroRightRail} ${
-                homeSearchPanelOpen ? styles.heroRightRailOpen : styles.heroRightRailClosed
-              } ${compactHeroSearch ? styles.mobileFilterSheet : ""} ${
+              className={`${styles.heroRightRail} ${styles.heroRightRailOpen} ${compactHeroSearch ? styles.mobileFilterSheet : ""} ${
                 compactHeroSearch && mobileFilterExpanded ? styles.mobileFilterSheetExpanded : ""
               }`}
               style={
                 compactHeroSearch
                   ? ({ "--mobile-sheet-offset": `${mobileFilterDragOffset}px` } as CSSProperties)
-                  : homeSearchPanelOpen ? {
+                  : {
                     maxWidth: "410px",
                     right: 0,
                     width: "410px"
-                  } as CSSProperties : {
-                    maxWidth: "22px",
-                    right: 0,
-                    width: "22px"
                   } as CSSProperties
               }
             >
-              {homeSearchPanelOpen ? (
+              {(!compactHeroSearch || homeSearchPanelOpen) ? (
                 <>
                   {compactHeroSearch ? (
                     <>
@@ -3721,19 +3949,6 @@ function HomeContent() {
                         onPointerDown={(event) => event.stopPropagation()}
                         onTouchStart={(event) => event.stopPropagation()}
                       >
-                        <label className={styles.mobileSheetField}>
-                          <span>Ilmoituksen ID</span>
-                          <input
-                            value={identifierQuery}
-                            onChange={(event) => {
-                              setIdentifierQuery(event.target.value);
-                              afterHeroFilterChange();
-                            }}
-                            placeholder="Hae esim. ID 40"
-                            spellCheck={false}
-                          />
-                        </label>
-
                         {heroFilterFields.slice(0, 4).map((field) => (
                           <div key={`mobile-${field.key}`} className={styles.mobileSheetField}>
                             <span>{field.label}</span>
@@ -3962,37 +4177,10 @@ function HomeContent() {
                   ) : null}
                   <div className={styles.heroRailHeader}>
                     <strong>Suodata hakua</strong>
+                    <button type="button" className={styles.heroRailHeaderClear} onClick={clearListingFilters}>
+                      Tyhjennä
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    className={styles.heroRailEdgeToggle}
-                    aria-label="Pienennä hakupalkki reunaan"
-                    onClickCapture={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      event.nativeEvent.stopImmediatePropagation();
-                      window.setTimeout(() => setHomeSearchPanelOpen(false), 0);
-                    }}
-                    onPointerDown={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      event.nativeEvent.stopImmediatePropagation();
-                      setHomeSearchPanelOpen(false);
-                    }}
-                    onPointerUp={(event) => {
-                      event.stopPropagation();
-                    }}
-                    onMouseDown={(event) => {
-                      event.stopPropagation();
-                    }}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      window.setTimeout(() => setHomeSearchPanelOpen(false), 0);
-                    }}
-                  >
-                    <ChevronRight size={18} aria-hidden="true" />
-                  </button>
                   <div className={styles.heroSearchPanel}>
                     <div className={styles.heroSearchRow}>
                       <form
@@ -4012,7 +4200,7 @@ function HomeContent() {
                         <input
                           className={styles.heroSearchInput}
                           type="search"
-                          placeholder={compactHeroSearch ? "Hae varaosia tai mallia" : t.searchPlaceholder}
+                          placeholder="Hae varaosia, merkkiä, mallia tai ID:tä..."
                           value={query}
                           onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
                           aria-label={t.searchLabel}
@@ -4030,25 +4218,6 @@ function HomeContent() {
                     </div>
 
                     <div className={styles.heroFilterStack} aria-label="Hakuehdot">
-                      <label className={styles.heroIdentifierField}>
-                        <span className={styles.heroFilterLabel}>Ilmoituksen ID</span>
-                        <input
-                          className={styles.heroFilterInput}
-                          value={identifierQuery}
-                          onChange={(event) => {
-                            setIdentifierQuery(event.target.value);
-                            afterHeroFilterChange();
-                          }}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter") {
-                              event.preventDefault();
-                              applyListingFilters();
-                            }
-                          }}
-                          placeholder="Hae esim. ID 40"
-                          spellCheck={false}
-                        />
-                      </label>
                       {heroRailFilterFields.map((field) => (
                         <div key={field.key} className={styles.heroFilterFieldWrap}>
                           <span className={styles.heroFilterLabel}>{field.label}</span>
@@ -4380,39 +4549,7 @@ function HomeContent() {
                     </div>
                   </div>
                 </>
-              ) : (
-                <button
-                  type="button"
-                  className={styles.heroRailClosedButton}
-                  aria-label="Avaa hakupalkki"
-                  onClickCapture={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    event.nativeEvent.stopImmediatePropagation();
-                    window.setTimeout(() => setHomeSearchPanelOpen(true), 0);
-                  }}
-                  onPointerDown={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    event.nativeEvent.stopImmediatePropagation();
-                    setHomeSearchPanelOpen(true);
-                  }}
-                  onPointerUp={(event) => {
-                    event.stopPropagation();
-                  }}
-                  onMouseDown={(event) => {
-                    event.stopPropagation();
-                  }}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    window.setTimeout(() => setHomeSearchPanelOpen(true), 0);
-                  }}
-                >
-                  <ChevronLeft size={18} aria-hidden="true" />
-                  <span>Haku</span>
-                </button>
-              )}
+              ) : null}
             </aside>
             ) : null}
 
@@ -4477,7 +4614,7 @@ function HomeContent() {
                             src={listingImageSrc(listing)}
                             alt={listingText.title}
                           />
-                          <button
+                          {canUseFavorites && <button
                             onClick={(e) => toggleFavorite(e, listing.id)}
                             onMouseDown={(e) => e.stopPropagation()}
                             onPointerDown={(e) => e.stopPropagation()}
@@ -4487,7 +4624,7 @@ function HomeContent() {
                             aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
                           >
                             <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
-                          </button>
+                          </button>}
                         </div>
                         <div className={styles.cardBody}>
                           <p className={styles.cardPrice}>{formatPrice(listing.price)}</p>
@@ -4550,6 +4687,48 @@ function HomeContent() {
             className={styles.listingsPlainContainer}
             style={{ background: "transparent", border: 0, borderRadius: 0, boxShadow: "none" }}
           >
+            <form
+              data-catalog-desktop-search
+              role="search"
+              aria-label="Hae hakutuloksista"
+              onSubmit={(event) => {
+                event.preventDefault();
+                applyListingFilters();
+              }}
+            >
+              <Search size={20} aria-hidden="true" />
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => {
+                  setQuery(event.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Hae varaosia, merkkiä, mallia tai ID:tä..."
+                aria-label="Hakusana"
+                spellCheck={false}
+                autoCorrect="off"
+                autoCapitalize="none"
+              />
+              {query ? (
+                <button
+                  type="button"
+                  data-catalog-search-clear
+                  aria-label="Tyhjennä hakusana"
+                  onClick={() => {
+                    setQuery("");
+                    setAppliedListingFilters((current) => ({ ...current, query: "" }));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <X size={17} aria-hidden="true" />
+                </button>
+              ) : null}
+              <button type="submit" data-catalog-search-submit>
+                <Search size={18} aria-hidden="true" />
+                <span>Hae</span>
+              </button>
+            </form>
             <div className={styles.appliedFilterActions} aria-label="Suodatetun haun toiminnot">
               <button
                 type="button"
@@ -4656,7 +4835,7 @@ function HomeContent() {
                           {t.newBadge}
                         </span>
                       )}
-                      <button
+                      {canUseFavorites && <button
                         onClick={(e) => toggleFavorite(e, listing.id)}
                         onMouseDown={(e) => e.stopPropagation()}
                         onPointerDown={(e) => e.stopPropagation()}
@@ -4671,7 +4850,7 @@ function HomeContent() {
                           size={14}
                           fill={isFavorite ? "currentColor" : "none"}
                         />
-                      </button>
+                      </button>}
                     </div>
 
                     <div className={styles.cardBody}>

@@ -1011,14 +1011,29 @@ export default function UniversalTopbar() {
         </div>
       )}
       <nav className="universal-home-primary-nav" aria-label="Päänavigaatio" ref={topbarDropdownRef}>
-        <Link href="/" className={isActiveRoute("/") ? "is-active" : ""}>
-          <Home size={18} aria-hidden="true" />
-          Etusivu
-        </Link>
-        <Link href={garageHref} className={isActiveRoute("/garage") ? "is-active" : ""}>Oma talli</Link>
-        <Link href={searchAlertsHref} className={isActiveRoute("/search-alerts") ? "is-active" : ""}>Hakuvahti</Link>
-        <Link href={aboutHref} className={isActiveRoute("/about") ? "is-active" : ""}>Tietoa meistä</Link>
-        <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>Ohjeet</Link>
+        {isHomePage ? (
+          <>
+            <Link href="/" className="is-active">
+              <Home size={18} aria-hidden="true" />
+              Etusivu
+            </Link>
+            <Link href={garageHref}>Oma talli</Link>
+            <Link href={searchAlertsHref}>Hakuvahti</Link>
+            <Link href={aboutHref}>Tietoa meistä</Link>
+            <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>Ohjeet</Link>
+          </>
+        ) : (
+          <>
+            <Link href="/" className={isActiveRoute("/") ? "is-active" : ""}>
+              <Home size={18} aria-hidden="true" />
+              Etusivu
+            </Link>
+            <Link href={garageHref} className={isActiveRoute("/garage") ? "is-active" : ""}>Oma talli</Link>
+            <Link href={searchAlertsHref} className={isActiveRoute("/search-alerts") ? "is-active" : ""}>Hakuvahti</Link>
+            <Link href={aboutHref} className={isActiveRoute("/about") ? "is-active" : ""}>Tietoa meistä</Link>
+            <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>Ohjeet</Link>
+          </>
+        )}
       </nav>
     </div>
   );
@@ -1111,6 +1126,14 @@ export default function UniversalTopbar() {
           onPointerDown={(event) => event.stopPropagation()}
           onClick={(event) => event.stopPropagation()}
         >
+          <button
+            type="button"
+            className="universal-profile-menu-close"
+            aria-label="Sulje profiilivalikko"
+            onClick={() => setProfileOpen(false)}
+          >
+            <X size={17} strokeWidth={2.5} aria-hidden="true" />
+          </button>
           {userId ? (
             <>
               <div className="universal-profile-menu-head" aria-hidden="true">

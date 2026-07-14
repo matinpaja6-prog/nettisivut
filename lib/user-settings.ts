@@ -1,4 +1,4 @@
-import { DEFAULT_APPEARANCE, type SiteAppearance } from "@/lib/site-appearance";
+import { DEFAULT_APPEARANCE } from "@/lib/site-appearance";
 
 export type UserSettings = {
   notificationsEnabled: boolean;
@@ -60,25 +60,6 @@ export function applyUserBackgroundColor(color: string) {
   root.style.setProperty("--site-bg", color);
   root.style.setProperty("--app-page-bg", "none");
 
-  document.body?.style.setProperty("background", color, "important");
-  document.body?.style.setProperty("background-color", color, "important");
-  document.querySelectorAll<HTMLElement>("main").forEach((mainElement) => {
-    mainElement.style.setProperty("background", color, "important");
-    mainElement.style.setProperty("background-color", color, "important");
-  });
-
-  try {
-    const cached = JSON.parse(localStorage.getItem("arctic-appearance-cache-v1") ?? "{}") as Partial<SiteAppearance>;
-    localStorage.setItem(
-      "arctic-appearance-cache-v1",
-      JSON.stringify({
-        ...cached,
-        background_color: color,
-        text_color: textColor,
-        muted_color: mutedColor
-      })
-    );
-  } catch {}
 }
 
 function isLightColor(color: string) {

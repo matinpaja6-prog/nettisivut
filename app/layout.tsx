@@ -30,6 +30,8 @@ import "./styles/seller-phone-reference.css";
 import "./styles/info-pages.css";
 import "./styles/topbar-final.css";
 import "./styles/home-latest-final.css";
+import "./styles/footer-final-polish.css";
+import "./styles/home-topbar-center.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";
