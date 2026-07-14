@@ -1461,9 +1461,6 @@ function HomeContent() {
     if (!compactHeroSearch || !homeSearchPanelOpen) return;
 
     const previousBodyOverflow = document.body.style.overflow;
-    const previousBodyPosition = document.body.style.position;
-    const previousBodyTop = document.body.style.top;
-    const previousBodyWidth = document.body.style.width;
     const previousBodyTouchAction = document.body.style.touchAction;
     const previousHtmlOverflow = document.documentElement.style.overflow;
     const previousHtmlOverscrollBehavior = document.documentElement.style.overscrollBehavior;
@@ -1471,9 +1468,6 @@ function HomeContent() {
 
     document.body.dataset.homeSearchLocked = "true";
     document.body.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${lockedScrollY}px`;
-    document.body.style.width = "100%";
     document.body.style.touchAction = "none";
     document.documentElement.style.overflow = "hidden";
     document.documentElement.style.overscrollBehavior = "none";
@@ -1481,9 +1475,6 @@ function HomeContent() {
     return () => {
       delete document.body.dataset.homeSearchLocked;
       document.body.style.overflow = previousBodyOverflow;
-      document.body.style.position = previousBodyPosition;
-      document.body.style.top = previousBodyTop;
-      document.body.style.width = previousBodyWidth;
       document.body.style.touchAction = previousBodyTouchAction;
       document.documentElement.style.overflow = previousHtmlOverflow;
       document.documentElement.style.overscrollBehavior = previousHtmlOverscrollBehavior;
