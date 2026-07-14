@@ -30157,6 +30157,10 @@
 
 /* Keep the compact listing sort pill against the phone's right edge. */
 @media (max-width: 760px) {
+  .heroDesktopLatestSort {
+    transform: translateX(4px) !important;
+  }
+
   .sortControlRebuilt {
     justify-items: end !important;
   }
@@ -30472,24 +30476,17 @@
 
 /* Phone hero action opens the filter sheet; make that purpose explicit. */
 @media (max-width: 720px) {
-  :global(html body):has(.mobileFilterSheet) .heroWrap {
-    isolation: isolate !important;
-    overflow: visible !important;
-    position: relative !important;
-    z-index: 2147483647 !important;
-  }
-
   :global(html body):has(.mobileFilterSheet) :global(.bottom-nav.bottom-nav-main) {
     display: none !important;
   }
 
-  :global(html body) .mobileFilterBackdrop {
-    z-index: 1000 !important;
+  :global(html body) > .mobileFilterBackdrop {
+    z-index: 2147483646 !important;
   }
 
-  :global(html body) .heroRightRail.mobileFilterSheet,
-  :global(html body) .heroRightRailOpen.mobileFilterSheet {
-    z-index: 1001 !important;
+  :global(html body) > .heroRightRail.mobileFilterSheet,
+  :global(html body) > .heroRightRailOpen.mobileFilterSheet {
+    z-index: 2147483647 !important;
   }
 
   :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {

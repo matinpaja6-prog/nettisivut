@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import { Fragment, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { Fragment, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -1309,6 +1310,14 @@ function withTimeout<T>(
 /* ======================================================
    COMPONENT
 ====================================================== */
+
+function BodyPortal({ enabled, children }: { enabled: boolean; children: ReactNode }) {
+  if (enabled && typeof document !== "undefined") {
+    return createPortal(children, document.body);
+  }
+
+  return <>{children}</>;
+}
 
 export default function Home() {
   return (
@@ -4153,6 +4162,7 @@ function HomeContent() {
               ) : null}
             </div>
 
+            <BodyPortal enabled={compactHeroSearch && homeSearchPanelOpen}>
             {compactHeroSearch && homeSearchPanelOpen ? (
               <button
                 type="button"
@@ -4904,6 +4914,7 @@ function HomeContent() {
               ) : null}
             </aside>
             ) : null}
+            </BodyPortal>
 
           </div>
         </section>
