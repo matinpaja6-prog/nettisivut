@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { Fragment, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -28,7 +28,6 @@ import {
   SlidersHorizontal,
   TrendingDown,
   TrendingUp,
-  UserRound,
   Wrench,
   Zap,
   X
@@ -92,38 +91,93 @@ import { getCategoryVehicleKey } from "./components/CategoryDrawer";
 
 type Locale = "fi" | "en" | "sv" | "no" | "et";
 
-type HomeMarketplaceStats = {
-  activeListings: number;
-  activeSellers: number;
-  listingCountries: number;
-};
-
 const HOME_RETURN_STATE_KEY = "home_return_state_v1";
 const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
+const CUSTOM_TRACK_MAT_DIMENSION_VALUE = "__custom_track_mat_dimension__";
 const TRACK_MAT_DIMENSION_OPTIONS = [
   "307 cm x 38 cm x 6,4 cm / 121 x 15 x 2.52\"",
+  "307 cm x 38 cm x 7,3 cm / 121 x 15 x 2.86\"",
   "307 cm x 41 cm x 6,4 cm / 121 x 16 x 2.52\"",
+  "325 cm x 34 cm x 6,4 cm / 128 x 13.5 x 2.52\"",
+  "325 cm x 36 cm x 6,4 cm / 128 x 14 x 2.52\"",
   "325 cm x 38 cm x 6,4 cm / 128 x 15 x 2.52\"",
+  "328 cm x 38 cm x 7,3 cm / 129 x 15 x 2.86\"",
+  "339 cm x 38 cm x 6,4 cm / 133.5 x 15 x 2.52\"",
   "345 cm x 38 cm x 6,4 cm / 136 x 15 x 2.52\"",
+  "345 cm x 38 cm x 7,3 cm / 136 x 15 x 2.86\"",
   "348 cm x 38 cm x 7,3 cm / 137 x 15 x 2.86\"",
+  "348 cm x 41 cm x 7,3 cm / 137 x 16 x 2.86\"",
   "358 cm x 38 cm x 6,4 cm / 141 x 15 x 2.52\"",
+  "358 cm x 38 cm x 7,6 cm / 141 x 15 x 3.00\"",
   "366 cm x 34 cm x 6,4 cm / 144 x 13.5 x 2.52\"",
   "366 cm x 36 cm x 6,4 cm / 144 x 14 x 2.52\"",
   "366 cm x 38 cm x 6,4 cm / 144 x 15 x 2.52\"",
+  "366 cm x 38 cm x 7,3 cm / 144 x 15 x 2.86\"",
   "371 cm x 38 cm x 7,3 cm / 146 x 15 x 2.86\"",
+  "371 cm x 41 cm x 7,3 cm / 146 x 16 x 2.86\"",
   "383 cm x 38 cm x 6,4 cm / 151 x 15 x 2.52\"",
+  "389 cm x 38 cm x 7,6 cm / 153 x 15 x 3.00\"",
   "391 cm x 38 cm x 7,3 cm / 154 x 15 x 2.86\"",
   "391 cm x 41 cm x 7,3 cm / 154 x 16 x 2.86\"",
+  "391 cm x 41 cm x 7,6 cm / 154 x 16 x 3.00\"",
   "391 cm x 51 cm x 6,4 cm / 154 x 20 x 2.52\"",
+  "391 cm x 51 cm x 7,3 cm / 154 x 20 x 2.86\"",
   "396 cm x 38 cm x 6,4 cm / 156 x 15 x 2.52\"",
+  "396 cm x 38 cm x 7,6 cm / 156 x 15 x 3.00\"",
   "396 cm x 41 cm x 6,4 cm / 156 x 16 x 2.52\"",
   "396 cm x 51 cm x 6,4 cm / 156 x 20 x 2.52\"",
+  "396 cm x 61 cm x 6,4 cm / 156 x 24 x 2.52\"",
+  "404 cm x 38 cm x 6,4 cm / 159 x 15 x 2.52\"",
+  "411 cm x 38 cm x 7,3 cm / 162 x 15 x 2.86\"",
   "411 cm x 38 cm x 7,6 cm / 162 x 15 x 3.00\"",
+  "414 cm x 41 cm x 7,3 cm / 163 x 16 x 2.86\"",
   "414 cm x 41 cm x 7,6 cm / 163 x 16 x 3.00\"",
   "419 cm x 38 cm x 7,6 cm / 165 x 15 x 3.00\"",
+  "419 cm x 38 cm x 8,9 cm / 165 x 15 x 3.50\"",
   "442 cm x 38 cm x 7,6 cm / 174 x 15 x 3.00\"",
+  "442 cm x 38 cm x 8,9 cm / 174 x 15 x 3.50\"",
   "445 cm x 38 cm x 7,6 cm / 175 x 15 x 3.00\""
 ];
+
+const TRACK_MAT_DIMENSIONS = TRACK_MAT_DIMENSION_OPTIONS.map((value) => {
+  const [metricValue, imperialValueWithQuote = ""] = value.split(" / ");
+  const [lengthCm = "", widthCm = "", pitchCm = ""] = metricValue.split(" x ");
+  const [lengthInch = "", widthInch = "", pitchInch = ""] = imperialValueWithQuote
+    .replace(/\"$/, "")
+    .split(" x ");
+
+  return {
+    value,
+    lengthCm,
+    widthCm,
+    pitchCm,
+    lengthInch,
+    widthInch,
+    pitchInch
+  };
+});
+
+type TrackMatDimension = (typeof TRACK_MAT_DIMENSIONS)[number];
+
+function uniqueTrackMatChoices(
+  dimensions: readonly TrackMatDimension[],
+  getMetric: (dimension: TrackMatDimension) => string,
+  getImperial: (dimension: TrackMatDimension) => string
+) {
+  const choices = new Map<string, string>();
+
+  for (const dimension of dimensions) {
+    const metric = getMetric(dimension);
+    if (!metric || choices.has(metric)) continue;
+    choices.set(metric, `${metric} / ${getImperial(dimension)}\"`);
+  }
+
+  return Array.from(choices, ([value, label]) => ({ value, label }));
+}
+
+function findTrackMatDimension(value: string) {
+  return TRACK_MAT_DIMENSIONS.find((dimension) => dimension.value === value);
+}
 
 function isPublicListing(listing: Listing) {
   return !listing.is_sold && !listing.is_hidden;
@@ -867,6 +921,29 @@ type AppliedListingFilters = {
   garageFilterId: string;
 };
 
+function hasAppliedFilters(filters: AppliedListingFilters) {
+  return (
+    Boolean(filters.vehicleType) ||
+    Boolean(filters.query.trim()) ||
+    filters.selectedBrand !== "Kaikki" ||
+    Boolean(filters.vehicleSubtype.trim()) ||
+    Boolean(filters.category) ||
+    Boolean(filters.subcategory) ||
+    Boolean(filters.garageFilterId) ||
+    Boolean(filters.modelQuery.trim()) ||
+    Boolean(filters.identifierQuery.trim()) ||
+    Boolean(filters.locationQuery.trim()) ||
+    Boolean(filters.yearQuery.trim()) ||
+    Boolean(filters.yearMinQuery.trim()) ||
+    Boolean(filters.yearMaxQuery.trim()) ||
+    Boolean(filters.engineCcQuery.trim()) ||
+    Boolean(filters.engineModelQuery.trim()) ||
+    Boolean(filters.trackMatDimensionQuery.trim()) ||
+    filters.minPrice !== 0 ||
+    filters.maxPrice !== 100000
+  );
+}
+
 const modelPlaceholders: Record<string, string> = {
   Moottorikelkka: "e.g. Lynx 600",
   Mönkijä: "e.g. Can-Am Outlander",
@@ -1278,7 +1355,6 @@ function HomeContent() {
   const [listings, setListings] = useState<Listing[]>(fallbackListings);
   const [listingsLoading, setListingsLoading] = useState(fallbackListings.length === 0);
   const [listingsTotalCount, setListingsTotalCount] = useState<number | null>(null);
-  const [homeMarketplaceStats, setHomeMarketplaceStats] = useState<HomeMarketplaceStats | null>(null);
 
   const [favorites, setFavorites] = useState<string[]>([]);
 
@@ -1299,7 +1375,12 @@ function HomeContent() {
   const [pageJumpValue, setPageJumpValue] = useState("");
   const [pageJumpOpen, setPageJumpOpen] = useState(false);
   const [mobilePagination, setMobilePagination] = useState(false);
+  const [mobileLatestVisibleCount, setMobileLatestVisibleCount] = useState(10);
+  const [desktopLatestVisibleCount, setDesktopLatestVisibleCount] = useState(8);
   const PAGE_SIZE = 40;
+  const MOBILE_LISTINGS_INCREMENT = 10;
+  const DESKTOP_INITIAL_LISTINGS_COUNT = 8;
+  const DESKTOP_LISTINGS_INCREMENT = 16;
   const RECOMMENDED_PREVIEW_SIZE = 4;
   const INITIAL_LISTING_FETCH_LIMIT = 240;
   const YEAR_FILTER_MIN = MARKETPLACE_YEAR_FILTER_MIN;
@@ -1319,7 +1400,22 @@ function HomeContent() {
   const [yearMaxQuery, setYearMaxQuery] = useState("");
   const [engineCcQuery, setEngineCcQuery] = useState("");
   const [engineModelQuery, setEngineModelQuery] = useState("");
+  const [trackMatLengthQuery, setTrackMatLengthQuery] = useState("");
+  const [trackMatLengthCustomQuery, setTrackMatLengthCustomQuery] = useState("");
+  const [trackMatWidthQuery, setTrackMatWidthQuery] = useState("");
+  const [trackMatWidthCustomQuery, setTrackMatWidthCustomQuery] = useState("");
+  const [trackMatPitchQuery, setTrackMatPitchQuery] = useState("");
+  const [trackMatPitchCustomQuery, setTrackMatPitchCustomQuery] = useState("");
   const [trackMatDimensionQuery, setTrackMatDimensionQuery] = useState("");
+  const effectiveTrackMatLengthQuery = trackMatLengthQuery === CUSTOM_TRACK_MAT_DIMENSION_VALUE
+    ? trackMatLengthCustomQuery.trim()
+    : trackMatLengthQuery;
+  const effectiveTrackMatWidthQuery = trackMatWidthQuery === CUSTOM_TRACK_MAT_DIMENSION_VALUE
+    ? trackMatWidthCustomQuery.trim()
+    : trackMatWidthQuery;
+  const effectiveTrackMatPitchQuery = trackMatPitchQuery === CUSTOM_TRACK_MAT_DIMENSION_VALUE
+    ? trackMatPitchCustomQuery.trim()
+    : trackMatPitchQuery;
 
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(100000);
@@ -1455,6 +1551,12 @@ function HomeContent() {
           yearMaxQuery,
           engineCcQuery,
           engineModelQuery,
+          trackMatLengthQuery,
+          trackMatLengthCustomQuery,
+          trackMatWidthQuery,
+          trackMatWidthCustomQuery,
+          trackMatPitchQuery,
+          trackMatPitchCustomQuery,
           trackMatDimensionQuery,
           minPrice,
           maxPrice,
@@ -1474,6 +1576,12 @@ function HomeContent() {
     currentPage,
     engineCcQuery,
     engineModelQuery,
+    trackMatLengthQuery,
+    trackMatLengthCustomQuery,
+    trackMatWidthQuery,
+    trackMatWidthCustomQuery,
+    trackMatPitchQuery,
+    trackMatPitchCustomQuery,
     trackMatDimensionQuery,
     garageFilter?.id,
     identifierQuery,
@@ -1537,6 +1645,12 @@ function HomeContent() {
         yearMaxQuery?: string;
         engineCcQuery?: string;
         engineModelQuery?: string;
+        trackMatLengthQuery?: string;
+        trackMatLengthCustomQuery?: string;
+        trackMatWidthQuery?: string;
+        trackMatWidthCustomQuery?: string;
+        trackMatPitchQuery?: string;
+        trackMatPitchCustomQuery?: string;
         trackMatDimensionQuery?: string;
         minPrice?: number;
         maxPrice?: number;
@@ -1563,6 +1677,13 @@ function HomeContent() {
       setYearMaxQuery(saved.yearMaxQuery ?? "");
       setEngineCcQuery(saved.engineCcQuery ?? "");
       setEngineModelQuery(saved.engineModelQuery ?? "");
+      const savedTrackMatDimension = findTrackMatDimension(saved.trackMatDimensionQuery ?? "");
+      setTrackMatLengthQuery(saved.trackMatLengthQuery ?? savedTrackMatDimension?.lengthCm ?? "");
+      setTrackMatLengthCustomQuery(saved.trackMatLengthCustomQuery ?? "");
+      setTrackMatWidthQuery(saved.trackMatWidthQuery ?? savedTrackMatDimension?.widthCm ?? "");
+      setTrackMatWidthCustomQuery(saved.trackMatWidthCustomQuery ?? "");
+      setTrackMatPitchQuery(saved.trackMatPitchQuery ?? savedTrackMatDimension?.pitchCm ?? "");
+      setTrackMatPitchCustomQuery(saved.trackMatPitchCustomQuery ?? "");
       setTrackMatDimensionQuery(saved.trackMatDimensionQuery ?? "");
       setMinPrice(typeof saved.minPrice === "number" ? saved.minPrice : 0);
       setMaxPrice(typeof saved.maxPrice === "number" ? saved.maxPrice : 100000);
@@ -1696,6 +1817,12 @@ function HomeContent() {
     setYearMaxQuery("");
     setEngineCcQuery("");
     setEngineModelQuery("");
+    setTrackMatLengthQuery("");
+    setTrackMatLengthCustomQuery("");
+    setTrackMatWidthQuery("");
+    setTrackMatWidthCustomQuery("");
+    setTrackMatPitchQuery("");
+    setTrackMatPitchCustomQuery("");
     setTrackMatDimensionQuery("");
     setCategory("");
     setSubcategory("");
@@ -1800,6 +1927,17 @@ function HomeContent() {
   }, []);
 
   function applyListingFilters() {
+    if (trackMatDimensionFieldVisible && !trackMatDimensionQuery) {
+      const nextRequiredField = !effectiveTrackMatLengthQuery
+        ? "trackMatLength"
+        : !effectiveTrackMatWidthQuery
+          ? "trackMatWidth"
+          : "trackMatPitch";
+      setActiveHeroFilter(nextRequiredField);
+      setMobileFilterExpanded(true);
+      return false;
+    }
+
     setAppliedListingFilters({
       query,
       category,
@@ -1832,6 +1970,7 @@ function HomeContent() {
         block: "start"
       });
     });
+    return true;
   }
 
   const activeFilterSignature = useMemo(() => (
@@ -1848,6 +1987,8 @@ function HomeContent() {
 
   useEffect(() => {
     setCurrentPage(1);
+    setMobileLatestVisibleCount(MOBILE_LISTINGS_INCREMENT);
+    setDesktopLatestVisibleCount(DESKTOP_INITIAL_LISTINGS_COUNT);
   }, [activeFilterSignature]);
 
   const translateCategoryLabel = useCallback((value: string) => {
@@ -2054,26 +2195,6 @@ function HomeContent() {
       mounted = false;
     };
   }, [router]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    fetch("/api/about-stats")
-      .then((response) => {
-        if (!response.ok) throw new Error("Markkinapaikan tilastojen lataus epäonnistui.");
-        return response.json() as Promise<HomeMarketplaceStats>;
-      })
-      .then((stats) => {
-        if (!cancelled) setHomeMarketplaceStats(stats);
-      })
-      .catch(() => {
-        if (!cancelled) setHomeMarketplaceStats(null);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     const urlLocale = new URLSearchParams(window.location.search).get("lang");
@@ -2720,25 +2841,7 @@ function HomeContent() {
     Boolean(trackMatDimensionQuery.trim()) ||
     minPrice !== 0 ||
     maxPrice !== 100000;
-  const hasAppliedListingFilters =
-    Boolean(appliedListingFilters.vehicleType) ||
-    Boolean(appliedListingFilters.query.trim()) ||
-    appliedListingFilters.selectedBrand !== "Kaikki" ||
-    Boolean(appliedListingFilters.vehicleSubtype.trim()) ||
-    Boolean(appliedListingFilters.category) ||
-    Boolean(appliedListingFilters.subcategory) ||
-    Boolean(appliedListingFilters.garageFilterId) ||
-    Boolean(appliedListingFilters.modelQuery.trim()) ||
-    Boolean(appliedListingFilters.identifierQuery.trim()) ||
-    Boolean(appliedListingFilters.locationQuery.trim()) ||
-    Boolean(appliedListingFilters.yearQuery.trim()) ||
-    Boolean(appliedListingFilters.yearMinQuery.trim()) ||
-    Boolean(appliedListingFilters.yearMaxQuery.trim()) ||
-    Boolean(appliedListingFilters.engineCcQuery.trim()) ||
-    Boolean(appliedListingFilters.engineModelQuery.trim()) ||
-    Boolean(appliedListingFilters.trackMatDimensionQuery.trim()) ||
-    appliedListingFilters.minPrice !== 0 ||
-    appliedListingFilters.maxPrice !== 100000;
+  const hasAppliedListingFilters = hasAppliedFilters(appliedListingFilters);
   const showListingResultsSection =
     catalogOnlyView;
 
@@ -2943,11 +3046,15 @@ function HomeContent() {
     }
 
     const requiredListings =
-      recommendationsEnabled
-        ? currentPage === 1
-          ? RECOMMENDED_PREVIEW_SIZE
-          : (currentPage - 1) * PAGE_SIZE
-        : currentPage * PAGE_SIZE;
+      catalogOnlyView
+        ? recommendationsEnabled
+          ? currentPage === 1
+            ? RECOMMENDED_PREVIEW_SIZE
+            : (currentPage - 1) * PAGE_SIZE
+          : currentPage * PAGE_SIZE
+        : mobilePagination
+          ? mobileLatestVisibleCount
+          : desktopLatestVisibleCount;
 
     if (requiredListings <= listings.length) return;
 
@@ -2989,11 +3096,15 @@ function HomeContent() {
     };
   }, [
     canUseRemoteListingPages,
+    catalogOnlyView,
     currentPage,
+    desktopLatestVisibleCount,
     firstPageListingSlots,
     listings.length,
     listingsLoading,
     listingsTotalCount,
+    mobileLatestVisibleCount,
+    mobilePagination,
     recommendationsEnabled
   ]);
 
@@ -3092,11 +3203,19 @@ function HomeContent() {
               new Date(a.created_at ?? "").getTime()
             );
         }
-      })
-      .slice(0, 12);
+      });
   }, [filteredListings, hasAppliedListingFilters, listings, sort, userLocationTerms]);
 
-  const compactLatestListings = heroLatestListings.slice(0, homeLatestExpanded ? 12 : 8);
+  const compactLatestListings = heroLatestListings.slice(
+    0,
+    mobilePagination
+      ? mobileLatestVisibleCount
+      : desktopLatestVisibleCount
+  );
+  const latestVisibleCount = mobilePagination
+    ? mobileLatestVisibleCount
+    : desktopLatestVisibleCount;
+  const hasMoreLatestListings = compactLatestListings.length === latestVisibleCount;
   const hasNoHomeSearchResults =
     homeLatestExpanded &&
     hasAppliedListingFilters &&
@@ -3159,10 +3278,33 @@ function HomeContent() {
   );
 
   useEffect(() => {
-    if (!trackMatDimensionFieldVisible && trackMatDimensionQuery) {
+    if (!trackMatDimensionFieldVisible && (
+      trackMatLengthQuery ||
+      trackMatLengthCustomQuery ||
+      trackMatWidthQuery ||
+      trackMatWidthCustomQuery ||
+      trackMatPitchQuery ||
+      trackMatPitchCustomQuery ||
+      trackMatDimensionQuery
+    )) {
+      setTrackMatLengthQuery("");
+      setTrackMatLengthCustomQuery("");
+      setTrackMatWidthQuery("");
+      setTrackMatWidthCustomQuery("");
+      setTrackMatPitchQuery("");
+      setTrackMatPitchCustomQuery("");
       setTrackMatDimensionQuery("");
     }
-  }, [trackMatDimensionFieldVisible, trackMatDimensionQuery]);
+  }, [
+    trackMatDimensionFieldVisible,
+    trackMatDimensionQuery,
+    trackMatLengthCustomQuery,
+    trackMatLengthQuery,
+    trackMatPitchCustomQuery,
+    trackMatPitchQuery,
+    trackMatWidthCustomQuery,
+    trackMatWidthQuery
+  ]);
 
   const sharedFilterOptions = useMemo(
     () => buildMarketplaceFilterOptions({
@@ -3276,6 +3418,129 @@ function HomeContent() {
   function isTrackMatSelection(value: string) {
     return value.toLowerCase().includes("telamat");
   }
+
+  const trackMatLengthOptions = useMemo(
+    () => uniqueTrackMatChoices(
+      TRACK_MAT_DIMENSIONS,
+      (dimension) => dimension.lengthCm,
+      (dimension) => dimension.lengthInch
+    ),
+    []
+  );
+
+  const trackMatWidthOptions = useMemo(
+    () => uniqueTrackMatChoices(
+      TRACK_MAT_DIMENSIONS,
+      (dimension) => dimension.widthCm,
+      (dimension) => dimension.widthInch
+    ),
+    []
+  );
+
+  const trackMatPitchOptions = useMemo(
+    () => uniqueTrackMatChoices(
+      TRACK_MAT_DIMENSIONS,
+      (dimension) => dimension.pitchCm,
+      (dimension) => dimension.pitchInch
+    ),
+    []
+  );
+
+  useEffect(() => {
+    if (!effectiveTrackMatLengthQuery || !effectiveTrackMatWidthQuery || !effectiveTrackMatPitchQuery) {
+      setTrackMatDimensionQuery("");
+      return;
+    }
+
+    const presetDimension = TRACK_MAT_DIMENSIONS.find((dimension) =>
+      dimension.lengthCm === effectiveTrackMatLengthQuery &&
+      dimension.widthCm === effectiveTrackMatWidthQuery &&
+      dimension.pitchCm === effectiveTrackMatPitchQuery
+    );
+
+    setTrackMatDimensionQuery(
+      presetDimension?.value ??
+      `${effectiveTrackMatLengthQuery} x ${effectiveTrackMatWidthQuery} x ${effectiveTrackMatPitchQuery}`
+    );
+  }, [
+    effectiveTrackMatLengthQuery,
+    effectiveTrackMatPitchQuery,
+    effectiveTrackMatWidthQuery
+  ]);
+
+  const trackMatDimensionFields = [
+    {
+      key: "trackMatLength",
+      label: "Pituus",
+      placeholder: "Pituus",
+      value: trackMatLengthQuery,
+      displayValue: trackMatLengthQuery === CUSTOM_TRACK_MAT_DIMENSION_VALUE ? "Muu" : trackMatLengthQuery,
+      options: trackMatLengthOptions,
+      customValue: trackMatLengthCustomQuery,
+      customPlaceholder: "esim. 360 cm",
+      nextKey: "trackMatWidth",
+      onSelect: (value: string) => {
+        setTrackMatLengthQuery(value);
+        if (value !== CUSTOM_TRACK_MAT_DIMENSION_VALUE) setTrackMatLengthCustomQuery("");
+        setTrackMatWidthQuery("");
+        setTrackMatWidthCustomQuery("");
+        setTrackMatPitchQuery("");
+        setTrackMatPitchCustomQuery("");
+        setActiveHeroFilter(
+          value && value !== CUSTOM_TRACK_MAT_DIMENSION_VALUE ? "trackMatWidth" : null
+        );
+        afterHeroFilterChange();
+      },
+      onCustomChange: setTrackMatLengthCustomQuery,
+      onCustomCommit: () => {
+        if (trackMatLengthCustomQuery.trim()) setActiveHeroFilter("trackMatWidth");
+      }
+    },
+    {
+      key: "trackMatWidth",
+      label: "Leveys",
+      placeholder: "Leveys",
+      value: trackMatWidthQuery,
+      displayValue: trackMatWidthQuery === CUSTOM_TRACK_MAT_DIMENSION_VALUE ? "Muu" : trackMatWidthQuery,
+      options: trackMatWidthOptions,
+      customValue: trackMatWidthCustomQuery,
+      customPlaceholder: "esim. 38 cm",
+      nextKey: "trackMatPitch",
+      onSelect: (value: string) => {
+        setTrackMatWidthQuery(value);
+        if (value !== CUSTOM_TRACK_MAT_DIMENSION_VALUE) setTrackMatWidthCustomQuery("");
+        setTrackMatPitchQuery("");
+        setTrackMatPitchCustomQuery("");
+        setActiveHeroFilter(
+          value && value !== CUSTOM_TRACK_MAT_DIMENSION_VALUE ? "trackMatPitch" : null
+        );
+        afterHeroFilterChange();
+      },
+      onCustomChange: setTrackMatWidthCustomQuery,
+      onCustomCommit: () => {
+        if (trackMatWidthCustomQuery.trim()) setActiveHeroFilter("trackMatPitch");
+      }
+    },
+    {
+      key: "trackMatPitch",
+      label: "Jako",
+      placeholder: "Jako",
+      value: trackMatPitchQuery,
+      displayValue: trackMatPitchQuery === CUSTOM_TRACK_MAT_DIMENSION_VALUE ? "Muu" : trackMatPitchQuery,
+      options: trackMatPitchOptions,
+      customValue: trackMatPitchCustomQuery,
+      customPlaceholder: "esim. 7,3 cm",
+      nextKey: null,
+      onSelect: (value: string) => {
+        setTrackMatPitchQuery(value);
+        if (value !== CUSTOM_TRACK_MAT_DIMENSION_VALUE) setTrackMatPitchCustomQuery("");
+        setActiveHeroFilter(null);
+        afterHeroFilterChange();
+      },
+      onCustomChange: setTrackMatPitchCustomQuery,
+      onCustomCommit: () => setActiveHeroFilter(null)
+    }
+  ];
 
   const yearOptions = useMemo(() => buildMarketplaceYearOptions(), []);
 
@@ -3476,7 +3741,7 @@ function HomeContent() {
       onSelect: (value: string) => {
         setSubcategory(value);
         if (isTrackMatSelection(value)) {
-          setActiveHeroFilter("trackMatDimension");
+          setActiveHeroFilter("trackMatLength");
           window.setTimeout(() => {
             document.getElementById("mobile-track-mat-dimension")?.scrollIntoView({
               behavior: "smooth",
@@ -3484,6 +3749,12 @@ function HomeContent() {
             });
           }, 0);
         } else {
+          setTrackMatLengthQuery("");
+          setTrackMatLengthCustomQuery("");
+          setTrackMatWidthQuery("");
+          setTrackMatWidthCustomQuery("");
+          setTrackMatPitchQuery("");
+          setTrackMatPitchCustomQuery("");
           setTrackMatDimensionQuery("");
         }
         afterHeroFilterChange();
@@ -3516,8 +3787,14 @@ function HomeContent() {
             : value;
         setSubcategory(detailedValue);
         if (isTrackMatSelection(detailedValue)) {
-          setActiveHeroFilter("trackMatDimension");
+          setActiveHeroFilter("trackMatLength");
         } else {
+          setTrackMatLengthQuery("");
+          setTrackMatLengthCustomQuery("");
+          setTrackMatWidthQuery("");
+          setTrackMatWidthCustomQuery("");
+          setTrackMatPitchQuery("");
+          setTrackMatPitchCustomQuery("");
           setTrackMatDimensionQuery("");
         }
         afterHeroFilterChange();
@@ -3663,11 +3940,21 @@ function HomeContent() {
                   <button
                     type={compactHeroSearch ? "button" : "submit"}
                     className={styles.heroMainSearchButton}
+                    data-mobile-filter={compactHeroSearch ? "true" : undefined}
                     aria-label={compactHeroSearch ? "Avaa suodatus" : "Hae"}
                     onClick={handleHeroMainSearchButtonClick}
                   >
-                    <Search size={18} aria-hidden="true" />
-                    <span>Hae</span>
+                    {compactHeroSearch ? (
+                      <>
+                        <SlidersHorizontal size={18} aria-hidden="true" />
+                        <span>Suodata</span>
+                      </>
+                    ) : (
+                      <>
+                        <Search size={18} aria-hidden="true" />
+                        <span>Hae</span>
+                      </>
+                    )}
                   </button>
                 </form>
               </div>
@@ -3712,21 +3999,7 @@ function HomeContent() {
                 <div className={styles.heroDesktopLatestHead}>
                   {!homeLatestExpanded ? <strong>Viimeisimmät ilmoitukset</strong> : <span aria-hidden="true" />}
                   <div className={styles.heroDesktopLatestActions}>
-                    {homeLatestExpanded ? renderSortControl(styles.heroDesktopLatestSort) : null}
-                    {!homeLatestExpanded ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setHomeLatestExpanded(true);
-                          if (compactHeroSearch) {
-                            setHomeSearchPanelOpen(false);
-                            setMobileFilterExpanded(false);
-                          }
-                        }}
-                      >
-                        Näytä kaikki
-                      </button>
-                    ) : null}
+                    {renderSortControl(styles.heroDesktopLatestSort)}
                   </div>
                 </div>
                 ) : null}
@@ -3819,6 +4092,23 @@ function HomeContent() {
                   })}
                 </div>
                 )}
+                {hasMoreLatestListings ? (
+                  <button
+                    type="button"
+                    className={styles.latestLoadMore}
+                    onClick={() => {
+                      if (mobilePagination) {
+                        setMobileLatestVisibleCount((current) => current + MOBILE_LISTINGS_INCREMENT);
+                        return;
+                      }
+
+                      setDesktopLatestVisibleCount((current) => current + DESKTOP_LISTINGS_INCREMENT);
+                    }}
+                  >
+                    <span>Näytä lisää ilmoituksia</span>
+                    <ChevronDown strokeWidth={3} aria-hidden="true" />
+                  </button>
+                ) : null}
               </div>
               {!homeLatestExpanded ? (
                 <div data-home-benefits className={styles.heroReferenceBenefits} aria-label="Palvelun edut">
@@ -3854,32 +4144,6 @@ function HomeContent() {
               ) : null}
               {!homeLatestExpanded ? (
                 <>
-                  <div data-home-marketplace-stats className={styles.heroMarketplaceStats} aria-label="Markkinapaikan tunnusluvut">
-                    <span className={styles.heroMarketplaceStat}>
-                      <span className={styles.heroMarketplaceStatIcon} aria-hidden="true"><ShieldCheck /></span>
-                      <span className={styles.heroMarketplaceStatCopy}>
-                        <span className={styles.heroMarketplaceStatValue}>{(homeMarketplaceStats?.activeListings ?? listingsTotalCount ?? listings.length).toLocaleString("fi-FI")}</span>
-                        <strong>varaosailmoitusta</strong>
-                        <small>Aktiivisia ilmoituksia</small>
-                      </span>
-                    </span>
-                    <span className={styles.heroMarketplaceStat}>
-                      <span className={styles.heroMarketplaceStatIcon} aria-hidden="true"><UserRound /></span>
-                      <span className={styles.heroMarketplaceStatCopy}>
-                        <span className={styles.heroMarketplaceStatValue}>{(homeMarketplaceStats?.activeSellers ?? new Set(listings.map((listing) => listing.seller_id).filter(Boolean)).size).toLocaleString("fi-FI")}</span>
-                        <strong>myyjää</strong>
-                        <small>Tunnistettuja myyjiä</small>
-                      </span>
-                    </span>
-                    <span className={styles.heroMarketplaceStat}>
-                      <span className={styles.heroMarketplaceStatIcon} aria-hidden="true"><MapPin /></span>
-                      <span className={styles.heroMarketplaceStatCopy}>
-                        <span className={styles.heroMarketplaceStatValue}>{(homeMarketplaceStats?.listingCountries ?? new Set(listings.map((listing) => listing.location.split(",").at(-1)?.trim()).filter(Boolean)).size).toLocaleString("fi-FI")}</span>
-                        <strong>maata</strong>
-                        <small>Ilmoitusten määrä</small>
-                      </span>
-                    </span>
-                  </div>
                   <div data-home-sell-callout className={styles.heroSellCallout}>
                     <span className={styles.heroSellCalloutIcon}><Package size={26} aria-hidden="true" /></span>
                     <span><strong>Listaa ajoneuvosi varaosat myyntiin jopa kahdessa minuutissa</strong><small>Lisää kuvat ja tiedot helposti — tavoita ostajat ympäri Suomen.</small></span>
@@ -4116,46 +4380,89 @@ function HomeContent() {
                         ))}
 
                         {trackMatDimensionFieldVisible ? (
-                          <div id="mobile-track-mat-dimension" className={styles.mobileSheetField}>
-                            <span>Telamaton pituus</span>
-                            <button
-                              type="button"
-                              className={styles.mobileSheetSelect}
-                              onClick={(event) => toggleMobileHeroFilter(
-                                "trackMatDimension",
-                                event.currentTarget.parentElement ?? event.currentTarget
-                              )}
-                            >
-                              <strong>{trackMatDimensionQuery || "Kaikki pituudet"}</strong>
-                              <ChevronDown size={15} aria-hidden="true" />
-                            </button>
-                            {activeHeroFilter === "trackMatDimension" ? (
-                              <div className={styles.mobileSheetMenu}>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setTrackMatDimensionQuery("");
-                                    setActiveHeroFilter(null);
-                                    afterHeroFilterChange();
-                                  }}
-                                >
-                                  Kaikki pituudet
-                                </button>
-                                {TRACK_MAT_DIMENSION_OPTIONS.map((option) => (
-                                  <button
-                                    key={`mobile-track-mat-${option}`}
-                                    type="button"
-                                    onClick={() => {
-                                      setTrackMatDimensionQuery(option);
-                                      setActiveHeroFilter(null);
-                                      afterHeroFilterChange();
-                                    }}
-                                  >
-                                    {option}
-                                  </button>
-                                ))}
-                              </div>
-                            ) : null}
+                          <div id="mobile-track-mat-dimension" className={styles.trackMatDimensionGroup}>
+                            <span className={styles.trackMatDimensionGroupLabel}>Telamaton mitat *</span>
+                            <div className={styles.mobileTrackMatFields}>
+                              {trackMatDimensionFields.map((field, index) => (
+                                <Fragment key={`mobile-${field.key}`}>
+                                  <div className={`${styles.mobileSheetField} ${styles.trackMatInlineField}`}>
+                                    <span>{field.label}</span>
+                                    {field.value === CUSTOM_TRACK_MAT_DIMENSION_VALUE ? (
+                                      <div className={`${styles.mobileSheetSelect} ${styles.trackMatCustomSelect}`}>
+                                        <input
+                                          id={`mobile-${field.key}-custom`}
+                                          className={styles.trackMatCustomInput}
+                                          value={field.customValue}
+                                          onChange={(event) => field.onCustomChange(event.target.value)}
+                                          onFocus={() => setActiveHeroFilter(null)}
+                                          onBlur={field.onCustomCommit}
+                                          onKeyDown={(event) => {
+                                            if (event.key !== "Enter") return;
+                                            event.preventDefault();
+                                            field.onCustomCommit();
+                                          }}
+                                          placeholder={field.customPlaceholder}
+                                          aria-label={`Muu ${field.label.toLowerCase()}`}
+                                        />
+                                        <button
+                                          type="button"
+                                          className={styles.trackMatCustomSelectToggle}
+                                          aria-label={`Avaa ${field.label.toLowerCase()}valikko`}
+                                          onClick={(event) => toggleMobileHeroFilter(
+                                            field.key,
+                                            event.currentTarget.parentElement?.parentElement ?? event.currentTarget
+                                          )}
+                                        >
+                                          <ChevronDown size={15} aria-hidden="true" />
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        className={styles.mobileSheetSelect}
+                                        onClick={(event) => toggleMobileHeroFilter(
+                                          field.key,
+                                          event.currentTarget.parentElement ?? event.currentTarget
+                                        )}
+                                      >
+                                        <strong>{field.displayValue || field.placeholder}</strong>
+                                        <ChevronDown size={15} aria-hidden="true" />
+                                      </button>
+                                    )}
+                                    {activeHeroFilter === field.key ? (
+                                      <div className={styles.mobileSheetMenu}>
+                                        <button type="button" onClick={() => field.onSelect("")}>
+                                          {field.placeholder}
+                                        </button>
+                                        {field.options.map((option) => (
+                                          <button
+                                            key={`mobile-${field.key}-${option.value}`}
+                                            type="button"
+                                            onClick={() => field.onSelect(option.value)}
+                                          >
+                                            {option.label}
+                                          </button>
+                                        ))}
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            field.onSelect(CUSTOM_TRACK_MAT_DIMENSION_VALUE);
+                                            window.requestAnimationFrame(() => {
+                                              document.getElementById(`mobile-${field.key}-custom`)?.focus();
+                                            });
+                                          }}
+                                        >
+                                          Muu
+                                        </button>
+                                      </div>
+                                    ) : null}
+                                  </div>
+                                  {index < trackMatDimensionFields.length - 1 ? (
+                                    <span className={styles.trackMatDimensionSeparator} aria-hidden="true">x</span>
+                                  ) : null}
+                                </Fragment>
+                              ))}
+                            </div>
                           </div>
                         ) : null}
 
@@ -4163,7 +4470,7 @@ function HomeContent() {
                           <button
                             type="button"
                             onClick={() => {
-                              applyListingFilters();
+                              if (!applyListingFilters()) return;
                               setHomeSearchPanelOpen(false);
                               setMobileFilterExpanded(false);
                             }}
@@ -4452,49 +4759,97 @@ function HomeContent() {
                         </div>
                       ))}
                       {trackMatDimensionFieldVisible ? (
-                        <div className={styles.heroFilterFieldWrap}>
-                          <span className={styles.heroFilterLabel}>Telamaton koko</span>
-                          <button
-                            type="button"
-                            className={styles.heroFilterSelect}
-                            onClick={() =>
-                              setActiveHeroFilter((current) =>
-                                current === "trackMatDimension" ? null : "trackMatDimension"
-                              )
-                            }
-                          >
-                            <strong>{trackMatDimensionQuery || "Kaikki telamaton koot"}</strong>
-                            <ChevronDown size={15} aria-hidden="true" />
-                          </button>
-                          {activeHeroFilter === "trackMatDimension" ? (
-                            <div className={styles.heroFilterMenu}>
-                              <button
-                                type="button"
-                                className={styles.heroFilterMenuOption}
-                                onClick={() => {
-                                  setTrackMatDimensionQuery("");
-                                  setActiveHeroFilter(null);
-                                  afterHeroFilterChange();
-                                }}
-                              >
-                                Kaikki telamaton koot
-                              </button>
-                              {TRACK_MAT_DIMENSION_OPTIONS.map((option) => (
-                                <button
-                                  key={`track-mat-${option}`}
-                                  type="button"
-                                  className={styles.heroFilterMenuOption}
-                                  onClick={() => {
-                                    setTrackMatDimensionQuery(option);
-                                    setActiveHeroFilter(null);
-                                    afterHeroFilterChange();
-                                  }}
-                                >
-                                  {option}
-                                </button>
-                              ))}
-                            </div>
-                          ) : null}
+                        <div className={styles.trackMatDimensionGroup}>
+                          <span className={styles.trackMatDimensionGroupLabel}>Telamaton mitat *</span>
+                          <div className={styles.desktopTrackMatFields}>
+                            {trackMatDimensionFields.map((field, index) => (
+                              <Fragment key={field.key}>
+                                <div className={`${styles.heroFilterFieldWrap} ${styles.trackMatInlineField}`}>
+                                  <span className={styles.heroFilterLabel}>{field.label}</span>
+                                  {field.value === CUSTOM_TRACK_MAT_DIMENSION_VALUE ? (
+                                    <div className={`${styles.heroFilterSelect} ${styles.trackMatCustomSelect}`}>
+                                      <input
+                                        id={`desktop-${field.key}-custom`}
+                                        className={styles.trackMatCustomInput}
+                                        value={field.customValue}
+                                        onChange={(event) => field.onCustomChange(event.target.value)}
+                                        onFocus={() => setActiveHeroFilter(null)}
+                                        onBlur={field.onCustomCommit}
+                                        onKeyDown={(event) => {
+                                          if (event.key !== "Enter") return;
+                                          event.preventDefault();
+                                          field.onCustomCommit();
+                                        }}
+                                        placeholder={field.customPlaceholder}
+                                        aria-label={`Muu ${field.label.toLowerCase()}`}
+                                      />
+                                      <button
+                                        type="button"
+                                        className={styles.trackMatCustomSelectToggle}
+                                        aria-label={`Avaa ${field.label.toLowerCase()}valikko`}
+                                        onClick={() =>
+                                          setActiveHeroFilter((current) =>
+                                            current === field.key ? null : field.key
+                                          )
+                                        }
+                                      >
+                                        <ChevronDown size={15} aria-hidden="true" />
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      className={styles.heroFilterSelect}
+                                      onClick={() =>
+                                        setActiveHeroFilter((current) =>
+                                          current === field.key ? null : field.key
+                                        )
+                                      }
+                                    >
+                                      <strong>{field.displayValue || field.placeholder}</strong>
+                                      <ChevronDown size={15} aria-hidden="true" />
+                                    </button>
+                                  )}
+                                  {activeHeroFilter === field.key ? (
+                                    <div className={styles.heroFilterMenu}>
+                                      <button
+                                        type="button"
+                                        className={styles.heroFilterMenuOption}
+                                        onClick={() => field.onSelect("")}
+                                      >
+                                        {field.placeholder}
+                                      </button>
+                                      {field.options.map((option) => (
+                                        <button
+                                          key={`${field.key}-${option.value}`}
+                                          type="button"
+                                          className={styles.heroFilterMenuOption}
+                                          onClick={() => field.onSelect(option.value)}
+                                        >
+                                          {option.label}
+                                        </button>
+                                      ))}
+                                      <button
+                                        type="button"
+                                        className={styles.heroFilterMenuOption}
+                                        onClick={() => {
+                                          field.onSelect(CUSTOM_TRACK_MAT_DIMENSION_VALUE);
+                                          window.requestAnimationFrame(() => {
+                                            document.getElementById(`desktop-${field.key}-custom`)?.focus();
+                                          });
+                                        }}
+                                      >
+                                        Muu
+                                      </button>
+                                    </div>
+                                  ) : null}
+                                </div>
+                                {index < trackMatDimensionFields.length - 1 ? (
+                                  <span className={styles.trackMatDimensionSeparator} aria-hidden="true">x</span>
+                                ) : null}
+                              </Fragment>
+                            ))}
+                          </div>
                         </div>
                       ) : null}
                     </div>
@@ -4504,7 +4859,7 @@ function HomeContent() {
                         type="button"
                         className={styles.heroRailSubmit}
                         onClick={() => {
-                          applyListingFilters();
+                          if (!applyListingFilters()) return;
                           if (compactHeroSearch) {
                             setHomeSearchPanelOpen(false);
                             setMobileFilterExpanded(false);
@@ -4522,9 +4877,6 @@ function HomeContent() {
                   <div className={styles.heroLatestPanel}>
                     <div className={styles.heroLatestHeader}>
                       <strong>Uusimmat ilmoitukset</strong>
-                      {!homeLatestExpanded ? (
-                        <button type="button" onClick={showAllListings}>Näytä kaikki</button>
-                      ) : null}
                     </div>
                     <div className={styles.heroLatestGrid}>
                       {heroLatestListings.map((listing) => {
@@ -4767,16 +5119,6 @@ function HomeContent() {
                   : "Uusimmat varaosat"}
               </span>
               <div className={styles.listingToolbar}>
-                {!listingsExpanded && !listingsLoading && totalDisplayListings > displayedListings.length ? (
-                  <button
-                    type="button"
-                    className={`${styles.showMoreListingsButton} ${styles.showAllListingsInlineButton}`}
-                    onClick={showAllListings}
-                  >
-                    <span>Näytä kaikki</span>
-                    <ChevronRight size={16} strokeWidth={3} aria-hidden="true" />
-                  </button>
-                ) : null}
                 {listingsExpanded ? renderSortControl(styles.sectionSortControl) : null}
               </div>
             </div>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Award, Bell, Car, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, MessageCircle, Plus, Search, Store, UserRound, Users, Wrench } from "lucide-react";
+import { Award, Bell, Car, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, MessageCircle, Plus, Search, SlidersHorizontal, Store, UserRound, Users, Wrench } from "lucide-react";
 import {
   CHAT_NOTIFICATIONS_CHANGED_EVENT,
   getPendingPurchaseReviewRequests,
@@ -66,7 +66,6 @@ export default function BottomNav() {
   const shopHref = pagePath("shop", locale);
   const searchAlertsHref = pagePath("search-alerts", locale);
   const contactHref = pagePath("contact", locale);
-  const [unreadMessages, setUnreadMessages] = useState(0);
   const [notifCount, setNotifCount] = useState(0);
   const [reviewRequests, setReviewRequests] = useState<PurchaseReviewRequest[]>([]);
   const [alertNotifs, setAlertNotifs] = useState<AlertNotification[]>([]);
@@ -194,7 +193,6 @@ export default function BottomNav() {
       );
 
       setUnreadConvs(unread);
-      setUnreadMessages(unread.length);
     };
 
     refreshUnreadMessages();
@@ -306,7 +304,6 @@ export default function BottomNav() {
         item.id !== conversation.id
       )
     );
-    setUnreadMessages((count) => Math.max(0, count - 1));
   }
 
   const selectLocale = (nextLocale: Parameters<typeof setLocale>[0]) => {
@@ -354,10 +351,10 @@ export default function BottomNav() {
           type="button"
           className="bottom-nav-item bottom-nav-search-action"
           onClick={openCategorySearch}
-          aria-label="Hae varaosia"
+          aria-label="Suodata varaosia"
         >
-          <span className="bottom-nav-icon"><Search size={22} /></span>
-          <span className="bottom-nav-label">Hae</span>
+          <span className="bottom-nav-icon"><SlidersHorizontal size={22} /></span>
+          <span className="bottom-nav-label">Suodata</span>
         </button>
       </nav>
     );
@@ -375,10 +372,10 @@ export default function BottomNav() {
           type="button"
           className="bottom-nav-item bottom-nav-search-action"
           onClick={openCategorySearch}
-          aria-label="Hae varaosia"
+          aria-label="Suodata varaosia"
         >
-          <span className="bottom-nav-icon"><Search size={22} /></span>
-          <span className="bottom-nav-label">Hae</span>
+          <span className="bottom-nav-icon"><SlidersHorizontal size={22} /></span>
+          <span className="bottom-nav-label">Suodata</span>
         </button>
 
         <Link href={sellActionHref} className={`bottom-nav-item bottom-nav-center-action${canonicalPathname.startsWith("/sell") ? " active" : ""}`} aria-label="Luo ilmoitus">
@@ -390,7 +387,6 @@ export default function BottomNav() {
         <Link href={messagesHref} className={`bottom-nav-item${canonicalPathname.startsWith("/messages") ? " active" : ""}`}>
           <span className="bottom-nav-icon">
             <MessageCircle size={22} />
-            {unreadMessages > 0 && <span className="bottom-nav-badge">{unreadMessages > 9 ? "9+" : unreadMessages}</span>}
           </span>
           <span className="bottom-nav-label">Viestit</span>
         </Link>
@@ -453,7 +449,6 @@ export default function BottomNav() {
         <Link href={messagesHref} className={`bottom-nav-item${canonicalPathname.startsWith("/messages") ? " active" : ""}`}>
           <span className="bottom-nav-icon">
             <MessageCircle size={22} />
-            {unreadMessages > 0 && <span className="bottom-nav-badge">{unreadMessages > 9 ? "9+" : unreadMessages}</span>}
           </span>
           <span className="bottom-nav-label">Ota yhteytta</span>
         </Link>

@@ -4,7 +4,7 @@ import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, H
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { createPortal } from "react-dom";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -43,6 +43,13 @@ const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications"
 const NOTIFICATION_REFRESH_DEBOUNCE_MS = 120;
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
 const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
+const HOME_RESET_SESSION_STORAGE_KEYS = [
+  "home_return_state_v1",
+  "home_return_pending_v1",
+  "maskinesOpenHomeFilters",
+  OPEN_CATEGORY_DRAWER_STORAGE_KEY,
+  OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY
+];
 type TopbarDropdownKey = "parts" | "brands" | "models" | null;
 
 const TOPBAR_MODEL_GROUPS = [
@@ -988,10 +995,29 @@ export default function UniversalTopbar() {
     router.push("/");
   }
 
+  function handleHomeReset(event: ReactMouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+
+    setProfileOpen(false);
+    setNotificationOpen(false);
+    setGarageMenuOpen(false);
+    setTopbarDropdownOpen(null);
+
+    try {
+      HOME_RESET_SESSION_STORAGE_KEYS.forEach((key) => sessionStorage.removeItem(key));
+    } catch {
+      // Session storage can be unavailable in private/browser-restricted contexts.
+    }
+
+    window.history.scrollRestoration = "manual";
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    window.location.replace("/");
+  }
+
   const primaryNavigation = (
     <div className="universal-home-navigation universal-primary-navigation">
       {isHomePage ? (
-        <Link href="/" className="universal-home-brand" aria-label="Maskines">
+        <Link href="/" className="universal-home-brand" aria-label="Maskines – nollaa etusivu" onClick={handleHomeReset}>
           <TopbarMaskinesLogo />
           <span className="universal-home-brand-copy" aria-hidden="true">
             <strong>MASKINES</strong>

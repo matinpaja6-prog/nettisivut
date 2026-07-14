@@ -30134,6 +30134,18 @@
   }
 }
 
+/* Keep the desktop filter rail beside filtered results. The rail is a direct
+   child of .heroInner, so assigning it to row 2 places it below the entire
+   results column instead of beside the search and cards. */
+@media (min-width: 901px) {
+  .shell:global([data-home-filtered-results="true"]) .heroInner > .heroRightRail,
+  .shell:global([data-home-filtered-results="true"]) .heroInner > .heroRightRail.heroRightRailOpen {
+    align-self: start !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+}
+
 /* Phone hero: cancel the legacy 28px right inset on the artwork only. */
 @media (max-width: 720px) {
   :global(html body) main[data-home-page] [data-home-intro-showcase].heroShowcase {
@@ -30202,5 +30214,296 @@
     justify-self: center !important;
     margin-left: auto !important;
     margin-right: auto !important;
+  }
+}
+
+/* Phone hero: show the artwork without the legacy darkening layer. */
+@media (max-width: 720px) {
+  :global(html body) main[data-home-page] [data-home-intro-showcase].heroShowcase::after {
+    background: none !important;
+    content: none !important;
+    opacity: 0 !important;
+  }
+}
+
+/* Listing feed: append eight cards on desktop and ten cards on phones. */
+:global(html body) .heroDesktopLatest .latestLoadMore {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #ff8a24 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  font-size: clamp(15px, 1.2vw, 18px) !important;
+  font-weight: 950 !important;
+  gap: 12px !important;
+  justify-content: center !important;
+  letter-spacing: -0.02em !important;
+  margin: 18px auto 0 !important;
+  min-height: 44px !important;
+  padding: 0 12px !important;
+  width: auto !important;
+}
+
+:global(html body) .heroDesktopLatest .latestLoadMore svg {
+  color: #ff8a24 !important;
+  flex: 0 0 auto !important;
+  height: 19px !important;
+  width: 19px !important;
+}
+
+:global(html body) .heroDesktopLatest .latestLoadMore:hover {
+  filter: brightness(1.08) !important;
+}
+
+:global(html body) .heroDesktopLatest .latestLoadMore:active {
+  transform: translateY(1px) !important;
+}
+
+@media (max-width: 720px) {
+  :global(html body) .heroDesktopLatest .latestLoadMore {
+    font-size: clamp(14px, 3.9vw, 16px) !important;
+    gap: 10px !important;
+    margin-top: 14px !important;
+    min-height: 44px !important;
+    padding: 0 10px !important;
+    width: auto !important;
+  }
+
+  :global(html body) .heroDesktopLatest .latestLoadMore svg {
+    height: 17px !important;
+    width: 17px !important;
+  }
+}
+
+/* Keep desktop filters aligned with the top of filtered search results. */
+@media (min-width: 901px) {
+  :global(html body) main[data-home-page][data-home-filtered-results="true"] .heroInner > .heroRightRail,
+  :global(html body) main[data-home-page][data-home-filtered-results="true"] .heroInner > .heroRightRail.heroRightRailOpen {
+    align-self: start !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    margin-top: 0 !important;
+    top: 0 !important;
+  }
+}
+
+/* Phone: avoid stacking several navigation safety gaps after the last result. */
+@media (max-width: 720px) {
+  :global(html body) main[data-home-page].shell {
+    padding-bottom: 0 !important;
+  }
+
+  :global(html body) main[data-home-page] .heroWrap {
+    padding-bottom: 24px !important;
+  }
+
+  :global(html body) main[data-home-page] [data-home-results-list].heroDesktopLatest {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Track-mat filters: Pituus x Leveys x Jako stays on one row. */
+.trackMatDimensionGroup {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  position: relative;
+  width: 100%;
+}
+
+.trackMatDimensionGroupLabel {
+  color: rgba(225, 234, 243, 0.9);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.desktopTrackMatFields,
+.mobileTrackMatFields {
+  align-items: start;
+  display: grid;
+  gap: 4px;
+  grid-template-columns: minmax(0, 1fr) 10px minmax(0, 1fr) 10px minmax(0, 1fr);
+  min-width: 0;
+  width: 100%;
+}
+
+.trackMatInlineField {
+  grid-column: auto !important;
+  min-width: 0 !important;
+  position: static !important;
+  width: auto !important;
+}
+
+@media (min-width: 901px) {
+  :global(html body) .heroRightRail .desktopTrackMatFields > .trackMatInlineField {
+    grid-column: auto !important;
+    position: static !important;
+    width: auto !important;
+  }
+
+  :global(html body) main[data-home-page] .heroInner > .heroRightRail,
+  :global(html body) main[data-home-page] .heroInner > .heroRightRail.heroRightRailOpen {
+    align-self: start !important;
+    height: fit-content !important;
+    min-height: 0 !important;
+  }
+}
+
+.trackMatInlineField > span:first-child {
+  font-size: 10px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trackMatInlineField .heroFilterSelect,
+.trackMatInlineField .mobileSheetSelect {
+  min-width: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 7px !important;
+}
+
+.trackMatInlineField .heroFilterSelect strong,
+.trackMatInlineField .mobileSheetSelect strong {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.trackMatDimensionSeparator {
+  align-items: center;
+  align-self: end;
+  color: #ff8a24;
+  display: flex;
+  font-size: 14px;
+  font-weight: 950;
+  height: 36px;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.trackMatInlineField .trackMatCustomSelect {
+  align-items: stretch !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 28px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.trackMatCustomInput {
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-sizing: border-box !important;
+  color: #f4f8fc !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  outline: none !important;
+  padding: 0 0 0 8px !important;
+  width: 100% !important;
+  -webkit-text-fill-color: #f4f8fc !important;
+}
+
+.trackMatCustomInput::placeholder {
+  color: rgba(205, 216, 227, 0.55) !important;
+}
+
+.trackMatCustomInput:focus {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.trackMatCustomSelect:focus-within {
+  border-color: rgba(255, 138, 36, 0.88) !important;
+  box-shadow: 0 0 0 2px rgba(255, 122, 26, 0.12) !important;
+}
+
+.trackMatCustomSelectToggle {
+  align-items: center !important;
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: rgba(226, 235, 244, 0.82) !important;
+  display: flex !important;
+  height: 100% !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  width: 28px !important;
+}
+
+@media (max-width: 720px) {
+  .trackMatDimensionSeparator {
+    height: 42px;
+  }
+
+  .trackMatInlineField .trackMatCustomSelect {
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+}
+
+.trackMatDimensionGroup .heroFilterMenu,
+.trackMatDimensionGroup .mobileSheetMenu {
+  left: 0 !important;
+  margin-top: 6px !important;
+  max-height: min(320px, 46dvh) !important;
+  overflow-y: auto !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 100% !important;
+  width: 100% !important;
+  z-index: 120 !important;
+}
+
+/* Phone hero action opens the filter sheet; make that purpose explicit. */
+@media (max-width: 720px) {
+  :global(html body):has(.mobileFilterSheet) .heroWrap {
+    isolation: isolate !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 2147483647 !important;
+  }
+
+  :global(html body):has(.mobileFilterSheet) :global(.bottom-nav.bottom-nav-main) {
+    display: none !important;
+  }
+
+  :global(html body) .mobileFilterBackdrop {
+    z-index: 1000 !important;
+  }
+
+  :global(html body) .heroRightRail.mobileFilterSheet,
+  :global(html body) .heroRightRailOpen.mobileFilterSheet {
+    z-index: 1001 !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
+    grid-template-columns: 18px minmax(0, 1fr) 100px !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton[data-mobile-filter="true"] {
+    gap: 10px !important;
+    min-width: 100px !important;
+    padding: 0 12px !important;
+    width: 100px !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton[data-mobile-filter="true"] span {
+    display: inline !important;
   }
 }
