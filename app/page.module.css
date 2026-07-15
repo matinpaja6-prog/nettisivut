@@ -29663,6 +29663,7 @@
   }
 
   :global(html body) .heroLeadPanel > .heroReferenceBenefits > span {
+    align-content: center !important;
     border-bottom: 0 !important;
     border-right: 1px solid rgba(86, 125, 158, 0.24) !important;
     gap: 4px !important;
@@ -29696,8 +29697,11 @@
   :global(html body) .heroReferenceBenefits .heroBenefitIcon svg,
   :global(html body) .heroReferenceBenefits .heroBenefitIcon img {
     height: 24px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
     min-height: 24px !important;
     min-width: 24px !important;
+    object-position: center !important;
     width: 24px !important;
   }
 
@@ -29706,8 +29710,11 @@
     font-size: clamp(8px, 2.15vw, 9.5px) !important;
     grid-column: 1 !important;
     grid-row: 2 !important;
+    justify-self: center !important;
     line-height: 1.2 !important;
     max-width: 100% !important;
+    text-align: center !important;
+    width: 100% !important;
   }
 
   :global(html body) .heroReferenceBenefits small {
@@ -29715,8 +29722,11 @@
     font-size: clamp(6.5px, 1.75vw, 7.5px) !important;
     grid-column: 1 !important;
     grid-row: 3 !important;
+    justify-self: center !important;
     line-height: 1.3 !important;
     max-width: 100% !important;
+    text-align: center !important;
+    width: 100% !important;
   }
 
   :global(html body) .heroLeadPanel > .heroSellCallout {
@@ -29901,7 +29911,9 @@
   }
 
   :global(html body) .heroShowcase .heroReferenceSubtitle.heroReferenceSubtitle {
+    color: #ffffff !important;
     font-size: clamp(11px, 2.8vw, 13px) !important;
+    margin-top: 10px !important;
     max-width: 280px !important;
   }
 
@@ -30155,10 +30167,10 @@
   }
 }
 
-/* Keep the compact listing sort pill against the phone's right edge. */
+/* Nudge the compact listing sort pill slightly inward on phones. */
 @media (max-width: 760px) {
   .heroDesktopLatestSort {
-    transform: translateX(4px) !important;
+    transform: translateX(-2px) !important;
   }
 
   .sortControlRebuilt {
@@ -30183,6 +30195,50 @@
 
   .sectionSortControl.sortControlRebuilt .sortButtonFace {
     width: 184px !important;
+  }
+}
+
+/* Keep the latest-listings heading and sort control inside narrow phones.
+   The shared sort button has a fixed mobile width, so size this homepage
+   instance from the space that is actually available beside the heading. */
+@media (max-width: 760px) {
+  :global(html body) main[data-home-page] .heroDesktopLatestHead {
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 176px) !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestHead > strong,
+  :global(html body) main[data-home-page] .heroDesktopLatestActions,
+  :global(html body) main[data-home-page] .heroDesktopLatestSort {
+    min-width: 0 !important;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestActions,
+  :global(html body) main[data-home-page] .heroDesktopLatestSort,
+  :global(html body) main[data-home-page] .heroDesktopLatestSort .sortButtonFace {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestSort {
+    transform: none !important;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestSort .sortButtonFace {
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 340px) {
+  :global(html body) main[data-home-page] .heroDesktopLatestHead {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestActions {
+    justify-content: stretch !important;
   }
 }
 
@@ -30494,13 +30550,20 @@
   }
 
   :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton[data-mobile-filter="true"] {
-    gap: 10px !important;
+    gap: 7px !important;
+    justify-content: center !important;
     min-width: 100px !important;
-    padding: 0 12px !important;
+    padding: 0 10px !important;
     width: 100px !important;
+  }
+
+  :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton[data-mobile-filter="true"] svg {
+    flex: 0 0 auto !important;
   }
 
   :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton[data-mobile-filter="true"] span {
     display: inline !important;
+    position: static !important;
+    transform: none !important;
   }
 }

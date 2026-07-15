@@ -5649,6 +5649,12 @@ html body .seller-page .sp-year-range-clean-thumb:active {
   cursor: grabbing !important;
 }
 
+html body .seller-page .sp-year-range-clean-thumb:focus-visible {
+  box-shadow: 0 0 0 4px rgba(255, 122, 26, 0.24) !important;
+  outline: 2px solid #ffffff !important;
+  outline-offset: 2px !important;
+}
+
 html body .seller-page .sp-year-range-clean .sp-year-range-track {
   display: none !important;
 }
@@ -5730,7 +5736,7 @@ html body .seller-page .sp-year-range-clean .sp-year-range-max {
 }
 
 html body .seller-page .sp-year-range-clean > .sp-year-range-clean-thumb {
-  display: none !important;
+  display: block !important;
 }
 
 html body .seller-page .sp-filter-show-results {

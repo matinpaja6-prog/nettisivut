@@ -4970,6 +4970,7 @@ function SellPageContent() {
                 <div
                   id="sell-vehicle-type-menu"
                   className={styles.vehicleTypeMenu}
+                  data-sell-vehicle-menu="true"
                   role="listbox"
                   aria-label={st("Valitse ajoneuvoluokka")}
                 >
@@ -4984,6 +4985,8 @@ function SellPageContent() {
                           role="option"
                           aria-selected={active}
                           className={`${styles.vehicleTypeCard} ${active ? styles.vehicleTypeActive : ""}`}
+                          data-sell-vehicle-option="true"
+                          data-active={active ? "true" : "false"}
                           onClick={() => {
                             setVehicleType(vehicle);
                             setVehicleTypeMenuOpen(false);

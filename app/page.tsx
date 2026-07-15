@@ -224,7 +224,7 @@ const translations = {
     heroTitle: "Maskines",
     heroSubtitle: "Suomen kattava varaosamarketplace moottorikelkoille, mönkijöille, motocrossiin ja mopoihin.",
     heroLeadStart: "Nopea haku",
-    heroLeadHighlight: "myy käytetyt",
+    heroLeadHighlight: "myy ja osta",
     heroLeadEnd: "varaosat helposti",
     heroTrustFast: "Nopea ja helppo listaaminen",
     heroTrustFree: "Ilmainen myynti ostajalle",
@@ -3888,7 +3888,7 @@ function HomeContent() {
                 <div className={styles.heroShowcaseCopy}>
                   <h1 className={styles.heroHeadline}>
                     <span style={{ display: "block", width: "100%" }}>Nopea haku</span>
-                    <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>Myy käytetyt</span>
+                    <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>Myy ja osta</span>
                     <span style={{ display: "block", width: "100%" }}>Varaosat helposti</span>
                   </h1>
                   <p className={styles.heroReferenceSubtitle}>Löydä oikea osa nopeasti tai listaa omat käytetyt varaosasi myyntiin muutamassa minuutissa.</p>
@@ -4146,7 +4146,7 @@ function HomeContent() {
                 <>
                   <div data-home-sell-callout className={styles.heroSellCallout}>
                     <span className={styles.heroSellCalloutIcon}><Package size={26} aria-hidden="true" /></span>
-                    <span><strong>Listaa ajoneuvosi varaosat myyntiin jopa kahdessa minuutissa</strong><small>Lisää kuvat ja tiedot helposti — tavoita ostajat ympäri Suomen.</small></span>
+                    <span><strong>Lisää ajoneuvosi osat myyntiin nopeasti yhdellä ilmoituksella</strong><small>Lisää kuvat ja tiedot helposti — tavoita ostajat ympäri Suomen.</small></span>
                     <Link href="/sell">Aloita myynti</Link>
                   </div>
                 </>

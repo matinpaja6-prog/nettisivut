@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, MessageCircle, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, TrendingDown, TrendingUp, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
@@ -671,23 +671,30 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     window.addEventListener("pointercancel", stop);
   }, [updateSellerYearRangeFromPointer]);
 
-  const startSellerYearRangeMouseDrag = useCallback((event: ReactMouseEvent<HTMLDivElement>) => {
+  const handleSellerYearRangeKeyDown = useCallback((
+    event: ReactKeyboardEvent<HTMLSpanElement>,
+    handle: "min" | "max"
+  ) => {
+    const currentValue = handle === "min" ? selectedYearMin : selectedYearMax;
+    let nextValue = currentValue;
+
+    if (event.key === "ArrowLeft" || event.key === "ArrowDown") nextValue -= 1;
+    else if (event.key === "ArrowRight" || event.key === "ArrowUp") nextValue += 1;
+    else if (event.key === "PageDown") nextValue -= 5;
+    else if (event.key === "PageUp") nextValue += 5;
+    else if (event.key === "Home") nextValue = handle === "min" ? yearSliderMin : selectedYearMin;
+    else if (event.key === "End") nextValue = handle === "max" ? yearSliderMax : selectedYearMax;
+    else return;
+
     event.preventDefault();
-    const slider = sellerYearSliderRef.current;
-    if (!slider) return;
-    const rect = slider.getBoundingClientRect();
-    const minX = rect.left + (yearSliderLeft / 100) * rect.width;
-    const maxX = rect.left + ((100 - yearSliderRight) / 100) * rect.width;
-    const handle: "min" | "max" = Math.abs(event.clientX - minX) <= Math.abs(event.clientX - maxX) ? "min" : "max";
-    updateSellerYearRangeFromPointer(event.clientX, handle);
-    const move = (moveEvent: MouseEvent) => updateSellerYearRangeFromPointer(moveEvent.clientX, handle);
-    const stop = () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", stop);
-    };
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", stop);
-  }, [updateSellerYearRangeFromPointer, yearSliderLeft, yearSliderRight]);
+    if (handle === "min") {
+      const nextMin = Math.max(yearSliderMin, Math.min(nextValue, selectedYearMax));
+      setYearMinFilter(nextMin === yearSliderMin ? "" : String(nextMin));
+    } else {
+      const nextMax = Math.min(yearSliderMax, Math.max(nextValue, selectedYearMin));
+      setYearMaxFilter(nextMax === yearSliderMax ? "" : String(nextMax));
+    }
+  }, [selectedYearMax, selectedYearMin, yearSliderMax, yearSliderMin]);
 
   const sellerListingTotalPages = Math.max(
     1,
@@ -1997,7 +2004,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     "--sp-year-max": `${100 - yearSliderRight}%`,
                     "--sp-year-mid": `${(yearSliderLeft + (100 - yearSliderRight)) / 2}%`
                   } as CSSProperties}
-                  onMouseDown={startSellerYearRangeMouseDrag}
+                  onPointerDown={(event) => startSellerYearRangeDrag(event)}
                 >
                   <span className="sp-year-range-clean-line" aria-hidden="true" />
                   <span
@@ -2010,6 +2017,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     aria-valuemax={selectedYearMax}
                     aria-valuenow={selectedYearMin}
                     onPointerDown={(event) => startSellerYearRangeDrag(event, "min")}
+                    onKeyDown={(event) => handleSellerYearRangeKeyDown(event, "min")}
                   />
                   <span
                     role="slider"
@@ -2021,33 +2029,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     aria-valuemax={yearSliderMax}
                     aria-valuenow={selectedYearMax}
                     onPointerDown={(event) => startSellerYearRangeDrag(event, "max")}
-                  />
-                  <span className="sp-year-range-track" aria-hidden="true" />
-                  <input
-                    type="range"
-                    className="sp-year-range-input sp-year-range-min"
-                    onPointerDown={(event) => event.stopPropagation()}
-                    min={yearSliderMin}
-                    max={yearSliderMax}
-                    value={selectedYearMin}
-                    aria-label="Vuosimalli minimi liukusäädin"
-                    onChange={(event) => {
-                      const next = Math.min(Number(event.target.value), selectedYearMax);
-                      setYearMinFilter(String(next));
-                    }}
-                  />
-                  <input
-                    type="range"
-                    className="sp-year-range-input sp-year-range-max"
-                    onPointerDown={(event) => event.stopPropagation()}
-                    min={yearSliderMin}
-                    max={yearSliderMax}
-                    value={selectedYearMax}
-                    aria-label="Vuosimalli maksimi liukusäädin"
-                    onChange={(event) => {
-                      const next = Math.max(Number(event.target.value), selectedYearMin);
-                      setYearMaxFilter(String(next));
-                    }}
+                    onKeyDown={(event) => handleSellerYearRangeKeyDown(event, "max")}
                   />
                 </div>
               </div>

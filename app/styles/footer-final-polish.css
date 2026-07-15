@@ -608,3 +608,19 @@ html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .foot
     display: grid !important;
   }
 }
+
+/* Keep every footer column anchored to the top. Without this, equal-height
+   grid items distribute their spare height between the title and link list,
+   which moves the underline to a different height in each column. */
+html body .site-footer .footer-links-grid {
+  align-items: start !important;
+}
+
+html body .site-footer .footer-col {
+  align-content: start !important;
+  grid-template-rows: max-content max-content !important;
+}
+
+html body .site-footer .footer-col h4 {
+  white-space: nowrap !important;
+}

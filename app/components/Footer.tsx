@@ -8,7 +8,7 @@ import { canonicalPathFromLocalized, pagePath } from "@/lib/routes";
 
 const footerText = {
   fi: {
-    tagline: "Pohjoismaiden paras varaosamarketpaikka moottorikelkoille, mönkijöille, motocrossille ja mopoille.",
+    tagline: "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.",
     follow: "Seuraa meitä",
     email: "Sähköposti",
     service: "Palvelu",
@@ -303,7 +303,7 @@ export default function Footer() {
               />
             </svg>
           </Link>
-          <p className="footer-tagline">
+          <p className="footer-tagline" style={{ whiteSpace: "pre-line" }}>
             {text.tagline}
           </p>
           <div className="footer-socials" aria-label={text.follow}>
