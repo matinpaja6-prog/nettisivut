@@ -30551,8 +30551,9 @@
 
   :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton[data-mobile-filter="true"] {
     display: grid !important;
-    gap: 0 !important;
-    grid-template-columns: 18px minmax(0, 1fr) 18px !important;
+    align-items: center !important;
+    column-gap: 7px !important;
+    grid-template-columns: 18px auto !important;
     justify-content: center !important;
     min-width: 110px !important;
     padding: 0 10px !important;
@@ -30568,7 +30569,7 @@
     display: inline !important;
     justify-self: center !important;
     position: static !important;
-    transform: none !important;
+    transform: translateX(2px) !important;
   }
 }
 
