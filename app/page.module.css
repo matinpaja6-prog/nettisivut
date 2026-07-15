@@ -30567,3 +30567,12 @@
     transform: none !important;
   }
 }
+
+/* Keep all benefit titles aligned from the same top edge. Two-line titles
+   reserve the same space as one-line titles, so the descriptions also line up. */
+:global(html body) .heroReferenceBenefits > span > strong {
+  align-self: start !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  min-height: 2.4em !important;
+}
