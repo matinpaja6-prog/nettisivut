@@ -30546,23 +30546,27 @@
   }
 
   :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
-    grid-template-columns: 18px minmax(0, 1fr) 100px !important;
+    grid-template-columns: 18px minmax(0, 1fr) 110px !important;
   }
 
   :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton[data-mobile-filter="true"] {
-    gap: 7px !important;
+    display: grid !important;
+    gap: 0 !important;
+    grid-template-columns: 18px minmax(0, 1fr) 18px !important;
     justify-content: center !important;
-    min-width: 100px !important;
+    min-width: 110px !important;
     padding: 0 10px !important;
-    width: 100px !important;
+    width: 110px !important;
   }
 
   :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton[data-mobile-filter="true"] svg {
     flex: 0 0 auto !important;
+    justify-self: center !important;
   }
 
   :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton[data-mobile-filter="true"] span {
     display: inline !important;
+    justify-self: center !important;
     position: static !important;
     transform: none !important;
   }
