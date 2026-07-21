@@ -30659,6 +30659,35 @@
 
 @media (min-width: 721px) {
   :global(html body) .heroReferenceBenefits > span > .heroBenefitCopy > strong {
-    min-height: 2.5em !important;
+    min-height: 1.25em !important;
+  }
+}
+
+/* Desktop benefit strip: keep every icon, heading and description on the same
+   shared alignment lines regardless of the amount of copy in a card. */
+@media (min-width: 721px) {
+  :global(html body) .heroLeadPanel > .heroReferenceBenefits > span {
+    align-content: start !important;
+    align-items: start !important;
+    column-gap: 16px !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    grid-template-rows: auto !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  :global(html body) .heroReferenceBenefits > span > .heroBenefitIcon,
+  :global(html body) .heroReferenceBenefits > span > .heroBenefitCopy {
+    align-self: start !important;
+    grid-row: 1 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits > span > .heroBenefitIcon {
+    grid-column: 1 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits > span > .heroBenefitCopy {
+    grid-column: 2 !important;
+    grid-template-rows: 1.25em auto !important;
   }
 }

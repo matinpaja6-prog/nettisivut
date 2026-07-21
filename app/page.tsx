@@ -39,6 +39,7 @@ import {
   formatPrice,
   getListingPartNumber,
   normalizeVehicleType,
+  subcategoryGroups,
   type Listing
 } from "@/lib/listings";
 import {
@@ -998,7 +999,8 @@ function normalizeSubcategoryMatch(value?: string | null) {
 
 function listingMatchesSubcategoryFilter(
   listingSubcategory?: string | null,
-  selectedSubcategory?: string | null
+  selectedSubcategory?: string | null,
+  selectedGroupChildren: readonly string[] = []
 ) {
   if (!selectedSubcategory) return true;
 
@@ -1008,6 +1010,19 @@ function listingMatchesSubcategoryFilter(
   const normalizedSelected = normalizeSubcategoryMatch(selectedValue);
 
   if (normalizedListing === normalizedSelected) return true;
+
+  // A parent option such as "Moottorit" represents every detailed part in
+  // that group, including standalone leaves such as "Kokonainen moottori".
+  // Those leaves do not necessarily contain the parent name in their stored
+  // subcategory, so a plain string/segment comparison would incorrectly
+  // produce zero results for the parent selection.
+  if (
+    selectedGroupChildren.some((child) =>
+      listingMatchesSubcategoryFilter(listingSubcategory, child)
+    )
+  ) {
+    return true;
+  }
 
   const listingParts = listingValue.split("/").map((part) => part.trim()).filter(Boolean);
   const selectedParts = selectedValue.split("/").map((part) => part.trim()).filter(Boolean);
@@ -1091,6 +1106,57 @@ function allSearchWordsMatch(haystack: string, needle: string) {
     .filter(Boolean)
     .filter((word) => !ignoredSearchWords.has(word))
     .every((word) => textMatchesSearch(haystack, word));
+}
+
+const SUBCATEGORY_GROUP_SEARCH_TERMS: Record<string, readonly string[]> = {
+  "Moottorit": ["moottori", "moottorit"],
+  "Kytkimet": ["kytkin", "kytkimet"],
+  "Variaattorit": ["variaattori", "variaattorit"],
+  "Voimansiirto": ["voimansiirto"],
+  "Telasto": ["telasto"],
+  "Renkaat & vanteet": ["rengas", "renkaat", "vanne", "vanteet"],
+  "Alusta": ["alusta"],
+  "Tukivarret": ["tukivarsi", "tukivarret"],
+  "Iskunvaimentimet": ["iskunvaimennin", "iskunvaimentimet", "iskari", "iskarit"],
+  "Ohjaus akseli": ["ohjaus", "ohjausakseli"],
+  "Hallintalaitteet": ["hallintalaite", "hallintalaitteet"],
+  "Jarrut": ["jarru", "jarrut"],
+  "Sukset": ["suksi", "sukset"],
+  "Sähkö": ["sähkö"],
+  "Sytytys": ["sytytys"],
+  "Jäähdytys": ["jäähdytys"],
+  "Polttoainejärjestelmä": ["polttoaine", "polttoainejärjestelmä"],
+  "Pakoputkisto": ["pakoputki", "pakoputkisto"],
+  "Runko": ["runko"],
+  "Katteet": ["kate", "katteet"],
+  "Etupuskurit": ["etupuskuri", "etupuskurit"],
+  "Takapuskurit": ["takapuskuri", "takapuskurit"],
+  "Istuimet & penkit": ["istuin", "istuimet", "penkki", "penkit"],
+  "Tuulilasit": ["tuulilasi", "tuulilasit"]
+};
+
+function getSubcategoryGroupSearchScope(queryText: string) {
+  const queryWords = normalizeSearchText(queryText).split(" ").filter(Boolean);
+  const matchedWords = new Set<string>();
+  const groups: Array<{ group: string; children: readonly string[] }> = [];
+
+  for (const categoryGroups of Object.values(subcategoryGroups)) {
+    for (const [group, children] of Object.entries(categoryGroups)) {
+      const terms = SUBCATEGORY_GROUP_SEARCH_TERMS[group] ?? [normalizeSearchText(group)];
+      const matchingWords = queryWords.filter((word) =>
+        terms.some((term) => normalizeSearchText(term) === word)
+      );
+
+      if (matchingWords.length === 0) continue;
+      matchingWords.forEach((word) => matchedWords.add(word));
+      groups.push({ group, children });
+    }
+  }
+
+  return {
+    groups,
+    remainingQuery: queryWords.filter((word) => !matchedWords.has(word)).join(" ")
+  };
 }
 
 function queryWithoutVehicleIdentityTerms(
@@ -2367,6 +2433,7 @@ function HomeContent() {
           isMoreSpecificModelVariant(candidate, exactModelFilter)
         )
       : [];
+    const subcategoryGroupSearchScope = getSubcategoryGroupSearchScope(appliedQuery);
 
     return listings
       .filter(isPublicListing)
@@ -2390,6 +2457,21 @@ function HomeContent() {
           ${listing.engine_model ?? ""}
           ${listingPartNumber}
           ${listing.location}
+        `;
+        // Keep multi-word free-text searches tied to the listing itself. Without
+        // this narrower text, separate words could be satisfied by unrelated
+        // taxonomy fields (for example "kokonainen" in the title and
+        // "moottori" only in the category of a complete clutch listing).
+        const listingContentSearch = `
+          ${listingText.title}
+          ${listingText.description}
+          ${listing.description ?? ""}
+          ${listing.brand ?? ""}
+          ${listing.model ?? ""}
+          ${listing.part_model ?? ""}
+          ${listing.engine_cc ?? ""}
+          ${listing.engine_model ?? ""}
+          ${listingPartNumber}
         `;
 
         const directPartNumberMatch =
@@ -2445,7 +2527,11 @@ function HomeContent() {
           normalizeCategoryMatch(listing.category) === normalizeCategoryMatch(appliedCategory);
 
         const matchesSubcategory =
-          listingMatchesSubcategoryFilter(listing.subcategory, appliedSubcategory);
+          listingMatchesSubcategoryFilter(
+            listing.subcategory,
+            appliedSubcategory,
+            subcategoryGroups[appliedCategory]?.[appliedSubcategory] ?? []
+          );
 
         const matchesBrand =
           brandMatchesListing(appliedSelectedBrand, listing, listingText);
@@ -2519,12 +2605,26 @@ function HomeContent() {
         const matchesCompatibleFitment =
           compatibleFitmentActive &&
           listingMatchesCompatibleFitment(listing, selectedFitmentProfile);
+        const matchesSubcategoryGroupQuery =
+          subcategoryGroupSearchScope.groups.length === 0 ||
+          subcategoryGroupSearchScope.groups.some(({ group, children }) =>
+            listingMatchesSubcategoryFilter(listing.subcategory, group, children)
+          );
+        const matchesFreeTextQuery =
+          subcategoryGroupSearchScope.groups.length > 0
+            ? matchesSubcategoryGroupQuery &&
+              allSearchWordsMatch(search, subcategoryGroupSearchScope.remainingQuery)
+            : textMatchesSearch(search, appliedQuery) ||
+              allSearchWordsMatch(listingContentSearch, appliedQuery);
+        const matchesCompatibleQuery =
+          textMatchesSearch(search, compatibleQuery) ||
+          allSearchWordsMatch(listingContentSearch, compatibleQuery);
         const matchesQuery =
           !appliedQuery ||
           (exactQueryModel
             ? matchesExactModel
-            : allSearchWordsMatch(search, appliedQuery) ||
-              (matchesCompatibleFitment && allSearchWordsMatch(search, compatibleQuery)));
+            : matchesFreeTextQuery ||
+              (matchesCompatibleFitment && matchesCompatibleQuery && matchesSubcategoryGroupQuery));
 
         // Explicit filters must stay strict. Compatibility expansion is useful for
         // free-text searches, but it must not override a brand/model selection.
@@ -4206,7 +4306,7 @@ function HomeContent() {
                       <img src="/icons/benefit-clock.svg" alt="" width={24} height={24} />
                     </span>
                     <span className={styles.heroBenefitCopy}>
-                      <strong>Lisää myynti-ilmoitus nopeasti</strong>
+                      <strong>Nopea myynti-ilmoitus</strong>
                       <small>Lisää kokonainen ajoneuvo myyntiin yhdellä ilmoituksella.</small>
                     </span>
                   </span>
