@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import OptimizedListingImage from "@/app/components/OptimizedListingImage";
+import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import homeStyles from "@/app/page.module.css";
 
 import {
@@ -2010,6 +2011,7 @@ export default function ListingPage() {
                 return (
                   <article
                     key={item.id}
+                    data-listing-card="true"
                     className={`${homeStyles.card} similar-home-card`}
                     role="link"
                     tabIndex={0}
@@ -2054,6 +2056,7 @@ export default function ListingPage() {
                     <div className={homeStyles.cardBody}>
                       <p className={homeStyles.cardPrice}>{formatPrice(item.price)}</p>
                       <h3 className={homeStyles.cardTitle}>{itemText.title}</h3>
+                      <ListingVehicleMeta year={item.year} brand={item.brand} model={item.model} />
                       <div className={homeStyles.cardMetaRow}>
                         <span className={homeStyles.cardLocationMeta}>
                           {countryFlag ? (

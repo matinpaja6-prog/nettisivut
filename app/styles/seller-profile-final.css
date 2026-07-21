@@ -5959,15 +5959,17 @@ html body .seller-page .sp-filter-clear {
   html body .seller-page .sp-filter-panel {
     align-content: start !important;
     background: #15171d !important;
+    box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 11px !important;
-    max-width: none !important;
+    inset-inline: 0 !important;
+    max-width: 100dvw !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     padding: 82px 14px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
     scrollbar-width: none !important;
-    width: 100% !important;
+    width: 100dvw !important;
   }
 
   html body .seller-page .sp-filter-panel::-webkit-scrollbar {
@@ -5975,6 +5977,7 @@ html body .seller-page .sp-filter-clear {
   }
 
   html body .seller-page .sp-filter-panel :is(.sp-filter-field, .sp-filter-field-compact) {
+    box-sizing: border-box !important;
     display: grid !important;
     flex: 0 0 auto !important;
     gap: 5px !important;
@@ -5990,8 +5993,14 @@ html body .seller-page .sp-filter-clear {
   }
 
   html body .seller-page .sp-filter-panel :is(.sp-filter-select-wrap, .sp-filter-select-button) {
+    box-sizing: border-box !important;
     max-width: none !important;
     width: 100% !important;
+  }
+
+  html body .seller-page .sp-filter-panel .sp-filter-select-wrap {
+    display: block !important;
+    grid-template-columns: none !important;
   }
 
   html body .seller-page .sp-filter-panel .sp-filter-select-button {

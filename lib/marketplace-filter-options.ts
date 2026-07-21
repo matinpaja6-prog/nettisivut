@@ -33,6 +33,32 @@ export function buildMarketplaceYearOptions() {
   return years;
 }
 
+export function buildMarketplaceModelOptions({
+  vehicle,
+  brand
+}: {
+  vehicle: string;
+  brand: string;
+}) {
+  const vehicleKey = getCategoryVehicleKey(vehicle);
+  const commonVehicleKey = getCommonVehicleKey(vehicle);
+
+  if (brand) return getBrandModelOptions(vehicle, brand);
+
+  return uniqueMarketplaceOptions([
+    ...(
+      vehicle
+        ? Object.values(BRAND_MODELS[vehicle] ?? BRAND_MODELS[vehicleKey] ?? {}).flat()
+        : Object.values(BRAND_MODELS).flatMap((modelsByBrand) => Object.values(modelsByBrand).flat())
+    ),
+    ...(
+      vehicle
+        ? Object.values(COMMON_BRAND_MODELS_BY_VEHICLE[commonVehicleKey] ?? {}).flat()
+        : Object.values(COMMON_BRAND_MODELS_BY_VEHICLE).flatMap((modelsByBrand) => Object.values(modelsByBrand).flat())
+    )
+  ]);
+}
+
 export function buildMarketplaceCategorySource({
   vehicleType,
   vehicleCategories,
@@ -154,6 +180,7 @@ export function buildMarketplaceFilterOptions({
         : categorySource[category] ?? [])
     : [];
   const engineFallback = brand ? (ENGINE_MODELS[vehicle]?.[brand] ?? ENGINE_MODELS[vehicleKey]?.[brand] ?? []) : [];
+  const models = buildMarketplaceModelOptions({ vehicle, brand });
 
   return {
     vehicleTypes: taxonomyVehicles.map((item) => item.key).filter(Boolean),
@@ -161,7 +188,7 @@ export function buildMarketplaceFilterOptions({
       ? (VEHICLE_SUBTYPE_OPTIONS[vehicle] ?? VEHICLE_SUBTYPE_OPTIONS[vehicleKey] ?? [])
       : uniqueMarketplaceOptions(Object.values(VEHICLE_SUBTYPE_OPTIONS).flat()),
     brands,
-    models: brand ? getBrandModelOptions(vehicle, brand) : [],
+    models,
     years: buildMarketplaceYearOptions(),
     engineCcs: vehicle ? (CC_OPTIONS[vehicle] ?? CC_OPTIONS[vehicleKey] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS,
     engineModels: getModelEngineOptions(vehicle, brand, model, engineFallback),

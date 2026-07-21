@@ -66,6 +66,7 @@ import {
   MARKETPLACE_YEAR_FILTER_MIN,
   buildMarketplaceCategorySource,
   buildMarketplaceFilterOptions,
+  buildMarketplaceModelOptions,
   buildMarketplaceSubcategoryGroups,
   buildMarketplaceYearOptions,
   getMarketplaceYearFilterMax
@@ -87,6 +88,7 @@ import {
 } from "@/lib/supabase";
 import { applyLocale, isLocale, translateCategory } from "@/lib/i18n";
 import OptimizedListingImage, { fallbackListingImage } from "./components/OptimizedListingImage";
+import ListingVehicleMeta from "./components/ListingVehicleMeta";
 import { ListFilter } from "lucide-react";
 import { getCategoryVehicleKey } from "./components/CategoryDrawer";
 
@@ -224,7 +226,7 @@ const translations = {
     heroTitle: "Maskines",
     heroSubtitle: "Suomen kattava varaosamarketplace moottorikelkoille, mönkijöille, motocrossiin ja mopoihin.",
     heroLeadStart: "Nopea haku",
-    heroLeadHighlight: "myy ja osta",
+    heroLeadHighlight: "osta ja myy",
     heroLeadEnd: "varaosat helposti",
     heroTrustFast: "Nopea ja helppo listaaminen",
     heroTrustFree: "Ilmainen myynti ostajalle",
@@ -1031,12 +1033,40 @@ function compactSearchText(value?: string | null) {
   return normalizeSearchText(value).replace(/\s+/g, "");
 }
 
+function isMoreSpecificModelVariant(candidate: string, selectedModel: string) {
+  const candidateText = normalizeSearchText(candidate);
+  const selectedText = normalizeSearchText(selectedModel);
+
+  if (!candidateText || !selectedText || candidateText === selectedText) return false;
+
+  const candidateWords = candidateText.split(" ");
+  const selectedWords = selectedText.split(" ");
+  const containsSelectedWords = candidateWords.some((_, index) =>
+    selectedWords.every((word, selectedIndex) => candidateWords[index + selectedIndex] === word)
+  );
+
+  if (containsSelectedWords) return true;
+
+  const compactSelected = compactSearchText(selectedText);
+  return compactSelected.length >= 2 && compactSearchText(candidateText).startsWith(compactSelected);
+}
+
 function textMatchesSearch(haystack: string, needle: string) {
   const normalizedNeedle = normalizeSearchText(needle);
 
   if (!normalizedNeedle) return true;
 
   const normalizedHaystack = normalizeSearchText(haystack);
+
+  // "moottori" is a part/category search, not a shorthand for
+  // "moottorikelkka". A plain substring check otherwise matches every
+  // snowmobile listing that happens to mention its vehicle type.
+  if (normalizedNeedle === "moottori") {
+    return normalizedHaystack.split(" ").some((word) =>
+      word === "moottori" ||
+      (word.startsWith("moottori") && !word.startsWith("moottorikelk"))
+    );
+  }
 
   return (
     normalizedHaystack.includes(normalizedNeedle) ||
@@ -2320,6 +2350,23 @@ function HomeContent() {
       Boolean(appliedQuery.trim());
     const compatibleFitmentActive =
       hasFitmentProfile(selectedFitmentProfile) && hasVehicleIdentityFilter;
+    const normalizedAppliedModel = normalizeSearchText(appliedModelQuery);
+    const availableAppliedModels = buildMarketplaceModelOptions({
+      vehicle: appliedVehicleType,
+      brand: appliedSelectedBrand === "Kaikki" ? "" : appliedSelectedBrand
+    });
+    const exactQueryModel = !normalizedAppliedModel
+      ? availableAppliedModels.find((candidate) =>
+          normalizeSearchText(candidate) === normalizeSearchText(appliedQuery)
+        ) ?? ""
+      : "";
+    const exactModelFilter = appliedModelQuery || exactQueryModel;
+    const normalizedExactModelFilter = normalizeSearchText(exactModelFilter);
+    const moreSpecificAppliedModelVariants = normalizedExactModelFilter
+      ? availableAppliedModels.filter((candidate) =>
+          isMoreSpecificModelVariant(candidate, exactModelFilter)
+        )
+      : [];
 
     return listings
       .filter(isPublicListing)
@@ -2334,11 +2381,13 @@ function HomeContent() {
           ${listingText.title}
           ${listingText.description}
           ${listing.description ?? ""}
+          ${listing.category ?? ""}
+          ${listing.subcategory ?? ""}
           ${listing.brand ?? ""}
           ${listing.model ?? ""}
           ${listing.part_model ?? ""}
-          ${listingVehicleSubtypeText}
           ${listing.engine_cc ?? ""}
+          ${listing.engine_model ?? ""}
           ${listingPartNumber}
           ${listing.location}
         `;
@@ -2401,12 +2450,22 @@ function HomeContent() {
         const matchesBrand =
           brandMatchesListing(appliedSelectedBrand, listing, listingText);
 
-        const matchesModel =
-          !appliedModelQuery ||
-          allSearchWordsMatch(
-            `${listing.model ?? ""} ${listing.part_model ?? ""} ${listingText.title} ${listingText.description} ${listingPartNumber}`,
-            appliedModelQuery
+        const listingModelVariantText = [
+          listing.model ?? "",
+          listing.part_model ?? "",
+          listingText.title,
+          listingText.description
+        ].join(" ");
+        const containsMoreSpecificModelVariant = moreSpecificAppliedModelVariants.some((variant) =>
+          textMatchesSearch(listingModelVariantText, variant)
+        );
+        const matchesExactModel =
+          !normalizedExactModelFilter ||
+          (
+            normalizeSearchText(listing.model) === normalizedExactModelFilter &&
+            !containsMoreSpecificModelVariant
           );
+        const matchesModel = !normalizedAppliedModel || matchesExactModel;
 
         const listingYear = Number(String(listing.year ?? "").match(/(19|20)\d{2}/)?.[0] ?? "");
         const yearMin = Number(appliedYearMinQuery || appliedYearQuery || "");
@@ -2462,12 +2521,15 @@ function HomeContent() {
           listingMatchesCompatibleFitment(listing, selectedFitmentProfile);
         const matchesQuery =
           !appliedQuery ||
-          allSearchWordsMatch(search, appliedQuery) ||
-          (matchesCompatibleFitment && allSearchWordsMatch(search, compatibleQuery));
+          (exactQueryModel
+            ? matchesExactModel
+            : allSearchWordsMatch(search, appliedQuery) ||
+              (matchesCompatibleFitment && allSearchWordsMatch(search, compatibleQuery)));
 
+        // Explicit filters must stay strict. Compatibility expansion is useful for
+        // free-text searches, but it must not override a brand/model selection.
         const matchesVehicleIdentity =
-          matchesCompatibleFitment ||
-          (matchesBrand && matchesModel && matchesYear && matchesEngineModel);
+          matchesBrand && matchesModel && matchesYear && matchesEngineModel;
 
         const matchesPrice =
           listing.price >= appliedMinPrice &&
@@ -3888,7 +3950,7 @@ function HomeContent() {
                 <div className={styles.heroShowcaseCopy}>
                   <h1 className={styles.heroHeadline}>
                     <span style={{ display: "block", width: "100%" }}>Nopea haku</span>
-                    <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>Myy ja osta</span>
+                    <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>Osta ja myy</span>
                     <span style={{ display: "block", width: "100%" }}>Varaosat helposti</span>
                   </h1>
                   <p className={styles.heroReferenceSubtitle}>Löydä oikea osa nopeasti tai listaa omat käytetyt varaosasi myyntiin muutamassa minuutissa.</p>
@@ -4026,6 +4088,7 @@ function HomeContent() {
                     return (
                       <article
                         key={listing.id}
+                        data-listing-card="true"
                         className={`${styles.card} ${styles.heroDesktopLatestCard}`}
                         role="link"
                         tabIndex={0}
@@ -4068,6 +4131,7 @@ function HomeContent() {
                         <div className={`${styles.cardBody} ${styles.heroDesktopLatestBody}`}>
                           <p data-home-latest-price className={`${styles.cardPrice} ${styles.heroDesktopLatestPrice}`}>{formatPrice(listing.price)}</p>
                           <h3 className={`${styles.cardTitle} ${styles.heroDesktopLatestTop}`}>{listingText.title}</h3>
+                          <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} compact />
                           <div className={`${styles.cardMetaRow} ${styles.heroDesktopLatestMeta}`} data-home-latest-meta>
                             <span className={styles.cardLocationMeta} data-home-latest-location>
                               {countryFlag ? (
@@ -4111,45 +4175,51 @@ function HomeContent() {
                 ) : null}
               </div>
               {!homeLatestExpanded ? (
+                <div data-home-sell-callout className={styles.heroSellCallout}>
+                  <span className={styles.heroSellCalloutIcon}><Package size={26} aria-hidden="true" /></span>
+                  <span><strong>Lisää ajoneuvosi osat myyntiin nopeasti yhdellä ilmoituksella</strong><small>Lisää kuvat ja tiedot helposti — tavoita ostajat ympäri Suomen.</small></span>
+                  <Link href="/sell">Aloita myynti</Link>
+                </div>
+              ) : null}
+              {!homeLatestExpanded ? (
                 <div data-home-benefits className={styles.heroReferenceBenefits} aria-label="Palvelun edut">
                   <span>
                     <span className={styles.heroBenefitIcon} aria-hidden="true">
                       <img src="/icons/benefit-shield-check.svg" alt="" width={24} height={24} />
                     </span>
-                    <strong>Turvalliset yhteydenotot</strong>
-                    <small>Ostajan ja myyjän tiedot yhdessä paikassa.</small>
+                    <span className={styles.heroBenefitCopy}>
+                      <strong>Turvalliset yhteydenotot</strong>
+                      <small>Ostajan ja myyjän tiedot yhdessä paikassa.</small>
+                    </span>
                   </span>
                   <span>
                     <span className={styles.heroBenefitIcon} aria-hidden="true">
                       <img src="/icons/benefit-gift.svg" alt="" width={24} height={24} />
                     </span>
-                    <strong>Ei listausmaksua</strong>
-                    <small>Julkaisu ja selaaminen on ilmaista.</small>
+                    <span className={styles.heroBenefitCopy}>
+                      <strong>Maksuton</strong>
+                      <small>Osta ja myy osia ilmaiseksi.</small>
+                    </span>
                   </span>
                   <span>
                     <span className={styles.heroBenefitIcon} aria-hidden="true">
                       <img src="/icons/benefit-clock.svg" alt="" width={24} height={24} />
                     </span>
-                    <strong>Myyntiin 2 minuutissa</strong>
-                    <small>Lisää kuvat, hinta ja tiedot nopeasti.</small>
+                    <span className={styles.heroBenefitCopy}>
+                      <strong>Lisää myynti-ilmoitus nopeasti</strong>
+                      <small>Lisää kokonainen ajoneuvo myyntiin yhdellä ilmoituksella.</small>
+                    </span>
                   </span>
                   <span>
                     <span className={styles.heroBenefitIcon} aria-hidden="true">
                       <img src="/icons/benefit-check.svg" alt="" width={24} height={24} />
                     </span>
-                    <strong>Tuki mukana</strong>
-                    <small>Apua ilmoituksesta onnistuneisiin kauppoihin.</small>
+                    <span className={styles.heroBenefitCopy}>
+                      <strong>Tuki</strong>
+                      <small>Apua ilmoituksesta onnistuneisiin kauppoihin.</small>
+                    </span>
                   </span>
                 </div>
-              ) : null}
-              {!homeLatestExpanded ? (
-                <>
-                  <div data-home-sell-callout className={styles.heroSellCallout}>
-                    <span className={styles.heroSellCalloutIcon}><Package size={26} aria-hidden="true" /></span>
-                    <span><strong>Lisää ajoneuvosi osat myyntiin nopeasti yhdellä ilmoituksella</strong><small>Lisää kuvat ja tiedot helposti — tavoita ostajat ympäri Suomen.</small></span>
-                    <Link href="/sell">Aloita myynti</Link>
-                  </div>
-                </>
               ) : null}
             </div>
 
@@ -4894,6 +4964,7 @@ function HomeContent() {
                             </span>
                             <span className={styles.heroLatestInfo}>
                               <strong>{listingText.title}</strong>
+                              <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} compact />
                               <span>{formatPrice(listing.price)}</span>
                             </span>
                           </button>
@@ -4948,6 +5019,7 @@ function HomeContent() {
                     return (
                       <article
                         key={listing.id}
+                        data-listing-card="true"
                         className={styles.card}
                         role="link"
                         tabIndex={0}
@@ -4988,6 +5060,7 @@ function HomeContent() {
                           </div>
                           ) : null}
                           <h3 className={styles.cardTitle}>{listingText.title}</h3>
+                          <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
                           <div className={styles.cardMetaRow}>
                             <span className={styles.cardLocationMeta}>
                               {countryFlag ? (
@@ -5153,6 +5226,7 @@ function HomeContent() {
                 return (
                   <article
                     key={listing.id}
+                    data-listing-card="true"
                     className={styles.card}
                     role="link"
                     tabIndex={0}
@@ -5206,6 +5280,8 @@ function HomeContent() {
                       ) : null}
 
                       <h3 className={styles.cardTitle}>{listingText.title}</h3>
+
+                      <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
 
                       <div className={styles.cardMetaRow}>
                         <span className={styles.cardLocationMeta}>

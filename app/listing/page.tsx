@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Clock3, Heart, Tag, UserRound } from "lucide-react";
 import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 import OptimizedListingImage, { fallbackListingImage } from "@/app/components/OptimizedListingImage";
+import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
@@ -245,6 +246,7 @@ export default function ListingsIndexPage() {
             return (
               <article
                 key={listing.id}
+                data-listing-card="true"
                 className={homeStyles.card}
                 role="link"
                 tabIndex={0}
@@ -291,6 +293,7 @@ export default function ListingsIndexPage() {
                   </div>
                   <p className={homeStyles.cardPrice}>{formatPrice(listing.price)}</p>
                   <h3 className={homeStyles.cardTitle}>{getListingTitle(listing)}</h3>
+                  <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
                   <div className={homeStyles.cardMetaRow}>
                     <span className={homeStyles.cardLocationMeta}>
                       {countryFlag ? (

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import OptimizedListingImage from "@/app/components/OptimizedListingImage";
+import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import { translateCategory, useLanguage } from "@/lib/i18n";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import { sanitizePhoneInput } from "@/lib/phone-input";
@@ -1766,14 +1767,6 @@ export default function MyListingsPage() {
                 const imageCount =
                   (listing.image_urls?.length ?? 0) || (listing.image_url ? 1 : 0);
 
-                const vehicleSubline = [
-                  listing.brand,
-                  listing.model,
-                  listing.year
-                ]
-                  .filter(Boolean)
-                  .join(" ");
-
                 const isSold = !!listing.is_sold;
                 const isHidden = !!listing.is_hidden;
                 const statusLabel = isSold
@@ -2178,9 +2171,12 @@ export default function MyListingsPage() {
 
                           <h3 className={styles.rowTitle}>{listing.title}</h3>
 
-                          {vehicleSubline && (
-                            <span className={styles.rowSubline}>{vehicleSubline}</span>
-                          )}
+                          <ListingVehicleMeta
+                            year={listing.year}
+                            brand={listing.brand}
+                            model={listing.model}
+                            className={styles.rowSubline}
+                          />
 
                         </div>
 

@@ -1,0 +1,48 @@
+.root {
+  align-items: center;
+  color: color-mix(in srgb, currentColor 68%, transparent);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 650;
+  gap: 5px;
+  line-height: 1.35;
+  margin: 1px 0 3px;
+  min-width: 0;
+  width: 100%;
+}
+
+.root > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.root > span + span::before {
+  color: color-mix(in srgb, currentColor 54%, transparent);
+  content: "\00b7";
+  margin-right: 5px;
+}
+
+.compact {
+  font-size: 11px;
+  gap: 4px;
+  margin: 2px 0 0;
+}
+
+.compact > span + span::before {
+  margin-right: 4px;
+}
+
+@media (max-width: 720px) {
+  .root {
+    flex-wrap: nowrap;
+    font-size: 10px;
+    gap: 3px;
+  }
+
+  .root > span + span::before {
+    margin-right: 3px;
+  }
+}

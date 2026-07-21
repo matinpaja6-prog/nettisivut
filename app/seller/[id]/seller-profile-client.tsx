@@ -18,6 +18,7 @@ import {
   vehicleBrandsRecord
 } from "@/lib/taxonomy";
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
+import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import {
   MARKETPLACE_YEAR_FILTER_MIN,
   buildMarketplaceCategorySource,
@@ -738,6 +739,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     setCategoryFilter("");
     setSubcategoryParentFilter("");
     setSubcategoryFilter("");
+    setSellerListingPage(1);
   }
 
   useEffect(() => {
@@ -2140,6 +2142,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                   <article
                     className="listing-card seller-listing-card"
                     key={listing.id}
+                    data-listing-card="true"
                     role="link"
                     tabIndex={0}
                     aria-label={`${t.openListing} ${title}`}
@@ -2191,6 +2194,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     <div className="listing-body">
                       <strong className="seller-listing-price">{formatPrice(listing.price)}</strong>
                       <h3>{title}</h3>
+                      <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
                       <p>{getLocalizedListingText(listing, locale).description}</p>
                       <div className="seller-listing-meta">
                         <span className="seller-listing-location">

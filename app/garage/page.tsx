@@ -33,6 +33,7 @@ import { getLocalizedListingText } from "@/lib/listing-translations";
 import { useLanguage, translateCategory } from "@/lib/i18n";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
 import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
+import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 
 type VehicleClass = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopo";
 
@@ -684,6 +685,7 @@ export default function GaragePage() {
                                     <h4 className="garage-part-title">
                                       {listingText.title}
                                     </h4>
+                                    <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} compact />
                                     <div className="garage-part-meta">
                                       <MapPin size={13} />
                                       <span>{listing.location}</span>

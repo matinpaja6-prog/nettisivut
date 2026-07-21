@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import OptimizedListingImage, { fallbackListingImage } from "@/app/components/OptimizedListingImage";
+import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import marketplaceStyles from "@/app/page.module.css";
 import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
@@ -259,6 +260,7 @@ export default function SavedListingsPage() {
               return (
                 <article
                   key={listing.id}
+                  data-listing-card="true"
                   className={`${marketplaceStyles.card} saved-card`}
                   role="link"
                   tabIndex={0}
@@ -306,6 +308,7 @@ export default function SavedListingsPage() {
                   <div className={`${marketplaceStyles.cardBody} saved-card-body`}>
                     <p className={marketplaceStyles.cardPrice}>{formatPrice(listing.price)}</p>
                     <h3 className={marketplaceStyles.cardTitle}>{getListingTitle(listing)}</h3>
+                    <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
                     <div className={`${marketplaceStyles.cardMetaRow} saved-meta`}>
                       <span className={marketplaceStyles.cardLocationMeta}>
                         {countryFlag ? (

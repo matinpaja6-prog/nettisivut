@@ -29309,8 +29309,8 @@
     display: grid !important;
     gap: 0 !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    margin: 18px 0 0 !important;
-    order: 3 !important;
+    margin: 10px 0 0 !important;
+    order: 4 !important;
     overflow: hidden !important;
     width: 100% !important;
   }
@@ -29411,9 +29411,9 @@
     border-radius: 11px !important;
     gap: 5px 11px !important;
     grid-template-columns: 38px minmax(0, 1fr) !important;
-    margin: 10px 0 0 !important;
+    margin: 18px 0 0 !important;
     min-height: 0 !important;
-    order: 4 !important;
+    order: 3 !important;
     padding: 14px !important;
     text-align: left !important;
   }
@@ -30011,7 +30011,7 @@
 
   :global(html body) .heroInner > .heroLeadPanel > .heroReferenceBenefits {
     grid-column: 1 !important;
-    grid-row: 3 !important;
+    grid-row: 4 !important;
     margin: 0 !important;
   }
 
@@ -30055,7 +30055,7 @@
 
   :global(html body) .heroInner > .heroLeadPanel > .heroSellCallout {
     grid-column: 1 !important;
-    grid-row: 4 !important;
+    grid-row: 3 !important;
     margin: 0 !important;
     min-height: 66px !important;
     padding: 10px 14px !important;
@@ -30573,11 +30573,85 @@
   }
 }
 
-/* Keep all benefit titles aligned from the same top edge. Two-line titles
-   reserve the same space as one-line titles, so the descriptions also line up. */
-:global(html body) .heroReferenceBenefits > span > strong {
+/* Keep each benefit heading and description visually together while reserving
+   the same heading row in every card. */
+@media (min-width: 721px) {
+  :global(html body) .heroLeadPanel > .heroReferenceBenefits > span {
+    align-content: start !important;
+    grid-template-rows: auto !important;
+    row-gap: 0 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits > span > .heroBenefitIcon {
+    grid-row: 1 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits > span > .heroBenefitCopy {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+}
+
+@media (max-width: 720px) {
+  :global(html body) .heroLeadPanel > .heroReferenceBenefits > span {
+    align-content: start !important;
+    grid-template-rows: 34px auto !important;
+    row-gap: 4px !important;
+  }
+
+  :global(html body) .heroReferenceBenefits > span > .heroBenefitIcon {
+    grid-row: 1 !important;
+  }
+
+  :global(html body) .heroReferenceBenefits > span > .heroBenefitCopy {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    justify-items: center !important;
+    text-align: center !important;
+  }
+}
+
+:global(html body) .heroReferenceBenefits > span > .heroBenefitCopy {
+  align-content: start !important;
+  align-items: start !important;
+  align-self: start !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  gap: 5px !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto auto !important;
+  justify-items: start !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+:global(html body) .heroReferenceBenefits > span > .heroBenefitCopy > strong {
   align-self: start !important;
   box-sizing: border-box !important;
   display: block !important;
-  min-height: 2.4em !important;
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  justify-self: start !important;
+  min-height: 0 !important;
+  width: 100% !important;
+}
+
+:global(html body) .heroReferenceBenefits > span > .heroBenefitCopy > small {
+  align-self: start !important;
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  justify-self: start !important;
+  width: 100% !important;
+}
+
+@media (max-width: 720px) {
+  :global(html body) .heroReferenceBenefits > span > .heroBenefitCopy > strong,
+  :global(html body) .heroReferenceBenefits > span > .heroBenefitCopy > small {
+    justify-self: center !important;
+    text-align: center !important;
+  }
 }
