@@ -30590,6 +30590,7 @@
     grid-column: 2 !important;
     grid-row: 1 !important;
   }
+
 }
 
 @media (max-width: 720px) {
@@ -30653,5 +30654,11 @@
   :global(html body) .heroReferenceBenefits > span > .heroBenefitCopy > small {
     justify-self: center !important;
     text-align: center !important;
+  }
+}
+
+@media (min-width: 721px) {
+  :global(html body) .heroReferenceBenefits > span > .heroBenefitCopy > strong {
+    min-height: 2.5em !important;
   }
 }

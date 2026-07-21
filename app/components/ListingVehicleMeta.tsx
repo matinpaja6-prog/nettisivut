@@ -15,7 +15,7 @@ export default function ListingVehicleMeta({
   className = "",
   compact = false
 }: ListingVehicleMetaProps) {
-  const values = [year, brand, model]
+  const values = [brand, model, year]
     .map((value) => String(value ?? "").trim())
     .filter(Boolean);
 
