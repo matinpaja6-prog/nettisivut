@@ -294,7 +294,7 @@ export default function ListingsIndexPage() {
                   <p className={homeStyles.cardPrice}>{formatPrice(listing.price)}</p>
                   <h3 className={homeStyles.cardTitle}>{getListingTitle(listing)}</h3>
                   <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
-                  <div className={homeStyles.cardMetaRow}>
+                  <div className={homeStyles.cardMetaRow} data-listing-card-meta="true">
                     <span className={homeStyles.cardLocationMeta}>
                       {countryFlag ? (
                         <img

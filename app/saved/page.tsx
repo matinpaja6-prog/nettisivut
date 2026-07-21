@@ -309,7 +309,7 @@ export default function SavedListingsPage() {
                     <p className={marketplaceStyles.cardPrice}>{formatPrice(listing.price)}</p>
                     <h3 className={marketplaceStyles.cardTitle}>{getListingTitle(listing)}</h3>
                     <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
-                    <div className={`${marketplaceStyles.cardMetaRow} saved-meta`}>
+                    <div className={`${marketplaceStyles.cardMetaRow} saved-meta`} data-listing-card-meta="true">
                       <span className={marketplaceStyles.cardLocationMeta}>
                         {countryFlag ? (
                           <img

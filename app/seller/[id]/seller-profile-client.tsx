@@ -2196,7 +2196,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       <h3>{title}</h3>
                       <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
                       <p>{getLocalizedListingText(listing, locale).description}</p>
-                      <div className="seller-listing-meta">
+                      <div className="seller-listing-meta" data-listing-card-meta="true">
                         <span className="seller-listing-location">
                           {countryFlag ? (
                             <span

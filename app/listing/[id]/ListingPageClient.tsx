@@ -2057,7 +2057,7 @@ export default function ListingPage() {
                       <p className={homeStyles.cardPrice}>{formatPrice(item.price)}</p>
                       <h3 className={homeStyles.cardTitle}>{itemText.title}</h3>
                       <ListingVehicleMeta year={item.year} brand={item.brand} model={item.model} />
-                      <div className={homeStyles.cardMetaRow}>
+                      <div className={homeStyles.cardMetaRow} data-listing-card-meta="true">
                         <span className={homeStyles.cardLocationMeta}>
                           {countryFlag ? (
                             <img

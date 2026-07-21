@@ -4132,7 +4132,7 @@ function HomeContent() {
                           <p data-home-latest-price className={`${styles.cardPrice} ${styles.heroDesktopLatestPrice}`}>{formatPrice(listing.price)}</p>
                           <h3 className={`${styles.cardTitle} ${styles.heroDesktopLatestTop}`}>{listingText.title}</h3>
                           <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} compact />
-                          <div className={`${styles.cardMetaRow} ${styles.heroDesktopLatestMeta}`} data-home-latest-meta>
+                          <div className={`${styles.cardMetaRow} ${styles.heroDesktopLatestMeta}`} data-home-latest-meta data-listing-card-meta="true">
                             <span className={styles.cardLocationMeta} data-home-latest-location>
                               {countryFlag ? (
                                 <img
@@ -5061,7 +5061,7 @@ function HomeContent() {
                           ) : null}
                           <h3 className={styles.cardTitle}>{listingText.title}</h3>
                           <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
-                          <div className={styles.cardMetaRow}>
+                          <div className={styles.cardMetaRow} data-listing-card-meta="true">
                             <span className={styles.cardLocationMeta}>
                               {countryFlag ? (
                                 <img
@@ -5283,7 +5283,7 @@ function HomeContent() {
 
                       <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
 
-                      <div className={styles.cardMetaRow}>
+                      <div className={styles.cardMetaRow} data-listing-card-meta="true">
                         <span className={styles.cardLocationMeta}>
                           {countryFlag ? (
                             <img
