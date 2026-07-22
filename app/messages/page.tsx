@@ -1657,13 +1657,19 @@ function MessagesPageContent() {
                   </span>
                 </div>
 
-                <Link
-                  href={listingPath(listingUrlId(activeConversation.listing ?? { id: activeConversation.listing_id }), locale)}
-                  className="listing-open"
-                >
-                  Näytä ilmoitus
-                  <ExternalLink size={14} />
-                </Link>
+                {activeConversation.listing_deleted_at ? (
+                  <span className="listing-open" aria-label="Ilmoitus on poistettu">
+                    Ilmoitus poistettu
+                  </span>
+                ) : (
+                  <Link
+                    href={listingPath(listingUrlId(activeConversation.listing ?? { id: activeConversation.listing_id }), locale)}
+                    className="listing-open"
+                  >
+                    Näytä ilmoitus
+                    <ExternalLink size={14} />
+                  </Link>
+                )}
               </div>
 
               <div className="messages-area inbox-preview-area">
@@ -1730,13 +1736,19 @@ function MessagesPageContent() {
                 </div>
               </div>
 
-              <Link
-                href={listingPath(listingUrlId(activeConversation.listing ?? { id: activeConversation.listing_id }), locale)}
-                className="messages-info-primary"
-              >
-                Avaa ilmoitus
-                <ExternalLink size={14} />
-              </Link>
+              {activeConversation.listing_deleted_at ? (
+                <span className="messages-info-primary" aria-label="Ilmoitus on poistettu">
+                  Ilmoitus poistettu
+                </span>
+              ) : (
+                <Link
+                  href={listingPath(listingUrlId(activeConversation.listing ?? { id: activeConversation.listing_id }), locale)}
+                  className="messages-info-primary"
+                >
+                  Avaa ilmoitus
+                  <ExternalLink size={14} />
+                </Link>
+              )}
 
               <button
                 type="button"

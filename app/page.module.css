@@ -23003,7 +23003,7 @@
   }
 
   .heroDesktopLatestTop {
-    align-items: start !important;
+    align-items: flex-start !important;
     display: flex !important;
     gap: 8px !important;
     justify-content: space-between !important;
@@ -27653,7 +27653,7 @@
   }
 
   .mobileSheetForm {
-    align-content: start !important;
+    align-content: flex-start !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 11px !important;
@@ -28338,7 +28338,7 @@
 }
 
 .heroCategoryHeading {
-  align-items: end;
+  align-items: flex-end;
   display: flex;
   gap: 14px;
   justify-content: space-between;
@@ -30228,7 +30228,11 @@
   }
 
   :global(html body) main[data-home-page] .heroDesktopLatestSort .sortButtonFace {
+    gap: 4px !important;
+    grid-template-columns: 16px minmax(0, 1fr) 14px !important;
     min-width: 0 !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
   }
 }
 
@@ -30519,6 +30523,9 @@
 
 .trackMatDimensionGroup .heroFilterMenu,
 .trackMatDimensionGroup .mobileSheetMenu {
+  background: #071b2d !important;
+  border-color: rgba(77, 120, 157, 0.72) !important;
+  color: #eef5fb !important;
   left: 0 !important;
   margin-top: 6px !important;
   max-height: min(320px, 46dvh) !important;
@@ -30528,6 +30535,20 @@
   top: 100% !important;
   width: 100% !important;
   z-index: 120 !important;
+}
+
+.trackMatDimensionGroup .heroFilterMenu > button,
+.trackMatDimensionGroup .mobileSheetMenu > button,
+.trackMatDimensionGroup .heroFilterMenu > span,
+.trackMatDimensionGroup .mobileSheetMenu > span {
+  background: transparent !important;
+  color: #eef5fb !important;
+}
+
+.trackMatDimensionGroup .heroFilterMenu > button:hover,
+.trackMatDimensionGroup .mobileSheetMenu > button:hover {
+  background: rgba(255, 122, 26, 0.15) !important;
+  color: #ffffff !important;
 }
 
 /* Phone hero action opens the filter sheet; make that purpose explicit. */
@@ -30689,5 +30710,74 @@
   :global(html body) .heroReferenceBenefits > span > .heroBenefitCopy {
     grid-column: 2 !important;
     grid-template-rows: 1.25em auto !important;
+  }
+}
+
+/* Laptop/desktop hero scaling: keep the complete intro copy inside the image.
+   The previous fixed 60px heading and 3.55:1 aspect ratio made the artwork only
+   about 300px tall on smaller computers, clipping the subtitle and actions. */
+@media (min-width: 901px) and (max-width: 1599px) {
+  :global(html body) .heroInner .heroLeadPanel .heroShowcase.heroShowcase {
+    aspect-ratio: auto !important;
+    height: clamp(420px, 38vw, 540px) !important;
+    min-height: clamp(420px, 38vw, 540px) !important;
+  }
+
+  :global(html body) .heroShowcase .heroShowcaseCopy.heroShowcaseCopy {
+    padding-top: clamp(48px, 5vw, 76px) !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline {
+    font-size: clamp(46px, 4.2vw, 60px) !important;
+    line-height: 1.05 !important;
+  }
+
+  :global(html body) .heroShowcase .heroReferenceSubtitle.heroReferenceSubtitle,
+  :global(html body) .heroShowcase .heroDesktopActions.heroDesktopActions {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+/* Hero reference alignment: keep the message on a compact left-hand column
+   instead of centering it across the open area beside the filter rail. */
+@media (min-width: 901px) {
+  :global(html body) .heroShowcase .heroShowcaseCopy.heroShowcaseCopy {
+    box-sizing: border-box !important;
+    justify-items: start !important;
+    max-width: 620px !important;
+    padding-left: clamp(150px, calc((100vw - 1336px) / 2 + 150px), 255px) !important;
+    padding-right: 0 !important;
+    transform: none !important;
+    width: 620px !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline {
+    font-size: 60px !important;
+    justify-items: start !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 500px !important;
+    text-align: left !important;
+    width: 500px !important;
+  }
+
+  :global(html body) .heroShowcase .heroHeadline.heroHeadline > span {
+    text-align: left !important;
+  }
+
+  :global(html body) .heroShowcase .heroReferenceSubtitle.heroReferenceSubtitle {
+    justify-self: start !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 500px !important;
+    text-align: left !important;
+    width: 500px !important;
+  }
+
+  :global(html body) .heroShowcase .heroDesktopActions.heroDesktopActions {
+    justify-self: start !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 }

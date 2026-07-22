@@ -1577,6 +1577,38 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       ))}
     </span>
   );
+  const renderAverageRatingStars = (rating: number, size = 16) => {
+    const normalizedRating = Math.min(5, Math.max(0, rating));
+
+    return (
+      <span
+        className="seller-ref-rating-stars"
+        role="img"
+        aria-label={`${normalizedRating.toFixed(1)}/5`}
+      >
+        {[1, 2, 3, 4, 5].map((star) => {
+          const fillPercentage = Math.min(100, Math.max(0, (normalizedRating - (star - 1)) * 100));
+
+          return (
+            <span
+              className="seller-ref-rating-star"
+              key={star}
+              style={{ "--seller-rating-star-size": `${size}px` } as CSSProperties}
+              aria-hidden="true"
+            >
+              <Star className="seller-ref-rating-star-outline" />
+              <span
+                className="seller-ref-rating-star-fill"
+                style={{ width: `${fillPercentage}%` }}
+              >
+                <Star fill="currentColor" />
+              </span>
+            </span>
+          );
+        })}
+      </span>
+    );
+  };
   const sortOptions: Array<{ value: ListingSort; label: string; icon: typeof Search }> = [
     { value: "relevance", label: refLabels.relevanceFirst, icon: Crosshair },
     { value: "newest", label: refLabels.newestFirst, icon: Clock3 },
@@ -1709,13 +1741,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               <Star size={24} />
               <strong>{reviews.length ? averageRating.toFixed(1) : "–"}</strong>
               <span>{refLabels.averageRating}</span>
-              <div aria-hidden="true">
-                <Star size={13} fill="currentColor" />
-                <Star size={13} fill="currentColor" />
-                <Star size={13} fill="currentColor" />
-                <Star size={13} fill="currentColor" />
-                <Star size={13} fill="currentColor" />
-              </div>
+              {renderAverageRatingStars(averageRating)}
             </div>
             <div className="seller-ref-stat">
               <Tag size={22} />

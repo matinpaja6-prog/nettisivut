@@ -2641,6 +2641,14 @@ export const categoryTranslations: Record<Locale, Record<string, string>> = {
 };
 
 Object.assign(categoryTranslations.en, {
+  "Renkaat & vanteet": "Tires & rims",
+  "Renkaat": "Tires",
+  "Vanteet": "Rims",
+  "Rengassarjat": "Tire sets",
+  "Vannesetit": "Rim sets",
+  "Akselit & laakerit": "Axles & bearings",
+  "Takaiskunvaimentimet": "Rear shock absorbers",
+  "Renkaat, vanteet & alusta": "Tires, rims & chassis",
   "Moottorikelkka": "Snowmobile",
   "M\u00f6nkij\u00e4": "ATV",
   "ATV - m\u00f6nkij\u00e4": "ATV",
@@ -2659,6 +2667,14 @@ Object.assign(categoryTranslations.en, {
 });
 
 Object.assign(categoryTranslations.sv, {
+  "Renkaat & vanteet": "Däck & fälgar",
+  "Renkaat": "Däck",
+  "Vanteet": "Fälgar",
+  "Rengassarjat": "Däckuppsättningar",
+  "Vannesetit": "Fälguppsättningar",
+  "Akselit & laakerit": "Axlar & lager",
+  "Takaiskunvaimentimet": "Bakre stötdämpare",
+  "Renkaat, vanteet & alusta": "Däck, fälgar & chassi",
   "Moottorikelkka": "Sn\u00f6skoter",
   "M\u00f6nkij\u00e4": "Fyrhjuling",
   "ATV - m\u00f6nkij\u00e4": "ATV",
@@ -2677,6 +2693,14 @@ Object.assign(categoryTranslations.sv, {
 });
 
 Object.assign(categoryTranslations.no, {
+  "Renkaat & vanteet": "Dekk & felger",
+  "Renkaat": "Dekk",
+  "Vanteet": "Felger",
+  "Rengassarjat": "Dekksett",
+  "Vannesetit": "Felgsett",
+  "Akselit & laakerit": "Aksler & lagre",
+  "Takaiskunvaimentimet": "Bakre støtdempere",
+  "Renkaat, vanteet & alusta": "Dekk, felger & understell",
   "Moottorikelkka": "Sn\u00f8scooter",
   "M\u00f6nkij\u00e4": "ATV",
   "ATV - m\u00f6nkij\u00e4": "ATV",
@@ -2695,6 +2719,14 @@ Object.assign(categoryTranslations.no, {
 });
 
 Object.assign(categoryTranslations.et, {
+  "Renkaat & vanteet": "Rehvid & veljed",
+  "Renkaat": "Rehvid",
+  "Vanteet": "Veljed",
+  "Rengassarjat": "Rehvikomplektid",
+  "Vannesetit": "Veljekomplektid",
+  "Akselit & laakerit": "Teljed & laagrid",
+  "Takaiskunvaimentimet": "Tagumised amortisaatorid",
+  "Renkaat, vanteet & alusta": "Rehvid, veljed & veermik",
   "Moottorikelkka": "Mootorsaan",
   "M\u00f6nkij\u00e4": "ATV",
   "ATV - m\u00f6nkij\u00e4": "ATV",
@@ -2716,6 +2748,19 @@ export function translateCategory(locale: Locale, value: string) {
   const directTranslation = categoryTranslations[locale][value];
   if (directTranslation) {
     return directTranslation;
+  }
+
+  // Category menus often render only the final segment (for example
+  // "Kampiakselit") even though the curated dictionary stores the complete
+  // path ("Moottorit / Kampiakselit"). Resolve that leaf from the full path
+  // instead of leaving it in Finnish or letting automatic DOM translation
+  // create a mixed-language label.
+  const pathSuffix = ` / ${value}`;
+  const translatedPath = Object.entries(categoryTranslations[locale])
+    .find(([source]) => source.endsWith(pathSuffix))?.[1];
+
+  if (translatedPath) {
+    return translatedPath.split(" / ").at(-1)?.trim() || translatedPath;
   }
 
   if (value.includes("/")) {

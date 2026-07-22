@@ -96,13 +96,22 @@ export default function InstantNavigation() {
       if (!href) return;
 
       event.preventDefault();
+      if (document.documentElement.lang !== "fi") {
+        document.documentElement.setAttribute("data-i18n-pending", "true");
+      }
       router.push(href);
+    };
+    const handlePopState = () => {
+      if (document.documentElement.lang !== "fi") {
+        document.documentElement.setAttribute("data-i18n-pending", "true");
+      }
     };
 
     document.addEventListener("pointerover", handlePointerEnter, true);
     document.addEventListener("pointerdown", handlePointerDown, true);
     document.addEventListener("focusin", handleFocusIn, true);
     document.addEventListener("click", handleClick);
+    window.addEventListener("popstate", handlePopState);
     scheduleVisiblePrefetch();
 
     return () => {
@@ -110,6 +119,7 @@ export default function InstantNavigation() {
       document.removeEventListener("pointerdown", handlePointerDown, true);
       document.removeEventListener("focusin", handleFocusIn, true);
       document.removeEventListener("click", handleClick);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, [router]);
 

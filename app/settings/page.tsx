@@ -22,11 +22,11 @@ const languageFlags: Record<Locale, { flag: "fi" | "gb" | "se" | "no" | "ee" }> 
 };
 
 const backgroundPresets = [
-  { labels: { fi: "Nykyinen tumma", en: "Current dark" }, value: "#0b1118" },
-  { labels: { fi: "Tummansininen", en: "Deep blue" }, value: "#102033" },
-  { labels: { fi: "Grafiitti", en: "Graphite" }, value: "#151a22" },
-  { labels: { fi: "Jääsininen", en: "Ice blue" }, value: "#c8d8e8" }
-];
+  { labels: { fi: "Nykyinen tumma", en: "Current dark", sv: "Nuvarande mörk", no: "Nåværende mørk", et: "Praegune tume" }, value: "#0b1118" },
+  { labels: { fi: "Tummansininen", en: "Deep blue", sv: "Djupblå", no: "Dypblå", et: "Sügavsinine" }, value: "#102033" },
+  { labels: { fi: "Grafiitti", en: "Graphite", sv: "Grafit", no: "Grafitt", et: "Grafiit" }, value: "#151a22" },
+  { labels: { fi: "Jääsininen", en: "Ice blue", sv: "Isblå", no: "Isblå", et: "Jääsinine" }, value: "#c8d8e8" }
+] satisfies Array<{ labels: Record<Locale, string>; value: string }>;
 
 const copy = {
   fi: {
@@ -45,7 +45,8 @@ const copy = {
     browserPermissionDenied: "Selaimen ilmoitukset estetty selaimessa",
     backgroundTitle: "Sivun pohjaväri",
     backgroundDesc: "Valitse koko sivuston taustaväri itsellesi.",
-    saved: "Tallennettu"
+    saved: "Tallennettu",
+    instructions: "Ohjeet"
   },
   en: {
     title: "Page Settings",
@@ -63,9 +64,67 @@ const copy = {
     browserPermissionDenied: "Browser notifications blocked in browser",
     backgroundTitle: "Page background",
     backgroundDesc: "Choose the site background color for yourself.",
-    saved: "Saved"
+    saved: "Saved",
+    instructions: "Instructions"
+  },
+  sv: {
+    title: "Sidinställningar",
+    subtitle: "Välj språk, aviseringar och sidans bakgrundsfärg för den här enheten.",
+    languageTitle: "Språk",
+    languageDesc: "Används för webbplatsens texter och lokaliserade adresser.",
+    notificationsTitle: "Aviseringar",
+    notificationsDesc: "Justera meddelande- och sökbevakningsaviseringar.",
+    notificationsMain: "Aviseringar aktiverade",
+    notificationsMainDesc: "Visa aviseringsmärken och tillåt webbläsaraviseringar.",
+    sound: "Aviseringsljud",
+    soundDesc: "Spela upp ett kort ljud för nya meddelanden.",
+    browserPermission: "Tillåt webbläsaraviseringar",
+    browserPermissionGranted: "Webbläsaraviseringar tillåtna",
+    browserPermissionDenied: "Webbläsaraviseringar blockerade i webbläsaren",
+    backgroundTitle: "Sidans bakgrundsfärg",
+    backgroundDesc: "Välj webbplatsens bakgrundsfärg.",
+    saved: "Sparat",
+    instructions: "Instruktioner"
+  },
+  no: {
+    title: "Sideinnstillinger",
+    subtitle: "Velg språk, varsler og sidens bakgrunnsfarge for denne enheten.",
+    languageTitle: "Språk",
+    languageDesc: "Brukes for nettstedets tekster og lokaliserte adresser.",
+    notificationsTitle: "Varsler",
+    notificationsDesc: "Juster meldings- og søkevarsler.",
+    notificationsMain: "Varsler aktivert",
+    notificationsMainDesc: "Vis varselmerker og tillat nettleservarsler.",
+    sound: "Varslingslyd",
+    soundDesc: "Spill av en kort lyd for nye meldinger.",
+    browserPermission: "Tillat nettleservarsler",
+    browserPermissionGranted: "Nettleservarsler er tillatt",
+    browserPermissionDenied: "Nettleservarsler er blokkert i nettleseren",
+    backgroundTitle: "Sidens bakgrunnsfarge",
+    backgroundDesc: "Velg nettstedets bakgrunnsfarge.",
+    saved: "Lagret",
+    instructions: "Instruksjoner"
+  },
+  et: {
+    title: "Lehe seaded",
+    subtitle: "Valige selle seadme keel, teavituste toimimine ja lehe taustavärv.",
+    languageTitle: "Keel",
+    languageDesc: "Kasutatakse saidi tekstides ja lokaliseeritud aadressides.",
+    notificationsTitle: "Teavitused",
+    notificationsDesc: "Kohandage sõnumite ja otsinguvalvurite teavitusi.",
+    notificationsMain: "Teavitused on lubatud",
+    notificationsMainDesc: "Kuva teavitusmärgid ja luba brauseri teavitused.",
+    sound: "Teavitusheli",
+    soundDesc: "Esita uue sõnumi korral lühike heli.",
+    browserPermission: "Luba brauseri teavitused",
+    browserPermissionGranted: "Brauseri teavitused on lubatud",
+    browserPermissionDenied: "Brauseri teavitused on brauseris blokeeritud",
+    backgroundTitle: "Lehe taustavärv",
+    backgroundDesc: "Valige saidi taustavärv.",
+    saved: "Salvestatud",
+    instructions: "Juhised"
   }
-};
+} satisfies Record<Locale, Record<string, string>>;
 
 function CountryFlag({ country }: { country: "fi" | "gb" | "se" | "no" | "ee" }) {
   if (country === "gb") {
@@ -107,7 +166,7 @@ function CountryFlag({ country }: { country: "fi" | "gb" | "se" | "no" | "ee" })
 
 export default function SettingsPage() {
   const { locale, setLocale } = useLanguage();
-  const text = copy[locale === "fi" ? "fi" : "en"];
+  const text = copy[locale];
   const [settings, setSettings] = useState<UserSettings>(defaultUserSettings);
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("unsupported");
   const [savedAt, setSavedAt] = useState(0);
@@ -169,16 +228,10 @@ export default function SettingsPage() {
   }
 
   return (
-    <main className={styles.settingsPage}>
+    <main className={styles.settingsPage} data-no-auto-translate>
       <div className={styles.settingsShell}>
         <header className={styles.settingsHead}>
-          <h1>
-            {locale === "fi" ? (
-              <>Sivu<span>asetukset</span></>
-            ) : (
-              text.title
-            )}
-          </h1>
+          <h1>{text.title}</h1>
           <p>{text.subtitle}</p>
         </header>
 
@@ -256,7 +309,7 @@ export default function SettingsPage() {
                     ? text.browserPermissionDenied
                     : text.browserPermission}
               </span>
-              <small>Ohjeet <ExternalLink size={13} /></small>
+              <small>{text.instructions} <ExternalLink size={13} /></small>
             </button>
           </section>
 
@@ -278,7 +331,7 @@ export default function SettingsPage() {
                   onClick={() => updateBackground(preset.value)}
                 >
                   <span className={styles.swatch} style={{ background: preset.value }} />
-                  <strong>{preset.labels[locale === "fi" ? "fi" : "en"]}</strong>
+                  <strong>{preset.labels[locale]}</strong>
                   {preset.value.toLowerCase() === settings.backgroundColor.toLowerCase() ? <Check className={styles.presetCheck} size={17} /> : null}
                 </button>
               ))}

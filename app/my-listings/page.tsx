@@ -2489,6 +2489,10 @@ export default function MyListingsPage() {
               </div>
             )}
 
+            <div className="delete-muted">
+              Ilmoitukseen liittyvät keskustelut säilyvät viesteissä 20 päivää poistamisen jälkeen.
+            </div>
+
             <div className="delete-listing-modal-actions">
               <button
                 type="button"

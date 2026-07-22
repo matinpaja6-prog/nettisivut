@@ -2463,6 +2463,55 @@ html body .seller-page .seller-ref-stat.is-rating div {
   gap: 2px !important;
 }
 
+html body .seller-page .seller-ref-stat.is-rating > .seller-ref-rating-stars {
+  align-items: center !important;
+  color: #ff7a1a !important;
+  display: inline-flex !important;
+  gap: 3px !important;
+  line-height: 1 !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating .seller-ref-rating-star {
+  color: #ff7a1a !important;
+  display: inline-block !important;
+  flex: 0 0 var(--seller-rating-star-size) !important;
+  height: var(--seller-rating-star-size) !important;
+  max-width: none !important;
+  position: relative !important;
+  width: var(--seller-rating-star-size) !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating .seller-ref-rating-star svg {
+  color: #ff7a1a !important;
+  height: var(--seller-rating-star-size) !important;
+  left: 0 !important;
+  position: absolute !important;
+  stroke: currentColor !important;
+  top: 0 !important;
+  width: var(--seller-rating-star-size) !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating .seller-ref-rating-star-outline {
+  fill: none !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating .seller-ref-rating-star-fill {
+  color: #ff7a1a !important;
+  display: block !important;
+  height: var(--seller-rating-star-size) !important;
+  left: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  top: 0 !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating .seller-ref-rating-star-fill svg {
+  fill: currentColor !important;
+}
+
 html body .seller-page .seller-ref-detail-card {
   background:
     radial-gradient(420px 180px at 100% 0%, rgba(82, 129, 168, 0.08), transparent 68%),

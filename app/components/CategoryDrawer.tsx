@@ -1476,6 +1476,32 @@ function TrackMatDimensionField({
     onChange(nextValue);
   }
 
+  function setTrackMatMenuRef(menu: HTMLDivElement | null) {
+    menuRef.current = menu;
+    if (!menu) return;
+
+    menu.style.setProperty("background", "#06182a", "important");
+    menu.style.setProperty("background-color", "#06182a", "important");
+    menu.style.setProperty("background-image", "none", "important");
+    menu.style.setProperty("color", "#ffffff", "important");
+    menu.style.setProperty("color-scheme", "dark", "important");
+
+    menu.querySelectorAll<HTMLElement>(":scope > button").forEach((option) => {
+      option.style.setProperty("background", "#081f34", "important");
+      option.style.setProperty("background-color", "#081f34", "important");
+      option.style.setProperty("background-image", "none", "important");
+      option.style.setProperty("color", "#ffffff", "important");
+      option.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
+      option.style.setProperty("opacity", "1", "important");
+
+      option.querySelectorAll<HTMLElement>("strong, span").forEach((text) => {
+        text.style.setProperty("color", "#ffffff", "important");
+        text.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
+        text.style.setProperty("opacity", "1", "important");
+      });
+    });
+  }
+
   return (
     <label
       ref={fieldRef}
@@ -1509,7 +1535,13 @@ function TrackMatDimensionField({
         <ChevronDown size={17} aria-hidden="true" />
       </button>
       {open ? (
-        <div ref={menuRef} className="cd-track-mat-menu" role="listbox" tabIndex={-1}>
+        <div
+          ref={setTrackMatMenuRef}
+          className="cd-track-mat-menu"
+          data-track-mat-menu="true"
+          role="listbox"
+          tabIndex={-1}
+        >
           {trackMatDimensionOptions.map((option) => {
             const active = option.value === value;
 
@@ -2652,7 +2684,7 @@ export default function CategoryDrawer({
 
           {/* Step 4: Sub-group */}
           {step === 4 && cat && currentSubcategoryGroups && (
-            <ul className="cd-list cd-sub-group-list">
+            <ul className="cd-list cd-sub-group-list" data-no-auto-translate>
               {Object.entries(currentSubcategoryGroups).map(([group, children]) => {
                 const hasChildren = children.length > 0;
                 return (
@@ -2681,7 +2713,7 @@ export default function CategoryDrawer({
 
           {/* Step 5: Leaf items under selected sub-group */}
           {step === 5 && cat && subGroup && (
-            <ul className="cd-list cd-sub-group-list cd-final-leaf-list">
+            <ul className="cd-list cd-sub-group-list cd-final-leaf-list" data-no-auto-translate>
               {(currentSubcategoryGroups?.[subGroup] ?? subs).map(s => {
                 const translatedFull = translateCategory(locale, s);
                 const leafLabel = translatedFull.includes(" / ") ? translatedFull.split(" / ").slice(1).join(" / ") : translatedFull;
@@ -2702,7 +2734,7 @@ export default function CategoryDrawer({
 
           {/* Step 5 fallback: Flat subcategories (no groups) */}
           {step === 5 && cat && !subGroup && (
-            <ul className="cd-list cd-sub-group-list cd-final-leaf-list">
+            <ul className="cd-list cd-sub-group-list cd-final-leaf-list" data-no-auto-translate>
               {subs.map(s => (
                 <li key={s}>
                   <button

@@ -5,7 +5,14 @@ import tsParser from "@typescript-eslint/parser";
 
 const eslintConfig = [
   {
-    ignores: [".next/**", ".codex-logs/**", "node_modules/**", "out/**", "next-env.d.ts"]
+    ignores: [
+      ".next/**",
+      ".next-dev/**",
+      ".codex-logs/**",
+      "node_modules/**",
+      "out/**",
+      "next-env.d.ts"
+    ]
   },
   {
     ...nextPlugin.flatConfig.coreWebVitals,

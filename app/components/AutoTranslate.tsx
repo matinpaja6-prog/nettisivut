@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
-import { isLocale, type Locale } from "@/lib/i18n";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { generatedUiTranslations } from "@/lib/generated-ui-translations";
+import { isLocale, translations, type Locale } from "@/lib/i18n";
 
 type AttrName = "placeholder" | "title" | "aria-label";
 
@@ -13,7 +13,7 @@ type AttrEntry = {
 };
 
 const ATTRS: AttrName[] = ["placeholder", "title", "aria-label"];
-const TRANSLATION_CACHE_VERSION = "v3";
+const TRANSLATION_CACHE_VERSION = "v9";
 
 const staticUiTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = {
   en: {
@@ -521,6 +521,91 @@ Object.assign(staticUiTranslations.et, {
   "Kuvausta ei ole vielä lisätty.": "Kirjeldust pole veel lisatud."
 });
 
+const translatedLocales: Array<Exclude<Locale, "fi">> = ["en", "sv", "no", "et"];
+
+for (const locale of translatedLocales) {
+  const sharedDictionary = Object.fromEntries(
+    (Object.keys(translations.fi) as Array<keyof typeof translations.fi>).map((key) => [
+      translations.fi[key],
+      translations[locale][key]
+    ])
+  );
+
+  staticUiTranslations[locale] = {
+    ...generatedUiTranslations[locale],
+    ...sharedDictionary,
+    ...staticUiTranslations[locale]
+  };
+}
+
+Object.assign(staticUiTranslations.en, {
+  Maskines: "Maskines",
+  maskines: "maskines",
+  "Maskines.": "Maskines.",
+  "© 2026 Maskines. Kaikki oikeudet pidätetään.": "© 2026 Maskines. All rights reserved.",
+  Paanavigaatio: "Main navigation",
+  "Ota yhteytta": "Contact us",
+  "Select your region & language": "Select your region & language",
+  Hae: "Search",
+  Maa: "Country",
+  "Haku:": "Search:",
+  Missiomme: "Our mission",
+  "Moottoritilavuus (cm³)": "Engine displacement (cm³)",
+  "Kaikki moottorit": "All engines",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.": "A Nordic marketplace for small-vehicle spare parts.\nBuy and sell parts for snowmobiles, ATVs, motocross bikes and mopeds easily in one place."
+});
+Object.assign(staticUiTranslations.sv, {
+  Maskines: "Maskines",
+  maskines: "maskines",
+  "Maskines.": "Maskines.",
+  "© 2026 Maskines. Kaikki oikeudet pidätetään.": "© 2026 Maskines. Alla rättigheter förbehållna.",
+  Paanavigaatio: "Huvudnavigation",
+  "Ota yhteytta": "Kontakta oss",
+  "Select your region & language": "Välj region och språk",
+  Hae: "Sök",
+  Maa: "Land",
+  "Haku:": "Sökning:",
+  Missiomme: "Vårt uppdrag",
+  "Moottoritilavuus (cm³)": "Motorvolym (cm³)",
+  "Kaikki moottorit": "Alla motorer",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.": "En nordisk marknadsplats för reservdelar till småfordon.\nKöp och sälj reservdelar till snöskotrar, fyrhjulingar, motocrosscyklar och mopeder enkelt på ett och samma ställe."
+});
+Object.assign(staticUiTranslations.no, {
+  Maskines: "Maskines",
+  maskines: "maskines",
+  "Maskines.": "Maskines.",
+  "© 2026 Maskines. Kaikki oikeudet pidätetään.": "© 2026 Maskines. Alle rettigheter forbeholdt.",
+  Paanavigaatio: "Hovednavigasjon",
+  "Ota yhteytta": "Kontakt oss",
+  "Select your region & language": "Velg region og språk",
+  Hae: "Søk",
+  Maa: "Land",
+  "Haku:": "Søk:",
+  Missiomme: "Vårt oppdrag",
+  "Moottoritilavuus (cm³)": "Motorvolum (cm³)",
+  "Kaikki moottorit": "Alle motorer",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.": "En nordisk markedsplass for reservedeler til småkjøretøy.\nKjøp og selg reservedeler til snøscootere, ATV-er, motocrossykler og mopeder enkelt på ett sted."
+});
+Object.assign(staticUiTranslations.et, {
+  Maskines: "Maskines",
+  maskines: "maskines",
+  "Maskines.": "Maskines.",
+  "© 2026 Maskines. Kaikki oikeudet pidätetään.": "© 2026 Maskines. Kõik õigused kaitstud.",
+  Paanavigaatio: "Põhinavigeerimine",
+  "Ota yhteytta": "Võta ühendust",
+  "Ota yhteyttä Maskinesiin": "Võtke Maskinesiga ühendust",
+  "Select your region & language": "Valige piirkond ja keel",
+  Hae: "Otsi",
+  Maa: "Riik",
+  "Haku:": "Otsing:",
+  Missiomme: "Meie missioon",
+  Profiili: "Profiil",
+  "Oma talli": "Minu garaaž",
+  "Moottoritilavuus (cm³)": "Mootori töömaht (cm³)",
+  "Kaikki moottorit": "Kõik mootorid",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.": "Põhjamaine väikeste sõidukite varuosade turg.\nOsta ja müü mootorsaanide, ATV-de, motokrossirataste ja mopeedide varuosi mugavalt ühest kohast."
+});
+
 const SKIP_SELECTOR = [
   "script",
   "style",
@@ -555,11 +640,36 @@ function getStaticTranslation(locale: Locale, text: string) {
   let replaced = trimmed;
   let changed = false;
   const entries = Object.entries(staticUiTranslations[locale])
+    .filter(([source]) => source.trim().length >= 4)
     .sort(([a], [b]) => b.length - a.length);
 
   for (const [source, translated] of entries) {
-    if (replaced.includes(source)) {
-      replaced = replaced.split(source).join(translated);
+    let cursor = 0;
+    let nextValue = "";
+    let sourceChanged = false;
+
+    while (cursor < replaced.length) {
+      const index = replaced.indexOf(source, cursor);
+      if (index < 0) break;
+
+      const previous = index > 0 ? replaced[index - 1] : "";
+      const next = replaced[index + source.length] ?? "";
+      const sourceStartsWithWord = /[\p{L}\p{N}]/u.test(source[0] ?? "");
+      const sourceEndsWithWord = /[\p{L}\p{N}]/u.test(source[source.length - 1] ?? "");
+      const hasWordBefore = previous ? /[\p{L}\p{N}]/u.test(previous) : false;
+      const hasWordAfter = next ? /[\p{L}\p{N}]/u.test(next) : false;
+
+      if ((sourceStartsWithWord && hasWordBefore) || (sourceEndsWithWord && hasWordAfter)) {
+        nextValue += replaced.slice(cursor, index + source.length);
+      } else {
+        nextValue += replaced.slice(cursor, index) + translated;
+        sourceChanged = true;
+      }
+      cursor = index + source.length;
+    }
+
+    if (sourceChanged) {
+      replaced = nextValue + replaced.slice(cursor);
       changed = true;
     }
   }
@@ -568,11 +678,17 @@ function getStaticTranslation(locale: Locale, text: string) {
 }
 
 export default function AutoTranslate() {
-  const pathname = usePathname();
   const [locale, setLocale] = useState<Locale>("fi");
   const translationCache = useRef<Map<string, string>>(new Map());
   const originalTextNodes = useRef<WeakMap<Text, string>>(new WeakMap());
+  const originalAttributes = useRef<WeakMap<HTMLElement, Partial<Record<AttrName, string>>>>(
+    new WeakMap()
+  );
+  const loadedCacheLocale = useRef<Locale | null>(null);
+  const appliedLocale = useRef<Locale>("fi");
+  const translationActivated = useRef(false);
   const pendingRequest = useRef<number | null>(null);
+  const revealTimer = useRef<number | null>(null);
   const translating = useRef(false);
 
   useEffect(() => {
@@ -593,42 +709,43 @@ export default function AutoTranslate() {
     return () => window.removeEventListener("localechange", handleLocaleChange);
   }, []);
 
-  const storageKey = useMemo(
-    () => `auto-ui-translations:${TRANSLATION_CACHE_VERSION}:${locale}`,
-    [locale]
-  );
-
-  useEffect(() => {
-    translationCache.current.clear();
-
-    if (locale === "fi") return;
-
-    try {
-      const saved = localStorage.getItem(storageKey);
-      if (saved) {
-        const parsed = JSON.parse(saved) as Record<string, string>;
-        for (const [key, value] of Object.entries(parsed)) {
-          if (typeof value === "string") {
-            translationCache.current.set(key, value);
-          }
-        }
-      }
-    } catch {
-      translationCache.current.clear();
-    }
-  }, [locale, storageKey]);
+  const storageKey = `auto-ui-translations:${TRANSLATION_CACHE_VERSION}:${locale}`;
 
   const collect = useCallback(() => {
     const textNodes: Text[] = [];
     const attrs: AttrEntry[] = [];
     const texts = new Set<string>();
 
+    const getOriginalText = (node: Text) => {
+      const current = node.textContent ?? "";
+      const stored = originalTextNodes.current.get(node);
+
+      if (stored === undefined) {
+        originalTextNodes.current.set(node, current);
+        return current;
+      }
+
+      if (appliedLocale.current === locale) {
+        const translated = locale === "fi" ? null : translationCache.current.get(stored.trim());
+        const expected = translated
+          ? `${stored.match(/^\s*/)?.[0] ?? ""}${translated}${stored.match(/\s*$/)?.[0] ?? ""}`
+          : stored;
+
+        if (current !== stored && current !== expected) {
+          originalTextNodes.current.set(node, current);
+          return current;
+        }
+      }
+
+      return stored;
+    };
+
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         const parent = node.parentElement;
         if (!parent || parent.closest(SKIP_SELECTOR)) return NodeFilter.FILTER_REJECT;
 
-        const original = originalTextNodes.current.get(node as Text) ?? node.textContent ?? "";
+        const original = getOriginalText(node as Text);
         return shouldTranslateText(original) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
       }
     });
@@ -638,11 +755,7 @@ export default function AutoTranslate() {
       const parent = node.parentElement;
       if (!parent) continue;
 
-      if (!originalTextNodes.current.has(node)) {
-        originalTextNodes.current.set(node, node.textContent ?? "");
-      }
-
-      const original = originalTextNodes.current.get(node) ?? "";
+      const original = getOriginalText(node);
       if (!shouldTranslateText(original)) continue;
 
       textNodes.push(node);
@@ -656,9 +769,24 @@ export default function AutoTranslate() {
         const current = element.getAttribute(attr);
         if (!current || !shouldTranslateText(current)) continue;
 
-        const originalAttr = `data-auto-translate-original-${attr}`;
-        const original = element.getAttribute(originalAttr) || current;
-        element.setAttribute(originalAttr, original);
+        const stored = originalAttributes.current.get(element) ?? {};
+        let original = stored[attr];
+
+        if (original === undefined) {
+          original = current;
+          originalAttributes.current.set(element, stored);
+        } else if (appliedLocale.current === locale) {
+          const expected = locale === "fi"
+            ? original
+            : translationCache.current.get(original.trim()) ?? original;
+
+          if (current !== original && current !== expected) {
+            original = current;
+          }
+        }
+
+        stored[attr] = original;
+        originalAttributes.current.set(element, stored);
 
         attrs.push({ element, attr, text: original });
         texts.add(original.trim());
@@ -666,7 +794,7 @@ export default function AutoTranslate() {
     }
 
     return { textNodes, attrs, texts: Array.from(texts) };
-  }, []);
+  }, [locale]);
 
   const saveCache = useCallback(() => {
     if (locale === "fi") return;
@@ -683,37 +811,59 @@ export default function AutoTranslate() {
       if (locale === "fi") {
         for (const node of textNodes) {
           const original = originalTextNodes.current.get(node);
-          if (original) node.textContent = original;
+          if (original && node.textContent !== original) node.textContent = original;
         }
 
         for (const { element, attr } of attrs) {
-          const original = element.getAttribute(`data-auto-translate-original-${attr}`);
-          if (original) element.setAttribute(attr, original);
+          const original = originalAttributes.current.get(element)?.[attr];
+          if (original && element.getAttribute(attr) !== original) element.setAttribute(attr, original);
         }
 
         return;
       }
 
       for (const node of textNodes) {
-        const original = (originalTextNodes.current.get(node) ?? node.textContent ?? "").trim();
+        const originalText = originalTextNodes.current.get(node) ?? node.textContent ?? "";
+        const original = originalText.trim();
         const translated = translationCache.current.get(original);
-        if (translated) node.textContent = node.textContent?.replace(original, translated) ?? translated;
+        if (translated) {
+          const leadingWhitespace = originalText.match(/^\s*/)?.[0] ?? "";
+          const trailingWhitespace = originalText.match(/\s*$/)?.[0] ?? "";
+          const nextText = `${leadingWhitespace}${translated}${trailingWhitespace}`;
+          if (node.textContent !== nextText) node.textContent = nextText;
+        }
       }
 
       for (const { element, attr, text } of attrs) {
         const translated = translationCache.current.get(text.trim());
-        if (translated) element.setAttribute(attr, translated);
+        if (translated && element.getAttribute(attr) !== translated) element.setAttribute(attr, translated);
       }
     },
     [locale]
   );
 
   const translatePage = useCallback(async () => {
-    if (locale === "fi") return;
     if (translating.current) return;
     translating.current = true;
 
     try {
+      if (loadedCacheLocale.current !== locale) {
+        translationCache.current.clear();
+        loadedCacheLocale.current = locale;
+
+        if (locale !== "fi") {
+          try {
+            const saved = localStorage.getItem(storageKey);
+            const parsed = saved ? JSON.parse(saved) as Record<string, string> : {};
+            for (const [key, value] of Object.entries(parsed)) {
+              if (typeof value === "string") translationCache.current.set(key, value);
+            }
+          } catch {
+            translationCache.current.clear();
+          }
+        }
+      }
+
       const { textNodes, attrs, texts } = collect();
 
       for (const text of texts) {
@@ -725,19 +875,58 @@ export default function AutoTranslate() {
         }
       }
 
+      const missingTexts = locale === "fi"
+        ? []
+        : texts.filter((text) => !translationCache.current.has(text));
+
+      for (let offset = 0; offset < missingTexts.length; offset += 80) {
+        const batch = missingTexts.slice(offset, offset + 80);
+
+        try {
+          const response = await fetch("/api/translate-ui", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ targetLocale: locale, texts: batch })
+          });
+
+          if (!response.ok) continue;
+          const payload = await response.json() as { translations?: Record<string, unknown> };
+
+          for (const source of batch) {
+            const translated = payload.translations?.[source];
+            if (typeof translated === "string" && translated.trim()) {
+              translationCache.current.set(source, translated.trim());
+            }
+          }
+        } catch {
+          // Keep the original visible if the translation service is temporarily unavailable.
+        }
+      }
+
       applyTranslations(textNodes, attrs);
+      appliedLocale.current = locale;
       saveCache();
 
     } finally {
       translating.current = false;
+      document.documentElement.setAttribute("data-i18n-ready", locale);
+      if (
+        document.documentElement.hasAttribute("data-visitor-language-ready") &&
+        document.documentElement.lang === locale
+      ) {
+        if (revealTimer.current) window.clearTimeout(revealTimer.current);
+        revealTimer.current = window.setTimeout(() => {
+          if (document.documentElement.lang === locale) {
+            document.documentElement.removeAttribute("data-i18n-pending");
+          }
+        }, 120);
+      }
     }
-  }, [applyTranslations, collect, locale, saveCache]);
+  }, [applyTranslations, collect, locale, saveCache, storageKey]);
 
   useEffect(() => {
-    if (locale === "fi") {
-      originalTextNodes.current = new WeakMap();
-      return;
-    }
+    let observer: MutationObserver | null = null;
+    let startTimer: number | null = null;
 
     function scheduleTranslate() {
       if (pendingRequest.current) {
@@ -745,17 +934,56 @@ export default function AutoTranslate() {
       }
       pendingRequest.current = window.setTimeout(() => {
         void translatePage();
-      }, 120);
+      }, 50);
     }
 
-    scheduleTranslate();
+    function startTranslation() {
+      translationActivated.current = true;
+      void translatePage();
+      observer = new MutationObserver(() => {
+        if (revealTimer.current) window.clearTimeout(revealTimer.current);
+        if (!translating.current) scheduleTranslate();
+      });
+      observer.observe(document.body, {
+        subtree: true,
+        childList: true,
+        characterData: true,
+        attributes: true,
+        attributeFilter: ATTRS
+      });
+    }
+
+    function queueStart() {
+      // AutoTranslate edits React-owned text nodes directly. Give the App
+      // Router time to hydrate the complete page before touching the DOM;
+      // otherwise a remembered non-Finnish locale can translate server HTML
+      // while React is still comparing it, causing a hydration failure.
+      startTimer = window.setTimeout(startTranslation, 750);
+    }
+
+    function handleVisitorLanguageReady() {
+      if (translationActivated.current) void translatePage();
+    }
+
+    window.addEventListener("visitorlanguageready", handleVisitorLanguageReady);
+
+    if (document.readyState === "complete") {
+      queueStart();
+    } else {
+      window.addEventListener("load", queueStart, { once: true });
+    }
 
     return () => {
+      window.removeEventListener("load", queueStart);
+      window.removeEventListener("visitorlanguageready", handleVisitorLanguageReady);
+      observer?.disconnect();
+      if (startTimer) window.clearTimeout(startTimer);
       if (pendingRequest.current) {
         window.clearTimeout(pendingRequest.current);
       }
+      if (revealTimer.current) window.clearTimeout(revealTimer.current);
     };
-  }, [locale, pathname, translatePage]);
+  }, [locale, translatePage]);
 
   return null;
 }

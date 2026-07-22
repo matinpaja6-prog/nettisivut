@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Fragment,
   Suspense,
   useCallback,
   useEffect,
@@ -1480,8 +1481,50 @@ const trackMatDimensionOptions = [
   ...option
 }));
 
-function isPresetTrackMatDimension(value: string) {
-  return trackMatDimensionOptions.some((option) => option.value === value);
+type TrackMatDimensionPart = "length" | "width" | "pitch";
+
+const trackMatDimensionPartOptions: Record<TrackMatDimensionPart, Array<{ value: string; label: string }>> = {
+  length: uniqueTrackMatDimensionParts("length"),
+  width: uniqueTrackMatDimensionParts("width"),
+  pitch: uniqueTrackMatDimensionParts("pitch")
+};
+
+function uniqueTrackMatDimensionParts(part: TrackMatDimensionPart) {
+  const partIndex = part === "length" ? 0 : part === "width" ? 1 : 2;
+  const choices = new Map<string, string>();
+
+  for (const option of trackMatDimensionOptions) {
+    const metricPart = option.cm.split(" x ")[partIndex] ?? "";
+    const imperialPart = option.inch.split(" x ")[partIndex] ?? "";
+    if (metricPart && !choices.has(metricPart)) {
+      choices.set(metricPart, `${metricPart} / ${imperialPart}\"`);
+    }
+  }
+
+  return Array.from(choices, ([value, label]) => ({ value, label }));
+}
+
+function parseTrackMatDimensionParts(value: string) {
+  const metricValue = value.split(" / ")[0]?.trim() ?? "";
+  const parts = metricValue.split(/\s*x\s*/i);
+
+  if (parts.length >= 3) {
+    return {
+      length: parts[0]?.trim() ?? "",
+      width: parts[1]?.trim() ?? "",
+      pitch: parts[2]?.trim() ?? ""
+    };
+  }
+
+  return { length: metricValue, width: "", pitch: "" };
+}
+
+function buildTrackMatDimensionValue(parts: Record<TrackMatDimensionPart, string>) {
+  if (!parts.length && !parts.width && !parts.pitch) return "";
+
+  const metricValue = `${parts.length} x ${parts.width} x ${parts.pitch}`;
+  const preset = trackMatDimensionOptions.find((option) => option.cm === metricValue);
+  return preset?.value ?? metricValue;
 }
 
 function buildPartModelDetails(partModelValue: string, trackMatDetailsValue: string, includeTrackMatDetails: boolean) {
@@ -2578,6 +2621,7 @@ function SellPageContent() {
   const skipInitialStepScrollRef = useRef(true);
   const vehicleAutoAdvancedFieldsRef = useRef<Partial<Record<VehicleDetailKey, boolean>>>({});
   const categoryEntryAutoOpenRef = useRef(false);
+  const categoryInteractionStartedRef = useRef(false);
   const [mode, setMode] = useState<ListingMode>("single");
   const [currentStep, setCurrentStep] = useState(1);
   const [vehicleType, setVehicleType] = useState(vehicleCards[1]);
@@ -2624,6 +2668,7 @@ function SellPageContent() {
     field: "category" | "group" | "detail";
     nonce: number;
   } | null>(null);
+  const [pendingCategoryAdvance, setPendingCategoryAdvance] = useState<"group" | "detail" | null>(null);
   const [accountProfile, setAccountProfile] = useState<UserProfile | null>(null);
   const [companySellers, setCompanySellers] = useState<CompanySeller[]>([]);
   const [selectedCompanySellerId, setSelectedCompanySellerId] = useState("");
@@ -2688,7 +2733,7 @@ function SellPageContent() {
   const selectedCategory =
     categoryOptions.includes(category)
       ? category
-      : categoryOptions[0] ?? "";
+      : "";
   const selectedSubcategories = useMemo(
     () =>
       selectedCategory
@@ -2703,7 +2748,7 @@ function SellPageContent() {
   const selectedCategoryGroup =
     categoryGroupOptions.some((option) => option.value === categoryGroup)
       ? categoryGroup
-      : categoryGroupOptions[0]?.value ?? "";
+      : "";
   const detailCategoryOptions = useMemo(
     () => buildDetailOptions(selectedSubcategories, selectedCategoryGroup),
     [selectedSubcategories, selectedCategoryGroup]
@@ -2711,7 +2756,7 @@ function SellPageContent() {
   const selectedDetailCategory =
     detailCategoryOptions.some((option) => option.value === subcategory)
       ? subcategory
-      : detailCategoryOptions[0]?.value ?? "";
+      : "";
   const selectedSinglePartNeedsTrackMatDimensions = [
     selectedCategory,
     selectedCategoryGroup,
@@ -3077,7 +3122,7 @@ function SellPageContent() {
     async function hydrateDraft() {
       try {
         const draft = await readSellDraft();
-        if (cancelled || !draft || draft.version !== 1) return;
+        if (cancelled || categoryInteractionStartedRef.current || !draft || draft.version !== 1) return;
 
         garagePrefillAppliedRef.current = true;
         listingLocationTouchedRef.current = draft.listingLocationTouched;
@@ -3415,6 +3460,7 @@ function SellPageContent() {
   useEffect(() => {
     if (currentStep !== 3 || mode !== "single") {
       categoryEntryAutoOpenRef.current = false;
+      setPendingCategoryAdvance(null);
       return;
     }
 
@@ -3423,6 +3469,47 @@ function SellPageContent() {
     categoryEntryAutoOpenRef.current = true;
     setCategoryAutoOpenTarget({ field: "category", nonce: Date.now() });
   }, [categoryOptions.length, currentStep, mode, selectedCategory]);
+
+  useEffect(() => {
+    if (pendingCategoryAdvance === "group") {
+      if (!selectedCategory) return;
+
+      setPendingCategoryAdvance(null);
+      if (categoryGroupOptions.length > 0) {
+        setCategoryAutoOpenTarget({ field: "group", nonce: Date.now() });
+      }
+      return;
+    }
+
+    if (pendingCategoryAdvance !== "detail" || !selectedCategoryGroup) return;
+
+    setPendingCategoryAdvance(null);
+
+    const groupIsLeaf = selectedSubcategories.some(
+      (item) => splitCategoryPath(item).length === 1 && item === selectedCategoryGroup
+    );
+    const hasDeeperCategory = selectedSubcategories.some((item) => {
+      const parts = splitCategoryPath(item);
+      return parts[0] === selectedCategoryGroup && parts.length > 1;
+    });
+
+    if (groupIsLeaf && !hasDeeperCategory) {
+      setSubcategory(selectedCategoryGroup);
+      setCategoryAutoOpenTarget(null);
+      return;
+    }
+
+    if (detailCategoryOptions.length > 0) {
+      setCategoryAutoOpenTarget({ field: "detail", nonce: Date.now() });
+    }
+  }, [
+    categoryGroupOptions.length,
+    detailCategoryOptions.length,
+    pendingCategoryAdvance,
+    selectedCategory,
+    selectedCategoryGroup,
+    selectedSubcategories
+  ]);
 
   function updateListingLocation(value: string) {
     listingLocationTouchedRef.current = true;
@@ -3564,11 +3651,13 @@ function SellPageContent() {
   }
 
   function updateStepThreeSelection(update: () => void) {
+    categoryInteractionStartedRef.current = true;
     update();
   }
 
   function advanceCategoryField(nextField: "group" | "detail") {
-    setCategoryAutoOpenTarget({ field: nextField, nonce: Date.now() });
+    setCategoryAutoOpenTarget(null);
+    setPendingCategoryAdvance(nextField);
   }
 
   function toggleMultiPart(option: MultiPartOption) {
@@ -5376,7 +5465,7 @@ function SellPageContent() {
                   });
                 }}
                 options={categoryOptions.map((value) => ({ value, label: value }))}
-                placeholder={st("Ei kategorioita")}
+                placeholder={st("Valitse pÃ¤Ã¤kategoria")}
                 translateText={translateCategoryText}
                 autoOpenNonce={categoryAutoOpenTarget?.field === "category" ? categoryAutoOpenTarget.nonce : 0}
                 open={categoryAutoOpenTarget?.field === "category"}
@@ -6450,7 +6539,11 @@ function PresetField({
   }
 
   return (
-    <label className={styles.presetField} data-preset-key={fieldKey} data-preset-label={label}>
+  <div
+    className={styles.presetField}
+    data-preset-key={fieldKey}
+    data-preset-label={label}
+  >
       <span>{label}</span>
       <span
         className={`${styles.presetSelectShell} ${open ? styles.presetSelectOpen : ""} ${effectiveCustomMode ? styles.presetSelectCustom : ""}`}
@@ -6560,7 +6653,7 @@ function PresetField({
           </div>
         ) : null}
       </span>
-    </label>
+    </div>
   );
 }
 
@@ -6890,56 +6983,116 @@ function TrackMatDimensionField({
   onChange: (value: string) => void;
   placeholder: string;
 }) {
-  const isPresetValue = isPresetTrackMatDimension(value);
-  const isCustomValue = Boolean(value.trim()) && !isPresetValue;
-  const selectValue = isPresetValue ? value : isCustomValue ? customTrackMatDimensionValue : "";
-  const customInputId = `${label.replace(/\W+/g, "-").toLowerCase()}-custom`;
-  const selectedOption = trackMatDimensionOptions.find((option) => option.value === selectValue);
+  const parts = parseTrackMatDimensionParts(value);
+  const [openPart, setOpenPart] = useState<TrackMatDimensionPart | null>(null);
+  const [customParts, setCustomParts] = useState<Record<TrackMatDimensionPart, boolean>>(() => ({
+    length: Boolean(parts.length) && !trackMatDimensionPartOptions.length.some((option) => option.value === parts.length),
+    width: Boolean(parts.width) && !trackMatDimensionPartOptions.width.some((option) => option.value === parts.width),
+    pitch: Boolean(parts.pitch) && !trackMatDimensionPartOptions.pitch.some((option) => option.value === parts.pitch)
+  }));
+  const fields: Array<{
+    key: TrackMatDimensionPart;
+    label: string;
+    placeholder: string;
+  }> = [
+    { key: "length", label: "Pituus", placeholder: "esim. 360 cm" },
+    { key: "width", label: "Leveys", placeholder: "esim. 38 cm" },
+    { key: "pitch", label: "Jako", placeholder: "esim. 7,3 cm" }
+  ];
+
+  function updatePart(key: TrackMatDimensionPart, nextValue: string) {
+    onChange(buildTrackMatDimensionValue({ ...parts, [key]: nextValue }));
+  }
+
+  function choosePartValue(key: TrackMatDimensionPart, nextValue: string) {
+    const useCustomValue = nextValue === customTrackMatDimensionValue;
+    setCustomParts((current) => ({ ...current, [key]: useCustomValue }));
+    updatePart(key, useCustomValue ? "" : nextValue);
+    setOpenPart(null);
+
+    if (useCustomValue) {
+      window.requestAnimationFrame(() => {
+        document.getElementById(`track-mat-${key}-custom`)?.focus();
+      });
+    }
+  }
+
+  const openField = fields.find((field) => field.key === openPart);
 
   return (
-    <label className={styles.trackMatDimensionField}>
+    <div className={styles.trackMatDimensionField}>
       <span>{label}</span>
-      <span className={styles.trackMatDimensionSelectShell}>
-        <span className={styles.trackMatDimensionIconSlot}>
-          {Icon ? <Icon size={22} aria-hidden="true" /> : null}
-        </span>
-        <span className={`${styles.trackMatDimensionValue} ${selectedOption ? "" : styles.trackMatDimensionValueEmpty}`}>
-          {selectedOption ? (
-            <>
-              <strong>{selectedOption.cm}</strong>
-              <small>{selectedOption.inch}"</small>
-            </>
-          ) : (
-            <strong>Valitse maton mitta</strong>
-          )}
-        </span>
-        <select
-          value={selectValue}
-          onChange={(event) => {
-            const nextValue = event.target.value;
-            onChange(nextValue === customTrackMatDimensionValue ? "" : nextValue);
-          }}
-        >
-          <option value="">Valitse maton mitta</option>
-          {trackMatDimensionOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-          <option value={customTrackMatDimensionValue}>Muu</option>
-        </select>
-        <ChevronDown size={18} aria-hidden="true" />
+      <span className={styles.trackMatDimensionFields}>
+        {fields.map((field, index) => {
+          const options = trackMatDimensionPartOptions[field.key];
+          const partValue = parts[field.key];
+          const isPresetPart = options.some((option) => option.value === partValue);
+          const isCustomPart = customParts[field.key] || (Boolean(partValue) && !isPresetPart);
+          const selectValue = isCustomPart ? customTrackMatDimensionValue : partValue;
+
+          return (
+            <Fragment key={field.key}>
+              <span className={styles.trackMatDimensionPartField}>
+                <span>{field.label}</span>
+                <button
+                  type="button"
+                  className={styles.trackMatDimensionPartSelect}
+                  aria-label={field.label}
+                  aria-haspopup="listbox"
+                  aria-expanded={openPart === field.key}
+                  onClick={() =>
+                    setOpenPart((current) =>
+                      current === field.key ? null : field.key
+                    )
+                  }
+                >
+                  {index === 0 && Icon ? (
+                    <Icon size={18} aria-hidden="true" />
+                  ) : null}
+
+                  <span className={styles.trackMatDimensionPartValue}>
+                    {selectValue === customTrackMatDimensionValue
+                      ? "Muu"
+                      : partValue || field.label}
+                  </span>
+
+                  <ChevronDown size={15} aria-hidden="true" />
+                  </button>
+                {selectValue === customTrackMatDimensionValue ? (
+                  <input
+                    id={`track-mat-${field.key}-custom`}
+                    className={styles.trackMatDimensionCustomInput}
+                    value={partValue}
+                    onChange={(event) => updatePart(field.key, event.target.value)}
+                    placeholder={field.placeholder}
+                    aria-label={`Muu ${field.label.toLowerCase()}`}
+                  />
+                ) : null}
+              </span>
+              {index < fields.length - 1 ? (
+                <span className={styles.trackMatDimensionSeparator} aria-hidden="true">x</span>
+              ) : null}
+            </Fragment>
+          );
+        })}
+        {openField ? (
+          <span className={styles.trackMatDimensionPartMenu} role="listbox">
+            <button type="button" onClick={() => choosePartValue(openField.key, "")}>{openField.label}</button>
+            {trackMatDimensionPartOptions[openField.key].map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={parts[openField.key] === option.value ? styles.trackMatDimensionPartOptionActive : ""}
+                onClick={() => choosePartValue(openField.key, option.value)}
+              >
+                {option.label}
+              </button>
+            ))}
+            <button type="button" onClick={() => choosePartValue(openField.key, customTrackMatDimensionValue)}>Muu</button>
+          </span>
+        ) : null}
       </span>
-      {(selectValue === customTrackMatDimensionValue || isCustomValue) ? (
-        <input
-          id={customInputId}
-          className={styles.trackMatDimensionCustomInput}
-          value={isCustomValue ? value : ""}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder={placeholder}
-        />
-      ) : null}
-    </label>
+    </div>
   );
 }
 

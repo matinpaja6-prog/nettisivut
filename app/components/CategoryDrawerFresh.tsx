@@ -879,7 +879,7 @@ export default function CategoryDrawer({
 
           {/* Step 4: Sub-group */}
           {step === 4 && cat && currentSubcategoryGroups && (
-            <ul className="cd-list cd-sub-group-list">
+            <ul className="cd-list cd-sub-group-list" data-no-auto-translate>
               {Object.entries(currentSubcategoryGroups).map(([group, children]) => {
                 const hasChildren = children.length > 0;
                 return (
@@ -908,7 +908,7 @@ export default function CategoryDrawer({
 
           {/* Step 5: Leaf items under selected sub-group */}
           {step === 5 && cat && subGroup && (
-            <ul className="cd-list cd-sub-group-list cd-final-leaf-list">
+            <ul className="cd-list cd-sub-group-list cd-final-leaf-list" data-no-auto-translate>
               {(currentSubcategoryGroups?.[subGroup] ?? subs).map(s => {
                 const translatedFull = translateCategory(locale, s);
                 const leafLabel = translatedFull.includes(" / ") ? translatedFull.split(" / ").slice(1).join(" / ") : translatedFull;
@@ -929,7 +929,7 @@ export default function CategoryDrawer({
 
           {/* Step 5 fallback: Flat subcategories (no groups) */}
           {step === 5 && cat && !subGroup && (
-            <ul className="cd-list cd-sub-group-list cd-final-leaf-list">
+            <ul className="cd-list cd-sub-group-list cd-final-leaf-list" data-no-auto-translate>
               {subs.map(s => (
                 <li key={s}>
                   <button

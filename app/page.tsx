@@ -2091,6 +2091,64 @@ function HomeContent() {
     return translateCategory(locale, value);
   }, [locale]);
 
+  const categoryFilterCopy = {
+    fi: {
+      mainCategory: "Pääkategoria",
+      selectMainCategory: "Valitse pääkategoria",
+      allCategories: "Kaikki kategoriat",
+      subcategory: "Alakategoria",
+      selectSubcategory: "Valitse alakategoria",
+      allSubcategories: "Kaikki alakategoriat",
+      detailedPart: "Tarkempi osa",
+      selectDetailedPart: "Valitse tarkempi osa",
+      allDetailedParts: "Kaikki tarkemmat osat"
+    },
+    en: {
+      mainCategory: "Main category",
+      selectMainCategory: "Select main category",
+      allCategories: "All categories",
+      subcategory: "Subcategory",
+      selectSubcategory: "Select subcategory",
+      allSubcategories: "All subcategories",
+      detailedPart: "Detailed part",
+      selectDetailedPart: "Select detailed part",
+      allDetailedParts: "All detailed parts"
+    },
+    sv: {
+      mainCategory: "Huvudkategori",
+      selectMainCategory: "Välj huvudkategori",
+      allCategories: "Alla kategorier",
+      subcategory: "Underkategori",
+      selectSubcategory: "Välj underkategori",
+      allSubcategories: "Alla underkategorier",
+      detailedPart: "Detaljerad del",
+      selectDetailedPart: "Välj detaljerad del",
+      allDetailedParts: "Alla detaljerade delar"
+    },
+    no: {
+      mainCategory: "Hovedkategori",
+      selectMainCategory: "Velg hovedkategori",
+      allCategories: "Alle kategorier",
+      subcategory: "Underkategori",
+      selectSubcategory: "Velg underkategori",
+      allSubcategories: "Alle underkategorier",
+      detailedPart: "Detaljert del",
+      selectDetailedPart: "Velg detaljert del",
+      allDetailedParts: "Alle detaljerte deler"
+    },
+    et: {
+      mainCategory: "Põhikategooria",
+      selectMainCategory: "Valige põhikategooria",
+      allCategories: "Kõik kategooriad",
+      subcategory: "Alamkategooria",
+      selectSubcategory: "Valige alamkategooria",
+      allSubcategories: "Kõik alamkategooriad",
+      detailedPart: "Täpsem osa",
+      selectDetailedPart: "Valige täpsem osa",
+      allDetailedParts: "Kõik täpsemad osad"
+    }
+  }[locale];
+
   const translateVehicleTypeLabel = useCallback((value?: string | null) => {
     const vehicleTranslations: Record<Locale, Record<string, string>> = {
       fi: {
@@ -3581,6 +3639,26 @@ function HomeContent() {
     return value.toLowerCase().includes("telamat");
   }
 
+  function enforceTrackMatMenuTheme(menu: HTMLDivElement | null) {
+    if (!menu) return;
+
+    menu.style.setProperty("background", "#071b2d", "important");
+    menu.style.setProperty("background-color", "#071b2d", "important");
+    menu.style.setProperty("background-image", "none", "important");
+    menu.style.setProperty("border-color", "rgba(77, 120, 157, 0.72)", "important");
+    menu.style.setProperty("color", "#eef5fb", "important");
+    menu.style.setProperty("color-scheme", "dark", "important");
+
+    menu.querySelectorAll<HTMLElement>(":scope > button, :scope > span").forEach((option) => {
+      option.style.setProperty("background", "transparent", "important");
+      option.style.setProperty("background-color", "transparent", "important");
+      option.style.setProperty("background-image", "none", "important");
+      option.style.setProperty("color", "#eef5fb", "important");
+      option.style.setProperty("-webkit-text-fill-color", "#eef5fb", "important");
+      option.style.setProperty("opacity", "1", "important");
+    });
+  }
+
   const trackMatLengthOptions = useMemo(
     () => uniqueTrackMatChoices(
       TRACK_MAT_DIMENSIONS,
@@ -3880,10 +3958,10 @@ function HomeContent() {
     },
     {
       key: "category",
-      label: "Pääkategoria",
-      value: category || "Valitse pääkategoria",
+      label: categoryFilterCopy.mainCategory,
+      value: category ? translateCategoryLabel(category) : categoryFilterCopy.selectMainCategory,
       options: [
-        { label: "Kaikki kategoriat", value: "" },
+        { label: categoryFilterCopy.allCategories, value: "" },
         ...Object.keys(categorySource).map((option) => ({ label: translateCategoryLabel(option), value: option }))
       ],
       onSelect: (value: string) => {
@@ -3894,10 +3972,12 @@ function HomeContent() {
     },
     {
       key: "subcategory",
-      label: "Alakategoria",
-      value: selectedSubcategoryParent || "Valitse alakategoria",
+      label: categoryFilterCopy.subcategory,
+      value: selectedSubcategoryParent
+        ? translateCategoryLabel(selectedSubcategoryParent)
+        : categoryFilterCopy.selectSubcategory,
       options: [
-        { label: "Kaikki alakategoriat", value: "" },
+        { label: categoryFilterCopy.allSubcategories, value: "" },
         ...subcategoryParentOptions.map((option) => ({ label: translateCategoryLabel(option), value: option }))
       ],
       onSelect: (value: string) => {
@@ -3924,16 +4004,16 @@ function HomeContent() {
     },
     {
       key: "detailSubcategory",
-      label: "Tarkempi osa",
-      value: selectedSubcategoryLeaf || (
+      label: categoryFilterCopy.detailedPart,
+      value: selectedSubcategoryLeaf ? translateCategoryLabel(selectedSubcategoryLeaf) : (
         isTrackMatSelection(subcategory)
-          ? "Telamatot"
+          ? translateCategoryLabel("Telamatot")
           : subcategory
-            ? "Kaikki tarkemmat osat"
-            : "Valitse tarkempi osa"
+            ? categoryFilterCopy.allDetailedParts
+            : categoryFilterCopy.selectDetailedPart
       ),
       options: [
-        { label: "Kaikki tarkemmat osat", value: selectedSubcategoryParent || "" },
+        { label: categoryFilterCopy.allDetailedParts, value: selectedSubcategoryParent || "" },
         ...detailedSubcategoryOptions.map((option) => ({
           label: translateCategoryLabel(option.split("/").at(-1)?.trim() || option),
           value: option
@@ -4385,7 +4465,15 @@ function HomeContent() {
                         onTouchStart={(event) => event.stopPropagation()}
                       >
                         {heroFilterFields.slice(0, 4).map((field) => (
-                          <div key={`mobile-${field.key}`} className={styles.mobileSheetField}>
+                          <div
+                            key={`mobile-${field.key}`}
+                            className={styles.mobileSheetField}
+                            data-no-auto-translate={[
+                              "category",
+                              "subcategory",
+                              "detailSubcategory"
+                            ].includes(field.key) ? "" : undefined}
+                          >
                             <span>{field.label}</span>
                             <button
                               type="button"
@@ -4515,7 +4603,15 @@ function HomeContent() {
                         </div>
 
                         {heroFilterFields.slice(4).map((field) => (
-                          <div key={`mobile-${field.key}`} className={styles.mobileSheetField}>
+                          <div
+                            key={`mobile-${field.key}`}
+                            className={styles.mobileSheetField}
+                            data-no-auto-translate={[
+                              "category",
+                              "subcategory",
+                              "detailSubcategory"
+                            ].includes(field.key) ? "" : undefined}
+                          >
                             {field.key === "category" ? <b className={styles.mobileSheetSectionTitle}>Osakategoriointi</b> : null}
                             <span>{field.label}</span>
                             <button
@@ -4591,6 +4687,7 @@ function HomeContent() {
                                       <button
                                         type="button"
                                         className={styles.mobileSheetSelect}
+                                        data-track-mat-trigger={field.key}
                                         onClick={(event) => toggleMobileHeroFilter(
                                           field.key,
                                           event.currentTarget.parentElement ?? event.currentTarget
@@ -4601,7 +4698,11 @@ function HomeContent() {
                                       </button>
                                     )}
                                     {activeHeroFilter === field.key ? (
-                                      <div className={styles.mobileSheetMenu}>
+                                      <div
+                                        ref={enforceTrackMatMenuTheme}
+                                        className={styles.mobileSheetMenu}
+                                        data-track-mat-menu="true"
+                                      >
                                         <button type="button" onClick={() => field.onSelect("")}>
                                           {field.placeholder}
                                         </button>
@@ -4898,7 +4999,7 @@ function HomeContent() {
                     <div className={styles.heroPartCategoryStack} aria-label="Osakategoriointi">
                       <span className={styles.heroPartCategoryTitle}>Osakategoriointi</span>
                       {heroRailPartCategoryFields.map((field) => (
-                        <div key={field.key} className={styles.heroFilterFieldWrap}>
+                        <div key={field.key} className={styles.heroFilterFieldWrap} data-no-auto-translate>
                           <span className={styles.heroFilterLabel}>{field.label}</span>
                           <button
                             type="button"
@@ -4971,6 +5072,7 @@ function HomeContent() {
                                     <button
                                       type="button"
                                       className={styles.heroFilterSelect}
+                                      data-track-mat-trigger={field.key}
                                       onClick={() =>
                                         setActiveHeroFilter((current) =>
                                           current === field.key ? null : field.key
@@ -4982,7 +5084,11 @@ function HomeContent() {
                                     </button>
                                   )}
                                   {activeHeroFilter === field.key ? (
-                                    <div className={styles.heroFilterMenu}>
+                                    <div
+                                      ref={enforceTrackMatMenuTheme}
+                                      className={styles.heroFilterMenu}
+                                      data-track-mat-menu="true"
+                                    >
                                       <button
                                         type="button"
                                         className={styles.heroFilterMenuOption}

@@ -64,6 +64,11 @@ export default function VisitorLanguageGate() {
   const [fingerprint, setFingerprint] = useState("");
   const [open, setOpen] = useState(false);
 
+  function markVisitorLanguageReady() {
+    document.documentElement.setAttribute("data-visitor-language-ready", "true");
+    window.dispatchEvent(new Event("visitorlanguageready"));
+  }
+
   function rememberOnServer(locale: Locale) {
     void fetch("/api/visitor-language", {
       method: "POST",
@@ -82,11 +87,24 @@ export default function VisitorLanguageGate() {
     let openTimer: ReturnType<typeof setTimeout> | undefined;
     const params = new URLSearchParams(window.location.search);
     const forcePromptOnce = params.get(FORCE_PROMPT_PARAM) === "1";
+    const immediateLocale = localStorage.getItem("locale");
+
+    // A locally selected language is authoritative and is available before
+    // the visitor API responds. Apply it immediately so the first visible
+    // frame is already in the right language.
+    if (!forcePromptOnce && isLocale(immediateLocale)) {
+      applyLocale(immediateLocale);
+      markVisitorLanguageReady();
+    }
 
     fetch("/api/visitor-language", { cache: "no-store" })
       .then((response) => response.json() as Promise<VisitorLanguageResponse>)
       .then(({ fingerprint: nextFingerprint, selectedLocale }) => {
-        if (cancelled || !nextFingerprint) return;
+        if (cancelled) return;
+        if (!nextFingerprint) {
+          markVisitorLanguageReady();
+          return;
+        }
 
         setFingerprint(nextFingerprint);
         if (forcePromptOnce) {
@@ -101,28 +119,37 @@ export default function VisitorLanguageGate() {
           openTimer = setTimeout(() => {
             if (!cancelled) setOpen(true);
           }, 450);
+          markVisitorLanguageReady();
+          return;
+        }
+
+        const rememberedLocale =
+          localStorage.getItem(`${STORAGE_PREFIX}${nextFingerprint}`) ||
+          localStorage.getItem("locale");
+
+        if (isLocale(rememberedLocale)) {
+          localStorage.setItem(`${STORAGE_PREFIX}${nextFingerprint}`, rememberedLocale);
+          rememberOnServer(rememberedLocale);
+          applyLocale(rememberedLocale);
+          markVisitorLanguageReady();
           return;
         }
 
         if (isLocale(selectedLocale)) {
           localStorage.setItem(`${STORAGE_PREFIX}${nextFingerprint}`, selectedLocale);
           applyLocale(selectedLocale);
-          return;
-        }
-
-        const rememberedLocale = localStorage.getItem(`${STORAGE_PREFIX}${nextFingerprint}`);
-        if (isLocale(rememberedLocale)) {
-          rememberOnServer(rememberedLocale);
-          applyLocale(rememberedLocale);
+          markVisitorLanguageReady();
           return;
         }
 
         openTimer = setTimeout(() => {
           if (!cancelled) setOpen(true);
         }, 450);
+        markVisitorLanguageReady();
       })
       .catch(() => {
         // If IP detection is unavailable, the normal language switcher remains usable.
+        if (!cancelled) markVisitorLanguageReady();
       });
 
     return () => {

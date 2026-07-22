@@ -277,6 +277,13 @@ export type Conversation = {
   seller_id: string;
   created_at: string;
   updated_at?: string;
+  listing_deleted_at?: string | null;
+  expires_at?: string | null;
+  listing_title?: string | null;
+  listing_image_url?: string | null;
+  listing_price?: number | null;
+  listing_seller_name?: string | null;
+  listing_number?: number | null;
 };
 
 export type ChatMessage = {
@@ -4692,6 +4699,28 @@ export async function findReviewBuyerByPhone(
    MESSAGES
 ========================= */
 
+function isConversationUnexpired(conversation: Conversation) {
+  if (!conversation.expires_at) return true;
+
+  const expiresAt = new Date(conversation.expires_at).getTime();
+  return Number.isNaN(expiresAt) || expiresAt > Date.now();
+}
+
+function retainedListingSnapshot(
+  conversation: Conversation
+): ConversationSummary["listing"] {
+  if (!conversation.listing_deleted_at) return null;
+
+  return {
+    id: conversation.listing_id,
+    listing_number: conversation.listing_number ?? undefined,
+    title: conversation.listing_title?.trim() || "Poistettu ilmoitus",
+    image_url: conversation.listing_image_url ?? "",
+    price: Number(conversation.listing_price) || 0,
+    seller_name: conversation.listing_seller_name ?? ""
+  };
+}
+
 export async function getConversationSummaries(
   userId: string
 ) {
@@ -4754,7 +4783,11 @@ export async function getConversationSummaries(
     }
 
     const conversations =
-      conversationsResult.data;
+      conversationsResult.data.filter(isConversationUnexpired);
+
+    if (conversations.length === 0) {
+      return { data: [], error: null };
+    }
 
     const listingIds =
       Array.from(
@@ -4966,7 +4999,7 @@ export async function getConversationSummaries(
             listing:
               listingsById.get(
                 conversation.listing_id
-              ) ?? null,
+              ) ?? retainedListingSnapshot(conversation),
             other_profile:
               profilesById.get(
                 otherUserId
@@ -5098,7 +5131,11 @@ export async function getUnreadConversationSummaries(
     }
 
     const conversations =
-      conversationsResult.data;
+      conversationsResult.data.filter(isConversationUnexpired);
+
+    if (conversations.length === 0) {
+      return { data: [], error: null };
+    }
 
     const listingIds =
       Array.from(
@@ -5243,7 +5280,8 @@ export async function getUnreadConversationSummaries(
           return {
             ...conversation,
             listing:
-              listingsById.get(conversation.listing_id) ?? null,
+              listingsById.get(conversation.listing_id) ??
+              retainedListingSnapshot(conversation),
             other_profile:
               profilesById.get(otherUserId) ?? null,
             last_message:

@@ -2550,10 +2550,34 @@ body [class*="heroYearRangeField"] [class*="heroYearDash"] {
     width: 100% !important;
   }
 
-  body [class*="heroFilterMenuOption"]:hover {
-    background: rgba(255, 122, 26, 0.18) !important;
-    color: #ffffff !important;
-  }
+body [class*="heroFilterMenuOption"]:hover {
+  background: rgba(255, 122, 26, 0.18) !important;
+  color: #ffffff !important;
+}
+
+/* Track-mat dimension menus use an explicit hook because production CSS
+   module class names are obfuscated and cannot be targeted by class substring. */
+html body [data-track-mat-menu="true"] {
+  background: #071b2d !important;
+  background-color: #071b2d !important;
+  border: 1px solid rgba(77, 120, 157, 0.72) !important;
+  color: #eef5fb !important;
+  color-scheme: dark !important;
+}
+
+html body [data-track-mat-menu="true"] > button,
+html body [data-track-mat-menu="true"] > span {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #eef5fb !important;
+  -webkit-text-fill-color: #eef5fb !important;
+}
+
+html body [data-track-mat-menu="true"] > button:hover {
+  background: rgba(255, 122, 26, 0.15) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
 
   body [class*="heroYearSlider"] {
     box-sizing: border-box !important;

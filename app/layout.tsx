@@ -33,6 +33,7 @@ import "./styles/home-latest-final.css";
 import "./styles/footer-final-polish.css";
 import "./styles/home-topbar-center.css";
 import "./styles/listing-cards-unified.css";
+import "./styles/track-mat-final.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";
@@ -185,9 +186,23 @@ export default function RootLayout({
     })();
   `;
 
+  const earlyLocale = `
+    (function () {
+      try {
+        var match = document.cookie.match(/(?:^|;\\s*)locale=(fi|en|sv|no|et)(?:;|$)/);
+        var stored = localStorage.getItem('locale');
+        var locale = match ? match[1] : (/^(fi|en|sv|no|et)$/.test(stored || '') ? stored : 'fi');
+        document.documentElement.lang = locale;
+        document.documentElement.setAttribute('data-i18n-pending', 'true');
+      } catch (e) {}
+    })();
+  `;
+
   return (
     <html lang="fi" suppressHydrationWarning>
       <head>
+        <style>{`html[data-i18n-pending="true"] body { visibility: hidden; }`}</style>
+        <script dangerouslySetInnerHTML={{ __html: earlyLocale }} />
         <script dangerouslySetInnerHTML={{ __html: earlyAppearance }} />
         <SourceFog />
       </head>

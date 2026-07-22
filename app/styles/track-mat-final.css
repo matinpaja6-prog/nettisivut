@@ -1,0 +1,75 @@
+/* Stable production hooks for the track-mat dimension controls.
+   Keep this stylesheet last in layout.tsx so older global themes cannot
+   recolor the menu or squeeze translated labels onto two lines. */
+html body [data-track-mat-menu="true"],
+html body .cd-track-mat-menu {
+  background: #071b2d !important;
+  background-color: #071b2d !important;
+  background-image: none !important;
+  border: 1px solid rgba(77, 120, 157, 0.72) !important;
+  color: #eef5fb !important;
+  color-scheme: dark !important;
+}
+
+html body [data-track-mat-menu="true"]::before,
+html body [data-track-mat-menu="true"]::after,
+html body .cd-track-mat-menu::before,
+html body .cd-track-mat-menu::after {
+  background: transparent !important;
+  content: none !important;
+  display: none !important;
+}
+
+html body [data-track-mat-menu="true"] > button,
+html body [data-track-mat-menu="true"] > span,
+html body .cd-track-mat-menu > button,
+html body .cd-track-mat-menu > span {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  color: #eef5fb !important;
+  -webkit-text-fill-color: #eef5fb !important;
+}
+
+html body [data-track-mat-menu="true"] > button:hover {
+  background: rgba(255, 122, 26, 0.15) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html body [data-track-mat-trigger] {
+  align-items: center !important;
+  grid-template-columns: minmax(0, 1fr) 14px !important;
+  min-width: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 7px !important;
+}
+
+html body [data-track-mat-trigger] > strong {
+  display: block !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html body [data-track-mat-trigger] > svg {
+  height: 13px !important;
+  min-width: 13px !important;
+  width: 13px !important;
+}
+
+/* The length control carries a ruler decoration, so give its label a little
+   more room than width and pitch on both desktop and phone layouts. */
+html body [data-track-mat-trigger="trackMatLength"] {
+  padding-left: 7px !important;
+  padding-right: 5px !important;
+}
+
+@media (max-width: 720px) {
+  html body [data-track-mat-trigger] > strong {
+    font-size: 10.5px !important;
+  }
+}

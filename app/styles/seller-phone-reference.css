@@ -348,6 +348,31 @@
     width: 13px !important;
   }
 
+  html body .seller-page .seller-ref-stat.is-rating > .seller-ref-rating-stars {
+    display: inline-flex !important;
+    gap: 2px !important;
+    max-width: none !important;
+  }
+
+  html body .seller-page .seller-ref-stat.is-rating .seller-ref-rating-star {
+    height: var(--seller-rating-star-size) !important;
+    max-width: none !important;
+    width: var(--seller-rating-star-size) !important;
+  }
+
+  html body .seller-page .seller-ref-stat.is-rating .seller-ref-rating-star svg {
+    height: var(--seller-rating-star-size) !important;
+    width: var(--seller-rating-star-size) !important;
+  }
+
+  html body .seller-page .seller-ref-stat.is-rating .seller-ref-rating-star-outline {
+    fill: none !important;
+  }
+
+  html body .seller-page .seller-ref-stat.is-rating .seller-ref-rating-star-fill svg {
+    fill: currentColor !important;
+  }
+
   html body .seller-page .sp-tabs {
     align-items: stretch !important;
     border-radius: 12px 12px 0 0 !important;

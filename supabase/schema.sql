@@ -219,11 +219,18 @@ grant execute on function public.increment_listing_view(uuid) to anon, authentic
 
 create table if not exists public.conversations (
   id uuid primary key default gen_random_uuid(),
-  listing_id uuid not null references public.listings(id) on delete cascade,
+  listing_id uuid not null,
   buyer_id uuid not null references public.profiles(id) on delete cascade,
   seller_id uuid not null references public.profiles(id) on delete cascade,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  listing_deleted_at timestamptz,
+  expires_at timestamptz,
+  listing_title text,
+  listing_image_url text,
+  listing_price numeric,
+  listing_seller_name text,
+  listing_number bigint,
   constraint conversations_buyer_seller_check check (buyer_id <> seller_id),
   constraint conversations_unique_listing_pair unique (listing_id, buyer_id, seller_id)
 );
@@ -234,7 +241,10 @@ drop policy if exists "Conversation participants can read" on public.conversatio
 create policy "Conversation participants can read"
 on public.conversations for select
 to authenticated
-using (auth.uid()::uuid = buyer_id::uuid or auth.uid()::uuid = seller_id::uuid);
+using (
+  (auth.uid()::uuid = buyer_id::uuid or auth.uid()::uuid = seller_id::uuid)
+  and (expires_at is null or expires_at > now())
+);
 
 drop policy if exists "Buyers can create listing conversations" on public.conversations;
 create policy "Buyers can create listing conversations"
@@ -274,7 +284,7 @@ using (
 create table if not exists public.messages (
   id uuid primary key default gen_random_uuid(),
   conversation_id uuid not null references public.conversations(id) on delete cascade,
-  listing_id uuid not null references public.listings(id) on delete cascade,
+  listing_id uuid not null,
   sender_id uuid not null references public.profiles(id) on delete cascade,
   receiver_id uuid not null references public.profiles(id) on delete cascade,
   content text not null default '',
@@ -290,7 +300,15 @@ drop policy if exists "Message participants can read" on public.messages;
 create policy "Message participants can read"
 on public.messages for select
 to authenticated
-using (auth.uid()::uuid = sender_id::uuid or auth.uid()::uuid = receiver_id::uuid);
+using (
+  (auth.uid()::uuid = sender_id::uuid or auth.uid()::uuid = receiver_id::uuid)
+  and exists (
+    select 1
+    from public.conversations c
+    where c.id = messages.conversation_id
+      and (c.expires_at is null or c.expires_at > now())
+  )
+);
 
 drop policy if exists "Message senders can create" on public.messages;
 create policy "Message senders can create"
@@ -367,3 +385,59 @@ create index if not exists messages_receiver_idx on public.messages (receiver_id
 create index if not exists messages_receiver_unread_idx
   on public.messages (receiver_id, conversation_id, created_at)
   where read = false;
+
+create index if not exists conversations_expires_at_idx
+  on public.conversations (expires_at)
+  where expires_at is not null;
+
+create or replace function public.retain_conversations_for_deleted_listing()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.conversations
+  set
+    listing_deleted_at = coalesce(listing_deleted_at, now()),
+    expires_at = coalesce(expires_at, now() + interval '20 days'),
+    listing_title = coalesce(listing_title, old.title),
+    listing_image_url = coalesce(listing_image_url, old.image_url),
+    listing_price = coalesce(listing_price, old.price),
+    listing_seller_name = coalesce(listing_seller_name, old.seller_name),
+    listing_number = coalesce(
+      listing_number,
+      nullif(to_jsonb(old) ->> 'listing_number', '')::bigint
+    )
+  where listing_id = old.id;
+
+  return old;
+end;
+$$;
+
+drop trigger if exists listings_retain_conversations_before_delete
+  on public.listings;
+create trigger listings_retain_conversations_before_delete
+before delete on public.listings
+for each row
+execute function public.retain_conversations_for_deleted_listing();
+
+create or replace function public.purge_expired_listing_conversations()
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  deleted_count integer;
+begin
+  delete from public.conversations
+  where expires_at is not null
+    and expires_at <= now();
+
+  get diagnostics deleted_count = row_count;
+  return deleted_count;
+end;
+$$;
+
+revoke all on function public.purge_expired_listing_conversations() from public;

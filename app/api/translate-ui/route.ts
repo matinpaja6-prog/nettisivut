@@ -53,6 +53,42 @@ function normalizeResult(texts: string[], value: unknown) {
   );
 }
 
+async function translateWithGoogle(text: string, targetLocale: UiLocale) {
+  const query = new URLSearchParams({
+    client: "gtx",
+    sl: "auto",
+    tl: targetLocale,
+    dt: "t",
+    q: text
+  });
+  const response = await fetch(`https://translate.googleapis.com/translate_a/single?${query}`, {
+    cache: "no-store"
+  });
+
+  if (!response.ok) return text;
+  const payload = await response.json();
+  return payload?.[0]?.map((part: unknown[]) => part?.[0] ?? "").join("").trim() || text;
+}
+
+async function translateMissingWithFallback(texts: string[], targetLocale: UiLocale) {
+  const output: Record<string, string> = {};
+  let cursor = 0;
+
+  async function worker() {
+    while (cursor < texts.length) {
+      const text = texts[cursor++];
+      try {
+        output[text] = await translateWithGoogle(text, targetLocale);
+      } catch {
+        output[text] = text;
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(6, texts.length) }, worker));
+  return output;
+}
+
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as TranslateUiRequest;
 
@@ -79,14 +115,18 @@ export async function POST(request: Request) {
   });
 
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey || missing.length === 0) {
+  if (missing.length === 0) {
     return NextResponse.json({
-      translations: {
-        ...identityResult(missing),
-        ...cachedTranslations
-      },
-      warning: apiKey ? undefined : "OPENAI_API_KEY puuttuu."
+      translations: cachedTranslations
     });
+  }
+
+  if (!apiKey) {
+    const translated = await translateMissingWithFallback(missing, body.targetLocale);
+    for (const [source, translation] of Object.entries(translated)) {
+      memoryCache.set(`${body.targetLocale}:${source}`, translation);
+    }
+    return NextResponse.json({ translations: { ...translated, ...cachedTranslations } });
   }
 
   const prompt = [
@@ -112,15 +152,7 @@ export async function POST(request: Request) {
       })
     });
 
-    if (!response.ok) {
-      return NextResponse.json({
-        translations: {
-          ...identityResult(missing),
-          ...cachedTranslations
-        },
-        warning: "Käännöspalvelu ei vastannut."
-      });
-    }
+    if (!response.ok) throw new Error("OpenAI translation failed");
 
     const data = await response.json();
     const output =
@@ -143,12 +175,12 @@ export async function POST(request: Request) {
       }
     });
   } catch {
+    const translated = await translateMissingWithFallback(missing, body.targetLocale);
+    for (const [source, translation] of Object.entries(translated)) {
+      memoryCache.set(`${body.targetLocale}:${source}`, translation);
+    }
     return NextResponse.json({
-      translations: {
-        ...identityResult(missing),
-        ...cachedTranslations
-      },
-      warning: "Käännöspalvelu ei onnistunut."
+      translations: { ...translated, ...cachedTranslations }
     });
   }
 }
