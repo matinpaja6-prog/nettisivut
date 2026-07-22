@@ -6985,6 +6985,7 @@ function TrackMatDimensionField({
 }) {
   const parts = parseTrackMatDimensionParts(value);
   const [openPart, setOpenPart] = useState<TrackMatDimensionPart | null>(null);
+  const trackMatFieldRef = useRef<HTMLDivElement>(null);
   const [customParts, setCustomParts] = useState<Record<TrackMatDimensionPart, boolean>>(() => ({
     length: Boolean(parts.length) && !trackMatDimensionPartOptions.length.some((option) => option.value === parts.length),
     width: Boolean(parts.width) && !trackMatDimensionPartOptions.width.some((option) => option.value === parts.width),
@@ -7017,10 +7018,44 @@ function TrackMatDimensionField({
     }
   }
 
+useEffect(() => {
+  if (!openPart) return;
+
+  function handleOutsideClick(event: PointerEvent) {
+    const target = event.target;
+
+    if (!(target instanceof Node)) return;
+
+    if (trackMatFieldRef.current?.contains(target)) {
+      return;
+    }
+
+    setOpenPart(null);
+  }
+
+  function handleEscape(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      setOpenPart(null);
+    }
+  }
+
+  document.addEventListener("pointerdown", handleOutsideClick);
+  document.addEventListener("keydown", handleEscape);
+
+  return () => {
+    document.removeEventListener("pointerdown", handleOutsideClick);
+    document.removeEventListener("keydown", handleEscape);
+  };
+}, [openPart]);
+
+  
   const openField = fields.find((field) => field.key === openPart);
 
   return (
-    <div className={styles.trackMatDimensionField}>
+      <div
+        ref={trackMatFieldRef}
+        className={styles.trackMatDimensionField}
+      >
       <span>{label}</span>
       <span className={styles.trackMatDimensionFields}>
         {fields.map((field, index) => {

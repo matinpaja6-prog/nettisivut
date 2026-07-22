@@ -5372,7 +5372,8 @@
 .trackMatDimensionPartMenu[role="listbox"] {
   position: absolute;
   z-index: 9999;
-  top: 67px;
+  top: calc(100% + 6px);
+  bottom: auto;
   left: 0;
   right: 0;
 
@@ -5469,4 +5470,213 @@
   border: 2px solid #061726;
   border-radius: 999px;
   background: #3a5876;
+}
+/* ======================================================
+   TELAMATON MITTAVALIKKO – AINA ALASPÄIN
+   ====================================================== */
+
+/* Estää ilmoituslaatikkoa leikkaamasta valikkoa */
+.multiListingRow.multiListingSinglePart {
+  overflow: visible !important;
+}
+
+/* Estää lomakealuetta leikkaamasta valikkoa */
+.multiListingSinglePart .multiListingDetails {
+  overflow: visible !important;
+}
+
+/* Valikon sijainnin perustana oleva alue */
+.trackMatDimensionField {
+  position: relative;
+  overflow: visible !important;
+}
+
+.trackMatDimensionFields {
+  position: relative;
+  overflow: visible !important;
+}
+
+/* Valikko avautuu aina laatikoiden alapuolelle */
+.trackMatDimensionPartMenu[role="listbox"] {
+  top: calc(100% + 6px) !important;
+  bottom: auto !important;
+
+  z-index: 9999 !important;
+
+  max-height: min(320px, 46dvh);
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+/* ======================================================
+   TELAMATON MITTAVALIKKO PÄÄLLEKKÄISENÄ
+   Näyttää enintään 6 vaihtoehtoa kerrallaan
+   Ei suurenna ilmoituslaatikkoa
+   ====================================================== */
+
+/* Nämä elementit eivät saa leikata avautuvaa valikkoa */
+.multiListingCategory,
+.multiListingCategoryBody,
+.multiListingGroup,
+.multiListingTable,
+.multiListingRow,
+.multiListingSinglePart,
+.multiListingDetails,
+.trackMatDimensionField,
+.trackMatDimensionFields {
+  overflow: visible !important;
+}
+
+/* Nostaa avoimen ilmoituksen muiden elementtien yläpuolelle */
+.multiListingRow:has(.trackMatDimensionPartMenu[role="listbox"]) {
+  position: relative;
+  z-index: 5000;
+}
+
+/* Mittaosion sijainnin pohja */
+.trackMatDimensionField {
+  position: relative;
+  z-index: 1;
+}
+
+.trackMatDimensionFields {
+  position: relative;
+  z-index: 2;
+}
+
+/* Avautuva Pituus / Leveys / Jako -valikko */
+.trackMatDimensionPartMenu[role="listbox"] {
+  position: absolute !important;
+
+  /* Aukeaa aina laatikoiden alapuolelle */
+  top: calc(100% + 6px) !important;
+  bottom: auto !important;
+
+  left: 0;
+  right: 0;
+
+  z-index: 9999 !important;
+
+  display: grid;
+  gap: 4px;
+
+  width: 100%;
+
+  /*
+    6 riviä:
+    6 × 40 px + 5 × 4 px gap + 14 px padding = 274 px
+  */
+  max-height: 274px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+
+  padding: 7px;
+
+  border: 1px solid rgba(121, 153, 187, 0.3);
+  border-radius: 9px;
+
+  background: #061726 !important;
+  background-color: #061726 !important;
+  background-image: none !important;
+
+  color: #f4f8fc;
+
+  box-shadow:
+    0 22px 54px rgba(0, 0, 0, 0.58),
+    0 0 0 1px rgba(121, 153, 187, 0.3);
+
+  scrollbar-width: thin;
+  scrollbar-color: #3a5876 #061726;
+}
+
+/* Jokainen vaihtoehto on kokonaan klikattava */
+.trackMatDimensionPartMenu[role="listbox"] > button {
+  display: block;
+  box-sizing: border-box;
+
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
+
+  padding: 0 12px;
+
+  border: 0 !important;
+  border-radius: 6px;
+
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+
+  color: #f4f8fc !important;
+  -webkit-text-fill-color: #f4f8fc !important;
+
+  font: inherit;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 40px;
+
+  text-align: left;
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+/* Hover ja näppäimistöfokus */
+.trackMatDimensionPartMenu[role="listbox"] > button:hover,
+.trackMatDimensionPartMenu[role="listbox"] > button:focus-visible {
+  background: rgba(56, 189, 248, 0.15) !important;
+  background-color: rgba(56, 189, 248, 0.15) !important;
+
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+
+  outline: none;
+}
+
+/* Valittu vaihtoehto */
+.trackMatDimensionPartMenu[role="listbox"]
+  > button.trackMatDimensionPartOptionActive,
+.trackMatDimensionPartMenu[role="listbox"]
+  > button[aria-selected="true"] {
+  background: #8fc2f3 !important;
+  background-color: #8fc2f3 !important;
+
+  color: #04111f !important;
+  -webkit-text-fill-color: #04111f !important;
+}
+
+/* Chrome- ja Edge-selaimen vierityspalkki */
+.trackMatDimensionPartMenu[role="listbox"]::-webkit-scrollbar {
+  width: 8px;
+}
+
+.trackMatDimensionPartMenu[role="listbox"]::-webkit-scrollbar-track {
+  background: #061726;
+}
+
+.trackMatDimensionPartMenu[role="listbox"]::-webkit-scrollbar-thumb {
+  border: 2px solid #061726;
+  border-radius: 999px;
+  background: #3a5876;
+}
+
+.trackMatDimensionPartMenu[role="listbox"]::-webkit-scrollbar-thumb:hover {
+  background: #4b6c8d;
+}
+
+/* Estää valikkoa suurentamasta ilmoituslaatikkoa */
+.trackMatDimensionField:has(.trackMatDimensionPartMenu),
+.trackMatDimensionFields:has(.trackMatDimensionPartMenu) {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
 }
