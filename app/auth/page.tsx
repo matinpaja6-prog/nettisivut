@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
+import { FormEvent, MouseEvent as ReactMouseEvent, Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
@@ -1571,8 +1571,43 @@ function AuthPageContent() {
     replaceAuthModeUrl(authPagePath, mode);
   }
 
+  function returnToHome() {
+    router.push("/");
+  }
+
+  function handleAuthBackgroundClick(event: ReactMouseEvent<HTMLElement>) {
+    const target = event.target;
+    if (
+      !(target instanceof Element) ||
+      target.closest(".auth-card, .auth-modal, .auth-mobile-back-home")
+    ) {
+      return;
+    }
+
+    const isMobile = window.matchMedia("(max-width: 760px)").matches;
+    const isDismissableLogin =
+      authMode === "login" &&
+      !user &&
+      !recoveryMode &&
+      !registrationPinPending &&
+      !emailPending &&
+      !resetModalOpen;
+
+    if (isMobile && isDismissableLogin) {
+      returnToHome();
+    }
+  }
+
   return (
-    <main className="auth-page simple-auth-page">
+    <main className="auth-page simple-auth-page" onClick={handleAuthBackgroundClick}>
+      <button
+        type="button"
+        className="auth-mobile-back-home"
+        aria-label="Takaisin etusivulle"
+        onClick={returnToHome}
+      >
+        <ArrowLeft size={26} aria-hidden="true" />
+      </button>
       <section className="simple-auth auth-centered">
         {recoveryMode ? (
           <form
