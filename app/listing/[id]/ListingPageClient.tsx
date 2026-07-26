@@ -705,6 +705,12 @@ export default function ListingPage() {
   }, [listing]);
 
   useEffect(() => {
+    if (!loading && !listing) {
+      router.replace("/");
+    }
+  }, [listing, loading, router]);
+
+  useEffect(() => {
     if (!supabase || !sellerIdForPublicStats) {
       setSellerWebsite(null);
       setSellerBusinessId(null);
@@ -1184,7 +1190,7 @@ export default function ListingPage() {
   }
 
   if (!listing) {
-    return <div>{ui.notFound}</div>;
+    return null;
   }
 
   const sellerProfileId =
