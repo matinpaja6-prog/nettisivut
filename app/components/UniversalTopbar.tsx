@@ -15,7 +15,6 @@ import {
   getAlertNotifications,
   getCurrentUserIsAdmin,
   getGarageVehicles,
-  getProfile,
   getSafeAuthUser,
   getUnreadConversationSummaries,
   getPublicSellerLevelStats,
@@ -124,6 +123,52 @@ function getAuthUserAvatarUrl(user: User | null) {
   return [metadata.avatar_url, metadata.picture]
     .map((value) => String(value ?? "").trim())
     .find(Boolean) ?? null;
+}
+
+type TopbarProfile = {
+  avatar_url: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  full_name: string | null;
+  name: string | null;
+  company_name: string | null;
+};
+
+async function getTopbarProfile(userId: string): Promise<TopbarProfile | null> {
+  if (!supabase) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("avatar_url,first_name,last_name,full_name,name,company_name")
+      .eq("id", userId)
+      .maybeSingle<TopbarProfile>();
+
+    return error ? null : data;
+  } catch {
+    return null;
+  }
+}
+
+function getTopbarProfileDisplayName(
+  profile: TopbarProfile | null,
+  fallbackEmail?: string | null,
+  fallbackName?: string | null
+) {
+  const firstAndLastName =
+    `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim();
+
+  return [
+    profile?.company_name,
+    firstAndLastName,
+    profile?.full_name,
+    profile?.name,
+    fallbackName
+  ]
+    .map((value) => String(value ?? "").trim())
+    .find((value) => value && value.toLowerCase() !== fallbackEmail?.toLowerCase())
+    || fallbackEmail
+    || "";
 }
 
 const emptySellerLevelStats: SellerLevelStats = {
@@ -336,6 +381,8 @@ export default function UniversalTopbar() {
     }
     const client = supabase;
     let cancelled = false;
+    let syncGeneration = 0;
+    let syncedUserId: string | null = null;
 
     async function syncUser(
       nextUserId: string | null,
@@ -344,6 +391,9 @@ export default function UniversalTopbar() {
       fallbackAvatarUrl?: string | null
     ) {
       if (cancelled) return;
+      const generation = ++syncGeneration;
+      const userChanged = syncedUserId !== nextUserId;
+      syncedUserId = nextUserId;
       setUserId(nextUserId);
 
       if (!nextUserId) {
@@ -357,27 +407,20 @@ export default function UniversalTopbar() {
         return;
       }
 
-      setAvatarUrl(fallbackAvatarUrl ?? null);
+      if (userChanged) {
+        setAvatarUrl(fallbackAvatarUrl ?? null);
+      }
 
-      const { data: profile } = await getProfile(nextUserId);
-      if (cancelled) return;
+      const profile = await getTopbarProfile(nextUserId);
+      if (cancelled || generation !== syncGeneration) return;
       if (profile) {
         setAvatarUrl(profile.avatar_url ?? fallbackAvatarUrl ?? null);
       }
-      const firstAndLastName =
-        `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim();
-      const displayName =
-        [
-          profile?.company_name,
-          firstAndLastName,
-          profile?.full_name,
-          profile?.name,
-          fallbackName
-        ]
-          .map((value) => String(value ?? "").trim())
-          .find((value) => value && value.toLowerCase() !== fallbackEmail?.toLowerCase()) ||
-        fallbackEmail ||
-        "";
+      const displayName = getTopbarProfileDisplayName(
+        profile,
+        fallbackEmail,
+        fallbackName
+      );
       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "?");
       setProfileDisplayName(displayName.trim() || ui.fallbackProfile);
       getCurrentUserIsAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
@@ -432,27 +475,35 @@ export default function UniversalTopbar() {
     const activeUserId = userId;
     let cancelled = false;
 
-    async function refreshOwnAvatar() {
-      const { data: profile } = await getProfile(activeUserId);
-      if (cancelled || !profile?.avatar_url) return;
+    async function refreshOwnProfile() {
+      const profile = await getTopbarProfile(activeUserId);
+      if (cancelled || !profile) return;
 
-      const separator = profile.avatar_url.includes("?") ? "&" : "?";
-      setAvatarUrl(`${profile.avatar_url}${separator}avatar=${Date.now()}`);
+      if (profile.avatar_url) {
+        const separator = profile.avatar_url.includes("?") ? "&" : "?";
+        setAvatarUrl(`${profile.avatar_url}${separator}avatar=${Date.now()}`);
+      }
+
+      const displayName = getTopbarProfileDisplayName(profile);
+      if (displayName) {
+        setProfileInitial(displayName.charAt(0).toUpperCase());
+        setProfileDisplayName(displayName);
+      }
     }
 
     function refreshOnVisible() {
       if (document.visibilityState === "visible") {
-        void refreshOwnAvatar();
+        void refreshOwnProfile();
       }
     }
 
-    void refreshOwnAvatar();
-    window.addEventListener("focus", refreshOwnAvatar);
+    void refreshOwnProfile();
+    window.addEventListener("focus", refreshOwnProfile);
     document.addEventListener("visibilitychange", refreshOnVisible);
 
     return () => {
       cancelled = true;
-      window.removeEventListener("focus", refreshOwnAvatar);
+      window.removeEventListener("focus", refreshOwnProfile);
       document.removeEventListener("visibilitychange", refreshOnVisible);
     };
   }, [userId]);
