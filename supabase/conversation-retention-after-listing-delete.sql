@@ -1,4 +1,5 @@
--- Keep listing conversations for 20 days after the listing is deleted.
+-- Keep listing conversations open for messaging for 20 days after the listing
+-- is deleted, then remove the conversation and its messages automatically.
 -- Run this once in the Supabase SQL editor.
 
 alter table public.conversations
@@ -40,8 +41,8 @@ as $$
 begin
   update public.conversations
   set
-    listing_deleted_at = coalesce(listing_deleted_at, now()),
-    expires_at = coalesce(expires_at, now() + interval '20 days'),
+    listing_deleted_at = now(),
+    expires_at = now() + interval '20 days',
     listing_title = coalesce(listing_title, old.title),
     listing_image_url = coalesce(listing_image_url, old.image_url),
     listing_price = coalesce(
@@ -95,12 +96,43 @@ $$;
 
 revoke all on function public.purge_expired_listing_conversations() from public;
 
--- A deleted listing remains visible in the conversation for at most 20 days,
--- but neither participant may send new messages after deletion.
+-- The trigger owns conversation ordering, so clients do not need broad update
+-- access that could otherwise be used to change the retention deadline.
+create or replace function public.touch_conversation_on_message()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.conversations
+  set updated_at = now()
+  where id = new.conversation_id;
+
+  return new;
+end;
+$$;
+
+revoke all on function public.touch_conversation_on_message() from public;
+revoke all on function public.touch_conversation_on_message() from anon, authenticated;
+
+drop trigger if exists messages_touch_conversation on public.messages;
+create trigger messages_touch_conversation
+after insert on public.messages
+for each row
+execute function public.touch_conversation_on_message();
+
+drop policy if exists "Conversation participants can update"
+  on public.conversations;
+revoke update on table public.conversations from public, anon, authenticated;
+
+-- Both participants may keep messaging until the fixed retention deadline.
 drop policy if exists "Active listing required for new messages"
   on public.messages;
+drop policy if exists "Unexpired conversation required for new messages"
+  on public.messages;
 
-create policy "Active listing required for new messages"
+create policy "Unexpired conversation required for new messages"
 on public.messages
 as restrictive
 for insert
@@ -111,8 +143,7 @@ with check (
     select 1
     from public.conversations c
     where c.id = messages.conversation_id
-      and c.listing_deleted_at is null
-      and c.expires_at is null
+      and (c.expires_at is null or c.expires_at > now())
       and (
         auth.uid()::uuid = c.buyer_id::uuid
         or auth.uid()::uuid = c.seller_id::uuid
@@ -125,6 +156,16 @@ with check (
 -- already captured by the delete trigger.
 update public.conversations c
 set
+  listing_deleted_at = null,
+  expires_at = null
+where exists (
+  select 1
+  from public.listings l
+  where l.id = c.listing_id
+);
+
+update public.conversations c
+set
   listing_deleted_at = coalesce(c.listing_deleted_at, now()),
   expires_at = coalesce(c.expires_at, now() + interval '20 days')
 where c.listing_deleted_at is null
@@ -133,6 +174,10 @@ where c.listing_deleted_at is null
     from public.listings l
     where l.id = c.listing_id
   );
+
+update public.conversations
+set expires_at = listing_deleted_at + interval '20 days'
+where listing_deleted_at is not null;
 
 -- Expired conversations also become unreadable immediately, even if the
 -- scheduled physical cleanup has not run yet.
@@ -160,7 +205,7 @@ using (
 );
 
 -- Supabase supports pg_cron. This removes the retained rows (and, through the
--- conversation FK, their messages) once per day.
+-- conversation FK, their messages) within an hour after the deadline.
 create extension if not exists pg_cron;
 
 do $$
@@ -177,7 +222,7 @@ begin
 
   perform cron.schedule(
     'purge-expired-listing-conversations',
-    '17 3 * * *',
+    '17 * * * *',
     'select public.purge_expired_listing_conversations();'
   );
 end;

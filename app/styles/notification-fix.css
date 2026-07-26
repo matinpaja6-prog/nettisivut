@@ -14,7 +14,10 @@ html body :is(#notification-sheet-surface, .universal-notification-menu) {
   z-index: 90200 !important;
 }
 
-html body .messages-inbox-page .conversation-closed-notice {
+html body .messages-inbox-page :is(
+  .conversation-closed-notice,
+  .conversation-retention-notice
+) {
   align-items: flex-start;
   background: rgba(255, 122, 18, 0.08);
   border: 1px solid rgba(255, 122, 18, 0.46);
@@ -28,6 +31,13 @@ html body .messages-inbox-page .conversation-closed-notice {
   width: 100%;
 }
 
-html body .messages-inbox-page .conversation-closed-notice strong {
+html body .messages-inbox-page .conversation-retention-notice {
+  margin-bottom: 8px;
+}
+
+html body .messages-inbox-page :is(
+  .conversation-closed-notice,
+  .conversation-retention-notice
+) strong {
   color: #ff8a2a;
 }

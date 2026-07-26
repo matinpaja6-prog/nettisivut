@@ -46,15 +46,20 @@ create index if not exists conversations_seller_updated_idx
 create or replace function public.touch_conversation_on_message()
 returns trigger
 language plpgsql
+security definer
+set search_path = public
 as $$
 begin
   update public.conversations
-  set updated_at = new.created_at
+  set updated_at = now()
   where id = new.conversation_id;
 
   return new;
 end;
 $$;
+
+revoke all on function public.touch_conversation_on_message() from public;
+revoke all on function public.touch_conversation_on_message() from anon, authenticated;
 
 drop trigger if exists messages_touch_conversation on public.messages;
 create trigger messages_touch_conversation

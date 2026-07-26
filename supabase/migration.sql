@@ -178,11 +178,7 @@ to authenticated
 with check (auth.uid()::uuid = buyer_id::uuid and buyer_id::uuid <> seller_id::uuid);
 
 drop policy if exists "Conversation participants can update" on public.conversations;
-create policy "Conversation participants can update"
-on public.conversations for update
-to authenticated
-using (auth.uid()::uuid = buyer_id::uuid or auth.uid()::uuid = seller_id::uuid)
-with check (auth.uid()::uuid = buyer_id::uuid or auth.uid()::uuid = seller_id::uuid);
+revoke update on table public.conversations from public, anon, authenticated;
 
 alter table public.public_profiles
   add column if not exists updated_at timestamptz not null default now();
@@ -298,6 +294,30 @@ create trigger messages_read_receipt_update_guard
 before update on public.messages
 for each row
 execute function public.enforce_message_read_receipt_update();
+
+create or replace function public.touch_conversation_on_message()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.conversations
+  set updated_at = now()
+  where id = new.conversation_id;
+
+  return new;
+end;
+$$;
+
+revoke all on function public.touch_conversation_on_message() from public;
+revoke all on function public.touch_conversation_on_message() from anon, authenticated;
+
+drop trigger if exists messages_touch_conversation on public.messages;
+create trigger messages_touch_conversation
+after insert on public.messages
+for each row
+execute function public.touch_conversation_on_message();
 
 create index if not exists messages_conversation_created_at_idx on public.messages (conversation_id, created_at);
 create index if not exists messages_sender_idx on public.messages (sender_id);

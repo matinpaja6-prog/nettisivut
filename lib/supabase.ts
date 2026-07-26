@@ -5629,11 +5629,11 @@ export async function sendChatMessage(msg: {
       return { data: null, error: new Error("Et kuulu tähän keskusteluun") };
     }
 
-    if (conversation.listing_deleted_at || conversation.expires_at) {
+    if (!isConversationUnexpired(conversation)) {
       return {
         data: null,
         error: new Error(
-          "Ilmoitus on poistettu, joten tähän keskusteluun ei voi enää lähettää viestejä"
+          "Keskustelun 20 päivän viestiaika on päättynyt"
         )
       };
     }
@@ -5652,11 +5652,6 @@ export async function sendChatMessage(msg: {
       .select()
       .single<ChatMessage>();
     if (!error) {
-      await supabase
-        .from("conversations")
-        .update({ updated_at: new Date().toISOString() })
-        .eq("id", msg.conversation_id);
-
       dispatchChatNotificationsChanged({
         conversationId: msg.conversation_id,
         reason: "sent"

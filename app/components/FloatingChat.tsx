@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Check,
@@ -55,6 +55,26 @@ function timeAgo(iso?: string | null, labels = { now: "just now", min: "min", h:
   const h = Math.floor(m / 60);
   if (h < 24) return `${h} ${labels.h}`;
   return `${Math.floor(h / 24)} ${labels.d}`;
+}
+
+function conversationExpiryTime(value?: string | null) {
+  if (!value) return null;
+
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? null : time;
+}
+
+function getErrorMessage(error: unknown) {
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message;
+  }
+
+  return "Viestin lähetys epäonnistui. Yritä uudelleen.";
 }
 
 type ChatMessageWithImageFields = ChatMessage & {
@@ -148,6 +168,7 @@ export default function FloatingChat() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState("");
   const [unread, setUnread] = useState(0);
   const [dismissedConvs, setDismissedConvs] = useState<Record<string, number>>({});
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -182,15 +203,30 @@ export default function FloatingChat() {
   }, []);
 
   /* --- load conversations --- */
-  async function loadConversations() {
+  const loadConversations = useCallback(async () => {
     if (!userId) return;
     const { data } = await getConversationSummaries(userId);
     setConversations(data);
-    recalcUnread(data);
-  }
+    setActiveConv((current) =>
+      current
+        ? data.find((conversation) => conversation.id === current.id) ?? null
+        : null
+    );
+
+    const lastRead = getLastRead();
+    setUnread(
+      data.filter((conversation) =>
+        isConversationLastMessageUnread(
+          conversation,
+          userId,
+          lastRead
+        )
+      ).length
+    );
+  }, [userId]);
 
   useEffect(() => {
-    if (userId) loadConversations();
+    if (userId) void loadConversations();
     else {
       setOpen(false);
       setActiveConv(null);
@@ -198,7 +234,35 @@ export default function FloatingChat() {
       setMessages([]);
       setUnread(0);
     }
-  }, [userId]);
+  }, [loadConversations, userId]);
+
+  useEffect(() => {
+    if (!userId || conversations.length === 0) return;
+
+    const now = Date.now();
+    const nextExpiry =
+      conversations.reduce<number | null>((nearest, conversation) => {
+        const expiresAt = conversationExpiryTime(conversation.expires_at);
+        if (expiresAt === null) return nearest;
+        return nearest === null
+          ? expiresAt
+          : Math.min(nearest, expiresAt);
+      }, null);
+
+    if (nextExpiry === null) return;
+
+    const refreshTimer = window.setTimeout(() => {
+      void loadConversations();
+    }, Math.max(0, nextExpiry - now + 250));
+
+    return () => {
+      window.clearTimeout(refreshTimer);
+    };
+  }, [
+    conversations,
+    loadConversations,
+    userId
+  ]);
 
   /* --- unread count --- */
   function recalcUnread(convs: ConversationSummary[]) {
@@ -306,7 +370,7 @@ export default function FloatingChat() {
       );
       supabase?.removeChannel(channel);
     };
-  }, [userId]);
+  }, [loadConversations, userId]);
 
   /* --- load messages for active conversation --- */
   useEffect(() => {
@@ -391,25 +455,35 @@ export default function FloatingChat() {
     const outgoingImage = imagePreview;
 
     setSending(true);
-    const { data } = await sendChatMessage({
-      conversation_id: activeConv.id,
-      listing_id: activeConv.listing_id,
-      sender_id: userId,
-      receiver_id: otherId,
-      content: outgoingText,
-      image: outgoingImage
-    });
+    setSendError("");
 
-    if (data) {
+    try {
+      const { data, error } = await sendChatMessage({
+        conversation_id: activeConv.id,
+        listing_id: activeConv.listing_id,
+        sender_id: userId,
+        receiver_id: otherId,
+        content: outgoingText,
+        image: outgoingImage
+      });
+
+      if (error || !data) {
+        setSendError(getErrorMessage(error));
+        return;
+      }
+
       setMessages((prev) =>
         mergeUniqueMessages(prev, [data])
       );
-    }
 
-    setText("");
-    setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    setSending(false);
+      setText("");
+      setImagePreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (error) {
+      setSendError(getErrorMessage(error));
+    } finally {
+      setSending(false);
+    }
   }
 
   async function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -655,6 +729,11 @@ export default function FloatingChat() {
               </div>
 
               <div className="fc-compose">
+                {sendError && (
+                  <div className="fc-send-error" role="alert">
+                    {sendError}
+                  </div>
+                )}
                 {imagePreview && (
                   <div className="fc-image-preview">
                     <img src={imagePreview} alt="" />
@@ -700,7 +779,10 @@ export default function FloatingChat() {
                     className="fc-input"
                     placeholder="Kirjoita viesti..."
                     value={text}
-                    onChange={(e) => setText(e.target.value)}
+                    onChange={(e) => {
+                      setText(e.target.value);
+                      if (sendError) setSendError("");
+                    }}
                     onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
                   />
                   <button
@@ -1121,6 +1203,16 @@ export default function FloatingChat() {
           border-top: 1px solid #dbe5ef;
           flex-shrink: 0;
           padding: 10px 12px 12px;
+        }
+        .fc-send-error {
+          background: #fff1f2;
+          border: 1px solid #fecdd3;
+          border-radius: 9px;
+          color: #be123c;
+          font-size: 12px;
+          font-weight: 750;
+          margin-bottom: 8px;
+          padding: 8px 10px;
         }
         .fc-image-preview {
           align-items: center;
