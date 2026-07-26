@@ -880,7 +880,6 @@ function LocationMultiSelectField({
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
               placeholder={searchPlaceholder}
-              autoFocus
             />
           </label>
           <div
