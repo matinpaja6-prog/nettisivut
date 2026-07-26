@@ -9,6 +9,10 @@ const PUBLIC_FILE =
   /\.(?:avif|bmp|css|csv|eot|gif|ico|jpe?g|js|json|map|mp3|mp4|ogg|otf|pdf|png|svg|txt|webmanifest|webm|webp|woff2?|xml)$/i;
 const CANONICAL_HOST = "maskines.com";
 const LEGACY_HOSTS = new Set(["maskinet.com", "www.maskinet.com"]);
+const TRUSTED_MUTATION_ORIGINS = new Set([
+  `https://${CANONICAL_HOST}`,
+  `https://www.${CANONICAL_HOST}`
+]);
 const IP_BAN_CACHE_TTL_MS = 60_000;
 const ipBanCache = new Map<string, { banned: boolean; expiresAt: number }>();
 const API_RATE_LIMIT_WINDOW_MS = 60_000;
@@ -85,6 +89,10 @@ function isUnsafeMethod(method: string) {
   return !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase());
 }
 
+function firstForwardedValue(value: string | null) {
+  return value?.split(",")[0]?.trim() ?? "";
+}
+
 function isCrossSiteMutation(request: NextRequest) {
   if (!isUnsafeMethod(request.method)) return false;
 
@@ -95,7 +103,20 @@ function isCrossSiteMutation(request: NextRequest) {
   if (!origin) return false;
 
   try {
-    return new URL(origin).origin !== request.nextUrl.origin;
+    const requestOrigins = new Set<string>([
+      request.nextUrl.origin,
+      ...TRUSTED_MUTATION_ORIGINS
+    ]);
+    const forwardedProtocol =
+      firstForwardedValue(request.headers.get("x-forwarded-proto")) ||
+      request.nextUrl.protocol.replace(":", "");
+    const forwardedHost = firstForwardedValue(request.headers.get("x-forwarded-host"));
+    const host = firstForwardedValue(request.headers.get("host"));
+
+    if (forwardedHost) requestOrigins.add(`${forwardedProtocol}://${forwardedHost}`);
+    if (host) requestOrigins.add(`${forwardedProtocol}://${host}`);
+
+    return !requestOrigins.has(new URL(origin).origin);
   } catch {
     return true;
   }
