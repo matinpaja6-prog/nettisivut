@@ -12,6 +12,7 @@ import {
   type RefObject
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import PageLoadingFallback from "@/app/components/PageLoadingFallback";
 import {
   ArrowLeft,
   ArrowRight,
@@ -5850,7 +5851,7 @@ function SellPageContent() {
 
 export default function SellPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<PageLoadingFallback />}>
       <SellPageContent />
     </Suspense>
   );

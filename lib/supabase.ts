@@ -442,16 +442,56 @@ export async function getSafeAuthSession(): Promise<Session | null> {
   }
 }
 
+const SAFE_AUTH_USER_CACHE_MS = 30_000;
+let safeAuthUserCache:
+  | { accessToken: string; expiresAt: number; user: User | null }
+  | null = null;
+let safeAuthUserRequest:
+  | { accessToken: string; promise: Promise<User | null> }
+  | null = null;
+
 export async function getSafeAuthUser(): Promise<User | null> {
   if (!supabase) return null;
 
   try {
     const session = await getSafeAuthSession();
-    if (!session) return null;
+    if (!session) {
+      safeAuthUserCache = null;
+      safeAuthUserRequest = null;
+      return null;
+    }
 
-    const { data, error } = await supabase.auth.getUser();
-    if (error) throw error;
-    return data.user ?? null;
+    const accessToken = session.access_token;
+    if (
+      safeAuthUserCache?.accessToken === accessToken &&
+      safeAuthUserCache.expiresAt > Date.now()
+    ) {
+      return safeAuthUserCache.user;
+    }
+
+    if (safeAuthUserRequest?.accessToken === accessToken) {
+      return safeAuthUserRequest.promise;
+    }
+
+    const promise = supabase.auth.getUser()
+      .then(({ data, error }) => {
+        if (error) throw error;
+        const user = data.user ?? null;
+        safeAuthUserCache = {
+          accessToken,
+          expiresAt: Date.now() + SAFE_AUTH_USER_CACHE_MS,
+          user
+        };
+        return user;
+      })
+      .finally(() => {
+        if (safeAuthUserRequest?.accessToken === accessToken) {
+          safeAuthUserRequest = null;
+        }
+      });
+
+    safeAuthUserRequest = { accessToken, promise };
+    return promise;
   } catch (error) {
     if (isInvalidRefreshTokenError(error)) {
       clearStoredSupabaseAuth();

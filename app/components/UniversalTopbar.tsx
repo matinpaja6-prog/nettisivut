@@ -809,15 +809,43 @@ export default function UniversalTopbar() {
   const messagesHref = pagePath("messages", locale);
   const profileHref = profileRootPath(locale);
   const myListingsHref = pagePath("my-listings", locale);
-  const garageHref = pagePath("garage", locale);
+  const garagePageHref = pagePath("garage", locale);
   const savedHref = pagePath("saved", locale);
   const followedHref = pagePath("followed", locale);
-  const searchAlertsHref = pagePath("search-alerts", locale);
+  const searchAlertsPageHref = pagePath("search-alerts", locale);
   const settingsHref = pagePath("settings", locale);
   const rewardsHref = pagePath("rewards", locale);
   const shopHref = pagePath("shop", locale);
   const aboutHref = pagePath("about", locale);
   const faqHref = pagePath("faq", locale);
+  const garageHref =
+    authChecked && !userId
+      ? `${authHref}?mode=login&next=${encodeURIComponent(garagePageHref)}`
+      : garagePageHref;
+  const searchAlertsHref =
+    authChecked && !userId
+      ? `${authHref}?mode=login&next=${encodeURIComponent(searchAlertsPageHref)}`
+      : searchAlertsPageHref;
+
+  useEffect(() => {
+    if (!authChecked) return;
+
+    [
+      garageHref,
+      searchAlertsHref,
+      aboutHref,
+      faqHref,
+      authHref
+    ].forEach((href) => router.prefetch(href));
+  }, [
+    aboutHref,
+    authChecked,
+    authHref,
+    faqHref,
+    garageHref,
+    router,
+    searchAlertsHref
+  ]);
 
   function toggleNotifications() {
     setProfileOpen(false);

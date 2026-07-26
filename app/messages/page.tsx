@@ -10,6 +10,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import PageLoadingFallback from "@/app/components/PageLoadingFallback";
 import { useLanguage } from "@/lib/i18n";
 
 import {
@@ -8374,7 +8375,7 @@ function MessagesPageContent() {
 
 export default function MessagesPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<PageLoadingFallback />}>
       <MessagesPageContent />
     </Suspense>
   );

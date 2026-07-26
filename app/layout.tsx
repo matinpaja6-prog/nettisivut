@@ -54,6 +54,7 @@ import NavigationHistory from "./components/NavigationHistory";
 import AuthRouteGuard from "./components/AuthRouteGuard";
 import AutoTranslate from "./components/AutoTranslate";
 import SourceFog from "./components/SourceFog";
+import GlobalNavigationSpinner from "./components/GlobalNavigationSpinner";
 import { PUBLIC_SITE_URL } from "@/lib/site-url";
 
 export const metadata: Metadata = {
@@ -254,6 +255,7 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <TaxonomyProvider>
           <InstantNavigation />
+          <GlobalNavigationSpinner />
           <AuthRouteGuard />
           <Suspense fallback={null}>
             <NavigationHistory />

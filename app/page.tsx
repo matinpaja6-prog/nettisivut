@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import styles from "./page.module.css";
+import PageLoadingFallback from "@/app/components/PageLoadingFallback";
 
 import {
   Check,
@@ -754,9 +755,11 @@ function LocationMultiSelectField({
   onToggleOpen,
   onToggle,
   onClear,
+  onDone,
   selectedCountLabel,
   emptyLabel,
-  clearLabel
+  clearLabel,
+  doneLabel
 }: {
   label: string;
   placeholder: string;
@@ -768,9 +771,11 @@ function LocationMultiSelectField({
   onToggleOpen: () => void;
   onToggle: (value: string) => void;
   onClear: () => void;
+  onDone?: () => void;
   selectedCountLabel: (count: number) => string;
   emptyLabel: string;
   clearLabel: string;
+  doneLabel?: string;
 }) {
   const fieldRef = useRef<HTMLDivElement>(null);
   const optionListRef = useRef<HTMLDivElement>(null);
@@ -972,7 +977,7 @@ function LocationMultiSelectField({
               <span className={styles.heroFilterMenuEmpty}>{emptyLabel}</span>
             )}
           </div>
-          {nextActionOptions.length > 0 || selected.length > 0 ? (
+          {nextActionOptions.length > 0 || selected.length > 0 || onDone ? (
             <div className={styles.locationMenuFooter}>
               {nextActionOptions.map((actionOption) => (
                 <div className={styles.locationOptionActionGroup} key={actionOption.value}>
@@ -986,10 +991,19 @@ function LocationMultiSelectField({
                   </button>
                 </div>
               ))}
-              {selected.length > 0 ? (
-                <button type="button" className={styles.locationClearSelection} onClick={onClear}>
-                  {clearLabel}
-                </button>
+              {selected.length > 0 || onDone ? (
+                <div className={styles.locationMenuButtons}>
+                  {selected.length > 0 ? (
+                    <button type="button" className={styles.locationClearSelection} onClick={onClear}>
+                      {clearLabel}
+                    </button>
+                  ) : null}
+                  {onDone ? (
+                    <button type="button" className={styles.locationDoneButton} onClick={onDone}>
+                      {doneLabel ?? "Valmis"}
+                    </button>
+                  ) : null}
+                </div>
               ) : null}
             </div>
           ) : null}
@@ -1544,7 +1558,7 @@ function BodyPortal({ enabled, children }: { enabled: boolean; children: ReactNo
 
 export default function Home() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<PageLoadingFallback />}>
       <HomeContent />
     </Suspense>
   );
@@ -1711,6 +1725,7 @@ function HomeContent() {
       searchPlaceholder: "Hae maata, aluetta tai kuntaa",
       noResults: "Ei hakutuloksia",
       clearSelections: "Tyhjennä valinnat",
+      done: "Valmis",
       selectedCount: (count: number) => `${count} valittu`,
       countries: "Maat",
       countryNames: { FI: "Suomi", SE: "Ruotsi" },
@@ -1727,6 +1742,7 @@ function HomeContent() {
       searchPlaceholder: "Search for a country, region or municipality",
       noResults: "No results",
       clearSelections: "Clear selections",
+      done: "Done",
       selectedCount: (count: number) => `${count} selected`,
       countries: "Countries",
       countryNames: { FI: "Finland", SE: "Sweden" },
@@ -1743,6 +1759,7 @@ function HomeContent() {
       searchPlaceholder: "Sök land, område eller kommun",
       noResults: "Inga sökresultat",
       clearSelections: "Rensa val",
+      done: "Klar",
       selectedCount: (count: number) => `${count} valda`,
       countries: "Länder",
       countryNames: { FI: "Finland", SE: "Sverige" },
@@ -4940,9 +4957,11 @@ function HomeContent() {
                               municipalities: []
                             })
                           }
+                          onDone={() => setActiveHeroFilter(null)}
                           selectedCountLabel={locationFilterCopy.selectedCount}
                           emptyLabel={locationFilterCopy.noResults}
                           clearLabel={locationFilterCopy.clearSelections}
+                          doneLabel={locationFilterCopy.done}
                         />
 
                         {heroFilterFields.slice(2, 4).map((field) => (
