@@ -70,11 +70,11 @@ export default function InstantNavigation() {
 
     const scheduleVisiblePrefetch = () => {
       if ("requestIdleCallback" in window) {
-        window.requestIdleCallback(prefetchVisibleLinks, { timeout: 1200 });
+        window.requestIdleCallback(prefetchVisibleLinks, { timeout: 350 });
         return;
       }
 
-      setTimeout(prefetchVisibleLinks, 120);
+      setTimeout(prefetchVisibleLinks, 50);
     };
 
     const handlePointerEnter = (event: PointerEvent) => prefetch(event.target);

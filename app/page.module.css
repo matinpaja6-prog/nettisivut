@@ -24271,6 +24271,26 @@
   text-align: left;
 }
 
+.locationMenuButtons {
+  display: grid;
+  gap: 8px;
+}
+
+.locationDoneButton {
+  align-items: center;
+  background: linear-gradient(135deg, #ff7a1a 0%, #e85b00 100%);
+  border: 1px solid #ff9a53;
+  border-radius: 10px;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  font-size: 12px;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 14px;
+}
+
 :global(html body) .heroRightRail .locationClearSelection {
   -webkit-text-fill-color: #ff812c !important;
   align-items: center !important;
@@ -31045,6 +31065,29 @@
   :global(html body) .mobileFilterSheet .locationOptionList {
     background: #15171d !important;
     overscroll-behavior: contain !important;
+  }
+
+  :global(html body) .mobileFilterSheet .locationMenuButtons {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    padding: 0 10px 10px !important;
+  }
+
+  :global(html body) .mobileFilterSheet .locationMenuButtons > button:only-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  :global(html body) .mobileFilterSheet .locationClearSelection,
+  :global(html body) .mobileFilterSheet .locationDoneButton {
+    margin: 0 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .mobileFilterSheet .locationDoneButton {
+    -webkit-text-fill-color: #ffffff !important;
+    background: linear-gradient(135deg, #ff7a1a 0%, #e85b00 100%) !important;
+    border: 1px solid #ff9a53 !important;
+    color: #ffffff !important;
   }
 }
 
