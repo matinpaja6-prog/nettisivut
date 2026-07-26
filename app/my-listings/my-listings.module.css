@@ -2436,6 +2436,12 @@
   padding: 16px 22px 0 !important;
 }
 
+@media (min-width: 641px) {
+  .page :global(.delete-listing-modal-actions) {
+    padding-bottom: 12px !important;
+  }
+}
+
  .page :global(.delete-listing-modal-actions .danger-button) {
   background: linear-gradient(135deg, #f43f5e 0%, #be2444 100%) !important;
   border: 1px solid rgba(255, 191, 203, 0.45) !important;
@@ -2704,6 +2710,86 @@
   border-color: #ff8a22 !important;
   box-shadow: 0 0 0 3px rgba(255, 138, 34, 0.18) !important;
   outline: none !important;
+}
+
+.page :global(.own-listing-preset-input) {
+  min-width: 0 !important;
+  position: relative !important;
+  width: 100% !important;
+  z-index: 1 !important;
+}
+
+.page :global(.own-listing-preset-input:focus-within) {
+  z-index: 30 !important;
+}
+
+.page :global(.own-listing-preset-input > input) {
+  padding-right: 46px !important;
+}
+
+.page :global(.own-listing-preset-toggle) {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  color: #071827 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  height: 46px !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  position: absolute !important;
+  right: 1px !important;
+  top: 1px !important;
+  width: 42px !important;
+  z-index: 2 !important;
+}
+
+.page :global(.own-listing-preset-toggle svg) {
+  transition: transform 160ms ease !important;
+}
+
+.page :global(.own-listing-preset-toggle[aria-expanded="true"] svg) {
+  transform: rotate(180deg) !important;
+}
+
+.page :global(.own-listing-preset-menu) {
+  background: #f2f7fb !important;
+  border: 1px solid rgba(255, 138, 34, 0.72) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 18px 38px rgba(0, 8, 18, 0.36) !important;
+  display: grid !important;
+  gap: 2px !important;
+  left: 0 !important;
+  max-height: min(280px, 45vh) !important;
+  overflow-y: auto !important;
+  padding: 5px !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: calc(100% + 6px) !important;
+  z-index: 50 !important;
+}
+
+.page :global(.own-listing-preset-menu > button) {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  color: #071827 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  justify-content: space-between !important;
+  min-height: 38px !important;
+  padding: 8px 10px !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+
+.page :global(.own-listing-preset-menu > button:hover),
+.page :global(.own-listing-preset-menu > button.is-selected) {
+  background: rgba(255, 138, 34, 0.16) !important;
+  color: #8a3900 !important;
 }
 
  .page :global(.own-listing-edit input:disabled),

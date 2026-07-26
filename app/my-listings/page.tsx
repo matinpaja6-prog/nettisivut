@@ -64,6 +64,13 @@ import {
 } from "@/lib/listings";
 import { buildVehicleCategoriesFromTaxonomy, categoriesAsRecord } from "@/lib/taxonomy";
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
+import {
+  BRAND_MODELS,
+  COMMON_BRAND_MODELS_BY_VEHICLE,
+  getBrandModelOptions,
+  getCategoryVehicleKey,
+  getCommonVehicleKey
+} from "@/app/components/CategoryDrawer";
 
 function splitLocation(value: string | null | undefined) {
   const parts = (value || "").split(",").map((part) => part.trim()).filter(Boolean);
@@ -83,6 +90,93 @@ function splitLocation(value: string | null | undefined) {
 
 function buildLocation(city: string, country: string) {
   return [city.trim(), country.trim()].filter(Boolean).join(", ");
+}
+
+function editableListingTitle(value: string) {
+  const separatorIndex = value.indexOf(" - ");
+  return separatorIndex >= 0 ? value.slice(0, separatorIndex) : value;
+}
+
+function listingVehicleSuffix(brand: string, model: string, year: string) {
+  return [brand, model, year].map((value) => value.trim()).filter(Boolean).join(" ");
+}
+
+function buildEditableListingTitle(
+  title: string,
+  brand: string,
+  model: string,
+  year: string
+) {
+  const partTitle = editableListingTitle(title).trim();
+  const vehicleSuffix = listingVehicleSuffix(brand, model, year);
+  return vehicleSuffix ? `${partTitle} - ${vehicleSuffix}` : partTitle;
+}
+
+function EditablePresetInput({
+  value,
+  options,
+  placeholder,
+  ariaLabel,
+  onChange
+}: {
+  value: string;
+  options: string[];
+  placeholder: string;
+  ariaLabel: string;
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div
+      className="own-listing-preset-input"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+    >
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        onFocus={() => setOpen(true)}
+        placeholder={placeholder}
+        aria-label={ariaLabel}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        autoComplete="off"
+      />
+      <button
+        type="button"
+        className="own-listing-preset-toggle"
+        aria-label={`Avaa ${ariaLabel.toLowerCase()}vaihtoehdot`}
+        aria-expanded={open}
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <ChevronDown size={18} aria-hidden="true" />
+      </button>
+      {open && options.length > 0 ? (
+        <div className="own-listing-preset-menu" role="listbox" aria-label={`${ariaLabel}vaihtoehdot`}>
+          {options.map((option) => (
+            <button
+              key={option}
+              type="button"
+              role="option"
+              aria-selected={option === value}
+              className={option === value ? "is-selected" : undefined}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                onChange(option);
+                setOpen(false);
+              }}
+            >
+              {option}
+              {option === value ? <Check size={15} aria-hidden="true" /> : null}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function getEditableListingImages(
@@ -455,6 +549,9 @@ export default function MyListingsPage() {
       price: "",
       category: "",
       subcategory: "",
+      brand: "",
+      model: "",
+      year: "",
       part_model: "",
       part_number: "",
       location: "",
@@ -690,6 +787,9 @@ export default function MyListingsPage() {
       price: String(listing.price),
       category: listing.category ?? "",
       subcategory: listing.subcategory ?? "",
+      brand: listing.brand ?? "",
+      model: listing.model ?? "",
+      year: listing.year ?? "",
       part_model: listing.part_model ?? "",
       part_number: listing.part_number ?? "",
       location: listing.location,
@@ -717,6 +817,9 @@ export default function MyListingsPage() {
           price: String(data.price),
           category: data.category ?? "",
           subcategory: data.subcategory ?? "",
+          brand: data.brand ?? "",
+          model: data.model ?? "",
+          year: data.year ?? "",
           part_model: data.part_model ?? "",
           part_number: data.part_number ?? "",
           location: data.location,
@@ -884,6 +987,9 @@ export default function MyListingsPage() {
           price: normalizeListingPriceForSave(listingForm.price),
           category: listingForm.category,
           subcategory: listingForm.subcategory,
+          brand: listingForm.brand.trim(),
+          model: listingForm.model.trim(),
+          year: listingForm.year.trim(),
           part_model: listingForm.part_model.trim() || null,
           part_number: listingForm.part_number.trim() || null,
           location: nextLocation,
@@ -914,36 +1020,11 @@ export default function MyListingsPage() {
 
   }
 
-  async function openDeleteDialog(listing: Listing) {
+  async function loadDeleteBuyerCandidates(listing: Listing) {
+    if (deleteLoading) return;
 
-    // Already sold listings have no remaining listing data – the reason
-    // dialog is meaningless. Delete the sold record directly.
-    if (listing.is_sold) {
-      setStatus(pageText.deleting);
-      const { error } = await deleteListing(listing.id);
-      if (error) {
-        setStatus(getErrorMessage(error));
-        return;
-      }
-      setListings((prev) => prev.filter((l) => l.id !== listing.id));
-      removeCachedListing(listing.id);
-      setStatus(pageText.deleted ?? "Ilmoitus poistettu.");
-      return;
-    }
-
-    setDeleteTarget(listing);
-    setDeleteReason("sold");
-    setSoldPrice("");
-    setBuyerCandidates([]);
-    setSelectedConversationId("");
-    setBuyerSelectionMode("conversation");
-    setBuyerPhone("");
-    setPhoneBuyer(null);
-    setPhoneLookupStatus("");
-    setDeleteError("");
-    setBuyerCandidateError("");
     setDeleteLoading(true);
-    setStatus("");
+    setBuyerCandidateError("");
 
     const { data, error } =
       await getListingBuyerCandidates(
@@ -967,6 +1048,40 @@ export default function MyListingsPage() {
       candidates.length > 0 ? "conversation" : "phone"
     );
     setDeleteLoading(false);
+  }
+
+  async function openDeleteDialog(listing: Listing) {
+
+    // Already sold listings have no remaining listing data – the reason
+    // dialog is meaningless. Delete the sold record directly.
+    if (listing.is_sold) {
+      setStatus(pageText.deleting);
+      const { error } = await deleteListing(listing.id);
+      if (error) {
+        setStatus(getErrorMessage(error));
+        return;
+      }
+      setListings((prev) => prev.filter((l) => l.id !== listing.id));
+      removeCachedListing(listing.id);
+      setStatus(pageText.deleted ?? "Ilmoitus poistettu.");
+      return;
+    }
+
+    setDeleteTarget(listing);
+    // Tavallinen poistaminen toimii heti ilman ostaja- tai myyntitietoja.
+    // Käyttäjä voi halutessaan vaihtaa syyksi "Sain myytyä".
+    setDeleteReason("other");
+    setSoldPrice("");
+    setBuyerCandidates([]);
+    setSelectedConversationId("");
+    setBuyerSelectionMode("conversation");
+    setBuyerPhone("");
+    setPhoneBuyer(null);
+    setPhoneLookupStatus("");
+    setDeleteError("");
+    setBuyerCandidateError("");
+    setDeleteLoading(false);
+    setStatus("");
 
   }
 
@@ -1161,7 +1276,8 @@ export default function MyListingsPage() {
 
     if (error) {
       setDeleteSubmitting(false);
-      setStatus(getErrorMessage(error));
+      setStatus("");
+      setDeleteError(getErrorMessage(error));
       return;
     }
 
@@ -1742,6 +1858,19 @@ export default function MyListingsPage() {
                 const subcategories =
                   listingCategories[listingForm.category] ?? [];
 
+                const listingVehicleType = listing.vehicle_type ?? "";
+                const listingVehicleKey = getCategoryVehicleKey(listingVehicleType);
+                const listingCommonVehicleKey = getCommonVehicleKey(listingVehicleType);
+                const brandOptions = Array.from(
+                  new Set([
+                    ...(taxonomy.vehicles.find((vehicle) => vehicle.key === listingVehicleType)?.brands ?? []),
+                    ...Object.keys(BRAND_MODELS[listingVehicleType] ?? {}),
+                    ...Object.keys(BRAND_MODELS[listingVehicleKey] ?? {}),
+                    ...Object.keys(COMMON_BRAND_MODELS_BY_VEHICLE[listingCommonVehicleKey] ?? {})
+                  ].filter((value) => value && value !== "Kaikki"))
+                ).sort((a, b) => a.localeCompare(b, "fi", { sensitivity: "base" }));
+                const modelOptions = getBrandModelOptions(listingVehicleType, listingForm.brand);
+
                 const imageCount =
                   (listing.image_urls?.length ?? 0) || (listing.image_url ? 1 : 0);
 
@@ -1790,9 +1919,7 @@ export default function MyListingsPage() {
                         </div>
 
                         {(() => {
-                          const sepIdx = listingForm.title.indexOf(" - ");
-                          const partName = sepIdx >= 0 ? listingForm.title.slice(0, sepIdx) : listingForm.title;
-                          const lockedSuffix = sepIdx >= 0 ? listingForm.title.slice(sepIdx + 3) : "";
+                          const partName = editableListingTitle(listingForm.title);
                           return (
                             <div className="own-listing-section">
                               <span className="own-listing-section-title">Perustiedot</span>
@@ -1805,26 +1932,85 @@ export default function MyListingsPage() {
                                     onChange={(event) =>
                                       setListingForm({
                                         ...listingForm,
-                                        title: lockedSuffix
-                                          ? `${event.target.value} - ${lockedSuffix}`
-                                          : event.target.value
+                                        title: buildEditableListingTitle(
+                                          event.target.value,
+                                          listingForm.brand,
+                                          listingForm.model,
+                                          listingForm.year
+                                        )
                                       })
                                     }
                                     placeholder={t.title}
                                   />
                                 </label>
-                                {lockedSuffix && (
-                                  <label className="own-listing-field">
-                                    <span>Ajoneuvo</span>
-                                    <input
-                                      className="own-listing-locked-input"
-                                      value={lockedSuffix}
-                                      readOnly
-                                      disabled
-                                      aria-label="Merkki, malli ja vuosimalli (ei muokattavissa)"
-                                    />
-                                  </label>
-                                )}
+                              </div>
+
+                              <div className="own-listing-grid-3">
+                                <label className="own-listing-field">
+                                  <span>Merkki</span>
+                                  <EditablePresetInput
+                                    value={listingForm.brand}
+                                    options={brandOptions}
+                                    ariaLabel="Merkki"
+                                    onChange={(value) =>
+                                      setListingForm((current) => ({
+                                        ...current,
+                                        brand: value,
+                                        title: buildEditableListingTitle(
+                                          current.title,
+                                          value,
+                                          current.model,
+                                          current.year
+                                        )
+                                      }))
+                                    }
+                                    placeholder="Esim. Yamaha"
+                                  />
+                                </label>
+                                <label className="own-listing-field">
+                                  <span>Malli</span>
+                                  <EditablePresetInput
+                                    value={listingForm.model}
+                                    options={modelOptions}
+                                    ariaLabel="Malli"
+                                    onChange={(value) =>
+                                      setListingForm((current) => ({
+                                        ...current,
+                                        model: value,
+                                        title: buildEditableListingTitle(
+                                          current.title,
+                                          current.brand,
+                                          value,
+                                          current.year
+                                        )
+                                      }))
+                                    }
+                                    placeholder="Esim. DT"
+                                  />
+                                </label>
+                                <label className="own-listing-field">
+                                  <span>Vuosimalli</span>
+                                  <input
+                                    type="number"
+                                    inputMode="numeric"
+                                    min="1900"
+                                    max={new Date().getFullYear() + 2}
+                                    value={listingForm.year}
+                                    onChange={(event) =>
+                                      setListingForm((current) => ({
+                                        ...current,
+                                        year: event.target.value,
+                                        title: buildEditableListingTitle(
+                                          current.title,
+                                          current.brand,
+                                          current.model,
+                                          event.target.value
+                                        )
+                                      }))
+                                    }
+                                    placeholder="Esim. 2020"
+                                  />
+                                </label>
                               </div>
 
                               <div className="own-listing-title-fields">
@@ -2294,9 +2480,13 @@ export default function MyListingsPage() {
                     ? "active"
                     : ""
                 }
-                onClick={() =>
-                  setDeleteReason("sold")
-                }
+                onClick={() => {
+                  setDeleteReason("sold");
+                  setDeleteError("");
+                  if (buyerCandidates.length === 0) {
+                    void loadDeleteBuyerCandidates(deleteTarget);
+                  }
+                }}
               >
                 <Check size={17} />
                 Sain myytyä

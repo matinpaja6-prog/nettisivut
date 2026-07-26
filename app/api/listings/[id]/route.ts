@@ -146,13 +146,21 @@ export async function DELETE(
       return NextResponse.json({ error: "Ei oikeutta poistaa tätä ilmoitusta." }, { status: 403 });
     }
 
-    const { error: deleteError } = await admin
+    const { data: deletedListing, error: deleteError } = await admin
       .from("listings")
       .delete()
       .eq("id", id)
-      .eq("seller_id", userId);
+      .eq("seller_id", userId)
+      .select("id")
+      .maybeSingle<{ id: string }>();
 
     if (deleteError) throw deleteError;
+    if (!deletedListing?.id) {
+      return NextResponse.json(
+        { error: "Ilmoitusta ei poistettu. Yritä uudelleen." },
+        { status: 409 }
+      );
+    }
 
     const imageCleanupErrors = await deleteListingImages(admin, listing);
     return NextResponse.json({
