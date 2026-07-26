@@ -650,7 +650,7 @@ export default function ListingPage() {
       setLoading(true);
     }
 
-    getListingById(params.id)
+    getListingById(initialListing?.id || params.id)
       .then(({ data }) => {
         if (mounted) {
           const resolved = data ?? fallback;
@@ -1835,23 +1835,49 @@ export default function ListingPage() {
                             listing.seller_phone}
                         </a>
                         {phoneActionsOpen ? (
-                          <div className="phone-action-menu" aria-label={ui.phoneActions}>
-                            <a href={`tel:${phoneLinkValue(sellerPhone || listing.seller_phone || "")}`}>
-                              <Phone size={18} />
-                              {ui.callPhone}
-                            </a>
-                            <a
-                              href={`https://wa.me/${whatsappPhoneValue(sellerPhone || listing.seller_phone || "")}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
+                          <div
+                            className="phone-action-overlay"
+                            onClick={() => setPhoneActionsOpen(false)}
+                            role="presentation"
+                          >
+                            <div
+                              className="phone-action-dialog"
+                              role="dialog"
+                              aria-modal="true"
+                              aria-label={ui.phoneActions}
+                              onClick={(event) => event.stopPropagation()}
                             >
-                              <MessageCircle size={18} />
-                              {ui.whatsappPhone}
-                            </a>
-                            <a href={`sms:${phoneLinkValue(sellerPhone || listing.seller_phone || "")}`}>
-                              <MessageSquareText size={18} />
-                              {ui.textPhone}
-                            </a>
+                              <button
+                                type="button"
+                                className="phone-action-close"
+                                aria-label="Sulje"
+                                onClick={() => setPhoneActionsOpen(false)}
+                              >
+                                <X size={18} />
+                              </button>
+                              <strong className="phone-action-title">{ui.phoneActions}</strong>
+                              <span className="phone-action-value">
+                                {sellerPhone || listing.seller_phone}
+                              </span>
+                              <div className="phone-action-menu">
+                                <a href={`tel:${phoneLinkValue(sellerPhone || listing.seller_phone || "")}`}>
+                                  <Phone size={18} />
+                                  {ui.callPhone}
+                                </a>
+                                <a href={`sms:${phoneLinkValue(sellerPhone || listing.seller_phone || "")}`}>
+                                  <MessageSquareText size={18} />
+                                  {ui.textPhone}
+                                </a>
+                                <a
+                                  href={`https://wa.me/${whatsappPhoneValue(sellerPhone || listing.seller_phone || "")}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <MessageCircle size={18} />
+                                  {ui.whatsappPhone}
+                                </a>
+                              </div>
+                            </div>
                           </div>
                         ) : null}
                     </div>

@@ -412,6 +412,64 @@ html body [class*="heroFilterMenuOption"][class*="Active"] {
 }
 
 @media (max-width: 760px) {
+  html body .listing-detail-page .seller-contact-merged .phone-action-overlay {
+    align-items: center !important;
+    background: rgba(1, 8, 17, 0.76) !important;
+    backdrop-filter: blur(5px) !important;
+    display: flex !important;
+    inset: 0 !important;
+    justify-content: center !important;
+    padding: 22px !important;
+    position: fixed !important;
+    z-index: 10000 !important;
+  }
+
+  html body .listing-detail-page .seller-contact-merged .phone-action-dialog {
+    background:
+      radial-gradient(circle at 100% 0%, rgba(255, 122, 26, 0.14), transparent 42%),
+      linear-gradient(145deg, #0a2439, #061725) !important;
+    border: 1px solid rgba(126, 197, 240, 0.42) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 24px 70px rgba(0, 5, 14, 0.62) !important;
+    display: grid !important;
+    gap: 4px !important;
+    max-width: 340px !important;
+    padding: 24px 18px 18px !important;
+    position: relative !important;
+    width: 100% !important;
+  }
+
+  html body .listing-detail-page .seller-contact-merged .phone-action-close {
+    align-items: center !important;
+    background: #ff7418 !important;
+    border: 1px solid rgba(255, 220, 190, 0.7) !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    display: flex !important;
+    height: 34px !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    position: absolute !important;
+    right: 12px !important;
+    top: 12px !important;
+    width: 34px !important;
+  }
+
+  html body .listing-detail-page .seller-contact-merged .phone-action-title {
+    color: #ffffff !important;
+    font-size: 17px !important;
+    font-weight: 900 !important;
+    line-height: 1.25 !important;
+    padding-right: 42px !important;
+  }
+
+  html body .listing-detail-page .seller-contact-merged .phone-action-value {
+    color: rgba(207, 226, 240, 0.76) !important;
+    font-size: 14px !important;
+    font-weight: 750 !important;
+    margin-bottom: 13px !important;
+  }
+
   html body .listing-detail-page .seller-contact-merged .phone-action-wrap {
     display: grid !important;
     gap: 8px !important;
@@ -419,29 +477,29 @@ html body [class*="heroFilterMenuOption"][class*="Active"] {
   }
 
   html body .listing-detail-page .seller-contact-merged .phone-action-menu {
-    background: #071a2b !important;
-    border: 1px solid rgba(126, 197, 240, 0.36) !important;
-    border-radius: 14px !important;
-    box-shadow: 0 16px 34px rgba(0, 7, 18, 0.4) !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
     display: grid !important;
-    gap: 5px !important;
-    padding: 6px !important;
+    gap: 8px !important;
+    padding: 0 !important;
     width: 100% !important;
   }
 
   html body .listing-detail-page .seller-contact-merged .phone-action-menu > a {
     align-items: center !important;
-    background: #0a2236 !important;
-    border: 0 !important;
-    border-radius: 10px !important;
+    background: rgba(11, 43, 67, 0.92) !important;
+    border: 1px solid rgba(126, 197, 240, 0.22) !important;
+    border-radius: 12px !important;
     color: #ffffff !important;
     display: flex !important;
     font-size: 14px !important;
     font-weight: 850 !important;
     gap: 10px !important;
     justify-content: flex-start !important;
-    min-height: 46px !important;
-    padding: 0 14px !important;
+    min-height: 50px !important;
+    padding: 0 15px !important;
     text-decoration: none !important;
   }
 

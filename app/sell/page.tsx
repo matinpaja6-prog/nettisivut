@@ -6459,40 +6459,65 @@ useEffect(() => {
             <Fragment key={field.key}>
               <span className={styles.trackMatDimensionPartField}>
                 <span>{field.label}</span>
-                <button
-                  type="button"
-                  className={styles.trackMatDimensionPartSelect}
-                  aria-label={field.label}
-                  aria-haspopup="listbox"
-                  aria-expanded={openPart === field.key}
-                  onClick={() =>
-                    setOpenPart((current) =>
-                      current === field.key ? null : field.key
-                    )
-                  }
-                >
-                  {index === 0 && Icon ? (
-                    <Icon size={18} aria-hidden="true" />
-                  ) : null}
-
-                  <span className={styles.trackMatDimensionPartValue}>
-                    {selectValue === customTrackMatDimensionValue
-                      ? "Muu"
-                      : partValue || field.label}
-                  </span>
-
-                  <ChevronDown size={15} aria-hidden="true" />
-                  </button>
                 {selectValue === customTrackMatDimensionValue ? (
-                  <input
-                    id={`track-mat-${field.key}-custom`}
-                    className={styles.trackMatDimensionCustomInput}
-                    value={partValue}
-                    onChange={(event) => updatePart(field.key, event.target.value)}
-                    placeholder={field.placeholder}
-                    aria-label={`Muu ${field.label.toLowerCase()}`}
-                  />
-                ) : null}
+                  <span
+                    className={styles.trackMatDimensionCustomControl}
+                    data-track-mat-custom-control={field.key}
+                  >
+                    {index === 0 && Icon ? (
+                      <Icon size={18} aria-hidden="true" />
+                    ) : null}
+                    <input
+                      id={`track-mat-${field.key}-custom`}
+                      className={styles.trackMatDimensionCustomInput}
+                      value={partValue}
+                      onChange={(event) => updatePart(field.key, event.target.value)}
+                      placeholder={field.placeholder}
+                      aria-label={`Muu ${field.label.toLowerCase()}`}
+                    />
+                    {partValue && !/cm/i.test(partValue) ? (
+                      <span data-track-mat-unit>cm</span>
+                    ) : null}
+                    <button
+                      type="button"
+                      aria-label={`Avaa ${field.label.toLowerCase()}valinnat`}
+                      aria-haspopup="listbox"
+                      aria-expanded={openPart === field.key}
+                      onClick={() =>
+                        setOpenPart((current) =>
+                          current === field.key ? null : field.key
+                        )
+                      }
+                    >
+                      <ChevronDown size={15} aria-hidden="true" />
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.trackMatDimensionPartSelect}
+                    data-track-mat-trigger={field.key}
+                    aria-label={field.label}
+                    aria-haspopup="listbox"
+                    aria-expanded={openPart === field.key}
+                    onClick={() =>
+                      setOpenPart((current) =>
+                        current === field.key ? null : field.key
+                      )
+                    }
+                  >
+                    {index === 0 && Icon ? (
+                      <Icon size={18} aria-hidden="true" />
+                    ) : null}
+                    <span
+                      className={styles.trackMatDimensionPartValue}
+                      data-track-mat-value
+                    >
+                      {partValue || field.label}
+                    </span>
+                    <ChevronDown size={15} aria-hidden="true" />
+                  </button>
+                )}
               </span>
               {index < fields.length - 1 ? (
                 <span className={styles.trackMatDimensionSeparator} aria-hidden="true">x</span>

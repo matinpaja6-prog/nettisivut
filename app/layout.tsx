@@ -234,12 +234,9 @@ export default function RootLayout({
           localStorage.removeItem("locale");
         }
 
-        var locale = isValidLocale(cookieLocale) ? cookieLocale : (storedLocale || "fi");
+        var locale = isValidLocale(storedLocale) ? storedLocale : (cookieLocale || "fi");
         document.documentElement.lang = locale;
         document.documentElement.setAttribute('data-i18n-target', locale);
-        if (locale !== "fi") {
-          document.documentElement.setAttribute('data-i18n-pending', 'true');
-        }
       } catch (e) {}
     })();
   `;
@@ -247,7 +244,6 @@ export default function RootLayout({
   return (
     <html lang="fi" suppressHydrationWarning>
       <head>
-        <style>{`html[data-i18n-pending="true"] body { visibility: hidden; }`}</style>
         <script dangerouslySetInnerHTML={{ __html: earlyLocale }} />
         <script dangerouslySetInnerHTML={{ __html: earlyAppearance }} />
         <SourceFog />

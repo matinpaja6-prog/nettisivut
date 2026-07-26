@@ -1781,14 +1781,12 @@ function AuthPageContent() {
               <span className="auth-label-row">
                 <span>{t.password}</span>
               </span>
-              <span className={authMode === "register" ? "auth-input-with-icon auth-password-input" : undefined}>
+              <span className="auth-input-with-icon auth-password-input">
                 {authMode === "register" && <LockKeyhole size={17} aria-hidden="true" />}
-                <input required minLength={6} type={showAuthPasswords ? "text" : "password"} value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder={t.authPasswordMinPlaceholder} />
-                {authMode === "register" && (
-                  <button type="button" className="auth-password-eye" aria-label={showAuthPasswords ? "Piilota salasanat" : "Näytä salasanat"} aria-pressed={showAuthPasswords} onClick={() => setShowAuthPasswords((shown) => !shown)}>
-                    {showAuthPasswords ? <EyeOff size={17} /> : <Eye size={17} />}
-                  </button>
-                )}
+                <input required minLength={6} autoComplete={authMode === "login" ? "current-password" : "new-password"} type={showAuthPasswords ? "text" : "password"} value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder={t.authPasswordMinPlaceholder} />
+                <button type="button" className="auth-password-eye" aria-label={showAuthPasswords ? "Piilota salasana" : "Näytä salasana"} aria-pressed={showAuthPasswords} onClick={() => setShowAuthPasswords((shown) => !shown)}>
+                  {showAuthPasswords ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
               </span>
               {authMode === "login" && (
                 <button

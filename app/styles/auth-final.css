@@ -1840,3 +1840,50 @@ html body .pf-page .pf-form:has(.pf-company-sellers-section) #osoite .pf-section
   text-align: left !important;
   transform: none !important;
 }
+/* Keep the password visibility control inside the input on login and registration. */
+html body .simple-auth-page .auth-password-input {
+  display: block !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+html body .simple-auth-page .auth-password-input > input {
+  padding-right: 52px !important;
+  width: 100% !important;
+}
+
+html body .simple-auth-page .auth-password-input > .auth-password-eye {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  color: #9fb6cb !important;
+  display: inline-flex !important;
+  height: 38px !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  min-height: 38px !important;
+  min-width: 38px !important;
+  padding: 0 !important;
+  position: absolute !important;
+  right: 7px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 38px !important;
+  z-index: 3 !important;
+}
+
+html body .simple-auth-page .auth-password-input > .auth-password-eye:hover,
+html body .simple-auth-page .auth-password-input > .auth-password-eye:focus-visible {
+  background: rgba(255, 122, 26, 0.12) !important;
+  color: #ff8a2a !important;
+  outline: none !important;
+}
+
+html body .simple-auth-page .auth-password-input > .auth-password-eye svg {
+  height: 18px !important;
+  position: static !important;
+  transform: none !important;
+  width: 18px !important;
+}

@@ -824,12 +824,8 @@ export default function AutoTranslate() {
 
     if (locale === "fi") {
       document.documentElement.removeAttribute("data-i18n-pending");
-      return;
     }
-
-    document.documentElement.setAttribute("data-i18n-pending", "true");
-    void translatePage();
-  }, [locale, pathname, translatePage]);
+  }, [locale, pathname]);
 
   useEffect(() => {
     let observer: MutationObserver | null = null;
@@ -874,14 +870,12 @@ export default function AutoTranslate() {
 
     window.addEventListener("visitorlanguageready", handleVisitorLanguageReady);
 
-    if (document.readyState === "complete") {
-      queueStart();
-    } else {
-      window.addEventListener("load", queueStart, { once: true });
-    }
+    // Passive effects run only after React has committed hydration. Starting
+    // here avoids changing React-owned text during hydration without waiting
+    // for every image and other load-event resource to finish.
+    queueStart();
 
     return () => {
-      window.removeEventListener("load", queueStart);
       window.removeEventListener("visitorlanguageready", handleVisitorLanguageReady);
       observer?.disconnect();
       if (startTimer) window.clearTimeout(startTimer);

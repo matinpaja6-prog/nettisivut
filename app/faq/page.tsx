@@ -52,28 +52,28 @@ const topics: Array<{
   {
     id: "buyer",
     title: "Ostajalle",
-    text: "Näin löydät osat ja teet turvallisen kaupan.",
+    text: "Löydä oikea osa ja varmista sopivuus ennen kauppaa.",
     icon: ShoppingCart,
     tone: "orange"
   },
   {
     id: "seller",
     title: "Myyjälle",
-    text: "Näin lisäät ilmoituksen ja myyt enemmän.",
+    text: "Tee ilmoitus, johon ostajan on helppo tarttua.",
     icon: Plus,
     tone: "green"
   },
   {
     id: "safety",
     title: "Turvallinen kauppa",
-    text: "Näin pidämme huolen turvallisuudesta.",
+    text: "Tunnista riskit ja sovi kaupasta selkeästi.",
     icon: ShieldCheck,
     tone: "blue"
   },
   {
     id: "general",
     title: "Yleistä",
-    text: "Usein kysytyt kysymykset ja muut ohjeet.",
+    text: "Nopeat vastaukset Maskinesin käyttöön.",
     icon: CircleHelp,
     tone: "amber"
   }
@@ -83,49 +83,49 @@ const buyerGuides: HelpItem[] = [
   {
     id: "find-parts",
     topic: "buyer",
-    title: "Näin haet varaosia",
-    text: "Hae merkin, mallin tai osan mukaan.",
+    title: "Löydä oikea varaosa",
+    text: "Rajaa haku ajoneuvon ja osan mukaan.",
     icon: Search,
     answer: [
-      "Kirjoita hakukenttään osan nimi, ajoneuvon merkki, malli tai vuosimalli.",
-      "Rajaa tuloksia ajoneuvotyypin, kategorian, hinnan ja sijainnin mukaan.",
-      "Avaa ilmoitus ja tarkista kuvat, osanumero, kunto sekä myyjän tiedot ennen yhteydenottoa."
+      "Aloita ajoneuvolajista ja rajaa haku tyypin, merkin, mallin sekä vuosimallin mukaan.",
+      "Hae osan nimellä tai OEM-numerolla. Esimerkiksi \"Ski-Doo 850 variaattori\" antaa tarkemmat tulokset kuin pelkkä \"variaattori\".",
+      "Tarkista ilmoituksesta kunto, osanumero, mitat ja sijainti. Pelkkä saman näköinen osa ei aina tarkoita, että se sopii."
     ]
   },
   {
     id: "contact-seller",
     topic: "buyer",
-    title: "Näin otat yhteyttä myyjään",
-    text: "Viestit, tarkennukset ja kysymykset.",
+    title: "Varmista osan sopivuus",
+    text: "Kysy nämä ennen kuin sovit kaupasta.",
     icon: MessageCircle,
     answer: [
-      "Kysy myyjältä sopiiko osa varmasti omaan ajoneuvoosi.",
-      "Pyydä lisäkuvia, osanumero tai mitat, jos ilmoituksessa ei ole kaikkea tietoa.",
-      "Pidä keskustelu Maskines-viesteissä, jotta sovitut asiat jäävät talteen."
+      "Kerro myyjälle oman ajoneuvosi tarkka merkki, malli, vuosimalli ja tarvittaessa moottoriversio.",
+      "Vertaa OEM-numeroa, kiinnityspisteitä ja mittoja. Pyydä lähikuvat liittimistä, kierteistä ja kuluvista pinnoista.",
+      "Kysy suoraan vioista, korjauksista ja siitä, mistä ajoneuvosta osa on irrotettu. Tallenna sovitut asiat Maskines-viesteihin."
     ]
   },
   {
     id: "buy-safely",
     topic: "buyer",
-    title: "Näin teet ostoksen",
-    text: "Sopiminen, maksaminen ja toimitus.",
+    title: "Sovi kauppa selkeästi",
+    text: "Hinta, maksu ja toimitus ilman arvailua.",
     icon: CreditCard,
     answer: [
-      "Sovi hinta, toimitustapa ja maksutapa selkeästi ennen maksamista.",
-      "Suosi noutoa tai seurattavaa lähetystä, kun osa on arvokas tai vaikeasti korvattava.",
-      "Maskines ei käsittele ostajan ja myyjän välistä maksua, joten käytä tuttua ja turvallista maksutapaa."
+      "Vahvista ennen maksua, mitä kauppaan kuuluu: tarkka osa, mahdolliset tarvikkeet, kokonaishinta ja toimituskulut.",
+      "Arvokas tai vaikeasti tunnistettava osa kannattaa tarkistaa noudettaessa. Lähetykselle kannattaa pyytää seuranta ja riittävä pakkaus.",
+      "Maskines ei vastaanota eikä välitä kauppasummaa. Ostaja ja myyjä sopivat maksutavan itse, joten valitse tapa, jonka ehdot tunnet."
     ]
   },
   {
     id: "track-order",
     topic: "buyer",
-    title: "Näin seuraat tilaustasi",
-    text: "Tilauksen vaiheet ja toimituksen seuranta.",
+    title: "Kun osa lähetetään",
+    text: "Seuranta, vastaanotto ja tarkastus.",
     icon: Box,
     answer: [
-      "Pyydä myyjältä seurantakoodi heti kun lähetys on jätetty kuljetukseen.",
-      "Tarkista paketti vastaanottaessa ja kuvaa mahdolliset kuljetusvauriot heti.",
-      "Jos toimitus viivästyy, ota ensin yhteys myyjään ja sen jälkeen kuljetusyhtiöön."
+      "Pyydä myyjää lähettämään seurantakoodi ja kuva valmiiksi pakatusta lähetyksestä.",
+      "Tarkista paketin kunto heti vastaanottaessa. Kuvaa vaurioitunut pakkaus ennen avaamista ja kuvaa myös osa.",
+      "Jos lähetys ei liiku tai sisältö poikkeaa sovitusta, ota ensin yhteys myyjään ja tarvittaessa kuljetusyhtiöön."
     ]
   }
 ];
@@ -134,49 +134,49 @@ const sellerGuides: HelpItem[] = [
   {
     id: "create-listing",
     topic: "seller",
-    title: "Näin lisäät ilmoituksen",
-    text: "Vie varaosasi loppuun asti julkaisuun.",
+    title: "Tee löydettävä ilmoitus",
+    text: "Oikea ajoneuvo, osa ja otsikko.",
     icon: SquarePlus,
     answer: [
-      "Valitse oikea ajoneuvotyyppi, merkki, malli ja varaosan kategoria.",
-      "Lisää selkeät kuvat, hinta, kunto, sijainti ja mahdollinen osanumero.",
-      "Tarkista ilmoitus ennen julkaisua. Mitä tarkempi ilmoitus on, sitä vähemmän tulee turhia kysymyksiä."
+      "Valitse ajoneuvolaji, tyyppi, merkki, malli ja osakategoria mahdollisimman tarkasti. Näitä tietoja käytetään haun rajauksissa.",
+      "Kirjoita otsikkoon osa ja tärkein sopivuustieto, esimerkiksi \"KTM 125 EXC 2020 takaiskari\".",
+      "Lisää realistinen hinta, sijainti, kunto, OEM-numero ja tiedossa olevat yhteensopivat vuosimallit."
     ]
   },
   {
     id: "many-parts",
     topic: "seller",
-    title: "Näin lisäät useita osia",
-    text: "Yksi ajoneuvo, useita osia.",
+    title: "Kuvat ja kuntotiedot",
+    text: "Näytä ostajalle myös käytön jäljet.",
     icon: BarChart3,
     answer: [
-      "Käytä samaa ajoneuvon merkki- ja mallitietoa, jos myyt useita osia samasta kohteesta.",
-      "Nimeä jokainen osa erikseen ja lisää sille oma hinta sekä kunto.",
-      "Pidä kuvat järjestyksessä: ostaja näkee nopeammin, mikä osa on kyseessä."
+      "Kuvaa osa päivänvalossa useasta suunnasta. Ensimmäisen kuvan pitää näyttää myytävä osa kokonaan.",
+      "Lisää lähikuva osanumerosta, liittimistä, kiinnityksistä ja kulumista. Älä rajaa vikaa kuvan ulkopuolelle.",
+      "Kerro kuvauksessa rehellisesti halkeamat, välykset, hitsaukset, puuttuvat osat ja se, onko toimintaa testattu."
     ]
   },
   {
     id: "edit-listing",
     topic: "seller",
-    title: "Näin muokkaat ilmoitusta",
-    text: "Hinnat, tiedot ja kuvat ajan tasalle.",
+    title: "Myy useita osia",
+    text: "Pidä jokainen osa ja hinta selkeänä.",
     icon: Edit3,
     answer: [
-      "Avaa omat ilmoitukset ja valitse muokattava ilmoitus.",
-      "Päivitä hinta, saatavuus, kuvat tai lisätiedot aina kun tilanne muuttuu.",
-      "Poista tai merkitse myydyksi osa, jota ei ole enää saatavilla."
+      "Käytä usean ilmoituksen toimintoa, kun purat samasta ajoneuvosta monta erikseen myytävää osaa.",
+      "Anna jokaiselle osalle oma nimi, hinta, kunto ja sitä vastaavat kuvat. Älä niputa eri osien tietoja yhteen.",
+      "Samat ajoneuvotiedot voidaan hyödyntää kaikissa erän ilmoituksissa, mutta tarkista jokainen osa ennen julkaisua."
     ]
   },
   {
     id: "manage-sales",
     topic: "seller",
-    title: "Näin hallinnoit myyntiäsi",
-    text: "Myydyt osat, arkistointi ja tilastot.",
+    title: "Pidä myynti ajan tasalla",
+    text: "Vastaa, päivitä ja merkitse myydyksi.",
     icon: PackageCheck,
     answer: [
-      "Seuraa yhteydenottoja viesteistä ja vastaa ostajille mahdollisimman nopeasti.",
-      "Pidä profiilin tiedot ajan tasalla, jotta ostaja luottaa myyjään.",
-      "Arkistoi vanhat ilmoitukset ja käytä samoja hyviä kuvia sekä kuvauksia tulevissa myynneissä."
+      "Vastaa sopivuus- ja kuntokysymyksiin samoilla tiedoilla, jotka pystyt myös näyttämään kuvista tai osanumerosta.",
+      "Päivitä hintaa, kuvia ja kuvausta, jos saat ilmoituksen jälkeen uutta tietoa osasta.",
+      "Merkitse osa myydyksi heti kaupan valmistuttua. Näin ostajat eivät kysy tuotteesta, jota ei enää ole."
     ]
   }
 ];
@@ -185,25 +185,25 @@ const safetyGuides: HelpItem[] = [
   {
     id: "safe-payment",
     topic: "safety",
-    title: "Turvallinen maksaminen",
-    text: "Vältä riskit ennen kuin lähetät rahaa.",
+    title: "Tarkista ennen maksua",
+    text: "Pieni tarkistus voi estää ison vahingon.",
     icon: ShieldCheck,
     answer: [
-      "Älä lähetä rahaa, jos ilmoitus, kuvat tai myyjän vastaukset tuntuvat ristiriitaisilta.",
-      "Varmista myyjän nimi, paikkakunta ja toimitustapa ennen maksua.",
-      "Kalliissa osissa nouto tai maksutapa, jossa on ostajansuoja, on turvallisempi valinta."
+      "Vertaa ilmoituksen kuvia, kuvausta, hintaa ja myyjän vastauksia. Selvästi markkinahintaa halvempi osa vaatii tavallista tarkemman selvityksen.",
+      "Varmista myyjän nimi, puhelinnumero, paikkakunta ja se, että hän pystyy ottamaan pyydetyn lisäkuvan osasta.",
+      "Älä maksa kiireen tai painostuksen vuoksi. Kalliissa kaupassa nouto tai ostajansuojaa tarjoava maksutapa pienentää riskiä."
     ]
   },
   {
     id: "suspicious-listing",
     topic: "safety",
-    title: "Epäilyttävä ilmoitus",
-    text: "Mitä tehdä, jos jokin ei täsmää.",
+    title: "Tunnista epäilyttävä toiminta",
+    text: "Keskeytä kauppa, jos tiedot eivät täsmää.",
     icon: AlertTriangle,
     answer: [
-      "Älä jatka kauppaa, jos myyjä painostaa nopeaan maksuun tai siirtää keskustelun epäilyttävään kanavaan.",
-      "Ota kuvakaappaukset viesteistä ja ilmoituksesta.",
-      "Ilmoita asiasta Maskinesin tuelle, jotta voimme tarkistaa ilmoituksen."
+      "Varoitusmerkkejä ovat kopioidut kuvat, epäselvä omistajuus, vaihtuvat maksutiedot ja kieltäytyminen lisäkuvista tai noudosta.",
+      "Keskeytä maksaminen ja säilytä ilmoituksen linkki, viestit, maksutiedot sekä kuvakaappaukset.",
+      "Lähetä tiedot Maskinesin tukeen. Voimme tarkistaa käyttäjän ja ilmoituksen, mutta emme ratkaise osapuolten välistä maksuriitaa."
     ]
   }
 ];
@@ -214,44 +214,65 @@ const faqItems: FaqItem[] = [
   {
     id: "cost",
     topic: "general",
-    question: "Mitä palvelu maksaa?",
+    question: "Maksaako Maskinesin käyttäminen?",
     answer:
-      "Ostajalle selaaminen ja yhteydenotto on ilmaista. Myyjälle tavallinen ilmoituksen lisääminen on pidetty mahdollisimman kevyenä; jos palveluun tulee maksullisia lisänäkyvyyksiä, hinta näytetään aina ennen ostoa."
+      "Ilmoitusten selaaminen ja puhelinnumeron katsominen on maksutonta. Viestien lähettäminen ja omien ilmoitusten hallinta vaatii kirjautumisen. Mahdollisen maksullisen lisänäkyvyyden tai ilmoituspaikan hinta näytetään aina ennen vahvistamista."
   },
   {
     id: "buyer-free",
     topic: "buyer",
-    question: "Onko palvelu ilmainen ostajalle?",
+    question: "Miten varmistan, että osa sopii ajoneuvooni?",
     answer:
-      "Kyllä. Ostaja voi hakea varaosia, selata ilmoituksia ja ottaa yhteyttä myyjään ilman maksua."
+      "Vertaa OEM-numeroa, ajoneuvon tarkkaa mallia ja vuosimallia sekä osan mittoja ja liitäntöjä. Lähetä myyjälle tarvittaessa kuva vanhasta osasta. Lopullinen sopivuus kannattaa varmistaa ennen maksua, sillä saman mallisarjan osissa voi olla vuosimallikohtaisia eroja."
   },
   {
     id: "publish",
     topic: "seller",
-    question: "Miten ilmoituksen julkaisu toimii?",
+    question: "Mitä hyvässä ilmoituksessa pitää olla?",
     answer:
-      "Kirjaudu sisään, valitse Myy osa, täytä ajoneuvon ja varaosan tiedot, lisää kuvat ja julkaise ilmoitus. Ilmoitus näkyy hakutuloksissa, kun tiedot on tallennettu onnistuneesti."
+      "Hyvä ilmoitus sisältää oikean ajoneuvo- ja osakategorian, selkeän otsikon, aidot kuvat, hinnan, sijainnin, kunnon, OEM-numeron sekä kaikki tiedossa olevat viat. Kerro myös, mistä ajoneuvosta osa on irrotettu ja onko sen toiminta testattu."
   },
   {
     id: "multi-parts",
     topic: "seller",
-    question: "Voinko lisätä useita osia yhdestä ajoneuvosta?",
+    question: "Voinko ilmoittaa monta osaa samasta ajoneuvosta?",
     answer:
-      "Kyllä. Voit tehdä useita ilmoituksia samalle ajoneuvolle ja käyttää samoja merkki-, malli- ja vuosimallitietoja, jotta ostaja löytää osat helpommin."
+      "Kyllä. Valitse usean ilmoituksen toiminto, lisää yhteiset ajoneuvotiedot kerran ja täytä jokaiselle osalle oma hinta, kunto, kuvaus ja kuvat. Näin jokainen osa löytyy hausta erillisenä ilmoituksena."
   },
   {
     id: "messages-payments",
     topic: "safety",
-    question: "Miten viestit ja maksut toimivat?",
+    question: "Kulkeeko maksu Maskinesin kautta?",
     answer:
-      "Viestit kulkevat Maskinesin kautta. Maksu, nouto ja toimitus sovitaan ostajan ja myyjän välillä. Suosittelemme selkeää sopimusta, seurattavaa toimitusta ja turvallista maksutapaa."
+      "Ei. Maskines toimii ilmoitus- ja yhteydenottopalveluna, eikä säilytä tai välitä kauppasummaa. Ostaja ja myyjä sopivat maksun, noudon ja toimituksen keskenään. Käytä maksutapaa, jonka ehdot ja mahdollisen ostajansuojan tunnet."
   },
   {
     id: "bad-part",
     topic: "buyer",
     question: "Mitä teen, jos osa ei vastaa sovittua?",
     answer:
-      "Ota heti yhteyttä myyjään ja kerro ongelma selkeästi kuvien kanssa. Jos asia ei ratkea, ota yhteyttä tukeen ja liitä mukaan ilmoituksen linkki sekä viestikeskustelu."
+      "Älä asenna tai muokkaa osaa ennen asian selvittämistä. Kuvaa pakkaus, osa, osanumero ja havaittu ero. Ota heti yhteys myyjään Maskines-viestillä ja ehdota ratkaisua. Jos asia ei ratkea, lähetä tuelle ilmoituksen linkki, kuvat ja viestihistoria."
+  },
+  {
+    id: "seller-response",
+    topic: "buyer",
+    question: "Mitä teen, jos myyjä ei vastaa?",
+    answer:
+      "Anna myyjälle kohtuullinen aika vastata ja kokeile ilmoituksessa näkyvää puhelinnumeroa. Älä lähetä maksua ennen kuin osan saatavuus, sopivuus ja kaupan ehdot on vahvistettu. Jos ilmoitus vaikuttaa vanhentuneelta tai epäilyttävältä, ilmoita siitä tuelle."
+  },
+  {
+    id: "edit-or-sold",
+    topic: "seller",
+    question: "Miten muokkaan tai poistan ilmoituksen?",
+    answer:
+      "Avaa Oma talli tai Omat ilmoitukset, valitse kyseinen ilmoitus ja avaa muokkaus. Päivitä muuttuneet tiedot heti. Kun osa on myyty, merkitse se myydyksi tai poista ilmoitus, jotta ostajat eivät ota turhaan yhteyttä."
+  },
+  {
+    id: "report-listing",
+    topic: "safety",
+    question: "Miten ilmoitan epäilyttävästä ilmoituksesta?",
+    answer:
+      "Keskeytä kaupanteko ja ota talteen ilmoituksen linkki sekä olennaiset viestit. Lähetä ne Maskinesin yhteydenottosivun kautta tai osoitteeseen info@maskines.com. Kerro lyhyesti, mikä ilmoituksessa tai yhteydenpidossa herätti epäilyn."
   }
 ];
 
@@ -276,7 +297,7 @@ export default function FaqPage() {
           <div>
             <span className="help-kicker">Maskines ohjekeskus</span>
             <h1>Ohjeet</h1>
-            <p>Kaikki ohjeet ostajalle ja myyjälle. Turvallinen kaupankäynti ja helppo ilmoittaminen.</p>
+            <p>Käytännön ohjeet varaosan löytämiseen, myymiseen ja turvalliseen kaupankäyntiin.</p>
           </div>
         </div>
       </section>
@@ -346,7 +367,7 @@ export default function FaqPage() {
               </span>
               <div>
                 <strong>Tarvitsetko apua?</strong>
-                <small>Asiakastukemme auttaa mielellään.</small>
+                <small>Kerro ilmoituksen linkki ja mitä olit tekemässä, niin pääsemme nopeammin asiaan.</small>
               </div>
             </div>
             <Link href={pagePath("contact", "fi")}>
