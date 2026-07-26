@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Search, Settings, Star, Store, UserRound, Users, X } from "lucide-react";
+import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Search, Settings, Star, Store, UserRound, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -36,7 +36,6 @@ import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profilePath, profileRootPath } from "@/lib/routes";
 import { readUserSettings, USER_SETTINGS_EVENT } from "@/lib/user-settings";
-import LanguageSwitcher from "./LanguageSwitcher";
 import { useTaxonomy } from "./TaxonomyProvider";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
@@ -691,11 +690,6 @@ export default function UniversalTopbar() {
   }
 
   const authHref = pagePath("auth", locale);
-  const sellHref = pagePath("sell", locale);
-  const sellActionHref =
-    userId
-      ? sellHref
-      : `${authHref}?mode=login&next=${encodeURIComponent(sellHref)}&reason=sell`;
   const messagesHref = pagePath("messages", locale);
   const profileHref = profileRootPath(locale);
   const myListingsHref = pagePath("my-listings", locale);
@@ -1010,6 +1004,17 @@ export default function UniversalTopbar() {
           >
             <BackChevronIcon />
           </button>
+          <Link
+            href="/"
+            className="universal-page-brand-home"
+            aria-label="Maskines - etusivulle"
+            onClick={handleHomeReset}
+          >
+            <span className="universal-home-brand-copy" aria-hidden="true">
+              <strong>MASKINES</strong>
+              <small>MARKETPLACE</small>
+            </span>
+          </Link>
         </div>
       )}
       <nav className="universal-home-primary-nav" aria-label="Päänavigaatio" ref={topbarDropdownRef}>
@@ -1269,10 +1274,6 @@ export default function UniversalTopbar() {
                 </small>
               </Link>
             ) : null}
-            <Link href={sellActionHref} className={`universal-create-button${isActiveRoute("/sell") ? " is-active" : ""}`}>
-              <Plus size={17} aria-hidden="true" />
-              <strong>{t.createListing}</strong>
-            </Link>
             <div className="universal-notification-wrap" ref={notificationMenuRef}>
               <button
                 type="button"
@@ -1523,9 +1524,6 @@ export default function UniversalTopbar() {
             <ChevronDown size={14} aria-hidden="true" />
           </button>
         </div>
-            <div className={`universal-language-wrap${controlsLocked ? " universal-guest-disabled" : ""}`} aria-disabled={controlsLocked}>
-              <LanguageSwitcher />
-            </div>
           </>
         )}
       </nav>

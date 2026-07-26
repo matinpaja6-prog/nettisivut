@@ -1,0 +1,688 @@
+/* Dedicated tablet layout. Keep this import last so the 721-1100 px range
+   does not inherit conflicting desktop and phone dimensions. */
+@media (min-width: 721px) and (max-width: 1280px) {
+  html,
+  body {
+    max-width: 100% !important;
+    overflow-x: clip !important;
+  }
+
+  body {
+    min-width: 0 !important;
+  }
+
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+
+  main,
+  main > section,
+  .help-shell,
+  .footer-inner,
+  .footer-bottom {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    max-width: 100%;
+  }
+
+  /* Shared topbar */
+  html body header.universal-app-topbar {
+    align-items: center !important;
+    gap: 12px !important;
+    min-height: 64px !important;
+    padding: 8px clamp(16px, 3vw, 28px) !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    flex: 1 1 auto !important;
+    gap: 9px !important;
+    max-width: calc(100% - 180px) !important;
+    min-width: 0 !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    visibility: visible !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo {
+    display: block !important;
+    flex: 0 0 48px !important;
+    height: 48px !important;
+    max-width: none !important;
+    object-fit: contain !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    width: 48px !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-brand {
+    max-width: min(280px, calc(100% - 180px)) !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-brand-home {
+    align-items: center !important;
+    color: inherit !important;
+    display: inline-flex !important;
+    gap: 9px !important;
+    min-width: 0 !important;
+    text-decoration: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    visibility: visible !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy strong {
+    display: block !important;
+    font-size: clamp(17px, 2.35vw, 22px) !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy small {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions {
+    align-items: center !important;
+    flex: 0 0 auto !important;
+    gap: 8px !important;
+    margin-left: auto !important;
+    max-width: min(330px, 48vw) !important;
+    min-width: 0 !important;
+  }
+
+  html body header.universal-app-topbar .universal-notification-button,
+  html body header.universal-app-topbar .rebuilt-profile-button,
+  html body header.universal-app-topbar .rebuilt-login-button {
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+
+  html body header.universal-app-topbar .universal-profile-menu,
+  html body header.universal-app-topbar .universal-notification-menu,
+  html body header.universal-app-topbar [data-global-language-menu] {
+    max-height: min(620px, calc(100dvh - 82px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    overflow-y: auto !important;
+  }
+
+  /* Homepage hero and search */
+  html body main[data-home-page] {
+    min-width: 0 !important;
+    overflow-x: clip !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] > [data-home-background-region] {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 0 20px !important;
+  }
+
+  html body main[data-home-page] [data-home-background-container] {
+    box-sizing: border-box !important;
+    height: auto !important;
+    max-width: 100% !important;
+    padding-left: clamp(18px, 3vw, 30px) !important;
+    padding-right: clamp(18px, 3vw, 30px) !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [data-home-results-mode] {
+    box-sizing: border-box !important;
+    height: auto !important;
+    justify-self: stretch !important;
+    max-width: 100% !important;
+    min-height: 0 !important;
+    min-width: 0 !important;
+    padding-bottom: 0 !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [data-home-intro-showcase] [class*="heroInner"] {
+    box-sizing: border-box !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [data-home-results-mode] > * {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  html body main[data-home-page] [class*="heroSearchRow"] {
+    box-sizing: border-box !important;
+    gap: 0 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [class*="heroSearchRow"] [class*="heroSearch"] {
+    box-sizing: border-box !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [class*="heroSearchRow"] [class*="heroSearchButton"] {
+    box-sizing: border-box !important;
+    font-size: 14px !important;
+    min-width: 86px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    width: auto !important;
+  }
+
+  html body main[data-home-page] [class*="heroDesktopLatest"],
+  html body main[data-home-page] [class*="heroMarketplace"],
+  html body main[data-home-page] [class*="heroSellPromo"] {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [class*="heroDesktopLatestGrid"] {
+    box-sizing: border-box !important;
+    gap: 16px !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [class*="heroDesktopLatestCard"] {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [data-home-intro-showcase] {
+    box-sizing: border-box !important;
+    height: clamp(300px, 39vw, 390px) !important;
+    min-height: 300px !important;
+    max-height: 390px !important;
+    margin: 0 auto !important;
+    overflow: hidden !important;
+    padding-bottom: 18px !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [data-home-hero-art] {
+    height: 100% !important;
+    max-height: 390px !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html body main[data-home-page] h1 {
+    font-size: clamp(36px, 5vw, 52px) !important;
+    line-height: 0.96 !important;
+    max-width: min(680px, calc(100vw - 72px)) !important;
+    overflow-wrap: normal !important;
+  }
+
+  html body main[data-home-page] form,
+  html body main[data-home-page] [role="search"] {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+  }
+
+  html body main[data-home-page] input[type="search"],
+  html body main[data-home-page] input[placeholder*="Search"],
+  html body main[data-home-page] input[placeholder*="Hae"],
+  html body main[data-home-page] input[placeholder*="Sök"] {
+    min-width: 0 !important;
+  }
+
+  html body main[data-home-page] :is(div, section):has(> [data-listing-card="true"]) {
+    box-sizing: border-box !important;
+    gap: 16px !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [data-listing-card="true"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [data-listing-card="true"] img {
+    max-width: none !important;
+  }
+
+  /* Listing detail switches before the desktop sidebar becomes cramped. */
+  html body .listing-detail-page .container {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    padding-left: 22px !important;
+    padding-right: 22px !important;
+    width: 100% !important;
+  }
+
+  html body .listing-detail-page .layout {
+    gap: 20px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body .listing-detail-page .sidebar {
+    display: grid !important;
+    gap: 18px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  html body .listing-detail-page .main-img {
+    height: clamp(380px, 58vw, 560px) !important;
+  }
+
+  /* Help center */
+  html body .help-page .help-shell {
+    padding-left: 22px !important;
+    padding-right: 22px !important;
+    width: 100% !important;
+  }
+
+  html body .help-page .help-topic-grid {
+    gap: 14px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html body .help-page .help-columns {
+    gap: 16px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html body .help-page .help-columns > :last-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  html body .help-page .help-support {
+    align-items: stretch !important;
+    grid-template-columns: minmax(0, 1fr) repeat(2, minmax(190px, auto)) !important;
+  }
+
+  /* Profile, messages, listings and forms */
+  html body .pf-layout,
+  html body .messages-layout,
+  html body .my-listings-layout,
+  html body .garage-layout {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-listing-grid,
+  html body .saved-grid,
+  html body .followed-grid {
+    gap: 16px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html body .simple-auth-page .auth-card,
+  html body .simple-auth-page .simple-card,
+  html body [role="dialog"] {
+    box-sizing: border-box !important;
+    max-width: calc(100vw - 40px) !important;
+  }
+
+  /* Footer */
+  html body .site-footer {
+    min-height: 0 !important;
+    padding-left: 28px !important;
+    padding-right: 28px !important;
+  }
+
+  html body .site-footer .footer-inner {
+    gap: 34px !important;
+    grid-template-columns: minmax(210px, 0.72fr) minmax(0, 1.6fr) !important;
+  }
+
+  html body .site-footer .footer-links-grid {
+    gap: 24px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 900px) {
+  html body main[data-home-page] [class*="heroDesktopLatestGrid"],
+  html body main[data-home-page] :is(div, section):has(> [data-listing-card="true"]) {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html body .listing-detail-page .sidebar,
+  html body .help-page .help-columns,
+  html body .help-page .help-support,
+  html body .site-footer .footer-inner {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body .help-page .help-columns > :last-child {
+    grid-column: auto !important;
+  }
+
+  html body .seller-page .seller-listing-grid,
+  html body .saved-grid,
+  html body .followed-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 721px) {
+  html body main[data-home-page] [class*="heroDesktopLatestGrid"] {
+    gap: clamp(10px, 1.5vw, 18px) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html body main[data-home-page] [class*="heroDesktopLatestImage"] {
+    aspect-ratio: 4 / 3 !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  html body main[data-home-page] [class*="heroDesktopLatestBody"] {
+    height: auto !important;
+    min-height: 150px !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1280px) {
+  html body main[data-home-page] [class*="heroDesktopLatestGrid"],
+  html body main[data-home-page] :is(div, section):has(> [data-listing-card="true"]) {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Permanent responsive width lock for every viewport size. */
+html,
+body {
+  max-width: 100% !important;
+  overflow-x: clip !important;
+}
+
+html body main[data-home-page],
+html body main[data-home-page] [data-home-background-region],
+html body main[data-home-page] [data-home-background-container],
+html body main[data-home-page] [class*="heroWrap"],
+html body main[data-home-page] [class*="hero"],
+html body main[data-home-page] [class*="heroInner"] {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+html body main[data-home-page] [class*="heroInner"] {
+  grid-template-columns: minmax(0, 1fr) !important;
+  overflow-x: clip !important;
+  width: 100% !important;
+}
+
+html body main[data-home-page] [data-home-results-mode],
+html body main[data-home-page] [class*="heroLeadPanel"],
+html body main[data-home-page] [class*="heroShowcase"],
+html body main[data-home-page] [class*="heroSearchPanel"],
+html body main[data-home-page] [class*="heroSearchRow"],
+html body main[data-home-page] [class*="heroDesktopLatest"],
+html body main[data-home-page] [class*="heroDesktopLatestGrid"] {
+  box-sizing: border-box !important;
+  justify-self: stretch !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+html body main[data-home-page] [data-home-results-mode],
+html body main[data-home-page] [class*="heroLeadPanel"] {
+  grid-template-columns: minmax(0, 1fr) !important;
+  overflow-x: clip !important;
+}
+
+html body main[data-home-page] [class*="heroSearchRow"] [class*="heroSearch"],
+html body main[data-home-page] [class*="heroSearchRow"] [class*="heroSearchInput"] {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+html body main[data-home-page] [class*="heroDesktopLatestGrid"] > *,
+html body main[data-home-page] [data-listing-card="true"] {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+@media (max-width: 720px) {
+  html body:has(.sell-container) {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  html body:has(.sell-container) .sell-container {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  html body:has(.sell-container) .bottom-nav.bottom-nav-main {
+    bottom: 0 !important;
+    display: grid !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: fixed !important;
+    visibility: visible !important;
+    z-index: 5000 !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-brand {
+    gap: 10px !important;
+    max-width: calc(100% - 112px) !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-back-button {
+    display: inline-flex !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-brand-home {
+    align-items: center !important;
+    display: inline-flex !important;
+    min-width: 96px !important;
+    overflow: visible !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-brand-home .universal-home-brand-copy {
+    display: block !important;
+    min-width: max-content !important;
+    overflow: visible !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-brand-home .universal-home-brand-copy strong {
+    color: #f4f7fb !important;
+    display: block !important;
+    font-size: clamp(16px, 3.8vw, 19px) !important;
+    font-style: italic !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-brand-home .universal-home-brand-copy small {
+    display: none !important;
+  }
+}
+
+/* iPad and compact computer windows still use a three-card desktop row. */
+@media (min-width: 600px) and (max-width: 720px) {
+  html body header.universal-app-topbar .universal-page-back-brand {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    gap: 12px !important;
+    max-width: calc(100% - 120px) !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-brand-home {
+    display: inline-flex !important;
+    flex: 0 1 auto !important;
+    min-width: 112px !important;
+    overflow: hidden !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-brand-home .universal-home-brand-copy {
+    display: block !important;
+    min-width: max-content !important;
+    overflow: visible !important;
+    width: auto !important;
+    writing-mode: horizontal-tb !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-brand-home .universal-home-brand-copy strong {
+    color: #f4f7fb !important;
+    display: block !important;
+    font-size: clamp(16px, 3.8vw, 19px) !important;
+    font-style: italic !important;
+    font-weight: 950 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    writing-mode: horizontal-tb !important;
+  }
+
+  html body header.universal-app-topbar .universal-page-brand-home .universal-home-brand-copy small {
+    display: none !important;
+  }
+
+  html body main[data-home-page] [class*="heroHeadline"] {
+    font-size: clamp(42px, 6.5vw, 48px) !important;
+    line-height: 0.98 !important;
+    max-width: min(620px, calc(100vw - 36px)) !important;
+  }
+
+  html body main[data-home-page] [class*="heroReferenceSubtitle"] {
+    font-size: clamp(16px, 2.35vw, 19px) !important;
+    line-height: 1.28 !important;
+    max-width: min(540px, calc(100vw - 54px)) !important;
+  }
+
+  html body main[data-home-page] [class*="heroDesktopLatestGrid"] {
+    gap: 10px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [class*="heroDesktopLatestCard"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [class*="heroDesktopLatestImage"] {
+    aspect-ratio: 4 / 3 !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  html body main[data-home-page] [class*="heroDesktopLatestBody"] {
+    height: auto !important;
+    min-height: 132px !important;
+    padding: 10px !important;
+  }
+
+  html body main[data-home-page] [class*="heroDesktopLatestPrice"] {
+    font-size: clamp(18px, 3vw, 24px) !important;
+  }
+}
+
+@media (min-width: 1000px) {
+  html body main[data-home-page] [class*="heroDesktopLatestGrid"] {
+    gap: clamp(14px, 1.35vw, 20px) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  html body .followed-grid {
+    gap: 12px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+  }
+
+  html body .followed-card {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body .followed-card-main {
+    align-items: center !important;
+    display: grid !important;
+    gap: 12px !important;
+    grid-template-columns: 56px minmax(0, 1fr) !important;
+    padding: 12px !important;
+  }
+
+  html body .followed-avatar {
+    flex-basis: 56px !important;
+    height: 56px !important;
+    width: 56px !important;
+  }
+
+  html body .followed-card-copy > strong {
+    font-size: 16px !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+  }
+
+  html body .followed-card-footer {
+    align-items: center !important;
+    display: flex !important;
+    flex-direction: row !important;
+    min-height: 54px !important;
+    padding: 8px 12px !important;
+    width: 100% !important;
+  }
+
+  html body .followed-card-footer > span:empty {
+    display: none !important;
+  }
+
+  html body .followed-card-footer button,
+  html body .followed-card-footer a {
+    font-size: 13px !important;
+    min-height: 38px !important;
+    padding: 0 14px !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+  }
+}

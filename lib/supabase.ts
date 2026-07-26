@@ -4147,17 +4147,6 @@ export async function getPublicSellerLevelStats(
   if (!supabase) return { data: empty, error: null };
 
   try {
-    const rpcResult = await supabase.rpc("get_public_seller_level_stats", {
-      p_user_id: sellerId
-    });
-
-    if (!rpcResult.error && rpcResult.data) {
-      return {
-        data: normalizeSellerLevelStats(rpcResult.data as Partial<SellerLevelStats>),
-        error: null
-      };
-    }
-
     const [
       listingsResult,
       soldResult,
@@ -4202,7 +4191,6 @@ export async function getPublicSellerLevelStats(
         phone_verified: Boolean(profileResult.data?.phone_verified_at)
       }),
       error:
-        rpcResult.error ??
         listingsResult.error ??
         soldResult.error ??
         reviewsGivenResult.error ??
@@ -4486,21 +4474,8 @@ export async function getListingBuyerCandidates(
         .select("id,public_id,first_name,last_name,full_name,name,username")
         .in("id", buyerIds);
 
-    const { data: publicProfiles } =
-      await supabase
-        .from("public_profiles")
-        .select("id,first_name,last_name,full_name")
-        .in("id", buyerIds);
-
     const profileById =
       new Map<string, Partial<UserProfile>>();
-
-    for (const profile of publicProfiles ?? []) {
-      profileById.set(
-        String(profile.id),
-        profile as Partial<UserProfile>
-      );
-    }
 
     for (const profile of profiles ?? []) {
       profileById.set(
@@ -4718,7 +4693,6 @@ export async function getConversationSummaries(
     const [
       listingsResult,
       profilesResult,
-      publicProfilesResult,
       messagesResult,
       reviewsResult
     ] =
@@ -4741,20 +4715,6 @@ export async function getConversationSummaries(
             avatar_url,
             online,
             last_seen,
-            created_at,
-            city,
-            country
-          `)
-          .in("id", otherUserIds),
-
-        supabase
-          .from("public_profiles")
-          .select(`
-            id,
-            first_name,
-            last_name,
-            full_name,
-            avatar_url,
             created_at,
             city,
             country
@@ -4806,19 +4766,6 @@ export async function getConversationSummaries(
           ]
         )
       );
-
-    for (const publicProfile of publicProfilesResult.data ?? []) {
-      const existing =
-        profilesById.get(publicProfile.id);
-
-      profilesById.set(
-        publicProfile.id,
-        {
-          ...existing,
-          ...publicProfile
-        }
-      );
-    }
 
     const lastMessageByConversation =
       new Map<string, ChatMessage>();
@@ -4938,7 +4885,6 @@ export async function getConversationSummaries(
       error:
         listingsResult.error ??
         profilesResult.error ??
-        publicProfilesResult.error ??
         messagesResult.error ??
         reviewsResult.error ??
         null
@@ -5054,7 +5000,6 @@ export async function getUnreadConversationSummaries(
     const [
       listingsResult,
       profilesResult,
-      publicProfilesResult,
       reviewsResult
     ] =
       await Promise.all([
@@ -5083,20 +5028,6 @@ export async function getUnreadConversationSummaries(
           .in("id", otherUserIds),
 
         supabase
-          .from("public_profiles")
-          .select(`
-            id,
-            first_name,
-            last_name,
-            full_name,
-            avatar_url,
-            created_at,
-            city,
-            country
-          `)
-          .in("id", otherUserIds),
-
-        supabase
           .from("seller_reviews")
           .select("seller_id,rating")
           .in("seller_id", otherUserIds)
@@ -5118,19 +5049,6 @@ export async function getUnreadConversationSummaries(
           profile
         ])
       );
-
-    for (const publicProfile of publicProfilesResult.data ?? []) {
-      const existing =
-        profilesById.get(publicProfile.id);
-
-      profilesById.set(
-        publicProfile.id,
-        {
-          ...existing,
-          ...publicProfile
-        }
-      );
-    }
 
     const reviewStatsBySeller =
       new Map<string, { average: number; count: number }>();
@@ -5201,7 +5119,6 @@ export async function getUnreadConversationSummaries(
       error:
         listingsResult.error ??
         profilesResult.error ??
-        publicProfilesResult.error ??
         reviewsResult.error ??
         null
     };

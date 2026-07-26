@@ -35,6 +35,7 @@ import "./styles/home-topbar-center.css";
 import "./styles/listing-cards-unified.css";
 import "./styles/track-mat-final.css";
 import "./styles/listing-detail-mobile-fix.css";
+import "./styles/tablet-final.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";
