@@ -15,6 +15,7 @@ import {
   getAlertNotifications,
   getCurrentUserIsAdmin,
   getGarageVehicles,
+  getProfile,
   getSafeAuthUser,
   getUnreadConversationSummaries,
   getPublicSellerLevelStats,
@@ -31,7 +32,6 @@ import {
   type ProfileAvatarChangedDetail,
   type PurchaseReviewRequest,
   type SellerLevelStats,
-  type UserProfile,
 } from "@/lib/supabase";
 import { calculateSellerLevel } from "@/lib/seller-level";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
@@ -115,6 +115,15 @@ function getAuthUserDisplayName(user: User | null) {
   ]
     .map((value) => String(value ?? "").trim())
     .find((value) => value && value.toLowerCase() !== user.email?.toLowerCase()) ?? "";
+}
+
+function getAuthUserAvatarUrl(user: User | null) {
+  if (!user) return null;
+
+  const metadata = user.user_metadata ?? {};
+  return [metadata.avatar_url, metadata.picture]
+    .map((value) => String(value ?? "").trim())
+    .find(Boolean) ?? null;
 }
 
 const emptySellerLevelStats: SellerLevelStats = {
@@ -331,7 +340,8 @@ export default function UniversalTopbar() {
     async function syncUser(
       nextUserId: string | null,
       fallbackEmail?: string | null,
-      fallbackName?: string | null
+      fallbackName?: string | null,
+      fallbackAvatarUrl?: string | null
     ) {
       if (cancelled) return;
       setUserId(nextUserId);
@@ -347,13 +357,13 @@ export default function UniversalTopbar() {
         return;
       }
 
-      const { data: profile } = await client
-        .from("profiles")
-        .select("avatar_url,first_name,last_name,full_name,name,company_name")
-        .eq("id", nextUserId)
-        .maybeSingle<Pick<UserProfile, "avatar_url" | "first_name" | "last_name" | "full_name" | "name" | "company_name">>();
+      setAvatarUrl(fallbackAvatarUrl ?? null);
+
+      const { data: profile } = await getProfile(nextUserId);
       if (cancelled) return;
-      setAvatarUrl(profile?.avatar_url ?? null);
+      if (profile) {
+        setAvatarUrl(profile.avatar_url ?? fallbackAvatarUrl ?? null);
+      }
       const firstAndLastName =
         `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim();
       const displayName =
@@ -382,7 +392,12 @@ export default function UniversalTopbar() {
 
     getSafeAuthUser()
       .then(async (user) => {
-        await syncUser(user?.id ?? null, user?.email ?? null, getAuthUserDisplayName(user));
+        await syncUser(
+          user?.id ?? null,
+          user?.email ?? null,
+          getAuthUserDisplayName(user),
+          getAuthUserAvatarUrl(user)
+        );
       })
       .catch(() => {
         if (!cancelled) void syncUser(null, null);
@@ -393,11 +408,16 @@ export default function UniversalTopbar() {
 
     const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
       setAuthChecked(true);
-      void syncUser(
-        session?.user?.id ?? null,
-        session?.user?.email ?? null,
-        getAuthUserDisplayName(session?.user ?? null)
-      );
+      const nextUser = session?.user ?? null;
+
+      window.setTimeout(() => {
+        void syncUser(
+          nextUser?.id ?? null,
+          nextUser?.email ?? null,
+          getAuthUserDisplayName(nextUser),
+          getAuthUserAvatarUrl(nextUser)
+        );
+      }, 0);
     });
 
     return () => {
@@ -405,6 +425,37 @@ export default function UniversalTopbar() {
       subscription.unsubscribe();
     };
   }, [ui.fallbackProfile]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const activeUserId = userId;
+    let cancelled = false;
+
+    async function refreshOwnAvatar() {
+      const { data: profile } = await getProfile(activeUserId);
+      if (cancelled || !profile?.avatar_url) return;
+
+      const separator = profile.avatar_url.includes("?") ? "&" : "?";
+      setAvatarUrl(`${profile.avatar_url}${separator}avatar=${Date.now()}`);
+    }
+
+    function refreshOnVisible() {
+      if (document.visibilityState === "visible") {
+        void refreshOwnAvatar();
+      }
+    }
+
+    void refreshOwnAvatar();
+    window.addEventListener("focus", refreshOwnAvatar);
+    document.addEventListener("visibilitychange", refreshOnVisible);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("focus", refreshOwnAvatar);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
+    };
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
