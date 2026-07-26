@@ -5589,6 +5589,15 @@ export async function sendChatMessage(msg: {
       return { data: null, error: new Error("Et kuulu tähän keskusteluun") };
     }
 
+    if (conversation.listing_deleted_at || conversation.expires_at) {
+      return {
+        data: null,
+        error: new Error(
+          "Ilmoitus on poistettu, joten tähän keskusteluun ei voi enää lähettää viestejä"
+        )
+      };
+    }
+
     const receiverId = senderIsBuyer
       ? conversation.seller_id
       : conversation.buyer_id;

@@ -484,6 +484,15 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const resolvedSellerId = profile?.id ?? sellerId;
   const listingsSellerId = resolvedSellerId;
 
+  // Public seller pages use a short public id in the URL. The first review
+  // request may therefore finish before that id has been resolved to the
+  // seller's auth UUID. Allow the review loader to run again with the UUID so
+  // the visible rating is always the average of the seller_reviews rows.
+  useEffect(() => {
+    if (!profile?.id || profile.id === sellerId) return;
+    setReviewsLoaded(false);
+  }, [profile?.id, sellerId]);
+
   const selectedSubcategoryParentChildren = useMemo(() => {
     if (!categoryFilter || !subcategoryParentFilter) return [];
     const vehicle = vehicleTypeFilter || "";

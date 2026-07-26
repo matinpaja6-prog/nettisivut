@@ -37,6 +37,7 @@ import "./styles/track-mat-final.css";
 import "./styles/listing-detail-mobile-fix.css";
 import "./styles/tablet-final.css";
 import "./styles/responsive-system.css";
+import "./styles/notification-fix.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";

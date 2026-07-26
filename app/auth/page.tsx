@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Building2, Check, ChevronDown, Eye, EyeOff, LockKeyhole, Mail, UserRound, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { BirthDateField } from "@/app/components/BirthDateField";
-import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { sanitizePhoneDigits, sanitizePhoneInput } from "@/lib/phone-input";
 import { canonicalPathFromLocalized, pagePath, profileRootPath } from "@/lib/routes";
@@ -203,32 +202,6 @@ function getSafeAuthRedirectPath(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) return "/";
 
   return value;
-}
-
-function isProtectedAuthRedirectPath(value: string | null) {
-  const redirectPath = getSafeAuthRedirectPath(value);
-  const pathname = redirectPath.split(/[?#]/)[0] || "/";
-  const canonical = canonicalPathFromLocalized(pathname);
-
-  if (
-    canonical === "/garage" ||
-    canonical === "/my-listings" ||
-    canonical === "/saved" ||
-    canonical === "/followed" ||
-    canonical === "/rewards" ||
-    canonical === "/shop" ||
-    canonical === "/search-alerts" ||
-    canonical === "/profile"
-  ) {
-    return true;
-  }
-
-  return (
-    canonical === "/sell" ||
-    canonical.startsWith("/sell/") ||
-    canonical === "/messages" ||
-    canonical.startsWith("/messages/")
-  );
 }
 
 type ReadonlyURLSearchParamsLike = {
@@ -1568,8 +1541,6 @@ function AuthPageContent() {
     registrationPasswordConfirm.length > 0 &&
     form.password === registrationPasswordConfirm;
   const nextAuthMode: AuthMode = authMode === "login" ? "register" : "login";
-  const showBackHome =
-    !user && !emailPending;
   const profilePrivacyHref =
     "/privacy";
 
@@ -1599,26 +1570,8 @@ function AuthPageContent() {
     replaceAuthModeUrl(authPagePath, mode);
   }
 
-  function handleBackFromAuth() {
-    if (isProtectedAuthRedirectPath(searchParams.get("next"))) {
-      router.push("/");
-      return;
-    }
-
-    goBackOrFallback(router);
-  }
-
   return (
     <main className="auth-page simple-auth-page">
-      {showBackHome && (
-        <button
-          type="button"
-          className="auth-back-home"
-          onClick={handleBackFromAuth}
-        >
-          <ArrowLeft size={20} aria-hidden="true" />
-        </button>
-      )}
       <section className="simple-auth auth-centered">
         {recoveryMode ? (
           <form

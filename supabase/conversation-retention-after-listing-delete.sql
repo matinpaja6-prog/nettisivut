@@ -18,6 +18,15 @@ alter table public.messages
 alter table public.conversations
   drop constraint if exists conversations_listing_id_fkey;
 
+alter table public.messages
+  drop constraint if exists messages_conversation_id_fkey;
+
+alter table public.messages
+  add constraint messages_conversation_id_fkey
+  foreign key (conversation_id)
+  references public.conversations (id)
+  on delete cascade;
+
 create index if not exists conversations_expires_at_idx
   on public.conversations (expires_at)
   where expires_at is not null;
@@ -35,7 +44,18 @@ begin
     expires_at = coalesce(expires_at, now() + interval '20 days'),
     listing_title = coalesce(listing_title, old.title),
     listing_image_url = coalesce(listing_image_url, old.image_url),
-    listing_price = coalesce(listing_price, old.price),
+    listing_price = coalesce(
+      listing_price,
+      nullif(
+        regexp_replace(
+          replace(coalesce(to_jsonb(old) ->> 'price', ''), ',', '.'),
+          '[^0-9.-]',
+          '',
+          'g'
+        ),
+        ''
+      )::numeric
+    ),
     listing_seller_name = coalesce(listing_seller_name, old.seller_name),
     listing_number = coalesce(
       listing_number,
@@ -74,6 +94,45 @@ end;
 $$;
 
 revoke all on function public.purge_expired_listing_conversations() from public;
+
+-- A deleted listing remains visible in the conversation for at most 20 days,
+-- but neither participant may send new messages after deletion.
+drop policy if exists "Active listing required for new messages"
+  on public.messages;
+
+create policy "Active listing required for new messages"
+on public.messages
+as restrictive
+for insert
+to authenticated
+with check (
+  auth.uid()::uuid = sender_id::uuid
+  and exists (
+    select 1
+    from public.conversations c
+    where c.id = messages.conversation_id
+      and c.listing_deleted_at is null
+      and c.expires_at is null
+      and (
+        auth.uid()::uuid = c.buyer_id::uuid
+        or auth.uid()::uuid = c.seller_id::uuid
+      )
+  )
+);
+
+-- Bring conversations from listings deleted before this migration under the
+-- same retention rule. Their snapshot fields remain available when they were
+-- already captured by the delete trigger.
+update public.conversations c
+set
+  listing_deleted_at = coalesce(c.listing_deleted_at, now()),
+  expires_at = coalesce(c.expires_at, now() + interval '20 days')
+where c.listing_deleted_at is null
+  and not exists (
+    select 1
+    from public.listings l
+    where l.id = c.listing_id
+  );
 
 -- Expired conversations also become unreadable immediately, even if the
 -- scheduled physical cleanup has not run yet.

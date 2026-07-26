@@ -943,3 +943,14 @@ html body :is(#rs-seller-final, [data-seller-panel]) .seller-stats-row {
     padding-bottom: calc(62px + env(safe-area-inset-bottom)) !important;
   }
 }
+
+/* Auth route: keep only the branded back control in the topbar. */
+html body .auth-back-home,
+html body:has(.simple-auth-page) .auth-back-home {
+  display: none !important;
+}
+
+html body header.universal-app-topbar.universal-auth-topbar .universal-home-primary-nav,
+html body header.universal-app-topbar.universal-auth-topbar .universal-topbar-actions {
+  display: none !important;
+}
