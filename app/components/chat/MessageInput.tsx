@@ -14,7 +14,7 @@ type Props = {
   onSend: (
     message: string,
     image?: string
-  ) => void;
+  ) => Promise<string | null>;
 };
 
 export default function MessageInput({
@@ -25,6 +25,8 @@ export default function MessageInput({
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [isDraggingImage, setIsDraggingImage] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragDepthRef = useRef(0);
@@ -47,19 +49,38 @@ export default function MessageInput({
     "❄️"
   ];
 
-  function handleSubmit(
+  async function handleSubmit(
     e: React.FormEvent
   ) {
     e.preventDefault();
 
-    if ((!message.trim() && !preview) || imageLoading)
+    if ((!message.trim() && !preview) || imageLoading || sending)
       return;
 
-    onSend(message, preview || undefined);
+    setSending(true);
+    setSendError("");
 
-    setMessage("");
-    setPreview(null);
-    setEmojiOpen(false);
+    try {
+      const errorMessage =
+        await onSend(message, preview || undefined);
+
+      if (errorMessage) {
+        setSendError(errorMessage);
+        return;
+      }
+
+      setMessage("");
+      setPreview(null);
+      setEmojiOpen(false);
+    } catch (error) {
+      setSendError(
+        error instanceof Error
+          ? error.message
+          : "Viestin lähetys epäonnistui. Yritä uudelleen."
+      );
+    } finally {
+      setSending(false);
+    }
   }
 
   async function readImageFile(file: File | undefined | null) {
@@ -174,6 +195,12 @@ export default function MessageInput({
         </div>
       )}
 
+      {sendError && (
+        <div className="sendError" role="alert">
+          {sendError}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <input
           type="file"
@@ -185,9 +212,10 @@ export default function MessageInput({
 
         <input
           value={message}
-          onChange={(e) =>
+          onChange={(e) => {
             setMessage(e.target.value)
-          }
+            if (sendError) setSendError("");
+          }}
           placeholder="Kirjoita viesti..."
         />
 
@@ -229,7 +257,8 @@ export default function MessageInput({
         <button
           type="submit"
           className="send"
-          disabled={imageLoading}
+          disabled={imageLoading || sending}
+          aria-label={sending ? "Lähetetään viestiä" : "Lähetä viesti"}
         >
           <Send size={18} />
         </button>
@@ -396,6 +425,17 @@ export default function MessageInput({
           background: rgba(126, 197, 240, 0.12);
         }
 
+        .sendError {
+          background: rgba(239, 68, 68, 0.12);
+          border: 1px solid rgba(248, 113, 113, 0.42);
+          border-radius: 7px;
+          color: #fecaca;
+          font-size: 12px;
+          font-weight: 750;
+          line-height: 1.35;
+          padding: 8px 10px;
+        }
+
         form {
           display: grid;
           grid-template-columns: minmax(0, 1fr) 38px;
@@ -494,6 +534,12 @@ export default function MessageInput({
         .send:hover {
           transform: translateY(-1px) scale(1.03);
           box-shadow: 0 18px 34px rgba(29, 110, 232, 0.34);
+        }
+
+        .send:disabled {
+          cursor: wait;
+          opacity: 0.68;
+          transform: none;
         }
 
         @media (max-width: 640px) {

@@ -1455,24 +1455,28 @@ function MessagesPageContent() {
   async function sendMessage(
     content: string,
     image?: string
-  ) {
+  ): Promise<string | null> {
     if (
       !activeConversation ||
       activeConversationClosed ||
       !userId ||
       !otherUserId
     ) {
-      return;
+      return locale === "sv"
+        ? "Konversationen är inte tillgänglig för meddelanden."
+        : locale === "en"
+          ? "This conversation is not available for messaging."
+          : "Tähän keskusteluun ei voi lähettää viestejä.";
     }
 
     const text =
       content.trim();
 
     if (!text && !image) {
-      return;
+      return null;
     }
 
-    const { data } =
+    const { data, error } =
       await sendChatMessage({
         conversation_id:
           activeConversation.id,
@@ -1488,18 +1492,31 @@ function MessagesPageContent() {
           image || null
       });
 
-    if (data) {
-      setMessages((current) =>
-        current.some((message) =>
-          message.id === String(data.id)
-        )
-          ? current
-          : [
-              ...current,
-              mapMessage(data, userId)
-            ]
+    if (error || !data) {
+      return getClientErrorMessage(
+        error ??
+          new Error(
+            locale === "sv"
+              ? "Meddelandet kunde inte skickas."
+              : locale === "en"
+                ? "The message could not be sent."
+                : "Viestin lähetys epäonnistui."
+          )
       );
     }
+
+    setMessages((current) =>
+      current.some((message) =>
+        message.id === String(data.id)
+      )
+        ? current
+        : [
+            ...current,
+            mapMessage(data, userId)
+          ]
+    );
+
+    return null;
   }
 
   return (
