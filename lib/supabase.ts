@@ -6272,6 +6272,34 @@ export async function trackUserActivity(params: {
   }
 }
 
+export const PROFILE_AVATAR_CHANGED_EVENT = "profile-avatar-changed";
+
+export type ProfileAvatarChangedDetail = {
+  userId: string;
+  avatarUrl: string | null;
+  version: number;
+};
+
+export function dispatchProfileAvatarChanged(
+  userId: string,
+  avatarUrl: string | null
+) {
+  if (typeof window === "undefined") return;
+
+  window.dispatchEvent(
+    new CustomEvent<ProfileAvatarChangedDetail>(
+      PROFILE_AVATAR_CHANGED_EVENT,
+      {
+        detail: {
+          userId,
+          avatarUrl,
+          version: Date.now()
+        }
+      }
+    )
+  );
+}
+
 export async function uploadAvatar(
   userId: string,
   file: File
@@ -6297,6 +6325,10 @@ export async function uploadAvatar(
       .from("profiles")
       .update({ avatar_url: url })
       .eq("id", userId);
+
+    if (!updateError) {
+      dispatchProfileAvatarChanged(userId, url);
+    }
 
     return { url, error: updateError };
   } catch (error) {
