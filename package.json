@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "start": "next start",
-    "build": "next build",
+    "build": "node scripts/clean-next-build.mjs && next build",
     "lint": "eslint .",
     "empty:storage": "node scripts/empty-supabase-storage.mjs"
   },

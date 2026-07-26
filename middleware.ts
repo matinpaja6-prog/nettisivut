@@ -5,7 +5,8 @@ import {
   normalizeRouteLocale
 } from "@/lib/routes";
 
-const PUBLIC_FILE = /\.(.*)$/;
+const PUBLIC_FILE =
+  /\.(?:avif|bmp|css|csv|eot|gif|ico|jpe?g|js|json|map|mp3|mp4|ogg|otf|pdf|png|svg|txt|webmanifest|webm|webp|woff2?|xml)$/i;
 const CANONICAL_HOST = "maskines.com";
 const LEGACY_HOSTS = new Set(["maskinet.com", "www.maskinet.com"]);
 const IP_BAN_CACHE_TTL_MS = 60_000;
@@ -66,6 +67,17 @@ function applySecurityHeaders(response: NextResponse) {
       "max-age=63072000; includeSubDomains; preload"
     );
   }
+  return response;
+}
+
+function applyDocumentHeaders(response: NextResponse) {
+  applySecurityHeaders(response);
+  response.headers.set(
+    "Cache-Control",
+    "private, no-store, no-cache, max-age=0, must-revalidate"
+  );
+  response.headers.set("CDN-Cache-Control", "no-store");
+  response.headers.set("Surrogate-Control", "no-store");
   return response;
 }
 
@@ -205,19 +217,24 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.hostname = CANONICAL_HOST;
     redirectUrl.protocol = "https:";
-    return applySecurityHeaders(NextResponse.redirect(redirectUrl, 308));
+    return applyDocumentHeaders(NextResponse.redirect(redirectUrl, 308));
   }
 
   const ip = getClientIp(request);
 
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/auth") ||
     pathname === "/favicon.ico" ||
     PUBLIC_FILE.test(pathname)
   ) {
     return applySecurityHeaders(NextResponse.next());
+  }
+
+  if (
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/auth")
+  ) {
+    return applyDocumentHeaders(NextResponse.next());
   }
 
   if (pathname.startsWith("/api")) {
@@ -268,7 +285,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (ip && await isIpBanned(ip)) {
-    return applySecurityHeaders(new NextResponse("IP-osoite on estetty.", { status: 403 }));
+    return applyDocumentHeaders(new NextResponse("IP-osoite on estetty.", { status: 403 }));
   }
 
   const locale = normalizeRouteLocale(request.cookies.get("locale")?.value);
@@ -278,16 +295,16 @@ export async function middleware(request: NextRequest) {
   if (pathname === canonicalPath && localizedPath !== pathname) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = localizedPath;
-    return applySecurityHeaders(NextResponse.redirect(redirectUrl));
+    return applyDocumentHeaders(NextResponse.redirect(redirectUrl));
   }
 
   if (canonicalPath !== pathname) {
     const rewriteUrl = request.nextUrl.clone();
     rewriteUrl.pathname = canonicalPath;
-    return applySecurityHeaders(NextResponse.rewrite(rewriteUrl));
+    return applyDocumentHeaders(NextResponse.rewrite(rewriteUrl));
   }
 
-  return applySecurityHeaders(NextResponse.next());
+  return applyDocumentHeaders(NextResponse.next());
 }
 
 export const config = {
