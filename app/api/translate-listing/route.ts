@@ -18,6 +18,15 @@ type TranslateRequest = {
 };
 
 type NormalizedTranslateInput = Required<Omit<TranslateRequest, "listingId">>;
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function getBearerToken(request: Request) {
+  const authorization = request.headers.get("authorization") ?? "";
+  return authorization.toLowerCase().startsWith("bearer ")
+    ? authorization.slice(7).trim()
+    : "";
+}
 
 function emptyTranslations(input: NormalizedTranslateInput): ListingTranslations {
   return Object.fromEntries(
@@ -72,6 +81,7 @@ function normalizeTranslations(
 
 async function saveListingTranslations(input: {
   listingId?: string;
+  sellerId: string;
   sourceLanguage: ListingLocale;
   translations: ListingTranslations;
 }) {
@@ -85,7 +95,8 @@ async function saveListingTranslations(input: {
         original_language: input.sourceLanguage,
         translations: input.translations
       })
-      .eq("id", input.listingId);
+      .eq("id", input.listingId)
+      .eq("seller_id", input.sellerId);
 
     return !error;
   } catch {
@@ -94,7 +105,25 @@ async function saveListingTranslations(input: {
 }
 
 export async function POST(request: Request) {
+  const token = getBearerToken(request);
+  if (!token) {
+    return NextResponse.json({ error: "Kirjautuminen vaaditaan." }, { status: 401 });
+  }
+
+  const admin = getSupabaseAdmin();
+  const { data: callerAuth, error: callerError } = await admin.auth.getUser(token);
+  if (callerError || !callerAuth.user) {
+    return NextResponse.json({ error: "Istunto ei ole voimassa." }, { status: 401 });
+  }
+
   const body = (await request.json().catch(() => ({}))) as TranslateRequest;
+  const listingId =
+    typeof body.listingId === "string" ? body.listingId.trim() : undefined;
+
+  if (listingId && !UUID_PATTERN.test(listingId)) {
+    return NextResponse.json({ error: "Virheellinen ilmoituksen tunniste." }, { status: 400 });
+  }
+
   const input: NormalizedTranslateInput = {
     title: String(body.title ?? "").trim(),
     description: String(body.description ?? "").trim(),
@@ -103,10 +132,31 @@ export async function POST(request: Request) {
       : "fi"
   };
 
+  if (input.title.length > 220 || input.description.length > 10_000) {
+    return NextResponse.json({ error: "Käännettävä teksti on liian pitkä." }, { status: 413 });
+  }
+
+  if (listingId) {
+    const { data: listing, error: listingError } = await admin
+      .from("listings")
+      .select("seller_id")
+      .eq("id", listingId)
+      .maybeSingle<{ seller_id: string }>();
+
+    if (listingError || !listing) {
+      return NextResponse.json({ error: "Ilmoitusta ei löytynyt." }, { status: 404 });
+    }
+
+    if (listing.seller_id !== callerAuth.user.id) {
+      return NextResponse.json({ error: "Ei oikeutta muokata tätä ilmoitusta." }, { status: 403 });
+    }
+  }
+
   if (!input.title && !input.description) {
     const translations = emptyTranslations(input);
     const saved = await saveListingTranslations({
-      listingId: body.listingId,
+      listingId,
+      sellerId: callerAuth.user.id,
       sourceLanguage: input.sourceLanguage,
       translations
     });
@@ -118,7 +168,8 @@ export async function POST(request: Request) {
   if (!apiKey) {
     const translations = emptyTranslations(input);
     const saved = await saveListingTranslations({
-      listingId: body.listingId,
+      listingId,
+      sellerId: callerAuth.user.id,
       sourceLanguage: input.sourceLanguage,
       translations
     });
@@ -154,7 +205,8 @@ export async function POST(request: Request) {
   if (!response.ok) {
     const translations = emptyTranslations(input);
     const saved = await saveListingTranslations({
-      listingId: body.listingId,
+      listingId,
+      sellerId: callerAuth.user.id,
       sourceLanguage: input.sourceLanguage,
       translations
     });
@@ -182,7 +234,8 @@ export async function POST(request: Request) {
 
   const translations = normalizeTranslations(input, parsed);
   const saved = await saveListingTranslations({
-    listingId: body.listingId,
+    listingId,
+    sellerId: callerAuth.user.id,
     sourceLanguage: input.sourceLanguage,
     translations
   });

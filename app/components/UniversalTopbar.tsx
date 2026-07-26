@@ -1246,6 +1246,16 @@ export default function UniversalTopbar() {
           </Link>
         ) : (
           <>
+            <Link href="/sell" className="universal-create-button">
+              <span className="universal-create-plus" aria-hidden="true">
+                <svg viewBox="0 0 16 16" focusable="false">
+                  <path d="M8 3v10M3 8h10" />
+                </svg>
+              </span>
+              <strong>
+                {locale === "fi" ? "Luo ilmoitus" : locale === "sv" ? "Skapa annons" : "Create listing"}
+              </strong>
+            </Link>
             {false && userId ? (
               <Link
                 href={profilePath(userId, profileDisplayName, locale)}

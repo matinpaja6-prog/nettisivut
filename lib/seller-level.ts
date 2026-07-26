@@ -14,7 +14,7 @@ export function getSellerLevelXp(stats: SellerLevelStats) {
     (stats.phone_verified ? 100 : 0) +
     clampStat(singleListings) * 10 +
     clampStat(multiListings) * 5 +
-    clampStat(stats.sold_count) * 60 +
+    clampStat(stats.sold_count) * 25 +
     clampStat(stats.reviews_given) * 20 +
     clampStat(stats.reviews_received) * 45
   );

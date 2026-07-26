@@ -28170,8 +28170,8 @@
   }
 }
 
-/* Absolute final mobile search sheet lock: keep the phone search as a bottom drawer. */
-@media (max-width: 720px), (pointer: coarse) {
+/* Compact search sheet for phones, tablets and narrow desktop windows. */
+@media (max-width: 800px) {
   :global(html body) .mobileFilterBackdrop {
     background: #15171d !important;
     border: 0 !important;

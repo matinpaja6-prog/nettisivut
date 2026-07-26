@@ -202,7 +202,7 @@ export default function ListingsIndexPage() {
   }
 
   return (
-    <main className={homeStyles.shell}>
+    <main className={`${homeStyles.shell} listing-index-page`}>
       <div className={homeStyles.container} style={{ paddingTop: 18 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
           <Link

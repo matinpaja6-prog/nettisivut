@@ -82,12 +82,33 @@ const securityHeaders = [
   },
   {
     key: "Content-Security-Policy",
-    value: "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'"
+    value: [
+      "default-src 'self'",
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://maps.googleapis.com`,
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' data: https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https:",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.googleapis.com",
+      "media-src 'self' blob: https:",
+      "worker-src 'self' blob:",
+      "manifest-src 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "form-action 'self'",
+      ...(process.env.NODE_ENV === "production" ? ["upgrade-insecure-requests"] : [])
+    ].join("; ")
   },
   {
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
-  }
+  },
+  ...(process.env.NODE_ENV === "production"
+    ? [{
+        key: "Strict-Transport-Security",
+        value: "max-age=63072000; includeSubDomains; preload"
+      }]
+    : [])
 ];
 
 const nextConfig: NextConfig = {

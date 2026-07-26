@@ -329,7 +329,7 @@ const translations = {
     sellParts: "Myy osia",
     forYou: "Sinulle suosituksia",
     basedOnBrowsing: "Selaamasi perusteella",
-    showMoreListings: "Näytä lisää ilmoituksia",
+    showMoreListings: "Näytä lisää",
     newBadge: "Uusi",
     allListings: "Kaikki ilmoitukset",
     selectedVehicle: "Valittu ajoneuvo",
@@ -433,7 +433,7 @@ const translations = {
     sellParts: "Sell parts",
     forYou: "Recommendations for you",
     basedOnBrowsing: "Based on your browsing",
-    showMoreListings: "Show more listings",
+    showMoreListings: "Show more",
     newBadge: "New",
     allListings: "All listings",
     selectedVehicle: "Selected vehicle",
@@ -537,7 +537,7 @@ const translations = {
     sellParts: "Sälj delar",
     forYou: "Rekommendationer för dig",
     basedOnBrowsing: "Baserat på ditt bläddring",
-    showMoreListings: "Visa fler annonser",
+    showMoreListings: "Visa fler",
     newBadge: "Ny",
     allListings: "Alla annonser",
     selectedVehicle: "Valt fordon",
@@ -1471,7 +1471,7 @@ function HomeContent() {
   const [compactHeroSearch, setCompactHeroSearch] = useState(false);
   const [homeSearchPanelOpen, setHomeSearchPanelOpen] = useState(() => {
     if (typeof window === "undefined") return true;
-    return !window.matchMedia("(max-width: 720px)").matches;
+    return !window.matchMedia("(max-width: 800px)").matches;
   });
   const [mobileFilterExpanded, setMobileFilterExpanded] = useState(false);
   const [mobileFilterDragOffset, setMobileFilterDragOffset] = useState(0);
@@ -1485,15 +1485,50 @@ function HomeContent() {
   const [pageJumpOpen, setPageJumpOpen] = useState(false);
   const [mobilePagination, setMobilePagination] = useState(false);
   const [mobileLatestVisibleCount, setMobileLatestVisibleCount] = useState(10);
-  const [desktopLatestVisibleCount, setDesktopLatestVisibleCount] = useState(8);
+  const [wideDesktopLatestGrid, setWideDesktopLatestGrid] = useState(false);
+  const [desktopLatestVisibleCount, setDesktopLatestVisibleCount] = useState(6);
+  const homeLatestGridRef = useRef<HTMLDivElement | null>(null);
   const PAGE_SIZE = 40;
   const MOBILE_LISTINGS_INCREMENT = 10;
-  const DESKTOP_INITIAL_LISTINGS_COUNT = 8;
+  const DESKTOP_INITIAL_LISTINGS_COUNT = wideDesktopLatestGrid ? 8 : 6;
   const DESKTOP_LISTINGS_INCREMENT = 16;
   const RECOMMENDED_PREVIEW_SIZE = 4;
   const INITIAL_LISTING_FETCH_LIMIT = 240;
   const YEAR_FILTER_MIN = MARKETPLACE_YEAR_FILTER_MIN;
   const YEAR_FILTER_MAX = getMarketplaceYearFilterMax();
+
+  useEffect(() => {
+    const grid = homeLatestGridRef.current;
+    if (!grid) return;
+    let frameId = 0;
+
+    const syncDesktopListingRows = () => {
+      const renderedColumns = window
+        .getComputedStyle(grid)
+        .gridTemplateColumns
+        .split(" ")
+        .filter(Boolean).length;
+      const wideGrid = renderedColumns >= 4;
+      setWideDesktopLatestGrid(wideGrid);
+      setDesktopLatestVisibleCount((current) => {
+        if (current > 8) return current;
+        return wideGrid ? 8 : 6;
+      });
+    };
+
+    const observer = new ResizeObserver(() => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(syncDesktopListingRows);
+    });
+
+    observer.observe(grid);
+    frameId = window.requestAnimationFrame(syncDesktopListingRows);
+
+    return () => {
+      observer.disconnect();
+      window.cancelAnimationFrame(frameId);
+    };
+  }, []);
 
   const [category, setCategory] = useState("");
 
@@ -1863,9 +1898,9 @@ function HomeContent() {
   }, [homeLatestExpanded, catalogOnlyView, compactHeroSearch]);
 
   useEffect(() => {
-    const media = window.matchMedia("(max-width: 720px), (pointer: coarse)");
+    const media = window.matchMedia("(max-width: 800px)");
     const syncCompactSearch = () => {
-      const isMobileSearch = media.matches || window.innerWidth <= 720;
+      const isMobileSearch = media.matches || window.innerWidth <= 800;
       setCompactHeroSearch(isMobileSearch);
       if (isMobileSearch) setHomeSearchPanelOpen(false);
     };
@@ -1878,7 +1913,7 @@ function HomeContent() {
 
   const openMobileHomeSearchSheet = useCallback(() => {
     const isMobileSearch = typeof window !== "undefined"
-      ? window.matchMedia("(max-width: 720px), (pointer: coarse)").matches || window.innerWidth <= 720
+      ? window.matchMedia("(max-width: 800px)").matches || window.innerWidth <= 800
       : compactHeroSearch;
 
     if (isMobileSearch) {
@@ -1898,7 +1933,7 @@ function HomeContent() {
 
   const handleHeroMainSearchButtonClick = useCallback((event: ReactMouseEvent<HTMLButtonElement>) => {
     const isMobileSearch = typeof window !== "undefined"
-      ? window.matchMedia("(max-width: 720px), (pointer: coarse)").matches || window.innerWidth <= 720
+      ? window.matchMedia("(max-width: 800px)").matches || window.innerWidth <= 800
       : compactHeroSearch;
 
     if (!isMobileSearch) return;
@@ -4157,17 +4192,17 @@ function HomeContent() {
       <>
       <div data-home-background-region className={styles.heroWrap}>
         <div data-home-background-container className={styles.container}>
-        <section className={styles.hero} aria-label="Hero">
-          <div className={styles.heroInner}>
-            <div data-home-results-mode={homeLatestExpanded ? "true" : "false"} className={styles.heroLeadPanel}>
-              <div data-home-intro-showcase className={styles.heroShowcase}>
-                <div className={styles.heroShowcaseCopy}>
-                  <h1 className={styles.heroHeadline}>
+  <section data-home-hero className={styles.hero} aria-label="Hero">
+    <div data-home-layout className={styles.heroInner}>
+      <div data-home-results-mode={homeLatestExpanded ? "true" : "false"} className={styles.heroLeadPanel}>
+        <div data-home-intro-showcase className={styles.heroShowcase}>
+          <div data-home-hero-copy className={styles.heroShowcaseCopy}>
+            <h1 data-home-headline className={styles.heroHeadline}>
                     <span style={{ display: "block", width: "100%" }}>{t.heroLeadStart}</span>
                     <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>{t.heroLeadHighlight}</span>
                     <span style={{ display: "block", width: "100%" }}>{t.heroLeadEnd}</span>
                   </h1>
-                  <p className={styles.heroReferenceSubtitle}>{t.heroSubtitle}</p>
+            <p data-home-subtitle className={styles.heroReferenceSubtitle}>{t.heroSubtitle}</p>
                   <div className={styles.heroDesktopActions}>
                     <button
                       type="button"
@@ -4296,6 +4331,8 @@ function HomeContent() {
                   </div>
                 ) : (
                 <div
+                  ref={homeLatestGridRef}
+                  data-home-listing-grid
                   className={`${styles.heroDesktopLatestGrid} ${
                     homeLatestExpanded ? styles.heroDesktopLatestGridExpanded : ""
                   }`}
@@ -4388,7 +4425,7 @@ function HomeContent() {
                       setDesktopLatestVisibleCount((current) => current + DESKTOP_LISTINGS_INCREMENT);
                     }}
                   >
-                    <span>Näytä lisää ilmoituksia</span>
+                    <span>{t.showMoreListings}</span>
                     <ChevronDown strokeWidth={3} aria-hidden="true" />
                   </button>
                 ) : null}
@@ -4456,8 +4493,10 @@ function HomeContent() {
             ) : null}
 
             {(!compactHeroSearch || homeSearchPanelOpen) ? (
-            <aside
-              className={`${styles.heroRightRail} ${styles.heroRightRailOpen} ${compactHeroSearch ? styles.mobileFilterSheet : ""} ${
+<aside
+  data-home-filter-rail
+  data-home-filter-sheet={compactHeroSearch ? "true" : "false"}
+  className={`${styles.heroRightRail} ${styles.heroRightRailOpen} ${compactHeroSearch ? styles.mobileFilterSheet : ""} ${
                 compactHeroSearch && mobileFilterExpanded ? styles.mobileFilterSheetExpanded : ""
               }`}
               style={

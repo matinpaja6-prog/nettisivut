@@ -177,7 +177,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <main className={styles.settingsPage} data-no-auto-translate>
+    <main className={`${styles.settingsPage} settings-page-responsive`} data-no-auto-translate>
       <div className={styles.settingsShell}>
         <header className={styles.settingsHead}>
           <h1>{text.title}</h1>

@@ -2306,7 +2306,25 @@ export async function ensureListingTranslations(listing: Listing) {
     };
   }
 
+  if (!supabase) {
+    return {
+      data: listing,
+      error: null
+    };
+  }
+
   try {
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      return {
+        data: listing,
+        error: null
+      };
+    }
+
     const sourceLanguage: ListingLocale = isListingLocale(listing.original_language)
       ? listing.original_language
       : "fi";
@@ -2314,7 +2332,8 @@ export async function ensureListingTranslations(listing: Listing) {
     const response = await fetch("/api/translate-listing", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`
       },
       body: JSON.stringify({
         listingId: listing.id,
@@ -2440,11 +2459,20 @@ export async function getListingSlotUsage(userId: string): Promise<{
 export async function notifySearchAlertsForListing(
   listingId: string
 ) {
+  if (!supabase) return;
+
   try {
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) return;
+
     const response = await fetch("/api/search-alerts/notify", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`
       },
       body: JSON.stringify({ listingId })
     });
@@ -4161,7 +4189,9 @@ export async function getPublicSellerLevelStats(
       supabase
         .from("sold_listings")
         .select("id", { count: "exact", head: true })
-        .eq("seller_id", sellerId),
+        .eq("seller_id", sellerId)
+        .not("buyer_id", "is", null)
+        .gt("sold_price", 0),
       supabase
         .from("seller_reviews")
         .select("id", { count: "exact", head: true })

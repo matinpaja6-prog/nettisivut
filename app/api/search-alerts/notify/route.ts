@@ -31,6 +31,13 @@ function getAdminClient() {
   });
 }
 
+function getBearerToken(request: Request) {
+  const authorization = request.headers.get("authorization") ?? "";
+  return authorization.toLowerCase().startsWith("bearer ")
+    ? authorization.slice(7).trim()
+    : "";
+}
+
 function normalize(value: string | null | undefined) {
   return (value ?? "").toLowerCase().trim();
 }
@@ -145,8 +152,19 @@ export async function POST(request: Request) {
     );
   }
 
-  const { listingId } = (await request.json()) as { listingId?: string };
-  if (!listingId) {
+  const token = getBearerToken(request);
+  if (!token) {
+    return NextResponse.json({ error: "Kirjautuminen vaaditaan." }, { status: 401 });
+  }
+
+  const { data: callerAuth, error: callerError } = await admin.auth.getUser(token);
+  if (callerError || !callerAuth.user) {
+    return NextResponse.json({ error: "Istunto ei ole voimassa." }, { status: 401 });
+  }
+
+  const body = (await request.json().catch(() => ({}))) as { listingId?: unknown };
+  const listingId = typeof body.listingId === "string" ? body.listingId.trim() : "";
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(listingId)) {
     return NextResponse.json({ error: "listingId puuttuu" }, { status: 400 });
   }
 
@@ -161,6 +179,10 @@ export async function POST(request: Request) {
       { error: listingError?.message ?? "Ilmoitusta ei löytynyt" },
       { status: 404 }
     );
+  }
+
+  if (listing.seller_id !== callerAuth.user.id) {
+    return NextResponse.json({ error: "Ei oikeutta käsitellä tätä ilmoitusta." }, { status: 403 });
   }
 
   const { data: alerts, error: alertsError } = await admin
@@ -247,7 +269,6 @@ export async function POST(request: Request) {
     ok: true,
     matched: results.length,
     notifications: results.filter((result) => result.notificationCreated).length,
-    emails: results.filter((result) => result.emailSent).length,
-    results
+    emails: results.filter((result) => result.emailSent).length
   });
 }

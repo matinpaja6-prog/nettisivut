@@ -5,6 +5,13 @@ export const dynamic = "force-dynamic";
 const ALLOWED_LANGUAGES = new Set(["fi", "en", "sv"]);
 
 export async function GET(request: Request) {
+  if (request.headers.get("sec-fetch-site") === "cross-site") {
+    return NextResponse.json(
+      { error: "Cross-site use is not allowed." },
+      { status: 403 }
+    );
+  }
+
   const apiKey =
     process.env.GOOGLE_MAPS_API_KEY ??
     process.env.GOOGLE_PLACES_API_KEY;
@@ -42,6 +49,8 @@ export async function GET(request: Request) {
     headers: {
       "Cache-Control": "private, no-store",
       "Content-Type": "application/javascript; charset=utf-8",
+      "Cross-Origin-Resource-Policy": "same-origin",
+      "Vary": "Sec-Fetch-Site",
       "X-Robots-Tag": "noindex"
     }
   });

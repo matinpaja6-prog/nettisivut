@@ -1315,7 +1315,7 @@ export default function ListingPage() {
     <main className="page listing-detail-page">
       <div className="container">
 
-        <section className="layout">
+        <section className="layout" data-listing-layout>
 
           {/* LEFT */}
 
@@ -1658,11 +1658,11 @@ export default function ListingPage() {
 
           {/* RIGHT */}
 
-          <aside className="sidebar">
+          <aside className="sidebar" data-listing-seller-sidebar>
 
             {/* SELLER */}
 
-            <div className="seller-card">
+            <div className="seller-card" data-seller-panel>
 
               <div className="seller-card-body seller-card-panel">
                 <div className="seller-card-top">
@@ -2832,7 +2832,7 @@ export default function ListingPage() {
           box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
         }
 
-        @media (max-width: 1100px) {
+        @media (max-width: 1280px) {
 
           .layout {
             grid-template-columns: 1fr;
@@ -3170,7 +3170,7 @@ export default function ListingPage() {
           font-size: 14px !important;
         }
 
-        @media (max-width: 1100px) {
+        @media (max-width: 1280px) {
           .layout {
             grid-template-columns: 1fr !important;
           }
@@ -5747,7 +5747,7 @@ export default function ListingPage() {
         }
 
         /* Final reference match: page scale and section proportions */
-        @media (min-width: 1101px) {
+        @media (min-width: 1281px) {
           body main.page.listing-detail-page.listing-detail-page .container.container {
             max-width: 1240px !important;
             padding: 20px 20px 54px !important;
@@ -5903,7 +5903,7 @@ export default function ListingPage() {
         }
 
         /* Final reference match v3: responsive scale parity */
-        @media (min-width: 760px) and (max-width: 1100px) {
+        @media (min-width: 760px) and (max-width: 1280px) {
           body main.page.listing-detail-page.listing-detail-page .container.container {
             max-width: 940px !important;
             padding: 18px 18px 48px !important;
@@ -5912,9 +5912,16 @@ export default function ListingPage() {
           body main.page.listing-detail-page.listing-detail-page section.layout.layout {
             display: grid !important;
             gap: 14px !important;
-            grid-template-columns: minmax(0, 560px) 300px !important;
+            grid-template-columns: minmax(0, 780px) !important;
             justify-content: center !important;
-            max-width: 874px !important;
+            max-width: 780px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar {
+            position: static !important;
+            width: 100% !important;
+            max-width: 780px !important;
+            min-width: 0 !important;
           }
 
           body main.page.listing-detail-page.listing-detail-page .main.main {
@@ -5978,8 +5985,9 @@ export default function ListingPage() {
           }
 
           body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar {
-            max-width: 300px !important;
-            width: 300px !important;
+            min-width: 0 !important;
+            max-width: 780px !important;
+            width: 100% !important;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card {
@@ -7973,6 +7981,272 @@ export default function ListingPage() {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span) {
             grid-template-columns: 1fr !important;
             row-gap: 6px !important;
+          }
+        }
+
+        /* Definitive responsive seller-column layout. Keep this last. */
+        :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card),
+        :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card *) {
+          box-sizing: border-box !important;
+          min-width: 0 !important;
+          writing-mode: horizontal-tb !important;
+          text-orientation: mixed !important;
+          word-break: normal !important;
+          hyphens: none !important;
+        }
+
+        :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-name-row.seller-name-row strong),
+        :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row strong),
+        :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row span) {
+          max-width: 100% !important;
+          overflow-wrap: break-word !important;
+          white-space: normal !important;
+        }
+
+        @media (min-width: 1024px) {
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.container.container) {
+            box-sizing: border-box !important;
+            width: min(calc(100% - 40px), 1240px) !important;
+            max-width: 1240px !important;
+            margin-inline: auto !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.layout.layout) {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) clamp(340px, 30vw, 390px) !important;
+            align-items: start !important;
+            gap: clamp(18px, 2vw, 24px) !important;
+            width: 100% !important;
+            max-width: none !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(aside.sidebar.sidebar),
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card) {
+            position: static !important;
+            align-self: start !important;
+            width: 100% !important;
+            min-width: 340px !important;
+            max-width: 390px !important;
+            margin: 0 !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-identity-row.seller-identity-row) {
+            display: grid !important;
+            grid-template-columns: 92px minmax(0, 1fr) !important;
+            align-items: center !important;
+            gap: 18px !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-name-row.seller-name-row strong) {
+            display: block !important;
+            width: 100% !important;
+            font-size: clamp(22px, 2vw, 26px) !important;
+            line-height: 1.1 !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row) {
+            display: grid !important;
+            grid-template-columns: 26px 86px minmax(0, 1fr) !important;
+            align-items: start !important;
+            gap: 10px !important;
+          }
+        }
+
+        @media (min-width: 641px) and (max-width: 1023px) {
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.container.container) {
+            box-sizing: border-box !important;
+            width: min(calc(100% - 32px), 900px) !important;
+            max-width: 900px !important;
+            margin-inline: auto !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.layout.layout) {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+            gap: 18px !important;
+            width: 100% !important;
+            max-width: none !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(aside.sidebar.sidebar),
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card) {
+            position: static !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            margin: 0 !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-identity-row.seller-identity-row) {
+            display: grid !important;
+            grid-template-columns: 92px minmax(0, 1fr) !important;
+            align-items: center !important;
+            gap: 18px !important;
+          }
+
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row) {
+            display: grid !important;
+            grid-template-columns: 26px minmax(90px, auto) minmax(0, 1fr) !important;
+            align-items: start !important;
+            gap: 10px !important;
+          }
+        }
+
+        /* Active final seller-card scale: match the wide reference card. */
+        @media (min-width: 820px) {
+          body main.page.listing-detail-page.listing-detail-page .container.container {
+            box-sizing: border-box !important;
+            width: min(calc(100% - 24px), 1240px) !important;
+            max-width: 1240px !important;
+            margin-inline: auto !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page section.layout.layout {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) clamp(360px, 31vw, 390px) !important;
+            align-items: start !important;
+            gap: clamp(16px, 2vw, 24px) !important;
+            width: 100% !important;
+            max-width: none !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar,
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card {
+            position: static !important;
+            align-self: start !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
+            min-width: 360px !important;
+            max-width: 390px !important;
+            margin: 0 !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+            align-content: start !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar > * {
+            grid-column: 1 / -1 !important;
+            width: 100% !important;
+            max-width: none !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card,
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card * {
+            min-width: 0 !important;
+            writing-mode: horizontal-tb !important;
+            text-orientation: mixed !important;
+            word-break: normal !important;
+            hyphens: none !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-card-body.seller-card-panel {
+            display: block !important;
+            padding: 26px 22px 24px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-card-top.seller-card-top {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 12px !important;
+            margin-bottom: 24px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-identity-row.seller-identity-row {
+            display: grid !important;
+            grid-template-columns: 102px minmax(0, 1fr) !important;
+            align-items: center !important;
+            gap: 24px !important;
+            margin-bottom: 26px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-avatar-detail.seller-avatar-detail,
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-avatar-img.seller-avatar-img {
+            width: 102px !important;
+            height: 102px !important;
+            border-radius: 16px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-name-row.seller-name-row strong {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            font-size: clamp(24px, 2.2vw, 28px) !important;
+            line-height: 1.08 !important;
+            overflow-wrap: break-word !important;
+            white-space: normal !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-rows.seller-meta-rows {
+            display: grid !important;
+            gap: 14px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row {
+            display: grid !important;
+            grid-template-columns: 26px max-content minmax(0, 1fr) !important;
+            align-items: start !important;
+            gap: 10px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row strong,
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row span {
+            max-width: 100% !important;
+            overflow-wrap: break-word !important;
+            white-space: normal !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-stats-row.seller-stats-row {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 16px !important;
+            margin-top: 24px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged,
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged > * {
+            width: 100% !important;
+            max-width: none !important;
+          }
+        }
+
+        @media (min-width: 820px) and (max-width: 1199px) {
+          body main.page.listing-detail-page.listing-detail-page .title-row.title-row {
+            min-height: 0 !important;
+            height: auto !important;
+            padding: 18px 20px !important;
+            margin-bottom: 16px !important;
+            gap: 12px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .title-row.title-row h1 {
+            max-width: min(100%, 520px) !important;
+            font-size: clamp(23px, 2.8vw, 28px) !important;
+            line-height: 1.08 !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .desktop-image-meta.desktop-image-meta {
+            margin-bottom: 14px !important;
+          }
+        }
+
+        @media (min-width: 641px) and (max-width: 819px) {
+          body main.page.listing-detail-page.listing-detail-page section.layout.layout {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+            gap: 18px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar,
+          body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card {
+            position: static !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            margin: 0 !important;
           }
         }
 

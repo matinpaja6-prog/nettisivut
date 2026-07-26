@@ -5623,7 +5623,7 @@ function SellPageContent() {
   }
 
   return (
-    <main className={styles.page} aria-label={st("Luo myynti-ilmoitus")}>
+    <main className={`${styles.page} sell-page-responsive`} aria-label={st("Luo myynti-ilmoitus")}>
       <section className={styles.shell} ref={shellRef}>
         <aside className={`${styles.stepper} ${styles.stepperCompact}`} aria-label="Ilmoituksen vaiheet">
           {steps.map((step, index) => {

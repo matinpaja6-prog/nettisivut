@@ -11,8 +11,24 @@ const LEGACY_HOSTS = new Set(["maskinet.com", "www.maskinet.com"]);
 const IP_BAN_CACHE_TTL_MS = 60_000;
 const ipBanCache = new Map<string, { banned: boolean; expiresAt: number }>();
 const API_RATE_LIMIT_WINDOW_MS = 60_000;
-const API_MAX_BODY_BYTES = 1_000_000;
+const API_MAX_BODY_BYTES = 128_000;
 const apiRateLimitCache = new Map<string, { count: number; resetAt: number }>();
+const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://maps.googleapis.com`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https:",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.googleapis.com",
+  "media-src 'self' blob: https:",
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+  ...(process.env.NODE_ENV === "production" ? ["upgrade-insecure-requests"] : [])
+].join("; ");
 const SENSITIVE_PATH_PATTERN =
   /(?:^|\/)(?:\.(?!well-known\/)|\.env|\.git|\.svn|\.hg|node_modules|supabase|package-lock\.json|pnpm-lock\.yaml|yarn\.lock|tsconfig(?:\..*)?\.json|next\.config\.(?:js|mjs|ts)|middleware\.ts|Dockerfile|docker-compose\.ya?ml)(?:$|\/)/i;
 const SENSITIVE_FILE_PATTERN =
@@ -28,13 +44,19 @@ function applySecurityHeaders(response: NextResponse) {
   response.headers.set("X-Permitted-Cross-Domain-Policies", "none");
   response.headers.set(
     "Content-Security-Policy",
-    "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'"
+    CONTENT_SECURITY_POLICY
   );
   response.headers.set(
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
   );
   response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  if (process.env.NODE_ENV === "production") {
+    response.headers.set(
+      "Strict-Transport-Security",
+      "max-age=63072000; includeSubDomains; preload"
+    );
+  }
   return response;
 }
 
@@ -59,14 +81,14 @@ function isCrossSiteMutation(request: NextRequest) {
 }
 
 function getApiRateLimit(pathname: string, method: string) {
+  if (pathname.startsWith("/api/google-maps-script")) return 30;
   if (!isUnsafeMethod(method)) return 180;
-  if (
-    pathname.startsWith("/api/contact") ||
-    pathname.startsWith("/api/moderate-listing") ||
-    pathname.startsWith("/api/translate-")
-  ) {
-    return 20;
-  }
+  if (pathname.startsWith("/api/contact")) return 5;
+  if (pathname.startsWith("/api/profiles/check-phone")) return 8;
+  if (pathname.startsWith("/api/search-alerts/notify")) return 8;
+  if (pathname.startsWith("/api/moderate-listing")) return 12;
+  if (pathname.startsWith("/api/translate-listing")) return 10;
+  if (pathname.startsWith("/api/translate-ui")) return 30;
   return 60;
 }
 
@@ -102,11 +124,16 @@ function isSensitivePath(pathname: string) {
 }
 
 function getClientIp(request: NextRequest) {
-  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const forwardedChain = request.headers
+    .get("x-forwarded-for")
+    ?.split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const nearestForwarded = forwardedChain?.at(-1);
   return (
-    forwarded ||
-    request.headers.get("x-real-ip") ||
     request.headers.get("cf-connecting-ip") ||
+    request.headers.get("x-real-ip") ||
+    nearestForwarded ||
     null
   );
 }
