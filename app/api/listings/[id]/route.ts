@@ -10,6 +10,7 @@ const serviceRoleKey =
   process.env.SUPABASE_SERVICE_KEY;
 
 type ListingImageFields = {
+  seller_id?: string | null;
   image_url?: string | null;
   image_urls?: string[] | null;
 };
@@ -29,13 +30,14 @@ function getClient(key: string) {
   });
 }
 
-function storageObjectFromPublicUrl(value: string) {
+function storageObjectFromPublicUrl(value: string, ownerId?: string | null) {
   if (!value || value.startsWith("data:") || value.startsWith("blob:")) {
     return null;
   }
 
   try {
     const url = new URL(value);
+    if (!supabaseUrl || url.origin !== new URL(supabaseUrl).origin) return null;
     const parts = url.pathname.split("/").filter(Boolean);
     const objectIndex = parts.findIndex((part, index) =>
       part === "object" &&
@@ -54,7 +56,9 @@ function storageObjectFromPublicUrl(value: string) {
       .map((part) => decodeURIComponent(part))
       .join("/");
 
-    return bucket && path ? { bucket, path } : null;
+    if (bucket !== "listing-images" || !path) return null;
+    if (ownerId && path.split("/")[0] !== ownerId) return null;
+    return { bucket, path };
   } catch {
     return null;
   }
@@ -68,7 +72,7 @@ function collectListingImages(listing: ListingImageFields | null) {
 
   const byBucket = new Map<string, Set<string>>();
   for (const url of urls) {
-    const object = storageObjectFromPublicUrl(url);
+    const object = storageObjectFromPublicUrl(url, listing?.seller_id);
     if (!object) continue;
 
     const paths = byBucket.get(object.bucket) ?? new Set<string>();

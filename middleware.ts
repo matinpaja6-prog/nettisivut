@@ -13,6 +13,15 @@ const ipBanCache = new Map<string, { banned: boolean; expiresAt: number }>();
 const API_RATE_LIMIT_WINDOW_MS = 60_000;
 const API_MAX_BODY_BYTES = 128_000;
 const apiRateLimitCache = new Map<string, { count: number; resetAt: number }>();
+const ALLOWED_HTTP_METHODS = new Set([
+  "GET",
+  "HEAD",
+  "OPTIONS",
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE"
+]);
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://maps.googleapis.com`,
@@ -83,12 +92,16 @@ function isCrossSiteMutation(request: NextRequest) {
 function getApiRateLimit(pathname: string, method: string) {
   if (pathname.startsWith("/api/google-maps-script")) return 30;
   if (!isUnsafeMethod(method)) return 180;
+  if (pathname.startsWith("/api/account/delete")) return 3;
+  if (pathname.startsWith("/api/admin")) return 20;
   if (pathname.startsWith("/api/contact")) return 5;
   if (pathname.startsWith("/api/profiles/check-phone")) return 8;
+  if (pathname.startsWith("/api/profiles/upsert")) return 10;
   if (pathname.startsWith("/api/search-alerts/notify")) return 8;
+  if (pathname.startsWith("/api/site-visit")) return 20;
   if (pathname.startsWith("/api/moderate-listing")) return 12;
-  if (pathname.startsWith("/api/translate-listing")) return 10;
-  if (pathname.startsWith("/api/translate-ui")) return 30;
+  if (pathname.startsWith("/api/translate-listing")) return 4;
+  if (pathname.startsWith("/api/translate-ui")) return 15;
   return 60;
 }
 
@@ -174,6 +187,13 @@ async function isIpBanned(ip: string) {
 
 export async function middleware(request: NextRequest) {
   const { hostname, pathname } = request.nextUrl;
+  const method = request.method.toUpperCase();
+
+  if (!ALLOWED_HTTP_METHODS.has(method)) {
+    const response = new NextResponse(null, { status: 405 });
+    response.headers.set("Allow", [...ALLOWED_HTTP_METHODS].join(", "));
+    return applySecurityHeaders(response);
+  }
 
   if (isSensitivePath(pathname)) {
     return applySecurityHeaders(new NextResponse(null, { status: 404 }));
@@ -218,6 +238,18 @@ export async function middleware(request: NextRequest) {
       return applySecurityHeaders(
         NextResponse.json({ error: "Pyyntö on liian suuri." }, { status: 413 })
       );
+    }
+
+    if (isUnsafeMethod(method) && contentLength > 0) {
+      const contentType = request.headers.get("content-type")?.toLowerCase() ?? "";
+      if (
+        !contentType.startsWith("application/json") &&
+        !contentType.startsWith("multipart/form-data")
+      ) {
+        return applySecurityHeaders(
+          NextResponse.json({ error: "Sisältötyyppiä ei tueta." }, { status: 415 })
+        );
+      }
     }
 
     const rateLimitKey = `${ip || "unknown"}:${pathname}:${request.method}`;

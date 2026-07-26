@@ -2,17 +2,14 @@ import { NextResponse } from "next/server";
 
 type UiLocale = "en" | "sv";
 
-const localeNames: Record<UiLocale, string> = {
-  en: "English",
-  sv: "Swedish"
-};
-
 type TranslateUiRequest = {
   targetLocale?: string;
   texts?: unknown;
 };
 
 const memoryCache = new Map<string, string>();
+const MAX_CACHE_ENTRIES = 4_000;
+const MAX_BATCH_CHARACTERS = 4_000;
 
 function isUiLocale(value: unknown): value is UiLocale {
   return value === "en" || value === "sv";
@@ -21,34 +18,28 @@ function isUiLocale(value: unknown): value is UiLocale {
 function normalizeTexts(value: unknown) {
   if (!Array.isArray(value)) return [];
 
-  return Array.from(
+  const unique = Array.from(
     new Set(
       value
         .map((item) => (typeof item === "string" ? item.trim() : ""))
-        .filter((item) => item.length >= 2 && item.length <= 500)
+        .filter((item) => item.length >= 2 && item.length <= 280)
     )
-  ).slice(0, 80);
+  ).slice(0, 40);
+
+  let characters = 0;
+  return unique.filter((item) => {
+    if (characters + item.length > MAX_BATCH_CHARACTERS) return false;
+    characters += item.length;
+    return true;
+  });
 }
 
-function identityResult(texts: string[]) {
-  return Object.fromEntries(texts.map((text) => [text, text]));
-}
-
-function normalizeResult(texts: string[], value: unknown) {
-  const fallback = identityResult(texts);
-
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return fallback;
+function cacheTranslation(key: string, value: string) {
+  if (memoryCache.size >= MAX_CACHE_ENTRIES) {
+    const oldestKey = memoryCache.keys().next().value;
+    if (typeof oldestKey === "string") memoryCache.delete(oldestKey);
   }
-
-  const raw = value as Record<string, unknown>;
-
-  return Object.fromEntries(
-    texts.map((text) => {
-      const translated = raw[text];
-      return [text, typeof translated === "string" && translated.trim() ? translated.trim() : fallback[text]];
-    })
-  );
+  memoryCache.set(key, value);
 }
 
 async function translateWithGoogle(text: string, targetLocale: UiLocale) {
@@ -60,7 +51,8 @@ async function translateWithGoogle(text: string, targetLocale: UiLocale) {
     q: text
   });
   const response = await fetch(`https://translate.googleapis.com/translate_a/single?${query}`, {
-    cache: "no-store"
+    cache: "no-store",
+    signal: AbortSignal.timeout(5_000)
   });
 
   if (!response.ok) return text;
@@ -112,74 +104,17 @@ export async function POST(request: Request) {
     return true;
   });
 
-  const apiKey = process.env.OPENAI_API_KEY;
   if (missing.length === 0) {
     return NextResponse.json({
       translations: cachedTranslations
     });
   }
 
-  if (!apiKey) {
-    const translated = await translateMissingWithFallback(missing, body.targetLocale);
-    for (const [source, translation] of Object.entries(translated)) {
-      memoryCache.set(`${body.targetLocale}:${source}`, translation);
-    }
-    return NextResponse.json({ translations: { ...translated, ...cachedTranslations } });
+  const translated = await translateMissingWithFallback(missing, body.targetLocale);
+  for (const [source, translation] of Object.entries(translated)) {
+    cacheTranslation(`${body.targetLocale}:${source}`, translation);
   }
-
-  const prompt = [
-    `Translate each UI string to ${localeNames[body.targetLocale]}.`,
-    "The source text is in Finnish, English, or Swedish.",
-    "If a string is already in the target language, return it unchanged.",
-    "Preserve personal names, company names, usernames, place names, street addresses, brand names, model names, part numbers, measurements, prices, email addresses, URLs, punctuation and placeholders exactly as written.",
-    "Translate marketplace UI terminology naturally in context: for example Finnish 'Runko' means a vehicle frame, not a human body.",
-    "Return only valid JSON where each original string is a key and the translated string is the value.",
-    JSON.stringify(missing)
-  ].join("\n");
-
-  try {
-    const response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: process.env.OPENAI_TRANSLATION_MODEL || "gpt-4.1-mini",
-        input: prompt,
-        text: { format: { type: "json_object" } }
-      })
-    });
-
-    if (!response.ok) throw new Error("OpenAI translation failed");
-
-    const data = await response.json();
-    const output =
-      data.output_text ??
-      data.output?.flatMap((item: { content?: Array<{ text?: string }> }) => item.content ?? [])
-        ?.map((item: { text?: string }) => item.text ?? "")
-        ?.join("");
-
-    const parsed = output ? JSON.parse(output) : null;
-    const translated = normalizeResult(missing, parsed);
-
-    for (const [source, translation] of Object.entries(translated)) {
-      memoryCache.set(`${body.targetLocale}:${source}`, translation);
-    }
-
-    return NextResponse.json({
-      translations: {
-        ...translated,
-        ...cachedTranslations
-      }
-    });
-  } catch {
-    const translated = await translateMissingWithFallback(missing, body.targetLocale);
-    for (const [source, translation] of Object.entries(translated)) {
-      memoryCache.set(`${body.targetLocale}:${source}`, translation);
-    }
-    return NextResponse.json({
-      translations: { ...translated, ...cachedTranslations }
-    });
-  }
+  return NextResponse.json({
+    translations: { ...translated, ...cachedTranslations }
+  });
 }

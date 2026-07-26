@@ -903,6 +903,25 @@ function MessagesPageContent() {
       ]
     );
 
+  const activeConversationClosed = Boolean(
+    activeConversation?.listing_deleted_at ||
+    activeConversation?.expires_at
+  );
+
+  const closedConversationTitle =
+    locale === "sv"
+      ? "Annonsen har tagits bort"
+      : locale === "en"
+        ? "The listing has been removed"
+        : "Ilmoitus on poistettu";
+
+  const closedConversationMessage =
+    locale === "sv"
+      ? "Det går inte längre att skicka meddelanden här. Konversationen tas bort 20 dagar efter att annonsen raderades."
+      : locale === "en"
+        ? "Messages can no longer be sent here. The conversation will be removed 20 days after the listing was deleted."
+        : "Tähän keskusteluun ei voi enää lähettää viestejä. Keskustelu poistuu 20 päivän kuluttua ilmoituksen poistamisesta.";
+
   const totalVisibleCount =
     conversations.filter(
       (conversation) =>
@@ -1376,6 +1395,7 @@ function MessagesPageContent() {
   ) {
     if (
       !activeConversation ||
+      activeConversationClosed ||
       !userId ||
       !otherUserId
     ) {
@@ -1681,9 +1701,16 @@ function MessagesPageContent() {
               </div>
 
               <div className="input-area inbox-open-area">
-                <MessageInput
-                  onSend={sendMessage}
-                />
+                {activeConversationClosed ? (
+                  <div className="conversation-closed-notice" role="status">
+                    <strong>{closedConversationTitle}</strong>
+                    <span>{closedConversationMessage}</span>
+                  </div>
+                ) : (
+                  <MessageInput
+                    onSend={sendMessage}
+                  />
+                )}
               </div>
             </>
           ) : (

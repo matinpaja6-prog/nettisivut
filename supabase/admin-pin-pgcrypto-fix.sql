@@ -2,13 +2,33 @@
 -- Run this in Supabase SQL Editor if admin login says:
 --   function crypt(text, text) does not exist
 
+create schema if not exists extensions;
 create extension if not exists pgcrypto with schema extensions;
+
+do $$
+declare
+  extension_schema text;
+begin
+  select namespace.nspname
+    into extension_schema
+  from pg_extension extension
+  join pg_namespace namespace on namespace.oid = extension.extnamespace
+  where extension.extname = 'pgcrypto';
+
+  if extension_schema is distinct from 'extensions' then
+    alter extension pgcrypto set schema extensions;
+  end if;
+end;
+$$;
+
+alter table public.admin_users
+  add column if not exists pin_hash text;
 
 create or replace function public.set_admin_pin(new_pin text)
 returns void
 language plpgsql
 security definer
-set search_path = public, extensions
+set search_path = pg_catalog, public, extensions
 as $$
 begin
   if not public.is_admin(auth.uid()) then
@@ -20,7 +40,7 @@ begin
   end if;
 
   update public.admin_users
-  set pin_hash = crypt(new_pin, gen_salt('bf', 10))
+  set pin_hash = extensions.crypt(new_pin, extensions.gen_salt('bf', 10))
   where user_id = auth.uid();
 end;
 $$;
@@ -32,7 +52,7 @@ create or replace function public.verify_admin_pin(candidate_pin text)
 returns boolean
 language plpgsql
 security definer
-set search_path = public, extensions
+set search_path = pg_catalog, public, extensions
 as $$
 declare
   v_hash text;
@@ -49,7 +69,7 @@ begin
     raise exception 'PIN-koodia ei ole asetettu vielä. Aja SQL Editorissa: select public.set_admin_pin(''sinunpinkoodisi'')';
   end if;
 
-  return crypt(candidate_pin, v_hash) = v_hash;
+  return extensions.crypt(candidate_pin, v_hash) = v_hash;
 end;
 $$;
 

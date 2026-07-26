@@ -35,7 +35,6 @@ import { calculateSellerLevel } from "@/lib/seller-level";
 import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profilePath, profileRootPath } from "@/lib/routes";
-import { readUserSettings, USER_SETTINGS_EVENT } from "@/lib/user-settings";
 import { useTaxonomy } from "./TaxonomyProvider";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
@@ -295,7 +294,6 @@ export default function UniversalTopbar() {
   const [sellerLevelStats, setSellerLevelStats] = useState<SellerLevelStats>(emptySellerLevelStats);
   const [topbarDropdownOpen, setTopbarDropdownOpen] = useState<TopbarDropdownKey>(null);
   const [topbarDropdownRect, setTopbarDropdownRect] = useState<DOMRect | null>(null);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuOverlayRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
@@ -307,21 +305,6 @@ export default function UniversalTopbar() {
     () => taxonomy.categories.map((category) => category.key).filter(Boolean),
     [taxonomy]
   );
-
-  useEffect(() => {
-    setNotificationsEnabled(readUserSettings().notificationsEnabled);
-
-    function onUserSettingsChanged() {
-      setNotificationsEnabled(readUserSettings().notificationsEnabled);
-    }
-
-    window.addEventListener(USER_SETTINGS_EVENT, onUserSettingsChanged);
-    window.addEventListener("storage", onUserSettingsChanged);
-    return () => {
-      window.removeEventListener(USER_SETTINGS_EVENT, onUserSettingsChanged);
-      window.removeEventListener("storage", onUserSettingsChanged);
-    };
-  }, []);
 
   const brandNavigationGroups = useMemo(
     () =>
@@ -673,13 +656,13 @@ export default function UniversalTopbar() {
     unreadReviewRequests.length +
     unreadAlertNotifications.length +
     unreadConversationsForBadge.length;
-  const hasNotifications = notificationsEnabled && notificationItemCount > 0;
+  const hasNotifications = notificationItemCount > 0;
   const hasNotificationItems =
     visibleReviewRequests.length + visibleAlertNotifications.length + visibleUnreadConversations.length > 0;
   const canonicalPathname = canonicalPathFromLocalized(pathname);
   const isHomePage = canonicalPathname === "/";
+  const isAuthPage = canonicalPathname === "/auth";
   const controlsLocked = !authChecked;
-  const notificationLocked = !authChecked || !userId || !notificationsEnabled;
   const sellerLevel = calculateSellerLevel(sellerLevelStats);
   const sellerLevelTooltip = sellerLevel.maxLevel
     ? `${ui.maxLevel} - ${ui.level} ${sellerLevel.level}`
@@ -704,7 +687,6 @@ export default function UniversalTopbar() {
   const faqHref = pagePath("faq", locale);
 
   function toggleNotifications() {
-    if (notificationLocked) return;
     setProfileOpen(false);
     setNotificationOpen((open) => {
       if (!open) setNotificationRefreshNonce((value) => value + 1);
@@ -1017,6 +999,7 @@ export default function UniversalTopbar() {
           </Link>
         </div>
       )}
+      {!isAuthPage && (
       <nav className="universal-home-primary-nav" aria-label="Päänavigaatio" ref={topbarDropdownRef}>
         {isHomePage ? (
           <>
@@ -1042,6 +1025,7 @@ export default function UniversalTopbar() {
           </>
         )}
       </nav>
+      )}
     </div>
   );
 
@@ -1236,8 +1220,9 @@ export default function UniversalTopbar() {
     <>
     {profileMenuPortal}
     {topbarDropdownPortal}
-    <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}`}>
+    <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}${isAuthPage ? " universal-auth-topbar" : ""}`}>
       {primaryNavigation}
+      {!isAuthPage && (
       <nav className="universal-topbar-actions" aria-label={ui.quickActions}>
         {!userId ? (
           <Link href={authHref} className="rebuilt-login-button rebuilt-login-button-guest">
@@ -1291,8 +1276,12 @@ export default function UniversalTopbar() {
                 aria-label={t.notifications}
                 aria-haspopup="menu"
                 aria-expanded={notificationOpen}
-                disabled={notificationLocked}
-                onClick={toggleNotifications}
+                aria-controls="universal-notification-menu"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  toggleNotifications();
+                }}
               >
                 <Bell size={17} aria-hidden="true" />
                 {hasNotifications ? (
@@ -1303,7 +1292,7 @@ export default function UniversalTopbar() {
               </button>
 
           {notificationOpen && (
-            <div className="universal-notification-menu" role="menu">
+            <div id="universal-notification-menu" className="universal-notification-menu" role="menu">
               <div className="universal-notification-head">
                 <span className="universal-notification-head-icon" aria-hidden="true">
                   <Bell size={24} />
@@ -1537,6 +1526,7 @@ export default function UniversalTopbar() {
           </>
         )}
       </nav>
+      )}
     </header>
     </>
   );

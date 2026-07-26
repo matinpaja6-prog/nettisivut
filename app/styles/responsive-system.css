@@ -910,3 +910,47 @@ html body :is(#rs-seller-final, [data-seller-panel]) .seller-stats-row {
     line-height: 1.15 !important;
   }
 }
+
+/* Keep the mobile navigation attached to the visual viewport in iOS Safari.
+   Layer promotion prevents the bar from briefly scrolling with the document
+   while Safari expands or collapses its browser chrome. */
+@media (max-width: 760px) {
+  html,
+  body {
+    overscroll-behavior-y: none;
+  }
+
+  html body .bottom-nav.bottom-nav-main {
+    -webkit-backface-visibility: hidden !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden !important;
+    bottom: 0 !important;
+    contain: layout paint style;
+    left: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-height: calc(62px + env(safe-area-inset-bottom)) !important;
+    padding-bottom: calc(9px + env(safe-area-inset-bottom)) !important;
+    position: fixed !important;
+    right: 0 !important;
+    top: auto !important;
+    transform: translate3d(0, 0, 0) !important;
+    width: auto !important;
+    will-change: transform;
+  }
+
+  html body:has(> .bottom-nav.bottom-nav-main) {
+    padding-bottom: calc(62px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Auth route: keep only the branded back control in the topbar. */
+html body .auth-back-home,
+html body:has(.simple-auth-page) .auth-back-home {
+  display: none !important;
+}
+
+html body header.universal-app-topbar.universal-auth-topbar .universal-home-primary-nav,
+html body header.universal-app-topbar.universal-auth-topbar .universal-topbar-actions {
+  display: none !important;
+}
