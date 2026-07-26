@@ -39,6 +39,7 @@ import { readCachedResource, writeCachedResource } from "@/lib/client-resource-c
 import {
   createCompanySeller,
   deleteCompanySeller,
+  dispatchProfileAvatarChanged,
   getCompanySellers,
   getProfile,
   resetPassword,
@@ -1198,7 +1199,13 @@ export default function ProfilePage() {
     setAvatarUploading(false);
     if (error) { setStatus(t.imageUploadFailed); return; }
     if (url) {
-      setAvatarUrl(url + "?t=" + Date.now());
+      const renderedAvatarUrl = `${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`;
+      setAvatarUrl(renderedAvatarUrl);
+      if (profile) {
+        const nextProfile = { ...profile, avatar_url: url };
+        setProfile(nextProfile);
+        writeCachedResource(`profile:${user.id}`, nextProfile);
+      }
       setStatus(t.avatarUpdated);
       resetAvatarCrop();
       setTimeout(() => setStatus(""), 3000);
@@ -1227,9 +1234,12 @@ export default function ProfilePage() {
     }
 
     setAvatarUrl(null);
-    setProfile((current) =>
-      current ? { ...current, avatar_url: null } : current
-    );
+    if (profile) {
+      const nextProfile = { ...profile, avatar_url: null };
+      setProfile(nextProfile);
+      writeCachedResource(`profile:${user.id}`, nextProfile);
+    }
+    dispatchProfileAvatarChanged(user.id, null);
 
     if (avatarInputRef.current) {
       avatarInputRef.current.value = "";

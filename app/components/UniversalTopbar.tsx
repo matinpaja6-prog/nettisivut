@@ -9,6 +9,7 @@ import { createPortal } from "react-dom";
 import type { User } from "@supabase/supabase-js";
 import {
   CHAT_NOTIFICATIONS_CHANGED_EVENT,
+  PROFILE_AVATAR_CHANGED_EVENT,
   deleteAlertNotification,
   dismissPurchaseReviewRequest,
   getAlertNotifications,
@@ -27,6 +28,7 @@ import {
   type AlertNotification,
   type ConversationSummary,
   type GarageVehicle,
+  type ProfileAvatarChangedDetail,
   type PurchaseReviewRequest,
   type SellerLevelStats,
   type UserProfile,
@@ -347,9 +349,9 @@ export default function UniversalTopbar() {
 
       const { data: profile } = await client
         .from("profiles")
-        .select("avatar_url,is_completed,account_type,first_name,last_name,full_name,name,company_name,business_id,email,phone,address,postal_code,city,country,birth_date,phone_verified_at")
+        .select("avatar_url,first_name,last_name,full_name,name,company_name")
         .eq("id", nextUserId)
-        .maybeSingle<Pick<UserProfile, "avatar_url" | "is_completed" | "account_type" | "first_name" | "last_name" | "full_name" | "name" | "company_name" | "business_id" | "email" | "phone" | "address" | "postal_code" | "city" | "country" | "birth_date" | "phone_verified_at">>();
+        .maybeSingle<Pick<UserProfile, "avatar_url" | "first_name" | "last_name" | "full_name" | "name" | "company_name">>();
       if (cancelled) return;
       setAvatarUrl(profile?.avatar_url ?? null);
       const firstAndLastName =
@@ -403,6 +405,35 @@ export default function UniversalTopbar() {
       subscription.unsubscribe();
     };
   }, [ui.fallbackProfile]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    function onProfileAvatarChanged(event: Event) {
+      const detail = (event as CustomEvent<ProfileAvatarChangedDetail>).detail;
+      if (!detail || detail.userId !== userId) return;
+
+      if (!detail.avatarUrl) {
+        setAvatarUrl(null);
+        return;
+      }
+
+      const separator = detail.avatarUrl.includes("?") ? "&" : "?";
+      setAvatarUrl(`${detail.avatarUrl}${separator}avatar=${detail.version}`);
+    }
+
+    window.addEventListener(
+      PROFILE_AVATAR_CHANGED_EVENT,
+      onProfileAvatarChanged
+    );
+
+    return () => {
+      window.removeEventListener(
+        PROFILE_AVATAR_CHANGED_EVENT,
+        onProfileAvatarChanged
+      );
+    };
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) {
@@ -1130,7 +1161,12 @@ export default function UniversalTopbar() {
               <div className="universal-profile-menu-head" aria-hidden="true">
                 <span className="universal-profile-menu-avatar">
                   {avatarUrl ? (
-                    <img src={avatarUrl} alt="" referrerPolicy="no-referrer" />
+                    <img
+                      src={avatarUrl}
+                      alt=""
+                      referrerPolicy="no-referrer"
+                      onError={() => setAvatarUrl(null)}
+                    />
                   ) : (
                     <span className="profile-avatar-initial">{profileInitial}</span>
                   )}
@@ -1503,7 +1539,12 @@ export default function UniversalTopbar() {
           >
             <span className="universal-profile-avatar" aria-hidden="true">
               {avatarUrl ? (
-                <img src={avatarUrl} alt="" referrerPolicy="no-referrer" />
+                <img
+                  src={avatarUrl}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  onError={() => setAvatarUrl(null)}
+                />
               ) : (
                 <span className="profile-avatar-initial">{profileInitial}</span>
               )}
