@@ -2468,7 +2468,7 @@ export default function MyListingsPage() {
             )}
 
             <div className="delete-muted">
-              Ilmoitukseen liittyvät keskustelut säilyvät viesteissä 20 päivää poistamisen jälkeen.
+              Ilmoitukseen liittyvissä keskusteluissa voi viestiä vielä 20 päivää poistamisen jälkeen, minkä jälkeen ne poistuvat automaattisesti.
             </div>
 
             <div className="delete-listing-modal-actions">

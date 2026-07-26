@@ -88,6 +88,13 @@ function formatDate(value?: string) {
 
 }
 
+function conversationExpiryTime(value?: string | null) {
+  if (!value) return null;
+
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? null : time;
+}
+
 function getClientErrorMessage(error: unknown) {
   if (error instanceof Error) return error.message;
   if (
@@ -587,6 +594,34 @@ function MessagesPageContent() {
   }, [userId]);
 
   useEffect(() => {
+    if (!userId || conversations.length === 0) return;
+
+    const now = Date.now();
+    const nextExpiry =
+      conversations.reduce<number | null>((nearest, conversation) => {
+        const expiresAt = conversationExpiryTime(conversation.expires_at);
+        if (expiresAt === null) return nearest;
+        return nearest === null
+          ? expiresAt
+          : Math.min(nearest, expiresAt);
+      }, null);
+
+    if (nextExpiry === null) return;
+
+    const refreshTimer = window.setTimeout(() => {
+      void refreshConversations();
+    }, Math.max(0, nextExpiry - now + 250));
+
+    return () => {
+      window.clearTimeout(refreshTimer);
+    };
+  }, [
+    conversations,
+    refreshConversations,
+    userId
+  ]);
+
+  useEffect(() => {
 
     let stopped = false;
     let authResolved = false;
@@ -904,24 +939,51 @@ function MessagesPageContent() {
       ]
     );
 
-  const activeConversationClosed = Boolean(
-    activeConversation?.listing_deleted_at ||
-    activeConversation?.expires_at
+  const activeConversationExpiryTime =
+    conversationExpiryTime(activeConversation?.expires_at);
+  const activeConversationClosed =
+    activeConversationExpiryTime !== null &&
+    activeConversationExpiryTime <= Date.now();
+  const activeConversationRetained = Boolean(
+    activeConversation?.listing_deleted_at &&
+    activeConversationExpiryTime !== null &&
+    activeConversationExpiryTime > Date.now()
   );
+  const activeConversationExpiryLabel =
+    activeConversationExpiryTime !== null
+      ? new Intl.DateTimeFormat(
+          locale === "sv"
+            ? "sv-SE"
+            : locale === "en"
+              ? "en-GB"
+              : "fi-FI",
+          {
+            dateStyle: "medium",
+            timeStyle: "short"
+          }
+        ).format(activeConversationExpiryTime)
+      : "";
 
   const closedConversationTitle =
     locale === "sv"
-      ? "Annonsen har tagits bort"
+      ? "Konversationen har löpt ut"
       : locale === "en"
-        ? "The listing has been removed"
-        : "Ilmoitus on poistettu";
+        ? "The conversation has expired"
+        : "Keskustelu on vanhentunut";
 
   const closedConversationMessage =
     locale === "sv"
-      ? "Det går inte längre att skicka meddelanden här. Konversationen tas bort 20 dagar efter att annonsen raderades."
+      ? "Meddelandeperioden på 20 dagar har löpt ut. Konversationen tas bort automatiskt."
       : locale === "en"
-        ? "Messages can no longer be sent here. The conversation will be removed 20 days after the listing was deleted."
-        : "Tähän keskusteluun ei voi enää lähettää viestejä. Keskustelu poistuu 20 päivän kuluttua ilmoituksen poistamisesta.";
+        ? "The 20-day messaging period has ended. The conversation is removed automatically."
+        : "Keskustelun 20 päivän viestiaika on päättynyt. Keskustelu poistetaan automaattisesti.";
+
+  const retainedConversationMessage =
+    locale === "sv"
+      ? `Du kan fortsätta skicka meddelanden till ${activeConversationExpiryLabel}. Därefter tas konversationen bort automatiskt.`
+      : locale === "en"
+        ? `You can continue messaging until ${activeConversationExpiryLabel}. The conversation will then be removed automatically.`
+        : `Voit jatkaa viestittelyä ${activeConversationExpiryLabel} asti. Sen jälkeen keskustelu poistetaan automaattisesti.`;
 
   const totalVisibleCount =
     conversations.filter(
@@ -1708,9 +1770,23 @@ function MessagesPageContent() {
                     <span>{closedConversationMessage}</span>
                   </div>
                 ) : (
-                  <MessageInput
-                    onSend={sendMessage}
-                  />
+                  <>
+                    {activeConversationRetained && (
+                      <div className="conversation-retention-notice" role="status">
+                        <strong>
+                          {locale === "sv"
+                            ? "Annonsen har tagits bort"
+                            : locale === "en"
+                              ? "The listing has been removed"
+                              : "Ilmoitus on poistettu"}
+                        </strong>
+                        <span>{retainedConversationMessage}</span>
+                      </div>
+                    )}
+                    <MessageInput
+                      onSend={sendMessage}
+                    />
+                  </>
                 )}
               </div>
             </>

@@ -253,11 +253,7 @@ to authenticated
 with check (auth.uid()::uuid = buyer_id::uuid and buyer_id::uuid <> seller_id::uuid);
 
 drop policy if exists "Conversation participants can update" on public.conversations;
-create policy "Conversation participants can update"
-on public.conversations for update
-to authenticated
-using (auth.uid()::uuid = buyer_id::uuid or auth.uid()::uuid = seller_id::uuid)
-with check (auth.uid()::uuid = buyer_id::uuid or auth.uid()::uuid = seller_id::uuid);
+revoke update on table public.conversations from public, anon, authenticated;
 
 alter table public.conversations
   add column if not exists updated_at timestamptz not null default now();
@@ -321,6 +317,7 @@ with check (
     from public.conversations c
     where c.id::uuid = conversation_id::uuid
       and c.listing_id::uuid = messages.listing_id::uuid
+      and (c.expires_at is null or c.expires_at > now())
       and (auth.uid()::uuid = c.buyer_id::uuid or auth.uid()::uuid = c.seller_id::uuid)
       and (receiver_id::uuid = c.buyer_id::uuid or receiver_id::uuid = c.seller_id::uuid)
       and receiver_id::uuid <> sender_id::uuid
@@ -379,6 +376,30 @@ before update on public.messages
 for each row
 execute function public.enforce_message_read_receipt_update();
 
+create or replace function public.touch_conversation_on_message()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.conversations
+  set updated_at = now()
+  where id = new.conversation_id;
+
+  return new;
+end;
+$$;
+
+revoke all on function public.touch_conversation_on_message() from public;
+revoke all on function public.touch_conversation_on_message() from anon, authenticated;
+
+drop trigger if exists messages_touch_conversation on public.messages;
+create trigger messages_touch_conversation
+after insert on public.messages
+for each row
+execute function public.touch_conversation_on_message();
+
 create index if not exists messages_conversation_created_at_idx on public.messages (conversation_id, created_at);
 create index if not exists messages_sender_idx on public.messages (sender_id);
 create index if not exists messages_receiver_idx on public.messages (receiver_id);
@@ -399,8 +420,8 @@ as $$
 begin
   update public.conversations
   set
-    listing_deleted_at = coalesce(listing_deleted_at, now()),
-    expires_at = coalesce(expires_at, now() + interval '20 days'),
+    listing_deleted_at = now(),
+    expires_at = now() + interval '20 days',
     listing_title = coalesce(listing_title, old.title),
     listing_image_url = coalesce(listing_image_url, old.image_url),
     listing_price = coalesce(listing_price, old.price),
@@ -422,6 +443,20 @@ before delete on public.listings
 for each row
 execute function public.retain_conversations_for_deleted_listing();
 
+update public.conversations c
+set
+  listing_deleted_at = null,
+  expires_at = null
+where exists (
+  select 1
+  from public.listings l
+  where l.id = c.listing_id
+);
+
+update public.conversations
+set expires_at = listing_deleted_at + interval '20 days'
+where listing_deleted_at is not null;
+
 create or replace function public.purge_expired_listing_conversations()
 returns integer
 language plpgsql
@@ -441,3 +476,25 @@ end;
 $$;
 
 revoke all on function public.purge_expired_listing_conversations() from public;
+
+create extension if not exists pg_cron;
+
+do $$
+declare
+  existing_job_id bigint;
+begin
+  for existing_job_id in
+    select jobid
+    from cron.job
+    where jobname = 'purge-expired-listing-conversations'
+  loop
+    perform cron.unschedule(existing_job_id);
+  end loop;
+
+  perform cron.schedule(
+    'purge-expired-listing-conversations',
+    '17 * * * *',
+    'select public.purge_expired_listing_conversations();'
+  );
+end;
+$$;
