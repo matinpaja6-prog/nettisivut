@@ -28,7 +28,7 @@ import {
 import { useLanguage } from "@/lib/i18n";
 import { playNotificationSound } from "@/lib/notification-sound";
 import { resizeMessageImageTo1080p } from "@/app/components/chat/image-processing";
-import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
+import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath } from "@/lib/routes";
 
 /* ======================================================
    HELPERS
@@ -131,15 +131,16 @@ export default function FloatingChat() {
   const router = useRouter();
   const { t, locale } = useLanguage();
   const [userId, setUserId] = useState<string | null>(null);
+  const canonicalPathname = canonicalPathFromLocalized(pathname || "/");
 
   // Älä renderöi admin-sivulla
-  const isAdmin = pathname?.startsWith("/admin");
-  const isAuthPage = pathname?.startsWith("/auth");
-  const isMessagesPage = pathname?.startsWith("/messages");
-  const isProfilePage = pathname?.startsWith("/profile");
+  const isAdmin = canonicalPathname.startsWith("/admin");
+  const isAuthPage = canonicalPathname.startsWith("/auth");
+  const isMessagesPage = canonicalPathname.startsWith("/messages");
+  const isProfilePage = canonicalPathname.startsWith("/profile");
   const isLegalPage =
-    pathname?.startsWith("/privacy") ||
-    pathname?.startsWith("/terms");
+    canonicalPathname.startsWith("/privacy") ||
+    canonicalPathname.startsWith("/terms");
   const [open, setOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [activeConv, setActiveConv] = useState<ConversationSummary | null>(null);

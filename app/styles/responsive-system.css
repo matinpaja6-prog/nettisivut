@@ -954,3 +954,49 @@ html body header.universal-app-topbar.universal-auth-topbar .universal-home-prim
 html body header.universal-app-topbar.universal-auth-topbar .universal-topbar-actions {
   display: none !important;
 }
+
+/* Mobile auth behaves like a dismissable sheet: one visible back control and no
+   competing topbar control. */
+.auth-mobile-back-home {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  html body header.universal-app-topbar.universal-auth-topbar {
+    pointer-events: none !important;
+  }
+
+  html body header.universal-app-topbar.universal-auth-topbar .universal-page-back-button {
+    display: none !important;
+  }
+
+  html body .auth-mobile-back-home {
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: #ff7a1a !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    height: 48px !important;
+    justify-content: center !important;
+    left: max(8px, env(safe-area-inset-left)) !important;
+    margin: 0 !important;
+    min-height: 48px !important;
+    min-width: 48px !important;
+    padding: 0 !important;
+    position: fixed !important;
+    top: max(8px, env(safe-area-inset-top)) !important;
+    touch-action: manipulation !important;
+    width: 48px !important;
+    z-index: 2147483000 !important;
+  }
+
+  html body .auth-mobile-back-home > svg {
+    display: block !important;
+    filter: drop-shadow(0 0 7px rgba(255, 122, 26, 0.28));
+    height: 26px !important;
+    stroke-width: 2.8 !important;
+    width: 26px !important;
+  }
+}
