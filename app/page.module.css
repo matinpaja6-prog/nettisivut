@@ -24175,8 +24175,18 @@
 
 .locationOptionActionGroup {
   background: #061a2c;
-  padding: 6px 0 8px;
+  padding: 0;
   position: static;
+}
+
+.locationMenuFooter {
+  background: #061a2c;
+  display: grid;
+  flex: 0 0 auto;
+  gap: 8px;
+  padding: 6px 0 0;
+  position: relative;
+  z-index: 2;
 }
 
 .locationOptionSection {
@@ -24274,7 +24284,7 @@
   font-weight: 800 !important;
   gap: 7px !important;
   justify-content: center !important;
-  margin: 8px 10px 10px !important;
+  margin: 0 10px 10px !important;
   min-height: 36px !important;
   padding: 8px 14px !important;
   transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease !important;
@@ -30687,6 +30697,61 @@
   }
 }
 
+/* Filtered desktop view: the result column is its own compact grid. Keeping the
+   search and cards inside one grid cell prevents a tall filter rail from
+   creating hundreds of pixels of empty space above the first listing. */
+@media (min-width: 901px) {
+  .shell:global([data-home-filtered-results="true"]) .heroInner {
+    align-items: start !important;
+    grid-template-rows: auto !important;
+  }
+
+  .shell:global([data-home-filtered-results="true"]) .heroInner > [data-home-results-mode="true"] {
+    align-content: start !important;
+    display: grid !important;
+    gap: 14px !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto !important;
+    min-width: 0 !important;
+  }
+
+  .shell:global([data-home-filtered-results="true"]) [data-home-results-mode="true"] > [data-home-intro-showcase],
+  .shell:global([data-home-filtered-results="true"]) [data-home-results-mode="true"] > [data-home-sell-callout],
+  .shell:global([data-home-filtered-results="true"]) [data-home-results-mode="true"] > [data-home-benefits] {
+    display: none !important;
+  }
+
+  .shell:global([data-home-filtered-results="true"]) [data-home-results-mode="true"] > [data-home-results-search] {
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  .shell:global([data-home-filtered-results="true"]) [data-home-results-mode="true"] > [data-home-results-list] {
+    width: 100% !important;
+  }
+
+  .shell:global([data-home-filtered-results="true"]) .heroDesktopLatestHead {
+    align-items: center !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    margin: 0 0 12px !important;
+  }
+
+  .shell:global([data-home-filtered-results="true"]) .heroDesktopLatestHead > strong {
+    color: #f4f8fc !important;
+    display: block !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+  }
+
+  .shell:global([data-home-filtered-results="true"]) .heroDesktopLatestGridExpanded {
+    align-items: start !important;
+    justify-content: start !important;
+  }
+}
+
 /* Phone: avoid stacking several navigation safety gaps after the last result. */
 @media (max-width: 720px) {
   :global(html body) main[data-home-page].shell {
@@ -31073,6 +31138,48 @@
   }
 }
 
+/* Definitive desktop result layout. The dedicated state class wins over the
+   legacy display:contents homepage composition without affecting the landing
+   view or phone layout. */
+@media (min-width: 901px) {
+  :global(html body main[data-home-page]) .heroLeadPanelFiltered:global(#home-filtered-results-column) {
+    align-content: start !important;
+    display: grid !important;
+    gap: 14px !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto !important;
+    min-width: 0 !important;
+  }
+
+  :global(html body main[data-home-page]) .heroLeadPanelFiltered:global(#home-filtered-results-column) > .heroShowcase,
+  :global(html body main[data-home-page]) .heroLeadPanelFiltered:global(#home-filtered-results-column) > .heroSellCallout,
+  :global(html body main[data-home-page]) .heroLeadPanelFiltered:global(#home-filtered-results-column) > .heroReferenceBenefits {
+    display: none !important;
+  }
+
+  :global(html body main[data-home-page]) .heroLeadPanelFiltered:global(#home-filtered-results-column) > .heroMainSearchPanel:global(#home-filtered-results-search) {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  :global(html body main[data-home-page]) .heroLeadPanelFiltered:global(#home-filtered-results-column) > .heroDesktopLatest:global(#home-filtered-results-list) {
+    align-self: start !important;
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    min-width: 0 !important;
+  }
+
+  :global(html body main[data-home-page]) .heroRightRail:global(#home-filtered-filter-rail) {
+    align-self: start !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    margin-top: 0 !important;
+    top: 0 !important;
+  }
+}
+
 /* Desktop benefit strip: keep every icon, heading and description on the same
    shared alignment lines regardless of the amount of copy in a card. */
 @media (min-width: 721px) {
@@ -31168,5 +31275,49 @@
     justify-self: start !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
+  }
+}
+
+/* Wide desktop filtered search: the responsive shell has outer gutter tracks,
+   so results belong to track 2 and the filter rail to track 3. */
+@media (min-width: 1600px) {
+  :global(html body main[data-home-page]) .heroLeadPanelFiltered:global(#home-filtered-results-column) {
+    grid-column: 2 !important;
+  }
+
+  :global(html body main[data-home-page]) .heroRightRail:global(#home-filtered-filter-rail) {
+    grid-column: 3 !important;
+  }
+}
+
+/* Match filtered desktop results to the expanded listing view. The search,
+   filter rail, result heading and card row now keep the same vertical rhythm
+   whether the query returns a few items or the full listing set. */
+@media (min-width: 901px) {
+  :global(html body main[data-home-page]) .heroLeadPanelFiltered:global(#home-filtered-results-column) {
+    gap: 56px !important;
+    margin-top: 27px !important;
+  }
+
+  :global(html body main[data-home-page]) .heroRightRail:global(#home-filtered-filter-rail) {
+    margin-top: 17px !important;
+  }
+
+  :global(html body main[data-home-page]) .heroLeadPanelFiltered:global(#home-filtered-results-column)
+    > .heroDesktopLatest:global(#home-filtered-results-list)
+    > .heroDesktopLatestHead {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    margin: 4px 0 14px !important;
+  }
+
+  :global(html body main[data-home-page]) .heroLeadPanelFiltered:global(#home-filtered-results-column)
+    > .heroDesktopLatest:global(#home-filtered-results-list)
+    > .heroDesktopLatestHead
+    > strong {
+    justify-self: start !important;
+    text-align: left !important;
+    width: auto !important;
   }
 }

@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { cleanOptionalUserText, cleanUserText } from "@/lib/text-input";
 
 type ProfileUpsertBody = {
@@ -24,7 +25,7 @@ type ProfileUpsertBody = {
 
 function cleanProfileInput(profile: NonNullable<ProfileUpsertBody["profile"]>) {
   return {
-    ...profile,
+    account_type: profile.account_type === "company" ? "company" as const : "private" as const,
     first_name: cleanUserText(profile.first_name, 80),
     last_name: cleanUserText(profile.last_name, 80),
     company_name: cleanOptionalUserText(profile.company_name, 160),
@@ -100,6 +101,11 @@ export async function POST(request: Request) {
     }
 
     const cleanProfile = cleanProfileInput(profile);
+    const admin = getSupabaseAdmin();
+    const verifiedEmail = cleanUserText(
+      userData.user?.email ?? profile.email,
+      180
+    );
 
     const contactName =
       `${cleanProfile.first_name ?? ""} ${cleanProfile.last_name ?? ""}`
@@ -111,24 +117,27 @@ export async function POST(request: Request) {
         : contactName;
 
     const { data: existingProfile, error: existingError } =
-      await supabase
+      await admin
         .from("profiles")
         .select("public_id")
         .eq("id", userId)
         .maybeSingle<{ public_id: string | null }>();
 
     if (existingError) {
+      console.error("Profile lookup failed", existingError);
       return NextResponse.json(
-        { error: existingError.message },
+        { error: "Profiilin tallennus epäonnistui." },
         { status: 500 }
       );
     }
 
     const { data, error } =
-      await supabase
+      await admin
         .from("profiles")
         .upsert({
           ...cleanProfile,
+          id: userId,
+          email: verifiedEmail,
           public_id: existingProfile?.public_id || `KP${Date.now()}`,
           full_name: fullName,
           name: fullName,
@@ -138,8 +147,9 @@ export async function POST(request: Request) {
         .single();
 
     if (error) {
+      console.error("Profile upsert failed", error);
       return NextResponse.json(
-        { error: error.message },
+        { error: "Profiilin tallennus epäonnistui." },
         { status: 500 }
       );
     }
@@ -151,13 +161,9 @@ export async function POST(request: Request) {
       }
     });
   } catch (error) {
+    console.error("Profile upsert failed", error);
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Profiilin tallennus epaonnistui."
-      },
+      { error: "Profiilin tallennus epäonnistui." },
       { status: 500 }
     );
   }

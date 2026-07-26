@@ -90,6 +90,28 @@ export type UserProfile = {
 
   referred_by?: string | null;
 
+  preferred_locale?: string | null;
+
+  postal_address?: string | null;
+
+  home_address?: string | null;
+
+  is_banned?: boolean | null;
+
+  banned_at?: string | null;
+
+  banned_reason?: string | null;
+
+  extra_phone_verifications?: number | null;
+
+  extra_listing_slots?: number | null;
+
+  last_ip?: string | null;
+
+  last_seen_ip?: string | null;
+
+  ip_count?: number | null;
+
   created_at?: string;
 
   updated_at?: string;
@@ -449,6 +471,9 @@ function storageObjectFromPublicUrl(value: string) {
 
   try {
     const url = new URL(value);
+    if (!supabaseUrl || url.origin !== new URL(supabaseUrl).origin) {
+      return null;
+    }
     const parts = url.pathname.split("/").filter(Boolean);
     const objectIndex =
       parts.findIndex((part, index) =>
@@ -473,7 +498,7 @@ function storageObjectFromPublicUrl(value: string) {
         .map((part) => decodeURIComponent(part))
         .join("/");
 
-    if (!bucket || !path) {
+    if (bucket !== "listing-images" || !path) {
       return null;
     }
 
@@ -1937,29 +1962,7 @@ export async function getProfileFollowStats(
     };
   }
 
-  if (!supabase) return { data: EMPTY_PROFILE_FOLLOW_STATS, error: apiResult.error };
-
-  try {
-    const { data, error } = await supabase.rpc(
-      "get_profile_follow_stats",
-      { target_profile_id: profileId }
-    );
-    const row = Array.isArray(data) ? data[0] : data;
-
-    return {
-      data: {
-        follower_count: Number(row?.follower_count) || 0,
-        following_count: Number(row?.following_count) || 0,
-        is_following: Boolean(row?.is_following)
-      },
-      error
-    };
-  } catch (error) {
-    return {
-      data: EMPTY_PROFILE_FOLLOW_STATS,
-      error
-    };
-  }
+  return { data: EMPTY_PROFILE_FOLLOW_STATS, error: apiResult.error };
 }
 
 export async function getMyProfileFollows(): Promise<{
@@ -2078,14 +2081,14 @@ async function getUserBanStatus(userId: string) {
   if (!supabase) return { isBanned: false };
 
   try {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("is_banned")
-      .eq("id", userId)
-      .maybeSingle<{ is_banned: boolean | null }>();
+    const { data, error } = await getProfile(userId);
 
     if (error) return { isBanned: false };
-    return { isBanned: Boolean(data?.is_banned) };
+    return {
+      isBanned: Boolean(
+        (data as (UserProfile & { is_banned?: boolean | null }) | null)?.is_banned
+      )
+    };
   } catch {
     return { isBanned: false };
   }
@@ -2149,23 +2152,7 @@ export async function createListing(
 
     }
 
-    const { data: profile } =
-      await supabase
-        .from("profiles")
-        .select("phone,account_type,first_name,last_name,full_name,name,company_name,avatar_url,city,is_banned")
-        .eq("id", user.id)
-        .maybeSingle<Pick<
-          UserProfile,
-          | "phone"
-          | "account_type"
-          | "first_name"
-          | "last_name"
-          | "full_name"
-          | "name"
-          | "company_name"
-          | "avatar_url"
-          | "city"
-        > & { is_banned?: boolean | null }>();
+    const { data: profile } = await getProfile(user.id);
 
     if (profile?.is_banned) {
       return {
@@ -2935,11 +2922,7 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
 export async function getProfileExtraSlots(userId: string): Promise<number> {
   if (!supabase || !userId) return 0;
   try {
-    const { data } = await supabase
-      .from("profiles")
-      .select("extra_listing_slots")
-      .eq("id", userId)
-      .maybeSingle<{ extra_listing_slots: number | null }>();
+    const { data } = await getProfile(userId);
     return data?.extra_listing_slots ?? 0;
   } catch {
     return 0;
@@ -3306,48 +3289,19 @@ export async function trackSiteVisit(params: {
 }) {
   if (!supabase) return;
   try {
-    await supabase.rpc("track_site_visit", {
-      p_ip: params.ip ?? null,
-      p_path: params.path ?? null,
-      p_user_agent: params.userAgent ?? null
-    });
-
-    if (params.ip) {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData.session?.access_token;
-
-      if (token) {
-        await fetch("/api/site-visit", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({ ip: params.ip })
-        }).catch(() => undefined);
-      }
-
-      const { data } = await supabase.auth.getUser();
-      const userId = data.user?.id;
-      if (userId) {
-        const current = await supabase
-          .from("profiles")
-          .select("last_ip,ip_count")
-          .eq("id", userId)
-          .maybeSingle<{ last_ip: string | null; ip_count: number | null }>();
-
-        await supabase
-          .from("profiles")
-          .update({
-            last_ip: params.ip,
-            last_seen_ip: params.ip,
-            ip_count: (current.data?.last_ip === params.ip)
-              ? (current.data?.ip_count ?? 0)
-              : (current.data?.ip_count ?? 0) + 1
-          })
-          .eq("id", userId);
-      }
-    }
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+    await fetch("/api/site-visit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({
+        path: params.path ?? null,
+        userAgent: params.userAgent ?? null
+      })
+    }).catch(() => undefined);
   } catch {
     // tracking failures are silent
   }
@@ -3371,13 +3325,15 @@ export async function getProfile(
   }
 
   try {
-
-    const result =
-      await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .maybeSingle<UserProfile>();
+    const { data, error } = await supabase.rpc("get_my_profile");
+    const profile =
+      data && typeof data === "object" && !Array.isArray(data)
+        ? data as UserProfile
+        : null;
+    const result = {
+      data: profile?.id === userId ? profile : null,
+      error
+    };
 
     if (result.data) {
 
@@ -3653,93 +3609,7 @@ export async function getPublicProfile(
 export async function upsertProfile(
   profile: UserProfileInput
 ) {
-
-  if (!supabase) {
-
-    return {
-      data: null,
-      error: new Error(
-        "Supabase ei ole konfiguroitu."
-      )
-    };
-
-  }
-
-  try {
-
-    const contactName =
-      `${profile.first_name}
-       ${profile.last_name}`
-        .replace(/\s+/g, " ")
-        .trim();
-
-    const fullName =
-      profile.account_type === "company" && profile.company_name
-        ? profile.company_name.trim()
-        : contactName;
-
-    let publicId = "";
-
-    const {
-      data: existingProfile
-    } =
-      await supabase
-        .from("profiles")
-        .select("public_id")
-        .eq("id", profile.id)
-        .maybeSingle();
-
-    if (
-      existingProfile?.public_id
-    ) {
-
-      publicId =
-        existingProfile.public_id;
-
-    } else {
-
-      publicId =
-        `KP${Date.now()}`;
-
-    }
-
-    const result =
-      await supabase
-        .from("profiles")
-        .upsert({
-
-          ...profile,
-
-          public_id: publicId,
-
-          full_name: fullName,
-
-          name: fullName,
-
-          is_completed: true
-
-        })
-        .select()
-        .single<UserProfile>();
-
-    if (result.data) {
-
-      result.data.full_name =
-        fullName;
-
-    }
-
-    return result;
-
-  } catch (error) {
-
-    return {
-      data: null,
-      error
-    };
-
-  }
-
+  return upsertProfileFromApi(profile);
 }
 
 export async function upsertProfileFromApi(
@@ -3863,12 +3733,13 @@ export async function updateEditableProfile(
       }
     }
 
-    return await supabase
+    const { error } = await supabase
       .from("profiles")
       .update(updatePayload)
-      .eq("id", userId)
-      .select()
-      .single<UserProfile>();
+      .eq("id", userId);
+
+    if (error) return { data: null, error };
+    return await getProfile(userId);
 
   } catch (error) {
 
@@ -6278,11 +6149,7 @@ export async function getMyReferralStats(userId: string): Promise<{
 }> {
   if (!supabase) return { points: 0, referralCode: null, referrals: [] };
   try {
-    const profileResult = await supabase
-      .from("profiles")
-      .select("points, referral_code")
-      .eq("id", userId)
-      .maybeSingle<Pick<UserProfile, "points" | "referral_code">>();
+    const profileResult = await getProfile(userId);
 
     const referralsResult = await supabase
       .from("referrals")
@@ -6338,35 +6205,26 @@ export async function spendUserPoints(
   if (!supabase || !userId) return { success: false, points: 0, error: "no_supabase" };
 
   try {
-    const profileResult = await supabase
-      .from("profiles")
-      .select("points")
-      .eq("id", userId)
-      .maybeSingle<Pick<UserProfile, "points">>();
-
-    if (profileResult.error) {
-      return { success: false, points: 0, error: profileResult.error.message };
+    const normalizedCost = Math.trunc(cost);
+    if (!Number.isFinite(normalizedCost) || normalizedCost < 1) {
+      return { success: false, points: 0, error: "invalid_cost" };
     }
 
-    const currentPoints = profileResult.data?.points ?? 0;
+    const { data, error } = await supabase.rpc("spend_profile_points", {
+      p_cost: normalizedCost
+    });
+    if (error) return { success: false, points: 0, error: error.message };
 
-    if (currentPoints < cost) {
-      return { success: false, points: currentPoints, error: "not_enough_points" };
-    }
-
-    const nextPoints = currentPoints - cost;
-    const updateResult = await supabase
-      .from("profiles")
-      .update({ points: nextPoints })
-      .eq("id", userId)
-      .select("points")
-      .single<Pick<UserProfile, "points">>();
-
-    if (updateResult.error) {
-      return { success: false, points: currentPoints, error: updateResult.error.message };
-    }
-
-    return { success: true, points: updateResult.data?.points ?? nextPoints };
+    const result = (data ?? {}) as {
+      success?: boolean;
+      points?: number;
+      error?: string;
+    };
+    return {
+      success: Boolean(result.success),
+      points: Number(result.points ?? 0),
+      ...(result.error ? { error: result.error } : {})
+    };
   } catch (error) {
     return { success: false, points: 0, error: String(error) };
   }

@@ -10,23 +10,29 @@
     "empty:storage": "node scripts/empty-supabase-storage.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.4",
+    "@supabase/supabase-js": "^2.110.8",
     "lucide-react": "^0.468.0",
-    "next": "15.5.15",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "next": "15.5.21",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "^5.15.11",
     "@types/node": "^22.15.3",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
-    "@next/eslint-plugin-next": "15.5.15",
-    "@typescript-eslint/eslint-plugin": "^8.61.1",
-    "@typescript-eslint/parser": "^8.61.1",
+    "@next/eslint-plugin-next": "15.5.21",
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
     "eslint": "^9.25.1",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-config-next": "15.5.15",
+    "eslint-config-next": "15.5.21",
     "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "brace-expansion@5.0.6": "5.0.8",
+    "js-yaml": "4.3.0",
+    "postcss": "8.5.23",
+    "sharp": "0.35.3"
   }
 }

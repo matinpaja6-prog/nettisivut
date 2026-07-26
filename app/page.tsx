@@ -61,11 +61,18 @@ import {
   FINLAND_REGIONS
 } from "@/lib/finland-locations";
 import {
+  SWEDEN_COUNTIES,
+  SWEDEN_MUNICIPALITIES,
+  SWEDEN_MUNICIPALITIES_BY_COUNTY
+} from "@/lib/sweden-locations";
+import {
   LOCATION_COUNTRIES,
   countryFlagEmoji,
+  getSwedenLocationName,
   listingMatchesLocationFilter,
   parseLocationFilter,
   serializeLocationFilter,
+  toSwedenLocationValue,
   type LocationFilterSelection
 } from "@/lib/location-filter";
 import {
@@ -732,6 +739,8 @@ type LocationMultiSelectOption = {
   action?: boolean;
   level?: number;
   actionLevel?: number;
+  countryCode?: "FI" | "SE";
+  targetSection?: string;
 };
 
 function LocationMultiSelectField({
@@ -744,7 +753,10 @@ function LocationMultiSelectField({
   disabled = false,
   onToggleOpen,
   onToggle,
-  onClear
+  onClear,
+  selectedCountLabel,
+  emptyLabel,
+  clearLabel
 }: {
   label: string;
   placeholder: string;
@@ -756,14 +768,34 @@ function LocationMultiSelectField({
   onToggleOpen: () => void;
   onToggle: (value: string) => void;
   onClear: () => void;
+  selectedCountLabel: (count: number) => string;
+  emptyLabel: string;
+  clearLabel: string;
 }) {
   const fieldRef = useRef<HTMLDivElement>(null);
   const optionListRef = useRef<HTMLDivElement>(null);
   const [searchValue, setSearchValue] = useState("");
   const [visibleLocationLevel, setVisibleLocationLevel] = useState(0);
   const normalizedSearch = searchValue.trim().toLocaleLowerCase("fi");
+  const selectedCountryCodes = selected
+    .filter((value) => value.startsWith("country:"))
+    .map((value) => value.slice("country:".length))
+    .filter((value): value is "FI" | "SE" => value === "FI" || value === "SE");
+  const visibleCountryCodes: Array<"FI" | "SE"> =
+    selectedCountryCodes.length > 0 ? selectedCountryCodes : ["FI", "SE"];
   const availableOptions = options.filter(
-    (option) => (option.level ?? 0) <= visibleLocationLevel
+    (option) =>
+      (option.level ?? 0) === 0 ||
+      (
+        (option.level ?? 0) <= visibleLocationLevel &&
+        (
+          option.action ||
+          (
+            option.countryCode !== undefined &&
+            visibleCountryCodes.includes(option.countryCode)
+          )
+        )
+      )
   );
   const filteredOptions = normalizedSearch
     ? options.filter((option) =>
@@ -771,9 +803,9 @@ function LocationMultiSelectField({
       )
     : availableOptions;
   const listOptions = filteredOptions.filter((option) => !option.action);
-  const nextActionOption = normalizedSearch
-    ? undefined
-    : availableOptions.find(
+  const nextActionOptions = normalizedSearch
+    ? []
+    : availableOptions.filter(
         (option) =>
           option.action &&
           option.actionLevel !== undefined &&
@@ -786,7 +818,7 @@ function LocationMultiSelectField({
     ? placeholder
     : selectedLabels.length === 1
       ? selectedLabels[0]
-      : `${selectedLabels.length} valittu`;
+      : selectedCountLabel(selectedLabels.length);
 
   useEffect(() => {
     if (!open) {
@@ -796,12 +828,17 @@ function LocationMultiSelectField({
   }, [open]);
 
   useEffect(() => {
-    if (selected.some((value) => value.startsWith("municipality:"))) {
-      setVisibleLocationLevel(2);
-    } else if (selected.some((value) => value.startsWith("region:"))) {
-      setVisibleLocationLevel((current) => Math.max(current, 1));
-    }
-  }, [selected]);
+    const selectedLevels = options
+      .filter(
+        (option) =>
+          selected.includes(option.value) &&
+          (option.level ?? 0) > 0
+      )
+      .map((option) => option.level ?? 0);
+    if (selectedLevels.length === 0) return;
+
+    setVisibleLocationLevel((current) => Math.max(current, ...selectedLevels));
+  }, [options, selected]);
 
   useEffect(() => {
     if (!open) return;
@@ -833,9 +870,15 @@ function LocationMultiSelectField({
     setVisibleLocationLevel(option.actionLevel);
     onToggle(option.value);
 
-    const targetSection = option.actionLevel === 1
-      ? "Suomen alueet"
-      : "Kaupungit ja kunnat";
+    const targetSection = option.targetSection ?? options.find(
+      (candidate) =>
+        !candidate.action &&
+        candidate.section &&
+        candidate.level === option.actionLevel &&
+        candidate.countryCode &&
+        visibleCountryCodes.includes(candidate.countryCode)
+    )?.section;
+    if (!targetSection) return;
 
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
@@ -926,25 +969,29 @@ function LocationMultiSelectField({
                 </div>
               );
             }) : (
-              <span className={styles.heroFilterMenuEmpty}>Ei hakutuloksia</span>
+              <span className={styles.heroFilterMenuEmpty}>{emptyLabel}</span>
             )}
-            {nextActionOption ? (
-              <div className={styles.locationOptionActionGroup}>
-                <button
-                  type="button"
-                  className={`${styles.locationMultiOption} ${styles.locationMultiAction}`}
-                  onClick={() => openLocationLevel(nextActionOption)}
-                >
-                  <span>{nextActionOption.label}</span>
-                  <span className={styles.locationActionArrow} aria-hidden="true">→</span>
-                </button>
-              </div>
-            ) : null}
           </div>
-          {selected.length > 0 ? (
-            <button type="button" className={styles.locationClearSelection} onClick={onClear}>
-              Tyhjennä valinnat
-            </button>
+          {nextActionOptions.length > 0 || selected.length > 0 ? (
+            <div className={styles.locationMenuFooter}>
+              {nextActionOptions.map((actionOption) => (
+                <div className={styles.locationOptionActionGroup} key={actionOption.value}>
+                  <button
+                    type="button"
+                    className={`${styles.locationMultiOption} ${styles.locationMultiAction}`}
+                    onClick={() => openLocationLevel(actionOption)}
+                  >
+                    <span>{actionOption.label}</span>
+                    <span className={styles.locationActionArrow} aria-hidden="true">→</span>
+                  </button>
+                </div>
+              ))}
+              {selected.length > 0 ? (
+                <button type="button" className={styles.locationClearSelection} onClick={onClear}>
+                  {clearLabel}
+                </button>
+              ) : null}
+            </div>
           ) : null}
         </div>
       ) : null}
@@ -1052,6 +1099,76 @@ function compactSearchText(value?: string | null) {
   return normalizeSearchText(value).replace(/\s+/g, "");
 }
 
+const MARKETPLACE_SEARCH_TERM_GROUPS: readonly (readonly string[])[] = [
+  ["moottori", "moottorit", "moottorin", "moottoreita", "motor", "motorer", "motorn", "motorerna", "engine", "engines"],
+  ["telamatto", "telamatot", "telamaton", "telamattoa", "drivmatta", "drivmattor", "drivmattan", "track", "tracks"],
+  ["kytkin", "kytkimet", "koppling", "kopplingar", "clutch", "clutches"],
+  ["variaattori", "variaattorit", "variator", "variatorer"],
+  ["telasto", "telastot", "boggi", "boggier", "bogie", "suspension"],
+  ["suksi", "sukset", "skida", "skidor", "ski", "skis"],
+  ["iskunvaimennin", "iskunvaimentimet", "iskari", "iskarit", "stötdämpare", "stotdampare", "shock", "shocks"],
+  ["jarru", "jarrut", "broms", "bromsar", "brake", "brakes"],
+  ["pakoputki", "pakoputkisto", "avgassystem", "avgasrör", "avgasror", "exhaust"],
+  ["tuulilasi", "tuulilasit", "vindruta", "vindrutor", "windshield"],
+  ["istuin", "istuimet", "penkki", "penkit", "säte", "sate", "säten", "seat", "seats"],
+  ["rengas", "renkaat", "däck", "dack", "däcken", "tire", "tires"],
+  ["vanne", "vanteet", "fälg", "falg", "fälgar", "rim", "rims"],
+  ["sähkö", "sahko", "elsystem", "elektrisk", "electric", "electrical"],
+  ["sytytys", "tändning", "tandning", "ignition"],
+  ["jäähdytys", "jaahdytys", "kylning", "cooling"],
+  ["polttoaine", "polttoainejärjestelmä", "bränsle", "bransle", "fuel"],
+  ["runko", "rungot", "ram", "ramar", "frame", "frames"],
+  ["kate", "katteet", "kåpa", "kapa", "kåpor", "bodywork", "fairing", "fairings"]
+].map((group) => group.map((term) => normalizeSearchText(term)));
+
+const MARKETPLACE_SEARCH_ALIASES = new Map<string, readonly string[]>(
+  MARKETPLACE_SEARCH_TERM_GROUPS.flatMap((group) =>
+    group.map((term) => [term, group] as const)
+  )
+);
+
+function sharedSearchPrefixLength(first: string, second: string) {
+  const limit = Math.min(first.length, second.length);
+  let index = 0;
+
+  while (index < limit && first[index] === second[index]) index += 1;
+  return index;
+}
+
+function searchWordsMatch(haystackWord: string, queryWord: string) {
+  if (haystackWord === queryWord) return true;
+
+  // Engine searches must not turn into a match for every snowmobile merely
+  // because the vehicle type contains the word "moottori".
+  if (
+    MARKETPLACE_SEARCH_ALIASES.get(queryWord)?.includes("moottori") &&
+    haystackWord.startsWith("moottorikelk")
+  ) {
+    return false;
+  }
+
+  const queryAlternatives = MARKETPLACE_SEARCH_ALIASES.get(queryWord) ?? [queryWord];
+
+  return queryAlternatives.some((alternative) => {
+    if (haystackWord === alternative) return true;
+    if (
+      alternative.length >= 4 &&
+      (haystackWord.startsWith(alternative) || alternative.startsWith(haystackWord))
+    ) {
+      return true;
+    }
+
+    const sharedPrefixLength = sharedSearchPrefixLength(haystackWord, alternative);
+    const shorterLength = Math.min(haystackWord.length, alternative.length);
+
+    return (
+      shorterLength >= 5 &&
+      sharedPrefixLength >= Math.max(5, shorterLength - 3) &&
+      sharedPrefixLength / shorterLength >= 0.7
+    );
+  });
+}
+
 function isMoreSpecificModelVariant(candidate: string, selectedModel: string) {
   const candidateText = normalizeSearchText(candidate);
   const selectedText = normalizeSearchText(selectedModel);
@@ -1076,15 +1193,21 @@ function textMatchesSearch(haystack: string, needle: string) {
   if (!normalizedNeedle) return true;
 
   const normalizedHaystack = normalizeSearchText(haystack);
+  const haystackWords = normalizedHaystack.split(" ").filter(Boolean);
+  const queryWords = normalizedNeedle.split(" ").filter(Boolean);
 
-  // "moottori" is a part/category search, not a shorthand for
-  // "moottorikelkka". A plain substring check otherwise matches every
-  // snowmobile listing that happens to mention its vehicle type.
-  if (normalizedNeedle === "moottori") {
-    return normalizedHaystack.split(" ").some((word) =>
-      word === "moottori" ||
-      (word.startsWith("moottori") && !word.startsWith("moottorikelk"))
-    );
+  if (queryWords.every((queryWord) =>
+    haystackWords.some((haystackWord) => searchWordsMatch(haystackWord, queryWord))
+  )) {
+    return true;
+  }
+
+  if (
+    queryWords.some((queryWord) =>
+      MARKETPLACE_SEARCH_ALIASES.get(queryWord)?.includes("moottori")
+    )
+  ) {
+    return false;
   }
 
   return (
@@ -1113,30 +1236,30 @@ function allSearchWordsMatch(haystack: string, needle: string) {
 }
 
 const SUBCATEGORY_GROUP_SEARCH_TERMS: Record<string, readonly string[]> = {
-  "Moottorit": ["moottori", "moottorit"],
-  "Kytkimet": ["kytkin", "kytkimet"],
-  "Variaattorit": ["variaattori", "variaattorit"],
-  "Voimansiirto": ["voimansiirto"],
-  "Telasto": ["telasto"],
-  "Renkaat & vanteet": ["rengas", "renkaat", "vanne", "vanteet"],
-  "Alusta": ["alusta"],
-  "Tukivarret": ["tukivarsi", "tukivarret"],
-  "Iskunvaimentimet": ["iskunvaimennin", "iskunvaimentimet", "iskari", "iskarit"],
-  "Ohjaus akseli": ["ohjaus", "ohjausakseli"],
-  "Hallintalaitteet": ["hallintalaite", "hallintalaitteet"],
-  "Jarrut": ["jarru", "jarrut"],
-  "Sukset": ["suksi", "sukset"],
-  "Sähkö": ["sähkö"],
-  "Sytytys": ["sytytys"],
-  "Jäähdytys": ["jäähdytys"],
-  "Polttoainejärjestelmä": ["polttoaine", "polttoainejärjestelmä"],
-  "Pakoputkisto": ["pakoputki", "pakoputkisto"],
-  "Runko": ["runko"],
-  "Katteet": ["kate", "katteet"],
-  "Etupuskurit": ["etupuskuri", "etupuskurit"],
-  "Takapuskurit": ["takapuskuri", "takapuskurit"],
-  "Istuimet & penkit": ["istuin", "istuimet", "penkki", "penkit"],
-  "Tuulilasit": ["tuulilasi", "tuulilasit"]
+  "Moottorit": ["moottori", "moottorit", "motor", "motorer", "engine", "engines"],
+  "Kytkimet": ["kytkin", "kytkimet", "koppling", "kopplingar", "clutch", "clutches"],
+  "Variaattorit": ["variaattori", "variaattorit", "variator", "variatorer"],
+  "Voimansiirto": ["voimansiirto", "drivlina", "drivetrain"],
+  "Telasto": ["telasto", "boggi", "boggier", "bogie", "suspension"],
+  "Renkaat & vanteet": ["rengas", "renkaat", "vanne", "vanteet", "däck", "dack", "fälg", "falg", "tire", "rim"],
+  "Alusta": ["alusta", "chassi", "chassis"],
+  "Tukivarret": ["tukivarsi", "tukivarret", "länkarm", "lankarm", "control arm"],
+  "Iskunvaimentimet": ["iskunvaimennin", "iskunvaimentimet", "iskari", "iskarit", "stötdämpare", "stotdampare", "shock"],
+  "Ohjaus akseli": ["ohjaus", "ohjausakseli", "styrning", "styraxel", "steering"],
+  "Hallintalaitteet": ["hallintalaite", "hallintalaitteet", "reglage", "controls"],
+  "Jarrut": ["jarru", "jarrut", "broms", "bromsar", "brake", "brakes"],
+  "Sukset": ["suksi", "sukset", "skida", "skidor", "ski", "skis"],
+  "Sähkö": ["sähkö", "elsystem", "elektrisk", "electrical"],
+  "Sytytys": ["sytytys", "tändning", "tandning", "ignition"],
+  "Jäähdytys": ["jäähdytys", "kylning", "cooling"],
+  "Polttoainejärjestelmä": ["polttoaine", "polttoainejärjestelmä", "bränsle", "bransle", "fuel"],
+  "Pakoputkisto": ["pakoputki", "pakoputkisto", "avgassystem", "avgasrör", "avgasror", "exhaust"],
+  "Runko": ["runko", "ram", "frame"],
+  "Katteet": ["kate", "katteet", "kåpa", "kapa", "bodywork", "fairing"],
+  "Etupuskurit": ["etupuskuri", "etupuskurit", "främre stötfångare", "front bumper"],
+  "Takapuskurit": ["takapuskuri", "takapuskurit", "bakre stötfångare", "rear bumper"],
+  "Istuimet & penkit": ["istuin", "istuimet", "penkki", "penkit", "säte", "sate", "seat"],
+  "Tuulilasit": ["tuulilasi", "tuulilasit", "vindruta", "vindrutor", "windshield"]
 };
 
 function getSubcategoryGroupSearchScope(queryText: string) {
@@ -1543,11 +1666,21 @@ function HomeContent() {
     () => parseLocationFilter(locationQuery),
     [locationQuery]
   );
+  const selectedFinlandRegions = useMemo(
+    () => locationSelection.regions.filter((region) => !getSwedenLocationName(region)),
+    [locationSelection.regions]
+  );
+  const selectedSwedenCounties = useMemo(
+    () => locationSelection.regions
+      .map(getSwedenLocationName)
+      .filter((county): county is string => Boolean(county)),
+    [locationSelection.regions]
+  );
   const locationMunicipalityOptions = useMemo(
     () => [...(
-      locationSelection.regions.length > 0
+      selectedFinlandRegions.length > 0
         ? Array.from(new Set(
-            locationSelection.regions.flatMap(
+            selectedFinlandRegions.flatMap(
               (region) => FINLAND_MUNICIPALITIES_BY_REGION[region] ?? []
             )
           ))
@@ -1555,7 +1688,124 @@ function HomeContent() {
     )].sort((first, second) =>
       first.localeCompare(second, "fi", { sensitivity: "base" })
     ),
-    [locationSelection.regions]
+    [selectedFinlandRegions]
+  );
+  const swedenMunicipalityOptions = useMemo(
+    () => [...(
+      selectedSwedenCounties.length > 0
+        ? Array.from(new Set(
+            selectedSwedenCounties.flatMap(
+              (county) => SWEDEN_MUNICIPALITIES_BY_COUNTY[county] ?? []
+            )
+          ))
+        : SWEDEN_MUNICIPALITIES
+    )].sort((first, second) =>
+      first.localeCompare(second, "sv", { sensitivity: "base" })
+    ),
+    [selectedSwedenCounties]
+  );
+  const locationFilterCopy = useMemo(() => ({
+    fi: {
+      location: "Sijainti",
+      allLocations: "Kaikki sijainnit",
+      searchPlaceholder: "Hae maata, aluetta tai kuntaa",
+      noResults: "Ei hakutuloksia",
+      clearSelections: "Tyhjennä valinnat",
+      selectedCount: (count: number) => `${count} valittu`,
+      countries: "Maat",
+      countryNames: { FI: "Suomi", SE: "Ruotsi" },
+      chooseRegions: "Valitse alue",
+      chooseMunicipalities: "Valitse kaupunki tai kunta",
+      finlandRegions: "Suomen alueet",
+      finlandMunicipalities: "Suomen kaupungit ja kunnat",
+      swedenRegions: "Ruotsin läänit",
+      swedenMunicipalities: "Ruotsin kaupungit ja kunnat"
+    },
+    en: {
+      location: "Location",
+      allLocations: "All locations",
+      searchPlaceholder: "Search for a country, region or municipality",
+      noResults: "No results",
+      clearSelections: "Clear selections",
+      selectedCount: (count: number) => `${count} selected`,
+      countries: "Countries",
+      countryNames: { FI: "Finland", SE: "Sweden" },
+      chooseRegions: "Choose a region",
+      chooseMunicipalities: "Choose a city or municipality",
+      finlandRegions: "Regions of Finland",
+      finlandMunicipalities: "Cities and municipalities of Finland",
+      swedenRegions: "Counties of Sweden",
+      swedenMunicipalities: "Cities and municipalities of Sweden"
+    },
+    sv: {
+      location: "Plats",
+      allLocations: "Alla platser",
+      searchPlaceholder: "Sök land, område eller kommun",
+      noResults: "Inga sökresultat",
+      clearSelections: "Rensa val",
+      selectedCount: (count: number) => `${count} valda`,
+      countries: "Länder",
+      countryNames: { FI: "Finland", SE: "Sverige" },
+      chooseRegions: "Välj område",
+      chooseMunicipalities: "Välj stad eller kommun",
+      finlandRegions: "Finlands regioner",
+      finlandMunicipalities: "Finlands städer och kommuner",
+      swedenRegions: "Sveriges län",
+      swedenMunicipalities: "Sveriges städer och kommuner"
+    }
+  })[locale], [locale]);
+  const locationFilterOptions = useMemo<LocationMultiSelectOption[]>(
+    () => [
+      ...LOCATION_COUNTRIES.map((country) => ({
+        value: `country:${country.value}`,
+        label: locationFilterCopy.countryNames[country.value as "FI" | "SE"],
+        section: locationFilterCopy.countries,
+        level: 0
+      })),
+      {
+        value: "action:regions",
+        label: locationFilterCopy.chooseRegions,
+        action: true,
+        level: 0,
+        actionLevel: 1
+      },
+      ...FINLAND_REGIONS.map((region) => ({
+        value: `region:${region}`,
+        label: region,
+        section: locationFilterCopy.finlandRegions,
+        level: 1,
+        countryCode: "FI" as const
+      })),
+      ...SWEDEN_COUNTIES.map((county) => ({
+        value: `region:${toSwedenLocationValue(county)}`,
+        label: county,
+        section: locationFilterCopy.swedenRegions,
+        level: 1,
+        countryCode: "SE" as const
+      })),
+      {
+        value: "action:municipalities",
+        label: locationFilterCopy.chooseMunicipalities,
+        action: true,
+        level: 1,
+        actionLevel: 2
+      },
+      ...locationMunicipalityOptions.map((municipality) => ({
+        value: `municipality:${municipality}`,
+        label: municipality,
+        section: locationFilterCopy.finlandMunicipalities,
+        level: 2,
+        countryCode: "FI" as const
+      })),
+      ...swedenMunicipalityOptions.map((municipality) => ({
+        value: `municipality:${toSwedenLocationValue(municipality)}`,
+        label: municipality,
+        section: locationFilterCopy.swedenMunicipalities,
+        level: 2,
+        countryCode: "SE" as const
+      }))
+    ],
+    [locationFilterCopy, locationMunicipalityOptions, swedenMunicipalityOptions]
   );
   const [yearQuery, setYearQuery] = useState("");
   const [yearMinQuery, setYearMinQuery] = useState("");
@@ -4094,16 +4344,50 @@ function HomeContent() {
       [group]: nextValues
     };
 
-    if (group === "countries" && value === "FI" && !nextValues.includes("FI")) {
-      nextSelection.regions = [];
-      nextSelection.municipalities = [];
+    if (group === "countries" && !nextValues.includes(value)) {
+      if (value === "FI") {
+        nextSelection.regions = nextSelection.regions.filter(getSwedenLocationName);
+        nextSelection.municipalities = nextSelection.municipalities.filter(getSwedenLocationName);
+      } else if (value === "SE") {
+        nextSelection.regions = nextSelection.regions.filter(
+          (region) => !getSwedenLocationName(region)
+        );
+        nextSelection.municipalities = nextSelection.municipalities.filter(
+          (municipality) => !getSwedenLocationName(municipality)
+        );
+      }
     }
 
-    if (group !== "countries" && !nextSelection.countries.includes("FI")) {
-      nextSelection.countries = [...nextSelection.countries, "FI"];
+    if (group !== "countries") {
+      const countryCode = getSwedenLocationName(value) ? "SE" : "FI";
+      if (!nextSelection.countries.includes(countryCode)) {
+        nextSelection.countries = [...nextSelection.countries, countryCode];
+      }
     }
 
     updateLocationSelection(nextSelection);
+  }
+
+  function toggleLocationFilterValue(value: string) {
+    const firstSeparatorIndex = value.indexOf(":");
+    const group = value.slice(0, firstSeparatorIndex);
+    const selectionValue = value.slice(firstSeparatorIndex + 1);
+
+    if (group === "action") {
+      const countryCode = selectionValue.slice(0, 2);
+      if (
+        (countryCode === "FI" || countryCode === "SE") &&
+        !locationSelection.countries.includes(countryCode)
+      ) {
+        toggleLocationSelection("countries", countryCode);
+      }
+    } else if (group === "country") {
+      toggleLocationSelection("countries", selectionValue);
+    } else if (group === "region") {
+      toggleLocationSelection("regions", selectionValue);
+    } else if (group === "municipality") {
+      toggleLocationSelection("municipalities", selectionValue);
+    }
   }
 
   function clearLocationSelection(group: keyof LocationFilterSelection) {
@@ -4194,7 +4478,19 @@ function HomeContent() {
         <div data-home-background-container className={styles.container}>
   <section data-home-hero className={styles.hero} aria-label="Hero">
     <div data-home-layout className={styles.heroInner}>
-      <div data-home-results-mode={homeLatestExpanded ? "true" : "false"} className={styles.heroLeadPanel}>
+      <div
+        id={
+          homeLatestExpanded && hasAppliedListingFilters
+            ? "home-filtered-results-column"
+            : undefined
+        }
+        data-home-results-mode={homeLatestExpanded ? "true" : "false"}
+        className={
+          homeLatestExpanded && hasAppliedListingFilters
+            ? `${styles.heroLeadPanel} ${styles.heroLeadPanelFiltered}`
+            : styles.heroLeadPanel
+        }
+      >
         <div data-home-intro-showcase className={styles.heroShowcase}>
           <div data-home-hero-copy className={styles.heroShowcaseCopy}>
             <h1 data-home-headline className={styles.heroHeadline}>
@@ -4230,7 +4526,15 @@ function HomeContent() {
                 </div>
               </div>
 
-              <div data-home-results-search className={styles.heroMainSearchPanel}>
+              <div
+                id={
+                  homeLatestExpanded && hasAppliedListingFilters
+                    ? "home-filtered-results-search"
+                    : undefined
+                }
+                data-home-results-search
+                className={styles.heroMainSearchPanel}
+              >
                 <form
                   className={styles.heroMainSearch}
                   role="search"
@@ -4310,10 +4614,26 @@ function HomeContent() {
                 </button>
               ) : null}
 
-              <div data-home-results-list className={styles.heroDesktopLatest}>
+              <div
+                id={
+                  homeLatestExpanded && hasAppliedListingFilters
+                    ? "home-filtered-results-list"
+                    : undefined
+                }
+                data-home-results-list
+                className={styles.heroDesktopLatest}
+              >
                 {!hasNoHomeSearchResults ? (
                 <div className={styles.heroDesktopLatestHead}>
-                  {!homeLatestExpanded ? <strong>Viimeisimmät ilmoitukset</strong> : <span aria-hidden="true" />}
+                  <strong>
+                    {!homeLatestExpanded
+                      ? "Viimeisimmät ilmoitukset"
+                      : locale === "sv"
+                        ? `${filteredListings.length} sökresultat`
+                        : locale === "en"
+                          ? `${filteredListings.length} ${filteredListings.length === 1 ? "result" : "results"}`
+                          : `${filteredListings.length} ${filteredListings.length === 1 ? "hakutulos" : "hakutulosta"}`}
+                  </strong>
                   <div className={styles.heroDesktopLatestActions}>
                     {renderSortControl(styles.heroDesktopLatestSort)}
                   </div>
@@ -4494,6 +4814,11 @@ function HomeContent() {
 
             {(!compactHeroSearch || homeSearchPanelOpen) ? (
 <aside
+  id={
+    homeLatestExpanded && hasAppliedListingFilters
+      ? "home-filtered-filter-rail"
+      : undefined
+  }
   data-home-filter-rail
   data-home-filter-sheet={compactHeroSearch ? "true" : "false"}
   className={`${styles.heroRightRail} ${styles.heroRightRailOpen} ${compactHeroSearch ? styles.mobileFilterSheet : ""} ${
@@ -4551,7 +4876,7 @@ function HomeContent() {
                         onPointerDown={(event) => event.stopPropagation()}
                         onTouchStart={(event) => event.stopPropagation()}
                       >
-                        {heroFilterFields.slice(0, 4).map((field) => (
+                        {heroFilterFields.slice(0, 2).map((field) => (
                           <div
                             key={`mobile-${field.key}`}
                             className={styles.mobileSheetField}
@@ -4592,43 +4917,10 @@ function HomeContent() {
                         ))}
 
                         <LocationMultiSelectField
-                          label="Sijainti"
-                          placeholder="Kaikki sijainnit"
-                          searchPlaceholder="Hae maata, aluetta tai kuntaa"
-                          options={[
-                            ...LOCATION_COUNTRIES.map((country) => ({
-                              value: `country:${country.value}`,
-                              label: country.label,
-                              section: "Maat",
-                              level: 0
-                            })),
-                            {
-                              value: "action:regions",
-                              label: "Valitse Suomen alue",
-                              action: true,
-                              level: 0,
-                              actionLevel: 1
-                            },
-                            ...FINLAND_REGIONS.map((region) => ({
-                              value: `region:${region}`,
-                              label: region,
-                              section: "Suomen alueet",
-                              level: 1
-                            })),
-                            {
-                              value: "action:municipalities",
-                              label: "Valitse kaupunki tai kunta",
-                              action: true,
-                              level: 1,
-                              actionLevel: 2
-                            },
-                            ...locationMunicipalityOptions.map((municipality) => ({
-                              value: `municipality:${municipality}`,
-                              label: municipality,
-                              section: "Kaupungit ja kunnat",
-                              level: 2
-                            }))
-                          ]}
+                          label={locationFilterCopy.location}
+                          placeholder={locationFilterCopy.allLocations}
+                          searchPlaceholder={locationFilterCopy.searchPlaceholder}
+                          options={locationFilterOptions}
                           selected={[
                             ...locationSelection.countries.map((value) => `country:${value}`),
                             ...locationSelection.regions.map((value) => `region:${value}`),
@@ -4640,23 +4932,7 @@ function HomeContent() {
                               current === "mobileLocation" ? null : "mobileLocation"
                             )
                           }
-                          onToggle={(value) => {
-                            const separatorIndex = value.indexOf(":");
-                            const group = value.slice(0, separatorIndex);
-                            const selectionValue = value.slice(separatorIndex + 1);
-                            if (
-                              group === "action" &&
-                              !locationSelection.countries.includes("FI")
-                            ) {
-                              toggleLocationSelection("countries", "FI");
-                            } else if (group === "country") {
-                              toggleLocationSelection("countries", selectionValue);
-                            } else if (group === "region") {
-                              toggleLocationSelection("regions", selectionValue);
-                            } else if (group === "municipality") {
-                              toggleLocationSelection("municipalities", selectionValue);
-                            }
-                          }}
+                          onToggle={toggleLocationFilterValue}
                           onClear={() =>
                             updateLocationSelection({
                               countries: [],
@@ -4664,7 +4940,43 @@ function HomeContent() {
                               municipalities: []
                             })
                           }
+                          selectedCountLabel={locationFilterCopy.selectedCount}
+                          emptyLabel={locationFilterCopy.noResults}
+                          clearLabel={locationFilterCopy.clearSelections}
                         />
+
+                        {heroFilterFields.slice(2, 4).map((field) => (
+                          <div
+                            key={`mobile-${field.key}`}
+                            className={styles.mobileSheetField}
+                          >
+                            <span>{field.label}</span>
+                            <button
+                              type="button"
+                              className={styles.mobileSheetSelect}
+                              onClick={(event) => toggleMobileHeroFilter(field.key, event.currentTarget.parentElement ?? event.currentTarget)}
+                            >
+                              <strong>{field.value}</strong>
+                              <ChevronDown size={15} aria-hidden="true" />
+                            </button>
+                            {activeHeroFilter === field.key ? (
+                              <div className={styles.mobileSheetMenu}>
+                                {field.options.length ? field.options.map((option) => (
+                                  <button
+                                    key={`mobile-${field.key}-${option.value || "all"}`}
+                                    type="button"
+                                    onClick={() => {
+                                      field.onSelect(option.value);
+                                      setActiveHeroFilter(null);
+                                    }}
+                                  >
+                                    {option.label}
+                                  </button>
+                                )) : <span>Ei valintoja</span>}
+                              </div>
+                            ) : null}
+                          </div>
+                        ))}
 
                         <div className={styles.mobileSheetField}>
                           <span>Vuosimalli</span>
@@ -4959,7 +5271,7 @@ function HomeContent() {
                     </div>
 
                     <div className={styles.heroFilterStack} aria-label="Hakuehdot">
-                      {heroRailFilterFields.map((field) => (
+                      {heroRailFilterFields.slice(0, 2).map((field) => (
                         <div key={field.key} className={styles.heroFilterFieldWrap}>
                           <span className={styles.heroFilterLabel}>{field.label}</span>
                           <button
@@ -4992,43 +5304,10 @@ function HomeContent() {
                         </div>
                       ))}
                       <LocationMultiSelectField
-                        label="Sijainti"
-                        placeholder="Kaikki sijainnit"
-                        searchPlaceholder="Hae maata, aluetta tai kuntaa"
-                        options={[
-                          ...LOCATION_COUNTRIES.map((country) => ({
-                            value: `country:${country.value}`,
-                            label: country.label,
-                            section: "Maat",
-                            level: 0
-                          })),
-                          {
-                            value: "action:regions",
-                            label: "Valitse Suomen alue",
-                            action: true,
-                            level: 0,
-                            actionLevel: 1
-                          },
-                          ...FINLAND_REGIONS.map((region) => ({
-                            value: `region:${region}`,
-                            label: region,
-                            section: "Suomen alueet",
-                            level: 1
-                          })),
-                          {
-                            value: "action:municipalities",
-                            label: "Valitse kaupunki tai kunta",
-                            action: true,
-                            level: 1,
-                            actionLevel: 2
-                          },
-                          ...locationMunicipalityOptions.map((municipality) => ({
-                            value: `municipality:${municipality}`,
-                            label: municipality,
-                            section: "Kaupungit ja kunnat",
-                            level: 2
-                          }))
-                        ]}
+                        label={locationFilterCopy.location}
+                        placeholder={locationFilterCopy.allLocations}
+                        searchPlaceholder={locationFilterCopy.searchPlaceholder}
+                        options={locationFilterOptions}
                         selected={[
                           ...locationSelection.countries.map((value) => `country:${value}`),
                           ...locationSelection.regions.map((value) => `region:${value}`),
@@ -5040,23 +5319,7 @@ function HomeContent() {
                             current === "locationCountries" ? null : "locationCountries"
                           )
                         }
-                        onToggle={(value) => {
-                          const separatorIndex = value.indexOf(":");
-                          const group = value.slice(0, separatorIndex);
-                          const selectionValue = value.slice(separatorIndex + 1);
-                          if (
-                            group === "action" &&
-                            !locationSelection.countries.includes("FI")
-                          ) {
-                            toggleLocationSelection("countries", "FI");
-                          } else if (group === "country") {
-                            toggleLocationSelection("countries", selectionValue);
-                          } else if (group === "region") {
-                            toggleLocationSelection("regions", selectionValue);
-                          } else if (group === "municipality") {
-                            toggleLocationSelection("municipalities", selectionValue);
-                          }
-                        }}
+                        onToggle={toggleLocationFilterValue}
                         onClear={() =>
                           updateLocationSelection({
                             countries: [],
@@ -5064,7 +5327,42 @@ function HomeContent() {
                             municipalities: []
                           })
                         }
+                        selectedCountLabel={locationFilterCopy.selectedCount}
+                        emptyLabel={locationFilterCopy.noResults}
+                        clearLabel={locationFilterCopy.clearSelections}
                       />
+                      {heroRailFilterFields.slice(2).map((field) => (
+                        <div key={field.key} className={styles.heroFilterFieldWrap}>
+                          <span className={styles.heroFilterLabel}>{field.label}</span>
+                          <button
+                            type="button"
+                            className={styles.heroFilterSelect}
+                            onClick={() => setActiveHeroFilter((current) => current === field.key ? null : field.key)}
+                          >
+                            <strong>{field.value}</strong>
+                            <ChevronDown size={15} aria-hidden="true" />
+                          </button>
+                          {activeHeroFilter === field.key ? (
+                            <div className={styles.heroFilterMenu}>
+                              {field.options.length > 0 ? field.options.map((option) => (
+                                <button
+                                  key={`${field.key}-${option.value || "all"}`}
+                                  type="button"
+                                  className={styles.heroFilterMenuOption}
+                                  onClick={() => {
+                                    field.onSelect(option.value);
+                                    setActiveHeroFilter(null);
+                                  }}
+                                >
+                                  {option.label}
+                                </button>
+                              )) : (
+                                <span className={styles.heroFilterMenuEmpty}>Ei valintoja</span>
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+                      ))}
                       <div className={styles.heroYearRangeField}>
                         <span className={styles.heroYearRangeLabel}>Vuosimalli</span>
                         <div className={styles.heroYearBoxes}>

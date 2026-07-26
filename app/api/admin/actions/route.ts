@@ -33,11 +33,12 @@ function getClient(key: string) {
   });
 }
 
-function storageObjectFromPublicUrl(value: string) {
+function storageObjectFromPublicUrl(value: string, ownerId?: string | null) {
   if (!value || value.startsWith("data:") || value.startsWith("blob:")) return null;
 
   try {
     const url = new URL(value);
+    if (!supabaseUrl || url.origin !== new URL(supabaseUrl).origin) return null;
     const parts = url.pathname.split("/").filter(Boolean);
     const objectIndex = parts.findIndex((part, index) =>
       part === "object" &&
@@ -56,13 +57,16 @@ function storageObjectFromPublicUrl(value: string) {
       .map((part) => decodeURIComponent(part))
       .join("/");
 
-    return bucket && path ? { bucket, path } : null;
+    if (bucket !== "listing-images" || !path) return null;
+    if (ownerId && path.split("/")[0] !== ownerId) return null;
+    return { bucket, path };
   } catch {
     return null;
   }
 }
 
 async function deleteListingImages(admin: ReturnType<typeof getClient>, listing: {
+  seller_id?: string | null;
   image_url?: string | null;
   image_urls?: string[] | null;
 } | null) {
@@ -73,7 +77,7 @@ async function deleteListingImages(admin: ReturnType<typeof getClient>, listing:
 
   const byBucket = new Map<string, string[]>();
   for (const url of urls) {
-    const object = storageObjectFromPublicUrl(url);
+    const object = storageObjectFromPublicUrl(url, listing?.seller_id);
     if (!object) continue;
     byBucket.set(object.bucket, [...(byBucket.get(object.bucket) ?? []), object.path]);
   }
@@ -315,9 +319,13 @@ export async function POST(request: Request) {
 
       const { data: listing, error: listingError } = await admin
         .from("listings")
-        .select("image_url,image_urls")
+        .select("seller_id,image_url,image_urls")
         .eq("id", body.listingId)
-        .maybeSingle<{ image_url: string | null; image_urls: string[] | null }>();
+        .maybeSingle<{
+          seller_id: string;
+          image_url: string | null;
+          image_urls: string[] | null;
+        }>();
 
       if (listingError) throw listingError;
 

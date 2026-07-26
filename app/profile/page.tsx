@@ -840,12 +840,10 @@ export default function ProfilePage() {
     setCompanyVerifyStatus("Lähetetään pyyntöä...");
 
     const requestedAt = new Date().toISOString();
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("profiles")
       .update({ company_verification_requested_at: requestedAt })
-      .eq("id", user.id)
-      .select()
-      .single<UserProfile>();
+      .eq("id", user.id);
 
     if (error) {
       setCompanyVerifyStatus(getErrorMessage(error));
@@ -853,8 +851,11 @@ export default function ProfilePage() {
       return;
     }
 
-    setProfile(data);
-    writeCachedResource(`profile:${user.id}`, data);
+    const { data } = await getProfile(user.id);
+    if (data) {
+      setProfile(data);
+      writeCachedResource(`profile:${user.id}`, data);
+    }
     setCompanyVerifyStatus("Vahvistuspyyntö lähetetty. Käsittelyaika on yleensä 0-2 päivää.");
     setCompanyVerifySaving(false);
     window.setTimeout(() => {

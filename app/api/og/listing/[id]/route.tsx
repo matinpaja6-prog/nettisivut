@@ -20,11 +20,24 @@ function firstListingImage(listing: {
   image_url?: string | null;
   image_urls?: string[] | null;
 }) {
-  return (
+  const fallback = absoluteSiteUrl("/maskines-share-logo.png");
+  const candidate =
     listing.image_urls?.find((url) => cleanText(url)) ||
     cleanText(listing.image_url) ||
-    absoluteSiteUrl("/maskines-share-logo.png")
-  );
+    fallback;
+
+  try {
+    const url = new URL(candidate, absoluteSiteUrl("/"));
+    const allowedOrigins = new Set([new URL(absoluteSiteUrl("/")).origin]);
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (supabaseUrl) allowedOrigins.add(new URL(supabaseUrl).origin);
+
+    return ["http:", "https:"].includes(url.protocol) && allowedOrigins.has(url.origin)
+      ? url.href
+      : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 function truncate(value: string, maxLength: number) {
