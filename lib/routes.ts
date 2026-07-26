@@ -1,44 +1,40 @@
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
 
-export type RouteLocale = "fi" | "en" | "sv" | "no" | "et";
+export type RouteLocale = "fi" | "en" | "sv";
 
 const listingSegments: Record<RouteLocale, string> = {
   fi: "ilmoitukset",
   en: "listings",
-  sv: "annonser",
-  no: "annonser",
-  et: "kuulutused"
+  sv: "annonser"
 };
 
 const profileSegments: Record<RouteLocale, string> = {
   fi: "profiili",
   en: "profile",
-  sv: "profil",
-  no: "profil",
-  et: "profiil"
+  sv: "profil"
 };
 
 const pageSegments = {
-  auth: { fi: "kirjaudu", en: "auth", sv: "logga-in", no: "logg-inn", et: "logi-sisse" },
-  sell: { fi: "myy", en: "sell", sv: "salj", no: "selg", et: "muu" },
-  garage: { fi: "talli", en: "garage", sv: "garage", no: "garasje", et: "garaaz" },
-  messages: { fi: "viestit", en: "messages", sv: "meddelanden", no: "meldinger", et: "sonumid" },
-  saved: { fi: "tallennetut", en: "saved", sv: "sparade", no: "lagret", et: "salvestatud" },
-  followed: { fi: "seuratut", en: "followed", sv: "foljer", no: "fulgte", et: "jalgitavad" },
-  "search-alerts": { fi: "hakuvahti", en: "search-alerts", sv: "sokbevakning", no: "sokevarsel", et: "otsinguvalvur" },
-  settings: { fi: "asetukset", en: "settings", sv: "installningar", no: "innstillinger", et: "seaded" },
-  "my-listings": { fi: "omat-ilmoitukset", en: "my-listings", sv: "mina-annonser", no: "mine-annonser", et: "minu-kuulutused" },
-  rewards: { fi: "palkinnot", en: "rewards", sv: "beloningar", no: "belonninger", et: "preemiad" },
-  shop: { fi: "kauppa", en: "shop", sv: "butik", no: "butikk", et: "pood" },
-  about: { fi: "meista", en: "about", sv: "om-oss", no: "om-oss", et: "meist" },
-  contact: { fi: "yhteys", en: "contact", sv: "kontakt", no: "kontakt", et: "kontakt" },
-  faq: { fi: "ukk", en: "faq", sv: "vanliga-fragor", no: "ofte-stilte-sporsmal", et: "kkk" },
-  safety: { fi: "turvallisuus", en: "safety", sv: "sakerhet", no: "sikkerhet", et: "turvalisus" },
-  terms: { fi: "ehdot", en: "terms", sv: "villkor", no: "vilkar", et: "tingimused" },
-  privacy: { fi: "tietosuoja", en: "privacy", sv: "integritet", no: "personvern", et: "privaatsus" },
-  cookies: { fi: "evasteet", en: "cookies", sv: "cookies", no: "informasjonskapsler", et: "kupsised" },
-  alerts: { fi: "halytykset", en: "alerts", sv: "aviseringar", no: "varsler", et: "teated" }
+  auth: { fi: "kirjaudu", en: "auth", sv: "logga-in" },
+  sell: { fi: "myy", en: "sell", sv: "salj" },
+  garage: { fi: "talli", en: "garage", sv: "garage" },
+  messages: { fi: "viestit", en: "messages", sv: "meddelanden" },
+  saved: { fi: "tallennetut", en: "saved", sv: "sparade" },
+  followed: { fi: "seuratut", en: "followed", sv: "foljer" },
+  "search-alerts": { fi: "hakuvahti", en: "search-alerts", sv: "sokbevakning" },
+  settings: { fi: "asetukset", en: "settings", sv: "installningar" },
+  "my-listings": { fi: "omat-ilmoitukset", en: "my-listings", sv: "mina-annonser" },
+  rewards: { fi: "palkinnot", en: "rewards", sv: "beloningar" },
+  shop: { fi: "kauppa", en: "shop", sv: "butik" },
+  about: { fi: "meista", en: "about", sv: "om-oss" },
+  contact: { fi: "yhteys", en: "contact", sv: "kontakt" },
+  faq: { fi: "ukk", en: "faq", sv: "vanliga-fragor" },
+  safety: { fi: "turvallisuus", en: "safety", sv: "sakerhet" },
+  terms: { fi: "ehdot", en: "terms", sv: "villkor" },
+  privacy: { fi: "tietosuoja", en: "privacy", sv: "integritet" },
+  cookies: { fi: "evasteet", en: "cookies", sv: "cookies" },
+  alerts: { fi: "halytykset", en: "alerts", sv: "aviseringar" }
 } satisfies Record<string, Record<RouteLocale, string>>;
 
 const localizedRouteGroups: Record<string, Record<RouteLocale, string>> = {
@@ -60,7 +56,7 @@ for (const [canonical, segments] of Object.entries(localizedRouteGroups)) {
 }
 
 function routeLocale(locale?: string | null): RouteLocale {
-  return locale === "en" || locale === "sv" || locale === "no" || locale === "et" ? locale : "fi";
+  return locale === "en" || locale === "sv" ? locale : "fi";
 }
 
 export function normalizeRouteLocale(locale?: string | null): RouteLocale {

@@ -206,40 +206,6 @@ export type PurchaseReviewRequestInput = {
   due_at?: string;
 };
 
-export type ListingCreationFeedback = {
-  id: string;
-  user_id: string;
-  user_name?: string | null;
-  user_email?: string | null;
-  listing_id: string | null;
-  listing_title?: string | null;
-  category_rating: number | null;
-  details_rating: number | null;
-  photos_rating: number | null;
-  overall_rating: number | null;
-  comment: string | null;
-  skipped: boolean;
-  listing_mode: string | null;
-  vehicle_type: string | null;
-  category: string | null;
-  subcategory: string | null;
-  created_at: string;
-};
-
-export type ListingCreationFeedbackInput = {
-  listingId?: string;
-  categoryRating?: number;
-  detailsRating?: number;
-  photosRating?: number;
-  overallRating?: number;
-  comment?: string;
-  skipped?: boolean;
-  listingMode?: string;
-  vehicleType?: string;
-  category?: string;
-  subcategory?: string;
-};
-
 export type ListingBuyerCandidate = {
   conversation_id: string;
   buyer_id: string;
@@ -641,11 +607,12 @@ const escapeIlikeTerm = (value: string) =>
   value.trim().replace(/[%_]/g, "");
 
 export type VehicleListingCounts = Record<
-  "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopot",
+  "Moottoripyörä" | "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopot",
   number
 >;
 
 const VEHICLE_LISTING_COUNT_TYPES: Record<keyof VehicleListingCounts, string[]> = {
+  Moottoripyörä: ["Moottoripyörä", "Moottoripyörät"],
   Moottorikelkka: ["Moottorikelkka", "Moottorikelkat"],
   Mönkijä: ["Mönkijä", "Mönkijät"],
   Motocross: ["Motocross"],
@@ -654,6 +621,7 @@ const VEHICLE_LISTING_COUNT_TYPES: Record<keyof VehicleListingCounts, string[]> 
 
 export async function getVehicleListingCounts() {
   const emptyCounts: VehicleListingCounts = {
+    Moottoripyörä: 0,
     Moottorikelkka: 0,
     Mönkijä: 0,
     Motocross: 0,
@@ -2703,7 +2671,7 @@ export async function signInWithGoogle(
 
 export async function resetPassword(
   email: string,
-  locale?: "fi" | "en" | "sv" | "no" | "et"
+  locale?: "fi" | "en" | "sv"
 ) {
 
   if (!supabase) {
@@ -3301,76 +3269,6 @@ export async function adminSetCompanyVerified(targetUserId: string, verified: bo
     }>();
 
   return { data: fallback.data?.company_verified_at ?? nextValue, error: fallback.error };
-}
-
-async function listingFeedbackRequest<T>(
-  method: "GET" | "POST",
-  payload?: Record<string, unknown>
-): Promise<{ data: T | null; error: unknown }> {
-  if (!supabase) return { data: null, error: "no-supabase" };
-
-  try {
-    const { data: sessionData, error: sessionError } =
-      await supabase.auth.getSession();
-
-    const token = sessionData.session?.access_token;
-    if (sessionError || !token) {
-      return { data: null, error: sessionError ?? new Error("Kirjautuminen puuttuu.") };
-    }
-
-    const response = await fetch("/api/listing-feedback", {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: method === "POST" ? JSON.stringify(payload ?? {}) : undefined
-    });
-
-    const json = await response.json().catch(() => ({})) as T & { error?: string };
-    if (!response.ok) {
-      return { data: null, error: new Error(json.error || "Palautepyyntö epäonnistui.") };
-    }
-
-    return { data: json as T, error: null };
-  } catch (error) {
-    return { data: null, error };
-  }
-}
-
-export async function shouldAskListingCreationFeedback() {
-  return listingFeedbackRequest<{ hasFeedback: boolean }>("GET");
-}
-
-export async function saveListingCreationFeedback(input: ListingCreationFeedbackInput) {
-  return listingFeedbackRequest<{ ok: boolean }>("POST", {
-    listingId: input.listingId,
-    categoryRating: input.categoryRating,
-    detailsRating: input.detailsRating,
-    photosRating: input.photosRating,
-    overallRating: input.overallRating,
-    comment: input.comment,
-    skipped: Boolean(input.skipped),
-    listingMode: input.listingMode,
-    vehicleType: input.vehicleType,
-    category: input.category,
-    subcategory: input.subcategory
-  });
-}
-
-export async function adminListListingCreationFeedback(): Promise<{
-  data: ListingCreationFeedback[];
-  error: unknown;
-}> {
-  const result = await adminActionRequest<{ data: ListingCreationFeedback[] }>(
-    "list-listing-feedback",
-    {}
-  );
-
-  return {
-    data: result.data?.data ?? [],
-    error: result.error
-  };
 }
 
 export async function trackSiteVisit(params: {
@@ -4171,7 +4069,7 @@ export async function likeSellerReview(reviewId: string) {
 
     if (!user) {
       return {
-        error: new Error("Kirjaudu sisÃ¤Ã¤n tykÃ¤tÃ¤ksesi arvostelusta.")
+        error: new Error("Kirjaudu sisään tykätäksesi arvostelusta.")
       };
     }
 
@@ -4207,7 +4105,7 @@ export async function unlikeSellerReview(reviewId: string) {
 
     if (!user) {
       return {
-        error: new Error("Kirjaudu sisÃ¤Ã¤n hallitaksesi peukkuja.")
+        error: new Error("Kirjaudu sisään hallitaksesi peukkuja.")
       };
     }
 

@@ -115,7 +115,7 @@ create table if not exists public.listings (
   listing_number bigint not null default nextval('public.listing_number_seq'),
   seller_id uuid references public.profiles(id) on delete set null,
   title text not null check (char_length(title) between 3 and 120),
-  original_language text not null default 'fi' check (original_language in ('fi', 'en', 'sv', 'no', 'et')),
+  original_language text not null default 'fi' check (original_language in ('fi', 'en', 'sv')),
   translations jsonb not null default '{}'::jsonb,
   listing_mode text not null default 'single' check (listing_mode in ('single', 'multiple')),
   price integer not null check (price >= 0),

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -257,9 +257,7 @@ const emptyAuthForm = {
 const phoneDialingOptions = [
   { country: "FI", code: "+358", flag: "🇫🇮" },
   { country: "SE", code: "+46", flag: "🇸🇪" },
-  { country: "NO", code: "+47", flag: "🇳🇴" },
   { country: "DK", code: "+45", flag: "🇩🇰" },
-  { country: "EE", code: "+372", flag: "🇪🇪" },
   { country: "PL", code: "+48", flag: "🇵🇱" },
   { country: "LV", code: "+371", flag: "🇱🇻" },
   { country: "DE", code: "+49", flag: "🇩🇪" },
@@ -269,9 +267,7 @@ const phoneDialingOptions = [
 const countryOptions = [
   "FI",
   "SE",
-  "NO",
   "DK",
-  "EE",
   "DE",
   "OTHER"
 ];
@@ -280,22 +276,20 @@ const OTHER_COUNTRY_VALUE = "OTHER";
 
 const countryNameByLocale: Record<Locale, Record<string, string>> = {
   fi: {
-    FI: "Suomi", SE: "Ruotsi", NO: "Norja", DK: "Tanska", EE: "Viro",
-    AL: "Albania", AD: "Andorra", AM: "Armenia", AT: "Itävalta", AZ: "Azerbaidžan", BY: "Valko-Venäjä",
+    FI: "Suomi", SE: "Ruotsi", DK: "Tanska",
+    AL: "Albania", AD: "Andorra", AM: "Armenia", AT: "Itävalta", AZ: "AzerbaidÅ¾an", BY: "Valko-Venäjä",
     BE: "Belgia", BA: "Bosnia ja Hertsegovina", BG: "Bulgaria", HR: "Kroatia", CY: "Kypros",
-    CZ: "Tšekki", FR: "Ranska", GE: "Georgia", DE: "Saksa", GI: "Gibraltar", GR: "Kreikka",
+    CZ: "TÅ¡ekki", FR: "Ranska", GE: "Georgia", DE: "Saksa", GI: "Gibraltar", GR: "Kreikka",
     HU: "Unkari", IS: "Islanti", IE: "Irlanti", IT: "Italia", XK: "Kosovo",
     LV: "Latvia", LI: "Liechtenstein", LT: "Liettua", LU: "Luxemburg", MT: "Malta",
     MD: "Moldova", MC: "Monaco", ME: "Montenegro", NL: "Alankomaat", MK: "Pohjois-Makedonia",
     PL: "Puola", PT: "Portugali", RO: "Romania", RU: "Venäjä", SM: "San Marino", RS: "Serbia",
     SK: "Slovakia", SI: "Slovenia", ES: "Espanja", CH: "Sveitsi", TR: "Turkki",
     UA: "Ukraina", GB: "Iso-Britannia", VA: "Vatikaani", FO: "Färsaaret",
-    OTHER: "Muu", da: "Tanska", sv: "Ruotsi", no: "Norja", ee: "Viro"
+    OTHER: "Muu", da: "Tanska", sv: "Ruotsi"
   },
-  en: { FI: "Finland", SE: "Sweden", NO: "Norway", DK: "Denmark", EE: "Estonia", DE: "Germany", OTHER: "Other", da: "Denmark", sv: "Sweden", no: "Norway", ee: "Estonia" },
-  sv: { FI: "Finland", SE: "Sverige", NO: "Norge", DK: "Danmark", EE: "Estland", DE: "Tyskland", OTHER: "Annat", da: "Danmark", sv: "Sverige", no: "Norge", ee: "Estland" },
-  no: { FI: "Finland", SE: "Sverige", NO: "Norge", DK: "Danmark", EE: "Estland", DE: "Tyskland", OTHER: "Annet", da: "Danmark", sv: "Sverige", no: "Norge", ee: "Estland" },
-  et: { FI: "Soome", SE: "Rootsi", NO: "Norra", DK: "Taani", EE: "Eesti", DE: "Saksamaa", OTHER: "Muu", da: "Taani", sv: "Rootsi", no: "Norra", ee: "Eesti" }
+  en: { FI: "Finland", SE: "Sweden", DK: "Denmark", DE: "Germany", OTHER: "Other", da: "Denmark", sv: "Sweden" },
+  sv: { FI: "Finland", SE: "Sverige", DK: "Danmark", DE: "Tyskland", OTHER: "Annat", da: "Danmark", sv: "Sverige" },
 };
 
 const registrationPinText: Record<Locale, {
@@ -312,8 +306,6 @@ const registrationPinText: Record<Locale, {
   fi: { eyebrow: "Vahvista sähköposti", title: "Syötä vahvistuskoodi", sent: "Lähetimme 6-numeroisen koodin osoitteeseen", instruction: "Syötä koodi alle viimeistelläksesi rekisteröitymisen.", label: "Vahvistuskoodi", submitting: "Vahvistetaan...", confirm: "Vahvista ja luo tili", resend: "Lähetä uusi koodi", edit: "Muokkaa tietoja" },
   en: { eyebrow: "Verify your email", title: "Enter verification code", sent: "We sent a 6-digit code to", instruction: "Enter the code below to finish your registration.", label: "Verification code", submitting: "Verifying...", confirm: "Verify and create account", resend: "Send a new code", edit: "Edit details" },
   sv: { eyebrow: "Bekräfta din e-post", title: "Ange bekräftelsekoden", sent: "Vi skickade en sexsiffrig kod till", instruction: "Ange koden nedan för att slutföra registreringen.", label: "Bekräftelsekod", submitting: "Bekräftar...", confirm: "Bekräfta och skapa konto", resend: "Skicka en ny kod", edit: "Redigera uppgifter" },
-  no: { eyebrow: "Bekreft e-posten din", title: "Skriv inn bekreftelseskoden", sent: "Vi sendte en sekssifret kode til", instruction: "Skriv inn koden nedenfor for å fullføre registreringen.", label: "Bekreftelseskode", submitting: "Bekrefter...", confirm: "Bekreft og opprett konto", resend: "Send en ny kode", edit: "Rediger opplysninger" },
-  et: { eyebrow: "Kinnita oma e-post", title: "Sisesta kinnituskood", sent: "Saatsime kuuekohalise koodi aadressile", instruction: "Registreerimise lõpetamiseks sisesta kood allolevasse välja.", label: "Kinnituskood", submitting: "Kinnitamine...", confirm: "Kinnita ja loo konto", resend: "Saada uus kood", edit: "Muuda andmeid" }
 };
 
 function getCountryName(locale: Locale, country: string) {
@@ -323,9 +315,7 @@ function getCountryName(locale: Locale, country: string) {
 const countryValueByFinnishName: Record<string, string> = {
   Suomi: "FI",
   Ruotsi: "SE",
-  Norja: "NO",
   Tanska: "DK",
-  Viro: "EE",
   Saksa: "DE",
   Muu: OTHER_COUNTRY_VALUE
 };
@@ -479,12 +469,10 @@ function getStreetAddressFromGooglePlace(place: GooglePlace) {
 
 function getCountryValueFromGooglePlace(place: GooglePlace) {
   const countryCode = getGoogleAddressPart(place, "country", true).toUpperCase();
-  const supportedCountries: Record<string, string> = {
+const supportedCountries: Record<string, string> = {
     DK: "DK",
     DE: "DE",
-    EE: "EE",
     FI: "FI",
-    NO: "NO",
     SE: "SE"
   };
   return supportedCountries[countryCode] ?? "";
@@ -700,7 +688,7 @@ function AuthPageContent() {
       if (!addressInput || !Autocomplete || cancelled) return;
 
       const autocomplete = new Autocomplete(addressInput, {
-        componentRestrictions: { country: ["dk", "de", "ee", "fi", "no", "se"] },
+        componentRestrictions: { country: ["dk", "de", "fi", "se"] },
         fields: [
           "address_components",
           "formatted_address",
@@ -781,10 +769,10 @@ function AuthPageContent() {
     if (!code) return;
 
     const referrerId = await getReferrerIdByCode(code);
-    console.log("[Referral] Resolved referrer id for code", code, "â†’", referrerId);
+    console.log("[Referral] Resolved referrer id for code", code, "→", referrerId);
 
     if (!referrerId) {
-      console.warn("[Referral] No user found for code", code, "â€” SQL may not be set up.");
+      console.warn("[Referral] No user found for code", code, "— SQL may not be set up.");
       try { localStorage.removeItem(REFERRAL_STORAGE_KEY); } catch {}
       return;
     }
@@ -2271,8 +2259,6 @@ function AuthPageContent() {
                         placeholder={
                           locale === "fi" ? "Kirjoita maa" :
                           locale === "sv" ? "Skriv land" :
-                          locale === "no" ? "Skriv land" :
-                          locale === "et" ? "Kirjuta riik" :
                           "Enter country"
                         }
                       />
@@ -2393,3 +2379,4 @@ export default function AuthPage() {
     </Suspense>
   );
 }
+

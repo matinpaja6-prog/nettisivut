@@ -16,6 +16,8 @@ import {
   ChevronUp,
   Clock3,
   Mail,
+  MessageCircle,
+  MessageSquareText,
   MapPin,
   Globe2,
   Package,
@@ -101,7 +103,13 @@ const listingUiText = {
     fetchingPhone: "...",
     showPhone: "Näytä numero",
     missingPhone: "Numero puuttuu",
-    loginContact: "Kirjaudu nähdäksesi yhteystiedot"
+    loginContact: "Kirjaudu nähdäksesi yhteystiedot",
+    callPhone: "Soita",
+    whatsappPhone: "WhatsApp-viesti",
+    textPhone: "Tekstiviesti",
+    phoneActions: "Valitse yhteydenottotapa",
+    messageLoginRequired: "Haluatko kysyä tuotteesta?",
+    loginNow: "Kirjaudu sisään ja lähetä viesti"
   },
   en: {
     loading: "Loading...",
@@ -145,7 +153,13 @@ const listingUiText = {
     fetchingPhone: "...",
     showPhone: "Show number",
     missingPhone: "Number missing",
-    loginContact: "Log in to see contact details"
+    loginContact: "Log in to see contact details",
+    callPhone: "Call",
+    whatsappPhone: "WhatsApp message",
+    textPhone: "Text message",
+    phoneActions: "Choose how to contact",
+    messageLoginRequired: "Want to ask about this item?",
+    loginNow: "Log in and send a message"
   },
   sv: {
     loading: "Laddar...",
@@ -189,108 +203,37 @@ const listingUiText = {
     fetchingPhone: "...",
     showPhone: "Visa nummer",
     missingPhone: "Nummer saknas",
-    loginContact: "Logga in för att se kontaktuppgifter"
+    loginContact: "Logga in för att se kontaktuppgifter",
+    callPhone: "Ring",
+    whatsappPhone: "WhatsApp-meddelande",
+    textPhone: "Sms",
+    phoneActions: "Välj kontaktsätt",
+    messageLoginRequired: "Vill du fråga om produkten?",
+    loginNow: "Logga in och skicka ett meddelande"
   },
-  no: {
-    loading: "Laster...",
-    notFound: "Ikke funnet",
-    linkCopied: "Lenken er kopiert!",
-    back: "Tilbake",
-    forSale: "Til salgs",
-    part: "Del",
-    updated: "Oppdatert",
-    imageSingular: "bilde",
-    imagePlural: "bilder",
-    share: "Del",
-    saved: "Lagret",
-    save: "Lagre",
-    description: "Beskrivelse",
-    basicInfo: "Grunnopplysninger",
-    additionalInfo: "Tilleggsinformasjon",
-    noDescription: "Ingen beskrivelse.",
-    vehicle: "Kjøretøy",
-    partModel: "Delmodell",
-    trackMatDetails: "Beltemattedetaljer",
-    trackMatDimensions: "Beltemattemål",
-    partNumber: "Delenummer",
-    brand: "Merke",
-    model: "Modell",
-    brandModel: "Merke og modell",
-    year: "Årsmodell",
-    condition: "Tilstand",
-    location: "Sted",
-    notSpecified: "Ikke oppgitt",
-    seller: "Selger",
-    fallbackSeller: "Selger",
-    verified: "Verifisert",
-    sellers: "Selgere",
-    map: "Kart",
-    website: "Nettside",
-    openSellerProfile: (name: string) => `Åpne den offentlige selgerprofilen til ${name}`,
-    viewProfile: "Vis profil",
-    contactHeading: "Spørsmål om annonsen?",
-    sendMessage: "Send melding",
-    fetchingPhone: "...",
-    showPhone: "Vis nummer",
-    missingPhone: "Nummer mangler",
-    loginContact: "Logg inn for å se kontaktopplysninger"
-  },
-  et: {
-    loading: "Laadin...",
-    notFound: "Ei leitud",
-    linkCopied: "Link kopeeritud!",
-    back: "Tagasi",
-    forSale: "Müügis",
-    part: "Varuosa",
-    updated: "Uuendatud",
-    imageSingular: "pilt",
-    imagePlural: "pilti",
-    share: "Jaga",
-    saved: "Salvestatud",
-    save: "Salvesta",
-    description: "Kirjeldus",
-    basicInfo: "Põhiandmed",
-    additionalInfo: "Lisainfo",
-    noDescription: "Kirjeldus puudub.",
-    vehicle: "Sõiduk",
-    partModel: "Osa mudel",
-    trackMatDetails: "Roomikumati andmed",
-    trackMatDimensions: "Roomikumati mõõdud",
-    partNumber: "Varuosanumber",
-    brand: "Mark",
-    model: "Mudel",
-    brandModel: "Mark ja mudel",
-    year: "Aasta",
-    condition: "Seisukord",
-    location: "Asukoht",
-    notSpecified: "Pole märgitud",
-    seller: "Müüja",
-    fallbackSeller: "Müüja",
-    verified: "Kinnitatud",
-    sellers: "Müüjad",
-    map: "Kaart",
-    website: "Veebileht",
-    openSellerProfile: (name: string) => `Ava müüja ${name} avalik profiil`,
-    viewProfile: "Vaata profiili",
-    contactHeading: "Küsimusi kuulutuse kohta?",
-    sendMessage: "Saada sõnum",
-    fetchingPhone: "...",
-    showPhone: "Näita numbrit",
-    missingPhone: "Number puudub",
-    loginContact: "Kontaktandmete nägemiseks logi sisse"
-  }
 } satisfies Record<Locale, Record<string, string | ((name: string) => string)>>;
 
 const conditionLabels: Record<Locale, Record<string, string>> = {
   fi: {},
-  en: { Hyvä: "Good", Uusi: "New", "Kuin uusi": "Like new", Tyydyttävä: "Fair", Heikko: "Poor" },
-  sv: { Hyvä: "Bra", Uusi: "Ny", "Kuin uusi": "Som ny", Tyydyttävä: "Godtagbar", Heikko: "Dålig" },
-  no: { Hyvä: "God", Uusi: "Ny", "Kuin uusi": "Som ny", Tyydyttävä: "Greit", Heikko: "Dårlig" },
-  et: { Hyvä: "Hea", Uusi: "Uus", "Kuin uusi": "Nagu uus", Tyydyttävä: "Rahuldav", Heikko: "Kehv" }
+  en: { "Hyvä": "Good", Uusi: "New", "Kuin uusi": "Like new", "Tyydyttävä": "Fair", Heikko: "Poor" },
+  sv: { "Hyvä": "Bra", Uusi: "Ny", "Kuin uusi": "Som ny", "Tyydyttävä": "Godtagbar", Heikko: "Dålig" },
 };
 
 function normalizeComparable(value: string | null | undefined) {
   return (value ?? "").trim().toLowerCase();
+}
+
+function phoneLinkValue(value: string) {
+  return value.trim().replace(/[^\d+]/g, "");
+}
+
+function whatsappPhoneValue(value: string) {
+  const trimmed = value.trim();
+  const digits = trimmed.replace(/\D/g, "");
+  if (trimmed.startsWith("+")) return digits;
+  if (digits.startsWith("00")) return digits.slice(2);
+  if (digits.startsWith("0")) return `358${digits.slice(1)}`;
+  return digits;
 }
 
 function getSimilarListingScore(current: Listing, candidate: Listing) {
@@ -310,8 +253,6 @@ const dateLocales: Record<Locale, string> = {
   fi: "fi-FI",
   en: "en-US",
   sv: "sv-SE",
-  no: "nb-NO",
-  et: "et-EE"
 };
 
 function formatDate(value: string, locale: Locale) {
@@ -388,7 +329,7 @@ const listingExtraText: Record<
   }
 > = {
   fi: {
-    vehicleSubtype: "Ajoneuvotyyppi",
+    vehicleSubtype: "Tyyppi",
     delivery: "Toimitus",
     businessId: "Y-tunnus",
     memberSince: "J\u00e4senen\u00e4 vuodesta",
@@ -435,48 +376,16 @@ const listingExtraText: Record<
     successfulDeals: "Lyckade aff\u00e4rer",
     sellerStatsAria: "S\u00e4ljarens recensioner och aff\u00e4rer"
   },
-  no: {
-    vehicleSubtype: "Kj\u00f8ret\u00f8ytype",
-    delivery: "Levering",
-    businessId: "Organisasjonsnummer",
-    memberSince: "Medlem siden",
-    verifiedCompany: "Verifisert bedrift",
-    company: "Bedrift",
-    privateSeller: "Privat selger",
-    verifiedSellerSuffix: " selger",
-    noReviews: "Ingen anmeldelser",
-    oneReview: "1 anmeldelse",
-    reviews: (count) => `${count} anmeldelser`,
-    successfulDeal: "Vellykket handel",
-    successfulDeals: "Vellykkede handler",
-    sellerStatsAria: "Selgerens anmeldelser og handler"
-  },
-  et: {
-    vehicleSubtype: "S\u00f5iduki t\u00fc\u00fcp",
-    delivery: "Tarne",
-    businessId: "Registrikood",
-    memberSince: "Liige alates",
-    verifiedCompany: "Kinnitatud ettev\u00f5te",
-    company: "Ettev\u00f5te",
-    privateSeller: "Eram\u00fc\u00fcja",
-    verifiedSellerSuffix: " m\u00fc\u00fcja",
-    noReviews: "Arvustusi pole",
-    oneReview: "1 arvustus",
-    reviews: (count) => `${count} arvustust`,
-    successfulDeal: "\u00d5nnestunud tehing",
-    successfulDeals: "\u00d5nnestunud tehingut",
-    sellerStatsAria: "M\u00fc\u00fcja arvustused ja tehingud"
-  }
 };
 
 function translateDeliveryMethod(locale: Locale, value: string) {
   const normalized = value.trim().toLowerCase();
   const key =
-    normalized.includes("nouto") && (normalized.includes("lähetys") || normalized.includes("lÃ¤hetys"))
+    normalized.includes("nouto") && (normalized.includes("lähetys") || normalized.includes("lähetys"))
       ? "both"
       : normalized.includes("nouto")
         ? "pickup"
-        : normalized.includes("lähetys") || normalized.includes("lÃ¤hetys")
+        : normalized.includes("lähetys") || normalized.includes("lähetys")
           ? "shipping"
           : "";
 
@@ -496,16 +405,6 @@ function translateDeliveryMethod(locale: Locale, value: string) {
       shipping: "Frakt",
       pickup: "Avhämtning"
     },
-    no: {
-      both: "Frakt og henting",
-      shipping: "Frakt",
-      pickup: "Henting"
-    },
-    et: {
-      both: "Saatmine ja järeletulemine",
-      shipping: "Saatmine",
-      pickup: "Järeletulemine"
-    }
   } satisfies Record<Locale, Record<string, string>>;
 
   return key ? labels[locale][key] : translateCategory(locale, value);
@@ -548,7 +447,7 @@ export default function ListingPage() {
   const { locale } = useLanguage();
   const ui = listingUiText[locale];
   const extraUi = listingExtraText[locale];
-  const fallbackCountry = locale === "et" ? "Soome" : locale === "fi" ? "Suomi" : "Finland";
+  const fallbackCountry = locale === "fi" ? "Suomi" : "Finland";
 
   const initialListingRef = useRef<Listing | null | undefined>(undefined);
   if (initialListingRef.current === undefined) {
@@ -580,6 +479,9 @@ export default function ListingPage() {
     useState(true);
 
   const [showPhone, setShowPhone] =
+    useState(false);
+
+  const [phoneActionsOpen, setPhoneActionsOpen] =
     useState(false);
 
   const [sellerPhone, setSellerPhone] =
@@ -1212,6 +1114,13 @@ export default function ListingPage() {
     setPhoneLoading(false);
   }
 
+  function handlePhoneNumberClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      event.preventDefault();
+      setPhoneActionsOpen((open) => !open);
+    }
+  }
+
   async function handleSendMessage() {
     if (!listing || messageLoading) {
       return;
@@ -1314,8 +1223,6 @@ export default function ListingPage() {
     fi: {},
     en: { Moottorikelkka: "Snowmobile", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motocross", Mopot: "Moped" },
     sv: { Moottorikelkka: "Sn\u00f6skoter", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motocross", Mopot: "Moped" },
-    no: { Moottorikelkka: "Sn\u00f8scooter", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motocross", Mopot: "Moped" },
-    et: { Moottorikelkka: "Mootorsaan", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motokross", Mopot: "Mopeed" }
   };
   const baseListingText = getLocalizedListingText(listing, locale);
   const listingPartNumber = getListingPartNumber(listing);
@@ -1881,50 +1788,75 @@ export default function ListingPage() {
                 <div className="seller-divider" />
                 <div className="seller-contact-merged">
                   {isLoggedIn ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={handleSendMessage}
-                        disabled={messageLoading}
-                        className="message-btn"
-                      >
-                        <Mail size={20} />
-                        {ui.sendMessage}
-                      </button>
-                      {!showPhone ? (
-                        <button
-                          className="phone-btn"
-                          onClick={handleShowPhone}
-                          disabled={phoneLoading}
-                        >
-                          <Phone size={20} />
-                          {phoneLoading
-                            ? ui.fetchingPhone
-                            : ui.showPhone}
-                        </button>
-                      ) : (
+                    <button
+                      type="button"
+                      onClick={handleSendMessage}
+                      disabled={messageLoading}
+                      className="message-btn"
+                    >
+                      <Mail size={20} />
+                      {ui.sendMessage}
+                    </button>
+                  ) : (
+                    <div className="contact-login-notice" role="alert">
+                      <div className="contact-login-icon" aria-hidden="true">
+                        <LockKeyhole size={21} />
+                      </div>
+                      <div className="contact-login-copy">
+                        <strong>{ui.messageLoginRequired}</strong>
+                        <Link href={pagePath("auth", locale)}>
+                          <span>{ui.loginNow}</span>
+                          <ChevronRight size={16} aria-hidden="true" />
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                  {!showPhone ? (
+                    <button
+                      type="button"
+                      className="phone-btn"
+                      onClick={handleShowPhone}
+                      disabled={phoneLoading}
+                    >
+                      <Phone size={20} />
+                      {phoneLoading
+                        ? ui.fetchingPhone
+                        : ui.showPhone}
+                    </button>
+                  ) : sellerPhone || listing.seller_phone ? (
+                    <div className="phone-action-wrap">
                         <a
-                          href={`tel:${
-                            sellerPhone ||
-                            listing.seller_phone ||
-                            ""
-                          }`}
+                          href={`tel:${phoneLinkValue(sellerPhone || listing.seller_phone || "")}`}
                           className="phone-number"
+                          onClick={handlePhoneNumberClick}
+                          aria-expanded={phoneActionsOpen}
                         >
                           {sellerPhone ||
-                            listing.seller_phone ||
-                            ui.missingPhone}
+                            listing.seller_phone}
                         </a>
-                      )}
-                    </>
+                        {phoneActionsOpen ? (
+                          <div className="phone-action-menu" aria-label={ui.phoneActions}>
+                            <a href={`tel:${phoneLinkValue(sellerPhone || listing.seller_phone || "")}`}>
+                              <Phone size={18} />
+                              {ui.callPhone}
+                            </a>
+                            <a
+                              href={`https://wa.me/${whatsappPhoneValue(sellerPhone || listing.seller_phone || "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <MessageCircle size={18} />
+                              {ui.whatsappPhone}
+                            </a>
+                            <a href={`sms:${phoneLinkValue(sellerPhone || listing.seller_phone || "")}`}>
+                              <MessageSquareText size={18} />
+                              {ui.textPhone}
+                            </a>
+                          </div>
+                        ) : null}
+                    </div>
                   ) : (
-                    <Link
-                      href={pagePath("auth", locale)}
-                      className="login-contact"
-                    >
-                      <LockKeyhole size={20} />
-                      {ui.loginContact}
-                    </Link>
+                    <span className="phone-number">{ui.missingPhone}</span>
                   )}
                 </div>
               </div>

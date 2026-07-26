@@ -34,6 +34,7 @@ import "./styles/footer-final-polish.css";
 import "./styles/home-topbar-center.css";
 import "./styles/listing-cards-unified.css";
 import "./styles/track-mat-final.css";
+import "./styles/listing-detail-mobile-fix.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";
@@ -189,11 +190,56 @@ export default function RootLayout({
   const earlyLocale = `
     (function () {
       try {
-        var match = document.cookie.match(/(?:^|;\\s*)locale=(fi|en|sv|no|et)(?:;|$)/);
-        var stored = localStorage.getItem('locale');
-        var locale = match ? match[1] : (/^(fi|en|sv|no|et)$/.test(stored || '') ? stored : 'fi');
+        function isValidLocale(value) {
+          return value === "fi" || value === "en" || value === "sv";
+        }
+
+        function removeInvalidVisitorLanguageKeys() {
+          var keys = Object.keys(localStorage);
+          for (var i = 0; i < keys.length; i += 1) {
+            var key = keys[i];
+            if (typeof key === "string" && key.indexOf("visitor-language:") === 0) {
+              var value = localStorage.getItem(key);
+              if (!isValidLocale(value)) {
+                localStorage.removeItem(key);
+              }
+            }
+          }
+        }
+
+        function getStoredLocale() {
+          try {
+            var value = localStorage.getItem("locale");
+            return isValidLocale(value) ? value : "";
+          } catch {
+            return "";
+          }
+        }
+
+        function getCookieLocale() {
+          var match = document.cookie.match(/(?:^|;\\s*)locale=([^;]+)/);
+          return match ? decodeURIComponent(match[1] || "") : "";
+        }
+
+        removeInvalidVisitorLanguageKeys();
+
+        var cookieLocale = getCookieLocale();
+        if (!isValidLocale(cookieLocale)) {
+          document.cookie = "locale=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0";
+          cookieLocale = "";
+        }
+
+        var storedLocale = getStoredLocale();
+        if (!isValidLocale(storedLocale)) {
+          localStorage.removeItem("locale");
+        }
+
+        var locale = isValidLocale(cookieLocale) ? cookieLocale : (storedLocale || "fi");
         document.documentElement.lang = locale;
-        document.documentElement.setAttribute('data-i18n-pending', 'true');
+        document.documentElement.setAttribute('data-i18n-target', locale);
+        if (locale !== "fi") {
+          document.documentElement.setAttribute('data-i18n-pending', 'true');
+        }
       } catch (e) {}
     })();
   `;

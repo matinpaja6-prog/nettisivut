@@ -135,7 +135,7 @@ export type ListingTranslation = {
 };
 
 export type ListingTranslations = Partial<
-  Record<"fi" | "en" | "sv" | "no" | "et", ListingTranslation>
+  Record<"fi" | "en" | "sv", ListingTranslation>
 >;
 
 export type ListingInput = Omit<
@@ -304,6 +304,7 @@ export const categories = {
 export function normalizeVehicleType(value?: string | null) {
   const normalized = (value ?? "").trim().toLowerCase();
 
+  if (normalized === "moottoripyörä" || normalized === "moottoripyörät" || normalized === "motorcycle") return "Moottoripyörä";
   if (normalized === "mopo" || normalized === "mopot") return "Mopo";
   if (normalized === "mönkijä" || normalized === "mönkijät") return "Mönkijä";
   if (normalized === "moottorikelkka" || normalized === "moottorikelkat") return "Moottorikelkka";
@@ -346,12 +347,41 @@ export function isVehiclePartAllowed(
 
   if (snowmobileOnly) return false;
 
+  const isTwoWheeler =
+    normalizedVehicle === "Mopo" ||
+    normalizedVehicle === "Motocross" ||
+    normalizedVehicle === "Moottoripyörä";
+
+  if (isTwoWheeler) {
+    const twoWheelerDisallowed =
+      subcategory.startsWith("Tukivarret /") ||
+      subcategory === "Kokonainen alusta" ||
+      subcategory === "Olka-akselit" ||
+      subcategory === "Vetoakselit" ||
+      subcategory === "Ohjaus / Ohjausakselit" ||
+      subcategory === "Ohjaus / Raidetangot" ||
+      subcategory === "Kytkimet / Painovarret" ||
+      subcategory === "Kuomut & konepellit" ||
+      subcategory === "Etupuskurit" ||
+      subcategory === "Takapuskurit";
+
+    if (twoWheelerDisallowed) return false;
+
+    if (
+      normalizedVehicle === "Motocross" &&
+      (
+        subcategory.startsWith("Variaattorit /") ||
+        subcategory === "Variaattorin hihnat" ||
+        subcategory === "Tuulilasit"
+      )
+    ) {
+      return false;
+    }
+  }
+
   const atvOrSnowmobileOnly =
     category === "Runko & katteet" &&
-    (
-      subcategory === "Kuomut & konepellit" ||
-      subcategory === "Tuulilasit"
-    );
+    subcategory === "Kuomut & konepellit";
 
   return !atvOrSnowmobileOnly;
 }
@@ -364,7 +394,7 @@ export function displayCategoryForVehicle(
 
   if (
     category === "Alusta & telasto" &&
-    (normalizedVehicle === "Motocross" || normalizedVehicle === "Mopo")
+    (normalizedVehicle === "Motocross" || normalizedVehicle === "Mopo" || normalizedVehicle === "Moottoripyörä")
   ) {
     return "Renkaat, vanteet & alusta";
   }

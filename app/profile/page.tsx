@@ -80,18 +80,14 @@ type GoogleMapsWindow = Window & {
 const addressCountryOptions = [
   { code: "FI", value: "Suomi" },
   { code: "SE", value: "Ruotsi" },
-  { code: "NO", value: "Norja" },
   { code: "DK", value: "Tanska" },
-  { code: "EE", value: "Viro" },
   { code: "DE", value: "Saksa" }
 ];
 
 const addressCountryLabels: Record<Locale, Record<string, string>> = {
-  fi: { Suomi: "Suomi", Ruotsi: "Ruotsi", Norja: "Norja", Tanska: "Tanska", Viro: "Viro", Saksa: "Saksa" },
-  en: { Suomi: "Finland", Ruotsi: "Sweden", Norja: "Norway", Tanska: "Denmark", Viro: "Estonia", Saksa: "Germany" },
-  sv: { Suomi: "Finland", Ruotsi: "Sverige", Norja: "Norge", Tanska: "Danmark", Viro: "Estland", Saksa: "Tyskland" },
-  no: { Suomi: "Finland", Ruotsi: "Sverige", Norja: "Norge", Tanska: "Danmark", Viro: "Estland", Saksa: "Tyskland" },
-  et: { Suomi: "Soome", Ruotsi: "Rootsi", Norja: "Norra", Tanska: "Taani", Viro: "Eesti", Saksa: "Saksamaa" }
+  fi: { Suomi: "Suomi", Ruotsi: "Ruotsi", Tanska: "Tanska", Saksa: "Saksa" },
+  en: { Suomi: "Finland", Ruotsi: "Sweden", Tanska: "Denmark", Saksa: "Germany" },
+  sv: { Suomi: "Finland", Ruotsi: "Sverige", Tanska: "Danmark", Saksa: "Tyskland" },
 };
 
 const addressCountryAliases: Record<string, string> = {
@@ -99,16 +95,9 @@ const addressCountryAliases: Record<string, string> = {
   de: "Saksa",
   denmark: "Tanska",
   dk: "Tanska",
-  ee: "Viro",
-  eest: "Viro",
-  eesti: "Viro",
-  estonia: "Viro",
   fi: "Suomi",
   finland: "Suomi",
   germany: "Saksa",
-  no: "Norja",
-  norge: "Norja",
-  norway: "Norja",
   ruotsi: "Ruotsi",
   saksa: "Saksa",
   se: "Ruotsi",
@@ -117,7 +106,6 @@ const addressCountryAliases: Record<string, string> = {
   sverige: "Ruotsi",
   sweden: "Ruotsi",
   tanska: "Tanska",
-  viro: "Viro"
 };
 
 function getGoogleAddressPart(place: GooglePlace, type: string, short = false) {
@@ -285,435 +273,315 @@ export default function ProfilePage() {
       fi: "Henkilökohtaiset tiedot",
       en: "Private details",
       sv: "Privata uppgifter",
-      no: "Private opplysninger",
-      et: "Privaatsed andmed"
     }[locale],
     accountHelp: {
       fi: "Katso ja hallitse henkilökohtaisia tietojasi.",
       en: "These are used for account management.",
       sv: "Dessa används för kontohantering.",
-      no: "Disse brukes til kontoadministrasjon.",
-      et: "Neid kasutatakse konto haldamiseks."
     }[locale],
-    firstName: { fi: "Etunimi", en: "First name", sv: "Förnamn", no: "Fornavn", et: "Eesnimi" }[locale],
-    lastName: { fi: "Sukunimi", en: "Last name", sv: "Efternamn", no: "Etternavn", et: "Perekonnanimi" }[locale],
-    phone: { fi: "Puhelinnumero", en: "Phone number", sv: "Telefonnummer", no: "Telefonnummer", et: "Telefoninumber" }[locale],
-    address: { fi: "Osoite", en: "Address", sv: "Adress", no: "Adresse", et: "Aadress" }[locale],
-    postalCode: { fi: "Postinumero", en: "Postal code", sv: "Postnummer", no: "Postnummer", et: "Postiindeks" }[locale],
-    birthDate: { fi: "Syntymäaika", en: "Date of birth", sv: "Födelsedatum", no: "Fødselsdato", et: "Sünnikuupäev" }[locale],
-    publicProfile: { fi: "Julkinen profiili", en: "Public seller profile", sv: "Offentlig säljarprofil", no: "Offentlig selgerprofil", et: "Avalik müüja profiil" }[locale],
-    profileDetails: { fi: "Profiilin tiedot", en: "Profile details", sv: "Profiluppgifter", no: "Profildetaljer", et: "Profiili andmed" }[locale],
-    addressDetails: { fi: "Osoitetiedot", en: "Address details", sv: "Adressuppgifter", no: "Adresseopplysninger", et: "Aadressiandmed" }[locale],
+    firstName: { fi: "Etunimi", en: "First name", sv: "Förnamn" }[locale],
+    lastName: { fi: "Sukunimi", en: "Last name", sv: "Efternamn" }[locale],
+    phone: { fi: "Puhelinnumero", en: "Phone number", sv: "Telefonnummer" }[locale],
+    address: { fi: "Osoite", en: "Address", sv: "Adress" }[locale],
+    postalCode: { fi: "Postinumero", en: "Postal code", sv: "Postnummer" }[locale],
+    birthDate: { fi: "Syntymäaika", en: "Date of birth", sv: "Födelsedatum" }[locale],
+    publicProfile: { fi: "Julkinen profiili", en: "Public seller profile", sv: "Offentlig säljarprofil" }[locale],
+    profileDetails: { fi: "Profiilin tiedot", en: "Profile details", sv: "Profiluppgifter" }[locale],
+    addressDetails: { fi: "Osoitetiedot", en: "Address details", sv: "Adressuppgifter" }[locale],
     publicHelp: {
       fi: "Nämä tiedot näkyvät muille Marketplace-käyttäjille.",
       en: "Name, ID, exact address and your intro are shown publicly.",
       sv: "Namn, ID, exakt adress och din presentation visas offentligt.",
-      no: "Navn, ID, nøyaktig adresse og introduksjonen din vises offentlig.",
-      et: "Avalikult kuvatakse nimi, ID, täpne aadress ja sinu tutvustus."
     }[locale],
     publicVisibilityNote: {
       fi: "Julkiset tiedot näkyvät kaikille Marketplace-käyttäjille.",
       en: "Public details are visible to all Marketplace users.",
       sv: "Offentliga uppgifter visas för alla Marketplace-användare.",
-      no: "Offentlige opplysninger vises for alle Marketplace-brukere.",
-      et: "Avalikud andmed on nähtavad kõigile Marketplace'i kasutajatele."
     }[locale],
     moreInfo: {
       fi: "Lisätietoja",
       en: "More info",
       sv: "Mer information",
-      no: "Mer informasjon",
-      et: "Lisainfo"
     }[locale],
-    publicName: { fi: "Näyttönimi", en: "Public name", sv: "Offentligt namn", no: "Offentlig navn", et: "Avalik nimi" }[locale],
+    publicName: { fi: "Näyttönimi", en: "Public name", sv: "Offentligt namn" }[locale],
     publicBio: {
       fi: "Tietoa minusta",
       en: "About seller",
       sv: "Om säljaren",
-      no: "Om selgeren",
-      et: "Müüja info"
     }[locale],
     publicBioPlaceholder: {
       fi: "Kerro lyhyesti itsestäsi, kokemuksesta, yrityksestä tai miten toimit ostajien kanssa.",
       en: "Briefly tell buyers about yourself, your experience, company or how you work with buyers.",
       sv: "Berätta kort om dig själv, erfarenhet, företag eller hur du arbetar med köpare.",
-      no: "Fortell kort om deg selv, erfaring, bedrift eller hvordan du jobber med kjøpere.",
-      et: "Kirjelda lühidalt ennast, kogemust, ettevõtet või kuidas ostjatega suhtled."
     }[locale],
     publicAddress: {
       fi: "Yrityksen osoite",
       en: "Public exact address",
       sv: "Offentlig exakt adress",
-      no: "Offentlig nøyaktig adresse",
-      et: "Avalik täpne aadress"
     }[locale],
     publicAddressPlaceholder: {
       fi: "Esim. Varaosatie 4, 71800 Siilinjärvi",
       en: "E.g. Spare Parts Road 4, 71800 Siilinjarvi",
       sv: "T.ex. Reservdelsvägen 4, 71800 Siilinjärvi",
-      no: "F.eks. Deleveien 4, 71800 Siilinjärvi",
-      et: "Nt Varuosatee 4, 71800 Siilinjärvi"
     }[locale],
-    noId: { fi: "Ei ID:tä", en: "No ID", sv: "Inget ID", no: "Ingen ID", et: "ID puudub" }[locale],
-    city: { fi: "Kaupunki", en: "City", sv: "Stad", no: "By", et: "Linn" }[locale],
-    country: { fi: "Maa", en: "Country", sv: "Land", no: "Land", et: "Riik" }[locale],
-    saveChanges: { fi: "Tallenna muutokset", en: "Save changes", sv: "Spara ändringar", no: "Lagre endringer", et: "Salvesta muudatused" }[locale],
+    noId: { fi: "Ei ID:tä", en: "No ID", sv: "Inget ID" }[locale],
+    city: { fi: "Kaupunki", en: "City", sv: "Stad" }[locale],
+    country: { fi: "Maa", en: "Country", sv: "Land" }[locale],
+    saveChanges: { fi: "Tallenna muutokset", en: "Save changes", sv: "Spara ändringar" }[locale],
     personalDetails: {
       fi: "Henkilökohtaiset tiedot",
       en: "Personal details",
       sv: "Personliga uppgifter",
-      no: "Personlige opplysninger",
-      et: "Isiklikud andmed"
     }[locale],
     lockedAfterRegistration: {
       fi: "Nimi ja puhelinnumero lukitaan rekisteröinnin jälkeen.",
       en: "Name and phone number are locked after registration.",
       sv: "Namn och telefonnummer låses efter registrering.",
-      no: "Navn og telefonnummer låses etter registrering.",
-      et: "Nimi ja telefoninumber lukustatakse pärast registreerimist."
     }[locale],
     companyAccount: {
       fi: "Yritystili",
       en: "Company account",
       sv: "Företagskonto",
-      no: "Bedriftskonto",
-      et: "Ettevõtte konto"
     }[locale],
     companyDetails: {
       fi: "Yrityksen tiedot",
       en: "Company details",
       sv: "Företagsuppgifter",
-      no: "Bedriftsopplysninger",
-      et: "Ettevõtte andmed"
     }[locale],
     companyDetailsHelp: {
       fi: "Nämä näkyvät yritysprofiilissa ja helpottavat ostajan luottamusta.",
       en: "These appear on the company profile and help buyers trust you.",
       sv: "Dessa visas i företagsprofilen och hjälper köparen att känna förtroende.",
-      no: "Dette vises på bedriftsprofilen og hjelper kjøperen med å stole på deg.",
-      et: "Need kuvatakse ettevõtte profiilis ja aitavad ostjal sind usaldada."
     }[locale],
     companyName: {
       fi: "Yrityksen nimi",
       en: "Company name",
       sv: "Företagsnamn",
-      no: "Bedriftsnavn",
-      et: "Ettevõtte nimi"
     }[locale],
     businessId: {
       fi: "Y-tunnus",
       en: "Business ID",
       sv: "Organisationsnummer",
-      no: "Organisasjonsnummer",
-      et: "Registrikood"
     }[locale],
     billingEmail: {
       fi: "Laskutussähköposti",
       en: "Billing email",
       sv: "Faktura-e-post",
-      no: "Faktura-e-post",
-      et: "Arve e-post"
     }[locale],
     companyPhone: {
       fi: "Yrityksen puhelinnumero",
       en: "Company phone number",
       sv: "Företagets telefonnummer",
-      no: "Bedriftens telefonnummer",
-      et: "Ettevõtte telefoninumber"
     }[locale],
     website: {
       fi: "Verkkosivu",
       en: "Website",
       sv: "Webbplats",
-      no: "Nettside",
-      et: "Veebisait"
     }[locale],
     noNumber: {
       fi: "Ei numeroa",
       en: "No number",
       sv: "Inget nummer",
-      no: "Ingen nummer",
-      et: "Numbrit pole"
     }[locale],
     locked: {
       fi: "Lukittu",
       en: "Locked",
       sv: "Låst",
-      no: "Låst",
-      et: "Lukustatud"
     }[locale],
     verified: {
       fi: "Vahvistettu",
       en: "Verified",
       sv: "Bekräftat",
-      no: "Bekreftet",
-      et: "Kinnitatud"
     }[locale],
     unverified: {
       fi: "Ei vahvistettu",
       en: "Not verified",
       sv: "Ej bekräftat",
-      no: "Ikke bekreftet",
-      et: "Kinnitamata"
     }[locale],
     verify: {
       fi: "Vahvista",
       en: "Verify",
       sv: "Bekräfta",
-      no: "Bekreft",
-      et: "Kinnita"
     }[locale],
     change: {
       fi: "Vaihda",
       en: "Change",
       sv: "Byt",
-      no: "Endre",
-      et: "Muuda"
     }[locale],
     companyPhoneVerifiedHelp: {
       fi: "Yrityksen numero on vahvistettu. Tätä käytetään yrityksen luottamustietona.",
       en: "The company number is verified. It is used as a trust signal for the company.",
       sv: "Företagets nummer är bekräftat. Det används som förtroendesignal för företaget.",
-      no: "Bedriftens nummer er bekreftet. Det brukes som et tillitssignal for bedriften.",
-      et: "Ettevõtte number on kinnitatud. Seda kasutatakse ettevõtte usaldusmärgina."
     }[locale],
     companyPhoneUnverifiedHelp: {
       fi: "Yrityksen numeroa ei tarvitse vahvistaa ilmoitusten julkaisua varten.",
       en: "The company number does not need to be verified for publishing listings.",
       sv: "Företagets nummer behöver inte bekräftas för att publicera annonser.",
-      no: "Bedriftens nummer trenger ikke å bekreftes for å publisere annonser.",
-      et: "Ettevõtte numbrit ei pea kuulutuste avaldamiseks kinnitama."
     }[locale],
     companySellersTitle: {
       fi: "Yrityksen myyjät",
       en: "Company sellers",
       sv: "Företagets säljare",
-      no: "Bedriftens selgere",
-      et: "Ettevõtte müüjad"
     }[locale],
     companySellersHelp: {
       fi: "Lisää halutessasi yritykselle myyjiä. Ilmoitus voidaan julkaista myös yrityksen omilla tiedoilla.",
       en: "Optionally add company sellers. Listings can also be published with the company details.",
       sv: "Lägg till företagets säljare vid behov. Annonser kan också publiceras med företagets uppgifter.",
-      no: "Legg til bedriftens selgere ved behov. Annonser kan også publiseres med bedriftens opplysninger.",
-      et: "Soovi korral lisa ettevõtte müüjaid. Kuulutusi saab avaldada ka ettevõtte andmetega."
     }[locale],
     sellers: {
       fi: "Myyjät",
       en: "Sellers",
       sv: "Säljare",
-      no: "Selgere",
-      et: "Müüjad"
     }[locale],
     sellerName: {
       fi: "Myyjän nimi",
       en: "Seller name",
       sv: "Säljarens namn",
-      no: "Selgerens navn",
-      et: "Müüja nimi"
     }[locale],
     phoneNumber: {
       fi: "Puhelinnumero",
       en: "Phone number",
       sv: "Telefonnummer",
-      no: "Telefonnummer",
-      et: "Telefoninumber"
     }[locale],
     noCompanySellers: {
       fi: "Ei erillisiä myyjiä vielä. Ilmoituksissa käytetään yrityksen tietoja.",
       en: "No separate sellers yet. Listings use the company details.",
       sv: "Inga separata säljare ännu. Annonser använder företagets uppgifter.",
-      no: "Ingen egne selgere ennå. Annonser bruker bedriftens opplysninger.",
-      et: "Eraldi müüjaid pole veel. Kuulutustes kasutatakse ettevõtte andmeid."
     }[locale],
     addSeller: {
       fi: "Lisää myyjä",
       en: "Add seller",
       sv: "Lägg till säljare",
-      no: "Legg til selger",
-      et: "Lisa müüja"
     }[locale],
     save: {
       fi: "Tallenna",
       en: "Save",
       sv: "Spara",
-      no: "Lagre",
-      et: "Salvesta"
     }[locale],
     cancel: {
       fi: "Peruuta",
       en: "Cancel",
       sv: "Avbryt",
-      no: "Avbryt",
-      et: "Tühista"
     }[locale],
     close: {
       fi: "Sulje",
       en: "Close",
       sv: "Stäng",
-      no: "Lukk",
-      et: "Sulge"
     }[locale],
     addPhoto: {
       fi: "Lisää kuva",
       en: "Add photo",
       sv: "Lägg till bild",
-      no: "Legg til bilde",
-      et: "Lisa pilt"
     }[locale],
     remove: {
       fi: "Poista",
       en: "Remove",
       sv: "Ta bort",
-      no: "Fjern",
-      et: "Eemalda"
     }[locale],
     editProfilePhoto: {
       fi: "Muokkaa profiilikuvaa",
       en: "Edit profile photo",
       sv: "Redigera profilbild",
-      no: "Rediger profilbilde",
-      et: "Muuda profiilipilti"
     }[locale],
     avatarCropHelp: {
       fi: "Zoomaa ja raahaa kuva sopivaan kohtaan.",
       en: "Zoom and drag the photo into position.",
       sv: "Zooma och dra bilden till rätt läge.",
-      no: "Zoom og dra bildet til riktig posisjon.",
-      et: "Suumi ja lohista pilt sobivasse kohta."
     }[locale],
     saving: {
       fi: "Tallennetaan...",
       en: "Saving...",
       sv: "Sparar...",
-      no: "Lagrer...",
-      et: "Salvestatakse..."
     }[locale],
     savePhoto: {
       fi: "Tallenna kuva",
       en: "Save photo",
       sv: "Spara bild",
-      no: "Lagre bilde",
-      et: "Salvesta pilt"
     }[locale],
     edit: {
       fi: "Muokkaa",
       en: "Edit",
       sv: "Redigera",
-      no: "Rediger",
-      et: "Muuda"
     }[locale],
     deleteAccount: {
       fi: "Tilin poistaminen",
       en: "Delete account",
       sv: "Ta bort konto",
-      no: "Slett konto",
-      et: "Kustuta konto"
     }[locale],
     accountSecurity: {
       fi: "Tilin turvallisuus",
       en: "Account security",
       sv: "Kontosäkerhet",
-      no: "Kontosikkerhet",
-      et: "Konto turvalisus"
     }[locale],
     passwordHelp: {
       fi: "Lähetä salasanan vaihtolinkki tilisi sähköpostiin.",
       en: "Send a password change link to your account email.",
       sv: "Skicka en länk för att byta lösenord till kontots e-post.",
-      no: "Send en lenke for passordbytte til kontoens e-post.",
-      et: "Saada parooli muutmise link konto e-posti aadressile."
     }[locale],
     passwordEmail: {
       fi: "Tilin sähköposti",
       en: "Account email",
       sv: "Kontots e-post",
-      no: "Kontoens e-post",
-      et: "Konto e-post"
     }[locale],
     sendPasswordLink: {
       fi: "Vaihda salasana",
       en: "Change password",
       sv: "Byt lösenord",
-      no: "Bytt passord",
-      et: "Muuda parooli"
     }[locale],
     passwordLinkSent: {
       fi: "Salasanan vaihtolinkki lähetettiin sähköpostiisi.",
       en: "Password change link sent to your email.",
       sv: "Länken för att byta lösenord har skickats.",
-      no: "Lenke for passordbytte er sendt til e-posten din.",
-      et: "Parooli muutmise link saadeti sinu e-posti."
     }[locale],
     passwordLinkSending: {
       fi: "Lähetetään linkkiä...",
       en: "Sending link...",
       sv: "Skickar länk...",
-      no: "Sender lenke...",
-      et: "Saadan linki..."
     }[locale],
     companySellerInfoTitle: {
       fi: "Yritystilin myyjät",
       en: "Company account sellers",
       sv: "Företagskontots säljare",
-      no: "Bedriftskontoens selgere",
-      et: "Ettevõtte konto müüjad"
     }[locale],
     companySellerInfoBody: {
       fi: "Lisää henkilöt profiilin Myyjät-osiossa. Valittu myyjä näkyy ilmoituksessa nimellä ja puhelinnumerolla.",
       en: "Add people in the Sellers section. The selected seller appears in the listing with name and phone number.",
       sv: "Lägg till personer i avsnittet Säljare. Den valda säljaren visas i annonsen med namn och telefonnummer.",
-      no: "Legg til personer i Selgere-delen. Valgt selger vises i annonsen med navn og telefonnummer.",
-      et: "Lisa inimesed jaotises Müüjad. Valitud müüja kuvatakse kuulutuses nime ja telefoninumbriga."
     }[locale],
     loginToViewProfile: {
       fi: "Kirjaudu sisään nähdäksesi profiilisi.",
       en: "Log in to view your profile.",
       sv: "Logga in för att se din profil.",
-      no: "Logg inn for å se profilen din.",
-      et: "Profiili vaatamiseks logi sisse."
     }[locale],
     profileNotCompleted: {
       fi: "Profiilia ei ole vielä täytetty.",
       en: "The profile has not been completed yet.",
       sv: "Profilen har inte fyllts i ännu.",
-      no: "Profilen er ikke fylt ut ennå.",
-      et: "Profiil pole veel täidetud."
     }[locale],
     completeProfile: {
       fi: "Täytä profiili",
       en: "Complete profile",
       sv: "Fyll i profil",
-      no: "Fullfør profil",
-      et: "Täida profiil"
     }[locale],
     phoneLockedHelp: {
       fi: "Puhelinnumero on vahvistettu kaksi kertaa eikä sitä voi enää vaihtaa.",
       en: "The phone number has been verified twice and can no longer be changed.",
       sv: "Telefonnumret har bekräftats två gånger och kan inte längre ändras.",
-      no: "Telefonnummeret er bekreftet to ganger og kan ikke lenger endres.",
-      et: "Telefoninumber on kinnitatud kaks korda ja seda ei saa enam muuta."
     }[locale],
     phoneAttemptsSingular: {
       fi: "Voit vahvistaa puhelinnumeron vielä 1 kerran.",
       en: "You can verify the phone number 1 more time.",
       sv: "Du kan bekräfta telefonnumret 1 gång till.",
-      no: "Du kan bekrefte telefonnummeret 1 gang til.",
-      et: "Saad telefoninumbrit veel 1 kord kinnitada."
     }[locale],
     phoneAttemptsPlural: {
       fi: "Voit vahvistaa puhelinnumeron vielä {count} kertaa.",
       en: "You can verify the phone number {count} more times.",
       sv: "Du kan bekräfta telefonnumret {count} gånger till.",
-      no: "Du kan bekrefte telefonnummeret {count} ganger til.",
-      et: "Saad telefoninumbrit veel {count} korda kinnitada."
     }[locale],
     changeProfileImage: {
       fi: "Vaihda profiilikuva",
       en: "Change profile image",
       sv: "Byt profilbild",
-      no: "Endre profilbilde",
-      et: "Muuda profiilipilti"
     }[locale]
   };
 

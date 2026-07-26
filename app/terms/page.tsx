@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useLanguage, type Locale } from "@/lib/i18n";
@@ -64,38 +64,6 @@ const termsCopy: Record<Locale, {
       { title: "10. Lag och kontakt", body: ["Finsk lag gäller. Frågor: tuki@arcticparts.fi"] }
     ]
   },
-  no: {
-    back: "Tilbake", eyebrow: "Vilkår", title: "Brukervilkår", updated: "Oppdatert 14.5.2026", privacy: "Personvernerklæring", summaryLabel: "Sammendrag",
-    summary: [{ title: "Selger har ansvar", text: "Opplysninger, pris, bilder og beskrivelse må være korrekte." }, { title: "Handel skjer mellom brukere", text: "Maskines er plattformen. Kjøper og selger avtaler betaling og levering." }, { title: "Bruk tjenesten rettferdig", text: "Svindel, trakassering og ulovlig innhold kan fjernes." }],
-    sections: [
-      { title: "1. Tjenesten", body: ["Maskines er en markedsplass for reservedeler og tilbehør til snøscootere, ATV-er, motocross og mopeder."] },
-      { title: "2. Konto", body: ["Annonser, meldinger og enkelte funksjoner krever konto. Du er ansvarlig for korrekte opplysninger og sikker innlogging."] },
-      { title: "3. Annonser", body: ["Selger er ansvarlig for annonsen. Tilstand, passform, pris, sted og bilder skal være riktige."], bullets: ["stjålne eller ulovlige varer", "villedende pris eller tilstand", "uautorisert bruk av andres materiale", "svindelrettede lenker"] },
-      { title: "4. Handel", body: ["Maskines er ikke part i handelen. Kjøper og selger avtaler betaling, levering og reklamasjoner."] },
-      { title: "5. Betalte funksjoner", body: ["Betalte funksjoner vises før betaling og refunderes ikke etter aktivering med mindre loven krever det."] },
-      { title: "6. Sikkerhet", body: ["Tjenesten må ikke brukes til svindel, trakassering, spam, skadevare eller misbruk av personopplysninger."] },
-      { title: "7. Ansvar", body: ["Vi prøver å holde tjenesten tilgjengelig, men garanterer ikke avbruddsfri drift og er ikke ansvarlige for handler mellom brukere."] },
-      { title: "8. Personvern", body: ["Personopplysninger behandles etter personvernerklæringen. Vi selger ikke personopplysninger."] },
-      { title: "9. Endringer", body: ["Vilkårene kan oppdateres når tjenesten eller loven endres. Vesentlige endringer varsles."] },
-      { title: "10. Lov og kontakt", body: ["Finsk lov gjelder. Spørsmål: tuki@arcticparts.fi"] }
-    ]
-  },
-  et: {
-    back: "Tagasi", eyebrow: "Teenuse tingimused", title: "Kasutustingimused", updated: "Uuendatud 14.5.2026", privacy: "Privaatsusteade", summaryLabel: "Kokkuvõte",
-    summary: [{ title: "Müüja vastutab", text: "Kuulutuse andmed, hind, pildid ja kirjeldus peavad olema õiged." }, { title: "Tehing on kasutajate vahel", text: "Maskines on platvorm. Ostja ja müüja lepivad makse ja tarne kokku." }, { title: "Kasuta teenust ausalt", text: "Pettus, ahistamine ja ebaseaduslik sisu võidakse eemaldada." }],
-    sections: [
-      { title: "1. Teenus", body: ["Maskines on varuosade ja tarvikute turuplats mootorsaanidele, ATV-dele, krossiratastele ja mopeedidele."] },
-      { title: "2. Konto", body: ["Kuulutused, sõnumid ja osa funktsioone nõuavad kontot. Vastutad õigete andmete ja turvalise sisselogimise eest."] },
-      { title: "3. Kuulutused", body: ["Müüja vastutab kuulutuse sisu eest. Seisukord, sobivus, hind, asukoht ja pildid peavad olema tõesed."], bullets: ["varastatud või ebaseaduslik kaup", "eksitav hind või seisukord", "teise isiku materjali loata kasutamine", "pettuslikud ümbersuunamised"] },
-      { title: "4. Kauplemine", body: ["Maskines ei ole tehingu osapool. Ostja ja müüja lepivad ise kokku makse, tarne ja pretensioonid."] },
-      { title: "5. Tasulised funktsioonid", body: ["Tasulised funktsioonid kuvatakse enne makset ja neid ei tagastata pärast aktiveerimist, kui seadus ei nõua teisiti."] },
-      { title: "6. Turvalisus", body: ["Teenust ei tohi kasutada pettuseks, ahistamiseks, spämmiks, pahavaraks ega isikuandmete väärkasutuseks."] },
-      { title: "7. Vastutus", body: ["Püüame hoida teenuse töökorras, kuid ei taga katkestusteta kättesaadavust ega vastuta kasutajate tehingute eest."] },
-      { title: "8. Privaatsus", body: ["Isikuandmeid töödeldakse privaatsusteate järgi. Me ei müü isikuandmeid."] },
-      { title: "9. Muudatused", body: ["Tingimusi võidakse uuendada, kui teenus või seadus muutub. Olulistest muudatustest teatatakse."] },
-      { title: "10. Õigus ja kontakt", body: ["Kohaldub Soome õigus. Küsimused: tuki@arcticparts.fi"] }
-    ]
-  }
 };
 
 function stripSectionNumber(title: string) {

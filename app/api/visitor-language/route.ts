@@ -6,10 +6,10 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-type VisitorLocale = "fi" | "en" | "sv" | "no" | "et";
+type VisitorLocale = "fi" | "en" | "sv";
 type PreferenceStore = Record<string, VisitorLocale>;
 
-const LOCALES = new Set<VisitorLocale>(["fi", "en", "sv", "no", "et"]);
+const LOCALES = new Set<VisitorLocale>(["fi", "en", "sv"]);
 const STORE_PATH = path.join(process.cwd(), ".visitor-language-preferences.json");
 
 function getVisitorIp(requestHeaders: Headers) {

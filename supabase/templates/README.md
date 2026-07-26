@@ -1,8 +1,8 @@
 # Supabase authentication email templates
 
 The registration flow sends the selected UI locale in `user_metadata.locale`.
-The confirmation template uses that value to render Finnish, English, Swedish,
-Norwegian, or Estonian content and displays Supabase's six-digit `{{ .Token }}`.
+The confirmation template uses that value to render Finnish, English, or Swedish
+content and displays Supabase's six-digit `{{ .Token }}`.
 
 To publish the template in a hosted Supabase project:
 

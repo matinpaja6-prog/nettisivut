@@ -93,6 +93,27 @@ body .listing-detail-page .mobile-image-thumbs {
   }
 }
 
+/* Mobile fact rows: keep long labels away from their values. */
+@media (max-width: 720px) {
+  html body .listing-detail-page .listing-fact-grid span {
+    align-content: start !important;
+    align-items: start !important;
+    display: grid !important;
+    gap: 4px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    line-height: 1.35 !important;
+  }
+
+  html body .listing-detail-page .listing-fact-grid strong {
+    display: block !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+    position: static !important;
+    white-space: normal !important;
+  }
+}
+
 body .seller-page .seller-listing-grid {
   align-items: stretch !important;
   display: grid !important;

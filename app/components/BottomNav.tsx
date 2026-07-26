@@ -28,9 +28,7 @@ import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profil
 const LOCALES = [
   { code: "fi", label: "Suomi", iso: "fi" },
   { code: "en", label: "English", iso: "gb" },
-  { code: "sv", label: "Svenska", iso: "se" },
-  { code: "no", label: "Norsk", iso: "no" },
-  { code: "et", label: "Eesti", iso: "ee" },
+  { code: "sv", label: "Svenska", iso: "se" }
 ];
 
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
@@ -231,9 +229,7 @@ export default function BottomNav() {
   const labels: Record<string, string[]> = {
     fi: ["Etusivu", "Ilmoitukset", "Luo", "Viestit", "Profiili"],
     en: ["Home", "Alerts", "New", "Messages", "Profile"],
-    sv: ["Hem", "Notiser", "Ny", "Meddelanden", "Profil"],
-    no: ["Hjem", "Varsler", "Ny", "Meldinger", "Profil"],
-    et: ["Avaleht", "Teated", "Uus", "Sõnumid", "Profiil"],
+    sv: ["Hem", "Notiser", "Ny", "Meddelanden", "Profil"]
   };
   const [, , , , l4] = labels[locale] ?? labels.fi;
 

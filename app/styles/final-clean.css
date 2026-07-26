@@ -1,4 +1,4 @@
-﻿/* Final visual cleanup: remove heavy page/card outlines across the app. */
+/* Final visual cleanup: remove heavy page/card outlines across the app. */
 body :is(
   main.page,
   .container,
@@ -752,7 +752,7 @@ html body .seller-page .seller-ref-phone-pill::after {
   background: #16c784 !important;
   border-radius: 999px !important;
   color: #062218 !important;
-  content: "âœ“" !important;
+  content: "✓" !important;
   display: inline-flex !important;
   font-size: 10px !important;
   height: 14px !important;
@@ -4771,7 +4771,7 @@ body .seller-page .sp-header-info h1::after {
   background: linear-gradient(135deg, #ff9d2e, #ff6a00) !important;
   border-radius: 999px !important;
   color: white !important;
-  content: "âœ“" !important;
+  content: "✓" !important;
   display: inline-flex !important;
   font-size: 15px !important;
   height: 26px !important;
@@ -6207,7 +6207,7 @@ html body .seller-page .seller-ref-logo {
 
 html body .seller-page .seller-ref-logo::before {
   color: #10a8dd !important;
-  content: "âœ£" !important;
+  content: "✣" !important;
   font-size: 21px !important;
   line-height: 0.7 !important;
   margin-bottom: 2px !important;
@@ -6306,7 +6306,7 @@ html body .seller-page .seller-ref-phone-pill::after {
   background: #12b981 !important;
   border-radius: 999px !important;
   color: #062617 !important;
-  content: "âœ“" !important;
+  content: "✓" !important;
   display: inline-flex !important;
   font-size: 9px !important;
   height: 13px !important;
@@ -7845,7 +7845,7 @@ html body .seller-page .seller-ref-phone-pill::after {
   background: #18c978 !important;
   border-radius: 999px !important;
   color: #062218 !important;
-  content: "âœ“" !important;
+  content: "✓" !important;
   display: inline-flex !important;
   font-size: 10px !important;
   height: 14px !important;

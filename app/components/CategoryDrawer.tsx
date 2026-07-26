@@ -58,13 +58,13 @@ const categoryIcons: Record<string, ReactNode> = {
   Ohjaus:                <Navigation size={20} />,
   "Ohjaus akseli":       <Navigation size={20} />,
   "Ohjauksen osat":      <Navigation size={20} />,
-  Sähköjärjestelmät:     <Zap size={20} />,
-  Sähkö:                 <Zap size={20} />,
+  "Sähköjärjestelmät":     <Zap size={20} />,
+  "Sähkö":                 <Zap size={20} />,
   "Sähkö osat":          <Zap size={20} />,
   "Jäähdytys & polttoaine": <Droplets size={20} />,
-  Jäähdytys:             <Thermometer size={20} />,
+  "Jäähdytys":             <Thermometer size={20} />,
   Polttoaine:            <Droplets size={20} />,
-  Polttoainejärjestelmä: <Droplets size={20} />,
+  "Polttoainejärjestelmä": <Droplets size={20} />,
   Pakoputkisto:          <Wrench size={20} />,
   Runko:                 <Shield size={20} />,
   "Runko & katteet":     <Shield size={20} />,
@@ -82,7 +82,7 @@ const partIcons: Record<string, ReactNode> = {
   Moottorit: <Cog size={20} />,
   Sylinterit: <Cylinder size={20} />,
   "Sylinterin kannet": <Layers size={20} />,
-  Männät: <CircleDot size={20} />,
+  "Männät": <CircleDot size={20} />,
   Kampiakselit: <Gauge size={20} />,
   "Moottorin lohkot": <Box size={20} />,
   "Laakerit & tiivisteet": <Nut size={20} />,
@@ -119,7 +119,7 @@ const partIcons: Record<string, ReactNode> = {
   "Telaston iskunvaimentimet": <Activity size={20} />,
   "Kokonainen ohjaus": <Navigation size={20} />,
   Ohjaustangot: <Navigation size={20} />,
-  Käsisuojat: <Shield size={20} />,
+  "Käsisuojat": <Shield size={20} />,
   "Tangon korokepalat": <Layers size={20} />,
   Kaasukahvat: <Gauge size={20} />,
   Kaasuvaijerit: <Cable size={20} />,
@@ -148,17 +148,17 @@ const partIcons: Record<string, ReactNode> = {
   "Kytkimet & katkaisijat": <Zap size={20} />,
   "Kokonainen jäähdytysjärjestelmä": <Thermometer size={20} />,
   "Kokonainen polttoainejärjestelmä": <Fuel size={20} />,
-  Jäähdyttimet: <Fan size={20} />,
+  "Jäähdyttimet": <Fan size={20} />,
   Vesipumput: <Droplets size={20} />,
   Letkut: <Cable size={20} />,
   Polttoainepumput: <Fuel size={20} />,
   Kaasuttimet: <Fuel size={20} />,
-  Ruiskutusjärjestelmät: <Fuel size={20} />,
+  "Ruiskutusjärjestelmät": <Fuel size={20} />,
   "Polttoainesäiliöt & tankit": <Fuel size={20} />,
   "Kokonainen pakoputkisto": <Wrench size={20} />,
-  Alkukäyrät: <Wrench size={20} />,
+  "Alkukäyrät": <Wrench size={20} />,
   "Pakosarjat & Y-haarat": <Wrench size={20} />,
-  Äänenvaimentimet: <Wrench size={20} />,
+  "Äänenvaimentimet": <Wrench size={20} />,
   Resonanssiputket: <Wrench size={20} />,
   "Kokonainen runko": <Shield size={20} />,
   "Kokonainen katesarja": <Layers size={20} />,
@@ -700,10 +700,11 @@ function removeDynamicGroupChild(
 
 /* ── component ──────────────────────────────────────── */
 export const CC_OPTIONS: Record<string, string[]> = {
+  Moottoripyörä: ["125", "150", "200", "250", "300", "350", "400", "450", "500", "600", "650", "700", "750", "800", "850", "900", "950", "1000", "1100", "1200", "1250", "1300", "1400", "1600", "1800+"],
   Moottorikelkka: ["250", "300", "400", "440", "500", "550", "600", "650", "700", "800", "850", "900", "1000", "1200+"],
   "Mönkijä":      ["250", "300", "400", "450", "500", "570", "650", "700", "800", "850", "1000", "1200+"],
   Motocross:      ["50", "65", "85", "125", "150", "250", "300", "350", "450", "500"],
-  Mopot:          ["50", "65", "80", "90", "100", "110", "125", "150"],
+  Mopot:          ["50", "65", "80", "90", "100", "110"],
 };
 export const DEFAULT_CC_OPTIONS = ["250", "300", "400", "500", "600", "700", "800", "1000", "1200+"];
 const YEAR_OPTIONS = Array.from(
@@ -855,6 +856,20 @@ function uniqueOptions(values: Array<string | undefined>) {
 }
 
 export const VEHICLE_SUBTYPE_OPTIONS: Record<string, string[]> = {
+  Moottoripyörä: [
+    "Naked - moottoripyörä",
+    "Sport - moottoripyörä",
+    "Sport touring - moottoripyörä",
+    "Touring - moottoripyörä",
+    "Adventure - moottoripyörä",
+    "Enduro - moottoripyörä",
+    "Supermoto - moottoripyörä",
+    "Cruiser - moottoripyörä",
+    "Custom - moottoripyörä",
+    "Classic / retro - moottoripyörä",
+    "Skootteri 125 cm³ ja yli - moottoripyörä",
+    "Muu tieliikenne - moottoripyörä"
+  ],
   Moottorikelkka: [
     "Crossover - moottorikelkka",
     "Deep snow - moottorikelkka",
@@ -885,16 +900,14 @@ export const VEHICLE_SUBTYPE_OPTIONS: Record<string, string[]> = {
     "Skootteri - mopo",
     "Supermoto - mopo",
     "Enduro - mopo",
-    "Manki / monkey - mopo",
-    "Piikki 125 - mopo"
+    "Manki / monkey - mopo"
   ],
   Mopo: [
     "Mopo - mopo",
     "Skootteri - mopo",
     "Supermoto - mopo",
     "Enduro - mopo",
-    "Manki / monkey - mopo",
-    "Piikki 125 - mopo"
+    "Manki / monkey - mopo"
   ]
 };
 
@@ -908,6 +921,7 @@ export function getCategoryVehicleKey(vehicle: string) {
 
 export function getCommonVehicleKey(vehicle: string) {
   const normalized = normalizeIconText(vehicle);
+  if (normalized.includes("moottoripyora") || normalized.includes("motorcycle")) return "motorcycle";
   if (normalized.includes("moottorikelkka")) return "snowmobile";
   if (normalized.includes("monkija") || normalized.includes("nkij")) return "atv";
   if (normalized.includes("motocross")) return "motocross";
@@ -965,6 +979,45 @@ export function getModelEngineOptions(
 type CategoryStartKind = string;
 
 export const BRAND_MODELS: Record<string, Record<string, string[]>> = {
+  Moottoripyörä: {
+    AJP: ["PR7 650 Adventure"],
+    Aprilia: ["RS 125", "Tuono 125", "SX 125", "RX 125", "RS 457", "RS 660", "RSV4", "Tuono 457", "Tuono 660", "Tuono V4", "Tuareg 660", "Shiver 750", "Shiver 900", "Dorsoduro 750", "Dorsoduro 900", "Caponord 1200"],
+    Benelli: ["BN 125", "Leoncino 125", "Leoncino 500", "Leoncino 800", "TRK 502", "TRK 702", "502C", "752S"],
+    Beta: ["RR 125", "RR Motard 125", "Alp 4.0", "RR 200", "RR 250", "RR 300", "RR 350", "RR 390", "RR 430", "RR 480"],
+    BMW: ["G 310 R", "G 310 GS", "F 750 GS", "F 800 GS", "F 850 GS", "F 900 R", "F 900 XR", "F 900 GS", "R nineT", "R 1200 GS", "R 1250 GS", "R 1250 RT", "R 1300 GS", "S 1000 R", "S 1000 RR", "S 1000 XR", "M 1000 R", "M 1000 RR", "K 1600 GT", "K 1600 GTL"],
+    BSA: ["Gold Star 650"],
+    Brixton: ["Cromwell 125", "Felsberg 125", "Sunray 125", "Crossfire 125"],
+    Buell: ["XB9", "XB12", "1125R", "1125CR", "Hammerhead 1190"],
+    "Can-Am": ["Ryker 600", "Ryker 900", "Spyder F3", "Spyder RT"],
+    CFMOTO: ["125NK", "300NK", "450NK", "450SR", "450MT", "650NK", "650MT", "700CL-X", "800NK", "800MT"],
+    Ducati: ["Monster 696", "Monster 797", "Monster 821", "Monster 937", "Monster 1200", "Panigale V2", "Panigale V4", "Streetfighter V2", "Streetfighter V4", "Multistrada 950", "Multistrada V2", "Multistrada V4", "Multistrada 1200", "Multistrada 1260", "Scrambler 800", "Scrambler 1100", "Diavel", "XDiavel", "DesertX", "Hypermotard 698", "Hypermotard 950", "Supersport 950"],
+    Fantic: ["Caballero 125", "XEF 125", "XMF 125", "Caballero 500", "Caballero 700", "XEF 250", "XEF 450"],
+    GasGas: ["EC 125", "SM 125", "ES 700", "SM 700", "EC 250", "EC 300", "EC 350"],
+    "Harley-Davidson": ["Sportster", "Iron 883", "Forty-Eight", "Nightster", "Sport Glide", "Street Bob", "Fat Bob", "Fat Boy", "Low Rider", "Breakout", "Road King", "Road Glide", "Street Glide", "Pan America"],
+    Honda: ["CB125R", "CBF125", "CBR125R", "XL125V Varadero", "MSX125", "Monkey 125", "Dax 125", "Super Cub C125", "PCX125", "Forza 125", "CB300R", "CB500F", "CB650R", "CB750 Hornet", "CB1000R", "CBR500R", "CBR600RR", "CBR650R", "CBR1000RR", "CMX500 Rebel", "CMX1100 Rebel", "NC750X", "NT1100", "VFR800", "VFR1200F", "CRF300L", "CRF300 Rally", "Africa Twin CRF1000L", "Africa Twin CRF1100L", "Transalp XL750", "Gold Wing GL1800", "CB1100", "CL500", "Forza 350", "Forza 750", "X-ADV"],
+    Husqvarna: ["Svartpilen 125", "Vitpilen 125", "TE 125", "SMS 125", "WRE 125", "Svartpilen 401", "Svartpilen 801", "Vitpilen 401", "Vitpilen 701", "Vitpilen 801", "Norden 901", "701 Enduro", "701 Supermoto", "FE 250", "FE 350", "FE 450", "FE 501", "TE 250", "TE 300"],
+    Indian: ["Scout", "Chief", "FTR", "Springfield", "Chieftain", "Challenger", "Roadmaster", "Pursuit"],
+    Kawasaki: ["Ninja 125", "Z125", "Ninja 400", "Ninja 500", "Ninja 650", "Ninja ZX-4R", "Ninja ZX-6R", "Ninja ZX-10R", "Ninja 1000SX", "Ninja H2", "Z400", "Z500", "Z650", "Z900", "Z1000", "Z H2", "Versys 650", "Versys 1000", "Vulcan S", "Vulcan 900", "Eliminator 500", "W800"],
+    Keeway: ["RKF 125", "RKS 125", "Superlight 125", "K-Light 125"],
+    KTM: ["125 Duke", "RC 125", "125 EXC", "125 EXC Six Days", "390 Duke", "390 Adventure", "690 Duke", "690 Enduro R", "690 SMC R", "790 Duke", "790 Adventure", "890 Duke", "890 Adventure", "890 SMT", "990 Duke", "1090 Adventure", "1190 Adventure", "1290 Super Duke R", "1290 Super Duke GT", "1290 Super Adventure", "1390 Super Duke R", "1390 Super Adventure", "RC 390", "150 EXC", "250 EXC", "300 EXC", "350 EXC-F", "450 EXC-F", "500 EXC-F"],
+    Kymco: ["Agility 125", "People S 125", "Downtown 125", "Downtown 350", "Xciting 400", "AK 550"],
+    "Moto Guzzi": ["V7", "V9", "V85 TT", "V100 Mandello", "Stelvio", "California 1400", "Audace"],
+    "Moto Morini": ["Seiemmezzo 650", "X-Cape 650", "Corsaro 750"],
+    "MV Agusta": ["Brutale", "Dragster", "F3", "Superveloce", "Turismo Veloce", "Enduro Veloce"],
+    Norton: ["Commando 961", "V4SV"],
+    Piaggio: ["Beverly 300", "Beverly 400", "MP3 300", "MP3 400", "MP3 500", "MP3 530"],
+    QJMotor: ["SRK 400", "SRK 550", "SRK 700", "SRT 550", "SRT 700", "SRT 800"],
+    "Royal Enfield": ["Hunter 350", "Classic 350", "Meteor 350", "Bullet 350", "Himalayan 411", "Himalayan 450", "Scram 411", "Interceptor 650", "Continental GT 650", "Super Meteor 650", "Shotgun 650"],
+    Sherco: ["SE 250", "SE 300", "SEF 250", "SEF 300", "SEF 450", "SEF 500"],
+    Suzuki: ["GSX-R125", "GSX-S125", "Address 125", "Burgman Street 125", "GSX-8S", "GSX-8R", "GSX-S750", "GSX-S950", "GSX-S1000", "GSX-R600", "GSX-R750", "GSX-R1000", "Hayabusa", "SV650", "V-Strom 650", "V-Strom 800", "V-Strom 1000", "V-Strom 1050", "Katana", "Burgman 400", "Burgman 650", "DR-Z400SM"],
+    SYM: ["Jet X 125", "Cruisym 125", "Cruisym 300", "Maxsym 400", "Maxsym TL 508"],
+    Triumph: ["Trident 660", "Street Triple 765", "Speed Triple 1200", "Tiger Sport 660", "Tiger 850", "Tiger 900", "Tiger 1200", "Bonneville T100", "Bonneville T120", "Speed Twin 900", "Speed Twin 1200", "Scrambler 400 X", "Scrambler 900", "Scrambler 1200", "Thruxton", "Rocket 3", "Daytona 660", "Speed 400"],
+    Vespa: ["Primavera 125", "Sprint 125", "GTS 125", "GTS 300", "GTV 300"],
+    Voge: ["125R", "300R", "500R", "500DS", "525DSX", "650DSX", "900DSX"],
+    Yamaha: ["MT-125", "YZF-R125", "WR125R", "WR125X", "XSR125", "NMAX 125", "XMAX 125", "MT-03", "MT-07", "MT-09", "MT-10", "XSR700", "XSR900", "Tracer 7", "Tracer 9", "Ténéré 700", "YZF-R3", "YZF-R6", "YZF-R7", "YZF-R1", "FJR1300", "XJ6", "FZ6", "FZ8", "FZ1", "TMAX", "XMAX 300", "XMAX 400", "Niken", "Bolt"],
+    Zero: ["S", "SR", "SR/F", "SR/S", "DSR", "DSR/X", "FX", "FXE"],
+    Zontes: ["125U", "125G1", "125M", "350R", "350T", "350GK", "350E", "703F"]
+  },
   Moottorikelkka: {
     "Lynx":       ["Rave RS", "Rave Racing", "Rave", "Shredder", "Commander", "BoonDocker", "Xterrain", "Xtrim", "Adventure", "Ranger", "Yeti", "Spirit"],
     "Ski-Doo":    ["MXZ RS", "MXZ", "Freeride", "Summit", "Backcountry", "Renegade", "Expedition", "Tundra", "Skandic", "Grand Touring", "Enduro"],
@@ -1986,24 +2039,6 @@ export default function CategoryDrawer({
       mopeds: "Mopeder och 125cc",
       all: "Bläddra bland alla delar"
     },
-    no: {
-      title: "Hva vil du kategorisere?",
-      lead: "Velg først kjøretøyklasse. Deretter kan du avgrense merke, modell, årsmodell og eksakte deler.",
-      snowmobiles: "Scootere, belter, motorer",
-      atvs: "ATV- og UTV-deler",
-      motocross: "Cross og enduro",
-      mopeds: "Mopeder og 125cc",
-      all: "Bla gjennom alle deler"
-    },
-    et: {
-      title: "Mida soovid kategoriseerida?",
-      lead: "Vali esmalt sõidukiklass. Seejärel saad täpsustada margi, mudeli, aasta ja osad.",
-      snowmobiles: "Saanid, roomikud, mootorid",
-      atvs: "ATV ja UTV osad",
-      motocross: "Kross ja enduro",
-      mopeds: "Mopeedid ja 125cc",
-      all: "Sirvi kõiki osi"
-    }
   }[locale];
   const startTiles: Array<{
     kind: CategoryStartKind;
@@ -2107,7 +2142,10 @@ export default function CategoryDrawer({
 
   function renderVehicleSubtypeMenu() {
     const subtypeOptions = vehicle ? (VEHICLE_SUBTYPE_OPTIONS[vehicle] ?? []) : [];
-    const selectedLabel = vehicleSubtype || "Kaikki tyypit";
+    const allTypesLabel = locale === "en" ? "All types" : locale === "sv" ? "Alla typer" : "Kaikki tyypit";
+    const selectedLabel = vehicleSubtype
+      ? translateCategory(locale, vehicleSubtype)
+      : allTypesLabel;
     const disabled = !vehicle || subtypeOptions.length === 0;
 
     return (
@@ -2160,7 +2198,7 @@ export default function CategoryDrawer({
                   role="option"
                   aria-selected={active}
                 >
-                  {option || "Kaikki tyypit"}
+                  {option ? translateCategory(locale, option) : allTypesLabel}
                 </button>
               );
             })}

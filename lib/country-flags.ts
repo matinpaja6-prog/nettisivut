@@ -34,10 +34,7 @@ const DISPLAY_NAME_LOCALES = [
   "fi",
   "en",
   "sv",
-  "no",
-  "nb",
   "da",
-  "et",
   "de",
   "fr",
   "es",
@@ -63,10 +60,7 @@ const COUNTRY_ALIASES: Record<string, string> = {
   denmark: "DK",
   "czech republic": "CZ",
   englanti: "GB",
-  eesti: "EE",
   espanja: "ES",
-  estland: "EE",
-  estonia: "EE",
   finland: "FI",
   finnland: "FI",
   france: "FR",
@@ -75,7 +69,7 @@ const COUNTRY_ALIASES: Record<string, string> = {
   ireland: "IE",
   islanti: "IS",
   italia: "IT",
-  itävalta: "AT",
+  "itävalta": "AT",
   kreikka: "GR",
   kroatia: "HR",
   latvia: "LV",
@@ -85,9 +79,6 @@ const COUNTRY_ALIASES: Record<string, string> = {
   moldova: "MD",
   montenegro: "ME",
   nederland: "NL",
-  norja: "NO",
-  norge: "NO",
-  norway: "NO",
   poland: "PL",
   portugali: "PT",
   puola: "PL",
@@ -103,27 +94,24 @@ const COUNTRY_ALIASES: Record<string, string> = {
   sverige: "SE",
   suomi: "FI",
   tanska: "DK",
-  tšekki: "CZ",
+  "tšekki": "CZ",
   tsekki: "CZ",
   turkki: "TR",
   uk: "GB",
   ukraina: "UA",
   unkari: "HU",
   usa: "US",
-  venäjä: "RU",
+  "venäjä": "RU",
   venaja: "RU",
-  viro: "EE",
   "yhdistynyt kuningaskunta": "GB",
   yhdysvallat: "US"
 };
 
 const LOCALIZED_COUNTRY_NAMES: Record<string, Record<string, string>> = {
-  FI: { fi: "Suomi", en: "Finland", sv: "Finland", no: "Finland", nb: "Finland", et: "Soome" },
-  SE: { fi: "Ruotsi", en: "Sweden", sv: "Sverige", no: "Sverige", nb: "Sverige", et: "Rootsi" },
-  NO: { fi: "Norja", en: "Norway", sv: "Norge", no: "Norge", nb: "Norge", et: "Norra" },
-  EE: { fi: "Viro", en: "Estonia", sv: "Estland", no: "Estland", nb: "Estland", et: "Eesti" },
-  DE: { fi: "Saksa", en: "Germany", sv: "Tyskland", no: "Tyskland", nb: "Tyskland", et: "Saksamaa" },
-  DK: { fi: "Tanska", en: "Denmark", sv: "Danmark", no: "Danmark", nb: "Danmark", et: "Taani" }
+  FI: { fi: "Suomi", en: "Finland", sv: "Finland" },
+  SE: { fi: "Ruotsi", en: "Sweden", sv: "Sverige" },
+  DE: { fi: "Saksa", en: "Germany", sv: "Tyskland" },
+  DK: { fi: "Tanska", en: "Denmark", sv: "Danmark" }
 };
 
 let countryNameIndex: Map<string, string> | null = null;
@@ -211,7 +199,7 @@ function getLocalizedCountryName(code: string, locale?: string | null, fallbackN
   const upper = code.trim().toUpperCase();
   if (!REGION_CODE_SET.has(upper)) return fallbackName?.trim() || code;
 
-  const normalizedLocale = locale === "no" ? "nb" : locale?.trim().toLowerCase();
+  const normalizedLocale = locale?.trim().toLowerCase();
   const localName = normalizedLocale ? LOCALIZED_COUNTRY_NAMES[upper]?.[normalizedLocale] : null;
   if (localName) return localName;
 

@@ -624,3 +624,112 @@ html body .site-footer .footer-col {
 html body .site-footer .footer-col h4 {
   white-space: nowrap !important;
 }
+
+/* Desktop footer: preserve the full, spacious layout on every page. */
+@media (min-width: 901px) {
+  html body .site-footer.site-footer {
+    min-height: 420px !important;
+    padding: 54px clamp(46px, 5.25vw, 76px) 0 !important;
+  }
+
+  html body .site-footer.site-footer .footer-inner {
+    align-items: start !important;
+    gap: clamp(72px, 8vw, 118px) !important;
+    grid-template-columns: minmax(280px, 320px) minmax(0, 1fr) !important;
+    max-width: 1280px !important;
+    padding: 0 0 46px !important;
+  }
+
+  html body .site-footer.site-footer .footer-brand {
+    border-left: 0 !important;
+    border-right: 0 !important;
+    display: grid !important;
+    gap: 16px !important;
+    max-width: 320px !important;
+    padding-right: 0 !important;
+    transform: none !important;
+  }
+
+  html body .site-footer.site-footer .footer-brand::before,
+  html body .site-footer.site-footer .footer-brand::after {
+    border: 0 !important;
+    content: none !important;
+    display: none !important;
+  }
+
+  html body .site-footer.site-footer .footer-logo {
+    display: block !important;
+    height: auto !important;
+    margin: 0 !important;
+    width: 200px !important;
+  }
+
+  html body .site-footer.site-footer .footer-maskines-logo {
+    display: block !important;
+    height: auto !important;
+    max-width: none !important;
+    min-width: 200px !important;
+    width: 200px !important;
+  }
+
+  html body .site-footer.site-footer .footer-tagline {
+    display: block !important;
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+    margin: 0 !important;
+    max-width: 300px !important;
+  }
+
+  html body .site-footer.site-footer .footer-socials {
+    display: flex !important;
+    gap: 10px !important;
+    visibility: visible !important;
+  }
+
+  html body .site-footer.site-footer .footer-socials a {
+    height: 38px !important;
+    width: 38px !important;
+  }
+
+  html body .site-footer.site-footer .footer-links-grid {
+    align-items: start !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    gap: clamp(36px, 4.4vw, 64px) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    padding: 0 !important;
+  }
+
+  html body .site-footer.site-footer .footer-col h4 {
+    font-size: 13px !important;
+    padding-bottom: 13px !important;
+  }
+
+  html body .site-footer.site-footer .footer-col {
+    border-left: 0 !important;
+    border-right: 0 !important;
+  }
+
+  html body .site-footer.site-footer .footer-col ul {
+    gap: 13px !important;
+  }
+
+  html body .site-footer.site-footer .footer-col a {
+    font-size: 14px !important;
+    line-height: 1.35 !important;
+  }
+
+  html body .site-footer.site-footer .footer-bottom {
+    align-items: center !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    max-width: 1280px !important;
+    padding: 21px 0 24px !important;
+    visibility: visible !important;
+  }
+
+  html body .site-footer.site-footer .footer-bottom-links {
+    display: flex !important;
+    gap: 24px !important;
+  }
+}

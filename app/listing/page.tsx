@@ -66,10 +66,8 @@ function readSavedListingIds() {
 
 const vehicleTypeTranslations: Record<Locale, Record<string, string>> = {
   fi: {},
-  en: { Moottorikelkka: "Snowmobile", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-  sv: { Moottorikelkka: "Snöskoter", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-  no: { Moottorikelkka: "Snøscooter", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-  et: { Moottorikelkka: "Mootorsaan", Mönkijä: "ATV", Motocross: "Motokross", Mopot: "Mopeed" }
+  en: { Moottorikelkka: "Snowmobile", "Mönkijä": "ATV", Motocross: "Motocross", Mopot: "Moped" },
+  sv: { Moottorikelkka: "Snöskoter", "Mönkijä": "ATV", Motocross: "Motocross", Mopot: "Moped" },
 };
 
 export default function ListingsIndexPage() {
@@ -330,7 +328,7 @@ export default function ListingsIndexPage() {
                         <UserRound size={15} />
                       </span>
                       <span className={homeStyles.sellerText}>
-                        <strong>{listing.seller_name}</strong>
+                        <strong data-person-name data-no-auto-translate translate="no">{listing.seller_name}</strong>
                         <small>{t.viewProfile}</small>
                       </span>
                     </Link>

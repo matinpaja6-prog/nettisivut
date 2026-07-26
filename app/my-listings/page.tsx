@@ -371,83 +371,61 @@ export default function MyListingsPage() {
       fi: "Ilmoitusten hallinta",
       en: "Listing management",
       sv: "Annonshantering",
-      no: "Annonseadministrasjon",
-      et: "Kuulutuste haldus"
     }[locale],
     managementHelp: {
       fi: "Muokkaa, avaa tai poista omia myynti-ilmoituksiasi.",
       en: "Edit, open or delete your own sales listings.",
       sv: "Redigera, öppna eller ta bort dina egna försäljningsannonser.",
-      no: "Rediger, åpne eller slett dine egne salgsannonser.",
-      et: "Muuda, ava või kustuta oma müügikuulutusi."
     }[locale],
     loginToView: {
       fi: "Kirjaudu sisään nähdäksesi omat ilmoituksesi.",
       en: "Log in to view your listings.",
       sv: "Logga in för att se dina annonser.",
-      no: "Logg inn for å se annonsene dine.",
-      et: "Logi sisse, et näha oma kuulutusi."
     }[locale],
     noListings: {
       fi: "Sinulla ei ole vielä ilmoituksia.",
       en: "You do not have any listings yet.",
       sv: "Du har inga annonser ännu.",
-      no: "Du har ingen annonser ennå.",
-      et: "Sul pole veel ühtegi kuulutust."
     }[locale],
     noSubcategory: {
       fi: "Ei alakategoriaa",
       en: "No subcategory",
       sv: "Ingen underkategori",
-      no: "Ingen underkategori",
-      et: "Alamkategooriat pole"
     }[locale],
     imageUrl: {
       fi: "Kuvan osoite",
       en: "Image URL",
       sv: "Bildadress",
-      no: "Bildeadresse",
-      et: "Pildi aadress"
     }[locale],
-    save: { fi: "Tallenna", en: "Save", sv: "Spara", no: "Lagre", et: "Salvesta" }[locale],
-    cancel: { fi: "Peruuta", en: "Cancel", sv: "Avbryt", no: "Avbryt", et: "Tühista" }[locale],
-    edit: { fi: "Muokkaa", en: "Edit", sv: "Redigera", no: "Rediger", et: "Muuda" }[locale],
-    delete: { fi: "Poista", en: "Delete", sv: "Ta bort", no: "Slett", et: "Kustuta" }[locale],
-    views: { fi: "katselua", en: "views", sv: "visningar", no: "visninger", et: "vaatamist" }[locale],
+    save: { fi: "Tallenna", en: "Save", sv: "Spara" }[locale],
+    cancel: { fi: "Peruuta", en: "Cancel", sv: "Avbryt" }[locale],
+    edit: { fi: "Muokkaa", en: "Edit", sv: "Redigera" }[locale],
+    delete: { fi: "Poista", en: "Delete", sv: "Ta bort" }[locale],
+    views: { fi: "katselua", en: "views", sv: "visningar" }[locale],
     saving: {
       fi: "Tallennetaan ilmoitusta...",
       en: "Saving listing...",
       sv: "Sparar annons...",
-      no: "Lagrer annonse...",
-      et: "Kuulutust salvestatakse..."
     }[locale],
     updated: {
       fi: "Ilmoitus päivitetty.",
       en: "Listing updated.",
       sv: "Annonsen har uppdaterats.",
-      no: "Annonsen er oppdatert.",
-      et: "Kuulutus uuendatud."
     }[locale],
     confirmDelete: {
       fi: "Poistetaanko ilmoitus pysyvästi?",
       en: "Delete this listing permanently?",
       sv: "Ta bort annonsen permanent?",
-      no: "Slette annonsen permanent?",
-      et: "Kustuta kuulutus jäädavalt?"
     }[locale],
     deleting: {
       fi: "Poistetaan ilmoitusta...",
       en: "Deleting listing...",
       sv: "Tar bort annons...",
-      no: "Sletter annonse...",
-      et: "Kuulutust kustutatakse..."
     }[locale],
     deleted: {
       fi: "Ilmoitus poistettu.",
       en: "Listing deleted.",
       sv: "Annonsen har tagits bort.",
-      no: "Annonsen er slettet.",
-      et: "Kuulutus kustutatud."
     }[locale]
   };
 

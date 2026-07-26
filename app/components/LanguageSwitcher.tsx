@@ -8,9 +8,7 @@ import { translateLocalizedPath } from "@/lib/routes";
 const LOCALES = [
   { code: "fi", label: "Suomi",   iso: "fi" },
   { code: "en", label: "English", iso: "gb" },
-  { code: "sv", label: "Svenska", iso: "se" },
-  { code: "no", label: "Norsk",   iso: "no" },
-  { code: "et", label: "Eesti",   iso: "ee" },
+  { code: "sv", label: "Svenska", iso: "se" }
 ] as const;
 
 function Flag({ iso }: { iso: string }) {

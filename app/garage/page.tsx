@@ -35,9 +35,9 @@ import { readCachedResource, writeCachedResource } from "@/lib/client-resource-c
 import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 
-type VehicleClass = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopo";
+type VehicleClass = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopo" | "Moottoripyörä";
 
-const vehicleClasses: VehicleClass[] = ["Moottorikelkka", "Mönkijä", "Motocross", "Mopo"];
+const vehicleClasses: VehicleClass[] = ["Moottorikelkka", "Mönkijä", "Motocross", "Mopo", "Moottoripyörä"];
 const otherMakeValue = "__other_make__";
 const otherModelValue = "__other_model__";
 const otherYearValue = "__other_year__";
@@ -48,6 +48,7 @@ const garageYearOptions = Array.from(
 );
 
 const classBrands: Record<string, string[]> = {
+  Moottoripyörä: ["Honda", "Yamaha", "Kawasaki", "Suzuki", "KTM", "BMW", "Ducati", "Triumph", "Aprilia", "Harley-Davidson", "Husqvarna", "Indian", "Royal Enfield", "Moto Guzzi", "CFMOTO", "Beta", "Fantic", "GasGas"],
   Moottorikelkka: ["Lynx", "Ski-Doo", "Polaris", "Arctic Cat", "Yamaha"],
   [vehicleClasses[1]]: ["Can-Am", "Polaris", "Yamaha", "Honda", "CFMOTO", "Kawasaki"],
   Motocross: ["KTM", "Yamaha", "Honda", "Kawasaki", "Husqvarna", "Suzuki", "GasGas", "Beta", "Sherco", "TM"],
@@ -55,6 +56,7 @@ const classBrands: Record<string, string[]> = {
 };
 
 const classModelPlaceholders: Record<string, string> = {
+  Moottoripyörä: "esim. MT-07 / CB650R / 790 Duke",
   Moottorikelkka: "esim. RMK 800 / 600 ACE",
   [vehicleClasses[1]]: "esim. Outlander 650",
   Motocross: "esim. SX 125 / CRF 250 / YZ 450",
@@ -62,6 +64,7 @@ const classModelPlaceholders: Record<string, string> = {
 };
 
 const garageBrandOptions: Record<string, string[]> = {
+  Moottoripyörä: ["AJP", "Aprilia", "Benelli", "Beta", "BMW", "Brixton", "BSA", "Buell", "Can-Am", "CFMOTO", "Ducati", "Fantic", "GasGas", "Harley-Davidson", "Honda", "Husqvarna", "Indian", "Kawasaki", "Keeway", "KTM", "Kymco", "Moto Guzzi", "Moto Morini", "MV Agusta", "Norton", "Piaggio", "QJMotor", "Royal Enfield", "Sherco", "Suzuki", "SYM", "Triumph", "Vespa", "Voge", "Yamaha", "Zero", "Zontes"],
   Moottorikelkka: ["Lynx", "Ski-Doo", "Polaris", "Arctic Cat", "Yamaha", "Taiga"],
   [vehicleClasses[1]]: ["Can-Am", "Polaris", "Yamaha", "Honda", "CFMOTO", "Suzuki", "Kawasaki", "Arctic Cat", "TGB", "Kymco", "Linhai", "Segway", "Hisun"],
   Motocross: ["KTM", "Yamaha", "Honda", "Kawasaki", "Husqvarna", "Suzuki", "GasGas", "Beta", "Sherco", "TM", "Fantic"],
@@ -69,6 +72,30 @@ const garageBrandOptions: Record<string, string[]> = {
 };
 
 const garageBrandModels: Record<string, Record<string, string[]>> = {
+  Moottoripyörä: {
+    Aprilia: ["RS 125", "Tuono 125", "SX 125", "RX 125", "RS 457", "RS 660", "RSV4", "Tuono 457", "Tuono 660", "Tuono V4", "Tuareg 660"],
+    Benelli: ["BN 125", "Leoncino 125"],
+    Beta: ["RR 125", "RR Motard 125"],
+    BMW: ["G 310 R", "G 310 GS", "F 800 GS", "F 900 R", "F 900 XR", "R 1250 GS", "R 1300 GS", "S 1000 R", "S 1000 RR"],
+    Brixton: ["Cromwell 125", "Felsberg 125", "Sunray 125", "Crossfire 125"],
+    CFMOTO: ["125NK", "300NK", "450NK", "450SR", "450MT", "650NK", "700CL-X", "800NK", "800MT"],
+    Ducati: ["Monster", "Panigale V2", "Panigale V4", "Streetfighter", "Multistrada", "Scrambler", "Diavel", "DesertX"],
+    "Harley-Davidson": ["Sportster", "Nightster", "Street Bob", "Fat Bob", "Fat Boy", "Low Rider", "Breakout", "Road Glide", "Street Glide", "Pan America"],
+    Fantic: ["Caballero 125", "XEF 125", "XMF 125"],
+    GasGas: ["EC 125", "SM 125"],
+    Honda: ["CB125R", "CBF125", "CBR125R", "XL125V Varadero", "MSX125", "Monkey 125", "Dax 125", "Super Cub C125", "PCX125", "Forza 125", "CB300R", "CB500F", "CB650R", "CB750 Hornet", "CB1000R", "CBR500R", "CBR600RR", "CBR650R", "CBR1000RR", "NC750X", "Africa Twin", "Transalp XL750", "Gold Wing", "Rebel 500", "Rebel 1100"],
+    Husqvarna: ["Svartpilen 125", "Vitpilen 125", "TE 125", "SMS 125", "WRE 125", "Svartpilen 401", "Svartpilen 801", "Vitpilen 401", "Norden 901", "701 Enduro", "701 Supermoto"],
+    Indian: ["Scout", "Chief", "FTR", "Chieftain", "Challenger", "Roadmaster"],
+    Kawasaki: ["Ninja 125", "Z125", "Ninja 400", "Ninja 500", "Ninja 650", "Ninja ZX-6R", "Ninja ZX-10R", "Z400", "Z500", "Z650", "Z900", "Z1000", "Versys 650", "Versys 1000", "Vulcan S"],
+    Keeway: ["RKF 125", "RKS 125", "Superlight 125", "K-Light 125"],
+    KTM: ["125 Duke", "RC 125", "125 EXC", "125 EXC Six Days", "390 Duke", "390 Adventure", "690 Enduro R", "690 SMC R", "790 Duke", "790 Adventure", "890 Duke", "890 Adventure", "990 Duke", "1290 Super Duke R", "1290 Super Adventure", "1390 Super Duke R", "RC 390"],
+    "Moto Guzzi": ["V7", "V9", "V85 TT", "V100 Mandello", "Stelvio"],
+    "Royal Enfield": ["Hunter 350", "Classic 350", "Meteor 350", "Himalayan 450", "Interceptor 650", "Continental GT 650", "Super Meteor 650"],
+    Suzuki: ["GSX-R125", "GSX-S125", "Address 125", "Burgman Street 125", "GSX-8S", "GSX-8R", "GSX-S750", "GSX-S1000", "GSX-R600", "GSX-R750", "GSX-R1000", "Hayabusa", "SV650", "V-Strom 650", "V-Strom 800", "V-Strom 1050"],
+    Triumph: ["Trident 660", "Street Triple 765", "Speed Triple 1200", "Tiger Sport 660", "Tiger 900", "Tiger 1200", "Bonneville", "Speed Twin", "Scrambler", "Rocket 3"],
+    Vespa: ["Primavera 125", "Sprint 125", "GTS 125"],
+    Yamaha: ["MT-125", "YZF-R125", "WR125R", "WR125X", "XSR125", "NMAX 125", "XMAX 125", "MT-03", "MT-07", "MT-09", "MT-10", "XSR700", "XSR900", "Tracer 7", "Tracer 9", "Ténéré 700", "YZF-R3", "YZF-R6", "YZF-R7", "YZF-R1", "FJR1300", "TMAX", "XMAX 300"]
+  },
   Moottorikelkka: {
     Lynx: ["Rave RS", "Rave Racing", "Rave", "Rave RE", "Xtrim", "Xterrain", "Boondocker", "Shredder", "Commander", "Adventure", "49 Ranger", "69 Ranger", "Yeti", "GLX"],
     "Ski-Doo": ["MXZ RS", "MXZ", "MXZ X-RS", "Summit", "Freeride", "Renegade", "Backcountry", "Expedition", "Skandic", "Tundra", "Grand Touring", "Formula", "Mach Z"],
@@ -132,6 +159,7 @@ const garageBrandModels: Record<string, Record<string, string[]>> = {
 };
 
 const classIcons: Record<string, string> = {
+  Moottoripyörä: "🏍️",
   Moottorikelkka: "🏔️",
   [vehicleClasses[1]]: "🏕️",
   Motocross: "🏍️",
@@ -139,6 +167,7 @@ const classIcons: Record<string, string> = {
 };
 
 const VEHICLE_PHOTOS: Record<VehicleClass, string> = {
+  Moottoripyörä: "/vehicles/motocross.png",
   Moottorikelkka: "/vehicles/moottorikelkka.png",
   "Mönkijä": "/vehicles/monkija.png",
   Motocross: "/vehicles/motocross.png",

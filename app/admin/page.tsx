@@ -44,7 +44,6 @@ import {
   adminForceVerifyPhone,
   adminListBannedIps,
   adminListProfiles,
-  adminListListingCreationFeedback,
   adminOverviewStats,
   adminSetPoints,
   adminSetCompanyVerified,
@@ -54,7 +53,6 @@ import {
   isSupabaseConfigured,
   supabase,
   type AdminBannedIp,
-  type ListingCreationFeedback,
   type AdminOverviewStats,
   type AdminProfileRow
 } from "@/lib/supabase";
@@ -63,7 +61,7 @@ import { BASE_LISTING_SLOT_LIMIT } from "@/lib/listing-slots";
 
 import styles from "./admin.module.css";
 
-type TabKey = "overview" | "users" | "listings" | "feedback" | "bans" | "appearance" | "categories";
+type TabKey = "overview" | "users" | "listings" | "bans" | "appearance" | "categories";
 
 type AdminListing = {
   id: string;
@@ -185,9 +183,6 @@ export default function AdminPage() {
   const [listingQuery, setListingQuery] = useState("");
   const [listingStatus, setListingStatus] = useState<ListingStatus>("all");
   const [listingVehicle, setListingVehicle] = useState<string>("all");
-  const [feedbackRows, setFeedbackRows] = useState<ListingCreationFeedback[]>([]);
-  const [feedbackLoading, setFeedbackLoading] = useState(false);
-
   const [bannedIps, setBannedIps] = useState<AdminBannedIp[]>([]);
   const [bannedIpsLoading, setBannedIpsLoading] = useState(false);
   const [bannedUsers, setBannedUsers] = useState<AdminProfileRow[]>([]);
@@ -428,21 +423,6 @@ export default function AdminPage() {
     if (isAdmin && pinUnlocked && activeTab === "listings") void loadListings();
   }, [isAdmin, pinUnlocked, activeTab, loadListings]);
 
-  const loadListingFeedback = useCallback(async () => {
-    setFeedbackLoading(true);
-    const { data, error } = await adminListListingCreationFeedback();
-    if (error) {
-      showError("Arvioiden lataus epäonnistui. Aja Supabasessa supabase/listing-creation-feedback.sql.");
-    } else {
-      setFeedbackRows(data);
-    }
-    setFeedbackLoading(false);
-  }, [showError]);
-
-  useEffect(() => {
-    if (isAdmin && pinUnlocked && activeTab === "feedback") void loadListingFeedback();
-  }, [isAdmin, pinUnlocked, activeTab, loadListingFeedback]);
-
   /* Load banned IPs */
   const loadBannedIps = useCallback(async () => {
     if (!isAdmin) return;
@@ -591,7 +571,6 @@ export default function AdminPage() {
     { key: "overview", label: "Yleiskatsaus", icon: Home },
     { key: "users", label: "Käyttäjät", icon: Truck },
     { key: "listings", label: "Ilmoitukset", icon: ClipboardList },
-    { key: "feedback", label: "Arviot", icon: Star },
     { key: "bans", label: "Bannit", icon: Users },
     { key: "categories", label: "Kategoriat", icon: Car },
     { key: "appearance", label: "Ulkoasu", icon: BarChart3 }
@@ -632,7 +611,6 @@ export default function AdminPage() {
     void loadStats();
     void loadUsers();
     void loadListings();
-    void loadListingFeedback();
   }
 
   return (
@@ -676,52 +654,12 @@ export default function AdminPage() {
       </aside>
 
       <section className={styles.shell}>
-        {!bootLoading && isAdmin && pinUnlocked && (
-          <header className={styles.adminTopbar}>
-            <button type="button" className={styles.adminMenuButton} aria-label="Avaa yleiskatsaus" onClick={() => setActiveTab("overview")}>
-              <ChevronDown size={18} />
-            </button>
-            <label className={styles.adminSearch}>
-              <Search size={18} />
-              <input
-                type="search"
-                placeholder="Hae..."
-                aria-label="Hae admin-dataa"
-                value={adminSearch}
-                onChange={(event) => setAdminSearch(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") submitAdminSearch();
-                }}
-              />
-              <button type="button" onClick={submitAdminSearch}>Hae</button>
-            </label>
-            <div className={styles.adminTopbarSpacer} />
-            <button type="button" className={styles.adminBell} aria-label="Päivitä tiedot" onClick={refreshAdminDashboard}>
-              <Bell size={21} />
-              <span />
-            </button>
-            <div className={styles.adminUserBadge}>
-              <div className={styles.adminAvatar}>{adminInitial}</div>
-              <div>
-                <strong>{adminName}</strong>
-                <span>Admin</span>
-              </div>
-              <ChevronDown size={15} />
-            </div>
-          </header>
-        )}
-
         {!bootLoading && isAdmin && pinUnlocked && stats && (
           <div className={styles.dashboardHero}>
             <div>
               <h1>Tervetuloa takaisin, {adminName}! <span aria-hidden="true">👋</span></h1>
               <p>Tässä näet, mitä kauppapaikalla tapahtuu tänään.</p>
             </div>
-            <button type="button" className={styles.dateRangeButton} onClick={refreshAdminDashboard}>
-              <CalendarDays size={16} />
-              {dashboardRange}
-              <ChevronDown size={15} />
-            </button>
           </div>
         )}
 
@@ -839,8 +777,6 @@ export default function AdminPage() {
               <>
                 <DashboardOverviewPanel
                   stats={stats}
-                  loading={statsLoading}
-                  onOpenReport={() => setActiveTab("listings")}
                 />
                 <RecentEventsPanelV2
                   users={users}
@@ -897,14 +833,6 @@ export default function AdminPage() {
                 onStatusChange={setListingStatus}
                 vehicle={listingVehicle}
                 onVehicleChange={setListingVehicle}
-              />
-            )}
-
-            {activeTab === "feedback" && (
-              <ListingFeedbackPanel
-                rows={feedbackRows}
-                loading={feedbackLoading}
-                onRefresh={loadListingFeedback}
               />
             )}
 
@@ -1263,15 +1191,13 @@ function dashboardSpark(values: number[]) {
     .join(" ");
 }
 
-function DashboardOverviewPanel({ stats, loading, onOpenReport }: {
+function DashboardOverviewPanel({ stats }: {
   stats: AdminOverviewStats | null;
-  loading: boolean;
-  onOpenReport: () => void;
 }) {
   const cards = [
     {
       label: "Käyttäjät",
-      value: stats?.profiles_month ?? 0,
+      value: stats?.profiles_total ?? 0,
       today: stats?.profiles_today ?? 0,
       week: stats?.profiles_7d ?? 0,
       month: stats?.profiles_month ?? 0,
@@ -1281,7 +1207,7 @@ function DashboardOverviewPanel({ stats, loading, onOpenReport }: {
     },
     {
       label: "Ilmoitukset",
-      value: stats?.listings_month ?? 0,
+      value: stats?.listings_total ?? 0,
       today: stats?.listings_today ?? 0,
       week: stats?.listings_7d ?? 0,
       month: stats?.listings_month ?? 0,
@@ -1291,7 +1217,7 @@ function DashboardOverviewPanel({ stats, loading, onOpenReport }: {
     },
     {
       label: "Myydyt",
-      value: stats?.sold_month ?? 0,
+      value: stats?.sold_total ?? 0,
       today: stats?.sold_today ?? 0,
       week: stats?.sold_7d ?? 0,
       month: stats?.sold_month ?? 0,
@@ -1301,7 +1227,7 @@ function DashboardOverviewPanel({ stats, loading, onOpenReport }: {
     },
     {
       label: "Liikevaihto",
-      value: stats?.revenue_month ?? 0,
+      value: stats?.revenue_total ?? 0,
       today: stats?.revenue_today ?? 0,
       week: stats?.revenue_7d ?? 0,
       month: stats?.revenue_month ?? 0,
@@ -1312,7 +1238,7 @@ function DashboardOverviewPanel({ stats, loading, onOpenReport }: {
     },
     {
       label: "Sivulataukset",
-      value: stats?.visits_month ?? 0,
+      value: stats?.visits_total ?? 0,
       today: stats?.visits_today ?? 0,
       week: stats?.visits_7d ?? 0,
       month: stats?.visits_month ?? 0,
@@ -1322,7 +1248,7 @@ function DashboardOverviewPanel({ stats, loading, onOpenReport }: {
     },
     {
       label: "Uniikit kävijät",
-      value: stats?.unique_visitors_month ?? 0,
+      value: stats?.unique_visitors_total ?? 0,
       today: stats?.unique_visitors_today ?? 0,
       week: stats?.unique_visitors_7d ?? 0,
       month: stats?.unique_visitors_month ?? 0,
@@ -1332,7 +1258,7 @@ function DashboardOverviewPanel({ stats, loading, onOpenReport }: {
     },
     {
       label: "Poistetut",
-      value: stats?.deleted_month ?? 0,
+      value: stats?.deleted_total ?? 0,
       today: stats?.deleted_today ?? 0,
       week: stats?.deleted_7d ?? 0,
       month: stats?.deleted_month ?? 0,
@@ -1355,10 +1281,6 @@ function DashboardOverviewPanel({ stats, loading, onOpenReport }: {
     <section className={`${styles.panel} ${styles.dashboardPanel}`}>
       <div className={styles.dashboardSectionHeader}>
         <h2>Tilastojen yleiskatsaus</h2>
-        <button type="button" className={styles.fullReportButton} onClick={onOpenReport}>
-          {loading ? "Päivitetään..." : "Näytä koko raportti"}
-          <ExternalLink size={15} />
-        </button>
       </div>
 
       <div className={styles.statsGridLarge}>
@@ -1385,8 +1307,8 @@ function DashboardOverviewPanel({ stats, loading, onOpenReport }: {
                   <strong>{formatNumber(card.week, card.suffix)}</strong>
                 </div>
                 <div>
-                  <small>30 pv</small>
-                  <strong>{formatNumber(card.month, card.suffix)}</strong>
+                  <small>All</small>
+                  <strong>{formatNumber(card.value, card.suffix)}</strong>
                 </div>
               </div>
               <svg className={styles.sparkline} viewBox="0 0 100 38" preserveAspectRatio="none" aria-hidden="true">
@@ -2019,114 +1941,6 @@ function ListingsPanel({
         })}
       </div>
     </section>
-  );
-}
-
-/* =================================================================
-   LISTING CREATION FEEDBACK PANEL
-================================================================= */
-
-function ListingFeedbackPanel({
-  rows,
-  loading,
-  onRefresh
-}: {
-  rows: ListingCreationFeedback[];
-  loading: boolean;
-  onRefresh: () => void | Promise<void>;
-}) {
-  const submittedRows = rows.filter((row) => !row.skipped);
-  const avg =
-    submittedRows.length > 0
-      ? submittedRows.reduce((sum, row) => sum + (row.overall_rating ?? 0), 0) / submittedRows.length
-      : 0;
-
-  return (
-    <section className={styles.panel}>
-      <div className={styles.panelHeader}>
-        <div>
-          <span>Ensimmäisen ilmoituksen palaute</span>
-          <h2>Arviot</h2>
-        </div>
-        <button type="button" className={styles.ghostBtn} onClick={onRefresh}>
-          {loading ? "..." : "Päivitä"}
-        </button>
-      </div>
-
-      <div className={styles.feedbackStats}>
-        <article>
-          <span>Arvioita</span>
-          <strong>{submittedRows.length}</strong>
-        </article>
-        <article>
-          <span>Ohitettu</span>
-          <strong>{rows.filter((row) => row.skipped).length}</strong>
-        </article>
-        <article>
-          <span>Keskiarvo</span>
-          <strong>{avg ? avg.toFixed(1) : "-"}</strong>
-        </article>
-      </div>
-
-      <div className={styles.feedbackList}>
-        {rows.length === 0 && !loading ? (
-          <div className={styles.empty}>Ei arvioita vielä.</div>
-        ) : null}
-
-        {rows.map((row) => (
-          <article key={row.id} className={styles.feedbackCard}>
-            <header>
-              <div>
-                <strong>{row.user_name || row.user_email || row.user_id.slice(0, 8)}</strong>
-                <small>{row.user_email || row.user_id}</small>
-              </div>
-              <span className={row.skipped ? styles.feedbackSkipped : styles.feedbackScore}>
-                {row.skipped ? "Ohitettu" : `${row.overall_rating ?? "-"} / 5`}
-              </span>
-            </header>
-
-            <div className={styles.feedbackRatingRows}>
-              <FeedbackScore label="Kategoria" value={row.category_rating} />
-              <FeedbackScore label="Tiedot" value={row.details_rating} />
-              <FeedbackScore label="Kuvat" value={row.photos_rating} />
-              <FeedbackScore label="Kokonaisuus" value={row.overall_rating} />
-            </div>
-
-            {row.comment ? <p>{row.comment}</p> : null}
-
-            <footer>
-              <span>{row.listing_title || row.listing_id || "Ei ilmoitusta"}</span>
-              <span>{[row.vehicle_type, row.category, row.subcategory].filter(Boolean).join(" / ") || "Ei kategoriaa"}</span>
-              <time>{formatDate(row.created_at)}</time>
-            </footer>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function FeedbackScore({
-  label,
-  value
-}: {
-  label: string;
-  value: number | null;
-}) {
-  return (
-    <div className={styles.feedbackScoreRow}>
-      <span>{label}</span>
-      <div aria-label={`${label}: ${value ?? 0} / 5`}>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            size={14}
-            fill="currentColor"
-            className={value && star <= value ? styles.feedbackScoreStarOn : ""}
-          />
-        ))}
-      </div>
-    </div>
   );
 }
 

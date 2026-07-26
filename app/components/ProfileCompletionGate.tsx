@@ -27,7 +27,7 @@ function isProfileCompletionAllowedPath(pathname: string) {
     return true;
   }
 
-  return ["fi", "en", "sv", "no", "et"].some((locale) =>
+  return ["fi", "en", "sv"].some((locale) =>
     pathname.startsWith(pagePath("auth", locale)) ||
     pathname.startsWith(profileRootPath(locale)) ||
     pathname.startsWith(pagePath("privacy", locale))

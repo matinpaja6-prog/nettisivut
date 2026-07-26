@@ -1,8 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { generatedUiTranslations } from "@/lib/generated-ui-translations";
-import { isLocale, translations, type Locale } from "@/lib/i18n";
+import {
+  isLocale,
+  normalizeLocale,
+  purgeInvalidLocaleStorage,
+  translateCategory,
+  translations,
+  type SupportedLocale
+} from "@/lib/i18n";
 
 type AttrName = "placeholder" | "title" | "aria-label";
 
@@ -13,9 +21,68 @@ type AttrEntry = {
 };
 
 const ATTRS: AttrName[] = ["placeholder", "title", "aria-label"];
-const TRANSLATION_CACHE_VERSION = "v9";
+const TRANSLATION_CACHE_VERSION = "v13";
 
-const staticUiTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = {
+const WINDOWS_1252_BYTES: Record<string, number> = {
+  "\u20ac": 0x80,
+  "\u201a": 0x82,
+  "\u0192": 0x83,
+  "\u201e": 0x84,
+  "\u2026": 0x85,
+  "\u2020": 0x86,
+  "\u2021": 0x87,
+  "\u02c6": 0x88,
+  "\u2030": 0x89,
+  "\u0160": 0x8a,
+  "\u2039": 0x8b,
+  "\u0152": 0x8c,
+  "\u017d": 0x8e,
+  "\u2018": 0x91,
+  "\u2019": 0x92,
+  "\u201c": 0x93,
+  "\u201d": 0x94,
+  "\u2022": 0x95,
+  "\u2013": 0x96,
+  "\u2014": 0x97,
+  "\u02dc": 0x98,
+  "\u2122": 0x99,
+  "\u0161": 0x9a,
+  "\u203a": 0x9b,
+  "\u0153": 0x9c,
+  "\u017e": 0x9e,
+  "\u0178": 0x9f
+};
+
+function decodeMojibakePass(value: string) {
+  const bytes: number[] = [];
+
+  for (const character of value) {
+    const code = character.charCodeAt(0);
+    const byte = code <= 0xff ? code : WINDOWS_1252_BYTES[character];
+    if (byte === undefined) return value;
+    bytes.push(byte);
+  }
+
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(bytes));
+  } catch {
+    return value;
+  }
+}
+
+function repairMojibake(value: string) {
+  let repaired = value;
+
+  for (let pass = 0; pass < 3 && /[ÃÂâ]/.test(repaired); pass += 1) {
+    const decoded = decodeMojibakePass(repaired);
+    if (decoded === repaired) break;
+    repaired = decoded;
+  }
+
+  return repaired;
+}
+
+const staticUiTranslations: Record<"en" | "sv", Record<string, string>> = {
   en: {
     "Ilmoituksen tyyppi": "Listing type",
     "Valitse myyntityyppi": "Choose listing type",
@@ -177,9 +244,7 @@ const staticUiTranslations: Record<Exclude<Locale, "fi">, Record<string, string>
     "Näytä numero": "Show number",
     "Näytä profiili": "View profile"
   },
-  sv: {},
-  no: {},
-  et: {}
+  sv: {}
 };
 
 staticUiTranslations.sv = {
@@ -270,190 +335,13 @@ staticUiTranslations.sv = {
   "Näytä numero": "Visa nummer"
 };
 
-staticUiTranslations.no = {
-  "Ilmoituksen tyyppi": "Annonsetype",
-  "Valitse myyntityyppi": "Velg salgstype",
-  "Ajoneuvon tiedot": "Kjøretøydetaljer",
-  "Täytä ajoneuvon tiedot": "Fyll inn kjøretøydetaljer",
-  "Kategoria ja hinta": "Kategori og pris",
-  "Kunto & sijainti": "Tilstand og sted",
-  "Julkaise": "Publiser",
-  "Luo myynti-ilmoitus": "Opprett salgsannonse",
-  "Useampi osa samasta ajoneuvosta": "Flere deler fra samme kjøretøy",
-  "Useampi ilmoitus": "Flere annonser",
-  "Yksittäinen ilmoitus": "Én annonse",
-  "Nollaa": "Nullstill",
-  "Jatka": "Fortsett",
-  "Aktiiviset": "Aktive",
-  "Piilotetut": "Skjulte",
-  "Kaikki": "Alle",
-  "Viestit": "Meldinger",
-  "Ajoneuvoa": "Kjøretøy",
-  "ajoneuvoa": "kjøretøy",
-  "Suosikkia": "Favoritter",
-  "suosikkia": "favoritter",
-  "Viimeksi päivitetty": "Sist oppdatert",
-  "Oma Talli": "Min garasje",
-  "Lisää ajoneuvo": "Legg til kjøretøy",
-  "Näytä sopivat osat": "Vis matchende deler",
-  "Ilmoituksen tiedot": "Annonsedetaljer",
-  "Avaa ilmoitus": "Åpne annonse",
-  "Poista keskustelu": "Slett samtale",
-  "Profiili": "Profil",
-  "Myyjä": "Selger",
-  "Myyjät": "Selgere",
-  "Tallessa": "Lagret",
-  "Ei ilmoituksia näytettäväksi": "Ingen annonser å vise",
-  "Tallennetut hakuehdot": "Lagrede søkekriterier",
-  "Ei hakuvahteja vielä": "Ingen søkevarsler ennå",
-  "Profiilin tiedot": "Profildetaljer",
-  "Julkinen profiili": "Offentlig profil",
-  "Osoitetiedot": "Adresseopplysninger",
-  "Tilin turvallisuus": "Kontosikkerhet",
-  "Poista tili": "Slett konto",
-  "Etunimi": "Fornavn",
-  "Sukunimi": "Etternavn",
-  "Puhelinnumero": "Telefonnummer",
-  "Syntymäaika": "Fødselsdato",
-  "Vaihda salasana": "Bytt passord",
-  "Yrityksen vahvistus": "Bedriftsverifisering",
-  "Vahvista yritys": "Verifiser bedrift",
-  "Vahvistettu yritys": "Verifisert bedrift",
-  "Vahvista yritystili": "Verifiser bedriftskonto",
-  "Lähetä pyyntö": "Send forespørsel",
-  "Kirjaudu sisään": "Logg inn",
-  "Rekisteröidy": "Registrer deg",
-  "Eikö sinulla ole tiliä?": "Har du ikke konto?",
-  "Onko sinulla tili?": "Har du allerede konto?",
-  "Tai jatka": "Eller fortsett",
-  "Tilin poistaminen": "Slett konto",
-  "Jatka poistoon": "Fortsett sletting",
-  "Peruuta": "Avbryt",
-  "Poistetaanko tili pysyvästi?": "Slette kontoen permanent?",
-  "Kyllä, poista pysyvästi": "Ja, slett permanent",
-  "Takaisin": "Tilbake",
-  "Vaihda puhelinnumero": "Endre telefonnummer",
-  "Tallenna": "Lagre",
-  "Ajoneuvotyyppi": "Kjøretøytype",
-  "Tyyppi": "Type",
-  "Kaikki tyypit": "Alle typer",
-  "Merkki": "Merke",
-  "Malli": "Modell",
-  "Vuosimalli": "Årsmodell",
-  "Moottorin koko (cc)": "Motorstørrelse (cc)",
-  "Moottori": "Motor",
-  "Tyhjennä": "Tøm",
-  "Jatka osiin": "Fortsett til deler",
-  "Näytä tulokset": "Vis resultater",
-  "Ajoneuvo": "Kjøretøy",
-  "Vuosi": "År",
-  "Kunto": "Tilstand",
-  "Toimitus": "Levering",
-  "Lähetys ja nouto": "Frakt og henting",
-  "Päivitetty": "Oppdatert",
-  "Sijainti": "Sted",
-  "Jäsenenä vuodesta": "Medlem siden",
-  "Ei arvioita": "Ingen anmeldelser",
-  "Lähetä viesti": "Send melding",
-  "Näytä numero": "Vis nummer"
-};
-
-staticUiTranslations.et = {
-  "Ilmoituksen tyyppi": "Kuulutuse tüüp",
-  "Valitse myyntityyppi": "Vali müügitüüp",
-  "Ajoneuvon tiedot": "Sõiduki andmed",
-  "Täytä ajoneuvon tiedot": "Täida sõiduki andmed",
-  "Kategoria ja hinta": "Kategooria ja hind",
-  "Kunto & sijainti": "Seisukord ja asukoht",
-  "Julkaise": "Avalda",
-  "Luo myynti-ilmoitus": "Loo müügikuulutus",
-  "Useampi osa samasta ajoneuvosta": "Mitu osa samast sõidukist",
-  "Useampi ilmoitus": "Mitu kuulutust",
-  "Yksittäinen ilmoitus": "Üks kuulutus",
-  "Nollaa": "Lähtesta",
-  "Jatka": "Jätka",
-  "Aktiiviset": "Aktiivsed",
-  "Piilotetut": "Peidetud",
-  "Kaikki": "Kõik",
-  "Viestit": "Sõnumid",
-  "Ajoneuvoa": "Sõidukit",
-  "ajoneuvoa": "sõidukit",
-  "Suosikkia": "Lemmikut",
-  "suosikkia": "lemmikut",
-  "Viimeksi päivitetty": "Viimati uuendatud",
-  "Oma Talli": "Minu garaaž",
-  "Lisää ajoneuvo": "Lisa sõiduk",
-  "Näytä sopivat osat": "Näita sobivaid osi",
-  "Ilmoituksen tiedot": "Kuulutuse andmed",
-  "Avaa ilmoitus": "Ava kuulutus",
-  "Poista keskustelu": "Kustuta vestlus",
-  "Profiili": "Profiil",
-  "Myyjä": "Müüja",
-  "Myyjät": "Müüjad",
-  "Tallessa": "Salvestatud",
-  "Ei ilmoituksia näytettäväksi": "Kuulutusi pole kuvada",
-  "Tallennetut hakuehdot": "Salvestatud otsingutingimused",
-  "Ei hakuvahteja vielä": "Otsinguvalvureid pole veel",
-  "Profiilin tiedot": "Profiili andmed",
-  "Julkinen profiili": "Avalik profiil",
-  "Osoitetiedot": "Aadressiandmed",
-  "Tilin turvallisuus": "Konto turvalisus",
-  "Poista tili": "Kustuta konto",
-  "Etunimi": "Eesnimi",
-  "Sukunimi": "Perekonnanimi",
-  "Puhelinnumero": "Telefoninumber",
-  "Syntymäaika": "Sünniaeg",
-  "Vaihda salasana": "Muuda parooli",
-  "Yrityksen vahvistus": "Ettevõtte kinnitamine",
-  "Vahvista yritys": "Kinnita ettevõte",
-  "Vahvistettu yritys": "Kinnitatud ettevõte",
-  "Vahvista yritystili": "Kinnita ettevõtte konto",
-  "Lähetä pyyntö": "Saada taotlus",
-  "Kirjaudu sisään": "Logi sisse",
-  "Rekisteröidy": "Registreeru",
-  "Eikö sinulla ole tiliä?": "Sul pole kontot?",
-  "Onko sinulla tili?": "Kas sul on konto?",
-  "Tai jatka": "Või jätka",
-  "Tilin poistaminen": "Konto kustutamine",
-  "Jatka poistoon": "Jätka kustutamist",
-  "Peruuta": "Tühista",
-  "Poistetaanko tili pysyvästi?": "Kustutada konto jäädavalt?",
-  "Kyllä, poista pysyvästi": "Jah, kustuta jäädavalt",
-  "Takaisin": "Tagasi",
-  "Vaihda puhelinnumero": "Muuda telefoninumbrit",
-  "Tallenna": "Salvesta",
-  "Ajoneuvotyyppi": "Sõiduki tüüp",
-  "Tyyppi": "Tüüp",
-  "Kaikki tyypit": "Kõik tüübid",
-  "Merkki": "Mark",
-  "Malli": "Mudel",
-  "Vuosimalli": "Aasta",
-  "Moottorin koko (cc)": "Mootori suurus (cc)",
-  "Moottori": "Mootor",
-  "Tyhjennä": "Tühjenda",
-  "Jatka osiin": "Jätka osadeni",
-  "Näytä tulokset": "Näita tulemusi",
-  "Ajoneuvo": "Sõiduk",
-  "Vuosi": "Aasta",
-  "Kunto": "Seisukord",
-  "Toimitus": "Tarne",
-  "Lähetys ja nouto": "Saatmine ja järeletulemine",
-  "Päivitetty": "Uuendatud",
-  "Sijainti": "Asukoht",
-  "Jäsenenä vuodesta": "Liige alates",
-  "Ei arvioita": "Arvustusi pole",
-  "Lähetä viesti": "Saada sõnum",
-  "Näytä numero": "Näita numbrit"
-};
 Object.assign(staticUiTranslations.en, {
   "AJONEUVOA": "VEHICLES",
   "SUOSIKKIA": "FAVORITES",
   "VIIMEKSI PÄIVITETTY": "LAST UPDATED",
-  "VIIMEKSI PÃ„IVITETTY": "LAST UPDATED",
   "Kaikki keskustelut": "All conversations",
   "Ostajat": "Buyers",
   "Hae viesteistä tai käyttäjistä...": "Search messages or users...",
-  "Hae viesteistÃ¤ tai kÃ¤yttÃ¤jistÃ¤...": "Search messages or users...",
   "Eilen": "Yesterday",
   "Paikalla eilen klo 23.06": "Online yesterday at 23:06",
   "Kirjoita viesti...": "Write a message...",
@@ -468,11 +356,9 @@ Object.assign(staticUiTranslations.sv, {
   "AJONEUVOA": "FORDON",
   "SUOSIKKIA": "FAVORITER",
   "VIIMEKSI PÄIVITETTY": "SENAST UPPDATERAD",
-  "VIIMEKSI PÃ„IVITETTY": "SENAST UPPDATERAD",
   "Kaikki keskustelut": "Alla konversationer",
   "Ostajat": "Köpare",
   "Hae viesteistä tai käyttäjistä...": "Sök i meddelanden eller användare...",
-  "Hae viesteistÃ¤ tai kÃ¤yttÃ¤jistÃ¤...": "Sök i meddelanden eller användare...",
   "Eilen": "Igår",
   "Paikalla eilen klo 23.06": "Online igår kl. 23.06",
   "Kirjoita viesti...": "Skriv ett meddelande...",
@@ -483,45 +369,7 @@ Object.assign(staticUiTranslations.sv, {
   "Kuvausta ei ole vielä lisätty.": "Ingen beskrivning har lagts till ännu."
 });
 
-Object.assign(staticUiTranslations.no, {
-  "AJONEUVOA": "KJØRETØY",
-  "SUOSIKKIA": "FAVORITTER",
-  "VIIMEKSI PÄIVITETTY": "SIST OPPDATERT",
-  "VIIMEKSI PÃ„IVITETTY": "SIST OPPDATERT",
-  "Kaikki keskustelut": "Alle samtaler",
-  "Ostajat": "Kjøpere",
-  "Hae viesteistä tai käyttäjistä...": "Søk i meldinger eller brukere...",
-  "Hae viesteistÃ¤ tai kÃ¤yttÃ¤jistÃ¤...": "Søk i meldinger eller brukere...",
-  "Eilen": "I går",
-  "Paikalla eilen klo 23.06": "Online i går kl. 23.06",
-  "Kirjoita viesti...": "Skriv en melding...",
-  "Valitsematta": "Ikke valgt",
-  "Ei lisatty": "Ikke lagt til",
-  "Ei lisätty": "Ikke lagt til",
-  "Kuvausta ei ole viela lisatty.": "Ingen beskrivelse lagt til ennå.",
-  "Kuvausta ei ole vielä lisätty.": "Ingen beskrivelse lagt til ennå."
-});
-
-Object.assign(staticUiTranslations.et, {
-  "AJONEUVOA": "SÕIDUKIT",
-  "SUOSIKKIA": "LEMMIKUT",
-  "VIIMEKSI PÄIVITETTY": "VIIMATI UUENDATUD",
-  "VIIMEKSI PÃ„IVITETTY": "VIIMATI UUENDATUD",
-  "Kaikki keskustelut": "Kõik vestlused",
-  "Ostajat": "Ostjad",
-  "Hae viesteistä tai käyttäjistä...": "Otsi sõnumitest või kasutajatest...",
-  "Hae viesteistÃ¤ tai kÃ¤yttÃ¤jistÃ¤...": "Otsi sõnumitest või kasutajatest...",
-  "Eilen": "Eile",
-  "Paikalla eilen klo 23.06": "Võrgus eile kl 23.06",
-  "Kirjoita viesti...": "Kirjuta sõnum...",
-  "Valitsematta": "Valimata",
-  "Ei lisatty": "Lisamata",
-  "Ei lisätty": "Lisamata",
-  "Kuvausta ei ole viela lisatty.": "Kirjeldust pole veel lisatud.",
-  "Kuvausta ei ole vielä lisätty.": "Kirjeldust pole veel lisatud."
-});
-
-const translatedLocales: Array<Exclude<Locale, "fi">> = ["en", "sv", "no", "et"];
+const translatedLocales: Array<"en" | "sv"> = ["en", "sv"];
 
 for (const locale of translatedLocales) {
   const sharedDictionary = Object.fromEntries(
@@ -539,6 +387,11 @@ for (const locale of translatedLocales) {
 }
 
 Object.assign(staticUiTranslations.en, {
+  "Etusivu": "Home",
+  "Oma talli": "My garage",
+  "Hakuvahti": "Search alerts",
+  "Tietoa meistä": "About us",
+  "Ohjeet": "Help",
   Maskines: "Maskines",
   maskines: "maskines",
   "Maskines.": "Maskines.",
@@ -555,6 +408,11 @@ Object.assign(staticUiTranslations.en, {
   "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.": "A Nordic marketplace for small-vehicle spare parts.\nBuy and sell parts for snowmobiles, ATVs, motocross bikes and mopeds easily in one place."
 });
 Object.assign(staticUiTranslations.sv, {
+  "Etusivu": "Startsida",
+  "Oma talli": "Mitt garage",
+  "Hakuvahti": "Sökbevakningar",
+  "Tietoa meistä": "Om oss",
+  "Ohjeet": "Hjälp",
   Maskines: "Maskines",
   maskines: "maskines",
   "Maskines.": "Maskines.",
@@ -570,41 +428,15 @@ Object.assign(staticUiTranslations.sv, {
   "Kaikki moottorit": "Alla motorer",
   "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.": "En nordisk marknadsplats för reservdelar till småfordon.\nKöp och sälj reservdelar till snöskotrar, fyrhjulingar, motocrosscyklar och mopeder enkelt på ett och samma ställe."
 });
-Object.assign(staticUiTranslations.no, {
-  Maskines: "Maskines",
-  maskines: "maskines",
-  "Maskines.": "Maskines.",
-  "© 2026 Maskines. Kaikki oikeudet pidätetään.": "© 2026 Maskines. Alle rettigheter forbeholdt.",
-  Paanavigaatio: "Hovednavigasjon",
-  "Ota yhteytta": "Kontakt oss",
-  "Select your region & language": "Velg region og språk",
-  Hae: "Søk",
-  Maa: "Land",
-  "Haku:": "Søk:",
-  Missiomme: "Vårt oppdrag",
-  "Moottoritilavuus (cm³)": "Motorvolum (cm³)",
-  "Kaikki moottorit": "Alle motorer",
-  "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.": "En nordisk markedsplass for reservedeler til småkjøretøy.\nKjøp og selg reservedeler til snøscootere, ATV-er, motocrossykler og mopeder enkelt på ett sted."
-});
-Object.assign(staticUiTranslations.et, {
-  Maskines: "Maskines",
-  maskines: "maskines",
-  "Maskines.": "Maskines.",
-  "© 2026 Maskines. Kaikki oikeudet pidätetään.": "© 2026 Maskines. Kõik õigused kaitstud.",
-  Paanavigaatio: "Põhinavigeerimine",
-  "Ota yhteytta": "Võta ühendust",
-  "Ota yhteyttä Maskinesiin": "Võtke Maskinesiga ühendust",
-  "Select your region & language": "Valige piirkond ja keel",
-  Hae: "Otsi",
-  Maa: "Riik",
-  "Haku:": "Otsing:",
-  Missiomme: "Meie missioon",
-  Profiili: "Profiil",
-  "Oma talli": "Minu garaaž",
-  "Moottoritilavuus (cm³)": "Mootori töömaht (cm³)",
-  "Kaikki moottorit": "Kõik mootorid",
-  "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.": "Põhjamaine väikeste sõidukite varuosade turg.\nOsta ja müü mootorsaanide, ATV-de, motokrossirataste ja mopeedide varuosi mugavalt ühest kohast."
-});
+for (const locale of translatedLocales) {
+  const normalizedDictionary: Record<string, string> = {};
+
+  for (const [source, translated] of Object.entries(staticUiTranslations[locale])) {
+    normalizedDictionary[repairMojibake(source)] = repairMojibake(translated);
+  }
+
+  staticUiTranslations[locale] = normalizedDictionary;
+}
 
 const SKIP_SELECTOR = [
   "script",
@@ -615,7 +447,12 @@ const SKIP_SELECTOR = [
   "textarea",
   "select",
   "[contenteditable='true']",
+  "[translate='no']",
   "[data-no-auto-translate]",
+  "[data-person-name]",
+  ".seller-name-row strong",
+  ".seller-employee-name strong",
+  ".universal-profile-menu-title strong",
   "[data-global-language-menu]"
 ].join(",");
 
@@ -630,12 +467,46 @@ function shouldTranslateText(text: string) {
   return true;
 }
 
-function getStaticTranslation(locale: Locale, text: string) {
+function isLikelyProperName(text: string) {
+  const trimmed = repairMojibake(text.trim());
+
+  if (!trimmed || trimmed.length > 80 || /[.!?]\s*$/.test(trimmed)) return false;
+
+  const words = trimmed.split(/\s+/);
+  if (words.length > 5) return false;
+
+  return words.every((word) =>
+    /^[\p{Lu}\d][\p{L}\p{M}\p{N}&.'’/-]*$/u.test(word)
+  );
+}
+
+function getLocationTranslation(locale: SupportedLocale, text: string) {
+  const repaired = repairMojibake(text.trim());
+  const match = repaired.match(/^(.+?),\s*(Suomi|Finland|Ruotsi|Sverige)$/i);
+  if (!match) return null;
+
+  const place = match[1].trim();
+  const country = match[2].toLocaleLowerCase("fi-FI");
+  const isSweden = country === "ruotsi" || country === "sverige";
+  const translatedCountry = locale === "sv"
+    ? isSweden ? "Sverige" : "Finland"
+    : isSweden ? "Sweden" : "Finland";
+
+  return `${place}, ${translatedCountry}`;
+}
+
+function getStaticTranslation(locale: SupportedLocale, text: string) {
   if (locale === "fi") return null;
 
-  const trimmed = text.trim();
+  const trimmed = repairMojibake(text.trim());
+  const locationTranslation = getLocationTranslation(locale, trimmed);
+  if (locationTranslation) return locationTranslation;
+
   const direct = staticUiTranslations[locale][trimmed];
-  if (direct) return direct;
+  if (direct) return repairMojibake(direct);
+
+  const categoryTranslation = translateCategory(locale, trimmed);
+  if (categoryTranslation !== trimmed) return repairMojibake(categoryTranslation);
 
   let replaced = trimmed;
   let changed = false;
@@ -662,7 +533,7 @@ function getStaticTranslation(locale: Locale, text: string) {
       if ((sourceStartsWithWord && hasWordBefore) || (sourceEndsWithWord && hasWordAfter)) {
         nextValue += replaced.slice(cursor, index + source.length);
       } else {
-        nextValue += replaced.slice(cursor, index) + translated;
+        nextValue += replaced.slice(cursor, index) + repairMojibake(translated);
         sourceChanged = true;
       }
       cursor = index + source.length;
@@ -678,28 +549,35 @@ function getStaticTranslation(locale: Locale, text: string) {
 }
 
 export default function AutoTranslate() {
-  const [locale, setLocale] = useState<Locale>("fi");
+  const pathname = usePathname();
+  const [locale, setLocale] = useState<SupportedLocale>(() => {
+    if (typeof document === "undefined") return "fi";
+    return normalizeLocale(document.documentElement.getAttribute("data-i18n-target"), "fi");
+  });
   const translationCache = useRef<Map<string, string>>(new Map());
   const originalTextNodes = useRef<WeakMap<Text, string>>(new WeakMap());
   const originalAttributes = useRef<WeakMap<HTMLElement, Partial<Record<AttrName, string>>>>(
     new WeakMap()
   );
-  const loadedCacheLocale = useRef<Locale | null>(null);
-  const appliedLocale = useRef<Locale>("fi");
+  const loadedCacheLocale = useRef<SupportedLocale | null>(null);
+  const appliedLocale = useRef<SupportedLocale>("fi");
   const translationActivated = useRef(false);
   const pendingRequest = useRef<number | null>(null);
   const revealTimer = useRef<number | null>(null);
   const translating = useRef(false);
+  const rerunRequested = useRef(false);
 
   useEffect(() => {
+    purgeInvalidLocaleStorage();
+
     const urlLocale = new URLSearchParams(window.location.search).get("lang");
-    const storedLocale = localStorage.getItem("locale");
-    const initialLocale = isLocale(urlLocale) ? urlLocale : isLocale(storedLocale) ? storedLocale : "fi";
+    const storedLocale = normalizeLocale(localStorage.getItem("locale"), "fi");
+    const initialLocale = normalizeLocale(urlLocale, storedLocale);
 
     setLocale(initialLocale);
 
     function handleLocaleChange(event: Event) {
-      const nextLocale = (event as CustomEvent<Locale>).detail;
+      const nextLocale = (event as CustomEvent<SupportedLocale>).detail;
       if (isLocale(nextLocale)) {
         setLocale(nextLocale);
       }
@@ -811,12 +689,14 @@ export default function AutoTranslate() {
       if (locale === "fi") {
         for (const node of textNodes) {
           const original = originalTextNodes.current.get(node);
-          if (original && node.textContent !== original) node.textContent = original;
+          const repaired = original ? repairMojibake(original) : "";
+          if (repaired && node.textContent !== repaired) node.textContent = repaired;
         }
 
         for (const { element, attr } of attrs) {
           const original = originalAttributes.current.get(element)?.[attr];
-          if (original && element.getAttribute(attr) !== original) element.setAttribute(attr, original);
+          const repaired = original ? repairMojibake(original) : "";
+          if (repaired && element.getAttribute(attr) !== repaired) element.setAttribute(attr, repaired);
         }
 
         return;
@@ -826,24 +706,27 @@ export default function AutoTranslate() {
         const originalText = originalTextNodes.current.get(node) ?? node.textContent ?? "";
         const original = originalText.trim();
         const translated = translationCache.current.get(original);
-        if (translated) {
-          const leadingWhitespace = originalText.match(/^\s*/)?.[0] ?? "";
-          const trailingWhitespace = originalText.match(/\s*$/)?.[0] ?? "";
-          const nextText = `${leadingWhitespace}${translated}${trailingWhitespace}`;
-          if (node.textContent !== nextText) node.textContent = nextText;
-        }
+        const leadingWhitespace = originalText.match(/^\s*/)?.[0] ?? "";
+        const trailingWhitespace = originalText.match(/\s*$/)?.[0] ?? "";
+        const visibleText = repairMojibake(translated ?? original);
+        const nextText = `${leadingWhitespace}${visibleText}${trailingWhitespace}`;
+        if (node.textContent !== nextText) node.textContent = nextText;
       }
 
       for (const { element, attr, text } of attrs) {
         const translated = translationCache.current.get(text.trim());
-        if (translated && element.getAttribute(attr) !== translated) element.setAttribute(attr, translated);
+        const visibleText = repairMojibake(translated ?? text);
+        if (element.getAttribute(attr) !== visibleText) element.setAttribute(attr, visibleText);
       }
     },
     [locale]
   );
 
   const translatePage = useCallback(async () => {
-    if (translating.current) return;
+    if (translating.current) {
+      rerunRequested.current = true;
+      return;
+    }
     translating.current = true;
 
     try {
@@ -875,27 +758,40 @@ export default function AutoTranslate() {
         }
       }
 
+      applyTranslations(textNodes, attrs);
+      appliedLocale.current = locale;
+      document.documentElement.setAttribute("data-i18n-ready", locale);
+      if (document.documentElement.getAttribute("data-i18n-target") === locale) {
+        document.documentElement.removeAttribute("data-i18n-pending");
+      }
+
       const missingTexts = locale === "fi"
         ? []
-        : texts.filter((text) => !translationCache.current.has(text));
+        : texts.filter(
+            (text) =>
+              !translationCache.current.has(text) &&
+              !isLikelyProperName(text) &&
+              !getLocationTranslation(locale, text)
+          );
 
       for (let offset = 0; offset < missingTexts.length; offset += 80) {
         const batch = missingTexts.slice(offset, offset + 80);
+        const requestTexts = Array.from(new Set(batch.map(repairMojibake)));
 
         try {
           const response = await fetch("/api/translate-ui", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ targetLocale: locale, texts: batch })
+            body: JSON.stringify({ targetLocale: locale, texts: requestTexts })
           });
 
           if (!response.ok) continue;
           const payload = await response.json() as { translations?: Record<string, unknown> };
 
           for (const source of batch) {
-            const translated = payload.translations?.[source];
+            const translated = payload.translations?.[repairMojibake(source)];
             if (typeof translated === "string" && translated.trim()) {
-              translationCache.current.set(source, translated.trim());
+              translationCache.current.set(source, repairMojibake(translated.trim()));
             }
           }
         } catch {
@@ -909,20 +805,31 @@ export default function AutoTranslate() {
 
     } finally {
       translating.current = false;
+
+      if (rerunRequested.current) {
+        rerunRequested.current = false;
+        void translatePage();
+        return;
+      }
+
       document.documentElement.setAttribute("data-i18n-ready", locale);
-      if (
-        document.documentElement.hasAttribute("data-visitor-language-ready") &&
-        document.documentElement.lang === locale
-      ) {
-        if (revealTimer.current) window.clearTimeout(revealTimer.current);
-        revealTimer.current = window.setTimeout(() => {
-          if (document.documentElement.lang === locale) {
-            document.documentElement.removeAttribute("data-i18n-pending");
-          }
-        }, 120);
+      if (document.documentElement.getAttribute("data-i18n-target") === locale) {
+        document.documentElement.removeAttribute("data-i18n-pending");
       }
     }
   }, [applyTranslations, collect, locale, saveCache, storageKey]);
+
+  useLayoutEffect(() => {
+    document.documentElement.setAttribute("data-i18n-target", locale);
+
+    if (locale === "fi") {
+      document.documentElement.removeAttribute("data-i18n-pending");
+      return;
+    }
+
+    document.documentElement.setAttribute("data-i18n-pending", "true");
+    void translatePage();
+  }, [locale, pathname, translatePage]);
 
   useEffect(() => {
     let observer: MutationObserver | null = null;
@@ -958,7 +865,7 @@ export default function AutoTranslate() {
       // Router time to hydrate the complete page before touching the DOM;
       // otherwise a remembered non-Finnish locale can translate server HTML
       // while React is still comparing it, causing a hydration failure.
-      startTimer = window.setTimeout(startTranslation, 750);
+      startTimer = window.setTimeout(startTranslation, 0);
     }
 
     function handleVisitorLanguageReady() {
@@ -987,3 +894,4 @@ export default function AutoTranslate() {
 
   return null;
 }
+

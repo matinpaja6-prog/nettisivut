@@ -5,7 +5,7 @@ import ts from "typescript";
 const ROOT = process.cwd();
 const APP_DIR = path.join(ROOT, "app");
 const OUTPUT = path.join(ROOT, "lib", "generated-ui-translations.ts");
-const TARGETS = ["en", "sv", "no", "et"];
+const TARGETS = ["en", "sv"];
 const ATTRIBUTE_NAMES = new Set(["alt", "aria-label", "placeholder", "title"]);
 const UI_PROPERTY_NAMES = /^(?:ariaLabel|description|empty|eyebrow|heading|label|message|name|placeholder|subtitle|tagline|text|title)$/i;
 

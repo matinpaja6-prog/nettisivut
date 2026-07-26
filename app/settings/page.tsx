@@ -2,7 +2,7 @@
 
 import { Bell, Check, ExternalLink, Languages, Mail, Palette, Volume2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { languageOptions, useLanguage, type Locale } from "@/lib/i18n";
+import { languageOptions, useLanguage, type SupportedLocale } from "@/lib/i18n";
 import { translateLocalizedPath } from "@/lib/routes";
 import {
   applyUserBackgroundColor,
@@ -13,20 +13,19 @@ import {
 } from "@/lib/user-settings";
 import styles from "./settings.module.css";
 
-const languageFlags: Record<Locale, { flag: "fi" | "gb" | "se" | "no" | "ee" }> = {
+const languageFlags: Record<SupportedLocale, { flag: "fi" | "gb" | "se" }> = {
   fi: { flag: "fi" },
   en: { flag: "gb" },
-  sv: { flag: "se" },
-  no: { flag: "no" },
-  et: { flag: "ee" }
+  sv: { flag: "se" }
 };
 
 const backgroundPresets = [
-  { labels: { fi: "Nykyinen tumma", en: "Current dark", sv: "Nuvarande mörk", no: "Nåværende mørk", et: "Praegune tume" }, value: "#0b1118" },
-  { labels: { fi: "Tummansininen", en: "Deep blue", sv: "Djupblå", no: "Dypblå", et: "Sügavsinine" }, value: "#102033" },
-  { labels: { fi: "Grafiitti", en: "Graphite", sv: "Grafit", no: "Grafitt", et: "Grafiit" }, value: "#151a22" },
-  { labels: { fi: "Jääsininen", en: "Ice blue", sv: "Isblå", no: "Isblå", et: "Jääsinine" }, value: "#c8d8e8" }
-] satisfies Array<{ labels: Record<Locale, string>; value: string }>;
+  { labels: { fi: "Nykyinen tumma", en: "Current dark", sv: "Nuvarande mörk" }, value: "#0b1118" },
+  { labels: { fi: "Tummansininen", en: "Deep blue", sv: "Djupblå" }, value: "#102033" },
+  { labels: { fi: "Grafiitti", en: "Graphite", sv: "Grafit" }, value: "#151a22" },
+  { labels: { fi: "Jääsininen", en: "Ice blue", sv: "Isblå" }, value: "#c8d8e8" }
+] satisfies Array<{ labels: Record<SupportedLocale, string>; value: string }>;
+
 
 const copy = {
   fi: {
@@ -86,47 +85,9 @@ const copy = {
     saved: "Sparat",
     instructions: "Instruktioner"
   },
-  no: {
-    title: "Sideinnstillinger",
-    subtitle: "Velg språk, varsler og sidens bakgrunnsfarge for denne enheten.",
-    languageTitle: "Språk",
-    languageDesc: "Brukes for nettstedets tekster og lokaliserte adresser.",
-    notificationsTitle: "Varsler",
-    notificationsDesc: "Juster meldings- og søkevarsler.",
-    notificationsMain: "Varsler aktivert",
-    notificationsMainDesc: "Vis varselmerker og tillat nettleservarsler.",
-    sound: "Varslingslyd",
-    soundDesc: "Spill av en kort lyd for nye meldinger.",
-    browserPermission: "Tillat nettleservarsler",
-    browserPermissionGranted: "Nettleservarsler er tillatt",
-    browserPermissionDenied: "Nettleservarsler er blokkert i nettleseren",
-    backgroundTitle: "Sidens bakgrunnsfarge",
-    backgroundDesc: "Velg nettstedets bakgrunnsfarge.",
-    saved: "Lagret",
-    instructions: "Instruksjoner"
-  },
-  et: {
-    title: "Lehe seaded",
-    subtitle: "Valige selle seadme keel, teavituste toimimine ja lehe taustavärv.",
-    languageTitle: "Keel",
-    languageDesc: "Kasutatakse saidi tekstides ja lokaliseeritud aadressides.",
-    notificationsTitle: "Teavitused",
-    notificationsDesc: "Kohandage sõnumite ja otsinguvalvurite teavitusi.",
-    notificationsMain: "Teavitused on lubatud",
-    notificationsMainDesc: "Kuva teavitusmärgid ja luba brauseri teavitused.",
-    sound: "Teavitusheli",
-    soundDesc: "Esita uue sõnumi korral lühike heli.",
-    browserPermission: "Luba brauseri teavitused",
-    browserPermissionGranted: "Brauseri teavitused on lubatud",
-    browserPermissionDenied: "Brauseri teavitused on brauseris blokeeritud",
-    backgroundTitle: "Lehe taustavärv",
-    backgroundDesc: "Valige saidi taustavärv.",
-    saved: "Salvestatud",
-    instructions: "Juhised"
-  }
-} satisfies Record<Locale, Record<string, string>>;
+} satisfies Record<SupportedLocale, Record<string, string>>;
 
-function CountryFlag({ country }: { country: "fi" | "gb" | "se" | "no" | "ee" }) {
+function CountryFlag({ country }: { country: "fi" | "gb" | "se" }) {
   if (country === "gb") {
     return (
       <svg viewBox="0 0 60 42" aria-hidden="true">
@@ -139,27 +100,15 @@ function CountryFlag({ country }: { country: "fi" | "gb" | "se" | "no" | "ee" })
     );
   }
 
-  if (country === "ee") {
-    return (
-      <svg viewBox="0 0 60 42" aria-hidden="true">
-        <path fill="#3486dd" d="M0 0h60v14H0z" />
-        <path fill="#111820" d="M0 14h60v14H0z" />
-        <path fill="#fff" d="M0 28h60v14H0z" />
-      </svg>
-    );
-  }
-
   const colors = {
     fi: { background: "#fff", cross: "#174a9c" },
-    se: { background: "#1372b8", cross: "#ffcc26" },
-    no: { background: "#e53242", cross: "#fff", inset: "#183f8b" }
+    se: { background: "#1372b8", cross: "#ffcc26" }
   }[country];
 
   return (
     <svg viewBox="0 0 60 42" aria-hidden="true">
       <rect width="60" height="42" fill={colors.background} />
-      <path d="M19 0v42M0 21h60" stroke={colors.cross} strokeWidth={country === "no" ? 12 : 10} />
-      {country === "no" ? <path d="M19 0v42M0 21h60" stroke={colors.inset} strokeWidth="6" /> : null}
+      <path d="M19 0v42M0 21h60" stroke={colors.cross} strokeWidth={10} />
     </svg>
   );
 }
@@ -196,7 +145,7 @@ export default function SettingsPage() {
     persist({ ...settings, [key]: value });
   }
 
-  function pickLanguage(nextLocale: Locale) {
+  function pickLanguage(nextLocale: SupportedLocale) {
     setLocale(nextLocale);
     const url = new URL(window.location.href);
     url.searchParams.delete("lang");
@@ -344,3 +293,4 @@ export default function SettingsPage() {
     </main>
   );
 }
+

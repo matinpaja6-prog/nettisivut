@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_LANGUAGES = new Set(["fi", "en", "sv", "no", "et"]);
+const ALLOWED_LANGUAGES = new Set(["fi", "en", "sv"]);
 
 export async function GET(request: Request) {
   const apiKey =

@@ -162,8 +162,6 @@ function formatAccountAge(value: string | undefined, locale: string) {
   return created.toLocaleDateString(
     locale === "fi" ? "fi-FI"
     : locale === "sv" ? "sv-SE"
-    : locale === "no" ? "nb-NO"
-    : locale === "et" ? "et-EE"
     : "en-US",
     { day: "numeric", month: "long", year: "numeric" }
   );
@@ -195,8 +193,6 @@ function formatListingDate(value: string | undefined, locale: string) {
   return date.toLocaleDateString(
     locale === "fi" ? "fi-FI"
     : locale === "sv" ? "sv-SE"
-    : locale === "no" ? "nb-NO"
-    : locale === "et" ? "et-EE"
     : "en-US",
     { day: "numeric", month: "numeric", year: "numeric" }
   );
@@ -416,10 +412,8 @@ function SellerTabLoading({ label: _label }: { label: string }) {
 
 const vehicleTypeTranslations: Record<Locale, Record<string, string>> = {
   fi: {},
-  en: { Moottorikelkka: "Snowmobile", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-  sv: { Moottorikelkka: "Snöskoter", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-  no: { Moottorikelkka: "Snøscooter", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-  et: { Moottorikelkka: "Mootorsaan", Mönkijä: "ATV", Motocross: "Motokross", Mopot: "Mopeed" }
+  en: { Moottorikelkka: "Snowmobile", "Mönkijä": "ATV", Motocross: "Motocross", Mopot: "Moped" },
+  sv: { Moottorikelkka: "Snöskoter", "Mönkijä": "ATV", Motocross: "Motocross", Mopot: "Moped" },
 };
 
 export default function SellerProfileClient({ sellerId }: { sellerId: string }) {
@@ -1108,8 +1102,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     fi: "Sijaintia ei ole asetettu",
     en: "Location not set",
     sv: "Plats har inte angetts",
-    no: "Sted er ikke angitt",
-    et: "Asukohta pole määratud"
   }[locale];
   const publicAddress =
     profile?.public_address?.trim();
@@ -1150,330 +1142,241 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       fi: "Tietoja",
       en: "About",
       sv: "Om",
-      no: "Om",
-      et: "Info"
     }[locale],
     averageRating: {
       fi: "Keskiarvo",
       en: "Average rating",
       sv: "Genomsnitt",
-      no: "Gjennomsnitt",
-      et: "Keskmine hinne"
+    }[locale],
+    noRatings: {
+      fi: "Ei arvosteluja",
+      en: "No reviews",
+      sv: "Inga omdömen",
     }[locale],
     activeListings: {
       fi: "Aktiiviset ilmoitukset",
       en: "Active listings",
       sv: "Aktiva annonser",
-      no: "Aktive annonser",
-      et: "Aktiivsed kuulutused"
     }[locale],
     totalListings: {
       fi: "Ilmoituksia yhteensä",
       en: "Total listings",
       sv: "Annonser totalt",
-      no: "Annonser totalt",
-      et: "Kuulutusi kokku"
     }[locale],
     reviews: {
       fi: "Arvostelut",
       en: "Reviews",
       sv: "Recensioner",
-      no: "Anmeldelser",
-      et: "Arvustused"
     }[locale],
     followers: {
       fi: "Seuraajat",
       en: "Followers",
       sv: "Följare",
-      no: "Følgere",
-      et: "Jälgijad"
     }[locale],
     follow: {
       fi: "Seuraa profiilia",
       en: "Follow profile",
       sv: "Följ profil",
-      no: "Følg profil",
-      et: "Jälgi profiili"
     }[locale],
     following: {
       fi: "Seurataan",
       en: "Following",
       sv: "Följer",
-      no: "Følger",
-      et: "Jälgid"
     }[locale],
     loginToFollow: {
       fi: "Kirjaudu seurataksesi",
       en: "Sign in to follow",
       sv: "Logga in för att följa",
-      no: "Logg inn for å følge",
-      et: "Jälgimiseks logi sisse"
     }[locale],
     followError: {
       fi: "Seurannan tallennus epäonnistui. Yritä uudelleen.",
       en: "Could not save the follow. Please try again.",
       sv: "Det gick inte att spara följningen. Försök igen.",
-      no: "Kunne ikke lagre følgingen. Prøv igjen.",
-      et: "Jälgimise salvestamine ebaõnnestus. Proovi uuesti."
     }[locale],
     sellerRating: {
       fi: "Myyjäarvio",
       en: "Seller rating",
       sv: "Säljarbetyg",
-      no: "Selgervurdering",
-      et: "Müüja hinnang"
     }[locale],
     greatJob: {
       fi: "Hyvä työ!",
       en: "Great job!",
       sv: "Bra jobbat!",
-      no: "Bra jobbet!",
-      et: "Tubli töö!"
     }[locale],
     keepGoodWork: {
       fi: "Jatka samaan malliin.",
       en: "Keep up the good work.",
       sv: "Fortsätt så.",
-      no: "Fortsett slik.",
-      et: "Jätka samas vaimus."
     }[locale],
     completionRate: {
       fi: "Valmiusaste",
       en: "Completion rate",
       sv: "Slutförandegrad",
-      no: "Fullføringsgrad",
-      et: "Täidetuse määr"
     }[locale],
     points: {
       fi: "pistettä",
       en: "points",
       sv: "poäng",
-      no: "poeng",
-      et: "punkti"
     }[locale],
     sellerLevel: {
       fi: "Myyjälevel",
       en: "Seller level",
       sv: "Säljarnivå",
-      no: "Selgernivå",
-      et: "Müüja tase"
     }[locale],
     accountLevel: {
       fi: "Account level",
       en: "Account level",
       sv: "Account level",
-      no: "Account level",
-      et: "Account level"
     }[locale],
     registered: {
       fi: "Rekisteroitynyt",
       en: "Registered",
       sv: "Registrerad",
-      no: "Registrert",
-      et: "Registreeritud"
     }[locale],
     location: {
       fi: "Sijainti",
       en: "Location",
       sv: "Plats",
-      no: "Sted",
-      et: "Asukoht"
     }[locale],
     verified: {
       fi: "Vahvistettu",
       en: "Verified",
       sv: "Verifierad",
-      no: "Verifisert",
-      et: "Kinnitatud"
     }[locale],
     extraInfo: {
       fi: "Lisatiedot",
       en: "Additional info",
       sv: "Mer information",
-      no: "Mer informasjon",
-      et: "Lisainfo"
     }[locale],
     levelMax: {
       fi: "Maksimitaso",
       en: "Max level",
       sv: "Maxnivå",
-      no: "Maksnivå",
-      et: "Maksimaalne tase"
     }[locale],
     levelUpHint: {
       fi: "Luo ilmoituksia, merkitse myyntejä ja anna sekä saa arvioita.",
       en: "Create listings, mark sales, and give and receive reviews.",
       sv: "Skapa annonser, markera försäljningar och ge samt få recensioner.",
-      no: "Opprett annonser, marker salg og gi og motta anmeldelser.",
-      et: "Loo kuulutusi, märgi müüke ning anna ja saa arvustusi."
     }[locale],
     nextLevel: {
       fi: "Seuraavaan tasoon",
       en: "To next level",
       sv: "Till nästa nivå",
-      no: "Til neste nivå",
-      et: "Järgmise tasemeni"
     }[locale],
     xp: {
       fi: "XP",
       en: "XP",
       sv: "XP",
-      no: "XP",
-      et: "XP"
     }[locale],
     level: {
       fi: "Level",
       en: "Level",
       sv: "Level",
-      no: "Level",
-      et: "Level"
     }[locale],
     sold: {
       fi: "Myyty",
       en: "Sold",
       sv: "Sålda",
-      no: "Solgt",
-      et: "Müüdud"
     }[locale],
     reviewsGiven: {
       fi: "Annetut arviot",
       en: "Reviews given",
       sv: "Givna recensioner",
-      no: "Gitte anmeldelser",
-      et: "Antud arvustused"
     }[locale],
     phone: {
       fi: "Puhelin",
       en: "Phone",
       sv: "Telefon",
-      no: "Telefon",
-      et: "Telefon"
     }[locale],
     businessId: {
       fi: "Y-tunnus",
       en: "Business ID",
       sv: "FO-nummer",
-      no: "Organisasjonsnummer",
-      et: "Registrikood"
     }[locale],
     website: {
       fi: "Nettisivu",
       en: "Website",
       sv: "Webbplats",
-      no: "Nettside",
-      et: "Veebileht"
     }[locale],
     trustedSeller: {
       fi: "Luotettu myyjä",
       en: "Trusted seller",
       sv: "Betrodd säljare",
-      no: "Betrodd selger",
-      et: "Usaldatud müüja"
     }[locale],
     advancedSearch: {
       fi: "Tarkempi haku",
       en: "Advanced search",
       sv: "Avancerad sökning",
-      no: "Avansert søk",
-      et: "Täpsem otsing"
     }[locale],
     searchPlaceholder: {
       fi: "Hae ilmoituksista",
       en: "Search listings",
       sv: "Sök i annonser",
-      no: "Søk i annonser",
-      et: "Otsi kuulutustest"
     }[locale],
     minPrice: {
       fi: "Min €",
       en: "Min €",
       sv: "Min €",
-      no: "Min €",
-      et: "Min €"
     }[locale],
     maxPrice: {
       fi: "Max €",
       en: "Max €",
       sv: "Max €",
-      no: "Max €",
-      et: "Max €"
     }[locale],
     allConditions: {
       fi: "Kaikki kunnot",
       en: "All conditions",
       sv: "Alla skick",
-      no: "Alle tilstander",
-      et: "Kõik seisukorrad"
     }[locale],
     resetFilters: {
       fi: "Nollaa",
       en: "Reset",
       sv: "Nollställ",
-      no: "Nullstill",
-      et: "Lähtesta"
     }[locale],
     relevanceFirst: {
       fi: "Osuvimmat ensin",
       en: "Most relevant",
       sv: "Mest relevanta",
-      no: "Mest relevante",
-      et: "Asjakohasemad enne"
     }[locale],
     newestFirst: {
       fi: "Uusimmat ensin",
       en: "Newest first",
       sv: "Nyaste ensin",
-      no: "Nyeste først",
-      et: "Uuemad enne"
     }[locale],
     oldestFirst: {
       fi: "Vanhimmat ensin",
       en: "Oldest first",
       sv: "Aldsta ensin",
-      no: "Eldste først",
-      et: "Vanemad enne"
     }[locale],
     lowestPrice: {
       fi: "Halvin ensin",
       en: "Lowest price",
       sv: "Lagsta pris",
-      no: "Laveste pris",
-      et: "Madalaim hind"
     }[locale],
     highestPrice: {
       fi: "Kallein ensin",
       en: "Highest price",
       sv: "Hogsta pris",
-      no: "Hoyeste pris",
-      et: "Korgeim hind"
     }[locale],
     nearestFirst: {
       fi: "Lähimpänä sinua",
       en: "Nearest to you",
       sv: "Narmast dig",
-      no: "Narmest deg",
-      et: "Sulle lahemal"
     }[locale],
     noFilterResults: {
       fi: "Hakuehdoilla ei löytynyt ilmoituksia.",
       en: "No listings matched your filters.",
       sv: "Inga annonser matchade filtren.",
-      no: "Ingen annonser matchet filtrene.",
-      et: "Filtritele vastavaid kuulutusi ei leitud."
     }[locale],
     highlyRated: {
       fi: "Hyvin arvioitu",
       en: "Highly rated",
       sv: "Högt betyg",
-      no: "Høyt vurdert",
-      et: "Kõrgelt hinnatud"
     }[locale],
     noBio: {
       fi: "Myyjä ei ole vielä lisännyt esittelytekstiä.",
       en: "This seller has not added an about text yet.",
       sv: "Säljaren har inte lagt till någon presentation ännu.",
-      no: "Selgeren har ikke lagt til en presentasjon ennå.",
-      et: "Müüja pole veel tutvustust lisanud."
     }[locale]
   };
   const reviewCountLabel = reviews.length === 1 ? t.spReviews.toLowerCase().replace(/s$/, "") : t.spReviews.toLowerCase();
@@ -1483,79 +1386,57 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     fi: "Ladataan arvosteluja...",
     en: "Loading reviews...",
     sv: "Laddar recensioner...",
-    no: "Laster anmeldelser...",
-    et: "Laadin arvustusi..."
   }[locale];
   const reviewEmptyDescription = {
     fi: `${sellerName} ei ole vielä saanut arvosteluja.`,
     en: `${sellerName} has not received reviews yet.`,
     sv: `${sellerName} har inte fått några recensioner ännu.`,
-    no: `${sellerName} har ikke fått anmeldelser ennå.`,
-    et: `${sellerName} ei ole veel arvustusi saanud.`
   }[locale];
   const reviewLabels = {
     search: {
       fi: "Hae arvosteluista...",
       en: "Search reviews...",
       sv: "Sök bland recensioner...",
-      no: "Søk i anmeldelser...",
-      et: "Otsi arvustustest..."
     }[locale],
     average: {
       fi: "Keskimääräinen arvio",
       en: "Average rating",
       sv: "Genomsnittligt betyg",
-      no: "Gjennomsnittlig vurdering",
-      et: "Keskmine hinnang"
     }[locale],
     basedOn: {
       fi: "Perustuu",
       en: "Based on",
       sv: "Baserat på",
-      no: "Basert på",
-      et: "Põhineb"
     }[locale],
     verifiedTitle: {
       fi: "Vain vahvistetut kaupat",
       en: "Verified deals only",
       sv: "Endast verifierade affärer",
-      no: "Kun verifiserte handler",
-      et: "Ainult kinnitatud tehingud"
     }[locale],
     verifiedBody: {
       fi: "Arvostelut tulevat vain vahvistetuilta käyttäjiltä onnistuneiden kauppojen jälkeen.",
       en: "Reviews come only from verified users after successful deals.",
       sv: "Recensioner kommer bara från verifierade användare efter lyckade affärer.",
-      no: "Anmeldelser kommer bare fra verifiserte brukere etter vellykkede handler.",
-      et: "Arvustused tulevad ainult kinnitatud kasutajatelt pärast edukaid tehinguid."
     }[locale],
     starFilter: {
       fi: "Suodata tähtien mukaan",
       en: "Filter by stars",
       sv: "Filtrera efter stjärnor",
-      no: "Filtrer etter stjerner",
-      et: "Filtreeri tähtede järgi"
     }[locale],
     all: {
       fi: "Kaikki",
       en: "All",
       sv: "Alla",
-      no: "Alle",
-      et: "Kõik"
     }[locale],
     noMatches: {
       fi: "Hakuehdoilla ei löytynyt arvosteluja.",
       en: "No reviews matched your filters.",
       sv: "Inga recensioner matchade filtren.",
-      no: "Ingen anmeldelser matchet filtrene.",
-      et: "Filtritele vastavaid arvustusi ei leitud."
     }[locale],
     reply: {
       fi: "Vastaa",
       en: "Reply",
       sv: "Svara",
-      no: "Svar",
-      et: "Vasta"
     }[locale]
   };
   const reviewSortOptions: Array<{ value: ReviewSort; label: string }> = [
@@ -1597,12 +1478,14 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               aria-hidden="true"
             >
               <Star className="seller-ref-rating-star-outline" />
-              <span
-                className="seller-ref-rating-star-fill"
-                style={{ width: `${fillPercentage}%` }}
-              >
-                <Star fill="currentColor" />
-              </span>
+              {fillPercentage > 0 ? (
+                <span
+                  className="seller-ref-rating-star-fill"
+                  style={{ width: `${fillPercentage}%` }}
+                >
+                  <Star fill="currentColor" />
+                </span>
+              ) : null}
             </span>
           );
         })}
@@ -1737,10 +1620,14 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
           </article>
 
           <div className="seller-ref-stats">
-            <div className="seller-ref-stat is-rating">
+            <div className={`seller-ref-stat is-rating${reviews.length ? "" : " is-empty"}`}>
               <Star size={24} />
-              <strong>{reviews.length ? averageRating.toFixed(1) : "–"}</strong>
-              <span>{refLabels.averageRating}</span>
+              {reviews.length ? (
+                <strong>{averageRating.toFixed(1)}</strong>
+              ) : (
+                <span className="seller-ref-rating-empty">{refLabels.noRatings}</span>
+              )}
+              <span className="seller-ref-rating-label">{refLabels.averageRating}</span>
               {renderAverageRatingStars(averageRating)}
             </div>
             <div className="seller-ref-stat">

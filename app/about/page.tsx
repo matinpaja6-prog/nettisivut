@@ -18,28 +18,109 @@ import {
 import { useLanguage } from "@/lib/i18n";
 import { pagePath } from "@/lib/routes";
 
-const featureCards = [
-  {
-    icon: Search,
-    title: "Oikea osa nopeasti",
-    text: "Tehokas haku ja selkeät ilmoitukset auttavat löytämään juuri sen oikean osan."
+const featureIcons = [Search, Tag, ShieldCheck, Headphones];
+
+const aboutCopy = {
+  fi: {
+    kicker: "Tietoa meistä",
+    titleTop: "Varaosamaailma.",
+    titleBottom: "Rakennettu",
+    titleHighlight: "harrastajille.",
+    intro: "Maskines kokoaa moottorikelkkojen, mönkijöiden, motocross-pyörien ja mopojen varaosat yhteen selkeään paikkaan. Tavoitteenamme on tehdä oikean osan löytämisestä nopeaa ja myymisestä vaivatonta.",
+    createListing: "Luo ilmoitus",
+    viewHelp: "Katso ohjeet",
+    aboutMaskines: "Tietoa Maskinesista",
+    why: "Miksi Maskines?",
+    featuresTitle: "Tehty harrastajille, harrastajien kanssa.",
+    featuresLead: "Ymmärrämme tarpeesi, koska jaamme saman intohimon.",
+    features: [
+      ["Oikea osa nopeasti", "Tehokas haku ja selkeät ilmoitukset auttavat löytämään juuri sen oikean osan."],
+      ["Myy helpommin, myy enemmän", "Yksi ilmoitus, monta osaa. Parempi näkyvyys tuo enemmän ostajia ja parempia kauppoja."],
+      ["Turvallinen kauppapaikka", "Luotettava ympäristö ja selkeät pelisäännöt suojaavat sekä ostajaa että myyjää."],
+      ["Apua aina tarvittaessa", "Asiakastuki ja ohjeet ovat aina saatavilla, kun tarvitset apua eteenpäin."]
+    ],
+    numbersKicker: "Maskines lukuina",
+    numbersTitle: "Vahva yhteisö, joka kasvaa joka päivä.",
+    missionTitle: "Missiomme",
+    missionText: "Haluamme olla Pohjoismaiden johtava varaosamarkkinapaikka, jossa jokainen osa löytää uuden elämän ja jokainen kauppa vie harrastusta eteenpäin.",
+    communityAria: "Yhteisön lupaus",
+    communityTitle: "Harrastajalta harrastajalle.",
+    communityText: "Maskines tekee varaosien ostamisesta ja myymisestä selkeämpää, jotta aikaa jää sille mikä oikeasti kiinnostaa: ajamiselle, rakentamiselle ja seuraavalle projektille.",
+    stats: {
+      vehicleClass: ["ajoneuvoluokka ilmoituksissa", "ajoneuvoluokkaa ilmoituksissa"],
+      activeListing: ["aktiivinen ilmoitus", "aktiivista ilmoitusta"],
+      activeSeller: ["aktiivinen myyjä", "aktiivista myyjää"],
+      registeredUser: ["rekisteröitynyt käyttäjä", "rekisteröitynyttä käyttäjää"],
+      country: ["maa ilmoituksissa", "maata ilmoituksissa"]
+    }
   },
-  {
-    icon: Tag,
-    title: "Myy helpommin, myy enemmän",
-    text: "Yksi ilmoitus, monta osaa. Parempi näkyvyys tuo enemmän ostajia ja parempia kauppoja."
+  en: {
+    kicker: "About us",
+    titleTop: "The world of spare parts.",
+    titleBottom: "Built for",
+    titleHighlight: "enthusiasts.",
+    intro: "Maskines brings snowmobile, ATV, motocross and moped parts together in one clear marketplace. Our goal is to make finding the right part fast and selling effortless.",
+    createListing: "Create listing",
+    viewHelp: "View instructions",
+    aboutMaskines: "About Maskines",
+    why: "Why Maskines?",
+    featuresTitle: "Built for enthusiasts, together with enthusiasts.",
+    featuresLead: "We understand your needs because we share the same passion.",
+    features: [
+      ["Find the right part fast", "Powerful search and clear listings help you find exactly the right part."],
+      ["Sell more easily", "One listing, multiple parts. Better visibility brings more buyers and better deals."],
+      ["A safe marketplace", "A trusted environment and clear rules protect both buyers and sellers."],
+      ["Help when you need it", "Customer support and instructions are available whenever you need assistance."]
+    ],
+    numbersKicker: "Maskines in numbers",
+    numbersTitle: "A strong community growing every day.",
+    missionTitle: "Our mission",
+    missionText: "We want to be the leading Nordic spare-parts marketplace, where every part finds a new life and every deal moves the hobby forward.",
+    communityAria: "Community promise",
+    communityTitle: "From enthusiast to enthusiast.",
+    communityText: "Maskines makes buying and selling spare parts clearer, leaving more time for what really matters: riding, building and the next project.",
+    stats: {
+      vehicleClass: ["vehicle class in listings", "vehicle classes in listings"],
+      activeListing: ["active listing", "active listings"],
+      activeSeller: ["active seller", "active sellers"],
+      registeredUser: ["registered user", "registered users"],
+      country: ["country in listings", "countries in listings"]
+    }
   },
-  {
-    icon: ShieldCheck,
-    title: "Turvallinen kauppapaikka",
-    text: "Luotettava ympäristö ja selkeät pelisäännöt suojaavat sekä ostajaa että myyjää."
-  },
-  {
-    icon: Headphones,
-    title: "Apua aina tarvittaessa",
-    text: "Asiakastuki ja ohjeet ovat aina saatavilla, kun tarvitset apua eteenpäin."
+  sv: {
+    kicker: "Om oss",
+    titleTop: "Reservdelsvärlden.",
+    titleBottom: "Byggd för",
+    titleHighlight: "entusiaster.",
+    intro: "Maskines samlar reservdelar till snöskotrar, fyrhjulingar, motocrosscyklar och mopeder på en tydlig marknadsplats. Vårt mål är att göra det snabbt att hitta rätt del och enkelt att sälja.",
+    createListing: "Skapa annons",
+    viewHelp: "Läs instruktionerna",
+    aboutMaskines: "Om Maskines",
+    why: "Varför Maskines?",
+    featuresTitle: "Skapad för entusiaster, tillsammans med entusiaster.",
+    featuresLead: "Vi förstår dina behov eftersom vi delar samma passion.",
+    features: [
+      ["Hitta rätt del snabbt", "Effektiv sökning och tydliga annonser hjälper dig att hitta exakt rätt del."],
+      ["Sälj enklare", "En annons, flera delar. Bättre synlighet ger fler köpare och bättre affärer."],
+      ["En trygg marknadsplats", "En pålitlig miljö och tydliga regler skyddar både köpare och säljare."],
+      ["Hjälp när du behöver den", "Kundsupport och instruktioner finns tillgängliga när du behöver hjälp."]
+    ],
+    numbersKicker: "Maskines i siffror",
+    numbersTitle: "En stark gemenskap som växer varje dag.",
+    missionTitle: "Vårt uppdrag",
+    missionText: "Vi vill vara Nordens ledande marknadsplats för reservdelar, där varje del får ett nytt liv och varje affär för hobbyn framåt.",
+    communityAria: "Gemenskapens löfte",
+    communityTitle: "Från entusiast till entusiast.",
+    communityText: "Maskines gör det tydligare att köpa och sälja reservdelar, så att mer tid blir över för det som verkligen betyder något: körning, byggande och nästa projekt.",
+    stats: {
+      vehicleClass: ["fordonsklass i annonser", "fordonsklasser i annonser"],
+      activeListing: ["aktiv annons", "aktiva annonser"],
+      activeSeller: ["aktiv säljare", "aktiva säljare"],
+      registeredUser: ["registrerad användare", "registrerade användare"],
+      country: ["land i annonser", "länder i annonser"]
+    }
   }
-];
+};
 
 type AboutStats = {
   registeredUsers: number;
@@ -50,9 +131,9 @@ type AboutStats = {
   vehicleClasses: number;
 };
 
-function formatStatValue(value: number | null | undefined) {
+function formatStatValue(value: number | null | undefined, locale: keyof typeof aboutCopy) {
   if (value === null || value === undefined) return "...";
-  return value.toLocaleString("fi-FI");
+  return value.toLocaleString(locale === "fi" ? "fi-FI" : locale === "sv" ? "sv-SE" : "en-US");
 }
 
 function statLabel(value: number | null | undefined, singular: string, plural: string) {
@@ -61,6 +142,7 @@ function statLabel(value: number | null | undefined, singular: string, plural: s
 
 export default function AboutPage() {
   const { locale } = useLanguage();
+  const copy = aboutCopy[locale];
   const [stats, setStats] = useState<AboutStats | null>(null);
 
   useEffect(() => {
@@ -92,72 +174,68 @@ export default function AboutPage() {
   const heroStats = [
     {
       icon: UsersRound,
-      value: formatStatValue(stats?.vehicleClasses),
-      label: statLabel(stats?.vehicleClasses, "ajoneuvoluokka ilmoituksissa", "ajoneuvoluokkaa ilmoituksissa")
+      value: formatStatValue(stats?.vehicleClasses, locale),
+      label: statLabel(stats?.vehicleClasses, copy.stats.vehicleClass[0], copy.stats.vehicleClass[1])
     },
     {
       icon: Tag,
-      value: formatStatValue(stats?.activeListings),
-      label: statLabel(stats?.activeListings, "aktiivinen ilmoitus", "aktiivista ilmoitusta")
+      value: formatStatValue(stats?.activeListings, locale),
+      label: statLabel(stats?.activeListings, copy.stats.activeListing[0], copy.stats.activeListing[1])
     },
     {
       icon: HandHeart,
-      value: formatStatValue(stats?.activeSellers),
-      label: statLabel(stats?.activeSellers, "aktiivinen myyjä", "aktiivista myyjää")
+      value: formatStatValue(stats?.activeSellers, locale),
+      label: statLabel(stats?.activeSellers, copy.stats.activeSeller[0], copy.stats.activeSeller[1])
     }
   ];
 
   const numberStats = [
     {
       icon: UsersRound,
-      value: formatStatValue(stats?.registeredUsers),
-      label: statLabel(stats?.registeredUsers, "rekisteröitynyt käyttäjä", "rekisteröitynyttä käyttäjää")
+      value: formatStatValue(stats?.registeredUsers, locale),
+      label: statLabel(stats?.registeredUsers, copy.stats.registeredUser[0], copy.stats.registeredUser[1])
     },
     {
       icon: Tag,
-      value: formatStatValue(stats?.activeListings),
-      label: statLabel(stats?.activeListings, "aktiivinen ilmoitus", "aktiivista ilmoitusta")
+      value: formatStatValue(stats?.activeListings, locale),
+      label: statLabel(stats?.activeListings, copy.stats.activeListing[0], copy.stats.activeListing[1])
     },
     {
       icon: Globe2,
-      value: formatStatValue(stats?.listingCountries),
-      label: statLabel(stats?.listingCountries, "maa ilmoituksissa", "maata ilmoituksissa")
+      value: formatStatValue(stats?.listingCountries, locale),
+      label: statLabel(stats?.listingCountries, copy.stats.country[0], copy.stats.country[1])
     },
     {
       icon: ThumbsUp,
-      value: formatStatValue(stats?.activeSellers),
-      label: statLabel(stats?.activeSellers, "aktiivinen myyjä", "aktiivista myyjää")
+      value: formatStatValue(stats?.activeSellers, locale),
+      label: statLabel(stats?.activeSellers, copy.stats.activeSeller[0], copy.stats.activeSeller[1])
     }
   ];
 
   return (
-    <main className="about-showcase-page">
+    <main className="about-showcase-page" data-no-auto-translate>
         <section className="about-showcase-hero">
           <div className="about-showcase-copy">
-            <span className="about-showcase-kicker">Tietoa meistä</span>
+            <span className="about-showcase-kicker">{copy.kicker}</span>
             <h1>
-              Varaosamaailma.
+              {copy.titleTop}
               <br />
-              Rakennettu <span>harrastajille.</span>
+              {copy.titleBottom} <span>{copy.titleHighlight}</span>
             </h1>
-            <p>
-              Maskines kokoaa moottorikelkkojen, mönkijöiden, motocross-pyörien ja mopojen
-              varaosat yhteen selkeään paikkaan. Tavoitteenamme on tehdä oikean osan
-              löytämisestä nopeaa ja myymisestä vaivatonta.
-            </p>
+            <p>{copy.intro}</p>
             <div className="about-showcase-actions">
               <Link className="about-showcase-primary" href={pagePath("sell", locale)}>
-                Luo ilmoitus
+                {copy.createListing}
               </Link>
               <Link className="about-showcase-secondary" href={pagePath("faq", locale)}>
-                Katso ohjeet
+                {copy.viewHelp}
                 <ArrowRight size={15} aria-hidden="true" />
               </Link>
             </div>
           </div>
 
-          <aside className="about-showcase-stats" aria-label="Tietoa Maskinesista">
-            <span>Tietoa Maskinesista</span>
+          <aside className="about-showcase-stats" aria-label={copy.aboutMaskines}>
+            <span>{copy.aboutMaskines}</span>
             {heroStats.map((stat) => {
               const Icon = stat.icon;
               return (
@@ -174,20 +252,20 @@ export default function AboutPage() {
         </section>
 
         <section className="about-showcase-features" aria-labelledby="about-features-title">
-          <span className="about-showcase-section-kicker">Miksi Maskines?</span>
-          <h2 id="about-features-title">Tehty harrastajille, harrastajien kanssa.</h2>
-          <p>Ymmärrämme tarpeesi, koska jaamme saman intohimon.</p>
+          <span className="about-showcase-section-kicker">{copy.why}</span>
+          <h2 id="about-features-title">{copy.featuresTitle}</h2>
+          <p>{copy.featuresLead}</p>
 
           <div className="about-showcase-card-grid">
-            {featureCards.map((card) => {
-              const Icon = card.icon;
+            {copy.features.map(([title, text], index) => {
+              const Icon = featureIcons[index];
               return (
-                <article className="about-showcase-card" key={card.title}>
+                <article className="about-showcase-card" key={title}>
                   <span className="about-showcase-card-icon">
                     <Icon size={24} aria-hidden="true" />
                   </span>
-                  <h3>{card.title}</h3>
-                  <p>{card.text}</p>
+                  <h3>{title}</h3>
+                  <p>{text}</p>
                 </article>
               );
             })}
@@ -195,8 +273,8 @@ export default function AboutPage() {
         </section>
 
         <section className="about-showcase-numbers" aria-labelledby="about-numbers-title">
-          <span className="about-showcase-section-kicker">Maskines lukuina</span>
-          <h2 id="about-numbers-title">Vahva yhteisö, joka kasvaa joka päivä.</h2>
+          <span className="about-showcase-section-kicker">{copy.numbersKicker}</span>
+          <h2 id="about-numbers-title">{copy.numbersTitle}</h2>
 
           <div className="about-showcase-number-grid">
             {numberStats.map((stat) => {
@@ -216,23 +294,17 @@ export default function AboutPage() {
               <Heart size={28} aria-hidden="true" />
             </span>
             <div>
-              <h3>Missiomme</h3>
-              <p>
-                Haluamme olla Pohjoismaiden johtava varaosamarkkinapaikka, jossa jokainen osa
-                löytää uuden elämän ja jokainen kauppa vie harrastusta eteenpäin.
-              </p>
+              <h3>{copy.missionTitle}</h3>
+              <p>{copy.missionText}</p>
             </div>
           </article>
         </section>
 
-        <section className="about-showcase-community" aria-label="Yhteisön lupaus">
+        <section className="about-showcase-community" aria-label={copy.communityAria}>
           <HandHeart size={28} aria-hidden="true" />
           <div>
-            <h2>Harrastajalta harrastajalle.</h2>
-            <p>
-              Maskines tekee varaosien ostamisesta ja myymisestä selkeämpää, jotta aikaa jää
-              sille mikä oikeasti kiinnostaa: ajamiselle, rakentamiselle ja seuraavalle projektille.
-            </p>
+            <h2>{copy.communityTitle}</h2>
+            <p>{copy.communityText}</p>
           </div>
         </section>
     </main>

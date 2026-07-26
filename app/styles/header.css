@@ -109,31 +109,6 @@
     #006aa7;
 }
 
-.language-flag-no {
-  background:
-    linear-gradient(90deg, transparent 0 25%, #ffffff 25% 57%, transparent 57% 100%),
-    linear-gradient(0deg, transparent 0 31%, #ffffff 31% 69%, transparent 69% 100%),
-    #ba0c2f;
-}
-
-.language-flag-no::before {
-  background:
-    linear-gradient(90deg, transparent 0 34%, #00205b 34% 48%, transparent 48% 100%),
-    linear-gradient(0deg, transparent 0 40%, #00205b 40% 60%, transparent 60% 100%);
-  content: "";
-  inset: 0;
-  position: absolute;
-}
-
-.language-flag-et {
-  background: linear-gradient(
-    to bottom,
-    #0072ce 0 33.3%,
-    #000000 33.3% 66.6%,
-    #ffffff 66.6% 100%
-  );
-}
-
 .language-flag-en {
   background:
     linear-gradient(0deg, transparent 0 40%, #ffffff 40% 60%, transparent 60% 100%),

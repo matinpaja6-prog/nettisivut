@@ -10,11 +10,11 @@ function jsonError(message: string, status = 400) {
 }
 
 function profileFollowErrorMessage(error: { code?: string; message?: string } | null | undefined) {
-  if (!error) return "Seurannan tallennus epÃ¤onnistui.";
+  if (!error) return "Seurannan tallennus epäonnistui.";
   if (error.code === "42P01" || error.message?.includes("profile_follows")) {
-    return "Seuranta ei ole vielÃ¤ kÃ¤ytÃ¶ssÃ¤: aja Supabasessa supabase/profile-follows.sql.";
+    return "Seuranta ei ole vielä käytössä: aja Supabasessa supabase/profile-follows.sql.";
   }
-  return error.message ?? "Seurannan tallennus epÃ¤onnistui.";
+  return error.message ?? "Seurannan tallennus epäonnistui.";
 }
 
 async function getOptionalUser(request: Request) {

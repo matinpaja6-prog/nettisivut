@@ -1565,31 +1565,6 @@
     #006aa7;
 }
 
-.flag-no {
-  background:
-    linear-gradient(90deg, transparent 0 25%, #ffffff 25% 57%, transparent 57% 100%),
-    linear-gradient(0deg, transparent 0 31%, #ffffff 31% 69%, transparent 69% 100%),
-    #ba0c2f;
-}
-
-.flag-no::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, transparent 0 34%, #00205b 34% 48%, transparent 48% 100%),
-    linear-gradient(0deg, transparent 0 40%, #00205b 40% 60%, transparent 60% 100%);
-}
-
-.flag-et {
-  background: linear-gradient(
-    to bottom,
-    #0072ce 0 33.3%,
-    #000000 33.3% 66.6%,
-    #ffffff 66.6% 100%
-  );
-}
-
 .flag-en {
   background:
     linear-gradient(27deg, transparent 0 42%, #ffffff 42% 48%, #c8102e 48% 52%, #ffffff 52% 58%, transparent 58% 100%),
@@ -24110,6 +24085,363 @@
   display: block;
 }
 
+.locationFilterDisabled {
+  opacity: 0.58;
+}
+
+.locationMultiMenu {
+  background: #061a2c !important;
+  display: grid !important;
+  gap: 7px !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  max-height: 310px !important;
+  overflow: hidden !important;
+  padding: 8px !important;
+  z-index: 1001 !important;
+}
+
+:global(html body) .heroRightRail *:has(> .locationMultiMenu) {
+  isolation: isolate;
+  position: relative;
+  z-index: 1000 !important;
+}
+
+.locationSearchField {
+  align-items: center;
+  background: #041523;
+  border: 1px solid rgba(116, 151, 183, 0.5);
+  border-radius: 5px;
+  color: rgba(224, 234, 244, 0.74);
+  display: flex;
+  flex: 0 0 auto;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 10px;
+}
+
+.locationSearchField input {
+  background: transparent;
+  border: 0;
+  color: #ffffff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  min-width: 0;
+  outline: none;
+  width: 100%;
+}
+
+.locationSearchField input::placeholder {
+  color: rgba(215, 227, 239, 0.58);
+}
+
+.locationOptionList {
+  align-content: start;
+  display: grid;
+  gap: 2px;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.locationOptionGroup {
+  display: grid;
+  gap: 2px;
+}
+
+.locationCountryGrid {
+  gap: 6px;
+}
+
+.locationCountryGrid::before {
+  color: #ff812c;
+  content: "MAAT";
+  display: block;
+  font-size: 10px;
+  font-weight: 950;
+  grid-column: 1 / -1;
+  letter-spacing: 0.08em;
+  padding: 2px 9px 4px;
+  text-align: center;
+}
+
+.locationCountryGrid .locationOptionSection {
+  display: none;
+}
+
+.locationCountryGrid .locationOptionActionGroup {
+  grid-column: 1 / -1;
+}
+
+.locationOptionActionGroup {
+  background: #061a2c;
+  padding: 6px 0 8px;
+  position: static;
+}
+
+.locationOptionSection {
+  background: #061a2c;
+  color: #ff812c;
+  display: block;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  padding: 8px 9px 4px;
+  text-transform: uppercase;
+}
+
+.locationMultiAction {
+  background: linear-gradient(135deg, #ff7a1a 0%, #e85b00 100%) !important;
+  border: 1px solid #ff9a53 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 6px 16px rgba(255, 103, 10, 0.18) !important;
+  color: #ffffff !important;
+  min-height: 40px !important;
+}
+
+.locationMultiAction:hover {
+  background: linear-gradient(135deg, #ff8c36 0%, #f26708 100%) !important;
+}
+
+.locationActionArrow {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.locationMultiOption {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: #f4f8fc;
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 10px;
+  justify-content: space-between;
+  min-height: 34px;
+  padding: 7px 9px;
+  text-align: left;
+  width: 100%;
+}
+
+.locationMultiOption:hover,
+.locationMultiOptionSelected {
+  background: rgba(255, 112, 16, 0.15);
+  color: #ffffff;
+}
+
+.locationOptionCheck {
+  align-items: center;
+  border: 1px solid rgba(143, 169, 193, 0.58);
+  border-radius: 4px;
+  color: #ff7417;
+  display: inline-flex;
+  flex: 0 0 18px;
+  height: 18px;
+  justify-content: center;
+}
+
+.locationMultiOptionSelected .locationOptionCheck {
+  background: rgba(255, 112, 16, 0.15);
+  border-color: #ff7417;
+}
+
+.locationClearSelection {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(109, 139, 166, 0.3);
+  color: #ff812c;
+  cursor: pointer;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 8px 6px 2px;
+  text-align: left;
+}
+
+:global(html body) .heroRightRail .locationClearSelection {
+  -webkit-text-fill-color: #ff812c !important;
+  align-items: center !important;
+  background: linear-gradient(135deg, #10283a 0%, #071827 100%) !important;
+  border: 1px solid rgba(255, 116, 23, 0.72) !important;
+  border-radius: 10px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  color: #ff812c !important;
+  cursor: pointer !important;
+  display: flex !important;
+  font-weight: 800 !important;
+  gap: 7px !important;
+  justify-content: center !important;
+  margin: 8px 10px 10px !important;
+  min-height: 36px !important;
+  padding: 8px 14px !important;
+  transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease !important;
+  width: calc(100% - 20px) !important;
+}
+
+:global(html body) .heroRightRail .locationClearSelection::before {
+  content: "×";
+  display: grid;
+  font-size: 18px;
+  height: 18px;
+  line-height: 1;
+  place-items: center;
+  width: 18px;
+}
+
+:global(html body) .heroRightRail .locationClearSelection:hover {
+  -webkit-text-fill-color: #ffffff !important;
+  background: linear-gradient(135deg, #ff7a1a 0%, #e85b00 100%) !important;
+  border-color: #ff9b55 !important;
+  box-shadow: 0 7px 18px rgba(255, 103, 10, 0.2) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+:global(html body) .heroRightRail .locationClearSelection:active {
+  box-shadow: none !important;
+  transform: translateY(0) !important;
+}
+
+:global(html body) .heroRightRail .locationSearchField {
+  background: #041523 !important;
+  border-color: rgba(116, 151, 183, 0.56) !important;
+  color: rgba(224, 234, 244, 0.8) !important;
+}
+
+:global(html body) .heroRightRail .locationSearchField input {
+  -webkit-text-fill-color: #ffffff !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+:global(html body) .heroRightRail .locationSearchField input::placeholder {
+  -webkit-text-fill-color: rgba(215, 227, 239, 0.62) !important;
+  color: rgba(215, 227, 239, 0.62) !important;
+  opacity: 1 !important;
+}
+
+:global(html body) .heroRightRail .locationMultiOption {
+  -webkit-text-fill-color: #f4f8fc !important;
+  background: #061a2c !important;
+  border: 0 !important;
+  color: #f4f8fc !important;
+}
+
+:global(html body) .heroRightRail .locationMultiOption:hover,
+:global(html body) .heroRightRail .locationMultiOptionSelected {
+  -webkit-text-fill-color: #ffffff !important;
+  background: #183047 !important;
+  color: #ffffff !important;
+}
+
+:global(html body) .heroRightRail .locationMultiAction {
+  -webkit-text-fill-color: #ffffff !important;
+  background: linear-gradient(135deg, #ff7a1a 0%, #e85b00 100%) !important;
+  border: 1px solid #ff9a53 !important;
+  box-shadow: 0 7px 18px rgba(255, 103, 10, 0.22) !important;
+  color: #ffffff !important;
+  margin-top: 6px !important;
+}
+
+:global(html body) .heroRightRail .locationMultiAction:hover {
+  background: linear-gradient(135deg, #ff8f3d 0%, #f26708 100%) !important;
+  box-shadow: 0 9px 22px rgba(255, 103, 10, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+:global(html body) .heroRightRail .locationOptionCheck {
+  -webkit-text-fill-color: #ff7417 !important;
+  background: #071827 !important;
+  border-color: rgba(143, 169, 193, 0.7) !important;
+  color: #ff7417 !important;
+}
+
+:global(html body) .heroRightRail .locationMultiOptionSelected .locationOptionCheck {
+  background: rgba(255, 112, 16, 0.17) !important;
+  border-color: #ff7417 !important;
+}
+
+@media (min-width: 900px) {
+  :global(html body) .heroRightRail .locationMultiMenu {
+    height: min(560px, calc(100vh - 150px)) !important;
+    left: auto !important;
+    max-height: min(560px, calc(100vh - 150px)) !important;
+    right: 0 !important;
+    width: min(430px, calc(100vw - 40px)) !important;
+  }
+
+  :global(html body) .heroRightRail .locationOptionList {
+    align-content: start !important;
+    min-height: 0 !important;
+  }
+}
+
+@media (max-width: 899px) {
+  :global(html body) .heroRightRail .locationMultiMenu {
+    left: 0 !important;
+    max-height: min(68vh, 540px) !important;
+    right: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .heroRightRail .locationSearchField {
+    min-height: 44px !important;
+  }
+
+  :global(html body) .heroRightRail .locationMultiOption {
+    min-height: 44px !important;
+    padding: 10px 11px !important;
+  }
+
+  :global(html body) .heroRightRail .locationMultiAction {
+    min-height: 46px !important;
+  }
+
+  :global(html body) .heroRightRail .locationOptionCheck {
+    flex-basis: 22px !important;
+    height: 22px !important;
+  }
+}
+
+@media (min-width: 721px) {
+  :global(html body) .heroRightRail .locationMultiMenu {
+    height: min(680px, calc(100dvh - 90px)) !important;
+    left: auto !important;
+    max-height: min(680px, calc(100dvh - 90px)) !important;
+    min-height: min(500px, calc(100dvh - 90px)) !important;
+    right: 0 !important;
+    width: min(430px, calc(100vw - 32px)) !important;
+  }
+
+  :global(html body) .heroRightRail .locationMultiMenu.locationCountriesMenu {
+    height: auto !important;
+    max-height: min(430px, calc(100dvh - 90px)) !important;
+    min-height: 0 !important;
+  }
+
+  :global(html body) .heroRightRail .locationCountryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  :global(html body) .heroRightRail .locationCountryOption {
+    background: #0a2134 !important;
+    border: 1px solid rgba(95, 132, 164, 0.34) !important;
+    border-radius: 8px !important;
+    min-height: 42px !important;
+  }
+
+  :global(html body) .heroRightRail .locationCountryOption:hover,
+  :global(html body) .heroRightRail .locationCountryOption.locationMultiOptionSelected {
+    background: #17344c !important;
+    border-color: rgba(255, 122, 26, 0.82) !important;
+  }
+}
+
 .heroYearSelectWrap {
   position: relative;
 }
@@ -27841,7 +28173,7 @@
 /* Absolute final mobile search sheet lock: keep the phone search as a bottom drawer. */
 @media (max-width: 720px), (pointer: coarse) {
   :global(html body) .mobileFilterBackdrop {
-    background: rgba(0, 0, 0, 0.54) !important;
+    background: #15171d !important;
     border: 0 !important;
     display: block !important;
     inset: 0 !important;
@@ -27959,6 +28291,7 @@
 
   :global(html body) .mobileFilterSheet .mobileSheetForm,
   .mobileFilterSheet .mobileSheetForm {
+    background: #15171d !important;
     display: flex !important;
     flex: 1 1 auto !important;
     flex-direction: column !important;
@@ -30591,6 +30924,62 @@
     justify-self: center !important;
     position: static !important;
     transform: translateX(2px) !important;
+  }
+}
+
+/* Keep the phone location picker above every filter control and cover the bottom safe area. */
+@media (max-width: 720px), (pointer: coarse) {
+  :global(html):has(.mobileFilterSheet),
+  :global(html):has(.mobileFilterSheet) :global(body) {
+    margin: 0 !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+    padding: 0 !important;
+  }
+
+  :global(html body) > .mobileFilterBackdrop {
+    background: rgba(0, 0, 0, 0.54) !important;
+    height: 100dvh !important;
+    inset: 0 !important;
+    width: 100dvw !important;
+  }
+
+  :global(html body) > .heroRightRail.mobileFilterSheet,
+  :global(html body) > .heroRightRailOpen.mobileFilterSheet {
+    box-shadow: 0 -24px 46px rgba(0, 0, 0, 0.5) !important;
+    left: 0 !important;
+    max-width: 100dvw !important;
+    right: 0 !important;
+    width: 100dvw !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileSheetActions {
+    box-shadow: none !important;
+    margin-top: 8px !important;
+    padding: 12px 0 calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+    position: static !important;
+  }
+
+  :global(html body) .mobileFilterSheet .locationMultiMenu {
+    background: #15171d !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    bottom: 0 !important;
+    box-shadow: none !important;
+    height: auto !important;
+    left: 0 !important;
+    max-height: none !important;
+    padding: 10px 16px calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+    position: fixed !important;
+    right: 0 !important;
+    top: 78px !important;
+    width: auto !important;
+    z-index: 100000 !important;
+  }
+
+  :global(html body) .mobileFilterSheet .locationOptionList {
+    background: #15171d !important;
+    overscroll-behavior: contain !important;
   }
 }
 

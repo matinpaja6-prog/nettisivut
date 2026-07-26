@@ -52,6 +52,21 @@ export type SiteTaxonomy = {
 
 export const DEFAULT_VEHICLES: VehicleEntry[] = [
   {
+    key: "Moottoripyörä",
+    label: "Moottoripyörä",
+    pillLabel: "Moottoripyörät",
+    desc: "Vähintään 125 cm³ rekisteröidyt katu-, matka-, adventure-, custom- ja enduromoottoripyörät",
+    image: "/vehicles/motocross.png",
+    brands: [
+      "AJP", "Aprilia", "Benelli", "Beta", "BMW", "Brixton", "BSA", "Buell", "Can-Am",
+      "CFMOTO", "Ducati", "Fantic", "GasGas", "Harley-Davidson", "Honda",
+      "Husqvarna", "Indian", "Kawasaki", "Keeway", "KTM", "Kymco", "Moto Guzzi",
+      "Moto Morini", "MV Agusta", "Norton", "Piaggio", "QJMotor",
+      "Royal Enfield", "Sherco", "Suzuki", "SYM", "Triumph", "Vespa",
+      "Voge", "Yamaha", "Zero", "Zontes"
+    ]
+  },
+  {
     key: "Moottorikelkka",
     label: "Moottorikelkka",
     pillLabel: "Moottorikelkat",
@@ -133,6 +148,12 @@ function mergeWithDefaults(data: Partial<SiteTaxonomy> | null | undefined): Site
         ? (data.subcategoryGroups as Record<string, Record<string, string[]>>)
         : DEFAULT_TAXONOMY.subcategoryGroups
   };
+
+  for (const defaultVehicle of DEFAULT_TAXONOMY.vehicles) {
+    if (!merged.vehicles.some((vehicle) => vehicle.key === defaultVehicle.key)) {
+      merged.vehicles.push(defaultVehicle);
+    }
+  }
 
   const frameCategory = merged.categories.find((cat) => cat.key === "Runko & katteet");
   if (frameCategory && !frameCategory.subcategories.includes("Tunnelit / Takarunko")) {

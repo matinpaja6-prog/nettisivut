@@ -65,6 +65,26 @@ const securityHeaders = [
     value: "strict-origin-when-cross-origin"
   },
   {
+    key: "Cross-Origin-Opener-Policy",
+    value: "same-origin-allow-popups"
+  },
+  {
+    key: "Cross-Origin-Resource-Policy",
+    value: "same-site"
+  },
+  {
+    key: "Origin-Agent-Cluster",
+    value: "?1"
+  },
+  {
+    key: "X-Permitted-Cross-Domain-Policies",
+    value: "none"
+  },
+  {
+    key: "Content-Security-Policy",
+    value: "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'"
+  },
+  {
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
   }
@@ -94,20 +114,6 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
-      ...(!process.env.VERCEL
-        ? [
-            {
-              source: "/((?!_next/static|_next/image|.*\\.(?:svg|jpg|jpeg|png|webp|avif|gif|ico)$).*)",
-              headers: [
-                ...securityHeaders,
-                {
-                  key: "Cache-Control",
-                  value: "no-store, max-age=0, must-revalidate"
-                }
-              ]
-            }
-          ]
-        : []),
       {
         source: "/api/:path*",
         headers: [

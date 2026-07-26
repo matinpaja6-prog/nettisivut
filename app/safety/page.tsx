@@ -53,40 +53,6 @@ const copy: Record<Locale, InfoPageCopy> = {
     actions: [{ href: "mailto:info@maskines.com", label: "Anmäl problem", primary: true }],
     summaryLabel: "Trygg handel - sammanfattning"
   },
-  no: {
-    kicker: "Støtte",
-    title: "Trygg handel",
-    lead: "Trygg reservedelshandel skapes av tydelig informasjon, rolig meldingsutveksling og at kjøper og selger avtaler ting skriftlig.",
-    cards: [
-      { title: "Kontroller delen", text: "Sjekk passform, tilstand, delenummer og bilder før betaling." },
-      { title: "Avtal vilkår", text: "Skriv betaling, levering, henting og returmulighet i meldingene." },
-      { title: "Unngå press", text: "Hastverk, uvanlige betalingsmåter og flytting utenfor tjenesten er varselsignaler." }
-    ],
-    sections: [
-      { title: "For kjøpere", body: ["Kontroller selgerens profil og be om flere bilder av delen, festepunkter, serienummer eller slitasje ved behov."], bullets: ["ikke betal før opplysningene er tydelige", "bruk en sporbar betalingsmåte", "ta vare på samtale og kvitteringer", "hent en dyr del på stedet når det er mulig"] },
-      { title: "For selgere", body: ["Fortell produktets faktiske tilstand og pakk en del som sendes slik at den ikke skades underveis."], bullets: ["vis feil åpent", "hold pris og tilgjengelighet oppdatert", "send sporingsnummer til kjøperen", "fjern en solgt annonse eller merk den som solgt"] },
-      { title: "Rapporter en risiko", body: ["Hvis du oppdager et svindelforsøk, et produkt som mistenkes stjålet eller en bruker som plager andre, kontakt støtte med så detaljerte opplysninger som mulig."] }
-    ],
-    actions: [{ href: "mailto:info@maskines.com", label: "Rapporter problem", primary: true }],
-    summaryLabel: "Trygg handel - sammendrag"
-  },
-  et: {
-    kicker: "Tugi",
-    title: "Turvaline kauplemine",
-    lead: "Turvaline varuosakaubandus sünnib selgest infost, rahulikust sõnumivahetusest ja sellest, et ostja ning müüja lepivad asjad kirjalikult kokku.",
-    cards: [
-      { title: "Kontrolli osa", text: "Kontrolli enne maksmist sobivust, seisukorda, varuosanumbrit ja pilte." },
-      { title: "Lepi tingimused kokku", text: "Pane makse, tarne, kättesaamine ja tagastusvõimalus sõnumitesse kirja." },
-      { title: "Väldi survet", text: "Kiirustamine, kummalised makseviisid ja teenusest välja suunamine on ohumärgid." }
-    ],
-    sections: [
-      { title: "Ostjale", body: ["Kontrolli müüja profiili ja küsi vajadusel lisapilte osast, kinnitustest, seerianumbrist või kulumisest."], bullets: ["ära maksa enne, kui info on selge", "kasuta jälgitavat makseviisi", "säilita vestlus ja kviitungid", "võta kallis osa võimalusel kohapealt vastu"] },
-      { title: "Müüjale", body: ["Kirjelda toote tegelikku seisukorda ja paki saadetav osa nii, et see teel viga ei saaks."], bullets: ["näita vigu avatult", "hoia hind ja saadavus ajakohased", "saada ostjale jälgimiskood", "eemalda müüdud kuulutus või märgi see müüduks"] },
-      { title: "Teata riskist", body: ["Kui märkad pettusekatset, varastatuks kahtlustatavat toodet või kasutajat, kes teisi häirib, võta võimalikult täpsete andmetega ühendust toega."] }
-    ],
-    actions: [{ href: "mailto:info@maskines.com", label: "Teata probleemist", primary: true }],
-    summaryLabel: "Turvaline kauplemine - kokkuvõte"
-  }
 };
 
 export default function SafetyPage() {

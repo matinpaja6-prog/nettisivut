@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
 
-type UiLocale = "en" | "sv" | "no" | "et";
+type UiLocale = "en" | "sv";
 
 const localeNames: Record<UiLocale, string> = {
   en: "English",
-  sv: "Swedish",
-  no: "Norwegian",
-  et: "Estonian"
+  sv: "Swedish"
 };
 
 type TranslateUiRequest = {
@@ -17,7 +15,7 @@ type TranslateUiRequest = {
 const memoryCache = new Map<string, string>();
 
 function isUiLocale(value: unknown): value is UiLocale {
-  return value === "en" || value === "sv" || value === "no" || value === "et";
+  return value === "en" || value === "sv";
 }
 
 function normalizeTexts(value: unknown) {
@@ -131,9 +129,10 @@ export async function POST(request: Request) {
 
   const prompt = [
     `Translate each UI string to ${localeNames[body.targetLocale]}.`,
-    "The source text may be Finnish, English, Swedish, Norwegian or Estonian.",
+    "The source text is in Finnish, English, or Swedish.",
     "If a string is already in the target language, return it unchanged.",
-    "Preserve brand names, model names, part numbers, measurements, prices, email addresses, URLs, punctuation and placeholders.",
+    "Preserve personal names, company names, usernames, place names, street addresses, brand names, model names, part numbers, measurements, prices, email addresses, URLs, punctuation and placeholders exactly as written.",
+    "Translate marketplace UI terminology naturally in context: for example Finnish 'Runko' means a vehicle frame, not a human body.",
     "Return only valid JSON where each original string is a key and the translated string is the value.",
     JSON.stringify(missing)
   ].join("\n");

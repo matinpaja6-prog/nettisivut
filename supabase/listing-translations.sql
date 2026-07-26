@@ -7,4 +7,4 @@ alter table public.listings
 
 alter table public.listings
   add constraint listings_original_language_check
-  check (original_language in ('fi', 'en', 'sv', 'no', 'et'));
+  check (original_language in ('fi', 'en', 'sv'));

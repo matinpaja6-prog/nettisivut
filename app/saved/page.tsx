@@ -57,10 +57,8 @@ function readSavedIds(): string[] {
 
 const vehicleTypeTranslations: Record<Locale, Record<string, string>> = {
   fi: {},
-  en: { Moottorikelkka: "Snowmobile", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-  sv: { Moottorikelkka: "Snöskoter", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-  no: { Moottorikelkka: "Snøscooter", Mönkijä: "ATV", Motocross: "Motocross", Mopot: "Moped" },
-  et: { Moottorikelkka: "Mootorsaan", Mönkijä: "ATV", Motocross: "Motokross", Mopot: "Mopeed" }
+  en: { Moottorikelkka: "Snowmobile", "Mönkijä": "ATV", Motocross: "Motocross", Mopot: "Moped" },
+  sv: { Moottorikelkka: "Snöskoter", "Mönkijä": "ATV", Motocross: "Motocross", Mopot: "Moped" },
 };
 
 export default function SavedListingsPage() {
@@ -177,8 +175,6 @@ export default function SavedListingsPage() {
       fi: "fi-FI",
       en: "en-US",
       sv: "sv-SE",
-      no: "nb-NO",
-      et: "et-EE"
     };
 
     return new Date(date).toLocaleDateString(locales[locale]);

@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { ArrowRight, Globe2, ShieldCheck } from "lucide-react";
-import { applyLocale, isLocale, type Locale } from "@/lib/i18n";
+import {
+  applyLocale,
+  isLocale,
+  normalizeLocale,
+  purgeInvalidLocaleStorage,
+  type SupportedLocale
+} from "@/lib/i18n";
 
-const LANGUAGES: Array<{ code: Locale; country: string; flag: string; language: string }> = [
+const LANGUAGES: Array<{ code: SupportedLocale; country: string; flag: string; language: string }> = [
   { code: "fi", country: "Suomi", flag: "fi", language: "Finnish" },
   { code: "en", country: "English", flag: "gb", language: "English" },
-  { code: "sv", country: "Sverige", flag: "se", language: "Swedish" },
-  { code: "no", country: "Norge", flag: "no", language: "Norwegian" },
-  { code: "et", country: "Eesti", flag: "ee", language: "Estonian" }
+  { code: "sv", country: "Sverige", flag: "se", language: "Swedish" }
 ];
 
 const STORAGE_PREFIX = "visitor-language:";
@@ -33,20 +37,9 @@ function CountryFlag({ country }: { country: string }) {
     );
   }
 
-  if (country === "ee") {
-    return (
-      <svg viewBox="0 0 60 42" aria-hidden="true">
-        <path fill="#3486dd" d="M0 0h60v14H0z" />
-        <path fill="#111820" d="M0 14h60v14H0z" />
-        <path fill="#fff" d="M0 28h60v14H0z" />
-      </svg>
-    );
-  }
-
   const colors = {
     fi: { background: "#fff", cross: "#174a9c" },
-    se: { background: "#1372b8", cross: "#ffcc26" },
-    no: { background: "#e53242", cross: "#fff", inset: "#183f8b" }
+    se: { background: "#1372b8", cross: "#ffcc26" }
   }[country];
 
   if (!colors) return null;
@@ -54,8 +47,7 @@ function CountryFlag({ country }: { country: string }) {
   return (
     <svg viewBox="0 0 60 42" aria-hidden="true">
       <rect width="60" height="42" fill={colors.background} />
-      <path d="M19 0v42M0 21h60" stroke={colors.cross} strokeWidth={country === "no" ? 12 : 10} />
-      {country === "no" ? <path d="M19 0v42M0 21h60" stroke={colors.inset} strokeWidth="6" /> : null}
+      <path d="M19 0v42M0 21h60" stroke={colors.cross} strokeWidth={10} />
     </svg>
   );
 }
@@ -69,7 +61,7 @@ export default function VisitorLanguageGate() {
     window.dispatchEvent(new Event("visitorlanguageready"));
   }
 
-  function rememberOnServer(locale: Locale) {
+  function rememberOnServer(locale: SupportedLocale) {
     void fetch("/api/visitor-language", {
       method: "POST",
       cache: "no-store",
@@ -85,15 +77,18 @@ export default function VisitorLanguageGate() {
   useEffect(() => {
     let cancelled = false;
     let openTimer: ReturnType<typeof setTimeout> | undefined;
+    purgeInvalidLocaleStorage();
+
     const params = new URLSearchParams(window.location.search);
     const forcePromptOnce = params.get(FORCE_PROMPT_PARAM) === "1";
     const immediateLocale = localStorage.getItem("locale");
+    const normalizedImmediateLocale = normalizeLocale(immediateLocale, "fi");
 
     // A locally selected language is authoritative and is available before
     // the visitor API responds. Apply it immediately so the first visible
     // frame is already in the right language.
-    if (!forcePromptOnce && isLocale(immediateLocale)) {
-      applyLocale(immediateLocale);
+    if (!forcePromptOnce && isLocale(normalizedImmediateLocale)) {
+      applyLocale(normalizedImmediateLocale);
       markVisitorLanguageReady();
     }
 
@@ -189,7 +184,7 @@ export default function VisitorLanguageGate() {
     if (!fingerprint) return;
 
     function rememberCurrentLocale(event: Event) {
-      const nextLocale = (event as CustomEvent<Locale>).detail;
+      const nextLocale = (event as CustomEvent<SupportedLocale>).detail;
       if (isLocale(nextLocale)) {
         localStorage.setItem(`${STORAGE_PREFIX}${fingerprint}`, nextLocale);
         rememberOnServer(nextLocale);
@@ -200,7 +195,7 @@ export default function VisitorLanguageGate() {
     return () => window.removeEventListener("localechange", rememberCurrentLocale);
   }, [fingerprint]);
 
-  function selectLanguage(locale: Locale) {
+  function selectLanguage(locale: SupportedLocale) {
     if (!fingerprint) return;
 
     localStorage.setItem(`${STORAGE_PREFIX}${fingerprint}`, locale);

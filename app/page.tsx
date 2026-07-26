@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Fragment, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
@@ -56,6 +56,19 @@ import {
 } from "@/lib/client-listings-cache";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 import {
+  FINLAND_MUNICIPALITIES,
+  FINLAND_MUNICIPALITIES_BY_REGION,
+  FINLAND_REGIONS
+} from "@/lib/finland-locations";
+import {
+  LOCATION_COUNTRIES,
+  countryFlagEmoji,
+  listingMatchesLocationFilter,
+  parseLocationFilter,
+  serializeLocationFilter,
+  type LocationFilterSelection
+} from "@/lib/location-filter";
+import {
   buildFitmentProfile,
   hasFitmentProfile,
   listingMatchesCompatibleFitment
@@ -87,13 +100,20 @@ import {
   type GarageVehicle,
   type UserPreferenceProfile
 } from "@/lib/supabase";
-import { applyLocale, isLocale, translateCategory } from "@/lib/i18n";
+import {
+  applyLocale,
+  isLocale,
+  normalizeLocale,
+  purgeInvalidLocaleStorage,
+  translateCategory,
+  type SupportedLocale
+} from "@/lib/i18n";
 import OptimizedListingImage, { fallbackListingImage } from "./components/OptimizedListingImage";
 import ListingVehicleMeta from "./components/ListingVehicleMeta";
 import { ListFilter } from "lucide-react";
 import { getCategoryVehicleKey } from "./components/CategoryDrawer";
 
-type Locale = "fi" | "en" | "sv" | "no" | "et";
+type Locale = SupportedLocale;
 
 const HOME_RETURN_STATE_KEY = "home_return_state_v1";
 const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
@@ -527,214 +547,6 @@ const translations = {
     xpToNextLevel: "till nästa level",
     maxLevel: "Maxnivå"
   },
-  no: {
-    createListing: "Opprett annonse",
-    profile: "Profil",
-    editProfile: "Rediger profil",
-    myListings: "Mine annonser",
-    messages: "Meldinger",
-    savedListings: "Lagrede annonser",
-    login: "Logg inn",
-    signOut: "Logg ut",
-    heroTitle: "Kjøretøydeler som tar deg videre.",
-    heroSubtitle: "Raskt søk. Stort utvalg. Pålitelige selgere.",
-    heroLeadStart: "Raskt søk",
-    heroLeadHighlight: "selg brukte",
-    heroLeadEnd: "reservedeler enkelt",
-    heroTrustFast: "Rask og enkel annonsering",
-    heroTrustFree: "Gratis salg for kjøperen",
-    heroTrustSafe: "Trygg handel i Finland",
-    heroTrustService: "Service på finsk og engelsk",
-    heroBenefitSafeTitle: "Trygg handel",
-    heroBenefitSafeText: "i Finland",
-    heroBenefitFreeTitle: "Gratis salg",
-    heroBenefitFreeText: "for kjøperen",
-    heroBenefitFastTitle: "Raskt til salgs",
-    heroBenefitFastText: "på noen minutter",
-    heroBenefitServiceTitle: "Vi hjelper",
-    heroBenefitServiceText: "Finland og Norden",
-    sellPromoTitle: "Selg deler på 2 minutter",
-    sellPromoBulletOne: "Legg til bilder",
-    sellPromoBulletTwo: "Skriv detaljer",
-    sellPromoBulletThree: "Publiser gratis",
-    addListingNow: "Legg til annonse nå",
-    instructions: "Instruksjoner",
-    sellGuideTitle: "Slik selger du deler",
-    sellGuideStepOne: "Legg til tydelige bilder av delen og eventuelt delenummer.",
-    sellGuideStepTwo: "Skriv merke, modell, tilstand, pris og sted.",
-    sellGuideStepThree: "Publiser annonsen — kjøpere kan kontakte deg.",
-    sellGuideStepFour: "Avtal betaling og levering trygt via meldinger.",
-    brandTagline: "Alle deler. Fra alle. For deg.",
-    searchLabel: "Søk",
-    searchCta: "Søk",
-    searchPlaceholder: "Søk etter deler, merke eller modell...",
-    vehicleSelection: "Valg av kjøretøy",
-    content: "Innhold",
-    popularProducts: "Populære produkter",
-    viewAll: "Se alle ›",
-    noListings: "Ingen annonser å vise",
-    loadingListings: "Laster annonser...",
-    changeFilters: "Fjern filtre eller endre søket.",
-    resetFilters: "Tilbakestill filtre",
-    openListing: "Åpne",
-    removeFavorite: "Fjern fra favoritter",
-    addFavorite: "Legg til i favoritter",
-    country: "Finland",
-    viewProfile: "Se profil",
-    sendEmail: "Send e-post",
-    filters: "Filtre",
-    sort: "Sortering",
-    relevance: "Mest relevante først",
-    newest: "Nyeste først",
-    oldest: "Eldste først",
-    lowestPrice: "Laveste pris",
-    highestPrice: "Høyeste pris",
-    nearest: "Nærmest deg",
-    brand: "Merke",
-    model: "Modell",
-    year: "Årsmodell",
-    yearPlaceholder: "f.eks. 2018",
-    priceRange: "Prisklasse",
-    minimum: "Minimum",
-    maximum: "Maksimum",
-    categories: "Kategorier",
-    categoryPlaceholder: "Søk i kategorier...",
-    all: "Alle",
-    language: "Språk",
-    snowmobiles: "Snøscootere",
-    atvs: "ATV-er",
-    cars: "Motocross",
-    mopeds: "Mopeder",
-    garageTitle: "Min Garasje",
-    garageAddVehicle: "Legg til kjøretøy",
-    garagePartsFor: "Deler for",
-    saTitle: "Søkevakter",
-    loginToCreateListing: "Logg inn for å opprette annonse",
-    rewards: "Belønninger",
-    shop: "Butikk",
-    notifications: "Varsler",
-    reviews: "Anmeldelser",
-    reviewSeller: "Vurder selgeren",
-    openReview: "Åpne vurdering",
-    dismiss: "Fjern",
-    noNotifications: "Ingen nye varsler.",
-    sellParts: "Selg deler",
-    forYou: "Anbefalinger for deg",
-    basedOnBrowsing: "Basert på din søking",
-    showMoreListings: "Vis flere annonser",
-    newBadge: "Ny",
-    allListings: "Alle annonser",
-    selectedVehicle: "Valgt kjøretøy",
-    openCategories: "Åpne kategorier",
-    sellerLevel: "Selgernivå",
-    level: "Level",
-    xpToNextLevel: "til neste level",
-    maxLevel: "Maksnivå"
-  },
-  et: {
-    createListing: "Loo kuulutus",
-    profile: "Profiil",
-    editProfile: "Muuda profiili",
-    myListings: "Minu kuulutused",
-    messages: "Sõnumid",
-    savedListings: "Salvestatud kuulutused",
-    login: "Logi sisse",
-    signOut: "Logi välja",
-    heroTitle: "Sõidukiosad, mis viivad sind edasi.",
-    heroSubtitle: "Kiire otsing. Lai valik. Usaldusväärsed müüjad.",
-    heroLeadStart: "Kiire otsing",
-    heroLeadHighlight: "müü kasutatud",
-    heroLeadEnd: "varuosi lihtsalt",
-    heroTrustFast: "Kiire ja lihtne kuulutamine",
-    heroTrustFree: "Ostjale tasuta müük",
-    heroTrustSafe: "Turvaline kauplemine Soomes",
-    heroTrustService: "Teenindus soome ja inglise keeles",
-    heroBenefitSafeTitle: "Turvaline kauplemine",
-    heroBenefitSafeText: "Soomes",
-    heroBenefitFreeTitle: "Tasuta müük",
-    heroBenefitFreeText: "ostjale",
-    heroBenefitFastTitle: "Kiirelt müüki",
-    heroBenefitFastText: "mõne minutiga",
-    heroBenefitServiceTitle: "Teenindame",
-    heroBenefitServiceText: "Soomes ja Põhjamaades",
-    sellPromoTitle: "Müü varuosi 2 minutiga",
-    sellPromoBulletOne: "Lisa pildid",
-    sellPromoBulletTwo: "Kirjuta andmed",
-    sellPromoBulletThree: "Avalda tasuta",
-    addListingNow: "Lisa kuulutus nüüd",
-    instructions: "Juhised",
-    sellGuideTitle: "Kuidas varuosi müüa",
-    sellGuideStepOne: "Lisa selged pildid varuosast ja võimalikust osanumbrist.",
-    sellGuideStepTwo: "Kirjuta mark, mudel, seisukord, hind ja asukoht.",
-    sellGuideStepThree: "Avalda kuulutus — ostjad saavad sinuga ühendust võtta.",
-    sellGuideStepFour: "Lepi makse ja tarne turvaliselt sõnumites kokku.",
-    brandTagline: "Kõik osad. Kõigilt. Sulle.",
-    searchLabel: "Otsing",
-    searchCta: "Otsi",
-    searchPlaceholder: "Otsi varuosi, marki või mudelit...",
-    vehicleSelection: "Sõiduki valik",
-    content: "Sisu",
-    popularProducts: "Populaarsed tooted",
-    viewAll: "Vaata kõiki ›",
-    noListings: "Kuulutusi pole kuvada",
-    loadingListings: "Laadin kuulutusi...",
-    changeFilters: "Eemalda filtrid või muuda otsingut.",
-    resetFilters: "Lähtesta filtrid",
-    openListing: "Ava",
-    removeFavorite: "Eemalda lemmikutest",
-    addFavorite: "Lisa lemmikutesse",
-    country: "Soome",
-    viewProfile: "Vaata profiili",
-    sendEmail: "Saada e-kiri",
-    filters: "Filtrid",
-    sort: "Sortimine",
-    relevance: "Asjakohasemad ees",
-    newest: "Uusimad ees",
-    oldest: "Vanemad ees",
-    lowestPrice: "Madalaim hind",
-    highestPrice: "Kõrgeim hind",
-    nearest: "Lähim sinule",
-    brand: "Mark",
-    model: "Mudel",
-    year: "Aasta",
-    yearPlaceholder: "nt 2018",
-    priceRange: "Hinnaklass",
-    minimum: "Miinimum",
-    maximum: "Maksimum",
-    categories: "Kategooriad",
-    categoryPlaceholder: "Otsi kategooriat...",
-    all: "Kõik",
-    language: "Keel",
-    snowmobiles: "Mootorsaanid",
-    atvs: "ATV-d",
-    cars: "Motocross",
-    mopeds: "Mopeedid",
-    garageTitle: "Minu Garaaž",
-    garageAddVehicle: "Lisa sõiduk",
-    garagePartsFor: "Osad sõidukile",
-    saTitle: "Otsinguvahid",
-    loginToCreateListing: "Logi sisse kuulutuse loomiseks",
-    rewards: "Auhinnad",
-    shop: "Pood",
-    notifications: "Teavitused",
-    reviews: "Hinnangud",
-    reviewSeller: "Hinda müüjat",
-    openReview: "Ava hinnang",
-    dismiss: "Eemalda",
-    noNotifications: "Uusi teavitusi pole.",
-    sellParts: "Müü osi",
-    forYou: "Soovitused sulle",
-    basedOnBrowsing: "Põhineb sirvimisajaloole",
-    showMoreListings: "Näita rohkem kuulutusi",
-    newBadge: "Uus",
-    allListings: "Kõik kuulutused",
-    selectedVehicle: "Valitud sõiduk",
-    openCategories: "Ava kategooriad",
-    sellerLevel: "Müüja level",
-    level: "Level",
-    xpToNextLevel: "järgmise levelini",
-    maxLevel: "Maksimaalne tase"
-  }
 } satisfies Record<Locale, Record<string, string>>;
 
 const sortValues = [
@@ -858,41 +670,6 @@ const categoryTranslations: Record<Locale, Record<string, string>> = {
     Ohjaustanko: "Styre",
     Ohjaus: "Styrning"
   },
-  no: {
-    Moottori: "Motor",
-    Voimansiirto: "Drivverk",
-    "Voimansiirron osat": "Drivverksdeler",
-    Alusta: "Understell",
-    Sähkö: "Elektrisk",
-    Sisusta: "Interiør",
-    Runko: "Ramme",
-    "Runko & katteet": "Ramme & deksler",
-    Jarrut: "Bremser",
-    Sytytys: "Tenning",
-    Suodattimet: "Filtre",
-    Tiivisteet: "Pakninger",
-    Hihnat: "Reimer",
-    Ketjut: "Kjeder",
-    Variaattori: "Variator",
-    Iskunvaimentimet: "Støtdempere",
-    Laakerit: "Lagre",
-    Akku: "Batteri",
-    Valot: "Lys",
-    Johdotus: "Ledninger",
-    Jäähdytys: "Kjøling",
-    Anturit: "Sensorer",
-    Penkit: "Seter",
-    Matot: "Matter",
-    Elektroniikka: "Elektronikk",
-    Sylinteri: "Sylinder",
-    Kaasutin: "Forgasser",
-    Rattaat: "Drev",
-    Kytkin: "Clutch",
-    Katteet: "Deksler",
-    Ohjaustanko: "Styre",
-    Ohjaus: "Styring"
-  },
-  et: {}
 };
 */
 
@@ -945,6 +722,234 @@ function hasAppliedFilters(filters: AppliedListingFilters) {
     Boolean(filters.trackMatDimensionQuery.trim()) ||
     filters.minPrice !== 0 ||
     filters.maxPrice !== 100000
+  );
+}
+
+type LocationMultiSelectOption = {
+  value: string;
+  label: string;
+  section?: string;
+  action?: boolean;
+  level?: number;
+  actionLevel?: number;
+};
+
+function LocationMultiSelectField({
+  label,
+  placeholder,
+  searchPlaceholder,
+  options,
+  selected,
+  open,
+  disabled = false,
+  onToggleOpen,
+  onToggle,
+  onClear
+}: {
+  label: string;
+  placeholder: string;
+  searchPlaceholder: string;
+  options: LocationMultiSelectOption[];
+  selected: string[];
+  open: boolean;
+  disabled?: boolean;
+  onToggleOpen: () => void;
+  onToggle: (value: string) => void;
+  onClear: () => void;
+}) {
+  const fieldRef = useRef<HTMLDivElement>(null);
+  const optionListRef = useRef<HTMLDivElement>(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [visibleLocationLevel, setVisibleLocationLevel] = useState(0);
+  const normalizedSearch = searchValue.trim().toLocaleLowerCase("fi");
+  const availableOptions = options.filter(
+    (option) => (option.level ?? 0) <= visibleLocationLevel
+  );
+  const filteredOptions = normalizedSearch
+    ? options.filter((option) =>
+        option.label.toLocaleLowerCase("fi").includes(normalizedSearch)
+      )
+    : availableOptions;
+  const listOptions = filteredOptions.filter((option) => !option.action);
+  const nextActionOption = normalizedSearch
+    ? undefined
+    : availableOptions.find(
+        (option) =>
+          option.action &&
+          option.actionLevel !== undefined &&
+          option.actionLevel > visibleLocationLevel
+      );
+  const selectedLabels = selected
+    .map((value) => options.find((option) => option.value === value)?.label)
+    .filter((value): value is string => Boolean(value));
+  const summary = selectedLabels.length === 0
+    ? placeholder
+    : selectedLabels.length === 1
+      ? selectedLabels[0]
+      : `${selectedLabels.length} valittu`;
+
+  useEffect(() => {
+    if (!open) {
+      setSearchValue("");
+      setVisibleLocationLevel(0);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (selected.some((value) => value.startsWith("municipality:"))) {
+      setVisibleLocationLevel(2);
+    } else if (selected.some((value) => value.startsWith("region:"))) {
+      setVisibleLocationLevel((current) => Math.max(current, 1));
+    }
+  }, [selected]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const closeWhenClickingOutside = (event: PointerEvent) => {
+      const target = event.target;
+      if (
+        target instanceof Element &&
+        target.closest('[data-location-close="true"]')
+      ) {
+        return;
+      }
+      if (
+        target instanceof Node &&
+        fieldRef.current &&
+        !fieldRef.current.contains(target)
+      ) {
+        onToggleOpen();
+      }
+    };
+
+    document.addEventListener("pointerdown", closeWhenClickingOutside);
+    return () => document.removeEventListener("pointerdown", closeWhenClickingOutside);
+  }, [open, onToggleOpen]);
+
+  const openLocationLevel = (option: LocationMultiSelectOption) => {
+    if (option.actionLevel === undefined) return;
+
+    setVisibleLocationLevel(option.actionLevel);
+    onToggle(option.value);
+
+    const targetSection = option.actionLevel === 1
+      ? "Suomen alueet"
+      : "Kaupungit ja kunnat";
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const section = optionListRef.current?.querySelector<HTMLElement>(
+          `[data-location-section="${targetSection}"]`
+        );
+        section?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  };
+
+  return (
+    <div
+      ref={fieldRef}
+      className={`${styles.heroFilterFieldWrap} ${disabled ? styles.locationFilterDisabled : ""}`}
+    >
+      <span className={styles.heroFilterLabel}>{label}</span>
+      <button
+        type="button"
+        className={styles.heroFilterSelect}
+        onClick={onToggleOpen}
+        disabled={disabled}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+      >
+        <strong>{summary}</strong>
+        <ChevronDown size={15} aria-hidden="true" />
+      </button>
+      {open && !disabled ? (
+        <div
+          className={`${styles.heroFilterMenu} ${styles.locationMultiMenu} ${
+            visibleLocationLevel === 0 && !normalizedSearch
+              ? styles.locationCountriesMenu
+              : styles.locationExpandedMenu
+          }`}
+          role="listbox"
+          aria-multiselectable="true"
+        >
+          <label className={styles.locationSearchField}>
+            <Search size={15} aria-hidden="true" />
+            <input
+              value={searchValue}
+              onChange={(event) => setSearchValue(event.target.value)}
+              placeholder={searchPlaceholder}
+              autoFocus
+            />
+          </label>
+          <div
+            ref={optionListRef}
+            className={`${styles.locationOptionList} ${
+              visibleLocationLevel === 0 && !normalizedSearch
+                ? styles.locationCountryGrid
+                : ""
+            }`}
+          >
+            {listOptions.length > 0 ? listOptions.map((option, index) => {
+              const active = selected.includes(option.value);
+              return (
+                <div
+                  key={option.value}
+                  className={`${styles.locationOptionGroup} ${
+                    option.section === "Maat" ? styles.locationCountryGroup : ""
+                  }`}
+                >
+                  {option.section && (
+                    index === 0 || listOptions[index - 1]?.section !== option.section
+                  ) ? (
+                    <span
+                      className={styles.locationOptionSection}
+                      data-location-section={option.section}
+                    >
+                      {option.section}
+                    </span>
+                  ) : null}
+                  <button
+                    type="button"
+                    className={`${styles.locationMultiOption} ${
+                      option.section === "Maat" ? styles.locationCountryOption : ""
+                    } ${active ? styles.locationMultiOptionSelected : ""}`}
+                    onClick={() => onToggle(option.value)}
+                    role="option"
+                    aria-selected={active}
+                  >
+                    <span>{option.label}</span>
+                    <span className={styles.locationOptionCheck} aria-hidden="true">
+                      {active ? <Check size={14} strokeWidth={3} /> : null}
+                    </span>
+                  </button>
+                </div>
+              );
+            }) : (
+              <span className={styles.heroFilterMenuEmpty}>Ei hakutuloksia</span>
+            )}
+            {nextActionOption ? (
+              <div className={styles.locationOptionActionGroup}>
+                <button
+                  type="button"
+                  className={`${styles.locationMultiOption} ${styles.locationMultiAction}`}
+                  onClick={() => openLocationLevel(nextActionOption)}
+                >
+                  <span>{nextActionOption.label}</span>
+                  <span className={styles.locationActionArrow} aria-hidden="true">→</span>
+                </button>
+              </div>
+            ) : null}
+          </div>
+          {selected.length > 0 ? (
+            <button type="button" className={styles.locationClearSelection} onClick={onClear}>
+              Tyhjennä valinnat
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -1500,6 +1505,24 @@ function HomeContent() {
   const [modelQuery, setModelQuery] = useState("");
   const [identifierQuery, setIdentifierQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
+  const locationSelection = useMemo(
+    () => parseLocationFilter(locationQuery),
+    [locationQuery]
+  );
+  const locationMunicipalityOptions = useMemo(
+    () => [...(
+      locationSelection.regions.length > 0
+        ? Array.from(new Set(
+            locationSelection.regions.flatMap(
+              (region) => FINLAND_MUNICIPALITIES_BY_REGION[region] ?? []
+            )
+          ))
+        : FINLAND_MUNICIPALITIES
+    )].sort((first, second) =>
+      first.localeCompare(second, "fi", { sensitivity: "base" })
+    ),
+    [locationSelection.regions]
+  );
   const [yearQuery, setYearQuery] = useState("");
   const [yearMinQuery, setYearMinQuery] = useState("");
   const [yearMaxQuery, setYearMaxQuery] = useState("");
@@ -2125,62 +2148,36 @@ function HomeContent() {
       selectDetailedPart: "Välj detaljerad del",
       allDetailedParts: "Alla detaljerade delar"
     },
-    no: {
-      mainCategory: "Hovedkategori",
-      selectMainCategory: "Velg hovedkategori",
-      allCategories: "Alle kategorier",
-      subcategory: "Underkategori",
-      selectSubcategory: "Velg underkategori",
-      allSubcategories: "Alle underkategorier",
-      detailedPart: "Detaljert del",
-      selectDetailedPart: "Velg detaljert del",
-      allDetailedParts: "Alle detaljerte deler"
-    },
-    et: {
-      mainCategory: "Põhikategooria",
-      selectMainCategory: "Valige põhikategooria",
-      allCategories: "Kõik kategooriad",
-      subcategory: "Alamkategooria",
-      selectSubcategory: "Valige alamkategooria",
-      allSubcategories: "Kõik alamkategooriad",
-      detailedPart: "Täpsem osa",
-      selectDetailedPart: "Valige täpsem osa",
-      allDetailedParts: "Kõik täpsemad osad"
-    }
+  }[locale];
+  const allVehicleSubtypesLabel = {
+    fi: "Kaikki tyypit",
+    en: "All types",
+    sv: "Alla typer"
   }[locale];
 
   const translateVehicleTypeLabel = useCallback((value?: string | null) => {
     const vehicleTranslations: Record<Locale, Record<string, string>> = {
       fi: {
+        Moottoripyörä: "Moottoripyörä",
         Moottorikelkka: "Moottorikelkka",
         Mönkijä: "Mönkijä",
         Motocross: "Motocross",
         Mopot: "Mopot"
       },
       en: {
+        Moottoripyörä: "Motorcycle",
         Moottorikelkka: "Snowmobile",
         Mönkijä: "ATV",
         Motocross: "Motocross",
         Mopot: "Moped"
       },
       sv: {
+        Moottoripyörä: "Motorcykel",
         Moottorikelkka: "Snöskoter",
         Mönkijä: "ATV",
         Motocross: "Motocross",
         Mopot: "Moped"
       },
-      no: {
-        Moottorikelkka: "Snøscooter",
-        Mönkijä: "ATV",
-        Motocross: "Motocross",
-        Mopot: "Moped"
-      },
-      et: {
-        Moottorikelkka: "Mootorsaan",
-        Mönkijä: "ATV",
-        Motocross: "Motokross",
-        Mopot: "Mopeed"
-      }
     };
 
     if (!value) return "";
@@ -2224,8 +2221,6 @@ function HomeContent() {
       fi: "fi-FI",
       en: "en-US",
       sv: "sv-SE",
-      no: "nb-NO",
-      et: "et-EE"
     };
 
     return new Date(date).toLocaleDateString(locales[locale]);
@@ -2352,17 +2347,13 @@ function HomeContent() {
 
   useEffect(() => {
     const urlLocale = new URLSearchParams(window.location.search).get("lang");
+    purgeInvalidLocaleStorage();
 
-    if (isLocale(urlLocale)) {
-      setLocale(urlLocale);
-      applyLocale(urlLocale);
-    } else {
-      const storedLocale = localStorage.getItem("locale");
+    const storedLocale = normalizeLocale(localStorage.getItem("locale"), "fi");
+    const initialLocale = normalizeLocale(urlLocale, storedLocale);
 
-      if (isLocale(storedLocale)) {
-        setLocale(storedLocale);
-      }
-    }
+    setLocale(initialLocale);
+    applyLocale(initialLocale);
 
     setLocaleReady(true);
   }, []);
@@ -2376,7 +2367,7 @@ function HomeContent() {
   // so this page's translations update without a reload.
   useEffect(() => {
     function handleLocaleChange(event: Event) {
-      const next = (event as CustomEvent<Locale>).detail;
+      const next = (event as CustomEvent<SupportedLocale>).detail;
       if (isLocale(next)) {
         setLocale(next);
       }
@@ -2635,9 +2626,10 @@ function HomeContent() {
           listingNumberText === normalizedIdentifierNumber ||
           listingNumberUrlText === identifierTerm;
 
-        const matchesLocation =
-          !appliedLocationQuery.trim() ||
-          textMatchesSearch(listing.location, appliedLocationQuery);
+        const matchesLocation = listingMatchesLocationFilter(
+          listing.location,
+          appliedLocationQuery
+        );
 
         const matchesEngineCc =
           !appliedEngineCcQuery ||
@@ -3305,7 +3297,7 @@ function HomeContent() {
         });
       })
       .catch((error) => {
-        console.warn("LisÃ¤ilmoitusten lataus epÃ¤onnistui.", error);
+        console.warn("Lisäilmoitusten lataus epäonnistui.", error);
       })
       .finally(() => {
         listingsPageFetchRef.current = false;
@@ -3533,12 +3525,13 @@ function HomeContent() {
       vehicleCategories,
       allVehicleCategories,
       vehicleType,
+      vehicleSubtype,
       brand: selectedBrand === "Kaikki" ? "" : selectedBrand,
       model: modelQuery,
       category,
       subcategoryParent: selectedSubcategoryParent
     }),
-    [allVehicleCategories, category, modelQuery, selectedBrand, selectedSubcategoryParent, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleType]
+    [allVehicleCategories, category, modelQuery, selectedBrand, selectedSubcategoryParent, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleSubtype, vehicleType]
   );
 
   const categorySource = useMemo(() => {
@@ -3893,13 +3886,18 @@ function HomeContent() {
     {
       key: "vehicleSubtype",
       label: "Tyyppi",
-      value: vehicleSubtype || "Kaikki tyypit",
+      value: vehicleSubtype ? translateCategoryLabel(vehicleSubtype) : allVehicleSubtypesLabel,
       options: [
-        { label: "Kaikki tyypit", value: "" },
-        ...vehicleSubtypeOptions.map((option) => ({ label: option, value: option }))
+        { label: allVehicleSubtypesLabel, value: "" },
+        ...vehicleSubtypeOptions.map((option) => ({
+          label: translateCategoryLabel(option),
+          value: option
+        }))
       ],
       onSelect: (value: string) => {
         setVehicleSubtype(value);
+        setSelectedBrand("Kaikki");
+        setModelQuery("");
         afterHeroFilterChange();
       }
     },
@@ -4044,6 +4042,43 @@ function HomeContent() {
     }
   ];
 
+  function updateLocationSelection(nextSelection: LocationFilterSelection) {
+    setLocationQuery(serializeLocationFilter(nextSelection));
+    afterHeroFilterChange();
+  }
+
+  function toggleLocationSelection(
+    group: keyof LocationFilterSelection,
+    value: string
+  ) {
+    const values = locationSelection[group];
+    const nextValues = values.includes(value)
+      ? values.filter((item) => item !== value)
+      : [...values, value];
+    const nextSelection: LocationFilterSelection = {
+      ...locationSelection,
+      [group]: nextValues
+    };
+
+    if (group === "countries" && value === "FI" && !nextValues.includes("FI")) {
+      nextSelection.regions = [];
+      nextSelection.municipalities = [];
+    }
+
+    if (group !== "countries" && !nextSelection.countries.includes("FI")) {
+      nextSelection.countries = [...nextSelection.countries, "FI"];
+    }
+
+    updateLocationSelection(nextSelection);
+  }
+
+  function clearLocationSelection(group: keyof LocationFilterSelection) {
+    updateLocationSelection({
+      ...locationSelection,
+      [group]: []
+    });
+  }
+
   const heroRailFilterFields = heroFilterFields.filter((field) =>
     ["vehicleType", "vehicleSubtype", "brand", "model"].includes(field.key)
   );
@@ -4129,11 +4164,11 @@ function HomeContent() {
               <div data-home-intro-showcase className={styles.heroShowcase}>
                 <div className={styles.heroShowcaseCopy}>
                   <h1 className={styles.heroHeadline}>
-                    <span style={{ display: "block", width: "100%" }}>Nopea haku</span>
-                    <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>Osta ja myy</span>
-                    <span style={{ display: "block", width: "100%" }}>Varaosat helposti</span>
+                    <span style={{ display: "block", width: "100%" }}>{t.heroLeadStart}</span>
+                    <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>{t.heroLeadHighlight}</span>
+                    <span style={{ display: "block", width: "100%" }}>{t.heroLeadEnd}</span>
                   </h1>
-                  <p className={styles.heroReferenceSubtitle}>Löydä oikea osa nopeasti tai listaa omat käytetyt varaosasi myyntiin muutamassa minuutissa.</p>
+                  <p className={styles.heroReferenceSubtitle}>{t.heroSubtitle}</p>
                   <div className={styles.heroDesktopActions}>
                     <button
                       type="button"
@@ -4143,16 +4178,21 @@ function HomeContent() {
                         setActiveHeroFilter("vehicleType");
                       }}
                     >
-                      Aloita haku
+                      {t.searchCta}
                     </button>
                     <span className={styles.heroTrustMini}>
                       <ShieldCheck size={17} aria-hidden="true" />
-                      Turvallinen kaupankäynti
+                      {t.heroBenefitSafeTitle}
                     </span>
                   </div>
                 </div>
                 <div data-home-hero-art className={styles.heroShowcaseArt} aria-hidden="true">
-                  <img src="/vehicles/hero-snowmobile-marketplace.png" alt="" />
+                  <img
+                    src="/vehicles/hero-snowmobile-marketplace.webp"
+                    alt=""
+                    decoding="async"
+                    fetchPriority="high"
+                  />
                 </div>
               </div>
 
@@ -4368,8 +4408,8 @@ function HomeContent() {
                       <img src="/icons/benefit-shield-check.svg" alt="" width={24} height={24} />
                     </span>
                     <span className={styles.heroBenefitCopy}>
-                      <strong>Turvalliset yhteydenotot</strong>
-                      <small>Ostajan ja myyjän tiedot yhdessä paikassa.</small>
+                      <strong>{t.heroBenefitSafeTitle}</strong>
+                      <small>{t.heroBenefitSafeText}</small>
                     </span>
                   </span>
                   <span>
@@ -4377,8 +4417,8 @@ function HomeContent() {
                       <img src="/icons/benefit-gift.svg" alt="" width={24} height={24} />
                     </span>
                     <span className={styles.heroBenefitCopy}>
-                      <strong>Maksuton</strong>
-                      <small>Osta ja myy osia ilmaiseksi.</small>
+                      <strong>{t.heroBenefitFreeTitle}</strong>
+                      <small>{t.heroBenefitFreeText}</small>
                     </span>
                   </span>
                   <span>
@@ -4386,8 +4426,8 @@ function HomeContent() {
                       <img src="/icons/benefit-clock.svg" alt="" width={24} height={24} />
                     </span>
                     <span className={styles.heroBenefitCopy}>
-                      <strong>Nopea myynti-ilmoitus</strong>
-                      <small>Lisää kokonainen ajoneuvo myyntiin yhdellä ilmoituksella.</small>
+                      <strong>{t.heroBenefitFastTitle}</strong>
+                      <small>{t.heroBenefitFastText}</small>
                     </span>
                   </span>
                   <span>
@@ -4395,8 +4435,8 @@ function HomeContent() {
                       <img src="/icons/benefit-check.svg" alt="" width={24} height={24} />
                     </span>
                     <span className={styles.heroBenefitCopy}>
-                      <strong>Tuki</strong>
-                      <small>Apua ilmoituksesta onnistuneisiin kauppoihin.</small>
+                      <strong>{t.heroBenefitServiceTitle}</strong>
+                      <small>{t.heroBenefitServiceText}</small>
                     </span>
                   </span>
                 </div>
@@ -4448,8 +4488,17 @@ function HomeContent() {
                         <strong>Suodata hakua</strong>
                         <button
                           type="button"
-                          aria-label="Sulje suodatus"
+                          data-location-close="true"
+                          aria-label={
+                            activeHeroFilter === "mobileLocation"
+                              ? "Sulje sijaintivalikko"
+                              : "Sulje suodatus"
+                          }
                           onClick={() => {
+                            if (activeHeroFilter === "mobileLocation") {
+                              setActiveHeroFilter(null);
+                              return;
+                            }
                             setHomeSearchPanelOpen(false);
                             setMobileFilterExpanded(false);
                           }}
@@ -4503,6 +4552,81 @@ function HomeContent() {
                             ) : null}
                           </div>
                         ))}
+
+                        <LocationMultiSelectField
+                          label="Sijainti"
+                          placeholder="Kaikki sijainnit"
+                          searchPlaceholder="Hae maata, aluetta tai kuntaa"
+                          options={[
+                            ...LOCATION_COUNTRIES.map((country) => ({
+                              value: `country:${country.value}`,
+                              label: country.label,
+                              section: "Maat",
+                              level: 0
+                            })),
+                            {
+                              value: "action:regions",
+                              label: "Valitse Suomen alue",
+                              action: true,
+                              level: 0,
+                              actionLevel: 1
+                            },
+                            ...FINLAND_REGIONS.map((region) => ({
+                              value: `region:${region}`,
+                              label: region,
+                              section: "Suomen alueet",
+                              level: 1
+                            })),
+                            {
+                              value: "action:municipalities",
+                              label: "Valitse kaupunki tai kunta",
+                              action: true,
+                              level: 1,
+                              actionLevel: 2
+                            },
+                            ...locationMunicipalityOptions.map((municipality) => ({
+                              value: `municipality:${municipality}`,
+                              label: municipality,
+                              section: "Kaupungit ja kunnat",
+                              level: 2
+                            }))
+                          ]}
+                          selected={[
+                            ...locationSelection.countries.map((value) => `country:${value}`),
+                            ...locationSelection.regions.map((value) => `region:${value}`),
+                            ...locationSelection.municipalities.map((value) => `municipality:${value}`)
+                          ]}
+                          open={activeHeroFilter === "mobileLocation"}
+                          onToggleOpen={() =>
+                            setActiveHeroFilter((current) =>
+                              current === "mobileLocation" ? null : "mobileLocation"
+                            )
+                          }
+                          onToggle={(value) => {
+                            const separatorIndex = value.indexOf(":");
+                            const group = value.slice(0, separatorIndex);
+                            const selectionValue = value.slice(separatorIndex + 1);
+                            if (
+                              group === "action" &&
+                              !locationSelection.countries.includes("FI")
+                            ) {
+                              toggleLocationSelection("countries", "FI");
+                            } else if (group === "country") {
+                              toggleLocationSelection("countries", selectionValue);
+                            } else if (group === "region") {
+                              toggleLocationSelection("regions", selectionValue);
+                            } else if (group === "municipality") {
+                              toggleLocationSelection("municipalities", selectionValue);
+                            }
+                          }}
+                          onClear={() =>
+                            updateLocationSelection({
+                              countries: [],
+                              regions: [],
+                              municipalities: []
+                            })
+                          }
+                        />
 
                         <div className={styles.mobileSheetField}>
                           <span>Vuosimalli</span>
@@ -4829,6 +4953,80 @@ function HomeContent() {
                           ) : null}
                         </div>
                       ))}
+                      <LocationMultiSelectField
+                        label="Sijainti"
+                        placeholder="Kaikki sijainnit"
+                        searchPlaceholder="Hae maata, aluetta tai kuntaa"
+                        options={[
+                          ...LOCATION_COUNTRIES.map((country) => ({
+                            value: `country:${country.value}`,
+                            label: country.label,
+                            section: "Maat",
+                            level: 0
+                          })),
+                          {
+                            value: "action:regions",
+                            label: "Valitse Suomen alue",
+                            action: true,
+                            level: 0,
+                            actionLevel: 1
+                          },
+                          ...FINLAND_REGIONS.map((region) => ({
+                            value: `region:${region}`,
+                            label: region,
+                            section: "Suomen alueet",
+                            level: 1
+                          })),
+                          {
+                            value: "action:municipalities",
+                            label: "Valitse kaupunki tai kunta",
+                            action: true,
+                            level: 1,
+                            actionLevel: 2
+                          },
+                          ...locationMunicipalityOptions.map((municipality) => ({
+                            value: `municipality:${municipality}`,
+                            label: municipality,
+                            section: "Kaupungit ja kunnat",
+                            level: 2
+                          }))
+                        ]}
+                        selected={[
+                          ...locationSelection.countries.map((value) => `country:${value}`),
+                          ...locationSelection.regions.map((value) => `region:${value}`),
+                          ...locationSelection.municipalities.map((value) => `municipality:${value}`)
+                        ]}
+                        open={activeHeroFilter === "locationCountries"}
+                        onToggleOpen={() =>
+                          setActiveHeroFilter((current) =>
+                            current === "locationCountries" ? null : "locationCountries"
+                          )
+                        }
+                        onToggle={(value) => {
+                          const separatorIndex = value.indexOf(":");
+                          const group = value.slice(0, separatorIndex);
+                          const selectionValue = value.slice(separatorIndex + 1);
+                          if (
+                            group === "action" &&
+                            !locationSelection.countries.includes("FI")
+                          ) {
+                            toggleLocationSelection("countries", "FI");
+                          } else if (group === "country") {
+                            toggleLocationSelection("countries", selectionValue);
+                          } else if (group === "region") {
+                            toggleLocationSelection("regions", selectionValue);
+                          } else if (group === "municipality") {
+                            toggleLocationSelection("municipalities", selectionValue);
+                          }
+                        }}
+                        onClear={() =>
+                          updateLocationSelection({
+                            countries: [],
+                            regions: [],
+                            municipalities: []
+                          })
+                        }
+                      />
                       <div className={styles.heroYearRangeField}>
                         <span className={styles.heroYearRangeLabel}>Vuosimalli</span>
                         <div className={styles.heroYearBoxes}>
@@ -5907,3 +6105,4 @@ function HomeContent() {
     </main>
   );
 }
+

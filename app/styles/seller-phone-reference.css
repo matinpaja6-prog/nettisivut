@@ -373,6 +373,27 @@
     fill: currentColor !important;
   }
 
+  html body .seller-page .seller-ref-stat.is-rating.is-empty {
+    gap: 5px !important;
+  }
+
+  html body .seller-page .seller-ref-stat.is-rating.is-empty .seller-ref-rating-empty {
+    color: #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 1.05 !important;
+    max-width: 76px !important;
+  }
+
+  html body .seller-page .seller-ref-stat.is-rating.is-empty .seller-ref-rating-label {
+    display: none !important;
+  }
+
+  html body .seller-page .seller-ref-stat.is-rating.is-empty .seller-ref-rating-star-outline {
+    fill: none !important;
+    stroke: #ff7a13 !important;
+  }
+
   html body .seller-page .sp-tabs {
     align-items: stretch !important;
     border-radius: 12px 12px 0 0 !important;
@@ -770,4 +791,39 @@ html body .seller-page .seller-ref-copy > .seller-ref-pill-row .seller-ref-phone
   html body .seller-page .seller-ref-copy > .seller-ref-pill-row {
     grid-template-columns: minmax(0, 1fr) !important;
   }
+}
+
+/* Keep the empty rating card identical on desktop and mobile. */
+html body .seller-page .seller-ref-stat.is-rating.is-empty {
+  align-items: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating.is-empty > svg,
+html body .seller-page .seller-ref-stat.is-rating.is-empty > .seller-ref-rating-empty,
+html body .seller-page .seller-ref-stat.is-rating.is-empty > .seller-ref-rating-stars {
+  grid-column: auto !important;
+  grid-row: auto !important;
+  margin: 0 !important;
+  position: static !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating.is-empty .seller-ref-rating-empty {
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1.05 !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating.is-empty .seller-ref-rating-label {
+  display: none !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating.is-empty > .seller-ref-rating-stars {
+  display: inline-flex !important;
+  gap: 3px !important;
 }

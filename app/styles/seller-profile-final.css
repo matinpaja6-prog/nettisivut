@@ -551,7 +551,7 @@ html body .seller-page .seller-listing-country-flag {
 /* Match the seller-profile mobile filters to the marketplace mobile sheet. */
 @media (max-width: 760px) {
   html body .seller-page .sp-filter-panel {
-    align-content: start !important;
+    align-content: flex-start !important;
     background: #15171d !important;
     border-color: rgba(132, 143, 158, 0.28) !important;
     display: flex !important;
@@ -2510,6 +2510,28 @@ html body .seller-page .seller-ref-stat.is-rating .seller-ref-rating-star-fill {
 
 html body .seller-page .seller-ref-stat.is-rating .seller-ref-rating-star-fill svg {
   fill: currentColor !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating.is-empty {
+  gap: 6px !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating.is-empty .seller-ref-rating-empty {
+  color: #f4f8fc !important;
+  font-size: 14px !important;
+  font-weight: 850 !important;
+  line-height: 1.1 !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating.is-empty .seller-ref-rating-label {
+  color: rgba(226, 236, 247, 0.58) !important;
+  font-size: 11px !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating.is-empty .seller-ref-rating-star-outline {
+  color: #ff8a1c !important;
+  fill: none !important;
+  opacity: 0.9 !important;
 }
 
 html body .seller-page .seller-ref-detail-card {
@@ -6006,7 +6028,7 @@ html body .seller-page .sp-filter-clear {
   }
 
   html body .seller-page .sp-filter-panel {
-    align-content: start !important;
+    align-content: flex-start !important;
     background: #15171d !important;
     box-sizing: border-box !important;
     display: flex !important;

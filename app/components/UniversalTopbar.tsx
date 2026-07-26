@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Plus, Search, Settings, Star, Store, UserRound, Users, X } from "lucide-react";
 import Link from "next/link";
@@ -128,6 +128,11 @@ const emptySellerLevelStats: SellerLevelStats = {
 };
 
 const topbarText: Record<Locale, {
+  home: string;
+  garage: string;
+  searchAlerts: string;
+  about: string;
+  help: string;
   ownProfile: string;
   fallbackProfile: string;
   sellerLevel: string;
@@ -150,6 +155,11 @@ const topbarText: Record<Locale, {
   daysAgo: (days: number) => string;
 }> = {
   fi: {
+    home: "Etusivu",
+    garage: "Oma talli",
+    searchAlerts: "Hakuvahti",
+    about: "Tietoa meistä",
+    help: "Ohjeet",
     ownProfile: "Oma profiili",
     fallbackProfile: "Profiili",
     sellerLevel: "Myyjälevel",
@@ -172,6 +182,11 @@ const topbarText: Record<Locale, {
     daysAgo: (days) => `${days} pv sitten`
   },
   en: {
+    home: "Home",
+    garage: "My garage",
+    searchAlerts: "Search alerts",
+    about: "About us",
+    help: "Help",
     ownProfile: "My profile",
     fallbackProfile: "Profile",
     sellerLevel: "Seller level",
@@ -194,6 +209,11 @@ const topbarText: Record<Locale, {
     daysAgo: (days) => `${days} d ago`
   },
   sv: {
+    home: "Startsida",
+    garage: "Mitt garage",
+    searchAlerts: "Sökbevakningar",
+    about: "Om oss",
+    help: "Hjälp",
     ownProfile: "Min profil",
     fallbackProfile: "Profil",
     sellerLevel: "Säljarnivå",
@@ -215,50 +235,6 @@ const topbarText: Record<Locale, {
     hoursAgo: (hours) => `${hours} h sedan`,
     daysAgo: (days) => `${days} d sedan`
   },
-  no: {
-    ownProfile: "Min profil",
-    fallbackProfile: "Profil",
-    sellerLevel: "Selgernivå",
-    level: "Nivå",
-    maxLevel: "Maksnivå",
-    xpToNextLevel: (xp) => `${xp} XP til neste nivå`,
-    quickActions: "Hurtighandlinger",
-    notificationsHelp: "Hold deg oppdatert på viktige meldinger.",
-    markAllRead: "Merk alle som lest",
-    defaultUser: "Bruker",
-    delete: "Fjern",
-    deleteNotification: "Fjern varsel",
-    settings: "Sideinnstillinger",
-    showAllMessages: "Vis alle meldinger",
-    manageAccount: "Administrer kontoen din",
-    followed: "Følger",
-    searchAlert: "Søkevarsel",
-    minutesAgo: (minutes) => `${minutes} min siden`,
-    hoursAgo: (hours) => `${hours} t siden`,
-    daysAgo: (days) => `${days} d siden`
-  },
-  et: {
-    ownProfile: "Minu profiil",
-    fallbackProfile: "Profiil",
-    sellerLevel: "Müüja tase",
-    level: "Tase",
-    maxLevel: "Maksimaalne tase",
-    xpToNextLevel: (xp) => `${xp} XP järgmise tasemeni`,
-    quickActions: "Kiirtoimingud",
-    notificationsHelp: "Hoia end oluliste sõnumitega kursis.",
-    markAllRead: "Märgi kõik loetuks",
-    defaultUser: "Kasutaja",
-    delete: "Eemalda",
-    deleteNotification: "Eemalda teavitus",
-    settings: "Lehe seaded",
-    showAllMessages: "Näita kõiki sõnumeid",
-    manageAccount: "Halda oma kontot",
-    followed: "Jälgitavad",
-    searchAlert: "Otsinguvalvur",
-    minutesAgo: (minutes) => `${minutes} min tagasi`,
-    hoursAgo: (hours) => `${hours} h tagasi`,
-    daysAgo: (days) => `${days} p tagasi`
-  }
 };
 
 function TopbarMaskinesLogo() {
@@ -1041,23 +1017,23 @@ export default function UniversalTopbar() {
           <>
             <Link href="/" className="is-active">
               <Home size={18} aria-hidden="true" />
-              Etusivu
+              {ui.home}
             </Link>
-            <Link href={garageHref}>Oma talli</Link>
-            <Link href={searchAlertsHref}>Hakuvahti</Link>
-            <Link href={aboutHref}>Tietoa meistä</Link>
-            <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>Ohjeet</Link>
+            <Link href={garageHref}>{ui.garage}</Link>
+            <Link href={searchAlertsHref}>{ui.searchAlerts}</Link>
+            <Link href={aboutHref}>{ui.about}</Link>
+            <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>{ui.help}</Link>
           </>
         ) : (
           <>
             <Link href="/" className={isActiveRoute("/") ? "is-active" : ""}>
               <Home size={18} aria-hidden="true" />
-              Etusivu
+              {ui.home}
             </Link>
-            <Link href={garageHref} className={isActiveRoute("/garage") ? "is-active" : ""}>Oma talli</Link>
-            <Link href={searchAlertsHref} className={isActiveRoute("/search-alerts") ? "is-active" : ""}>Hakuvahti</Link>
-            <Link href={aboutHref} className={isActiveRoute("/about") ? "is-active" : ""}>Tietoa meistä</Link>
-            <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>Ohjeet</Link>
+            <Link href={garageHref} className={isActiveRoute("/garage") ? "is-active" : ""}>{ui.garage}</Link>
+            <Link href={searchAlertsHref} className={isActiveRoute("/search-alerts") ? "is-active" : ""}>{ui.searchAlerts}</Link>
+            <Link href={aboutHref} className={isActiveRoute("/about") ? "is-active" : ""}>{ui.about}</Link>
+            <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>{ui.help}</Link>
           </>
         )}
       </nav>
@@ -1171,7 +1147,7 @@ export default function UniversalTopbar() {
                   )}
                 </span>
                 <span className="universal-profile-menu-title">
-                  <strong>{profileDisplayName}</strong>
+                  <strong data-person-name data-no-auto-translate translate="no">{profileDisplayName}</strong>
                   <small>{ui.manageAccount}</small>
                 </span>
               </div>

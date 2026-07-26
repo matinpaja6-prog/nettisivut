@@ -25,6 +25,8 @@ export default function ListingVehicleMeta({
     <span
       className={`${styles.root}${compact ? ` ${styles.compact}` : ""}${className ? ` ${className}` : ""}`}
       data-listing-vehicle-meta="true"
+      data-no-auto-translate
+      translate="no"
       aria-label={values.join(", ")}
     >
       {values.map((value, index) => (

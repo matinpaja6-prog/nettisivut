@@ -71,15 +71,6 @@ type SelectOption = {
   label: string;
 };
 
-type ListingFeedbackPrompt = {
-  listingId: string;
-  returnHref: string;
-  listingMode: ListingMode;
-  vehicleType: string;
-  category: string;
-  subcategory: string;
-};
-
 function buildListingLocation(cityOrLocation: string, fallbackCity: string, fallbackCountry: string) {
   const location = cityOrLocation.trim() || fallbackCity.trim();
   const country = fallbackCountry.trim();
@@ -215,106 +206,6 @@ const sellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = 
     "Tarkista vielä tärkeimmät tiedot ennen kuin ilmoitus lähtee ostajille näkyviin.": "Granska de viktigaste uppgifterna innan annonsen visas för köpare.",
     "Kuvausta ei ole viela lisatty.": "Ingen beskrivning har lagts till ännu."
   },
-  no: {
-    "Lähetys ja nouto": "Frakt og henting",
-    "Lähetys": "Frakt",
-    "Nouto": "Henting",
-    "Toimitustapa": "Leveringsmåte",
-    "Lisää tuotetiedot": "Legg til produktdetaljer",
-    "Osan tarkka malli / valmistaja (vapaaehtoinen)": "Nøyaktig delmodell / produsent (valgfritt)",
-    "Esim. Stage6, Airsal, Malossi...": "F.eks. Stage6, Airsal, Malossi...",
-    "Varaosanumero / OEM-numero (vapaaehtoinen)": "Delenummer / OEM-nummer (valgfritt)",
-    "Lisää jos tiedossa": "Legg til hvis kjent",
-    "Vedä ja pudota kuvat tähän": "Dra og slipp bildene her",
-    "tai": "eller",
-    "Valitse kuvat": "Velg bilder",
-    "PNG, JPG tai WEBP · isot kuvat muunnetaan automaattisesti 1080p-kokoon": "PNG, JPG eller WEBP · store bilder konverteres automatisk til 1080p",
-    "Kuvavinkit": "Bildetips",
-    "Hyvä valaistus": "God belysning",
-    "Käytä luonnonvaloa tai kirkasta sisävaloa.": "Bruk naturlig lys eller sterkt innelys.",
-    "Tarkka ja selkeä": "Skarpt og tydelig",
-    "Varmista, että kuva on terävä ja hyvälaatuinen.": "Sørg for at bildet er skarpt og av god kvalitet.",
-    "Näytä kaikki kulmat": "Vis alle vinkler",
-    "Lisää useampi kuva eri suunnista.": "Legg til flere bilder fra ulike vinkler.",
-    "Otsikko ja kuvaus": "Tittel og beskrivelse",
-    "Otsikko": "Tittel",
-    "Tämä on otsikko jos et itse otsikoi:": "Denne tittelen brukes hvis du ikke skriver en selv:",
-    "Kuvaus": "Beskrivelse",
-    "Kerro kunto, ominaisuudet, sopivuus ja muut tärkeät tiedot...": "Beskriv tilstand, egenskaper, kompatibilitet og andre viktige detaljer...",
-    "Vinkit hyvään kuvaukseen": "Tips for en god beskrivelse",
-    "Kerro tärkeimmät ominaisuudet": "Fortell de viktigste egenskapene",
-    "Mainitse kunto": "Nevn tilstanden",
-    "Lisää sopivuustiedot": "Legg til kompatibilitetsinformasjon",
-    "Ole rehellinen ja tarkka": "Vær ærlig og nøyaktig",
-    "Tyyppi": "Type",
-    "Yksittäinen ilmoitus": "Enkelt annonse",
-    "Useampi ilmoitus": "Flere annonser",
-    "Hinta": "Pris",
-    "Ei lisatty": "Ikke lagt til",
-    "Kunto": "Tilstand",
-    "Kuvat": "Bilder",
-    "kpl": "stk",
-    "Myyjä": "Selger",
-    "Valitsematta": "Ikke valgt",
-    "Ajoneuvo": "Kjøretøy",
-    "Tekniikka": "Teknikk",
-    "Kategoria": "Kategori",
-    "Sijainti": "Sted",
-    "Varaosanumero": "Delenummer",
-    "Osan malli": "Delmodell",
-    "Tarkista vielä tärkeimmät tiedot ennen kuin ilmoitus lähtee ostajille näkyviin.": "Kontroller de viktigste opplysningene før annonsen blir synlig for kjøpere.",
-    "Kuvausta ei ole viela lisatty.": "Ingen beskrivelse lagt til ennå."
-  },
-  et: {
-    "Lähetys ja nouto": "Saatmine ja järeletulemine",
-    "Lähetys": "Saatmine",
-    "Nouto": "Järeletulemine",
-    "Toimitustapa": "Tarneviis",
-    "Lisää tuotetiedot": "Lisa tooteandmed",
-    "Osan tarkka malli / valmistaja (vapaaehtoinen)": "Täpne osa mudel / tootja (valikuline)",
-    "Esim. Stage6, Airsal, Malossi...": "Nt Stage6, Airsal, Malossi...",
-    "Varaosanumero / OEM-numero (vapaaehtoinen)": "Varuosa number / OEM-number (valikuline)",
-    "Lisää jos tiedossa": "Lisa, kui teada",
-    "Vedä ja pudota kuvat tähän": "Lohista pildid siia",
-    "tai": "või",
-    "Valitse kuvat": "Vali pildid",
-    "PNG, JPG tai WEBP · isot kuvat muunnetaan automaattisesti 1080p-kokoon": "PNG, JPG või WEBP · suured pildid teisendatakse automaatselt 1080p suuruseks",
-    "Kuvavinkit": "Pildinõuanded",
-    "Hyvä valaistus": "Hea valgustus",
-    "Käytä luonnonvaloa tai kirkasta sisävaloa.": "Kasuta loomulikku valgust või eredat sisevalgust.",
-    "Tarkka ja selkeä": "Terav ja selge",
-    "Varmista, että kuva on terävä ja hyvälaatuinen.": "Veendu, et pilt oleks terav ja kvaliteetne.",
-    "Näytä kaikki kulmat": "Näita kõiki nurki",
-    "Lisää useampi kuva eri suunnista.": "Lisa mitu pilti eri suundadest.",
-    "Otsikko ja kuvaus": "Pealkiri ja kirjeldus",
-    "Otsikko": "Pealkiri",
-    "Tämä on otsikko jos et itse otsikoi:": "Seda pealkirja kasutatakse, kui sa ise pealkirja ei kirjuta:",
-    "Kuvaus": "Kirjeldus",
-    "Kerro kunto, ominaisuudet, sopivuus ja muut tärkeät tiedot...": "Kirjelda seisukorda, omadusi, sobivust ja muud olulist infot...",
-    "Vinkit hyvään kuvaukseen": "Hea kirjelduse nõuanded",
-    "Kerro tärkeimmät ominaisuudet": "Too välja olulisemad omadused",
-    "Mainitse kunto": "Maini seisukorda",
-    "Lisää sopivuustiedot": "Lisa sobivuse info",
-    "Ole rehellinen ja tarkka": "Ole aus ja täpne",
-    "Tyyppi": "Tüüp",
-    "Yksittäinen ilmoitus": "Üks kuulutus",
-    "Useampi ilmoitus": "Mitu kuulutust",
-    "Hinta": "Hind",
-    "Ei lisatty": "Lisamata",
-    "Kunto": "Seisukord",
-    "Kuvat": "Pildid",
-    "kpl": "tk",
-    "Myyjä": "Müüja",
-    "Valitsematta": "Valimata",
-    "Ajoneuvo": "Sõiduk",
-    "Tekniikka": "Tehnika",
-    "Kategoria": "Kategooria",
-    "Sijainti": "Asukoht",
-    "Varaosanumero": "Varuosa number",
-    "Osan malli": "Osa mudel",
-    "Tarkista vielä tärkeimmät tiedot ennen kuin ilmoitus lähtee ostajille näkyviin.": "Kontrolli tähtsaimad andmed enne, kui kuulutus ostjatele nähtavaks muutub.",
-    "Kuvausta ei ole viela lisatty.": "Kirjeldust pole veel lisatud."
-  }
 };
 
 const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string>> = {
@@ -560,327 +451,17 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Moottori & voimansiirto": "Motor & drivlina",
     "Kokonainen moottori": "Komplett motor"
   },
-  no: {
-    "Luo myynti-ilmoitus": "Opprett salgsannonse",
-    "Valitse ilmoitustyyppi": "Velg annonsetype",
-    "Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.": "Velg om du vil liste flere deler fra samme kjøretøy eller én enkelt del.",
-    "Useampi osa samasta ajoneuvosta": "Flere deler fra samme kjøretøy",
-    "Useampi ilmoitus": "Flere annonser",
-    "Yksittäinen ilmoitus": "Enkelt annonse",
-    "Listaa vain saman ajoneuvon osia samalla kertaa.": "List bare deler fra samme kjøretøy om gangen.",
-    "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa.": "Spar tid og håndter alle deler på ett sted.",
-    "Myy yksi osa kerrallaan.": "Selg én del om gangen.",
-    "Sopii yksittäisille osille tai harvinaisille tuotteille.": "Passer for enkeltdeler eller sjeldne produkter.",
-    "Ajoneuvon tiedot": "Kjøretøydetaljer",
-    "Täytä ajoneuvon tiedot": "Fyll inn kjøretøydetaljer",
-    "Valitse ajoneuvoluokka": "Velg kjøretøyklasse",
-    "Moottorikelkka": "Snøscooter",
-    "Mönkijä": "ATV",
-    "Motocross": "Motocross",
-    "Mopo": "Moped",
-    "Tyyppi": "Type",
-    "Merkki": "Merke",
-    "Malli": "Modell",
-    "Vuosimalli": "Årsmodell",
-    "Moottorin koko (cc)": "Motorstørrelse (cc)",
-    "Moottori / moottorityyppi": "Motor / motortype",
-    "Valitse tyyppi": "Velg type",
-    "Valitse merkki": "Velg merke",
-    "Valitse malli": "Velg modell",
-    "Valitse vuosimalli": "Velg årsmodell",
-    "Valitse cc": "Velg cc",
-    "Valitse moottorityyppi": "Velg motortype",
-    "Kirjoita tyyppi": "Skriv type",
-    "Kirjoita merkki": "Skriv merke",
-    "Kirjoita malli": "Skriv modell",
-    "Kirjoita vuosimalli": "Skriv årsmodell",
-    "Kirjoita cc": "Skriv cc",
-    "Kirjoita moottori": "Skriv motor",
-    "Mopo - mopo": "Moped - moped",
-    "Skootteri - mopo": "Scooter - moped",
-    "Supermoto - mopo": "Supermoto - moped",
-    "Enduro - mopo": "Enduro - moped",
-    "Manki / monkey - mopo": "Monkey - moped",
-    "Piikki 125 - mopo": "125cc - moped",
-    "Jatka": "Fortsett",
-    "Edellinen": "Forrige",
-    "Seuraava": "Neste",
-    "Nollaa": "Nullstill",
-    "Muu": "Annet",
-    "Siirry vaiheeseen": "Gå til steg",
-    "Ilmoitustyyppi": "Annonsetype",
-    "Ilmoitus": "Annonse",
-    "Ilmoituksen tyyppi": "Annonsetype",
-    "Valitse myyntityyppi": "Velg salgstype",
-    "Kategoria ja hinta": "Kategori og pris",
-    "Valitse kategoria ja hinta": "Velg kategori og pris",
-    "Valitse kategoriointi": "Velg kategorisering",
-    "Valitse tuotteen kategoria ja lisää hinta.": "Velg produktkategori og legg til pris.",
-    "Valitse yhteinen kategoriointi ilmoituksille.": "Velg felles kategorisering for annonsene.",
-    "Kunto & sijainti": "Tilstand og sted",
-    "Kunto ja sijainti": "Tilstand og sted",
-    "Valitse kunto ja paikka": "Velg tilstand og sted",
-    "Kuntoluokitus": "Tilstandsklassifisering",
-    "Kuvat": "Bilder",
-    "Lisää tuotteen kuvat": "Legg til produktbilder",
-    "Otsikko ja kuvaus": "Tittel og beskrivelse",
-    "Lisää otsikko ja kuvaus": "Legg til tittel og beskrivelse",
-    "Julkaise": "Publiser",
-    "Tarkista ja julkaise": "Kontroller og publiser",
-    "Tarkista tiedot ennen julkaisua.": "Kontroller opplysningene før publisering.",
-    "Julkaistaan...": "Publiserer...",
-    "Seuraava osa": "Neste del",
-    "Toimitukseen": "Til levering",
-    "Julkaisuun": "Til publisering",
-    "Kategorisoi tuote": "Kategoriser produkt",
-    "Kategorisoi tuotteesi": "Kategoriser produktet ditt",
-    "Pääkategoria": "Hovedkategori",
-    "Alakategoria": "Underkategori",
-    "Tarkempi kategoria": "Mer detaljert kategori",
-    "Ei kategorioita": "Ingen kategorier",
-    "Valitse pääkategoria": "Velg hovedkategori",
-    "Valitse alakategoria": "Velg underkategori",
-    "Hinta (€)": "Pris (€)",
-    "Tarkat tiedot rakentavat luottamusta ja auttavat myymään nopeammin.": "Nøyaktige opplysninger bygger tillit og hjelper deg å selge raskere.",
-    "Esim. Ski-Doo variaattori 850 E-TEC": "F.eks. Ski-Doo variator 850 E-TEC",
-    "Ilmoitus valmis julkaistavaksi": "Annonsen er klar til publisering",
-    "Ilmoitukset valmiina julkaisuun": "Annonsene er klare til publisering",
-    "Ilmoituksen myyjä": "Annonsens selger",
-    "Voit valita erillisen myyjän. Jos et valitse, ilmoitus julkaistaan yrityksen tiedoilla.": "Du kan velge en egen selger. Hvis du ikke velger en, publiseres annonsen med bedriftens opplysninger.",
-    "Yrityksen tiedot": "Bedriftens opplysninger",
-    "Erillisiä myyjiä ei ole lisätty. Ilmoitus julkaistaan yrityksen tiedoilla.": "Ingen egne selgere er lagt til. Annonsen publiseres med bedriftens opplysninger.",
-    "Ilmoituksen pikatiedot": "Annonsens hurtiginfo",
-    "Ilmoituksen yhteenveto": "Annonseoversikt",
-    "Yksittäinen ilmoitus valmis julkaistavaksi": "Enkeltannonse klar til publisering",
-    "Multi-ilmoitukset valmiina julkaisuun": "Flere annonser klare til publisering",
-    "Tarkista vielä otsikot, hinnat, kuvat ja sijainti ennen julkaisua.": "Kontroller titler, priser, bilder og sted før publisering.",
-    "euroa": "euro",
-    "Uusi": "Ny",
-    "Hyvä": "God",
-    "Käytetty": "Brukt",
-    "Korjattava": "Må repareres",
-    "ATV - mönkijä": "ATV - firehjuling",
-    "UTV - mönkijä": "UTV - firehjuling",
-    "Sport - mönkijä": "Sport - firehjuling",
-    "Työ - mönkijä": "Arbeid - firehjuling",
-    "Maasto - mönkijä": "Terreng - firehjuling",
-    "6x6 - mönkijä": "6x6 - firehjuling",
-    "Lasten - mönkijä": "Barn - firehjuling",
-    "Motocross - crossi": "Motocross - cross",
-    "Enduro - crossi": "Enduro - cross",
-    "Supermoto - crossi": "Supermoto - cross",
-    "Trial - crossi": "Trial - cross",
-    "Pitbike - crossi": "Pitbike - cross",
-    "Minicross - crossi": "Minicross - cross",
-    "Crossover - moottorikelkka": "Crossover-snøscooter",
-    "Deep snow - moottorikelkka": "Dypsnø-snøscooter",
-    "Sport - moottorikelkka": "Sportssnøscooter",
-    "Touring - moottorikelkka": "Touringsnøscooter",
-    "Työ - moottorikelkka": "Arbeidssnøscooter",
-    "Watercross - moottorikelkka": "Watercross-snøscooter",
-    "Moottori & voimansiirto": "Motor og drivverk",
-    "Kokonainen moottori": "Komplett motor"
-  },
-  et: {
-    "Luo myynti-ilmoitus": "Loo müügikuulutus",
-    "Valitse ilmoitustyyppi": "Vali kuulutuse tüüp",
-    "Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.": "Vali, kas lisad mitu osa samast sõidukist või ühe üksiku osa.",
-    "Useampi osa samasta ajoneuvosta": "Mitu osa samast sõidukist",
-    "Useampi ilmoitus": "Mitu kuulutust",
-    "Yksittäinen ilmoitus": "Üks kuulutus",
-    "Listaa vain saman ajoneuvon osia samalla kertaa.": "Lisa korraga ainult sama sõiduki osi.",
-    "Säästä aikaa ja hallitse kaikkia osia yhdessä paikassa.": "Säästa aega ja halda kõiki osi ühes kohas.",
-    "Myy yksi osa kerrallaan.": "Müü üks osa korraga.",
-    "Sopii yksittäisille osille tai harvinaisille tuotteille.": "Sobib üksikutele osadele või haruldastele toodetele.",
-    "Ajoneuvon tiedot": "Sõiduki andmed",
-    "Täytä ajoneuvon tiedot": "Täida sõiduki andmed",
-    "Valitse ajoneuvoluokka": "Vali sõidukiklass",
-    "Moottorikelkka": "Mootorsaan",
-    "Mönkijä": "ATV",
-    "Motocross": "Motokross",
-    "Mopo": "Mopeed",
-    "Tyyppi": "Tüüp",
-    "Merkki": "Mark",
-    "Malli": "Mudel",
-    "Vuosimalli": "Aasta",
-    "Moottorin koko (cc)": "Mootori suurus (cc)",
-    "Moottori / moottorityyppi": "Mootor / mootoritüüp",
-    "Valitse tyyppi": "Vali tüüp",
-    "Valitse merkki": "Vali mark",
-    "Valitse malli": "Vali mudel",
-    "Valitse vuosimalli": "Vali aasta",
-    "Valitse cc": "Vali cc",
-    "Valitse moottorityyppi": "Vali mootoritüüp",
-    "Kirjoita tyyppi": "Sisesta tüüp",
-    "Kirjoita merkki": "Sisesta mark",
-    "Kirjoita malli": "Sisesta mudel",
-    "Kirjoita vuosimalli": "Sisesta aasta",
-    "Kirjoita cc": "Sisesta cc",
-    "Kirjoita moottori": "Sisesta mootor",
-    "Mopo - mopo": "Mopeed - mopeed",
-    "Skootteri - mopo": "Roller - mopeed",
-    "Supermoto - mopo": "Supermoto - mopeed",
-    "Enduro - mopo": "Enduro - mopeed",
-    "Manki / monkey - mopo": "Monkey - mopeed",
-    "Piikki 125 - mopo": "125cc - mopeed",
-    "Jatka": "Jätka",
-    "Edellinen": "Eelmine",
-    "Seuraava": "Järgmine",
-    "Nollaa": "Lähtesta",
-    "Muu": "Muu",
-    "Siirry vaiheeseen": "Mine sammu",
-    "Ilmoitustyyppi": "Kuulutuse tüüp",
-    "Ilmoitus": "Kuulutus",
-    "Ilmoituksen tyyppi": "Kuulutuse tüüp",
-    "Valitse myyntityyppi": "Vali müügitüüp",
-    "Kategoria ja hinta": "Kategooria ja hind",
-    "Valitse kategoria ja hinta": "Vali kategooria ja hind",
-    "Valitse kategoriointi": "Vali kategoriseerimine",
-    "Valitse tuotteen kategoria ja lisää hinta.": "Vali tootekategooria ja lisa hind.",
-    "Valitse yhteinen kategoriointi ilmoituksille.": "Vali kuulutustele ühine kategoriseerimine.",
-    "Kunto & sijainti": "Seisukord ja asukoht",
-    "Kunto ja sijainti": "Seisukord ja asukoht",
-    "Valitse kunto ja paikka": "Vali seisukord ja asukoht",
-    "Kuntoluokitus": "Seisukorra hinnang",
-    "Kuvat": "Pildid",
-    "Lisää tuotteen kuvat": "Lisa tootepildid",
-    "Otsikko ja kuvaus": "Pealkiri ja kirjeldus",
-    "Lisää otsikko ja kuvaus": "Lisa pealkiri ja kirjeldus",
-    "Julkaise": "Avalda",
-    "Tarkista ja julkaise": "Kontrolli ja avalda",
-    "Tarkista tiedot ennen julkaisua.": "Kontrolli andmed enne avaldamist üle.",
-    "Julkaistaan...": "Avaldatakse...",
-    "Seuraava osa": "Järgmine osa",
-    "Toimitukseen": "Tarne juurde",
-    "Julkaisuun": "Avaldamise juurde",
-    "Kategorisoi tuote": "Kategoriseeri toode",
-    "Kategorisoi tuotteesi": "Kategoriseeri oma toode",
-    "Pääkategoria": "Põhikategooria",
-    "Alakategoria": "Alamkategooria",
-    "Tarkempi kategoria": "Täpsem kategooria",
-    "Ei kategorioita": "Kategooriaid pole",
-    "Valitse pääkategoria": "Vali põhikategooria",
-    "Valitse alakategoria": "Vali alamkategooria",
-    "Hinta (€)": "Hind (€)",
-    "Tarkat tiedot rakentavat luottamusta ja auttavat myymään nopeammin.": "Täpsed andmed loovad usaldust ja aitavad kiiremini müüa.",
-    "Esim. Ski-Doo variaattori 850 E-TEC": "Nt Ski-Doo variaator 850 E-TEC",
-    "Ilmoitus valmis julkaistavaksi": "Kuulutus on avaldamiseks valmis",
-    "Ilmoitukset valmiina julkaisuun": "Kuulutused on avaldamiseks valmis",
-    "Ilmoituksen myyjä": "Kuulutuse müüja",
-    "Voit valita erillisen myyjän. Jos et valitse, ilmoitus julkaistaan yrityksen tiedoilla.": "Saad valida eraldi müüja. Kui sa ei vali, avaldatakse kuulutus ettevõtte andmetega.",
-    "Yrityksen tiedot": "Ettevõtte andmed",
-    "Erillisiä myyjiä ei ole lisätty. Ilmoitus julkaistaan yrityksen tiedoilla.": "Eraldi müüjaid pole lisatud. Kuulutus avaldatakse ettevõtte andmetega.",
-    "Ilmoituksen pikatiedot": "Kuulutuse kiirinfo",
-    "Ilmoituksen yhteenveto": "Kuulutuse kokkuvõte",
-    "Yksittäinen ilmoitus valmis julkaistavaksi": "Üks kuulutus on avaldamiseks valmis",
-    "Multi-ilmoitukset valmiina julkaisuun": "Mitu kuulutust on avaldamiseks valmis",
-    "Tarkista vielä otsikot, hinnat, kuvat ja sijainti ennen julkaisua.": "Kontrolli enne avaldamist pealkirjad, hinnad, pildid ja asukoht üle.",
-    "euroa": "eurot",
-    "Uusi": "Uus",
-    "Hyvä": "Hea",
-    "Käytetty": "Kasutatud",
-    "Korjattava": "Vajab remonti",
-    "ATV - mönkijä": "ATV - nelik",
-    "UTV - mönkijä": "UTV - nelik",
-    "Sport - mönkijä": "Sport - nelik",
-    "Työ - mönkijä": "Töö - nelik",
-    "Maasto - mönkijä": "Maastik - nelik",
-    "6x6 - mönkijä": "6x6 - nelik",
-    "Lasten - mönkijä": "Laste - nelik",
-    "Motocross - crossi": "Motokross - kross",
-    "Enduro - crossi": "Enduro - kross",
-    "Supermoto - crossi": "Supermoto - kross",
-    "Trial - crossi": "Trial - kross",
-    "Pitbike - crossi": "Pitbike - kross",
-    "Minicross - crossi": "Minicross - kross",
-    "Crossover - moottorikelkka": "Crossover-mootorsaan",
-    "Deep snow - moottorikelkka": "Sügava lume mootorsaan",
-    "Sport - moottorikelkka": "Sport-mootorsaan",
-    "Touring - moottorikelkka": "Touring-mootorsaan",
-    "Työ - moottorikelkka": "Töö-mootorsaan",
-    "Watercross - moottorikelkka": "Watercross-mootorsaan",
-    "Moottori & voimansiirto": "Mootor ja jõuülekanne",
-    "Kokonainen moottori": "Komplektne mootor"
-  }
 };
 
 Object.assign(extraSellTranslations.en, {
-  "Ensimmäinen ilmoitus julkaistu": "First listing published",
-  "Arvioi ilmoituksen luonti": "Rate the listing creation",
-  "Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.": "Give a quick rating for the category, details and photo upload. You will see the listing right after this.",
-  "Kategorian valinta": "Category selection",
-  "Tuotetietojen lisääminen": "Adding product details",
-  "Kuvien lisääminen": "Adding photos",
-  "Kokonaisuus": "Overall",
-  "Kommentti ylläpidolle (vapaaehtoinen)": "Comment for support (optional)",
-  "Mikä toimi hyvin tai mikä tuntui hankalalta?": "What worked well or felt difficult?",
-  "Ohita": "Skip",
-  "Tallennetaan...": "Saving...",
-  "Lähetä arvio": "Send rating",
-  "Anna ainakin kokonaisarvio tähdillä.": "Give at least an overall star rating.",
-  "Arvion tallennus epäonnistui.": "Saving the rating failed."
-});
-
-Object.assign(extraSellTranslations.sv, {
-  "Ensimmäinen ilmoitus julkaistu": "Första annonsen publicerad",
-  "Arvioi ilmoituksen luonti": "Betygsätt skapandet av annonsen",
-  "Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.": "Ge ett snabbt betyg för kategori, uppgifter och bilduppladdning. Du ser annonsen direkt efter detta.",
-  "Kategorian valinta": "Kategorival",
-  "Tuotetietojen lisääminen": "Lägga till produktuppgifter",
-  "Kuvien lisääminen": "Lägga till bilder",
-  "Kokonaisuus": "Helhet",
-  "Kommentti ylläpidolle (vapaaehtoinen)": "Kommentar till supporten (valfritt)",
-  "Mikä toimi hyvin tai mikä tuntui hankalalta?": "Vad fungerade bra eller kändes svårt?",
-  "Ohita": "Hoppa över",
-  "Tallennetaan...": "Sparar...",
-  "Lähetä arvio": "Skicka betyg",
-  "Anna ainakin kokonaisarvio tähdillä.": "Ge åtminstone ett helhetsbetyg med stjärnor.",
-  "Arvion tallennus epäonnistui.": "Det gick inte att spara betyget."
-});
-
-Object.assign(extraSellTranslations.no, {
-  "Ensimmäinen ilmoitus julkaistu": "Første annonse publisert",
-  "Arvioi ilmoituksen luonti": "Vurder opprettelsen av annonsen",
-  "Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.": "Gi en rask vurdering av kategori, opplysninger og bildeopplasting. Du ser annonsen rett etter dette.",
-  "Kategorian valinta": "Kategorivalg",
-  "Tuotetietojen lisääminen": "Legge til produktopplysninger",
-  "Kuvien lisääminen": "Legge til bilder",
-  "Kokonaisuus": "Helhet",
-  "Kommentti ylläpidolle (vapaaehtoinen)": "Kommentar til support (valgfritt)",
-  "Mikä toimi hyvin tai mikä tuntui hankalalta?": "Hva fungerte bra eller føltes vanskelig?",
-  "Ohita": "Hopp over",
-  "Tallennetaan...": "Lagrer...",
-  "Lähetä arvio": "Send vurdering",
-  "Anna ainakin kokonaisarvio tähdillä.": "Gi minst en samlet stjernevurdering.",
-  "Arvion tallennus epäonnistui.": "Kunne ikke lagre vurderingen."
-});
-
-Object.assign(extraSellTranslations.et, {
-  "Ensimmäinen ilmoitus julkaistu": "Esimene kuulutus avaldatud",
-  "Arvioi ilmoituksen luonti": "Hinda kuulutuse loomist",
-  "Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.": "Anna kiire hinnang kategooriale, andmetele ja piltide lisamisele. Näed kuulutust kohe pärast seda.",
-  "Kategorian valinta": "Kategooria valik",
-  "Tuotetietojen lisääminen": "Tooteandmete lisamine",
-  "Kuvien lisääminen": "Piltide lisamine",
-  "Kokonaisuus": "Üldhinnang",
-  "Kommentti ylläpidolle (vapaaehtoinen)": "Kommentaar toele (valikuline)",
-  "Mikä toimi hyvin tai mikä tuntui hankalalta?": "Mis toimis hästi või tundus keeruline?",
-  "Ohita": "Jäta vahele",
-  "Tallennetaan...": "Salvestatakse...",
-  "Lähetä arvio": "Saada hinnang",
-  "Anna ainakin kokonaisarvio tähdillä.": "Anna vähemalt üldine tärnihinnang.",
-  "Arvion tallennus epäonnistui.": "Hinnangu salvestamine ebaõnnestus."
-});
-
-Object.assign(extraSellTranslations.en, {
   "Monikategoriointi": "Multi-categorization",
-  "Valitse koko ajoneuvo tai poimi myytÃ¤vÃ¤t osat pÃ¤Ã¤kategorian ja alakategorian kautta.": "Select the whole vehicle or pick the parts for sale through main and subcategories.",
+  "Valitse koko ajoneuvo tai poimi myytävät osat pääkategorian ja alakategorian kautta.": "Select the whole vehicle or pick the parts for sale through main and subcategories.",
   "valittu": "selected",
   "valittua": "selected",
   "osa": "part",
   "osaa": "parts",
-  "nÃ¤kyy": "shown",
-  "pÃ¤Ã¤kategoriaa valittu": "main categories selected",
+  "näkyy": "shown",
+  "pääkategoriaa valittu": "main categories selected",
   "Myyn koko ajoneuvon": "I am selling the whole vehicle",
   "valitsee kaikki ajoneuvon osakategoriat kerralla.": "selects all vehicle part categories at once.",
   "Kategoriat ja osat": "Categories and parts",
@@ -888,14 +469,14 @@ Object.assign(extraSellTranslations.en, {
   "Ei osumia": "No matches",
   "Kokeile toista hakusanaa.": "Try another search term.",
   "Valittuja kategorioita": "Selected categories",
-  "Ilmoituksesi nÃ¤kyy": "Your listing appears in",
+  "Ilmoituksesi näkyy": "Your listing appears in",
   "kategoriassa": "categories",
-  "NÃ¤ytÃ¤ valitut": "Show selected",
+  "Näytä valitut": "Show selected",
   "Piilota valitut": "Hide selected",
   "Ei valittuja kategorioita": "No selected categories",
-  "Valitse osia listasta, niin ne nÃ¤kyvÃ¤t tÃ¤ssÃ¤.": "Select parts from the list and they will appear here.",
-  "LisÃ¤Ã¤ myytÃ¤vÃ¤t osat": "Add the parts for sale",
-  "ilmoitusta tÃ¤ytetty": "listings completed",
+  "Valitse osia listasta, niin ne näkyvät tässä.": "Select parts from the list and they will appear here.",
+  "Lisää myytävät osat": "Add the parts for sale",
+  "ilmoitusta täytetty": "listings completed",
   "valittua tuotetta": "selected products",
   "Osan tarkka malli": "Exact part model",
   "Telamaton tarkat tiedot": "Track mat details",
@@ -904,12 +485,12 @@ Object.assign(extraSellTranslations.en, {
   "Kirjoita osan malli": "Enter part model",
   "Osanumero / OEM": "Part number / OEM",
   "Kirjoita osanumero": "Enter part number",
-  "LisÃ¤tiedot": "Additional details",
-  "Kirjoita lisÃ¤tiedot, viat, sopivuus tai muut huomiot": "Write details, defects, compatibility or other notes",
+  "Lisätiedot": "Additional details",
+  "Kirjoita lisätiedot, viat, sopivuus tai muut huomiot": "Write details, defects, compatibility or other notes",
   "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot": "Write track mat dimensions, condition, compatibility and other notes",
-  "LisÃ¤Ã¤ kuvat": "Add photos",
+  "Lisää kuvat": "Add photos",
   "Ei valittuja osia": "No selected parts",
-  "Palaa kategoriaan ja valitse myytÃ¤vÃ¤t osat tai koko ajoneuvo.": "Go back to categories and select the parts for sale or the whole vehicle.",
+  "Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.": "Go back to categories and select the parts for sale or the whole vehicle.",
   "Ehdotus": "Suggestion",
   "Haetaan...": "Loading...",
   "Poista ilmoitus": "Remove listing",
@@ -920,13 +501,13 @@ Object.assign(extraSellTranslations.en, {
 
 Object.assign(extraSellTranslations.sv, {
   "Monikategoriointi": "Multikategorisering",
-  "Valitse koko ajoneuvo tai poimi myytÃ¤vÃ¤t osat pÃ¤Ã¤kategorian ja alakategorian kautta.": "Välj hela fordonet eller plocka delarna som säljs via huvudkategori och underkategori.",
+  "Valitse koko ajoneuvo tai poimi myytävät osat pääkategorian ja alakategorian kautta.": "Välj hela fordonet eller plocka delarna som säljs via huvudkategori och underkategori.",
   "valittu": "valt",
   "valittua": "valda",
   "osa": "del",
   "osaa": "delar",
-  "nÃ¤kyy": "visas",
-  "pÃ¤Ã¤kategoriaa valittu": "huvudkategorier valda",
+  "näkyy": "visas",
+  "pääkategoriaa valittu": "huvudkategorier valda",
   "Myyn koko ajoneuvon": "Jag säljer hela fordonet",
   "valitsee kaikki ajoneuvon osakategoriat kerralla.": "väljer alla fordonsdelkategorier på en gång.",
   "Kategoriat ja osat": "Kategorier och delar",
@@ -934,111 +515,29 @@ Object.assign(extraSellTranslations.sv, {
   "Ei osumia": "Inga träffar",
   "Kokeile toista hakusanaa.": "Prova ett annat sökord.",
   "Valittuja kategorioita": "Valda kategorier",
-  "Ilmoituksesi nÃ¤kyy": "Din annons visas i",
+  "Ilmoituksesi näkyy": "Din annons visas i",
   "kategoriassa": "kategorier",
-  "NÃ¤ytÃ¤ valitut": "Visa valda",
+  "Näytä valitut": "Visa valda",
   "Piilota valitut": "Dölj valda",
   "Ei valittuja kategorioita": "Inga valda kategorier",
-  "Valitse osia listasta, niin ne nÃ¤kyvÃ¤t tÃ¤ssÃ¤.": "Välj delar i listan så visas de här.",
-  "LisÃ¤Ã¤ myytÃ¤vÃ¤t osat": "Lägg till delarna som säljs",
-  "ilmoitusta tÃ¤ytetty": "annonser ifyllda",
+  "Valitse osia listasta, niin ne näkyvät tässä.": "Välj delar i listan så visas de här.",
+  "Lisää myytävät osat": "Lägg till delarna som säljs",
+  "ilmoitusta täytetty": "annonser ifyllda",
   "valittua tuotetta": "valda produkter",
   "Osanumero / OEM": "Reservdelsnummer / OEM",
   "Kirjoita osanumero": "Skriv reservdelsnummer",
-  "LisÃ¤tiedot": "Ytterligare uppgifter",
-  "Kirjoita lisÃ¤tiedot, viat, sopivuus tai muut huomiot": "Skriv ytterligare uppgifter, fel, kompatibilitet eller andra kommentarer",
+  "Lisätiedot": "Ytterligare uppgifter",
+  "Kirjoita lisätiedot, viat, sopivuus tai muut huomiot": "Skriv ytterligare uppgifter, fel, kompatibilitet eller andra kommentarer",
   "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot": "Skriv mattans mått, skick, kompatibilitet och andra kommentarer",
-  "LisÃ¤Ã¤ kuvat": "Lägg till bilder",
+  "Lisää kuvat": "Lägg till bilder",
   "Ei valittuja osia": "Inga valda delar",
-  "Palaa kategoriaan ja valitse myytÃ¤vÃ¤t osat tai koko ajoneuvo.": "Gå tillbaka till kategorin och välj delarna som säljs eller hela fordonet.",
+  "Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.": "Gå tillbaka till kategorin och välj delarna som säljs eller hela fordonet.",
   "Ehdotus": "Förslag",
   "Haetaan...": "Hämtar...",
   "Poista ilmoitus": "Ta bort annons",
   "Poista kuva": "Ta bort bild",
   "Sijainti ja toimitus": "Plats och leverans",
   "Kaupunki tai paikkakunta": "Stad eller ort"
-});
-
-Object.assign(extraSellTranslations.no, {
-  "Monikategoriointi": "Multikategorisering",
-  "Valitse koko ajoneuvo tai poimi myytÃ¤vÃ¤t osat pÃ¤Ã¤kategorian ja alakategorian kautta.": "Velg hele kjøretøyet eller plukk delene som selges via hovedkategori og underkategori.",
-  "valittu": "valgt",
-  "valittua": "valgte",
-  "osa": "del",
-  "osaa": "deler",
-  "nÃ¤kyy": "vises",
-  "pÃ¤Ã¤kategoriaa valittu": "hovedkategorier valgt",
-  "Myyn koko ajoneuvon": "Jeg selger hele kjøretøyet",
-  "valitsee kaikki ajoneuvon osakategoriat kerralla.": "velger alle kjøretøyets delkategorier samtidig.",
-  "Kategoriat ja osat": "Kategorier og deler",
-  "Hae kategoriaa tai osaa": "Søk kategori eller del",
-  "Ei osumia": "Ingen treff",
-  "Kokeile toista hakusanaa.": "Prøv et annet søkeord.",
-  "Valittuja kategorioita": "Valgte kategorier",
-  "Ilmoituksesi nÃ¤kyy": "Annonsen din vises i",
-  "kategoriassa": "kategorier",
-  "NÃ¤ytÃ¤ valitut": "Vis valgte",
-  "Piilota valitut": "Skjul valgte",
-  "Ei valittuja kategorioita": "Ingen valgte kategorier",
-  "Valitse osia listasta, niin ne nÃ¤kyvÃ¤t tÃ¤ssÃ¤.": "Velg deler fra listen, så vises de her.",
-  "LisÃ¤Ã¤ myytÃ¤vÃ¤t osat": "Legg til delene som selges",
-  "ilmoitusta tÃ¤ytetty": "annonser utfylt",
-  "valittua tuotetta": "valgte produkter",
-  "Osanumero / OEM": "Delenummer / OEM",
-  "Kirjoita osanumero": "Skriv delenummer",
-  "LisÃ¤tiedot": "Tilleggsinformasjon",
-  "Kirjoita lisÃ¤tiedot, viat, sopivuus tai muut huomiot": "Skriv tilleggsinformasjon, feil, kompatibilitet eller andre merknader",
-  "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot": "Skriv beltemattens mål, tilstand, kompatibilitet og andre merknader",
-  "LisÃ¤Ã¤ kuvat": "Legg til bilder",
-  "Ei valittuja osia": "Ingen valgte deler",
-  "Palaa kategoriaan ja valitse myytÃ¤vÃ¤t osat tai koko ajoneuvo.": "Gå tilbake til kategorien og velg delene som selges eller hele kjøretøyet.",
-  "Ehdotus": "Forslag",
-  "Haetaan...": "Henter...",
-  "Poista ilmoitus": "Fjern annonse",
-  "Poista kuva": "Fjern bilde",
-  "Sijainti ja toimitus": "Sted og levering",
-  "Kaupunki tai paikkakunta": "By eller sted"
-});
-
-Object.assign(extraSellTranslations.et, {
-  "Monikategoriointi": "Mitme kategooria valik",
-  "Valitse koko ajoneuvo tai poimi myytÃ¤vÃ¤t osat pÃ¤Ã¤kategorian ja alakategorian kautta.": "Vali kogu sõiduk või vali müüdavad osad põhi- ja alamkategooria kaudu.",
-  "valittu": "valitud",
-  "valittua": "valitud",
-  "osa": "osa",
-  "osaa": "osa",
-  "nÃ¤kyy": "kuvatakse",
-  "pÃ¤Ã¤kategoriaa valittu": "põhikategooriat valitud",
-  "Myyn koko ajoneuvon": "Müün kogu sõiduki",
-  "valitsee kaikki ajoneuvon osakategoriat kerralla.": "valib kõik sõiduki osakategooriad korraga.",
-  "Kategoriat ja osat": "Kategooriad ja osad",
-  "Hae kategoriaa tai osaa": "Otsi kategooriat või osa",
-  "Ei osumia": "Tulemusi pole",
-  "Kokeile toista hakusanaa.": "Proovi teist otsingusõna.",
-  "Valittuja kategorioita": "Valitud kategooriad",
-  "Ilmoituksesi nÃ¤kyy": "Sinu kuulutus kuvatakse",
-  "kategoriassa": "kategoorias",
-  "NÃ¤ytÃ¤ valitut": "Näita valituid",
-  "Piilota valitut": "Peida valitud",
-  "Ei valittuja kategorioita": "Valitud kategooriaid pole",
-  "Valitse osia listasta, niin ne nÃ¤kyvÃ¤t tÃ¤ssÃ¤.": "Vali loendist osad ja need kuvatakse siin.",
-  "LisÃ¤Ã¤ myytÃ¤vÃ¤t osat": "Lisa müüdavad osad",
-  "ilmoitusta tÃ¤ytetty": "kuulutust täidetud",
-  "valittua tuotetta": "valitud toodet",
-  "Osanumero / OEM": "Osanumber / OEM",
-  "Kirjoita osanumero": "Sisesta osanumber",
-  "LisÃ¤tiedot": "Lisainfo",
-  "Kirjoita lisÃ¤tiedot, viat, sopivuus tai muut huomiot": "Sisesta lisainfo, vead, sobivus või muud märkused",
-  "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot": "Sisesta roomikumati mõõdud, seisukord, sobivus ja muud märkused",
-  "LisÃ¤Ã¤ kuvat": "Lisa pildid",
-  "Ei valittuja osia": "Valitud osi pole",
-  "Palaa kategoriaan ja valitse myytÃ¤vÃ¤t osat tai koko ajoneuvo.": "Mine tagasi kategooriasse ja vali müüdavad osad või kogu sõiduk.",
-  "Ehdotus": "Soovitus",
-  "Haetaan...": "Laaditakse...",
-  "Poista ilmoitus": "Eemalda kuulutus",
-  "Poista kuva": "Eemalda pilt",
-  "Sijainti ja toimitus": "Asukoht ja tarne",
-  "Kaupunki tai paikkakunta": "Linn või asula"
 });
 
 function decodeMojibake(text: string) {
@@ -1316,6 +815,11 @@ const modeCards: Array<{
 
 const vehicleCards = [
   {
+    key: "Moottoripyörä",
+    title: "Moottoripyörä",
+    brands: ["Honda", "Yamaha", "Kawasaki", "Suzuki", "KTM", "BMW", "Ducati", "Harley-Davidson"]
+  },
+  {
     key: "Moottorikelkka",
     title: "Moottorikelkka",
     brands: ["Lynx", "Ski-Doo", "Polaris", "Arctic Cat"]
@@ -1337,7 +841,14 @@ const vehicleCards = [
   }
 ];
 
+const emptyVehicleType = {
+  key: "",
+  title: "Valitse ajoneuvoluokka",
+  brands: [] as string[]
+};
+
 const wholeVehicleLabels: Record<string, string> = {
+  Moottoripyörä: "Kokomoottoripyörä",
   Moottorikelkka: "Kokokelkka",
   "Mönkijä": "Kokomönkijä",
   Motocross: "Kokocrossi",
@@ -1355,6 +866,7 @@ function normalizeSellVehicleType(value?: string | null) {
     .replace(/[äå]/g, "a")
     .replace(/ö/g, "o");
 
+  if (normalized === "moottoripyora" || normalized === "moottoripyorat" || normalized === "motorcycle") return "Moottoripyörä";
   if (normalized === "auto" || normalized === "motocross") return "Motocross";
   if (normalized === "mopo" || normalized === "mopot") return "Mopo";
   if (normalized === "monkija" || normalized === "monkijat") return "Mönkijä";
@@ -1570,6 +1082,30 @@ const vehicleDetailPresets: Record<
     engineTypes: string[];
   }
 > = {
+  Moottoripyörä: {
+    vehicleSubtype: "Naked - moottoripyörä",
+    model: "",
+    year: "2020",
+    engineCc: "125",
+    engineType: "4-tahti",
+    typeOptions: [
+      "Naked - moottoripyörä",
+      "Sport - moottoripyörä",
+      "Sport touring - moottoripyörä",
+      "Touring - moottoripyörä",
+      "Adventure - moottoripyörä",
+      "Enduro - moottoripyörä",
+      "Supermoto - moottoripyörä",
+      "Cruiser - moottoripyörä",
+      "Custom - moottoripyörä",
+      "Classic / retro - moottoripyörä",
+      "Skootteri 125 cm³ ja yli - moottoripyörä",
+      "Muu tieliikenne - moottoripyörä"
+    ],
+    models: [],
+    engineCcs: ["125", "150", "200", "250", "300", "350", "400", "450", "500", "600", "650", "700", "750", "800", "850", "900", "950", "1000", "1100", "1200", "1250", "1300", "1400", "1600", "1800+"],
+    engineTypes: ["2-tahti", "4-tahti", "Sähkö", "Yksisylinterinen", "2-sylinterinen", "3-sylinterinen", "4-sylinterinen", "V2", "Boxer"]
+  },
   Moottorikelkka: {
     vehicleSubtype: "Sport - moottorikelkka",
     model: "MXZ X-RS 600 E-TEC",
@@ -1588,7 +1124,7 @@ const vehicleDetailPresets: Record<
     engineCcs: ["440", "500", "600", "650", "800", "850", "900", "1000"],
     engineTypes: ["Rotax 600RS", "E-TEC", "Patriot", "Cleanfire", "C-TEC2", "4-tahti", "Turbo"]
   },
-  Mönkijä: {
+  "Mönkijä": {
     vehicleSubtype: "ATV - mönkijä",
     model: "Outlander",
     year: "2020",
@@ -1636,16 +1172,40 @@ const vehicleDetailPresets: Record<
       "Skootteri - mopo",
       "Supermoto - mopo",
       "Enduro - mopo",
-      "Manki / monkey - mopo",
-      "Piikki 125 - mopo"
+      "Manki / monkey - mopo"
     ],
     models: ["DT", "Senda", "MRT", "RX", "SX", "RS"],
-    engineCcs: ["50", "70", "80", "125"],
+    engineCcs: ["50", "70", "80"],
     engineTypes: ["2-tahti", "4-tahti", "AM6", "Derbi D50B0"]
   }
 };
 
 const vehicleBrandModels: Record<string, Record<string, string[]>> = {
+  Moottoripyörä: {
+    Aprilia: ["RS 125", "Tuono 125", "SX 125", "RX 125", "RS 457", "RS 660", "RSV4", "Tuono 660", "Tuono V4", "Tuareg 660"],
+    Benelli: ["BN 125", "Leoncino 125", "Leoncino 500", "TRK 502", "TRK 702"],
+    Beta: ["RR 125", "RR Motard 125", "RR 200", "RR 250", "RR 300", "RR 350", "RR 390", "RR 430", "RR 480"],
+    BMW: ["G 310 R", "G 310 GS", "F 800 GS", "F 900 R", "F 900 XR", "R 1250 GS", "R 1300 GS", "S 1000 R", "S 1000 RR"],
+    Brixton: ["Cromwell 125", "Felsberg 125", "Sunray 125", "Crossfire 125"],
+    CFMOTO: ["125NK", "300NK", "450NK", "450SR", "450MT", "650NK", "700CL-X", "800NK", "800MT"],
+    Ducati: ["Monster", "Panigale V2", "Panigale V4", "Streetfighter", "Multistrada", "Scrambler", "Diavel", "DesertX"],
+    Fantic: ["Caballero 125", "XEF 125", "XMF 125", "Caballero 500", "Caballero 700"],
+    GasGas: ["EC 125", "SM 125", "EC 250", "EC 300", "ES 700", "SM 700"],
+    "Harley-Davidson": ["Sportster", "Nightster", "Street Bob", "Fat Bob", "Fat Boy", "Low Rider", "Breakout", "Road Glide", "Street Glide", "Pan America"],
+    Honda: ["CB125R", "CBF125", "CBR125R", "XL125V Varadero", "MSX125", "Monkey 125", "Dax 125", "Super Cub C125", "PCX125", "Forza 125", "CB500F", "CB650R", "CB750 Hornet", "CBR500R", "CBR650R", "CBR1000RR", "NC750X", "Africa Twin", "Transalp XL750", "Gold Wing"],
+    Husqvarna: ["Svartpilen 125", "Vitpilen 125", "TE 125", "SMS 125", "WRE 125", "Svartpilen 401", "Norden 901", "701 Enduro", "701 Supermoto"],
+    Indian: ["Scout", "Chief", "FTR", "Chieftain", "Challenger", "Roadmaster"],
+    Kawasaki: ["Ninja 125", "Z125", "Ninja 400", "Ninja 500", "Ninja 650", "Ninja ZX-6R", "Ninja ZX-10R", "Z400", "Z500", "Z650", "Z900", "Versys 650", "Versys 1000", "Vulcan S"],
+    Keeway: ["RKF 125", "RKS 125", "Superlight 125", "K-Light 125"],
+    KTM: ["125 Duke", "RC 125", "125 EXC", "125 EXC Six Days", "390 Duke", "390 Adventure", "690 Enduro R", "690 SMC R", "790 Duke", "790 Adventure", "890 Duke", "890 Adventure", "1290 Super Duke R", "1290 Super Adventure", "1390 Super Duke R"],
+    Kymco: ["Agility 125", "People S 125", "Downtown 125", "Downtown 350", "Xciting 400", "AK 550"],
+    "Moto Guzzi": ["V7", "V9", "V85 TT", "V100 Mandello", "Stelvio"],
+    "Royal Enfield": ["Hunter 350", "Classic 350", "Meteor 350", "Himalayan 450", "Interceptor 650", "Continental GT 650", "Super Meteor 650"],
+    Suzuki: ["GSX-R125", "GSX-S125", "Address 125", "Burgman Street 125", "GSX-8S", "GSX-8R", "GSX-S750", "GSX-S1000", "GSX-R600", "GSX-R750", "GSX-R1000", "Hayabusa", "SV650", "V-Strom 650", "V-Strom 800", "V-Strom 1050"],
+    Triumph: ["Trident 660", "Street Triple 765", "Speed Triple 1200", "Tiger Sport 660", "Tiger 900", "Tiger 1200", "Bonneville", "Speed Twin", "Scrambler", "Rocket 3"],
+    Vespa: ["Primavera 125", "Sprint 125", "GTS 125", "GTS 300"],
+    Yamaha: ["MT-125", "YZF-R125", "WR125R", "WR125X", "XSR125", "NMAX 125", "XMAX 125", "MT-03", "MT-07", "MT-09", "MT-10", "XSR700", "XSR900", "Tracer 7", "Tracer 9", "Ténéré 700", "YZF-R3", "YZF-R6", "YZF-R7", "YZF-R1", "FJR1300", "TMAX", "XMAX 300"]
+  },
   Moottorikelkka: {
     Lynx: ["Rave RS", "Rave Racing", "Rave RE", "Xterrain", "Boondocker", "Commander", "49 Ranger", "Adventure"],
     "Ski-Doo": ["MXZ RS", "MXZ X-RS", "Summit", "Freeride", "Renegade", "Backcountry", "Expedition"],
@@ -2234,11 +1794,22 @@ function uniqueOptions(values: string[]) {
 }
 
 function getVehiclePreset(vehicleKey: string) {
-  return vehicleDetailPresets[vehicleKey] ?? vehicleDetailPresets.Mönkijä;
+  return vehicleDetailPresets[vehicleKey] ?? {
+    vehicleSubtype: "",
+    model: "",
+    year: "",
+    engineCc: "",
+    engineType: "",
+    typeOptions: [],
+    models: [],
+    engineCcs: [],
+    engineTypes: []
+  };
 }
 
 function getCommonVehicleKey(vehicleKey: string) {
   const normalized = vehicleKey.toLowerCase();
+  if (normalized.includes("moottoripyörä") || normalized.includes("motorcycle")) return "motorcycle";
   if (normalized.includes("moottorikelkka")) return "snowmobile";
   if (normalized.includes("nkij")) return "atv";
   if (normalized.includes("motocross")) return "motocross";
@@ -2624,7 +2195,7 @@ function SellPageContent() {
   const categoryInteractionStartedRef = useRef(false);
   const [mode, setMode] = useState<ListingMode>("single");
   const [currentStep, setCurrentStep] = useState(1);
-  const [vehicleType, setVehicleType] = useState(vehicleCards[1]);
+  const [vehicleType, setVehicleType] = useState(emptyVehicleType);
   const [vehicleTypeMenuOpen, setVehicleTypeMenuOpen] = useState(false);
   const [vehicleDetails, setVehicleDetails] = useState<VehicleDetails>(
     () => buildEmptyVehicleDetails()
@@ -2663,7 +2234,6 @@ function SellPageContent() {
   const [publishError, setPublishError] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [feedbackPrompt, setFeedbackPrompt] = useState<ListingFeedbackPrompt | null>(null);
   const [categoryAutoOpenTarget, setCategoryAutoOpenTarget] = useState<{
     field: "category" | "group" | "detail";
     nonce: number;
@@ -3128,7 +2698,7 @@ function SellPageContent() {
         listingLocationTouchedRef.current = draft.listingLocationTouched;
         setMode(draft.mode);
         setCurrentStep(Math.max(1, Math.min(draft.currentStep, draft.mode === "single" ? singleSteps.length : multipleSteps.length)));
-        setVehicleType(vehicleCards.find((vehicle) => vehicle.key === draft.vehicleTypeKey) ?? vehicleCards[1]);
+        setVehicleType(vehicleCards.find((vehicle) => vehicle.key === draft.vehicleTypeKey) ?? emptyVehicleType);
         setVehicleDetails(draft.vehicleDetails);
         setCustomVehicleFields(draft.customVehicleFields);
         vehicleAutoAdvancedFieldsRef.current = draft.customVehicleFields;
@@ -3986,6 +3556,18 @@ function SellPageContent() {
     } catch {
       /* optional */
     }
+    setVehicleTypeMenuOpen(!vehicleType.key);
+    setCurrentStep(2);
+  }
+
+  function chooseListingMode(nextMode: ListingMode) {
+    setMode(nextMode);
+    try {
+      sessionStorage.setItem("sell-listing-mode", nextMode);
+    } catch {
+      /* optional */
+    }
+    setVehicleTypeMenuOpen(!vehicleType.key);
     setCurrentStep(2);
   }
 
@@ -3995,7 +3577,7 @@ function SellPageContent() {
     revokeCurrentImageUrls();
     setMode("single");
     setCurrentStep(1);
-    setVehicleType(vehicleCards[1]);
+    setVehicleType(emptyVehicleType);
     setVehicleDetails(buildEmptyVehicleDetails());
     setCustomVehicleFields({});
     vehicleAutoAdvancedFieldsRef.current = {};
@@ -4347,7 +3929,6 @@ function SellPageContent() {
 
       let firstListingId = "";
       let firstListingUrlId: string | number = "";
-      let firstListingFeedbackMeta: Omit<ListingFeedbackPrompt, "listingId" | "returnHref"> | null = null;
       const { createListing } = await import("@/lib/supabase");
 
       for (const part of listingParts) {
@@ -4363,34 +3944,11 @@ function SellPageContent() {
 
         firstListingId ||= data.id;
         firstListingUrlId ||= listingUrlId(data);
-        if (!firstListingFeedbackMeta) {
-          firstListingFeedbackMeta = {
-            listingMode: mode,
-            vehicleType: payload.vehicle_type || vehicleType.title,
-            category: payload.category || "",
-            subcategory: payload.subcategory || ""
-          };
-        }
       }
 
       draftClearedOrPublishedRef.current = true;
       await deleteSellDraft().catch(() => undefined);
       const returnHref = firstListingId ? listingPath(firstListingUrlId || firstListingId) : "/my-listings";
-
-      try {
-        const { shouldAskListingCreationFeedback } = await import("@/lib/supabase");
-        const { data } = await shouldAskListingCreationFeedback();
-        if (data?.hasFeedback === false && firstListingId && firstListingFeedbackMeta) {
-          setFeedbackPrompt({
-            listingId: firstListingId,
-            returnHref,
-            ...firstListingFeedbackMeta
-          });
-          return;
-        }
-      } catch {
-        /* Publishing succeeded; feedback is optional and must not block the redirect. */
-      }
 
       router.push(returnHref);
     } catch (error) {
@@ -4659,7 +4217,7 @@ function SellPageContent() {
                     placeholder={translatedAutomaticTitle}
                   />
                   <small className={styles.automaticTitleHint}>
-                    {st("TÃ¤mÃ¤ on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
+                    {st("Tämä on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
                   </small>
                 </label>
                 <label>
@@ -4841,7 +4399,7 @@ function SellPageContent() {
                       placeholder={translatedAutomaticTitle}
                     />
                     <small className={styles.automaticTitleHint}>
-                      {st("TÃ¤mÃ¤ on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
+                      {st("Tämä on otsikko jos et itse otsikoi:")} {translatedAutomaticTitle}
                     </small>
                   </label>
                   <label>
@@ -5465,7 +5023,7 @@ function SellPageContent() {
                   });
                 }}
                 options={categoryOptions.map((value) => ({ value, label: value }))}
-                placeholder={st("Valitse pÃ¤Ã¤kategoria")}
+                placeholder={st("Valitse pääkategoria")}
                 translateText={translateCategoryText}
                 autoOpenNonce={categoryAutoOpenTarget?.field === "category" ? categoryAutoOpenTarget.nonce : 0}
                 open={categoryAutoOpenTarget?.field === "category"}
@@ -6177,7 +5735,7 @@ function SellPageContent() {
                     className={`${styles.modeCard} ${active ? styles.modeCardSelected : ""}`}
                     role="radio"
                     aria-checked={active}
-                    onClick={() => setMode(card.value)}
+                    onClick={() => chooseListingMode(card.value)}
                   >
                     {active ? (
                       <span className={styles.modeCheck} aria-hidden="true">
@@ -6286,17 +5844,6 @@ function SellPageContent() {
           </section>
         </div>
       ) : null}
-      {feedbackPrompt ? (
-        <ListingCreationFeedbackModal
-          prompt={feedbackPrompt}
-          translate={st}
-          onDone={() => {
-            const href = feedbackPrompt.returnHref;
-            setFeedbackPrompt(null);
-            router.push(href);
-          }}
-        />
-      ) : null}
     </main>
   );
 }
@@ -6306,151 +5853,6 @@ export default function SellPage() {
     <Suspense fallback={null}>
       <SellPageContent />
     </Suspense>
-  );
-}
-
-function ListingCreationFeedbackModal({
-  prompt,
-  translate,
-  onDone
-}: {
-  prompt: ListingFeedbackPrompt;
-  translate: (text: string) => string;
-  onDone: () => void;
-}) {
-  const [ratings, setRatings] = useState({
-    categoryRating: 1,
-    detailsRating: 1,
-    photosRating: 1,
-    overallRating: 1
-  });
-  const [comment, setComment] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  const canSubmit = ratings.overallRating > 0;
-  const tt = translate;
-
-  async function save(skipped = false) {
-    if (saving) return;
-    if (!skipped && !canSubmit) {
-      setError(tt("Anna ainakin kokonaisarvio tähdillä."));
-      return;
-    }
-
-    setSaving(true);
-    setError("");
-
-    try {
-      const { saveListingCreationFeedback } = await import("@/lib/supabase");
-      const { error: saveError } = await saveListingCreationFeedback({
-        listingId: prompt.listingId,
-        listingMode: prompt.listingMode,
-        vehicleType: prompt.vehicleType,
-        category: prompt.category,
-        subcategory: prompt.subcategory,
-        categoryRating: ratings.categoryRating || undefined,
-        detailsRating: ratings.detailsRating || undefined,
-        photosRating: ratings.photosRating || undefined,
-        overallRating: ratings.overallRating || undefined,
-        comment,
-        skipped
-      });
-
-      if (saveError) {
-        console.error("Listing feedback save failed", saveError);
-      }
-
-      onDone();
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return (
-    <div className={styles.feedbackOverlay} role="presentation">
-      <section className={styles.feedbackModal} role="dialog" aria-modal="true" aria-labelledby="listing-feedback-title">
-        <div className={styles.feedbackIcon} aria-hidden="true">
-          <Star size={26} />
-        </div>
-        <span>{tt("Ensimmäinen ilmoitus julkaistu")}</span>
-        <h2 id="listing-feedback-title">{tt("Arvioi ilmoituksen luonti")}</h2>
-        <p>{tt("Anna nopea arvio kategoriasta, tiedoista ja kuvien lisäämisestä. Näet ilmoituksen heti tämän jälkeen.")}</p>
-
-        <div className={styles.feedbackRatingGrid}>
-          <FeedbackRating
-            label={tt("Kategorian valinta")}
-            value={ratings.categoryRating}
-            onChange={(value) => setRatings((current) => ({ ...current, categoryRating: value }))}
-          />
-          <FeedbackRating
-            label={tt("Tuotetietojen lisääminen")}
-            value={ratings.detailsRating}
-            onChange={(value) => setRatings((current) => ({ ...current, detailsRating: value }))}
-          />
-          <FeedbackRating
-            label={tt("Kuvien lisääminen")}
-            value={ratings.photosRating}
-            onChange={(value) => setRatings((current) => ({ ...current, photosRating: value }))}
-          />
-          <FeedbackRating
-            label={tt("Kokonaisuus")}
-            value={ratings.overallRating}
-            onChange={(value) => setRatings((current) => ({ ...current, overallRating: value }))}
-          />
-        </div>
-
-        <label className={styles.feedbackComment}>
-          <span>{tt("Kommentti ylläpidolle (vapaaehtoinen)")}</span>
-          <textarea
-            value={comment}
-            onChange={(event) => setComment(event.target.value)}
-            maxLength={700}
-            placeholder={tt("Mikä toimi hyvin tai mikä tuntui hankalalta?")}
-          />
-        </label>
-
-        {error ? <div className={styles.feedbackError}>{error}</div> : null}
-
-        <div className={styles.feedbackActions}>
-          <button type="button" onClick={() => void save(true)} disabled={saving}>
-            {tt("Ohita")}
-          </button>
-          <button type="button" onClick={() => void save(false)} disabled={saving || !canSubmit}>
-            {saving ? tt("Tallennetaan...") : tt("Lähetä arvio")}
-          </button>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function FeedbackRating({
-  label,
-  value,
-  onChange
-}: {
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-}) {
-  return (
-    <div className={styles.feedbackRating}>
-      <span>{label}</span>
-      <div>
-        {[1, 2, 3, 4, 5].map((rating) => (
-          <button
-            key={rating}
-            type="button"
-            className={rating <= value ? styles.feedbackStarActive : ""}
-            onClick={() => onChange(rating === value ? Math.max(1, rating - 1) : rating)}
-            aria-label={`${label}: ${rating} tähteä`}
-          >
-            <Star size={22} fill="currentColor" />
-          </button>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -6686,7 +6088,6 @@ function ConditionSelect({
   translateText?: (text: string) => string;
 }) {
   const [open, setOpen] = useState(false);
-  const pointerSelectionRef = useRef<string | null>(null);
   const selectedOption = conditionOptions.find((option) => option.value === value);
   const displayValue = translateText(selectedOption?.label ?? "Kuntoluokitus");
 
@@ -6743,19 +6144,14 @@ function ConditionSelect({
                   className={active ? styles.categorySelectOptionActive : styles.categorySelectOption}
                   data-active={active ? "true" : "false"}
                   onPointerDown={(event) => {
-                    if (event.pointerType !== "mouse") return;
                     event.preventDefault();
                     event.stopPropagation();
-                    pointerSelectionRef.current = option.value;
                     chooseOption(option.value);
                     event.currentTarget.blur();
                   }}
                   onClick={(event) => {
                     event.stopPropagation();
-                    if (pointerSelectionRef.current === option.value) {
-                      pointerSelectionRef.current = null;
-                      return;
-                    }
+                    if (event.detail !== 0) return;
                     chooseOption(option.value);
                     event.currentTarget.blur();
                   }}
@@ -6800,7 +6196,6 @@ function CategorySelect({
   const hasOptions = options.length > 0;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const pointerSelectionRef = useRef<string | null>(null);
   const open = controlledOpen ?? uncontrolledOpen;
   const selectedOption = options.find((option) => option.value === value);
   const displayValue = hasOptions ? translateText(selectedOption?.label ?? placeholder) : placeholder;
@@ -6909,19 +6304,14 @@ function CategorySelect({
                     color: "#dce8f7"
                   }}
                   onPointerDown={(event) => {
-                    if (event.pointerType !== "mouse") return;
                     event.preventDefault();
                     event.stopPropagation();
-                    pointerSelectionRef.current = option.value;
                     chooseOption(option.value);
                     event.currentTarget.blur();
                   }}
                   onClick={(event) => {
                     event.stopPropagation();
-                    if (pointerSelectionRef.current === option.value) {
-                      pointerSelectionRef.current = null;
-                      return;
-                    }
+                    if (event.detail !== 0) return;
                     chooseOption(option.value);
                     event.currentTarget.blur();
                   }}

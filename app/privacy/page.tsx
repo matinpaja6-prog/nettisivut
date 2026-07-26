@@ -65,8 +65,6 @@ const privacyCopy: Record<Locale, LegalCopy> = {
     ]
   },
   sv: fiCopy,
-  no: fiCopy,
-  et: fiCopy
 };
 
 function stripSectionNumber(title: string) {

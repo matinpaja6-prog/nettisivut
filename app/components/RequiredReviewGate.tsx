@@ -81,40 +81,6 @@ const reviewGateText: Record<Locale, {
     saving: "Sparar...",
     submit: "Skicka omdöme"
   },
-  no: {
-    unknownError: "Ukjent feil.",
-    timeoutError: "Supabase svarte ikke i tide. Kontroller SQL og prøv igjen.",
-    defaultUser: "Bruker",
-    commentRequired: "Skriv en kort vurdering av handelen.",
-    saveFailed: "Kunne ikke lagre vurderingen",
-    close: "Lukk",
-    title: "Gi vurdering av selgeren",
-    introStart: "Du kjøpte",
-    introEnd: "Du kan gi vurderingen nå, eller lukke dette og gjøre det senere fra varselklokken.",
-    rating: "Vurdering",
-    starLabel: (value) => `${value} stjerner`,
-    commentLabel: "Fortell kort hvordan handelen gikk",
-    commentPlaceholder: "For eksempel: Handelen gikk bra og produktet var som beskrevet.",
-    saving: "Lagrer...",
-    submit: "Send vurdering"
-  },
-  et: {
-    unknownError: "Tundmatu viga.",
-    timeoutError: "Supabase ei vastanud õigel ajal. Kontrolli SQL-i ja proovi uuesti.",
-    defaultUser: "Kasutaja",
-    commentRequired: "Kirjuta tehingu kohta lühike arvustus.",
-    saveFailed: "Arvustuse salvestamine ebaõnnestus",
-    close: "Sulge",
-    title: "Hinda müüjat",
-    introStart: "Ostsid toote",
-    introEnd: "Saad arvustuse anda kohe või selle sulgeda ja teha hiljem teavituskellast.",
-    rating: "Hinnang",
-    starLabel: (value) => `${value} tärni`,
-    commentLabel: "Kirjelda lühidalt, kuidas tehing sujus",
-    commentPlaceholder: "Näiteks: Tehing sujus hästi ja toode vastas kirjeldusele.",
-    saving: "Salvestamine...",
-    submit: "Saada arvustus"
-  }
 };
 
 function getErrorMessage(error: unknown, fallback: string) {
