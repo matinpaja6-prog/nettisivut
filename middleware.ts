@@ -18,6 +18,19 @@ const ipBanCache = new Map<string, { banned: boolean; expiresAt: number }>();
 const API_RATE_LIMIT_WINDOW_MS = 60_000;
 const API_MAX_BODY_BYTES = 128_000;
 const apiRateLimitCache = new Map<string, { count: number; resetAt: number }>();
+const PRIVATE_NOINDEX_PREFIXES = [
+  "/admin",
+  "/auth",
+  "/messages",
+  "/settings",
+  "/profile",
+  "/my-listings",
+  "/garage",
+  "/saved",
+  "/followed",
+  "/sell",
+  "/search-alerts"
+];
 const ALLOWED_HTTP_METHODS = new Set([
   "GET",
   "HEAD",
@@ -64,7 +77,6 @@ function applySecurityHeaders(response: NextResponse) {
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
   );
-  response.headers.set("X-Robots-Tag", "noindex, nofollow");
   if (process.env.NODE_ENV === "production") {
     response.headers.set(
       "Strict-Transport-Security",
@@ -74,8 +86,14 @@ function applySecurityHeaders(response: NextResponse) {
   return response;
 }
 
-function applyDocumentHeaders(response: NextResponse) {
+function applyDocumentHeaders(
+  response: NextResponse,
+  options: { noIndex?: boolean } = {}
+) {
   applySecurityHeaders(response);
+  if (options.noIndex) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
   response.headers.set(
     "Cache-Control",
     "private, no-store, no-cache, max-age=0, must-revalidate"
@@ -83,6 +101,14 @@ function applyDocumentHeaders(response: NextResponse) {
   response.headers.set("CDN-Cache-Control", "no-store");
   response.headers.set("Surrogate-Control", "no-store");
   return response;
+}
+
+function shouldNoIndex(pathname: string) {
+  return PRIVATE_NOINDEX_PREFIXES.some((prefix) =>
+    prefix === "/profile"
+      ? pathname === prefix
+      : pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
 }
 
 function isUnsafeMethod(method: string) {
@@ -255,7 +281,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/auth")
   ) {
-    return applyDocumentHeaders(NextResponse.next());
+    return applyDocumentHeaders(NextResponse.next(), { noIndex: true });
   }
 
   if (pathname.startsWith("/api")) {
@@ -312,20 +338,21 @@ export async function middleware(request: NextRequest) {
   const locale = normalizeRouteLocale(request.cookies.get("locale")?.value);
   const canonicalPath = canonicalPathFromLocalized(pathname);
   const localizedPath = localizedPathFromCanonical(canonicalPath, locale);
+  const noIndex = shouldNoIndex(canonicalPath);
 
   if (pathname === canonicalPath && localizedPath !== pathname) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = localizedPath;
-    return applyDocumentHeaders(NextResponse.redirect(redirectUrl));
+    return applyDocumentHeaders(NextResponse.redirect(redirectUrl), { noIndex });
   }
 
   if (canonicalPath !== pathname) {
     const rewriteUrl = request.nextUrl.clone();
     rewriteUrl.pathname = canonicalPath;
-    return applyDocumentHeaders(NextResponse.rewrite(rewriteUrl));
+    return applyDocumentHeaders(NextResponse.rewrite(rewriteUrl), { noIndex });
   }
 
-  return applyDocumentHeaders(NextResponse.next());
+  return applyDocumentHeaders(NextResponse.next(), { noIndex });
 }
 
 export const config = {

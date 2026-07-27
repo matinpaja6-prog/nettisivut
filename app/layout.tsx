@@ -60,6 +60,10 @@ import { PUBLIC_SITE_URL } from "@/lib/site-url";
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
   applicationName: "Maskines",
+  robots: {
+    index: true,
+    follow: true
+  },
   title: {
     default: "Maskines | Moottorikelkkojen, mönkijöiden, motocrossien ja mopojen varaosat",
     template: "%s | Maskines"

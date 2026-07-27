@@ -2902,7 +2902,7 @@ export async function getCurrentUserIsAdmin() {
   }
 
   const { data, error } =
-    await supabase.rpc("is_admin");
+    await supabase.rpc("has_admin_role");
 
   if (error) {
 
@@ -2961,18 +2961,6 @@ export type AdminUserIp = {
   last_seen: string;
   hits: number;
 };
-
-export async function verifyAdminPin(pin: string): Promise<{ data: boolean; error: unknown }> {
-  if (!supabase) return { data: false, error: "no-supabase" };
-  const { data, error } = await supabase.rpc("verify_admin_pin", { candidate_pin: pin });
-  return { data: Boolean(data), error };
-}
-
-export async function setAdminPin(newPin: string): Promise<{ error: unknown }> {
-  if (!supabase) return { error: "no-supabase" };
-  const { error } = await supabase.rpc("set_admin_pin", { new_pin: newPin });
-  return { error };
-}
 
 export async function adminAdjustPhoneVerifications(targetUserId: string, delta: number) {
   if (!supabase) return { data: null, error: "no-supabase" };

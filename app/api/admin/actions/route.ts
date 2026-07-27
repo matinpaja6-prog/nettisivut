@@ -107,25 +107,53 @@ async function requireAdmin(request: Request) {
   }
 
   const authClient = getClient(anonKey);
-  const { data: userData, error: userError } = await authClient.auth.getUser(token);
+  const [{ data: userData, error: userError }, { data: claimsData, error: claimsError }] = await Promise.all([
+    authClient.auth.getUser(token),
+    authClient.auth.getClaims(token)
+  ]);
   const userId = userData.user?.id;
+  const claims = claimsData?.claims;
+  const claimUserId = typeof claims?.sub === "string" ? claims.sub : null;
+  const assuranceLevel = typeof claims?.aal === "string" ? claims.aal : null;
+  const sessionId = typeof claims?.session_id === "string" ? claims.session_id : null;
 
-  if (userError || !userId) {
+  if (userError || claimsError || !userId || claimUserId !== userId) {
     return {
       error: NextResponse.json({ error: "Kirjautuminen ei ole voimassa." }, { status: 401 })
+    };
+  }
+
+  if (assuranceLevel !== "aal2" || !sessionId) {
+    return {
+      error: NextResponse.json(
+        { error: "Admin-toiminto vaatii Authenticator-vahvistuksen." },
+        { status: 403 }
+      )
     };
   }
 
   const admin = getClient(serviceRoleKey);
   const { data: adminRows, error: adminError } = await admin
     .from("admin_users")
-    .select("user_id")
+    .select("user_id,active_session_id")
     .eq("user_id", userId)
     .limit(1);
 
-  if (adminError || !adminRows?.length) {
+  if (adminError) {
     return {
-      error: NextResponse.json({ error: "Vain admin saa tehdä tämän." }, { status: 403 })
+      error: NextResponse.json(
+        { error: "Adminin MFA-tietokantapäivitys puuttuu tai tarkistus epäonnistui." },
+        { status: 503 }
+      )
+    };
+  }
+
+  if (!adminRows?.length || adminRows[0].active_session_id !== sessionId) {
+    return {
+      error: NextResponse.json(
+        { error: "Admin-istunto ei ole aktiivinen. Vahvista kirjautuminen uudelleen." },
+        { status: 403 }
+      )
     };
   }
 

@@ -35,17 +35,32 @@ function buildDescription(listing: Awaited<ReturnType<typeof getListingById>>["d
   return parts.join(" - ");
 }
 
+function buildTitle(listing: NonNullable<Awaited<ReturnType<typeof getListingById>>["data"]>) {
+  const listingTitle = cleanMetaText(listing.title, "Ilmoitus");
+  const normalizedTitle = listingTitle.toLocaleLowerCase("fi");
+  const missingVehicleDetails = [listing.brand, listing.model, listing.year]
+    .map((item) => cleanMetaText(item))
+    .filter((item) => item && !normalizedTitle.includes(item.toLocaleLowerCase("fi")));
+  const searchableTitle = [...missingVehicleDetails, listingTitle].join(" ");
+
+  return `${searchableTitle} - ${formatPrice(Number(listing.price) || 0)}`;
+}
+
 export async function generateListingMetadata({ params }: ListingPageParams): Promise<Metadata> {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
   const { data: listing } = await getListingById(decodedId);
 
-  if (!listing) {
+  if (!listing || listing.is_hidden || listing.is_sold) {
     const fallbackUrl = absoluteSiteUrl(listingPath(decodedId));
 
     return {
       title: "Ilmoitus | Maskines",
       description: "Katso ajoneuvojen varaosailmoitus Maskines-palvelussa.",
+      robots: {
+        index: false,
+        follow: false
+      },
       alternates: {
         canonical: fallbackUrl
       },
@@ -73,7 +88,7 @@ export async function generateListingMetadata({ params }: ListingPageParams): Pr
     };
   }
 
-  const title = `${cleanMetaText(listing.title, "Ilmoitus")} - ${formatPrice(Number(listing.price) || 0)}`;
+  const title = buildTitle(listing);
   const description = buildDescription(listing);
   const displayNumber = await getListingDisplayNumber(listing.created_at, listing.listing_number);
   const urlId = listingNumberUrlId(displayNumber) || listing.id;
@@ -84,6 +99,10 @@ export async function generateListingMetadata({ params }: ListingPageParams): Pr
     metadataBase: new URL(PUBLIC_SITE_URL),
     title,
     description,
+    robots: {
+      index: true,
+      follow: true
+    },
     alternates: {
       canonical: url
     },

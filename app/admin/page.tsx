@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -20,6 +21,7 @@ import {
   LogOut,
   Search,
   ShieldCheck,
+  Smartphone,
   Star,
   Trash2,
   Truck,
@@ -38,7 +40,6 @@ import {
   adminAdjustListingSlots,
   adminBanIp,
   adminBanUser,
-  verifyAdminPin,
   adminDeleteListing,
   adminDeleteUser,
   adminForceVerifyPhone,
@@ -86,6 +87,14 @@ type ListingStatus = "all" | "active" | "sold";
 type UserTypeFilter = "all" | "company" | "company_pending" | "private";
 
 type Toast = { type: "ok" | "error"; message: string } | null;
+
+type AdminMfaMode = "loading" | "enroll" | "enroll-verify" | "challenge" | "error";
+
+type AdminMfaEnrollment = {
+  factorId: string;
+  qrCode: string;
+  secret: string;
+};
 
 const ADMIN_LISTING_COLUMNS =
   "id,title,price,seller_name,seller_id,created_at,is_sold,is_hidden,image_url,image_urls,category,subcategory,vehicle_type,brand,model,view_count";
@@ -154,14 +163,41 @@ function formatPrice(value?: number | null) {
   return `${value.toLocaleString("fi-FI")} €`;
 }
 
+function getErrorMessage(error: unknown, fallback: string) {
+  const value = error as { message?: string; hint?: string; details?: string } | null;
+  return value?.message || value?.hint || value?.details || (error instanceof Error ? error.message : fallback);
+}
+
+function getAuthenticatorQrSource(value: string) {
+  if (value.startsWith("data:")) return value;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(value)}`;
+}
+
+async function activateCurrentAdminSession() {
+  if (!supabase) throw new Error("Supabase-yhteys puuttuu.");
+
+  const { data, error } = await supabase.rpc("activate_admin_session");
+  if (error || !data) {
+    throw error ?? new Error("Admin-istunnon aktivointi epäonnistui.");
+  }
+
+  // Tietokanta estää vanhan istunnon admin-toiminnot heti. Lisäksi poistetaan
+  // muiden istuntojen refresh tokenit Supabase Authista.
+  await supabase.auth.signOut({ scope: "others" });
+}
+
 export default function AdminPage() {
   const [bootLoading, setBootLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [bootMessage, setBootMessage] = useState("Tarkistetaan admin-oikeudet...");
-  const [pinUnlocked, setPinUnlocked] = useState(false);
-  const [pinInput, setPinInput] = useState("");
-  const [pinChecking, setPinChecking] = useState(false);
-  const [pinError, setPinError] = useState("");
+  const [adminSetupRequired, setAdminSetupRequired] = useState(false);
+  const [mfaUnlocked, setMfaUnlocked] = useState(false);
+  const [mfaMode, setMfaMode] = useState<AdminMfaMode>("loading");
+  const [mfaFactorId, setMfaFactorId] = useState("");
+  const [mfaEnrollment, setMfaEnrollment] = useState<AdminMfaEnrollment | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
+  const [mfaChecking, setMfaChecking] = useState(false);
+  const [mfaError, setMfaError] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
   const [adminSearch, setAdminSearch] = useState("");
 
@@ -220,11 +256,12 @@ export default function AdminPage() {
         return;
       }
 
-      const { data: adminData, error: adminError } = await supabase.rpc("is_admin");
+      const { data: adminData, error: adminError } = await supabase.rpc("has_admin_role");
       if (!alive) return;
 
       if (adminError) {
-        setBootMessage("Admin SQL puuttuu Supabasesta. Aja tiedosto supabase/admin-roles.sql.");
+        setAdminSetupRequired(true);
+        setBootMessage("Adminin Authenticator-päivitys puuttuu Supabasesta.");
         setBootLoading(false);
         return;
       }
@@ -238,33 +275,53 @@ export default function AdminPage() {
       setAdminEmail(authData.user.email ?? "");
       setIsAdmin(true);
       setBootMessage("");
-      setBootLoading(false);
-      // PIN tyhjennetään aina kun sivu mountataan — käyttäjän pitää
-      // syöttää PIN joka kerta kun avaa admin-sivun
-      setPinUnlocked(false);
-      try {
-        Object.keys(sessionStorage)
-          .filter((k) => k.startsWith("admin-pin-ok:"))
-          .forEach((k) => sessionStorage.removeItem(k));
-      } catch {
-        // ignore
+
+      const [{ data: factors, error: factorsError }, { data: assurance, error: assuranceError }] = await Promise.all([
+        supabase.auth.mfa.listFactors(),
+        supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+      ]);
+
+      if (!alive) return;
+
+      if (factorsError || assuranceError) {
+        setMfaMode("error");
+        setMfaError(getErrorMessage(factorsError ?? assuranceError, "Authenticator-tietojen lataaminen epäonnistui."));
+        setBootLoading(false);
+        return;
       }
+
+      const verifiedTotp = factors?.totp?.[0];
+      if (!verifiedTotp) {
+        setMfaMode("enroll");
+        setBootLoading(false);
+        return;
+      }
+
+      setMfaFactorId(verifiedTotp.id);
+
+      if (assurance?.currentLevel === "aal2") {
+        try {
+          await activateCurrentAdminSession();
+          if (!alive) return;
+          setMfaUnlocked(true);
+        } catch (error) {
+          if (!alive) return;
+          setMfaMode("error");
+          setMfaError(getErrorMessage(error, "Admin-istunnon aktivointi epäonnistui."));
+        }
+      } else {
+        setMfaMode("challenge");
+      }
+
+      setBootLoading(false);
     }
 
     void boot();
 
-    // Tyhjennä PIN-lippu kun käyttäjä kirjautuu ulos tai sessio päättyy
     const authSub = supabase?.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_OUT" || !session) {
-        setPinUnlocked(false);
+        setMfaUnlocked(false);
         setIsAdmin(false);
-        try {
-          Object.keys(sessionStorage)
-            .filter((k) => k.startsWith("admin-pin-ok:"))
-            .forEach((k) => sessionStorage.removeItem(k));
-        } catch {
-          // ignore
-        }
       }
     });
 
@@ -274,27 +331,78 @@ export default function AdminPage() {
     };
   }, []);
 
-  async function submitPin() {
-    if (!pinInput.trim()) {
-      setPinError("Anna PIN-koodi.");
+  async function beginMfaEnrollment() {
+    if (!supabase) return;
+    setMfaChecking(true);
+    setMfaError("");
+
+    try {
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+      if (factorsError) throw factorsError;
+
+      const verifiedTotp = factors?.totp?.[0];
+      if (verifiedTotp) {
+        setMfaFactorId(verifiedTotp.id);
+        setMfaMode("challenge");
+        return;
+      }
+
+      const unfinishedTotp = (factors?.all ?? []).filter(
+        (factor) => factor.factor_type === "totp" && factor.status === "unverified"
+      );
+      for (const factor of unfinishedTotp) {
+        await supabase.auth.mfa.unenroll({ factorId: factor.id });
+      }
+
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: "Maskines Admin"
+      });
+      if (error) throw error;
+
+      setMfaFactorId(data.id);
+      setMfaEnrollment({
+        factorId: data.id,
+        qrCode: data.totp.qr_code,
+        secret: data.totp.secret
+      });
+      setMfaMode("enroll-verify");
+    } catch (error) {
+      setMfaError(getErrorMessage(error, "Authenticatorin käyttöönotto epäonnistui."));
+    } finally {
+      setMfaChecking(false);
+    }
+  }
+
+  async function submitMfaCode() {
+    if (!supabase) return;
+    if (!/^\d{6}$/.test(mfaCode)) {
+      setMfaError("Anna Authenticator-sovelluksen kuusinumeroinen koodi.");
       return;
     }
-    setPinChecking(true);
-    setPinError("");
-    const { data, error } = await verifyAdminPin(pinInput.trim());
-    setPinChecking(false);
-    if (error) {
-      const errObj = error as { message?: string; hint?: string; details?: string };
-      const rawMsg = errObj?.message || errObj?.hint || errObj?.details || (error instanceof Error ? error.message : String(error));
-      setPinError(rawMsg || "PIN-koodin tarkistus epäonnistui.");
+
+    const factorId = mfaEnrollment?.factorId || mfaFactorId;
+    if (!factorId) {
+      setMfaError("Authenticator-laitetta ei löytynyt. Päivitä sivu ja yritä uudelleen.");
       return;
     }
-    if (!data) {
-      setPinError("Väärä PIN-koodi.");
-      return;
+
+    setMfaChecking(true);
+    setMfaError("");
+
+    try {
+      const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code: mfaCode });
+      if (error) throw error;
+
+      await activateCurrentAdminSession();
+      setMfaUnlocked(true);
+      setMfaCode("");
+      setMfaEnrollment(null);
+    } catch (error) {
+      setMfaError(getErrorMessage(error, "Authenticator-koodin tarkistus epäonnistui."));
+    } finally {
+      setMfaChecking(false);
     }
-    setPinUnlocked(true);
-    setPinInput("");
   }
 
   /* Load overview stats */
@@ -313,17 +421,17 @@ export default function AdminPage() {
   }, [isAdmin, showError]);
 
   useEffect(() => {
-    if (isAdmin && pinUnlocked && activeTab === "overview") {
+    if (isAdmin && mfaUnlocked && activeTab === "overview") {
       void loadStats();
       // Yleiskatsauksen "Viimeisimmät tapahtumat" tarvitsee dataa myös
       // muista tauluista — esiladataan niitä jos tyhjiä.
       if (users.length === 0) void loadUsers();
       if (listings.length === 0) void loadListings();
     }
-  }, [isAdmin, pinUnlocked, activeTab, loadStats]);
+  }, [isAdmin, mfaUnlocked, activeTab, loadStats]);
 
   useEffect(() => {
-    if (!isAdmin || !pinUnlocked || activeTab !== "overview" || !supabase) return;
+    if (!isAdmin || !mfaUnlocked || activeTab !== "overview" || !supabase) return;
     const client = supabase;
 
     const interval = window.setInterval(() => {
@@ -350,7 +458,7 @@ export default function AdminPage() {
       window.clearInterval(interval);
       void client.removeChannel(channel);
     };
-  }, [activeTab, isAdmin, loadStats, pinUnlocked]);
+  }, [activeTab, isAdmin, loadStats, mfaUnlocked]);
 
   /* Debounce user search */
   useEffect(() => {
@@ -374,8 +482,8 @@ export default function AdminPage() {
   }, [isAdmin, userQueryDebounced, showError]);
 
   useEffect(() => {
-    if (isAdmin && pinUnlocked && activeTab === "users") void loadUsers();
-  }, [isAdmin, pinUnlocked, activeTab, loadUsers]);
+    if (isAdmin && mfaUnlocked && activeTab === "users") void loadUsers();
+  }, [isAdmin, mfaUnlocked, activeTab, loadUsers]);
 
   /* Load listings */
   const loadListings = useCallback(async () => {
@@ -420,8 +528,8 @@ export default function AdminPage() {
   }, [isAdmin, listingQuery, listingVehicle, showError]);
 
   useEffect(() => {
-    if (isAdmin && pinUnlocked && activeTab === "listings") void loadListings();
-  }, [isAdmin, pinUnlocked, activeTab, loadListings]);
+    if (isAdmin && mfaUnlocked && activeTab === "listings") void loadListings();
+  }, [isAdmin, mfaUnlocked, activeTab, loadListings]);
 
   /* Load banned IPs */
   const loadBannedIps = useCallback(async () => {
@@ -453,8 +561,8 @@ export default function AdminPage() {
   }, [loadBannedIps, loadBannedUsers]);
 
   useEffect(() => {
-    if (isAdmin && pinUnlocked && activeTab === "bans") void loadBans();
-  }, [isAdmin, pinUnlocked, activeTab, loadBans]);
+    if (isAdmin && mfaUnlocked && activeTab === "bans") void loadBans();
+  }, [isAdmin, mfaUnlocked, activeTab, loadBans]);
 
   /* Action handlers */
   const handleDeleteListing = async (listing: AdminListing) => {
@@ -632,7 +740,7 @@ export default function AdminPage() {
                 type="button"
                 className={`${styles.sidebarLink} ${isActive ? styles.sidebarLinkActive : ""}`}
                 onClick={() => setActiveTab(tab.key)}
-                disabled={!isAdmin || !pinUnlocked}
+                disabled={!isAdmin || !mfaUnlocked}
               >
                 <Icon size={17} />
                 {tab.label}
@@ -654,7 +762,7 @@ export default function AdminPage() {
       </aside>
 
       <section className={styles.shell}>
-        {!bootLoading && isAdmin && pinUnlocked && stats && (
+        {!bootLoading && isAdmin && mfaUnlocked && stats && (
           <div className={styles.dashboardHero}>
             <div>
               <h1>Tervetuloa takaisin, {adminName}! <span aria-hidden="true">👋</span></h1>
@@ -663,7 +771,7 @@ export default function AdminPage() {
           </div>
         )}
 
-        {!bootLoading && isAdmin && pinUnlocked && stats && (
+        {!bootLoading && isAdmin && mfaUnlocked && stats && (
           <div className={styles.summaryStrip}>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconBlue}`}><Users size={22} /></div>
@@ -717,15 +825,24 @@ export default function AdminPage() {
         {!bootLoading && !isAdmin && (
           <div className={styles.notice}>
             <strong>{bootMessage}</strong>
-            <p>
-              Aja Supabasessa `supabase/admin-roles.sql` ja `supabase/admin-extended.sql`,
-              ja lisää käyttäjä tällä komennolla:
-            </p>
-            <pre>{"select public.grant_admin_to_email('sinun@gmail.com');"}</pre>
+            {adminSetupRequired ? (
+              <p>
+                Aja Supabase SQL Editorissa tiedosto <code>supabase/admin-mfa.sql</code>
+                ja päivitä tämä sivu. Admin-paneeli pysyy suljettuna siihen asti.
+              </p>
+            ) : (
+              <>
+                <p>
+                  Aja Supabasessa <code>supabase/admin-roles.sql</code> ja <code>supabase/admin-extended.sql</code>,
+                  ja lisää käyttäjä tällä komennolla:
+                </p>
+                <pre>{"select public.grant_admin_to_email('sinun@gmail.com');"}</pre>
+              </>
+            )}
           </div>
         )}
 
-        {!bootLoading && isAdmin && !pinUnlocked && (
+        {!bootLoading && isAdmin && !mfaUnlocked && (
           <div
             style={{
               display: "flex",
@@ -735,43 +852,102 @@ export default function AdminPage() {
               padding: "20px 0"
             }}
           >
-          <div className={styles.notice} style={{ display: "grid", gap: 12, maxWidth: 480, width: "100%", margin: "0 auto" }}>
-            <strong>Syötä PIN-koodi jatkaaksesi</strong>
-            <p>
-              Admin-toiminnot avautuvat vasta kun annat oikean PIN:n. Jokainen
-              uusi kirjautuminen vaatii PIN:n syöttämisen.
-            </p>
-            <input
-              type="password"
-              inputMode="numeric"
-              autoComplete="off"
-              maxLength={6}
-              value={pinInput}
-              onChange={(e) => { setPinInput(e.target.value.replace(/\D/g, "").slice(0, 6)); setPinError(""); }}
-              onKeyDown={(e) => { if (e.key === "Enter") void submitPin(); }}
-              placeholder=""
-              className={styles.searchInput}
-              style={{ fontSize: "1.2rem", letterSpacing: "0.3em", textAlign: "center" }}
-              autoFocus
-            />
-            {pinError && (
-              <span style={{ color: "#b91c1c", fontWeight: 900, fontSize: "0.9rem" }}>
-                {pinError}
-              </span>
-            )}
-            <button
-              type="button"
-              className={styles.primaryBtn}
-              onClick={() => void submitPin()}
-              disabled={pinChecking}
-            >
-              {pinChecking ? "Tarkistetaan..." : "Avaa admin"}
-            </button>
-          </div>
+            <div className={styles.notice} style={{ display: "grid", gap: 14, maxWidth: 500, width: "100%", margin: "0 auto" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <Smartphone size={25} aria-hidden="true" />
+                <strong>
+                  {mfaMode === "enroll" || mfaMode === "enroll-verify"
+                    ? "Ota Authenticator käyttöön"
+                    : "Vahvista admin-kirjautuminen"}
+                </strong>
+              </div>
+
+              {mfaMode === "enroll" && (
+                <>
+                  <p>
+                    Admin-PIN on korvattu käyttäjäkohtaisella vaihtuvalla koodilla.
+                    Tarvitset puhelimeen esimerkiksi Google Authenticatorin tai Microsoft Authenticatorin.
+                  </p>
+                  <button
+                    type="button"
+                    className={styles.primaryBtn}
+                    onClick={() => void beginMfaEnrollment()}
+                    disabled={mfaChecking}
+                  >
+                    {mfaChecking ? "Valmistellaan..." : "Yhdistä Authenticator"}
+                  </button>
+                </>
+              )}
+
+              {mfaMode === "enroll-verify" && mfaEnrollment && (
+                <>
+                  <p>Skannaa tämä QR-koodi puhelimen Authenticator-sovelluksella.</p>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <Image
+                      src={getAuthenticatorQrSource(mfaEnrollment.qrCode)}
+                      alt="Maskines Admin Authenticator QR-koodi"
+                      width={220}
+                      height={220}
+                      unoptimized
+                      style={{ background: "white", borderRadius: 12, padding: 8 }}
+                    />
+                  </div>
+                  <p style={{ margin: 0, fontSize: "0.85rem" }}>
+                    Jos skannaus ei onnistu, syötä tämä avain käsin:<br />
+                    <code style={{ wordBreak: "break-all", userSelect: "all" }}>{mfaEnrollment.secret}</code>
+                  </p>
+                </>
+              )}
+
+              {(mfaMode === "challenge" || mfaMode === "enroll-verify") && (
+                <>
+                  <p>
+                    Avaa Authenticator puhelimessa ja anna uusi kuusinumeroinen koodi.
+                    Koodi vaihtuu noin 30 sekunnin välein.
+                  </p>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    value={mfaCode}
+                    onChange={(event) => {
+                      setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6));
+                      setMfaError("");
+                    }}
+                    onKeyDown={(event) => { if (event.key === "Enter") void submitMfaCode(); }}
+                    aria-label="Authenticator-koodi"
+                    className={styles.searchInput}
+                    style={{ fontSize: "1.2rem", letterSpacing: "0.3em", textAlign: "center" }}
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    className={styles.primaryBtn}
+                    onClick={() => void submitMfaCode()}
+                    disabled={mfaChecking || mfaCode.length !== 6}
+                  >
+                    {mfaChecking ? "Tarkistetaan..." : "Vahvista ja avaa admin"}
+                  </button>
+                </>
+              )}
+
+              {mfaMode === "error" && (
+                <button type="button" className={styles.primaryBtn} onClick={() => window.location.reload()}>
+                  Yritä uudelleen
+                </button>
+              )}
+
+              {mfaError && (
+                <span style={{ color: "#ef4444", fontWeight: 900, fontSize: "0.9rem" }}>
+                  {mfaError}
+                </span>
+              )}
+            </div>
           </div>
         )}
 
-        {!bootLoading && isAdmin && pinUnlocked && (
+        {!bootLoading && isAdmin && mfaUnlocked && (
           <>
             {activeTab === "overview" && (
               <>
