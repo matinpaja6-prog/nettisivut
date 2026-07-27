@@ -1081,3 +1081,16 @@ html body header.universal-app-topbar.universal-auth-topbar .universal-language-
     left: max(8px, env(safe-area-inset-left)) !important;
   }
 }
+
+/* Auth never offers a language action. This also prevents the control from
+   flashing while the auth route is mounting. */
+html body:has(main.simple-auth-page) header.universal-app-topbar .universal-language-wrap {
+  display: none !important;
+}
+
+/* If an old auth class survives a client transition for one render, the real
+   page surface wins and restores the complete home/guest action row. */
+html body:not(:has(main.simple-auth-page)) header.universal-app-topbar.universal-auth-topbar .universal-home-primary-nav,
+html body:not(:has(main.simple-auth-page)) header.universal-app-topbar.universal-auth-topbar .rebuilt-login-button {
+  display: flex !important;
+}

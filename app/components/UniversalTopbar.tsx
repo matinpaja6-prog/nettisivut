@@ -327,6 +327,8 @@ export default function UniversalTopbar() {
     typeof window !== "undefined"
       ? window.location.pathname || pathname
       : pathname;
+  const canonicalPathname = canonicalPathFromLocalized(activePathname);
+  const isAuthRoute = canonicalPathname === "/auth";
   const { t, locale } = useLanguage();
   const taxonomy = useTaxonomy();
   const ui = topbarText[locale] ?? topbarText.fi;
@@ -349,12 +351,28 @@ export default function UniversalTopbar() {
   const [sellerLevelStats, setSellerLevelStats] = useState<SellerLevelStats>(emptySellerLevelStats);
   const [topbarDropdownOpen, setTopbarDropdownOpen] = useState<TopbarDropdownKey>(null);
   const [topbarDropdownRect, setTopbarDropdownRect] = useState<DOMRect | null>(null);
+  const [authSurfaceActive, setAuthSurfaceActive] = useState(isAuthRoute);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuOverlayRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
   const garageMenuRef = useRef<HTMLDivElement>(null);
   const topbarDropdownRef = useRef<HTMLDivElement>(null);
   const topbarDropdownPortalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const syncAuthSurface = () => {
+      const browserPath = canonicalPathFromLocalized(window.location.pathname || "/");
+      const hasAuthSurface = Boolean(document.querySelector("main.simple-auth-page"));
+      setAuthSurfaceActive(browserPath === "/auth" && hasAuthSurface);
+    };
+
+    syncAuthSurface();
+
+    const observer = new MutationObserver(syncAuthSurface);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, [pathname]);
 
   const partNavigationItems = useMemo(
     () => taxonomy.categories.map((category) => category.key).filter(Boolean),
@@ -790,9 +808,8 @@ export default function UniversalTopbar() {
   const hasNotifications = notificationItemCount > 0;
   const hasNotificationItems =
     visibleReviewRequests.length + visibleAlertNotifications.length + visibleUnreadConversations.length > 0;
-  const canonicalPathname = canonicalPathFromLocalized(activePathname);
   const isHomePage = canonicalPathname === "/";
-  const isAuthPage = canonicalPathname === "/auth";
+  const isAuthPage = isAuthRoute && authSurfaceActive;
   const controlsLocked = !authChecked;
   const sellerLevel = calculateSellerLevel(sellerLevelStats);
   const sellerLevelTooltip = sellerLevel.maxLevel
@@ -1387,9 +1404,11 @@ export default function UniversalTopbar() {
     <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}${isAuthPage ? " universal-auth-topbar" : ""}`}>
       {primaryNavigation}
       <nav className={`universal-topbar-actions${!userId ? " universal-topbar-actions-guest" : ""}`} aria-label={ui.quickActions}>
-        <div className="universal-language-wrap">
-          <LanguageSwitcher />
-        </div>
+        {!isAuthPage ? (
+          <div className="universal-language-wrap">
+            <LanguageSwitcher />
+          </div>
+        ) : null}
         {!isAuthPage && (!userId ? (
           <Link href={authHref} className="rebuilt-login-button rebuilt-login-button-guest">
             <LockKeyhole size={17} aria-hidden="true" />
