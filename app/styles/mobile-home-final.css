@@ -61,11 +61,19 @@
   }
 
   html body .universal-home-topbar .universal-language-wrap {
-    display: none !important;
+    align-items: center !important;
+    display: inline-flex !important;
+    flex: 0 0 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
   }
 
   html body .universal-home-topbar .language-switcher {
-    display: none !important;
+    display: inline-flex !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    min-width: 42px !important;
+    width: 42px !important;
   }
 
   html body .universal-home-topbar .language-switcher span[aria-hidden="true"],

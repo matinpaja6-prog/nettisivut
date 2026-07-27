@@ -104,10 +104,14 @@
     width: max-content !important;
   }
 
-  html body header.universal-app-topbar.universal-home-topbar .universal-create-button,
+  html body header.universal-app-topbar.universal-home-topbar .universal-create-button {
+    display: none !important;
+  }
+
   html body header.universal-app-topbar.universal-home-topbar .universal-language-wrap,
   html body header.universal-app-topbar.universal-home-topbar .language-switcher {
-    display: none !important;
+    align-items: center !important;
+    display: inline-flex !important;
   }
 
   html body header.universal-app-topbar.universal-home-topbar .universal-home-brand {

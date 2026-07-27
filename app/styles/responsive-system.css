@@ -954,6 +954,30 @@ html body header.universal-app-topbar.universal-auth-topbar .universal-home-prim
   display: none !important;
 }
 
+/* The language selector is a permanent topbar action for guests and signed-in
+   users. Keep this last so older page-specific header rules cannot hide it. */
+html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap,
+html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap > [data-global-language-menu] {
+  align-items: center !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+}
+
+html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap .language-switcher {
+  align-items: center !important;
+  display: inline-flex !important;
+  height: 42px !important;
+  justify-content: center !important;
+  min-height: 42px !important;
+  min-width: 42px !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  width: 42px !important;
+}
+
 html body header.universal-app-topbar.universal-auth-topbar .universal-topbar-actions {
   align-items: center !important;
   display: flex !important;
