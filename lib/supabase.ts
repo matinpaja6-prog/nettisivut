@@ -2225,28 +2225,28 @@ export async function createListing(
     });
     delete listingPayload.user_id;
 
-    let result = await supabase
-      .from("listings")
-      .insert({
-
-        ...listingPayload,
-
-        seller_id: user.id
-
-      })
-      .select()
-      .single<Listing>();
-
-    if (hasMissingListingColumns(result.error)) {
-      const fallbackPayload = { ...listingPayload };
-      delete fallbackPayload.original_language;
-      delete fallbackPayload.translations;
-      delete fallbackPayload.part_number;
-      delete fallbackPayload.part_model;
-      delete fallbackPayload.listing_mode;
-      delete fallbackPayload.vehicle_subtype;
-
-      result = await supabase
+    const fallbackPayload = { ...listingPayload };
+    const removableOptionalColumns = new Set([
+      "original_language",
+      "translations",
+      "part_number",
+      "part_model",
+      "listing_mode",
+      "vehicle_subtype",
+      "engine_cc",
+      "engine_model",
+      "image_urls",
+      "seller_avatar_url",
+      "company_name",
+      "seller_phone",
+      "view_count",
+      "is_sold",
+      "is_hidden",
+      "sold_price",
+      "sold_at"
+    ]);
+    const insertListingPayload = () =>
+      supabase
         .from("listings")
         .insert({
           ...fallbackPayload,
@@ -2254,6 +2254,17 @@ export async function createListing(
         })
         .select()
         .single<Listing>();
+
+    let result = await insertListingPayload();
+
+    for (let attempt = 0; attempt < removableOptionalColumns.size && hasMissingListingColumns(result.error); attempt += 1) {
+      const missingColumn = getMissingListingColumnName(result.error);
+      if (!missingColumn || !removableOptionalColumns.has(missingColumn) || !(missingColumn in fallbackPayload)) {
+        break;
+      }
+
+      delete (fallbackPayload as Record<string, unknown>)[missingColumn];
+      result = await insertListingPayload();
     }
 
     if (result.data?.id) {
@@ -2290,6 +2301,25 @@ function hasMissingListingColumns(error: unknown) {
   );
 }
 
+function getMissingListingColumnName(error: unknown) {
+  const message =
+    error && typeof error === "object" && "message" in error
+      ? String((error as { message?: unknown }).message ?? "")
+      : "";
+  const patterns = [
+    /Could not find the ['"]([^'"]+)['"] column/i,
+    /column ['"]([^'"]+)['"] (?:of relation ['"][^'"]+['"] )?does not exist/i,
+    /column (?:[a-zA-Z0-9_]+\.)?([a-zA-Z0-9_]+) does not exist/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = message.match(pattern);
+    if (match?.[1]) return match[1];
+  }
+
+  return null;
+}
+
 function isMissingDatabaseRoutine(error: unknown) {
   const message =
     error && typeof error === "object" && "message" in error
@@ -2322,9 +2352,10 @@ function withInitialListingTranslations<T extends {
   return {
     ...listing,
     original_language: sourceLanguage,
-    translations:
-      listing.translations ??
-      buildOriginalTranslations(listing, sourceLanguage)
+    translations: {
+      ...buildOriginalTranslations(listing, sourceLanguage),
+      ...(listing.translations ?? {})
+    }
   };
 }
 

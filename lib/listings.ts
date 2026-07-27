@@ -136,7 +136,12 @@ export type ListingTranslation = {
 
 export type ListingTranslations = Partial<
   Record<"fi" | "en" | "sv", ListingTranslation>
->;
+> & {
+  _meta?: {
+    publication_group_id?: string | null;
+    listing_mode?: "single" | "multiple" | null;
+  };
+};
 
 export type ListingInput = Omit<
   Listing,

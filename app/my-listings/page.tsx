@@ -247,6 +247,19 @@ function getVehicleGroupKey(
   return key.replace(/\|/g, "") ? key : "";
 }
 
+function getListingPublicationGroupId(listing: Pick<Listing, "translations">) {
+  const groupId = listing.translations?._meta?.publication_group_id;
+  return typeof groupId === "string" ? groupId.trim() : "";
+}
+
+function isMultiListing(listing: Pick<Listing, "listing_mode" | "translations">) {
+  return (
+    listing.listing_mode === "multiple" ||
+    listing.translations?._meta?.listing_mode === "multiple" ||
+    Boolean(getListingPublicationGroupId(listing))
+  );
+}
+
 function getVehicleGroupTitle(
   item: Pick<Listing | SoldListing, "title" | "brand" | "model" | "year" | "vehicle_type">
 ) {
@@ -1476,52 +1489,117 @@ export default function MyListingsPage() {
   const multiGroups = useMemo(() => {
     if (activeTab === "hidden") return [];
 
-    const groupMap = new Map<string, {
+    type MultiGroup = {
       key: string;
+      vehicleKey: string;
       title: string;
       active: Listing[];
       sold: SoldListing[];
       completed: boolean;
       hasMultiListing: boolean;
       latestAt: string;
-    }>();
+    };
 
-    for (const listing of filteredListings) {
-      if (listing.listing_mode !== "multiple") continue;
+    const groupMap = new Map<string, MultiGroup>();
+    const legacyCandidates = new Map<string, Listing[]>();
 
-      const key = getVehicleGroupKey(listing);
-      if (!key) continue;
+    const addActiveListing = (key: string, vehicleKey: string, listing: Listing) => {
       const group = groupMap.get(key) ?? {
         key,
+        vehicleKey,
         title: getVehicleGroupTitle(listing),
         active: [],
         sold: [],
         completed: false,
-        hasMultiListing: listing.listing_mode === "multiple",
+        hasMultiListing: true,
         latestAt: listing.created_at || ""
       };
       group.active.push(listing);
-      group.hasMultiListing ||= listing.listing_mode === "multiple";
       if ((listing.created_at || "") > group.latestAt) group.latestAt = listing.created_at || "";
       groupMap.set(key, group);
+    };
+
+    for (const listing of filteredListings) {
+      const vehicleKey = getVehicleGroupKey(listing);
+      if (!vehicleKey) continue;
+
+      if (isMultiListing(listing)) {
+        const publicationGroupId = getListingPublicationGroupId(listing);
+        const key = publicationGroupId
+          ? `publication:${publicationGroupId}`
+          : `vehicle:${vehicleKey}`;
+        addActiveListing(key, vehicleKey, listing);
+        continue;
+      }
+
+      const candidates = legacyCandidates.get(vehicleKey) ?? [];
+      candidates.push(listing);
+      legacyCandidates.set(vehicleKey, candidates);
+    }
+
+    const legacyBatchWindowMs = 15 * 60 * 1000;
+    for (const [vehicleKey, candidates] of legacyCandidates.entries()) {
+      const sortedCandidates = candidates
+        .slice()
+        .sort((a, b) => (a.created_at || "").localeCompare(b.created_at || ""));
+      let batch: Listing[] = [];
+
+      const flushLegacyBatch = () => {
+        if (batch.length < 2) {
+          batch = [];
+          return;
+        }
+
+        const batchAnchor = batch[0]?.created_at || batch[0]?.id || "legacy";
+        const key = `legacy:${vehicleKey}:${batchAnchor}`;
+        batch.forEach((listing) => addActiveListing(key, vehicleKey, listing));
+        batch = [];
+      };
+
+      for (const listing of sortedCandidates) {
+        const previous = batch.at(-1);
+        const previousTime = previous ? new Date(previous.created_at).getTime() : Number.NaN;
+        const currentTime = new Date(listing.created_at).getTime();
+
+        if (
+          previous &&
+          (
+            Number.isNaN(previousTime) ||
+            Number.isNaN(currentTime) ||
+            currentTime - previousTime > legacyBatchWindowMs
+          )
+        ) {
+          flushLegacyBatch();
+        }
+
+        batch.push(listing);
+      }
+
+      flushLegacyBatch();
     }
 
     for (const sold of soldListings) {
       if (sold.listing_mode !== "multiple") continue;
 
-      const key = getVehicleGroupKey(sold);
-      if (!key) continue;
+      const vehicleKey = getVehicleGroupKey(sold);
+      if (!vehicleKey) continue;
+      const matchingActiveGroups = Array.from(groupMap.values()).filter(
+        (group) => group.vehicleKey === vehicleKey && group.active.length > 0
+      );
+      const key = matchingActiveGroups.length === 1
+        ? matchingActiveGroups[0].key
+        : `vehicle:${vehicleKey}`;
       const group = groupMap.get(key) ?? {
         key,
+        vehicleKey,
         title: getVehicleGroupTitle(sold),
         active: [],
         sold: [],
         completed: false,
-        hasMultiListing: sold.listing_mode === "multiple",
+        hasMultiListing: true,
         latestAt: sold.sold_at || sold.created_at || ""
       };
       group.sold.push(sold);
-      group.hasMultiListing ||= sold.listing_mode === "multiple";
       const soldAt = sold.sold_at || sold.created_at || "";
       if (soldAt > group.latestAt) group.latestAt = soldAt;
       groupMap.set(key, group);
@@ -1540,6 +1618,12 @@ export default function MyListingsPage() {
       })
       .sort((a, b) => b.latestAt.localeCompare(a.latestAt));
   }, [activeTab, dismissedCompletedGroupKeys, filteredListings, soldListings]);
+
+  const groupedListingIds = useMemo(() => {
+    const ids = new Set<string>();
+    multiGroups.forEach((group) => group.active.forEach((listing) => ids.add(listing.id)));
+    return ids;
+  }, [multiGroups]);
 
   const collapsedGroupedListingIds = useMemo(() => {
     const ids = new Set<string>();
@@ -2320,7 +2404,9 @@ export default function MyListingsPage() {
                         <div className={styles.rowBody}>
                           <div className={styles.rowBadges}>
                             <span className={styles.listingTypePill}>
-                              Yksittäinen ilmoitus
+                              {groupedListingIds.has(listing.id)
+                                ? "Multi-ilmoituksen osa"
+                                : "Yksittäinen ilmoitus"}
                             </span>
 
                             {(listing.subcategory || listing.category) && (

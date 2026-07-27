@@ -3859,3 +3859,14 @@
     radial-gradient(520px 160px at 16% 0%, rgba(64, 216, 255, 0.16), transparent 72%),
     linear-gradient(135deg, rgba(5, 27, 52, 0.8) 0%, rgba(4, 19, 38, 0.48) 100%) !important;
 }
+
+/* Keep the desktop management header, stats and listing folder on one line. */
+@media (min-width: 901px) {
+  .header,
+  .stats,
+  .panel {
+    box-sizing: border-box !important;
+    max-width: 1240px !important;
+    width: 100% !important;
+  }
+}

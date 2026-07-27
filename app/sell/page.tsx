@@ -3789,7 +3789,11 @@ function SellPageContent() {
     );
   }
 
-  function buildListingPayload(part?: MultiPartSelection, imageUrls?: string[]): ListingInput {
+  function buildListingPayload(
+    part?: MultiPartSelection,
+    imageUrls?: string[],
+    publicationGroupId = ""
+  ): ListingInput {
     const price = getPublishPrice(part?.price ?? listingPrice);
     const title = part
       ? part.title.trim() || getAutomaticListingTitle(part)
@@ -3805,7 +3809,14 @@ function SellPageContent() {
     return {
       title,
       original_language: "fi",
-      translations: null,
+      translations: publicationGroupId
+        ? {
+            _meta: {
+              publication_group_id: publicationGroupId,
+              listing_mode: "multiple"
+            }
+          }
+        : null,
       listing_mode: mode,
       price,
       vehicle_type: vehicleType.title,
@@ -3889,6 +3900,10 @@ function SellPageContent() {
     setIsPublishing(true);
 
     try {
+      const publicationGroupId =
+        mode === "multiple"
+          ? globalThis.crypto?.randomUUID?.() ?? `multi-${Date.now()}-${Math.random().toString(36).slice(2)}`
+          : "";
       const listingParts =
         mode === "multiple"
           ? selectedMultiPartList.filter((part) =>
@@ -3898,7 +3913,7 @@ function SellPageContent() {
             )
           : [undefined];
       const draftPayloads =
-        listingParts.map((part) => buildListingPayload(part));
+        listingParts.map((part) => buildListingPayload(part, undefined, publicationGroupId));
 
       if (draftPayloads.length === 0) {
         setPublishError(
@@ -3936,7 +3951,7 @@ function SellPageContent() {
         const imageUrls = await uploadListingImages(
           part ? part.images : uploadedImages
         );
-        const payload = buildListingPayload(part, imageUrls);
+        const payload = buildListingPayload(part, imageUrls, publicationGroupId);
         const { data, error } = await createListing(payload);
         if (error || !data) {
           setPublishError(getErrorMessage(error));
