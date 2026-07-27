@@ -12,11 +12,9 @@ import { useLanguage, type Locale } from "@/lib/i18n";
 import { sanitizePhoneDigits, sanitizePhoneInput } from "@/lib/phone-input";
 import { canonicalPathFromLocalized, pagePath, profileRootPath } from "@/lib/routes";
 import {
-  awardReferralPoints,
   getSafeAuthSession,
   getSafeAuthUser,
   getProfile,
-  getReferrerIdByCode,
   isProfileCompleted,
   isSupabaseConfigured,
   resetPassword,
@@ -31,7 +29,6 @@ import {
   type UserProfile
 } from "@/lib/supabase";
 
-const REFERRAL_STORAGE_KEY = "pending_referral_code";
 const GOOGLE_AUTH_INTENT_STORAGE_KEY = "pending_google_auth_intent";
 const PROFILE_COMPLETION_DRAFT_STORAGE_KEY = "profile_completion_draft_v1";
 const REGISTRATION_PIN_COOLDOWN_STORAGE_KEY = "registration_pin_sent_at_v1";
@@ -596,18 +593,6 @@ function AuthPageContent() {
     return () => window.clearTimeout(timeoutId);
   }, [authSubmitting]);
 
-  // Capture ?ref=CODE from URL once
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const ref = params.get("ref");
-      if (ref) {
-        localStorage.setItem(REFERRAL_STORAGE_KEY, ref.trim().toLowerCase());
-      }
-    } catch {}
-  }, []);
-
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -750,41 +735,6 @@ function AuthPageContent() {
     };
   }, [form.account_type, locale]);
 
-  // Try to award referral points when a logged-in user lands here with pending code
-  async function tryClaimReferral(userId: string) {
-    if (typeof window === "undefined") return;
-    let code: string | null = null;
-    try {
-      code = localStorage.getItem(REFERRAL_STORAGE_KEY);
-    } catch {}
-    console.log("[Referral] Checking pending code:", code);
-    if (!code) return;
-
-    const referrerId = await getReferrerIdByCode(code);
-    console.log("[Referral] Resolved referrer id for code", code, "→", referrerId);
-
-    if (!referrerId) {
-      console.warn("[Referral] No user found for code", code, "— SQL may not be set up.");
-      try { localStorage.removeItem(REFERRAL_STORAGE_KEY); } catch {}
-      return;
-    }
-    if (referrerId === userId) {
-      console.warn("[Referral] Self-referral blocked.");
-      try { localStorage.removeItem(REFERRAL_STORAGE_KEY); } catch {}
-      return;
-    }
-    const result = await awardReferralPoints(referrerId, userId, 100);
-    console.log("[Referral] Award result:", result);
-    try { localStorage.removeItem(REFERRAL_STORAGE_KEY); } catch {}
-    if (result.success) {
-      setStatus(t.authReferralSuccess);
-    } else if (result.error === "already_referred") {
-      console.log("[Referral] User already has a referrer.");
-    } else {
-      console.error("[Referral] Failed to award points:", result.error);
-    }
-  }
-
   useEffect(() => {
     if (!supabase) return;
 
@@ -822,7 +772,6 @@ function AuthPageContent() {
             clearGoogleAuthIntent();
             replaceAuthModeUrl(authPagePath, "login");
             setUser(sessionUser);
-            void tryClaimReferral(sessionUser.id);
           }).catch(() => {
             clearGoogleAuthIntent();
             setUser(null);
@@ -839,9 +788,6 @@ function AuthPageContent() {
         }
 
         setUser(sessionUser);
-        if (sessionUser) {
-          void tryClaimReferral(sessionUser.id);
-        }
         if (
           typeof window !== "undefined" &&
           window.location.hash.includes("type=recovery")
@@ -1060,9 +1006,6 @@ function AuthPageContent() {
     try {
       sessionStorage.removeItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY);
     } catch {}
-    // Final chance to claim referral (covers email-confirmation signups
-    // where the session arrived after the initial useEffect)
-    await tryClaimReferral(targetUser.id);
     setStatus(t.authProfileSavedMsg);
     setAuthSubmitting(false);
     router.push(form.account_type === "company" ? `${profilePagePath}#yritys` : "/");
@@ -1163,7 +1106,6 @@ function AuthPageContent() {
     setRegistrationPin("");
     setRegistrationPinEmail("");
     setUser(freshUser);
-    void tryClaimReferral(freshUser.id);
     await saveProfile(freshUser);
   }
 

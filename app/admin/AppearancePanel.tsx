@@ -43,8 +43,6 @@ const QUICK_LINKS: { value: string; label: string }[] = [
   { value: "/garage", label: "Talli" },
   { value: "/saved", label: "Tallennetut" },
   { value: "/messages", label: "Viestit" },
-  { value: "/rewards", label: "Palkinnot" },
-  { value: "/shop", label: "Kauppa" },
   { value: "/sell", label: "Myy" },
   { value: "/notifications", label: "Ilmoitukset" },
   { value: "/legal/privacy", label: "Tietosuoja" },

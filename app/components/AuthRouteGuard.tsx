@@ -11,8 +11,6 @@ const protectedExactPaths = new Set([
   "/my-listings",
   "/saved",
   "/followed",
-  "/rewards",
-  "/shop",
   "/search-alerts",
   "/profile"
 ]);

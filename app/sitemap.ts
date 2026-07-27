@@ -9,7 +9,6 @@ export const revalidate = 3_600;
 const PUBLIC_STATIC_PATHS = [
   "/",
   "/ilmoitukset",
-  pagePath("shop", "fi"),
   pagePath("about", "fi"),
   pagePath("contact", "fi"),
   pagePath("faq", "fi"),

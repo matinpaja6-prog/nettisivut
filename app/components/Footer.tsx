@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, pagePath } from "@/lib/routes";
 
@@ -15,7 +14,6 @@ const footerText = {
     home: "Etusivu",
     sell: "Myy osa",
     garage: "Talli",
-    rewards: "Palkinnot",
     company: "Yritys",
     about: "Meistä",
     contact: "Ota yhteyttä",
@@ -37,7 +35,6 @@ const footerText = {
     home: "Home",
     sell: "Sell part",
     garage: "Garage",
-    rewards: "Rewards",
     company: "Company",
     about: "About us",
     contact: "Contact",
@@ -59,7 +56,6 @@ const footerText = {
     home: "Hem",
     sell: "Sälj del",
     garage: "Garage",
-    rewards: "Belöningar",
     company: "Företag",
     about: "Om oss",
     contact: "Kontakt",
@@ -286,7 +282,6 @@ export default function Footer() {
               <li><Link href="/">{text.home}</Link></li>
               <li><Link href={pagePath("sell", locale)}>{text.sell}</Link></li>
               <li><Link href={pagePath("garage", locale)}>{text.garage}</Link></li>
-              {FEATURE_FLAGS.rewardsAndShop ? <li><Link href={pagePath("rewards", locale)}>{text.rewards}</Link></li> : null}
             </ul>
           </div>
 

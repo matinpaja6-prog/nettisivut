@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Award, Bell, Car, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, MessageCircle, Plus, Search, SlidersHorizontal, Store, UserRound, Users, Wrench } from "lucide-react";
+import { Bell, Car, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, MessageCircle, Plus, Search, SlidersHorizontal, UserRound, Users, Wrench } from "lucide-react";
 import {
   CHAT_NOTIFICATIONS_CHANGED_EVENT,
   getPendingPurchaseReviewRequests,
@@ -21,7 +21,6 @@ import {
   type GarageVehicle,
   type PurchaseReviewRequest,
 } from "@/lib/supabase";
-import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profileRootPath, translateLocalizedPath } from "@/lib/routes";
 
@@ -60,8 +59,6 @@ export default function BottomNav() {
   const garageHref = pagePath("garage", locale);
   const savedHref = pagePath("saved", locale);
   const followedHref = pagePath("followed", locale);
-  const rewardsHref = pagePath("rewards", locale);
-  const shopHref = pagePath("shop", locale);
   const searchAlertsHref = pagePath("search-alerts", locale);
   const contactHref = pagePath("contact", locale);
   const [notifCount, setNotifCount] = useState(0);
@@ -549,12 +546,6 @@ export default function BottomNav() {
                 <Link href={messagesHref}   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Mail size={18} />{t.messages}</Link>
                 <Link href={savedHref}      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Heart size={18} />{t.savedListings}</Link>
                 <Link href={followedHref}   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Users size={18} />Seuratut</Link>
-                {FEATURE_FLAGS.rewardsAndShop ? (
-                  <>
-                    <Link href={rewardsHref}    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Award size={18} />{t.rewards}</Link>
-                    <Link href={shopHref}      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Store size={18} />{t.shop}</Link>
-                  </>
-                ) : null}
                 <div className="bn-sheet-divider" />
                 <div className="bn-sheet-lang">
                   {LOCALES.map((loc) => (

@@ -12,7 +12,6 @@ const fogSeeds = [
   "image_slot_decoy_ring",
   "profile_sync_false_path",
   "message_queue_sand_table",
-  "reward_nonce_blind_index",
   "vehicle_hint_dead_leaf",
   "search_alert_dummy_stride"
 ];

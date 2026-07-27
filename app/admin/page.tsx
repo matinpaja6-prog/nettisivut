@@ -37,7 +37,6 @@ import { listingPath, listingUrlId } from "@/lib/routes";
 
 import {
   adminAdjustPhoneVerifications,
-  adminAdjustListingSlots,
   adminBanIp,
   adminBanUser,
   adminDeleteListing,
@@ -46,7 +45,6 @@ import {
   adminListBannedIps,
   adminListProfiles,
   adminOverviewStats,
-  adminSetPoints,
   adminSetCompanyVerified,
   adminUnbanIp,
   adminUnbanUser,
@@ -59,8 +57,6 @@ import {
   type AdminProfileRow,
   type SensitiveAdminAction
 } from "@/lib/supabase";
-
-import { BASE_LISTING_SLOT_LIMIT } from "@/lib/listing-slots";
 
 import styles from "./admin.module.css";
 
@@ -129,14 +125,6 @@ type ConfirmState =
     }
   | {
       kind: "verify-phone";
-      user: AdminProfileRow;
-    }
-  | {
-      kind: "set-points";
-      user: AdminProfileRow;
-    }
-  | {
-      kind: "set-slots";
       user: AdminProfileRow;
     }
   | {
@@ -634,27 +622,6 @@ export default function AdminPage() {
     setConfirm(null);
   };
 
-  const handleSetPoints = async (user: AdminProfileRow, value: number) => {
-    const { error } = await adminSetPoints(user.id, value);
-    if (error) { showError("Pisteiden asetus epäonnistui."); return; }
-    showOk("Pisteet päivitetty.");
-    setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, points: value } : u));
-    setConfirm(null);
-  };
-
-  const handleSetSlots = async (user: AdminProfileRow, value: number) => {
-    const delta = value - (user.extra_listing_slots ?? 0);
-    const { data, error } = await adminAdjustListingSlots(user.id, delta);
-    if (error) {
-      const errObj = error as { message?: string };
-      showError(`Paikkojen asetus: ${errObj?.message || "epäonnistui"}`);
-      return;
-    }
-    showOk("Ilmoituspaikat päivitetty.");
-    setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, extra_listing_slots: data ?? value } : u));
-    setConfirm(null);
-  };
-
   const handleAdjustPhoneVerifications = async (user: AdminProfileRow, delta: number) => {
     const { data, error } = await adminAdjustPhoneVerifications(user.id, delta);
     if (error) {
@@ -1088,8 +1055,6 @@ export default function AdminPage() {
           onDeleteUser={handleDeleteUser}
           onBanUser={handleToggleBan}
           onVerifyPhone={handleVerifyPhone}
-          onSetPoints={handleSetPoints}
-          onSetSlots={handleSetSlots}
           onUpdateProfile={handleUpdateProfile}
           onBanIp={handleBanIp}
         />
@@ -1643,7 +1608,7 @@ function DashboardOverviewPanel({ stats }: {
    USERS PANEL
 ================================================================= */
 
-type UserActionKind = "delete-user" | "ban-user" | "verify-phone" | "set-points" | "set-slots" | "edit-profile" | "view-profile";
+type UserActionKind = "delete-user" | "ban-user" | "verify-phone" | "edit-profile" | "view-profile";
 
 function UsersPanel({
   users,
@@ -1741,9 +1706,7 @@ function UsersPanel({
               <tr>
                 <th>Nimi</th>
                 <th>Sähköposti</th>
-                <th>Pisteet</th>
                 <th>Vahvistukset</th>
-                <th>Paikat</th>
                 <th>Tila</th>
                 <th>Liittynyt</th>
                 <th style={{ textAlign: "right" }}>Toiminnot</th>
@@ -1823,7 +1786,6 @@ function UserTableRow({
   const phoneVerified = Boolean(u.phone_verified_at);
   const verifyClass =
     !phoneVerified ? "danger" : verifyCount >= verifyMax ? "warn" : "ok";
-  const slots = BASE_LISTING_SLOT_LIMIT + (u.extra_listing_slots ?? 0);
   const displayName =
     u.full_name || [u.first_name, u.last_name].filter(Boolean).join(" ") || "Tuntematon";
   const ip = u.last_ip || u.last_seen_ip;
@@ -1851,13 +1813,11 @@ function UserTableRow({
           {u.ip_count ? ` · ${u.ip_count} osumaa` : ""}
         </small>
       </td>
-      <td><strong>{u.points}</strong></td>
       <td>
         <span className={`${styles.verifyText} ${styles[verifyClass]}`}>
           {verifyCount}/{verifyMax}
         </span>
       </td>
-      <td><strong>{slots}</strong>{(u.extra_listing_slots ?? 0) > 0 && <small style={{ color: "#94a3b8", marginLeft: 4 }}>(+{u.extra_listing_slots})</small>}</td>
       <td>
         {u.is_banned ? (
           <span className={`${styles.statusPill} ${styles.statusBanned}`}>Bannattu</span>
@@ -1899,20 +1859,6 @@ function UserTableRow({
               onClick={() => { setMenuOpen(false); onAction("edit-profile", u); }}
             >
               <UserCog size={14} /> Muokkaa
-            </button>
-            <button
-              type="button"
-              className={styles.actionMenuItem}
-              onClick={() => { setMenuOpen(false); onAction("set-points", u); }}
-            >
-              <Euro size={14} /> Aseta pisteet
-            </button>
-            <button
-              type="button"
-              className={styles.actionMenuItem}
-              onClick={() => { setMenuOpen(false); onAction("set-slots", u); }}
-            >
-              <ClipboardList size={14} /> Ilmoituspaikat
             </button>
             <button
               type="button"
@@ -2376,8 +2322,6 @@ function ConfirmDialogs({
   onDeleteUser,
   onBanUser,
   onVerifyPhone,
-  onSetPoints,
-  onSetSlots,
   onUpdateProfile,
   onBanIp
 }: {
@@ -2387,15 +2331,11 @@ function ConfirmDialogs({
   onDeleteUser: (user: AdminProfileRow) => void;
   onBanUser: (user: AdminProfileRow, reason?: string) => void;
   onVerifyPhone: (user: AdminProfileRow, newPhone?: string) => void;
-  onSetPoints: (user: AdminProfileRow, value: number) => void;
-  onSetSlots: (user: AdminProfileRow, value: number) => void;
   onUpdateProfile: (user: AdminProfileRow, updates: Record<string, string>) => void;
   onBanIp: (ip: string, reason?: string) => void;
 }) {
   const [reason, setReason] = useState("");
   const [phone, setPhone] = useState("");
-  const [points, setPoints] = useState("");
-  const [slots, setSlots] = useState("");
   const [ipAddress, setIpAddress] = useState("");
   const [editFirst, setEditFirst] = useState("");
   const [editLast, setEditLast] = useState("");
@@ -2410,12 +2350,7 @@ function ConfirmDialogs({
   useEffect(() => {
     setReason("");
     setPhone("");
-    setPoints("");
-    setSlots("");
     setIpAddress(state && state.kind === "ban-ip" ? (state.prefillIp ?? "") : "");
-    if (state && "user" in state && state.kind === "set-slots") {
-      setSlots(String(BASE_LISTING_SLOT_LIMIT + (state.user.extra_listing_slots ?? 0)));
-    }
     if (state && "user" in state && state.kind === "edit-profile") {
       setEditFirst(state.user.first_name ?? "");
       setEditLast(state.user.last_name ?? "");
@@ -2425,9 +2360,6 @@ function ConfirmDialogs({
       setEditBirthDate("");
       setEditBusinessId(state.user.business_id ?? "");
       setEditCompanyName(state.user.company_name ?? "");
-    }
-    if (state && "user" in state && state.kind === "set-points") {
-      setPoints(String(state.user.points));
     }
     if (state && "user" in state && state.kind === "verify-phone") {
       setPhone(state.user.phone ?? "");
@@ -2463,8 +2395,6 @@ function ConfirmDialogs({
           ["Bio", state.user.bio],
           ["IP", state.user.last_ip || state.user.last_seen_ip],
           ["IP-osumat", state.user.ip_count ? String(state.user.ip_count) : null],
-          ["Pisteet", String(state.user.points)],
-          ["Ilmoituspaikat", String(BASE_LISTING_SLOT_LIMIT + (state.user.extra_listing_slots ?? 0))],
           ["Puhelin vahvistettu", state.user.phone_verified_at ? formatDate(state.user.phone_verified_at) : null],
           ["Vahvistukset", `${state.user.phone_verification_count}/${2 + (state.user.extra_phone_verifications ?? 0)}`],
           ["Bannattu", state.user.is_banned ? "Kyllä" : "Ei"],
@@ -2567,72 +2497,6 @@ function ConfirmDialogs({
               <button type="button" className={styles.ghostBtn} onClick={onClose}>Peruuta</button>
               <button type="button" className={styles.primaryBtn} onClick={() => onVerifyPhone(state.user, phone.trim() || undefined)}>
                 <BadgeCheck size={14} /> Vahvista
-              </button>
-            </div>
-          </>
-        )}
-
-        {state.kind === "set-points" && (
-          <>
-            <h3>Aseta pisteet</h3>
-            <p>Nykyiset pisteet: {state.user.points}</p>
-            <label>
-              Uusi pistemäärä
-              <input
-                type="number"
-                value={points}
-                onChange={(e) => setPoints(e.target.value)}
-                min={0}
-              />
-            </label>
-            <div className={styles.modalActions}>
-              <button type="button" className={styles.ghostBtn} onClick={onClose}>Peruuta</button>
-              <button
-                type="button"
-                className={styles.primaryBtn}
-                onClick={() => {
-                  const value = Number.parseInt(points, 10);
-                  if (Number.isNaN(value) || value < 0) return;
-                  onSetPoints(state.user, value);
-                }}
-              >
-                Tallenna
-              </button>
-            </div>
-          </>
-        )}
-
-        {state.kind === "set-slots" && (
-          <>
-            <h3>Aseta ilmoituspaikat</h3>
-            <p>
-              Nykyiset paikat: <strong>{BASE_LISTING_SLOT_LIMIT + (state.user.extra_listing_slots ?? 0)}</strong>
-              {" "}({BASE_LISTING_SLOT_LIMIT} perus + {state.user.extra_listing_slots ?? 0} extra)
-            </p>
-            <label>
-              Uusi kokonaismäärä (sis. perus 100)
-              <input
-                type="number"
-                value={slots}
-                onChange={(e) => setSlots(e.target.value)}
-                min={BASE_LISTING_SLOT_LIMIT}
-                step={1}
-              />
-            </label>
-            <div className={styles.modalActions}>
-              <button type="button" className={styles.ghostBtn} onClick={onClose}>Peruuta</button>
-              <button
-                type="button"
-                className={styles.primaryBtn}
-                onClick={() => {
-                  const total = Number.parseInt(slots, 10);
-                  if (Number.isNaN(total)) return;
-                  // Käyttäjä antaa kokonaismäärän — vähennetään perus jotta saadaan extras-arvo
-                  const extras = Math.max(0, total - BASE_LISTING_SLOT_LIMIT);
-                  onSetSlots(state.user, extras);
-                }}
-              >
-                Tallenna
               </button>
             </div>
           </>

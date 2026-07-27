@@ -25,8 +25,6 @@ const pageSegments = {
   "search-alerts": { fi: "hakuvahti", en: "search-alerts", sv: "sokbevakning" },
   settings: { fi: "asetukset", en: "settings", sv: "installningar" },
   "my-listings": { fi: "omat-ilmoitukset", en: "my-listings", sv: "mina-annonser" },
-  rewards: { fi: "palkinnot", en: "rewards", sv: "beloningar" },
-  shop: { fi: "kauppa", en: "shop", sv: "butik" },
   about: { fi: "meista", en: "about", sv: "om-oss" },
   contact: { fi: "yhteys", en: "contact", sv: "kontakt" },
   faq: { fi: "ukk", en: "faq", sv: "vanliga-fragor" },

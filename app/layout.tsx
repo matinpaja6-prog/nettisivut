@@ -16,7 +16,6 @@ import "./styles/followed.css";
 import "./styles/sell.css";
 import "./styles/listing-detail.css";
 import "./styles/profile.css";
-import "./styles/shop.css";
 import "./styles/final-clean.css";
 import "./styles/seller-profile-final.css";
 import "./styles/profile-cards-final.css";

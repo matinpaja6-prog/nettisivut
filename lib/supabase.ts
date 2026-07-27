@@ -84,12 +84,6 @@ export type UserProfile = {
 
   last_seen?: string;
 
-  points?: number;
-
-  referral_code?: string | null;
-
-  referred_by?: string | null;
-
   preferred_locale?: string | null;
 
   postal_address?: string | null;
@@ -103,8 +97,6 @@ export type UserProfile = {
   banned_reason?: string | null;
 
   extra_phone_verifications?: number | null;
-
-  extra_listing_slots?: number | null;
 
   last_ip?: string | null;
 
@@ -126,14 +118,6 @@ export type CompanySeller = {
   edit_count?: number | null;
   created_at?: string;
   updated_at?: string | null;
-};
-
-export type Referral = {
-  id: string;
-  referrer_id: string;
-  referred_id: string;
-  points_awarded: number;
-  created_at: string;
 };
 
 export type UserProfileInput = Omit<
@@ -2944,13 +2928,11 @@ export type AdminProfileRow = {
   phone_verification_count: number;
   is_banned: boolean;
   banned_reason: string | null;
-  points: number;
   created_at: string | null;
   last_ip: string | null;
   last_seen_ip: string | null;
   ip_count: number;
   extra_phone_verifications: number;
-  extra_listing_slots: number;
   is_admin?: boolean;
   account_type?: string | null;
   company_name?: string | null;
@@ -2994,25 +2976,6 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
   } catch {
     return false;
   }
-}
-
-export async function getProfileExtraSlots(userId: string): Promise<number> {
-  if (!supabase || !userId) return 0;
-  try {
-    const { data } = await getProfile(userId);
-    return data?.extra_listing_slots ?? 0;
-  } catch {
-    return 0;
-  }
-}
-
-export async function adminAdjustListingSlots(targetUserId: string, delta: number) {
-  if (!supabase) return { data: null, error: "no-supabase" };
-  const { data, error } = await supabase.rpc("admin_adjust_listing_slots", {
-    target_user_id: targetUserId,
-    delta
-  });
-  return { data: data as number | null, error };
 }
 
 export async function adminUserIps(targetUserId: string): Promise<{ data: AdminUserIp[]; error: unknown }> {
@@ -3120,24 +3083,6 @@ export async function adminForceVerifyPhone(targetUserId: string, newPhone?: str
     new_phone: newPhone ?? null
   });
   return { error };
-}
-
-export async function adminSetPoints(targetUserId: string, newPoints: number) {
-  if (!supabase) return { data: null, error: "no-supabase" };
-  const { data, error } = await supabase.rpc("admin_set_points", {
-    target_user_id: targetUserId,
-    new_points: newPoints
-  });
-  return { data: data as number | null, error };
-}
-
-export async function adminAddPoints(targetUserId: string, delta: number) {
-  if (!supabase) return { data: null, error: "no-supabase" };
-  const { data, error } = await supabase.rpc("admin_add_points", {
-    target_user_id: targetUserId,
-    delta
-  });
-  return { data: data as number | null, error };
 }
 
 export async function adminBanUser(targetUserId: string, reason: string | undefined, approvalToken: string) {
@@ -6070,177 +6015,6 @@ export async function deleteAlertNotification(notificationId: string) {
     return { error };
   } catch (error) {
     return { error };
-  }
-}
-
-/* =========================
-   REWARDS / REFERRALS
-========================= */
-
-export async function getReferrerIdByCode(code: string): Promise<string | null> {
-  if (!supabase || !code) return null;
-  try {
-    const { data, error } = await supabase.rpc("get_referrer_id_by_code", { p_code: code });
-    if (error) return null;
-    return (data as string) || null;
-  } catch {
-    return null;
-  }
-}
-
-export async function awardReferralPoints(
-  referrerId: string,
-  referredId: string,
-  points = 100
-): Promise<{ success: boolean; error?: string }> {
-  if (!supabase) return { success: false, error: "no_supabase" };
-  try {
-    const { data, error } = await supabase.rpc("award_referral_points", {
-      p_referrer_id: referrerId,
-      p_referred_id: referredId,
-      p_points: points
-    });
-    if (error) return { success: false, error: error.message };
-    const result = data as { success: boolean; error?: string } | null;
-    return result ?? { success: false, error: "unknown" };
-  } catch (e) {
-    return { success: false, error: String(e) };
-  }
-}
-
-export type QuestProgress = {
-  listings: number;
-  reviews_given: number;
-  reviews_received: number;
-  referrals: number;
-  phone_verified: boolean;
-  profile_completed: boolean;
-  claimed: string[];
-};
-
-export async function getQuestProgress(userId: string): Promise<QuestProgress | null> {
-  if (!supabase) return null;
-  try {
-    const { data, error } = await supabase.rpc("get_quest_progress", { p_user_id: userId });
-    if (error) {
-      console.error("getQuestProgress error", error);
-      return null;
-    }
-    return data as QuestProgress;
-  } catch (e) {
-    console.error("getQuestProgress exception", e);
-    return null;
-  }
-}
-
-export async function claimQuest(questId: string): Promise<{
-  success: boolean;
-  points?: number;
-  error?: string;
-  progress?: number;
-  required?: number;
-}> {
-  if (!supabase) return { success: false, error: "no_supabase" };
-  try {
-    const { data, error } = await supabase.rpc("claim_quest", { p_quest_id: questId });
-    if (error) return { success: false, error: error.message };
-    return (data ?? { success: false, error: "unknown" }) as {
-      success: boolean;
-      points?: number;
-      error?: string;
-      progress?: number;
-      required?: number;
-    };
-  } catch (e) {
-    return { success: false, error: String(e) };
-  }
-}
-
-export async function getMyReferralStats(userId: string): Promise<{
-  points: number;
-  referralCode: string | null;
-  referrals: Array<Referral & { referred_name?: string | null }>;
-}> {
-  if (!supabase) return { points: 0, referralCode: null, referrals: [] };
-  try {
-    const profileResult = await getProfile(userId);
-
-    const referralsResult = await supabase
-      .from("referrals")
-      .select("id, referrer_id, referred_id, points_awarded, created_at")
-      .eq("referrer_id", userId)
-      .order("created_at", { ascending: false });
-
-    const referrals = (referralsResult.data ?? []) as Referral[];
-
-    let withNames: Array<Referral & { referred_name?: string | null }> = referrals.map((r) => ({ ...r }));
-
-    if (referrals.length > 0) {
-      const ids = referrals.map((r) => r.referred_id);
-      const namesResult = await supabase
-        .from("profiles")
-        .select("id, first_name, last_name, full_name, name")
-        .in("id", ids);
-
-      const nameMap = new Map<string, string>();
-      for (const p of (namesResult.data ?? []) as Partial<UserProfile>[]) {
-        const n =
-          p.full_name ||
-          [p.first_name, p.last_name].filter(Boolean).join(" ").trim() ||
-          p.name ||
-          "";
-        if (p.id) nameMap.set(String(p.id), n);
-      }
-
-      withNames = referrals.map((r) => ({
-        ...r,
-        referred_name: nameMap.get(r.referred_id) ?? null
-      }));
-    }
-
-    return {
-      points: profileResult.data?.points ?? 0,
-      referralCode: profileResult.data?.referral_code ?? null,
-      referrals: withNames
-    };
-  } catch {
-    return { points: 0, referralCode: null, referrals: [] };
-  }
-}
-
-export async function spendUserPoints(
-  userId: string,
-  cost: number
-): Promise<{
-  success: boolean;
-  points: number;
-  error?: string;
-}> {
-  if (!supabase || !userId) return { success: false, points: 0, error: "no_supabase" };
-
-  try {
-    const normalizedCost = Math.trunc(cost);
-    if (!Number.isFinite(normalizedCost) || normalizedCost < 1) {
-      return { success: false, points: 0, error: "invalid_cost" };
-    }
-
-    const { data, error } = await supabase.rpc("spend_profile_points", {
-      p_cost: normalizedCost
-    });
-    if (error) return { success: false, points: 0, error: error.message };
-
-    const result = (data ?? {}) as {
-      success?: boolean;
-      points?: number;
-      error?: string;
-    };
-    return {
-      success: Boolean(result.success),
-      points: Number(result.points ?? 0),
-      ...(result.error ? { error: result.error } : {})
-    };
-  } catch (error) {
-    return { success: false, points: 0, error: String(error) };
   }
 }
 

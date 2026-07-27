@@ -3,10 +3,8 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  awardReferralPoints,
   getSafeAuthSession,
   getProfile,
-  getReferrerIdByCode,
   isProfileCompleted,
   supabase,
   type UserProfile
@@ -17,7 +15,6 @@ import {
   profileRootPath
 } from "@/lib/routes";
 
-const REFERRAL_STORAGE_KEY = "pending_referral_code";
 const ALLOWED_CANONICAL_PATHS = ["/auth", "/profile", "/privacy"];
 
 function isProfileCompletionAllowedPath(pathname: string) {
@@ -32,26 +29,6 @@ function isProfileCompletionAllowedPath(pathname: string) {
     pathname.startsWith(profileRootPath(locale)) ||
     pathname.startsWith(pagePath("privacy", locale))
   );
-}
-
-async function tryClaimPendingReferral(userId: string) {
-  if (typeof window === "undefined") return;
-  let code: string | null = null;
-  try {
-    code = localStorage.getItem(REFERRAL_STORAGE_KEY);
-  } catch {}
-  if (!code) return;
-
-  const referrerId = await getReferrerIdByCode(code);
-  if (!referrerId || referrerId === userId) {
-    try { localStorage.removeItem(REFERRAL_STORAGE_KEY); } catch {}
-    return;
-  }
-
-  const result = await awardReferralPoints(referrerId, userId, 100);
-  if (result.success || result.error === "already_referred") {
-    try { localStorage.removeItem(REFERRAL_STORAGE_KEY); } catch {}
-  }
 }
 
 export default function ProfileCompletionGate() {
@@ -78,8 +55,6 @@ export default function ProfileCompletionGate() {
         }
         return;
       }
-
-      void tryClaimPendingReferral(user.id);
 
       const { data: profile } = await getProfile(user.id);
       const incomplete = !isProfileCompleted(profile as UserProfile | null);

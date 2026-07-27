@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Search, Settings, Star, Store, UserRound, Users, X } from "lucide-react";
+import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Search, Settings, Star, UserRound, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -33,7 +33,6 @@ import {
   type SellerLevelStats,
 } from "@/lib/supabase";
 import { calculateSellerLevel } from "@/lib/seller-level";
-import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profilePath, profileRootPath } from "@/lib/routes";
 import { useTaxonomy } from "./TaxonomyProvider";
@@ -829,8 +828,6 @@ export default function UniversalTopbar() {
   const followedHref = pagePath("followed", locale);
   const searchAlertsPageHref = pagePath("search-alerts", locale);
   const settingsHref = pagePath("settings", locale);
-  const rewardsHref = pagePath("rewards", locale);
-  const shopHref = pagePath("shop", locale);
   const aboutHref = pagePath("about", locale);
   const faqHref = pagePath("faq", locale);
   const garageHref =
@@ -1364,16 +1361,6 @@ export default function UniversalTopbar() {
               <Link href={settingsHref} className={`universal-profile-menu-link${isActiveRoute("/settings") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                 <Settings size={16} /> {ui.settings}
               </Link>
-              {FEATURE_FLAGS.rewardsAndShop ? (
-                <>
-                  <Link href={rewardsHref} className={`universal-profile-menu-link${isActiveRoute("/rewards") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Award size={16} /> {t.rewards}
-                  </Link>
-                  <Link href={shopHref} className={`universal-profile-menu-link${isActiveRoute("/shop") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                    <Store size={16} /> {t.shop}
-                  </Link>
-                </>
-              ) : null}
               {isAdmin && (
                 <Link href="/admin" className={`universal-profile-menu-link admin${isActiveRoute("/admin") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
                   <Menu size={16} /> Admin
