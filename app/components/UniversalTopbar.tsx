@@ -320,6 +320,13 @@ function uniqueById<T extends { id: string }>(items: T[]) {
 export default function UniversalTopbar() {
   const router = useRouter();
   const pathname = usePathname() || "/";
+  // During a client-side auth redirect usePathname can briefly retain /auth
+  // after the browser URL has already changed. The address bar is authoritative
+  // for the topbar variant so the reduced auth header cannot leak onto home.
+  const activePathname =
+    typeof window !== "undefined"
+      ? window.location.pathname || pathname
+      : pathname;
   const { t, locale } = useLanguage();
   const taxonomy = useTaxonomy();
   const ui = topbarText[locale] ?? topbarText.fi;
@@ -783,7 +790,7 @@ export default function UniversalTopbar() {
   const hasNotifications = notificationItemCount > 0;
   const hasNotificationItems =
     visibleReviewRequests.length + visibleAlertNotifications.length + visibleUnreadConversations.length > 0;
-  const canonicalPathname = canonicalPathFromLocalized(pathname);
+  const canonicalPathname = canonicalPathFromLocalized(activePathname);
   const isHomePage = canonicalPathname === "/";
   const isAuthPage = canonicalPathname === "/auth";
   const controlsLocked = !authChecked;

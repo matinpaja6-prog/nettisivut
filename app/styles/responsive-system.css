@@ -1050,3 +1050,32 @@ html body header.universal-app-topbar.universal-auth-topbar .universal-language-
     width: 26px !important;
   }
 }
+
+/* Language placement: last action on desktop, fixed to the left edge on
+   phones regardless of authentication state or page-specific topbar layout. */
+@media (min-width: 761px) {
+  html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap {
+    margin-left: 0 !important;
+    order: 999 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap {
+    left: max(8px, env(safe-area-inset-left)) !important;
+    margin: 0 !important;
+    position: fixed !important;
+    right: auto !important;
+    top: max(11px, env(safe-area-inset-top)) !important;
+    transform: none !important;
+    z-index: 2147483002 !important;
+  }
+
+  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation {
+    margin-left: 52px !important;
+  }
+
+  html body .auth-mobile-back-home {
+    left: max(58px, calc(env(safe-area-inset-left) + 58px)) !important;
+  }
+}

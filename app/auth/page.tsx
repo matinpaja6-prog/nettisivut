@@ -554,6 +554,7 @@ function AuthPageContent() {
   const [authCaptchaResetKey, setAuthCaptchaResetKey] = useState(0);
   const authSubmitInFlightRef = useRef(false);
   const automaticProfileSaveInFlightRef = useRef(false);
+  const authRedirectStartedRef = useRef(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLookupDone, setProfileLookupDone] = useState(false);
@@ -571,6 +572,13 @@ function AuthPageContent() {
   function resetAuthCaptcha() {
     setAuthCaptchaToken("");
     setAuthCaptchaResetKey((value) => value + 1);
+  }
+
+  function redirectAfterSuccessfulAuth() {
+    if (authRedirectStartedRef.current) return;
+
+    authRedirectStartedRef.current = true;
+    router.replace(authRedirectPath);
   }
 
   useEffect(() => {
@@ -934,7 +942,7 @@ function AuthPageContent() {
       .then(({ data }) => {
         if (isProfileCompleted(data)) {
           setProfile(data);
-          router.replace(authRedirectPath);
+          redirectAfterSuccessfulAuth();
           return;
         }
 
@@ -1204,7 +1212,7 @@ function AuthPageContent() {
         if (isProfileCompleted(profileResult.data)) {
           setStatus(t.authLoginSuccess);
           setAuthSubmitting(false);
-          router.push(authRedirectPath);
+          redirectAfterSuccessfulAuth();
           return;
         }
 
