@@ -35,6 +35,30 @@ export default function TurnstileWidget({
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   useEffect(() => {
+    if (window.turnstile) {
+      setScriptReady(true);
+      return;
+    }
+
+    // The shared Turnstile script may already be loading (or may have been
+    // restored from the browser cache) before Next.js fires this component's
+    // Script callbacks. Observe the global API as well so the widget renders
+    // immediately whenever it becomes available.
+    const startedAt = Date.now();
+    const readyPoll = window.setInterval(() => {
+      if (window.turnstile) {
+        window.clearInterval(readyPoll);
+        setScriptReady(true);
+      } else if (Date.now() - startedAt > 10_000) {
+        window.clearInterval(readyPoll);
+        setWidgetError("Bottitarkistus ei latautunut. Päivitä sivu ja yritä uudelleen.");
+      }
+    }, 50);
+
+    return () => window.clearInterval(readyPoll);
+  }, []);
+
+  useEffect(() => {
     onTokenRef.current = onToken;
   }, [onToken]);
 
@@ -94,6 +118,9 @@ export default function TurnstileWidget({
         onReady={() => setScriptReady(true)}
       />
       <div ref={containerRef} aria-label="Bottitarkistus" />
+      {!scriptReady && !widgetError ? (
+        <p className="turnstile-loading" role="status">Ladataan bottitarkistusta...</p>
+      ) : null}
       {widgetError ? <p role="alert">{widgetError}</p> : null}
     </div>
   );

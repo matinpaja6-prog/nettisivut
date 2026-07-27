@@ -950,9 +950,30 @@ html body:has(.simple-auth-page) .auth-back-home {
   display: none !important;
 }
 
-html body header.universal-app-topbar.universal-auth-topbar .universal-home-primary-nav,
-html body header.universal-app-topbar.universal-auth-topbar .universal-topbar-actions {
+html body header.universal-app-topbar.universal-auth-topbar .universal-home-primary-nav {
   display: none !important;
+}
+
+html body header.universal-app-topbar.universal-auth-topbar .universal-topbar-actions {
+  align-items: center !important;
+  display: flex !important;
+  height: 44px !important;
+  justify-content: flex-end !important;
+  margin: 0 !important;
+  pointer-events: auto !important;
+  position: absolute !important;
+  right: max(12px, env(safe-area-inset-right)) !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: auto !important;
+  z-index: 2147483001 !important;
+}
+
+html body header.universal-app-topbar.universal-auth-topbar .universal-language-wrap,
+html body header.universal-app-topbar.universal-auth-topbar .universal-language-wrap > [data-global-language-menu] {
+  align-items: center !important;
+  display: inline-flex !important;
+  pointer-events: auto !important;
 }
 
 /* Mobile auth behaves like a dismissable sheet: one visible back control and no
@@ -964,6 +985,11 @@ html body header.universal-app-topbar.universal-auth-topbar .universal-topbar-ac
 @media (max-width: 760px) {
   html body header.universal-app-topbar.universal-auth-topbar {
     pointer-events: none !important;
+  }
+
+  html body header.universal-app-topbar.universal-auth-topbar .universal-topbar-actions,
+  html body header.universal-app-topbar.universal-auth-topbar .language-switcher {
+    pointer-events: auto !important;
   }
 
   html body header.universal-app-topbar.universal-auth-topbar .universal-page-back-button {

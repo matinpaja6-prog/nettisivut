@@ -37,6 +37,7 @@ import { FEATURE_FLAGS } from "@/lib/feature-flags";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profilePath, profileRootPath } from "@/lib/routes";
 import { useTaxonomy } from "./TaxonomyProvider";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
 const NOTIFICATION_REFRESH_DEBOUNCE_MS = 120;
@@ -1378,9 +1379,11 @@ export default function UniversalTopbar() {
     {topbarDropdownPortal}
     <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}${isAuthPage ? " universal-auth-topbar" : ""}`}>
       {primaryNavigation}
-      {!isAuthPage && (
-      <nav className="universal-topbar-actions" aria-label={ui.quickActions}>
-        {!userId ? (
+      <nav className={`universal-topbar-actions${!userId ? " universal-topbar-actions-guest" : ""}`} aria-label={ui.quickActions}>
+        <div className="universal-language-wrap">
+          <LanguageSwitcher />
+        </div>
+        {!isAuthPage && (!userId ? (
           <Link href={authHref} className="rebuilt-login-button rebuilt-login-button-guest">
             <LockKeyhole size={17} aria-hidden="true" />
             <strong>{t.login}</strong>
@@ -1685,9 +1688,8 @@ export default function UniversalTopbar() {
           </button>
         </div>
           </>
-        )}
+        ))}
       </nav>
-      )}
     </header>
     </>
   );
