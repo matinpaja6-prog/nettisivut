@@ -1051,8 +1051,9 @@ html body header.universal-app-topbar.universal-auth-topbar .universal-language-
   }
 }
 
-/* Language placement: last action on desktop, fixed to the left edge on
-   phones regardless of authentication state or page-specific topbar layout. */
+/* Language placement: last action on desktop and the first action on phones.
+   Keep it in the normal action row so guest and signed-in headers share the
+   same spacing and cannot overlap. */
 @media (min-width: 761px) {
   html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap {
     margin-left: 0 !important;
@@ -1062,20 +1063,21 @@ html body header.universal-app-topbar.universal-auth-topbar .universal-language-
 
 @media (max-width: 760px) {
   html body header.universal-app-topbar.universal-app-topbar .universal-language-wrap {
-    left: max(8px, env(safe-area-inset-left)) !important;
+    left: auto !important;
     margin: 0 !important;
-    position: fixed !important;
+    order: -999 !important;
+    position: static !important;
     right: auto !important;
-    top: max(11px, env(safe-area-inset-top)) !important;
+    top: auto !important;
     transform: none !important;
-    z-index: 2147483002 !important;
+    z-index: auto !important;
   }
 
-  html body header.universal-app-topbar.universal-app-topbar .universal-home-navigation {
-    margin-left: 52px !important;
+  html body header.universal-app-topbar.universal-app-topbar .universal-topbar-actions {
+    column-gap: 8px !important;
   }
 
   html body .auth-mobile-back-home {
-    left: max(58px, calc(env(safe-area-inset-left) + 58px)) !important;
+    left: max(8px, env(safe-area-inset-left)) !important;
   }
 }
