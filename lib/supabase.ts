@@ -2677,7 +2677,8 @@ export async function verifyRegistrationOtpWithEmail(
 
 export async function signInWithEmail(
   email: string,
-  password: string
+  password: string,
+  captchaToken?: string
 ) {
 
   if (!supabase) {
@@ -2692,14 +2693,28 @@ export async function signInWithEmail(
   }
 
   try {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, captchaToken })
+    });
+    const payload = await response.json().catch(() => null) as {
+      accessToken?: string;
+      refreshToken?: string;
+      error?: string;
+    } | null;
 
-    return await supabase.auth
-      .signInWithPassword({
+    if (!response.ok || !payload?.accessToken || !payload.refreshToken) {
+      return {
+        data: null,
+        error: new Error(payload?.error || "Kirjautuminen epäonnistui.")
+      };
+    }
 
-        email,
-        password
-
-      });
+    return await supabase.auth.setSession({
+      access_token: payload.accessToken,
+      refresh_token: payload.refreshToken
+    });
 
   } catch (error) {
 
@@ -3056,6 +3071,19 @@ export type AdminBannedIp = {
   banned_by: string | null;
 };
 
+export type SensitiveAdminAction = "ban-user" | "ban-ip" | "delete-listing" | "delete-user";
+
+export async function authorizeAdminSensitiveAction(action: SensitiveAdminAction) {
+  const result = await adminActionRequest<{ approvalToken: string; expiresIn: number }>(
+    "authorize-sensitive",
+    { sensitiveAction: action }
+  );
+  return {
+    data: result.data?.approvalToken ?? null,
+    error: result.error
+  };
+}
+
 export async function adminOverviewStats(): Promise<{ data: AdminOverviewStats | null; error: unknown }> {
   if (!supabase) return { data: null, error: "no-supabase" };
   const { data, error } = await supabase.rpc("admin_overview_stats");
@@ -3112,14 +3140,13 @@ export async function adminAddPoints(targetUserId: string, delta: number) {
   return { data: data as number | null, error };
 }
 
-export async function adminBanUser(targetUserId: string, reason?: string) {
+export async function adminBanUser(targetUserId: string, reason: string | undefined, approvalToken: string) {
   if (!supabase) return { error: "no-supabase" };
-  const { error } = await supabase.rpc("admin_ban_user", {
-    target_user_id: targetUserId,
-    reason: reason ?? null
+  return adminActionRequest("ban-user", {
+    userId: targetUserId,
+    reason: reason ?? null,
+    approvalToken
   });
-  if (!error) return { error };
-  return adminActionRequest("ban-user", { userId: targetUserId, reason: reason ?? null });
 }
 
 export async function adminUnbanUser(targetUserId: string) {
@@ -3131,14 +3158,9 @@ export async function adminUnbanUser(targetUserId: string) {
   return adminActionRequest("unban-user", { userId: targetUserId });
 }
 
-export async function adminBanIp(ip: string, reason?: string) {
+export async function adminBanIp(ip: string, reason: string | undefined, approvalToken: string) {
   if (!supabase) return { error: "no-supabase" };
-  const { error } = await supabase.rpc("admin_ban_ip", {
-    target_ip: ip,
-    reason: reason ?? null
-  });
-  if (!error) return { error };
-  return adminActionRequest("ban-ip", { ip, reason: reason ?? null });
+  return adminActionRequest("ban-ip", { ip, reason: reason ?? null, approvalToken });
 }
 
 export async function adminUnbanIp(ip: string) {
@@ -3165,92 +3187,18 @@ export async function adminListBannedIps(): Promise<{ data: AdminBannedIp[]; err
   };
 }
 
-export async function adminDeleteUser(targetUserId: string) {
+export async function adminDeleteUser(targetUserId: string, approvalToken: string) {
   if (!supabase) return { error: "no-supabase" };
-  const { error } = await supabase.rpc("admin_delete_user", {
-    target_user_id: targetUserId
-  });
-  return { error };
+  return adminActionRequest("delete-user", { userId: targetUserId, approvalToken });
 }
 
-export async function adminDeleteListing(targetListingId: string, reason?: string) {
+export async function adminDeleteListing(targetListingId: string, reason: string | undefined, approvalToken: string) {
   if (!supabase) return { error: "no-supabase" };
-
-  const listingResult =
-    await supabase
-      .from("listings")
-      .select("image_url,image_urls")
-      .eq("id", targetListingId)
-      .maybeSingle<ListingImageFields>();
-
-  let listingImages =
-    listingResult.data;
-
-  if (hasMissingListingColumns(listingResult.error)) {
-    const fallbackResult =
-      await supabase
-        .from("listings")
-        .select("image_url")
-        .eq("id", targetListingId)
-        .maybeSingle<Pick<Listing, "image_url">>();
-
-    if (fallbackResult.error) {
-      const fallback = await adminActionRequest("delete-listing", {
-        listingId: targetListingId,
-        reason: reason ?? null
-      });
-      return { error: fallback.error };
-    }
-
-    listingImages =
-      fallbackResult.data
-        ? {
-            image_url: fallbackResult.data.image_url,
-            image_urls: []
-          }
-        : null;
-  } else if (listingResult.error) {
-    const fallback = await adminActionRequest("delete-listing", {
-      listingId: targetListingId,
-      reason: reason ?? null
-    });
-    return { error: fallback.error };
-  }
-
-  const { error } = await supabase.rpc("admin_delete_listing", {
-    target_listing_id: targetListingId,
-    reason: reason ?? null
+  return adminActionRequest("delete-listing", {
+    listingId: targetListingId,
+    reason: reason ?? null,
+    approvalToken
   });
-
-  if (error) {
-    const fallback = await adminActionRequest("delete-listing", {
-      listingId: targetListingId,
-      reason: reason ?? null
-    });
-    return { error: fallback.error };
-  }
-
-  const directDelete = await supabase
-    .from("listings")
-    .delete()
-    .eq("id", targetListingId);
-
-  if (directDelete.error) {
-    const verify = await supabase
-      .from("listings")
-      .select("id")
-      .eq("id", targetListingId)
-      .maybeSingle<{ id: string }>();
-
-    if (verify.data?.id) {
-      return { error: directDelete.error };
-    }
-  }
-
-  const imageCleanupError =
-    await deleteListingStorageImages(listingImages);
-
-  return { error, imageCleanupError };
 }
 
 async function adminActionRequest<T = { ok: boolean }>(

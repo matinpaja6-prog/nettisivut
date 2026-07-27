@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, MessageCircle, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, TrendingDown, TrendingUp, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
@@ -67,6 +67,30 @@ type PublicProfile = Pick<
   | "created_at"
   | "phone_verified_at"
 >;
+
+function FractionalRatingStar({ percentage }: { percentage: number }) {
+  const gradientId = `seller-rating-${useId().replace(/:/g, "")}`;
+  const safePercentage = Math.min(100, Math.max(0, percentage));
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <defs>
+        <linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="0">
+          <stop offset={`${safePercentage}%`} stopColor="#ff7a1a" />
+          <stop offset={`${safePercentage}%`} stopColor="#ff7a1a" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M12 2.75 14.85 8.53 21.23 9.46 16.61 13.96 17.7 20.31 12 17.31 6.3 20.31 7.39 13.96 2.77 9.46 9.15 8.53 12 2.75Z"
+        fill={`url(#${gradientId})`}
+        stroke="#ff7a1a"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+      />
+    </svg>
+  );
+}
 
 function SellerFilterSelect({
   value,
@@ -1486,15 +1510,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               style={{ "--seller-rating-star-size": `${size}px` } as CSSProperties}
               aria-hidden="true"
             >
-              <Star className="seller-ref-rating-star-outline" />
-              {fillPercentage > 0 ? (
-                <span
-                  className="seller-ref-rating-star-fill"
-                  style={{ width: `${fillPercentage}%` }}
-                >
-                  <Star fill="currentColor" />
-                </span>
-              ) : null}
+              <FractionalRatingStar percentage={fillPercentage} />
             </span>
           );
         })}

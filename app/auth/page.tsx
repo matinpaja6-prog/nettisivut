@@ -4,6 +4,7 @@ import { FormEvent, MouseEvent as ReactMouseEvent, Suspense, useEffect, useRef, 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
+import TurnstileWidget from "@/app/components/TurnstileWidget";
 import { ArrowLeft, Building2, Check, ChevronDown, Eye, EyeOff, LockKeyhole, Mail, UserRound, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { BirthDateField } from "@/app/components/BirthDateField";
@@ -31,7 +32,6 @@ import {
 } from "@/lib/supabase";
 
 const REFERRAL_STORAGE_KEY = "pending_referral_code";
-const ACCOUNT_TYPE_STORAGE_KEY = "pending_account_type";
 const GOOGLE_AUTH_INTENT_STORAGE_KEY = "pending_google_auth_intent";
 const PROFILE_COMPLETION_DRAFT_STORAGE_KEY = "profile_completion_draft_v1";
 const REGISTRATION_PIN_COOLDOWN_STORAGE_KEY = "registration_pin_sent_at_v1";
@@ -156,12 +156,6 @@ async function verifyRegistrationPin(input: {
     verified: Boolean(data?.user),
     user: data?.user ?? undefined
   };
-}
-
-function rememberAccountType(type: "private" | "company") {
-  try {
-    localStorage.setItem(ACCOUNT_TYPE_STORAGE_KEY, type);
-  } catch {}
 }
 
 function getPendingGoogleAuthIntent(): AuthMode | null {
@@ -456,6 +450,14 @@ function normalizeAuthErrorMessage(message: string) {
   const lower = message.toLowerCase();
 
   if (
+    lower.includes("captcha_token not found") ||
+    lower.includes("captcha token not found") ||
+    lower.includes("captcha protection")
+  ) {
+    return "Bottitarkistus puuttui tai vanheni. Päivitä sivu ja tee tarkistus uudelleen.";
+  }
+
+  if (
     lower.includes("invalid login credentials") ||
     lower.includes("email not confirmed") ||
     lower.includes("user not found")
@@ -548,6 +550,8 @@ function AuthPageContent() {
   const [showAuthPasswords, setShowAuthPasswords] = useState(false);
   const [status, setStatus] = useState("");
   const [authSubmitting, setAuthSubmitting] = useState(false);
+  const [authCaptchaToken, setAuthCaptchaToken] = useState("");
+  const [authCaptchaResetKey, setAuthCaptchaResetKey] = useState(0);
   const authSubmitInFlightRef = useRef(false);
   const automaticProfileSaveInFlightRef = useRef(false);
   const [user, setUser] = useState<User | null>(null);
@@ -563,6 +567,12 @@ function AuthPageContent() {
   const [phoneCodeMenuOpen, setPhoneCodeMenuOpen] = useState(false);
   const [customCountry, setCustomCountry] = useState("");
   const companyAddressInputRef = useRef<HTMLInputElement | null>(null);
+
+  function resetAuthCaptcha() {
+    setAuthCaptchaToken("");
+    setAuthCaptchaResetKey((value) => value + 1);
+  }
+
   useEffect(() => {
     if (!authSubmitting) return;
 
@@ -929,6 +939,7 @@ function AuthPageContent() {
         }
 
         if (!isProfileCompleted(data)) {
+          setAuthMode("register");
           const metadata = user.user_metadata ?? {};
           const fullName = String(metadata.full_name ?? metadata.name ?? "").trim();
           const [firstName = "", ...lastNameParts] = fullName.split(" ");
@@ -1159,17 +1170,23 @@ function AuthPageContent() {
       return;
     }
 
+    if (authMode === "login" && !authCaptchaToken) {
+      setStatus("Tee bottitarkistus ennen jatkamista.");
+      return;
+    }
+
     setAuthSubmitting(true);
 
     if (authMode === "login") {
       setStatus("Tarkistetaan tiliä...");
       const { data, error } =
         await withTimeout(
-          signInWithEmail(form.email, form.password),
+          signInWithEmail(form.email, form.password, authCaptchaToken),
           4500,
           "Kirjautuminen kesti liian kauan."
         );
 
+      resetAuthCaptcha();
       if (error) {
         setStatus(getErrorMessage(error));
         setAuthSubmitting(false);
@@ -1239,6 +1256,27 @@ function AuthPageContent() {
         setStatus(phoneCheck.error || "Puhelinnumeron tarkistus epäonnistui.");
       }
       setAuthSubmitting(false);
+      return;
+    }
+
+    // Google has already verified this OAuth user's email. Complete the same
+    // registration form without sending a second email PIN.
+    if (user) {
+      setStatus("Tallennetaan Gmail-tilin tiedot...");
+      const passwordResult =
+        await withTimeout(
+          updatePassword(form.password),
+          10000,
+          "Salasanan tallennus kesti liian kauan."
+        );
+
+      if (passwordResult.error) {
+        setStatus(getErrorMessage(passwordResult.error));
+        setAuthSubmitting(false);
+        return;
+      }
+
+      await saveProfile(user);
       return;
     }
 
@@ -1497,13 +1535,9 @@ function AuthPageContent() {
   }
 
   const needsProfile = Boolean(user && !isProfileCompleted(profile));
-  const metadataAccountType =
-    user?.user_metadata?.account_type === "company" ||
-    user?.user_metadata?.account_type === "private"
-      ? user.user_metadata.account_type
-      : null;
-  const lockedAccountType =
-    metadataAccountType;
+  const showProfileRegistrationForm = Boolean(
+    user && profileLookupDone && needsProfile
+  );
   const phoneParts =
     form.phone
       ? getPhoneParts(form.phone)
@@ -1565,6 +1599,7 @@ function AuthPageContent() {
     setAuthMode(mode);
     setStatus("");
     setAuthSubmitting(false);
+    resetAuthCaptcha();
 
     if (typeof window === "undefined") return;
 
@@ -1741,7 +1776,7 @@ function AuthPageContent() {
               {t.authLoginExisting}
             </button>
           </div>
-        ) : !user ? (
+        ) : (!user || showProfileRegistrationForm) ? (
           <form className={`auth-card simple-card${authMode === "register" ? " registration-inline-card profile-finalize-card" : ""}`} onSubmit={handleSubmit}>
             <div className="auth-form-head">
               <h1>{authMode === "login" ? "Kirjaudu sisään" : t.register}</h1>
@@ -1756,6 +1791,7 @@ function AuthPageContent() {
                 <input
                   required
                   type="email"
+                  readOnly={Boolean(user)}
                   value={form.email}
                   onChange={(event) => {
                     setForm({ ...form, email: event.target.value });
@@ -1905,14 +1941,23 @@ function AuthPageContent() {
               </>
             )}
 
+            {authMode === "login" ? (
+              <TurnstileWidget
+                action="login"
+                onToken={setAuthCaptchaToken}
+                resetKey={authCaptchaResetKey}
+              />
+            ) : null}
             <button
               type="submit"
-              disabled={authSubmitting || (authMode === "register" && !registrationPasswordsMatch)}
+              disabled={authSubmitting || (authMode === "login" && !authCaptchaToken) || (authMode === "register" && !registrationPasswordsMatch)}
               title={authMode === "register" && !registrationPasswordsMatch ? "Kirjoita sama salasana molempiin kenttiin" : undefined}
             >
               {authMode === "register" ? <Check size={18} /> : <LockKeyhole size={18} />}
               {authSubmitting ? "Hetki..." : primaryAuthActionLabel}
             </button>
+            {!user && (
+              <>
             <div className="auth-divider">
               <span>Tai jatka</span>
             </div>
@@ -1941,354 +1986,9 @@ function AuthPageContent() {
                 {authMode === "login" ? t.register : t.login}
               </button>
             </p>
-            {status ? <span className="form-note">{status}</span> : null}
-          </form>
-        ) : !profileLookupDone ? null : needsProfile ? (
-          <form className={`auth-card simple-card profile-completion-card profile-finalize-card profile-type-${form.account_type} ${needsProfile ? "" : "profile-ready-card"}`} onSubmit={(event) => {
-            event.preventDefault();
-            saveProfile(user!);
-          }}>
-            <div className="profile-completion-head">
-              <div className="profile-completion-topline">
-                <span className="eyebrow">{t.authProfileCompletionTitle}</span>
-              </div>
-              <h1>{t.authCompleteDetailsTitle}</h1>
-            </div>
-            <div className="profile-alert">
-              <Check size={20} />
-              <span>
-                {needsProfile
-                  ? t.authCompleteBeforeAccess
-                  : t.authProfileReady}
-              </span>
-            </div>
-            {needsProfile ? (
-              <>
-                {lockedAccountType ? (
-                  <div className="account-type-locked">
-                    <span>{t.authAccountType}</span>
-                    <strong>
-                      {lockedAccountType === "company" ? t.authCompanyLabel : t.authPrivateSellerLabel}
-                    </strong>
-                    <p>
-                      {lockedAccountType === "company"
-                        ? t.authCompleteCompanyDetails
-                        : t.authCompletePersonalProfile}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="account-type-picker" aria-label={t.authAccountType}>
-                    <button
-                      type="button"
-                      aria-pressed={form.account_type === "private"}
-                      className={form.account_type === "private" ? "account-type-card active" : "account-type-card"}
-                      onClick={() => {
-                        rememberAccountType("private");
-                        setForm({ ...form, account_type: "private" });
-                      }}
-                    >
-                      <span className="account-type-icon" aria-hidden="true">
-                        <UserRound size={28} />
-                      </span>
-                      <span className="account-type-copy">
-                        <strong>{t.authPrivateSellerLabel}</strong>
-                        <span>{t.authPrivateSellerDesc}</span>
-                      </span>
-                      <span className="account-type-check"><Check size={15} /></span>
-                    </button>
-                    <button
-                      type="button"
-                      aria-pressed={form.account_type === "company"}
-                      className={form.account_type === "company" ? "account-type-card active" : "account-type-card"}
-                      onClick={() => {
-                        rememberAccountType("company");
-                        setForm({ ...form, account_type: "company" });
-                      }}
-                    >
-                      <span className="account-type-icon" aria-hidden="true">
-                        <Building2 size={28} />
-                      </span>
-                      <span className="account-type-copy">
-                        <strong>{t.authCompanyLabel}</strong>
-                        <span>{t.authCompanyDesc2}</span>
-                      </span>
-                      <span className="account-type-check"><Check size={15} /></span>
-                    </button>
-                  </div>
-                )}
-
-                <div
-                  className="registration-fields"
-                  onPointerDownCapture={(event) => {
-                    const target = event.target as HTMLElement | null;
-                    if (!target?.closest(".phone-code-select-wrap")) {
-                      setPhoneCodeMenuOpen(false);
-                    }
-                  }}
-                  onFocusCapture={(event) => {
-                    const target = event.target as HTMLElement | null;
-                    if (!target?.closest(".phone-code-select-wrap")) {
-                      setPhoneCodeMenuOpen(false);
-                    }
-                  }}
-                >
-                  {form.account_type === "company" && (
-                    <>
-                      <label>
-                        {t.authCompanyName}
-                        <input
-                          required
-                          autoComplete="organization"
-                          name="organization"
-                          value={form.company_name}
-                          onChange={(event) => setForm({ ...form, company_name: event.target.value })}
-                          placeholder="esim. Maskines Varaosat Oy"
-                        />
-                      </label>
-                      <label>
-                        {t.authBusinessId}
-                        <input
-                          required
-                          autoComplete="off"
-                          name="business-id"
-                          value={form.business_id}
-                          onChange={(event) => setForm({ ...form, business_id: event.target.value })}
-                          placeholder="1234567-8"
-                        />
-                      </label>
-                    </>
-                  )}
-                  {form.account_type === "private" && (
-                    <>
-                      <label>
-                        {t.authFirstName}
-                        <input
-                          required
-                          autoComplete="given-name"
-                          name="given-name"
-                          value={form.first_name}
-                          onChange={(event) => setForm({ ...form, first_name: event.target.value })}
-                        />
-                      </label>
-                      <label>
-                        {t.authLastName}
-                        <input
-                          required
-                          autoComplete="family-name"
-                          name="family-name"
-                          value={form.last_name}
-                          onChange={(event) => setForm({ ...form, last_name: event.target.value })}
-                        />
-                      </label>
-                    </>
-                  )}
-                  {form.account_type === "company" && (
-                    <label>
-                      {t.authBillingEmail}
-                      <input
-                        type="email"
-                        autoComplete="email"
-                        name="billing-email"
-                        value={form.billing_email}
-                        onChange={(event) => setForm({ ...form, billing_email: event.target.value })}
-                        placeholder={form.email || "laskutus@yritys.fi"}
-                      />
-                    </label>
-                  )}
-                  <label>
-                    {form.account_type === "company" ? t.authCompanyPhone : t.authPhone}
-                    <div className="phone-field-row phone-field-row-polished">
-                      <div
-                        className={`phone-code-select-wrap${phoneCodeMenuOpen ? " is-open" : ""}`}
-                        onBlur={(event) => {
-                          if (!event.currentTarget.contains(event.relatedTarget)) {
-                            setPhoneCodeMenuOpen(false);
-                          }
-                        }}
-                      >
-                        <button
-                          type="button"
-                          className="phone-code-selected"
-                          aria-label="Valitse suuntanumero"
-                          aria-haspopup="listbox"
-                          aria-expanded={phoneCodeMenuOpen}
-                          onClick={() => setPhoneCodeMenuOpen((open) => !open)}
-                        >
-                          <span className="phone-code-flag">{currentPhoneDialingOption.flag}</span>
-                          <span className="phone-code-country">{currentPhoneDialingOption.country}</span>
-                          <span>{phoneParts.code}</span>
-                          <ChevronDown size={14} strokeWidth={2.4} aria-hidden="true" />
-                        </button>
-                        <input type="hidden" name="tel-country-code" value={phoneParts.code} />
-                        {phoneCodeMenuOpen && (
-                          <div className="phone-code-menu" role="listbox" aria-label="Suuntanumero">
-                          {phoneDialingOptions.map((option) => (
-                            <button
-                              key={`${option.country}-${option.code}`}
-                              type="button"
-                              className={`phone-code-option${option.code === phoneParts.code ? " is-selected" : ""}`}
-                              role="option"
-                              aria-selected={option.code === phoneParts.code}
-                              onMouseDown={(event) => event.preventDefault()}
-                              onClick={() => {
-                                setPhoneDialingCode(option.code);
-                                setForm({
-                                  ...form,
-                                  phone: buildPhoneNumber(option.code, phoneParts.national)
-                                });
-                                setPhoneCodeMenuOpen(false);
-                              }}
-                            >
-                              <span className="phone-code-flag">{option.flag}</span>
-                              <span className="phone-code-country">{option.country}</span>
-                              <strong>{option.code}</strong>
-                              <span className="phone-code-name">{getCountryName(locale, option.country)}</span>
-                            </button>
-                          ))}
-                          </div>
-                        )}
-                      </div>
-                      <input
-                        required
-                        type="tel"
-                        inputMode="tel"
-                        pattern="[0-9]*"
-                        autoComplete="tel-national"
-                        name="tel-national"
-                        value={phoneParts.national}
-                        onChange={(event) => {
-                          setPhoneDialingCode(phoneParts.code);
-                          setForm({
-                            ...form,
-                            phone: buildPhoneNumber(phoneParts.code, sanitizePhoneDigits(event.target.value))
-                          });
-                        }}
-                        placeholder="401234567"
-                      />
-                    </div>
-                  </label>
-                  {form.account_type === "private" ? (
-                    <BirthDateField
-                      required
-                      value={form.birth_date}
-                      onChange={(value) => setForm({ ...form, birth_date: value })}
-                    />
-                  ) : (
-                    <label>
-                      {t.authCompanyWebsite}
-                      <input
-                        autoComplete="url"
-                        name="url"
-                        value={form.company_website}
-                        onChange={(event) => setForm({ ...form, company_website: event.target.value })}
-                        placeholder="https://yritys.fi"
-                      />
-                    </label>
-                  )}
-                  <label>
-                    {form.account_type === "company" ? t.authCompanyAddress : t.authAddress}
-                    <input
-                      required
-                      ref={companyAddressInputRef}
-                      autoComplete="street-address"
-                      name="street-address"
-                      value={form.address}
-                      onChange={(event) => setForm({ ...form, address: event.target.value })}
-                    />
-                  </label>
-                  <label>
-                    {t.authPostalCode}
-                    <input
-                      required
-                      autoComplete="postal-code"
-                      name="postal-code"
-                      value={form.postal_code}
-                      onChange={(event) => setForm({ ...form, postal_code: event.target.value })}
-                    />
-                  </label>
-                  <label>
-                    {t.authCity}
-                    <input
-                      required
-                      autoComplete="address-level2"
-                      name="address-level2"
-                      value={form.city}
-                      onChange={(event) => setForm({ ...form, city: event.target.value })}
-                    />
-                  </label>
-                  <label>
-                    {t.authCountry}
-                    <select
-                      required
-                      autoComplete="country-name"
-                      name="country-name"
-                      value={form.country}
-                      onChange={(event) => {
-                        const nextCountry = event.target.value;
-                        setForm({ ...form, country: nextCountry });
-                        if (nextCountry !== OTHER_COUNTRY_VALUE) {
-                          setCustomCountry("");
-                        }
-                      }}
-                    >
-                      {countryOptions.map((country) => (
-                        <option key={country} value={country}>
-                          {countryNameByLocale[locale][country]}
-                        </option>
-                      ))}
-                    </select>
-                    {form.country === OTHER_COUNTRY_VALUE && (
-                      <input
-                        required
-                        className="custom-country-input"
-                        value={customCountry}
-                        onChange={(event) => setCustomCountry(event.target.value)}
-                        placeholder={
-                          locale === "fi" ? "Kirjoita maa" :
-                          locale === "sv" ? "Skriv land" :
-                          "Enter country"
-                        }
-                      />
-                    )}
-                  </label>
-                </div>
-                <div className="privacy-checkbox-row">
-                  <input
-                    id="privacy-accept"
-                    type="checkbox"
-                    checked={privacyAccepted}
-                    onChange={e => setPrivacyAccepted(e.target.checked)}
-                  />
-                  <label htmlFor="privacy-accept" className="privacy-checkbox-label">
-                    {t.authPrivacyAcceptText}{" "}
-                    <Link
-                      href={profilePrivacyHref}
-                      className="privacy-link"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        persistProfileCompletionDraft();
-                      }}
-                    >
-                      {t.authPrivacyLink}
-                    </Link>
-                  </label>
-                </div>
-                <button type="submit" disabled={!privacyAccepted}>
-                  <Check size={18} />
-                  {t.authSaveAndProceed}
-                </button>
               </>
-            ) : (
-              <Link className="primary-action" href="/">
-                {t.authGoToPlatform}
-              </Link>
             )}
-            <button className="secondary-button" type="button" onClick={handleSignOut}>
-              {t.signOut}
-            </button>
-            <span className="form-note">{status}</span>
+            {status ? <span className="form-note">{status}</span> : null}
           </form>
         ) : (
           <div className="auth-card simple-card email-confirm-card">

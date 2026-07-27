@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createHash, randomBytes } from "node:crypto";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey =
@@ -10,13 +11,43 @@ const serviceRoleKey =
   process.env.SUPABASE_SERVICE_KEY;
 
 type AdminActionBody =
-  | { action: "ban-user"; userId?: string; reason?: string | null }
+  | { action: "authorize-sensitive"; sensitiveAction?: SensitiveAdminAction }
+  | { action: "ban-user"; userId?: string; reason?: string | null; approvalToken?: string }
   | { action: "unban-user"; userId?: string }
-  | { action: "ban-ip"; ip?: string; reason?: string | null }
+  | { action: "ban-ip"; ip?: string; reason?: string | null; approvalToken?: string }
   | { action: "unban-ip"; ip?: string }
-  | { action: "delete-listing"; listingId?: string; reason?: string | null }
+  | { action: "delete-listing"; listingId?: string; reason?: string | null; approvalToken?: string }
+  | { action: "delete-user"; userId?: string; approvalToken?: string }
   | { action: "list-profiles"; query?: string; limit?: number; offset?: number }
   | { action: "list-banned-ips" };
+
+type SensitiveAdminAction = "ban-user" | "ban-ip" | "delete-listing" | "delete-user";
+
+const SENSITIVE_ADMIN_ACTIONS = new Set<SensitiveAdminAction>([
+  "ban-user",
+  "ban-ip",
+  "delete-listing",
+  "delete-user"
+]);
+
+function hashApprovalToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+function getRecentTotpTimestamp(claims: Record<string, unknown> | undefined, maxAgeSeconds = 90) {
+  const amr = Array.isArray(claims?.amr) ? claims.amr : [];
+  const newestTotp = amr.reduce((newest, entry) => {
+    if (!entry || typeof entry !== "object") return newest;
+    const value = entry as { method?: unknown; timestamp?: unknown };
+    if (value.method !== "totp" || typeof value.timestamp !== "number") return newest;
+    return Math.max(newest, value.timestamp);
+  }, 0);
+
+  const ageSeconds = Math.floor(Date.now() / 1000) - newestTotp;
+  return newestTotp > 0 && ageSeconds >= -10 && ageSeconds <= maxAgeSeconds
+    ? newestTotp
+    : null;
+}
 
 function getBearerToken(request: Request) {
   const header = request.headers.get("authorization") ?? "";
@@ -157,7 +188,71 @@ async function requireAdmin(request: Request) {
     };
   }
 
-  return { admin, userId };
+  return {
+    admin,
+    userId,
+    sessionId,
+    claims: claims as Record<string, unknown>
+  };
+}
+
+async function createSensitiveApproval(
+  admin: ReturnType<typeof getClient>,
+  userId: string,
+  sessionId: string,
+  action: SensitiveAdminAction,
+  totpVerifiedAt: number
+) {
+  const token = randomBytes(32).toString("base64url");
+  const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString();
+
+  const { error } = await admin
+    .from("admin_action_approvals")
+    .insert({
+      admin_user_id: userId,
+      session_id: sessionId,
+      action,
+      token_hash: hashApprovalToken(token),
+      totp_verified_at: totpVerifiedAt,
+      expires_at: expiresAt
+    });
+
+  if (error?.code === "23505") {
+    throw new Error("Tämä Authenticator-vahvistus on jo käytetty. Anna uusi koodi.");
+  }
+  if (error) throw error;
+
+  void admin
+    .from("admin_action_approvals")
+    .delete()
+    .lt("expires_at", new Date().toISOString());
+
+  return token;
+}
+
+async function consumeSensitiveApproval(
+  admin: ReturnType<typeof getClient>,
+  userId: string,
+  sessionId: string,
+  action: SensitiveAdminAction,
+  token: string | undefined
+) {
+  if (!token) return false;
+
+  const { data, error } = await admin
+    .from("admin_action_approvals")
+    .update({ used_at: new Date().toISOString() })
+    .eq("admin_user_id", userId)
+    .eq("session_id", sessionId)
+    .eq("action", action)
+    .eq("token_hash", hashApprovalToken(token))
+    .is("used_at", null)
+    .gt("expires_at", new Date().toISOString())
+    .select("id")
+    .maybeSingle<{ id: string }>();
+
+  if (error) throw error;
+  return Boolean(data?.id);
 }
 
 function normalizeProfile(row: Record<string, unknown>) {
@@ -213,11 +308,63 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json().catch(() => ({})) as AdminActionBody;
-    const { admin, userId } = guard;
+    const { admin, userId, sessionId, claims } = guard;
+
+    if (body.action === "authorize-sensitive") {
+      if (!body.sensitiveAction || !SENSITIVE_ADMIN_ACTIONS.has(body.sensitiveAction)) {
+        return NextResponse.json({ error: "Virheellinen suojattu toiminto." }, { status: 400 });
+      }
+
+      const totpVerifiedAt = getRecentTotpTimestamp(claims);
+      if (!totpVerifiedAt) {
+        return NextResponse.json(
+          { error: "Anna uusi Authenticator-koodi ennen toimintoa." },
+          { status: 403 }
+        );
+      }
+
+      const approvalToken = await createSensitiveApproval(
+        admin,
+        userId,
+        sessionId,
+        body.sensitiveAction,
+        totpVerifiedAt
+      );
+      return NextResponse.json({ approvalToken, expiresIn: 120 });
+    }
+
+    if (SENSITIVE_ADMIN_ACTIONS.has(body.action as SensitiveAdminAction)) {
+      const allowed = await consumeSensitiveApproval(
+        admin,
+        userId,
+        sessionId,
+        body.action as SensitiveAdminAction,
+        "approvalToken" in body ? body.approvalToken : undefined
+      );
+
+      if (!allowed) {
+        return NextResponse.json(
+          { error: "Authenticator-vahvistus puuttuu, vanheni tai on jo käytetty." },
+          { status: 403 }
+        );
+      }
+    }
 
     if (body.action === "ban-user") {
       if (!body.userId) {
         return NextResponse.json({ error: "Käyttäjä puuttuu." }, { status: 400 });
+      }
+
+      const { data: protectedAdmin } = await admin
+        .from("admin_users")
+        .select("user_id")
+        .eq("user_id", body.userId)
+        .maybeSingle<{ user_id: string }>();
+      if (protectedAdmin?.user_id) {
+        return NextResponse.json(
+          { error: "Admin-käyttäjää ei voi bannata tästä paneelista." },
+          { status: 403 }
+        );
       }
 
       const { error } = await admin
@@ -338,6 +485,28 @@ export async function POST(request: Request) {
         });
 
       return NextResponse.json({ data: rows });
+    }
+
+    if (body.action === "delete-user") {
+      if (!body.userId) {
+        return NextResponse.json({ error: "Käyttäjä puuttuu." }, { status: 400 });
+      }
+      if (body.userId === userId) {
+        return NextResponse.json({ error: "Et voi poistaa omaa admin-tiliäsi." }, { status: 400 });
+      }
+
+      const { data: protectedAdmin } = await admin
+        .from("admin_users")
+        .select("user_id")
+        .eq("user_id", body.userId)
+        .maybeSingle<{ user_id: string }>();
+      if (protectedAdmin?.user_id) {
+        return NextResponse.json({ error: "Toista admin-käyttäjää ei voi poistaa tästä paneelista." }, { status: 403 });
+      }
+
+      const { error } = await admin.auth.admin.deleteUser(body.userId);
+      if (error) throw error;
+      return NextResponse.json({ ok: true });
     }
 
     if (body.action === "delete-listing") {

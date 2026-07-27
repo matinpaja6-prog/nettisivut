@@ -51,11 +51,13 @@ import {
   adminUnbanIp,
   adminUnbanUser,
   adminUpdateProfile,
+  authorizeAdminSensitiveAction,
   isSupabaseConfigured,
   supabase,
   type AdminBannedIp,
   type AdminOverviewStats,
-  type AdminProfileRow
+  type AdminProfileRow,
+  type SensitiveAdminAction
 } from "@/lib/supabase";
 
 import { BASE_LISTING_SLOT_LIMIT } from "@/lib/listing-slots";
@@ -94,6 +96,11 @@ type AdminMfaEnrollment = {
   factorId: string;
   qrCode: string;
   secret: string;
+};
+
+type AdminStepUpState = {
+  action: SensitiveAdminAction;
+  title: string;
 };
 
 const ADMIN_LISTING_COLUMNS =
@@ -204,6 +211,8 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
   const [toast, setToast] = useState<Toast>(null);
   const [confirm, setConfirm] = useState<ConfirmState>(null);
+  const [stepUp, setStepUp] = useState<AdminStepUpState | null>(null);
+  const stepUpResolver = useRef<((approvalToken: string | null) => void) | null>(null);
 
   const [stats, setStats] = useState<AdminOverviewStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
@@ -233,6 +242,20 @@ export default function AdminPage() {
 
   const showOk = useCallback((message: string) => setToast({ type: "ok", message }), []);
   const showError = useCallback((message: string) => setToast({ type: "error", message }), []);
+
+  const requestStepUp = useCallback((action: SensitiveAdminAction, title: string) => {
+    setConfirm(null);
+    setStepUp({ action, title });
+    return new Promise<string | null>((resolve) => {
+      stepUpResolver.current = resolve;
+    });
+  }, []);
+
+  const finishStepUp = useCallback((approvalToken: string | null) => {
+    stepUpResolver.current?.(approvalToken);
+    stepUpResolver.current = null;
+    setStepUp(null);
+  }, []);
 
   /* Boot: verify admin */
   useEffect(() => {
@@ -566,8 +589,10 @@ export default function AdminPage() {
 
   /* Action handlers */
   const handleDeleteListing = async (listing: AdminListing) => {
-    const { error } = await adminDeleteListing(listing.id);
-    if (error) { showError("Ilmoituksen poisto epäonnistui."); return; }
+    const approvalToken = await requestStepUp("delete-listing", "Poista ilmoitus pysyvästi");
+    if (!approvalToken) return;
+    const { error } = await adminDeleteListing(listing.id, undefined, approvalToken);
+    if (error) { showError(getErrorMessage(error, "Ilmoituksen poisto epäonnistui.")); return; }
     showOk("Ilmoitus poistettu.");
     setListings((prev) => prev.filter((l) => l.id !== listing.id));
     void loadStats();
@@ -575,17 +600,26 @@ export default function AdminPage() {
   };
 
   const handleDeleteUser = async (user: AdminProfileRow) => {
-    const { error } = await adminDeleteUser(user.id);
-    if (error) { showError("Käyttäjän poisto epäonnistui."); return; }
+    const approvalToken = await requestStepUp("delete-user", "Poista käyttäjä pysyvästi");
+    if (!approvalToken) return;
+    const { error } = await adminDeleteUser(user.id, approvalToken);
+    if (error) { showError(getErrorMessage(error, "Käyttäjän poisto epäonnistui.")); return; }
     showOk("Käyttäjä poistettu.");
     setUsers((prev) => prev.filter((u) => u.id !== user.id));
     setConfirm(null);
   };
 
   const handleToggleBan = async (user: AdminProfileRow, reason?: string) => {
-    const action = user.is_banned ? adminUnbanUser(user.id) : adminBanUser(user.id, reason);
+    let action;
+    if (user.is_banned) {
+      action = adminUnbanUser(user.id);
+    } else {
+      const approvalToken = await requestStepUp("ban-user", "Bannaa käyttäjä");
+      if (!approvalToken) return;
+      action = adminBanUser(user.id, reason, approvalToken);
+    }
     const { error } = await action;
-    if (error) { showError("Bannaus epäonnistui."); return; }
+    if (error) { showError(getErrorMessage(error, "Bannaus epäonnistui.")); return; }
     showOk(user.is_banned ? "Käyttäjä unbannattu." : "Käyttäjä bannattu.");
     setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, is_banned: !u.is_banned, banned_reason: user.is_banned ? null : (reason ?? null) } : u));
     setBannedUsers((prev) => user.is_banned ? prev.filter((u) => u.id !== user.id) : [{ ...user, is_banned: true, banned_reason: reason ?? null }, ...prev]);
@@ -660,8 +694,10 @@ export default function AdminPage() {
   };
 
   const handleBanIp = async (ip: string, reason?: string) => {
-    const { error } = await adminBanIp(ip, reason);
-    if (error) { showError("IP-bannaus epäonnistui."); return; }
+    const approvalToken = await requestStepUp("ban-ip", "Bannaa IP-osoite");
+    if (!approvalToken) return;
+    const { error } = await adminBanIp(ip, reason, approvalToken);
+    if (error) { showError(getErrorMessage(error, "IP-bannaus epäonnistui.")); return; }
     showOk(`IP ${ip} bannattu.`);
     void loadBans();
     setConfirm(null);
@@ -1059,6 +1095,15 @@ export default function AdminPage() {
         />
       )}
 
+      {stepUp && (
+        <AdminStepUpDialog
+          state={stepUp}
+          factorId={mfaFactorId}
+          onCancel={() => finishStepUp(null)}
+          onApproved={(approvalToken) => finishStepUp(approvalToken)}
+        />
+      )}
+
       {toast && (
         <div className={`${styles.toast} ${toast.type === "error" ? styles.toastError : ""}`}>
           {toast.message}
@@ -1190,6 +1235,102 @@ function RecentEventsPanelV2({ users, listings, onViewAll }: {
             <span className={styles.recentEventTime}>{relativeTime(event.time)}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function AdminStepUpDialog({
+  state,
+  factorId,
+  onCancel,
+  onApproved
+}: {
+  state: AdminStepUpState;
+  factorId: string;
+  onCancel: () => void;
+  onApproved: (approvalToken: string) => void;
+}) {
+  const [code, setCode] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [error, setError] = useState("");
+
+  async function verify() {
+    if (!supabase || !factorId || !/^\d{6}$/.test(code)) {
+      setError("Anna Authenticator-sovelluksen kuusinumeroinen koodi.");
+      return;
+    }
+
+    setChecking(true);
+    setError("");
+    try {
+      const { error: verifyError } = await supabase.auth.mfa.challengeAndVerify({
+        factorId,
+        code
+      });
+      if (verifyError) throw verifyError;
+
+      const { data: approvalToken, error: approvalError } =
+        await authorizeAdminSensitiveAction(state.action);
+      if (approvalError || !approvalToken) {
+        throw approvalError ?? new Error("Kertakäyttöisen hyväksynnän luominen epäonnistui.");
+      }
+
+      onApproved(approvalToken);
+    } catch (stepUpError) {
+      setError(getErrorMessage(stepUpError, "Authenticator-koodin tarkistus epäonnistui."));
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  return (
+    <div className={styles.modalBackdrop} onClick={onCancel}>
+      <div className={styles.modal} onClick={(event) => event.stopPropagation()}>
+        <div style={{ display: "grid", gap: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Smartphone size={24} aria-hidden="true" />
+            <h3 style={{ margin: 0 }}>Vahvista vaarallinen toiminto</h3>
+          </div>
+          <p style={{ margin: 0 }}>
+            <strong>{state.title}</strong> vaatii uuden Authenticator-koodin.
+            Hyväksyntä toimii vain tähän yhteen toimintoon ja vanhenee kahdessa minuutissa.
+          </p>
+          <input
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            value={code}
+            onChange={(event) => {
+              setCode(event.target.value.replace(/\D/g, "").slice(0, 6));
+              setError("");
+            }}
+            onKeyDown={(event) => { if (event.key === "Enter") void verify(); }}
+            aria-label="Uusi Authenticator-koodi"
+            className={styles.searchInput}
+            style={{ fontSize: "1.2rem", letterSpacing: "0.3em", textAlign: "center" }}
+            autoFocus
+          />
+          {error && (
+            <span style={{ color: "#ef4444", fontWeight: 900, fontSize: "0.9rem" }}>
+              {error}
+            </span>
+          )}
+          <div className={styles.modalActions}>
+            <button type="button" className={styles.ghostBtn} onClick={onCancel} disabled={checking}>
+              Peruuta
+            </button>
+            <button
+              type="button"
+              className={styles.dangerBtn}
+              onClick={() => void verify()}
+              disabled={checking || code.length !== 6}
+            >
+              {checking ? "Tarkistetaan..." : "Vahvista toiminto"}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -2385,6 +2526,7 @@ function ConfirmDialogs({
             </div>
           </>
         )}
+
 
         {state.kind === "ban-user" && (
           <>

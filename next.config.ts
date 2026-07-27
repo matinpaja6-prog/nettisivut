@@ -84,7 +84,7 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://maps.googleapis.com`,
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://maps.googleapis.com https://challenges.cloudflare.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' data: https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
@@ -94,6 +94,7 @@ const securityHeaders = [
       "manifest-src 'self'",
       "base-uri 'self'",
       "object-src 'none'",
+      "frame-src https://challenges.cloudflare.com",
       "frame-ancestors 'none'",
       "form-action 'self'",
       ...(process.env.NODE_ENV === "production" ? ["upgrade-insecure-requests"] : [])

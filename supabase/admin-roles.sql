@@ -14,6 +14,10 @@ create table if not exists public.admin_users (
   created_at timestamptz not null default now()
 );
 
+-- Järjestelmässä voi olla vain yksi admin-roolin haltija kerrallaan.
+create unique index if not exists admin_users_single_admin_idx
+  on public.admin_users ((true));
+
 alter table public.admin_users enable row level security;
 
 create or replace function public.is_admin(check_user_id uuid default auth.uid())
@@ -82,6 +86,14 @@ begin
 
   if target_user_id is null then
     raise exception 'Käyttäjää ei löytynyt Supabase Authista sähköpostilla: %', normalized_email;
+  end if;
+
+  if exists (
+    select 1
+    from public.admin_users existing_admin
+    where existing_admin.user_id <> target_user_id
+  ) then
+    raise exception 'Admin-rooli on jo toisella käyttäjällä. Järjestelmä sallii vain yhden adminin kerrallaan.';
   end if;
 
   insert into public.admin_users (user_id, email)
