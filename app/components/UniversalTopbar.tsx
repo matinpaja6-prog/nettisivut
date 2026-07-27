@@ -116,15 +116,6 @@ function getAuthUserDisplayName(user: User | null) {
     .find((value) => value && value.toLowerCase() !== user.email?.toLowerCase()) ?? "";
 }
 
-function getAuthUserAvatarUrl(user: User | null) {
-  if (!user) return null;
-
-  const metadata = user.user_metadata ?? {};
-  return [metadata.avatar_url, metadata.picture]
-    .map((value) => String(value ?? "").trim())
-    .find(Boolean) ?? null;
-}
-
 type TopbarProfile = {
   avatar_url: string | null;
   first_name: string | null;
@@ -387,8 +378,7 @@ export default function UniversalTopbar() {
     async function syncUser(
       nextUserId: string | null,
       fallbackEmail?: string | null,
-      fallbackName?: string | null,
-      fallbackAvatarUrl?: string | null
+      fallbackName?: string | null
     ) {
       if (cancelled) return;
       const generation = ++syncGeneration;
@@ -408,13 +398,13 @@ export default function UniversalTopbar() {
       }
 
       if (userChanged) {
-        setAvatarUrl(fallbackAvatarUrl ?? null);
+        setAvatarUrl(null);
       }
 
       const profile = await getTopbarProfile(nextUserId);
       if (cancelled || generation !== syncGeneration) return;
       if (profile) {
-        setAvatarUrl(profile.avatar_url ?? fallbackAvatarUrl ?? null);
+        setAvatarUrl(profile.avatar_url ?? null);
       }
       const displayName = getTopbarProfileDisplayName(
         profile,
@@ -438,8 +428,7 @@ export default function UniversalTopbar() {
         await syncUser(
           user?.id ?? null,
           user?.email ?? null,
-          getAuthUserDisplayName(user),
-          getAuthUserAvatarUrl(user)
+          getAuthUserDisplayName(user)
         );
       })
       .catch(() => {
@@ -457,8 +446,7 @@ export default function UniversalTopbar() {
         void syncUser(
           nextUser?.id ?? null,
           nextUser?.email ?? null,
-          getAuthUserDisplayName(nextUser),
-          getAuthUserAvatarUrl(nextUser)
+          getAuthUserDisplayName(nextUser)
         );
       }, 0);
     });
@@ -482,6 +470,8 @@ export default function UniversalTopbar() {
       if (profile.avatar_url) {
         const separator = profile.avatar_url.includes("?") ? "&" : "?";
         setAvatarUrl(`${profile.avatar_url}${separator}avatar=${Date.now()}`);
+      } else {
+        setAvatarUrl(null);
       }
 
       const displayName = getTopbarProfileDisplayName(profile);
