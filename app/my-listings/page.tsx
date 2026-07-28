@@ -402,8 +402,10 @@ function normalizeStatsSnapshot(value: unknown): StatsSnapshot {
 function mergeStatsSnapshots(current: StatsSnapshot, previous?: StatsSnapshot): StatsSnapshot {
   const old = previous ?? emptyStatsSnapshot;
   return {
-    listings: Math.max(current.listings, old.listings),
-    newListings: Math.max(current.newListings, old.newListings),
+    // These are current, non-cumulative values. Keeping their historical
+    // maximum made deleted/expired listings remain visible in the summary.
+    listings: current.listings,
+    newListings: current.newListings,
     soldValue: Math.max(current.soldValue, old.soldValue),
     soldCount: Math.max(current.soldCount, old.soldCount),
     views: Math.max(current.views, old.views),
@@ -1362,7 +1364,7 @@ export default function MyListingsPage() {
   }, [statsRange]);
 
   const newListingsInRange = useMemo(() => listings.filter(
-    (l) => !rangeStart || (l.created_at && new Date(l.created_at) >= rangeStart)
+    (l) => !l.is_hidden && (!rangeStart || (l.created_at && new Date(l.created_at) >= rangeStart))
   ).length, [listings, rangeStart]);
 
   const soldInRange = useMemo(() => soldListings.filter(
@@ -1391,7 +1393,7 @@ export default function MyListingsPage() {
   );
 
   const currentStatsSnapshot = useMemo<StatsSnapshot>(() => ({
-    listings: listings.length,
+    listings: listings.filter((listing) => !listing.is_hidden).length,
     newListings: newListingsInRange,
     soldValue: soldValueInRange,
     soldCount: soldInRange.length,
@@ -1401,7 +1403,7 @@ export default function MyListingsPage() {
     conversations: conversationCount
   }), [
     conversationCount,
-    listings.length,
+    listings,
     newListingsInRange,
     soldInRange.length,
     soldValueInRange,
@@ -1436,10 +1438,12 @@ export default function MyListingsPage() {
     });
   }, [currentStatsSnapshot, statsRange, user]);
 
-  const displayedStats = mergeStatsSnapshots(
-    currentStatsSnapshot,
-    statsHistory[statsRange]
-  );
+  const displayedStats = {
+    ...mergeStatsSnapshots(currentStatsSnapshot, statsHistory[statsRange]),
+    // Never allow cached history to override live, non-cumulative counts.
+    listings: currentStatsSnapshot.listings,
+    newListings: currentStatsSnapshot.newListings
+  };
 
   const visibleListings = listings.filter((l) => !l.is_hidden);
   const hiddenListings = listings.filter((l) => !!l.is_hidden);

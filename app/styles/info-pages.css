@@ -20,7 +20,7 @@
   color: #f7fafc;
   min-height: 100vh;
   overflow: hidden;
-  padding: 46px 32px 34px;
+  padding: 46px clamp(18px, 4vw, 48px) 34px;
 }
 
 html:has(body main.about-showcase-page),
@@ -34,7 +34,8 @@ body:has(main.about-showcase-page) {
 .about-showcase-numbers,
 .about-showcase-community {
   margin: 0 auto;
-  max-width: 1180px;
+  max-width: none;
+  width: min(1280px, 100%);
 }
 
 .about-showcase-hero {
@@ -146,6 +147,11 @@ body:has(main.about-showcase-page) {
   height: 48px;
   justify-content: center;
   width: 48px;
+}
+
+.about-showcase-mission-icon {
+  flex: 0 0 48px;
+  min-width: 48px;
 }
 
 .about-showcase-stat strong {

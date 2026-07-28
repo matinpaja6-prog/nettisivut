@@ -5155,7 +5155,7 @@ html body .seller-page .sp-filter-panel-backdrop {
   left: 0 !important;
   position: fixed !important;
   right: 0 !important;
-  top: calc(var(--topbar-h, 64px) + 18px) !important;
+  top: 0 !important;
   z-index: 80 !important;
 }
 
@@ -5175,7 +5175,7 @@ html body .seller-page .sp-filter-panel {
   padding: 8px 16px 18px !important;
   position: fixed !important;
   right: 0 !important;
-  top: calc(var(--topbar-h, 64px) + 18px) !important;
+  top: 0 !important;
   width: 420px !important;
   z-index: 90 !important;
 }

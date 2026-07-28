@@ -50,6 +50,10 @@ import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { subcategoryGroups, type ListingInput } from "@/lib/listings";
 import { listingPath, listingUrlId } from "@/lib/routes";
+import {
+  filterVehicleBrandModelsBySubtype,
+  mergeVehicleBrandModels
+} from "@/lib/vehicle-subtype-models";
 import type {
   CompanySeller,
   UserProfile
@@ -2261,8 +2265,22 @@ function SellPageContent() {
     () => buildVehicleCategoriesFromTaxonomy(taxonomy, vehicleType.key, vehicleDetails.vehicleSubtype),
     [taxonomy, vehicleDetails.vehicleSubtype, vehicleType.key]
   );
+  const subtypeBrandModels = useMemo(
+    () =>
+      filterVehicleBrandModelsBySubtype(
+        vehicleType.key,
+        vehicleDetails.vehicleSubtype,
+        mergeVehicleBrandModels(
+          getVehicleMap(vehicleBrandModels, vehicleType.key),
+          commonBrandModelsByVehicle[getCommonVehicleKey(vehicleType.key)]
+        )
+      ),
+    [vehicleDetails.vehicleSubtype, vehicleType.key]
+  );
   const taxonomyBrandOptions = useMemo(
     () => {
+      if (subtypeBrandModels) return uniqueOptions(Object.keys(subtypeBrandModels));
+
       const taxonomyBrands =
         taxonomy.vehicles.find((vehicle) => vehicle.key === vehicleType.key)?.brands ?? [];
       const commonBrands =
@@ -2274,17 +2292,25 @@ function SellPageContent() {
         ...commonBrands
       ]);
     },
-    [taxonomy, vehicleType]
+    [subtypeBrandModels, taxonomy, vehicleType]
   );
   const vehiclePreset = getVehiclePreset(vehicleType.key);
   const modelOptions = useMemo(
-    () =>
-      getBrandModelOptions(
+    () => {
+      if (subtypeBrandModels) {
+        return uniqueOptions(
+          vehicleDetails.brand
+            ? (subtypeBrandModels[vehicleDetails.brand] ?? [])
+            : Object.values(subtypeBrandModels).flat()
+        );
+      }
+      return getBrandModelOptions(
         vehicleType.key,
         vehicleDetails.brand,
         vehiclePreset.models
-      ),
-    [vehicleDetails.brand, vehiclePreset.models, vehicleType.key]
+      );
+    },
+    [subtypeBrandModels, vehicleDetails.brand, vehiclePreset.models, vehicleType.key]
   );
   const engineTypeOptions = useMemo(
     () =>
@@ -3131,10 +3157,20 @@ function SellPageContent() {
   }
 
   function updateVehicleDetail(key: keyof VehicleDetails, value: string) {
-    setVehicleDetails((current) => ({
-      ...current,
-      [key]: value
-    }));
+    setVehicleDetails((current) =>
+      key === "vehicleSubtype"
+        ? {
+            ...current,
+            vehicleSubtype: value,
+            brand: "",
+            model: "",
+            engineType: ""
+          }
+        : {
+            ...current,
+            [key]: value
+          }
+    );
   }
 
   function updateVehicleBrand(value: string) {

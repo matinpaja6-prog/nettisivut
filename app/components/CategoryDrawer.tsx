@@ -8,6 +8,10 @@ import {
 } from "@/lib/listings";
 import { useLanguage, translateCategory } from "@/lib/i18n";
 import {
+  filterVehicleBrandModelsBySubtype,
+  mergeVehicleBrandModels
+} from "@/lib/vehicle-subtype-models";
+import {
   X, ChevronRight, ChevronLeft, Wrench,
   Settings2, Zap, Thermometer, Droplets, Shield, Activity,
   Navigation, Circle, MoreHorizontal, Check,
@@ -1929,15 +1933,29 @@ export default function CategoryDrawer({
     model,
     brand ? (ENGINE_MODELS[vehicle]?.[brand] ?? []) : []
   );
-  const brandOptions = uniqueOptions([
-    ...((vehicle ? vehicleBrands[vehicle as VehicleType] : []) ?? []).filter((b) => b !== "Kaikki"),
-    ...Object.keys(BRAND_MODELS[vehicle] ?? {}),
-    ...Object.keys(BRAND_MODELS[getCategoryVehicleKey(vehicle)] ?? {}),
-    ...Object.keys(COMMON_BRAND_MODELS_BY_VEHICLE[getCommonVehicleKey(vehicle)] ?? {}),
-    ...(!vehicle ? Object.values(BRAND_MODELS).flatMap((modelsByBrand) => Object.keys(modelsByBrand)) : []),
-    ...(!vehicle ? Object.values(COMMON_BRAND_MODELS_BY_VEHICLE).flatMap((modelsByBrand) => Object.keys(modelsByBrand)) : [])
-  ]);
-  const modelOptions = brand ? getBrandModelOptions(vehicle, brand) : [];
+  const subtypeBrandModels = filterVehicleBrandModelsBySubtype(
+    categoryVehicleKey,
+    vehicleSubtype,
+    mergeVehicleBrandModels(
+      BRAND_MODELS[vehicle] ?? BRAND_MODELS[categoryVehicleKey],
+      COMMON_BRAND_MODELS_BY_VEHICLE[getCommonVehicleKey(vehicle)]
+    )
+  );
+  const brandOptions = subtypeBrandModels
+    ? uniqueOptions(Object.keys(subtypeBrandModels))
+    : uniqueOptions([
+        ...((vehicle ? vehicleBrands[vehicle as VehicleType] : []) ?? []).filter((b) => b !== "Kaikki"),
+        ...Object.keys(BRAND_MODELS[vehicle] ?? {}),
+        ...Object.keys(BRAND_MODELS[categoryVehicleKey] ?? {}),
+        ...Object.keys(COMMON_BRAND_MODELS_BY_VEHICLE[getCommonVehicleKey(vehicle)] ?? {}),
+        ...(!vehicle ? Object.values(BRAND_MODELS).flatMap((modelsByBrand) => Object.keys(modelsByBrand)) : []),
+        ...(!vehicle ? Object.values(COMMON_BRAND_MODELS_BY_VEHICLE).flatMap((modelsByBrand) => Object.keys(modelsByBrand)) : [])
+      ]);
+  const modelOptions = subtypeBrandModels
+    ? uniqueOptions(brand ? (subtypeBrandModels[brand] ?? []) : Object.values(subtypeBrandModels).flat())
+    : brand
+      ? getBrandModelOptions(vehicle, brand)
+      : [];
 
   useEffect(() => {
     if (!engineModel || engineModel === "muu" || engineModelOptions.includes(engineModel)) return;
@@ -2202,6 +2220,11 @@ export default function CategoryDrawer({
                   }}
                   onClick={() => {
                     setVehicleSubtype(option);
+                    setBrand("");
+                    setModel("");
+                    setModelOpen(false);
+                    setEngineModel("");
+                    setEngineModelOther("");
                     setCat("");
                     setSubGroup("");
                     setSub("");

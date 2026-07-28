@@ -13,6 +13,10 @@ import {
   getCommonVehicleKey,
   getModelEngineOptions
 } from "@/app/components/CategoryDrawer";
+import {
+  filterVehicleBrandModelsBySubtype,
+  mergeVehicleBrandModels
+} from "@/lib/vehicle-subtype-models";
 
 export const MARKETPLACE_YEAR_FILTER_MIN = 1980;
 
@@ -157,6 +161,21 @@ function getMotorcycleSubtypeModels(vehicle: string, vehicleSubtype: string) {
     : null;
 }
 
+function getVehicleSubtypeModels(vehicle: string, vehicleSubtype: string) {
+  const motorcycleModels = getMotorcycleSubtypeModels(vehicle, vehicleSubtype);
+  if (motorcycleModels) return motorcycleModels;
+
+  const vehicleKey = getCategoryVehicleKey(vehicle);
+  return filterVehicleBrandModelsBySubtype(
+    vehicleKey,
+    vehicleSubtype,
+    mergeVehicleBrandModels(
+      BRAND_MODELS[vehicle] ?? BRAND_MODELS[vehicleKey],
+      COMMON_BRAND_MODELS_BY_VEHICLE[getCommonVehicleKey(vehicle)]
+    )
+  );
+}
+
 export function buildMarketplaceModelOptions({
   vehicle,
   brand,
@@ -168,7 +187,7 @@ export function buildMarketplaceModelOptions({
 }) {
   const vehicleKey = getCategoryVehicleKey(vehicle);
   const commonVehicleKey = getCommonVehicleKey(vehicle);
-  const subtypeModels = getMotorcycleSubtypeModels(vehicle, vehicleSubtype);
+  const subtypeModels = getVehicleSubtypeModels(vehicle, vehicleSubtype);
 
   if (subtypeModels) {
     return uniqueMarketplaceOptions(
@@ -296,7 +315,7 @@ export function buildMarketplaceFilterOptions({
   const vehicle = vehicleType || "";
   const vehicleKey = getCategoryVehicleKey(vehicle);
   const commonVehicleKey = getCommonVehicleKey(vehicle);
-  const subtypeModels = getMotorcycleSubtypeModels(vehicle, vehicleSubtype);
+  const subtypeModels = getVehicleSubtypeModels(vehicle, vehicleSubtype);
   const taxonomyBrandValues = vehicle ? (vehicleBrands[vehicle] ?? []) : Object.values(vehicleBrands).flat();
   const brands = subtypeModels
     ? uniqueMarketplaceOptions(Object.keys(subtypeModels))
