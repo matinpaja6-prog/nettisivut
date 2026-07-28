@@ -3,6 +3,7 @@ import { useState, useEffect, useId, useRef, type ReactNode, type RefObject } fr
 import {
   displayCategoryForVehicle,
   filterVehiclePartCategoriesBySubtype,
+  normalizeVehicleType,
   subcategoryGroups
 } from "@/lib/listings";
 import { useLanguage, translateCategory } from "@/lib/i18n";
@@ -914,7 +915,7 @@ function customValue(value: string) {
 }
 
 export function getCategoryVehicleKey(vehicle: string) {
-  return vehicle === "Mopot" ? "Mopo" : vehicle;
+  return normalizeVehicleType(vehicle) || vehicle;
 }
 
 export function getCommonVehicleKey(vehicle: string) {
@@ -2472,7 +2473,7 @@ export default function CategoryDrawer({
                   label="Moottorin koko (cc)"
                   icon={<Gauge size={20} />}
                   value={engineCc}
-                  options={vehicle ? (CC_OPTIONS[vehicle] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS}
+                  options={vehicle ? (CC_OPTIONS[vehicle] ?? CC_OPTIONS[getCategoryVehicleKey(vehicle)] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS}
                   disabled={false}
                   placeholder={t.all}
                   inputRef={engineCcInputRef}
@@ -2661,7 +2662,7 @@ export default function CategoryDrawer({
                         onChange={e => { setEngineCc(e.target.value); setEngineCcOther(""); }}
                       >
                         <option value="">{t.all}</option>
-                        {(vehicle ? (CC_OPTIONS[vehicle] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS).map((cc: string) => (
+                        {(vehicle ? (CC_OPTIONS[vehicle] ?? CC_OPTIONS[getCategoryVehicleKey(vehicle)] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS).map((cc: string) => (
                           <option key={cc} value={cc}>{cc} cc</option>
                         ))}
                         <option value="muu">{t.sellOtherOption}</option>
