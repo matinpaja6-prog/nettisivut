@@ -1175,7 +1175,7 @@ const vehicleDetailPresets: Record<
       "Skootteri"
     ],
     models: ["DT", "Senda", "MRT", "RX", "SX", "RS"],
-    engineCcs: ["50", "70", "80"],
+    engineCcs: ["50", "65", "70", "72", "75", "77", "80", "85", "86", "88", "90", "94", "100", "110"],
     engineTypes: ["2-tahti", "4-tahti", "AM6", "Derbi D50B0"]
   }
 };
