@@ -1413,13 +1413,29 @@ export async function updateListing(
       .select()
       .single<Listing>();
 
-    if (hasMissingListingColumns(result.error)) {
-      const fallbackListing = { ...translatedListing };
-      delete fallbackListing.original_language;
-      delete fallbackListing.translations;
-      delete fallbackListing.part_number;
-      delete fallbackListing.part_model;
+    const fallbackListing = { ...translatedListing };
+    const removableOptionalColumns = new Set([
+      "original_language",
+      "translations",
+      "part_number",
+      "part_model"
+    ]);
 
+    for (
+      let attempt = 0;
+      attempt < removableOptionalColumns.size && hasMissingListingColumns(result.error);
+      attempt += 1
+    ) {
+      const missingColumn = getMissingListingColumnName(result.error);
+      if (
+        !missingColumn ||
+        !removableOptionalColumns.has(missingColumn) ||
+        !(missingColumn in fallbackListing)
+      ) {
+        break;
+      }
+
+      delete (fallbackListing as Record<string, unknown>)[missingColumn];
       result = await supabase
         .from("listings")
         .update(fallbackListing)

@@ -1,6 +1,6 @@
 "use client";
 
-import { subcategoryGroups } from "@/lib/listings";
+import { filterVehiclePartCategoriesBySubtype, subcategoryGroups } from "@/lib/listings";
 import {
   BRAND_MODELS,
   CC_OPTIONS,
@@ -194,16 +194,19 @@ export function buildMarketplaceModelOptions({
 
 export function buildMarketplaceCategorySource({
   vehicleType,
+  vehicleSubtype = "",
   vehicleCategories,
   allVehicleCategories
 }: {
   vehicleType: string;
+  vehicleSubtype?: string;
   vehicleCategories: Record<string, Record<string, readonly string[]>>;
   allVehicleCategories: Record<string, readonly string[]>;
 }) {
   if (!vehicleType) return allVehicleCategories;
   const vehicleKey = getCategoryVehicleKey(vehicleType);
-  return vehicleCategories[vehicleType] ?? vehicleCategories[vehicleKey] ?? allVehicleCategories;
+  const categorySource = vehicleCategories[vehicleType] ?? vehicleCategories[vehicleKey] ?? allVehicleCategories;
+  return filterVehiclePartCategoriesBySubtype(categorySource, vehicleKey, vehicleSubtype);
 }
 
 export function buildMarketplaceSubcategoryGroups({
@@ -305,7 +308,12 @@ export function buildMarketplaceFilterOptions({
         ...(!vehicle ? Object.values(BRAND_MODELS).flatMap((modelsByBrand) => Object.keys(modelsByBrand)) : []),
         ...(!vehicle ? Object.values(COMMON_BRAND_MODELS_BY_VEHICLE).flatMap((modelsByBrand) => Object.keys(modelsByBrand)) : [])
       ]);
-  const categorySource = buildMarketplaceCategorySource({ vehicleType: vehicle, vehicleCategories, allVehicleCategories });
+  const categorySource = buildMarketplaceCategorySource({
+    vehicleType: vehicle,
+    vehicleSubtype,
+    vehicleCategories,
+    allVehicleCategories
+  });
   const subcategoryGroupsForCategory = buildMarketplaceSubcategoryGroups({ category, categorySource });
   const subcategoryParents = category
     ? (subcategoryGroupsForCategory ? Object.keys(subcategoryGroupsForCategory) : categorySource[category] ?? [])

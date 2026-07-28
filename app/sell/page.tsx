@@ -228,6 +228,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Mönkijä": "ATV",
     "Motocross": "Motocross",
     "Mopo": "Moped",
+    "Skootteri": "Scooter",
     "Tyyppi": "Type",
     "Merkki": "Brand",
     "Malli": "Model",
@@ -349,6 +350,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Mönkijä": "Fyrhjuling",
     "Motocross": "Motocross",
     "Mopo": "Moped",
+    "Skootteri": "Skoter",
     "Tyyppi": "Typ",
     "Merkki": "Märke",
     "Malli": "Modell",
@@ -1163,17 +1165,14 @@ const vehicleDetailPresets: Record<
     engineTypes: ["2-tahti", "4-tahti", "TPI", "EFI"]
   },
   Mopo: {
-    vehicleSubtype: "Mopo - mopo",
+    vehicleSubtype: "Mopo",
     model: "DT",
     year: "2020",
     engineCc: "50",
     engineType: "2-tahti",
     typeOptions: [
-      "Mopo - mopo",
-      "Skootteri - mopo",
-      "Supermoto - mopo",
-      "Enduro - mopo",
-      "Manki / monkey - mopo"
+      "Mopo",
+      "Skootteri"
     ],
     models: ["DT", "Senda", "MRT", "RX", "SX", "RS"],
     engineCcs: ["50", "70", "80"],
@@ -2259,8 +2258,8 @@ function SellPageContent() {
       [mode]
     );
   const vehicleCategories = useMemo(
-    () => buildVehicleCategoriesFromTaxonomy(taxonomy, vehicleType.key),
-    [taxonomy, vehicleType.key]
+    () => buildVehicleCategoriesFromTaxonomy(taxonomy, vehicleType.key, vehicleDetails.vehicleSubtype),
+    [taxonomy, vehicleDetails.vehicleSubtype, vehicleType.key]
   );
   const taxonomyBrandOptions = useMemo(
     () => {

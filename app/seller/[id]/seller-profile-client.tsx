@@ -522,6 +522,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     const vehicle = vehicleTypeFilter || "";
     const categorySource = buildMarketplaceCategorySource({
       vehicleType: vehicle,
+      vehicleSubtype: vehicleSubtypeFilter,
       vehicleCategories,
       allVehicleCategories
     });
@@ -532,6 +533,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       vehicleCategories,
       allVehicleCategories,
       vehicleType: vehicle,
+      vehicleSubtype: vehicleSubtypeFilter,
       brand: brandFilter,
       model: modelFilter,
       category: categoryFilter,
@@ -543,7 +545,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       return normalizeSubcategoryFilter(parent) === normalizeSubcategoryFilter(subcategoryParentFilter);
     });
     return Array.from(new Set([...baseChildren, ...dynamicChildren]));
-  }, [allVehicleCategories, brandFilter, categoryFilter, modelFilter, subcategoryParentFilter, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleTypeFilter]);
+  }, [allVehicleCategories, brandFilter, categoryFilter, modelFilter, subcategoryParentFilter, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleSubtypeFilter, vehicleTypeFilter]);
 
   function getListingTitle(listing: Listing): string {
     const localized = getLocalizedListingText(listing, locale);
@@ -632,12 +634,13 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       vehicleCategories,
       allVehicleCategories,
       vehicleType: vehicleTypeFilter,
+      vehicleSubtype: vehicleSubtypeFilter,
       brand: brandFilter,
       model: modelFilter,
       category: categoryFilter,
       subcategoryParent: subcategoryParentFilter
     });
-  }, [allVehicleCategories, brandFilter, categoryFilter, modelFilter, subcategoryParentFilter, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleTypeFilter]);
+  }, [allVehicleCategories, brandFilter, categoryFilter, modelFilter, subcategoryParentFilter, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleSubtypeFilter, vehicleTypeFilter]);
   const yearSliderMin = MARKETPLACE_YEAR_FILTER_MIN;
   const yearSliderMax = getMarketplaceYearFilterMax();
   const selectedYearMin = yearMinFilter ? Number.parseInt(yearMinFilter, 10) : yearSliderMin;

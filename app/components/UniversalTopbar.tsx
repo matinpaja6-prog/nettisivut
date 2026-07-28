@@ -319,14 +319,10 @@ function uniqueById<T extends { id: string }>(items: T[]) {
 export default function UniversalTopbar() {
   const router = useRouter();
   const pathname = usePathname() || "/";
-  // During a client-side auth redirect usePathname can briefly retain /auth
-  // after the browser URL has already changed. The address bar is authoritative
-  // for the topbar variant so the reduced auth header cannot leak onto home.
-  const activePathname =
-    typeof window !== "undefined"
-      ? window.location.pathname || pathname
-      : pathname;
-  const canonicalPathname = canonicalPathFromLocalized(activePathname);
+  // usePathname is reactive during client-side navigation. Reading
+  // window.location here can still return the previous URL in the render that
+  // follows router.push, leaving the old navigation item highlighted.
+  const canonicalPathname = canonicalPathFromLocalized(pathname);
   const isAuthRoute = canonicalPathname === "/auth";
   const { t, locale } = useLanguage();
   const taxonomy = useTaxonomy();

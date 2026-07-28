@@ -92,26 +92,6 @@ function buildLocation(city: string, country: string) {
   return [city.trim(), country.trim()].filter(Boolean).join(", ");
 }
 
-function editableListingTitle(value: string) {
-  const separatorIndex = value.indexOf(" - ");
-  return separatorIndex >= 0 ? value.slice(0, separatorIndex) : value;
-}
-
-function listingVehicleSuffix(brand: string, model: string, year: string) {
-  return [brand, model, year].map((value) => value.trim()).filter(Boolean).join(" ");
-}
-
-function buildEditableListingTitle(
-  title: string,
-  brand: string,
-  model: string,
-  year: string
-) {
-  const partTitle = editableListingTitle(title).trim();
-  const vehicleSuffix = listingVehicleSuffix(brand, model, year);
-  return vehicleSuffix ? `${partTitle} - ${vehicleSuffix}` : partTitle;
-}
-
 function EditablePresetInput({
   value,
   options,
@@ -646,6 +626,10 @@ export default function MyListingsPage() {
     useState<Record<string, ListingMessageCount>>({});
   const openedGroupFirstListingIdRef =
     useRef<string | null>(null);
+  const listingEditRequestIdRef =
+    useRef(0);
+  const listingFormDirtyRef =
+    useRef(false);
 
   useEffect(() => {
 
@@ -789,6 +773,9 @@ export default function MyListingsPage() {
 
   function startEditingListing(listing: Listing) {
 
+    const editRequestId = listingEditRequestIdRef.current + 1;
+    listingEditRequestIdRef.current = editRequestId;
+    listingFormDirtyRef.current = false;
     setEditingListingId(listing.id);
     setStatus("");
 
@@ -816,7 +803,10 @@ export default function MyListingsPage() {
 
     void getListingById(listing.id)
       .then(({ data }) => {
-        if (!data) return;
+        if (
+          !data ||
+          listingEditRequestIdRef.current !== editRequestId
+        ) return;
 
         const freshImages = getEditableListingImages(data);
         const freshLocationParts = splitLocation(data.location);
@@ -825,24 +815,28 @@ export default function MyListingsPage() {
           prev.map((item) => item.id === data.id ? data : item)
         );
 
-        setListingForm({
-          title: data.title,
-          price: String(data.price),
-          category: data.category ?? "",
-          subcategory: data.subcategory ?? "",
-          brand: data.brand ?? "",
-          model: data.model ?? "",
-          year: data.year ?? "",
-          part_model: data.part_model ?? "",
-          part_number: data.part_number ?? "",
-          location: data.location,
-          location_country: freshLocationParts.country,
-          location_city: freshLocationParts.city,
-          condition: data.condition,
-          description: getUserWrittenDescription(data.description),
-          image_url: freshImages[0] ?? "",
-          image_urls: freshImages
-        });
+        // Do not let a slow refresh replace values the seller has already
+        // changed while the edit form is open.
+        if (!listingFormDirtyRef.current) {
+          setListingForm({
+            title: data.title,
+            price: String(data.price),
+            category: data.category ?? "",
+            subcategory: data.subcategory ?? "",
+            brand: data.brand ?? "",
+            model: data.model ?? "",
+            year: data.year ?? "",
+            part_model: data.part_model ?? "",
+            part_number: data.part_number ?? "",
+            location: data.location,
+            location_country: freshLocationParts.country,
+            location_city: freshLocationParts.city,
+            condition: data.condition,
+            description: getUserWrittenDescription(data.description),
+            image_url: freshImages[0] ?? "",
+            image_urls: freshImages
+          });
+        }
       })
       .catch(() => {
         // The cached listing is still usable if the fresh fetch fails.
@@ -930,6 +924,8 @@ export default function MyListingsPage() {
 
   function stopEditingListing() {
 
+    listingEditRequestIdRef.current += 1;
+    listingFormDirtyRef.current = false;
     setEditingListingId(null);
     setStatus("");
 
@@ -994,7 +990,7 @@ export default function MyListingsPage() {
       await updateListing(
         editingListingId,
         {
-          title: listingForm.title,
+          title: listingForm.title.trim(),
           original_language: currentListing.original_language || locale,
           translations: null,
           price: normalizeListingPriceForSave(listingForm.price),
@@ -1019,6 +1015,7 @@ export default function MyListingsPage() {
     }
 
     if (data) {
+      updateCachedListing(data);
       setListings((prev) =>
         prev.map((listing) =>
           listing.id === data.id
@@ -1028,6 +1025,8 @@ export default function MyListingsPage() {
       );
     }
 
+    listingEditRequestIdRef.current += 1;
+    listingFormDirtyRef.current = false;
     setEditingListingId(null);
     setStatus(pageText.updated);
 
@@ -1993,35 +1992,32 @@ export default function MyListingsPage() {
 
                     {editing ? (
 
-                      <div className="own-listing-edit">
+                      <div
+                        className="own-listing-edit"
+                        onChangeCapture={() => {
+                          listingFormDirtyRef.current = true;
+                        }}
+                      >
                         <div className="own-listing-edit-head">
                           <div>
                             <span>Muokkaa ilmoitusta</span>
-                            <strong>{listing.title}</strong>
+                            <strong>{listingForm.title}</strong>
                           </div>
                           <small>Tallenna muutokset vasta kun tiedot näyttävät oikeilta.</small>
                         </div>
 
-                        {(() => {
-                          const partName = editableListingTitle(listingForm.title);
-                          return (
-                            <div className="own-listing-section">
+                        <div className="own-listing-section">
                               <span className="own-listing-section-title">Perustiedot</span>
                               <div className="own-listing-title-fields">
                                 <label className="own-listing-field">
                                   <span>Otsikko</span>
                                   <input
                                     className="own-listing-title-input"
-                                    value={partName}
+                                    value={listingForm.title}
                                     onChange={(event) =>
                                       setListingForm({
                                         ...listingForm,
-                                        title: buildEditableListingTitle(
-                                          event.target.value,
-                                          listingForm.brand,
-                                          listingForm.model,
-                                          listingForm.year
-                                        )
+                                        title: event.target.value
                                       })
                                     }
                                     placeholder={t.title}
@@ -2039,13 +2035,7 @@ export default function MyListingsPage() {
                                     onChange={(value) =>
                                       setListingForm((current) => ({
                                         ...current,
-                                        brand: value,
-                                        title: buildEditableListingTitle(
-                                          current.title,
-                                          value,
-                                          current.model,
-                                          current.year
-                                        )
+                                        brand: value
                                       }))
                                     }
                                     placeholder="Esim. Yamaha"
@@ -2060,13 +2050,7 @@ export default function MyListingsPage() {
                                     onChange={(value) =>
                                       setListingForm((current) => ({
                                         ...current,
-                                        model: value,
-                                        title: buildEditableListingTitle(
-                                          current.title,
-                                          current.brand,
-                                          value,
-                                          current.year
-                                        )
+                                        model: value
                                       }))
                                     }
                                     placeholder="Esim. DT"
@@ -2083,13 +2067,7 @@ export default function MyListingsPage() {
                                     onChange={(event) =>
                                       setListingForm((current) => ({
                                         ...current,
-                                        year: event.target.value,
-                                        title: buildEditableListingTitle(
-                                          current.title,
-                                          current.brand,
-                                          current.model,
-                                          event.target.value
-                                        )
+                                        year: event.target.value
                                       }))
                                     }
                                     placeholder="Esim. 2020"
@@ -2148,8 +2126,6 @@ export default function MyListingsPage() {
                                 </label>
                               </div>
                             </div>
-                          );
-                        })()}
 
                         <div className="own-listing-section">
                           <span className="own-listing-section-title">Luokittelu ja kunto</span>

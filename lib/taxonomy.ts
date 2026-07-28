@@ -1,7 +1,11 @@
 import { supabase } from "@/lib/supabase";
 import {
+  atvPartCategories,
   categories as defaultCategories,
+  filterVehiclePartCategoriesBySubtype,
   isVehiclePartAllowed,
+  normalizeVehicleType,
+  twoWheelerPartCategories,
   subcategoryGroups as defaultSubcategoryGroups
 } from "@/lib/listings";
 
@@ -363,8 +367,40 @@ export function subcategoryAppliesToVehicle(
 
 export function buildVehicleCategoriesFromTaxonomy(
   taxonomy: SiteTaxonomy,
-  vehicleKey: string
+  vehicleKey: string,
+  vehicleSubtype?: string
 ): Record<string, string[]> {
+  const normalizedVehicle = normalizeVehicleType(vehicleKey);
+  if (normalizedVehicle === "Mönkijä") {
+    return Object.fromEntries(
+      Object.entries(atvPartCategories).map(([category, subcategories]) => [
+        category,
+        [...subcategories]
+      ])
+    );
+  }
+
+  if (
+    normalizedVehicle === "Mopo" ||
+    normalizedVehicle === "Moottoripyörä" ||
+    normalizedVehicle === "Motocross"
+  ) {
+    if (vehicleSubtype === undefined) {
+      return Object.fromEntries(
+        Object.entries(twoWheelerPartCategories).map(([category, subcategories]) => [
+          category,
+          [...subcategories]
+        ])
+      );
+    }
+
+    return filterVehiclePartCategoriesBySubtype(
+      twoWheelerPartCategories,
+      vehicleKey,
+      vehicleSubtype
+    );
+  }
+
   const out: Record<string, string[]> = {};
   for (const cat of taxonomy.categories) {
     if (!categoryAppliesToVehicle(cat, vehicleKey)) continue;

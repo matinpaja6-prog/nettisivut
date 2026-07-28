@@ -306,6 +306,491 @@ export const categories = {
   ]
 } as const;
 
+/**
+ * Shared three-level part taxonomy for mopeds, motorcycles and motocross bikes.
+ * Stored subcategory values keep the existing "Group / Detail" format so the
+ * sell flow and buyer filters can use the same database fields and navigation.
+ */
+export const twoWheelerPartSubcategoryGroups: Record<string, Record<string, string[]>> = {
+  "Moottori": {
+    "Kokonainen moottori": [
+      "Kokonainen moottori / Täydelliset moottorit",
+      "Kokonainen moottori / Moottoriprojektit / vialliset moottorit"
+    ],
+    "Sylinteri & sylinterin tarvikkeet": [
+      "Sylinteri & sylinterin tarvikkeet / Sylinterisarjat",
+      "Sylinteri & sylinterin tarvikkeet / Sylinterikannet",
+      "Sylinteri & sylinterin tarvikkeet / Männät & tarvikkeet",
+      "Sylinteri & sylinterin tarvikkeet / Sylinterin tiivisteet"
+    ],
+    "Kampiakseli & lohkot": [
+      "Kampiakseli & lohkot / Lohkopuoliskot",
+      "Kampiakseli & lohkot / Täydelliset kampiakselit",
+      "Kampiakseli & lohkot / Kiertokanget",
+      "Kampiakseli & lohkot / Kampiakselin laakerit",
+      "Kampiakseli & lohkot / Kampiakselin korjaussarjat",
+      "Kampiakseli & lohkot / Lohkojen tiivisteet"
+    ],
+    "Vaihteisto": [
+      "Vaihteisto / Täydelliset vaihteistot",
+      "Vaihteisto / Vaihderummut",
+      "Vaihteisto / Vaihdehaarukat",
+      "Vaihteisto / Vaihteiston hammasrattaat",
+      "Vaihteisto / Vaihteiston laakerit",
+      "Vaihteisto / Vaihteiston korjaussarjat"
+    ],
+    "Kytkin": [
+      "Kytkin / Täydellinen kytkin",
+      "Kytkin / Kytkinlevyt",
+      "Kytkin / Kytkinkorit",
+      "Kytkin / Kytkinjouset",
+      "Kytkin / Kytkinkopat",
+      "Kytkin / Kytkimen painelaakerit & tarvikkeet"
+    ],
+    "Imu- & polttoaineosat": [
+      "Imu- & polttoaineosat / Kaasuttimet",
+      "Imu- & polttoaineosat / Kaasuttimen osat",
+      "Imu- & polttoaineosat / Imukaulat",
+      "Imu- & polttoaineosat / Läppärungot",
+      "Imu- & polttoaineosat / Ilmansuodattimet",
+      "Imu- & polttoaineosat / Polttoainehanat",
+      "Imu- & polttoaineosat / Polttoaineletkut",
+      "Imu- & polttoaineosat / Polttoainepumput"
+    ],
+    "Pakoputkisto": [
+      "Pakoputkisto / Täydellinen pakoputkisto (pakoputki ja äänenvaimennin)",
+      "Pakoputkisto / Pakoputket",
+      "Pakoputkisto / Äänenvaimentimet",
+      "Pakoputkisto / Pakoputken tiivisteet",
+      "Pakoputkisto / Pakoputken kiinnikkeet"
+    ],
+    "Jäähdytysjärjestelmä": [
+      "Jäähdytysjärjestelmä / Syylärit",
+      "Jäähdytysjärjestelmä / Vesipumput",
+      "Jäähdytysjärjestelmä / Jäähdytysletkut",
+      "Jäähdytysjärjestelmä / Termostaatit"
+    ],
+    "Moottoriosat": [
+      "Moottoriosat / Moottorin ripustukset",
+      "Moottoriosat / Moottorin tukikumit",
+      "Moottoriosat / Tuorevoitelupumput (2T)",
+      "Moottoriosat / Tuorevoitelusäiliöt",
+      "Moottoriosat / Jäähdytyspuhaltimet",
+      "Moottoriosat / Puhallinkopat & ilmanohjaimet"
+    ]
+  },
+  "Voimansiirto": {
+    "Ketjut & rattaat": [
+      "Ketjut & rattaat / Ketjut",
+      "Ketjut & rattaat / Eturattaat",
+      "Ketjut & rattaat / Takarattaat",
+      "Ketjut & rattaat / Ketjunkiristimet",
+      "Ketjut & rattaat / Ketjusuojat"
+    ],
+    "Variaattori": [
+      "Variaattori / Etuvariaattorit",
+      "Variaattori / Takavariaattorit",
+      "Variaattori / Variaattorihihnat",
+      "Variaattori / Variaattorin rullat",
+      "Variaattori / Liukupalat",
+      "Variaattori / Ramppilevyt",
+      "Variaattori / Holkit & bossit",
+      "Variaattori / Variaattorin lautaset",
+      "Variaattori / Variaattorin tuulettimet",
+      "Variaattori / Variaattorin kopat & lohkot"
+    ],
+    "Kytkin": [
+      "Kytkin / Täydelliset keskipakokytkimet",
+      "Kytkin / Kytkinkellot",
+      "Kytkin / Kytkinjouset",
+      "Kytkin / Vastapainejouset (VP-jouset)"
+    ],
+    "Perävälitys": [
+      "Perävälitys / Perävälityssarjat & perävälit",
+      "Perävälitys / Ensiövälityksen rattaat",
+      "Perävälitys / Toisiovälityksen rattaat",
+      "Perävälitys / Perävälityksen akselit",
+      "Perävälitys / Perävälityksen laakerit",
+      "Perävälitys / Perävälityksen stefat & tiivisteet",
+      "Perävälitys / Perävälityskopat"
+    ]
+  },
+  "Jousitus & ohjaus": {
+    "Etujousitus": [
+      "Etujousitus / Etuhaarukat",
+      "Etujousitus / T-palat",
+      "Etujousitus / Ohjauslaakerit"
+    ],
+    "Takajousitus": [
+      "Takajousitus / Takaiskunvaimentimet",
+      "Takajousitus / Takahaarukat",
+      "Takajousitus / Linkustot"
+    ],
+    "Ohjaus": [
+      "Ohjaus / Ohjaustangot",
+      "Ohjaus / Tangon kiinnikkeet",
+      "Ohjaus / Tupit",
+      "Ohjaus / Kaasukahvat",
+      "Ohjaus / Kytkinkahvat",
+      "Ohjaus / Jarrukahvat",
+      "Ohjaus / Peilit",
+      "Ohjaus / Katkaisimet"
+    ]
+  },
+  "Jarrut": {
+    "Jarrujen osat": [
+      "Jarrujen osat / Täydellinen etujarru",
+      "Jarrujen osat / Täydellinen takajarru",
+      "Jarrujen osat / Jarrusatulat",
+      "Jarrujen osat / Jarrulevyt",
+      "Jarrujen osat / Jarrupalat",
+      "Jarrujen osat / Jarrusylinterit",
+      "Jarrujen osat / Jarruletkut"
+    ],
+    "Jarruosat": [
+      "Jarruosat / Jarrukengät",
+      "Jarruosat / Jarrurummut",
+      "Jarruosat / Takajarruvaijerit",
+      "Jarruosat / Jarruvalokatkaisimet"
+    ]
+  },
+  "Renkaat & vanteet": {
+    "Renkaat": [
+      "Renkaat / Eturenkaat",
+      "Renkaat / Takarenkaat",
+      "Renkaat / Sisärenkaat"
+    ],
+    "Vanteet": [
+      "Vanteet / Etuvanteet",
+      "Vanteet / Takavanteet",
+      "Vanteet / Vanteiden laakerit",
+      "Vanteet / Vanteiden akselit"
+    ]
+  },
+  "Sähköjärjestelmä": {
+    "Sytytys": [
+      "Sytytys / Sytytyspuolat",
+      "Sytytys / Sytytysyksiköt (CDI)",
+      "Sytytys / Moottorinohjaimet (ECU)",
+      "Sytytys / Staattorit",
+      "Sytytys / Magneetto / vauhtipyörä",
+      "Sytytys / Sytytystulpat"
+    ],
+    "Käynnistys & lataus": [
+      "Käynnistys & lataus / Starttimoottorit",
+      "Käynnistys & lataus / Starttireleet",
+      "Käynnistys & lataus / Jännitteensäätimet",
+      "Käynnistys & lataus / Akut",
+      "Käynnistys & lataus / Poljinkäynnistimet & niiden osat"
+    ],
+    "Sähköosat": [
+      "Sähköosat / Johdinsarjat",
+      "Sähköosat / Releet",
+      "Sähköosat / Sulakkeet",
+      "Sähköosat / Anturit",
+      "Sähköosat / Virtalukot"
+    ],
+    "Valot & mittaristo": [
+      "Valot & mittaristo / Ajovalot",
+      "Valot & mittaristo / Takavalot",
+      "Valot & mittaristo / Vilkut",
+      "Valot & mittaristo / Mittaristot",
+      "Valot & mittaristo / Valokatkaisimet"
+    ]
+  },
+  "Runko & koriosat": {
+    "Runko": [
+      "Runko / Runko",
+      "Runko / Takarunko / takahäkki",
+      "Runko / Polttoainetankki",
+      "Runko / Tankinkorkit",
+      "Runko / Seisontatuet",
+      "Runko / Keskiseisontatuet",
+      "Runko / Jalkatapit"
+    ],
+    "Katteet": [
+      "Katteet / Etukatteet",
+      "Katteet / Sivukatteet",
+      "Katteet / Takakatteet",
+      "Katteet / Lokasuojat",
+      "Katteet / Katteiden kiinnikkeet"
+    ],
+    "Penkit": [
+      "Penkit / Penkit",
+      "Penkit / Penkinpäälliset",
+      "Penkit / Penkin lukot & kiinnikkeet"
+    ],
+    "Koriosat": [
+      "Koriosat / Astinlaudat & astinlautakatteet",
+      "Koriosat / Etukatteen sisäosat",
+      "Koriosat / Penkinaluskaukalot & tavaratilat",
+      "Koriosat / Tavaratelineet",
+      "Koriosat / Keskiseisontatuet",
+      "Koriosat / Sivuseisontatuet",
+      "Koriosat / Penkin saranat & lukot"
+    ]
+  }
+};
+
+export const twoWheelerPartCategories: Record<string, string[]> = Object.fromEntries(
+  Object.entries(twoWheelerPartSubcategoryGroups).map(([category, groups]) => [
+    category,
+    Object.values(groups).flat()
+  ])
+);
+
+export const atvPartSubcategoryGroups: Record<string, Record<string, string[]>> = {
+  "Moottori": {
+    "Kokonainen moottori": [
+      "Kokonainen moottori / Täydelliset moottorit",
+      "Kokonainen moottori / Moottoriprojektit / vialliset moottorit"
+    ],
+    "Sylinteri & sylinterin tarvikkeet": [
+      "Sylinteri & sylinterin tarvikkeet / Sylinterisarjat",
+      "Sylinteri & sylinterin tarvikkeet / Sylinterikannet",
+      "Sylinteri & sylinterin tarvikkeet / Männät & tarvikkeet",
+      "Sylinteri & sylinterin tarvikkeet / Sylinterin tiivisteet"
+    ],
+    "Kampiakseli & lohkot": [
+      "Kampiakseli & lohkot / Lohkopuoliskot",
+      "Kampiakseli & lohkot / Täydelliset kampiakselit",
+      "Kampiakseli & lohkot / Kiertokanget",
+      "Kampiakseli & lohkot / Lohkojen tiivisteet"
+    ],
+    "Vaihteisto": [
+      "Vaihteisto / Täydelliset vaihteistot",
+      "Vaihteisto / Vaihderummut",
+      "Vaihteisto / Vaihdehaarukat",
+      "Vaihteisto / Hammasrattaat"
+    ],
+    "Kytkin": [
+      "Kytkin / Täydellinen kytkin",
+      "Kytkin / Kytkinlevyt",
+      "Kytkin / Kytkinkorit",
+      "Kytkin / Kytkinjouset",
+      "Kytkin / Kytkinkopat"
+    ],
+    "Imu- & polttoaineosat": [
+      "Imu- & polttoaineosat / Kaasuttimet",
+      "Imu- & polttoaineosat / Kaasuttimen osat",
+      "Imu- & polttoaineosat / Imukaulat",
+      "Imu- & polttoaineosat / Kaasuläpät",
+      "Imu- & polttoaineosat / Ilmansuodattimet",
+      "Imu- & polttoaineosat / Suuttimet",
+      "Imu- & polttoaineosat / Polttoainepumput"
+    ],
+    "Pakoputkisto": [
+      "Pakoputkisto / Täydellinen pakoputkisto",
+      "Pakoputkisto / Pakoputket",
+      "Pakoputkisto / Äänenvaimentimet",
+      "Pakoputkisto / Pakoputken tiivisteet"
+    ],
+    "Jäähdytysjärjestelmä": [
+      "Jäähdytysjärjestelmä / Syylärit",
+      "Jäähdytysjärjestelmä / Vesipumput",
+      "Jäähdytysjärjestelmä / Jäähdytysletkut"
+    ]
+  },
+  "Voimansiirto": {
+    "Kardaani & vetolinja": [
+      "Kardaani & vetolinja / Kardaanit",
+      "Kardaani & vetolinja / Vetarit",
+      "Kardaani & vetolinja / Vetonivelet",
+      "Kardaani & vetolinja / Tasauspyörästöt"
+    ],
+    "Variaattori": [
+      "Variaattori / Etuvariaattorit",
+      "Variaattori / Takavariaattorit",
+      "Variaattori / Variaattorihihnat",
+      "Variaattori / Rullat",
+      "Variaattori / Keskipakokytkimet"
+    ]
+  },
+  "Jousitus & ohjaus": {
+    "Etujousitus": [
+      "Etujousitus / A-tukivarret",
+      "Etujousitus / Iskunvaimentimet",
+      "Etujousitus / Pallonivelet",
+      "Etujousitus / Raidetangot"
+    ],
+    "Takajousitus": [
+      "Takajousitus / Takaiskunvaimentimet",
+      "Takajousitus / Tukivarret",
+      "Takajousitus / Akselit"
+    ],
+    "Ohjaus": [
+      "Ohjaus / Ohjaustangot",
+      "Ohjaus / Tangon kiinnikkeet",
+      "Ohjaus / Ohjausakselit",
+      "Ohjaus / Kaasukahvat",
+      "Ohjaus / Kytkinkahvat",
+      "Ohjaus / Jarrukahvat",
+      "Ohjaus / Tupit"
+    ]
+  },
+  "Jarrut": {
+    "Jarrujen osat": [
+      "Jarrujen osat / Täydellinen etujarru",
+      "Jarrujen osat / Täydellinen takajarru",
+      "Jarrujen osat / Jarrusatulat",
+      "Jarrujen osat / Jarrulevyt",
+      "Jarrujen osat / Jarrupalat",
+      "Jarrujen osat / Jarrusylinterit"
+    ]
+  },
+  "Renkaat & vanteet": {
+    "Renkaat": [
+      "Renkaat / Eturenkaat",
+      "Renkaat / Takarenkaat"
+    ],
+    "Vanteet": [
+      "Vanteet / Etuvanteet",
+      "Vanteet / Takavanteet"
+    ]
+  },
+  "Telasarjat": {
+    "Telat": [
+      "Telat / Täydelliset telasarjat",
+      "Telat / Etutelat",
+      "Telat / Takatelat",
+      "Telat / Telaston osat"
+    ]
+  },
+  "Sähköjärjestelmä": {
+    "Sytytys": [
+      "Sytytys / Sytytyspuolat",
+      "Sytytys / CDI-yksiköt",
+      "Sytytys / ECU:t",
+      "Sytytys / Staattorit",
+      "Sytytys / Magneetto / vauhtipyörä",
+      "Sytytys / Sytytystulpat"
+    ],
+    "Käynnistys & lataus": [
+      "Käynnistys & lataus / Starttimoottorit",
+      "Käynnistys & lataus / Starttireleet",
+      "Käynnistys & lataus / Jännitteensäätimet",
+      "Käynnistys & lataus / Akut"
+    ],
+    "Sähköosat": [
+      "Sähköosat / Johdinsarjat",
+      "Sähköosat / Sulakkeet",
+      "Sähköosat / Releet",
+      "Sähköosat / Anturit",
+      "Sähköosat / Virtalukot"
+    ],
+    "Valot & mittaristo": [
+      "Valot & mittaristo / Ajovalot",
+      "Valot & mittaristo / Takavalot",
+      "Valot & mittaristo / Vilkut",
+      "Valot & mittaristo / Mittaristot"
+    ]
+  },
+  "Runko & koriosat": {
+    "Runko": [
+      "Runko / Runko",
+      "Runko / Tavaratelineet",
+      "Runko / Puskurit",
+      "Runko / Astinlaudat",
+      "Runko / Vinssit",
+      "Runko / Vetokoukut",
+      "Runko / Polttoainetankit"
+    ],
+    "Katteet": [
+      "Katteet / Etukatteet",
+      "Katteet / Sivukatteet",
+      "Katteet / Takakatteet",
+      "Katteet / Lokasuojat"
+    ],
+    "Penkit": [
+      "Penkit / Penkit",
+      "Penkit / Penkinpäälliset",
+      "Penkit / Penkin lukot & kiinnikkeet"
+    ]
+  }
+};
+
+export const atvPartCategories: Record<string, string[]> = Object.fromEntries(
+  Object.entries(atvPartSubcategoryGroups).map(([category, groups]) => [
+    category,
+    Object.values(groups).flat()
+  ])
+);
+
+const scooterOnlyPartGroups = new Set([
+  "Moottori::Moottoriosat",
+  "Voimansiirto::Variaattori",
+  "Voimansiirto::Kytkin",
+  "Voimansiirto::Perävälitys",
+  "Jarrut::Jarruosat",
+  "Runko & koriosat::Koriosat"
+]);
+
+const gearedBikeOnlyPartGroups = new Set([
+  "Moottori::Vaihteisto",
+  "Moottori::Kytkin",
+  "Voimansiirto::Ketjut & rattaat"
+]);
+
+export function isScooterVehicleSubtype(
+  vehicleType: string | null | undefined,
+  vehicleSubtype: string | null | undefined
+) {
+  const normalizedVehicle = normalizeVehicleType(vehicleType);
+  const normalizedSubtype = (vehicleSubtype ?? "").trim().toLocaleLowerCase("fi");
+
+  return (
+    (normalizedVehicle === "Mopo" || normalizedVehicle === "Moottoripyörä") &&
+    normalizedSubtype.includes("skootteri")
+  );
+}
+
+export function filterVehiclePartCategoriesBySubtype(
+  categorySource: Record<string, readonly string[]>,
+  vehicleType: string | null | undefined,
+  vehicleSubtype: string | null | undefined
+): Record<string, string[]> {
+  const normalizedVehicle = normalizeVehicleType(vehicleType);
+  const isTwoWheeler =
+    normalizedVehicle === "Mopo" ||
+    normalizedVehicle === "Moottoripyörä" ||
+    normalizedVehicle === "Motocross";
+
+  if (!isTwoWheeler) {
+    return Object.fromEntries(
+      Object.entries(categorySource).map(([category, subcategories]) => [
+        category,
+        [...subcategories]
+      ])
+    );
+  }
+
+  const scooterSubtype = isScooterVehicleSubtype(vehicleType, vehicleSubtype);
+
+  return Object.fromEntries(
+    Object.entries(categorySource)
+      .map(([category, subcategories]) => [
+        category,
+        subcategories.filter((subcategory) => {
+          const groupName = subcategory.split(" / ", 1)[0]?.trim() ?? "";
+          const qualifiedGroupName = `${category}::${groupName}`;
+          return scooterSubtype
+            ? !gearedBikeOnlyPartGroups.has(qualifiedGroupName)
+            : !scooterOnlyPartGroups.has(qualifiedGroupName);
+        })
+      ] as const)
+      .filter(([, subcategories]) => subcategories.length > 0)
+  );
+}
+
+function usesTwoWheelerPartTaxonomy(vehicleType: string) {
+  const normalizedVehicle = normalizeVehicleType(vehicleType);
+  return (
+    normalizedVehicle === "Mopo" ||
+    normalizedVehicle === "Moottoripyörä" ||
+    normalizedVehicle === "Motocross"
+  );
+}
+
 export function normalizeVehicleType(value?: string | null) {
   const normalized = (value ?? "").trim().toLowerCase();
 
@@ -407,7 +892,33 @@ export function displayCategoryForVehicle(
   return category;
 }
 
-export function buildVehicleCategories(vehicleType: string) {
+export function buildVehicleCategories(vehicleType: string, vehicleSubtype?: string) {
+  if (normalizeVehicleType(vehicleType) === "Mönkijä") {
+    return Object.fromEntries(
+      Object.entries(atvPartCategories).map(([category, subcategories]) => [
+        category,
+        [...subcategories]
+      ])
+    );
+  }
+
+  if (usesTwoWheelerPartTaxonomy(vehicleType)) {
+    if (vehicleSubtype === undefined) {
+      return Object.fromEntries(
+        Object.entries(twoWheelerPartCategories).map(([category, subcategories]) => [
+          category,
+          [...subcategories]
+        ])
+      );
+    }
+
+    return filterVehiclePartCategoriesBySubtype(
+      twoWheelerPartCategories,
+      vehicleType,
+      vehicleSubtype
+    );
+  }
+
   const entries = Object.entries(categories)
     .filter(([key]) => key !== "Kaikki")
     .map(([category, subcategories]) => [
@@ -427,6 +938,7 @@ export function buildVehicleCategories(vehicleType: string) {
    Empty array = group is itself the selectable leaf
 ========================= */
 export const subcategoryGroups: Record<string, Record<string, string[]>> = {
+  ...twoWheelerPartSubcategoryGroups,
   "Moottori & voimansiirto": {
     "Moottorit":          ["Kokonainen moottori","Moottorit / Sylinterit","Moottorit / Sylinterin kannet","Moottorit / Männät","Moottorit / Kampiakselit","Moottorit / Moottorin lohkot","Moottorit / Laakerit & tiivisteet"],
     "Kytkimet":           ["Kytkimet / Kokonainen kytkin","Kytkimet / Kytkin kitit","Kytkimet / Jouset","Kytkimet / Painovarret"],

@@ -1,6 +1,10 @@
 "use client";
 import { useState, useEffect, useId, useRef, type ReactNode, type RefObject } from "react";
-import { displayCategoryForVehicle, subcategoryGroups } from "@/lib/listings";
+import {
+  displayCategoryForVehicle,
+  filterVehiclePartCategoriesBySubtype,
+  subcategoryGroups
+} from "@/lib/listings";
 import { useLanguage, translateCategory } from "@/lib/i18n";
 import {
   X, ChevronRight, ChevronLeft, Wrench,
@@ -896,18 +900,12 @@ export const VEHICLE_SUBTYPE_OPTIONS: Record<string, string[]> = {
     "Minicross - crossi"
   ],
   Mopot: [
-    "Mopo - mopo",
-    "Skootteri - mopo",
-    "Supermoto - mopo",
-    "Enduro - mopo",
-    "Manki / monkey - mopo"
+    "Mopo",
+    "Skootteri"
   ],
   Mopo: [
-    "Mopo - mopo",
-    "Skootteri - mopo",
-    "Supermoto - mopo",
-    "Enduro - mopo",
-    "Manki / monkey - mopo"
+    "Mopo",
+    "Skootteri"
   ]
 };
 
@@ -1911,8 +1909,15 @@ export default function CategoryDrawer({
     setStep(Math.max(vehicle ? 2 : 3, step - 1));
   }
 
+  const categoryVehicleKey = getCategoryVehicleKey(vehicle);
   const cats = vehicle
-    ? (vehicleCategories[vehicle as VehicleType] ?? partsCategories)
+    ? filterVehiclePartCategoriesBySubtype(
+        vehicleCategories[vehicle as VehicleType] ??
+          vehicleCategories[categoryVehicleKey as VehicleType] ??
+          partsCategories,
+        categoryVehicleKey,
+        vehicleSubtype
+      )
     : mergeCategorySources(partsCategories, vehicleCategories);
   const engineModelOptions = getModelEngineOptions(
     vehicle,
@@ -2193,6 +2198,9 @@ export default function CategoryDrawer({
                   }}
                   onClick={() => {
                     setVehicleSubtype(option);
+                    setCat("");
+                    setSubGroup("");
+                    setSub("");
                     setVehicleSubtypeMenuOpen(false);
                   }}
                   role="option"

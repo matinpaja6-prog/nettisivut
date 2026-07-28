@@ -3830,8 +3830,13 @@ function HomeContent() {
   );
 
   const categorySource = useMemo(() => {
-    return buildMarketplaceCategorySource({ vehicleType, vehicleCategories, allVehicleCategories });
-  }, [allVehicleCategories, vehicleCategories, vehicleType]);
+    return buildMarketplaceCategorySource({
+      vehicleType,
+      vehicleSubtype,
+      vehicleCategories,
+      allVehicleCategories
+    });
+  }, [allVehicleCategories, vehicleCategories, vehicleSubtype, vehicleType]);
 
   const categoryEntries = useMemo(() => {
     const q = categorySearch.trim().toLowerCase();
@@ -4193,6 +4198,8 @@ function HomeContent() {
         setVehicleSubtype(value);
         setSelectedBrand("Kaikki");
         setModelQuery("");
+        setCategory("");
+        setSubcategory("");
         afterHeroFilterChange();
       }
     },

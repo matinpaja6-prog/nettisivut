@@ -1656,6 +1656,8 @@ Object.assign(categoryTranslations.sv, {
 });
 
 Object.assign(categoryTranslations.en, {
+  "Mopo": "Moped",
+  "Skootteri": "Scooter",
   "Moottoripyörä": "Motorcycle",
   "Moottoripyörät": "Motorcycles",
   "Naked - moottoripyörä": "Naked motorcycle",
@@ -1673,6 +1675,8 @@ Object.assign(categoryTranslations.en, {
 });
 
 Object.assign(categoryTranslations.sv, {
+  "Mopo": "Moped",
+  "Skootteri": "Skoter",
   "Moottoripyörä": "Motorcykel",
   "Moottoripyörät": "Motorcyklar",
   "Naked - moottoripyörä": "Naken motorcykel",

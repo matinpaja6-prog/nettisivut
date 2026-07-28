@@ -9,10 +9,13 @@ export function isListingLocale(value: unknown): value is ListingLocale {
 }
 
 export function getLocalizedListingText(
-  listing: Pick<Listing, "title" | "description" | "translations">,
+  listing: Pick<Listing, "title" | "description" | "original_language" | "translations">,
   locale: string
 ): { title: string; description: string } {
-  const translated = isListingLocale(locale)
+  const sourceLanguage = isListingLocale(listing.original_language)
+    ? listing.original_language
+    : "fi";
+  const translated = isListingLocale(locale) && locale !== sourceLanguage
     ? listing.translations?.[locale]
     : undefined;
 
