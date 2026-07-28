@@ -1143,7 +1143,7 @@ const vehicleDetailPresets: Record<
       "Lasten - mönkijä"
     ],
     models: ["Outlander", "Renegade", "Sportsman", "Grizzly", "TRX", "CFORCE"],
-    engineCcs: ["450", "500", "570", "700", "850", "1000"],
+    engineCcs: Array.from({ length: 24 }, (_, index) => String((index + 1) * 50)),
     engineTypes: ["Rotax", "EFI", "SOHC", "DOHC", "4-tahti"]
   },
   Motocross: {
