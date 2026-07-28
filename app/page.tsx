@@ -1935,6 +1935,36 @@ function HomeContent() {
   const t = translations[locale];
 
   useEffect(() => {
+    if (
+      !activeHeroFilter ||
+      activeHeroFilter === "mobileLocation" ||
+      activeHeroFilter === "locationCountries"
+    ) {
+      return;
+    }
+
+    const closeFilterMenuWhenPressingOutside = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const pressedInsideMenu = target.closest(
+        `.${styles.heroFilterMenu}, .${styles.mobileSheetMenu}`
+      );
+      const pressedFilterTrigger = target.closest(
+        `.${styles.heroFilterSelect}, .${styles.mobileSheetSelect}, .${styles.heroYearBox}`
+      );
+
+      if (pressedInsideMenu || pressedFilterTrigger) return;
+      setActiveHeroFilter(null);
+    };
+
+    document.addEventListener("pointerdown", closeFilterMenuWhenPressingOutside);
+    return () => {
+      document.removeEventListener("pointerdown", closeFilterMenuWhenPressingOutside);
+    };
+  }, [activeHeroFilter]);
+
+  useEffect(() => {
     const media = window.matchMedia("(max-width: 720px)");
     const syncMobilePagination = () => setMobilePagination(media.matches);
 
