@@ -119,6 +119,39 @@ const aboutCopy = {
       registeredUser: ["registrerad användare", "registrerade användare"],
       country: ["land i annonser", "länder i annonser"]
     }
+  },
+  no: {
+    kicker: "Om oss",
+    titleTop: "Reservedelsverdenen.",
+    titleBottom: "Bygget for",
+    titleHighlight: "entusiaster.",
+    intro: "Maskines samler deler til snøscootere, ATV-er, motocrossykler og mopeder på én oversiktlig markedsplass. Målet vårt er å gjøre det raskt å finne riktig del og enkelt å selge.",
+    createListing: "Opprett annonse",
+    viewHelp: "Se veiledningen",
+    aboutMaskines: "Om Maskines",
+    why: "Hvorfor Maskines?",
+    featuresTitle: "Laget for entusiaster, sammen med entusiaster.",
+    featuresLead: "Vi forstår behovene dine fordi vi deler den samme lidenskapen.",
+    features: [
+      ["Finn riktig del raskt", "Effektivt søk og tydelige annonser hjelper deg med å finne akkurat den delen du trenger."],
+      ["Selg enklere", "Én annonse, flere deler. Bedre synlighet gir flere kjøpere og bedre handler."],
+      ["En trygg markedsplass", "Et pålitelig miljø og tydelige regler beskytter både kjøpere og selgere."],
+      ["Hjelp når du trenger det", "Kundestøtte og veiledninger er tilgjengelige når du trenger hjelp."]
+    ],
+    numbersKicker: "Maskines i tall",
+    numbersTitle: "Et sterkt fellesskap som vokser hver dag.",
+    missionTitle: "Vårt mål",
+    missionText: "Vi ønsker å være Nordens ledende markedsplass for reservedeler, der hver del får et nytt liv og hver handel fører hobbyen videre.",
+    communityAria: "Fellesskapets løfte",
+    communityTitle: "Fra entusiast til entusiast.",
+    communityText: "Maskines gjør kjøp og salg av reservedeler enklere, slik at du får mer tid til det som virkelig betyr noe: kjøring, bygging og det neste prosjektet.",
+    stats: {
+      vehicleClass: ["kjøretøyklasse i annonser", "kjøretøyklasser i annonser"],
+      activeListing: ["aktiv annonse", "aktive annonser"],
+      activeSeller: ["aktiv selger", "aktive selgere"],
+      registeredUser: ["registrert bruker", "registrerte brukere"],
+      country: ["land i annonser", "land i annonser"]
+    }
   }
 };
 
@@ -133,7 +166,9 @@ type AboutStats = {
 
 function formatStatValue(value: number | null | undefined, locale: keyof typeof aboutCopy) {
   if (value === null || value === undefined) return "...";
-  return value.toLocaleString(locale === "fi" ? "fi-FI" : locale === "sv" ? "sv-SE" : "en-US");
+  return value.toLocaleString(
+    locale === "fi" ? "fi-FI" : locale === "sv" ? "sv-SE" : locale === "no" ? "nb-NO" : "en-US"
+  );
 }
 
 function statLabel(value: number | null | undefined, singular: string, plural: string) {

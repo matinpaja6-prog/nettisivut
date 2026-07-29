@@ -64,6 +64,22 @@ const termsCopy: Record<Locale, {
       { title: "10. Lag och kontakt", body: ["Finsk lag gäller. Frågor: tuki@arcticparts.fi"] }
     ]
   },
+  no: {
+    back: "Tilbake", eyebrow: "Vilkår", title: "Brukervilkår", updated: "Oppdatert 14.5.2026", privacy: "Personvernerklæring", summaryLabel: "Sammendrag",
+    summary: [{ title: "Selger har ansvar", text: "Opplysninger, pris, bilder og beskrivelse må være korrekte." }, { title: "Handel skjer mellom brukere", text: "Maskines er plattformen. Kjøper og selger avtaler betaling og levering." }, { title: "Bruk tjenesten rettferdig", text: "Svindel, trakassering og ulovlig innhold kan fjernes." }],
+    sections: [
+      { title: "1. Tjenesten", body: ["Maskines er en markedsplass for reservedeler og tilbehør til snøscootere, ATV-er, motocross og mopeder."] },
+      { title: "2. Konto", body: ["Annonser, meldinger og enkelte funksjoner krever konto. Du er ansvarlig for korrekte opplysninger og sikker innlogging."] },
+      { title: "3. Annonser", body: ["Selger er ansvarlig for annonsen. Tilstand, passform, pris, sted og bilder skal være riktige."], bullets: ["stjålne eller ulovlige varer", "villedende pris eller tilstand", "uautorisert bruk av andres materiale", "svindelrettede lenker"] },
+      { title: "4. Handel", body: ["Maskines er ikke part i handelen. Kjøper og selger avtaler betaling, levering og reklamasjoner."] },
+      { title: "5. Betalte funksjoner", body: ["Betalte funksjoner vises før betaling og refunderes ikke etter aktivering med mindre loven krever det."] },
+      { title: "6. Sikkerhet", body: ["Tjenesten må ikke brukes til svindel, trakassering, spam, skadevare eller misbruk av personopplysninger."] },
+      { title: "7. Ansvar", body: ["Vi prøver å holde tjenesten tilgjengelig, men garanterer ikke avbruddsfri drift og er ikke ansvarlige for handler mellom brukere."] },
+      { title: "8. Personvern", body: ["Personopplysninger behandles etter personvernerklæringen. Vi selger ikke personopplysninger."] },
+      { title: "9. Endringer", body: ["Vilkårene kan oppdateres når tjenesten eller loven endres. Vesentlige endringer varsles."] },
+      { title: "10. Lov og kontakt", body: ["Finsk lov gjelder. Spørsmål: tuki@arcticparts.fi"] }
+    ]
+  },
 };
 
 function stripSectionNumber(title: string) {

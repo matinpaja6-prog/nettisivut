@@ -280,6 +280,33 @@ const topbarText: Record<Locale, {
     hoursAgo: (hours) => `${hours} h sedan`,
     daysAgo: (days) => `${days} d sedan`
   },
+  no: {
+    home: "Hjem",
+    garage: "Min garasje",
+    searchAlerts: "Søkevarsler",
+    about: "Om oss",
+    help: "Hjelp",
+    ownProfile: "Min profil",
+    fallbackProfile: "Profil",
+    sellerLevel: "Selgernivå",
+    level: "Nivå",
+    maxLevel: "Maksnivå",
+    xpToNextLevel: (xp) => `${xp} XP til neste nivå`,
+    quickActions: "Hurtighandlinger",
+    notificationsHelp: "Hold deg oppdatert på viktige meldinger.",
+    markAllRead: "Merk alle som lest",
+    defaultUser: "Bruker",
+    delete: "Fjern",
+    deleteNotification: "Fjern varsel",
+    settings: "Sideinnstillinger",
+    showAllMessages: "Vis alle meldinger",
+    manageAccount: "Administrer kontoen din",
+    followed: "Følger",
+    searchAlert: "Søkevarsel",
+    minutesAgo: (minutes) => `${minutes} min siden`,
+    hoursAgo: (hours) => `${hours} t siden`,
+    daysAgo: (days) => `${days} d siden`
+  },
 };
 
 function TopbarMaskinesLogo() {
@@ -1642,11 +1669,11 @@ export default function UniversalTopbar() {
         <button
           type="button"
           className="universal-mobile-search-button"
-          aria-label="Hae varaosia"
+          aria-label={t.searchPlaceholder}
           onClick={openMobileCategorySearch}
         >
           <Search size={16} aria-hidden="true" />
-          <span>Hae</span>
+          <span>{t.searchLabel}</span>
         </button>
         <div
           className="universal-profile-menu-wrap"

@@ -555,6 +555,110 @@ const translations = {
     xpToNextLevel: "till nästa level",
     maxLevel: "Maxnivå"
   },
+  no: {
+    createListing: "Opprett annonse",
+    profile: "Profil",
+    editProfile: "Rediger profil",
+    myListings: "Mine annonser",
+    messages: "Meldinger",
+    savedListings: "Lagrede annonser",
+    login: "Logg inn",
+    signOut: "Logg ut",
+    heroTitle: "Kjøretøydeler som tar deg videre.",
+    heroSubtitle: "Raskt søk. Stort utvalg. Pålitelige selgere.",
+    heroLeadStart: "Raskt søk",
+    heroLeadHighlight: "selg brukte",
+    heroLeadEnd: "reservedeler enkelt",
+    heroTrustFast: "Rask og enkel annonsering",
+    heroTrustFree: "Gratis salg for kjøperen",
+    heroTrustSafe: "Trygg handel i Finland",
+    heroTrustService: "Service på finsk og engelsk",
+    heroBenefitSafeTitle: "Trygg handel",
+    heroBenefitSafeText: "i Finland",
+    heroBenefitFreeTitle: "Gratis salg",
+    heroBenefitFreeText: "for kjøperen",
+    heroBenefitFastTitle: "Raskt til salgs",
+    heroBenefitFastText: "på noen minutter",
+    heroBenefitServiceTitle: "Vi hjelper",
+    heroBenefitServiceText: "Finland og Norden",
+    sellPromoTitle: "Selg deler på 2 minutter",
+    sellPromoBulletOne: "Legg til bilder",
+    sellPromoBulletTwo: "Skriv detaljer",
+    sellPromoBulletThree: "Publiser gratis",
+    addListingNow: "Legg til annonse nå",
+    instructions: "Instruksjoner",
+    sellGuideTitle: "Slik selger du deler",
+    sellGuideStepOne: "Legg til tydelige bilder av delen og eventuelt delenummer.",
+    sellGuideStepTwo: "Skriv merke, modell, tilstand, pris og sted.",
+    sellGuideStepThree: "Publiser annonsen — kjøpere kan kontakte deg.",
+    sellGuideStepFour: "Avtal betaling og levering trygt via meldinger.",
+    brandTagline: "Alle deler. Fra alle. For deg.",
+    searchLabel: "Søk",
+    searchCta: "Søk",
+    searchPlaceholder: "Søk etter deler, merke eller modell...",
+    vehicleSelection: "Valg av kjøretøy",
+    content: "Innhold",
+    popularProducts: "Populære produkter",
+    viewAll: "Se alle ›",
+    noListings: "Ingen annonser å vise",
+    loadingListings: "Laster annonser...",
+    changeFilters: "Fjern filtre eller endre søket.",
+    resetFilters: "Tilbakestill filtre",
+    openListing: "Åpne",
+    removeFavorite: "Fjern fra favoritter",
+    addFavorite: "Legg til i favoritter",
+    country: "Finland",
+    viewProfile: "Se profil",
+    sendEmail: "Send e-post",
+    filters: "Filtre",
+    sort: "Sortering",
+    relevance: "Mest relevante først",
+    newest: "Nyeste først",
+    oldest: "Eldste først",
+    lowestPrice: "Laveste pris",
+    highestPrice: "Høyeste pris",
+    nearest: "Nærmest deg",
+    brand: "Merke",
+    model: "Modell",
+    year: "Årsmodell",
+    yearPlaceholder: "f.eks. 2018",
+    priceRange: "Prisklasse",
+    minimum: "Minimum",
+    maximum: "Maksimum",
+    categories: "Kategorier",
+    categoryPlaceholder: "Søk i kategorier...",
+    all: "Alle",
+    language: "Språk",
+    snowmobiles: "Snøscootere",
+    atvs: "ATV-er",
+    cars: "Motocross",
+    mopeds: "Mopeder",
+    garageTitle: "Min Garasje",
+    garageAddVehicle: "Legg til kjøretøy",
+    garagePartsFor: "Deler for",
+    saTitle: "Søkevakter",
+    loginToCreateListing: "Logg inn for å opprette annonse",
+    rewards: "Belønninger",
+    shop: "Butikk",
+    notifications: "Varsler",
+    reviews: "Anmeldelser",
+    reviewSeller: "Vurder selgeren",
+    openReview: "Åpne vurdering",
+    dismiss: "Fjern",
+    noNotifications: "Ingen nye varsler.",
+    sellParts: "Selg deler",
+    forYou: "Anbefalinger for deg",
+    basedOnBrowsing: "Basert på din søking",
+    showMoreListings: "Vis flere annonser",
+    newBadge: "Ny",
+    allListings: "Alle annonser",
+    selectedVehicle: "Valgt kjøretøy",
+    openCategories: "Åpne kategorier",
+    sellerLevel: "Selgernivå",
+    level: "Level",
+    xpToNextLevel: "til neste level",
+    maxLevel: "Maksnivå"
+  },
 } satisfies Record<Locale, Record<string, string>>;
 
 const sortValues = [
@@ -1596,7 +1700,7 @@ function HomeContent() {
   const garageUrlFilterAppliedRef = useRef(false);
 
   const [activeLocale, setActiveLocale] = useState<SupportedLocale>("fi");
-  const locale: Locale = activeLocale === "no" ? "en" : activeLocale;
+  const locale: Locale = activeLocale;
   const [localeReady, setLocaleReady] = useState(false);
 
   const [listings, setListings] = useState<Listing[]>(fallbackListings);
@@ -2539,11 +2643,23 @@ function HomeContent() {
       selectDetailedPart: "Välj detaljerad del",
       allDetailedParts: "Alla detaljerade delar"
     },
+    no: {
+      mainCategory: "Hovedkategori",
+      selectMainCategory: "Velg hovedkategori",
+      allCategories: "Alle kategorier",
+      subcategory: "Underkategori",
+      selectSubcategory: "Velg underkategori",
+      allSubcategories: "Alle underkategorier",
+      detailedPart: "Detaljert del",
+      selectDetailedPart: "Velg detaljert del",
+      allDetailedParts: "Alle detaljerte deler"
+    },
   }[locale];
   const allVehicleSubtypesLabel = {
     fi: "Kaikki tyypit",
     en: "All types",
-    sv: "Alla typer"
+    sv: "Alla typer",
+    no: "Alle typer"
   }[locale];
 
   const translateVehicleTypeLabel = useCallback((value?: string | null) => {
@@ -2565,6 +2681,13 @@ function HomeContent() {
       sv: {
         Moottoripyörä: "Motorcykel",
         Moottorikelkka: "Snöskoter",
+        Mönkijä: "ATV",
+        Motocross: "Motocross",
+        Mopot: "Moped"
+      },
+      no: {
+        Moottoripyörä: "Motorsykkel",
+        Moottorikelkka: "Snøscooter",
         Mönkijä: "ATV",
         Motocross: "Motocross",
         Mopot: "Moped"
@@ -2612,6 +2735,7 @@ function HomeContent() {
       fi: "fi-FI",
       en: "en-US",
       sv: "sv-SE",
+      no: "nb-NO",
     };
 
     return new Date(date).toLocaleDateString(locales[locale]);
@@ -4630,7 +4754,7 @@ function HomeContent() {
                   <input
                     className={styles.heroMainSearchInput}
                     type="search"
-                    placeholder="Hae varaosia, merkkiä, mallia tai ID:tä..."
+                    placeholder={t.searchPlaceholder}
                     value={query}
                     onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
                     aria-label={t.searchLabel}
@@ -4642,18 +4766,18 @@ function HomeContent() {
                     type={compactHeroSearch ? "button" : "submit"}
                     className={styles.heroMainSearchButton}
                     data-mobile-filter={compactHeroSearch ? "true" : undefined}
-                    aria-label={compactHeroSearch ? "Avaa suodatus" : "Hae"}
+                    aria-label={compactHeroSearch ? t.filters : t.searchLabel}
                     onClick={handleHeroMainSearchButtonClick}
                   >
                     {compactHeroSearch ? (
                       <>
                         <SlidersHorizontal size={18} aria-hidden="true" />
-                        <span>Suodata</span>
+                        <span>{t.filters}</span>
                       </>
                     ) : (
                       <>
                         <Search size={18} aria-hidden="true" />
-                        <span>Hae</span>
+                        <span>{t.searchCta}</span>
                       </>
                     )}
                   </button>
@@ -5312,9 +5436,9 @@ function HomeContent() {
                     </>
                   ) : null}
                   <div className={styles.heroRailHeader}>
-                    <strong>Suodata hakua</strong>
+                    <strong>{t.filters}</strong>
                     <button type="button" className={styles.heroRailHeaderClear} onClick={clearListingFilters}>
-                      Tyhjennä
+                      {t.resetFilters}
                     </button>
                   </div>
                   <div className={styles.heroSearchPanel}>
@@ -5328,15 +5452,15 @@ function HomeContent() {
                         }}
                       >
                         {compactHeroSearch ? (
-                          <button type="submit" className={styles.heroSearchButton} aria-label="Hae">
+                          <button type="submit" className={styles.heroSearchButton} aria-label={t.searchLabel}>
                             <Search size={18} />
-                            <span>Hae</span>
+                            <span>{t.searchCta}</span>
                           </button>
                         ) : null}
                         <input
                           className={styles.heroSearchInput}
                           type="search"
-                          placeholder="Hae varaosia, merkkiä, mallia tai ID:tä..."
+                          placeholder={t.searchPlaceholder}
                           value={query}
                           onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
                           aria-label={t.searchLabel}
@@ -5347,13 +5471,13 @@ function HomeContent() {
                         {!compactHeroSearch ? (
                           <button type="submit" className={styles.heroSearchButton}>
                             <Search size={18} />
-                            <span>Hae</span>
+                            <span>{t.searchCta}</span>
                           </button>
                         ) : null}
                       </form>
                     </div>
 
-                    <div className={styles.heroFilterStack} aria-label="Hakuehdot">
+                    <div className={styles.heroFilterStack} aria-label={t.filters}>
                       {heroRailFilterFields.slice(0, 2).map((field) => (
                         <div key={field.key} className={styles.heroFilterFieldWrap}>
                           <span className={styles.heroFilterLabel}>{field.label}</span>
@@ -5940,7 +6064,7 @@ function HomeContent() {
             <form
               data-catalog-desktop-search
               role="search"
-              aria-label="Hae hakutuloksista"
+              aria-label={t.searchLabel}
               onSubmit={(event) => {
                 event.preventDefault();
                 applyListingFilters();
@@ -5954,8 +6078,8 @@ function HomeContent() {
                   setQuery(event.target.value);
                   setCurrentPage(1);
                 }}
-                placeholder="Hae varaosia, merkkiä, mallia tai ID:tä..."
-                aria-label="Hakusana"
+                placeholder={t.searchPlaceholder}
+                aria-label={t.searchLabel}
                 spellCheck={false}
                 autoCorrect="off"
                 autoCapitalize="none"
@@ -5964,7 +6088,7 @@ function HomeContent() {
                 <button
                   type="button"
                   data-catalog-search-clear
-                  aria-label="Tyhjennä hakusana"
+                  aria-label={t.resetFilters}
                   onClick={() => {
                     setQuery("");
                     setAppliedListingFilters((current) => ({ ...current, query: "" }));
@@ -5976,7 +6100,7 @@ function HomeContent() {
               ) : null}
               <button type="submit" data-catalog-search-submit>
                 <Search size={18} aria-hidden="true" />
-                <span>Hae</span>
+                <span>{t.searchCta}</span>
               </button>
             </form>
             <div className={styles.appliedFilterActions} aria-label="Suodatetun haun toiminnot">
@@ -6524,4 +6648,3 @@ function HomeContent() {
     </main>
   );
 }
-

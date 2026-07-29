@@ -21,7 +21,7 @@ type AttrEntry = {
 };
 
 const ATTRS: AttrName[] = ["placeholder", "title", "aria-label"];
-const TRANSLATION_CACHE_VERSION = "v13";
+const TRANSLATION_CACHE_VERSION = "v14";
 
 const WINDOWS_1252_BYTES: Record<string, number> = {
   "\u20ac": 0x80,
@@ -778,8 +778,10 @@ export default function AutoTranslate() {
               !getLocationTranslation(locale, text)
           );
 
-      for (let offset = 0; offset < missingTexts.length; offset += 80) {
-        const batch = missingTexts.slice(offset, offset + 80);
+      // The API accepts at most 40 unique texts. Keeping the client batch at
+      // the same size prevents every second half-batch from being skipped.
+      for (let offset = 0; offset < missingTexts.length; offset += 40) {
+        const batch = missingTexts.slice(offset, offset + 40);
         const requestTexts = Array.from(new Set(batch.map(repairMojibake)));
 
         try {

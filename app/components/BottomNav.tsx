@@ -227,7 +227,8 @@ export default function BottomNav() {
   const labels: Record<string, string[]> = {
     fi: ["Etusivu", "Ilmoitukset", "Luo", "Viestit", "Profiili"],
     en: ["Home", "Alerts", "New", "Messages", "Profile"],
-    sv: ["Hem", "Notiser", "Ny", "Meddelanden", "Profil"]
+    sv: ["Hem", "Notiser", "Ny", "Meddelanden", "Profil"],
+    no: ["Hjem", "Varsler", "Ny", "Meldinger", "Profil"],
   };
   const [, , , , l4] = labels[locale] ?? labels.fi;
 

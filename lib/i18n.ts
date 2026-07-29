@@ -3,8 +3,8 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 
 
-export type Locale = "fi" | "en" | "sv";
-export type SupportedLocale = Locale | "no";
+export type Locale = "fi" | "en" | "sv" | "no";
+export type SupportedLocale = Locale;
 
 const SUPPORTED_LOCALES = ["fi", "en", "sv", "no"] as const;
 
@@ -2331,7 +2331,7 @@ export function useLanguage() {
   }, []);
 
   return {
-    locale: (locale === "no" ? "en" : locale) as Locale,
+    locale,
     activeLocale: locale,
     setLocale,
     t: translations[locale]

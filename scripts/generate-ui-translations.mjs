@@ -5,7 +5,12 @@ import ts from "typescript";
 const ROOT = process.cwd();
 const APP_DIR = path.join(ROOT, "app");
 const OUTPUT = path.join(ROOT, "lib", "generated-ui-translations.ts");
-const TARGETS = ["en", "sv", "no"];
+const ALL_TARGETS = ["en", "sv", "no"];
+const targetArgument = process.argv.find((argument) => argument.startsWith("--target="));
+const requestedTarget = targetArgument?.slice("--target=".length);
+const TARGETS = requestedTarget && ALL_TARGETS.includes(requestedTarget)
+  ? [requestedTarget]
+  : ALL_TARGETS;
 const ATTRIBUTE_NAMES = new Set(["alt", "aria-label", "placeholder", "title"]);
 const UI_PROPERTY_NAMES = /^(?:ariaLabel|description|empty|eyebrow|heading|label|message|name|placeholder|subtitle|tagline|text|title)$/i;
 
@@ -119,8 +124,22 @@ async function mapWithConcurrency(items, concurrency, mapper) {
   return result;
 }
 
+function readExistingDictionaries() {
+  if (!fs.existsSync(OUTPUT)) return {};
+
+  const source = fs.readFileSync(OUTPUT, "utf8");
+  const match = source.match(/export const generatedUiTranslations = ([\s\S]+) as const;\s*$/);
+  if (!match) return {};
+
+  try {
+    return JSON.parse(match[1]);
+  } catch {
+    return {};
+  }
+}
+
 const strings = collectRenderedStrings();
-const dictionaries = {};
+const dictionaries = requestedTarget ? readExistingDictionaries() : {};
 
 if (process.argv.includes("--count")) {
   console.log(strings.length);

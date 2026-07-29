@@ -51,7 +51,7 @@ function Flag({ iso }: { iso: string }) {
 }
 
 export default function LanguageSwitcher() {
-  const { activeLocale, setLocale } = useLanguage();
+  const { activeLocale, setLocale, t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -153,7 +153,7 @@ export default function LanguageSwitcher() {
         type="button"
         className="language-switcher"
         onClick={openDropdown}
-        aria-label="Vaihda kieli"
+        aria-label={t.language}
         aria-haspopup="listbox"
         aria-expanded={open}
         style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 42, height: 34, padding: 0, cursor: "pointer" }}

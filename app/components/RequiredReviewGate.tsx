@@ -81,6 +81,23 @@ const reviewGateText: Record<Locale, {
     saving: "Sparar...",
     submit: "Skicka omdöme"
   },
+  no: {
+    unknownError: "Ukjent feil.",
+    timeoutError: "Supabase svarte ikke i tide. Kontroller SQL og prøv igjen.",
+    defaultUser: "Bruker",
+    commentRequired: "Skriv en kort vurdering av handelen.",
+    saveFailed: "Kunne ikke lagre vurderingen",
+    close: "Lukk",
+    title: "Gi vurdering av selgeren",
+    introStart: "Du kjøpte",
+    introEnd: "Du kan gi vurderingen nå, eller lukke dette og gjøre det senere fra varselklokken.",
+    rating: "Vurdering",
+    starLabel: (value) => `${value} stjerner`,
+    commentLabel: "Fortell kort hvordan handelen gikk",
+    commentPlaceholder: "For eksempel: Handelen gikk bra og produktet var som beskrevet.",
+    saving: "Lagrer...",
+    submit: "Send vurdering"
+  },
 };
 
 function getErrorMessage(error: unknown, fallback: string) {

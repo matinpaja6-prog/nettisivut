@@ -52,7 +52,24 @@ const copy: Record<Locale, InfoPageCopy> = {
     ],
     actions: [{ href: "/privacy", label: "Integritet", primary: true }, { href: "/terms", label: "Villkor" }],
     summaryLabel: "Cookies - sammanfattning"
-  }
+  },
+  no: {
+    kicker: "Personvern",
+    title: "Informasjonskapsler",
+    lead: "Maskines bruker nødvendige informasjonskapsler og lokal lagring i nettleseren slik at innlogging, språkvalg, sikkerhet og grunnfunksjoner fungerer.",
+    cards: [
+      { title: "Nødvendige", text: "Innlogging, økt, språk og tjenestens sikkerhet trenger teknisk lagring." },
+      { title: "Brukeropplevelse", text: "Vi husker valg slik at siden lastes smidigere og vises riktig også ved neste besøk." },
+      { title: "Ingen salg av data", text: "Informasjonskapsler brukes ikke til å selge personopplysninger." }
+    ],
+    sections: [
+      { title: "Hva brukes informasjonskapsler til?", body: ["Informasjonskapsler og lokal lagring hjelper med å holde tjenesten brukbar og sikker."], bullets: ["opprettholde innlogging og økt", "huske språkvalg", "rask lasting av utseendet som styres i adminpanelet", "hindre misbruk og teknisk feilsøking"] },
+      { title: "Kan informasjonskapsler blokkeres?", body: ["Du kan begrense informasjonskapsler i nettleserinnstillingene, men blokkering av nødvendige informasjonskapsler kan ødelegge innlogging, meldinger eller andre grunnfunksjoner."] },
+      { title: "Mer informasjon", body: ["Behandling av personopplysninger beskrives nærmere i personvernerklæringen. Bruksvilkårene beskriver reglene for bruk av tjenesten."] }
+    ],
+    actions: [{ href: "/privacy", label: "Personvern", primary: true }, { href: "/terms", label: "Vilkår" }],
+    summaryLabel: "Informasjonskapsler - sammendrag"
+  },
 };
 
 export default function CookiesPage() {

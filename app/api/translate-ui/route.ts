@@ -55,9 +55,9 @@ async function translateWithGoogle(text: string, targetLocale: UiLocale) {
     signal: AbortSignal.timeout(5_000)
   });
 
-  if (!response.ok) return text;
+  if (!response.ok) return null;
   const payload = await response.json();
-  return payload?.[0]?.map((part: unknown[]) => part?.[0] ?? "").join("").trim() || text;
+  return payload?.[0]?.map((part: unknown[]) => part?.[0] ?? "").join("").trim() || null;
 }
 
 async function translateMissingWithFallback(texts: string[], targetLocale: UiLocale) {
@@ -68,9 +68,10 @@ async function translateMissingWithFallback(texts: string[], targetLocale: UiLoc
     while (cursor < texts.length) {
       const text = texts[cursor++];
       try {
-        output[text] = await translateWithGoogle(text, targetLocale);
+        const translated = await translateWithGoogle(text, targetLocale);
+        if (translated && translated !== text) output[text] = translated;
       } catch {
-        output[text] = text;
+        // Leave failed items uncached so a later request can retry them.
       }
     }
   }

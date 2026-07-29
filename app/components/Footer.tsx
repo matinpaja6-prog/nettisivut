@@ -69,6 +69,28 @@ const footerText = {
     cookies: "Cookies",
     rights: "Alla rättigheter förbehållna."
   },
+  no: {
+    tagline: "Den nordlige markedsplassen for deler til snøscootere, ATV-er, motocross og mopeder.",
+    follow: "Følg oss",
+    email: "E-post",
+    service: "Tjeneste",
+    home: "Hjem",
+    sell: "Selg del",
+    garage: "Garasje",
+    rewards: "Belønninger",
+    company: "Selskap",
+    about: "Om oss",
+    contact: "Kontakt",
+    careers: "Ledige stillinger",
+    blog: "Blogg",
+    support: "Støtte",
+    faq: "FAQ",
+    safety: "Trygg handel",
+    terms: "Vilkår",
+    privacy: "Personvern",
+    cookies: "Informasjonskapsler",
+    rights: "Alle rettigheter reservert."
+  },
 } satisfies Record<Locale, Record<string, string>>;
 
 export default function Footer() {

@@ -2066,6 +2066,15 @@ export default function CategoryDrawer({
       mopeds: "Mopeder och 125cc",
       all: "Bläddra bland alla delar"
     },
+    no: {
+      title: "Hva vil du kategorisere?",
+      lead: "Velg først kjøretøyklasse. Deretter kan du avgrense merke, modell, årsmodell og eksakte deler.",
+      snowmobiles: "Scootere, belter, motorer",
+      atvs: "ATV- og UTV-deler",
+      motocross: "Cross og enduro",
+      mopeds: "Mopeder og 125cc",
+      all: "Bla gjennom alle deler"
+    },
   }[locale];
   const startTiles: Array<{
     kind: CategoryStartKind;

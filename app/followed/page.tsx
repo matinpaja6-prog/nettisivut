@@ -128,6 +128,32 @@ const followedText: Record<Locale, {
     unfollow: "Sluta följa",
     openProfile: "Öppna profil"
   },
+  no: {
+    loadError: "Kunne ikke laste fulgte profiler. Prøv igjen om litt.",
+    removeError: "Kunne ikke slutte å følge. Prøv igjen.",
+    loading: "Laster fulgte profiler...",
+    loginTitle: "Fulgte profiler",
+    loginLead: "Logg inn for å se profilene du følger og dine egne følgere.",
+    loginAction: "Logg inn",
+    eyebrow: "Profiler",
+    title: "Følger",
+    lead: "Administrer selgere du følger og se hvem som følger profilen din.",
+    followingStat: "fulgte",
+    followersStat: "følgere",
+    tabsLabel: "Fulgte profiler",
+    followingTab: "Fulgte profiler",
+    followersTab: "Dine følgere",
+    emptyFollowingTitle: "Du følger ingen profiler ennå",
+    emptyFollowersTitle: "Du har ingen følgere ennå",
+    emptyFollowingLead: "Du kan følge interessante selgere direkte fra profilsiden deres.",
+    emptyFollowersLead: "Når noen følger profilen din, ser du dem i denne listen.",
+    browseListings: "Bla gjennom annonser",
+    companyProfile: "Bedriftsprofil",
+    sellerProfile: "Selgerprofil",
+    mutual: "Du følger også",
+    unfollow: "Slutt å følge",
+    openProfile: "Åpne profil"
+  },
 };
 
 function profileLocation(profile: ProfileFollowListItem) {

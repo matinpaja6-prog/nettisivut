@@ -218,12 +218,63 @@ const listingUiText = {
     messageLoginRequired: "Vill du fråga om produkten?",
     loginNow: "Logga in och skicka ett meddelande"
   },
+  no: {
+    loading: "Laster...",
+    notFound: "Ikke funnet",
+    linkCopied: "Lenken er kopiert!",
+    back: "Tilbake",
+    forSale: "Til salgs",
+    part: "Del",
+    updated: "Oppdatert",
+    imageSingular: "bilde",
+    imagePlural: "bilder",
+    share: "Del",
+    saved: "Lagret",
+    save: "Lagre",
+    description: "Beskrivelse",
+    basicInfo: "Grunnopplysninger",
+    additionalInfo: "Tilleggsinformasjon",
+    noDescription: "Ingen beskrivelse.",
+    vehicle: "Kjøretøy",
+    partModel: "Delmodell",
+    trackMatDetails: "Beltemattedetaljer",
+    trackMatDimensions: "Beltemattemål",
+    partNumber: "Delenummer",
+    brand: "Merke",
+    model: "Modell",
+    brandModel: "Merke og modell",
+    year: "Årsmodell",
+    condition: "Tilstand",
+    location: "Sted",
+    notSpecified: "Ikke oppgitt",
+    seller: "Selger",
+    fallbackSeller: "Selger",
+    verified: "Verifisert",
+    sellers: "Selgere",
+    map: "Kart",
+    website: "Nettside",
+    openSellerProfile: (name: string) => `Åpne den offentlige selgerprofilen til ${name}`,
+    viewProfile: "Vis profil",
+    contactHeading: "Spørsmål om annonsen?",
+    sendMessage: "Send melding",
+    fetchingPhone: "...",
+    showPhone: "Vis nummer",
+    missingPhone: "Nummer mangler",
+    loginContact: "Logg inn for å se kontaktopplysninger",
+    callPhone: "Ring",
+    whatsappPhone: "WhatsApp-melding",
+    textPhone: "Tekstmelding",
+    phoneActions: "Velg kontaktmåte",
+    messageLoginRequired: "Vil du spørre om denne varen?",
+    loginNow: "Logg inn og send en melding"
+  },
 } satisfies Record<Locale, Record<string, string | ((name: string) => string)>>;
 
 const conditionLabels: Record<Locale, Record<string, string>> = {
   fi: {},
   en: { "Hyvä": "Good", Uusi: "New", "Kuin uusi": "Like new", "Tyydyttävä": "Fair", Heikko: "Poor" },
   sv: { "Hyvä": "Bra", Uusi: "Ny", "Kuin uusi": "Som ny", "Tyydyttävä": "Godtagbar", Heikko: "Dålig" },
+  no: { Hyvä: "God", Uusi: "Ny", "Kuin uusi": "Som ny", Tyydyttävä: "Greit", Heikko: "Dårlig" },
 };
 
 function normalizeComparable(value: string | null | undefined) {
@@ -260,6 +311,7 @@ const dateLocales: Record<Locale, string> = {
   fi: "fi-FI",
   en: "en-US",
   sv: "sv-SE",
+  no: "nb-NO",
 };
 
 function formatDate(value: string, locale: Locale) {
@@ -383,6 +435,22 @@ const listingExtraText: Record<
     successfulDeals: "Lyckade aff\u00e4rer",
     sellerStatsAria: "S\u00e4ljarens recensioner och aff\u00e4rer"
   },
+  no: {
+    vehicleSubtype: "Kj\u00f8ret\u00f8ytype",
+    delivery: "Levering",
+    businessId: "Organisasjonsnummer",
+    memberSince: "Medlem siden",
+    verifiedCompany: "Verifisert bedrift",
+    company: "Bedrift",
+    privateSeller: "Privat selger",
+    verifiedSellerSuffix: " selger",
+    noReviews: "Ingen anmeldelser",
+    oneReview: "1 anmeldelse",
+    reviews: (count) => `${count} anmeldelser`,
+    successfulDeal: "Vellykket handel",
+    successfulDeals: "Vellykkede handler",
+    sellerStatsAria: "Selgerens anmeldelser og handler"
+  },
 };
 
 function translateDeliveryMethod(locale: Locale, value: string) {
@@ -411,6 +479,11 @@ function translateDeliveryMethod(locale: Locale, value: string) {
       both: "Frakt och avhämtning",
       shipping: "Frakt",
       pickup: "Avhämtning"
+    },
+    no: {
+      both: "Frakt og henting",
+      shipping: "Frakt",
+      pickup: "Henting"
     },
   } satisfies Record<Locale, Record<string, string>>;
 
@@ -1231,6 +1304,7 @@ export default function ListingPage() {
     fi: {},
     en: { Moottorikelkka: "Snowmobile", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motocross", Mopot: "Moped" },
     sv: { Moottorikelkka: "Sn\u00f6skoter", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motocross", Mopot: "Moped" },
+    no: { Moottorikelkka: "Sn\u00f8scooter", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motocross", Mopot: "Moped" },
   };
   const baseListingText = getLocalizedListingText(listing, locale);
   const listingPartNumber = getListingPartNumber(listing);

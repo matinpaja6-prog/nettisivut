@@ -21,10 +21,18 @@ const languageFlags: Record<SupportedLocale, { flag: "fi" | "gb" | "se" | "no" }
 };
 
 const backgroundPresets = [
-  { labels: { fi: "Nykyinen tumma", en: "Current dark", sv: "Nuvarande mörk" }, value: "#0b1118" },
-  { labels: { fi: "Tummansininen", en: "Deep blue", sv: "Djupblå" }, value: "#102033" },
-  { labels: { fi: "Grafiitti", en: "Graphite", sv: "Grafit" }, value: "#151a22" },
-  { labels: { fi: "Jääsininen", en: "Ice blue", sv: "Isblå" }, value: "#c8d8e8" }
+  { labels: { fi: "Nykyinen tumma", en: "Current dark", sv: "Nuvarande mörk",
+    no: "Nåværende mørk",
+  }, value: "#0b1118" },
+  { labels: { fi: "Tummansininen", en: "Deep blue", sv: "Djupblå",
+    no: "Dypblå",
+  }, value: "#102033" },
+  { labels: { fi: "Grafiitti", en: "Graphite", sv: "Grafit",
+    no: "Grafitt",
+  }, value: "#151a22" },
+  { labels: { fi: "Jääsininen", en: "Ice blue", sv: "Isblå",
+    no: "Isblå",
+  }, value: "#c8d8e8" }
 ] satisfies Array<{ labels: Record<Locale, string>; value: string }>;
 
 
@@ -85,6 +93,25 @@ const copy = {
     backgroundDesc: "Välj webbplatsens bakgrundsfärg.",
     saved: "Sparat",
     instructions: "Instruktioner"
+  },
+  no: {
+    title: "Sideinnstillinger",
+    subtitle: "Velg språk, varsler og sidens bakgrunnsfarge for denne enheten.",
+    languageTitle: "Språk",
+    languageDesc: "Brukes for nettstedets tekster og lokaliserte adresser.",
+    notificationsTitle: "Varsler",
+    notificationsDesc: "Juster meldings- og søkevarsler.",
+    notificationsMain: "Varsler aktivert",
+    notificationsMainDesc: "Vis varselmerker og tillat nettleservarsler.",
+    sound: "Varslingslyd",
+    soundDesc: "Spill av en kort lyd for nye meldinger.",
+    browserPermission: "Tillat nettleservarsler",
+    browserPermissionGranted: "Nettleservarsler er tillatt",
+    browserPermissionDenied: "Nettleservarsler er blokkert i nettleseren",
+    backgroundTitle: "Sidens bakgrunnsfarge",
+    backgroundDesc: "Velg nettstedets bakgrunnsfarge.",
+    saved: "Lagret",
+    instructions: "Instruksjoner"
   },
 } satisfies Record<Locale, Record<string, string>>;
 
