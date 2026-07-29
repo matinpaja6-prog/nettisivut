@@ -203,13 +203,17 @@ function getClientIp(request: NextRequest) {
     ?.split(",")
     .map((value) => value.trim())
     .filter(Boolean);
-  const nearestForwarded = forwardedChain?.at(-1);
-  return (
+  const candidate =
     request.headers.get("cf-connecting-ip") ||
     request.headers.get("x-real-ip") ||
-    nearestForwarded ||
-    null
-  );
+    forwardedChain?.[0] ||
+    null;
+
+  if (!candidate) return null;
+  return candidate
+    .trim()
+    .replace(/^\[|\]$/g, "")
+    .replace(/^::ffff:/i, "");
 }
 
 async function isIpBanned(ip: string) {
@@ -279,6 +283,27 @@ export async function middleware(request: NextRequest) {
     return applySecurityHeaders(NextResponse.next());
   }
 
+  // Keep the administration route reachable so an administrator can remove
+  // an accidental IP ban. Every other document and API route is denied.
+  const isAdminRecoveryRoute =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/api/admin");
+
+  if (ip && !isAdminRecoveryRoute && await isIpBanned(ip)) {
+    if (pathname.startsWith("/api")) {
+      return applySecurityHeaders(
+        NextResponse.json({ error: "Pääsy estetty." }, { status: 403 })
+      );
+    }
+
+    return applySecurityHeaders(
+      new NextResponse("Pääsy estetty.", {
+        status: 403,
+        headers: { "Content-Type": "text/plain; charset=utf-8" }
+      })
+    );
+  }
+
   if (
     pathname.startsWith("/admin") ||
     pathname.startsWith("/auth")
@@ -287,12 +312,6 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith("/api")) {
-    if (ip && await isIpBanned(ip)) {
-      return applySecurityHeaders(
-        NextResponse.json({ error: "Pääsy estetty." }, { status: 403 })
-      );
-    }
-
     if (isCrossSiteMutation(request)) {
       return applySecurityHeaders(
         NextResponse.json({ error: "Pyyntö estettiin." }, { status: 403 })
@@ -331,10 +350,6 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.next();
     response.headers.set("Cache-Control", "no-store, max-age=0");
     return applySecurityHeaders(response);
-  }
-
-  if (ip && await isIpBanned(ip)) {
-    return applyDocumentHeaders(new NextResponse("IP-osoite on estetty.", { status: 403 }));
   }
 
   const locale = normalizeRouteLocale(request.cookies.get("locale")?.value);

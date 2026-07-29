@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createHash, randomBytes } from "node:crypto";
+import { isIP } from "node:net";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey =
@@ -19,9 +20,49 @@ type AdminActionBody =
   | { action: "delete-listing"; listingId?: string; reason?: string | null; approvalToken?: string }
   | { action: "delete-user"; userId?: string; approvalToken?: string }
   | { action: "list-profiles"; query?: string; limit?: number; offset?: number }
+  | { action: "activity-feed"; cursor?: string | null; limit?: number }
+  | { action: "presence-summary" }
+  | { action: "presence-page"; limit?: number; offset?: number }
   | { action: "list-banned-ips" };
 
 type SensitiveAdminAction = "ban-user" | "ban-ip" | "delete-listing" | "delete-user";
+
+type AdminActivityKind =
+  | "account"
+  | "listing"
+  | "sale"
+  | "conversation"
+  | "message"
+  | "review"
+  | "search-alert"
+  | "visit"
+  | "admin";
+
+type AdminActivityEvent = {
+  id: string;
+  kind: AdminActivityKind;
+  occurred_at: string;
+  title: string;
+  detail: string;
+  actor_id: string | null;
+  actor_name: string | null;
+  ip: string | null;
+  ip_source: "event" | "profile" | null;
+};
+
+type ActivityCursor = {
+  at: string;
+  key: string;
+};
+
+const ADMIN_ACTIVITY_DEFAULT_LIMIT = 40;
+const ADMIN_ACTIVITY_MAX_LIMIT = 60;
+const ADMIN_ACTIVITY_SOURCE_MULTIPLIER = 3;
+const ADMIN_PRESENCE_DEFAULT_LIMIT = 60;
+const ADMIN_PRESENCE_MAX_LIMIT = 100;
+const ADMIN_PRESENCE_MAX_OFFSET = 50_000;
+const ONLINE_WINDOW_MS = 65_000;
+const ONLINE_FUTURE_TOLERANCE_MS = 10_000;
 
 const SENSITIVE_ADMIN_ACTIONS = new Set<SensitiveAdminAction>([
   "ban-user",
@@ -62,6 +103,135 @@ function getClient(key: string) {
       persistSession: false
     }
   });
+}
+
+function clampInteger(
+  value: unknown,
+  fallback: number,
+  minimum: number,
+  maximum: number
+) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(minimum, Math.min(Math.trunc(parsed), maximum));
+}
+
+function normalizeAdminText(value: unknown, maximumLength = 180) {
+  return String(value ?? "")
+    .replace(/[\u0000-\u001f\u007f]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maximumLength);
+}
+
+function normalizeIpAddress(value: unknown) {
+  const candidate = normalizeAdminText(value, 80)
+    .replace(/^\[|\]$/g, "")
+    .replace(/^::ffff:/i, "");
+  return isIP(candidate) ? candidate : null;
+}
+
+function safeActivityPath(value: unknown) {
+  const raw = normalizeAdminText(value, 500);
+  if (!raw) return "/";
+
+  try {
+    return new URL(raw, "https://maskines.com").pathname.slice(0, 180) || "/";
+  } catch {
+    return raw.startsWith("/") ? raw.slice(0, 180) : "/";
+  }
+}
+
+function classifyUserAgent(value: unknown) {
+  const userAgent = String(value ?? "").toLowerCase();
+  if (!userAgent) return "Tuntematon laite";
+  if (/bot|crawler|spider|preview/.test(userAgent)) return "Botti";
+  if (/ipad|tablet/.test(userAgent)) return "Tabletti";
+  if (/mobile|iphone|android/.test(userAgent)) return "Puhelin";
+  return "Tietokone";
+}
+
+function normalizeIsoTimestamp(value: unknown) {
+  const raw = String(value ?? "");
+  const timestamp = Date.parse(raw);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
+}
+
+function parseActivityCursor(value: unknown): ActivityCursor | null {
+  if (typeof value !== "string" || !value || value.length > 500) return null;
+
+  try {
+    const parsed = JSON.parse(
+      Buffer.from(value, "base64url").toString("utf8")
+    ) as Partial<ActivityCursor>;
+    const at = normalizeIsoTimestamp(parsed.at);
+    const key = normalizeAdminText(parsed.key, 180);
+    return at && key ? { at, key } : null;
+  } catch {
+    return null;
+  }
+}
+
+function createActivityCursor(event: AdminActivityEvent) {
+  return Buffer.from(
+    JSON.stringify({ at: event.occurred_at, key: event.id } satisfies ActivityCursor),
+    "utf8"
+  ).toString("base64url");
+}
+
+function isProfileOnline(
+  onlineValue: unknown,
+  lastSeenValue: unknown,
+  now = Date.now()
+) {
+  const lastSeen = Date.parse(String(lastSeenValue ?? ""));
+  return (
+    Boolean(onlineValue) &&
+    Number.isFinite(lastSeen) &&
+    lastSeen >= now - ONLINE_WINDOW_MS &&
+    lastSeen <= now + ONLINE_FUTURE_TOLERANCE_MS
+  );
+}
+
+function activityEvent(
+  kind: AdminActivityKind,
+  rowId: unknown,
+  occurredAt: unknown,
+  title: string,
+  detail: string,
+  actorId?: unknown,
+  actorName?: unknown,
+  ip?: unknown,
+  ipSource?: "event" | "profile"
+): AdminActivityEvent | null {
+  const timestamp = normalizeIsoTimestamp(occurredAt);
+  const idPart = normalizeAdminText(rowId, 100);
+  if (!timestamp || !idPart) return null;
+
+  return {
+    id: `${kind}:${idPart}`,
+    kind,
+    occurred_at: timestamp,
+    title: normalizeAdminText(title, 120),
+    detail: normalizeAdminText(detail, 220),
+    actor_id: actorId ? normalizeAdminText(actorId, 100) : null,
+    actor_name: actorName ? normalizeAdminText(actorName, 120) : null,
+    ip: normalizeIpAddress(ip),
+    ip_source: normalizeIpAddress(ip) && ipSource ? ipSource : null
+  };
+}
+
+function displayNameFromProfile(row: Record<string, unknown>) {
+  return (
+    normalizeAdminText(row.company_name, 120) ||
+    normalizeAdminText(row.full_name, 120) ||
+    [row.first_name, row.last_name]
+      .map((value) => normalizeAdminText(value, 80))
+      .filter(Boolean)
+      .join(" ") ||
+    normalizeAdminText(row.email, 120) ||
+    "Tuntematon käyttäjä"
+  );
 }
 
 function storageObjectFromPublicUrl(value: string, ownerId?: string | null) {
@@ -296,7 +466,313 @@ function normalizeProfile(row: Record<string, unknown>) {
     public_address: row.public_address ? String(row.public_address) : null,
     billing_email: row.billing_email ? String(row.billing_email) : null,
     company_website: row.company_website ? String(row.company_website) : null,
-    updated_at: row.updated_at ? String(row.updated_at) : null
+    updated_at: row.updated_at ? String(row.updated_at) : null,
+    online: Boolean(row.online),
+    last_seen: row.last_seen ? String(row.last_seen) : null
+  };
+}
+
+async function readActivitySource(
+  admin: ReturnType<typeof getClient>,
+  table: string,
+  columns: string,
+  timestampColumn: string,
+  before: string,
+  limit: number
+) {
+  const { data, error } = await admin
+    .from(table)
+    .select(columns)
+    .lte(timestampColumn, before)
+    .order(timestampColumn, { ascending: false })
+    .order("id", { ascending: false })
+    .limit(limit);
+
+  return {
+    rows: error
+      ? []
+      : ((data ?? []) as unknown as Record<string, unknown>[]),
+    failed: Boolean(error)
+  };
+}
+
+async function loadAdminActivityFeed(
+  admin: ReturnType<typeof getClient>,
+  cursor: ActivityCursor | null,
+  pageLimit: number
+) {
+  const before = cursor?.at ?? new Date().toISOString();
+  const sourceLimit = pageLimit * ADMIN_ACTIVITY_SOURCE_MULTIPLIER;
+
+  const [
+    profiles,
+    listings,
+    sales,
+    conversations,
+    messages,
+    reviews,
+    searchAlerts,
+    visits,
+    adminDeletes
+  ] = await Promise.all([
+    readActivitySource(
+      admin,
+      "profiles",
+      "id,email,full_name,first_name,last_name,company_name,last_ip,last_seen_ip,created_at",
+      "created_at",
+      before,
+      sourceLimit
+    ),
+    readActivitySource(
+      admin,
+      "listings",
+      "id,title,seller_id,seller_name,created_at",
+      "created_at",
+      before,
+      sourceLimit
+    ),
+    readActivitySource(
+      admin,
+      "sold_listings",
+      "id,title,seller_id,buyer_id,sold_price,sold_at",
+      "sold_at",
+      before,
+      sourceLimit
+    ),
+    readActivitySource(
+      admin,
+      "conversations",
+      "id,buyer_id,seller_id,listing_title,created_at",
+      "created_at",
+      before,
+      sourceLimit
+    ),
+    readActivitySource(
+      admin,
+      "messages",
+      "id,conversation_id,sender_id,receiver_id,created_at",
+      "created_at",
+      before,
+      sourceLimit
+    ),
+    readActivitySource(
+      admin,
+      "seller_reviews",
+      "id,seller_id,reviewer_id,reviewer_name,rating,created_at",
+      "created_at",
+      before,
+      sourceLimit
+    ),
+    readActivitySource(
+      admin,
+      "search_alerts",
+      "id,user_id,label,created_at",
+      "created_at",
+      before,
+      sourceLimit
+    ),
+    readActivitySource(
+      admin,
+      "site_visits",
+      "id,path,user_agent,ip,created_at",
+      "created_at",
+      before,
+      sourceLimit
+    ),
+    readActivitySource(
+      admin,
+      "deleted_listings_log",
+      "id,listing_id,deleted_by,deleted_at",
+      "deleted_at",
+      before,
+      sourceLimit
+    )
+  ]);
+
+  const candidates = [
+    ...profiles.rows.map((row) =>
+      activityEvent(
+        "account",
+        row.id,
+        row.created_at,
+        "Uusi käyttäjä rekisteröityi",
+        normalizeAdminText(row.email, 140) || displayNameFromProfile(row),
+        row.id,
+        displayNameFromProfile(row),
+        row.last_ip ?? row.last_seen_ip,
+        "profile"
+      )
+    ),
+    ...listings.rows.map((row) =>
+      activityEvent(
+        "listing",
+        row.id,
+        row.created_at,
+        "Uusi ilmoitus julkaistiin",
+        normalizeAdminText(row.title, 180) || "Nimetön ilmoitus",
+        row.seller_id,
+        row.seller_name
+      )
+    ),
+    ...sales.rows.map((row) =>
+      activityEvent(
+        "sale",
+        row.id,
+        row.sold_at,
+        "Ilmoitus merkittiin myydyksi",
+        [
+          normalizeAdminText(row.title, 150) || "Nimetön ilmoitus",
+          Number.isFinite(Number(row.sold_price))
+            ? `${Number(row.sold_price).toLocaleString("fi-FI")} €`
+            : ""
+        ].filter(Boolean).join(" · "),
+        row.seller_id
+      )
+    ),
+    ...conversations.rows.map((row) =>
+      activityEvent(
+        "conversation",
+        row.id,
+        row.created_at,
+        "Uusi keskustelu aloitettiin",
+        normalizeAdminText(row.listing_title, 180) || `Keskustelu ${String(row.id ?? "").slice(0, 8)}`,
+        row.buyer_id
+      )
+    ),
+    ...messages.rows.map((row) =>
+      activityEvent(
+        "message",
+        row.id,
+        row.created_at,
+        "Uusi viesti lähetettiin",
+        `Keskustelu ${String(row.conversation_id ?? "").slice(0, 8)} · viestin sisältöä ei näytetä`,
+        row.sender_id
+      )
+    ),
+    ...reviews.rows.map((row) =>
+      activityEvent(
+        "review",
+        row.id,
+        row.created_at,
+        "Uusi arvostelu annettiin",
+        `${clampInteger(row.rating, 0, 0, 5)}/5`,
+        row.reviewer_id,
+        row.reviewer_name
+      )
+    ),
+    ...searchAlerts.rows.map((row) =>
+      activityEvent(
+        "search-alert",
+        row.id,
+        row.created_at,
+        "Uusi hakuvahti luotiin",
+        normalizeAdminText(row.label, 180) || "Nimetön hakuvahti",
+        row.user_id
+      )
+    ),
+    ...visits.rows.map((row) =>
+      activityEvent(
+        "visit",
+        row.id,
+        row.created_at,
+        "Sivulla vierailtiin",
+        `${safeActivityPath(row.path)} · ${classifyUserAgent(row.user_agent)}`,
+        undefined,
+        undefined,
+        row.ip,
+        "event"
+      )
+    ),
+    ...adminDeletes.rows.map((row) =>
+      activityEvent(
+        "admin",
+        row.id,
+        row.deleted_at,
+        "Admin poisti ilmoituksen",
+        [
+          row.listing_id
+            ? `Ilmoitus ${String(row.listing_id).slice(0, 8)}`
+            : "Tuntematon ilmoitus"
+        ].filter(Boolean).join(" · "),
+        row.deleted_by
+      )
+    )
+  ]
+    .filter((event): event is AdminActivityEvent => Boolean(event))
+    .sort((left, right) => {
+      const timeDifference =
+        Date.parse(right.occurred_at) - Date.parse(left.occurred_at);
+      return timeDifference || right.id.localeCompare(left.id);
+    })
+    .filter((event) => {
+      if (!cursor) return true;
+      if (event.occurred_at < cursor.at) return true;
+      return event.occurred_at === cursor.at && event.id < cursor.key;
+    });
+
+  const page = candidates.slice(0, pageLimit);
+  const actorIds = Array.from(
+    new Set(
+      page
+        .map((event) => event.actor_id)
+        .filter((value): value is string => Boolean(value))
+    )
+  );
+  const profileNames = new Map<string, string>();
+  const profileIps = new Map<string, string>();
+
+  if (actorIds.length) {
+    const { data } = await admin
+      .from("profiles")
+      .select("id,email,full_name,first_name,last_name,company_name,last_ip,last_seen_ip")
+      .in("id", actorIds);
+
+    for (const row of (data ?? []) as Record<string, unknown>[]) {
+      const profileId = String(row.id);
+      profileNames.set(profileId, displayNameFromProfile(row));
+      const profileIp = normalizeIpAddress(row.last_ip ?? row.last_seen_ip);
+      if (profileIp) profileIps.set(profileId, profileIp);
+    }
+  }
+
+  const enrichedPage = page.map((event) => {
+    const profileIp = event.actor_id
+      ? profileIps.get(event.actor_id) ?? null
+      : null;
+
+    return {
+      ...event,
+      actor_name:
+        event.actor_name ||
+        (event.actor_id ? profileNames.get(event.actor_id) ?? null : null),
+      ip: event.ip || profileIp,
+      ip_source: event.ip
+        ? event.ip_source
+        : profileIp
+          ? "profile" as const
+          : null
+    };
+  });
+  const lastEvent = enrichedPage.at(-1);
+
+  return {
+    events: enrichedPage,
+    nextCursor:
+      candidates.length > pageLimit && lastEvent
+        ? createActivityCursor(lastEvent)
+        : null,
+    hasMore: candidates.length > pageLimit,
+    partial: [
+      profiles,
+      listings,
+      sales,
+      conversations,
+      messages,
+      reviews,
+      searchAlerts,
+      visits,
+      adminDeletes
+    ].some((source) => source.failed)
   };
 }
 
@@ -348,6 +824,105 @@ export async function POST(request: Request) {
       }
     }
 
+    if (body.action === "activity-feed") {
+      const cursor = body.cursor ? parseActivityCursor(body.cursor) : null;
+      if (body.cursor && !cursor) {
+        return NextResponse.json(
+          { error: "Virheellinen tapahtumalokin jatkotunniste." },
+          { status: 400 }
+        );
+      }
+
+      const limit = clampInteger(
+        body.limit,
+        ADMIN_ACTIVITY_DEFAULT_LIMIT,
+        1,
+        ADMIN_ACTIVITY_MAX_LIMIT
+      );
+      const data = await loadAdminActivityFeed(admin, cursor, limit);
+      return NextResponse.json(data, {
+        headers: { "Cache-Control": "private, no-store, max-age=0" }
+      });
+    }
+
+    if (body.action === "presence-summary") {
+      const now = Date.now();
+      const cutoff = new Date(now - ONLINE_WINDOW_MS).toISOString();
+      const futureLimit = new Date(now + ONLINE_FUTURE_TOLERANCE_MS).toISOString();
+      const [totalResult, onlineResult] = await Promise.all([
+        admin.from("profiles").select("id", { count: "exact", head: true }),
+        admin
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("online", true)
+          .gte("last_seen", cutoff)
+          .lte("last_seen", futureLimit)
+      ]);
+
+      if (totalResult.error || onlineResult.error) {
+        throw totalResult.error ?? onlineResult.error;
+      }
+
+      return NextResponse.json(
+        {
+          onlineCount: onlineResult.count ?? 0,
+          totalRegistered: totalResult.count ?? 0,
+          onlineWindowSeconds: Math.round(ONLINE_WINDOW_MS / 1000),
+          updatedAt: new Date(now).toISOString()
+        },
+        { headers: { "Cache-Control": "private, no-store, max-age=0" } }
+      );
+    }
+
+    if (body.action === "presence-page") {
+      const limit = clampInteger(
+        body.limit,
+        ADMIN_PRESENCE_DEFAULT_LIMIT,
+        1,
+        ADMIN_PRESENCE_MAX_LIMIT
+      );
+      const offset = clampInteger(
+        body.offset,
+        0,
+        0,
+        ADMIN_PRESENCE_MAX_OFFSET
+      );
+      const { data, count, error } = await admin
+        .from("profiles")
+        .select(
+          "id,email,full_name,first_name,last_name,company_name,account_type,online,last_seen,created_at",
+          { count: "exact" }
+        )
+        .order("last_seen", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (error) throw error;
+
+      const now = Date.now();
+      const users = ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+        id: String(row.id ?? ""),
+        email: normalizeAdminText(row.email, 160),
+        displayName: displayNameFromProfile(row),
+        accountType: normalizeAdminText(row.account_type, 40) || "private",
+        online: isProfileOnline(row.online, row.last_seen, now),
+        lastSeen: normalizeIsoTimestamp(row.last_seen),
+        createdAt: normalizeIsoTimestamp(row.created_at)
+      }));
+      const total = count ?? offset + users.length;
+      const nextOffset = offset + users.length;
+
+      return NextResponse.json(
+        {
+          users,
+          total,
+          nextOffset: nextOffset < total ? nextOffset : null,
+          hasMore: nextOffset < total
+        },
+        { headers: { "Cache-Control": "private, no-store, max-age=0" } }
+      );
+    }
+
     if (body.action === "ban-user") {
       if (!body.userId) {
         return NextResponse.json({ error: "Käyttäjä puuttuu." }, { status: 400 });
@@ -395,9 +970,9 @@ export async function POST(request: Request) {
     }
 
     if (body.action === "ban-ip") {
-      const ip = body.ip?.trim();
+      const ip = normalizeIpAddress(body.ip);
       if (!ip) {
-        return NextResponse.json({ error: "IP-osoite puuttuu." }, { status: 400 });
+        return NextResponse.json({ error: "Virheellinen IP-osoite." }, { status: 400 });
       }
 
       const { error } = await admin
@@ -414,9 +989,9 @@ export async function POST(request: Request) {
     }
 
     if (body.action === "unban-ip") {
-      const ip = body.ip?.trim();
+      const ip = normalizeIpAddress(body.ip);
       if (!ip) {
-        return NextResponse.json({ error: "IP-osoite puuttuu." }, { status: 400 });
+        return NextResponse.json({ error: "Virheellinen IP-osoite." }, { status: 400 });
       }
 
       const { error } = await admin
@@ -524,14 +1099,27 @@ export async function POST(request: Request) {
 
       if (listingError) throw listingError;
 
-      const logResult = await admin
+      let logResult = await admin
         .from("deleted_listings_log")
         .insert({
           listing_id: body.listingId,
           deleted_by: userId,
           reason: body.reason ?? null
         });
-      void logResult;
+
+      if (
+        logResult.error?.code === "42703" &&
+        logResult.error.message.includes("reason")
+      ) {
+        logResult = await admin
+          .from("deleted_listings_log")
+          .insert({
+            listing_id: body.listingId,
+            deleted_by: userId
+          });
+      }
+
+      if (logResult.error) throw logResult.error;
 
       const { error } = await admin
         .from("listings")
