@@ -121,18 +121,31 @@ function emailFrame(input: {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>${escapeHtml(input.title)}</title>
+    <style>
+      @media only screen and (max-width: 680px) {
+        .email-shell { padding: 12px 8px !important; }
+        .email-card { border-radius: 14px !important; }
+        .email-header { padding: 21px 22px !important; }
+        .email-content { padding: 27px 22px 25px !important; }
+        .email-footer { padding: 19px 22px !important; }
+        .email-title { font-size: 27px !important; }
+        .email-footer-copy,
+        .email-footer-action { display: block !important; width: 100% !important; text-align: left !important; }
+        .email-footer-action { padding-top: 14px !important; }
+      }
+    </style>
   </head>
-  <body style="margin:0;padding:0;background:#07111d;color:#f7fafc;">
+  <body style="margin:0;padding:0;background:#f3f6f8;color:#f7fafc;">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(input.preheader)}</div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background:#07111d;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background:#f3f6f8;">
       <tr>
-        <td align="center" style="padding:34px 14px;">
-          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;max-width:620px;overflow:hidden;border:1px solid #24384b;border-radius:18px;background:#0d1b29;box-shadow:0 24px 60px rgba(0,0,0,.35);">
+        <td class="email-shell" align="center" style="padding:28px 16px 34px;">
+          <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;max-width:640px;overflow:hidden;border:1px solid #24384b;border-radius:18px;background:#0d1b29;box-shadow:0 12px 32px rgba(7,17,29,.16);">
             <tr>
               <td style="height:6px;background:#ff7a1a;font-size:0;line-height:0;">&nbsp;</td>
             </tr>
             <tr>
-              <td style="padding:25px 30px;border-bottom:1px solid #213548;">
+              <td class="email-header" style="padding:23px 30px;border-bottom:1px solid #213548;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                   <tr>
                     <td style="font:900 23px/1 Arial,Helvetica,sans-serif;letter-spacing:.4px;color:#ffffff;">MASKINES</td>
@@ -142,22 +155,32 @@ function emailFrame(input: {
               </td>
             </tr>
             <tr>
-              <td style="padding:34px 30px 30px;">
-                <h1 style="margin:0 0 13px;font:900 30px/1.12 Arial,Helvetica,sans-serif;color:#ffffff;">${escapeHtml(input.title)}</h1>
-                <p style="margin:0 0 27px;font:500 16px/1.65 Arial,Helvetica,sans-serif;color:#b9c8d8;">${escapeHtml(input.lead)}</p>
+              <td class="email-content" style="padding:30px 30px 28px;">
+                <h1 class="email-title" style="margin:0 0 11px;font:900 30px/1.15 Arial,Helvetica,sans-serif;color:#ffffff;">${escapeHtml(input.title)}</h1>
+                <p style="margin:0 0 23px;font:500 16px/1.55 Arial,Helvetica,sans-serif;color:#c2ceda;">${escapeHtml(input.lead)}</p>
                 ${input.card}
-                <div style="margin-top:27px;">
-                  <a href="${escapeHtml(input.actionUrl)}" style="display:inline-block;padding:14px 24px;border-radius:10px;background:#ff7a1a;color:#ffffff;font:800 15px/1 Arial,Helvetica,sans-serif;text-decoration:none;">${escapeHtml(input.actionLabel)} &nbsp;→</a>
-                </div>
-                ${input.note ? `<p style="margin:23px 0 0;font:500 13px/1.55 Arial,Helvetica,sans-serif;color:#8598aa;">${escapeHtml(input.note)}</p>` : ""}
+                <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:23px;">
+                  <tr>
+                    <td style="border-radius:10px;background:#ff7a1a;">
+                      <a href="${escapeHtml(input.actionUrl)}" style="display:inline-block;padding:15px 24px;color:#ffffff;font:800 15px/1 Arial,Helvetica,sans-serif;text-decoration:none;">${escapeHtml(input.actionLabel)} &nbsp;→</a>
+                    </td>
+                  </tr>
+                </table>
+                ${input.note ? `<p style="margin:20px 0 0;font:500 13px/1.55 Arial,Helvetica,sans-serif;color:#91a3b4;">${escapeHtml(input.note)}</p>` : ""}
               </td>
             </tr>
             <tr>
-              <td style="padding:21px 30px;border-top:1px solid #213548;background:#0a1723;">
-                <p style="margin:0;font:500 12px/1.55 Arial,Helvetica,sans-serif;color:#8295a7;">
-                  ${escapeHtml(input.settingsText)}
-                  <a href="${escapeHtml(input.settingsUrl)}" style="color:#ff9a4d;text-decoration:none;font-weight:700;">${escapeHtml(input.settingsLabel)}</a>
-                </p>
+              <td class="email-footer" style="padding:18px 30px;border-top:1px solid #213548;background:#0a1723;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td class="email-footer-copy" style="padding-right:18px;font:500 12px/1.55 Arial,Helvetica,sans-serif;color:#8295a7;">
+                      ${escapeHtml(input.settingsText)}
+                    </td>
+                    <td class="email-footer-action" align="right" style="white-space:nowrap;">
+                      <a href="${escapeHtml(input.settingsUrl)}" style="display:inline-block;padding:10px 15px;border:1px solid #ff7a1a;border-radius:8px;color:#ff9a4d;font:800 12px/1 Arial,Helvetica,sans-serif;text-decoration:none;">${escapeHtml(input.settingsLabel)} &nbsp;→</a>
+                    </td>
+                  </tr>
+                </table>
               </td>
             </tr>
           </table>
@@ -190,7 +213,7 @@ export function searchAlertEmail(input: {
     </div>`;
   const html = emailFrame({
     locale: input.locale,
-    preheader: `${text.searchSubject}: ${input.listingTitle}`,
+    preheader: `${text.searchLead} ${input.listingTitle}`,
     eyebrow: String(text.searchEyebrow),
     title: String(text.searchTitle),
     lead: String(text.searchLead),
@@ -203,7 +226,7 @@ export function searchAlertEmail(input: {
   });
 
   return {
-    subject: `${text.searchSubject}: ${input.listingTitle}`,
+    subject: String(text.searchSubject),
     html,
     text: [
       String(text.searchTitle),
@@ -235,7 +258,7 @@ export function newMessageEmail(input: {
     </div>`;
   const html = emailFrame({
     locale: input.locale,
-    preheader: `${text.messageSubject}: ${input.senderName}`,
+    preheader: String(text.privacy),
     eyebrow: String(text.messageEyebrow),
     title: String(text.messageTitle),
     lead,
@@ -249,7 +272,7 @@ export function newMessageEmail(input: {
   });
 
   return {
-    subject: `${text.messageSubject}: ${input.senderName}`,
+    subject: String(text.messageSubject),
     html,
     text: [
       String(text.messageTitle),

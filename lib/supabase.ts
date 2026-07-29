@@ -625,9 +625,7 @@ const BASE_LISTING_CARD_COLUMN_LIST = [
 const OPTIONAL_LISTING_CARD_COLUMN_LIST = [
   "original_language",
   "translations",
-  "vehicle_subtype",
   "part_number",
-  "part_model",
   "image_urls",
   "company_name",
   "seller_avatar_url",
@@ -642,11 +640,6 @@ const OPTIONAL_LISTING_CARD_COLUMN_LIST = [
 const LISTING_CARD_COLUMN_LIST = [
   ...BASE_LISTING_CARD_COLUMN_LIST,
   ...OPTIONAL_LISTING_CARD_COLUMN_LIST
-];
-
-const LISTING_CARD_COLUMN_LIST_WITHOUT_PART_MODEL = [
-  ...BASE_LISTING_CARD_COLUMN_LIST,
-  ...OPTIONAL_LISTING_CARD_COLUMN_LIST.filter((column) => column !== "part_model")
 ];
 
 const LISTING_CARD_SELECT =
@@ -794,15 +787,6 @@ export async function getListings(options: GetListingsOptions = {}) {
 
       if (includeOptionalFields && error && hasMissingListingColumns(error)) {
         ({ data, error, count } = await fetchListingsRange(
-          LISTING_CARD_COLUMN_LIST_WITHOUT_PART_MODEL,
-          offset,
-          offset + limit - 1,
-          Boolean(options.includeCount)
-        ));
-      }
-
-      if (includeOptionalFields && error && hasMissingListingColumns(error)) {
-        ({ data, error, count } = await fetchListingsRange(
           BASE_LISTING_CARD_COLUMN_LIST,
           offset,
           offset + limit - 1,
@@ -820,10 +804,6 @@ export async function getListings(options: GetListingsOptions = {}) {
     let { data, error } = await fetchAllListings(
       selectedColumns
     );
-
-    if (includeOptionalFields && error && hasMissingListingColumns(error)) {
-      ({ data, error } = await fetchAllListings(LISTING_CARD_COLUMN_LIST_WITHOUT_PART_MODEL));
-    }
 
     if (includeOptionalFields && error && hasMissingListingColumns(error)) {
       ({ data, error } = await fetchAllListings(BASE_LISTING_CARD_COLUMN_LIST));
@@ -916,11 +896,6 @@ export async function getListingsByIds(listingIds: string[]) {
 
     let { data, error } =
       await fetchListingsByIds(LISTING_CARD_COLUMN_LIST);
-
-    if (error && hasMissingListingColumns(error)) {
-      ({ data, error } =
-        await fetchListingsByIds(LISTING_CARD_COLUMN_LIST_WITHOUT_PART_MODEL));
-    }
 
     if (error && hasMissingListingColumns(error)) {
       ({ data, error } =

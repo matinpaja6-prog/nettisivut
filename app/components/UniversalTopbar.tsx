@@ -1,6 +1,7 @@
 "use client";
 
 import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Search, Settings, Star, UserRound, Users, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -345,7 +346,15 @@ const topbarText: Record<Locale, {
 
 function TopbarMaskinesLogo() {
   return (
-    <img className="universal-home-brand-logo" src="/maskines-icon.png" alt="Maskines" />
+    <Image
+      className="universal-home-brand-logo"
+      src="/maskines-icon.png"
+      alt="Maskines"
+      width={96}
+      height={96}
+      sizes="96px"
+      priority
+    />
   );
 }
 

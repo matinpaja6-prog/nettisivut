@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { TouchEventHandler } from "react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -38,13 +39,17 @@ export default function OptimizedListingImage({
   }, [normalizedSrc]);
 
   return (
-    <img
+    <Image
       src={currentSrc}
       alt={decorative ? "" : alt}
+      width={640}
+      height={400}
       sizes={sizes}
-      loading={priority ? "eager" : "lazy"}
+      priority={priority}
+      loading={priority ? undefined : "lazy"}
       decoding="async"
       referrerPolicy="no-referrer"
+      unoptimized={currentSrc.startsWith("data:")}
       className={className}
       aria-hidden={decorative || undefined}
       onTouchStart={onTouchStart}
