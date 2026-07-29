@@ -763,11 +763,12 @@ function AuthPageContent() {
           ).then(({ data: profileData }) => {
             if (!profileData) {
               clearGoogleAuthIntent();
-              setUser(null);
               setProfile(null);
-              setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
-              replaceAuthModeUrl(authPagePath, "login");
-              void signOut();
+              setAuthMode("register");
+              setUser(sessionUser);
+              setEmailPending(false);
+              setStatus(t.authGoogleVerifiedCompleteProfile);
+              replaceAuthModeUrl(authPagePath, "register");
               return;
             }
 
@@ -814,11 +815,12 @@ function AuthPageContent() {
         ).then(({ data: profileData }) => {
           if (!profileData) {
             clearGoogleAuthIntent();
-            setUser(null);
             setProfile(null);
-            setStatus("Tätä Gmail-tiliä ei ole rekisteröity. Rekisteröidy ensin.");
-            replaceAuthModeUrl(authPagePath, "login");
-            void signOut();
+            setAuthMode("register");
+            setUser(nextUser);
+            setEmailPending(false);
+            setStatus(t.authGoogleVerifiedCompleteProfile);
+            replaceAuthModeUrl(authPagePath, "register");
             return;
           }
 
@@ -2018,4 +2020,3 @@ export default function AuthPage() {
     </Suspense>
   );
 }
-

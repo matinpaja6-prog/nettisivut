@@ -92,13 +92,23 @@ function applyDocumentHeaders(
   applySecurityHeaders(response);
   if (options.noIndex) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    response.headers.set(
+      "Cache-Control",
+      "private, no-store, no-cache, max-age=0, must-revalidate"
+    );
+    response.headers.set("CDN-Cache-Control", "no-store");
+    response.headers.set("Surrogate-Control", "no-store");
+    return response;
   }
+
   response.headers.set(
     "Cache-Control",
-    "private, no-store, no-cache, max-age=0, must-revalidate"
+    "public, max-age=0, s-maxage=300, stale-while-revalidate=3600"
   );
-  response.headers.set("CDN-Cache-Control", "no-store");
-  response.headers.set("Surrogate-Control", "no-store");
+  response.headers.set(
+    "CDN-Cache-Control",
+    "public, s-maxage=300, stale-while-revalidate=3600"
+  );
   return response;
 }
 

@@ -521,7 +521,11 @@ function restoreConversationVisibility(userId: string, conversationId: string) {
   }
 }
 
-export default function ListingPage() {
+export default function ListingPage({
+  initialListing = null
+}: {
+  initialListing?: Listing | null;
+}) {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { locale, activeLocale } = useLanguage();
@@ -532,6 +536,7 @@ export default function ListingPage() {
   const initialListingRef = useRef<Listing | null | undefined>(undefined);
   if (initialListingRef.current === undefined) {
     initialListingRef.current =
+      initialListing ??
       readCachedListing(params.id) ??
       fallbackListings.find((item) =>
         String(item.id) === String(params.id) ||
@@ -720,17 +725,17 @@ export default function ListingPage() {
       fallbackListings.find(
         (i) => i.id === params.id
       ) ?? null;
-    const initialListing = cached ?? fallback;
+    const resolvedInitialListing = cached ?? initialListing ?? fallback;
 
-    if (initialListing) {
-      setListing(initialListing);
+    if (resolvedInitialListing) {
+      setListing(resolvedInitialListing);
       setLoading(false);
     } else {
       setListing(null);
       setLoading(true);
     }
 
-    getListingById(initialListing?.id || params.id)
+    getListingById(resolvedInitialListing?.id || params.id)
       .then(({ data }) => {
         if (mounted) {
           const resolved = data ?? fallback;
@@ -760,7 +765,7 @@ export default function ListingPage() {
     return () => {
       mounted = false;
     };
-  }, [params.id]);
+  }, [initialListing, params.id]);
 
   useEffect(() => {
     if (!listing) return;

@@ -88,10 +88,11 @@ async function getProfileCountries(admin: SupabaseClient, sellerIds: string[]) {
 export async function GET() {
   try {
     const admin = getSupabaseAdmin();
-    const [profilesResult, listingsCountResult, listingRowsResult] = await Promise.all([
+    const [registeredUsersResult, listingsCountResult, listingRowsResult] = await Promise.all([
       admin
         .from("profiles")
-        .select("id", { count: "exact", head: true }),
+        .select("id", { count: "exact", head: true })
+        .eq("is_completed", true),
       admin
         .from("listings")
         .select("id", { count: "exact", head: true })
@@ -101,7 +102,7 @@ export async function GET() {
     ]);
 
     const firstError =
-      profilesResult.error ??
+      registeredUsersResult.error ??
       listingsCountResult.error ??
       listingRowsResult.error;
 
@@ -138,7 +139,7 @@ export async function GET() {
 
     return NextResponse.json(
       {
-        registeredUsers: profilesResult.count ?? 0,
+        registeredUsers: registeredUsersResult.count ?? 0,
         activeListings: listingsCountResult.count ?? 0,
         activeSellers: sellers.size,
         listingLocations: locations.size,
@@ -147,7 +148,7 @@ export async function GET() {
       },
       {
         headers: {
-          "Cache-Control": "public, max-age=60, stale-while-revalidate=300"
+          "Cache-Control": "no-store"
         }
       }
     );

@@ -183,7 +183,7 @@ export default function AboutPage() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/api/about-stats")
+    fetch("/api/about-stats", { cache: "no-store" })
       .then((response) => response.ok ? response.json() : null)
       .then((data: AboutStats | null) => {
         if (!cancelled && data) {
