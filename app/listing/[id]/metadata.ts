@@ -93,7 +93,7 @@ export async function generateListingMetadata({ params }: ListingPageParams): Pr
   const displayNumber = await getListingDisplayNumber(listing.created_at, listing.listing_number);
   const urlId = listingNumberUrlId(displayNumber) || listing.id;
   const url = absoluteSiteUrl(listingPath(urlId));
-  const imageUrl = absoluteSiteUrl(`/api/og/listing/${encodeURIComponent(urlId)}`);
+  const imageUrl = absoluteSiteUrl(`/og/listing/${encodeURIComponent(urlId)}?v=1`);
 
   return {
     metadataBase: new URL(PUBLIC_SITE_URL),
@@ -115,6 +115,8 @@ export async function generateListingMetadata({ params }: ListingPageParams): Pr
       images: [
         {
           url: imageUrl,
+          secureUrl: imageUrl,
+          type: "image/png",
           width: 1200,
           height: 630,
           alt: cleanMetaText(listing.title, "Maskines ilmoitus")

@@ -1066,7 +1066,7 @@ export default function ListingPage() {
       listingNumberUrlId(listing.listing_number) ||
       listingNumberUrlId(listingDisplayNumber) ||
       listingUrlId(listing);
-    const url = absoluteSiteUrl(listingPath(shareUrlId, locale));
+    const url = `${absoluteSiteUrl(listingPath(shareUrlId, locale))}?share=${encodeURIComponent(String(listing.id))}`;
     const listingText = getLocalizedListingText(listing, locale);
 
     if (navigator.share) {
