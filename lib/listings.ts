@@ -792,15 +792,40 @@ function usesTwoWheelerPartTaxonomy(vehicleType: string) {
 }
 
 export function normalizeVehicleType(value?: string | null) {
-  const normalized = (value ?? "").trim().toLowerCase();
+  const normalized = (value ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
 
-  if (normalized === "moottoripyörä" || normalized === "moottoripyörät" || normalized === "motorcycle") return "Moottoripyörä";
-  if (normalized === "mopo" || normalized === "mopot") return "Mopo";
-  if (normalized === "mönkijä" || normalized === "mönkijät") return "Mönkijä";
-  if (normalized === "moottorikelkka" || normalized === "moottorikelkat") return "Moottorikelkka";
-  if (normalized === "motocross") return "Motocross";
+  if (["moottoripyora", "moottoripyorat", "motorcycle", "motorcycles"].includes(normalized)) {
+    return "Moottoripyörä";
+  }
+  if (["mopo", "mopot", "moped", "mopeds"].includes(normalized)) {
+    return "Mopo";
+  }
+  if (["monkija", "monkijat", "atv", "atvs", "quad", "quads"].includes(normalized)) {
+    return "Mönkijä";
+  }
+  if (["moottorikelkka", "moottorikelkat", "kelkka", "kelkat", "snowmobile", "snowmobiles"].includes(normalized)) {
+    return "Moottorikelkka";
+  }
+  if (["motocross", "cross", "crossi", "crossit", "mx"].includes(normalized)) {
+    return "Motocross";
+  }
 
   return value ?? "";
+}
+
+export function isKnownVehicleType(value?: string | null) {
+  return [
+    "Moottoripyörä",
+    "Mopo",
+    "Mönkijä",
+    "Moottorikelkka",
+    "Motocross"
+  ].includes(normalizeVehicleType(value));
 }
 
 export function isVehiclePartAllowed(
