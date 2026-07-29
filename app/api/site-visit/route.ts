@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { isIP } from "node:net";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey =
@@ -25,11 +26,13 @@ function cleanText(value: unknown, maxLength: number) {
 }
 
 function normalizeIp(value: string | null) {
-  const ip = value?.trim();
+  const ip = value
+    ?.trim()
+    .replace(/^\[|\]$/g, "")
+    .replace(/^::ffff:/i, "");
   if (!ip) return null;
   if (ip === "::1") return "127.0.0.1";
-  if (ip.startsWith("::ffff:")) return ip.slice(7);
-  return ip;
+  return isIP(ip) ? ip : null;
 }
 
 function getForwardedIp(request: Request) {
@@ -40,11 +43,11 @@ function getForwardedIp(request: Request) {
     .find(Boolean);
 
   return normalizeIp(
-    forwarded ||
     request.headers.get("cf-connecting-ip") ||
     request.headers.get("true-client-ip") ||
     request.headers.get("x-nf-client-connection-ip") ||
     request.headers.get("x-real-ip") ||
+    forwarded ||
     request.headers.get("x-client-ip") ||
     (/^(localhost|127\.0\.0\.1|\[::1\])/.test(request.headers.get("host") ?? "")
       ? "127.0.0.1"

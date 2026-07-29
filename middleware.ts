@@ -13,8 +13,6 @@ const TRUSTED_MUTATION_ORIGINS = new Set([
   `https://${CANONICAL_HOST}`,
   `https://www.${CANONICAL_HOST}`
 ]);
-const IP_BAN_CACHE_TTL_MS = 60_000;
-const ipBanCache = new Map<string, { banned: boolean; expiresAt: number }>();
 const API_RATE_LIMIT_WINDOW_MS = 60_000;
 const API_MAX_BODY_BYTES = 128_000;
 const apiRateLimitCache = new Map<string, { count: number; resetAt: number }>();
@@ -205,8 +203,11 @@ function getClientIp(request: NextRequest) {
     .filter(Boolean);
   const candidate =
     request.headers.get("cf-connecting-ip") ||
+    request.headers.get("true-client-ip") ||
+    request.headers.get("x-nf-client-connection-ip") ||
     request.headers.get("x-real-ip") ||
     forwardedChain?.[0] ||
+    request.headers.get("x-client-ip") ||
     null;
 
   if (!candidate) return null;
@@ -217,11 +218,10 @@ function getClientIp(request: NextRequest) {
 }
 
 async function isIpBanned(ip: string) {
-  const cached = ipBanCache.get(ip);
-  if (cached && cached.expiresAt > Date.now()) return cached.banned;
-
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const serviceKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.SUPABASE_SERVICE_KEY;
 
   if (!supabaseUrl || !serviceKey) return false;
 
@@ -240,12 +240,8 @@ async function isIpBanned(ip: string) {
 
     if (!response.ok) return false;
     const rows = (await response.json()) as Array<{ ip: string }>;
-    const banned = rows.length > 0;
-    if (ipBanCache.size > 500) ipBanCache.clear();
-    ipBanCache.set(ip, { banned, expiresAt: Date.now() + IP_BAN_CACHE_TTL_MS });
-    return banned;
+    return rows.length > 0;
   } catch {
-    ipBanCache.set(ip, { banned: false, expiresAt: Date.now() + 10_000 });
     return false;
   }
 }
@@ -286,8 +282,12 @@ export async function middleware(request: NextRequest) {
   // Keep the administration route reachable so an administrator can remove
   // an accidental IP ban. Every other document and API route is denied.
   const isAdminRecoveryRoute =
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/api/admin");
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
+    pathname === "/auth" ||
+    pathname.startsWith("/auth/") ||
+    pathname === "/api/admin" ||
+    pathname.startsWith("/api/admin/");
 
   if (ip && !isAdminRecoveryRoute && await isIpBanned(ip)) {
     if (pathname.startsWith("/api")) {
