@@ -1866,8 +1866,6 @@ function HomeContent() {
   const [sort, setSort] = useState<SortValue>("Osuvimmat ensin");
   const [recommendationsMode, setRecommendationsMode] = useState(true);
   const [homeSortOpen, setHomeSortOpen] = useState(false);
-  const [sortInteractionShieldActive, setSortInteractionShieldActive] = useState(false);
-  const sortInteractionShieldTimerRef = useRef<number | null>(null);
   const [homeLatestExpanded, setHomeLatestExpanded] = useState(false);
   const [sortSheetOpen, setSortSheetOpen] = useState(false);
 
@@ -3418,24 +3416,9 @@ function HomeContent() {
   const ActiveSortIcon = activeSortOption?.icon ?? Settings2;
 
   const selectSortOption = useCallback((value: string) => {
-    if (sortInteractionShieldTimerRef.current) {
-      window.clearTimeout(sortInteractionShieldTimerRef.current);
-    }
-
-    setSortInteractionShieldActive(true);
     handleSortChange(value);
     setHomeSortOpen(false);
-    sortInteractionShieldTimerRef.current = window.setTimeout(() => {
-      setSortInteractionShieldActive(false);
-      sortInteractionShieldTimerRef.current = null;
-    }, 500);
   }, [handleSortChange]);
-
-  useEffect(() => () => {
-    if (sortInteractionShieldTimerRef.current) {
-      window.clearTimeout(sortInteractionShieldTimerRef.current);
-    }
-  }, []);
 
   const renderSortControl = (className: string) => (
     <div
@@ -4502,24 +4485,6 @@ function HomeContent() {
       data-home-filtered-results={homeLatestExpanded && hasAppliedListingFilters ? "true" : "false"}
       className={styles.shell}
     >
-      {sortInteractionShieldActive ? (
-        <div
-          className={styles.sortInteractionShield}
-          aria-hidden="true"
-          onPointerDown={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-          onPointerUp={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-        />
-      ) : null}
       {!catalogOnlyView ? (
       <>
       <div data-home-background-region className={styles.heroWrap}>

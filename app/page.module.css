@@ -10747,14 +10747,6 @@
   z-index: 10000 !important;
 }
 
-.sortInteractionShield {
-  background: transparent;
-  inset: 0;
-  position: fixed;
-  touch-action: none;
-  z-index: 10025;
-}
-
 .sortMenuItem {
   align-items: center !important;
   background: transparent !important;
