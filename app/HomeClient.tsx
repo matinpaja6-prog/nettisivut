@@ -42,6 +42,7 @@ import {
   fallbackListings,
   formatPrice,
   getListingPartNumber,
+  isKnownVehicleType,
   normalizeVehicleType,
   subcategoryGroups,
   type Listing
@@ -1527,8 +1528,7 @@ function listingMatchesVehicleType(
 
   // If the listing has an explicit, known vehicle type, it is authoritative –
   // never allow fuzzy text/cc heuristics to pull it into the wrong category.
-  const knownVehicleTypes = ["Mopo", "Motocross", "Moottorikelkka", "Mönkijä"];
-  if (stored && knownVehicleTypes.includes(stored)) {
+  if (isKnownVehicleType(stored)) {
     return stored === selected;
   }
 
