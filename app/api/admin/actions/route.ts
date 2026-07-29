@@ -975,17 +975,22 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Virheellinen IP-osoite." }, { status: 400 });
       }
 
-      const { error } = await admin
+      const { data: storedBan, error } = await admin
         .from("banned_ips")
         .upsert({
           ip,
           reason: body.reason ?? null,
           banned_by: userId,
           banned_at: new Date().toISOString()
-        }, { onConflict: "ip" });
+        }, { onConflict: "ip" })
+        .select("ip")
+        .maybeSingle<{ ip: string }>();
 
       if (error) throw error;
-      return NextResponse.json({ ok: true });
+      if (normalizeIpAddress(storedBan?.ip) !== ip) {
+        throw new Error("IP-bannin tallennuksen varmistus epäonnistui.");
+      }
+      return NextResponse.json({ ok: true, ip });
     }
 
     if (body.action === "unban-ip") {
