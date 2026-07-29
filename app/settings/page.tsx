@@ -2,7 +2,7 @@
 
 import { Bell, Check, ExternalLink, Languages, Mail, Palette, Volume2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { languageOptions, useLanguage, type SupportedLocale } from "@/lib/i18n";
+import { languageOptions, useLanguage, type Locale, type SupportedLocale } from "@/lib/i18n";
 import { translateLocalizedPath } from "@/lib/routes";
 import {
   applyUserBackgroundColor,
@@ -13,10 +13,11 @@ import {
 } from "@/lib/user-settings";
 import styles from "./settings.module.css";
 
-const languageFlags: Record<SupportedLocale, { flag: "fi" | "gb" | "se" }> = {
+const languageFlags: Record<SupportedLocale, { flag: "fi" | "gb" | "se" | "no" }> = {
   fi: { flag: "fi" },
   en: { flag: "gb" },
-  sv: { flag: "se" }
+  sv: { flag: "se" },
+  no: { flag: "no" }
 };
 
 const backgroundPresets = [
@@ -24,7 +25,7 @@ const backgroundPresets = [
   { labels: { fi: "Tummansininen", en: "Deep blue", sv: "Djupblå" }, value: "#102033" },
   { labels: { fi: "Grafiitti", en: "Graphite", sv: "Grafit" }, value: "#151a22" },
   { labels: { fi: "Jääsininen", en: "Ice blue", sv: "Isblå" }, value: "#c8d8e8" }
-] satisfies Array<{ labels: Record<SupportedLocale, string>; value: string }>;
+] satisfies Array<{ labels: Record<Locale, string>; value: string }>;
 
 
 const copy = {
@@ -85,9 +86,9 @@ const copy = {
     saved: "Sparat",
     instructions: "Instruktioner"
   },
-} satisfies Record<SupportedLocale, Record<string, string>>;
+} satisfies Record<Locale, Record<string, string>>;
 
-function CountryFlag({ country }: { country: "fi" | "gb" | "se" }) {
+function CountryFlag({ country }: { country: "fi" | "gb" | "se" | "no" }) {
   if (country === "gb") {
     return (
       <svg viewBox="0 0 60 42" aria-hidden="true">
@@ -102,19 +103,21 @@ function CountryFlag({ country }: { country: "fi" | "gb" | "se" }) {
 
   const colors = {
     fi: { background: "#fff", cross: "#174a9c" },
-    se: { background: "#1372b8", cross: "#ffcc26" }
+    se: { background: "#1372b8", cross: "#ffcc26" },
+    no: { background: "#e53242", cross: "#fff", inset: "#183f8b" }
   }[country];
 
   return (
     <svg viewBox="0 0 60 42" aria-hidden="true">
       <rect width="60" height="42" fill={colors.background} />
-      <path d="M19 0v42M0 21h60" stroke={colors.cross} strokeWidth={10} />
+      <path d="M19 0v42M0 21h60" stroke={colors.cross} strokeWidth={country === "no" ? 12 : 10} />
+      {country === "no" && "inset" in colors ? <path d="M19 0v42M0 21h60" stroke={colors.inset} strokeWidth="6" /> : null}
     </svg>
   );
 }
 
 export default function SettingsPage() {
-  const { locale, setLocale } = useLanguage();
+  const { locale, activeLocale, setLocale } = useLanguage();
   const text = copy[locale];
   const [settings, setSettings] = useState<UserSettings>(defaultUserSettings);
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("unsupported");
@@ -198,14 +201,14 @@ export default function SettingsPage() {
                 <button
                   key={language.code}
                   type="button"
-                  className={`${styles.choiceButton} ${language.code === locale ? styles.choiceButtonActive : ""}`}
+                  className={`${styles.choiceButton} ${language.code === activeLocale ? styles.choiceButtonActive : ""}`}
                   onClick={() => pickLanguage(language.code)}
                 >
                   <span className={styles.languageFlag}>
                     <CountryFlag country={languageFlags[language.code].flag} />
                   </span>
                   <span className={styles.languageLabel}>{language.label}</span>
-                  {language.code === locale ? <Check className={styles.languageCheck} size={16} /> : null}
+                  {language.code === activeLocale ? <Check className={styles.languageCheck} size={16} /> : null}
                 </button>
               ))}
             </div>

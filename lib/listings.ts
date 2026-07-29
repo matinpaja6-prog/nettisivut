@@ -135,7 +135,7 @@ export type ListingTranslation = {
 };
 
 export type ListingTranslations = Partial<
-  Record<"fi" | "en" | "sv", ListingTranslation>
+  Record<"fi" | "en" | "sv" | "no", ListingTranslation>
 > & {
   _meta?: {
     publication_group_id?: string | null;

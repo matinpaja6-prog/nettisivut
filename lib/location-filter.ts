@@ -8,6 +8,11 @@ import {
   SWEDEN_MUNICIPALITIES,
   SWEDEN_MUNICIPALITIES_BY_COUNTY
 } from "@/lib/sweden-locations";
+import {
+  NORWAY_COUNTIES,
+  NORWAY_MUNICIPALITIES,
+  NORWAY_MUNICIPALITIES_BY_COUNTY
+} from "@/lib/norway-locations";
 
 export type LocationFilterSelection = {
   countries: string[];
@@ -23,11 +28,13 @@ export type LocationCountryOption = {
 
 export const LOCATION_COUNTRIES: LocationCountryOption[] = [
   { value: "FI", label: "Suomi", aliases: ["Suomi", "Finland"] },
-  { value: "SE", label: "Sverige", aliases: ["Ruotsi", "Sverige", "Sweden"] }
+  { value: "SE", label: "Sverige", aliases: ["Ruotsi", "Sverige", "Sweden"] },
+  { value: "NO", label: "Norge", aliases: ["Norja", "Norge", "Norway"] }
 ];
 
 const LOCATION_FILTER_PREFIX = "location:v1:";
 const SWEDEN_LOCATION_PREFIX = "SE|";
+const NORWAY_LOCATION_PREFIX = "NO|";
 const EMPTY_LOCATION_SELECTION: LocationFilterSelection = {
   countries: [],
   regions: [],
@@ -61,6 +68,12 @@ const normalizedSwedishMunicipalities = SWEDEN_MUNICIPALITIES.map((municipality)
 const normalizedSwedishCounties = SWEDEN_COUNTIES.map((county) =>
   normalizeLocationText(county)
 );
+const normalizedNorwegianMunicipalities = NORWAY_MUNICIPALITIES.map((municipality) =>
+  normalizeLocationText(municipality)
+);
+const normalizedNorwegianCounties = NORWAY_COUNTIES.map((county) =>
+  normalizeLocationText(county)
+);
 
 export function toSwedenLocationValue(locationName: string) {
   return `${SWEDEN_LOCATION_PREFIX}${locationName}`;
@@ -69,6 +82,16 @@ export function toSwedenLocationValue(locationName: string) {
 export function getSwedenLocationName(value: string) {
   return value.startsWith(SWEDEN_LOCATION_PREFIX)
     ? value.slice(SWEDEN_LOCATION_PREFIX.length)
+    : null;
+}
+
+export function toNorwayLocationValue(locationName: string) {
+  return `${NORWAY_LOCATION_PREFIX}${locationName}`;
+}
+
+export function getNorwayLocationName(value: string) {
+  return value.startsWith(NORWAY_LOCATION_PREFIX)
+    ? value.slice(NORWAY_LOCATION_PREFIX.length)
     : null;
 }
 
@@ -87,7 +110,7 @@ export function parseLocationFilter(value: string): LocationFilterSelection {
     const parsed = JSON.parse(value.slice(LOCATION_FILTER_PREFIX.length)) as Partial<LocationFilterSelection>;
     return {
       countries: Array.isArray(parsed.countries)
-        ? parsed.countries.filter((country) => country === "FI" || country === "SE")
+        ? parsed.countries.filter((country) => country === "FI" || country === "SE" || country === "NO")
         : [],
       regions: Array.isArray(parsed.regions) ? parsed.regions.filter(Boolean) : [],
       municipalities: Array.isArray(parsed.municipalities) ? parsed.municipalities.filter(Boolean) : []
@@ -118,22 +141,31 @@ export function listingMatchesLocationFilter(location: string, filterValue: stri
 
   const selection = parseLocationFilter(filterValue);
   const selectedFinnishRegions = selection.regions.filter(
-    (region) => !getSwedenLocationName(region)
+    (region) => !getSwedenLocationName(region) && !getNorwayLocationName(region)
   );
   const selectedSwedishCounties = selection.regions
     .map(getSwedenLocationName)
     .filter((county): county is string => Boolean(county));
+  const selectedNorwegianCounties = selection.regions
+    .map(getNorwayLocationName)
+    .filter((county): county is string => Boolean(county));
   const selectedFinnishMunicipalities = selection.municipalities.filter(
-    (municipality) => !getSwedenLocationName(municipality)
+    (municipality) => !getSwedenLocationName(municipality) && !getNorwayLocationName(municipality)
   );
   const selectedSwedishMunicipalities = selection.municipalities
     .map(getSwedenLocationName)
+    .filter((municipality): municipality is string => Boolean(municipality));
+  const selectedNorwegianMunicipalities = selection.municipalities
+    .map(getNorwayLocationName)
     .filter((municipality): municipality is string => Boolean(municipality));
   const selectedRegionMunicipalities = selectedFinnishRegions.flatMap(
     (region) => FINLAND_MUNICIPALITIES_BY_REGION[region] ?? []
   );
   const selectedCountyMunicipalities = selectedSwedishCounties.flatMap(
     (county) => SWEDEN_MUNICIPALITIES_BY_COUNTY[county] ?? []
+  );
+  const selectedNorwayCountyMunicipalities = selectedNorwegianCounties.flatMap(
+    (county) => NORWAY_MUNICIPALITIES_BY_COUNTY[county] ?? []
   );
   const specificFinnishTerms = [
     ...selectedFinnishRegions,
@@ -145,12 +177,21 @@ export function listingMatchesLocationFilter(location: string, filterValue: stri
     ...selectedCountyMunicipalities,
     ...selectedSwedishMunicipalities
   ];
+  const specificNorwegianTerms = [
+    ...selectedNorwegianCounties,
+    ...selectedNorwayCountyMunicipalities,
+    ...selectedNorwegianMunicipalities
+  ];
   const hasSpecificFinlandFilter = specificFinnishTerms.length > 0;
   const hasSpecificSwedenFilter = specificSwedishTerms.length > 0;
+  const hasSpecificNorwayFilter = specificNorwegianTerms.length > 0;
   const matchesSpecificFinland = specificFinnishTerms.some((term) =>
     containsLocationTerm(location, term)
   );
   const matchesSpecificSweden = specificSwedishTerms.some((term) =>
+    containsLocationTerm(location, term)
+  );
+  const matchesSpecificNorway = specificNorwegianTerms.some((term) =>
     containsLocationTerm(location, term)
   );
   const normalizedLocation = normalizeLocationText(location);
@@ -174,10 +215,20 @@ export function listingMatchesLocationFilter(location: string, filterValue: stri
     normalizedSwedishCounties.some((county) =>
       ` ${normalizedLocation} `.includes(` ${county} `)
     );
+  const isNorwegianLocation =
+    LOCATION_COUNTRIES.find((country) => country.value === "NO")?.aliases.some((alias) =>
+      containsLocationTerm(location, alias)
+    ) ||
+    normalizedNorwegianMunicipalities.some((municipality) =>
+      ` ${normalizedLocation} `.includes(` ${municipality} `)
+    ) ||
+    normalizedNorwegianCounties.some((county) =>
+      ` ${normalizedLocation} `.includes(` ${county} `)
+    );
 
   if (selection.countries.length === 0) {
-    if (hasSpecificFinlandFilter || hasSpecificSwedenFilter) {
-      return matchesSpecificFinland || matchesSpecificSweden;
+    if (hasSpecificFinlandFilter || hasSpecificSwedenFilter || hasSpecificNorwayFilter) {
+      return matchesSpecificFinland || matchesSpecificSweden || matchesSpecificNorway;
     }
     return true;
   }
@@ -192,6 +243,12 @@ export function listingMatchesLocationFilter(location: string, filterValue: stri
     if (countryCode === "SE") {
       return Boolean(isSwedishLocation) && (
         !hasSpecificSwedenFilter || matchesSpecificSweden
+      );
+    }
+
+    if (countryCode === "NO") {
+      return Boolean(isNorwegianLocation) && (
+        !hasSpecificNorwayFilter || matchesSpecificNorway
       );
     }
 

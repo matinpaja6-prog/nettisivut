@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_LANGUAGES = new Set(["fi", "en", "sv"]);
+const ALLOWED_LANGUAGES = new Set(["fi", "en", "sv", "no"]);
 
 export async function GET(request: Request) {
   if (request.headers.get("sec-fetch-site") === "cross-site") {

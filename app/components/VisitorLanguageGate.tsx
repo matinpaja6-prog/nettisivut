@@ -13,7 +13,8 @@ import {
 const LANGUAGES: Array<{ code: SupportedLocale; country: string; flag: string; language: string }> = [
   { code: "fi", country: "Suomi", flag: "fi", language: "Finnish" },
   { code: "en", country: "English", flag: "gb", language: "English" },
-  { code: "sv", country: "Sverige", flag: "se", language: "Swedish" }
+  { code: "sv", country: "Sverige", flag: "se", language: "Swedish" },
+  { code: "no", country: "Norge", flag: "no", language: "Norwegian" }
 ];
 
 const STORAGE_PREFIX = "visitor-language:";
@@ -39,7 +40,8 @@ function CountryFlag({ country }: { country: string }) {
 
   const colors = {
     fi: { background: "#fff", cross: "#174a9c" },
-    se: { background: "#1372b8", cross: "#ffcc26" }
+    se: { background: "#1372b8", cross: "#ffcc26" },
+    no: { background: "#e53242", cross: "#fff", inset: "#183f8b" }
   }[country];
 
   if (!colors) return null;
@@ -47,7 +49,10 @@ function CountryFlag({ country }: { country: string }) {
   return (
     <svg viewBox="0 0 60 42" aria-hidden="true">
       <rect width="60" height="42" fill={colors.background} />
-      <path d="M19 0v42M0 21h60" stroke={colors.cross} strokeWidth={10} />
+      <path d="M19 0v42M0 21h60" stroke={colors.cross} strokeWidth={country === "no" ? 12 : 10} />
+      {country === "no" && "inset" in colors ? (
+        <path d="M19 0v42M0 21h60" stroke={colors.inset} strokeWidth="6" />
+      ) : null}
     </svg>
   );
 }

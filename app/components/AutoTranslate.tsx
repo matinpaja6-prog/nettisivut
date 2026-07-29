@@ -82,7 +82,7 @@ function repairMojibake(value: string) {
   return repaired;
 }
 
-const staticUiTranslations: Record<"en" | "sv", Record<string, string>> = {
+const staticUiTranslations: Record<"en" | "sv" | "no", Record<string, string>> = {
   en: {
     "Ilmoituksen tyyppi": "Listing type",
     "Valitse myyntityyppi": "Choose listing type",
@@ -244,7 +244,8 @@ const staticUiTranslations: Record<"en" | "sv", Record<string, string>> = {
     "Näytä numero": "Show number",
     "Näytä profiili": "View profile"
   },
-  sv: {}
+  sv: {},
+  no: {}
 };
 
 staticUiTranslations.sv = {
@@ -369,7 +370,7 @@ Object.assign(staticUiTranslations.sv, {
   "Kuvausta ei ole vielä lisätty.": "Ingen beskrivning har lagts till ännu."
 });
 
-const translatedLocales: Array<"en" | "sv"> = ["en", "sv"];
+const translatedLocales: Array<"en" | "sv" | "no"> = ["en", "sv", "no"];
 
 for (const locale of translatedLocales) {
   const sharedDictionary = Object.fromEntries(
@@ -380,7 +381,7 @@ for (const locale of translatedLocales) {
   );
 
   staticUiTranslations[locale] = {
-    ...generatedUiTranslations[locale],
+    ...((generatedUiTranslations as Partial<Record<"en" | "sv" | "no", Record<string, string>>>)[locale] ?? {}),
     ...sharedDictionary,
     ...staticUiTranslations[locale]
   };
@@ -482,15 +483,18 @@ function isLikelyProperName(text: string) {
 
 function getLocationTranslation(locale: SupportedLocale, text: string) {
   const repaired = repairMojibake(text.trim());
-  const match = repaired.match(/^(.+?),\s*(Suomi|Finland|Ruotsi|Sverige)$/i);
+  const match = repaired.match(/^(.+?),\s*(Suomi|Finland|Ruotsi|Sverige|Norja|Norge|Norway)$/i);
   if (!match) return null;
 
   const place = match[1].trim();
   const country = match[2].toLocaleLowerCase("fi-FI");
   const isSweden = country === "ruotsi" || country === "sverige";
+  const isNorway = country === "norja" || country === "norge" || country === "norway";
   const translatedCountry = locale === "sv"
-    ? isSweden ? "Sverige" : "Finland"
-    : isSweden ? "Sweden" : "Finland";
+    ? isNorway ? "Norge" : isSweden ? "Sverige" : "Finland"
+    : locale === "no"
+      ? isNorway ? "Norge" : isSweden ? "Sverige" : "Finland"
+      : isNorway ? "Norway" : isSweden ? "Sweden" : "Finland";
 
   return `${place}, ${translatedCountry}`;
 }

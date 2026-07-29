@@ -8,7 +8,8 @@ import { translateLocalizedPath } from "@/lib/routes";
 const LOCALES = [
   { code: "fi", label: "Suomi",   iso: "fi" },
   { code: "en", label: "English", iso: "gb" },
-  { code: "sv", label: "Svenska", iso: "se" }
+  { code: "sv", label: "Svenska", iso: "se" },
+  { code: "no", label: "Norsk",   iso: "no" }
 ] as const;
 
 function Flag({ iso }: { iso: string }) {
@@ -50,7 +51,7 @@ function Flag({ iso }: { iso: string }) {
 }
 
 export default function LanguageSwitcher() {
-  const { locale, setLocale } = useLanguage();
+  const { activeLocale, setLocale } = useLanguage();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -59,7 +60,7 @@ export default function LanguageSwitcher() {
 
   useEffect(() => { setMounted(true); }, []);
 
-  const current = LOCALES.find((l) => l.code === locale) ?? LOCALES[0];
+  const current = LOCALES.find((l) => l.code === activeLocale) ?? LOCALES[0];
 
   function updateDropPosition() {
     if (!btnRef.current || typeof window === "undefined") return;
@@ -133,8 +134,8 @@ export default function LanguageSwitcher() {
             key={l.code}
             type="button"
             role="option"
-            className={`global-language-option${l.code === locale ? " is-active" : ""}`}
-            aria-selected={l.code === locale}
+            className={`global-language-option${l.code === activeLocale ? " is-active" : ""}`}
+            aria-selected={l.code === activeLocale}
             onMouseDown={(e) => { e.preventDefault(); pick(l.code); }}
           >
             <Flag iso={l.iso} />

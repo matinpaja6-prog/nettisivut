@@ -27,7 +27,8 @@ import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profil
 const LOCALES = [
   { code: "fi", label: "Suomi", iso: "fi" },
   { code: "en", label: "English", iso: "gb" },
-  { code: "sv", label: "Svenska", iso: "se" }
+  { code: "sv", label: "Svenska", iso: "se" },
+  { code: "no", label: "Norsk", iso: "no" }
 ];
 
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
@@ -49,18 +50,18 @@ function FlagImg({ iso }: { iso: string }) {
 export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { t, locale, setLocale } = useLanguage();
+  const { t, locale, activeLocale, setLocale } = useLanguage();
   const canonicalPathname = canonicalPathFromLocalized(pathname || "/");
-  const authHref = pagePath("auth", locale);
-  const sellHref = pagePath("sell", locale);
-  const messagesHref = pagePath("messages", locale);
-  const profileHref = profileRootPath(locale);
-  const myListingsHref = pagePath("my-listings", locale);
-  const garageHref = pagePath("garage", locale);
-  const savedHref = pagePath("saved", locale);
-  const followedHref = pagePath("followed", locale);
-  const searchAlertsHref = pagePath("search-alerts", locale);
-  const contactHref = pagePath("contact", locale);
+  const authHref = pagePath("auth", activeLocale);
+  const sellHref = pagePath("sell", activeLocale);
+  const messagesHref = pagePath("messages", activeLocale);
+  const profileHref = profileRootPath(activeLocale);
+  const myListingsHref = pagePath("my-listings", activeLocale);
+  const garageHref = pagePath("garage", activeLocale);
+  const savedHref = pagePath("saved", activeLocale);
+  const followedHref = pagePath("followed", activeLocale);
+  const searchAlertsHref = pagePath("search-alerts", activeLocale);
+  const contactHref = pagePath("contact", activeLocale);
   const [notifCount, setNotifCount] = useState(0);
   const [reviewRequests, setReviewRequests] = useState<PurchaseReviewRequest[]>([]);
   const [alertNotifs, setAlertNotifs] = useState<AlertNotification[]>([]);
@@ -550,7 +551,7 @@ export default function BottomNav() {
                 <div className="bn-sheet-lang">
                   {LOCALES.map((loc) => (
                     <button key={loc.code} type="button"
-                      className={`bn-lang-btn${locale === loc.code ? " active" : ""}`}
+                      className={`bn-lang-btn${activeLocale === loc.code ? " active" : ""}`}
                       data-locale-option={loc.code}
                       onPointerDown={(event) => {
                         event.preventDefault();
@@ -582,7 +583,7 @@ export default function BottomNav() {
                 <div className="bn-sheet-lang">
                   {LOCALES.map((loc) => (
                     <button key={loc.code} type="button"
-                      className={`bn-lang-btn${locale === loc.code ? " active" : ""}`}
+                      className={`bn-lang-btn${activeLocale === loc.code ? " active" : ""}`}
                       data-locale-option={loc.code}
                       onPointerDown={(event) => {
                         event.preventDefault();
@@ -670,7 +671,7 @@ export default function BottomNav() {
               <>
                 <div className="bn-notif-group-label">{t.saTitle}</div>
                 {alertNotifs.filter((a) => !a.seen).slice(0, 6).map((n) => (
-                  <Link key={n.id} href={listingPath(listingUrlId(n), locale)} className="bn-notif-item" onClick={() => setNotifOpen(false)}>
+                  <Link key={n.id} href={listingPath(listingUrlId(n), activeLocale)} className="bn-notif-item" onClick={() => setNotifOpen(false)}>
                     <span className="bn-notif-icon"><Bell size={14} /></span>
                     <div>
                       <strong>{n.listing_title}</strong>

@@ -41,7 +41,8 @@ const DISPLAY_NAME_LOCALES = [
   "it",
   "pt",
   "nl",
-  "pl"
+  "pl",
+  "no"
 ];
 
 const COUNTRY_ALIASES: Record<string, string> = {
@@ -78,6 +79,9 @@ const COUNTRY_ALIASES: Record<string, string> = {
   malta: "MT",
   moldova: "MD",
   montenegro: "ME",
+  norge: "NO",
+  norja: "NO",
+  norway: "NO",
   nederland: "NL",
   poland: "PL",
   portugali: "PT",
@@ -108,10 +112,11 @@ const COUNTRY_ALIASES: Record<string, string> = {
 };
 
 const LOCALIZED_COUNTRY_NAMES: Record<string, Record<string, string>> = {
-  FI: { fi: "Suomi", en: "Finland", sv: "Finland" },
-  SE: { fi: "Ruotsi", en: "Sweden", sv: "Sverige" },
-  DE: { fi: "Saksa", en: "Germany", sv: "Tyskland" },
-  DK: { fi: "Tanska", en: "Denmark", sv: "Danmark" }
+  FI: { fi: "Suomi", en: "Finland", sv: "Finland", no: "Finland" },
+  SE: { fi: "Ruotsi", en: "Sweden", sv: "Sverige", no: "Sverige" },
+  NO: { fi: "Norja", en: "Norway", sv: "Norge", no: "Norge" },
+  DE: { fi: "Saksa", en: "Germany", sv: "Tyskland", no: "Tyskland" },
+  DK: { fi: "Tanska", en: "Denmark", sv: "Danmark", no: "Danmark" }
 };
 
 let countryNameIndex: Map<string, string> | null = null;

@@ -67,12 +67,19 @@ import {
   SWEDEN_MUNICIPALITIES_BY_COUNTY
 } from "@/lib/sweden-locations";
 import {
+  NORWAY_COUNTIES,
+  NORWAY_MUNICIPALITIES,
+  NORWAY_MUNICIPALITIES_BY_COUNTY
+} from "@/lib/norway-locations";
+import {
   LOCATION_COUNTRIES,
   countryFlagEmoji,
+  getNorwayLocationName,
   getSwedenLocationName,
   listingMatchesLocationFilter,
   parseLocationFilter,
   serializeLocationFilter,
+  toNorwayLocationValue,
   toSwedenLocationValue,
   type LocationFilterSelection
 } from "@/lib/location-filter";
@@ -114,14 +121,13 @@ import {
   normalizeLocale,
   purgeInvalidLocaleStorage,
   translateCategory,
+  type Locale,
   type SupportedLocale
 } from "@/lib/i18n";
 import OptimizedListingImage, { fallbackListingImage } from "./components/OptimizedListingImage";
 import ListingVehicleMeta from "./components/ListingVehicleMeta";
 import { ListFilter } from "lucide-react";
 import { getCategoryVehicleKey } from "./components/CategoryDrawer";
-
-type Locale = SupportedLocale;
 
 const HOME_RETURN_STATE_KEY = "home_return_state_v1";
 const HOME_RETURN_PENDING_KEY = "home_return_pending_v1";
@@ -1589,7 +1595,8 @@ function HomeContent() {
   const listingsPageFetchRef = useRef(false);
   const garageUrlFilterAppliedRef = useRef(false);
 
-  const [locale, setLocale] = useState<Locale>("fi");
+  const [activeLocale, setActiveLocale] = useState<SupportedLocale>("fi");
+  const locale: Locale = activeLocale === "no" ? "en" : activeLocale;
   const [localeReady, setLocaleReady] = useState(false);
 
   const [listings, setListings] = useState<Listing[]>(fallbackListings);
@@ -1675,12 +1682,20 @@ function HomeContent() {
     [locationQuery]
   );
   const selectedFinlandRegions = useMemo(
-    () => locationSelection.regions.filter((region) => !getSwedenLocationName(region)),
+    () => locationSelection.regions.filter(
+      (region) => !getSwedenLocationName(region) && !getNorwayLocationName(region)
+    ),
     [locationSelection.regions]
   );
   const selectedSwedenCounties = useMemo(
     () => locationSelection.regions
       .map(getSwedenLocationName)
+      .filter((county): county is string => Boolean(county)),
+    [locationSelection.regions]
+  );
+  const selectedNorwayCounties = useMemo(
+    () => locationSelection.regions
+      .map(getNorwayLocationName)
       .filter((county): county is string => Boolean(county)),
     [locationSelection.regions]
   );
@@ -1712,6 +1727,20 @@ function HomeContent() {
     ),
     [selectedSwedenCounties]
   );
+  const norwayMunicipalityOptions = useMemo(
+    () => [...(
+      selectedNorwayCounties.length > 0
+        ? Array.from(new Set(
+            selectedNorwayCounties.flatMap(
+              (county) => NORWAY_MUNICIPALITIES_BY_COUNTY[county] ?? []
+            )
+          ))
+        : NORWAY_MUNICIPALITIES
+    )].sort((first, second) =>
+      first.localeCompare(second, "nb", { sensitivity: "base" })
+    ),
+    [selectedNorwayCounties]
+  );
   const locationFilterCopy = useMemo(() => ({
     fi: {
       location: "Sijainti",
@@ -1722,13 +1751,15 @@ function HomeContent() {
       done: "Valmis",
       selectedCount: (count: number) => `${count} valittu`,
       countries: "Maat",
-      countryNames: { FI: "Suomi", SE: "Ruotsi" },
+      countryNames: { FI: "Suomi", SE: "Ruotsi", NO: "Norja" },
       chooseRegions: "Valitse alue",
       chooseMunicipalities: "Valitse kaupunki tai kunta",
       finlandRegions: "Suomen alueet",
       finlandMunicipalities: "Suomen kaupungit ja kunnat",
       swedenRegions: "Ruotsin läänit",
-      swedenMunicipalities: "Ruotsin kaupungit ja kunnat"
+      swedenMunicipalities: "Ruotsin kaupungit ja kunnat",
+      norwayRegions: "Norjan läänit",
+      norwayMunicipalities: "Norjan kaupungit ja kunnat"
     },
     en: {
       location: "Location",
@@ -1739,13 +1770,15 @@ function HomeContent() {
       done: "Done",
       selectedCount: (count: number) => `${count} selected`,
       countries: "Countries",
-      countryNames: { FI: "Finland", SE: "Sweden" },
+      countryNames: { FI: "Finland", SE: "Sweden", NO: "Norway" },
       chooseRegions: "Choose a region",
       chooseMunicipalities: "Choose a city or municipality",
       finlandRegions: "Regions of Finland",
       finlandMunicipalities: "Cities and municipalities of Finland",
       swedenRegions: "Counties of Sweden",
-      swedenMunicipalities: "Cities and municipalities of Sweden"
+      swedenMunicipalities: "Cities and municipalities of Sweden",
+      norwayRegions: "Counties of Norway",
+      norwayMunicipalities: "Cities and municipalities of Norway"
     },
     sv: {
       location: "Plats",
@@ -1756,20 +1789,41 @@ function HomeContent() {
       done: "Klar",
       selectedCount: (count: number) => `${count} valda`,
       countries: "Länder",
-      countryNames: { FI: "Finland", SE: "Sverige" },
+      countryNames: { FI: "Finland", SE: "Sverige", NO: "Norge" },
       chooseRegions: "Välj område",
       chooseMunicipalities: "Välj stad eller kommun",
       finlandRegions: "Finlands regioner",
       finlandMunicipalities: "Finlands städer och kommuner",
       swedenRegions: "Sveriges län",
-      swedenMunicipalities: "Sveriges städer och kommuner"
+      swedenMunicipalities: "Sveriges städer och kommuner",
+      norwayRegions: "Norges fylken",
+      norwayMunicipalities: "Norges städer och kommuner"
+    },
+    no: {
+      location: "Sted",
+      allLocations: "Alle steder",
+      searchPlaceholder: "Søk etter land, fylke eller kommune",
+      noResults: "Ingen resultater",
+      clearSelections: "Fjern valg",
+      done: "Ferdig",
+      selectedCount: (count: number) => `${count} valgt`,
+      countries: "Land",
+      countryNames: { FI: "Finland", SE: "Sverige", NO: "Norge" },
+      chooseRegions: "Velg fylke",
+      chooseMunicipalities: "Velg by eller kommune",
+      finlandRegions: "Finlands regioner",
+      finlandMunicipalities: "Finlands byer og kommuner",
+      swedenRegions: "Sveriges län",
+      swedenMunicipalities: "Sveriges byer og kommuner",
+      norwayRegions: "Norges fylker",
+      norwayMunicipalities: "Norges byer og kommuner"
     }
-  })[locale], [locale]);
+  })[activeLocale], [activeLocale]);
   const locationFilterOptions = useMemo<LocationMultiSelectOption[]>(
     () => [
       ...LOCATION_COUNTRIES.map((country) => ({
         value: `country:${country.value}`,
-        label: locationFilterCopy.countryNames[country.value as "FI" | "SE"],
+        label: locationFilterCopy.countryNames[country.value as "FI" | "SE" | "NO"],
         section: locationFilterCopy.countries,
         level: 0
       })),
@@ -1794,6 +1848,13 @@ function HomeContent() {
         level: 1,
         countryCode: "SE" as const
       })),
+      ...NORWAY_COUNTIES.map((county) => ({
+        value: `region:${toNorwayLocationValue(county)}`,
+        label: county,
+        section: locationFilterCopy.norwayRegions,
+        level: 1,
+        countryCode: "NO" as const
+      })),
       {
         value: "action:municipalities",
         label: locationFilterCopy.chooseMunicipalities,
@@ -1814,9 +1875,16 @@ function HomeContent() {
         section: locationFilterCopy.swedenMunicipalities,
         level: 2,
         countryCode: "SE" as const
+      })),
+      ...norwayMunicipalityOptions.map((municipality) => ({
+        value: `municipality:${toNorwayLocationValue(municipality)}`,
+        label: municipality,
+        section: locationFilterCopy.norwayMunicipalities,
+        level: 2,
+        countryCode: "NO" as const
       }))
     ],
-    [locationFilterCopy, locationMunicipalityOptions, swedenMunicipalityOptions]
+    [locationFilterCopy, locationMunicipalityOptions, norwayMunicipalityOptions, swedenMunicipalityOptions]
   );
   const [yearQuery, setYearQuery] = useState("");
   const [yearMinQuery, setYearMinQuery] = useState("");
@@ -2675,7 +2743,7 @@ function HomeContent() {
     const storedLocale = normalizeLocale(localStorage.getItem("locale"), "fi");
     const initialLocale = normalizeLocale(urlLocale, storedLocale);
 
-    setLocale(initialLocale);
+    setActiveLocale(initialLocale);
     applyLocale(initialLocale);
 
     setLocaleReady(true);
@@ -2683,8 +2751,8 @@ function HomeContent() {
 
   useEffect(() => {
     if (!localeReady) return;
-    applyLocale(locale);
-  }, [locale, localeReady]);
+    applyLocale(activeLocale);
+  }, [activeLocale, localeReady]);
 
   // Listen for locale changes triggered elsewhere (e.g. BottomNav on mobile)
   // so this page's translations update without a reload.
@@ -2692,7 +2760,7 @@ function HomeContent() {
     function handleLocaleChange(event: Event) {
       const next = (event as CustomEvent<SupportedLocale>).detail;
       if (isLocale(next)) {
-        setLocale(next);
+        setActiveLocale(next);
       }
     }
     window.addEventListener("localechange", handleLocaleChange);

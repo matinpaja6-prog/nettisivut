@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 
 import { formatPrice } from "@/lib/listings";
+import { getLocalizedListingText, type ListingLocale } from "@/lib/listing-translations";
 import { listingNumberUrlId, listingPath } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
 import { getListingById, getListingDisplayNumber } from "@/lib/supabase";
@@ -8,6 +10,55 @@ import { getListingById, getListingDisplayNumber } from "@/lib/supabase";
 type ListingPageParams = {
   params: Promise<{ id: string }>;
 };
+
+const translateMetadataText = unstable_cache(
+  async (text: string, targetLocale: ListingLocale) => {
+    if (!text.trim() || targetLocale === "fi") return text;
+
+    try {
+      const query = new URLSearchParams({
+        client: "gtx",
+        sl: "auto",
+        tl: targetLocale,
+        dt: "t",
+        q: text
+      });
+      const response = await fetch(
+        `https://translate.googleapis.com/translate_a/single?${query}`,
+        { signal: AbortSignal.timeout(4_000) }
+      );
+      if (!response.ok) return text;
+      const payload = await response.json();
+      return payload?.[0]?.map((part: unknown[]) => part?.[0] ?? "").join("").trim() || text;
+    } catch {
+      return text;
+    }
+  },
+  ["listing-share-metadata-translation-v1"],
+  { revalidate: 86_400 }
+);
+
+async function getShareListingText(
+  listing: NonNullable<Awaited<ReturnType<typeof getListingById>>["data"]>,
+  locale?: ListingLocale
+) {
+  if (!locale) return { title: listing.title, description: listing.description || "" };
+
+  const localized = getLocalizedListingText(listing, locale);
+  const storedTitle = listing.translations?.[locale]?.title?.trim() || "";
+  const storedDescription = listing.translations?.[locale]?.description?.trim() || "";
+  const hasStoredTranslation = Boolean(
+    (storedTitle && storedTitle !== listing.title.trim()) ||
+    (storedDescription && storedDescription !== (listing.description || "").trim())
+  );
+  if (hasStoredTranslation || listing.original_language === locale) return localized;
+
+  const [title, description] = await Promise.all([
+    translateMetadataText(listing.title, locale),
+    translateMetadataText(listing.description || "", locale)
+  ]);
+  return { title, description };
+}
 
 function cleanMetaText(value?: string | null, fallback = "") {
   return String(value ?? fallback)
@@ -46,7 +97,11 @@ function buildTitle(listing: NonNullable<Awaited<ReturnType<typeof getListingByI
   return `${searchableTitle} - ${formatPrice(Number(listing.price) || 0)}`;
 }
 
-export async function generateListingMetadata({ params }: ListingPageParams): Promise<Metadata> {
+export async function generateListingMetadataForLocale(
+  { params }: ListingPageParams,
+  locale?: ListingLocale,
+  sharePath?: string
+): Promise<Metadata> {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
   const { data: listing } = await getListingById(decodedId);
@@ -88,11 +143,15 @@ export async function generateListingMetadata({ params }: ListingPageParams): Pr
     };
   }
 
-  const title = buildTitle(listing);
-  const description = buildDescription(listing);
+  const localizedText = locale ? await getShareListingText(listing, locale) : null;
+  const metadataListing = localizedText
+    ? { ...listing, title: localizedText.title, description: localizedText.description }
+    : listing;
+  const title = buildTitle(metadataListing);
+  const description = buildDescription(metadataListing);
   const displayNumber = await getListingDisplayNumber(listing.created_at, listing.listing_number);
   const urlId = listingNumberUrlId(displayNumber) || listing.id;
-  const url = absoluteSiteUrl(listingPath(urlId));
+  const url = absoluteSiteUrl(sharePath || listingPath(urlId));
   const imageUrl = absoluteSiteUrl(`/og/listing/${encodeURIComponent(urlId)}/preview.jpg`);
 
   return {
@@ -119,7 +178,7 @@ export async function generateListingMetadata({ params }: ListingPageParams): Pr
           type: "image/jpeg",
           width: 1200,
           height: 630,
-          alt: cleanMetaText(listing.title, "Maskines ilmoitus")
+          alt: cleanMetaText(metadataListing.title, "Maskines ilmoitus")
         }
       ]
     },
@@ -130,4 +189,8 @@ export async function generateListingMetadata({ params }: ListingPageParams): Pr
       images: [imageUrl]
     }
   };
+}
+
+export async function generateListingMetadata(props: ListingPageParams): Promise<Metadata> {
+  return generateListingMetadataForLocale(props);
 }

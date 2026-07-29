@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-type UiLocale = "en" | "sv";
+type UiLocale = "en" | "sv" | "no";
 
 type TranslateUiRequest = {
   targetLocale?: string;
@@ -12,7 +12,7 @@ const MAX_CACHE_ENTRIES = 4_000;
 const MAX_BATCH_CHARACTERS = 4_000;
 
 function isUiLocale(value: unknown): value is UiLocale {
-  return value === "en" || value === "sv";
+  return value === "en" || value === "sv" || value === "no";
 }
 
 function normalizeTexts(value: unknown) {

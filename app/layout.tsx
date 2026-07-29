@@ -198,7 +198,7 @@ export default function RootLayout({
     (function () {
       try {
         function isValidLocale(value) {
-          return value === "fi" || value === "en" || value === "sv";
+          return value === "fi" || value === "en" || value === "sv" || value === "no";
         }
 
         function removeInvalidVisitorLanguageKeys() {

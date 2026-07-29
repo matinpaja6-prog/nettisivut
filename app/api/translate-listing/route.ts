@@ -7,7 +7,8 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 const languageNames: Record<ListingLocale, string> = {
   fi: "Finnish",
   en: "English",
-  sv: "Swedish"
+  sv: "Swedish",
+  no: "Norwegian Bokmål"
 };
 
 type TranslateRequest = {
@@ -183,7 +184,7 @@ export async function POST(request: Request) {
   const prompt = [
     "Translate this marketplace listing into all requested languages.",
     "Preserve brand names, model names, part numbers, measurements, sizes, prices and abbreviations.",
-    "Return only valid JSON with keys fi, en, sv. Each value must contain title and description.",
+    "Return only valid JSON with keys fi, en, sv, no. Each value must contain title and description.",
     `Source language: ${languageNames[input.sourceLanguage]}`,
     `Title: ${input.title}`,
     `Description: ${input.description}`

@@ -1,11 +1,11 @@
 import type { Listing } from "./listings";
 
-export type ListingLocale = "fi" | "en" | "sv";
+export type ListingLocale = "fi" | "en" | "sv" | "no";
 
-export const listingLocales: ListingLocale[] = ["fi", "en", "sv"];
+export const listingLocales: ListingLocale[] = ["fi", "en", "sv", "no"];
 
 export function isListingLocale(value: unknown): value is ListingLocale {
-  return value === "fi" || value === "en" || value === "sv";
+  return value === "fi" || value === "en" || value === "sv" || value === "no";
 }
 
 export function getLocalizedListingText(

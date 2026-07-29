@@ -451,7 +451,7 @@ function restoreConversationVisibility(userId: string, conversationId: string) {
 export default function ListingPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { locale } = useLanguage();
+  const { locale, activeLocale } = useLanguage();
   const ui = listingUiText[locale];
   const extraUi = listingExtraText[locale];
   const fallbackCountry = locale === "fi" ? "Suomi" : "Finland";
@@ -1073,7 +1073,7 @@ export default function ListingPage() {
       listingNumberUrlId(listing.listing_number) ||
       listingNumberUrlId(listingDisplayNumber) ||
       listingUrlId(listing);
-    const url = absoluteSiteUrl(listingSharePath(shareUrlId));
+    const url = absoluteSiteUrl(listingSharePath(shareUrlId, activeLocale));
 
     if (navigator.share) {
       try {

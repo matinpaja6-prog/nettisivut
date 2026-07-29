@@ -2775,7 +2775,7 @@ export async function signInWithGoogle(
 
 export async function resetPassword(
   email: string,
-  locale?: "fi" | "en" | "sv"
+  locale?: "fi" | "en" | "sv" | "no"
 ) {
 
   if (!supabase) {
