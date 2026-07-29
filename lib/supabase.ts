@@ -5569,6 +5569,11 @@ async function persistConversationRead(
         .eq("receiver_id", userId);
     }
 
+    if (!result.error) {
+      // Also clears the server-side email deduplication marker.
+      await markConversationReadViaApi(conversationId, readAt);
+    }
+
     dispatchChatNotificationsChanged({
       conversationId,
       reason: "read"
@@ -5646,55 +5651,44 @@ export async function sendChatMessage(msg: {
 }) {
   if (!supabase) return { data: null, error: new Error("Ei yhteyttä") };
   try {
-    const { data: conversation, error: conversationError } = await supabase
-      .from("conversations")
-      .select("*")
-      .eq("id", msg.conversation_id)
-      .maybeSingle<Conversation>();
-
-    if (conversationError || !conversation) {
+    const { data: sessionData, error: sessionError } =
+      await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (sessionError || !accessToken) {
       return {
         data: null,
-        error: conversationError ?? new Error("Keskustelua ei löytynyt")
+        error: sessionError ?? new Error("Kirjautuminen ei ole voimassa.")
       };
     }
 
-    const senderIsBuyer = conversation.buyer_id === msg.sender_id;
-    const senderIsSeller = conversation.seller_id === msg.sender_id;
-
-    if (!senderIsBuyer && !senderIsSeller) {
-      return { data: null, error: new Error("Et kuulu tähän keskusteluun") };
-    }
-
-    if (!isConversationUnexpired(conversation)) {
-      return {
-        data: null,
-        error: new Error(
-          "Keskustelun 20 päivän viestiaika on päättynyt"
-        )
-      };
-    }
-
-    const receiverId = senderIsBuyer
-      ? conversation.seller_id
-      : conversation.buyer_id;
-
-    const { data, error } = await supabase
-      .from("messages")
-      .insert({
-        ...msg,
-        listing_id: conversation.listing_id,
-        receiver_id: receiverId
+    const response = await fetch("/api/messages/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({
+        conversation_id: msg.conversation_id,
+        content: msg.content,
+        image: msg.image ?? null
       })
-      .select()
-      .single<ChatMessage>();
-    if (!error) {
-      dispatchChatNotificationsChanged({
-        conversationId: msg.conversation_id,
-        reason: "sent"
-      });
+    });
+    const payload = await response.json().catch(() => ({})) as {
+      data?: ChatMessage;
+      error?: string;
+    };
+    if (!response.ok || !payload.data) {
+      return {
+        data: null,
+        error: new Error(payload.error || "Viestin lähetys epäonnistui.")
+      };
     }
-    return { data, error };
+
+    dispatchChatNotificationsChanged({
+      conversationId: msg.conversation_id,
+      reason: "sent"
+    });
+    return { data: payload.data, error: null };
   } catch (error) {
     return { data: null, error };
   }

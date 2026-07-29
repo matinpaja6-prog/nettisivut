@@ -4,6 +4,7 @@ import { Bell, Check, ExternalLink, Languages, Mail, Palette, Volume2 } from "lu
 import { useEffect, useMemo, useState } from "react";
 import { languageOptions, useLanguage, type Locale, type SupportedLocale } from "@/lib/i18n";
 import { translateLocalizedPath } from "@/lib/routes";
+import { getSafeAuthUser, supabase } from "@/lib/supabase";
 import {
   applyUserBackgroundColor,
   defaultUserSettings,
@@ -46,6 +47,12 @@ const copy = {
     notificationsDesc: "Säädä viesti- ja hakuvahti-ilmoituksia.",
     notificationsMain: "Ilmoitukset käytössä",
     notificationsMainDesc: "Näytä ilmoitusmerkit ja salli selaimen ilmoitukset.",
+    messageEmail: "Uusien viestien sähköpostit",
+    messageEmailDesc: "Lähetä sähköposti, kun saat viestin etkä ole paikalla.",
+    searchEmail: "Hakuvahtien sähköpostit",
+    searchEmailDesc: "Lähetä sähköposti, kun uusi ilmoitus vastaa hakuvahtiasi.",
+    loginForEmail: "Kirjaudu sisään muuttaaksesi sähköpostiasetuksia.",
+    emailSaveError: "Sähköpostiasetuksen tallennus epäonnistui.",
     sound: "Ilmoitusääni",
     soundDesc: "Toista lyhyt ääni uudesta viestistä.",
     browserPermission: "Salli selaimen ilmoitukset",
@@ -65,6 +72,12 @@ const copy = {
     notificationsDesc: "Adjust message and search alert notifications.",
     notificationsMain: "Notifications enabled",
     notificationsMainDesc: "Show badges and allow browser notifications.",
+    messageEmail: "New message emails",
+    messageEmailDesc: "Send an email when you receive a message while you are away.",
+    searchEmail: "Search alert emails",
+    searchEmailDesc: "Send an email when a new listing matches your saved search.",
+    loginForEmail: "Sign in to change email settings.",
+    emailSaveError: "Could not save the email setting.",
     sound: "Notification sound",
     soundDesc: "Play a short sound for new messages.",
     browserPermission: "Allow browser notifications",
@@ -84,6 +97,12 @@ const copy = {
     notificationsDesc: "Justera meddelande- och sökbevakningsaviseringar.",
     notificationsMain: "Aviseringar aktiverade",
     notificationsMainDesc: "Visa aviseringsmärken och tillåt webbläsaraviseringar.",
+    messageEmail: "E-post om nya meddelanden",
+    messageEmailDesc: "Skicka e-post när du får ett meddelande och inte är online.",
+    searchEmail: "E-post från sökbevakningar",
+    searchEmailDesc: "Skicka e-post när en ny annons matchar din sökbevakning.",
+    loginForEmail: "Logga in för att ändra e-postinställningarna.",
+    emailSaveError: "Det gick inte att spara e-postinställningen.",
     sound: "Aviseringsljud",
     soundDesc: "Spela upp ett kort ljud för nya meddelanden.",
     browserPermission: "Tillåt webbläsaraviseringar",
@@ -103,6 +122,12 @@ const copy = {
     notificationsDesc: "Juster meldings- og søkevarsler.",
     notificationsMain: "Varsler aktivert",
     notificationsMainDesc: "Vis varselmerker og tillat nettleservarsler.",
+    messageEmail: "E-post om nye meldinger",
+    messageEmailDesc: "Send e-post når du får en melding og ikke er pålogget.",
+    searchEmail: "E-post fra søkevarsler",
+    searchEmailDesc: "Send e-post når en ny annonse samsvarer med søkevarselet.",
+    loginForEmail: "Logg inn for å endre e-postinnstillingene.",
+    emailSaveError: "Kunne ikke lagre e-postinnstillingen.",
     sound: "Varslingslyd",
     soundDesc: "Spill av en kort lyd for nye meldinger.",
     browserPermission: "Tillat nettleservarsler",
@@ -149,6 +174,11 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<UserSettings>(defaultUserSettings);
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("unsupported");
   const [savedAt, setSavedAt] = useState(0);
+  const [messageEmailEnabled, setMessageEmailEnabled] = useState(true);
+  const [searchEmailEnabled, setSearchEmailEnabled] = useState(true);
+  const [emailSettingsAvailable, setEmailSettingsAvailable] = useState(false);
+  const [emailSettingSaving, setEmailSettingSaving] = useState<"message" | "search" | "">("");
+  const [emailSettingError, setEmailSettingError] = useState("");
 
   useEffect(() => {
     const stored = readUserSettings();
@@ -157,6 +187,25 @@ export default function SettingsPage() {
     if ("Notification" in window) {
       setPermission(Notification.permission);
     }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    void getSafeAuthUser().then((user) => {
+      if (!active || !user) return;
+      setMessageEmailEnabled(
+        user.user_metadata?.message_email_notifications !== false
+      );
+      setSearchEmailEnabled(
+        user.user_metadata?.search_alert_email_notifications !== false
+      );
+      setEmailSettingsAvailable(true);
+    });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const savedText = useMemo(() => {
@@ -181,6 +230,39 @@ export default function SettingsPage() {
     url.searchParams.delete("lang");
     url.pathname = translateLocalizedPath(url.pathname, nextLocale);
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    setSavedAt(Date.now());
+    if (supabase) {
+      void supabase.auth.updateUser({ data: { locale: nextLocale } });
+    }
+  }
+
+  async function updateEmailSetting(
+    type: "message" | "search",
+    enabled: boolean
+  ) {
+    if (!supabase || !emailSettingsAvailable || emailSettingSaving) return;
+
+    setEmailSettingError("");
+    setEmailSettingSaving(type);
+    const key =
+      type === "message"
+        ? "message_email_notifications"
+        : "search_alert_email_notifications";
+    const { error } = await supabase.auth.updateUser({
+      data: { [key]: enabled }
+    });
+    setEmailSettingSaving("");
+
+    if (error) {
+      setEmailSettingError(text.emailSaveError);
+      return;
+    }
+
+    if (type === "message") {
+      setMessageEmailEnabled(enabled);
+    } else {
+      setSearchEmailEnabled(enabled);
+    }
     setSavedAt(Date.now());
   }
 
@@ -249,6 +331,49 @@ export default function SettingsPage() {
                 <p>{text.notificationsDesc}</p>
               </div>
             </div>
+            <div className={styles.settingsRow}>
+              <span className={styles.rowIcon}><Mail size={16} /></span>
+              <div>
+                <strong>{text.messageEmail}</strong>
+                <small>
+                  {emailSettingsAvailable
+                    ? text.messageEmailDesc
+                    : text.loginForEmail}
+                </small>
+              </div>
+              <button
+                type="button"
+                className={`${styles.toggle} ${messageEmailEnabled ? styles.toggleOn : ""}`}
+                aria-pressed={messageEmailEnabled}
+                disabled={!emailSettingsAvailable || Boolean(emailSettingSaving)}
+                onClick={() => updateEmailSetting("message", !messageEmailEnabled)}
+              >
+                <span />
+              </button>
+            </div>
+            <div className={styles.settingsRow}>
+              <span className={styles.rowIcon}><Bell size={16} /></span>
+              <div>
+                <strong>{text.searchEmail}</strong>
+                <small>
+                  {emailSettingsAvailable
+                    ? text.searchEmailDesc
+                    : text.loginForEmail}
+                </small>
+              </div>
+              <button
+                type="button"
+                className={`${styles.toggle} ${searchEmailEnabled ? styles.toggleOn : ""}`}
+                aria-pressed={searchEmailEnabled}
+                disabled={!emailSettingsAvailable || Boolean(emailSettingSaving)}
+                onClick={() => updateEmailSetting("search", !searchEmailEnabled)}
+              >
+                <span />
+              </button>
+            </div>
+            {emailSettingError ? (
+              <p className={styles.settingError}>{emailSettingError}</p>
+            ) : null}
             <div className={styles.settingsRow}>
               <span className={styles.rowIcon}><Mail size={16} /></span>
               <div>
@@ -323,4 +448,3 @@ export default function SettingsPage() {
     </main>
   );
 }
-

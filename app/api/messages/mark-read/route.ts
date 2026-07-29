@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
+
 type MarkReadBody = {
   conversationId?: string;
   readAt?: number;
@@ -113,6 +115,34 @@ export async function POST(request: Request) {
         { error: error.message },
         { status: 500 }
       );
+    }
+
+    try {
+      const admin = getSupabaseAdmin();
+      const { data: authData } =
+        await admin.auth.admin.getUserById(userId);
+      const metadata = authData.user?.user_metadata ?? {};
+      const storedMarkers =
+        metadata.message_email_notified_conversations;
+      const markers =
+        storedMarkers &&
+        typeof storedMarkers === "object" &&
+        !Array.isArray(storedMarkers)
+          ? storedMarkers as Record<string, string>
+          : {};
+
+      if (markers[conversationId]) {
+        const nextMarkers = { ...markers };
+        delete nextMarkers[conversationId];
+        await admin.auth.admin.updateUserById(userId, {
+          user_metadata: {
+            ...metadata,
+            message_email_notified_conversations: nextMarkers
+          }
+        });
+      }
+    } catch (markerError) {
+      console.error("Message email marker clearing failed:", markerError);
     }
 
     return NextResponse.json({

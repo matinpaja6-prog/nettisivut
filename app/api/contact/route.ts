@@ -49,10 +49,7 @@ export async function POST(request: Request) {
 
   const resendApiKey = process.env.RESEND_API_KEY;
   const toEmail = process.env.CONTACT_TO_EMAIL || "info@maskines.com";
-  const fromEmail =
-    process.env.CONTACT_FROM_EMAIL ||
-    process.env.ALERT_FROM_EMAIL ||
-    "Maskines <noreply@maskines.com>";
+  const fromEmail = "Maskines <info@maskines.com>";
 
   if (!resendApiKey) {
     return NextResponse.json({ error: "Sähköpostilähetystä ei ole vielä asetettu palvelimelle." }, { status: 500 });
@@ -109,6 +106,8 @@ export async function POST(request: Request) {
   });
 
   if (!response.ok) {
+    const providerError = await response.text();
+    console.error("Yhteydenottolomakkeen sähköpostilähetys epäonnistui.", providerError);
     return NextResponse.json({ error: "Viestin lähetys epäonnistui. Yritä hetken päästä uudelleen." }, { status: 502 });
   }
 
