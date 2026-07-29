@@ -2967,6 +2967,8 @@ export type AdminProfileRow = {
   billing_email?: string | null;
   company_website?: string | null;
   updated_at?: string | null;
+  online?: boolean;
+  last_seen?: string | null;
 };
 
 export type AdminUserIp = {
@@ -3043,6 +3045,60 @@ export type AdminOverviewStats = {
   revenue_prev_month: number;
 };
 
+export type AdminActivityKind =
+  | "account"
+  | "listing"
+  | "sale"
+  | "conversation"
+  | "message"
+  | "review"
+  | "search-alert"
+  | "visit"
+  | "admin";
+
+export type AdminActivityEvent = {
+  id: string;
+  kind: AdminActivityKind;
+  occurred_at: string;
+  title: string;
+  detail: string;
+  actor_id: string | null;
+  actor_name: string | null;
+  ip: string | null;
+  ip_source: "event" | "profile" | null;
+};
+
+export type AdminActivityPage = {
+  events: AdminActivityEvent[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  partial: boolean;
+};
+
+export type AdminPresenceSummary = {
+  onlineCount: number;
+  totalRegistered: number;
+  onlineWindowSeconds: number;
+  updatedAt: string;
+};
+
+export type AdminPresenceUser = {
+  id: string;
+  email: string;
+  displayName: string;
+  accountType: string;
+  online: boolean;
+  lastSeen: string | null;
+  createdAt: string | null;
+};
+
+export type AdminPresencePage = {
+  users: AdminPresenceUser[];
+  total: number;
+  nextOffset: number | null;
+  hasMore: boolean;
+};
+
 export type AdminBannedIp = {
   ip: string;
   reason: string | null;
@@ -3067,6 +3123,33 @@ export async function adminOverviewStats(): Promise<{ data: AdminOverviewStats |
   if (!supabase) return { data: null, error: "no-supabase" };
   const { data, error } = await supabase.rpc("admin_overview_stats");
   return { data: (data ?? null) as AdminOverviewStats | null, error };
+}
+
+export async function adminActivityFeed(params: {
+  cursor?: string | null;
+  limit?: number;
+} = {}): Promise<{ data: AdminActivityPage | null; error: unknown }> {
+  return adminActionRequest<AdminActivityPage>("activity-feed", {
+    cursor: params.cursor ?? null,
+    limit: params.limit ?? 40
+  });
+}
+
+export async function adminPresenceSummary(): Promise<{
+  data: AdminPresenceSummary | null;
+  error: unknown;
+}> {
+  return adminActionRequest<AdminPresenceSummary>("presence-summary", {});
+}
+
+export async function adminPresencePage(params: {
+  limit?: number;
+  offset?: number;
+} = {}): Promise<{ data: AdminPresencePage | null; error: unknown }> {
+  return adminActionRequest<AdminPresencePage>("presence-page", {
+    limit: params.limit ?? 60,
+    offset: params.offset ?? 0
+  });
 }
 
 export async function adminListProfiles(params: {

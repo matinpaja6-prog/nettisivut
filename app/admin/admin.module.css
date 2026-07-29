@@ -3899,6 +3899,610 @@
   line-height: 1.25 !important;
 }
 
+/* Secure activity log and presence dashboard. */
+.summaryStrip {
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+}
+
+.onlineSummaryCard {
+  border-color: rgba(45, 212, 151, 0.34) !important;
+  background:
+    radial-gradient(240px 120px at 0% 0%, rgba(45, 212, 151, 0.13), transparent 72%),
+    linear-gradient(180deg, rgba(15, 32, 53, 0.86), rgba(9, 23, 40, 0.86)) !important;
+}
+
+.activityPanel {
+  min-height: 720px;
+  padding: 24px !important;
+}
+
+.activityPanelHeader {
+  align-items: flex-start;
+  display: flex;
+  gap: 22px;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.activityPanelHeader > div:first-child {
+  min-width: 0;
+}
+
+.activityPanelHeader span {
+  color: #38bdf8;
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.11em;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.activityPanelHeader h2 {
+  color: #f7fbff;
+  font-size: clamp(1.35rem, 2vw, 1.9rem);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.activityPanelHeader p {
+  color: rgba(219, 231, 244, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 8px 0 0;
+  max-width: 720px;
+}
+
+.activityPanelHeader button {
+  flex: 0 0 auto;
+}
+
+.activityMetricGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.activityMetric {
+  align-items: center;
+  background:
+    radial-gradient(180px 90px at 100% 0%, rgba(56, 189, 248, 0.1), transparent 72%),
+    rgba(5, 20, 36, 0.84);
+  border: 1px solid rgba(96, 126, 158, 0.28);
+  border-radius: 10px;
+  color: #ff9a2e;
+  display: flex;
+  gap: 12px;
+  min-height: 82px;
+  padding: 14px 16px;
+}
+
+.activityMetric > div {
+  min-width: 0;
+}
+
+.activityMetric small,
+.activityMetric strong {
+  display: block;
+}
+
+.activityMetric small {
+  color: rgba(219, 231, 244, 0.62);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.activityMetric strong {
+  color: #f7fbff;
+  font-size: 1.35rem;
+  line-height: 1.15;
+  margin-top: 3px;
+}
+
+.activityMetric .activityMetricTime {
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.liveDot,
+.presenceDot {
+  background: #60738a;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  box-shadow: 0 0 0 3px rgba(96, 115, 138, 0.13);
+  display: inline-block;
+  flex: 0 0 auto;
+  height: 11px;
+  width: 11px;
+}
+
+.liveDot,
+.presenceDotOnline {
+  background: #2dd497;
+  border-color: rgba(209, 255, 238, 0.78);
+  box-shadow: 0 0 0 4px rgba(45, 212, 151, 0.13), 0 0 15px rgba(45, 212, 151, 0.36);
+}
+
+.activityWorkspace {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(330px, 0.8fr);
+  min-height: 580px;
+}
+
+.activityFeedCard,
+.presenceCard {
+  background:
+    radial-gradient(420px 180px at 100% 0%, rgba(15, 138, 190, 0.11), transparent 72%),
+    linear-gradient(180deg, rgba(5, 20, 36, 0.96), rgba(3, 14, 26, 0.98));
+  border: 1px solid rgba(86, 132, 170, 0.3);
+  border-radius: 12px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.activityColumnHeader {
+  align-items: center;
+  border-bottom: 1px solid rgba(96, 126, 158, 0.24);
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  min-height: 66px;
+  padding: 12px 16px;
+}
+
+.activityColumnHeader > div {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+}
+
+.activityColumnHeader h3 {
+  color: #f7fbff;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.activityColumnHeader small {
+  color: rgba(219, 231, 244, 0.55);
+  font-size: 0.7rem;
+  font-weight: 750;
+  text-align: right;
+}
+
+.activityScroll,
+.presenceScroll {
+  height: min(64vh, 680px);
+  min-height: 480px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px;
+  scrollbar-color: rgba(79, 132, 174, 0.65) rgba(4, 17, 31, 0.5);
+  scrollbar-width: thin;
+}
+
+.activityBubble {
+  align-items: flex-start;
+  background: rgba(12, 31, 51, 0.82);
+  border: 1px solid rgba(96, 126, 158, 0.24);
+  border-left: 3px solid #38bdf8;
+  border-radius: 6px 12px 12px 6px;
+  display: grid;
+  gap: 11px;
+  grid-template-columns: 38px minmax(0, 1fr);
+  margin-bottom: 10px;
+  padding: 12px 13px;
+}
+
+.activityBubbleIcon {
+  align-items: center;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 10px;
+  color: #64cdf8;
+  display: inline-flex;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.activityBubbleBody {
+  min-width: 0;
+}
+
+.activityBubbleBody > div:first-child {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.activityBubbleBody strong {
+  color: #f7fbff;
+  font-size: 0.86rem;
+  line-height: 1.3;
+}
+
+.activityBubbleBody time {
+  color: rgba(219, 231, 244, 0.48);
+  flex: 0 0 auto;
+  font-size: 0.66rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.activityBubbleBody p {
+  color: rgba(219, 231, 244, 0.74);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin: 5px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.activityBubbleBody small {
+  color: rgba(82, 200, 244, 0.7);
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 750;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+}
+
+.activityIpRow {
+  align-items: center;
+  background: rgba(2, 12, 23, 0.5);
+  border: 1px solid rgba(96, 126, 158, 0.22);
+  border-radius: 9px;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 9px;
+  padding: 8px 9px;
+}
+
+.activityIpRow > span {
+  min-width: 0;
+}
+
+.activityIpRow code {
+  color: #b8eaff;
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.74rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.activityIpRow span small {
+  color: rgba(219, 231, 244, 0.48);
+  font-size: 0.62rem;
+  margin-top: 2px;
+}
+
+.activityIpRow button {
+  align-items: center;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.34);
+  border-radius: 8px;
+  color: #fecaca;
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 0.68rem;
+  font-weight: 850;
+  gap: 6px;
+  min-height: 34px;
+  padding: 6px 9px;
+}
+
+.activityIpRow button:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(248, 113, 113, 0.6);
+}
+
+.activity_sale {
+  border-left-color: #2dd497;
+}
+
+.activity_sale .activityBubbleIcon {
+  background: rgba(45, 212, 151, 0.1);
+  border-color: rgba(45, 212, 151, 0.2);
+  color: #45e3aa;
+}
+
+.activity_message,
+.activity_conversation {
+  border-left-color: #a78bfa;
+}
+
+.activity_message .activityBubbleIcon,
+.activity_conversation .activityBubbleIcon {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: rgba(167, 139, 250, 0.2);
+  color: #bba7ff;
+}
+
+.activity_review,
+.activity_search-alert {
+  border-left-color: #ff9a2e;
+}
+
+.activity_review .activityBubbleIcon,
+.activity_search-alert .activityBubbleIcon {
+  background: rgba(255, 154, 46, 0.1);
+  border-color: rgba(255, 154, 46, 0.2);
+  color: #ffae59;
+}
+
+.activity_admin {
+  border-left-color: #ff6961;
+}
+
+.activity_admin .activityBubbleIcon {
+  background: rgba(255, 105, 97, 0.1);
+  border-color: rgba(255, 105, 97, 0.2);
+  color: #ff8d87;
+}
+
+.activity_visit {
+  border-left-color: #6f8297;
+}
+
+.activity_visit .activityBubbleIcon {
+  background: rgba(111, 130, 151, 0.1);
+  border-color: rgba(111, 130, 151, 0.22);
+  color: #9bb0c5;
+}
+
+.presenceRow {
+  align-items: center;
+  border-bottom: 1px solid rgba(96, 126, 158, 0.17);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 13px minmax(0, 1fr) auto;
+  min-height: 64px;
+  padding: 10px 4px;
+}
+
+.presenceRow > div {
+  min-width: 0;
+}
+
+.presenceRow strong,
+.presenceRow small {
+  display: block;
+}
+
+.presenceRow strong {
+  color: #edf8ff;
+  font-size: 0.79rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.presenceRow small {
+  color: rgba(219, 231, 244, 0.52);
+  font-size: 0.66rem;
+  margin-top: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.presenceTime {
+  max-width: 130px;
+  text-align: right;
+}
+
+.presenceTime strong {
+  color: #80a7c2;
+  font-size: 0.7rem;
+}
+
+.presenceTime small {
+  font-size: 0.61rem;
+}
+
+.activitySentinel,
+.activityEmpty,
+.activityError,
+.activityWarning {
+  border-radius: 8px;
+  color: rgba(219, 231, 244, 0.58);
+  font-size: 0.72rem;
+  font-weight: 750;
+  margin-top: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.activitySentinel {
+  border: 1px dashed rgba(96, 126, 158, 0.26);
+}
+
+.activityError {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.24);
+  color: #ffb0ac;
+}
+
+.activityWarning {
+  background: rgba(255, 154, 46, 0.08);
+  border: 1px solid rgba(255, 154, 46, 0.2);
+  color: #ffd09c;
+}
+
+.userPresenceCell {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  min-width: 150px;
+}
+
+.userPresenceCell > span:last-child {
+  min-width: 0;
+}
+
+.userPresenceCell strong,
+.userPresenceCell small {
+  display: block;
+}
+
+.userPresenceCell strong {
+  color: #dff6ff;
+  font-size: 0.74rem;
+  line-height: 1.25;
+}
+
+.userPresenceCell small {
+  color: rgba(219, 231, 244, 0.48);
+  font-size: 0.64rem;
+  margin-top: 2px;
+}
+
+.userTable {
+  min-width: 1120px !important;
+}
+
+.userTable th:nth-child(5),
+.userTable td:nth-child(5) {
+  text-align: left !important;
+  width: 180px !important;
+}
+
+.userTable th:nth-child(6),
+.userTable td:nth-child(6) {
+  width: 110px !important;
+}
+
+.userTable th:nth-child(7),
+.userTable td:nth-child(7) {
+  text-align: right !important;
+  width: 132px !important;
+}
+
+@media (max-width: 1500px) {
+  .summaryStrip {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .activityMetricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  .activityWorkspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .activityScroll,
+  .presenceScroll {
+    height: min(58vh, 620px);
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 760px) {
+  .summaryStrip,
+  .activityMetricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .activityPanel {
+    min-height: 0;
+    padding: 14px !important;
+  }
+
+  .activityPanelHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .activityPanelHeader button {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .activityMetric {
+    min-height: 74px;
+    padding: 11px;
+  }
+
+  .activityMetric strong {
+    font-size: 1.1rem;
+  }
+
+  .activityColumnHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .activityColumnHeader small {
+    text-align: left;
+  }
+
+  .activityScroll,
+  .presenceScroll {
+    height: 62vh;
+    min-height: 390px;
+    padding: 10px;
+  }
+
+  .activityBubble {
+    gap: 9px;
+    grid-template-columns: 32px minmax(0, 1fr);
+    padding: 10px;
+  }
+
+  .activityBubbleIcon {
+    border-radius: 8px;
+    height: 31px;
+    width: 31px;
+  }
+
+  .activityBubbleBody > div:first-child {
+    display: block;
+  }
+
+  .activityBubbleBody time {
+    display: block;
+    margin-top: 3px;
+    white-space: normal;
+  }
+
+  .activityIpRow {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .activityIpRow button {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .presenceRow {
+    grid-template-columns: 11px minmax(0, 1fr);
+  }
+
+  .presenceTime {
+    grid-column: 2;
+    max-width: none;
+    text-align: left;
+  }
+}
+
+@media (max-width: 430px) {
+  .summaryStrip,
+  .activityMetricGrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
 .contactCell div {
   white-space: nowrap !important;
 }

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  Activity,
   ArrowLeft,
   BadgeCheck,
   Ban,
@@ -19,6 +20,9 @@ import {
   ExternalLink,
   Home,
   LogOut,
+  MessageCircle,
+  Radio,
+  RefreshCw,
   Search,
   ShieldCheck,
   Smartphone,
@@ -44,7 +48,10 @@ import {
   adminForceVerifyPhone,
   adminListBannedIps,
   adminListProfiles,
+  adminActivityFeed,
   adminOverviewStats,
+  adminPresencePage,
+  adminPresenceSummary,
   adminSetCompanyVerified,
   adminUnbanIp,
   adminUnbanUser,
@@ -52,15 +59,25 @@ import {
   authorizeAdminSensitiveAction,
   isSupabaseConfigured,
   supabase,
+  type AdminActivityEvent,
   type AdminBannedIp,
   type AdminOverviewStats,
+  type AdminPresenceSummary,
+  type AdminPresenceUser,
   type AdminProfileRow,
   type SensitiveAdminAction
 } from "@/lib/supabase";
 
 import styles from "./admin.module.css";
 
-type TabKey = "overview" | "users" | "listings" | "bans" | "appearance" | "categories";
+type TabKey =
+  | "overview"
+  | "activity"
+  | "users"
+  | "listings"
+  | "bans"
+  | "appearance"
+  | "categories";
 
 type AdminListing = {
   id: string;
@@ -204,6 +221,8 @@ export default function AdminPage() {
 
   const [stats, setStats] = useState<AdminOverviewStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
+  const [presence, setPresence] = useState<AdminPresenceSummary | null>(null);
+  const [presenceLoading, setPresenceLoading] = useState(false);
 
   const [users, setUsers] = useState<AdminProfileRow[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
@@ -430,6 +449,29 @@ export default function AdminPage() {
     }
     setStats(data);
   }, [isAdmin, showError]);
+
+  const loadPresence = useCallback(async (silent = false) => {
+    if (!isAdmin) return;
+    if (!silent) setPresenceLoading(true);
+    const { data, error } = await adminPresenceSummary();
+    if (!silent) setPresenceLoading(false);
+    if (error) {
+      if (!silent) {
+        showError(getErrorMessage(error, "Paikallaolotietojen lataus epäonnistui."));
+      }
+      return;
+    }
+    setPresence(data);
+  }, [isAdmin, showError]);
+
+  useEffect(() => {
+    if (!isAdmin || !mfaUnlocked) return;
+    void loadPresence();
+    const interval = window.setInterval(() => {
+      void loadPresence(true);
+    }, 30_000);
+    return () => window.clearInterval(interval);
+  }, [isAdmin, loadPresence, mfaUnlocked]);
 
   useEffect(() => {
     if (isAdmin && mfaUnlocked && activeTab === "overview") {
@@ -680,6 +722,7 @@ export default function AdminPage() {
   /* Render */
   const tabs: { key: TabKey; label: string; icon: typeof Users }[] = useMemo(() => [
     { key: "overview", label: "Yleiskatsaus", icon: Home },
+    { key: "activity", label: "Tapahtumat", icon: Activity },
     { key: "users", label: "Käyttäjät", icon: Truck },
     { key: "listings", label: "Ilmoitukset", icon: ClipboardList },
     { key: "bans", label: "Bannit", icon: Users },
@@ -720,6 +763,7 @@ export default function AdminPage() {
 
   function refreshAdminDashboard() {
     void loadStats();
+    void loadPresence();
     void loadUsers();
     void loadListings();
   }
@@ -776,6 +820,14 @@ export default function AdminPage() {
 
         {!bootLoading && isAdmin && mfaUnlocked && stats && (
           <div className={styles.summaryStrip}>
+            <article className={`${styles.summaryCard} ${styles.onlineSummaryCard}`}>
+              <div className={`${styles.summaryIcon} ${styles.iconGreen}`}><Radio size={22} /></div>
+              <div className={styles.summaryBody}>
+                <span>Paikalla nyt</span>
+                <strong>{presenceLoading && !presence ? "…" : Number(presence?.onlineCount ?? 0).toLocaleString("fi-FI")}</strong>
+                <small>{Number(presence?.totalRegistered ?? stats.profiles_total ?? 0).toLocaleString("fi-FI")} rekisteröitynyttä</small>
+              </div>
+            </article>
             <article className={styles.summaryCard}>
               <div className={`${styles.summaryIcon} ${styles.iconBlue}`}><Users size={22} /></div>
               <div className={styles.summaryBody}>
@@ -963,6 +1015,21 @@ export default function AdminPage() {
                   onViewAll={() => setActiveTab("users")}
                 />
               </>
+            )}
+
+            {activeTab === "activity" && (
+              <ActivityAndPresencePanel
+                summary={presence}
+                summaryLoading={presenceLoading}
+                onRefreshSummary={() => void loadPresence()}
+                onBanIp={(ip, contextUserName) => {
+                  setConfirm({
+                    kind: "ban-ip",
+                    prefillIp: ip,
+                    contextUserName
+                  });
+                }}
+              />
             )}
 
             {activeTab === "users" && (
@@ -1202,6 +1269,367 @@ function RecentEventsPanelV2({ users, listings, onViewAll }: {
         ))}
       </div>
     </div>
+  );
+}
+
+function formatAdminDateTime(value?: string | null) {
+  if (!value) return "Ei koskaan";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Ei koskaan";
+  return new Intl.DateTimeFormat("fi-FI", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  }).format(date);
+}
+
+function activityIcon(event: AdminActivityEvent) {
+  if (event.kind === "account") return <Users size={18} />;
+  if (event.kind === "listing") return <ClipboardList size={18} />;
+  if (event.kind === "sale") return <BadgeCheck size={18} />;
+  if (event.kind === "conversation" || event.kind === "message") {
+    return <MessageCircle size={18} />;
+  }
+  if (event.kind === "review") return <Star size={18} />;
+  if (event.kind === "search-alert") return <Bell size={18} />;
+  if (event.kind === "visit") return <Eye size={18} />;
+  return <ShieldCheck size={18} />;
+}
+
+function ActivityAndPresencePanel({
+  summary,
+  summaryLoading,
+  onRefreshSummary,
+  onBanIp
+}: {
+  summary: AdminPresenceSummary | null;
+  summaryLoading: boolean;
+  onRefreshSummary: () => void;
+  onBanIp: (ip: string, contextUserName: string) => void;
+}) {
+  const [events, setEvents] = useState<AdminActivityEvent[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
+  const [eventsError, setEventsError] = useState("");
+  const [eventsPartial, setEventsPartial] = useState(false);
+  const [eventsHasMore, setEventsHasMore] = useState(true);
+  const [presenceUsers, setPresenceUsers] = useState<AdminPresenceUser[]>([]);
+  const [presenceUsersLoading, setPresenceUsersLoading] = useState(false);
+  const [presenceUsersError, setPresenceUsersError] = useState("");
+  const [presenceUsersHasMore, setPresenceUsersHasMore] = useState(true);
+  const eventsCursorRef = useRef<string | null>(null);
+  const eventsLoadingRef = useRef(false);
+  const eventsHasMoreRef = useRef(true);
+  const presenceOffsetRef = useRef(0);
+  const presenceLoadingRef = useRef(false);
+  const presenceHasMoreRef = useRef(true);
+  const eventsScrollRef = useRef<HTMLDivElement>(null);
+  const presenceScrollRef = useRef<HTMLDivElement>(null);
+  const eventsSentinelRef = useRef<HTMLDivElement>(null);
+  const presenceSentinelRef = useRef<HTMLDivElement>(null);
+
+  const loadEvents = useCallback(async (reset = false) => {
+    if (eventsLoadingRef.current) return;
+    if (!reset && !eventsHasMoreRef.current) return;
+
+    eventsLoadingRef.current = true;
+    setEventsLoading(true);
+    setEventsError("");
+
+    const { data, error } = await adminActivityFeed({
+      cursor: reset ? null : eventsCursorRef.current,
+      limit: 40
+    });
+
+    eventsLoadingRef.current = false;
+    setEventsLoading(false);
+
+    if (error || !data) {
+      setEventsError(getErrorMessage(error, "Tapahtumalokin lataus epäonnistui."));
+      return;
+    }
+
+    eventsCursorRef.current = data.nextCursor;
+    eventsHasMoreRef.current = data.hasMore;
+    setEventsHasMore(data.hasMore);
+    setEventsPartial(data.partial);
+    setEvents((current) => {
+      const combined = reset ? data.events : [...current, ...data.events];
+      return Array.from(
+        new Map(combined.map((event) => [event.id, event])).values()
+      );
+    });
+  }, []);
+
+  const loadPresenceUsers = useCallback(async (reset = false) => {
+    if (presenceLoadingRef.current) return;
+    if (!reset && !presenceHasMoreRef.current) return;
+
+    presenceLoadingRef.current = true;
+    setPresenceUsersLoading(true);
+    setPresenceUsersError("");
+
+    const { data, error } = await adminPresencePage({
+      offset: reset ? 0 : presenceOffsetRef.current,
+      limit: 60
+    });
+
+    presenceLoadingRef.current = false;
+    setPresenceUsersLoading(false);
+
+    if (error || !data) {
+      setPresenceUsersError(
+        getErrorMessage(error, "Käyttäjien paikallaolotietojen lataus epäonnistui.")
+      );
+      return;
+    }
+
+    presenceOffsetRef.current = data.nextOffset ?? presenceOffsetRef.current;
+    presenceHasMoreRef.current = data.hasMore;
+    setPresenceUsersHasMore(data.hasMore);
+    setPresenceUsers((current) => {
+      const combined = reset ? data.users : [...current, ...data.users];
+      return Array.from(
+        new Map(combined.map((user) => [user.id, user])).values()
+      );
+    });
+  }, []);
+
+  const refreshAll = useCallback(() => {
+    eventsCursorRef.current = null;
+    eventsHasMoreRef.current = true;
+    presenceOffsetRef.current = 0;
+    presenceHasMoreRef.current = true;
+    setEventsHasMore(true);
+    setPresenceUsersHasMore(true);
+    void loadEvents(true);
+    void loadPresenceUsers(true);
+    onRefreshSummary();
+  }, [loadEvents, loadPresenceUsers, onRefreshSummary]);
+
+  useEffect(() => {
+    void loadEvents(true);
+    void loadPresenceUsers(true);
+  }, [loadEvents, loadPresenceUsers]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      if ((eventsScrollRef.current?.scrollTop ?? 0) < 80) {
+        eventsCursorRef.current = null;
+        eventsHasMoreRef.current = true;
+        void loadEvents(true);
+      }
+    }, 30_000);
+    return () => window.clearInterval(interval);
+  }, [loadEvents]);
+
+  useEffect(() => {
+    const sentinel = eventsSentinelRef.current;
+    const root = eventsScrollRef.current;
+    if (!sentinel || !root) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) void loadEvents();
+      },
+      { root, rootMargin: "180px 0px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadEvents]);
+
+  useEffect(() => {
+    const sentinel = presenceSentinelRef.current;
+    const root = presenceScrollRef.current;
+    if (!sentinel || !root) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) void loadPresenceUsers();
+      },
+      { root, rootMargin: "180px 0px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadPresenceUsers]);
+
+  return (
+    <section className={`${styles.panel} ${styles.activityPanel}`}>
+      <div className={styles.activityPanelHeader}>
+        <div>
+          <span>Reaaliaikainen seuranta</span>
+          <h2>Tapahtumaloki ja paikallaolo</h2>
+          <p>
+            Uusimmat tapahtumat ovat ylhäällä. Lisää historiaa latautuu automaattisesti,
+            kun vierität alaspäin.
+          </p>
+        </div>
+        <button
+          type="button"
+          className={styles.fullReportButton}
+          onClick={refreshAll}
+          disabled={eventsLoading || presenceUsersLoading || summaryLoading}
+        >
+          <RefreshCw size={16} />
+          Päivitä
+        </button>
+      </div>
+
+      <div className={styles.activityMetricGrid}>
+        <article className={styles.activityMetric}>
+          <span className={styles.liveDot} aria-hidden="true" />
+          <div>
+            <small>Paikalla nyt</small>
+            <strong>{summaryLoading && !summary ? "…" : summary?.onlineCount ?? 0}</strong>
+          </div>
+        </article>
+        <article className={styles.activityMetric}>
+          <Users size={20} />
+          <div>
+            <small>Rekisteröityneet</small>
+            <strong>{summary?.totalRegistered ?? presenceUsers.length}</strong>
+          </div>
+        </article>
+        <article className={styles.activityMetric}>
+          <Activity size={20} />
+          <div>
+            <small>Lokitapahtumia ladattu</small>
+            <strong>{events.length}</strong>
+          </div>
+        </article>
+        <article className={styles.activityMetric}>
+          <Radio size={20} />
+          <div>
+            <small>Tilanne päivitetty</small>
+            <strong className={styles.activityMetricTime}>
+              {summary?.updatedAt ? formatAdminDateTime(summary.updatedAt) : "—"}
+            </strong>
+          </div>
+        </article>
+      </div>
+
+      <div className={styles.activityWorkspace}>
+        <article className={styles.activityFeedCard}>
+          <div className={styles.activityColumnHeader}>
+            <div>
+              <span className={styles.liveDot} aria-hidden="true" />
+              <h3>Tapahtumat</h3>
+            </div>
+            <small>Viestien sisältöjä ei näytetä · IP:t vain adminille</small>
+          </div>
+          <div
+            ref={eventsScrollRef}
+            className={styles.activityScroll}
+            aria-live="polite"
+            aria-label="Adminin tapahtumaloki"
+          >
+            {events.map((event) => (
+              <div key={event.id} className={`${styles.activityBubble} ${styles[`activity_${event.kind}`]}`}>
+                <div className={styles.activityBubbleIcon}>{activityIcon(event)}</div>
+                <div className={styles.activityBubbleBody}>
+                  <div>
+                    <strong>{event.title}</strong>
+                    <time dateTime={event.occurred_at}>{formatAdminDateTime(event.occurred_at)}</time>
+                  </div>
+                  <p>{event.detail || "Ei lisätietoja"}</p>
+                  {event.actor_name && (
+                    <small>
+                      Tekijä: {event.actor_name}
+                      {event.actor_id ? ` · ${event.actor_id.slice(0, 8)}` : ""}
+                    </small>
+                  )}
+                  {event.ip && (
+                    <div className={styles.activityIpRow}>
+                      <span>
+                        <code>{event.ip}</code>
+                        <small>
+                          {event.ip_source === "event"
+                            ? "Tapahtuman IP"
+                            : "Käyttäjän viimeisin IP"}
+                        </small>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => onBanIp(
+                          event.ip!,
+                          event.actor_name || event.title
+                        )}
+                      >
+                        <Ban size={14} />
+                        Bannaa IP
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {!events.length && !eventsLoading && !eventsError && (
+              <div className={styles.activityEmpty}>Tapahtumia ei löytynyt.</div>
+            )}
+            {eventsError && <div className={styles.activityError}>{eventsError}</div>}
+            {eventsPartial && (
+              <div className={styles.activityWarning}>
+                Osa vanhoista tapahtumalähteistä ei ole käytössä tässä ympäristössä.
+              </div>
+            )}
+            <div ref={eventsSentinelRef} className={styles.activitySentinel}>
+              {eventsLoading
+                ? "Ladataan tapahtumia…"
+                : eventsHasMore
+                  ? "Vieritä alemmas ladataksesi lisää"
+                  : "Kaikki tapahtumat on ladattu"}
+            </div>
+          </div>
+        </article>
+
+        <article className={styles.presenceCard}>
+          <div className={styles.activityColumnHeader}>
+            <div>
+              <Radio size={18} />
+              <h3>Rekisteröityneet</h3>
+            </div>
+            <small>Viimeksi paikalla</small>
+          </div>
+          <div
+            ref={presenceScrollRef}
+            className={styles.presenceScroll}
+            aria-label="Rekisteröityneiden käyttäjien paikallaolotiedot"
+          >
+            {presenceUsers.map((user) => (
+              <div key={user.id} className={styles.presenceRow}>
+                <span
+                  className={`${styles.presenceDot} ${user.online ? styles.presenceDotOnline : ""}`}
+                  aria-label={user.online ? "Paikalla" : "Poissa"}
+                />
+                <div>
+                  <strong>{user.displayName}</strong>
+                  <small>{user.email || user.id.slice(0, 8)}</small>
+                </div>
+                <div className={styles.presenceTime}>
+                  <strong>{user.online ? "Paikalla nyt" : relativeTime(user.lastSeen) || "Ei koskaan"}</strong>
+                  <small>{formatAdminDateTime(user.lastSeen)}</small>
+                </div>
+              </div>
+            ))}
+
+            {!presenceUsers.length && !presenceUsersLoading && !presenceUsersError && (
+              <div className={styles.activityEmpty}>Rekisteröityneitä ei löytynyt.</div>
+            )}
+            {presenceUsersError && (
+              <div className={styles.activityError}>{presenceUsersError}</div>
+            )}
+            <div ref={presenceSentinelRef} className={styles.activitySentinel}>
+              {presenceUsersLoading
+                ? "Ladataan käyttäjiä…"
+                : presenceUsersHasMore
+                  ? "Vieritä alemmas ladataksesi lisää"
+                  : "Kaikki rekisteröityneet on ladattu"}
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
   );
 }
 
@@ -1708,6 +2136,7 @@ function UsersPanel({
                 <th>Sähköposti</th>
                 <th>Vahvistukset</th>
                 <th>Tila</th>
+                <th>Viimeksi paikalla</th>
                 <th>Liittynyt</th>
                 <th style={{ textAlign: "right" }}>Toiminnot</th>
               </tr>
@@ -1789,6 +2218,12 @@ function UserTableRow({
   const displayName =
     u.full_name || [u.first_name, u.last_name].filter(Boolean).join(" ") || "Tuntematon";
   const ip = u.last_ip || u.last_seen_ip;
+  const lastSeenTimestamp = Date.parse(u.last_seen ?? "");
+  const userIsOnline =
+    Boolean(u.online) &&
+    Number.isFinite(lastSeenTimestamp) &&
+    lastSeenTimestamp >= Date.now() - 65_000 &&
+    lastSeenTimestamp <= Date.now() + 10_000;
 
   return (
     <tr>
@@ -1826,6 +2261,13 @@ function UserTableRow({
         ) : (
           <span className={`${styles.statusPill} ${styles.statusActive}`}>Aktiivinen</span>
         )}
+      </td>
+      <td className={styles.userPresenceCell}>
+        <span className={`${styles.presenceDot} ${userIsOnline ? styles.presenceDotOnline : ""}`} aria-hidden="true" />
+        <span>
+          <strong>{userIsOnline ? "Paikalla nyt" : relativeTime(u.last_seen) || "Ei koskaan"}</strong>
+          <small>{formatAdminDateTime(u.last_seen)}</small>
+        </span>
       </td>
       <td><small style={{ color: "#5c6b7a", fontWeight: 800 }}>{formatDate(u.created_at)}</small></td>
       <td style={{ textAlign: "right" }}>

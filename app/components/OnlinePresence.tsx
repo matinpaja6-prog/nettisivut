@@ -37,6 +37,13 @@ export default function OnlinePresence() {
 
     async function markOnline() {
 
+      if (
+        document.visibilityState !==
+        "visible"
+      ) {
+        return;
+      }
+
       const id =
         userId ||
         await getUserId();
