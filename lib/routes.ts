@@ -84,6 +84,13 @@ export function listingPath(id?: string | number | null, locale?: string | null)
   return `/ilmoitukset/${encodeURIComponent(urlId)}`;
 }
 
+export function listingSharePath(id?: string | number | null) {
+  const value = String(id ?? "");
+  const urlId = /^\d+$/.test(value) ? `id${value}` : value;
+
+  return `/ilmoitus/${encodeURIComponent(urlId)}`;
+}
+
 export function listingNumberUrlId(value?: string | number | null) {
   const text = String(value ?? "").trim();
   const numeric = text.match(/^id(\d+)$/i)?.[1] ?? (/^\d+$/.test(text) ? text : "");

@@ -107,7 +107,7 @@ export async function generateListingMetadata({ params }: ListingPageParams): Pr
       canonical: url
     },
     openGraph: {
-      type: "article",
+      type: "website",
       siteName: "Maskines",
       title,
       description,
