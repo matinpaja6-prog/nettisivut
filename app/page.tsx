@@ -288,7 +288,7 @@ const translations = {
     sellGuideStepFour: "Sovi maksu ja toimitus turvallisesti viestien kautta.",
     brandTagline: "Kaikki varaosat. Kaikilta. Sinulle.",
     searchLabel: "Haku",
-    searchCta: "Hae varaosia",
+    searchCta: "Hae",
     searchPlaceholder: "Hae varaosia, merkkiä tai mallia...",
     vehicleSelection: "Ajoneuvon valinta",
     content: "Sisältö",
@@ -586,7 +586,7 @@ const translations = {
     sellPromoBulletTwo: "Skriv detaljer",
     sellPromoBulletThree: "Publiser gratis",
     addListingNow: "Legg til annonse nå",
-    instructions: "Instruksjoner",
+    instructions: "Hjelp",
     sellGuideTitle: "Slik selger du deler",
     sellGuideStepOne: "Legg til tydelige bilder av delen og eventuelt delenummer.",
     sellGuideStepTwo: "Skriv merke, modell, tilstand, pris og sted.",
@@ -633,10 +633,10 @@ const translations = {
     atvs: "ATV-er",
     cars: "Motocross",
     mopeds: "Mopeder",
-    garageTitle: "Min Garasje",
+    garageTitle: "Min garasje",
     garageAddVehicle: "Legg til kjøretøy",
     garagePartsFor: "Deler for",
-    saTitle: "Søkevakter",
+    saTitle: "Søkevarsler",
     loginToCreateListing: "Logg inn for å opprette annonse",
     rewards: "Belønninger",
     shop: "Butikk",
@@ -655,8 +655,8 @@ const translations = {
     selectedVehicle: "Valgt kjøretøy",
     openCategories: "Åpne kategorier",
     sellerLevel: "Selgernivå",
-    level: "Level",
-    xpToNextLevel: "til neste level",
+    level: "Nivå",
+    xpToNextLevel: "til neste nivå",
     maxLevel: "Maksnivå"
   },
 } satisfies Record<Locale, Record<string, string>>;
@@ -844,7 +844,7 @@ type LocationMultiSelectOption = {
   action?: boolean;
   level?: number;
   actionLevel?: number;
-  countryCode?: "FI" | "SE";
+  countryCode?: "FI" | "SE" | "NO";
   targetSection?: string;
 };
 
@@ -889,9 +889,26 @@ function LocationMultiSelectField({
   const selectedCountryCodes = selected
     .filter((value) => value.startsWith("country:"))
     .map((value) => value.slice("country:".length))
-    .filter((value): value is "FI" | "SE" => value === "FI" || value === "SE");
-  const visibleCountryCodes: Array<"FI" | "SE"> =
-    selectedCountryCodes.length > 0 ? selectedCountryCodes : ["FI", "SE"];
+    .filter(
+      (value): value is "FI" | "SE" | "NO" =>
+        value === "FI" || value === "SE" || value === "NO"
+    );
+  const selectedRegionCountryCodes = Array.from(new Set(
+    selected
+      .filter((value) => value.startsWith("region:"))
+      .map((value) => value.slice("region:".length))
+      .map((value): "FI" | "SE" | "NO" => {
+        if (getNorwayLocationName(value)) return "NO";
+        if (getSwedenLocationName(value)) return "SE";
+        return "FI";
+      })
+  ));
+  const visibleCountryCodes: Array<"FI" | "SE" | "NO"> =
+    visibleLocationLevel >= 2 && selectedRegionCountryCodes.length > 0
+      ? selectedRegionCountryCodes
+      : selectedCountryCodes.length > 0
+        ? selectedCountryCodes
+        : ["FI", "SE", "NO"];
   const availableOptions = options.filter(
     (option) =>
       (option.level ?? 0) === 0 ||
@@ -979,13 +996,17 @@ function LocationMultiSelectField({
     setVisibleLocationLevel(option.actionLevel);
     onToggle(option.value);
 
+    const targetCountryCodes =
+      option.actionLevel >= 2 && selectedRegionCountryCodes.length > 0
+        ? selectedRegionCountryCodes
+        : visibleCountryCodes;
     const targetSection = option.targetSection ?? options.find(
       (candidate) =>
         !candidate.action &&
         candidate.section &&
         candidate.level === option.actionLevel &&
         candidate.countryCode &&
-        visibleCountryCodes.includes(candidate.countryCode)
+        targetCountryCodes.includes(candidate.countryCode)
     )?.section;
     if (!targetSection) return;
 
@@ -1003,6 +1024,7 @@ function LocationMultiSelectField({
     <div
       ref={fieldRef}
       className={`${styles.heroFilterFieldWrap} ${disabled ? styles.locationFilterDisabled : ""}`}
+      data-no-auto-translate
     >
       <span className={styles.heroFilterLabel}>{label}</span>
       <button
@@ -2103,6 +2125,52 @@ function HomeContent() {
   const [dbPreferenceProfile, setDbPreferenceProfile] = useState<UserPreferenceProfile | null>(null);
 
   const t = translations[locale];
+  const homeResultsText = {
+    fi: {
+      editSearch: "Muokkaa hakua",
+      reset: "Nollaa",
+      closeFilters: "Sulje suodatus",
+      filter: "Suodata",
+      latest: "Viimeisimmät ilmoitukset",
+      results: (count: number) => `${count} ${count === 1 ? "hakutulos" : "hakutulosta"}`,
+      noResults: "Ei löytynyt tuloksia",
+      noResultsHint: "Kokeile muuttaa hakuehtoja tai nollaa suodattimet.",
+      resetFilters: "Nollaa suodattimet"
+    },
+    en: {
+      editSearch: "Edit search",
+      reset: "Reset",
+      closeFilters: "Close filters",
+      filter: "Filter",
+      latest: "Latest listings",
+      results: (count: number) => `${count} ${count === 1 ? "result" : "results"}`,
+      noResults: "No results found",
+      noResultsHint: "Try changing the search criteria or resetting the filters.",
+      resetFilters: "Reset filters"
+    },
+    sv: {
+      editSearch: "Ändra sökning",
+      reset: "Återställ",
+      closeFilters: "Stäng filter",
+      filter: "Filtrera",
+      latest: "Senaste annonserna",
+      results: (count: number) => `${count} sökresultat`,
+      noResults: "Inga resultat hittades",
+      noResultsHint: "Prova att ändra sökvillkoren eller återställa filtren.",
+      resetFilters: "Återställ filter"
+    },
+    no: {
+      editSearch: "Endre søk",
+      reset: "Tilbakestill",
+      closeFilters: "Lukk filtre",
+      filter: "Filtrer",
+      latest: "Nyeste annonser",
+      results: (count: number) => `${count} ${count === 1 ? "søkeresultat" : "søkeresultater"}`,
+      noResults: "Ingen resultater funnet",
+      noResultsHint: "Prøv å endre søkekriteriene eller tilbakestille filtrene.",
+      resetFilters: "Tilbakestill filtre"
+    }
+  }[locale];
 
   useEffect(() => {
     if (
@@ -2218,12 +2286,6 @@ function HomeContent() {
     updateCachedListing(listing);
     router.push(listingPath(listingUrlId(listing), locale));
   }, [locale, router, saveHomeReturnState]);
-
-  const openListingFromCard = useCallback((event: React.MouseEvent, listing: Listing) => {
-    const target = event.target;
-    if (target instanceof Element && target.closest("button")) return;
-    openListing(listing);
-  }, [openListing]);
 
   const handleSortChange = useCallback((value: string) => {
     if (value === "recommendations") {
@@ -4554,6 +4616,12 @@ function HomeContent() {
     afterHeroFilterChange();
   }
 
+  function getLocationValueCountryCode(value: string): "FI" | "SE" | "NO" {
+    if (getNorwayLocationName(value)) return "NO";
+    if (getSwedenLocationName(value)) return "SE";
+    return "FI";
+  }
+
   function toggleLocationSelection(
     group: keyof LocationFilterSelection,
     value: string
@@ -4568,21 +4636,18 @@ function HomeContent() {
     };
 
     if (group === "countries" && !nextValues.includes(value)) {
-      if (value === "FI") {
-        nextSelection.regions = nextSelection.regions.filter(getSwedenLocationName);
-        nextSelection.municipalities = nextSelection.municipalities.filter(getSwedenLocationName);
-      } else if (value === "SE") {
+      if (value === "FI" || value === "SE" || value === "NO") {
         nextSelection.regions = nextSelection.regions.filter(
-          (region) => !getSwedenLocationName(region)
+          (region) => getLocationValueCountryCode(region) !== value
         );
         nextSelection.municipalities = nextSelection.municipalities.filter(
-          (municipality) => !getSwedenLocationName(municipality)
+          (municipality) => getLocationValueCountryCode(municipality) !== value
         );
       }
     }
 
     if (group !== "countries") {
-      const countryCode = getSwedenLocationName(value) ? "SE" : "FI";
+      const countryCode = getLocationValueCountryCode(value);
       if (!nextSelection.countries.includes(countryCode)) {
         nextSelection.countries = [...nextSelection.countries, countryCode];
       }
@@ -4599,7 +4664,7 @@ function HomeContent() {
     if (group === "action") {
       const countryCode = selectionValue.slice(0, 2);
       if (
-        (countryCode === "FI" || countryCode === "SE") &&
+        (countryCode === "FI" || countryCode === "SE" || countryCode === "NO") &&
         !locationSelection.countries.includes(countryCode)
       ) {
         toggleLocationSelection("countries", countryCode);
@@ -4795,7 +4860,7 @@ function HomeContent() {
                     }}
                   >
                     <SlidersHorizontal size={16} aria-hidden="true" />
-                    <span>Muokkaa hakua</span>
+                    <span>{homeResultsText.editSearch}</span>
                   </button>
                   <button
                     type="button"
@@ -4803,7 +4868,7 @@ function HomeContent() {
                     onClick={resetFilteredHomeView}
                   >
                     <RotateCcw size={16} aria-hidden="true" />
-                    <span>Nollaa</span>
+                    <span>{homeResultsText.reset}</span>
                   </button>
                 </div>
               ) : null}
@@ -4815,7 +4880,7 @@ function HomeContent() {
                   onClick={openMobileHomeSearchSheet}
                 >
                   <SlidersHorizontal size={17} aria-hidden="true" />
-                  <span>{homeSearchPanelOpen ? "Sulje suodatus" : "Suodata"}</span>
+                  <span>{homeSearchPanelOpen ? homeResultsText.closeFilters : homeResultsText.filter}</span>
                 </button>
               ) : null}
 
@@ -4832,12 +4897,8 @@ function HomeContent() {
                 <div className={styles.heroDesktopLatestHead}>
                   <strong>
                     {!homeLatestExpanded
-                      ? "Viimeisimmät ilmoitukset"
-                      : locale === "sv"
-                        ? `${filteredListings.length} sökresultat`
-                        : locale === "en"
-                          ? `${filteredListings.length} ${filteredListings.length === 1 ? "result" : "results"}`
-                          : `${filteredListings.length} ${filteredListings.length === 1 ? "hakutulos" : "hakutulosta"}`}
+                      ? homeResultsText.latest
+                      : homeResultsText.results(filteredListings.length)}
                   </strong>
                   <div className={styles.heroDesktopLatestActions}>
                     {renderSortControl(styles.heroDesktopLatestSort)}
@@ -4847,11 +4908,11 @@ function HomeContent() {
                 {hasNoHomeSearchResults ? (
                   <div className={styles.heroNoResults} role="status">
                     <span className={styles.heroNoResultsIcon} aria-hidden="true"><Search /></span>
-                    <strong>Ei löytynyt tuloksia</strong>
-                    <p>Kokeile muuttaa hakuehtoja tai nollaa suodattimet.</p>
+                    <strong>{homeResultsText.noResults}</strong>
+                    <p>{homeResultsText.noResultsHint}</p>
                     <button type="button" onClick={clearListingFilters}>
                       <RotateCcw size={17} aria-hidden="true" />
-                      <span>Nollaa suodattimet</span>
+                      <span>{homeResultsText.resetFilters}</span>
                     </button>
                   </div>
                 ) : (
@@ -4871,15 +4932,6 @@ function HomeContent() {
                         key={listing.id}
                         data-listing-card="true"
                         className={`${styles.card} ${styles.heroDesktopLatestCard}`}
-                        role="link"
-                        tabIndex={0}
-                        onClick={(event) => openListingFromCard(event, listing)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            openListing(listing);
-                          }
-                        }}
                       >
                         <div className={`${styles.cardImage} ${styles.listingCardImage} ${styles.heroDesktopLatestImage}`}>
                           <span className={styles.cardImageBlur} aria-hidden="true">
@@ -4932,6 +4984,15 @@ function HomeContent() {
                             </span>
                           </div>
                         </div>
+                        <Link
+                          className={styles.cardLink}
+                          href={listingPath(listingUrlId(listing), locale)}
+                          aria-label={`${t.openListing} ${listingText.title}`}
+                          onClick={() => {
+                            saveHomeReturnState();
+                            updateCachedListing(listing);
+                          }}
+                        />
                       </article>
                     );
                   })}

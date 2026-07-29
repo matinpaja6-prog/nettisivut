@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
-import { useLanguage } from "@/lib/i18n";
+import { useLanguage, type Locale } from "@/lib/i18n";
 
 import {
   ArrowLeft,
@@ -46,7 +46,7 @@ import { formatPrice } from "@/lib/listings";
 import { playNotificationSound } from "@/lib/notification-sound";
 import { userNotificationsEnabled } from "@/lib/user-settings";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
-import { listingPath, listingUrlId, profilePath } from "@/lib/routes";
+import { listingPath, listingUrlId, pagePath, profilePath } from "@/lib/routes";
 import ChatWindow from "@/app/components/chat/ChatWindow";
 import MessageInput from "@/app/components/chat/MessageInput";
 
@@ -65,7 +65,178 @@ type MessageFilter =
   | "buyers"
   | "sellers";
 
-function formatDate(value?: string) {
+type MessagesUi = {
+  unknownError: string;
+  yesterday: string;
+  defaultUser: string;
+  offline: string;
+  lastSeenToday: (time: string) => string;
+  lastSeenYesterday: (time: string) => string;
+  lastSeen: (date: string, time: string) => string;
+  newMessage: string;
+  image: string;
+  messages: string;
+  allConversations: string;
+  messageFilters: string;
+  all: string;
+  buyers: string;
+  sellers: string;
+  searchPlaceholder: string;
+  filters: string;
+  conversationStarted: string;
+  youPrefix: string;
+  conversationActions: string;
+  deleteConversation: string;
+  noConversations: string;
+  activeConversation: string;
+  loginPrompt: string;
+  backToConversations: string;
+  online: string;
+  openUserProfile: (name: string) => string;
+  openProfile: string;
+  profile: string;
+  listing: string;
+  negotiablePrice: string;
+  listingRemoved: string;
+  showListing: string;
+  selectConversation: string;
+  continueConversation: string;
+  messagesWillAppear: string;
+  browseListings: string;
+  conversationDetails: string;
+  listingDetails: string;
+  closeDetails: string;
+  openListing: string;
+  seller: string;
+  reviews: (count: number) => string;
+  noReviews: string;
+  joined: string;
+  viewSellerProfile: string;
+  safeTrading: string;
+  safetyText: string;
+  readMore: string;
+  safetySuffix: string;
+};
+
+const messagesUi: Record<"fi" | "no", MessagesUi> = {
+  fi: {
+    unknownError: "Tuntematon virhe",
+    yesterday: "Eilen",
+    defaultUser: "Käyttäjä",
+    offline: "Ei paikalla",
+    lastSeenToday: (time) => `Paikalla tänään klo ${time}`,
+    lastSeenYesterday: (time) => `Paikalla eilen klo ${time}`,
+    lastSeen: (date, time) => `Paikalla viimeksi ${date} klo ${time}`,
+    newMessage: "Uusi viesti",
+    image: "Kuva",
+    messages: "Viestit",
+    allConversations: "Kaikki keskustelut",
+    messageFilters: "Viestisuodattimet",
+    all: "Kaikki",
+    buyers: "Ostajat",
+    sellers: "Myyjät",
+    searchPlaceholder: "Hae viesteistä tai käyttäjistä...",
+    filters: "Suodattimet",
+    conversationStarted: "Keskustelu aloitettu",
+    youPrefix: "Sinä: ",
+    conversationActions: "Keskustelun toiminnot",
+    deleteConversation: "Poista keskustelu",
+    noConversations: "Ei keskusteluja vielä",
+    activeConversation: "Aktiivinen keskustelu",
+    loginPrompt: "Kirjaudu sisään nähdäksesi viestisi.",
+    backToConversations: "Takaisin keskusteluihin",
+    online: "Paikalla",
+    openUserProfile: (name) => `Avaa käyttäjän ${name} profiili`,
+    openProfile: "Avaa profiili",
+    profile: "Profiili",
+    listing: "Ilmoitus",
+    negotiablePrice: "Hinta sovittavissa",
+    listingRemoved: "Ilmoitus poistettu",
+    showListing: "Näytä ilmoitus",
+    selectConversation: "Valitse keskustelu",
+    continueConversation: "Avaa viesti vasemmalta jatkaaksesi keskustelua.",
+    messagesWillAppear: "Kun saat viestejä ilmoituksiisi, ne näkyvät täällä.",
+    browseListings: "Selaa ilmoituksia",
+    conversationDetails: "Keskustelun tiedot",
+    listingDetails: "Ilmoituksen tiedot",
+    closeDetails: "Sulje tiedot",
+    openListing: "Avaa ilmoitus",
+    seller: "Myyjä",
+    reviews: (count) => `${count} arviota`,
+    noReviews: "Ei arvioita vielä",
+    joined: "Liittynyt",
+    viewSellerProfile: "Näytä myyjän profiili",
+    safeTrading: "Turvallista kaupankäyntiä",
+    safetyText: "Älä jaa henkilötietojasi tai tee kauppoja alustan ulkopuolella.",
+    readMore: "Lue lisää",
+    safetySuffix: "turvallisista kaupoista."
+  },
+  no: {
+    unknownError: "Ukjent feil",
+    yesterday: "I går",
+    defaultUser: "Bruker",
+    offline: "Ikke pålogget",
+    lastSeenToday: (time) => `Sist pålogget i dag kl. ${time}`,
+    lastSeenYesterday: (time) => `Sist pålogget i går kl. ${time}`,
+    lastSeen: (date, time) => `Sist pålogget ${date} kl. ${time}`,
+    newMessage: "Ny melding",
+    image: "Bilde",
+    messages: "Meldinger",
+    allConversations: "Alle samtaler",
+    messageFilters: "Meldingsfiltre",
+    all: "Alle",
+    buyers: "Kjøpere",
+    sellers: "Selgere",
+    searchPlaceholder: "Søk i meldinger eller etter brukere...",
+    filters: "Filtre",
+    conversationStarted: "Samtale startet",
+    youPrefix: "Du: ",
+    conversationActions: "Samtalehandlinger",
+    deleteConversation: "Slett samtalen",
+    noConversations: "Ingen samtaler ennå",
+    activeConversation: "Aktiv samtale",
+    loginPrompt: "Logg inn for å se meldingene dine.",
+    backToConversations: "Tilbake til samtalene",
+    online: "Pålogget",
+    openUserProfile: (name) => `Åpne profilen til ${name}`,
+    openProfile: "Åpne profil",
+    profile: "Profil",
+    listing: "Annonse",
+    negotiablePrice: "Pris etter avtale",
+    listingRemoved: "Annonsen er fjernet",
+    showListing: "Vis annonsen",
+    selectConversation: "Velg en samtale",
+    continueConversation: "Åpne en melding til venstre for å fortsette samtalen.",
+    messagesWillAppear: "Når du får meldinger om annonsene dine, vises de her.",
+    browseListings: "Bla gjennom annonser",
+    conversationDetails: "Samtaledetaljer",
+    listingDetails: "Annonsedetaljer",
+    closeDetails: "Lukk detaljer",
+    openListing: "Åpne annonsen",
+    seller: "Selger",
+    reviews: (count) => `${count} anmeldelser`,
+    noReviews: "Ingen anmeldelser ennå",
+    joined: "Medlem siden",
+    viewSellerProfile: "Vis selgerprofil",
+    safeTrading: "Trygg handel",
+    safetyText: "Ikke del personopplysninger eller gjennomfør handelen utenfor plattformen.",
+    readMore: "Les mer",
+    safetySuffix: "om trygg handel."
+  }
+};
+
+const dateLocales: Record<Locale, string> = {
+  fi: "fi-FI",
+  en: "en-GB",
+  sv: "sv-SE",
+  no: "nb-NO"
+};
+
+function getMessagesUi(locale: Locale) {
+  return messagesUi[locale === "no" ? "no" : "fi"];
+}
+
+function formatDate(value: string | undefined, locale: Locale) {
 
   if (!value) {
     return "";
@@ -78,7 +249,7 @@ function formatDate(value?: string) {
   }
 
   return new Intl.DateTimeFormat(
-    "fi-FI",
+    dateLocales[locale],
     {
       day: "numeric",
       month: "numeric",
@@ -95,7 +266,7 @@ function conversationExpiryTime(value?: string | null) {
   return Number.isNaN(time) ? null : time;
 }
 
-function getClientErrorMessage(error: unknown) {
+function getClientErrorMessage(error: unknown, locale: Locale = "fi") {
   if (error instanceof Error) return error.message;
   if (
     error &&
@@ -106,10 +277,10 @@ function getClientErrorMessage(error: unknown) {
     return error.message;
   }
 
-  return String(error ?? "Tuntematon virhe");
+  return String(error ?? getMessagesUi(locale).unknownError);
 }
 
-function formatSidebarTime(value?: string) {
+function formatSidebarTime(value: string | undefined, locale: Locale) {
 
   const date = new Date(value || "");
 
@@ -136,7 +307,7 @@ function formatSidebarTime(value?: string) {
 
   if (dayDiff <= 0) {
     return new Intl.DateTimeFormat(
-      "fi-FI",
+      dateLocales[locale],
       {
         hour: "2-digit",
         minute: "2-digit"
@@ -145,10 +316,10 @@ function formatSidebarTime(value?: string) {
   }
 
   if (dayDiff === 1) {
-    return "Eilen";
+    return getMessagesUi(locale).yesterday;
   }
 
-  return formatDate(value);
+  return formatDate(value, locale);
 
 }
 
@@ -201,7 +372,8 @@ function mapMessage(
 
 function formatName(
   conversation: ConversationSummary,
-  userId: string
+  userId: string,
+  locale: Locale
 ) {
 
   const profile =
@@ -232,7 +404,7 @@ function formatName(
     return conversation.listing.seller_name;
   }
 
-  return "Käyttäjä";
+  return getMessagesUi(locale).defaultUser;
 
 }
 
@@ -259,7 +431,7 @@ function getOtherProfileHref(
   return profilePath(otherUserId, otherName, locale);
 }
 
-function formatJoinedDate(value?: string | null) {
+function formatJoinedDate(value: string | null | undefined, locale: Locale) {
   if (!value) {
     return "";
   }
@@ -272,7 +444,7 @@ function formatJoinedDate(value?: string | null) {
   }
 
   return new Intl.DateTimeFormat(
-    "fi-FI",
+    dateLocales[locale],
     {
       day: "numeric",
       month: "numeric",
@@ -281,16 +453,18 @@ function formatJoinedDate(value?: string | null) {
   ).format(date);
 }
 
-function formatLastSeen(value?: string | null) {
+function formatLastSeen(value: string | null | undefined, locale: Locale) {
+  const copy = getMessagesUi(locale);
+
   if (!value) {
-    return "Ei paikalla";
+    return copy.offline;
   }
 
   const date =
     new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Ei paikalla";
+    return copy.offline;
   }
 
   const now =
@@ -314,7 +488,7 @@ function formatLastSeen(value?: string | null) {
     );
   const time =
     new Intl.DateTimeFormat(
-      "fi-FI",
+      dateLocales[locale],
       {
         hour: "2-digit",
         minute: "2-digit"
@@ -322,14 +496,14 @@ function formatLastSeen(value?: string | null) {
     ).format(date);
 
   if (dayDiff <= 0) {
-    return `Paikalla tänään klo ${time}`;
+    return copy.lastSeenToday(time);
   }
 
   if (dayDiff === 1) {
-    return `Paikalla eilen klo ${time}`;
+    return copy.lastSeenYesterday(time);
   }
 
-  return `Paikalla viimeksi ${formatDate(value)} klo ${time}`;
+  return copy.lastSeen(formatDate(value, locale), time);
 }
 
 function isProfileActuallyOnline(
@@ -350,8 +524,10 @@ function isProfileActuallyOnline(
 }
 
 function notifyIncomingMessage(
-  content?: string
+  content: string | undefined,
+  locale: Locale
 ) {
+  const copy = getMessagesUi(locale);
   playNotificationSound();
   if (!userNotificationsEnabled()) return;
 
@@ -364,11 +540,11 @@ function notifyIncomingMessage(
 
   const showNotification = () => {
     new Notification(
-      "Uusi viesti",
+      copy.newMessage,
       {
         body:
           content ||
-          "Kuva"
+          copy.image
       }
     );
   };
@@ -475,6 +651,7 @@ function restoreStoredConversation(userId: string, conversationId: string) {
 
 function MessagesPageContent() {
   const { t, locale } = useLanguage();
+  const ui = getMessagesUi(locale);
   const router = useRouter();
   const searchParams =
     useSearchParams();
@@ -800,7 +977,8 @@ function MessagesPageContent() {
                 String(payload.new.id);
 
               notifyIncomingMessage(
-                payload.new.content || ""
+                payload.new.content || "",
+                locale
               );
             }
 
@@ -865,7 +1043,7 @@ function MessagesPageContent() {
       channel.unsubscribe();
     };
 
-  }, [refreshConversations, userId]);
+  }, [locale, refreshConversations, userId]);
 
   const visibleConversations =
     useMemo(() => {
@@ -903,7 +1081,7 @@ function MessagesPageContent() {
         }
 
         const name =
-          formatName(conversation, userId).toLowerCase();
+          formatName(conversation, userId, locale).toLowerCase();
         const listingTitle =
           conversation.listing?.title?.toLowerCase() ?? "";
         const lastText =
@@ -921,6 +1099,7 @@ function MessagesPageContent() {
       conversations,
       deletedConversationIds,
       searchQuery,
+      locale,
       userId
     ]);
 
@@ -956,7 +1135,9 @@ function MessagesPageContent() {
             ? "sv-SE"
             : locale === "en"
               ? "en-GB"
-              : "fi-FI",
+              : locale === "no"
+                ? "nb-NO"
+                : "fi-FI",
           {
             dateStyle: "medium",
             timeStyle: "short"
@@ -969,21 +1150,27 @@ function MessagesPageContent() {
       ? "Konversationen har löpt ut"
       : locale === "en"
         ? "The conversation has expired"
-        : "Keskustelu on vanhentunut";
+        : locale === "no"
+          ? "Samtalen har utløpt"
+          : "Keskustelu on vanhentunut";
 
   const closedConversationMessage =
     locale === "sv"
       ? "Meddelandeperioden på 20 dagar har löpt ut. Konversationen tas bort automatiskt."
       : locale === "en"
         ? "The 20-day messaging period has ended. The conversation is removed automatically."
-        : "Keskustelun 20 päivän viestiaika on päättynyt. Keskustelu poistetaan automaattisesti.";
+        : locale === "no"
+          ? "Meldingsperioden på 20 dager er avsluttet. Samtalen fjernes automatisk."
+          : "Keskustelun 20 päivän viestiaika on päättynyt. Keskustelu poistetaan automaattisesti.";
 
   const retainedConversationMessage =
     locale === "sv"
       ? `Du kan fortsätta skicka meddelanden till ${activeConversationExpiryLabel}. Därefter tas konversationen bort automatiskt.`
       : locale === "en"
         ? `You can continue messaging until ${activeConversationExpiryLabel}. The conversation will then be removed automatically.`
-        : `Voit jatkaa viestittelyä ${activeConversationExpiryLabel} asti. Sen jälkeen keskustelu poistetaan automaattisesti.`;
+        : locale === "no"
+          ? `Du kan fortsette å sende meldinger frem til ${activeConversationExpiryLabel}. Deretter fjernes samtalen automatisk.`
+          : `Voit jatkaa viestittelyä ${activeConversationExpiryLabel} asti. Sen jälkeen keskustelu poistetaan automaattisesti.`;
 
   const totalVisibleCount =
     conversations.filter(
@@ -1001,7 +1188,7 @@ function MessagesPageContent() {
 
   const activeName =
     activeConversation
-      ? formatName(activeConversation, userId)
+      ? formatName(activeConversation, userId, locale)
       : "";
   const activeProfileHref =
     activeConversation
@@ -1466,7 +1653,9 @@ function MessagesPageContent() {
         ? "Konversationen är inte tillgänglig för meddelanden."
         : locale === "en"
           ? "This conversation is not available for messaging."
-          : "Tähän keskusteluun ei voi lähettää viestejä.";
+          : locale === "no"
+            ? "Denne samtalen er ikke tilgjengelig for meldinger."
+            : "Tähän keskusteluun ei voi lähettää viestejä.";
     }
 
     const text =
@@ -1500,8 +1689,11 @@ function MessagesPageContent() {
               ? "Meddelandet kunde inte skickas."
               : locale === "en"
                 ? "The message could not be sent."
-                : "Viestin lähetys epäonnistui."
-          )
+                : locale === "no"
+                  ? "Meldingen kunne ikke sendes."
+                  : "Viestin lähetys epäonnistui."
+          ),
+        locale
       );
     }
 
@@ -1521,24 +1713,27 @@ function MessagesPageContent() {
 
   return (
 
-    <main className={`messages-page messages-inbox-page${mobileConversationOpen ? " mobile-conversation-open" : ""}`}>
+    <main
+      className={`messages-page messages-inbox-page${mobileConversationOpen ? " mobile-conversation-open" : ""}`}
+      data-no-auto-translate={locale === "no" ? "true" : undefined}
+    >
       <section className="messages-desktop-shell">
 
-        <aside className="messages-sidebar" aria-label="Viestit">
+        <aside className="messages-sidebar" aria-label={ui.messages}>
 
-          <div className="sidebar-heading">
-            <h1>Viestit</h1>
+          <div className="sidebar-heading" data-all-conversations={ui.allConversations}>
+            <h1>{ui.messages}</h1>
           </div>
 
-          <div className="message-tabs" aria-label="Viestisuodattimet">
+          <div className="message-tabs" aria-label={ui.messageFilters}>
             <button className={activeFilter === "all" ? "active" : ""} type="button" onClick={() => setActiveFilter("all")}>
-              Kaikki <span>{loading ? "..." : totalVisibleCount}</span>
+              {ui.all} <span>{loading ? "..." : totalVisibleCount}</span>
             </button>
             <button className={activeFilter === "buyers" ? "active" : ""} type="button" onClick={() => setActiveFilter("buyers")}>
-              Ostajat
+              {ui.buyers}
             </button>
             <button className={activeFilter === "sellers" ? "active" : ""} type="button" onClick={() => setActiveFilter("sellers")}>
-              Myyjät
+              {ui.sellers}
             </button>
           </div>
 
@@ -1547,9 +1742,9 @@ function MessagesPageContent() {
             <input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Hae viesteistä tai käyttäjistä..."
+              placeholder={ui.searchPlaceholder}
             />
-            <button type="button" aria-label="Suodattimet">
+            <button type="button" aria-label={ui.filters}>
               <SlidersHorizontal size={15} />
             </button>
           </div>
@@ -1566,7 +1761,7 @@ function MessagesPageContent() {
             ))}
 
             {!loading && visibleConversations.map((conversation) => {
-              const name = formatName(conversation, userId);
+              const name = formatName(conversation, userId, locale);
               const lastMessage = conversation.last_message;
               const unreadCount = getUnreadCount(
                 conversation,
@@ -1577,8 +1772,8 @@ function MessagesPageContent() {
               const otherOnline =
                 isProfileActuallyOnline(conversation.other_profile);
               const lastText = lastMessage
-                ? `${lastMessage.sender_id === userId ? "Sinä: " : ""}${lastMessage.content || "Kuva"}`
-                : conversation.listing?.title || "Keskustelu aloitettu";
+                ? `${lastMessage.sender_id === userId ? ui.youPrefix : ""}${lastMessage.content || ui.image}`
+                : conversation.listing?.title || ui.conversationStarted;
               const openConversation = () => {
                 setSelectedConversationId(
                   conversation.id
@@ -1641,7 +1836,8 @@ function MessagesPageContent() {
                         {formatSidebarTime(
                           lastMessage?.created_at ||
                           conversation.updated_at ||
-                          conversation.created_at
+                          conversation.created_at,
+                          locale
                         )}
                       </time>
                     </div>
@@ -1652,12 +1848,12 @@ function MessagesPageContent() {
                     <span className="sidebar-unread">{unreadCount}</span>
                   )}
 
-                  <div className="sidebar-actions" aria-label="Keskustelun toiminnot">
+                  <div className="sidebar-actions" aria-label={ui.conversationActions}>
                     <button
                       type="button"
                       className="sidebar-delete-conversation"
-                      aria-label="Poista keskustelu"
-                      title="Poista keskustelu"
+                      aria-label={ui.deleteConversation}
+                      title={ui.deleteConversation}
                       onClick={(event) => {
                         event.preventDefault();
                         event.stopPropagation();
@@ -1673,22 +1869,22 @@ function MessagesPageContent() {
 
             {!loading && userId && visibleConversations.length === 0 && (
               <div className="sidebar-empty">
-                Ei keskusteluja vielä
+                {ui.noConversations}
               </div>
             )}
           </div>
 
         </aside>
 
-        <section className="chat-wrapper" aria-label="Aktiivinen keskustelu">
+        <section className="chat-wrapper" aria-label={ui.activeConversation}>
 
           {loading ? (
             <div className="messages-empty messages-loading-panel" aria-busy="true" />
           ) : !userId ? (
             <div className="messages-login-panel">
               <LockKeyhole size={24} />
-              <strong>Kirjaudu sisään nähdäksesi viestisi.</strong>
-              <Link href="/auth">{t.login}</Link>
+              <strong>{ui.loginPrompt}</strong>
+              <Link href={pagePath("auth", locale)}>{t.login}</Link>
             </div>
           ) : activeConversation ? (
             <>
@@ -1696,7 +1892,7 @@ function MessagesPageContent() {
                 <button
                   type="button"
                   className="mobile-chat-back"
-                  aria-label="Takaisin keskusteluihin"
+                  aria-label={ui.backToConversations}
                   onClick={closeMobileConversation}
                 >
                   <ArrowLeft size={17} />
@@ -1722,8 +1918,8 @@ function MessagesPageContent() {
                     <strong>{activeName}</strong>
                     <p className={`online-status${activeOtherOnline ? " online" : " offline"}`}>
                       {activeOtherOnline
-                        ? "Paikalla"
-                        : formatLastSeen(activeConversation.other_profile?.last_seen)}
+                        ? ui.online
+                        : formatLastSeen(activeConversation.other_profile?.last_seen, locale)}
                     </p>
                   </div>
                 </div>
@@ -1731,11 +1927,11 @@ function MessagesPageContent() {
                 <Link
                   href={activeProfileHref}
                   className="header-profile-link"
-                  aria-label={`Avaa käyttäjän ${activeName} profiili`}
-                  title="Avaa profiili"
+                  aria-label={ui.openUserProfile(activeName)}
+                  title={ui.openProfile}
                 >
                   <UserRound size={16} aria-hidden="true" />
-                  <span>Profiili</span>
+                  <span>{ui.profile}</span>
                 </Link>
 
               </header>
@@ -1749,24 +1945,24 @@ function MessagesPageContent() {
                 </div>
 
                 <div className="listing-summary">
-                  <strong>{activeConversation.listing?.title || "Ilmoitus"}</strong>
+                  <strong>{activeConversation.listing?.title || ui.listing}</strong>
                   <span>
                     {activeConversation.listing
                       ? formatPrice(activeConversation.listing.price)
-                      : "Hinta sovittavissa"}
+                      : ui.negotiablePrice}
                   </span>
                 </div>
 
                 {activeConversation.listing_deleted_at ? (
-                  <span className="listing-open" aria-label="Ilmoitus on poistettu">
-                    Ilmoitus poistettu
+                  <span className="listing-open" aria-label={ui.listingRemoved}>
+                    {ui.listingRemoved}
                   </span>
                 ) : (
                   <Link
                     href={listingPath(listingUrlId(activeConversation.listing ?? { id: activeConversation.listing_id }), locale)}
                     className="listing-open"
                   >
-                    Näytä ilmoitus
+                    {ui.showListing}
                     <ExternalLink size={14} />
                   </Link>
                 )}
@@ -1777,6 +1973,7 @@ function MessagesPageContent() {
                   messages={messages}
                   otherAvatarUrl={activeConversation.other_profile?.avatar_url ?? null}
                   otherName={activeName}
+                  locale={locale}
                 />
               </div>
 
@@ -1795,13 +1992,16 @@ function MessagesPageContent() {
                             ? "Annonsen har tagits bort"
                             : locale === "en"
                               ? "The listing has been removed"
-                              : "Ilmoitus on poistettu"}
+                              : locale === "no"
+                                ? "Annonsen er fjernet"
+                                : "Ilmoitus on poistettu"}
                         </strong>
                         <span>{retainedConversationMessage}</span>
                       </div>
                     )}
                     <MessageInput
                       onSend={sendMessage}
+                      locale={locale}
                     />
                   </>
                 )}
@@ -1814,16 +2014,16 @@ function MessagesPageContent() {
               </span>
               {visibleConversations.length > 0 ? (
                 <>
-                  <h2>Valitse keskustelu</h2>
-                  <p>Avaa viesti vasemmalta jatkaaksesi keskustelua.</p>
+                  <h2>{ui.selectConversation}</h2>
+                  <p>{ui.continueConversation}</p>
                 </>
               ) : (
                 <>
-                  <h2>Ei keskusteluja vielä.</h2>
-                  <p>Kun saat viestejä ilmoituksiisi, ne näkyvät täällä.</p>
+                  <h2>{ui.noConversations}.</h2>
+                  <p>{ui.messagesWillAppear}</p>
                   <Link href="/" className="messages-empty-cta">
                     <Plus size={16} />
-                    Selaa ilmoituksia
+                    {ui.browseListings}
                   </Link>
                 </>
               )}
@@ -1833,11 +2033,11 @@ function MessagesPageContent() {
         </section>
 
         {activeConversation && (
-          <aside className="messages-info-panel" aria-label="Keskustelun tiedot">
+          <aside className="messages-info-panel" aria-label={ui.conversationDetails}>
             <section className="messages-info-card listing-info-card">
               <div className="messages-info-card-head">
-                <h2>Ilmoituksen tiedot</h2>
-                <button type="button" aria-label="Sulje tiedot">
+                <h2>{ui.listingDetails}</h2>
+                <button type="button" aria-label={ui.closeDetails}>
                   <X size={17} />
                 </button>
               </div>
@@ -1848,25 +2048,25 @@ function MessagesPageContent() {
                   alt=""
                 />
                 <div>
-                  <strong>{activeConversation.listing?.title || "Ilmoitus"}</strong>
+                  <strong>{activeConversation.listing?.title || ui.listing}</strong>
                   <span>
                     {activeConversation.listing
                       ? formatPrice(activeConversation.listing.price)
-                      : "Hinta sovittavissa"}
+                      : ui.negotiablePrice}
                   </span>
                 </div>
               </div>
 
               {activeConversation.listing_deleted_at ? (
-                <span className="messages-info-primary" aria-label="Ilmoitus on poistettu">
-                  Ilmoitus poistettu
+                <span className="messages-info-primary" aria-label={ui.listingRemoved}>
+                  {ui.listingRemoved}
                 </span>
               ) : (
                 <Link
                   href={listingPath(listingUrlId(activeConversation.listing ?? { id: activeConversation.listing_id }), locale)}
                   className="messages-info-primary"
                 >
-                  Avaa ilmoitus
+                  {ui.openListing}
                   <ExternalLink size={14} />
                 </Link>
               )}
@@ -1877,12 +2077,12 @@ function MessagesPageContent() {
                 onClick={() => deleteConversationForMe(activeConversation.id)}
               >
                 <Trash2 size={15} />
-                Poista keskustelu
+                {ui.deleteConversation}
               </button>
             </section>
 
             <section className="messages-info-card seller-info-card">
-              <h2>Myyjä</h2>
+              <h2>{ui.seller}</h2>
 
               <div className="messages-info-seller">
                 <div className={`avatar${activeOtherOnline ? " avatar-online" : ""}`}>
@@ -1903,25 +2103,25 @@ function MessagesPageContent() {
                   <strong>{activeName}</strong>
                   <span className={`seller-presence${activeOtherOnline ? " online" : " offline"}`}>
                     {activeOtherOnline
-                      ? "Paikalla"
-                      : formatLastSeen(activeConversation.other_profile?.last_seen)}
+                      ? ui.online
+                      : formatLastSeen(activeConversation.other_profile?.last_seen, locale)}
                   </span>
                   {activeConversation.other_review_count ? (
                     <small>
                       <Star size={13} />
                       {activeConversation.other_review_average?.toFixed(1)}
                       {" "}
-                      ({activeConversation.other_review_count} arviota)
+                      ({ui.reviews(activeConversation.other_review_count)})
                     </small>
                   ) : (
                     <small>
                       <Star size={13} />
-                      Ei arvioita vielä
+                      {ui.noReviews}
                     </small>
                   )}
                   {activeConversation.other_profile?.created_at && (
                     <em>
-                      Liittynyt {formatJoinedDate(activeConversation.other_profile.created_at)}
+                      {ui.joined} {formatJoinedDate(activeConversation.other_profile.created_at, locale)}
                     </em>
                   )}
                 </div>
@@ -1929,18 +2129,21 @@ function MessagesPageContent() {
 
               <Link href={activeProfileHref} className="messages-info-secondary">
                 <UserRound size={15} />
-                Näytä myyjän profiili
+                {ui.viewSellerProfile}
               </Link>
             </section>
 
             <section className="messages-info-card safety-info-card">
               <h2>
                 <ShieldCheck size={17} />
-                Turvallista kaupankäyntiä
+                {ui.safeTrading}
               </h2>
               <p>
-                Älä jaa henkilötietojasi tai tee kauppoja alustan ulkopuolella.
-                <Link href="/terms"> Lue lisää</Link> turvallisista kaupoista.
+                {ui.safetyText}
+                {" "}
+                <Link href={pagePath("terms", locale)}>{ui.readMore}</Link>
+                {" "}
+                {ui.safetySuffix}
               </p>
             </section>
           </aside>
@@ -5930,7 +6133,7 @@ function MessagesPageContent() {
         }
 
         .messages-inbox-page .sidebar-heading::after {
-          content: "Kaikki keskustelut" !important;
+          content: attr(data-all-conversations) !important;
           color: #8ca0b4 !important;
           font-size: 11px !important;
           font-weight: 650 !important;
@@ -6786,7 +6989,7 @@ function MessagesPageContent() {
         }
 
         .messages-inbox-page .sidebar-heading::after {
-          content: "Kaikki keskustelut" !important;
+          content: attr(data-all-conversations) !important;
           color: #93a6b7 !important;
           font-size: 11px !important;
           font-weight: 800 !important;

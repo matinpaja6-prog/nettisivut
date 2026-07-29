@@ -186,6 +186,7 @@ function formatAccountAge(value: string | undefined, locale: string) {
   return created.toLocaleDateString(
     locale === "fi" ? "fi-FI"
     : locale === "sv" ? "sv-SE"
+    : locale === "no" ? "nb-NO"
     : "en-US",
     { day: "numeric", month: "long", year: "numeric" }
   );
@@ -217,6 +218,7 @@ function formatListingDate(value: string | undefined, locale: string) {
   return date.toLocaleDateString(
     locale === "fi" ? "fi-FI"
     : locale === "sv" ? "sv-SE"
+    : locale === "no" ? "nb-NO"
     : "en-US",
     { day: "numeric", month: "numeric", year: "numeric" }
   );
@@ -1282,7 +1284,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       fi: "Account level",
       en: "Account level",
       sv: "Account level",
-      no: "Account level",
+      no: "Kontonivå",
     }[locale],
     registered: {
       fi: "Rekisteroitynyt",
@@ -1336,7 +1338,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       fi: "Level",
       en: "Level",
       sv: "Level",
-      no: "Level",
+      no: "Nivå",
     }[locale],
     sold: {
       fi: "Myyty",
@@ -1396,7 +1398,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       fi: "Max €",
       en: "Max €",
       sv: "Max €",
-      no: "Max €",
+      no: "Maks €",
     }[locale],
     allConditions: {
       fi: "Kaikki kunnot",
@@ -1438,13 +1440,13 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       fi: "Kallein ensin",
       en: "Highest price",
       sv: "Hogsta pris",
-      no: "Hoyeste pris",
+      no: "Høyeste pris",
     }[locale],
     nearestFirst: {
       fi: "Lähimpänä sinua",
       en: "Nearest to you",
       sv: "Narmast dig",
-      no: "Narmest deg",
+      no: "Nærmest deg",
     }[locale],
     noFilterResults: {
       fi: "Hakuehdoilla ei löytynyt ilmoituksia.",
@@ -1465,6 +1467,18 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       no: "Selgeren har ikke lagt til en presentasjon ennå.",
     }[locale]
   };
+  const companyVerifiedLabel = {
+    fi: "Vahvistettu yritys",
+    en: "Verified company",
+    sv: "Verifierat företag",
+    no: "Verifisert bedrift"
+  }[locale];
+  const languageInfo = {
+    fi: { label: "Kieli", value: "Suomi" },
+    en: { label: "Language", value: "English" },
+    sv: { label: "Språk", value: "Svenska" },
+    no: { label: "Språk", value: "Norsk" }
+  }[locale];
   const reviewCountLabel = reviews.length === 1 ? t.spReviews.toLowerCase().replace(/s$/, "") : t.spReviews.toLowerCase();
   const visibleReviewCount = reviewsLoaded ? reviews.length : effectiveLevelStats.reviews_received;
   const reviewBasisWord = locale === "fi" ? "arvosteluun" : reviewCountLabel;
@@ -1620,7 +1634,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               {isCompany && profile?.company_verified_at && (
                 <span className="seller-ref-title-verified">
                   <Shield size={15} aria-hidden="true" />
-                  Vahvistettu yritys
+                  {companyVerifiedLabel}
                 </span>
               )}
               {memberSince && (
@@ -1777,7 +1791,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 {profile.company_verified_at && (
                   <div className="seller-ref-detail-row seller-ref-company-verified-text">
                     <Shield size={20} aria-hidden="true" />
-                    <span>Vahvistettu yritys</span>
+                    <span>{companyVerifiedLabel}</span>
                   </div>
                 )}
               </>
@@ -1796,8 +1810,8 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             )}
             <div className="seller-ref-detail-row">
               <MessageCircle size={20} aria-hidden="true" />
-              <span>Kieli</span>
-              <strong>{locale === "fi" ? "Suomi" : locale.toUpperCase()}</strong>
+              <span>{languageInfo.label}</span>
+              <strong>{languageInfo.value}</strong>
             </div>
           </div>
         </div>
@@ -3075,4 +3089,3 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     </main>
   );
 }
-

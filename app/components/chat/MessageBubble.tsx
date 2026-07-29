@@ -9,10 +9,12 @@ import { createPortal } from "react-dom";
 import {
   X
 } from "lucide-react";
+import type { Locale } from "@/lib/i18n";
 
 type Props = {
   content?: string;
   image?: string;
+  locale: Locale;
   own?: boolean;
   createdAt?: string;
   read?: boolean;
@@ -20,15 +22,41 @@ type Props = {
   otherName?: string;
 };
 
+const messageBubbleCopy = {
+  fi: {
+    openImage: "Avaa kuva suurempana",
+    read: "Nähty",
+    sent: "Lähetetty",
+    enlargedImage: "Kuva suurempana",
+    closeImage: "Sulje kuva"
+  },
+  no: {
+    openImage: "Åpne bildet i full størrelse",
+    read: "Lest",
+    sent: "Sendt",
+    enlargedImage: "Bilde i full størrelse",
+    closeImage: "Lukk bildet"
+  }
+} as const;
+
+const dateLocales: Record<Locale, string> = {
+  fi: "fi-FI",
+  en: "en-GB",
+  sv: "sv-SE",
+  no: "nb-NO"
+};
+
 export default function MessageBubble({
   content,
   image,
+  locale,
   own,
   createdAt,
   read,
   otherAvatarUrl,
   otherName = ""
 }: Props) {
+  const copy = messageBubbleCopy[locale === "no" ? "no" : "fi"];
   const [expandedImage, setExpandedImage] =
     useState(false);
   const [zoomed, setZoomed] =
@@ -40,7 +68,7 @@ export default function MessageBubble({
   const lightboxImageRef =
     useRef<HTMLImageElement>(null);
   const time =
-    formatMessageTime(createdAt);
+    formatMessageTime(createdAt, locale);
   const hasText =
     Boolean(content?.trim());
   const isImageOnly =
@@ -132,7 +160,10 @@ export default function MessageBubble({
   }
 
   return (
-    <div className={`row ${own ? "own-row" : ""}`}>
+    <div
+      className={`row ${own ? "own-row" : ""}`}
+      data-no-auto-translate={locale === "no" ? "true" : undefined}
+    >
       {!own && (
         <span
           className="message-avatar"
@@ -157,7 +188,7 @@ export default function MessageBubble({
           <button
             type="button"
             className="message-image-button"
-            aria-label="Avaa kuva suurempana"
+            aria-label={copy.openImage}
             onClick={() => setExpandedImage(true)}
           >
             <img
@@ -178,8 +209,8 @@ export default function MessageBubble({
             {own && (
               <span
                 className={`read-state${read ? " is-read" : ""}`}
-                aria-label={read ? "Nähty" : "Lähetetty"}
-                title={read ? "Nähty" : "Lähetetty"}
+                aria-label={read ? copy.read : copy.sent}
+                title={read ? copy.read : copy.sent}
               >
                 <svg
                   className="read-check-icon"
@@ -205,13 +236,14 @@ export default function MessageBubble({
           className={`image-lightbox${zoomed ? " is-zoomed" : ""}`}
           role="dialog"
           aria-modal="true"
-          aria-label="Kuva suurempana"
+          aria-label={copy.enlargedImage}
+          data-no-auto-translate={locale === "no" ? "true" : undefined}
           onClick={() => setExpandedImage(false)}
         >
           <button
             type="button"
             className="image-lightbox-close"
-            aria-label="Sulje kuva"
+            aria-label={copy.closeImage}
             onClick={() => setExpandedImage(false)}
           >
             <X size={18} />
@@ -655,7 +687,8 @@ function getInitials(name: string) {
 }
 
 function formatMessageTime(
-  value?: string
+  value: string | undefined,
+  locale: Locale
 ) {
   const date = new Date(value || "");
 
@@ -664,7 +697,7 @@ function formatMessageTime(
   }
 
   return new Intl.DateTimeFormat(
-    "fi-FI",
+    dateLocales[locale],
     {
       hour: "2-digit",
       minute: "2-digit"

@@ -1094,3 +1094,41 @@ html body:not(:has(main.simple-auth-page)) header.universal-app-topbar.universal
 html body:not(:has(main.simple-auth-page)) header.universal-app-topbar.universal-auth-topbar .rebuilt-login-button {
   display: flex !important;
 }
+
+/* Keep touch interactions responsive and make the global back control win
+   hit-testing even when compact header children visually overflow their grid
+   column. */
+@media (max-width: 760px), (hover: none) and (pointer: coarse) {
+  html body a,
+  html body button,
+  html body [role="button"] {
+    touch-action: manipulation;
+  }
+
+  html body header.universal-app-topbar:not(.universal-home-topbar) .universal-page-back-button {
+    -webkit-tap-highlight-color: transparent !important;
+    pointer-events: auto !important;
+    position: relative !important;
+    touch-action: manipulation !important;
+    user-select: none !important;
+    z-index: 3 !important;
+  }
+}
+
+/* Keep two-line empty-rating labels readable at every viewport size. */
+html body .seller-page .seller-ref-stat.is-rating.is-empty {
+  height: auto !important;
+  min-height: 90px !important;
+  row-gap: 6px !important;
+}
+
+html body .seller-page .seller-ref-stat.is-rating.is-empty .seller-ref-rating-empty {
+  display: block !important;
+  line-height: 1.3 !important;
+  max-width: 100% !important;
+  min-height: 2.6em !important;
+  overflow-wrap: normal !important;
+  padding-block: 1px !important;
+  white-space: normal !important;
+  word-break: normal !important;
+}

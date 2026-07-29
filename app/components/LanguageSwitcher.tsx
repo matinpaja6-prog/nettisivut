@@ -121,6 +121,8 @@ export default function LanguageSwitcher() {
         ref={menuRef}
         role="listbox"
         className="global-language-menu"
+        data-no-auto-translate
+        translate="no"
         style={{
           position: "fixed",
           top: dropPos.top,
@@ -136,7 +138,7 @@ export default function LanguageSwitcher() {
             role="option"
             className={`global-language-option${l.code === activeLocale ? " is-active" : ""}`}
             aria-selected={l.code === activeLocale}
-            onMouseDown={(e) => { e.preventDefault(); pick(l.code); }}
+            onClick={() => pick(l.code)}
           >
             <Flag iso={l.iso} />
             {l.label}
