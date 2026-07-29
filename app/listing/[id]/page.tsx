@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { getListingPartNumber, type Listing } from "@/lib/listings";
 import { listingNumberUrlId, listingPath, listingUrlId } from "@/lib/routes";
@@ -76,8 +76,45 @@ function buildProductStructuredData(listing: Listing, url: string) {
       price: Number(listing.price) || 0,
       priceCurrency: "EUR",
       availability: "https://schema.org/InStock",
-      itemCondition: schemaCondition(listing.condition)
+      itemCondition: schemaCondition(listing.condition),
+      ...(listing.seller_name
+        ? {
+            seller: {
+              "@type": listing.company_name ? "Organization" : "Person",
+              name: cleanStructuredText(listing.company_name || listing.seller_name)
+            }
+          }
+        : {})
     }
+  };
+}
+
+function buildBreadcrumbStructuredData(listing: Listing, url: string) {
+  const items = [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Maskines",
+      item: absoluteSiteUrl("/")
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Ilmoitukset",
+      item: absoluteSiteUrl("/ilmoitukset")
+    },
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: cleanStructuredText(listing.title),
+      item: url
+    }
+  ];
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items
   };
 }
 
@@ -89,32 +126,45 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
   const { data: listing } = await getListingById(decodedId);
+
+  if (!listing || listing.is_hidden) {
+    notFound();
+  }
+
   const displayNumber = listing
     ? await getListingDisplayNumber(listing.created_at, listing.listing_number)
     : null;
   const canonicalId = listingNumberUrlId(displayNumber) || listingUrlId(listing);
   const canonicalPath = canonicalId ? listingPath(canonicalId) : "";
 
-  if (!/^id\d+$/i.test(decodedId)) {
-    if (canonicalPath && canonicalPath !== listingPath(decodedId)) {
-      redirect(canonicalPath);
-    }
+  if (canonicalPath && canonicalPath !== listingPath(decodedId)) {
+    redirect(canonicalPath);
   }
 
-  const structuredData =
+  const productStructuredData =
     listing && !listing.is_hidden && !listing.is_sold && canonicalPath
       ? buildProductStructuredData(listing, absoluteSiteUrl(canonicalPath))
+      : null;
+  const breadcrumbStructuredData =
+    listing && !listing.is_hidden && canonicalPath
+      ? buildBreadcrumbStructuredData(listing, absoluteSiteUrl(canonicalPath))
       : null;
 
   return (
     <>
-      {structuredData ? (
+      {productStructuredData ? (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
+          dangerouslySetInnerHTML={{ __html: serializeStructuredData(productStructuredData) }}
         />
       ) : null}
-      <ListingPageClient />
+      {breadcrumbStructuredData ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeStructuredData(breadcrumbStructuredData) }}
+        />
+      ) : null}
+      <ListingPageClient initialListing={listing} />
     </>
   );
 }

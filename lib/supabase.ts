@@ -3700,34 +3700,57 @@ export async function upsertProfileFromApi(
       };
     }
 
-    const response =
-      await fetch("/api/profiles/upsert", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ profile })
-      });
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const response =
+          await fetch("/api/profiles/upsert", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ profile })
+          });
 
-    const payload =
-      await response.json().catch(() => ({})) as {
-        data?: UserProfile;
-        error?: string;
-      };
+        const payload =
+          await response.json().catch(() => ({})) as {
+            data?: UserProfile;
+            error?: string;
+          };
 
-    if (!response.ok) {
-      return {
-        data: null,
-        error: new Error(
-          payload.error || "Profiilin tallennus epaonnistui."
-        )
-      };
+        if (response.ok) {
+          return {
+            data: payload.data ?? null,
+            error: null
+          };
+        }
+
+        const requestError =
+          new Error(
+            payload.error || "Profiilin tallennus epaonnistui."
+          );
+
+        if (response.status < 500 || attempt === 1) {
+          return {
+            data: null,
+            error: requestError
+          };
+        }
+      } catch (error) {
+        if (attempt === 1) {
+          return {
+            data: null,
+            error
+          };
+        }
+      }
     }
 
     return {
-      data: payload.data ?? null,
-      error: null
+      data: null,
+      error: new Error(
+        "Profiilin tallennus epaonnistui."
+      )
     };
 
   } catch (error) {

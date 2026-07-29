@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 
-import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
+import { listingNumberUrlId, listingPath, listingUrlId, pagePath } from "@/lib/routes";
 import { absoluteSiteUrl } from "@/lib/site-url";
-import { getListings } from "@/lib/supabase";
+import { getListingDisplayNumber, getListings } from "@/lib/supabase";
 
 export const revalidate = 3_600;
 
@@ -30,16 +30,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     enrichSellerProfiles: false
   });
 
-  const listingEntries: MetadataRoute.Sitemap = listings.map((listing) => {
-    const createdAt = new Date(listing.created_at);
+  const listingEntries: MetadataRoute.Sitemap = await Promise.all(
+    listings
+      .filter((listing) => !listing.is_hidden && !listing.is_sold)
+      .map(async (listing) => {
+        const createdAt = new Date(listing.created_at);
+        const displayNumber = await getListingDisplayNumber(
+          listing.created_at,
+          listing.listing_number
+        );
+        const canonicalId =
+          listingNumberUrlId(displayNumber) || listingUrlId(listing);
 
-    return {
-      url: absoluteSiteUrl(listingPath(listingUrlId(listing))),
-      ...(Number.isNaN(createdAt.getTime()) ? {} : { lastModified: createdAt }),
-      changeFrequency: "daily",
-      priority: 0.8
-    };
-  });
+        return {
+          url: absoluteSiteUrl(listingPath(canonicalId)),
+          ...(Number.isNaN(createdAt.getTime()) ? {} : { lastModified: createdAt }),
+          changeFrequency: "daily" as const,
+          priority: 0.8
+        };
+      })
+  );
 
   return [...staticEntries, ...listingEntries];
 }
