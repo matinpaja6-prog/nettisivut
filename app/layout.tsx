@@ -102,8 +102,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/maskines-share-logo.png",
-        width: 479,
-        height: 479,
+        width: 1200,
+        height: 1200,
         alt: "Maskines-logo"
       }
     ]
