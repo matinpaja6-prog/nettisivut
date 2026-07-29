@@ -6,8 +6,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
-import { Clock3, Heart, Tag, UserRound } from "lucide-react";
-import LanguageSwitcher from "@/app/components/LanguageSwitcher";
+import { Clock3, Heart, UserRound } from "lucide-react";
 import OptimizedListingImage, { fallbackListingImage } from "@/app/components/OptimizedListingImage";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
@@ -217,38 +216,6 @@ export default function ListingsIndexPage({
   return (
     <main className={`${homeStyles.shell} listing-index-page`}>
       <div className={homeStyles.container} style={{ paddingTop: 18 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <Link
-            href="/"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 10,
-              fontWeight: 950,
-              color: "#0b1a3a"
-            }}
-          >
-            <Tag size={16} />
-            {t.back}
-          </Link>
-          <LanguageSwitcher />
-        </div>
-
-        <div style={{ height: 14 }} />
-
-        <h1
-          style={{
-            margin: 0,
-            fontSize: 28,
-            fontWeight: 950,
-            color: "#0b1a3a"
-          }}
-        >
-          {t.viewAll}
-        </h1>
-
-        <div style={{ height: 14 }} />
-
         <div className={homeStyles.cardsGrid}>
           {sorted.map((listing) => {
             const isFavorite = favorites.includes(listing.id);
