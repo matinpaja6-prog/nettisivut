@@ -21,7 +21,7 @@ type AttrEntry = {
 };
 
 const ATTRS: AttrName[] = ["placeholder", "title", "aria-label"];
-const TRANSLATION_CACHE_VERSION = "v14";
+const TRANSLATION_CACHE_VERSION = "v15";
 
 const WINDOWS_1252_BYTES: Record<string, number> = {
   "\u20ac": 0x80,
@@ -429,6 +429,87 @@ Object.assign(staticUiTranslations.sv, {
   "Kaikki moottorit": "Alla motorer",
   "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.": "En nordisk marknadsplats för reservdelar till småfordon.\nKöp och sälj reservdelar till snöskotrar, fyrhjulingar, motocrosscyklar och mopeder enkelt på ett och samma ställe."
 });
+Object.assign(staticUiTranslations.no, {
+  Etusivu: "Hjem",
+  Pääsivu: "Hjem",
+  "Oma talli": "Min garasje",
+  "Sulje Oma talli": "Lukk garasjen",
+  Hakuvahti: "Søkevarsel",
+  Hakuvahteja: "Søkevarsler",
+  "Search Alerts": "Søkevarsler",
+  Ohjeet: "Hjelp",
+  "Tietoa meistä": "Om oss",
+  Maskines: "Maskines",
+  maskines: "maskines",
+  "Maskines.": "Maskines.",
+  "Maskines – nollaa etusivu": "Maskines – gå til forsiden",
+  "Maskines - etusivulle": "Maskines – gå til forsiden",
+  "Takaisin edelliselle sivulle": "Tilbake til forrige side",
+  Päänavigaatio: "Hovednavigasjon",
+  Pikatoiminnot: "Hurtighandlinger",
+  Hae: "Søk",
+  "Haku:": "Søk:",
+  "Hae varaosia": "Søk etter deler",
+  "Ei valintoja": "Ingen valg",
+  Ilmoitus: "Annonse",
+  ilmoitus: "annonse",
+  Ilmoitukset: "Annonser",
+  ilmoitukset: "annonser",
+  ilmoitusta: "annonser",
+  "Omat ilmoitukset": "Mine annonser",
+  "Uusi ilmoitus": "Ny annonse",
+  "Luo ilmoitus": "Opprett annonse",
+  "Luo myynti-ilmoitus": "Opprett salgsannonse",
+  "Ilmoituksen tyyppi": "Annonsetype",
+  "Ilmoituksen tiedot": "Annonsedetaljer",
+  "Näytä ilmoitus": "Vis annonse",
+  "Avaa ilmoitus": "Åpne annonse",
+  "Ilmoitus poistettu": "Annonsen er fjernet",
+  "Ilmoitus on poistettu": "Annonsen er fjernet",
+  "Viimeisimmät ilmoitukset": "Nyeste annonser",
+  "Ei ilmoituksia": "Ingen annonser",
+  "Ei ilmoituksia näytettäväksi": "Ingen annonser å vise",
+  "Aktiivinen ilmoitus": "Aktiv annonse",
+  "Aktiivista ilmoitusta": "Aktive annonser",
+  "Maskines ohjekeskus": "Maskines hjelpesenter",
+  "Maskines-tuki": "Maskines-støtte",
+  "Maskines lukuina": "Maskines i tall",
+  "Miksi Maskines?": "Hvorfor Maskines?",
+  "Tietoa Maskinesista": "Om Maskines",
+  "Uusi viesti": "Ny melding",
+  Kuva: "Bilde",
+  "Kaikki keskustelut": "Alle samtaler",
+  "Valitse keskustelu": "Velg en samtale",
+  "Avaa viesti vasemmalta jatkaaksesi keskustelua.": "Åpne en melding til venstre for å fortsette samtalen.",
+  "Kirjoita viesti...": "Skriv en melding...",
+  Sijainti: "Sted",
+  "Kaikki sijainnit": "Alle steder",
+  "Hae maata, aluetta tai kuntaa": "Søk etter land, fylke eller kommune",
+  "Ei hakutuloksia": "Ingen resultater",
+  "Tyhjennä valinnat": "Fjern valg",
+  Valmis: "Ferdig",
+  Maat: "Land",
+  Suomi: "Finland",
+  Ruotsi: "Sverige",
+  Norja: "Norge",
+  "Valitse alue": "Velg fylke",
+  "Valitse kaupunki tai kunta": "Velg by eller kommune",
+  "Suomen alueet": "Finlands regioner",
+  "Suomen kaupungit ja kunnat": "Finlands byer og kommuner",
+  "Ruotsin läänit": "Sveriges län",
+  "Ruotsin kaupungit ja kunnat": "Sveriges byer og kommuner",
+  "Norjan läänit": "Norges fylker",
+  "Norjan kaupungit ja kunnat": "Norges byer og kommuner",
+  "Kaikki ajoneuvot": "Alle kjøretøy",
+  "Kaikki tyypit": "Alle typer",
+  "Kaikki merkit": "Alle merker",
+  "Kaikki mallit": "Alle modeller",
+  "Kaikki koot": "Alle størrelser",
+  "Kaikki moottorit": "Alle motorer",
+  "Valitse pääkategoria": "Velg hovedkategori",
+  "Valitse alakategoria": "Velg underkategori",
+  "Valitse tarkempi osa": "Velg detaljert del"
+});
 for (const locale of translatedLocales) {
   const normalizedDictionary: Record<string, string> = {};
 
@@ -754,12 +835,13 @@ export default function AutoTranslate() {
       const { textNodes, attrs, texts } = collect();
 
       for (const text of texts) {
-        if (translationCache.current.has(text)) continue;
-
         const staticTranslation = getStaticTranslation(locale, text);
         if (staticTranslation) {
           translationCache.current.set(text, staticTranslation);
+          continue;
         }
+
+        if (translationCache.current.has(text)) continue;
       }
 
       applyTranslations(textNodes, attrs);

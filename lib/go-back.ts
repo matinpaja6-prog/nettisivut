@@ -9,6 +9,7 @@ type RouterLike = {
 
 export const INTERNAL_HISTORY_STACK_KEY = "maskines:internal-history-stack:v1";
 export const INTERNAL_HISTORY_BACK_PENDING_KEY = "maskines:internal-history-back-pending:v1";
+export const NAVIGATION_START_EVENT = "maskines:navigation-start";
 
 const MAX_INTERNAL_HISTORY_ITEMS = 30;
 
@@ -123,6 +124,8 @@ export function goBackOrFallback(
     return;
   }
 
+  window.dispatchEvent(new Event(NAVIGATION_START_EVENT));
+
   const currentHref = normalizeHref(window.location.href);
   if (currentHref && isMessagesConversationHref(currentHref)) {
     router.push("/messages");
@@ -159,11 +162,6 @@ export function goBackOrFallback(
   const referrerHref = document.referrer ? normalizeHref(document.referrer) : null;
   if (referrerHref && referrerHref !== currentHref) {
     router.push(referrerHref);
-    return;
-  }
-
-  if (window.history.length > 1) {
-    router.back();
     return;
   }
 

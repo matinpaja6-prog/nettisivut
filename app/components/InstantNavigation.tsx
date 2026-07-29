@@ -52,32 +52,6 @@ export default function InstantNavigation() {
       prefetchHref(getLocalHref(target));
     };
 
-    const prefetchVisibleLinks = () => {
-      document.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((link) => {
-        const rect = link.getBoundingClientRect();
-        if (
-          rect.bottom < 0 ||
-          rect.right < 0 ||
-          rect.top > window.innerHeight ||
-          rect.left > window.innerWidth
-        ) {
-          return;
-        }
-
-        prefetchHref(getLocalHrefFromAnchor(link));
-      });
-    };
-
-    const scheduleVisiblePrefetch = () => {
-      if ("requestIdleCallback" in window) {
-        window.requestIdleCallback(prefetchVisibleLinks, { timeout: 350 });
-        return;
-      }
-
-      setTimeout(prefetchVisibleLinks, 50);
-    };
-
-    const handlePointerEnter = (event: PointerEvent) => prefetch(event.target);
     const handlePointerDown = (event: PointerEvent) => prefetch(event.target);
     const handleFocusIn = (event: FocusEvent) => prefetch(event.target);
     const handleClick = (event: MouseEvent) => {
@@ -107,15 +81,11 @@ export default function InstantNavigation() {
       }
     };
 
-    document.addEventListener("pointerover", handlePointerEnter, true);
     document.addEventListener("pointerdown", handlePointerDown, true);
     document.addEventListener("focusin", handleFocusIn, true);
     document.addEventListener("click", handleClick);
     window.addEventListener("popstate", handlePopState);
-    scheduleVisiblePrefetch();
-
     return () => {
-      document.removeEventListener("pointerover", handlePointerEnter, true);
       document.removeEventListener("pointerdown", handlePointerDown, true);
       document.removeEventListener("focusin", handleFocusIn, true);
       document.removeEventListener("click", handleClick);

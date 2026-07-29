@@ -24143,6 +24143,7 @@
 
 .locationCountryGrid {
   gap: 6px;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .locationCountryGrid::before {
@@ -24447,7 +24448,7 @@
   }
 
   :global(html body) .heroRightRail .locationCountryGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
   }
 
   :global(html body) .heroRightRail .locationCountryOption {
@@ -30446,15 +30447,15 @@
     letter-spacing: 0.01em !important;
     line-height: 1 !important;
     margin: 0 !important;
-    min-width: 104px !important;
+    min-width: max-content !important;
     padding: 0 17px !important;
     text-shadow: 0 1px 1px rgba(119, 38, 0, 0.34) !important;
     transition: transform 150ms ease, filter 150ms ease, box-shadow 150ms ease !important;
-    width: 104px !important;
+    width: auto !important;
   }
 
   :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
-    grid-template-columns: 22px minmax(0, 1fr) 104px !important;
+    grid-template-columns: 22px minmax(0, 1fr) max-content !important;
   }
 
   :global(html body) .heroInner > .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton:hover {
@@ -30977,7 +30978,7 @@
   }
 
   :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearch {
-    grid-template-columns: 18px minmax(0, 1fr) 110px !important;
+    grid-template-columns: 18px minmax(0, 1fr) max-content !important;
   }
 
   :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton[data-mobile-filter="true"] {
@@ -30986,9 +30987,9 @@
     column-gap: 7px !important;
     grid-template-columns: 18px auto !important;
     justify-content: center !important;
-    min-width: 110px !important;
+    min-width: max-content !important;
     padding: 0 10px !important;
-    width: 110px !important;
+    width: auto !important;
   }
 
   :global(html body) .heroLeadPanel > .heroMainSearchPanel .heroMainSearchButton[data-mobile-filter="true"] svg {

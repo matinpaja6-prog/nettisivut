@@ -21,7 +21,7 @@ import {
   type GarageVehicle,
   type PurchaseReviewRequest,
 } from "@/lib/supabase";
-import { useLanguage } from "@/lib/i18n";
+import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profileRootPath, translateLocalizedPath } from "@/lib/routes";
 
 const LOCALES = [
@@ -30,6 +30,132 @@ const LOCALES = [
   { code: "sv", label: "Svenska", iso: "se" },
   { code: "no", label: "Norsk", iso: "no" }
 ];
+
+type BottomNavCopy = {
+  primaryNavigation: string;
+  home: string;
+  notifications: string;
+  createListing: string;
+  messages: string;
+  profile: string;
+  login: string;
+  filterParts: string;
+  filter: string;
+  garage: string;
+  closeGarage: string;
+  garageVehicleHint: string;
+  garageEmptyHint: string;
+  signIn: string;
+  addVehicle: string;
+  buyParts: string;
+  sellPart: string;
+  openGarage: string;
+  contact: string;
+  contactMaskines: string;
+  followed: string;
+};
+
+const BOTTOM_NAV_COPY = {
+  fi: {
+    primaryNavigation: "Päänavigaatio",
+    home: "Etusivu",
+    notifications: "Ilmoitukset",
+    createListing: "Luo ilmoitus",
+    messages: "Viestit",
+    profile: "Profiili",
+    login: "Kirjaudu",
+    filterParts: "Suodata varaosia",
+    filter: "Suodata",
+    garage: "Oma talli",
+    closeGarage: "Sulje Oma talli",
+    garageVehicleHint: "Valitse ajoneuvo ja jatka suoraan osiin",
+    garageEmptyHint: "Lisää ajoneuvo, niin osat löytyvät nopeammin",
+    signIn: "Kirjaudu sisään",
+    addVehicle: "Lisää ajoneuvo",
+    buyParts: "Osta osia",
+    sellPart: "Myy osa",
+    openGarage: "Avaa koko talli",
+    contact: "Ota yhteyttä",
+    contactMaskines: "Ota yhteyttä Maskinesiin",
+    followed: "Seuratut",
+  },
+  en: {
+    primaryNavigation: "Main navigation",
+    home: "Home",
+    notifications: "Notifications",
+    createListing: "Create listing",
+    messages: "Messages",
+    profile: "Profile",
+    login: "Log in",
+    filterParts: "Filter spare parts",
+    filter: "Filter",
+    garage: "My garage",
+    closeGarage: "Close My garage",
+    garageVehicleHint: "Choose a vehicle and go straight to its parts",
+    garageEmptyHint: "Add a vehicle to find parts faster",
+    signIn: "Log in",
+    addVehicle: "Add vehicle",
+    buyParts: "Buy parts",
+    sellPart: "Sell a part",
+    openGarage: "Open full garage",
+    contact: "Contact",
+    contactMaskines: "Contact Maskines",
+    followed: "Following",
+  },
+  sv: {
+    primaryNavigation: "Huvudnavigering",
+    home: "Hem",
+    notifications: "Notiser",
+    createListing: "Skapa annons",
+    messages: "Meddelanden",
+    profile: "Profil",
+    login: "Logga in",
+    filterParts: "Filtrera reservdelar",
+    filter: "Filtrera",
+    garage: "Mitt garage",
+    closeGarage: "Stäng Mitt garage",
+    garageVehicleHint: "Välj ett fordon och gå direkt till delarna",
+    garageEmptyHint: "Lägg till ett fordon för att hitta delar snabbare",
+    signIn: "Logga in",
+    addVehicle: "Lägg till fordon",
+    buyParts: "Köp delar",
+    sellPart: "Sälj en del",
+    openGarage: "Öppna hela garaget",
+    contact: "Kontakta",
+    contactMaskines: "Kontakta Maskines",
+    followed: "Profiler du följer",
+  },
+  no: {
+    primaryNavigation: "Hovednavigasjon",
+    home: "Hjem",
+    notifications: "Varsler",
+    createListing: "Opprett annonse",
+    messages: "Meldinger",
+    profile: "Profil",
+    login: "Logg inn",
+    filterParts: "Filtrer reservedeler",
+    filter: "Filtrer",
+    garage: "Min garasje",
+    closeGarage: "Lukk garasjen",
+    garageVehicleHint: "Velg et kjøretøy og gå rett til delene",
+    garageEmptyHint: "Legg til et kjøretøy, så finner du deler raskere",
+    signIn: "Logg inn",
+    addVehicle: "Legg til kjøretøy",
+    buyParts: "Kjøp deler",
+    sellPart: "Selg en del",
+    openGarage: "Åpne hele garasjen",
+    contact: "Kontakt",
+    contactMaskines: "Kontakt Maskines",
+    followed: "Profiler du følger",
+  },
+} satisfies Record<Locale, BottomNavCopy>;
+
+const NUMBER_LOCALES = {
+  fi: "fi-FI",
+  en: "en-GB",
+  sv: "sv-SE",
+  no: "nb-NO",
+} satisfies Record<Locale, string>;
 
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
 const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
@@ -224,13 +350,7 @@ export default function BottomNav() {
     };
   }, [userId]);
 
-  const labels: Record<string, string[]> = {
-    fi: ["Etusivu", "Ilmoitukset", "Luo", "Viestit", "Profiili"],
-    en: ["Home", "Alerts", "New", "Messages", "Profile"],
-    sv: ["Hem", "Notiser", "Ny", "Meddelanden", "Profil"],
-    no: ["Hjem", "Varsler", "Ny", "Meldinger", "Profil"],
-  };
-  const [, , , , l4] = labels[locale] ?? labels.fi;
+  const copy = BOTTOM_NAV_COPY[locale];
 
   const buildVehicleSellHref = (vehicle: GarageVehicle) => {
     const vehicleType = vehicle.vehicle_class === "Auto"
@@ -326,30 +446,35 @@ export default function BottomNav() {
 
   if (!userId) {
     return (
-      <nav className="bottom-nav bottom-nav-main bottom-nav-guest" aria-label="Paanavigaatio">
+      <nav
+        className="bottom-nav bottom-nav-main bottom-nav-guest"
+        aria-label={copy.primaryNavigation}
+        data-no-auto-translate
+        translate="no"
+      >
         <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Home size={22} /></span>
-          <span className="bottom-nav-label">Etusivu</span>
+          <span className="bottom-nav-label">{copy.home}</span>
         </Link>
 
         <button
           type="button"
           className="bottom-nav-item bottom-nav-center-action"
           onClick={goToLogin}
-          aria-label="Kirjaudu"
+          aria-label={copy.login}
         >
           <span className="bottom-nav-icon"><LockKeyhole size={24} /></span>
-          <span className="bottom-nav-label">Kirjaudu</span>
+          <span className="bottom-nav-label">{copy.login}</span>
         </button>
 
         <button
           type="button"
           className="bottom-nav-item bottom-nav-search-action"
           onClick={openCategorySearch}
-          aria-label="Suodata varaosia"
+          aria-label={copy.filterParts}
         >
           <span className="bottom-nav-icon"><SlidersHorizontal size={22} /></span>
-          <span className="bottom-nav-label">Suodata</span>
+          <span className="bottom-nav-label">{copy.filter}</span>
         </button>
       </nav>
     );
@@ -357,25 +482,30 @@ export default function BottomNav() {
 
   return (
     <>
-      <nav className="bottom-nav bottom-nav-main" aria-label="Paanavigaatio">
+      <nav
+        className="bottom-nav bottom-nav-main"
+        aria-label={copy.primaryNavigation}
+        data-no-auto-translate
+        translate="no"
+      >
         <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Home size={22} /></span>
-          <span className="bottom-nav-label">Etusivu</span>
+          <span className="bottom-nav-label">{copy.home}</span>
         </Link>
 
         <button
           type="button"
           className="bottom-nav-item bottom-nav-search-action"
           onClick={openCategorySearch}
-          aria-label="Suodata varaosia"
+          aria-label={copy.filterParts}
         >
           <span className="bottom-nav-icon"><SlidersHorizontal size={22} /></span>
-          <span className="bottom-nav-label">Suodata</span>
+          <span className="bottom-nav-label">{copy.filter}</span>
         </button>
 
-        <Link href={sellActionHref} className={`bottom-nav-item bottom-nav-center-action${canonicalPathname.startsWith("/sell") ? " active" : ""}`} aria-label="Luo ilmoitus">
+        <Link href={sellActionHref} className={`bottom-nav-item bottom-nav-center-action${canonicalPathname.startsWith("/sell") ? " active" : ""}`} aria-label={copy.createListing}>
           <span className="bottom-nav-icon"><Plus size={24} /></span>
-          <span className="bottom-nav-label">{userId ? "Luo ilmoitus" : "Kirjaudu"}</span>
+          <span className="bottom-nav-label">{userId ? copy.createListing : copy.login}</span>
         </Link>
 
         {userId ? (
@@ -383,12 +513,12 @@ export default function BottomNav() {
           <span className="bottom-nav-icon">
             <MessageCircle size={22} />
           </span>
-          <span className="bottom-nav-label">Viestit</span>
+          <span className="bottom-nav-label">{copy.messages}</span>
         </Link>
         ) : (
-        <button type="button" className="bottom-nav-item" onClick={goToLogin} aria-label="Kirjaudu">
+        <button type="button" className="bottom-nav-item" onClick={goToLogin} aria-label={copy.login}>
           <span className="bottom-nav-icon"><LockKeyhole size={22} /></span>
-          <span className="bottom-nav-label">Kirjaudu</span>
+          <span className="bottom-nav-label">{copy.login}</span>
         </button>
         )}
 
@@ -404,14 +534,19 @@ export default function BottomNav() {
           }}
         >
           <span className="bottom-nav-icon"><Car size={22} /></span>
-          <span className="bottom-nav-label">{userId ? "Oma talli" : "Kirjaudu"}</span>
+          <span className="bottom-nav-label">{userId ? copy.garage : copy.login}</span>
         </button>
       </nav>
 
-      <nav className="bottom-nav" aria-label="Päänavigaatio">
+      <nav
+        className="bottom-nav"
+        aria-label={copy.primaryNavigation}
+        data-no-auto-translate
+        translate="no"
+      >
         <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Home size={22} /></span>
-          <span className="bottom-nav-label">Etusivu</span>
+          <span className="bottom-nav-label">{copy.home}</span>
         </Link>
 
         <button type="button" className={`bottom-nav-item${notifOpen ? " active" : ""}`} onClick={() => {
@@ -432,12 +567,12 @@ export default function BottomNav() {
             <Bell size={22} />
             {notifCount > 0 && <span className="bottom-nav-badge">{notifCount > 9 ? "9+" : notifCount}</span>}
           </span>
-          <span className="bottom-nav-label">Myy osa</span>
+          <span className="bottom-nav-label">{copy.notifications}</span>
         </button>
 
         <Link href={sellActionHref} className={`bottom-nav-item bottom-nav-solid${canonicalPathname.startsWith("/sell") ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Plus size={24} /></span>
-          <span className="bottom-nav-label">{userId ? "Oma talli" : "Kirjaudu"}</span>
+          <span className="bottom-nav-label">{userId ? copy.createListing : copy.login}</span>
         </Link>
 
         {userId ? (
@@ -445,12 +580,12 @@ export default function BottomNav() {
           <span className="bottom-nav-icon">
             <MessageCircle size={22} />
           </span>
-          <span className="bottom-nav-label">Ota yhteytta</span>
+          <span className="bottom-nav-label">{copy.contact}</span>
         </Link>
         ) : (
-        <button type="button" className="bottom-nav-item" onClick={goToLogin} aria-label="Kirjaudu">
+        <button type="button" className="bottom-nav-item" onClick={goToLogin} aria-label={copy.login}>
           <span className="bottom-nav-icon"><LockKeyhole size={22} /></span>
-          <span className="bottom-nav-label">Kirjaudu</span>
+          <span className="bottom-nav-label">{copy.login}</span>
         </button>
         )}
 
@@ -464,7 +599,7 @@ export default function BottomNav() {
             setProfileOpen(true);
           }}>
           <span className="bottom-nav-icon">{userId ? <UserRound size={22} /> : <LockKeyhole size={22} />}</span>
-          <span className="bottom-nav-label">{userId ? l4 : "Kirjaudu"}</span>
+          <span className="bottom-nav-label">{userId ? copy.profile : copy.login}</span>
         </button>
       </nav>
 
@@ -473,19 +608,27 @@ export default function BottomNav() {
           <button
             type="button"
             className="bn-garage-outside-close"
-            aria-label="Sulje Oma talli"
+            aria-label={copy.closeGarage}
+            data-no-auto-translate
+            translate="no"
             onClick={() => setGarageOpen(false)}
           />
-          <div className="bn-garage-panel" role="dialog" aria-label="Oma talli">
+          <div
+            className="bn-garage-panel"
+            role="dialog"
+            aria-label={copy.garage}
+            data-no-auto-translate
+            translate="no"
+          >
             <div className="bn-garage-header">
               <div>
-                <strong>Oma talli</strong>
-                <span>{garageVehicles.length ? "Valitse ajoneuvo ja jatka suoraan osiin" : "Lisää ajoneuvo, niin osat löytyvät nopeammin"}</span>
+                <strong>{copy.garage}</strong>
+                <span>{garageVehicles.length ? copy.garageVehicleHint : copy.garageEmptyHint}</span>
               </div>
               <button
                 type="button"
                 className="bn-garage-close"
-                aria-label="Sulje Oma talli"
+                aria-label={copy.closeGarage}
                 onClick={() => setGarageOpen(false)}
               >
                 X
@@ -495,12 +638,12 @@ export default function BottomNav() {
             {!userId ? (
               <Link href={authHref} className="bn-garage-empty-action" onClick={() => setGarageOpen(false)}>
                 <LockKeyhole size={18} />
-                Kirjaudu sisään
+                {copy.signIn}
               </Link>
             ) : garageVehicles.length === 0 ? (
               <Link href={garageHref} className="bn-garage-empty-action" onClick={() => setGarageOpen(false)}>
                 <Plus size={18} />
-                Lisää ajoneuvo
+                {copy.addVehicle}
               </Link>
             ) : (
               <div className="bn-garage-list">
@@ -516,17 +659,17 @@ export default function BottomNav() {
                     <div className="bn-garage-actions">
                       <Link href={buildVehicleBuyHref(vehicle)} onClick={() => setGarageOpen(false)}>
                         <Search size={15} />
-                        Osta osia
+                        {copy.buyParts}
                       </Link>
                       <Link href={buildVehicleSellHref(vehicle)} onClick={() => setGarageOpen(false)}>
                         <Wrench size={15} />
-                        Myy osa
+                        {copy.sellPart}
                       </Link>
                     </div>
                   </div>
                 ))}
                 <Link href={garageHref} className="bn-garage-all" onClick={() => setGarageOpen(false)}>
-                  Avaa koko talli
+                  {copy.openGarage}
                 </Link>
               </div>
             )}
@@ -536,18 +679,24 @@ export default function BottomNav() {
 
       {profileOpen && (
         <div className="bn-sheet-backdrop" onClick={() => setProfileOpen(false)}>
-          <div ref={sheetRef} className="bn-sheet" onClick={(e) => e.stopPropagation()}>
+          <div
+            ref={sheetRef}
+            className="bn-sheet"
+            data-no-auto-translate
+            translate="no"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="bn-sheet-handle" />
 
             {userId ? (
               <>
                 <Link href={profileHref}    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><UserRound size={18} />{t.editProfile}</Link>
-                <Link href={contactHref}    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><MessageCircle size={18} />Ota yhteyttä Maskinesiin</Link>
+                <Link href={contactHref}    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><MessageCircle size={18} />{copy.contactMaskines}</Link>
                 <Link href={myListingsHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><ClipboardList size={18} />{t.myListings}</Link>
                 <Link href={garageHref}     className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Car size={18} />{t.garageTitle}</Link>
                 <Link href={messagesHref}   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Mail size={18} />{t.messages}</Link>
                 <Link href={savedHref}      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Heart size={18} />{t.savedListings}</Link>
-                <Link href={followedHref}   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Users size={18} />Seuratut</Link>
+                <Link href={followedHref}   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Users size={18} />{copy.followed}</Link>
                 <div className="bn-sheet-divider" />
                 <div className="bn-sheet-lang">
                   {LOCALES.map((loc) => (
@@ -580,7 +729,7 @@ export default function BottomNav() {
             ) : (
               <>
                 <Link href={authHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><LockKeyhole size={18} />{t.login}</Link>
-                <Link href={contactHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><MessageCircle size={18} />Ota yhteyttä Maskinesiin</Link>
+                <Link href={contactHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><MessageCircle size={18} />{copy.contactMaskines}</Link>
                 <div className="bn-sheet-lang">
                   {LOCALES.map((loc) => (
                     <button key={loc.code} type="button"
@@ -615,18 +764,18 @@ export default function BottomNav() {
       {notifOpen && (
         <div className="bn-notif-backdrop" onClick={() => setNotifOpen(false)}>
           <div className="bn-notif-panel" onClick={(e) => e.stopPropagation()}>
-            <div className="bn-notif-header">
+            <div className="bn-notif-header" data-no-auto-translate translate="no">
               <strong>{t.notifications}</strong>
               <button type="button" className="bn-notif-close" onClick={() => setNotifOpen(false)}>✕</button>
             </div>
 
             {reviewRequests.length === 0 && alertNotifs.filter((a) => !a.seen).length === 0 && unreadConvs.length === 0 && (
-              <p className="bn-notif-empty">{t.noNotifications}</p>
+              <p className="bn-notif-empty" data-no-auto-translate translate="no">{t.noNotifications}</p>
             )}
 
             {unreadConvs.length > 0 && (
               <>
-                <div className="bn-notif-group-label">{t.messages}</div>
+                <div className="bn-notif-group-label" data-no-auto-translate translate="no">{t.messages}</div>
                 {unreadConvs.slice(0, 5).map((c) => {
                   const other = c.other_profile;
                   const name = other?.full_name || other?.name || `${other?.first_name ?? ""} ${other?.last_name ?? ""}`.trim() || "–";
@@ -654,13 +803,13 @@ export default function BottomNav() {
 
             {reviewRequests.length > 0 && (
               <>
-                <div className="bn-notif-group-label">{t.reviews}</div>
+                <div className="bn-notif-group-label" data-no-auto-translate translate="no">{t.reviews}</div>
                 {[...new Map(reviewRequests.map(r => [r.listing_id ?? r.id, r])).values()].slice(0, 4).map((r) => (
                   <button key={r.id} type="button" className="bn-notif-item"
                     onClick={() => { window.dispatchEvent(new CustomEvent("open-purchase-review", { detail: { requestId: r.id } })); setNotifOpen(false); }}>
                     <span className="bn-notif-icon">★</span>
                     <div>
-                      <strong>{t.reviewSeller}</strong>
+                      <strong data-no-auto-translate translate="no">{t.reviewSeller}</strong>
                       <p>{r.listing_title}</p>
                     </div>
                   </button>
@@ -670,20 +819,20 @@ export default function BottomNav() {
 
             {alertNotifs.filter((a) => !a.seen).length > 0 && (
               <>
-                <div className="bn-notif-group-label">{t.saTitle}</div>
+                <div className="bn-notif-group-label" data-no-auto-translate translate="no">{t.saTitle}</div>
                 {alertNotifs.filter((a) => !a.seen).slice(0, 6).map((n) => (
                   <Link key={n.id} href={listingPath(listingUrlId(n), activeLocale)} className="bn-notif-item" onClick={() => setNotifOpen(false)}>
                     <span className="bn-notif-icon"><Bell size={14} /></span>
                     <div>
                       <strong>{n.listing_title}</strong>
-                      <p>{n.listing_price ? `${n.listing_price.toLocaleString("fi-FI")} €` : ""} · {n.alert_label}</p>
+                      <p>{n.listing_price ? `${n.listing_price.toLocaleString(NUMBER_LOCALES[locale])} €` : ""} · {n.alert_label}</p>
                     </div>
                   </Link>
                 ))}
               </>
             )}
 
-            <div className="bn-notif-footer">
+            <div className="bn-notif-footer" data-no-auto-translate translate="no">
               <Link href={searchAlertsHref} className="bn-notif-all" onClick={() => setNotifOpen(false)}>{t.saTitle} →</Link>
               <Link href={messagesHref} className="bn-notif-all" onClick={() => setNotifOpen(false)}>{t.messages} →</Link>
             </div>

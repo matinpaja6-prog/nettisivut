@@ -241,7 +241,12 @@ export default function RootLayout({
           localStorage.removeItem("locale");
         }
 
-        var locale = isValidLocale(storedLocale) ? storedLocale : (cookieLocale || "fi");
+        var queryLocale = new URLSearchParams(window.location.search).get("lang") || "";
+        var locale = isValidLocale(queryLocale)
+          ? queryLocale
+          : isValidLocale(storedLocale)
+            ? storedLocale
+            : (cookieLocale || "fi");
         document.documentElement.lang = locale;
         document.documentElement.setAttribute('data-i18n-target', locale);
       } catch (e) {}

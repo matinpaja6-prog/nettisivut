@@ -14,7 +14,6 @@ import {
   dismissPurchaseReviewRequest,
   getAlertNotifications,
   getCurrentUserIsAdmin,
-  getGarageVehicles,
   getSafeAuthUser,
   getUnreadConversationSummaries,
   getPublicSellerLevelStats,
@@ -27,12 +26,12 @@ import {
   supabase,
   type AlertNotification,
   type ConversationSummary,
-  type GarageVehicle,
   type ProfileAvatarChangedDetail,
   type PurchaseReviewRequest,
   type SellerLevelStats,
 } from "@/lib/supabase";
 import { calculateSellerLevel } from "@/lib/seller-level";
+import { goBackOrFallback } from "@/lib/go-back";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profilePath, profileRootPath } from "@/lib/routes";
 import { useTaxonomy } from "./TaxonomyProvider";
@@ -178,6 +177,13 @@ const topbarText: Record<Locale, {
   searchAlerts: string;
   about: string;
   help: string;
+  resetHome: string;
+  back: string;
+  brandHome: string;
+  primaryNavigation: string;
+  closeProfileMenu: string;
+  openProfileMenu: string;
+  advancedPartsSearch: string;
   ownProfile: string;
   fallbackProfile: string;
   sellerLevel: string;
@@ -205,6 +211,13 @@ const topbarText: Record<Locale, {
     searchAlerts: "Hakuvahti",
     about: "Tietoa meistä",
     help: "Ohjeet",
+    resetHome: "Maskines – nollaa etusivu",
+    back: "Takaisin edelliselle sivulle",
+    brandHome: "Maskines – etusivulle",
+    primaryNavigation: "Päänavigaatio",
+    closeProfileMenu: "Sulje profiilivalikko",
+    openProfileMenu: "Avaa profiilivalikko",
+    advancedPartsSearch: "Avaa tarkempi varaosahaku",
     ownProfile: "Oma profiili",
     fallbackProfile: "Profiili",
     sellerLevel: "Myyjälevel",
@@ -232,6 +245,13 @@ const topbarText: Record<Locale, {
     searchAlerts: "Search alerts",
     about: "About us",
     help: "Help",
+    resetHome: "Maskines – reset homepage",
+    back: "Back to the previous page",
+    brandHome: "Maskines – go to homepage",
+    primaryNavigation: "Main navigation",
+    closeProfileMenu: "Close profile menu",
+    openProfileMenu: "Open profile menu",
+    advancedPartsSearch: "Open advanced parts search",
     ownProfile: "My profile",
     fallbackProfile: "Profile",
     sellerLevel: "Seller level",
@@ -259,6 +279,13 @@ const topbarText: Record<Locale, {
     searchAlerts: "Sökbevakningar",
     about: "Om oss",
     help: "Hjälp",
+    resetHome: "Maskines – återställ startsidan",
+    back: "Tillbaka till föregående sida",
+    brandHome: "Maskines – gå till startsidan",
+    primaryNavigation: "Huvudnavigering",
+    closeProfileMenu: "Stäng profilmenyn",
+    openProfileMenu: "Öppna profilmenyn",
+    advancedPartsSearch: "Öppna detaljerad reservdelssökning",
     ownProfile: "Min profil",
     fallbackProfile: "Profil",
     sellerLevel: "Säljarnivå",
@@ -286,6 +313,13 @@ const topbarText: Record<Locale, {
     searchAlerts: "Søkevarsler",
     about: "Om oss",
     help: "Hjelp",
+    resetHome: "Maskines – tilbakestill startsiden",
+    back: "Tilbake til forrige side",
+    brandHome: "Maskines – gå til startsiden",
+    primaryNavigation: "Hovednavigasjon",
+    closeProfileMenu: "Lukk profilmenyen",
+    openProfileMenu: "Åpne profilmenyen",
+    advancedPartsSearch: "Åpne avansert delesøk",
     ownProfile: "Min profil",
     fallbackProfile: "Profil",
     sellerLevel: "Selgernivå",
@@ -357,8 +391,6 @@ export default function UniversalTopbar() {
   const ownProfileLabel = ui.ownProfile;
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
-  const [garageMenuOpen, setGarageMenuOpen] = useState(false);
-  const [garageVehicles, setGarageVehicles] = useState<GarageVehicle[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [profileInitial, setProfileInitial] = useState("?");
@@ -377,11 +409,15 @@ export default function UniversalTopbar() {
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuOverlayRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
-  const garageMenuRef = useRef<HTMLDivElement>(null);
   const topbarDropdownRef = useRef<HTMLDivElement>(null);
   const topbarDropdownPortalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!isAuthRoute) {
+      setAuthSurfaceActive(false);
+      return;
+    }
+
     const syncAuthSurface = () => {
       const browserPath = canonicalPathFromLocalized(window.location.pathname || "/");
       const hasAuthSurface = Boolean(document.querySelector("main.simple-auth-page"));
@@ -394,7 +430,7 @@ export default function UniversalTopbar() {
     observer.observe(document.body, { childList: true, subtree: true });
 
     return () => observer.disconnect();
-  }, [pathname]);
+  }, [isAuthRoute, pathname]);
 
   const partNavigationItems = useMemo(
     () => taxonomy.categories.map((category) => category.key).filter(Boolean),
@@ -535,7 +571,6 @@ export default function UniversalTopbar() {
       }
     }
 
-    void refreshOwnProfile();
     window.addEventListener("focus", refreshOwnProfile);
     document.addEventListener("visibilitychange", refreshOnVisible);
 
@@ -739,28 +774,6 @@ export default function UniversalTopbar() {
   }, [profileOpen]);
 
   useEffect(() => {
-    if (!garageMenuOpen) return;
-
-    function closeOnOutsideClick(event: MouseEvent) {
-      const target = event.target as Node;
-      if (!garageMenuRef.current?.contains(target)) {
-        setGarageMenuOpen(false);
-      }
-    }
-
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setGarageMenuOpen(false);
-    }
-
-    document.addEventListener("mousedown", closeOnOutsideClick);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("mousedown", closeOnOutsideClick);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [garageMenuOpen]);
-
-  useEffect(() => {
     if (!topbarDropdownOpen) return;
 
     function closeOnOutsideClick(event: MouseEvent) {
@@ -784,26 +797,6 @@ export default function UniversalTopbar() {
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [topbarDropdownOpen]);
-
-  useEffect(() => {
-    if (!userId) {
-      setGarageVehicles([]);
-      return;
-    }
-
-    let cancelled = false;
-    getGarageVehicles(userId)
-      .then(({ data }) => {
-        if (!cancelled) setGarageVehicles(data ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) setGarageVehicles([]);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [userId]);
 
   async function handleSignOut() {
     setProfileOpen(false);
@@ -979,7 +972,6 @@ export default function UniversalTopbar() {
 
   function toggleProfileMenu() {
     setNotificationOpen(false);
-    setGarageMenuOpen(false);
     setProfileOpen((open) => !open);
   }
 
@@ -1064,12 +1056,14 @@ export default function UniversalTopbar() {
                 <button
                   type="button"
                   className="universal-nav-menu-secondary"
+                  data-no-auto-translate
+                  translate="no"
                   onClick={() => {
                     setTopbarDropdownOpen(null);
                     openCategoryDrawerAtStep(2);
                   }}
                 >
-                  Avaa tarkempi varaosahaku
+                  {ui.advancedPartsSearch}
                   <ChevronRight size={16} aria-hidden="true" />
                 </button>
               </>
@@ -1135,12 +1129,7 @@ export default function UniversalTopbar() {
       : null;
 
   function handleBackNavigation() {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-      return;
-    }
-
-    router.push("/");
+    goBackOrFallback(router, "/");
   }
 
   function handleHomeReset(event: ReactMouseEvent<HTMLAnchorElement>) {
@@ -1148,7 +1137,6 @@ export default function UniversalTopbar() {
 
     setProfileOpen(false);
     setNotificationOpen(false);
-    setGarageMenuOpen(false);
     setTopbarDropdownOpen(null);
 
     try {
@@ -1165,7 +1153,7 @@ export default function UniversalTopbar() {
   const primaryNavigation = (
     <div className="universal-home-navigation universal-primary-navigation">
       {isHomePage ? (
-        <Link href="/" className="universal-home-brand" aria-label="Maskines – nollaa etusivu" onClick={handleHomeReset}>
+        <Link href="/" className="universal-home-brand" aria-label={ui.resetHome} onClick={handleHomeReset}>
           <TopbarMaskinesLogo />
           <span className="universal-home-brand-copy" aria-hidden="true">
             <strong>MASKINES</strong>
@@ -1177,7 +1165,7 @@ export default function UniversalTopbar() {
           <button
             type="button"
             className="universal-page-back-button"
-            aria-label="Takaisin edelliselle sivulle"
+            aria-label={ui.back}
             onClick={handleBackNavigation}
           >
             <BackChevronIcon />
@@ -1185,7 +1173,7 @@ export default function UniversalTopbar() {
           <Link
             href="/"
             className="universal-page-brand-home"
-            aria-label="Maskines - etusivulle"
+            aria-label={ui.brandHome}
             onClick={handleHomeReset}
           >
             <span className="universal-home-brand-copy" aria-hidden="true">
@@ -1196,7 +1184,7 @@ export default function UniversalTopbar() {
         </div>
       )}
       {!isAuthPage && (
-      <nav className="universal-home-primary-nav" aria-label="Päänavigaatio" ref={topbarDropdownRef}>
+      <nav className="universal-home-primary-nav" aria-label={ui.primaryNavigation} ref={topbarDropdownRef}>
         {isHomePage ? (
           <>
             <Link href="/" className="is-active">
@@ -1295,7 +1283,9 @@ export default function UniversalTopbar() {
         <button
           type="button"
           className="universal-profile-menu-backdrop"
-          aria-label="Sulje profiilivalikko"
+          aria-label={ui.closeProfileMenu}
+          data-no-auto-translate
+          translate="no"
           onClick={() => setProfileOpen(false)}
           onPointerDown={(event) => {
             event.stopPropagation();
@@ -1310,13 +1300,15 @@ export default function UniversalTopbar() {
           ref={profileMenuOverlayRef}
           className="universal-profile-menu universal-profile-menu-portal"
           role="menu"
+          data-no-auto-translate
+          translate="no"
           onPointerDown={(event) => event.stopPropagation()}
           onClick={(event) => event.stopPropagation()}
         >
           <button
             type="button"
             className="universal-profile-menu-close"
-            aria-label="Sulje profiilivalikko"
+            aria-label={ui.closeProfileMenu}
             onClick={() => setProfileOpen(false)}
           >
             <X size={17} strokeWidth={2.5} aria-hidden="true" />
@@ -1411,7 +1403,11 @@ export default function UniversalTopbar() {
     <>
     {profileMenuPortal}
     {topbarDropdownPortal}
-    <header className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}${isAuthPage ? " universal-auth-topbar" : ""}`}>
+    <header
+      className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}${isAuthPage ? " universal-auth-topbar" : ""}`}
+      data-no-auto-translate
+      translate="no"
+    >
       {primaryNavigation}
       <nav className={`universal-topbar-actions${!userId ? " universal-topbar-actions-guest" : ""}`} aria-label={ui.quickActions}>
         {!isAuthPage ? (
@@ -1432,9 +1428,7 @@ export default function UniversalTopbar() {
                   <path d="M8 3v10M3 8h10" />
                 </svg>
               </span>
-              <strong>
-                {locale === "fi" ? "Luo ilmoitus" : locale === "sv" ? "Skapa annons" : "Create listing"}
-              </strong>
+              <strong>{t.createListing}</strong>
             </Link>
             {false && userId ? (
               <Link
@@ -1673,7 +1667,7 @@ export default function UniversalTopbar() {
           onClick={openMobileCategorySearch}
         >
           <Search size={16} aria-hidden="true" />
-          <span>{t.searchLabel}</span>
+          <span>{locale === "fi" ? "Hae" : t.searchLabel}</span>
         </button>
         <div
           className="universal-profile-menu-wrap"
@@ -1682,6 +1676,7 @@ export default function UniversalTopbar() {
           <button
             type="button"
             className={`rebuilt-profile-button${profileOpen ? " is-open" : ""}`}
+            aria-label={profileOpen ? ui.closeProfileMenu : ui.openProfileMenu}
             aria-haspopup="menu"
             aria-expanded={profileOpen}
             onClick={(event) => {

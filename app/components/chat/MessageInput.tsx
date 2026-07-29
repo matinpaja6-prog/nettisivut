@@ -8,18 +8,55 @@ import {
   Smile,
   X
 } from "lucide-react";
+import type { Locale } from "@/lib/i18n";
 import { resizeMessageImageTo1080p } from "./image-processing";
 
 type Props = {
+  locale: Locale;
   onSend: (
     message: string,
     image?: string
   ) => Promise<string | null>;
 };
 
+const messageInputCopy = {
+  fi: {
+    sendFailed: "Viestin lähetys epäonnistui. Yritä uudelleen.",
+    processingImage: "Kuva käsitellään",
+    convertingImage: "Muunnetaan 1080p-kokoon",
+    imageSelected: "Kuva valittu",
+    sendWithMessage: "Lähetä viestin mukana",
+    removeImage: "Poista kuva",
+    emojis: "Emojit",
+    placeholder: "Kirjoita viesti...",
+    attachFile: "Liitä tiedosto",
+    addImage: "Lisää kuva",
+    sending: "Lähetetään viestiä",
+    send: "Lähetä viesti",
+    dropImage: "Pudota kuva viestiin"
+  },
+  no: {
+    sendFailed: "Meldingen kunne ikke sendes. Prøv igjen.",
+    processingImage: "Bildet behandles",
+    convertingImage: "Konverteres til 1080p",
+    imageSelected: "Bilde valgt",
+    sendWithMessage: "Send sammen med meldingen",
+    removeImage: "Fjern bildet",
+    emojis: "Emojier",
+    placeholder: "Skriv en melding...",
+    attachFile: "Legg ved fil",
+    addImage: "Legg til bilde",
+    sending: "Sender melding",
+    send: "Send melding",
+    dropImage: "Slipp bildet i meldingen"
+  }
+} as const;
+
 export default function MessageInput({
+  locale,
   onSend
 }: Props) {
+  const copy = messageInputCopy[locale === "no" ? "no" : "fi"];
   const [message, setMessage] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
@@ -74,9 +111,9 @@ export default function MessageInput({
       setEmojiOpen(false);
     } catch (error) {
       setSendError(
-        error instanceof Error
+        locale !== "no" && error instanceof Error
           ? error.message
-          : "Viestin lähetys epäonnistui. Yritä uudelleen."
+          : copy.sendFailed
       );
     } finally {
       setSending(false);
@@ -144,6 +181,8 @@ export default function MessageInput({
   return (
     <div
       className={`wrapper${isDraggingImage ? " isDraggingImage" : ""}`}
+      data-drop-label={copy.dropImage}
+      data-no-auto-translate={locale === "no" ? "true" : undefined}
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -154,8 +193,8 @@ export default function MessageInput({
           <div className="loadingThumb" />
 
           <div className="previewText">
-            <strong>Kuva kasitellaan</strong>
-            <span>Muunnetaan 1080p-kokoon</span>
+            <strong>{copy.processingImage}</strong>
+            <span>{copy.convertingImage}</span>
           </div>
         </div>
       )}
@@ -165,13 +204,13 @@ export default function MessageInput({
           <img src={preview} alt="" />
 
           <div className="previewText">
-            <strong>Kuva valittu</strong>
-            <span>Lähetä viestin mukana</span>
+            <strong>{copy.imageSelected}</strong>
+            <span>{copy.sendWithMessage}</span>
           </div>
 
           <button
             type="button"
-            aria-label="Poista kuva"
+            aria-label={copy.removeImage}
             onClick={() => setPreview(null)}
           >
             <X size={14} />
@@ -180,7 +219,7 @@ export default function MessageInput({
       )}
 
       {emojiOpen && (
-        <div className="emojiPicker" aria-label="Emojit">
+        <div className="emojiPicker" aria-label={copy.emojis}>
           {emojis.map((emoji) => (
             <button
               key={emoji}
@@ -216,14 +255,14 @@ export default function MessageInput({
             setMessage(e.target.value)
             if (sendError) setSendError("");
           }}
-          placeholder="Kirjoita viesti..."
+          placeholder={copy.placeholder}
         />
 
         <div className="tools">
           <button
             type="button"
             className="tool"
-            aria-label="Liitä tiedosto"
+            aria-label={copy.attachFile}
             onClick={() =>
               fileInputRef.current?.click()
             }
@@ -234,7 +273,7 @@ export default function MessageInput({
           <button
             type="button"
             className="tool"
-            aria-label="Lisää kuva"
+            aria-label={copy.addImage}
             onClick={() =>
               fileInputRef.current?.click()
             }
@@ -258,7 +297,7 @@ export default function MessageInput({
           type="submit"
           className="send"
           disabled={imageLoading || sending}
-          aria-label={sending ? "Lähetetään viestiä" : "Lähetä viesti"}
+          aria-label={sending ? copy.sending : copy.send}
         >
           <Send size={18} />
         </button>
@@ -280,7 +319,7 @@ export default function MessageInput({
           border: 1px dashed rgba(255, 154, 60, 0.72);
           border-radius: 10px;
           color: #ffffff;
-          content: "Pudota kuva viestiin";
+          content: attr(data-drop-label);
           display: flex;
           font-size: 12px;
           font-weight: 900;

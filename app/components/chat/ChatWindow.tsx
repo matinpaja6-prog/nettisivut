@@ -4,6 +4,7 @@ import {
   useRef
 } from "react";
 
+import type { Locale } from "@/lib/i18n";
 import MessageBubble from "./MessageBubble";
 
 type Message = {
@@ -17,8 +18,29 @@ type Message = {
 
 type Props = {
   messages: Message[];
+  locale: Locale;
   otherAvatarUrl?: string | null;
   otherName?: string;
+};
+
+const dateDividerCopy = {
+  fi: {
+    messages: "VIESTIT",
+    today: "TÄNÄÄN",
+    yesterday: "EILEN"
+  },
+  no: {
+    messages: "MELDINGER",
+    today: "I DAG",
+    yesterday: "I GÅR"
+  }
+} as const;
+
+const dateLocales: Record<Locale, string> = {
+  fi: "fi-FI",
+  en: "en-GB",
+  sv: "sv-SE",
+  no: "nb-NO"
 };
 
 function getLocalDateKey(value?: string) {
@@ -35,11 +57,12 @@ function getLocalDateKey(value?: string) {
   return `${year}-${month}-${day}`;
 }
 
-function formatDateDivider(value?: string) {
+function formatDateDivider(value: string | undefined, locale: Locale) {
+  const copy = dateDividerCopy[locale === "no" ? "no" : "fi"];
   const date = new Date(value || "");
 
   if (Number.isNaN(date.getTime())) {
-    return "VIESTIT";
+    return copy.messages;
   }
 
   const now = new Date();
@@ -58,25 +81,26 @@ function formatDateDivider(value?: string) {
   );
 
   if (dayDiff === 0) {
-    return "T\u00c4N\u00c4\u00c4N";
+    return copy.today;
   }
 
   if (dayDiff === 1) {
-    return "EILEN";
+    return copy.yesterday;
   }
 
   return new Intl.DateTimeFormat(
-    "fi-FI",
+    dateLocales[locale],
     {
       day: "numeric",
       month: "long",
       year: date.getFullYear() === now.getFullYear() ? undefined : "numeric"
     }
-  ).format(date).toLocaleUpperCase("fi-FI");
+  ).format(date).toLocaleUpperCase(dateLocales[locale]);
 }
 
 export default function ChatWindow({
   messages,
+  locale,
   otherAvatarUrl,
   otherName = ""
 }: Props) {
@@ -91,7 +115,10 @@ export default function ChatWindow({
   }, [messages]);
 
   return (
-    <div className="chat-window chat-window-redesign">
+    <div
+      className="chat-window chat-window-redesign"
+      data-no-auto-translate={locale === "no" ? "true" : undefined}
+    >
       <div className="messages">
         {messages.map((message, index) => {
           const currentDateKey = getLocalDateKey(message.created_at);
@@ -103,7 +130,7 @@ export default function ChatWindow({
             <Fragment key={message.id}>
               {showDateDivider && (
                 <div className="date-divider">
-                  <span>{formatDateDivider(message.created_at)}</span>
+                  <span>{formatDateDivider(message.created_at, locale)}</span>
                 </div>
               )}
               <MessageBubble
@@ -114,6 +141,7 @@ export default function ChatWindow({
                 read={message.read}
                 otherAvatarUrl={otherAvatarUrl}
                 otherName={otherName}
+                locale={locale}
               />
             </Fragment>
           );

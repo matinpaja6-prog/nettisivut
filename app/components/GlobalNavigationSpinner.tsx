@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { NAVIGATION_START_EVENT } from "@/lib/go-back";
 
 function isModifiedClick(event: MouseEvent) {
   return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
@@ -75,11 +76,13 @@ export default function GlobalNavigationSpinner() {
     };
 
     document.addEventListener("click", handleClick, true);
+    window.addEventListener(NAVIGATION_START_EVENT, start);
     window.addEventListener("popstate", start);
     window.addEventListener("pageshow", handlePageShow);
 
     return () => {
       document.removeEventListener("click", handleClick, true);
+      window.removeEventListener(NAVIGATION_START_EVENT, start);
       window.removeEventListener("popstate", start);
       window.removeEventListener("pageshow", handlePageShow);
       if (showTimer.current !== null) window.clearTimeout(showTimer.current);

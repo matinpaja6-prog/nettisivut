@@ -6,7 +6,7 @@ import {
   normalizeVehicleType,
   subcategoryGroups
 } from "@/lib/listings";
-import { useLanguage, translateCategory } from "@/lib/i18n";
+import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import {
   filterVehicleBrandModelsBySubtype,
   mergeVehicleBrandModels
@@ -266,23 +266,72 @@ function isSuspensionModelContext(...values: string[]) {
   );
 }
 
-function getPartDetailLabel(vehicle: string, category: string, group: string, detail: string) {
-  if (isEngineContext(category, group, detail)) return "Moottorin tarkempi malli";
+function getPartDetailLabel(
+  locale: Locale,
+  vehicle: string,
+  category: string,
+  group: string,
+  detail: string
+) {
+  const labels = {
+    fi: {
+      engine: "Moottorin tarkempi malli",
+      atvWheel: "Mönkijän vanteen tarkempi malli",
+      motocrossWheel: "Crossin vanteen tarkempi malli",
+      mopedWheel: "Mopon vanteen tarkempi malli",
+      wheel: "Vanteen tarkempi malli",
+      shock: "Iskunvaimentimen tarkempi malli",
+      suspension: "Alustan tarkempi malli",
+      exact: "Tarkempi malli"
+    },
+    en: {
+      engine: "Exact engine model",
+      atvWheel: "Exact ATV wheel model",
+      motocrossWheel: "Exact motocross wheel model",
+      mopedWheel: "Exact moped wheel model",
+      wheel: "Exact wheel model",
+      shock: "Exact shock absorber model",
+      suspension: "Exact suspension model",
+      exact: "Exact model"
+    },
+    sv: {
+      engine: "Exakt motormodell",
+      atvWheel: "Exakt fälgmodell för ATV",
+      motocrossWheel: "Exakt fälgmodell för motocross",
+      mopedWheel: "Exakt fälgmodell för moped",
+      wheel: "Exakt fälgmodell",
+      shock: "Exakt stötdämparmodell",
+      suspension: "Exakt chassimodell",
+      exact: "Exakt modell"
+    },
+    no: {
+      engine: "Nøyaktig motormodell",
+      atvWheel: "Nøyaktig felgmodell for ATV",
+      motocrossWheel: "Nøyaktig felgmodell for motocross",
+      mopedWheel: "Nøyaktig felgmodell for moped",
+      wheel: "Nøyaktig felgmodell",
+      shock: "Nøyaktig støtdempermodell",
+      suspension: "Nøyaktig understellmodell",
+      exact: "Nøyaktig modell"
+    }
+  }[locale];
+
+  if (isEngineContext(category, group, detail)) return labels.engine;
   if (isWheelModelContext(detail)) {
     const vehicleKey = getCommonVehicleKey(vehicle);
-    if (vehicleKey === "atv") return "Mönkijän vanteen tarkempi malli";
-    if (vehicleKey === "motocross") return "Crossin vanteen tarkempi malli";
-    if (vehicleKey === "moped") return "Mopon vanteen tarkempi malli";
-    return "Vanteen tarkempi malli";
+    if (vehicleKey === "atv") return labels.atvWheel;
+    if (vehicleKey === "motocross") return labels.motocrossWheel;
+    if (vehicleKey === "moped") return labels.mopedWheel;
+    return labels.wheel;
   }
   if (isSuspensionModelContext(group, detail)) {
-    if (isEngineContext(category, group, detail)) return "Tarkempi malli";
+    if (isEngineContext(category, group, detail)) return labels.exact;
     if (normalizeIconText([group, detail].join(" ")).includes("iskunvaiment")) {
-      return "Iskunvaimentimen tarkempi malli";
+      return labels.shock;
     }
-    return "Alustan tarkempi malli";
+    return labels.suspension;
   }
-  return "Tarkempi malli";
+  return labels.exact;
 }
 
 type PartPictureKind =
@@ -1322,6 +1371,29 @@ function VehicleComboField({
   inputRef?: RefObject<HTMLInputElement | null>;
   allowCustom?: boolean;
 }) {
+  const { locale } = useLanguage();
+  const comboText = {
+    fi: {
+      writeYourself: "Kirjoita itse",
+      customOption: "Muu (kirjoita itse)",
+      openOptions: (field: string) => `Avaa ${field.toLocaleLowerCase("fi-FI")} vaihtoehdot`
+    },
+    en: {
+      writeYourself: "Enter manually",
+      customOption: "Other (enter manually)",
+      openOptions: (field: string) => `Open options for ${field.toLocaleLowerCase("en-US")}`
+    },
+    sv: {
+      writeYourself: "Skriv själv",
+      customOption: "Annat (skriv själv)",
+      openOptions: (field: string) => `Öppna alternativ för ${field.toLocaleLowerCase("sv-SE")}`
+    },
+    no: {
+      writeYourself: "Skriv inn selv",
+      customOption: "Annet (skriv inn selv)",
+      openOptions: (field: string) => `Åpne alternativer for ${field.toLocaleLowerCase("nb-NO")}`
+    }
+  }[locale];
   const comboId = useId();
   const [open, setOpen] = useState(false);
   const [showAll, setShowAll] = useState(true);
@@ -1436,12 +1508,12 @@ function VehicleComboField({
             }}
             readOnly={inputIsReadOnly}
             disabled={disabled}
-            placeholder={customSelected ? "Kirjoita itse" : placeholder}
+            placeholder={customSelected ? comboText.writeYourself : placeholder}
           />
           <button
             className="cd-combo-toggle"
             type="button"
-            aria-label={`Avaa ${label.toLowerCase()} vaihtoehdot`}
+            aria-label={comboText.openOptions(label)}
             disabled={disabled}
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => {
@@ -1476,7 +1548,7 @@ function VehicleComboField({
                 }}
                 onClick={() => selectOption(option, option === CUSTOM_OPTION_LABEL)}
               >
-                {option}
+                {option === CUSTOM_OPTION_LABEL ? comboText.customOption : option}
               </button>
             ))}
           </div>
@@ -1493,6 +1565,37 @@ function TrackMatDimensionField({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const { locale } = useLanguage();
+  const trackMatText = {
+    fi: {
+      label: "Telamaton mitat (pituus × leveys × jako)",
+      choose: "Valitse telamaton mitat",
+      other: "Muu mitta",
+      writeYourself: "Kirjoita itse",
+      placeholder: "Kirjoita mitat, esim. 154 × 15 × 2.5"
+    },
+    en: {
+      label: "Track dimensions (length × width × pitch)",
+      choose: "Choose track dimensions",
+      other: "Other dimensions",
+      writeYourself: "Enter manually",
+      placeholder: "Enter dimensions, e.g. 154 × 15 × 2.5"
+    },
+    sv: {
+      label: "Bandmått (längd × bredd × delning)",
+      choose: "Välj bandmått",
+      other: "Annat mått",
+      writeYourself: "Skriv själv",
+      placeholder: "Ange mått, t.ex. 154 × 15 × 2.5"
+    },
+    no: {
+      label: "Beltemål (lengde × bredde × deling)",
+      choose: "Velg beltemål",
+      other: "Annet mål",
+      writeYourself: "Skriv inn selv",
+      placeholder: "Skriv inn mål, f.eks. 154 × 15 × 2.5"
+    }
+  }[locale];
   const isPresetValue = isPresetTrackMatDimension(value);
   const isCustomValue = Boolean(value.trim()) && !isPresetValue;
   const [open, setOpen] = useState(false);
@@ -1565,12 +1668,14 @@ function TrackMatDimensionField({
     <label
       ref={fieldRef}
       className="cd-extra-field cd-track-mat-field"
+      data-no-auto-translate
+      translate="no"
       onBlur={(event) => {
         const nextTarget = event.relatedTarget as Node | null;
         if (!nextTarget || !event.currentTarget.contains(nextTarget)) setOpen(false);
       }}
     >
-      <span className="cd-extra-label">Telamaton mitat (Pituus x Leveys x Jako)</span>
+      <span className="cd-extra-label">{trackMatText.label}</span>
       <button
         className={`cd-track-mat-select-shell${open ? " is-open" : ""}`}
         type="button"
@@ -1588,7 +1693,7 @@ function TrackMatDimensionField({
               <small>{selectedOption.inch}"</small>
             </>
           ) : (
-            <strong>Valitse maton mitta</strong>
+            <strong>{trackMatText.choose}</strong>
           )}
         </span>
         <ChevronDown size={17} aria-hidden="true" />
@@ -1627,8 +1732,8 @@ function TrackMatDimensionField({
             role="option"
             aria-selected={customSelected}
           >
-            <strong>Muu mitta</strong>
-            <span>Kirjoita itse</span>
+            <strong>{trackMatText.other}</strong>
+            <span>{trackMatText.writeYourself}</span>
           </button>
         </div>
       ) : null}
@@ -1640,7 +1745,7 @@ function TrackMatDimensionField({
             setCustomSelected(true);
             onChange(event.target.value);
           }}
-          placeholder="Kirjoita mitat, esim. 154 x 15 x 2.5"
+          placeholder={trackMatText.placeholder}
         />
       ) : null}
     </label>
@@ -2076,6 +2181,132 @@ export default function CategoryDrawer({
       all: "Bla gjennom alle deler"
     },
   }[locale];
+  const drawerText = {
+    fi: {
+      vehicleType: "Ajoneuvotyyppi",
+      vehicle: "Ajoneuvo",
+      drawer: "Kategoriaselain",
+      back: "Takaisin",
+      close: "Sulje",
+      vehicleDetails: "Ajoneuvon tarkennus",
+      brand: "Merkki",
+      allBrands: "Kaikki merkit",
+      model: "Malli",
+      allModels: "Kaikki mallit",
+      selectBrandFirst: "Valitse ensin merkki",
+      modelYear: "Vuosimalli",
+      yearOrEnter: "Vuosi tai kirjoita itse",
+      engineSize: "Moottorin koko (cc)",
+      engine: "Moottori",
+      allEngines: "Kaikki moottorit",
+      selectBrand: "Valitse merkki",
+      choosePartCategory: "Valitse osan kategoria",
+      mainCategory: "Pääkategoria",
+      subcategory: "Alakategoria",
+      detailedPart: "Tarkempi osa",
+      choose: "Valitse",
+      chooseFirst: "Valitse ensin",
+      chooseSubcategory: "Valitse alakategoria",
+      chooseDetailedPart: "Valitse tarkempi osa",
+      enterDetailedModel: "Kirjoita tarkempi malli",
+      continueToParts: "Jatka osiin",
+      showResults: "Näytä tulokset",
+      clear: "Tyhjennä"
+    },
+    en: {
+      vehicleType: "Vehicle type",
+      vehicle: "Vehicle",
+      drawer: "Category selector",
+      back: "Back",
+      close: "Close",
+      vehicleDetails: "Vehicle details",
+      brand: "Brand",
+      allBrands: "All brands",
+      model: "Model",
+      allModels: "All models",
+      selectBrandFirst: "Select a brand first",
+      modelYear: "Model year",
+      yearOrEnter: "Year or enter manually",
+      engineSize: "Engine size (cc)",
+      engine: "Engine",
+      allEngines: "All engines",
+      selectBrand: "Select a brand",
+      choosePartCategory: "Choose a part category",
+      mainCategory: "Main category",
+      subcategory: "Subcategory",
+      detailedPart: "Detailed part",
+      choose: "Select",
+      chooseFirst: "Select first",
+      chooseSubcategory: "Select a subcategory",
+      chooseDetailedPart: "Select a detailed part",
+      enterDetailedModel: "Enter the exact model",
+      continueToParts: "Continue to parts",
+      showResults: "Show results",
+      clear: "Clear"
+    },
+    sv: {
+      vehicleType: "Fordonstyp",
+      vehicle: "Fordon",
+      drawer: "Kategoriväljare",
+      back: "Tillbaka",
+      close: "Stäng",
+      vehicleDetails: "Fordonsdetaljer",
+      brand: "Märke",
+      allBrands: "Alla märken",
+      model: "Modell",
+      allModels: "Alla modeller",
+      selectBrandFirst: "Välj först ett märke",
+      modelYear: "Årsmodell",
+      yearOrEnter: "År eller skriv själv",
+      engineSize: "Motorstorlek (cc)",
+      engine: "Motor",
+      allEngines: "Alla motorer",
+      selectBrand: "Välj märke",
+      choosePartCategory: "Välj delkategori",
+      mainCategory: "Huvudkategori",
+      subcategory: "Underkategori",
+      detailedPart: "Detaljerad del",
+      choose: "Välj",
+      chooseFirst: "Välj först",
+      chooseSubcategory: "Välj underkategori",
+      chooseDetailedPart: "Välj detaljerad del",
+      enterDetailedModel: "Ange exakt modell",
+      continueToParts: "Fortsätt till delar",
+      showResults: "Visa resultat",
+      clear: "Rensa"
+    },
+    no: {
+      vehicleType: "Kjøretøytype",
+      vehicle: "Kjøretøy",
+      drawer: "Kategorivelger",
+      back: "Tilbake",
+      close: "Lukk",
+      vehicleDetails: "Kjøretøydetaljer",
+      brand: "Merke",
+      allBrands: "Alle merker",
+      model: "Modell",
+      allModels: "Alle modeller",
+      selectBrandFirst: "Velg et merke først",
+      modelYear: "Årsmodell",
+      yearOrEnter: "År eller skriv inn selv",
+      engineSize: "Motorstørrelse (cc)",
+      engine: "Motor",
+      allEngines: "Alle motorer",
+      selectBrand: "Velg merke",
+      choosePartCategory: "Velg kategori for delen",
+      mainCategory: "Hovedkategori",
+      subcategory: "Underkategori",
+      detailedPart: "Detaljert del",
+      choose: "Velg",
+      chooseFirst: "Velg først",
+      chooseSubcategory: "Velg underkategori",
+      chooseDetailedPart: "Velg detaljert del",
+      enterDetailedModel: "Skriv inn nøyaktig modell",
+      continueToParts: "Fortsett til deler",
+      showResults: "Vis resultater",
+      clear: "Tøm"
+    }
+  }[locale];
   const startTiles: Array<{
     kind: CategoryStartKind;
     label: string;
@@ -2119,11 +2350,11 @@ export default function CategoryDrawer({
       ? startTiles.find((tile) => tile.kind === selectedKind)?.label ?? t.all
       : vehicleTypeWasSelected
         ? t.all
-        : "Ajoneuvotyyppi";
+        : drawerText.vehicleType;
 
     return (
       <div className={`cd-vehicle-type-menu${vehicleTypeMenuOpen ? " is-open" : ""}`}>
-        <span>Ajoneuvo</span>
+        <span>{drawerText.vehicle}</span>
         <button
           type="button"
           className="cd-vehicle-type-trigger"
@@ -2178,7 +2409,18 @@ export default function CategoryDrawer({
 
   function renderVehicleSubtypeMenu() {
     const subtypeOptions = vehicle ? (VEHICLE_SUBTYPE_OPTIONS[vehicle] ?? []) : [];
-    const allTypesLabel = locale === "en" ? "All types" : locale === "sv" ? "Alla typer" : "Kaikki tyypit";
+    const allTypesLabel = {
+      fi: "Kaikki tyypit",
+      en: "All types",
+      sv: "Alla typer",
+      no: "Alle typer"
+    }[locale];
+    const typeLabel = {
+      fi: "Tyyppi",
+      en: "Type",
+      sv: "Typ",
+      no: "Type"
+    }[locale];
     const selectedLabel = vehicleSubtype
       ? translateCategory(locale, vehicleSubtype)
       : allTypesLabel;
@@ -2186,7 +2428,7 @@ export default function CategoryDrawer({
 
     return (
       <div className={`cd-vehicle-type-menu cd-vehicle-subtype-menu${disabled ? " is-disabled" : ""}`}>
-        <span>Tyyppi</span>
+        <span>{typeLabel}</span>
         <button
           type="button"
           className="cd-vehicle-type-trigger"
@@ -2268,7 +2510,7 @@ export default function CategoryDrawer({
     isEngineContext(cat, subGroup, sub) ||
     isWheelModelContext(sub) ||
     isSuspensionModelContext(subGroup, sub);
-  const partDetailLabel = getPartDetailLabel(vehicle, cat, subGroup, sub);
+  const partDetailLabel = getPartDetailLabel(locale, vehicle, cat, subGroup, sub);
 
   useEffect(() => {
     if (!showTrackMatDimensionField) setTrackMatDimension("");
@@ -2353,7 +2595,7 @@ export default function CategoryDrawer({
 
       {/* Drawer */}
       {isOpen && (
-      <aside className="cd-drawer cd-drawer-open" aria-label="Kategoriaselain">
+      <aside className="cd-drawer cd-drawer-open" aria-label={drawerText.drawer}>
 
         {/* Header */}
         <div className="cd-header">
@@ -2362,8 +2604,8 @@ export default function CategoryDrawer({
               type="button"
               className="cd-back"
               onClick={goBack}
-              aria-label="Takaisin"
-              title="Takaisin"
+              aria-label={drawerText.back}
+              title={drawerText.back}
             >
               <ChevronLeft size={18} />
             </button>
@@ -2373,8 +2615,8 @@ export default function CategoryDrawer({
             className="cd-close"
             onPointerDown={closeDrawer}
             onClick={closeDrawer}
-            aria-label="Sulje"
-            title="Sulje"
+            aria-label={drawerText.close}
+            title={drawerText.close}
           >
             <X size={18} />
           </button>
@@ -2443,7 +2685,7 @@ export default function CategoryDrawer({
 
           {/* Step 2: Vehicle details (model, year, CC) */}
           {step === 2 && (
-            <section className="cd-vehicle-step" aria-label="Ajoneuvon tarkennus">
+            <section className="cd-vehicle-step" aria-label={drawerText.vehicleDetails}>
               <div className="cd-vehicle-step-head">
                 <span className="cd-step-hint">
                   <span className="cd-step-hint-icon" aria-hidden="true">
@@ -2462,12 +2704,12 @@ export default function CategoryDrawer({
                 onFocusCapture={closeVehicleTypeMenus}
               >
                 <VehicleComboField
-                  label="Merkki"
+                  label={drawerText.brand}
                   icon={<Tag size={20} />}
                   value={brand}
                   options={brandOptions}
                   disabled={false}
-                  placeholder="Kaikki merkit"
+                  placeholder={drawerText.allBrands}
                   inputRef={brandInputRef}
                   onChange={(nextValue) => {
                       setBrand(nextValue);
@@ -2479,12 +2721,12 @@ export default function CategoryDrawer({
                 />
 
                 <VehicleComboField
-                  label="Malli"
+                  label={drawerText.model}
                   icon={<Tag size={20} />}
                   value={model}
                   options={modelOptions}
                   disabled={!brand}
-                  placeholder={brand ? "Kaikki mallit" : "Valitse ensin merkki"}
+                  placeholder={brand ? drawerText.allModels : drawerText.selectBrandFirst}
                   inputRef={modelInputRef}
                   onChange={(nextValue) => {
                       setModel(nextValue);
@@ -2494,18 +2736,18 @@ export default function CategoryDrawer({
                 />
 
                 <VehicleComboField
-                  label="Vuosimalli"
+                  label={drawerText.modelYear}
                   icon={<CalendarDays size={20} />}
                   value={year}
                   options={YEAR_OPTIONS}
                   disabled={false}
-                  placeholder="Vuosi tai kirjoita itse"
+                  placeholder={drawerText.yearOrEnter}
                   inputRef={yearInputRef}
                   onChange={setYear}
                 />
 
                 <VehicleComboField
-                  label="Moottorin koko (cc)"
+                  label={drawerText.engineSize}
                   icon={<Gauge size={20} />}
                   value={engineCc}
                   options={vehicle ? (CC_OPTIONS[vehicle] ?? CC_OPTIONS[getCategoryVehicleKey(vehicle)] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS}
@@ -2519,12 +2761,12 @@ export default function CategoryDrawer({
                 />
 
                 <VehicleComboField
-                  label="Moottori"
+                  label={drawerText.engine}
                   icon={<Cog size={20} />}
                   value={engineModel}
                   options={engineModelOptions}
                   disabled={!brand}
-                  placeholder={brand ? "Kaikki moottorit" : "Valitse merkki"}
+                  placeholder={brand ? drawerText.allEngines : drawerText.selectBrand}
                   inputRef={engineModelInputRef}
                   onChange={(nextValue) => {
                     setEngineModel(nextValue);
@@ -2537,34 +2779,34 @@ export default function CategoryDrawer({
                   <span className="cd-step-hint-icon" aria-hidden="true">
                     <Box size={21} />
                   </span>
-                  <span>Valitse osan kategoria</span>
+                  <span>{drawerText.choosePartCategory}</span>
                 </span>
                 <div className="cd-vehicle-detail-grid">
                   <VehicleComboField
-                    label="Pääkategoria"
+                    label={drawerText.mainCategory}
                     icon={<Box size={20} />}
                     value={cat}
                     options={partCategoryOptions}
-                    placeholder="Valitse"
+                    placeholder={drawerText.choose}
                     inputRef={partCategoryInputRef}
                     onChange={selectPartCategory}
                     allowCustom={false}
                   />
 
                   <VehicleComboField
-                    label="Alakategoria"
+                    label={drawerText.subcategory}
                     icon={<Boxes size={20} />}
                     value={subGroup}
                     options={partGroupOptions}
                     disabled={!cat || partGroupOptions.length === 0}
-                    placeholder={cat ? "Valitse" : "Valitse ensin"}
+                    placeholder={cat ? drawerText.choose : drawerText.chooseFirst}
                     inputRef={partGroupInputRef}
                     onChange={selectPartGroup}
                     allowCustom={false}
                   />
 
                   <VehicleComboField
-                    label="Tarkempi osa"
+                    label={drawerText.detailedPart}
                     icon={<WrenchIcon size={20} />}
                     value={sub}
                     options={partLeafOptions}
@@ -2572,9 +2814,9 @@ export default function CategoryDrawer({
                     placeholder={
                       cat
                         ? partGroupOptions.length > 0 && !subGroup
-                          ? "Valitse alakategoria"
-                          : "Valitse tarkempi osa"
-                        : "Valitse ensin"
+                          ? drawerText.chooseSubcategory
+                          : drawerText.chooseDetailedPart
+                        : drawerText.chooseFirst
                     }
                     inputRef={partLeafInputRef}
                     onChange={setSub}
@@ -2600,7 +2842,7 @@ export default function CategoryDrawer({
                             className="cd-extra-input"
                             value={partEngineDetail}
                             onChange={(event) => setPartEngineDetail(event.target.value)}
-                            placeholder={engineModel || "Kirjoita tarkempi malli"}
+                            placeholder={engineModel || drawerText.enterDetailedModel}
                           />
                         </span>
                       </label>
@@ -2611,7 +2853,7 @@ export default function CategoryDrawer({
               <div className="cd-vehicle-actions">
                 <button className="cd-skip-btn cd-vehicle-next" type="button" onClick={() => focusPartCombo(partCategoryInputRef)}>
                   <Search size={21} aria-hidden="true" />
-                  Jatka osiin
+                  {drawerText.continueToParts}
                 </button>
                 <button
                   className="cd-reset cd-vehicle-clear"
@@ -2619,7 +2861,7 @@ export default function CategoryDrawer({
                   onClick={clearAllDrawerFilters}
                 >
                   <RotateCcw size={21} aria-hidden="true" />
-                  Tyhjennä
+                  {drawerText.clear}
                 </button>
               </div>
             </section>
@@ -2835,7 +3077,7 @@ export default function CategoryDrawer({
         <div className="cd-results-footer">
           <button className="cd-results-button" type="button" onClick={apply}>
             <BarChart3 size={22} aria-hidden="true" />
-            N&auml;yt&auml; tulokset
+            {drawerText.showResults}
             <ChevronRight size={24} aria-hidden="true" />
           </button>
           <button
@@ -2844,7 +3086,7 @@ export default function CategoryDrawer({
             onClick={clearAllDrawerFilters}
           >
             <RotateCcw size={21} aria-hidden="true" />
-            Tyhjenn&auml;
+            {drawerText.clear}
           </button>
         </div>
 

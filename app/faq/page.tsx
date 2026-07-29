@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { useLanguage } from "@/lib/i18n";
 import { pagePath } from "@/lib/routes";
 
 type TopicId = "buyer" | "seller" | "safety" | "general";
@@ -42,7 +43,7 @@ type FaqItem = {
   answer: string;
 };
 
-const topics: Array<{
+const topicsFi: Array<{
   id: TopicId;
   title: string;
   text: string;
@@ -79,7 +80,7 @@ const topics: Array<{
   }
 ];
 
-const buyerGuides: HelpItem[] = [
+const buyerGuidesFi: HelpItem[] = [
   {
     id: "find-parts",
     topic: "buyer",
@@ -130,7 +131,7 @@ const buyerGuides: HelpItem[] = [
   }
 ];
 
-const sellerGuides: HelpItem[] = [
+const sellerGuidesFi: HelpItem[] = [
   {
     id: "create-listing",
     topic: "seller",
@@ -181,7 +182,7 @@ const sellerGuides: HelpItem[] = [
   }
 ];
 
-const safetyGuides: HelpItem[] = [
+const safetyGuidesFi: HelpItem[] = [
   {
     id: "safe-payment",
     topic: "safety",
@@ -208,9 +209,7 @@ const safetyGuides: HelpItem[] = [
   }
 ];
 
-const allGuides = [...buyerGuides, ...sellerGuides, ...safetyGuides];
-
-const faqItems: FaqItem[] = [
+const faqItemsFi: FaqItem[] = [
   {
     id: "cost",
     topic: "general",
@@ -276,14 +275,308 @@ const faqItems: FaqItem[] = [
   }
 ];
 
+const topicsNo: typeof topicsFi = [
+  {
+    id: "buyer",
+    title: "For kjøpere",
+    text: "Finn riktig del og kontroller at den passer før kjøpet.",
+    icon: ShoppingCart,
+    tone: "orange"
+  },
+  {
+    id: "seller",
+    title: "For selgere",
+    text: "Lag en annonse som gjør det enkelt for kjøperen å ta kontakt.",
+    icon: Plus,
+    tone: "green"
+  },
+  {
+    id: "safety",
+    title: "Trygg handel",
+    text: "Gjenkjenn risiko og avtal handelen tydelig.",
+    icon: ShieldCheck,
+    tone: "blue"
+  },
+  {
+    id: "general",
+    title: "Generelt",
+    text: "Raske svar om hvordan du bruker Maskines.",
+    icon: CircleHelp,
+    tone: "amber"
+  }
+];
+
+const buyerGuidesNo: HelpItem[] = [
+  {
+    id: "find-parts",
+    topic: "buyer",
+    title: "Finn riktig reservedel",
+    text: "Avgrens søket etter kjøretøy og del.",
+    icon: Search,
+    answer: [
+      "Begynn med kjøretøygruppen, og avgrens søket etter type, merke, modell og årsmodell.",
+      "Søk etter delens navn eller OEM-nummer. For eksempel gir «Ski-Doo 850 variator» mer presise treff enn bare «variator».",
+      "Kontroller tilstand, delenummer, mål og plassering i annonsen. At en del ser lik ut, betyr ikke alltid at den passer."
+    ]
+  },
+  {
+    id: "contact-seller",
+    topic: "buyer",
+    title: "Kontroller at delen passer",
+    text: "Spør om dette før du avtaler kjøpet.",
+    icon: MessageCircle,
+    answer: [
+      "Oppgi nøyaktig merke, modell og årsmodell på kjøretøyet ditt, og eventuelt motorversjon.",
+      "Sammenlign OEM-nummeret, festepunktene og målene. Be om nærbilder av kontakter, gjenger og sliteflater.",
+      "Spør konkret om feil, reparasjoner og hvilket kjøretøy delen er demontert fra. Ta vare på det dere avtaler i Maskines-meldingene."
+    ]
+  },
+  {
+    id: "buy-safely",
+    topic: "buyer",
+    title: "Avtal handelen tydelig",
+    text: "Pris, betaling og levering uten uklarheter.",
+    icon: CreditCard,
+    answer: [
+      "Bekreft før betaling hva handelen omfatter: den nøyaktige delen, eventuelt tilbehør, totalpris og fraktkostnader.",
+      "En verdifull eller vanskelig identifiserbar del bør kontrolleres ved henting. Ved sending bør du be om sporing og forsvarlig emballasje.",
+      "Maskines mottar eller formidler ikke kjøpesummen. Kjøper og selger avtaler betalingsmåten selv, så velg en metode du kjenner vilkårene for."
+    ]
+  },
+  {
+    id: "track-order",
+    topic: "buyer",
+    title: "Når delen sendes",
+    text: "Sporing, mottak og kontroll.",
+    icon: Box,
+    answer: [
+      "Be selgeren sende sporingsnummeret og et bilde av den ferdig innpakkede forsendelsen.",
+      "Kontroller pakkens tilstand med en gang du mottar den. Fotografer skadet emballasje før du åpner pakken, og fotografer også delen.",
+      "Hvis forsendelsen ikke beveger seg eller innholdet avviker fra avtalen, kontakter du først selgeren og deretter transportselskapet ved behov."
+    ]
+  }
+];
+
+const sellerGuidesNo: HelpItem[] = [
+  {
+    id: "create-listing",
+    topic: "seller",
+    title: "Lag en annonse som er lett å finne",
+    text: "Riktig kjøretøy, del og overskrift.",
+    icon: SquarePlus,
+    answer: [
+      "Velg kjøretøygruppe, type, merke, modell og delkategori så presist som mulig. Disse opplysningene brukes i søkefiltrene.",
+      "Skriv delen og den viktigste informasjonen om kompatibilitet i overskriften, for eksempel «KTM 125 EXC 2020 bakdemper».",
+      "Legg til en realistisk pris, plassering, tilstand, OEM-nummer og alle kompatible årsmodeller du kjenner til."
+    ]
+  },
+  {
+    id: "many-parts",
+    topic: "seller",
+    title: "Bilder og opplysninger om tilstand",
+    text: "Vis også kjøperen spor etter bruk.",
+    icon: BarChart3,
+    answer: [
+      "Fotografer delen i dagslys fra flere vinkler. Det første bildet skal vise hele delen som er til salgs.",
+      "Legg til nærbilder av delenummer, kontakter, fester og slitasje. Ikke skjul en feil ved å beskjære den ut av bildet.",
+      "Opplys ærlig om sprekker, slark, sveising, manglende deler og om funksjonen er testet."
+    ]
+  },
+  {
+    id: "edit-listing",
+    topic: "seller",
+    title: "Selg flere deler",
+    text: "Hold hver del og pris tydelig adskilt.",
+    icon: Edit3,
+    answer: [
+      "Bruk funksjonen for flere annonser når du demonterer mange deler fra samme kjøretøy og selger dem enkeltvis.",
+      "Gi hver del et eget navn, pris, tilstand og tilhørende bilder. Ikke bland opplysninger om ulike deler.",
+      "De samme kjøretøyopplysningene kan brukes i alle annonsene i partiet, men kontroller hver del før publisering."
+    ]
+  },
+  {
+    id: "manage-sales",
+    topic: "seller",
+    title: "Hold salget oppdatert",
+    text: "Svar, oppdater og marker som solgt.",
+    icon: PackageCheck,
+    answer: [
+      "Svar på spørsmål om kompatibilitet og tilstand med opplysninger du også kan dokumentere med bilder eller delenummer.",
+      "Oppdater pris, bilder og beskrivelse hvis du får ny informasjon om delen etter at annonsen er publisert.",
+      "Marker delen som solgt med en gang handelen er fullført. Da slipper kjøpere å spørre om en vare som ikke lenger er tilgjengelig."
+    ]
+  }
+];
+
+const safetyGuidesNo: HelpItem[] = [
+  {
+    id: "safe-payment",
+    topic: "safety",
+    title: "Kontroller før betaling",
+    text: "En liten kontroll kan forhindre et stort tap.",
+    icon: ShieldCheck,
+    answer: [
+      "Sammenlign bildene, beskrivelsen, prisen og selgerens svar. En del som er klart billigere enn markedsprisen, krever ekstra grundig kontroll.",
+      "Kontroller selgerens navn, telefonnummer og sted, og at selgeren kan ta et nytt bilde av delen slik du ber om.",
+      "Ikke betal på grunn av hastverk eller press. Ved dyre kjøp reduserer henting eller en betalingsmåte med kjøperbeskyttelse risikoen."
+    ]
+  },
+  {
+    id: "suspicious-listing",
+    topic: "safety",
+    title: "Gjenkjenn mistenkelig aktivitet",
+    text: "Avbryt handelen hvis opplysningene ikke stemmer.",
+    icon: AlertTriangle,
+    answer: [
+      "Varseltegn er kopierte bilder, uklart eierskap, betalingsopplysninger som endres, og at selgeren nekter å sende flere bilder eller avtale henting.",
+      "Stans betalingen, og ta vare på lenken til annonsen, meldingene, betalingsopplysningene og skjermbilder.",
+      "Send opplysningene til Maskines kundestøtte. Vi kan kontrollere brukeren og annonsen, men vi avgjør ikke betalingstvister mellom partene."
+    ]
+  }
+];
+
+const faqItemsNo: FaqItem[] = [
+  {
+    id: "cost",
+    topic: "general",
+    question: "Koster det å bruke Maskines?",
+    answer:
+      "Det er gratis å bla i annonser og se telefonnummer. Du må logge inn for å sende meldinger og administrere egne annonser. Prisen for eventuell betalt ekstra synlighet eller annonseplass vises alltid før du bekrefter."
+  },
+  {
+    id: "buyer-free",
+    topic: "buyer",
+    question: "Hvordan kontrollerer jeg at delen passer til kjøretøyet mitt?",
+    answer:
+      "Sammenlign OEM-nummeret, nøyaktig kjøretøymodell og årsmodell samt delens mål og tilkoblinger. Send selgeren et bilde av den gamle delen ved behov. Kontroller kompatibiliteten før betaling, fordi deler i samme modellserie kan variere mellom årsmodeller."
+  },
+  {
+    id: "publish",
+    topic: "seller",
+    question: "Hva bør en god annonse inneholde?",
+    answer:
+      "En god annonse inneholder riktig kjøretøy- og delkategori, en tydelig overskrift, ekte bilder, pris, plassering, tilstand, OEM-nummer og alle kjente feil. Opplys også hvilket kjøretøy delen er demontert fra, og om funksjonen er testet."
+  },
+  {
+    id: "multi-parts",
+    topic: "seller",
+    question: "Kan jeg legge ut flere deler fra samme kjøretøy?",
+    answer:
+      "Ja. Velg funksjonen for flere annonser, legg inn de felles kjøretøyopplysningene én gang, og fyll ut egen pris, tilstand, beskrivelse og bilder for hver del. Da vises hver del som en egen annonse i søket."
+  },
+  {
+    id: "messages-payments",
+    topic: "safety",
+    question: "Går betalingen gjennom Maskines?",
+    answer:
+      "Nei. Maskines er en tjeneste for annonser og kontakt, og oppbevarer eller formidler ikke kjøpesummen. Kjøper og selger avtaler betaling, henting og levering seg imellom. Bruk en betalingsmåte der du kjenner vilkårene og eventuell kjøperbeskyttelse."
+  },
+  {
+    id: "bad-part",
+    topic: "buyer",
+    question: "Hva gjør jeg hvis delen ikke er som avtalt?",
+    answer:
+      "Ikke monter eller endre delen før saken er avklart. Fotografer emballasjen, delen, delenummeret og avviket. Kontakt selgeren umiddelbart via Maskines-meldinger og foreslå en løsning. Hvis saken ikke løses, sender du kundestøtten lenken til annonsen, bildene og meldingshistorikken."
+  },
+  {
+    id: "seller-response",
+    topic: "buyer",
+    question: "Hva gjør jeg hvis selgeren ikke svarer?",
+    answer:
+      "Gi selgeren rimelig tid til å svare, og prøv telefonnummeret i annonsen. Ikke send betaling før delens tilgjengelighet, kompatibilitet og vilkårene for handelen er bekreftet. Rapporter annonsen til kundestøtten hvis den virker utdatert eller mistenkelig."
+  },
+  {
+    id: "edit-or-sold",
+    topic: "seller",
+    question: "Hvordan redigerer eller sletter jeg en annonse?",
+    answer:
+      "Åpne Min garasje eller Mine annonser, velg den aktuelle annonsen og åpne redigeringen. Oppdater endrede opplysninger med en gang. Når delen er solgt, markerer du den som solgt eller sletter annonsen, slik at kjøpere ikke tar unødvendig kontakt."
+  },
+  {
+    id: "report-listing",
+    topic: "safety",
+    question: "Hvordan rapporterer jeg en mistenkelig annonse?",
+    answer:
+      "Avbryt handelen, og ta vare på lenken til annonsen og relevante meldinger. Send dem via kontaktsiden til Maskines eller til info@maskines.com. Forklar kort hva ved annonsen eller kontakten som gjorde deg mistenksom."
+  }
+];
+
+const pageText = {
+  fi: {
+    kicker: "Maskines ohjekeskus",
+    title: "Ohjeet",
+    intro: "Käytännön ohjeet varaosan löytämiseen, myymiseen ja turvalliseen kaupankäyntiin.",
+    chooseTopic: "Valitse aihe",
+    buyerGuidesTitle: "Ostajan ohjeet",
+    sellerGuidesTitle: "Myyjän ohjeet",
+    safetyGuidesTitle: "Turvallisen kaupan ohjeet",
+    frequentlyAsked: "Usein kysytyt kysymykset",
+    supportTitle: "Tarvitsetko apua?",
+    supportText: "Kerro ilmoituksen linkki ja mitä olit tekemässä, niin pääsemme nopeammin asiaan.",
+    contactTitle: "Ota yhteyttä",
+    contactText: "Lähetä viesti",
+    email: "Sähköposti"
+  },
+  no: {
+    kicker: "Maskines hjelpesenter",
+    title: "Hjelp",
+    intro: "Praktiske veiledninger for å finne og selge reservedeler og handle trygt.",
+    chooseTopic: "Velg tema",
+    buyerGuidesTitle: "Veiledning for kjøpere",
+    sellerGuidesTitle: "Veiledning for selgere",
+    safetyGuidesTitle: "Veiledning for trygg handel",
+    frequentlyAsked: "Ofte stilte spørsmål",
+    supportTitle: "Trenger du hjelp?",
+    supportText: "Send lenken til annonsen og fortell hva du prøvde å gjøre, så kan vi hjelpe deg raskere.",
+    contactTitle: "Kontakt oss",
+    contactText: "Send en melding",
+    email: "E-post"
+  }
+} as const;
+
+const faqContent = {
+  fi: {
+    ...pageText.fi,
+    topics: topicsFi,
+    buyerGuides: buyerGuidesFi,
+    sellerGuides: sellerGuidesFi,
+    safetyGuides: safetyGuidesFi,
+    faqItems: faqItemsFi
+  },
+  no: {
+    ...pageText.no,
+    topics: topicsNo,
+    buyerGuides: buyerGuidesNo,
+    sellerGuides: sellerGuidesNo,
+    safetyGuides: safetyGuidesNo,
+    faqItems: faqItemsNo
+  }
+} as const;
+
 export default function FaqPage() {
+  const { locale } = useLanguage();
   const [activeTopic, setActiveTopic] = useState<TopicId>("buyer");
+  const copy = faqContent[locale === "no" ? "no" : "fi"];
+  const primaryGuideItems =
+    activeTopic === "seller"
+      ? copy.sellerGuides
+      : activeTopic === "safety"
+        ? copy.safetyGuides
+        : copy.buyerGuides;
+  const primaryGuideTitle =
+    activeTopic === "seller"
+      ? copy.sellerGuidesTitle
+      : activeTopic === "safety"
+        ? copy.safetyGuidesTitle
+        : copy.buyerGuidesTitle;
+  const secondaryGuideItems = activeTopic === "seller" ? copy.buyerGuides : copy.sellerGuides;
+  const secondaryGuideTitle = activeTopic === "seller" ? copy.buyerGuidesTitle : copy.sellerGuidesTitle;
 
   const visibleFaqs = useMemo(() => {
-    return faqItems.filter((item) => {
+    return copy.faqItems.filter((item) => {
       return activeTopic === "general" ? true : item.topic === activeTopic || item.topic === "general";
     });
-  }, [activeTopic]);
+  }, [activeTopic, copy.faqItems]);
 
   function chooseTopic(topic: TopicId) {
     setActiveTopic(topic);
@@ -291,22 +584,26 @@ export default function FaqPage() {
   }
 
   return (
-    <main className="help-page">
+    <main
+      className="help-page"
+      data-no-auto-translate={locale === "no" ? "true" : undefined}
+      translate={locale === "no" ? "no" : undefined}
+    >
       <section className="help-hero">
         <div className="help-shell help-hero-inner">
           <div>
-            <span className="help-kicker">Maskines ohjekeskus</span>
-            <h1>Ohjeet</h1>
-            <p>Käytännön ohjeet varaosan löytämiseen, myymiseen ja turvalliseen kaupankäyntiin.</p>
+            <span className="help-kicker">{copy.kicker}</span>
+            <h1>{copy.title}</h1>
+            <p>{copy.intro}</p>
           </div>
         </div>
       </section>
 
       <section className="help-body">
         <div className="help-shell">
-          <h2>Valitse aihe</h2>
+          <h2>{copy.chooseTopic}</h2>
           <div className="help-topic-grid">
-            {topics.map((topic) => {
+            {copy.topics.map((topic) => {
               const Icon = topic.icon;
               const selected = activeTopic === topic.id;
 
@@ -335,15 +632,15 @@ export default function FaqPage() {
 
           <div className="help-columns" id="ohjeet">
             <HelpColumn
-              title="Ostajan ohjeet"
-              items={buyerGuides}
+              title={primaryGuideTitle}
+              items={primaryGuideItems}
             />
             <HelpColumn
-              title="Myyjän ohjeet"
-              items={sellerGuides}
+              title={secondaryGuideTitle}
+              items={secondaryGuideItems}
             />
             <section className="help-column">
-              <h3>Usein kysytyt kysymykset</h3>
+              <h3>{copy.frequentlyAsked}</h3>
               <div className="help-faq-list">
                 {visibleFaqs.map((item) => {
                   return (
@@ -366,21 +663,21 @@ export default function FaqPage() {
                 <Headphones size={28} aria-hidden="true" />
               </span>
               <div>
-                <strong>Tarvitsetko apua?</strong>
-                <small>Kerro ilmoituksen linkki ja mitä olit tekemässä, niin pääsemme nopeammin asiaan.</small>
+                <strong>{copy.supportTitle}</strong>
+                <small>{copy.supportText}</small>
               </div>
             </div>
-            <Link href={pagePath("contact", "fi")}>
+            <Link href={pagePath("contact", locale)}>
               <MessageCircle size={25} aria-hidden="true" />
               <span>
-                <strong>Ota yhteyttä</strong>
-                <small>Lähetä viesti</small>
+                <strong>{copy.contactTitle}</strong>
+                <small>{copy.contactText}</small>
               </span>
             </Link>
             <a href="mailto:info@maskines.com">
               <Mail size={25} aria-hidden="true" />
               <span>
-                <strong>Sähköposti</strong>
+                <strong>{copy.email}</strong>
                 <small>info@maskines.com</small>
               </span>
             </a>
