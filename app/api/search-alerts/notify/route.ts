@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+import { sendGmailMessage } from "@/lib/gmail";
 import { getListingPartNumber, type Listing } from "@/lib/listings";
-import { listingPath, listingUrlId } from "@/lib/routes";
+import {
+  notificationEmailLocale,
+  searchAlertEmail
+} from "@/lib/notification-emails";
+import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
 import { absoluteSiteUrl } from "@/lib/site-url";
 import type { AlertNotification, SearchAlert } from "@/lib/supabase";
 
@@ -75,74 +80,6 @@ function matchesAlert(alert: SearchAlert, listing: Listing) {
   return true;
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-async function sendAlertEmail(input: {
-  to: string;
-  alertLabel: string;
-  listing: Listing;
-  listingUrl: string;
-}) {
-  const resendApiKey = process.env.RESEND_API_KEY;
-  if (!resendApiKey) {
-    return { sent: false, error: "RESEND_API_KEY puuttuu" };
-  }
-
-  const from = process.env.ALERT_FROM_EMAIL ?? "KelkkaParts <onboarding@resend.dev>";
-  const title = escapeHtml(input.listing.title);
-  const alertLabel = escapeHtml(input.alertLabel);
-  const listingUrl = escapeHtml(input.listingUrl);
-  const price = new Intl.NumberFormat("fi-FI", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0
-  }).format(input.listing.price);
-
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      from,
-      to: [input.to],
-      subject: `Hakuvahti: ${input.listing.title}`,
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:28px;background:#f8fafc;">
-          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
-            <div style="background:#38bdf8;color:#fff;padding:22px 26px;">
-              <h1 style="font-size:20px;line-height:1.25;margin:0;">Hakuvahti löysi uuden ilmoituksen</h1>
-            </div>
-            <div style="padding:26px;">
-              <p style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;margin:0 0 6px;">Hakuvahti</p>
-              <p style="font-size:18px;font-weight:700;color:#0f172a;margin:0 0 22px;">${alertLabel}</p>
-              <div style="background:#f8fafc;border:1px solid #e8edf5;border-radius:12px;padding:18px;margin-bottom:22px;">
-                <p style="font-size:17px;font-weight:700;color:#0f172a;margin:0 0 8px;">${title}</p>
-                <p style="font-size:22px;font-weight:800;color:#38bdf8;margin:0;">${price}</p>
-              </div>
-              <a href="${listingUrl}" style="display:inline-block;background:#38bdf8;color:#fff;text-decoration:none;font-weight:700;border-radius:10px;padding:12px 22px;">Katso ilmoitus</a>
-            </div>
-          </div>
-        </div>
-      `
-    })
-  });
-
-  if (!response.ok) {
-    return { sent: false, error: await response.text() };
-  }
-
-  return { sent: true };
-}
-
 export async function POST(request: Request) {
   const admin = getAdminClient();
   if (!admin) {
@@ -201,6 +138,7 @@ export async function POST(request: Request) {
   for (const alert of alerts ?? []) {
     if (!matchesAlert(alert, listing)) continue;
 
+    let notificationCreated = false;
     const { data: existing } = await admin
       .from("alert_notifications")
       .select("id")
@@ -208,61 +146,125 @@ export async function POST(request: Request) {
       .eq("listing_id", listing.id)
       .maybeSingle<Pick<AlertNotification, "id">>();
 
-    if (existing) {
-      results.push({ alertId: alert.id, notificationCreated: false, emailSent: false });
-      continue;
-    }
+    if (!existing) {
+      const { error: insertError } = await admin
+        .from("alert_notifications")
+        .insert({
+          user_id: alert.user_id,
+          alert_id: alert.id,
+          listing_id: listing.id,
+          listing_title: listing.title,
+          listing_price: listing.price,
+          listing_image_url: listing.image_url,
+          alert_label: alert.label,
+          seen: false
+        });
 
-    const { error: insertError } = await admin
-      .from("alert_notifications")
-      .insert({
-        user_id: alert.user_id,
-        alert_id: alert.id,
-        listing_id: listing.id,
-        listing_title: listing.title,
-        listing_price: listing.price,
-        listing_image_url: listing.image_url,
-        alert_label: alert.label,
-        seen: false
-      });
+      if (insertError) {
+        results.push({
+          alertId: alert.id,
+          notificationCreated: false,
+          emailSent: false,
+          error: insertError.message
+        });
+        continue;
+      }
 
-    if (insertError) {
-      results.push({
-        alertId: alert.id,
-        notificationCreated: false,
-        emailSent: false,
-        error: insertError.message
-      });
-      continue;
+      notificationCreated = true;
     }
 
     const { data: userData, error: userError } =
       await admin.auth.admin.getUserById(alert.user_id);
+    const user = userData.user;
     const email = userData.user?.email;
 
     if (userError || !email) {
       results.push({
         alertId: alert.id,
-        notificationCreated: true,
+        notificationCreated,
         emailSent: false,
         error: userError?.message ?? "Käyttäjän sähköpostia ei löytynyt"
       });
       continue;
     }
 
-    const emailResult = await sendAlertEmail({
-      to: email,
+    if (user?.user_metadata?.search_alert_email_notifications === false) {
+      results.push({
+        alertId: alert.id,
+        notificationCreated,
+        emailSent: false
+      });
+      continue;
+    }
+
+    const storedMarkers =
+      user?.user_metadata?.search_alert_email_markers;
+    const markers =
+      storedMarkers &&
+      typeof storedMarkers === "object" &&
+      !Array.isArray(storedMarkers)
+        ? storedMarkers as Record<string, string>
+        : {};
+    const markerKey = `${alert.id}:${listing.id}`;
+
+    if (markers[markerKey]) {
+      results.push({
+        alertId: alert.id,
+        notificationCreated,
+        emailSent: false
+      });
+      continue;
+    }
+
+    const locale = notificationEmailLocale(user?.user_metadata?.locale);
+    const localizedListingUrl = absoluteSiteUrl(
+      listingPath(listingUrlId(listing), locale)
+    );
+    const settingsUrl = absoluteSiteUrl(pagePath("settings", locale));
+    const emailContent = searchAlertEmail({
+      locale,
       alertLabel: alert.label,
-      listing,
-      listingUrl
+      listingTitle: listing.title,
+      price: listing.price,
+      listingUrl: localizedListingUrl || listingUrl,
+      settingsUrl
     });
 
-    results.push({
-      alertId: alert.id,
-      notificationCreated: true,
-      emailSent: emailResult.sent,
-      error: emailResult.error
-    });
+    try {
+      await sendGmailMessage({
+        to: email,
+        ...emailContent
+      });
+
+      const recentMarkers = Object.fromEntries(
+        Object.entries(markers).slice(-99)
+      );
+      await admin.auth.admin.updateUserById(alert.user_id, {
+        user_metadata: {
+          ...user?.user_metadata,
+          search_alert_email_markers: {
+            ...recentMarkers,
+            [markerKey]: new Date().toISOString()
+          }
+        }
+      });
+
+      results.push({
+        alertId: alert.id,
+        notificationCreated,
+        emailSent: true
+      });
+    } catch (emailError) {
+      results.push({
+        alertId: alert.id,
+        notificationCreated,
+        emailSent: false,
+        error:
+          emailError instanceof Error
+            ? emailError.message
+            : "Gmail-lähetys epäonnistui."
+      });
+    }
   }
 
   return NextResponse.json({

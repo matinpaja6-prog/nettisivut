@@ -1560,6 +1560,24 @@ function AuthPageContent() {
     replaceAuthModeUrl(authPagePath, mode);
   }
 
+  async function switchToLogin() {
+    setStatus("");
+    setAuthSubmitting(true);
+    clearGoogleAuthIntent();
+
+    try {
+      if (user) {
+        await signOut();
+        setUser(null);
+        setProfile(null);
+        setProfileLookupDone(false);
+      }
+    } finally {
+      setAuthSubmitting(false);
+      switchAuthMode("login");
+    }
+  }
+
   function returnToHome() {
     router.push("/");
   }
@@ -1931,17 +1949,24 @@ function AuthPageContent() {
                 <span>Gmail</span>
               </button>
             </div>
+              </>
+            )}
             <p className="auth-mode-switch">
               {authMode === "login" ? "Eikö sinulla ole tiliä?" : "Onko sinulla tili?"}{" "}
               <button
                 type="button"
-                onClick={() => switchAuthMode(nextAuthMode)}
+                disabled={authSubmitting}
+                onClick={() => {
+                  if (authMode === "register") {
+                    void switchToLogin();
+                    return;
+                  }
+                  switchAuthMode(nextAuthMode);
+                }}
               >
                 {authMode === "login" ? t.register : t.login}
               </button>
             </p>
-              </>
-            )}
             {status ? <span className="form-note">{status}</span> : null}
           </form>
         ) : (
