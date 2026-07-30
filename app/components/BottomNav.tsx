@@ -205,6 +205,19 @@ export default function BottomNav() {
       : `${authHref}?mode=login&next=${encodeURIComponent(sellHref)}&reason=sell`;
 
   useEffect(() => {
+    const closeTransientPanels = () => {
+      setProfileOpen(false);
+      setNotifOpen(false);
+      setGarageOpen(false);
+    };
+
+    closeTransientPanels();
+    window.addEventListener("pageshow", closeTransientPanels);
+
+    return () => window.removeEventListener("pageshow", closeTransientPanels);
+  }, [canonicalPathname]);
+
+  useEffect(() => {
     if (!supabase) {
       setAuthChecked(true);
       return;

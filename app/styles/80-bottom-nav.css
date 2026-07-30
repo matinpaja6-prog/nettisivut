@@ -366,6 +366,32 @@ body:has(.bn-garage-panel) .fc-button {
 }
 
 @media (max-width: 760px) {
+  html body .bn-sheet-backdrop {
+    align-items: flex-end !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    justify-content: center !important;
+    padding:
+      12px
+      max(8px, env(safe-area-inset-right))
+      calc(72px + env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left)) !important;
+  }
+
+  html body .bn-sheet-backdrop > .bn-sheet {
+    bottom: auto !important;
+    left: auto !important;
+    margin: 0 !important;
+    max-height: min(72dvh, 620px) !important;
+    overflow-y: auto !important;
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    touch-action: pan-y !important;
+    width: min(390px, 100%) !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
   html body .bottom-nav:not(.bottom-nav-main) {
     display: none !important;
   }

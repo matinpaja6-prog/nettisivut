@@ -2080,28 +2080,6 @@ function HomeContent({
   const [sortSheetOpen, setSortSheetOpen] = useState(false);
 
   useEffect(() => {
-    const body = document.body;
-    const root = document.documentElement;
-
-    if (!compactHeroSearch || !homeSearchPanelOpen) {
-      delete body.dataset.homeSearchLocked;
-      delete root.dataset.homeSearchLocked;
-      return;
-    }
-
-    const lockedScrollY = window.scrollY;
-
-    body.dataset.homeSearchLocked = "true";
-    root.dataset.homeSearchLocked = "true";
-
-    return () => {
-      delete body.dataset.homeSearchLocked;
-      delete root.dataset.homeSearchLocked;
-      window.scrollTo(0, lockedScrollY);
-    };
-  }, [compactHeroSearch, homeSearchPanelOpen]);
-
-  useEffect(() => {
     const openMobileFilters = () => {
       setMobileFilterExpanded(true);
       setActiveHeroFilter(null);

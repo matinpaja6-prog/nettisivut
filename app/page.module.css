@@ -28201,8 +28201,10 @@
     display: block !important;
     inset: 0 !important;
     margin: 0 !important;
+    overscroll-behavior: none !important;
     padding: 0 !important;
     position: fixed !important;
+    touch-action: none !important;
     z-index: 9000 !important;
   }
 
@@ -31017,14 +31019,6 @@
 
 /* Keep the phone location picker above every filter control and cover the bottom safe area. */
 @media (max-width: 720px), (pointer: coarse) {
-  :global(html):has(.mobileFilterSheet),
-  :global(html):has(.mobileFilterSheet) :global(body) {
-    margin: 0 !important;
-    overflow: hidden !important;
-    overscroll-behavior: none !important;
-    padding: 0 !important;
-  }
-
   :global(html body) > .mobileFilterBackdrop {
     background: rgba(0, 0, 0, 0.54) !important;
     height: 100dvh !important;
