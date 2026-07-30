@@ -10,7 +10,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
   title: {
-    absolute: "Käytetyt moottorikelkan ja pienkoneiden varaosat | Maskines"
+    absolute: "Maskines: Osta ja myy ajoneuvojen varaosat"
   },
   description:
     "Osta ja myy käytettyjä moottorikelkan, mönkijän, motocross-pyörän ja mopon varaosia. Hae osia merkin, mallin, vuosimallin ja kategorian mukaan.",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fi_FI",
     siteName: "Maskines",
-    title: "Käytetyt moottorikelkan ja pienkoneiden varaosat | Maskines",
+    title: "Maskines: Osta ja myy ajoneuvojen varaosat",
     description:
       "Ajoneuvojen käytettyjen varaosien markkinapaikka. Löydä moottorikelkan, mönkijän, motocross-pyörän ja mopon osat.",
     url: absoluteSiteUrl("/"),
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Käytetyt moottorikelkan ja pienkoneiden varaosat | Maskines",
+    title: "Maskines: Osta ja myy ajoneuvojen varaosat",
     description:
       "Osta ja myy käytettyjä moottorikelkan, mönkijän, motocross-pyörän ja mopon varaosia.",
     images: [absoluteSiteUrl("/maskines-share-logo.png")]
