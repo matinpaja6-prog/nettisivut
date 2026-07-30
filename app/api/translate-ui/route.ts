@@ -22,7 +22,7 @@ function normalizeTexts(value: unknown) {
     new Set(
       value
         .map((item) => (typeof item === "string" ? item.trim() : ""))
-        .filter((item) => item.length >= 2 && item.length <= 280)
+        .filter((item) => item.length >= 2 && item.length <= 500)
     )
   ).slice(0, 40);
 

@@ -21,7 +21,7 @@ type AttrEntry = {
 };
 
 const ATTRS: AttrName[] = ["placeholder", "title", "aria-label"];
-const TRANSLATION_CACHE_VERSION = "v15";
+const TRANSLATION_CACHE_VERSION = "v16";
 
 const WINDOWS_1252_BYTES: Record<string, number> = {
   "\u20ac": 0x80,
@@ -593,44 +593,10 @@ function getStaticTranslation(locale: SupportedLocale, text: string) {
   const categoryTranslation = translateCategory(locale, trimmed);
   if (categoryTranslation !== trimmed) return repairMojibake(categoryTranslation);
 
-  let replaced = trimmed;
-  let changed = false;
-  const entries = Object.entries(staticUiTranslations[locale])
-    .filter(([source]) => source.trim().length >= 4)
-    .sort(([a], [b]) => b.length - a.length);
-
-  for (const [source, translated] of entries) {
-    let cursor = 0;
-    let nextValue = "";
-    let sourceChanged = false;
-
-    while (cursor < replaced.length) {
-      const index = replaced.indexOf(source, cursor);
-      if (index < 0) break;
-
-      const previous = index > 0 ? replaced[index - 1] : "";
-      const next = replaced[index + source.length] ?? "";
-      const sourceStartsWithWord = /[\p{L}\p{N}]/u.test(source[0] ?? "");
-      const sourceEndsWithWord = /[\p{L}\p{N}]/u.test(source[source.length - 1] ?? "");
-      const hasWordBefore = previous ? /[\p{L}\p{N}]/u.test(previous) : false;
-      const hasWordAfter = next ? /[\p{L}\p{N}]/u.test(next) : false;
-
-      if ((sourceStartsWithWord && hasWordBefore) || (sourceEndsWithWord && hasWordAfter)) {
-        nextValue += replaced.slice(cursor, index + source.length);
-      } else {
-        nextValue += replaced.slice(cursor, index) + repairMojibake(translated);
-        sourceChanged = true;
-      }
-      cursor = index + source.length;
-    }
-
-    if (sourceChanged) {
-      replaced = nextValue + replaced.slice(cursor);
-      changed = true;
-    }
-  }
-
-  return changed ? replaced : null;
+  // Never assemble a sentence from individually translated fragments. That
+  // produced mixed-language UI such as "Tee löydettävä annons". An unknown
+  // complete string is sent to the translation endpoint instead.
+  return null;
 }
 
 export default function AutoTranslate() {
