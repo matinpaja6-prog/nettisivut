@@ -16,9 +16,11 @@ function getVisitorIp(requestHeaders: Headers) {
   const forwardedFor = requestHeaders.get("x-forwarded-for");
 
   return (
-    forwardedFor?.split(",")[0]?.trim() ||
-    requestHeaders.get("x-real-ip") ||
     requestHeaders.get("cf-connecting-ip") ||
+    requestHeaders.get("true-client-ip") ||
+    requestHeaders.get("x-nf-client-connection-ip") ||
+    requestHeaders.get("x-real-ip") ||
+    forwardedFor?.split(",")[0]?.trim() ||
     "local-development"
   );
 }

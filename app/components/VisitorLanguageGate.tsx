@@ -102,6 +102,9 @@ export default function VisitorLanguageGate() {
       .then(({ fingerprint: nextFingerprint, selectedLocale }) => {
         if (cancelled) return;
         if (!nextFingerprint) {
+          openTimer = setTimeout(() => {
+            if (!cancelled) setOpen(true);
+          }, 450);
           markVisitorLanguageReady();
           return;
         }
@@ -124,8 +127,7 @@ export default function VisitorLanguageGate() {
         }
 
         const rememberedLocale =
-          localStorage.getItem(`${STORAGE_PREFIX}${nextFingerprint}`) ||
-          localStorage.getItem("locale");
+          localStorage.getItem(`${STORAGE_PREFIX}${nextFingerprint}`);
 
         if (isLocale(rememberedLocale)) {
           localStorage.setItem(`${STORAGE_PREFIX}${nextFingerprint}`, rememberedLocale);
@@ -148,8 +150,14 @@ export default function VisitorLanguageGate() {
         markVisitorLanguageReady();
       })
       .catch(() => {
-        // If IP detection is unavailable, the normal language switcher remains usable.
-        if (!cancelled) markVisitorLanguageReady();
+        // A temporary IP lookup failure must not hide the language choice from
+        // a genuinely new visitor.
+        if (!cancelled) {
+          openTimer = setTimeout(() => {
+            if (!cancelled) setOpen(true);
+          }, 450);
+          markVisitorLanguageReady();
+        }
       });
 
     return () => {
@@ -201,10 +209,10 @@ export default function VisitorLanguageGate() {
   }, [fingerprint]);
 
   function selectLanguage(locale: SupportedLocale) {
-    if (!fingerprint) return;
-
-    localStorage.setItem(`${STORAGE_PREFIX}${fingerprint}`, locale);
-    rememberOnServer(locale);
+    if (fingerprint) {
+      localStorage.setItem(`${STORAGE_PREFIX}${fingerprint}`, locale);
+      rememberOnServer(locale);
+    }
     applyLocale(locale);
     setOpen(false);
   }
