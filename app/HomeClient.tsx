@@ -4812,9 +4812,10 @@ function HomeContent({
                   <Image
                     src="/vehicles/hero-snowmobile-marketplace.webp"
                     alt=""
-                    width={836}
-                    height={471}
-                    sizes="(max-width: 760px) 94vw, 48vw"
+                    width={1672}
+                    height={941}
+                    sizes="100vw"
+                    quality={90}
                     decoding="async"
                     priority
                     fetchPriority="high"
