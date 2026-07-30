@@ -34,11 +34,15 @@ html[data-user-background-tone] main {
 }
 
 @media (max-width: 720px), (pointer: coarse) {
+  html[data-home-search-locked="true"],
   body[data-home-search-locked="true"] {
-    height: 100% !important;
     overflow: hidden !important;
     overscroll-behavior: none !important;
-    touch-action: none !important;
+    touch-action: pan-y !important;
+  }
+
+  body[data-home-search-locked="true"] {
+    height: 100% !important;
   }
 }
 

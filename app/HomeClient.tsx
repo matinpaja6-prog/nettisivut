@@ -2080,26 +2080,23 @@ function HomeContent({
   const [sortSheetOpen, setSortSheetOpen] = useState(false);
 
   useEffect(() => {
-    if (!compactHeroSearch || !homeSearchPanelOpen) return;
+    const body = document.body;
+    const root = document.documentElement;
 
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousBodyTouchAction = document.body.style.touchAction;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    const previousHtmlOverscrollBehavior = document.documentElement.style.overscrollBehavior;
+    if (!compactHeroSearch || !homeSearchPanelOpen) {
+      delete body.dataset.homeSearchLocked;
+      delete root.dataset.homeSearchLocked;
+      return;
+    }
+
     const lockedScrollY = window.scrollY;
 
-    document.body.dataset.homeSearchLocked = "true";
-    document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
-    document.documentElement.style.overflow = "hidden";
-    document.documentElement.style.overscrollBehavior = "none";
+    body.dataset.homeSearchLocked = "true";
+    root.dataset.homeSearchLocked = "true";
 
     return () => {
-      delete document.body.dataset.homeSearchLocked;
-      document.body.style.overflow = previousBodyOverflow;
-      document.body.style.touchAction = previousBodyTouchAction;
-      document.documentElement.style.overflow = previousHtmlOverflow;
-      document.documentElement.style.overscrollBehavior = previousHtmlOverscrollBehavior;
+      delete body.dataset.homeSearchLocked;
+      delete root.dataset.homeSearchLocked;
       window.scrollTo(0, lockedScrollY);
     };
   }, [compactHeroSearch, homeSearchPanelOpen]);

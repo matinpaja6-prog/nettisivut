@@ -28233,7 +28233,7 @@
     width: 100vw !important;
     z-index: 9001 !important;
     overscroll-behavior: contain !important;
-    touch-action: none !important;
+    touch-action: pan-y !important;
   }
 
   :global(html body) .heroRightRail.mobileFilterSheetExpanded,
@@ -30554,14 +30554,12 @@
   }
 }
 
-/* Keep the latest-listings heading and sort control inside narrow phones.
-   The shared sort button has a fixed mobile width, so size this homepage
-   instance from the space that is actually available beside the heading. */
+/* Keep the latest-listings sort control compact and left-aligned on phones. */
 @media (max-width: 760px) {
   :global(html body) main[data-home-page] .heroDesktopLatestHead {
     display: grid !important;
     gap: 8px !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 176px) !important;
+    grid-template-columns: minmax(0, 1fr) !important;
     max-width: 100% !important;
     width: 100% !important;
   }
@@ -30572,23 +30570,35 @@
     min-width: 0 !important;
   }
 
-  :global(html body) main[data-home-page] .heroDesktopLatestActions,
-  :global(html body) main[data-home-page] .heroDesktopLatestSort,
-  :global(html body) main[data-home-page] .heroDesktopLatestSort .sortButtonFace {
-    max-width: 100% !important;
-    width: 100% !important;
+  :global(html body) main[data-home-page] .heroDesktopLatestActions {
+    justify-content: flex-end !important;
+    justify-self: end !important;
+    margin-left: auto !important;
+    max-width: 168px !important;
+    width: 168px !important;
   }
 
   :global(html body) main[data-home-page] .heroDesktopLatestSort {
+    justify-items: end !important;
+    justify-self: end !important;
+    max-width: 168px !important;
     transform: none !important;
+    width: 168px !important;
   }
 
   :global(html body) main[data-home-page] .heroDesktopLatestSort .sortButtonFace {
-    gap: 4px !important;
+    gap: 6px !important;
     grid-template-columns: 16px minmax(0, 1fr) 14px !important;
+    height: 38px !important;
     min-width: 0 !important;
-    padding-left: 5px !important;
-    padding-right: 5px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    width: 168px !important;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestSort .sortMenuPanel {
+    left: auto !important;
+    right: 0 !important;
   }
 }
 
@@ -30598,7 +30608,7 @@
   }
 
   :global(html body) main[data-home-page] .heroDesktopLatestActions {
-    justify-content: stretch !important;
+    justify-content: flex-end !important;
   }
 }
 
