@@ -915,9 +915,12 @@ html body :is(#rs-seller-final, [data-seller-panel]) .seller-stats-row {
    Layer promotion prevents the bar from briefly scrolling with the document
    while Safari expands or collapses its browser chrome. */
 @media (max-width: 760px) {
-  html,
-  body {
+  html {
     overscroll-behavior-y: none;
+  }
+
+  body {
+    overscroll-behavior-y: auto;
   }
 
   html body .bottom-nav.bottom-nav-main {

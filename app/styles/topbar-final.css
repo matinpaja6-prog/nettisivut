@@ -4462,9 +4462,15 @@ html body:not(:has(> .universal-profile-menu-portal)) > .universal-profile-menu-
 }
 
 @media (max-width: 760px) {
-  html:not(:has(body > .universal-profile-menu-portal)):not(:has(.visitor-language-backdrop)):not(:has([data-mobile-filter-backdrop="true"])),
-  html:not(:has(body > .universal-profile-menu-portal)):not(:has(.visitor-language-backdrop)):not(:has([data-mobile-filter-backdrop="true"])) body {
+  html:not(:has(body > .universal-profile-menu-portal)):not(:has(.visitor-language-backdrop)):not(:has([data-mobile-filter-backdrop="true"])) {
     overflow-y: auto !important;
+    overscroll-behavior-y: auto !important;
+    touch-action: pan-y !important;
+  }
+
+  html:not(:has(body > .universal-profile-menu-portal)):not(:has(.visitor-language-backdrop)):not(:has([data-mobile-filter-backdrop="true"])) body {
+    overflow-y: visible !important;
+    overscroll-behavior-y: auto !important;
     touch-action: pan-y !important;
   }
 }
