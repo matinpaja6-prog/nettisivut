@@ -2413,16 +2413,28 @@ function HomeContent({
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 800px)");
+    const closeCompactSearch = () => {
+      if (!media.matches && window.innerWidth > 800) return;
+
+      setHomeSearchPanelOpen(false);
+      setMobileFilterExpanded(false);
+      setMobileFilterDragOffset(0);
+      setActiveHeroFilter(null);
+    };
     const syncCompactSearch = () => {
       const isMobileSearch = media.matches || window.innerWidth <= 800;
       setCompactHeroSearch(isMobileSearch);
-      if (isMobileSearch) setHomeSearchPanelOpen(false);
+      if (isMobileSearch) closeCompactSearch();
     };
 
     syncCompactSearch();
     media.addEventListener("change", syncCompactSearch);
+    window.addEventListener("pageshow", closeCompactSearch);
 
-    return () => media.removeEventListener("change", syncCompactSearch);
+    return () => {
+      media.removeEventListener("change", syncCompactSearch);
+      window.removeEventListener("pageshow", closeCompactSearch);
+    };
   }, []);
 
   const openMobileHomeSearchSheet = useCallback(() => {
@@ -4934,6 +4946,16 @@ function HomeContent({
                         key={listing.id}
                         data-listing-card="true"
                         className={`${styles.card} ${styles.heroDesktopLatestCard}`}
+                        role="link"
+                        tabIndex={0}
+                        aria-label={`${t.openListing} ${listingText.title}`}
+                        onClick={() => openListing(listing)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            openListing(listing);
+                          }
+                        }}
                       >
                         <div className={`${styles.cardImage} ${styles.listingCardImage} ${styles.heroDesktopLatestImage}`}>
                           <span className={styles.cardImageBlur} aria-hidden="true">
@@ -4947,6 +4969,7 @@ function HomeContent({
                             className={`${styles.favoriteButton} ${styles.heroDesktopFavorite} ${
                               isFavorite ? `${styles.favoriteButtonActive} ${styles.heroDesktopFavoriteActive}` : ""
                             }`}
+                            onClick={(event) => toggleFavorite(event, listing.id)}
                             onMouseDown={(event) => {
                               event.stopPropagation();
                             }}
@@ -4986,15 +5009,6 @@ function HomeContent({
                             </span>
                           </div>
                         </div>
-                        <Link
-                          className={styles.cardLink}
-                          href={listingPath(listingUrlId(listing), locale)}
-                          aria-label={`${t.openListing} ${listingText.title}`}
-                          onClick={() => {
-                            saveHomeReturnState();
-                            updateCachedListing(listing);
-                          }}
-                        />
                       </article>
                     );
                   })}
@@ -5072,6 +5086,7 @@ function HomeContent({
               <button
                 type="button"
                 className={styles.mobileFilterBackdrop}
+                data-mobile-filter-backdrop="true"
                 aria-label="Sulje suodatus"
                 onClick={() => {
                   setHomeSearchPanelOpen(false);

@@ -149,17 +149,19 @@
     display: none !important;
   }
 
-  html body [class*="mobileFilterBackdrop"] {
+  html body [data-mobile-filter-backdrop="true"] {
     background: rgba(0, 0, 0, 0.56) !important;
     border: 0 !important;
     display: block !important;
     inset: 0 !important;
+    overscroll-behavior: auto !important;
     padding: 0 !important;
     position: fixed !important;
+    touch-action: pan-y !important;
     z-index: 2147483646 !important;
   }
 
-  html body:not(:has([class*="mobileFilterBackdrop"])) [class*="heroRightRail"][class*="mobileFilterSheet"] {
+  html body:not(:has([data-mobile-filter-backdrop="true"])) [class*="heroRightRail"][class*="mobileFilterSheet"] {
     display: none !important;
     pointer-events: none !important;
     visibility: hidden !important;

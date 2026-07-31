@@ -2204,12 +2204,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
-.cardLink {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-}
-
 .cardImage {
   aspect-ratio: 4 / 3;
   height: clamp(190px, 18vw, 245px);
@@ -28201,10 +28195,10 @@
     display: block !important;
     inset: 0 !important;
     margin: 0 !important;
-    overscroll-behavior: none !important;
+    overscroll-behavior: auto !important;
     padding: 0 !important;
     position: fixed !important;
-    touch-action: none !important;
+    touch-action: pan-y !important;
     z-index: 9000 !important;
   }
 
