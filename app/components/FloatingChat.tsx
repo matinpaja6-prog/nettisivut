@@ -495,6 +495,9 @@ export default function FloatingChat() {
 
     try {
       setImagePreview(await resizeMessageImageTo1080p(file));
+    } catch (error) {
+      setImagePreview(null);
+      setSendError(getErrorMessage(error));
     } finally {
       setImageLoading(false);
       event.target.value = "";

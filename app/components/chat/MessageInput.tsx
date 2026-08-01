@@ -22,6 +22,7 @@ type Props = {
 const messageInputCopy = {
   fi: {
     sendFailed: "Viestin lähetys epäonnistui. Yritä uudelleen.",
+    imageFailed: "Kuvan pakkaaminen epäonnistui. Valitse toinen kuva.",
     processingImage: "Kuva käsitellään",
     convertingImage: "Muunnetaan 1080p-kokoon",
     imageSelected: "Kuva valittu",
@@ -37,6 +38,7 @@ const messageInputCopy = {
   },
   no: {
     sendFailed: "Meldingen kunne ikke sendes. Prøv igjen.",
+    imageFailed: "Bildet kunne ikke komprimeres. Velg et annet bilde.",
     processingImage: "Bildet behandles",
     convertingImage: "Konverteres til 1080p",
     imageSelected: "Bilde valgt",
@@ -124,9 +126,13 @@ export default function MessageInput({
     if (!file || !file.type.startsWith("image/")) return;
 
     setImageLoading(true);
+    setSendError("");
 
     try {
       setPreview(await resizeMessageImageTo1080p(file));
+    } catch {
+      setPreview(null);
+      setSendError(copy.imageFailed);
     } finally {
       setImageLoading(false);
     }
