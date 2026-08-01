@@ -15,6 +15,7 @@ const TRUSTED_MUTATION_ORIGINS = new Set([
 ]);
 const API_RATE_LIMIT_WINDOW_MS = 60_000;
 const API_MAX_BODY_BYTES = 128_000;
+const MESSAGE_IMAGE_MAX_BODY_BYTES = 750_000;
 const apiRateLimitCache = new Map<string, { count: number; resetAt: number }>();
 const PRIVATE_NOINDEX_PREFIXES = [
   "/admin",
@@ -329,7 +330,10 @@ export async function middleware(request: NextRequest) {
     }
 
     const contentLength = Number(request.headers.get("content-length") || "0");
-    if (Number.isFinite(contentLength) && contentLength > API_MAX_BODY_BYTES) {
+    const maxBodyBytes = pathname === "/api/messages/send"
+      ? MESSAGE_IMAGE_MAX_BODY_BYTES
+      : API_MAX_BODY_BYTES;
+    if (Number.isFinite(contentLength) && contentLength > maxBodyBytes) {
       return applySecurityHeaders(
         NextResponse.json({ error: "Pyyntö on liian suuri." }, { status: 413 })
       );
