@@ -5628,12 +5628,37 @@ export async function sendChatMessage(msg: {
   try {
     const { data: sessionData, error: sessionError } =
       await supabase.auth.getSession();
-    const accessToken = sessionData.session?.access_token;
-    if (sessionError || !accessToken) {
+    const session = sessionData.session;
+    const accessToken = session?.access_token;
+    if (sessionError || !session || !accessToken) {
       return {
         data: null,
         error: sessionError ?? new Error("Kirjautuminen ei ole voimassa.")
       };
+    }
+
+    let messageImage = msg.image?.trim() || null;
+    if (messageImage?.startsWith("data:image/")) {
+      const imageResponse = await fetch(messageImage);
+      const imageBlob = await imageResponse.blob();
+      const extension = imageBlob.type === "image/jpeg" ? "jpg" : "webp";
+      const imagePath = `${session.user.id}/messages/${crypto.randomUUID()}.${extension}`;
+      const { error: uploadError } = await supabase.storage
+        .from("listing-images")
+        .upload(imagePath, imageBlob, {
+          cacheControl: "31536000",
+          contentType: imageBlob.type || "image/webp",
+          upsert: false
+        });
+
+      if (uploadError) {
+        return { data: null, error: uploadError };
+      }
+
+      const { data: publicImage } = supabase.storage
+        .from("listing-images")
+        .getPublicUrl(imagePath);
+      messageImage = publicImage.publicUrl || null;
     }
 
     const response = await fetch("/api/messages/send", {
@@ -5645,7 +5670,7 @@ export async function sendChatMessage(msg: {
       body: JSON.stringify({
         conversation_id: msg.conversation_id,
         content: msg.content,
-        image: msg.image ?? null
+        image: messageImage
       })
     });
     const payload = await response.json().catch(() => ({})) as {

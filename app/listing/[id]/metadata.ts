@@ -104,6 +104,16 @@ export async function generateListingMetadataForLocale(
 ): Promise<Metadata> {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
+
+  // Local navigation must not wait for remote social/SEO metadata. Production
+  // still generates the complete listing metadata below.
+  if (process.env.NODE_ENV === "development") {
+    return {
+      title: "Ilmoitus | Maskines",
+      robots: { index: false, follow: false }
+    };
+  }
+
   const { data: listing } = await getListingById(decodedId);
 
   if (!listing || listing.is_hidden || listing.is_sold) {

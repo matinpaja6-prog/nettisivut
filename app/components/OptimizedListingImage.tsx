@@ -49,7 +49,10 @@ export default function OptimizedListingImage({
       loading={priority ? undefined : "lazy"}
       decoding="async"
       referrerPolicy="no-referrer"
-      unoptimized={currentSrc.startsWith("data:")}
+      // The local dev server may not be allowed to proxy remote Supabase
+      // images. Let the browser fetch them directly on localhost; production
+      // continues to use Next.js image optimization.
+      unoptimized={process.env.NODE_ENV === "development" || currentSrc.startsWith("data:")}
       className={className}
       aria-hidden={decorative || undefined}
       onTouchStart={onTouchStart}

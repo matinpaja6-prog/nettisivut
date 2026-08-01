@@ -1749,10 +1749,9 @@ function HomeContent({
 
   const [query, setQuery] = useState("");
   const [compactHeroSearch, setCompactHeroSearch] = useState(false);
-  const [homeSearchPanelOpen, setHomeSearchPanelOpen] = useState(() => {
-    if (typeof window === "undefined") return true;
-    return !window.matchMedia("(max-width: 800px)").matches;
-  });
+  // Keep the server and browser's first render identical. The responsive
+  // effect below applies the actual viewport state immediately after mount.
+  const [homeSearchPanelOpen, setHomeSearchPanelOpen] = useState(true);
   const [mobileFilterExpanded, setMobileFilterExpanded] = useState(false);
   const [mobileFilterDragOffset, setMobileFilterDragOffset] = useState(0);
   const mobileFilterDragStartRef = useRef<number | null>(null);

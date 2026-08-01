@@ -7,6 +7,7 @@ import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import { translateCategory, useLanguage } from "@/lib/i18n";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import { sanitizePhoneInput } from "@/lib/phone-input";
+import { prepareImageFileTo1080p } from "@/app/components/chat/image-processing";
 
 import {
   ArrowUp,
@@ -867,7 +868,7 @@ export default function MyListingsPage() {
 
   }
 
-  function handleListingImageUpload(files: FileList | null | undefined) {
+  async function handleListingImageUpload(files: FileList | null | undefined) {
     const selectedFiles = Array.from(files ?? []);
     if (selectedFiles.length === 0) return;
 
@@ -895,28 +896,42 @@ export default function MyListingsPage() {
       return;
     }
 
-    const reads = selectedFiles.map((file) =>
-      new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result === "string") {
-            resolve(reader.result);
-          } else {
-            reject(new Error("Kuvan lukeminen epäonnistui."));
-          }
-        };
-        reader.onerror = () => reject(new Error("Kuvan lukeminen epäonnistui."));
-        reader.readAsDataURL(file);
-      })
-    );
+    if (!supabase || !user || !editingListingId) {
+      setStatus("Kuvan lisääminen epäonnistui. Kirjaudu uudelleen sisään.");
+      return;
+    }
 
-    void Promise.all(reads)
-      .then((results) => {
+    listingFormDirtyRef.current = true;
+    setStatus("Kuvat muunnetaan 1080p-kokoon ja ladataan...");
+
+    try {
+      const uploadedUrls: string[] = [];
+      for (const file of selectedFiles) {
+        const uploadFile = await prepareImageFileTo1080p(file);
+        const extension = uploadFile.type === "image/jpeg" ? "jpg" : "webp";
+        const path = `${user.id}/${editingListingId}/${crypto.randomUUID()}.${extension}`;
+        const { error: uploadError } = await supabase.storage
+          .from("listing-images")
+          .upload(path, uploadFile, {
+            cacheControl: "31536000",
+            contentType: uploadFile.type,
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from("listing-images")
+          .getPublicUrl(path);
+        if (data.publicUrl) uploadedUrls.push(data.publicUrl);
+      }
+
+      if (uploadedUrls.length > 0) {
         setListingForm((prev) => {
           const nextImages = Array.from(
             new Set([
               ...prev.image_urls,
-              ...results
+              ...uploadedUrls
             ])
           );
 
@@ -926,10 +941,11 @@ export default function MyListingsPage() {
             image_urls: nextImages
           };
         });
-      })
-      .catch(() => {
-        setStatus("Kuvan lisääminen epäonnistui.");
-      });
+      }
+      setStatus("");
+    } catch (error) {
+      setStatus(`Kuvan lisääminen epäonnistui: ${getErrorMessage(error)}`);
+    }
   }
 
   function removeListingImage(index: number) {

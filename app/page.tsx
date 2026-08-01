@@ -48,11 +48,17 @@ function serializeStructuredData(value: unknown) {
 }
 
 export default async function HomePage() {
-  const { data: listings } = await getListings({
-    includeOptionalFields: false,
-    enrichSellerProfiles: false,
-    limit: 48
-  });
+  // In development the browser client already restores cached listings and
+  // refreshes them after the first paint. Waiting for the remote Supabase
+  // request here made every localhost reload block for several seconds.
+  // Production keeps server-rendered listings for SEO and fast public loads.
+  const listings = process.env.NODE_ENV === "development"
+    ? []
+    : (await getListings({
+        includeOptionalFields: false,
+        enrichSellerProfiles: false,
+        limit: 48
+      })).data;
 
   const publicListings = listings.filter(
     (listing) => !listing.is_hidden && !listing.is_sold

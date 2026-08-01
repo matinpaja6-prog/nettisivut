@@ -1,6 +1,7 @@
 "use client";
 
-const JPEG_QUALITY = 0.86;
+const MAX_IMAGE_SIDE = 1080;
+const IMAGE_QUALITY = 0.84;
 
 type LoadedImage = {
   source: CanvasImageSource;
@@ -10,42 +11,44 @@ type LoadedImage = {
 };
 
 export async function resizeMessageImageTo1080p(file: File): Promise<string> {
+  const resizedFile = await prepareImageFileTo1080p(file);
+  return readFileAsDataUrl(resizedFile);
+}
+
+export async function prepareImageFileTo1080p(file: File): Promise<File> {
   if (!file.type.startsWith("image/")) {
     throw new Error("Selected file is not an image.");
   }
 
+  const image = await loadImage(file);
   try {
-    const image = await loadImage(file);
     const size = get1080pSize(image.width, image.height);
     const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+    const context = canvas.getContext("2d", { alpha: false });
 
-    if (!context) {
-      image.close?.();
-      return readFileAsDataUrl(file);
-    }
+    if (!context) throw new Error("Image could not be processed.");
 
     canvas.width = size.width;
     canvas.height = size.height;
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = "high";
     context.drawImage(image.source, 0, 0, size.width, size.height);
-    image.close?.();
+    const outputType = file.type === "image/png" ? "image/jpeg" : "image/webp";
+    const blob = await canvasToBlob(canvas, outputType, IMAGE_QUALITY);
+    const extension = outputType === "image/webp" ? "webp" : "jpg";
+    const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
 
-    return canvas.toDataURL("image/jpeg", JPEG_QUALITY);
-  } catch {
-    return readFileAsDataUrl(file);
+    return new File([blob], `${baseName}-1080p.${extension}`, {
+      type: outputType,
+      lastModified: Date.now()
+    });
+  } finally {
+    image.close?.();
   }
 }
 
 function get1080pSize(width: number, height: number) {
-  const limits =
-    width > height
-      ? { width: 1920, height: 1080 }
-      : height > width
-        ? { width: 1080, height: 1920 }
-        : { width: 1080, height: 1080 };
-  const ratio = Math.min(1, limits.width / width, limits.height / height);
+  const ratio = Math.min(1, MAX_IMAGE_SIDE / Math.max(width, height));
 
   return {
     width: Math.max(1, Math.round(width * ratio)),
@@ -55,7 +58,7 @@ function get1080pSize(width: number, height: number) {
 
 async function loadImage(file: File): Promise<LoadedImage> {
   if ("createImageBitmap" in window) {
-    const bitmap = await createImageBitmap(file);
+    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
     return {
       source: bitmap,
       width: bitmap.width,
@@ -77,6 +80,16 @@ async function loadImage(file: File): Promise<LoadedImage> {
     };
     image.onerror = () => reject(new Error("Image could not be loaded."));
     image.src = dataUrl;
+  });
+}
+
+function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number) {
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => blob ? resolve(blob) : reject(new Error("Image compression failed.")),
+      type,
+      quality
+    );
   });
 }
 
