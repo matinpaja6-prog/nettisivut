@@ -13,6 +13,23 @@ type SendMessageBody = {
   image?: unknown;
 };
 
+const MAX_MESSAGE_IMAGE_BYTES = 2_500_000;
+
+function inlineImage(value: string) {
+  const match = value.match(/^data:(image\/(?:jpeg|png|webp));base64,([a-z0-9+/=\s]+)$/i);
+  if (!match) return null;
+
+  const contentType = match[1].toLowerCase();
+  const bytes = Buffer.from(match[2].replace(/\s/g, ""), "base64");
+  if (bytes.length === 0 || bytes.length > MAX_MESSAGE_IMAGE_BYTES) return null;
+
+  return {
+    bytes,
+    contentType,
+    extension: contentType === "image/jpeg" ? "jpg" : contentType.split("/")[1]
+  };
+}
+
 function uuid(value: unknown) {
   const text = typeof value === "string" ? value.trim() : "";
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(text)
@@ -49,12 +66,10 @@ export async function POST(request: Request) {
     const conversationId = uuid(body.conversation_id);
     const content =
       typeof body.content === "string" ? body.content.trim().slice(0, 5000) : "";
-    const image =
-      typeof body.image === "string" && body.image.trim()
-        ? body.image.trim().slice(0, 2000)
-        : null;
+    const requestedImage =
+      typeof body.image === "string" ? body.image.trim() : "";
 
-    if (!conversationId || (!content && !image)) {
+    if (!conversationId || (!content && !requestedImage)) {
       return NextResponse.json(
         { error: "Keskustelu tai viesti puuttuu." },
         { status: 400 }
@@ -96,6 +111,48 @@ export async function POST(request: Request) {
     const receiverId = senderIsBuyer
       ? conversation.seller_id
       : conversation.buyer_id;
+
+    let image: string | null = null;
+
+    if (requestedImage.startsWith("data:image/")) {
+      const uploadImage = inlineImage(requestedImage);
+      if (!uploadImage) {
+        return NextResponse.json(
+          { error: "Kuvaa ei voitu käsitellä tai se on liian suuri." },
+          { status: 400 }
+        );
+      }
+
+      const imagePath = `${user.id}/messages/${crypto.randomUUID()}.${uploadImage.extension}`;
+      const { error: uploadError } = await admin.storage
+        .from("listing-images")
+        .upload(imagePath, uploadImage.bytes, {
+          cacheControl: "31536000",
+          contentType: uploadImage.contentType,
+          upsert: false
+        });
+
+      if (uploadError) {
+        return NextResponse.json(
+          { error: `Kuvan lataus epäonnistui: ${uploadError.message}` },
+          { status: 500 }
+        );
+      }
+
+      const { data: publicImage } = admin.storage
+        .from("listing-images")
+        .getPublicUrl(imagePath);
+      image = publicImage.publicUrl || null;
+    } else if (requestedImage) {
+      if (!/^https:\/\//i.test(requestedImage) || requestedImage.length > 2000) {
+        return NextResponse.json(
+          { error: "Kuvan osoite ei kelpaa." },
+          { status: 400 }
+        );
+      }
+      image = requestedImage;
+    }
+
     const { data: message, error: insertError } = await admin
       .from("messages")
       .insert({
