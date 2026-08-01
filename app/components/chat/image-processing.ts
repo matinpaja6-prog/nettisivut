@@ -2,6 +2,8 @@
 
 const MAX_IMAGE_SIDE = 1080;
 const IMAGE_QUALITY = 0.84;
+const MAX_MESSAGE_IMAGE_BYTES = 420 * 1024;
+const IMAGE_QUALITY_STEPS = [IMAGE_QUALITY, 0.72, 0.6, 0.48, 0.36, 0.26, 0.18];
 
 type LoadedImage = {
   source: CanvasImageSource;
@@ -34,7 +36,7 @@ export async function prepareImageFileTo1080p(file: File): Promise<File> {
     context.imageSmoothingQuality = "high";
     context.drawImage(image.source, 0, 0, size.width, size.height);
     const outputType = file.type === "image/png" ? "image/jpeg" : "image/webp";
-    const blob = await canvasToBlob(canvas, outputType, IMAGE_QUALITY);
+    const blob = await canvasToMessageBlob(canvas, outputType);
     const extension = outputType === "image/webp" ? "webp" : "jpg";
     const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
 
@@ -91,6 +93,19 @@ function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number) 
       quality
     );
   });
+}
+
+async function canvasToMessageBlob(canvas: HTMLCanvasElement, type: string) {
+  let smallestBlob: Blob | null = null;
+
+  for (const quality of IMAGE_QUALITY_STEPS) {
+    const blob = await canvasToBlob(canvas, type, quality);
+    smallestBlob = blob;
+    if (blob.size <= MAX_MESSAGE_IMAGE_BYTES) return blob;
+  }
+
+  if (smallestBlob) return smallestBlob;
+  throw new Error("Image compression failed.");
 }
 
 function readFileAsDataUrl(file: File): Promise<string> {
