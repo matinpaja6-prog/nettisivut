@@ -125,6 +125,14 @@ function serializeStructuredData(value: unknown) {
 export default async function ListingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
+
+  // The client already has the clicked listing in its local cache. In local
+  // development, render that immediately instead of blocking navigation on a
+  // remote server-side Supabase request that may be unavailable.
+  if (process.env.NODE_ENV === "development") {
+    return <ListingPageClient />;
+  }
+
   const { data: listing } = await getListingById(decodedId);
 
   if (!listing || listing.is_hidden) {
