@@ -3,7 +3,7 @@
 const MAX_IMAGE_SIDE = 1080;
 const IMAGE_QUALITY = 0.84;
 const MAX_MESSAGE_IMAGE_BYTES = 420 * 1024;
-const IMAGE_QUALITY_STEPS = [IMAGE_QUALITY, 0.72, 0.6, 0.48, 0.36, 0.26, 0.18];
+const IMAGE_QUALITY_STEPS = [IMAGE_QUALITY, 0.72, 0.6, 0.48, 0.36, 0.26, 0.18, 0.12, 0.08];
 
 type LoadedImage = {
   source: CanvasImageSource;
