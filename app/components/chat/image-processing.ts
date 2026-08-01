@@ -34,13 +34,17 @@ export async function prepareImageFileTo1080p(file: File): Promise<File> {
     canvas.height = size.height;
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = "high";
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, size.width, size.height);
     context.drawImage(image.source, 0, 0, size.width, size.height);
-    const outputType = file.type === "image/png" ? "image/jpeg" : "image/webp";
+    // JPEG encoding is supported consistently across Safari and other mobile
+    // browsers. Unsupported WebP canvas encoding may silently fall back to a
+    // large PNG and bypass every quality step below.
+    const outputType = "image/jpeg";
     const blob = await canvasToMessageBlob(canvas, outputType);
-    const extension = outputType === "image/webp" ? "webp" : "jpg";
     const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
 
-    return new File([blob], `${baseName}-1080p.${extension}`, {
+    return new File([blob], `${baseName}-1080p.jpg`, {
       type: outputType,
       lastModified: Date.now()
     });
@@ -104,7 +108,9 @@ async function canvasToMessageBlob(canvas: HTMLCanvasElement, type: string) {
     if (blob.size <= MAX_MESSAGE_IMAGE_BYTES) return blob;
   }
 
-  if (smallestBlob) return smallestBlob;
+  if (smallestBlob) {
+    throw new Error("Image could not be compressed below the upload limit.");
+  }
   throw new Error("Image compression failed.");
 }
 
