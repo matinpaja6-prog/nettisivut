@@ -1,0 +1,93 @@
+/*
+ * Keep the no-photo avatar identical in the account menu, profile editor and
+ * public seller profile: a neutral grey tile with an orange outline and one
+ * clearly visible initial.
+ * Uploaded photos retain the shape and treatment of their own view.
+ */
+
+html body .universal-profile-menu-avatar:not(:has(img)),
+html body .pf-page .pf-avatar:not(:has(img)),
+html body .seller-page .seller-ref-avatar:not(.has-photo) {
+  background: #25282c !important;
+  background-image: none !important;
+  border: 2px solid #ff861d !important;
+  border-radius: 16% !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+html body .universal-profile-menu-avatar:not(:has(img)) .profile-avatar-initial,
+html body .pf-page .pf-avatar:not(:has(img)) > .profile-avatar-initial {
+  align-items: center !important;
+  background: transparent !important;
+  border-radius: inherit !important;
+  color: #ffffff !important;
+  display: flex !important;
+  font-style: normal !important;
+  font-weight: 950 !important;
+  height: 100% !important;
+  justify-content: center !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-logo {
+  background: #25282c !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: inherit !important;
+  box-shadow: none !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-logo::before,
+html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-logo::after {
+  content: none !important;
+  display: none !important;
+}
+
+html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-initial {
+  color: #ffffff !important;
+  font-size: clamp(42px, 5vw, 52px) !important;
+  font-style: normal !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.05em !important;
+  line-height: 1 !important;
+}
+
+html body header.universal-app-topbar .universal-profile-avatar:not(:has(img)) {
+  background: #25282c !important;
+  background-image: none !important;
+  border: 2px solid #ff861d !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+html body header.universal-app-topbar .universal-profile-avatar:not(:has(img)) > .profile-avatar-initial {
+  align-items: center !important;
+  background: transparent !important;
+  color: #ffffff !important;
+  display: flex !important;
+  height: 100% !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+html body header.universal-app-topbar .universal-profile-avatar-lock,
+html body .pf-page .pf-avatar:not(:has(img)) > .pf-avatar-overlay {
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-logo {
+    height: 100% !important;
+    width: 100% !important;
+  }
+
+  html body .seller-page .seller-ref-avatar:not(.has-photo) .seller-ref-initial {
+    font-size: 34px !important;
+  }
+}

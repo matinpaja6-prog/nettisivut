@@ -111,6 +111,9 @@ type AdminMfaEnrollment = {
   secret: string;
 };
 
+const ADMIN_ACCOUNT_EMAIL = "matinpaja6@gmail.com";
+const ADMIN_MFA_FRIENDLY_NAME = "Maskines Admin";
+
 type AdminStepUpState = {
   action: SensitiveAdminAction;
   title: string;
@@ -286,6 +289,12 @@ export default function AdminPage() {
         return;
       }
 
+      if (authData.user.email?.trim().toLowerCase() !== ADMIN_ACCOUNT_EMAIL) {
+        setBootMessage(`Tällä käyttäjällä ei ole admin-oikeutta: ${authData.user.email ?? "tuntematon käyttäjä"}`);
+        setBootLoading(false);
+        return;
+      }
+
       const { data: adminData, error: adminError } = await supabase.rpc("has_admin_role");
       if (!alive) return;
 
@@ -306,21 +315,20 @@ export default function AdminPage() {
       setIsAdmin(true);
       setBootMessage("");
 
-      const [{ data: factors, error: factorsError }, { data: assurance, error: assuranceError }] = await Promise.all([
-        supabase.auth.mfa.listFactors(),
-        supabase.auth.mfa.getAuthenticatorAssuranceLevel()
-      ]);
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
 
       if (!alive) return;
 
-      if (factorsError || assuranceError) {
+      if (factorsError) {
         setMfaMode("error");
-        setMfaError(getErrorMessage(factorsError ?? assuranceError, "Authenticator-tietojen lataaminen epäonnistui."));
+        setMfaError(getErrorMessage(factorsError, "Authenticator-tietojen lataaminen epäonnistui."));
         setBootLoading(false);
         return;
       }
 
-      const verifiedTotp = factors?.totp?.[0];
+      const verifiedTotp = factors?.totp?.find(
+        (factor) => factor.friendly_name === ADMIN_MFA_FRIENDLY_NAME
+      );
       if (!verifiedTotp) {
         setMfaMode("enroll");
         setBootLoading(false);
@@ -328,20 +336,9 @@ export default function AdminPage() {
       }
 
       setMfaFactorId(verifiedTotp.id);
-
-      if (assurance?.currentLevel === "aal2") {
-        try {
-          await activateCurrentAdminSession();
-          if (!alive) return;
-          setMfaUnlocked(true);
-        } catch (error) {
-          if (!alive) return;
-          setMfaMode("error");
-          setMfaError(getErrorMessage(error, "Admin-istunnon aktivointi epäonnistui."));
-        }
-      } else {
-        setMfaMode("challenge");
-      }
+      // Admin-koodi pyydetään aina admin-paneeliin avattaessa. Tavallisen
+      // käyttäjäprofiilin mahdollinen MFA ei avaa admin-paneelia automaattisesti.
+      setMfaMode("challenge");
 
       setBootLoading(false);
     }
@@ -370,7 +367,9 @@ export default function AdminPage() {
       const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
       if (factorsError) throw factorsError;
 
-      const verifiedTotp = factors?.totp?.[0];
+      const verifiedTotp = factors?.totp?.find(
+        (factor) => factor.friendly_name === ADMIN_MFA_FRIENDLY_NAME
+      );
       if (verifiedTotp) {
         setMfaFactorId(verifiedTotp.id);
         setMfaMode("challenge");
@@ -378,7 +377,10 @@ export default function AdminPage() {
       }
 
       const unfinishedTotp = (factors?.all ?? []).filter(
-        (factor) => factor.factor_type === "totp" && factor.status === "unverified"
+        (factor) =>
+          factor.factor_type === "totp" &&
+          factor.status === "unverified" &&
+          factor.friendly_name === ADMIN_MFA_FRIENDLY_NAME
       );
       for (const factor of unfinishedTotp) {
         await supabase.auth.mfa.unenroll({ factorId: factor.id });
@@ -386,7 +388,7 @@ export default function AdminPage() {
 
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: "totp",
-        friendlyName: "Maskines Admin"
+        friendlyName: ADMIN_MFA_FRIENDLY_NAME
       });
       if (error) throw error;
 
@@ -2784,7 +2786,6 @@ function ConfirmDialogs({
   const [editFull, setEditFull] = useState("");
   const [editCity, setEditCity] = useState("");
   const [editCountry, setEditCountry] = useState("");
-  const [editBirthDate, setEditBirthDate] = useState("");
   const [editBusinessId, setEditBusinessId] = useState("");
   const [editCompanyName, setEditCompanyName] = useState("");
 
@@ -2799,7 +2800,6 @@ function ConfirmDialogs({
       setEditFull(state.user.full_name ?? "");
       setEditCity("");
       setEditCountry("");
-      setEditBirthDate("");
       setEditBusinessId(state.user.business_id ?? "");
       setEditCompanyName(state.user.company_name ?? "");
     }
@@ -2831,7 +2831,6 @@ function ConfirmDialogs({
           ["Postinumero", state.user.postal_code],
           ["Kaupunki", state.user.city],
           ["Maa", state.user.country],
-          ["Syntymäpäivä", state.user.birth_date],
           ["Julkinen osoite", state.user.public_address],
           ["Käyttäjänimi", state.user.username],
           ["Bio", state.user.bio],
@@ -2928,11 +2927,11 @@ function ConfirmDialogs({
               Puhelinnumero (jätä tyhjäksi pitääksesi nykyisen)
               <input
                 type="tel"
-                inputMode="tel"
-                pattern="[+0-9]*"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={phone}
                 onChange={(e) => setPhone(sanitizePhoneInput(e.target.value))}
-                placeholder="+358..."
+                placeholder="358..."
               />
             </label>
             <div className={styles.modalActions}>
@@ -2953,7 +2952,6 @@ function ConfirmDialogs({
             <label>Koko nimi <input value={editFull} onChange={(e) => setEditFull(e.target.value)} /></label>
             <label>Kaupunki <input value={editCity} onChange={(e) => setEditCity(e.target.value)} /></label>
             <label>Maa <input value={editCountry} onChange={(e) => setEditCountry(e.target.value)} /></label>
-            <label>Syntymäpäivä <input type="date" value={editBirthDate} onChange={(e) => setEditBirthDate(e.target.value)} /></label>
             {state.user.account_type === "company" && (
               <>
                 <label>Yrityksen nimi <input value={editCompanyName} onChange={(e) => setEditCompanyName(e.target.value)} /></label>
@@ -2972,7 +2970,6 @@ function ConfirmDialogs({
                   if (editFull) updates.full_name = editFull;
                   if (editCity) updates.city = editCity;
                   if (editCountry) updates.country = editCountry;
-                  if (editBirthDate) updates.birth_date = editBirthDate;
                   if (state.user.account_type === "company") {
                     if (editCompanyName !== (state.user.company_name ?? "")) updates.company_name = editCompanyName;
                     if (editBusinessId !== (state.user.business_id ?? "")) updates.business_id = editBusinessId;

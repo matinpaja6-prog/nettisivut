@@ -1,0 +1,521 @@
+/* Final profile colour pass: keep every profile surface in the same neutral grey family. */
+html body:has(.pf-page) {
+  background: var(--maskines-page-background, var(--site-bg, #181a1d)) !important;
+  background-color: var(--maskines-page-background, var(--site-bg, #181a1d)) !important;
+  background-image: none !important;
+}
+
+html body .pf-page {
+  --pf-grey-page: #181a1d;
+  --pf-grey-panel: #1e2023;
+  --pf-grey-panel-raised: #24272b;
+  --pf-grey-field: #202327;
+  --pf-grey-border: #3a3e43;
+  --pf-grey-border-soft: #30343a;
+  --pf-grey-icon: #aeb6c0;
+  background: var(--maskines-page-background, var(--site-bg, var(--pf-grey-page))) !important;
+  background-color: var(--maskines-page-background, var(--site-bg, var(--pf-grey-page))) !important;
+  background-image: none !important;
+  color: #f2f3f5 !important;
+}
+
+html body .pf-page :is(
+  .pf-user-card,
+  .pf-section,
+  .pf-info-card,
+  .pf-public-profile-section,
+  .pf-company-sellers-section
+) {
+  background: var(--pf-grey-panel) !important;
+  background-image: none !important;
+  border-color: var(--pf-grey-border) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+}
+
+html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+  background: var(--pf-grey-panel) !important;
+  background-image: none !important;
+  border-color: var(--pf-grey-border-soft) !important;
+}
+
+html body .pf-page :is(.pf-info-title-icon, .pf-section-head > svg) {
+  background: var(--pf-grey-panel-raised) !important;
+  background-image: none !important;
+  border-color: #484d54 !important;
+  color: var(--pf-grey-icon) !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page :is(
+  .pf-info-rows,
+  #julkinen-profiili .pf-public-fields,
+  #osoite .pf-fields
+) {
+  background: #191b1e !important;
+  background-image: none !important;
+  border-color: var(--pf-grey-border-soft) !important;
+  box-shadow: none !important;
+}
+
+/* A selected/alternating row must not turn brown or blue. */
+html body .pf-page .pf-info-row,
+html body .pf-page .pf-info-row:nth-child(odd),
+html body .pf-page .pf-info-row:nth-child(even),
+html body .pf-page .pf-info-row:hover,
+html body .pf-page .pf-info-row:focus-within {
+  background: transparent !important;
+  background-image: none !important;
+  border-color: var(--pf-grey-border-soft) !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page :is(
+  .pf-info-row-icon,
+  #julkinen-profiili .pf-field::before,
+  #osoite .pf-field::before
+) {
+  background: #23262a !important;
+  background-image: none !important;
+  border-color: #3d4248 !important;
+  color: var(--pf-grey-icon) !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page :is(
+  .pf-info-value input,
+  .pf-info-value input:disabled,
+  .pf-info-value > span,
+  .pf-phone-card,
+  .pf-phone-number,
+  .pf-readonly-value,
+  .pf-locked,
+  .pf-field input,
+  .pf-field textarea,
+  #julkinen-profiili .pf-field,
+  #julkinen-profiili .pf-locked,
+  #julkinen-profiili .pf-readonly-value,
+  #julkinen-profiili .pf-public-address-field input,
+  #julkinen-profiili .pf-public-bio-field textarea,
+  #osoite .pf-field,
+  #osoite .pf-field input
+) {
+  background: var(--pf-grey-field) !important;
+  background-image: none !important;
+  border-color: var(--pf-grey-border) !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page #osoite .pf-field,
+html body .pf-page #julkinen-profiili .pf-field {
+  background: transparent !important;
+}
+
+html body .pf-page :is(.pf-avatar-action, .pf-inline-btn, .pf-phone-change-btn) {
+  background: #25282c !important;
+  background-image: none !important;
+  border-color: #484d54 !important;
+  box-shadow: none !important;
+  color: #f2f3f5 !important;
+}
+
+html body .pf-page :is(.pf-avatar-action, .pf-inline-btn, .pf-phone-change-btn):hover {
+  background: #2d3035 !important;
+  border-color: #5a6068 !important;
+}
+
+html body .pf-page .pf-company-badge,
+html body .pf-page :is(.pf-info-label, .pf-field label),
+html body .pf-page :is(.pf-info-card-head p, .pf-section-head p) {
+  color: #aeb4bc !important;
+}
+
+html body .pf-page .pf-sidebar-progress-track {
+  background: #30343a !important;
+}
+
+/* Keep semantic feedback colours, but remove coloured card fills around them. */
+html body .pf-page .pf-avatar-action.danger {
+  background: #25282c !important;
+  border-color: #5f4646 !important;
+  color: #ff9b92 !important;
+}
+
+/*
+ * The profile component also ships late, page-local theme rules.  Keep this
+ * selector one class more specific so the neutral palette remains the final
+ * visual result even when those rules are rendered after the global CSS.
+ */
+html body .pf-page.pf-page {
+  --pf-unified-surface: #1e2023;
+  --pf-unified-surface-hover: #25282c;
+  --pf-unified-line: #3a3e43;
+  --pf-cool-accent: #ff8a22;
+  --pf-cool-accent-strong: #f36f0b;
+  background: var(--maskines-page-background, var(--site-bg, #181a1d)) !important;
+  background-color: var(--maskines-page-background, var(--site-bg, #181a1d)) !important;
+  background-image: none !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-sidebar,
+  .pf-user-card,
+  .pf-section,
+  .pf-info-card,
+  .pf-public-profile-section,
+  .pf-company-sellers-section,
+  .pf-insight-card,
+  .pf-info-card-head,
+  .pf-section-head,
+  .pf-info-rows,
+  #julkinen-profiili .pf-public-fields,
+  #osoite .pf-address-rows,
+  .pf-phone-modal,
+  .pf-avatar-crop-modal,
+  .pf-mfa-modal
+) {
+  background: var(--pf-unified-surface) !important;
+  background-image: none !important;
+  border-color: var(--pf-unified-line) !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-section,
+  .pf-info-card,
+  .pf-public-profile-section,
+  .pf-company-sellers-section
+)::before,
+html body .pf-page.pf-page .pf-user-card::after,
+html body .pf-page.pf-page .pf-insight-card::before {
+  display: none !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-section,
+  .pf-info-card,
+  .pf-public-profile-section,
+  .pf-company-sellers-section
+):hover {
+  border-color: var(--pf-unified-line) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-info-row,
+  #julkinen-profiili .pf-field,
+  #julkinen-profiili .pf-field.pf-field-wide,
+  #osoite .pf-field,
+  .pf-phone-card,
+  .pf-readonly-value,
+  .pf-locked,
+  .pf-info-value input,
+  .pf-info-value input:disabled,
+  #julkinen-profiili input,
+  #julkinen-profiili textarea,
+  #osoite input,
+  .pf-mfa-secret,
+  .pf-mfa-code-field input,
+  .company-seller-card,
+  .company-seller-add,
+  .company-seller-empty
+) {
+  background: var(--pf-unified-surface) !important;
+  background-image: none !important;
+  border-color: var(--pf-unified-line) !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-info-row,
+  #julkinen-profiili .pf-field,
+  #osoite .pf-field
+):hover {
+  background: var(--pf-unified-surface) !important;
+  background-image: none !important;
+  border-color: var(--pf-unified-line) !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-info-title-icon,
+  .pf-section-head > svg,
+  .pf-info-row-icon,
+  .pf-field-icon,
+  .pf-insight-icon,
+  .pf-mfa-option-icon
+) {
+  background: var(--pf-unified-surface-hover) !important;
+  background-image: none !important;
+  border-color: #484d54 !important;
+  box-shadow: none !important;
+  color: #aeb6c0 !important;
+}
+
+html body .pf-page.pf-page #julkinen-profiili .pf-section-head > svg,
+html body .pf-page.pf-page :is(
+  .pf-info-row,
+  #julkinen-profiili .pf-field
+):hover :is(.pf-info-row-icon, .pf-field-icon) {
+  background: var(--pf-unified-surface-hover) !important;
+  background-image: none !important;
+  border-color: #484d54 !important;
+  box-shadow: none !important;
+  color: #aeb6c0 !important;
+}
+
+html body .pf-page.pf-page :is(.pf-avatar, .pf-avatar-upload) {
+  background: var(--pf-unified-surface-hover) !important;
+  background-image: none !important;
+  border-color: var(--pf-cool-accent) !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page.pf-page .pf-avatar-overlay,
+html body .pf-page.pf-page .company-seller-avatar {
+  background: var(--pf-cool-accent-strong) !important;
+  background-image: none !important;
+  border-color: #6d8798 !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page.pf-page :is(.pf-avatar-action, .pf-inline-btn, .pf-phone-change-btn) {
+  background: var(--pf-unified-surface-hover) !important;
+  background-image: none !important;
+  border-color: #484d54 !important;
+  box-shadow: none !important;
+  color: #f2f3f5 !important;
+  filter: none !important;
+}
+
+html body .pf-page.pf-page :is(.pf-avatar-action, .pf-inline-btn, .pf-phone-change-btn):hover {
+  background: #2d3035 !important;
+  border-color: #5a6068 !important;
+  color: #ffffff !important;
+  filter: none !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-inline-btn.verify,
+  .company-seller-add-btn,
+  .pf-save-btn,
+  .pf-mfa-manage-btn
+) {
+  background: var(--pf-cool-accent-strong) !important;
+  background-image: none !important;
+  border-color: #4f83a4 !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-inline-btn.verify,
+  .company-seller-add-btn,
+  .pf-save-btn,
+  .pf-mfa-manage-btn
+):hover {
+  background: #377698 !important;
+  border-color: #6095b5 !important;
+  filter: none !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-info-value input:not(:disabled),
+  #julkinen-profiili input,
+  #julkinen-profiili textarea,
+  #osoite input,
+  .pf-mfa-code-field input
+):focus {
+  background: var(--pf-unified-surface) !important;
+  border-color: var(--pf-cool-accent) !important;
+  box-shadow: 0 0 0 3px rgba(79, 120, 147, 0.16) !important;
+}
+
+html body .pf-page.pf-page .pf-nav-item:hover,
+html body .pf-page.pf-page .pf-nav-active {
+  background: rgba(79, 120, 147, 0.16) !important;
+  background-image: none !important;
+  border-left-color: var(--pf-cool-accent) !important;
+  color: #f5f7f8 !important;
+}
+
+html body .pf-page.pf-page .pf-nav-active::after {
+  background: var(--pf-cool-accent) !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page.pf-page .pf-logout-button:hover {
+  background: var(--pf-unified-surface-hover) !important;
+  border-color: #5a6068 !important;
+}
+
+html body .pf-page.pf-page :is(.pf-progress-track > span, .pf-sidebar-progress-track > span) {
+  background: var(--pf-cool-accent) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page.pf-page .pf-completion-ring {
+  background: conic-gradient(var(--pf-cool-accent) var(--profile-progress), #30343a 0) !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page.pf-page .pf-completion-ring::before {
+  background: var(--pf-unified-surface) !important;
+}
+
+html body .pf-page.pf-page .pf-trust-emblem {
+  background: #30343a !important;
+  background-image: none !important;
+  border-color: #59616a !important;
+  box-shadow: none !important;
+}
+
+html body .pf-page.pf-page :is(.pf-insight-action, .pf-public-note, .pf-mfa-options > button) {
+  background: var(--pf-unified-surface) !important;
+  background-image: none !important;
+  border-color: var(--pf-unified-line) !important;
+  box-shadow: none !important;
+  color: #c8cdd2 !important;
+}
+
+html body .pf-page.pf-page :is(.pf-insight-action, .pf-mfa-options > button):hover {
+  background: var(--pf-unified-surface-hover) !important;
+  border-color: #5a6068 !important;
+  transform: none !important;
+}
+
+html body .pf-page.pf-page .pf-mfa-secret code {
+  color: #b9cbd6 !important;
+}
+
+/* Orange profile accents and raised grey value fields on desktop and mobile. */
+html body .pf-page.pf-page :is(
+  .pf-section,
+  .pf-info-card,
+  .pf-public-profile-section,
+  .pf-company-sellers-section,
+  .pf-insight-card
+) {
+  border-color: rgba(255, 132, 31, 0.62) !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-info-title-icon,
+  .pf-section-head > svg,
+  .pf-info-row-icon,
+  .pf-field-icon,
+  .pf-insight-icon,
+  .pf-mfa-option-icon
+) {
+  background: #25282c !important;
+  border: 1px solid rgba(255, 137, 34, 0.72) !important;
+  color: #ff922f !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-info-value input,
+  .pf-info-value input:disabled,
+  .pf-info-value > span,
+  .pf-phone-card,
+  .pf-phone-number,
+  .pf-readonly-value,
+  .pf-locked,
+  #julkinen-profiili input,
+  #julkinen-profiili textarea,
+  #osoite input
+) {
+  background: #25282c !important;
+  border-color: rgba(255, 132, 31, 0.52) !important;
+  color: #f3f4f5 !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-phone-change-btn,
+  .pf-password-reset-btn,
+  .pf-mfa-manage-btn,
+  .pf-company-verify-btn,
+  .pf-save-btn
+) {
+  background: linear-gradient(135deg, #ff982d, #ef6508) !important;
+  background-image: linear-gradient(135deg, #ff982d, #ef6508) !important;
+  border-color: #ffad59 !important;
+  box-shadow: 0 10px 24px rgba(239, 101, 8, 0.22) !important;
+  color: #ffffff !important;
+}
+
+html body .pf-page.pf-page :is(
+  .pf-phone-change-btn,
+  .pf-password-reset-btn,
+  .pf-mfa-manage-btn,
+  .pf-company-verify-btn,
+  .pf-save-btn
+):hover {
+  background: linear-gradient(135deg, #ffa846, #f57716) !important;
+  background-image: linear-gradient(135deg, #ffa846, #f57716) !important;
+  border-color: #ffc17e !important;
+  color: #ffffff !important;
+}
+
+html[data-user-background-tone] body .pf-page.pf-page {
+  background: var(--maskines-page-background, var(--site-bg, #181a1d)) !important;
+  background-color: var(--maskines-page-background, var(--site-bg, #181a1d)) !important;
+  background-image: none !important;
+}
+
+@media (max-width: 720px) {
+  html body .pf-page.pf-page .pf-form > :is(
+    #yritys,
+    #tiedot,
+    #julkinen-profiili,
+    #osoite,
+    #tilin-turvallisuus
+  ).pf-aligned-section,
+  html body .pf-page.pf-page .pf-form > :is(
+    #yritys,
+    #tiedot,
+    #julkinen-profiili,
+    #osoite,
+    #tilin-turvallisuus
+  ).pf-aligned-section > :is(.pf-info-card-head, .pf-section-head),
+  html body .pf-page.pf-page .pf-form > :is(
+    #yritys,
+    #tiedot,
+    #julkinen-profiili,
+    #osoite,
+    #tilin-turvallisuus
+  ).pf-aligned-section > .pf-card-body {
+    background: var(--pf-unified-surface) !important;
+    background-color: var(--pf-unified-surface) !important;
+    background-image: none !important;
+  }
+
+  html body .pf-page.pf-page .pf-form > :is(
+    #yritys,
+    #tiedot,
+    #osoite,
+    #tilin-turvallisuus
+  ).pf-aligned-section > .pf-card-body > .pf-info-row,
+  html body .pf-page.pf-page .pf-form > #julkinen-profiili.pf-aligned-section > .pf-card-body > .pf-field {
+    background: var(--pf-unified-surface) !important;
+    background-color: var(--pf-unified-surface) !important;
+    background-image: none !important;
+    border-color: rgba(255, 132, 31, 0.52) !important;
+  }
+
+  html body .pf-page.pf-page :is(
+    .pf-info-value input,
+    .pf-info-value input:disabled,
+    .pf-info-value > span,
+    .pf-phone-card,
+    .pf-readonly-value,
+    .pf-locked,
+    #julkinen-profiili input,
+    #julkinen-profiili textarea,
+    #osoite input
+  ) {
+    background: var(--pf-unified-surface) !important;
+    background-color: var(--pf-unified-surface) !important;
+    background-image: none !important;
+    border-color: rgba(255, 132, 31, 0.52) !important;
+  }
+}

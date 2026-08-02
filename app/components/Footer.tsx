@@ -115,9 +115,9 @@ export default function Footer() {
 
         {/* Brand */}
         <div className="footer-brand">
-          <Link href="/" className="footer-logo" aria-label="Maskines">
+          <Link href="/" className="footer-logo footer-logo-disabled" aria-label="Maskines" aria-hidden="true" tabIndex={-1}>
             <svg
-              className="footer-maskines-logo"
+              className="footer-maskines-logo-legacy"
               viewBox="0 0 720 520"
               role="img"
               aria-label="Maskines"

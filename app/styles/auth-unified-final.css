@@ -1,0 +1,540 @@
+/* Final auth alignment layer. Keep this import last in layout.tsx. */
+html body .simple-auth-page {
+  display: grid !important;
+  padding: 24px !important;
+  place-items: center !important;
+}
+
+html body .simple-auth-page .auth-centered {
+  align-items: start !important;
+  background: #0b151f !important;
+  background-color: #0b151f !important;
+  background-image: none !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  justify-items: center !important;
+  margin: 0 !important;
+  max-width: 760px !important;
+  min-height: 0 !important;
+  padding: 78px 48px 38px !important;
+  position: relative !important;
+  width: min(760px, calc(100vw - 48px)) !important;
+}
+
+/* The page itself is the auth surface; there is no second outer frame. */
+html body .simple-auth-page .auth-centered {
+  border: 1px solid var(--brand-primary, #ff7a18) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32) !important;
+}
+
+html body .simple-auth-page .auth-centered::before,
+html body .simple-auth-page .auth-centered::after {
+  content: none !important;
+  display: none !important;
+}
+
+html body .simple-auth-page:has(.registration-inline-card) .auth-centered {
+  min-height: 0 !important;
+  padding-bottom: 38px !important;
+}
+
+html body .simple-auth-page .auth-mobile-back-home {
+  appearance: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  left: 24px !important;
+  line-height: 1 !important;
+  position: absolute !important;
+  top: 19px !important;
+}
+
+html body .simple-auth-page .auth-mobile-back-home::before,
+html body .simple-auth-page .auth-mobile-back-home::after {
+  content: none !important;
+  display: none !important;
+}
+
+html body .simple-auth-page .auth-mobile-back-home svg {
+  background: transparent !important;
+  box-shadow: none !important;
+  flex: 0 0 auto !important;
+}
+
+html body .simple-auth-page .auth-card.simple-card,
+html body .simple-auth-page .auth-card.simple-card:not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card),
+html body .simple-auth-page .registration-inline-card.profile-finalize-card {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  max-width: 540px !important;
+  padding: 34px !important;
+  width: 100% !important;
+}
+
+html body .simple-auth-page .auth-input-with-icon > svg:first-child {
+  background: transparent !important;
+  height: 18px !important;
+  pointer-events: none !important;
+  width: 18px !important;
+}
+
+html body .simple-auth-page .auth-input-with-icon > input:not([type="checkbox"]) {
+  line-height: normal !important;
+  padding-left: 48px !important;
+}
+
+html body .simple-auth-page .auth-divider {
+  align-items: center !important;
+  background: transparent !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+}
+
+html body .simple-auth-page .auth-divider::before,
+html body .simple-auth-page .auth-divider::after {
+  background: rgba(151, 178, 205, 0.22) !important;
+  content: "" !important;
+  display: block !important;
+  height: 1px !important;
+}
+
+html body .simple-auth-page .auth-divider span,
+html body .simple-auth-page .auth-social-row {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html body .simple-auth-page .privacy-checkbox-label a {
+  color: #69b8ff !important;
+  font-weight: 800 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+}
+
+html body .simple-auth-page .auth-card label,
+html body .simple-auth-page .auth-password-pair,
+html body .simple-auth-page .register-details-grid,
+html body .simple-auth-page .register-country-field,
+html body .simple-auth-page .privacy-checkbox-row,
+html body .simple-auth-page .auth-card > button[type="submit"],
+html body .simple-auth-page .auth-divider,
+html body .simple-auth-page .auth-social-row,
+html body .simple-auth-page .auth-benefits {
+  box-sizing: border-box !important;
+  max-width: none !important;
+  width: 100% !important;
+}
+
+html body .simple-auth-page .auth-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+html body .simple-auth-page .auth-card select,
+html body .simple-auth-page .auth-card > button[type="submit"] {
+  box-sizing: border-box !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  width: 100% !important;
+}
+
+html body .simple-auth-page .registration-inline-card .register-essential-fields {
+  align-items: end !important;
+  display: grid !important;
+  gap: 14px !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+html body .simple-auth-page .registration-inline-card .register-essential-fields > label {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+html body .simple-auth-page .registration-inline-card .register-country-field {
+  grid-column: 1 / -1 !important;
+}
+
+html body .simple-auth-page .auth-benefits {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+html body .simple-auth-page .auth-benefits > div {
+  min-height: 38px !important;
+}
+
+@media (max-width: 760px) {
+  html body .simple-auth-page {
+    align-items: start !important;
+    padding: 8px !important;
+  }
+
+  html body .simple-auth-page .auth-centered {
+    border-radius: 16px !important;
+    min-height: calc(100svh - 16px) !important;
+    padding: 66px 12px 22px !important;
+    width: calc(100vw - 16px) !important;
+  }
+
+  html body .simple-auth-page:has(.registration-inline-card) .auth-centered {
+    min-height: calc(100svh - 16px) !important;
+  }
+
+  html body .simple-auth-page .auth-mobile-back-home {
+    height: 40px !important;
+    left: 12px !important;
+    min-height: 40px !important;
+    top: 12px !important;
+    width: auto !important;
+  }
+
+  html body .simple-auth-page .auth-card.simple-card,
+  html body .simple-auth-page .auth-card.simple-card:not(.profile-completion-card):not(.password-reset-card):not(.email-confirm-card),
+  html body .simple-auth-page .registration-inline-card.profile-finalize-card {
+    border-radius: 10px !important;
+    margin: 0 !important;
+    max-width: 540px !important;
+    padding: 24px 18px !important;
+    width: 100% !important;
+  }
+
+  html body .simple-auth-page .registration-inline-card .register-essential-fields,
+  html body .simple-auth-page .registration-inline-card .auth-password-pair {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .simple-auth-page .auth-benefits {
+    align-items: stretch !important;
+    gap: 8px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html body .simple-auth-page .auth-benefits > div {
+    align-items: center !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    justify-content: flex-start !important;
+    min-height: 82px !important;
+    text-align: center !important;
+  }
+
+  html body .simple-auth-page .auth-benefits span {
+    align-items: center !important;
+  }
+
+  html body .simple-auth-page .auth-benefits strong,
+  html body .simple-auth-page .auth-benefits small {
+    line-height: 1.2 !important;
+    white-space: normal !important;
+  }
+}
+
+@media (max-width: 390px) {
+  html body .simple-auth-page .auth-card.simple-card,
+  html body .simple-auth-page .registration-inline-card.profile-finalize-card {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  html body .simple-auth-page .auth-benefits strong {
+    font-size: 9px !important;
+  }
+
+  html body .simple-auth-page .auth-benefits small {
+    font-size: 7px !important;
+  }
+}
+
+/* ID-level specificity without requiring an id on the form. */
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  max-width: 540px !important;
+  padding: 34px !important;
+  width: 540px !important;
+}
+
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) .auth-divider span,
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) .auth-social-row {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) .privacy-checkbox-label {
+  display: block !important;
+  line-height: 1.55 !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+@media (min-width: 421px) and (max-width: 760px) {
+  html body main.auth-page.simple-auth-page .auth-centered:not(#maskines-auth-surface-override) {
+    max-width: calc(100vw - 32px) !important;
+    padding: 68px 26px 24px !important;
+    width: calc(100vw - 32px) !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) {
+    max-width: 430px !important;
+    padding: 34px 38px !important;
+    width: 430px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .registration-inline-card .register-essential-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Login and registration always use the same responsive frame width. */
+html body main.auth-page.simple-auth-page .auth-centered:not(#maskines-auth-surface-width) {
+  box-sizing: border-box !important;
+  max-width: 760px !important;
+  width: min(760px, calc(100vw - 48px)) !important;
+}
+
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-width) {
+  box-sizing: border-box !important;
+  max-width: 540px !important;
+  width: min(540px, 100%) !important;
+}
+
+@media (max-width: 760px) {
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-width) {
+    max-width: 430px !important;
+    width: min(430px, 100%) !important;
+  }
+}
+
+/* Final scale and vertical rhythm for both auth modes. */
+html body main.auth-page.simple-auth-page {
+  align-items: start !important;
+  padding: 44px 24px 48px !important;
+  place-items: start center !important;
+}
+
+html body main.auth-page.simple-auth-page:not(#maskines-auth-page-spacing) {
+  padding: 44px 24px 48px !important;
+}
+
+html body main.auth-page.simple-auth-page .auth-centered:not(#maskines-auth-surface-scale) {
+  margin: 0 auto !important;
+  max-width: 700px !important;
+  padding: 74px 54px 34px !important;
+  width: min(700px, calc(100vw - 64px)) !important;
+}
+
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-scale) {
+  max-width: 500px !important;
+  padding: 30px !important;
+  width: min(500px, 100%) !important;
+}
+
+@media (min-width: 481px) and (max-width: 760px) {
+  html body main.auth-page.simple-auth-page {
+    padding: 36px 20px 42px !important;
+  }
+
+  html body main.auth-page.simple-auth-page:not(#maskines-auth-page-spacing) {
+    padding: 36px 20px 42px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-centered:not(#maskines-auth-surface-scale) {
+    max-width: 500px !important;
+    padding: 66px 34px 28px !important;
+    width: min(500px, calc(100vw - 40px)) !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-scale) {
+    max-width: 390px !important;
+    padding: 24px 20px !important;
+    width: min(390px, 100%) !important;
+  }
+
+  html body main.auth-page.simple-auth-page .registration-inline-card .register-essential-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  html body main.auth-page.simple-auth-page {
+    padding: 20px 10px 30px !important;
+  }
+
+  html body main.auth-page.simple-auth-page:not(#maskines-auth-page-spacing) {
+    padding: 20px 10px 30px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-centered:not(#maskines-auth-surface-scale) {
+    border-radius: 15px !important;
+    max-width: calc(100vw - 20px) !important;
+    min-height: 0 !important;
+    padding: 60px 12px 22px !important;
+    width: calc(100vw - 20px) !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-mobile-back-home {
+    left: 14px !important;
+    top: 12px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-scale) {
+    max-width: 100% !important;
+    padding: 18px 14px !important;
+    width: 100% !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-maskines-brand > img {
+    height: 44px !important;
+    width: 44px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-maskines-brand strong {
+    font-size: 24px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-maskines-brand span {
+    font-size: 8px !important;
+    letter-spacing: 3px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-form-head h1 {
+    font-size: 25px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .registration-inline-card .register-essential-fields,
+  html body main.auth-page.simple-auth-page .registration-inline-card .auth-password-pair {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+  html body main.auth-page.simple-auth-page .auth-card select,
+  html body main.auth-page.simple-auth-page .auth-card > button[type="submit"] {
+    height: 50px !important;
+    min-height: 50px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-benefits {
+    gap: 6px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-benefits > div {
+    min-height: 74px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) {
+    max-width: 100% !important;
+    padding: 24px 18px !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 390px) {
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+}
+
+/* Keep the two compact registration fields on the same surface as the full-width inputs. */
+html body main.auth-page.simple-auth-page
+  .registration-inline-card
+  .register-essential-fields
+  > label
+  > input:not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+  background: rgba(3, 17, 29, 0.74) !important;
+  background-color: rgba(3, 17, 29, 0.74) !important;
+  background-image: none !important;
+}
+
+/* Definitive shared surface rules. Legacy auth selectors are unusually specific. */
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card,
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card.registration-inline-card.profile-finalize-card {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  max-width: 540px !important;
+  padding: 34px !important;
+  width: 540px !important;
+}
+
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card::before,
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card::after {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  content: none !important;
+  display: none !important;
+}
+
+html body main.auth-page.simple-auth-page .auth-centered .auth-maskines-brand strong {
+  background: none !important;
+  background-clip: border-box !important;
+  color: #f8fbff !important;
+  font-style: normal !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.02em !important;
+  transform: none !important;
+}
+
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card .auth-input-with-icon > input:not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+  padding-left: 48px !important;
+}
+
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card .auth-divider span,
+html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card .auth-social-row {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 760px) {
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card,
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card.registration-inline-card.profile-finalize-card {
+    max-width: 100% !important;
+    padding: 24px 18px !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 390px) {
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card,
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card.registration-inline-card.profile-finalize-card {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+}
+
+@media (min-width: 421px) and (max-width: 760px) {
+  html body main.auth-page.simple-auth-page .auth-centered:not(#maskines-auth-surface-override) {
+    max-width: calc(100vw - 32px) !important;
+    padding: 68px 26px 24px !important;
+    width: calc(100vw - 32px) !important;
+  }
+
+  html body main.auth-page.simple-auth-page .auth-centered form.auth-card.simple-card:not(#maskines-auth-card-override) {
+    max-width: 430px !important;
+    padding: 34px 38px !important;
+    width: 430px !important;
+  }
+
+  html body main.auth-page.simple-auth-page .registration-inline-card .register-essential-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

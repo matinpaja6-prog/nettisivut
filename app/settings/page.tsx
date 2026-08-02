@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Check, ExternalLink, Languages, Mail, Palette, Volume2 } from "lucide-react";
+import { Bell, Check, ExternalLink, Globe2, Mail, Palette, Volume2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { languageOptions, useLanguage, type Locale, type SupportedLocale } from "@/lib/i18n";
 import { translateLocalizedPath } from "@/lib/routes";
@@ -179,6 +179,7 @@ export default function SettingsPage() {
   const [emailSettingsAvailable, setEmailSettingsAvailable] = useState(false);
   const [emailSettingSaving, setEmailSettingSaving] = useState<"message" | "search" | "">("");
   const [emailSettingError, setEmailSettingError] = useState("");
+  const [activeSection, setActiveSection] = useState("settings-language");
 
   useEffect(() => {
     const stored = readUserSettings();
@@ -187,6 +188,29 @@ export default function SettingsPage() {
     if ("Notification" in window) {
       setPermission(Notification.permission);
     }
+  }, []);
+
+  useEffect(() => {
+    const sectionIds = ["settings-language", "settings-notifications", "settings-background"];
+    const sections = sectionIds
+      .map((sectionId) => document.getElementById(sectionId))
+      .filter((section): section is HTMLElement => Boolean(section));
+
+    if (!("IntersectionObserver" in window) || sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleSection = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (visibleSection) setActiveSection(visibleSection.target.id);
+      },
+      { rootMargin: "-18% 0px -58%", threshold: [0.05, 0.25, 0.5] }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -288,6 +312,11 @@ export default function SettingsPage() {
     }
   }
 
+  function openSection(sectionId: string) {
+    setActiveSection(sectionId);
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return (
     <main className={`${styles.settingsPage} settings-page-responsive`} data-no-auto-translate>
       <div className={styles.settingsShell}>
@@ -296,10 +325,40 @@ export default function SettingsPage() {
           <p>{text.subtitle}</p>
         </header>
 
+        <nav className={styles.mobileSectionNav} aria-label={text.title}>
+          <button
+            type="button"
+            className={activeSection === "settings-language" ? styles.mobileSectionNavActive : ""}
+            aria-current={activeSection === "settings-language" ? "location" : undefined}
+            onClick={() => openSection("settings-language")}
+          >
+            <Globe2 size={20} />
+            <span>{text.languageTitle}</span>
+          </button>
+          <button
+            type="button"
+            className={activeSection === "settings-notifications" ? styles.mobileSectionNavActive : ""}
+            aria-current={activeSection === "settings-notifications" ? "location" : undefined}
+            onClick={() => openSection("settings-notifications")}
+          >
+            <Bell size={20} />
+            <span>{text.notificationsTitle}</span>
+          </button>
+          <button
+            type="button"
+            className={activeSection === "settings-background" ? styles.mobileSectionNavActive : ""}
+            aria-current={activeSection === "settings-background" ? "location" : undefined}
+            onClick={() => openSection("settings-background")}
+          >
+            <Palette size={20} />
+            <span>{text.backgroundTitle}</span>
+          </button>
+        </nav>
+
         <div className={styles.settingsGrid}>
-          <section className={styles.settingsPanel}>
+          <section id="settings-language" className={styles.settingsPanel}>
             <div className={styles.panelTitle}>
-              <span className={styles.panelIcon}><Languages size={19} /></span>
+              <span className={styles.panelIcon}><Globe2 size={19} /></span>
               <div>
                 <h2>{text.languageTitle}</h2>
                 <p>{text.languageDesc}</p>
@@ -323,7 +382,7 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          <section className={styles.settingsPanel}>
+          <section id="settings-notifications" className={styles.settingsPanel}>
             <div className={styles.panelTitle}>
               <span className={styles.panelIcon}><Bell size={19} /></span>
               <div>
@@ -345,6 +404,7 @@ export default function SettingsPage() {
                 type="button"
                 className={`${styles.toggle} ${messageEmailEnabled ? styles.toggleOn : ""}`}
                 aria-pressed={messageEmailEnabled}
+                aria-label={text.messageEmail}
                 disabled={!emailSettingsAvailable || Boolean(emailSettingSaving)}
                 onClick={() => updateEmailSetting("message", !messageEmailEnabled)}
               >
@@ -365,6 +425,7 @@ export default function SettingsPage() {
                 type="button"
                 className={`${styles.toggle} ${searchEmailEnabled ? styles.toggleOn : ""}`}
                 aria-pressed={searchEmailEnabled}
+                aria-label={text.searchEmail}
                 disabled={!emailSettingsAvailable || Boolean(emailSettingSaving)}
                 onClick={() => updateEmailSetting("search", !searchEmailEnabled)}
               >
@@ -384,6 +445,7 @@ export default function SettingsPage() {
                 type="button"
                 className={`${styles.toggle} ${settings.notificationsEnabled ? styles.toggleOn : ""}`}
                 aria-pressed={settings.notificationsEnabled}
+                aria-label={text.notificationsMain}
                 onClick={() => updateSetting("notificationsEnabled", !settings.notificationsEnabled)}
               >
                 <span />
@@ -399,6 +461,7 @@ export default function SettingsPage() {
                 type="button"
                 className={`${styles.toggle} ${settings.notificationSoundEnabled ? styles.toggleOn : ""}`}
                 aria-pressed={settings.notificationSoundEnabled}
+                aria-label={text.sound}
                 onClick={() => updateSetting("notificationSoundEnabled", !settings.notificationSoundEnabled)}
               >
                 <span />
@@ -417,7 +480,7 @@ export default function SettingsPage() {
             </button>
           </section>
 
-          <section className={styles.settingsPanel}>
+          <section id="settings-background" className={styles.settingsPanel}>
             <div className={styles.panelTitle}>
               <span className={styles.panelIcon}><Palette size={19} /></span>
               <div>

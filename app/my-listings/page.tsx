@@ -975,10 +975,11 @@ export default function MyListingsPage() {
   }
 
   function normalizeListingPriceInput(value: string) {
-    if (value.trim() === "") return "";
-    const numeric = Number(value);
+    const digits = value.replace(/\D/g, "");
+    if (!digits) return "";
+    const numeric = Number(digits);
     if (Number.isFinite(numeric) && numeric < 1) return "1";
-    return value;
+    return digits;
   }
 
   function normalizeListingPriceForSave(value: string | number | null | undefined) {
@@ -2622,7 +2623,8 @@ export default function MyListingsPage() {
                   min="0"
                   placeholder={`Pyyntihinta oli ${deleteTarget?.price ?? ""} €`}
                   value={soldPrice}
-                  onChange={(e) => setSoldPrice(e.target.value)}
+                  inputMode="numeric"
+                  onChange={(e) => setSoldPrice(e.target.value.replace(/\D/g, ""))}
                 />
               </div>
             )}
@@ -2712,15 +2714,15 @@ export default function MyListingsPage() {
                     <div className="delete-phone-lookup-row">
                       <input
                         type="tel"
-                        inputMode="tel"
-                        pattern="[+0-9]*"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={buyerPhone}
                         onChange={(event) => {
                           setBuyerPhone(sanitizePhoneInput(event.target.value));
                           setPhoneBuyer(null);
                           setPhoneLookupStatus("");
                         }}
-                        placeholder="+358401234567"
+                        placeholder="358401234567"
                       />
                       <button
                         type="button"

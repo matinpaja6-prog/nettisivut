@@ -103,6 +103,7 @@ import {
   buildMarketplaceModelOptions,
   buildMarketplaceSubcategoryGroups,
   buildMarketplaceYearOptions,
+  getUnifiedAllCategoryName,
   getMarketplaceYearFilterMax
 } from "@/lib/marketplace-filter-options";
 
@@ -3158,7 +3159,10 @@ function HomeContent({
 
         const matchesCategory =
           !appliedCategory ||
-          normalizeCategoryMatch(listing.category) === normalizeCategoryMatch(appliedCategory);
+          (!appliedVehicleType
+            ? getUnifiedAllCategoryName(listing.category ?? "", listing.subcategory ?? "") ===
+              getUnifiedAllCategoryName(appliedCategory, appliedSubcategory)
+            : normalizeCategoryMatch(listing.category) === normalizeCategoryMatch(appliedCategory));
 
         const matchesSubcategory =
           listingMatchesSubcategoryFilter(
@@ -4453,6 +4457,8 @@ function HomeContent({
         setVehicleSubtype("");
         setSelectedBrand("Kaikki");
         setModelQuery("");
+        setEngineCcQuery("");
+        setEngineModelQuery("");
         setCategory("");
         setSubcategory("");
         afterHeroFilterChange();
@@ -4473,6 +4479,7 @@ function HomeContent({
         setVehicleSubtype(value);
         setSelectedBrand("Kaikki");
         setModelQuery("");
+        setEngineModelQuery("");
         setCategory("");
         setSubcategory("");
         afterHeroFilterChange();
@@ -4489,6 +4496,7 @@ function HomeContent({
       onSelect: (value: string) => {
         setSelectedBrand(value || "Kaikki");
         setModelQuery("");
+        setEngineModelQuery("");
         afterHeroFilterChange();
       }
     },
@@ -4796,6 +4804,7 @@ function HomeContent({
                 </div>
                 <div data-home-hero-art className={styles.heroShowcaseArt} aria-hidden="true">
                   <Image
+                    id="home-hero-artwork"
                     src="/vehicles/hero-snowmobile-marketplace.webp"
                     alt=""
                     width={1672}

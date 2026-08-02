@@ -6,7 +6,6 @@ import {
   CC_OPTIONS,
   COMMON_BRAND_MODELS_BY_VEHICLE,
   DEFAULT_CC_OPTIONS,
-  ENGINE_MODELS,
   VEHICLE_SUBTYPE_OPTIONS,
   getBrandModelOptions,
   getCategoryVehicleKey,
@@ -27,6 +26,81 @@ export function getMarketplaceYearFilterMax() {
 export function uniqueMarketplaceOptions(values: Array<string | number | null | undefined>) {
   return Array.from(new Set(values.map((value) => String(value ?? "").trim()).filter(Boolean)))
     .sort((a, b) => a.localeCompare(b, "fi", { numeric: true, sensitivity: "base" }));
+}
+
+const UNIFIED_ALL_CATEGORY_ORDER = [
+  "Moottori",
+  "Voimansiirto",
+  "Jousitus & ohjaus",
+  "Jarrut",
+  "Renkaat & vanteet",
+  "Telasarjat",
+  "Sähköjärjestelmä",
+  "Runko & koriosat"
+] as const;
+
+function legacyCombinedCategoryTarget(category: string, subcategory: string): string {
+  if (category === "Moottori & voimansiirto") {
+    const drivetrainPart =
+      subcategory === "Kokonainen voimansiirto" ||
+      subcategory === "Variaattorin hihnat" ||
+      subcategory === "Ketjukotelot" ||
+      subcategory === "Ketjut & hihnat" ||
+      subcategory.startsWith("Kytkimet / ") ||
+      subcategory.startsWith("Variaattorit / ");
+    return drivetrainPart ? "Voimansiirto" : "Moottori";
+  }
+
+  if (category === "Alusta & telasto") {
+    if (subcategory.startsWith("Renkaat & vanteet / ")) return "Renkaat & vanteet";
+    if (
+      subcategory === "Kokonainen telasto" ||
+      subcategory === "Telamatot" ||
+      subcategory.startsWith("Telasto / ")
+    ) {
+      return "Telasarjat";
+    }
+    return "Jousitus & ohjaus";
+  }
+
+  if (category === "Ohjaus & hallintalaitteet") {
+    return subcategory.startsWith("Jarrut / ") ? "Jarrut" : "Jousitus & ohjaus";
+  }
+
+  if (category === "Sähköjärjestelmät") return "Sähköjärjestelmä";
+  if (category === "Jäähdytys & polttoaine" || category === "Pakoputkisto") return "Moottori";
+  if (category === "Runko & katteet") return "Runko & koriosat";
+  return category;
+}
+
+/**
+ * Resolve both old snowmobile categories and newer two-wheeler/ATV categories
+ * into the same top-level category name. The subcategory is needed to split
+ * the old combined categories without dropping any of their parts.
+ */
+export function getUnifiedAllCategoryName(category: string, subcategory = ""): string {
+  return legacyCombinedCategoryTarget(category, subcategory);
+}
+
+export function buildUnifiedAllVehicleCategories(
+  categories: Record<string, readonly string[]>
+): Record<string, readonly string[]> {
+  const merged = new Map<string, string[]>(
+    UNIFIED_ALL_CATEGORY_ORDER.map((category) => [category, []])
+  );
+
+  for (const [category, subcategories] of Object.entries(categories)) {
+    for (const subcategory of subcategories) {
+      const target = getUnifiedAllCategoryName(category, subcategory);
+      const targetSubcategories = merged.get(target) ?? [];
+      if (!targetSubcategories.includes(subcategory)) targetSubcategories.push(subcategory);
+      merged.set(target, targetSubcategories);
+    }
+  }
+
+  return Object.fromEntries(
+    [...merged.entries()].filter(([, subcategories]) => subcategories.length > 0)
+  );
 }
 
 export function buildMarketplaceYearOptions() {
@@ -222,7 +296,7 @@ export function buildMarketplaceCategorySource({
   vehicleCategories: Record<string, Record<string, readonly string[]>>;
   allVehicleCategories: Record<string, readonly string[]>;
 }) {
-  if (!vehicleType) return allVehicleCategories;
+  if (!vehicleType) return buildUnifiedAllVehicleCategories(allVehicleCategories);
   const vehicleKey = getCategoryVehicleKey(vehicleType);
   const categorySource = vehicleCategories[vehicleType] ?? vehicleCategories[vehicleKey] ?? allVehicleCategories;
   return filterVehiclePartCategoriesBySubtype(categorySource, vehicleKey, vehicleSubtype);
@@ -344,8 +418,14 @@ export function buildMarketplaceFilterOptions({
         ? (categorySource[category] ?? []).filter((item) => item === subcategoryParent || item.startsWith(`${subcategoryParent} /`))
         : categorySource[category] ?? [])
     : [];
-  const engineFallback = brand ? (ENGINE_MODELS[vehicle]?.[brand] ?? ENGINE_MODELS[vehicleKey]?.[brand] ?? []) : [];
   const models = buildMarketplaceModelOptions({ vehicle, brand, vehicleSubtype });
+  const engineModels = getModelEngineOptions(
+    vehicle,
+    brand,
+    model,
+    [],
+    subtypeModels ? models : undefined
+  );
 
   return {
     vehicleTypes: taxonomyVehicles.map((item) => item.key).filter(Boolean),
@@ -356,7 +436,7 @@ export function buildMarketplaceFilterOptions({
     models,
     years: buildMarketplaceYearOptions(),
     engineCcs: vehicle ? (CC_OPTIONS[vehicle] ?? CC_OPTIONS[vehicleKey] ?? DEFAULT_CC_OPTIONS) : DEFAULT_CC_OPTIONS,
-    engineModels: getModelEngineOptions(vehicle, brand, model, engineFallback),
+    engineModels,
     categories: Object.keys(categorySource),
     subcategoryGroups: subcategoryGroupsForCategory,
     subcategoryParents,

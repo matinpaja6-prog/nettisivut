@@ -1,7 +1,18 @@
-import InfoPage, { type InfoPageCopy } from "@/app/components/InfoPage";
-import type { Locale } from "@/lib/i18n";
+"use client";
 
-const copy: Record<Locale, InfoPageCopy> = {
+import { useLanguage, type Locale } from "@/lib/i18n";
+
+type SafetyPageCopy = {
+  kicker: string;
+  title: string;
+  lead: string;
+  cards: Array<{ title: string; text: string }>;
+  sections: Array<{ title: string; body: string[]; bullets?: string[] }>;
+  action: string;
+  summaryLabel: string;
+};
+
+const copy: Record<Locale, SafetyPageCopy> = {
   fi: {
     kicker: "Tuki",
     title: "Turvallinen kauppa",
@@ -16,7 +27,7 @@ const copy: Record<Locale, InfoPageCopy> = {
       { title: "Myyjälle", body: ["Kerro tuotteen todellinen kunto ja pakkaa lähetettävä osa niin, ettei se vaurioidu matkalla."], bullets: ["kuvaa viat avoimesti", "pidä hinta ja saatavuus ajan tasalla", "lähetä seurantatunnus ostajalle", "poista myyty ilmoitus tai merkitse se myydyksi"] },
       { title: "Ilmoita riskistä", body: ["Jos huomaat huijausyrityksen, varastetuksi epäillyn tuotteen tai käyttäjän, joka häiritsee muita, ota yhteyttä tukeen mahdollisimman tarkkojen tietojen kanssa."] }
     ],
-    actions: [{ href: "mailto:info@maskines.com", label: "Ilmoita ongelmasta", primary: true }],
+    action: "Ilmoita ongelmasta",
     summaryLabel: "Turvallinen kauppa - yhteenveto"
   },
   en: {
@@ -33,7 +44,7 @@ const copy: Record<Locale, InfoPageCopy> = {
       { title: "For sellers", body: ["Describe the real condition of the product and pack shipped parts so they are not damaged in transit."], bullets: ["show defects openly", "keep price and availability up to date", "send the tracking code to the buyer", "remove a sold listing or mark it as sold"] },
       { title: "Report a risk", body: ["If you notice a scam attempt, a product suspected to be stolen or a user who disturbs others, contact support with as much detail as possible."] }
     ],
-    actions: [{ href: "mailto:info@maskines.com", label: "Report a problem", primary: true }],
+    action: "Report a problem",
     summaryLabel: "Safe trading - summary"
   },
   sv: {
@@ -50,7 +61,7 @@ const copy: Record<Locale, InfoPageCopy> = {
       { title: "För säljare", body: ["Berätta produktens verkliga skick och packa en del som skickas så att den inte skadas under transporten."], bullets: ["visa fel öppet", "håll pris och tillgänglighet uppdaterade", "skicka spårningskoden till köparen", "ta bort en såld annons eller markera den som såld"] },
       { title: "Anmäl en risk", body: ["Om du märker ett bedrägeriförsök, en produkt som misstänks vara stulen eller en användare som stör andra, kontakta supporten med så noggranna uppgifter som möjligt."] }
     ],
-    actions: [{ href: "mailto:info@maskines.com", label: "Anmäl problem", primary: true }],
+    action: "Anmäl problem",
     summaryLabel: "Trygg handel - sammanfattning"
   },
   no: {
@@ -67,11 +78,55 @@ const copy: Record<Locale, InfoPageCopy> = {
       { title: "For selgere", body: ["Fortell produktets faktiske tilstand og pakk en del som sendes slik at den ikke skades underveis."], bullets: ["vis feil åpent", "hold pris og tilgjengelighet oppdatert", "send sporingsnummer til kjøperen", "fjern en solgt annonse eller merk den som solgt"] },
       { title: "Rapporter en risiko", body: ["Hvis du oppdager et svindelforsøk, et produkt som mistenkes stjålet eller en bruker som plager andre, kontakt støtte med så detaljerte opplysninger som mulig."] }
     ],
-    actions: [{ href: "mailto:info@maskines.com", label: "Rapporter problem", primary: true }],
+    action: "Rapporter problem",
     summaryLabel: "Trygg handel - sammendrag"
   },
 };
 
 export default function SafetyPage() {
-  return <InfoPage copy={copy} />;
+  const { locale } = useLanguage();
+  const current = copy[locale] ?? copy.fi;
+
+  return (
+    <main className="safety-page safety-clean-page">
+      <article className="safety-shell">
+        <section className="safety-hero">
+          <span className="safety-kicker">{current.kicker}</span>
+          <h1>{current.title}</h1>
+          <p>{current.lead}</p>
+          <a className="safety-contact-link" href="mailto:info@maskines.com">
+            {current.action}
+          </a>
+        </section>
+
+        <section className="safety-summary" aria-label={current.summaryLabel}>
+          {current.cards.map((card) => (
+            <div className="safety-summary-item" key={card.title}>
+              <strong>{card.title}</strong>{" "}
+              <span>{card.text}</span>
+            </div>
+          ))}
+        </section>
+
+        <div className="safety-content">
+          {current.sections.map((section) => (
+            <details className="safety-section legal-accordion-item" key={section.title}>
+              <summary>
+                <span>{section.title}</span>
+                <span className="legal-accordion-chevron" aria-hidden="true" />
+              </summary>
+              <div className="legal-accordion-body">
+                {section.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                {section.bullets ? (
+                  <ul>
+                    {section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}
+                  </ul>
+                ) : null}
+              </div>
+            </details>
+          ))}
+        </div>
+      </article>
+    </main>
+  );
 }

@@ -324,6 +324,12 @@ async function requireAdmin(request: Request) {
     };
   }
 
+  if (userData.user?.email?.trim().toLowerCase() !== "matinpaja6@gmail.com") {
+    return {
+      error: NextResponse.json({ error: "Tällä käyttäjällä ei ole admin-oikeutta." }, { status: 403 })
+    };
+  }
+
   if (assuranceLevel !== "aal2" || !sessionId) {
     return {
       error: NextResponse.json(
@@ -459,7 +465,6 @@ function normalizeProfile(row: Record<string, unknown>) {
     postal_code: row.postal_code ? String(row.postal_code) : null,
     city: row.city ? String(row.city) : null,
     country: row.country ? String(row.country) : null,
-    birth_date: row.birth_date ? String(row.birth_date) : null,
     public_id: row.public_id ? String(row.public_id) : null,
     username: row.username ? String(row.username) : null,
     bio: row.bio ? String(row.bio) : null,

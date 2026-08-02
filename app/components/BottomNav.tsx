@@ -398,6 +398,11 @@ export default function BottomNav() {
     setNotifOpen(false);
     setGarageOpen(false);
 
+    if (canonicalPathname.startsWith("/seller/") || canonicalPathname.startsWith("/profile/")) {
+      window.dispatchEvent(new CustomEvent("seller-profile-open-filters"));
+      return;
+    }
+
     if (canonicalPathname === "/") {
       window.dispatchEvent(new CustomEvent("maskines-open-home-filters"));
       return;

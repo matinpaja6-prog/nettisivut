@@ -443,6 +443,39 @@ html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-
 }
 
 @media (max-width: 520px) {
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-card-top {
+    flex-flow: row nowrap !important;
+    gap: 6px !important;
+  }
+
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-type-corner {
+    flex: 0 1 auto !important;
+    font-size: 14px !important;
+    gap: 6px !important;
+    white-space: nowrap !important;
+  }
+
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-type-corner svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-profile-btn-top {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 0 0 auto !important;
+    padding: 0 !important;
+    gap: 4px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
+
+  html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-profile-btn-top svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
   html body :is(#rs-never, main.listing-detail-page) :is(#rs-seller, [data-seller-panel]) .seller-card-body {
     padding: 18px 16px !important;
   }

@@ -1,6 +1,7 @@
 .info-page,
 .terms-clean-page,
-.privacy-clean-page {
+.privacy-clean-page,
+.safety-clean-page {
   background: #07111d !important;
   background-color: #0d1b23 !important;
   background-image:
@@ -10,6 +11,251 @@
   color: var(--text, #f4f8fc);
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+/* Reference-style legal documents: readable intro and compact accordions. */
+html body main.privacy-clean-page,
+html body main.terms-clean-page,
+html body main.safety-clean-page {
+  background: transparent !important;
+  color: #e8f0f7 !important;
+  min-height: 100vh !important;
+}
+
+/* Keep the safety page flush with the shared topbar without divider lines. */
+html body:has(main.safety-clean-page) header.universal-app-topbar {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+}
+
+html body main.privacy-clean-page .privacy-shell,
+html body main.terms-clean-page .terms-shell,
+html body main.safety-clean-page .safety-shell {
+  gap: 18px !important;
+  max-width: 840px !important;
+  padding: clamp(28px, 5vw, 58px) clamp(18px, 4vw, 38px) 72px !important;
+}
+
+html body main.safety-clean-page .safety-shell {
+  margin-inline: auto !important;
+}
+
+html body main.privacy-clean-page .privacy-hero,
+html body main.terms-clean-page .terms-hero,
+html body main.safety-clean-page .safety-hero {
+  border: 0 !important;
+  padding: 0 0 4px !important;
+}
+
+html body main.privacy-clean-page .privacy-hero h1,
+html body main.terms-clean-page .terms-hero h1,
+html body main.safety-clean-page .safety-hero h1 {
+  color: #f7fbff !important;
+  font-size: clamp(26px, 4vw, 38px) !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.15 !important;
+}
+
+html body main.privacy-clean-page .privacy-hero p,
+html body main.terms-clean-page .terms-hero p {
+  display: none !important;
+}
+
+html body main.privacy-clean-page .privacy-actions,
+html body main.terms-clean-page .terms-actions {
+  margin-top: 12px !important;
+}
+
+html body main.privacy-clean-page .privacy-terms-link,
+html body main.terms-clean-page .terms-privacy-link {
+  background: transparent !important;
+  border: 0 !important;
+  color: #ff9d48 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px !important;
+}
+
+html body main.privacy-clean-page .privacy-summary,
+html body main.terms-clean-page .terms-summary,
+html body main.safety-clean-page .safety-summary {
+  display: grid !important;
+  gap: 10px !important;
+  margin: 8px 0 10px !important;
+}
+
+html body main.privacy-clean-page .privacy-summary-item,
+html body main.terms-clean-page .terms-summary-item,
+html body main.safety-clean-page .safety-summary-item {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: rgba(220, 232, 243, 0.82) !important;
+  display: block !important;
+  font-size: 13px !important;
+  line-height: 1.65 !important;
+  padding: 0 !important;
+}
+
+html body main.privacy-clean-page .privacy-summary-item strong,
+html body main.terms-clean-page .terms-summary-item strong,
+html body main.safety-clean-page .safety-summary-item strong {
+  color: #f1f6fb !important;
+  display: inline !important;
+  font-size: inherit !important;
+  margin-right: 5px !important;
+}
+
+html body main.privacy-clean-page .privacy-summary-item > span,
+html body main.terms-clean-page .terms-summary-item > span,
+html body main.safety-clean-page .safety-summary-item > span {
+  color: rgba(220, 232, 243, 0.82) !important;
+  display: inline !important;
+}
+
+html body main.privacy-clean-page .privacy-summary-item .legal-number,
+html body main.terms-clean-page .terms-summary-item .legal-number {
+  display: none !important;
+}
+
+html body main.privacy-clean-page .privacy-content,
+html body main.terms-clean-page .terms-content,
+html body main.safety-clean-page .safety-content {
+  display: grid !important;
+  gap: 6px !important;
+}
+
+html body main.privacy-clean-page .privacy-section.legal-accordion-item,
+html body main.terms-clean-page .terms-section.legal-accordion-item,
+html body main.safety-clean-page .safety-section.legal-accordion-item {
+  background: rgba(10, 25, 39, 0.88) !important;
+  border: 1px solid rgba(115, 148, 176, 0.24) !important;
+  border-radius: 3px !important;
+  box-shadow: none !important;
+  color: #e8f0f7 !important;
+  display: block !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+html body main .legal-accordion-item > summary {
+  align-items: center !important;
+  cursor: pointer !important;
+  display: grid !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  gap: 14px !important;
+  grid-template-columns: minmax(0, 1fr) 28px !important;
+  list-style: none !important;
+  min-height: 48px !important;
+  padding: 0 16px !important;
+  text-align: left !important;
+}
+
+html body main .legal-accordion-item > summary::-webkit-details-marker {
+  display: none !important;
+}
+
+html body main .legal-accordion-item > summary:hover,
+html body main .legal-accordion-item[open] > summary {
+  background: rgba(255, 255, 255, 0.045) !important;
+}
+
+html body main .legal-accordion-chevron {
+  align-items: center !important;
+  background: rgba(137, 169, 196, 0.08) !important;
+  border: 1px solid rgba(137, 169, 196, 0.24) !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  height: 28px !important;
+  justify-self: end !important;
+  justify-content: center !important;
+  position: relative !important;
+  transition: background 160ms ease, border-color 160ms ease, transform 180ms ease !important;
+  width: 28px !important;
+}
+
+html body main .legal-accordion-chevron::before {
+  border-bottom: 2px solid #b9cce0 !important;
+  border-right: 2px solid #b9cce0 !important;
+  content: "" !important;
+  height: 7px !important;
+  transform: rotate(45deg) translate(-1px, -1px) !important;
+  width: 7px !important;
+}
+
+html body main .legal-accordion-item > summary:hover .legal-accordion-chevron,
+html body main .legal-accordion-item[open] .legal-accordion-chevron {
+  background: rgba(255, 122, 26, 0.14) !important;
+  border-color: rgba(255, 122, 26, 0.52) !important;
+}
+
+html body main .legal-accordion-item[open] .legal-accordion-chevron {
+  transform: rotate(180deg) !important;
+}
+
+html body main .legal-accordion-body {
+  border-top: 1px solid rgba(115, 148, 176, 0.18) !important;
+  color: rgba(220, 232, 243, 0.84) !important;
+  display: grid !important;
+  gap: 12px !important;
+  padding: 16px !important;
+}
+
+html body main .legal-accordion-body p,
+html body main .legal-accordion-body li {
+  font-size: 13px !important;
+  line-height: 1.65 !important;
+  margin: 0 !important;
+}
+
+html body main .legal-updated-footer {
+  color: rgba(183, 200, 216, 0.68) !important;
+  font-size: 12px !important;
+  margin: 4px 0 0 !important;
+}
+
+@media (max-width: 640px) {
+  html body main.privacy-clean-page .privacy-shell,
+  html body main.terms-clean-page .terms-shell,
+  html body main.safety-clean-page .safety-shell {
+    padding: 26px 14px 104px !important;
+  }
+
+  html body main .legal-accordion-item > summary {
+    min-height: 52px !important;
+    padding: 0 13px !important;
+  }
+}
+
+html body main.safety-clean-page .safety-hero p {
+  color: rgba(220, 232, 243, 0.82) !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+  margin: 12px 0 0 !important;
+  max-width: 720px !important;
+}
+
+html body main.safety-clean-page .safety-kicker {
+  color: #ff9d48 !important;
+  display: inline-block !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.08em !important;
+  margin-bottom: 10px !important;
+  text-transform: uppercase !important;
+}
+
+html body main.safety-clean-page .safety-contact-link {
+  color: #ff9d48 !important;
+  display: inline-block !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  margin-top: 14px !important;
+  text-underline-offset: 3px !important;
 }
 
 .about-showcase-page {
@@ -2264,4 +2510,12 @@ main.help-page .help-faq-item p {
     border-left: 1px solid rgba(97, 132, 162, 0.18) !important;
     border-top: 0 !important;
   }
+}
+
+/* Legal pages: remove the outlined accordion rails/cards. */
+html body main.privacy-clean-page .privacy-section.legal-accordion-item,
+html body main.terms-clean-page .terms-section.legal-accordion-item,
+html body main.safety-clean-page .safety-section.legal-accordion-item {
+  border: 0 !important;
+  outline: 0 !important;
 }

@@ -5,11 +5,9 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
 import TurnstileWidget from "@/app/components/TurnstileWidget";
-import { ArrowLeft, Building2, Check, ChevronDown, Eye, EyeOff, LockKeyhole, Mail, UserRound, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Globe2, LockKeyhole, Mail, ShieldCheck, UsersRound, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
-import { BirthDateField } from "@/app/components/BirthDateField";
 import { useLanguage, type Locale } from "@/lib/i18n";
-import { sanitizePhoneDigits, sanitizePhoneInput } from "@/lib/phone-input";
 import { canonicalPathFromLocalized, pagePath, profileRootPath } from "@/lib/routes";
 import {
   getSafeAuthSession,
@@ -18,6 +16,7 @@ import {
   isProfileCompleted,
   isSupabaseConfigured,
   resetPassword,
+  sendLoginOtpWithEmail,
   sendRegistrationOtpWithEmail,
   signInWithEmail,
   signInWithGoogle,
@@ -25,6 +24,7 @@ import {
   supabase,
   updatePassword,
   upsertProfileFromApi,
+  verifyLoginOtpWithEmail,
   verifyRegistrationOtpWithEmail,
   type UserProfile
 } from "@/lib/supabase";
@@ -35,71 +35,9 @@ const REGISTRATION_PIN_COOLDOWN_STORAGE_KEY = "registration_pin_sent_at_v1";
 const REGISTRATION_PIN_COOLDOWN_MS = 65_000;
 const AUTH_SUBMIT_AUTO_UNLOCK_MS = 15_000;
 const GOOGLE_AUTH_CALLBACK_PATH = "/auth";
+const ADMIN_MFA_FRIENDLY_NAME = "Maskines Admin";
 type AuthMode = "login" | "register";
-
-type GooglePlace = {
-  address_components?: Array<{
-    long_name: string;
-    short_name: string;
-    types: string[];
-  }>;
-  formatted_address?: string;
-  formatted_phone_number?: string;
-  international_phone_number?: string;
-  name?: string;
-  website?: string;
-};
-
-type GoogleAutocomplete = {
-  addListener: (eventName: "place_changed", handler: () => void) => void;
-  getPlace: () => GooglePlace;
-};
-
-type GoogleMapsWindow = Window & {
-  google?: {
-    maps?: {
-      places?: {
-        Autocomplete: new (
-          input: HTMLInputElement,
-          options: Record<string, unknown>
-        ) => GoogleAutocomplete;
-      };
-    };
-  };
-};
-
-async function checkPhoneBeforeRegistration(phone: string): Promise<{
-  available: boolean;
-  reason?: "in_use" | "reserved";
-  error?: string;
-}> {
-  const response = await fetch("/api/profiles/check-phone", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json"
-    },
-    body: JSON.stringify({ phone })
-  });
-
-  const payload =
-    await response.json().catch(() => ({})) as {
-      available?: boolean;
-      reason?: "in_use" | "reserved";
-      error?: string;
-    };
-
-  if (!response.ok) {
-    return {
-      available: false,
-      error: payload.error || "Puhelinnumeron tarkistus epäonnistui."
-    };
-  }
-
-  return {
-    available: Boolean(payload.available),
-    reason: payload.reason
-  };
-}
+type LoginMfaMode = "totp" | "email" | null;
 
 async function sendRegistrationPin(
   email: string,
@@ -215,33 +153,26 @@ const emptyAuthForm = {
   address: "",
   postal_code: "",
   city: "",
-  country: "Suomi",
-  birth_date: ""
+  country: "FI"
 };
-
-const phoneDialingOptions = [
-  { country: "FI", code: "+358", flag: "🇫🇮" },
-  { country: "SE", code: "+46", flag: "🇸🇪" },
-  { country: "DK", code: "+45", flag: "🇩🇰" },
-  { country: "PL", code: "+48", flag: "🇵🇱" },
-  { country: "LV", code: "+371", flag: "🇱🇻" },
-  { country: "DE", code: "+49", flag: "🇩🇪" },
-  { country: "LT", code: "+370", flag: "🇱🇹" }
-];
 
 const countryOptions = [
   "FI",
   "SE",
-  "DK",
-  "DE",
-  "OTHER"
+  "NO",
+  "EE"
 ];
 
-const OTHER_COUNTRY_VALUE = "OTHER";
+const defaultCountryByLocale: Record<Locale, string> = {
+  fi: "FI",
+  en: "FI",
+  sv: "SE",
+  no: "NO"
+};
 
 const countryNameByLocale: Record<Locale, Record<string, string>> = {
   fi: {
-    FI: "Suomi", SE: "Ruotsi", DK: "Tanska",
+    FI: "Suomi", SE: "Ruotsi", NO: "Norja", EE: "Viro", DK: "Tanska",
     AL: "Albania", AD: "Andorra", AM: "Armenia", AT: "Itävalta", AZ: "AzerbaidÅ¾an", BY: "Valko-Venäjä",
     BE: "Belgia", BA: "Bosnia ja Hertsegovina", BG: "Bulgaria", HR: "Kroatia", CY: "Kypros",
     CZ: "TÅ¡ekki", FR: "Ranska", GE: "Georgia", DE: "Saksa", GI: "Gibraltar", GR: "Kreikka",
@@ -251,11 +182,11 @@ const countryNameByLocale: Record<Locale, Record<string, string>> = {
     PL: "Puola", PT: "Portugali", RO: "Romania", RU: "Venäjä", SM: "San Marino", RS: "Serbia",
     SK: "Slovakia", SI: "Slovenia", ES: "Espanja", CH: "Sveitsi", TR: "Turkki",
     UA: "Ukraina", GB: "Iso-Britannia", VA: "Vatikaani", FO: "Färsaaret",
-    OTHER: "Muu", da: "Tanska", sv: "Ruotsi"
+    da: "Tanska", sv: "Ruotsi"
   },
-  en: { FI: "Finland", SE: "Sweden", DK: "Denmark", DE: "Germany", OTHER: "Other", da: "Denmark", sv: "Sweden" },
-  sv: { FI: "Finland", SE: "Sverige", DK: "Danmark", DE: "Tyskland", OTHER: "Annat", da: "Danmark", sv: "Sverige" },
-  no: { FI: "Finland", SE: "Sverige", NO: "Norge", DK: "Danmark", EE: "Estland", DE: "Tyskland", OTHER: "Annet", da: "Danmark", sv: "Sverige", no: "Norge", ee: "Estland" },
+  en: { FI: "Finland", SE: "Sweden", NO: "Norway", EE: "Estonia", DK: "Denmark", DE: "Germany", da: "Denmark", sv: "Sweden" },
+  sv: { FI: "Finland", SE: "Sverige", NO: "Norge", EE: "Estland", DK: "Danmark", DE: "Tyskland", da: "Danmark", sv: "Sverige" },
+  no: { FI: "Finland", SE: "Sverige", NO: "Norge", EE: "Estland", DK: "Danmark", DE: "Tyskland", da: "Danmark", sv: "Sverige", no: "Norge", ee: "Estland" },
 };
 
 const registrationPinText: Record<Locale, {
@@ -282,62 +213,14 @@ function getCountryName(locale: Locale, country: string) {
 const countryValueByFinnishName: Record<string, string> = {
   Suomi: "FI",
   Ruotsi: "SE",
-  Tanska: "DK",
-  Saksa: "DE",
-  Muu: OTHER_COUNTRY_VALUE
+  Norja: "NO",
+  Viro: "EE"
 };
-
-function compactPhone(value: string) {
-  const cleaned = sanitizePhoneInput(value);
-
-  if (cleaned.startsWith("00")) {
-    return `+${cleaned.slice(2)}`;
-  }
-
-  return cleaned;
-}
-
-function getPhoneParts(value: string) {
-  const compact =
-    compactPhone(value);
-
-  const matchedOption =
-    phoneDialingOptions.find((option) => compact.startsWith(option.code));
-
-  const code =
-    matchedOption?.code ?? "+358";
-
-  if (matchedOption) {
-    return {
-      code,
-      national: compact.slice(code.length)
-    };
-  }
-
-  return {
-    code,
-    national: compact.replace(/^\+/, "")
-  };
-}
-
-function buildPhoneNumber(code: string, national: string) {
-  const digits =
-    national.replace(/\D/g, "");
-
-  if (!digits) return "";
-
-  const withoutLocalZero =
-    digits.startsWith("0") ? digits.slice(1) : digits;
-
-  return `${code}${withoutLocalZero}`;
-}
 
 type AuthFormState = typeof emptyAuthForm;
 
 type ProfileCompletionDraft = {
-  customCountry?: string;
   form?: Partial<AuthFormState>;
-  phoneDialingCode?: string;
   privacyAccepted?: boolean;
   scrollY?: number;
 };
@@ -405,7 +288,6 @@ function getProfileCompletionDraftForm(form: AuthFormState): Partial<AuthFormSta
     account_type: form.account_type,
     address: form.address,
     billing_email: form.billing_email,
-    birth_date: form.birth_date,
     business_id: form.business_id,
     city: form.city,
     company_name: form.company_name,
@@ -418,31 +300,6 @@ function getProfileCompletionDraftForm(form: AuthFormState): Partial<AuthFormSta
     phone: form.phone,
     postal_code: form.postal_code
   };
-}
-
-function getGoogleAddressPart(place: GooglePlace, type: string, short = false) {
-  const part = place.address_components?.find((component) =>
-    component.types.includes(type)
-  );
-  return short ? part?.short_name ?? "" : part?.long_name ?? "";
-}
-
-function getStreetAddressFromGooglePlace(place: GooglePlace) {
-  const route = getGoogleAddressPart(place, "route");
-  const streetNumber = getGoogleAddressPart(place, "street_number");
-  const streetAddress = [route, streetNumber].filter(Boolean).join(" ");
-  return streetAddress || place.formatted_address || "";
-}
-
-function getCountryValueFromGooglePlace(place: GooglePlace) {
-  const countryCode = getGoogleAddressPart(place, "country", true).toUpperCase();
-const supportedCountries: Record<string, string> = {
-    DK: "DK",
-    DE: "DE",
-    FI: "FI",
-    SE: "SE"
-  };
-  return supportedCountries[countryCode] ?? "";
 }
 
 function normalizeAuthErrorMessage(message: string) {
@@ -513,6 +370,21 @@ function withTimeout<T>(
   });
 }
 
+function clearHandledRecoveryTokenFromUrl() {
+  if (typeof window === "undefined") return;
+
+  const url = new URL(window.location.href);
+  const hasRecoveryToken =
+    url.hash.includes("type=recovery") ||
+    url.searchParams.get("recovery") === "1";
+
+  if (!hasRecoveryToken) return;
+
+  url.searchParams.set("recovery", "1");
+  url.hash = "";
+  window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}`);
+}
+
 async function getFreshAuthUser(fallbackUser?: User | null): Promise<User | null> {
   const [session, currentUser] =
     await Promise.all([
@@ -530,6 +402,8 @@ function AuthPageContent() {
   const pinText = registrationPinText[locale];
   const authPagePath = pagePath("auth", locale);
   const profilePagePath = profileRootPath(locale);
+  const termsPagePath = pagePath("terms", locale);
+  const privacyPagePath = pagePath("privacy", locale);
   const authRedirectPath = getSafeAuthRedirectPath(searchParams.get("next"));
   const [authMode, setAuthMode] = useState<AuthMode>(() => getAuthModeFromSearchParams(searchParams));
   const sellLoginPrompt =
@@ -539,13 +413,15 @@ function AuthPageContent() {
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetStatus, setResetStatus] = useState("");
-  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [recoveryMode, setRecoveryMode] = useState(() => {
+    if (searchParams.get("recovery") === "1") return true;
+    return typeof window !== "undefined" && window.location.hash.includes("type=recovery");
+  });
   const [form, setForm] = useState(() => ({
     ...emptyAuthForm
   }));
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [registrationPasswordConfirm, setRegistrationPasswordConfirm] = useState("");
   const [showAuthPasswords, setShowAuthPasswords] = useState(false);
   const [status, setStatus] = useState("");
   const [authSubmitting, setAuthSubmitting] = useState(false);
@@ -554,6 +430,7 @@ function AuthPageContent() {
   const authSubmitInFlightRef = useRef(false);
   const automaticProfileSaveInFlightRef = useRef(false);
   const authRedirectStartedRef = useRef(false);
+  const mfaCheckPendingRef = useRef(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLookupDone, setProfileLookupDone] = useState(false);
@@ -563,10 +440,13 @@ function AuthPageContent() {
   const [registrationPinEmail, setRegistrationPinEmail] = useState("");
   const [registrationPin, setRegistrationPin] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
-  const [phoneDialingCode, setPhoneDialingCode] = useState("+358");
-  const [phoneCodeMenuOpen, setPhoneCodeMenuOpen] = useState(false);
-  const [customCountry, setCustomCountry] = useState("");
-  const companyAddressInputRef = useRef<HTMLInputElement | null>(null);
+  const [loginMfaMode, setLoginMfaMode] = useState<LoginMfaMode>(null);
+  const [loginMfaFactorId, setLoginMfaFactorId] = useState("");
+  const [loginMfaEmail, setLoginMfaEmail] = useState("");
+  const [loginMfaCode, setLoginMfaCode] = useState("");
+  const [loginMfaStatus, setLoginMfaStatus] = useState("");
+  const [loginMfaSubmitting, setLoginMfaSubmitting] = useState(false);
+  const [loginMfaRecovery, setLoginMfaRecovery] = useState(false);
 
   function resetAuthCaptcha() {
     setAuthCaptchaToken("");
@@ -578,6 +458,167 @@ function AuthPageContent() {
 
     authRedirectStartedRef.current = true;
     router.replace(authRedirectPath);
+  }
+
+  async function prepareSecondFactor(targetUser: User) {
+    if (!supabase) return false;
+    mfaCheckPendingRef.current = true;
+
+    try {
+      const [{ data: assurance, error: assuranceError }, { data: factors, error: factorsError }] =
+        await Promise.all([
+          supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
+          supabase.auth.mfa.listFactors()
+        ]);
+
+      if (assuranceError || factorsError) {
+        throw assuranceError ?? factorsError;
+      }
+
+      // Admin-paneelin Authenticator on erillinen suoja. Sitä ei koskaan
+      // kysytä tavallisessa sivustolle kirjautumisessa.
+      const totpFactor = factors?.totp?.find(
+        (factor) => factor.friendly_name !== ADMIN_MFA_FRIENDLY_NAME
+      );
+      if (assurance?.currentLevel === "aal1" && assurance?.nextLevel === "aal2" && totpFactor) {
+        setLoginMfaFactorId(totpFactor.id);
+        setLoginMfaEmail(targetUser.email ?? "");
+        setLoginMfaCode("");
+        setLoginMfaStatus("");
+        setLoginMfaMode("totp");
+        return true;
+      }
+
+      if (
+        assurance?.currentLevel !== "aal2" &&
+        targetUser.user_metadata?.email_mfa_enabled === true &&
+        targetUser.email
+      ) {
+        const targetEmail = targetUser.email;
+        await signOut();
+        const { error } = await sendLoginOtpWithEmail(targetEmail);
+        if (error) throw error;
+
+        setLoginMfaFactorId("");
+        setLoginMfaEmail(targetEmail);
+        setLoginMfaCode("");
+        setLoginMfaStatus(`Lähetimme kuusinumeroisen koodin osoitteeseen ${targetEmail}.`);
+        setLoginMfaMode("email");
+        return true;
+      }
+
+      return false;
+    } finally {
+      mfaCheckPendingRef.current = false;
+    }
+  }
+
+  async function submitLoginMfa(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!supabase || loginMfaSubmitting) return;
+    if (!/^\d{6}$/.test(loginMfaCode)) {
+      setLoginMfaStatus("Anna kuusinumeroinen vahvistuskoodi.");
+      return;
+    }
+
+    setLoginMfaSubmitting(true);
+    setLoginMfaStatus("Vahvistetaan koodia...");
+    try {
+      if (loginMfaMode === "totp") {
+        if (!loginMfaFactorId) throw new Error("Authenticator-laitetta ei löytynyt.");
+        const { error } = await supabase.auth.mfa.challengeAndVerify({
+          factorId: loginMfaFactorId,
+          code: loginMfaCode
+        });
+        if (error) throw error;
+      } else if (loginMfaMode === "email") {
+        const { data, error } = await verifyLoginOtpWithEmail(loginMfaEmail, loginMfaCode);
+        if (error) throw error;
+
+        if (loginMfaRecovery) {
+          const accessToken = data?.session?.access_token;
+          if (!accessToken) throw new Error("Sähköpostivahvistus ei luonut voimassa olevaa istuntoa.");
+          const response = await fetch("/api/auth/mfa/recovery", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ action: "complete" })
+          });
+          const result = (await response.json().catch(() => ({}))) as { error?: string };
+          if (!response.ok) throw new Error(result.error || "Authenticatorin palautus epäonnistui.");
+
+          await signOut();
+          setLoginMfaMode(null);
+          setLoginMfaRecovery(false);
+          setLoginMfaCode("");
+          setLoginMfaStatus("");
+          setStatus("Authenticator poistettiin turvallisesti. Kirjaudu nyt uudelleen. Voit lisätä uuden Oma profiili -sivulla.");
+          return;
+        }
+      } else {
+        throw new Error("Vahvistustapaa ei löytynyt.");
+      }
+
+      setLoginMfaMode(null);
+      setLoginMfaCode("");
+      setLoginMfaStatus("");
+      setStatus(t.authLoginSuccess);
+      redirectAfterSuccessfulAuth();
+    } catch (error) {
+      setLoginMfaStatus(normalizeAuthErrorMessage(getErrorMessage(error)));
+    } finally {
+      setLoginMfaSubmitting(false);
+    }
+  }
+
+  async function beginAuthenticatorRecovery() {
+    if (!supabase || !loginMfaEmail || loginMfaSubmitting) return;
+    setLoginMfaSubmitting(true);
+    setLoginMfaStatus("Valmistellaan turvallista palautusta...");
+
+    try {
+      const { data } = await supabase.auth.getSession();
+      const accessToken = data.session?.access_token;
+      if (!accessToken) throw new Error("Kirjautuminen ei ole enää voimassa. Kirjaudu uudelleen.");
+
+      const response = await fetch("/api/auth/mfa/recovery", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ action: "start" })
+      });
+      const result = (await response.json().catch(() => ({}))) as { error?: string };
+      if (!response.ok) throw new Error(result.error || "Palautusta ei voitu aloittaa.");
+
+      await signOut();
+      const { error } = await sendLoginOtpWithEmail(loginMfaEmail);
+      if (error) throw error;
+
+      setLoginMfaRecovery(true);
+      setLoginMfaMode("email");
+      setLoginMfaCode("");
+      setLoginMfaStatus(`Lähetimme palautuskoodin osoitteeseen ${loginMfaEmail}.`);
+    } catch (error) {
+      setLoginMfaStatus(normalizeAuthErrorMessage(getErrorMessage(error)));
+    } finally {
+      setLoginMfaSubmitting(false);
+    }
+  }
+
+  async function resendLoginEmailCode() {
+    if (!loginMfaEmail || loginMfaSubmitting) return;
+    setLoginMfaSubmitting(true);
+    const { error } = await sendLoginOtpWithEmail(loginMfaEmail);
+    setLoginMfaSubmitting(false);
+    setLoginMfaStatus(
+      error
+        ? normalizeAuthErrorMessage(getErrorMessage(error))
+        : `Uusi koodi lähetettiin osoitteeseen ${loginMfaEmail}.`
+    );
   }
 
   useEffect(() => {
@@ -623,17 +664,6 @@ function AuthPageContent() {
         }));
       }
 
-      if (typeof draft.customCountry === "string") {
-        setCustomCountry(draft.customCountry);
-      }
-
-      if (
-        typeof draft.phoneDialingCode === "string" &&
-        phoneDialingOptions.some((option) => option.code === draft.phoneDialingCode)
-      ) {
-        setPhoneDialingCode(draft.phoneDialingCode);
-      }
-
       if (typeof draft.privacyAccepted === "boolean") {
         setPrivacyAccepted(draft.privacyAccepted);
       }
@@ -654,88 +684,11 @@ function AuthPageContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (form.account_type !== "company") return;
-    if (typeof window === "undefined") return;
-
-    let cancelled = false;
-
-    const setupAutocomplete = () => {
-      const addressInput = companyAddressInputRef.current;
-      const Autocomplete =
-        (window as GoogleMapsWindow).google?.maps?.places?.Autocomplete;
-
-      if (!addressInput || !Autocomplete || cancelled) return;
-
-      const autocomplete = new Autocomplete(addressInput, {
-        componentRestrictions: { country: ["dk", "de", "fi", "se"] },
-        fields: [
-          "address_components",
-          "formatted_address",
-          "formatted_phone_number",
-          "international_phone_number",
-          "name",
-          "website"
-        ],
-        types: ["establishment", "geocode"]
-      });
-
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        const address = getStreetAddressFromGooglePlace(place);
-        const postalCode = getGoogleAddressPart(place, "postal_code");
-        const city =
-          getGoogleAddressPart(place, "postal_town") ||
-          getGoogleAddressPart(place, "locality") ||
-          getGoogleAddressPart(place, "administrative_area_level_3");
-        const country = getCountryValueFromGooglePlace(place);
-        const phone =
-          place.international_phone_number ||
-          place.formatted_phone_number ||
-          "";
-
-        setForm((current) => ({
-          ...current,
-          address: address || current.address,
-          city: city || current.city,
-          company_name: current.company_name || place.name || "",
-          company_website: current.company_website || place.website || "",
-          country: country || current.country,
-          phone: current.phone || phone,
-          postal_code: postalCode || current.postal_code
-        }));
-      });
-    };
-
-    if ((window as GoogleMapsWindow).google?.maps?.places?.Autocomplete) {
-      setupAutocomplete();
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    const scriptId = "google-places-autocomplete";
-    const existingScript = document.getElementById(scriptId) as HTMLScriptElement | null;
-
-    if (existingScript) {
-      existingScript.addEventListener("load", setupAutocomplete, { once: true });
-      return () => {
-        cancelled = true;
-        existingScript.removeEventListener("load", setupAutocomplete);
-      };
-    }
-
-    const script = document.createElement("script");
-    script.id = scriptId;
-    script.async = true;
-    script.src = `/api/google-maps-script?language=${encodeURIComponent(locale)}`;
-    script.addEventListener("load", setupAutocomplete, { once: true });
-    document.head.appendChild(script);
-
-    return () => {
-      cancelled = true;
-      script.removeEventListener("load", setupAutocomplete);
-    };
-  }, [form.account_type, locale]);
+    setForm((current) => ({
+      ...current,
+      country: defaultCountryByLocale[locale]
+    }));
+  }, [locale]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -745,7 +698,7 @@ function AuthPageContent() {
       7000,
       "Istunnon tarkistus kesti liian kauan."
     )
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         const sessionUser = data.session?.user ?? null;
 
         if (!sessionUser) {
@@ -760,7 +713,7 @@ function AuthPageContent() {
             getProfile(sessionUser.id),
             8000,
             "Profiilin tarkistus kesti liian kauan."
-          ).then(({ data: profileData }) => {
+          ).then(async ({ data: profileData }) => {
             if (!profileData) {
               clearGoogleAuthIntent();
               setProfile(null);
@@ -769,6 +722,12 @@ function AuthPageContent() {
               setEmailPending(false);
               setStatus(t.authGoogleVerifiedCompleteProfile);
               replaceAuthModeUrl(authPagePath, "register");
+              return;
+            }
+
+            if (await prepareSecondFactor(sessionUser)) {
+              clearGoogleAuthIntent();
+              setUser(null);
               return;
             }
 
@@ -790,14 +749,24 @@ function AuthPageContent() {
           replaceAuthModeUrl(authPagePath, "register");
         }
 
-        setUser(sessionUser);
         if (
           typeof window !== "undefined" &&
-          window.location.hash.includes("type=recovery")
+          (searchParams.get("recovery") === "1" ||
+            window.location.hash.includes("type=recovery"))
         ) {
+          clearHandledRecoveryTokenFromUrl();
+          setUser(sessionUser);
           setRecoveryMode(true);
           setResetModalOpen(false);
+          return;
         }
+
+        if (await prepareSecondFactor(sessionUser)) {
+          setUser(null);
+          return;
+        }
+
+        setUser(sessionUser);
       })
       .catch(() => setUser(null));
 
@@ -812,7 +781,7 @@ function AuthPageContent() {
           getProfile(nextUser.id),
           8000,
           "Profiilin tarkistus kesti liian kauan."
-        ).then(({ data: profileData }) => {
+        ).then(async ({ data: profileData }) => {
           if (!profileData) {
             clearGoogleAuthIntent();
             setProfile(null);
@@ -821,6 +790,12 @@ function AuthPageContent() {
             setEmailPending(false);
             setStatus(t.authGoogleVerifiedCompleteProfile);
             replaceAuthModeUrl(authPagePath, "register");
+            return;
+          }
+
+          if (await prepareSecondFactor(nextUser)) {
+            clearGoogleAuthIntent();
+            setUser(null);
             return;
           }
 
@@ -847,6 +822,7 @@ function AuthPageContent() {
       setProfile(null);
 
       if (event === "PASSWORD_RECOVERY") {
+        clearHandledRecoveryTokenFromUrl();
         setRecoveryMode(true);
         setResetModalOpen(false);
         setStatus("");
@@ -862,7 +838,9 @@ function AuthPageContent() {
   }, []);
 
   useEffect(() => {
-    if (!user) {
+    // A recovery link creates a temporary Supabase session. Do not treat that
+    // session as a normal login or the profile redirect hides the password form.
+    if (!user || recoveryMode || loginMfaMode || mfaCheckPendingRef.current) {
       setProfileLookupDone(false);
       return;
     }
@@ -904,10 +882,6 @@ function AuthPageContent() {
           const email = user.email ?? "";
           const storedCountry = String(data?.country || metadata.country || "").trim();
 
-          if (storedCountry && !countryOptions.includes(storedCountry)) {
-            setCustomCountry(storedCountry);
-          }
-
           setForm((current) => ({
             ...current,
             email: current.email || email,
@@ -928,9 +902,8 @@ function AuthPageContent() {
             country: (() => {
               const nextCountry = current.country !== emptyAuthForm.country ? current.country : storedCountry || emptyAuthForm.country;
               const normalizedCountry = countryValueByFinnishName[nextCountry] ?? nextCountry;
-              return countryOptions.includes(normalizedCountry) ? normalizedCountry : OTHER_COUNTRY_VALUE;
-            })(),
-            birth_date: current.birth_date || data?.birth_date || String(metadata.birth_date ?? "")
+              return countryOptions.includes(normalizedCountry) ? normalizedCountry : defaultCountryByLocale[locale];
+            })()
           }));
           if (metadata.privacy_accepted === "true") {
             setPrivacyAccepted(true);
@@ -939,15 +912,12 @@ function AuthPageContent() {
       })
       .catch(() => setProfile(null))
       .finally(() => setProfileLookupDone(true));
-  }, [user]);
+  }, [recoveryMode, user]);
 
   async function saveProfile(targetUser: User) {
     try {
     const email = targetUser.email ?? form.email;
-    const selectedCountry =
-      form.country === OTHER_COUNTRY_VALUE
-        ? customCountry.trim()
-        : countryNameByLocale.fi[form.country] ?? form.country;
+    const selectedCountry = countryNameByLocale.fi[form.country] ?? form.country;
 
     if (!privacyAccepted) {
       setStatus(t.authPrivacyRequired);
@@ -955,12 +925,8 @@ function AuthPageContent() {
     }
 
     if (
-      !form.phone ||
-      !form.address ||
-      !form.postal_code ||
-      !form.city ||
       !selectedCountry ||
-      (form.account_type === "private" && (!form.first_name || !form.last_name || !form.birth_date)) ||
+      (form.account_type === "private" && (!form.first_name || !form.last_name)) ||
       (form.account_type === "company" && (!form.company_name || !form.business_id))
     ) {
       setStatus(
@@ -983,12 +949,11 @@ function AuthPageContent() {
           company_website: form.account_type === "company" ? form.company_website : null,
           billing_email: form.account_type === "company" ? (form.billing_email || email) : null,
           email,
-          phone: form.phone,
-          address: form.address,
-          postal_code: form.postal_code,
-          city: form.city,
-          country: selectedCountry,
-          birth_date: form.account_type === "private" ? form.birth_date : null
+          phone: "",
+          address: "",
+          postal_code: "",
+          city: "",
+          country: selectedCountry
         }),
         25000,
         "Profiilin tallennus kesti liian kauan."
@@ -1035,13 +1000,11 @@ function AuthPageContent() {
 
     if (!hasRegistrationDraft) return;
 
-    const selectedCountry = form.country === OTHER_COUNTRY_VALUE
-      ? customCountry.trim()
-      : countryNameByLocale.fi[form.country] ?? form.country;
+    const selectedCountry = countryNameByLocale.fi[form.country] ?? form.country;
     const hasAllRequiredFields = Boolean(
-      privacyAccepted && form.phone && form.address && form.postal_code && form.city && selectedCountry &&
+      privacyAccepted && selectedCountry &&
       (form.account_type === "private"
-        ? form.first_name && form.last_name && form.birth_date
+        ? form.first_name && form.last_name
         : form.company_name && form.business_id)
     );
 
@@ -1051,7 +1014,7 @@ function AuthPageContent() {
     void saveProfile(user).finally(() => {
       automaticProfileSaveInFlightRef.current = false;
     });
-  }, [customCountry, form, privacyAccepted, profile, profileLookupDone, user]);
+  }, [form, privacyAccepted, profile, profileLookupDone, user]);
 
   async function createAccountAfterRegistrationPin(
     selectedCountry: string,
@@ -1119,6 +1082,11 @@ function AuthPageContent() {
     authSubmitInFlightRef.current = true;
 
     try {
+    if (authMode === "register" && form.password.length < 8) {
+      setStatus(t.authPasswordTooShort);
+      return;
+    }
+
     if (!isSupabaseConfigured) {
       setStatus("Supabase keys missing from .env.local");
       return;
@@ -1133,6 +1101,7 @@ function AuthPageContent() {
 
     if (authMode === "login") {
       setStatus("Tarkistetaan tiliä...");
+      mfaCheckPendingRef.current = true;
       const { data, error } =
         await withTimeout(
           signInWithEmail(form.email, form.password, authCaptchaToken),
@@ -1142,12 +1111,20 @@ function AuthPageContent() {
 
       resetAuthCaptcha();
       if (error) {
+        mfaCheckPendingRef.current = false;
         setStatus(getErrorMessage(error));
         setAuthSubmitting(false);
         return;
       }
 
       if (data?.user) {
+        const requiresSecondFactor = await prepareSecondFactor(data.user);
+        if (requiresSecondFactor) {
+          setAuthSubmitting(false);
+          setStatus("");
+          return;
+        }
+
         const profileResult =
           await withTimeout(
             getProfile(data.user.id),
@@ -1169,46 +1146,18 @@ function AuthPageContent() {
       return;
     }
 
-    const selectedCountry = form.country === OTHER_COUNTRY_VALUE
-      ? customCountry.trim()
-      : countryNameByLocale.fi[form.country] ?? form.country;
-
-    if (form.password !== registrationPasswordConfirm) {
-      setStatus("Salasanat eivät täsmää. Kirjoita sama salasana molempiin kenttiin.");
-      setAuthSubmitting(false);
-      return;
-    }
+    const selectedCountry = countryNameByLocale.fi[form.country] ?? form.country;
     if (!privacyAccepted) {
       setStatus(t.authPrivacyRequired);
       setAuthSubmitting(false);
       return;
     }
     if (
-      !form.phone || !form.address || !form.postal_code || !form.city || !selectedCountry ||
-      (form.account_type === "private" && (!form.first_name || !form.last_name || !form.birth_date)) ||
+      !selectedCountry ||
+      (form.account_type === "private" && (!form.first_name || !form.last_name)) ||
       (form.account_type === "company" && (!form.company_name || !form.business_id))
     ) {
       setStatus(form.account_type === "company" ? t.authCompanyFieldsRequired : t.authPersonalFieldsRequired);
-      setAuthSubmitting(false);
-      return;
-    }
-
-    setStatus("Tarkistetaan puhelinnumeroa...");
-    const phoneCheck =
-      await withTimeout(
-        checkPhoneBeforeRegistration(form.phone),
-        8000,
-        "Puhelinnumeron tarkistus kesti liian kauan."
-      );
-
-    if (!phoneCheck.available) {
-      if (phoneCheck.reason === "reserved") {
-        setStatus("Tämä puhelinnumero on varattu poistetulle tilille 3 kuukaudeksi.");
-      } else if (phoneCheck.reason === "in_use") {
-        setStatus(t.authPhoneUnique);
-      } else {
-        setStatus(phoneCheck.error || "Puhelinnumeron tarkistus epäonnistui.");
-      }
       setAuthSubmitting(false);
       return;
     }
@@ -1258,8 +1207,8 @@ function AuthPageContent() {
             locale,
             privacy_accepted: privacyAccepted ? "true" : "false",
             account_type: form.account_type,
-            first_name: form.first_name,
-            last_name: form.last_name,
+            first_name: form.account_type === "private" ? form.first_name : "",
+            last_name: form.account_type === "private" ? form.last_name : "",
             company_name: form.company_name,
             business_id: form.business_id,
             company_website: form.company_website,
@@ -1268,8 +1217,7 @@ function AuthPageContent() {
             address: form.address,
             postal_code: form.postal_code,
             city: form.city,
-            country: selectedCountry,
-            birth_date: form.birth_date
+            country: selectedCountry
           },
           redirectTo
         ),
@@ -1330,9 +1278,7 @@ function AuthPageContent() {
         return;
       }
 
-      const selectedCountry = form.country === OTHER_COUNTRY_VALUE
-        ? customCountry.trim()
-        : countryNameByLocale.fi[form.country] ?? form.country;
+      const selectedCountry = countryNameByLocale.fi[form.country] ?? form.country;
 
       await createAccountAfterRegistrationPin(selectedCountry, result.user);
     } catch (error) {
@@ -1416,7 +1362,7 @@ function AuthPageContent() {
     event.preventDefault();
 
     try {
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       setStatus(t.authPasswordTooShort);
       return;
     }
@@ -1492,17 +1438,6 @@ function AuthPageContent() {
   const showProfileRegistrationForm = Boolean(
     user && profileLookupDone && needsProfile
   );
-  const phoneParts =
-    form.phone
-      ? getPhoneParts(form.phone)
-      : {
-          code: phoneDialingCode,
-          national: ""
-        };
-  const currentPhoneDialingOption =
-    phoneDialingOptions.find((option) => option.code === phoneParts.code) ??
-    phoneDialingOptions.find((option) => option.code === phoneDialingCode) ??
-    phoneDialingOptions[0];
   const primaryAuthActionLabel =
     authMode === "register"
       ? "Rekisteröidy"
@@ -1526,20 +1461,12 @@ function AuthPageContent() {
       : registrationPasswordStrength === "medium"
         ? "Keskitasoinen salasana"
         : "Heikko salasana";
-  const registrationPasswordsMatch =
-    registrationPasswordConfirm.length > 0 &&
-    form.password === registrationPasswordConfirm;
   const nextAuthMode: AuthMode = authMode === "login" ? "register" : "login";
-  const profilePrivacyHref =
-    "/privacy";
-
   function persistProfileCompletionDraft() {
     if (typeof window === "undefined") return;
 
     const draft: ProfileCompletionDraft = {
-      customCountry,
       form: getProfileCompletionDraftForm(form),
-      phoneDialingCode: phoneParts.code,
       privacyAccepted,
       scrollY: window.scrollY
     };
@@ -1607,15 +1534,16 @@ function AuthPageContent() {
 
   return (
     <main className="auth-page simple-auth-page" onClick={handleAuthBackgroundClick}>
-      <button
-        type="button"
-        className="auth-mobile-back-home"
-        aria-label="Takaisin etusivulle"
-        onClick={returnToHome}
-      >
-        <ArrowLeft size={26} aria-hidden="true" />
-      </button>
       <section className="simple-auth auth-centered">
+        <button
+          type="button"
+          className="auth-mobile-back-home"
+          aria-label="Takaisin etusivulle"
+          onClick={returnToHome}
+        >
+          <ArrowLeft size={26} aria-hidden="true" />
+          <span>Takaisin etusivulle</span>
+        </button>
         {recoveryMode ? (
           <form
             className="auth-card simple-card password-reset-card"
@@ -1633,7 +1561,7 @@ function AuthPageContent() {
               {t.authNewPasswordLabel}
               <input
                 required
-                minLength={6}
+                minLength={8}
                 type="password"
                 value={newPassword}
                 onChange={(event) => setNewPassword(event.target.value)}
@@ -1645,7 +1573,7 @@ function AuthPageContent() {
               {t.authConfirmPasswordLabel}
               <input
                 required
-                minLength={6}
+                minLength={8}
                 type="password"
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
@@ -1659,6 +1587,79 @@ function AuthPageContent() {
             </button>
 
             <span className="form-note">{status}</span>
+          </form>
+        ) : loginMfaMode ? (
+          <form
+            className="auth-card simple-card profile-completion-card email-confirm-card login-mfa-card"
+            onSubmit={submitLoginMfa}
+          >
+            <div className="email-confirm-icon" aria-hidden="true">
+              {loginMfaMode === "totp" ? <ShieldCheck size={28} /> : <Mail size={28} />}
+            </div>
+            <div className="profile-completion-head">
+              <span className="eyebrow">Kaksivaiheinen tunnistus</span>
+              <h1>Vahvista kirjautuminen</h1>
+              <p>
+                {loginMfaMode === "totp"
+                  ? "Anna Authenticator-sovelluksen näyttämä kuusinumeroinen koodi."
+                  : loginMfaRecovery
+                    ? `Anna osoitteeseen ${loginMfaEmail} lähetetty palautuskoodi. Authenticator poistetaan vasta onnistuneen vahvistuksen jälkeen.`
+                    : `Anna osoitteeseen ${loginMfaEmail} lähetetty kuusinumeroinen koodi.`}
+              </p>
+            </div>
+            <label className="registration-pin-label login-mfa-code-label">
+              Vahvistuskoodi
+              <input
+                autoFocus
+                required
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                value={loginMfaCode}
+                onChange={(event) => setLoginMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="000000"
+              />
+            </label>
+            <button type="submit" disabled={loginMfaSubmitting || loginMfaCode.length !== 6}>
+              <ShieldCheck size={18} />
+              {loginMfaSubmitting ? "Vahvistetaan..." : "Vahvista ja kirjaudu"}
+            </button>
+            {loginMfaMode === "email" && (
+              <button
+                className="secondary-button"
+                type="button"
+                disabled={loginMfaSubmitting}
+                onClick={() => void resendLoginEmailCode()}
+              >
+                <Mail size={16} /> Lähetä uusi koodi
+              </button>
+            )}
+            {loginMfaMode === "totp" && (
+              <button
+                className="secondary-button login-mfa-recovery-button"
+                type="button"
+                disabled={loginMfaSubmitting}
+                onClick={() => void beginAuthenticatorRecovery()}
+              >
+                <Mail size={16} /> Authenticator ei käytettävissä?
+              </button>
+            )}
+            <button
+              className="secondary-button"
+              type="button"
+              disabled={loginMfaSubmitting}
+              onClick={() => {
+                void signOut();
+                setLoginMfaMode(null);
+                setLoginMfaRecovery(false);
+                setLoginMfaCode("");
+                setLoginMfaStatus("");
+              }}
+            >
+              <ArrowLeft size={16} /> Peruuta
+            </button>
+            {loginMfaStatus && <span className="form-note registration-pin-status">{loginMfaStatus}</span>}
           </form>
         ) : registrationPinPending ? (
           <form
@@ -1750,16 +1751,45 @@ function AuthPageContent() {
           </div>
         ) : (!user || showProfileRegistrationForm) ? (
           <form className={`auth-card simple-card${authMode === "register" ? " registration-inline-card profile-finalize-card" : ""}`} onSubmit={handleSubmit}>
-            <div className="auth-form-head">
-              <h1>{authMode === "login" ? "Kirjaudu sisään" : t.register}</h1>
-              {sellLoginPrompt && <p>{sellLoginPrompt}</p>}
-              {authMode === "register" && <p>Luo tili ja aloita palvelun käyttö</p>}
+            <div className="auth-maskines-brand" aria-label="Maskines Marketplace">
+              <img src="/maskines-share-logo.png" alt="" aria-hidden="true" />
+              <div>
+                <strong>MASKINES</strong>
+                <span>MARKETPLACE</span>
+              </div>
             </div>
+            <div className="auth-form-head">
+              <h1>{authMode === "login" ? "Tervetuloa takaisin" : "Luo Maskines-tili"}</h1>
+              {sellLoginPrompt && <p>{sellLoginPrompt}</p>}
+              {!sellLoginPrompt && authMode === "login" && <p>Kirjaudu sisään käyttääksesi tiliäsi</p>}
+              {authMode === "register" && <p>Rekisteröidy ja aloita kaupankäynti</p>}
+            </div>
+
+            {authMode === "register" && (
+              <div className="register-account-switch" role="group" aria-label={t.authAccountType}>
+                <button
+                  type="button"
+                  className={form.account_type === "private" ? "active" : ""}
+                  aria-pressed={form.account_type === "private"}
+                  onClick={() => setForm({ ...form, account_type: "private" })}
+                >
+                  Yksityinen
+                </button>
+                <button
+                  type="button"
+                  className={form.account_type === "company" ? "active" : ""}
+                  aria-pressed={form.account_type === "company"}
+                  onClick={() => setForm({ ...form, account_type: "company" })}
+                >
+                  Yritys
+                </button>
+              </div>
+            )}
 
             <label>
               {t.email}
-              <span className={authMode === "register" ? "auth-input-with-icon" : undefined}>
-                {authMode === "register" && <Mail size={17} aria-hidden="true" />}
+              <span className="auth-input-with-icon">
+                <Mail size={17} aria-hidden="true" />
                 <input
                   required
                   type="email"
@@ -1779,8 +1809,8 @@ function AuthPageContent() {
                 <span>{t.password}</span>
               </span>
               <span className="auth-input-with-icon auth-password-input">
-                {authMode === "register" && <LockKeyhole size={17} aria-hidden="true" />}
-                <input required minLength={6} autoComplete={authMode === "login" ? "current-password" : "new-password"} type={showAuthPasswords ? "text" : "password"} value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder={t.authPasswordMinPlaceholder} />
+                <LockKeyhole size={17} aria-hidden="true" />
+                <input required minLength={authMode === "register" ? 8 : 6} autoComplete={authMode === "login" ? "current-password" : "new-password"} type={showAuthPasswords ? "text" : "password"} value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} placeholder={authMode === "register" ? t.authPasswordMinPlaceholder : t.password} />
                 <button type="button" className="auth-password-eye" aria-label={showAuthPasswords ? "Piilota salasana" : "Näytä salasana"} aria-pressed={showAuthPasswords} onClick={() => setShowAuthPasswords((shown) => !shown)}>
                   {showAuthPasswords ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
@@ -1799,18 +1829,6 @@ function AuthPageContent() {
                 </button>
               )}
             </label>
-            {authMode === "register" && (
-              <label className="auth-password-label">
-                <span className="auth-label-row"><span>Salasana uudelleen</span></span>
-                <span className={`auth-input-with-icon auth-confirm-password-input${registrationPasswordsMatch ? " passwords-match" : ""}`}>
-                  <LockKeyhole size={17} aria-hidden="true" />
-                  <input required minLength={6} type={showAuthPasswords ? "text" : "password"} value={registrationPasswordConfirm} onChange={(event) => setRegistrationPasswordConfirm(event.target.value)} placeholder="Kirjoita salasana uudelleen" />
-                  <button type="button" className="auth-password-eye" aria-label={showAuthPasswords ? "Piilota salasanat" : "Näytä salasanat"} aria-pressed={showAuthPasswords} onClick={() => setShowAuthPasswords((shown) => !shown)}>
-                    {showAuthPasswords ? <EyeOff size={17} /> : <Eye size={17} />}
-                  </button>
-                </span>
-              </label>
-            )}
             </div>
             {authMode === "register" && form.password.length > 0 && (
               <div className={`auth-password-strength strength-${registrationPasswordStrength}`} aria-live="polite">
@@ -1818,97 +1836,63 @@ function AuthPageContent() {
                 <span className="auth-password-match"><Check size={13} /> {registrationPasswordStrengthLabel}</span>
               </div>
             )}
-            {authMode === "register" && registrationPasswordConfirm.length > 0 && !registrationPasswordsMatch && (
-              <div className="auth-password-mismatch" role="alert">
-                <X size={14} /> Salasanat eivät ole samat
+
+            {authMode === "register" && (
+              <div className="registration-fields register-details-grid register-essential-fields">
+                {form.account_type === "private" && (
+                  <>
+                    <label>
+                      {t.authFirstName}
+                      <input required autoComplete="given-name" value={form.first_name} onChange={(event) => setForm({ ...form, first_name: event.target.value })} />
+                    </label>
+                    <label>
+                      {t.authLastName}
+                      <input required autoComplete="family-name" value={form.last_name} onChange={(event) => setForm({ ...form, last_name: event.target.value })} />
+                    </label>
+                  </>
+                )}
+                {form.account_type === "company" && (
+                  <>
+                    <label>
+                      {t.authCompanyName}
+                      <input required autoComplete="organization" value={form.company_name} onChange={(event) => setForm({ ...form, company_name: event.target.value })} />
+                    </label>
+                    <label>
+                      {t.authBusinessId}
+                      <input
+                        required
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={form.business_id}
+                        onChange={(event) => setForm({ ...form, business_id: event.target.value.replace(/\D/g, "") })}
+                        placeholder="12345678"
+                      />
+                    </label>
+                  </>
+                )}
+                <label className="register-country-field">
+                  {t.authCountry}
+                  <select required value={form.country} onChange={(event) => setForm({ ...form, country: event.target.value })}>
+                    {countryOptions.map((country) => <option key={country} value={country}>{countryNameByLocale[locale][country]}</option>)}
+                  </select>
+                </label>
               </div>
             )}
 
             {authMode === "register" && (
               <>
-                <div className="account-type-picker register-account-type" aria-label={t.authAccountType}>
-                  <button type="button" className={form.account_type === "private" ? "account-type-card active" : "account-type-card"} onClick={() => setForm({ ...form, account_type: "private" })}>
-                    <UserRound size={22} /><span className="account-type-copy"><strong>{t.authPrivateSellerLabel}</strong><span>Myy omia tavaroitasi</span></span><span className="account-type-check"><Check size={14} /></span>
-                  </button>
-                  <button type="button" className={form.account_type === "company" ? "account-type-card active" : "account-type-card"} onClick={() => setForm({ ...form, account_type: "company" })}>
-                    <Building2 size={22} /><span className="account-type-copy"><strong>{t.authCompanyLabel}</strong><span>Myy yrityksesi nimissä</span></span><span className="account-type-check"><Check size={14} /></span>
-                  </button>
-                </div>
-                <div className="registration-fields register-details-grid">
-                  {form.account_type === "private" ? <>
-                    <label>{t.authFirstName}<input required autoComplete="given-name" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} /></label>
-                    <label>{t.authLastName}<input required autoComplete="family-name" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} /></label>
-                    <BirthDateField required value={form.birth_date} onChange={(value) => setForm({ ...form, birth_date: value })} />
-                  </> : <>
-                    <label>{t.authCompanyName}<input required autoComplete="organization" value={form.company_name} onChange={(e) => setForm({ ...form, company_name: e.target.value })} /></label>
-                    <label>{t.authBusinessId}<input required value={form.business_id} onChange={(e) => setForm({ ...form, business_id: e.target.value })} /></label>
-                    <label>{t.authCompanyWebsite}<input autoComplete="url" value={form.company_website} onChange={(e) => setForm({ ...form, company_website: e.target.value })} placeholder="https://yritys.fi" /></label>
-                  </>}
-                  <label>
-                    {form.account_type === "company" ? t.authCompanyPhone : t.authPhone}
-                    <div className="phone-field-row phone-field-row-polished register-phone-field">
-                      <div
-                        className={`phone-code-select-wrap${phoneCodeMenuOpen ? " is-open" : ""}`}
-                        onBlur={(event) => {
-                          if (!event.currentTarget.contains(event.relatedTarget)) setPhoneCodeMenuOpen(false);
-                        }}
-                      >
-                        <button
-                          type="button"
-                          className="phone-code-selected"
-                          aria-label="Valitse maan suuntanumero"
-                          aria-haspopup="listbox"
-                          aria-expanded={phoneCodeMenuOpen}
-                          onClick={() => setPhoneCodeMenuOpen((open) => !open)}
-                        >
-                          <img className="phone-code-flag-img" src={`https://flagcdn.com/24x18/${currentPhoneDialingOption.country.toLowerCase()}.png`} alt="" aria-hidden="true" />
-                          <span>{phoneParts.code}</span>
-                          <ChevronDown size={14} aria-hidden="true" />
-                        </button>
-                        {phoneCodeMenuOpen && (
-                          <div className="phone-code-menu" role="listbox" aria-label="Maan suuntanumero">
-                            {phoneDialingOptions.map((option) => (
-                              <button
-                                key={`${option.country}-${option.code}`}
-                                type="button"
-                                className={`phone-code-option${option.code === phoneParts.code ? " is-selected" : ""}`}
-                                role="option"
-                                aria-selected={option.code === phoneParts.code}
-                                onClick={(event) => {
-                                  event.preventDefault();
-                                  event.stopPropagation();
-                                  setPhoneCodeMenuOpen(false);
-                                  setPhoneDialingCode(option.code);
-                                  setForm({ ...form, phone: buildPhoneNumber(option.code, phoneParts.national) });
-                                  event.currentTarget.blur();
-                                }}
-                              >
-                                <img className="phone-code-flag-img" src={`https://flagcdn.com/24x18/${option.country.toLowerCase()}.png`} alt="" aria-hidden="true" />
-                                <strong>{option.code}</strong>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <input
-                        required
-                        type="tel"
-                        inputMode="tel"
-                        autoComplete="tel-national"
-                        value={phoneParts.national}
-                        onChange={(event) => setForm({ ...form, phone: buildPhoneNumber(phoneParts.code, sanitizePhoneDigits(event.target.value)) })}
-                        placeholder="401234567"
-                      />
-                    </div>
-                  </label>
-                  <label className="register-address-wide">{form.account_type === "company" ? t.authCompanyAddress : t.authAddress}<input required autoComplete="street-address" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></label>
-                  <label>{t.authPostalCode}<input required autoComplete="postal-code" value={form.postal_code} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} /></label>
-                  <label>{t.authCity}<input required autoComplete="address-level2" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></label>
-                  <label>{t.authCountry}<select required value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })}>{countryOptions.map((country) => <option key={country} value={country}>{countryNameByLocale[locale][country]}</option>)}</select></label>
-                </div>
                 <div className="privacy-checkbox-row register-privacy-row">
                   <input id="register-privacy-accept" type="checkbox" checked={privacyAccepted} onChange={(e) => setPrivacyAccepted(e.target.checked)} />
-                  <label htmlFor="register-privacy-accept" className="privacy-checkbox-label">{t.authPrivacyAcceptText} <Link href={profilePrivacyHref} target="_blank">{t.authPrivacyLink}</Link></label>
+                  <label htmlFor="register-privacy-accept" className="privacy-checkbox-label">
+                    Olen lukenut ja hyväksyn{" "}
+                    <Link href={termsPagePath} target="_blank" rel="noopener noreferrer">
+                      käyttöehdot
+                    </Link>{" "}
+                    ja{" "}
+                    <Link href={privacyPagePath} target="_blank" rel="noopener noreferrer">
+                      tietosuojaselosteen
+                    </Link>
+                  </label>
                 </div>
               </>
             )}
@@ -1922,23 +1906,23 @@ function AuthPageContent() {
             ) : null}
             <button
               type="submit"
-              disabled={authSubmitting || (authMode === "login" && !authCaptchaToken) || (authMode === "register" && !registrationPasswordsMatch)}
-              title={authMode === "register" && !registrationPasswordsMatch ? "Kirjoita sama salasana molempiin kenttiin" : undefined}
+              disabled={authSubmitting || (authMode === "login" && !authCaptchaToken)}
             >
-              {authMode === "register" ? <Check size={18} /> : <LockKeyhole size={18} />}
+              {authMode === "register" ? <Check size={18} /> : null}
               {authSubmitting ? "Hetki..." : primaryAuthActionLabel}
+              {!authSubmitting && <ArrowRight className="auth-submit-arrow" size={20} aria-hidden="true" />}
             </button>
             {!user && (
               <>
             <div className="auth-divider">
-              <span>Tai jatka</span>
+              <span>tai jatka</span>
             </div>
             <div className="auth-social-row">
               <button
                 className="google-button auth-social-button"
                 type="button"
                 onClick={handleGoogleLogin}
-                aria-label={t.continueWithGmail}
+                aria-label={t.continueWithGoogle}
               >
                 <img
                   alt=""
@@ -1946,7 +1930,7 @@ function AuthPageContent() {
                   className="gmail-logo-img"
                   src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 48'%3E%3Cpath fill='%234285f4' d='M4 8h10v32H4z'/%3E%3Cpath fill='%2334a853' d='M50 8h10v32H50z'/%3E%3Cpath fill='%23fbbc04' d='M50 8 32 24 14 8v12l18 16 18-16z'/%3E%3Cpath fill='%23ea4335' d='M4 8c0-3 3.6-5 6.2-3L32 22 53.8 5C56.4 3 60 5 60 8v6L32 36 4 14z'/%3E%3C/svg%3E"
                 />
-                <span>Gmail</span>
+                <span>{t.continueWithGoogle}</span>
               </button>
             </div>
               </>
@@ -1967,6 +1951,11 @@ function AuthPageContent() {
                 {authMode === "login" ? t.register : t.login}
               </button>
             </p>
+            <div className="auth-benefits" aria-label="Maskines-palvelun edut">
+              <div><ShieldCheck aria-hidden="true" /><span><strong>Turvallinen</strong><small>Tietosi on suojattu</small></span></div>
+              <div><Globe2 aria-hidden="true" /><span><strong>Laaja valikoima</strong><small>Osta ja myy helposti</small></span></div>
+              <div><UsersRound aria-hidden="true" /><span><strong>Kasvava yhteisö</strong><small>Liity käyttäjiimme</small></span></div>
+            </div>
             {status ? <span className="form-note">{status}</span> : null}
           </form>
         ) : (

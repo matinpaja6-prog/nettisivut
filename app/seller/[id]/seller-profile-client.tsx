@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, MessageCircle, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, TrendingDown, TrendingUp, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
+import homeStyles from "../../page.module.css";
+import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, MessageCircle, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, TrendingDown, TrendingUp, UserCheck, UserPlus, Users, X } from "lucide-react";
 import { formatPrice, normalizeVehicleType, type Listing } from "@/lib/listings";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
-import { getCountryFlagFromLocation } from "@/lib/country-flags";
+import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 import { calculateSellerLevel } from "@/lib/seller-level";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
 import { readCachedListings } from "@/lib/client-listings-cache";
@@ -19,6 +20,7 @@ import {
 } from "@/lib/taxonomy";
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
+import OptimizedListingImage from "@/app/components/OptimizedListingImage";
 import {
   MARKETPLACE_YEAR_FILTER_MIN,
   buildMarketplaceCategorySource,
@@ -379,13 +381,7 @@ function getReviewInitials(name: string) {
 }
 
 function getSellerInitials(name: string, locale: Locale) {
-  const initials = name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2);
+  const initials = name.trim().charAt(0);
 
   return initials.toLocaleUpperCase(locale === "fi" ? "fi-FI" : undefined) || "?";
 }
@@ -393,6 +389,118 @@ function getSellerInitials(name: string, locale: Locale) {
 type TabKey = "listings" | "reviews" | "about";
 type ListingSort = "relevance" | "newest" | "oldest" | "priceAsc" | "priceDesc" | "nearest";
 type ReviewSort = "newest" | "oldest" | "highest" | "lowest";
+
+type SellerAppliedFilters = {
+  searchQuery: string;
+  listingSort: ListingSort;
+  vehicleTypeFilter: string;
+  vehicleSubtypeFilter: string;
+  brandFilter: string;
+  modelFilter: string;
+  yearFilter: string;
+  yearMinFilter: string;
+  yearMaxFilter: string;
+  engineCcFilter: string;
+  engineModelFilter: string;
+  categoryFilter: string;
+  subcategoryParentFilter: string;
+  subcategoryFilter: string;
+  trackMatLengthFilter: string;
+  trackMatWidthFilter: string;
+  trackMatPitchFilter: string;
+};
+
+const EMPTY_SELLER_APPLIED_FILTERS: SellerAppliedFilters = {
+  searchQuery: "",
+  listingSort: "relevance",
+  vehicleTypeFilter: "",
+  vehicleSubtypeFilter: "",
+  brandFilter: "",
+  modelFilter: "",
+  yearFilter: "",
+  yearMinFilter: "",
+  yearMaxFilter: "",
+  engineCcFilter: "",
+  engineModelFilter: "",
+  categoryFilter: "",
+  subcategoryParentFilter: "",
+  subcategoryFilter: "",
+  trackMatLengthFilter: "",
+  trackMatWidthFilter: "",
+  trackMatPitchFilter: ""
+};
+
+function isSellerTrackMatSelection(value: string) {
+  return normalizeSubcategoryFilter(value).includes("telamat");
+}
+
+function sellerListingMatchesFilters(
+  listing: Listing,
+  filters: SellerAppliedFilters,
+  locale: Locale,
+  selectedSubcategoryChildren: readonly string[]
+) {
+  const query = filters.searchQuery.trim().toLowerCase();
+  const localized = getLocalizedListingText(listing, locale);
+  const haystack = [
+    localized.title,
+    localized.description,
+    listing.title,
+    listing.description,
+    listing.brand,
+    listing.model,
+    listing.vehicle_type,
+    listing.category,
+    listing.subcategory,
+    listing.part_number,
+    listing.part_model,
+    listing.location
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  if (query && !haystack.includes(query)) return false;
+  if (filters.vehicleTypeFilter) {
+    const selectedVehicle = normalizeVehicleType(filters.vehicleTypeFilter);
+    const listingVehicle = normalizeVehicleType(listing.vehicle_type ?? "");
+    if (listingVehicle) {
+      if (listingVehicle !== selectedVehicle) return false;
+    } else if (!sellerTextMatches(haystack, selectedVehicle)) {
+      return false;
+    }
+  }
+  if (filters.vehicleSubtypeFilter) {
+    const subtypeHaystack = [listing.vehicle_subtype, haystack].filter(Boolean).join(" ");
+    if (!sellerTextMatches(subtypeHaystack, filters.vehicleSubtypeFilter)) return false;
+  }
+  if (filters.brandFilter && !sellerTextMatches([listing.brand, listing.model, haystack].filter(Boolean).join(" "), filters.brandFilter)) return false;
+  if (filters.modelFilter && !sellerTextMatches([listing.model, haystack].filter(Boolean).join(" "), filters.modelFilter)) return false;
+  if (filters.yearFilter && !sellerTextMatches([listing.year, haystack].filter(Boolean).join(" "), filters.yearFilter)) return false;
+  const listingYear = Number.parseInt(String(listing.year ?? ""), 10);
+  if (filters.yearMinFilter && (!Number.isFinite(listingYear) || listingYear < Number.parseInt(filters.yearMinFilter, 10))) return false;
+  if (filters.yearMaxFilter && (!Number.isFinite(listingYear) || listingYear > Number.parseInt(filters.yearMaxFilter, 10))) return false;
+  if (filters.engineCcFilter && !sellerTextMatches([listing.engine_cc, haystack].filter(Boolean).join(" "), filters.engineCcFilter)) return false;
+  if (filters.engineModelFilter && !sellerTextMatches([listing.engine_model, haystack].filter(Boolean).join(" "), filters.engineModelFilter)) return false;
+  if (filters.categoryFilter && normalizeCategoryFilter(listing.category) !== normalizeCategoryFilter(filters.categoryFilter)) return false;
+  if (filters.subcategoryParentFilter) {
+    const parentMatches = sellerSubcategoryMatches(listing.subcategory, filters.subcategoryParentFilter);
+    const childMatches = selectedSubcategoryChildren.some((child) => sellerSubcategoryMatches(listing.subcategory, child));
+    if (!parentMatches && !childMatches) return false;
+  }
+  if (filters.subcategoryFilter) {
+    if (!sellerSubcategoryMatches(listing.subcategory, filters.subcategoryFilter) && !sellerTextMatches(haystack, categoryLeaf(filters.subcategoryFilter))) return false;
+  }
+
+  const trackMatHaystack = [listing.part_model, localized.title, localized.description]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+    .replace(/,/g, ".");
+  const trackMatValues = [filters.trackMatLengthFilter, filters.trackMatWidthFilter, filters.trackMatPitchFilter];
+  if (trackMatValues.some((value) => value.trim() && !trackMatHaystack.includes(value.trim().toLowerCase().replace(/,/g, ".")))) {
+    return false;
+  }
+
+  return true;
+}
 
 type SellerProfileCache = {
   profile: PublicProfile | null;
@@ -484,6 +592,8 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const [listingSort, setListingSort] = useState<ListingSort>("relevance");
   const [sortOpen, setSortOpen] = useState(false);
   const [sellerFilterPanelOpen, setSellerFilterPanelOpen] = useState(false);
+  const [showAllListings, setShowAllListings] = useState(false);
+  const [reviewsOpen, setReviewsOpen] = useState(false);
   const [reviewRatingFilter, setReviewRatingFilter] = useState(0);
   const [reviewSort, setReviewSort] = useState<ReviewSort>("newest");
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState("");
@@ -497,7 +607,22 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const [categoryFilter, setCategoryFilter] = useState("");
   const [subcategoryFilter, setSubcategoryFilter] = useState("");
   const [subcategoryParentFilter, setSubcategoryParentFilter] = useState("");
+  const [trackMatLengthFilter, setTrackMatLengthFilter] = useState("");
+  const [trackMatWidthFilter, setTrackMatWidthFilter] = useState("");
+  const [trackMatPitchFilter, setTrackMatPitchFilter] = useState("");
   const [vehicleSubtypeFilter, setVehicleSubtypeFilter] = useState("");
+  const [sellerFilterSheetExpanded, setSellerFilterSheetExpanded] = useState(false);
+  const [sellerFilterSheetDragging, setSellerFilterSheetDragging] = useState(false);
+  const [sellerFilterSheetDragHeight, setSellerFilterSheetDragHeight] = useState<number | null>(null);
+  const sellerFilterSheetRef = useRef<HTMLFormElement | null>(null);
+  const sellerTrackMatDimensionsRef = useRef<HTMLFieldSetElement | null>(null);
+  const sellerFilterSheetDragRef = useRef<{
+    pointerId: number;
+    startY: number;
+    startHeight: number;
+    currentHeight: number;
+  } | null>(null);
+  const [appliedSellerFilters, setAppliedSellerFilters] = useState<SellerAppliedFilters>(EMPTY_SELLER_APPLIED_FILTERS);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [followStats, setFollowStats] = useState<ProfileFollowStats>({
@@ -511,6 +636,98 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const resolvedSellerId = profile?.id ?? sellerId;
   const listingsSellerId = resolvedSellerId;
 
+  useEffect(() => {
+    if (!reviewsOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") setReviewsOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [reviewsOpen]);
+
+  useEffect(() => {
+    if (!sellerFilterPanelOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") setSellerFilterPanelOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [sellerFilterPanelOpen]);
+
+  useEffect(() => {
+    if (sellerFilterPanelOpen) return;
+    sellerFilterSheetDragRef.current = null;
+    setSellerFilterSheetDragging(false);
+    setSellerFilterSheetDragHeight(null);
+    setSellerFilterSheetExpanded(false);
+  }, [sellerFilterPanelOpen]);
+
+  useEffect(() => {
+    if (
+      !sellerFilterPanelOpen ||
+      !isSellerTrackMatSelection(subcategoryFilter) ||
+      !window.matchMedia("(max-width: 820px)").matches
+    ) return;
+
+    // The three dimension inputs are rendered below the part selector. Expand
+    // the mobile sheet and bring the new fields into view as soon as Telamatot
+    // is selected so they cannot remain hidden below the collapsed viewport.
+    setSellerFilterSheetDragHeight(null);
+    setSellerFilterSheetExpanded(true);
+    const frame = window.requestAnimationFrame(() => {
+      sellerTrackMatDimensionsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [sellerFilterPanelOpen, subcategoryFilter]);
+
+  useEffect(() => {
+    const openSellerProfileFilters = () => {
+      if (listings.length === 0) return;
+
+      setSearchQuery(appliedSellerFilters.searchQuery);
+      setListingSort(appliedSellerFilters.listingSort);
+      setVehicleTypeFilter(appliedSellerFilters.vehicleTypeFilter);
+      setVehicleSubtypeFilter(appliedSellerFilters.vehicleSubtypeFilter);
+      setBrandFilter(appliedSellerFilters.brandFilter);
+      setModelFilter(appliedSellerFilters.modelFilter);
+      setYearFilter(appliedSellerFilters.yearFilter);
+      setYearMinFilter(appliedSellerFilters.yearMinFilter);
+      setYearMaxFilter(appliedSellerFilters.yearMaxFilter);
+      setEngineCcFilter(appliedSellerFilters.engineCcFilter);
+      setEngineModelFilter(appliedSellerFilters.engineModelFilter);
+      setCategoryFilter(appliedSellerFilters.categoryFilter);
+      setSubcategoryParentFilter(appliedSellerFilters.subcategoryParentFilter);
+      setSubcategoryFilter(appliedSellerFilters.subcategoryFilter);
+      setTrackMatLengthFilter(appliedSellerFilters.trackMatLengthFilter);
+      setTrackMatWidthFilter(appliedSellerFilters.trackMatWidthFilter);
+      setTrackMatPitchFilter(appliedSellerFilters.trackMatPitchFilter);
+      setSellerFilterSheetExpanded(false);
+      setSortOpen(false);
+      setSellerFilterPanelOpen(true);
+    };
+
+    window.addEventListener("seller-profile-open-filters", openSellerProfileFilters);
+    return () => window.removeEventListener("seller-profile-open-filters", openSellerProfileFilters);
+  }, [appliedSellerFilters, listings.length]);
+
   // Public seller pages use a short public id in the URL. The first review
   // request may therefore finish before that id has been resolved to the
   // seller's auth UUID. Allow the review loader to run again with the UUID so
@@ -521,34 +738,34 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }, [profile?.id, sellerId]);
 
   const selectedSubcategoryParentChildren = useMemo(() => {
-    if (!categoryFilter || !subcategoryParentFilter) return [];
-    const vehicle = vehicleTypeFilter || "";
+    if (!appliedSellerFilters.categoryFilter || !appliedSellerFilters.subcategoryParentFilter) return [];
+    const vehicle = appliedSellerFilters.vehicleTypeFilter || "";
     const categorySource = buildMarketplaceCategorySource({
       vehicleType: vehicle,
-      vehicleSubtype: vehicleSubtypeFilter,
+      vehicleSubtype: appliedSellerFilters.vehicleSubtypeFilter,
       vehicleCategories,
       allVehicleCategories
     });
-    const categorySubs = categorySource[categoryFilter] ?? [];
+    const categorySubs = categorySource[appliedSellerFilters.categoryFilter] ?? [];
     const groupOptions = buildMarketplaceFilterOptions({
       taxonomyVehicles: taxonomy.vehicles,
       vehicleBrands,
       vehicleCategories,
       allVehicleCategories,
       vehicleType: vehicle,
-      vehicleSubtype: vehicleSubtypeFilter,
-      brand: brandFilter,
-      model: modelFilter,
-      category: categoryFilter,
-      subcategoryParent: subcategoryParentFilter
+      vehicleSubtype: appliedSellerFilters.vehicleSubtypeFilter,
+      brand: appliedSellerFilters.brandFilter,
+      model: appliedSellerFilters.modelFilter,
+      category: appliedSellerFilters.categoryFilter,
+      subcategoryParent: appliedSellerFilters.subcategoryParentFilter
     });
-    const baseChildren = groupOptions.subcategoryGroups?.[subcategoryParentFilter] ?? [];
+    const baseChildren = groupOptions.subcategoryGroups?.[appliedSellerFilters.subcategoryParentFilter] ?? [];
     const dynamicChildren = categorySubs.filter((sub) => {
       const parent = sub.split(" / ").map((part) => part.trim()).filter(Boolean)[0];
-      return normalizeSubcategoryFilter(parent) === normalizeSubcategoryFilter(subcategoryParentFilter);
+      return normalizeSubcategoryFilter(parent) === normalizeSubcategoryFilter(appliedSellerFilters.subcategoryParentFilter);
     });
     return Array.from(new Set([...baseChildren, ...dynamicChildren]));
-  }, [allVehicleCategories, brandFilter, categoryFilter, modelFilter, subcategoryParentFilter, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleSubtypeFilter, vehicleTypeFilter]);
+  }, [allVehicleCategories, appliedSellerFilters, taxonomy.vehicles, vehicleBrands, vehicleCategories]);
 
   function getListingTitle(listing: Listing): string {
     const localized = getLocalizedListingText(listing, locale);
@@ -570,65 +787,17 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }
 
   const filteredListings = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-
-    const copy = listings.filter((listing) => {
-      const localized = getLocalizedListingText(listing, locale);
-      const haystack = [
-        localized.title,
-        localized.description,
-        listing.title,
-        listing.description,
-        listing.brand,
-        listing.model,
-        listing.vehicle_type,
-        listing.category,
-        listing.subcategory,
-        listing.part_number,
-        listing.location
-      ].filter(Boolean).join(" ").toLowerCase();
-
-      if (query && !haystack.includes(query)) return false;
-      if (vehicleTypeFilter) {
-        const selectedVehicle = normalizeVehicleType(vehicleTypeFilter);
-        const listingVehicle = normalizeVehicleType(listing.vehicle_type ?? "");
-        if (listingVehicle) {
-          if (listingVehicle !== selectedVehicle) return false;
-        } else if (!sellerTextMatches(haystack, selectedVehicle)) {
-          return false;
-        }
-      }
-      if (vehicleSubtypeFilter) {
-        const subtypeHaystack = [listing.vehicle_subtype, haystack].filter(Boolean).join(" ");
-        if (!sellerTextMatches(subtypeHaystack, vehicleSubtypeFilter)) return false;
-      }
-      if (brandFilter && !sellerTextMatches([listing.brand, listing.model, haystack].filter(Boolean).join(" "), brandFilter)) return false;
-      if (modelFilter && !sellerTextMatches([listing.model, haystack].filter(Boolean).join(" "), modelFilter)) return false;
-      if (yearFilter && !sellerTextMatches([listing.year, haystack].filter(Boolean).join(" "), yearFilter)) return false;
-      const listingYear = Number.parseInt(String(listing.year ?? ""), 10);
-      if (yearMinFilter && (!Number.isFinite(listingYear) || listingYear < Number.parseInt(yearMinFilter, 10))) return false;
-      if (yearMaxFilter && (!Number.isFinite(listingYear) || listingYear > Number.parseInt(yearMaxFilter, 10))) return false;
-      if (engineCcFilter && !sellerTextMatches([listing.engine_cc, haystack].filter(Boolean).join(" "), engineCcFilter)) return false;
-      if (engineModelFilter && !sellerTextMatches([listing.engine_model, haystack].filter(Boolean).join(" "), engineModelFilter)) return false;
-      if (categoryFilter && normalizeCategoryFilter(listing.category) !== normalizeCategoryFilter(categoryFilter)) return false;
-      if (subcategoryParentFilter) {
-        const parentMatches = sellerSubcategoryMatches(listing.subcategory, subcategoryParentFilter);
-        const childMatches = selectedSubcategoryParentChildren.some((child) => sellerSubcategoryMatches(listing.subcategory, child));
-        if (!parentMatches && !childMatches) return false;
-      }
-      if (subcategoryFilter) {
-        if (!sellerSubcategoryMatches(listing.subcategory, subcategoryFilter) && !sellerTextMatches(haystack, categoryLeaf(subcategoryFilter))) return false;
-      }
-      return true;
-    });
+    const copy = listings.filter((listing) =>
+      sellerListingMatchesFilters(listing, appliedSellerFilters, locale, selectedSubcategoryParentChildren)
+    );
 
     return copy.sort((a, b) => {
-      if (listingSort === "oldest") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      if (listingSort === "priceAsc") return Number(a.price ?? 0) - Number(b.price ?? 0);
-      if (listingSort === "priceDesc") return Number(b.price ?? 0) - Number(a.price ?? 0);
+      if (appliedSellerFilters.listingSort === "oldest") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      if (appliedSellerFilters.listingSort === "priceAsc") return Number(a.price ?? 0) - Number(b.price ?? 0);
+      if (appliedSellerFilters.listingSort === "priceDesc") return Number(b.price ?? 0) - Number(a.price ?? 0);
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
-  }, [brandFilter, categoryFilter, engineCcFilter, engineModelFilter, listingSort, listings, locale, modelFilter, searchQuery, selectedSubcategoryParentChildren, subcategoryFilter, subcategoryParentFilter, vehicleSubtypeFilter, vehicleTypeFilter, yearFilter, yearMaxFilter, yearMinFilter]);
+  }, [appliedSellerFilters, listings, locale, selectedSubcategoryParentChildren]);
 
   const sellerFilterOptions = useMemo(() => {
     return buildMarketplaceFilterOptions({
@@ -644,6 +813,53 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       subcategoryParent: subcategoryParentFilter
     });
   }, [allVehicleCategories, brandFilter, categoryFilter, modelFilter, subcategoryParentFilter, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleSubtypeFilter, vehicleTypeFilter]);
+  const draftSellerFilters = useMemo<SellerAppliedFilters>(() => ({
+    searchQuery,
+    listingSort,
+    vehicleTypeFilter,
+    vehicleSubtypeFilter,
+    brandFilter,
+    modelFilter,
+    yearFilter,
+    yearMinFilter,
+    yearMaxFilter,
+    engineCcFilter,
+    engineModelFilter,
+    categoryFilter,
+    subcategoryParentFilter,
+    subcategoryFilter,
+    trackMatLengthFilter,
+    trackMatWidthFilter,
+    trackMatPitchFilter
+  }), [
+    brandFilter,
+    categoryFilter,
+    engineCcFilter,
+    engineModelFilter,
+    listingSort,
+    modelFilter,
+    searchQuery,
+    subcategoryFilter,
+    subcategoryParentFilter,
+    trackMatLengthFilter,
+    trackMatPitchFilter,
+    trackMatWidthFilter,
+    vehicleSubtypeFilter,
+    vehicleTypeFilter,
+    yearFilter,
+    yearMaxFilter,
+    yearMinFilter
+  ]);
+  const draftFilteredListingCount = useMemo(
+    () => listings.filter((listing) => sellerListingMatchesFilters(
+      listing,
+      draftSellerFilters,
+      locale,
+      sellerFilterOptions.subcategories
+    )).length,
+    [draftSellerFilters, listings, locale, sellerFilterOptions.subcategories]
+  );
+  const trackMatDimensionsVisible = isSellerTrackMatSelection(subcategoryFilter);
   const yearSliderMin = MARKETPLACE_YEAR_FILTER_MIN;
   const yearSliderMax = getMarketplaceYearFilterMax();
   const selectedYearMin = yearMinFilter ? Number.parseInt(yearMinFilter, 10) : yearSliderMin;
@@ -741,19 +957,22 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }, [filteredListings, sellerListingPage]);
 
   const hasAdvancedFilters =
-    searchQuery.trim() !== "" ||
-    vehicleTypeFilter.trim() !== "" ||
-    vehicleSubtypeFilter.trim() !== "" ||
-    brandFilter.trim() !== "" ||
-    modelFilter.trim() !== "" ||
-    yearFilter.trim() !== "" ||
-    yearMinFilter.trim() !== "" ||
-    yearMaxFilter.trim() !== "" ||
-    engineCcFilter.trim() !== "" ||
-    engineModelFilter.trim() !== "" ||
-    categoryFilter.trim() !== "" ||
-    subcategoryParentFilter.trim() !== "" ||
-    subcategoryFilter.trim() !== "";
+    appliedSellerFilters.searchQuery.trim() !== "" ||
+    appliedSellerFilters.vehicleTypeFilter.trim() !== "" ||
+    appliedSellerFilters.vehicleSubtypeFilter.trim() !== "" ||
+    appliedSellerFilters.brandFilter.trim() !== "" ||
+    appliedSellerFilters.modelFilter.trim() !== "" ||
+    appliedSellerFilters.yearFilter.trim() !== "" ||
+    appliedSellerFilters.yearMinFilter.trim() !== "" ||
+    appliedSellerFilters.yearMaxFilter.trim() !== "" ||
+    appliedSellerFilters.engineCcFilter.trim() !== "" ||
+    appliedSellerFilters.engineModelFilter.trim() !== "" ||
+    appliedSellerFilters.categoryFilter.trim() !== "" ||
+    appliedSellerFilters.subcategoryParentFilter.trim() !== "" ||
+    appliedSellerFilters.subcategoryFilter.trim() !== "" ||
+    appliedSellerFilters.trackMatLengthFilter.trim() !== "" ||
+    appliedSellerFilters.trackMatWidthFilter.trim() !== "" ||
+    appliedSellerFilters.trackMatPitchFilter.trim() !== "";
 
   const reviewIds = useMemo(() => reviews.map((review) => review.id), [reviews]);
   const reviewIdsKey = reviewIds.join("|");
@@ -772,8 +991,127 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     setCategoryFilter("");
     setSubcategoryParentFilter("");
     setSubcategoryFilter("");
+    setTrackMatLengthFilter("");
+    setTrackMatWidthFilter("");
+    setTrackMatPitchFilter("");
+    setAppliedSellerFilters({ ...EMPTY_SELLER_APPLIED_FILTERS });
     setSellerListingPage(1);
+    setShowAllListings(false);
   }
+
+  function toggleSellerFilters() {
+    if (sellerFilterPanelOpen) {
+      setSellerFilterPanelOpen(false);
+      return;
+    }
+
+    setSearchQuery(appliedSellerFilters.searchQuery);
+    setListingSort(appliedSellerFilters.listingSort);
+    setVehicleTypeFilter(appliedSellerFilters.vehicleTypeFilter);
+    setVehicleSubtypeFilter(appliedSellerFilters.vehicleSubtypeFilter);
+    setBrandFilter(appliedSellerFilters.brandFilter);
+    setModelFilter(appliedSellerFilters.modelFilter);
+    setYearFilter(appliedSellerFilters.yearFilter);
+    setYearMinFilter(appliedSellerFilters.yearMinFilter);
+    setYearMaxFilter(appliedSellerFilters.yearMaxFilter);
+    setEngineCcFilter(appliedSellerFilters.engineCcFilter);
+    setEngineModelFilter(appliedSellerFilters.engineModelFilter);
+    setCategoryFilter(appliedSellerFilters.categoryFilter);
+    setSubcategoryParentFilter(appliedSellerFilters.subcategoryParentFilter);
+    setSubcategoryFilter(appliedSellerFilters.subcategoryFilter);
+    setTrackMatLengthFilter(appliedSellerFilters.trackMatLengthFilter);
+    setTrackMatWidthFilter(appliedSellerFilters.trackMatWidthFilter);
+    setTrackMatPitchFilter(appliedSellerFilters.trackMatPitchFilter);
+    setSellerFilterSheetExpanded(false);
+    setSellerFilterPanelOpen(true);
+  }
+
+  function applySellerFilters() {
+    setAppliedSellerFilters({
+      searchQuery,
+      listingSort,
+      vehicleTypeFilter,
+      vehicleSubtypeFilter,
+      brandFilter,
+      modelFilter,
+      yearFilter,
+      yearMinFilter,
+      yearMaxFilter,
+      engineCcFilter,
+      engineModelFilter,
+      categoryFilter,
+      subcategoryParentFilter,
+      subcategoryFilter,
+      trackMatLengthFilter,
+      trackMatWidthFilter,
+      trackMatPitchFilter
+    });
+    setSellerListingPage(1);
+    setShowAllListings(false);
+    setSellerFilterPanelOpen(false);
+  }
+
+  const startSellerFilterSheetDrag = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    const sheet = sellerFilterSheetRef.current;
+    if (!sheet) return;
+
+    event.preventDefault();
+    const startHeight = sheet.getBoundingClientRect().height;
+    sellerFilterSheetDragRef.current = {
+      pointerId: event.pointerId,
+      startY: event.clientY,
+      startHeight,
+      currentHeight: startHeight
+    };
+    setSellerFilterSheetDragging(true);
+    setSellerFilterSheetDragHeight(startHeight);
+
+    const move = (moveEvent: PointerEvent) => {
+      const dragState = sellerFilterSheetDragRef.current;
+      if (!dragState || moveEvent.pointerId !== dragState.pointerId) return;
+      moveEvent.preventDefault();
+      const viewportHeight = window.innerHeight;
+      const nextHeight = Math.min(
+        viewportHeight * 0.9,
+        Math.max(260, dragState.startHeight - (moveEvent.clientY - dragState.startY))
+      );
+      dragState.currentHeight = nextHeight;
+      setSellerFilterSheetDragHeight(nextHeight);
+    };
+
+    const stop = (stopEvent: PointerEvent) => {
+      const dragState = sellerFilterSheetDragRef.current;
+      if (!dragState || stopEvent.pointerId !== dragState.pointerId) return;
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+      window.removeEventListener("pointercancel", stop);
+      sellerFilterSheetDragRef.current = null;
+      setSellerFilterSheetDragging(false);
+      setSellerFilterSheetDragHeight(null);
+
+      const viewportHeight = window.innerHeight;
+      if (dragState.currentHeight < viewportHeight * 0.42) {
+        setSellerFilterPanelOpen(false);
+        return;
+      }
+      setSellerFilterSheetExpanded(dragState.currentHeight >= viewportHeight * 0.72);
+    };
+
+    window.addEventListener("pointermove", move, { passive: false });
+    window.addEventListener("pointerup", stop);
+    window.addEventListener("pointercancel", stop);
+  }, []);
+
+  const handleSellerFilterSheetKeyDown = useCallback((event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setSellerFilterSheetExpanded(true);
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (sellerFilterSheetExpanded) setSellerFilterSheetExpanded(false);
+      else setSellerFilterPanelOpen(false);
+    }
+  }, [sellerFilterSheetExpanded]);
 
   useEffect(() => {
     if (locale === "fi" || listings.length === 0) return;
@@ -859,19 +1197,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
 
   useEffect(() => {
     setSellerListingPage(1);
-  }, [
-    brandFilter,
-    categoryFilter,
-    engineCcFilter,
-    engineModelFilter,
-    listingSort,
-    modelFilter,
-    searchQuery,
-    sellerId,
-    subcategoryFilter,
-    vehicleTypeFilter,
-    yearFilter
-  ]);
+  }, [appliedSellerFilters, sellerId]);
 
   useEffect(() => {
     if (sellerListingPage > sellerListingTotalPages) {
@@ -1370,12 +1696,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       sv: "Webbplats",
       no: "Nettside",
     }[locale],
-    trustedSeller: {
-      fi: "Luotettu myyjä",
-      en: "Trusted seller",
-      sv: "Betrodd säljare",
-      no: "Betrodd selger",
-    }[locale],
     advancedSearch: {
       fi: "Tarkempi haku",
       en: "Advanced search",
@@ -1453,12 +1773,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       en: "No listings matched your filters.",
       sv: "Inga annonser matchade filtren.",
       no: "Ingen annonser matchet filtrene.",
-    }[locale],
-    highlyRated: {
-      fi: "Hyvin arvioitu",
-      en: "Highly rated",
-      sv: "Högt betyg",
-      no: "Høyt vurdert",
     }[locale],
     noBio: {
       fi: "Myyjä ei ole vielä lisännyt esittelytekstiä.",
@@ -1603,7 +1917,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     { value: "priceDesc", label: refLabels.highestPrice, icon: TrendingUp },
     { value: "nearest", label: refLabels.nearestFirst, icon: MapPin }
   ];
-  const activeSort = sortOptions.find((option) => option.value === listingSort) ?? sortOptions[0];
+  const activeSort = sortOptions.find((option) => option.value === appliedSellerFilters.listingSort) ?? sortOptions[0];
 
   return (
     <main className={`auth-page seller-page ${isCompany ? "seller-company-page" : "seller-private-page"}`}>
@@ -1627,10 +1941,13 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             </div>
 
             <div className="seller-ref-copy">
-              <h1>
-                {sellerName}
-                <span aria-hidden="true">✓</span>
-              </h1>
+              <h1>{sellerName}</h1>
+              <span className="seller-ref-account-type">
+                {isCompany ? <Building2 size={13} aria-hidden="true" /> : <Users size={13} aria-hidden="true" />}
+                {isCompany
+                  ? (locale === "fi" ? "Yritys" : locale === "sv" ? "Företag" : locale === "no" ? "Bedrift" : "Company")
+                  : (locale === "fi" ? "Yksityishenkilö" : locale === "sv" ? "Privatperson" : locale === "no" ? "Privatperson" : "Private seller")}
+              </span>
               {isCompany && profile?.company_verified_at && (
                 <span className="seller-ref-title-verified">
                   <Shield size={15} aria-hidden="true" />
@@ -1652,21 +1969,14 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
 
               <div className="seller-ref-pill-row">
                 {isCompany && profile?.business_id?.trim() && (
-                  <span className="seller-ref-phone-pill">
+                  <span className="seller-ref-phone-pill seller-ref-business-id">
                     <Building2 size={13} />
                     <span className="seller-ref-pill-text">
-                      <small>{refLabels.businessId}</small>
+                      <small>{refLabels.businessId}:</small>
                       <strong>{profile.business_id.trim()}</strong>
                     </span>
                   </span>
                 )}
-                <span className="seller-ref-phone-pill">
-                  <Trophy size={13} />
-                  <span className="seller-ref-pill-text">
-                    <small>{refLabels.accountLevel}</small>
-                    <strong>{sellerLevel.level}</strong>
-                  </span>
-                </span>
                 {isCompany && companyWebsite && (
                   <a
                     className="seller-ref-phone-pill seller-ref-link-pill"
@@ -1681,92 +1991,92 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 )}
               </div>
 
-              <div className="seller-ref-mini-row">
-                <span>
-                  <Shield size={13} />
-                  {refLabels.trustedSeller}
-                </span>
-                <span className="is-good">
-                  {refLabels.highlyRated}
-                  {reviews.length > 0 && <> · {reviews.length} {reviewCountLabel}</>}
-                </span>
-              </div>
-
-              {currentUserId !== resolvedSellerId && (
-                <div className="seller-ref-follow-row">
-                  {currentUserId ? (
-                    <button
-                      type="button"
-                      className={`seller-ref-follow-button${followStats.is_following ? " is-following" : ""}`}
-                      disabled={followSaving}
-                      onClick={handleProfileFollowToggle}
-                    >
-                      {followStats.is_following ? <UserCheck size={15} /> : <UserPlus size={15} />}
-                      {followStats.is_following ? refLabels.following : refLabels.follow}
-                    </button>
-                  ) : (
-                    <Link className="seller-ref-follow-button" href={`${pagePath("auth", locale)}?returnTo=${encodeURIComponent(profilePath(sellerId, sellerName, locale))}`}>
-                      <UserPlus size={15} />
-                      {refLabels.loginToFollow}
-                    </Link>
-                  )}
-                  {followError && <span className="seller-ref-follow-error">{followError}</span>}
+              <div className="seller-ref-profile-progress">
+                <div className="seller-ref-profile-rating">
+                  {renderAverageRatingStars(averageRating, 18)}
+                  <strong>{reviews.length ? averageRating.toFixed(1) : "–"}</strong>
+                  <span>({visibleReviewCount} {reviewCountLabel})</span>
                 </div>
-              )}
+
+                <div className="seller-ref-level-progress">
+                  <div className="seller-ref-level-progress-head">
+                    <strong>{refLabels.level} {sellerLevel.level}</strong>
+                    <span>{sellerLevel.totalXp} {refLabels.xp}</span>
+                  </div>
+                  <div
+                    className="seller-ref-level-progress-track"
+                    role="progressbar"
+                    aria-label={`${refLabels.level} ${sellerLevel.level}`}
+                    aria-valuemin={0}
+                    aria-valuemax={sellerLevel.xpForNextLevel}
+                    aria-valuenow={sellerLevel.currentLevelXp}
+                  >
+                    <span style={{ width: `${sellerLevel.progressPercent}%` }} />
+                  </div>
+                </div>
+              </div>
 
             </div>
           </div>
 
-          <article className="seller-ref-about seller-ref-about-highlight">
-            <h2>{refLabels.extraInfo}</h2>
-            <p>{profile?.bio?.trim() || refLabels.noBio}</p>
-          </article>
+          {(profile?.bio?.trim() || (isCompany && companyWebsite)) && (
+            <article className="seller-ref-about seller-ref-about-highlight">
+              {profile?.bio?.trim() && <p>{profile.bio.trim()}</p>}
+              {isCompany && companyWebsite && (
+                <a href={companyWebsite.href} target="_blank" rel="noreferrer">
+                  <Globe2 size={15} aria-hidden="true" />
+                  {companyWebsite.label}
+                </a>
+              )}
+            </article>
+          )}
+
+          {currentUserId !== resolvedSellerId && (
+            <div className="seller-ref-follow-row">
+              {currentUserId ? (
+                <button
+                  type="button"
+                  className={`seller-ref-follow-button${followStats.is_following ? " is-following" : ""}`}
+                  disabled={followSaving}
+                  onClick={handleProfileFollowToggle}
+                >
+                  {followStats.is_following ? <UserCheck size={15} /> : <UserPlus size={15} />}
+                  {followStats.is_following ? refLabels.following : refLabels.follow}
+                </button>
+              ) : (
+                <Link className="seller-ref-follow-button" href={`${pagePath("auth", locale)}?returnTo=${encodeURIComponent(profilePath(sellerId, sellerName, locale))}`}>
+                  <UserPlus size={15} />
+                  {refLabels.loginToFollow}
+                </Link>
+              )}
+              {followError && <span className="seller-ref-follow-error">{followError}</span>}
+            </div>
+          )}
 
           <div className="seller-ref-stats">
-            <div className={`seller-ref-stat is-rating${reviews.length ? "" : " is-empty"}`}>
-              <Star size={24} />
-              {reviews.length ? (
-                <strong>{averageRating.toFixed(1)}</strong>
-              ) : (
-                <span className="seller-ref-rating-empty">{refLabels.noRatings}</span>
-              )}
-              <span className="seller-ref-rating-label">{refLabels.averageRating}</span>
-              {renderAverageRatingStars(averageRating)}
-            </div>
             <div className="seller-ref-stat">
               <Tag size={22} />
-              <strong>{effectiveLevelStats.listings_created}</strong>
-              <span>{refLabels.totalListings}</span>
+              <strong>{listings.length}</strong>
+              <span>{refLabels.activeListings}</span>
             </div>
             <div className="seller-ref-stat">
               <ShoppingBag size={22} />
               <strong>{effectiveLevelStats.sold_count}</strong>
               <span>{refLabels.sold}</span>
             </div>
-            <div className="seller-ref-stat">
+            <button
+              type="button"
+              className="seller-ref-stat seller-ref-review-stat"
+              onClick={() => setReviewsOpen(true)}
+              aria-label={`${t.spReviews}: ${visibleReviewCount}`}
+            >
               <MessageCircle size={22} />
               <strong>{visibleReviewCount}</strong>
               <span>{refLabels.reviews}</span>
-            </div>
+            </button>
           </div>
 
           <div className="seller-ref-detail-card" aria-label="Profiilin lisätiedot">
-            <div className="seller-ref-detail-row">
-              <Trophy size={20} aria-hidden="true" />
-              <span>{refLabels.accountLevel}</span>
-              <strong>
-                {refLabels.level} {sellerLevel.level}
-                <small>{sellerLevel.totalXp} {refLabels.xp}</small>
-              </strong>
-            </div>
-            <div className="seller-ref-detail-row">
-              <Shield size={20} aria-hidden="true" />
-              <span>{refLabels.trustedSeller}</span>
-              <strong className="is-good">
-                {refLabels.highlyRated}
-                {visibleReviewCount > 0 && <small>{visibleReviewCount} {reviewCountLabel}</small>}
-              </strong>
-            </div>
             {memberSince && (
               <div className="seller-ref-detail-row">
                 <CalendarDays size={20} aria-hidden="true" />
@@ -1837,99 +2147,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
           </div>
         </div>
 
-        {activeTab === "listings" && listings.length > 0 && (
-          <div className="sp-advanced-search" role="search" aria-label={refLabels.advancedSearch}>
-            <label className="sp-search-field">
-              <Search size={15} aria-hidden="true" />
-              <input
-                type="search"
-                className="sp-search-input"
-                value={searchQuery}
-                aria-label={refLabels.searchPlaceholder}
-                placeholder={refLabels.searchPlaceholder}
-                onChange={(event) => setSearchQuery(event.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  className="sp-search-clear"
-                  aria-label={refLabels.resetFilters}
-                  onClick={() => setSearchQuery("")}
-                >
-                  <CircleX size={20} aria-hidden="true" />
-                </button>
-              )}
-            </label>
-            <div className={`sp-sort-wrap${sortOpen ? " is-open" : ""}`}>
-              <button
-                type="button"
-                className="sp-sort-button"
-                aria-haspopup="menu"
-                aria-expanded={sortOpen}
-                onClick={() => setSortOpen((open) => !open)}
-              >
-                <SlidersHorizontal size={16} aria-hidden="true" />
-                <span>{activeSort.label}</span>
-                <ChevronDown size={16} className="sp-sort-chevron" aria-hidden="true" />
-              </button>
-              {sortOpen && (
-                <div
-                  className="sp-sort-menu"
-                  role="menu"
-                  onPointerDown={(event) => event.stopPropagation()}
-                  onPointerUp={(event) => event.stopPropagation()}
-                  onClick={(event) => event.stopPropagation()}
-                >
-                  {sortOptions.map((option) => {
-                    const Icon = option.icon;
-                    const selected = option.value === listingSort;
-                    return (
-                      <button
-                        type="button"
-                        className={`sp-sort-option${selected ? " selected" : ""}`}
-                        role="menuitemradio"
-                        aria-checked={selected}
-                        key={option.value}
-                        onPointerDown={(event) => event.stopPropagation()}
-                        onPointerUp={(event) => event.stopPropagation()}
-                        onClick={(event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-                          setListingSort(option.value);
-                          setSortOpen(false);
-                        }}
-                      >
-                        <Icon size={15} aria-hidden="true" />
-                        <span>{option.label}</span>
-                        {selected && <Check size={15} className="sp-sort-check" aria-hidden="true" />}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-            <button
-              type="button"
-              className={`sp-filter-toggle${sellerFilterPanelOpen ? " is-open" : ""}`}
-              aria-expanded={sellerFilterPanelOpen}
-              aria-controls="seller-profile-filter-panel"
-              onClick={() => setSellerFilterPanelOpen((open) => !open)}
-            >
-              <SlidersHorizontal size={16} aria-hidden="true" />
-              <span>Suodatus</span>
-            </button>
-            {hasAdvancedFilters && (
-              <div className="sp-filter-actions">
-                <button type="button" className="sp-filter-reset" onClick={resetListingFilters}>
-                  <RotateCcw size={14} aria-hidden="true" />
-                  {refLabels.resetFilters}
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab === "listings" && sellerFilterPanelOpen && (
+        {false && activeTab === "listings" && sellerFilterPanelOpen && (
           <>
             <button
               type="button"
@@ -2135,19 +2353,398 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               </div>
               <h3>{t.spNoListings}</h3>
               <p>{t.spNoListingsDesc.replace("{name}", sellerName)}</p>
-            </div>
-          ) : filteredListings.length === 0 ? (
-            <div className="sp-empty">
-              <div className="sp-empty-icon">
-                <Search size={48} />
-              </div>
-              <h3>{refLabels.noFilterResults}</h3>
-              <p>{refLabels.searchPlaceholder}</p>
+              {visibleReviewCount > 0 && (
+                <button type="button" className="seller-empty-reviews-button" onClick={() => setReviewsOpen(true)}>
+                  <Star size={15} aria-hidden="true" />
+                  {locale === "fi" ? `Lue arvostelut (${visibleReviewCount})` : `${t.spReviews} (${visibleReviewCount})`}
+                </button>
+              )}
             </div>
           ) : (
-            <>
-            <div className="seller-listing-grid">
-              {paginatedSellerListings.map((listing, index) => {
+            <div className="seller-profile-reference-main">
+              <div className="seller-profile-listings-panel">
+                <div className="seller-profile-section-heading">
+                  <h2>{locale === "fi" ? "Viimeisimmät ilmoitukset" : locale === "sv" ? "Senaste annonser" : locale === "no" ? "Siste annonser" : "Latest listings"}</h2>
+                  <button
+                    type="button"
+                    className="seller-profile-heading-filter-button"
+                    aria-expanded={sellerFilterPanelOpen}
+                    aria-controls="seller-home-filter-bar"
+                    onClick={() => {
+                      setSortOpen(false);
+                      toggleSellerFilters();
+                    }}
+                  >
+                    {locale === "fi" ? "Suodata" : locale === "sv" ? "Filtrera" : locale === "no" ? "Filtrer" : "Filter"}
+                    <SlidersHorizontal size={14} aria-hidden="true" />
+                  </button>
+                  <div className="seller-profile-section-actions">
+                    {hasAdvancedFilters && (
+                      <button type="button" className="seller-profile-reset-filters" onClick={resetListingFilters}>
+                        <RotateCcw size={14} aria-hidden="true" />
+                        Nollaa suodatukset
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="seller-profile-reviews-button"
+                      onClick={() => setReviewsOpen(true)}
+                    >
+                      <Star size={15} aria-hidden="true" />
+                      <span>
+                        {locale === "fi"
+                          ? `Arvostelut (${visibleReviewCount})`
+                          : locale === "sv"
+                            ? `Omdömen (${visibleReviewCount})`
+                            : locale === "no"
+                              ? `Anmeldelser (${visibleReviewCount})`
+                              : `Reviews (${visibleReviewCount})`}
+                      </span>
+                    </button>
+                    <div
+                      className={`sp-sort-wrap seller-profile-sort${sortOpen ? " is-open" : ""}`}
+                      onBlur={(event) => {
+                        const nextTarget = event.relatedTarget;
+                        if (!(nextTarget instanceof HTMLElement) || !event.currentTarget.contains(nextTarget)) {
+                          setSortOpen(false);
+                        }
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Escape") setSortOpen(false);
+                      }}
+                    >
+                      <button
+                        type="button"
+                        className="sp-sort-button"
+                        aria-haspopup="menu"
+                        aria-expanded={sortOpen}
+                        onClick={() => setSortOpen((open) => !open)}
+                      >
+                        <SlidersHorizontal size={15} aria-hidden="true" />
+                        <span>{activeSort.label}</span>
+                        <ChevronDown size={15} className="sp-sort-chevron" aria-hidden="true" />
+                      </button>
+                      {sortOpen && (
+                        <div className="sp-sort-menu" role="menu">
+                          {sortOptions.map((option) => {
+                            const Icon = option.icon;
+                            const selected = option.value === appliedSellerFilters.listingSort;
+                            return (
+                              <button
+                                type="button"
+                                className={`sp-sort-option${selected ? " selected" : ""}`}
+                                role="menuitemradio"
+                                aria-checked={selected}
+                                key={option.value}
+                                onClick={() => {
+                                  setListingSort(option.value);
+                                  setAppliedSellerFilters((current) => ({ ...current, listingSort: option.value }));
+                                  setSellerListingPage(1);
+                                  setShowAllListings(false);
+                                  setSortOpen(false);
+                                }}
+                              >
+                                <Icon size={15} aria-hidden="true" />
+                                <span>{option.label}</span>
+                                {selected && <Check size={15} className="sp-sort-check" aria-hidden="true" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="seller-profile-filter-button"
+                      aria-expanded={sellerFilterPanelOpen}
+                      aria-controls="seller-home-filter-bar"
+                      onClick={() => {
+                        setSortOpen(false);
+                        toggleSellerFilters();
+                      }}
+                    >
+                      {locale === "fi" ? "Suodata" : locale === "sv" ? "Filtrera" : locale === "no" ? "Filtrer" : "Filter"}
+                      <SlidersHorizontal size={14} aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+                {sellerFilterPanelOpen && (
+                  <button
+                    type="button"
+                    className="seller-home-filter-backdrop"
+                    data-mobile-filter-backdrop="true"
+                    aria-label="Sulje kategoriointi"
+                    onClick={() => setSellerFilterPanelOpen(false)}
+                  />
+                )}
+                <form
+                  id="seller-home-filter-bar"
+                  ref={sellerFilterSheetRef}
+                  className={`seller-home-filter-bar${sellerFilterPanelOpen ? " is-open" : ""}${sellerFilterSheetExpanded ? " is-expanded" : ""}${sellerFilterSheetDragging ? " is-dragging" : ""}`}
+                  style={{
+                    "--seller-filter-sheet-height": sellerFilterSheetDragHeight === null
+                      ? "auto"
+                      : `${sellerFilterSheetDragHeight}px`
+                  } as CSSProperties}
+                  role="search"
+                  onSubmit={(event) => event.preventDefault()}
+                >
+                  <div
+                    className="seller-mobile-filter-drag-handle"
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Muuta suodatuspaneelin korkeutta"
+                    aria-expanded={sellerFilterSheetExpanded}
+                    onPointerDown={startSellerFilterSheetDrag}
+                    onKeyDown={handleSellerFilterSheetKeyDown}
+                  >
+                    <span />
+                  </div>
+                  <header className="seller-home-filter-head">
+                    <strong>
+                      <span className="seller-filter-title-desktop">Suodattimet</span>
+                      <span className="seller-filter-title-mobile">Suodata hakua</span>
+                    </strong>
+                    <div>
+                      <button type="button" className="seller-filter-head-reset" onClick={resetListingFilters}>Nollaa suodatukset</button>
+                      <button type="button" className="seller-filter-head-close" aria-label="Sulje kategoriointi" onClick={() => setSellerFilterPanelOpen(false)}>
+                        <X size={23} strokeWidth={2.6} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </header>
+
+                  <div className="seller-mobile-filter-content">
+
+                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-vehicle`}>
+                    <span className={homeStyles.heroFilterLabel}>Ajoneuvolaji</span>
+                    <select
+                      className={`${homeStyles.heroFilterSelect} seller-home-filter-select`}
+                      value={vehicleTypeFilter}
+                      onChange={(event) => {
+                        setVehicleTypeFilter(event.target.value);
+                        setVehicleSubtypeFilter("");
+                        setBrandFilter("");
+                        setModelFilter("");
+                      }}
+                    >
+                      <option value="">Kaikki ajoneuvot</option>
+                      {sellerFilterOptions.vehicleTypes.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </label>
+
+                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-type`}>
+                    <span className={homeStyles.heroFilterLabel}>Tyyppi</span>
+                    <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={vehicleSubtypeFilter} onChange={(event) => setVehicleSubtypeFilter(event.target.value)}>
+                      <option value="">Kaikki tyypit</option>
+                      {sellerFilterOptions.vehicleSubtypes.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </label>
+
+                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-brand`}>
+                    <span className={homeStyles.heroFilterLabel}>Merkki</span>
+                    <select
+                      className={`${homeStyles.heroFilterSelect} seller-home-filter-select`}
+                      value={brandFilter}
+                      onChange={(event) => { setBrandFilter(event.target.value); setModelFilter(""); }}
+                    >
+                      <option value="">Kaikki merkit</option>
+                      {sellerFilterOptions.brands.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </label>
+
+                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-model`}>
+                    <span className={homeStyles.heroFilterLabel}>Malli</span>
+                    <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={modelFilter} onChange={(event) => setModelFilter(event.target.value)}>
+                      <option value="">Kaikki mallit</option>
+                      {sellerFilterOptions.models.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </label>
+
+                  <div className="seller-filter-section-title">Osakategoriointi</div>
+
+                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-category`}>
+                    <span className={homeStyles.heroFilterLabel}>Pääkategoria</span>
+                    <select
+                      className={`${homeStyles.heroFilterSelect} seller-home-filter-select`}
+                      value={categoryFilter}
+                      onChange={(event) => {
+                        setCategoryFilter(event.target.value);
+                        setSubcategoryParentFilter("");
+                        setSubcategoryFilter("");
+                        setTrackMatLengthFilter("");
+                        setTrackMatWidthFilter("");
+                        setTrackMatPitchFilter("");
+                      }}
+                    >
+                      <option value="">Kaikki kategoriat</option>
+                      {sellerFilterOptions.categories.map((option) => <option key={option} value={option}>{translateCategory(locale, option)}</option>)}
+                    </select>
+                  </label>
+
+                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-subcategory`}>
+                    <span className={homeStyles.heroFilterLabel}>Alakategoria</span>
+                    <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={subcategoryParentFilter} onChange={(event) => {
+                      setSubcategoryParentFilter(event.target.value);
+                      setSubcategoryFilter("");
+                      setTrackMatLengthFilter("");
+                      setTrackMatWidthFilter("");
+                      setTrackMatPitchFilter("");
+                    }}>
+                      <option value="">Kaikki alakategoriat</option>
+                      {sellerFilterOptions.subcategoryParents.map((option) => <option key={option} value={option}>{translateCategory(locale, categoryLeaf(option))}</option>)}
+                    </select>
+                  </label>
+
+                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-part`}>
+                    <span className={homeStyles.heroFilterLabel}>Tarkempi osa</span>
+                    <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={subcategoryFilter} onChange={(event) => {
+                      const nextValue = event.target.value;
+                      setSubcategoryFilter(nextValue);
+                      if (!isSellerTrackMatSelection(nextValue)) {
+                        setTrackMatLengthFilter("");
+                        setTrackMatWidthFilter("");
+                        setTrackMatPitchFilter("");
+                      }
+                    }}>
+                      <option value="">Kaikki tarkemmat osat</option>
+                      {sellerFilterOptions.subcategories.map((option) => <option key={option} value={option}>{translateCategory(locale, categoryLeaf(option))}</option>)}
+                    </select>
+                  </label>
+
+                  {trackMatDimensionsVisible && (
+                    <fieldset ref={sellerTrackMatDimensionsRef} className="seller-track-mat-dimensions">
+                      <legend>Telamaton mitat</legend>
+                      <div className="seller-track-mat-dimension-fields">
+                        <label>
+                          <span>Pituus (cm)</span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={trackMatLengthFilter}
+                            onChange={(event) => setTrackMatLengthFilter(event.target.value)}
+                            placeholder="esim. 345"
+                          />
+                        </label>
+                        <span aria-hidden="true">×</span>
+                        <label>
+                          <span>Leveys (cm)</span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={trackMatWidthFilter}
+                            onChange={(event) => setTrackMatWidthFilter(event.target.value)}
+                            placeholder="esim. 38"
+                          />
+                        </label>
+                        <span aria-hidden="true">×</span>
+                        <label>
+                          <span>Jako (cm)</span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={trackMatPitchFilter}
+                            onChange={(event) => setTrackMatPitchFilter(event.target.value)}
+                            placeholder="esim. 7,3"
+                          />
+                        </label>
+                      </div>
+                    </fieldset>
+                  )}
+
+                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-engine-cc`}>
+                    <span className={homeStyles.heroFilterLabel}>Moottoritilavuus (cm³)</span>
+                    <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={engineCcFilter} onChange={(event) => setEngineCcFilter(event.target.value)}>
+                      <option value="">Kaikki koot</option>
+                      {sellerFilterOptions.engineCcs.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </label>
+
+                  <div className="seller-home-filter-years">
+                    <span>Vuosimalli</span>
+                    <select value={yearMinFilter} onChange={(event) => setYearMinFilter(event.target.value)}>
+                      <option value="">Minimi</option>
+                      {sellerFilterOptions.years.map((option) => <option key={`min-${option}`} value={option}>{option}</option>)}
+                    </select>
+                    <select value={yearMaxFilter} onChange={(event) => setYearMaxFilter(event.target.value)}>
+                      <option value="">Maksimi</option>
+                      {sellerFilterOptions.years.map((option) => <option key={`max-${option}`} value={option}>{option}</option>)}
+                    </select>
+                    <div
+                      className="seller-home-year-slider"
+                      ref={sellerYearSliderRef}
+                      role="group"
+                      aria-label="Vuosimallin rajaus"
+                      onPointerDown={(event) => startSellerYearRangeDrag(event)}
+                    >
+                      <span className="seller-home-year-slider-rail" aria-hidden="true" />
+                      <span
+                        className="seller-home-year-slider-active"
+                        style={{ left: `${yearSliderLeft}%`, right: `${yearSliderRight}%` }}
+                        aria-hidden="true"
+                      />
+                      <span
+                        role="slider"
+                        tabIndex={0}
+                        className="seller-home-year-slider-thumb"
+                        style={{ left: `${yearSliderLeft}%` }}
+                        aria-label="Vuosimallin minimi"
+                        aria-valuemin={yearSliderMin}
+                        aria-valuemax={selectedYearMax}
+                        aria-valuenow={selectedYearMin}
+                        onPointerDown={(event) => startSellerYearRangeDrag(event, "min")}
+                        onKeyDown={(event) => handleSellerYearRangeKeyDown(event, "min")}
+                      />
+                      <span
+                        role="slider"
+                        tabIndex={0}
+                        className="seller-home-year-slider-thumb"
+                        style={{ left: `${100 - yearSliderRight}%` }}
+                        aria-label="Vuosimallin maksimi"
+                        aria-valuemin={selectedYearMin}
+                        aria-valuemax={yearSliderMax}
+                        aria-valuenow={selectedYearMax}
+                        onPointerDown={(event) => startSellerYearRangeDrag(event, "max")}
+                        onKeyDown={(event) => handleSellerYearRangeKeyDown(event, "max")}
+                      />
+                    </div>
+                  </div>
+
+                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-engine-model`}>
+                    <span className={homeStyles.heroFilterLabel}>Moottori</span>
+                    <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={engineModelFilter} onChange={(event) => setEngineModelFilter(event.target.value)}>
+                      <option value="">Kaikki moottorit</option>
+                      {sellerFilterOptions.engineModels.map((option) => <option key={option} value={option}>{option}</option>)}
+                    </select>
+                  </label>
+
+                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-sort`}>
+                    <span className={homeStyles.heroFilterLabel}>Järjestys</span>
+                    <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={listingSort} onChange={(event) => setListingSort(event.target.value as ListingSort)}>
+                      {sortOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                    </select>
+                  </label>
+
+                  </div>
+
+                  <div className="seller-home-filter-actions">
+                    <button type="button" onClick={applySellerFilters}>
+                      Näytä tulokset ({draftFilteredListingCount})
+                    </button>
+                    <button type="button" onClick={resetListingFilters}>Tyhjennä hakuehdot</button>
+                  </div>
+                </form>
+                {filteredListings.length === 0 ? (
+                  <div className="sp-empty seller-filtered-empty">
+                    <div className="sp-empty-icon">
+                      <Search size={48} />
+                    </div>
+                    <h3>{refLabels.noFilterResults}</h3>
+                    <p>Muokkaa suodatusta tai nollaa suodatukset.</p>
+                  </div>
+                ) : (
+                <>
+                <div className="seller-listing-grid">
+              {(showAllListings ? paginatedSellerListings : paginatedSellerListings.slice(0, 8)).map((listing, index) => {
                 const title = getListingTitle(listing);
                 const locationLabel = formatListingLocation(listing.location, t.country);
                 const countryFlag = getCountryFlagFromLocation(locationLabel, t.country);
@@ -2156,7 +2753,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 const isFavorite = favorites.includes(listing.id);
                 return (
                   <article
-                    className="listing-card seller-listing-card"
+                    className={`${homeStyles.card} seller-home-listing-card`}
                     key={listing.id}
                     data-listing-card="true"
                     role="link"
@@ -2170,81 +2767,60 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       }
                     }}
                   >
-                    <span className="seller-listing-image">
-                      <span className="seller-listing-image-blur" aria-hidden="true">
-                        <img
-                          src={imageSrc}
-                          alt=""
-                          loading="lazy"
-                          onError={(event) => {
-                            if (event.currentTarget.src.endsWith(fallbackImage)) return;
-                            event.currentTarget.src = fallbackImage;
-                          }}
-                        />
+                    <div className={`${homeStyles.cardImage} ${homeStyles.listingCardImage}`}>
+                      <span className={homeStyles.cardImageBlur} aria-hidden="true">
+                        <OptimizedListingImage src={imageSrc || fallbackImage} alt="" decorative />
                       </span>
-                      <img
-                        src={imageSrc}
-                        alt={title}
-                        loading="lazy"
-                        onError={(event) => {
-                          if (event.currentTarget.src.endsWith(fallbackImage)) return;
-                          event.currentTarget.src = fallbackImage;
-                        }}
-                      />
+                      <OptimizedListingImage src={imageSrc || fallbackImage} alt={title} />
                       {isSellerListingNew(listing.created_at) && (
-                        <span className="seller-listing-new-badge" aria-label="Uusi">
-                          Uusi
+                        <span className={homeStyles.newBadge} aria-label={locale === "fi" ? "Uusi" : locale === "sv" ? "Ny" : locale === "no" ? "Ny" : "New"}>
+                          {locale === "fi" ? "Uusi" : locale === "sv" ? "Ny" : locale === "no" ? "Ny" : "New"}
                         </span>
                       )}
                       {currentUserId && <button
                         type="button"
-                        className={`seller-listing-heart${isFavorite ? " is-active" : ""}`}
+                        className={`${homeStyles.favoriteButton}${isFavorite ? ` ${homeStyles.favoriteButtonActive}` : ""}`}
                         aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
                         onClick={(event) => toggleFavorite(event, listing.id)}
                         onPointerDown={(event) => event.stopPropagation()}
                         onTouchStart={(event) => event.stopPropagation()}
                       >
-                        <Heart size={17} fill={isFavorite ? "currentColor" : "none"} />
+                        <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
                       </button>}
-                    </span>
-                    <div className="listing-body">
-                      <strong className="seller-listing-price">{formatPrice(listing.price)}</strong>
-                      <h3>{title}</h3>
+                    </div>
+                    <div className={homeStyles.cardBody}>
+                      <p className={homeStyles.cardPrice}>{formatPrice(listing.price)}</p>
+                      <h3 className={homeStyles.cardTitle}>{title}</h3>
                       <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
-                      <p>{getLocalizedListingText(listing, locale).description}</p>
-                      <div className="seller-listing-meta" data-listing-card-meta="true">
-                        <span className="seller-listing-location">
+                      <div className={homeStyles.cardMetaRow} data-listing-card-meta="true">
+                        <span className={homeStyles.cardLocationMeta}>
                           {countryFlag ? (
-                            <span
-                              className="seller-listing-country-flag"
-                              data-country={countryFlag.code}
+                            <img
+                              className={homeStyles.listingCountryFlag}
+                              src={countryFlag.src}
+                              alt=""
                               aria-hidden="true"
-                            >
-                              <img
-                                src={countryFlag.src}
-                                alt=""
-                                loading="lazy"
-                                onError={(event) => {
-                                  event.currentTarget.style.display = "none";
-                                }}
-                              />
-                            </span>
+                              loading="lazy"
+                            />
                           ) : null}
-                          <span className="seller-listing-location-label">{locationLabel}</span>
+                          {formatLocationWithCountry(listing.location, t.country, locale)}
                         </span>
-                        <span>
-                          <Clock3 size={14} />
+                        <span className={homeStyles.cardDateMeta}>
+                          <Clock3 size={14} aria-hidden="true" />
                           {formatListingDate(listing.created_at, locale)}
                         </span>
-                      </div>
-                      <div className="price-row">
-                        <span>{(t as Record<string,string>)["cond" + (listing.condition === "Hyvä" ? "Good" : listing.condition === "Uusi" ? "New" : listing.condition === "Kuin uusi" ? "LikeNew" : listing.condition === "Tyydyttävä" ? "Fair" : listing.condition === "Heikko" ? "Poor" : "")] || listing.condition}</span>
                       </div>
                     </div>
                   </article>
                 );
               })}
-            </div>
+                </div>
+            {!showAllListings && paginatedSellerListings.length > 8 && (
+              <button type="button" className="seller-profile-show-more" onClick={() => setShowAllListings(true)}>
+                {locale === "fi" ? "Näytä lisää ilmoituksia" : locale === "sv" ? "Visa fler annonser" : locale === "no" ? "Vis flere annonser" : "Show more listings"}
+                <ChevronDown size={16} aria-hidden="true" />
+              </button>
+            )}
             {sellerListingTotalPages > 1 && (
               <nav className="seller-profile-pagination" aria-label="Myyjän ilmoitusten sivutus">
                 <button
@@ -2295,8 +2871,66 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 </button>
               </nav>
             )}
-            </>
+                </>
+              )}
+              </div>
+
+            </div>
           )
+        )}
+
+        {reviewsOpen && (
+          <div
+            className="seller-review-modal-backdrop"
+            role="presentation"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setReviewsOpen(false);
+            }}
+          >
+            <section className="seller-review-modal" role="dialog" aria-modal="true" aria-labelledby="seller-review-modal-title">
+              <header className="seller-review-modal-head">
+                <div>
+                  <span>{sellerName}</span>
+                  <h2 id="seller-review-modal-title">
+                    {t.spReviews} <small>{visibleReviewCount}</small>
+                  </h2>
+                </div>
+                <button type="button" aria-label="Sulje arvostelut" onClick={() => setReviewsOpen(false)}>
+                  <CircleX size={24} aria-hidden="true" />
+                </button>
+              </header>
+
+              <div className="seller-review-modal-summary">
+                <strong>{reviews.length ? averageRating.toFixed(1) : "0.0"}</strong>
+                <div>
+                  {renderAverageRatingStars(averageRating, 19)}
+                  <span>{visibleReviewCount} {reviewCountLabel}</span>
+                </div>
+              </div>
+
+              <div className="seller-review-modal-list">
+                {reviews.length > 0 ? reviews.map((review) => (
+                  <article key={review.id}>
+                    <header>
+                      <span className="seller-review-modal-avatar">{getReviewInitials(review.reviewer_name)}</span>
+                      <div>
+                        <strong>{review.reviewer_name}</strong>
+                        <time>{formatListingDate(review.created_at, locale)}</time>
+                      </div>
+                      {renderReviewStars(review.rating, 15)}
+                    </header>
+                    <p>{review.comment}</p>
+                  </article>
+                )) : (
+                  <div className="seller-review-modal-empty">
+                    <Star size={30} aria-hidden="true" />
+                    <strong>{t.noReviews}</strong>
+                    <p>{reviewEmptyDescription}</p>
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
         )}
 
         {activeTab === "reviews" && (
@@ -2429,7 +3063,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
 
       </section>
 
-      <style jsx>{`
+      <style jsx media="not all">{`
         .seller-page {
           min-height: 100vh;
           padding: clamp(18px, 3vw, 34px) 0 88px;

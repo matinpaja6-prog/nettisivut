@@ -1,9 +1,5 @@
 export function sanitizePhoneInput(value: string) {
-  const compact = value.replace(/[^\d+]/g, "");
-  const hasPlus = compact.startsWith("+");
-  const digits = compact.replace(/\+/g, "");
-
-  return hasPlus ? `+${digits}` : digits;
+  return value.replace(/\D/g, "");
 }
 
 export function sanitizePhoneDigits(value: string) {

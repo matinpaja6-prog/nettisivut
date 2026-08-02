@@ -142,7 +142,6 @@ grant update (
   postal_code,
   city,
   country,
-  birth_date,
   bio,
   is_completed,
   online,

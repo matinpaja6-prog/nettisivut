@@ -6,7 +6,6 @@ alter table public.profiles
   add column if not exists home_address text not null default '',
   add column if not exists public_address text not null default '',
   add column if not exists country text not null default 'Suomi',
-  add column if not exists birth_date date,
   add column if not exists online boolean not null default false,
   add column if not exists last_seen timestamptz;
 

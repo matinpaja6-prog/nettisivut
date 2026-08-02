@@ -19,7 +19,6 @@ type ProfileUpsertBody = {
     postal_code?: string;
     city?: string;
     country?: string;
-    birth_date?: string | null;
   };
 };
 
@@ -33,12 +32,11 @@ function cleanProfileInput(profile: NonNullable<ProfileUpsertBody["profile"]>) {
     company_website: cleanOptionalUserText(profile.company_website, 240),
     billing_email: cleanOptionalUserText(profile.billing_email, 180),
     email: cleanUserText(profile.email, 180),
-    phone: cleanUserText(profile.phone, 40),
-    address: cleanUserText(profile.address, 180),
-    postal_code: cleanUserText(profile.postal_code, 40),
-    city: cleanUserText(profile.city, 100),
-    country: cleanUserText(profile.country, 100),
-    birth_date: cleanOptionalUserText(profile.birth_date, 20)
+    phone: cleanOptionalUserText(profile.phone, 40),
+    address: cleanOptionalUserText(profile.address, 180),
+    postal_code: cleanOptionalUserText(profile.postal_code, 40),
+    city: cleanOptionalUserText(profile.city, 100),
+    country: cleanUserText(profile.country, 100)
   };
 }
 

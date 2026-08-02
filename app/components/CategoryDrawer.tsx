@@ -1002,33 +1002,70 @@ export function getModelEngineOptions(
   vehicle: string,
   brand: string,
   model: string,
-  fallback: string[]
+  fallback: string[],
+  allowedModels?: string[]
 ) {
   const vehicleKey = getCategoryVehicleKey(vehicle);
   const commonVehicleKey = getCommonVehicleKey(vehicle);
-  const brandModelEngines = MODEL_ENGINE_OPTIONS[vehicle]?.[brand] ?? MODEL_ENGINE_OPTIONS[vehicleKey]?.[brand];
-  const commonBrandModelEngines = COMMON_MODEL_ENGINES_BY_VEHICLE[commonVehicleKey]?.[brand];
-  if (model && (brandModelEngines || commonBrandModelEngines)) {
-    const exact = brandModelEngines?.[model];
-    const commonExact = commonBrandModelEngines?.[model];
-    if (exact?.length || commonExact?.length) return uniqueOptions([...(exact ?? []), ...(commonExact ?? [])]);
+  const modelEngineSources = vehicle
+    ? [
+        MODEL_ENGINE_OPTIONS[vehicle] ?? MODEL_ENGINE_OPTIONS[vehicleKey] ?? {},
+        COMMON_MODEL_ENGINES_BY_VEHICLE[commonVehicleKey] ?? {}
+      ]
+    : [
+        ...Object.values(MODEL_ENGINE_OPTIONS),
+        ...Object.values(COMMON_MODEL_ENGINES_BY_VEHICLE)
+      ];
+  const engineSources = vehicle
+    ? [ENGINE_MODELS[vehicle] ?? ENGINE_MODELS[vehicleKey] ?? {}]
+    : Object.values(ENGINE_MODELS);
 
+  if (model) {
     const normalizedModel = normalizeIconText(model);
-    const fuzzy = Object.entries(brandModelEngines ?? {}).find(([key]) => {
-      const normalizedKey = normalizeIconText(key);
-      return normalizedModel.includes(normalizedKey) || normalizedKey.includes(normalizedModel);
+    const matchingEngines = modelEngineSources.flatMap((source) => {
+      const brands = brand ? [source[brand]].filter(Boolean) : Object.values(source);
+      return brands.flatMap((modelsByName) => {
+        const exact = modelsByName[model];
+        if (exact?.length) return exact;
+
+        const fuzzy = Object.entries(modelsByName).find(([key]) => {
+          const normalizedKey = normalizeIconText(key);
+          return normalizedModel.includes(normalizedKey) || normalizedKey.includes(normalizedModel);
+        });
+        return fuzzy?.[1] ?? [];
+      });
     });
-    const commonFuzzy = Object.entries(commonBrandModelEngines ?? {}).find(([key]) => {
-      const normalizedKey = normalizeIconText(key);
-      return normalizedModel.includes(normalizedKey) || normalizedKey.includes(normalizedModel);
-    });
-    if (fuzzy?.[1]?.length || commonFuzzy?.[1]?.length) {
-      return uniqueOptions([...(fuzzy?.[1] ?? []), ...(commonFuzzy?.[1] ?? [])]);
-    }
+    if (matchingEngines.length > 0) return uniqueOptions(matchingEngines);
   }
 
-  const commonBrandFallback = commonBrandModelEngines ? Object.values(commonBrandModelEngines).flat() : [];
-  return uniqueOptions([...commonBrandFallback, ...fallback]);
+  if (allowedModels) {
+    const normalizedAllowedModels = allowedModels.map(normalizeIconText);
+    const subtypeEngines = modelEngineSources.flatMap((source) => {
+      const brands = brand ? [source[brand]].filter(Boolean) : Object.values(source);
+      return brands.flatMap((modelsByName) =>
+        Object.entries(modelsByName).flatMap(([modelName, engines]) => {
+          const normalizedModelName = normalizeIconText(modelName);
+          const matchesAllowedModel = normalizedAllowedModels.some(
+            (allowedModel) =>
+              allowedModel.includes(normalizedModelName) || normalizedModelName.includes(allowedModel)
+          );
+          return matchesAllowedModel ? engines : [];
+        })
+      );
+    });
+
+    return uniqueOptions([...subtypeEngines, ...fallback]);
+  }
+
+  const namedEngineFallback = engineSources.flatMap((source) =>
+    brand ? (source[brand] ?? []) : Object.values(source).flat()
+  );
+  const modelEngineFallback = modelEngineSources.flatMap((source) => {
+    const brands = brand ? [source[brand]].filter(Boolean) : Object.values(source);
+    return brands.flatMap((modelsByName) => Object.values(modelsByName).flat());
+  });
+
+  return uniqueOptions([...namedEngineFallback, ...modelEngineFallback, ...fallback]);
 }
 
 type CategoryStartKind = string;
@@ -1846,7 +1883,7 @@ export default function CategoryDrawer({
     }
 
     if (nextField === "engineModel") {
-      if (brand) {
+      if (engineModelOptions.length > 0) {
         focusVehicleCombo(engineModelInputRef);
         return;
       }
@@ -2036,7 +2073,7 @@ export default function CategoryDrawer({
     vehicle,
     brand,
     model,
-    brand ? (ENGINE_MODELS[vehicle]?.[brand] ?? []) : []
+    []
   );
   const subtypeBrandModels = filterVehicleBrandModelsBySubtype(
     categoryVehicleKey,
@@ -2765,8 +2802,8 @@ export default function CategoryDrawer({
                   icon={<Cog size={20} />}
                   value={engineModel}
                   options={engineModelOptions}
-                  disabled={!brand}
-                  placeholder={brand ? drawerText.allEngines : drawerText.selectBrand}
+                  disabled={engineModelOptions.length === 0}
+                  placeholder={engineModelOptions.length > 0 ? drawerText.allEngines : drawerText.selectBrand}
                   inputRef={engineModelInputRef}
                   onChange={(nextValue) => {
                     setEngineModel(nextValue);
@@ -2961,13 +2998,13 @@ export default function CategoryDrawer({
                         className="cd-cc-select"
                         value={engineModel}
                         onChange={e => { setEngineModel(e.target.value); setEngineModelOther(""); }}
-                        disabled={!brand}
+                        disabled={engineModelOptions.length === 0}
                       >
-                        <option value="">{brand ? "Kaikki moottorit" : t.sellSelectBrandFirst}</option>
+                        <option value="">{engineModelOptions.length > 0 ? "Kaikki moottorit" : t.sellSelectBrandFirst}</option>
                         {engineModelOptions.map((em: string) => (
                           <option key={em} value={em}>{em}</option>
                         ))}
-                        {brand && <option value="muu">{t.sellOtherOption}</option>}
+                        {engineModelOptions.length > 0 && <option value="muu">{t.sellOtherOption}</option>}
                       </select>
                       {engineModel === "muu" && (
                         <input
