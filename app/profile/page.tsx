@@ -10,11 +10,12 @@ import { pagePath, profilePath } from "@/lib/routes";
 import {
   ArrowRight,
   Building2,
-  CalendarDays,
   Camera,
   Check,
   ChevronDown,
   ExternalLink,
+  Eye,
+  EyeOff,
   FileText,
   Globe,
   Hash,
@@ -22,11 +23,14 @@ import {
   Info,
   Lock,
   LockKeyhole,
+  LogOut,
   Mail,
   Map,
   MapPin,
   Phone,
   Plus,
+  QrCode,
+  KeyRound,
   ShieldCheck,
   Trash2,
   UserCircle,
@@ -42,11 +46,14 @@ import {
   dispatchProfileAvatarChanged,
   getCompanySellers,
   getProfile,
-  resetPassword,
+  requestPasswordChangeCode,
   supabase,
+  updatePassword,
+  updateProfileAvatar,
   updateCompanySeller,
   updateEditableProfile,
   uploadAvatar,
+  verifyPasswordResetOtp,
   type CompanySeller,
   type UserProfile
 } from "@/lib/supabase";
@@ -58,6 +65,15 @@ type GooglePlace = {
     types: string[];
   }>;
   formatted_address?: string;
+};
+
+type MfaSetupStep = "choose" | "totp" | null;
+type PasswordChangeStep = "code" | "password" | null;
+
+type TotpEnrollment = {
+  factorId: string;
+  qrCode: string;
+  secret: string;
 };
 
 type GoogleAutocomplete = {
@@ -198,28 +214,6 @@ function formatWebsiteHref(value: string | null | undefined) {
   }
 }
 
-function formatBirthDate(value: string | null | undefined) {
-
-  if (!value) return "";
-
-  const date =
-    new Date(`${value}T00:00:00`);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(
-    "fi-FI",
-    {
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    }
-  ).format(date);
-
-}
-
 function formatProfileUpdatedAt(value: string | null | undefined) {
   if (!value) return "";
 
@@ -297,9 +291,6 @@ export default function ProfilePage() {
     }[locale],
     postalCode: { fi: "Postinumero", en: "Postal code", sv: "Postnummer",
       no: "Postnummer",
-    }[locale],
-    birthDate: { fi: "Syntymäaika", en: "Date of birth", sv: "Födelsedatum",
-      no: "Fødselsdato",
     }[locale],
     publicProfile: { fi: "Julkinen profiili", en: "Public seller profile", sv: "Offentlig säljarprofil",
       no: "Offentlig selgerprofil",
@@ -463,6 +454,12 @@ export default function ProfilePage() {
       sv: "Byt",
       no: "Endre",
     }[locale],
+    add: {
+      fi: "Lisää",
+      en: "Add",
+      sv: "Lägg till",
+      no: "Legg til",
+    }[locale],
     companyPhoneVerifiedHelp: {
       fi: "Yrityksen numero on vahvistettu. Tätä käytetään yrityksen luottamustietona.",
       en: "The company number is verified. It is used as a trust signal for the company.",
@@ -590,10 +587,10 @@ export default function ProfilePage() {
       no: "Kontosikkerhet",
     }[locale],
     passwordHelp: {
-      fi: "Lähetä salasanan vaihtolinkki tilisi sähköpostiin.",
-      en: "Send a password change link to your account email.",
-      sv: "Skicka en länk för att byta lösenord till kontots e-post.",
-      no: "Send en lenke for passordbytte til kontoens e-post.",
+      fi: "Vahvista salasanan vaihto sähköpostiisi lähetettävällä koodilla.",
+      en: "Confirm the password change with a code sent to your email.",
+      sv: "Bekräfta lösenordsbytet med en kod som skickas till din e-post.",
+      no: "Bekreft passordbyttet med en kode som sendes til e-posten din.",
     }[locale],
     passwordEmail: {
       fi: "Tilin sähköposti",
@@ -608,16 +605,16 @@ export default function ProfilePage() {
       no: "Bytt passord",
     }[locale],
     passwordLinkSent: {
-      fi: "Salasanan vaihtolinkki lähetettiin sähköpostiisi.",
-      en: "Password change link sent to your email.",
-      sv: "Länken för att byta lösenord har skickats.",
-      no: "Lenke for passordbytte er sendt til e-posten din.",
+      fi: "Vahvistuskoodi lähetettiin sähköpostiisi.",
+      en: "A verification code was sent to your email.",
+      sv: "En verifieringskod har skickats till din e-post.",
+      no: "En bekreftelseskode er sendt til e-posten din.",
     }[locale],
     passwordLinkSending: {
-      fi: "Lähetetään linkkiä...",
-      en: "Sending link...",
-      sv: "Skickar länk...",
-      no: "Sender lenke...",
+      fi: "Lähetetään koodia...",
+      en: "Sending code...",
+      sv: "Skickar kod...",
+      no: "Sender kode...",
     }[locale],
     companySellerInfoTitle: {
       fi: "Yritystilin myyjät",
@@ -682,8 +679,22 @@ export default function ProfilePage() {
     useState<UserProfile | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [status, setStatus] = useState("");
+  const [listingProfileNotice, setListingProfileNotice] = useState("");
   const [passwordStatus, setPasswordStatus] = useState("");
   const [passwordSending, setPasswordSending] = useState(false);
+  const [passwordChangeStep, setPasswordChangeStep] = useState<PasswordChangeStep>(null);
+  const [passwordCode, setPasswordCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const [mfaSetupStep, setMfaSetupStep] = useState<MfaSetupStep>(null);
+  const [mfaMethod, setMfaMethod] = useState<"totp" | "email" | null>(null);
+  const [mfaFactorId, setMfaFactorId] = useState("");
+  const [mfaEnrollment, setMfaEnrollment] = useState<TotpEnrollment | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
+  const [mfaStatus, setMfaStatus] = useState("");
+  const [mfaSaving, setMfaSaving] = useState(false);
   const [companyVerifyModalOpen, setCompanyVerifyModalOpen] = useState(false);
   const [companyVerifySaving, setCompanyVerifySaving] = useState(false);
   const [companyVerifyStatus, setCompanyVerifyStatus] = useState("");
@@ -695,6 +706,7 @@ export default function ProfilePage() {
   const [avatarOffset, setAvatarOffset] = useState({ x: 0, y: 0 });
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const avatarDragRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
+  const profileLoadGenerationRef = useRef(0);
   const [phoneEditing, setPhoneEditing] = useState(false);
   const [phoneDraft, setPhoneDraft] = useState("");
   const [phoneStatus, setPhoneStatus] = useState("");
@@ -730,12 +742,27 @@ export default function ProfilePage() {
     phoneUnlockDate
       ? `Puhelinnumeron voi vaihtaa seuraavan kerran ${formatPhoneChangeUnlockDate(phoneUnlockDate)}.`
       : "";
+  const hasPhoneNumber = Boolean(profile?.phone?.trim());
+  const phoneActionLabel = hasPhoneNumber ? profileText.change : profileText.add;
+  const phoneActionTitle = hasPhoneNumber ? "Vaihda puhelinnumero" : "Lisää puhelinnumero";
 
   useEffect(() => {
     return () => {
       if (avatarCropPreview) URL.revokeObjectURL(avatarCropPreview);
     };
   }, [avatarCropPreview]);
+
+  useEffect(() => {
+
+    try {
+      const notice = sessionStorage.getItem("maskines_listing_profile_notice") ?? "";
+      if (notice) {
+        setListingProfileNotice(notice);
+        sessionStorage.removeItem("maskines_listing_profile_notice");
+      }
+    } catch {}
+
+  }, []);
 
   useEffect(() => {
 
@@ -762,6 +789,8 @@ export default function ProfilePage() {
 
     if (!user) return;
 
+    const loadGeneration = ++profileLoadGenerationRef.current;
+
     const cacheKey = `profile:${user.id}`;
     const cached = readCachedResource<UserProfile>(cacheKey);
     if (cached) {
@@ -773,6 +802,7 @@ export default function ProfilePage() {
 
     getProfile(user.id)
       .then(({ data }) => {
+        if (loadGeneration !== profileLoadGenerationRef.current) return;
         if (data) {
           setProfile(data);
           writeCachedResource(cacheKey, data);
@@ -789,10 +819,34 @@ export default function ProfilePage() {
         setProfileLoaded(true);
       })
       .catch(() => {
+        if (loadGeneration !== profileLoadGenerationRef.current) return;
         setProfile(null);
         setProfileLoaded(true);
       });
 
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || !supabase) return;
+
+    let active = true;
+    supabase.auth.mfa.listFactors().then(({ data, error }) => {
+      if (!active || error) return;
+      const verifiedTotp = data?.totp?.find(
+        (factor) => factor.friendly_name !== "Maskines Admin"
+      );
+      if (verifiedTotp) {
+        setMfaFactorId(verifiedTotp.id);
+        setMfaMethod("totp");
+        return;
+      }
+      setMfaFactorId("");
+      setMfaMethod(user.user_metadata?.email_mfa_enabled === true ? "email" : null);
+    });
+
+    return () => {
+      active = false;
+    };
   }, [user]);
 
   useEffect(() => {
@@ -909,17 +963,257 @@ export default function ProfilePage() {
   }
 
   async function handlePasswordReset() {
-    if (!profile?.email || passwordSending) return;
-    setPasswordSending(true);
-    setPasswordStatus(profileText.passwordLinkSending);
-    const { error } = await resetPassword(profile.email, locale);
-    if (error) {
-      setPasswordStatus(getErrorMessage(error));
-      setPasswordSending(false);
+    if (passwordSending) return;
+
+    const passwordEmail = user?.email?.trim() || profile?.email?.trim();
+    if (!passwordEmail) {
+      setPasswordStatus("Tililtä puuttuu sähköpostiosoite. Kirjaudu uudelleen ja yritä sitten uudelleen.");
       return;
     }
-    setPasswordStatus(profileText.passwordLinkSent);
+
+    setPasswordChangeStep("code");
+    setPasswordCode("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setShowNewPassword(false);
+    setShowConfirmNewPassword(false);
+    setPasswordSending(true);
+    setPasswordStatus("Lähetetään vahvistuskoodia...");
+
+    try {
+      const { error } = await Promise.race([
+        requestPasswordChangeCode(locale),
+        new Promise<never>((_, reject) => {
+          window.setTimeout(
+            () => reject(new Error("Vahvistuskoodin lähetys kesti liian kauan. Yritä uudelleen.")),
+            10000
+          );
+        })
+      ]);
+
+      if (error) {
+        setPasswordStatus(getErrorMessage(error));
+        return;
+      }
+
+      setPasswordStatus("Syötä sähköpostiisi lähetetty kuusinumeroinen koodi.");
+    } catch (error) {
+      setPasswordStatus(getErrorMessage(error));
+    } finally {
+      setPasswordSending(false);
+    }
+  }
+
+  function closePasswordChange() {
+    if (passwordSending) return;
+    setPasswordChangeStep(null);
+    setPasswordCode("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setShowNewPassword(false);
+    setShowConfirmNewPassword(false);
+    setPasswordStatus("");
+  }
+
+  async function verifyPasswordCode() {
+    if (passwordSending || passwordCode.length !== 6) return;
+
+    const passwordEmail = user?.email?.trim() || profile?.email?.trim();
+    if (!passwordEmail) return;
+
+    setPasswordSending(true);
+    setPasswordStatus("Vahvistetaan koodia...");
+    const { error } = await verifyPasswordResetOtp(passwordEmail, passwordCode);
     setPasswordSending(false);
+
+    if (error) {
+      setPasswordStatus("Koodi on virheellinen tai vanhentunut. Tarkista koodi ja yritä uudelleen.");
+      return;
+    }
+
+    setPasswordStatus("");
+    setPasswordChangeStep("password");
+  }
+
+  async function saveNewPassword() {
+    if (passwordSending) return;
+
+    if (newPassword.length < 8) {
+      setPasswordStatus("Salasanassa pitää olla vähintään 8 merkkiä.");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordStatus("Salasanat eivät ole samat.");
+      return;
+    }
+
+    setPasswordSending(true);
+    setPasswordStatus("Tallennetaan uutta salasanaa...");
+    const { error } = await updatePassword(newPassword);
+    setPasswordSending(false);
+
+    if (error) {
+      setPasswordStatus(getErrorMessage(error));
+      return;
+    }
+
+    setPasswordChangeStep(null);
+    setPasswordCode("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setShowNewPassword(false);
+    setShowConfirmNewPassword(false);
+    setPasswordStatus("Salasana vaihdettiin onnistuneesti.");
+    window.setTimeout(() => setPasswordStatus(""), 4000);
+  }
+
+  async function beginTotpEnrollment() {
+    if (!supabase || !user || mfaSaving) return;
+    setMfaSaving(true);
+    setMfaStatus("");
+
+    try {
+      const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
+      if (factorsError) throw factorsError;
+
+      const verifiedTotp = factors?.totp?.find(
+        (factor) => factor.friendly_name !== "Maskines Admin"
+      );
+      if (verifiedTotp) {
+        setMfaFactorId(verifiedTotp.id);
+        setMfaMethod("totp");
+        setMfaSetupStep(null);
+        return;
+      }
+
+      const unfinished = (factors?.all ?? []).filter(
+        (factor) =>
+          factor.factor_type === "totp" &&
+          factor.status === "unverified" &&
+          factor.friendly_name !== "Maskines Admin"
+      );
+      for (const factor of unfinished) {
+        await supabase.auth.mfa.unenroll({ factorId: factor.id });
+      }
+
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: "Maskines Marketplace"
+      });
+      if (error) throw error;
+
+      setMfaEnrollment({
+        factorId: data.id,
+        qrCode: data.totp.qr_code,
+        secret: data.totp.secret
+      });
+      setMfaCode("");
+      setMfaSetupStep("totp");
+    } catch (error) {
+      setMfaStatus(getErrorMessage(error));
+    } finally {
+      setMfaSaving(false);
+    }
+  }
+
+  async function verifyTotpEnrollment() {
+    if (!supabase || !mfaEnrollment || mfaSaving) return;
+    if (!/^\d{6}$/.test(mfaCode)) {
+      setMfaStatus("Anna Authenticator-sovelluksen kuusinumeroinen koodi.");
+      return;
+    }
+
+    setMfaSaving(true);
+    setMfaStatus("");
+    try {
+      const { error } = await supabase.auth.mfa.challengeAndVerify({
+        factorId: mfaEnrollment.factorId,
+        code: mfaCode
+      });
+      if (error) throw error;
+
+      const { data: updated, error: metadataError } = await supabase.auth.updateUser({
+        data: { email_mfa_enabled: false }
+      });
+      if (metadataError) throw metadataError;
+
+      setUser(updated.user);
+      setMfaFactorId(mfaEnrollment.factorId);
+      setMfaMethod("totp");
+      setMfaEnrollment(null);
+      setMfaCode("");
+      setMfaSetupStep(null);
+      setMfaStatus("Authenticator otettiin käyttöön.");
+    } catch (error) {
+      setMfaStatus(getErrorMessage(error));
+    } finally {
+      setMfaSaving(false);
+    }
+  }
+
+  async function enableEmailMfa() {
+    if (!supabase || mfaSaving) return;
+    setMfaSaving(true);
+    setMfaStatus("");
+    try {
+      if (mfaFactorId) {
+        const { error: unenrollError } = await supabase.auth.mfa.unenroll({ factorId: mfaFactorId });
+        if (unenrollError) throw unenrollError;
+      }
+      const { data, error } = await supabase.auth.updateUser({
+        data: { email_mfa_enabled: true }
+      });
+      if (error) throw error;
+
+      setUser(data.user);
+      setMfaFactorId("");
+      setMfaEnrollment(null);
+      setMfaMethod("email");
+      setMfaSetupStep(null);
+      setMfaStatus("Sähköpostikoodi otettiin käyttöön.");
+    } catch (error) {
+      setMfaStatus(getErrorMessage(error));
+    } finally {
+      setMfaSaving(false);
+    }
+  }
+
+  async function disableMfa() {
+    if (!supabase || mfaSaving) return;
+    setMfaSaving(true);
+    setMfaStatus("");
+    try {
+      if (mfaFactorId) {
+        const { error: unenrollError } = await supabase.auth.mfa.unenroll({ factorId: mfaFactorId });
+        if (unenrollError) throw unenrollError;
+      }
+      const { data, error } = await supabase.auth.updateUser({
+        data: { email_mfa_enabled: false }
+      });
+      if (error) throw error;
+
+      setUser(data.user);
+      setMfaFactorId("");
+      setMfaEnrollment(null);
+      setMfaMethod(null);
+      setMfaSetupStep(null);
+      setMfaStatus("Kaksivaiheinen tunnistus poistettiin käytöstä.");
+    } catch (error) {
+      setMfaStatus(getErrorMessage(error));
+    } finally {
+      setMfaSaving(false);
+    }
+  }
+
+  async function closeMfaSetup() {
+    if (supabase && mfaEnrollment && mfaMethod !== "totp") {
+      await supabase.auth.mfa.unenroll({ factorId: mfaEnrollment.factorId });
+    }
+    setMfaEnrollment(null);
+    setMfaCode("");
+    setMfaStatus("");
+    setMfaSetupStep(null);
   }
 
   async function requestCompanyVerification() {
@@ -1071,25 +1365,44 @@ export default function ProfilePage() {
     setPhoneSaving(true);
     setPhoneStatus("Tallennetaan numeroa...");
 
-    const { data, error } =
-      await supabase
-        .from("profiles")
-        .update({
-          phone: nextPhone,
-          phone_verified_at: new Date().toISOString(),
-          pending_phone: null
-        })
-        .eq("id", user.id)
-        .select()
-        .single<UserProfile>();
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
 
-    if (error) {
-      setPhoneStatus(getPhoneDatabaseErrorMessage(error));
+    if (!accessToken) {
+      setPhoneStatus("Kirjautuminen ei ole voimassa. Kirjaudu uudelleen.");
       setPhoneSaving(false);
       return;
     }
 
-    setProfile(data);
+    const response = await fetch("/api/profiles/phone", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ phone: nextPhone })
+    }).catch(() => null);
+
+    if (!response) {
+      setPhoneStatus("Verkkovirhe. Tarkista yhteys ja yritä uudelleen.");
+      setPhoneSaving(false);
+      return;
+    }
+
+    const result = await response.json().catch(() => ({})) as {
+      data?: UserProfile;
+      error?: string;
+    };
+    const updatedProfile = result.data ?? null;
+
+    if (!response.ok || !updatedProfile) {
+      setPhoneStatus(result.error || "Puhelinnumeron tallennus epäonnistui.");
+      setPhoneSaving(false);
+      return;
+    }
+
+    setProfile(updatedProfile);
+    writeCachedResource(`profile:${user.id}`, updatedProfile);
     setPhoneEditing(false);
     setPhoneStatus("");
     setPhoneSaving(false);
@@ -1274,6 +1587,8 @@ export default function ProfilePage() {
 
   async function saveCroppedAvatar() {
     if (!avatarCropFile || !user) return;
+    // Do not let an older profile request overwrite this avatar mutation.
+    profileLoadGenerationRef.current += 1;
     setAvatarUploading(true);
     setStatus("");
     const croppedFile = await createCroppedAvatarFile(avatarCropFile).catch((error) => {
@@ -1286,7 +1601,10 @@ export default function ProfilePage() {
     }
     const { url, error } = await uploadAvatar(user.id, croppedFile);
     setAvatarUploading(false);
-    if (error) { setStatus(t.imageUploadFailed); return; }
+    if (error) {
+      setStatus(getErrorMessage(error) || t.imageUploadFailed);
+      return;
+    }
     if (url) {
       const renderedAvatarUrl = `${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`;
       setAvatarUrl(renderedAvatarUrl);
@@ -1306,14 +1624,13 @@ export default function ProfilePage() {
 
     if (!user || !supabase) return;
 
+    // Invalidate any profile response that started before the removal.
+    profileLoadGenerationRef.current += 1;
+
     setAvatarUploading(true);
     setStatus("");
 
-    const { error } =
-      await supabase
-        .from("profiles")
-        .update({ avatar_url: null })
-        .eq("id", user.id);
+    const { error } = await updateProfileAvatar(null);
 
     setAvatarUploading(false);
 
@@ -1353,6 +1670,34 @@ export default function ProfilePage() {
 
   const companyWebsiteHref =
     formatWebsiteHref(profile?.company_website);
+
+  const profileCompletionItems = profile
+    ? [
+        { label: "Sähköposti lisätty", complete: Boolean(profile.email) },
+        { label: "Puhelinnumero lisätty", complete: Boolean(profile.phone) },
+        { label: "Profiilikuva lisätty", complete: Boolean(avatarUrl) },
+        { label: "Julkinen esittely täytetty", complete: Boolean(profile.bio?.trim()) },
+        { label: "Osoitetiedot lisätty", complete: Boolean(profile.address && profile.postal_code && profile.city) },
+        ...(profile.account_type === "company"
+          ? [
+              { label: "Yrityksen nimi lisätty", complete: Boolean(profile.company_name) },
+              { label: "Y-tunnus lisätty", complete: Boolean(profile.business_id) },
+              { label: "Laskutussähköposti lisätty", complete: Boolean(profile.billing_email) },
+              { label: "Verkkosivu lisätty", complete: Boolean(profile.company_website) },
+            ]
+          : [
+              { label: "Nimitiedot lisätty", complete: Boolean(profile.first_name && profile.last_name) },
+            ]),
+      ]
+    : [];
+
+  const profileCompletion = profileCompletionItems.length
+    ? Math.round(
+        (profileCompletionItems.filter((item) => item.complete).length /
+          profileCompletionItems.length) *
+          100
+      )
+    : 0;
 
   return (
     <main className="pf-page">
@@ -1407,7 +1752,7 @@ export default function ProfilePage() {
                   }}
                 >
                   <Camera size={13} />
-                  {profileText.addPhoto}
+                  {avatarUrl ? profileText.editProfilePhoto : profileText.addPhoto}
                 </button>
                 {avatarUrl && (
                   <button
@@ -1420,6 +1765,15 @@ export default function ProfilePage() {
                   </button>
                 )}
               </div>
+            </div>
+            <div className="pf-sidebar-progress">
+              <div>
+                <span>Profiilin täyttöaste</span>
+                <strong>{profileCompletion}%</strong>
+              </div>
+              <span className="pf-sidebar-progress-track">
+                <span style={{ width: `${profileCompletion}%` }} />
+              </span>
             </div>
           </div>
           <nav className="pf-nav">
@@ -1460,11 +1814,30 @@ export default function ProfilePage() {
                 Poista tili
               </button>
             )}
+            {user && (
+              <button
+                type="button"
+                className="pf-nav-item pf-nav-button pf-logout-button"
+                onClick={async () => {
+                  await supabase?.auth.signOut({ scope: "local" });
+                  router.replace("/");
+                }}
+              >
+                <LogOut size={19} />
+                Kirjaudu ulos
+              </button>
+            )}
           </nav>
         </aside>
 
         {/* Main content */}
         <div className="pf-content">
+          {listingProfileNotice && (
+            <div className="pf-login-prompt" role="alert">
+              <Info size={22} />
+              <span>{listingProfileNotice}</span>
+            </div>
+          )}
           {profile && (
             <div className="pf-profile-heading">
               <h1>
@@ -1472,11 +1845,6 @@ export default function ProfilePage() {
                   ? "Yritysprofiili"
                   : "Yksityisprofiili"}
               </h1>
-              <p>
-                {profile.account_type === "company"
-                  ? "Hallitse yrityksesi tietoja ja paranna näkyvyyttäsi ostajien keskuudessa."
-                  : "Hallitse profiilisi tietoja ja pidä julkiset tiedot ajan tasalla."}
-              </p>
             </div>
           )}
 
@@ -1555,23 +1923,12 @@ export default function ProfilePage() {
                             className="pf-inline-btn pf-phone-change-btn"
                             disabled={phoneChangeLocked}
                             onClick={startPhoneEdit}
-                            title={phoneChangeLocked ? phoneChangeLockText : "Vaihda puhelinnumero"}
+                            title={phoneChangeLocked ? phoneChangeLockText : phoneActionTitle}
                           >
-                            {profileText.change}
+                            {phoneActionLabel}
                           </button>
                         </div>
                       </div>
-                      </div>
-                    </div>
-                  )}
-                  {profile.account_type === "private" && (
-                    <div className="pf-info-row pf-phone-info-row">
-                      <span className="pf-info-row-icon">
-                        <CalendarDays size={19} />
-                      </span>
-                      <span className="pf-info-label">{profileText.birthDate}</span>
-                      <div className="pf-info-value">
-                        <span>{formatBirthDate(profile.birth_date)}</span>
                       </div>
                     </div>
                   )}
@@ -1614,8 +1971,10 @@ export default function ProfilePage() {
                       <div className="pf-info-value">
                       <input
                         disabled={Boolean(profile.business_id)}
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={profile.business_id ?? ""}
-                        onChange={e => setProfile({ ...profile, business_id: e.target.value })}
+                        onChange={e => setProfile({ ...profile, business_id: e.target.value.replace(/\D/g, "") })}
                       />
                       </div>
                     </div>
@@ -1650,9 +2009,9 @@ export default function ProfilePage() {
                             className="pf-inline-btn pf-phone-change-btn"
                             disabled={phoneChangeLocked}
                             onClick={startPhoneEdit}
-                            title={phoneChangeLocked ? phoneChangeLockText : "Vaihda puhelinnumero"}
+                            title={phoneChangeLocked ? phoneChangeLockText : phoneActionTitle}
                           >
-                            {profileText.change}
+                            {phoneActionLabel}
                           </button>
                         </div>
                       </div>
@@ -1715,11 +2074,11 @@ export default function ProfilePage() {
                             />
                             <input
                               type="tel"
-                              inputMode="tel"
-                              pattern="[+0-9]*"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
                               value={sellerEditDraft.phone}
                               onChange={(event) => setSellerEditDraft({ ...sellerEditDraft, phone: sanitizePhoneInput(event.target.value) })}
-                              placeholder="+358401234567"
+                              placeholder="358401234567"
                             />
                           </div>
                         ) : (
@@ -1787,12 +2146,12 @@ export default function ProfilePage() {
                         {profileText.phoneNumber}
                         <input
                           type="tel"
-                          inputMode="tel"
-                          pattern="[+0-9]*"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
                           value={sellerDraft.phone}
                           disabled={companySellers.length >= 8}
                           onChange={(event) => setSellerDraft({ ...sellerDraft, phone: sanitizePhoneInput(event.target.value) })}
-                          placeholder="+358401234567"
+                          placeholder="358401234567"
                         />
                       </label>
                     </div>
@@ -2002,8 +2361,35 @@ export default function ProfilePage() {
                         {passwordSending ? profileText.passwordLinkSending : profileText.sendPasswordLink}
                       </button>
                       {passwordStatus && (
-                        <span className="pf-security-status">{passwordStatus}</span>
+                        <span className="pf-security-status" role="status" aria-live="polite">
+                          {passwordStatus}
+                        </span>
                       )}
+                    </div>
+                  </div>
+                  <div className="pf-info-row pf-security-action-row pf-mfa-row">
+                    <span className="pf-info-row-icon">
+                      <KeyRound size={16} />
+                    </span>
+                    <span className="pf-info-label">Kaksivaiheinen tunnistus</span>
+                    <div className="pf-info-value pf-security-action-value pf-mfa-value">
+                      <span className={`pf-mfa-state${mfaMethod ? " is-enabled" : ""}`}>
+                        {mfaMethod === "totp"
+                          ? "Authenticator käytössä"
+                          : mfaMethod === "email"
+                            ? "Sähköpostikoodi käytössä"
+                            : "Ei käytössä"}
+                      </span>
+                      <button
+                        type="button"
+                        className="pf-inline-btn verify pf-mfa-manage-btn"
+                        onClick={() => {
+                          setMfaStatus("");
+                          setMfaSetupStep("choose");
+                        }}
+                      >
+                        {mfaMethod ? "Hallitse" : "Ota käyttöön"}
+                      </button>
                     </div>
                   </div>
                   {profile.account_type === "company" && (
@@ -2052,6 +2438,7 @@ export default function ProfilePage() {
             </form>
           )}
         </div>
+
       </div>
 
       {companyVerifyModalOpen && profile?.account_type === "company" && (
@@ -2123,6 +2510,241 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {passwordChangeStep && (
+        <div
+          className="pf-modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closePasswordChange();
+          }}
+        >
+          <div
+            className="pf-phone-modal pf-password-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="password-change-title"
+          >
+            <button
+              type="button"
+              className="pf-modal-close"
+              disabled={passwordSending}
+              onClick={closePasswordChange}
+              aria-label="Sulje"
+            >
+              ×
+            </button>
+            <div className="pf-modal-icon">
+              {passwordChangeStep === "code" ? <Mail size={23} /> : <LockKeyhole size={23} />}
+            </div>
+
+            {passwordChangeStep === "code" ? (
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void verifyPasswordCode();
+                }}
+              >
+                <h2 id="password-change-title">Syötä sähköpostiin lähetetty koodi</h2>
+                <p>
+                  Lähetimme kuusinumeroisen vahvistuskoodin osoitteeseen <strong>{user?.email || profile?.email}</strong>.
+                </p>
+                <label className="pf-password-field">
+                  <span>Vahvistuskoodi</span>
+                  <input
+                    autoFocus
+                    autoComplete="one-time-code"
+                    inputMode="numeric"
+                    maxLength={6}
+                    pattern="[0-9]{6}"
+                    value={passwordCode}
+                    onChange={(event) => setPasswordCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                    placeholder="000000"
+                  />
+                </label>
+                <div className="pf-password-actions">
+                  <button type="button" className="pf-inline-btn secondary" onClick={() => void handlePasswordReset()} disabled={passwordSending}>
+                    Lähetä uusi koodi
+                  </button>
+                  <button type="submit" className="pf-inline-btn verify" disabled={passwordSending || passwordCode.length !== 6}>
+                    {passwordSending ? "Vahvistetaan..." : "Jatka"}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void saveNewPassword();
+                }}
+              >
+                <h2 id="password-change-title">Kirjoita uusi salasana</h2>
+                <p>Kirjoita uusi salasana kaksi kertaa. Salasanassa pitää olla vähintään 8 merkkiä.</p>
+                <label className="pf-password-field">
+                  <span>Uusi salasana</span>
+                  <div className="pf-password-input-wrap">
+                    <input
+                      autoFocus
+                      type={showNewPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      minLength={8}
+                      value={newPassword}
+                      onChange={(event) => setNewPassword(event.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="pf-password-visibility"
+                      onClick={() => setShowNewPassword((visible) => !visible)}
+                      aria-label={showNewPassword ? "Piilota uusi salasana" : "Näytä uusi salasana"}
+                      aria-pressed={showNewPassword}
+                    >
+                      {showNewPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                    </button>
+                  </div>
+                </label>
+                <label className="pf-password-field">
+                  <span>Uusi salasana uudelleen</span>
+                  <div className="pf-password-input-wrap">
+                    <input
+                      type={showConfirmNewPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      minLength={8}
+                      value={confirmNewPassword}
+                      onChange={(event) => setConfirmNewPassword(event.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="pf-password-visibility"
+                      onClick={() => setShowConfirmNewPassword((visible) => !visible)}
+                      aria-label={showConfirmNewPassword ? "Piilota uusi salasana uudelleen" : "Näytä uusi salasana uudelleen"}
+                      aria-pressed={showConfirmNewPassword}
+                    >
+                      {showConfirmNewPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                    </button>
+                  </div>
+                </label>
+                <div className="pf-password-actions">
+                  <button type="button" className="pf-inline-btn secondary" onClick={closePasswordChange} disabled={passwordSending}>
+                    Peruuta
+                  </button>
+                  <button type="submit" className="pf-inline-btn verify" disabled={passwordSending || newPassword.length < 8 || confirmNewPassword.length < 8}>
+                    {passwordSending ? "Tallennetaan..." : "Tallenna salasana"}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {passwordStatus && <span className="pf-phone-status" role="status">{passwordStatus}</span>}
+          </div>
+        </div>
+      )}
+
+      {mfaSetupStep && (
+        <div
+          className="pf-modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !mfaSaving) {
+              void closeMfaSetup();
+            }
+          }}
+        >
+          <div
+            className="pf-phone-modal pf-mfa-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mfa-setup-title"
+          >
+            <button
+              type="button"
+              className="pf-modal-close"
+              disabled={mfaSaving}
+              onClick={() => void closeMfaSetup()}
+              aria-label="Sulje"
+            >
+              ×
+            </button>
+
+            {mfaSetupStep === "choose" ? (
+              <>
+                <div className="pf-modal-icon"><ShieldCheck size={23} /></div>
+                <h2 id="mfa-setup-title">Kaksivaiheinen tunnistus</h2>
+                <p>
+                  Valitse kirjautumisen toinen vahvistustapa. Toiminto on vapaaehtoinen
+                  ja sen voi poistaa käytöstä milloin tahansa.
+                </p>
+                <div className="pf-mfa-options">
+                  <button type="button" onClick={() => void beginTotpEnrollment()} disabled={mfaSaving}>
+                    <span className="pf-mfa-option-icon"><QrCode size={25} /></span>
+                    <span>
+                      <strong>Authenticator-sovellus</strong>
+                      <small>Skannaa QR-koodi Google Authenticatorilla tai vastaavalla sovelluksella.</small>
+                    </span>
+                    <ArrowRight className="pf-mfa-option-arrow" size={18} />
+                  </button>
+                  <button type="button" onClick={() => void enableEmailMfa()} disabled={mfaSaving}>
+                    <span className="pf-mfa-option-icon"><Mail size={25} /></span>
+                    <span>
+                      <strong>Sähköpostikoodi</strong>
+                      <small>Saat kuusinumeroisen koodin sähköpostiisi jokaisella kirjautumiskerralla.</small>
+                    </span>
+                    <ArrowRight className="pf-mfa-option-arrow" size={18} />
+                  </button>
+                </div>
+                {mfaMethod && (
+                  <button
+                    type="button"
+                    className="pf-mfa-disable"
+                    onClick={() => void disableMfa()}
+                    disabled={mfaSaving}
+                  >
+                    Poista kaksivaiheinen tunnistus käytöstä
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="pf-modal-icon"><QrCode size={23} /></div>
+                <h2 id="mfa-setup-title">Yhdistä Authenticator</h2>
+                <p>Skannaa QR-koodi ja anna sovelluksen näyttämä kuusinumeroinen koodi.</p>
+                {mfaEnrollment && (
+                  <>
+                    <div className="pf-mfa-qr">
+                      <img src={mfaEnrollment.qrCode} alt="Authenticator QR-koodi" />
+                    </div>
+                    <div className="pf-mfa-secret">
+                      <span>Manuaalinen avain</span>
+                      <code>{mfaEnrollment.secret}</code>
+                    </div>
+                    <label className="pf-mfa-code-field">
+                      <span>Vahvistuskoodi</span>
+                      <input
+                        autoComplete="one-time-code"
+                        inputMode="numeric"
+                        maxLength={6}
+                        pattern="[0-9]*"
+                        value={mfaCode}
+                        onChange={(event) => setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                        placeholder="000000"
+                      />
+                    </label>
+                    <div className="pf-avatar-crop-actions">
+                      <button type="button" className="pf-inline-btn secondary" onClick={() => void closeMfaSetup()} disabled={mfaSaving}>
+                        Peruuta
+                      </button>
+                      <button type="button" className="pf-inline-btn verify" onClick={() => void verifyTotpEnrollment()} disabled={mfaSaving || mfaCode.length !== 6}>
+                        {mfaSaving ? "Vahvistetaan..." : "Vahvista ja ota käyttöön"}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+
+            {mfaStatus && <span className="pf-phone-status">{mfaStatus}</span>}
+          </div>
+        </div>
+      )}
+
       {phoneEditing && (
         <div
           className="pf-modal-backdrop"
@@ -2152,7 +2774,7 @@ export default function ProfilePage() {
               <Phone size={22} />
             </div>
             <h2 id="phone-verification-title">
-              Vaihda puhelinnumero
+              {hasPhoneNumber ? "Vaihda puhelinnumero" : "Lisää puhelinnumero"}
             </h2>
             <p>
               Puhelinnumero tallennetaan profiiliisi ilman SMS-vahvistusta.
@@ -2161,13 +2783,13 @@ export default function ProfilePage() {
               <input
                 ref={phoneInputRef}
                 type="tel"
-                inputMode="tel"
-                pattern="[+0-9]*"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={phoneDraft}
                 onChange={(event) =>
                   setPhoneDraft(sanitizePhoneInput(event.target.value))
                 }
-                placeholder="+358401234567"
+                placeholder="358401234567"
               />
               <button
                 type="button"
@@ -2349,6 +2971,11 @@ export default function ProfilePage() {
                 {avatarUploading ? profileText.saving : profileText.savePhoto}
               </button>
             </div>
+            {status && (
+              <p className="pf-phone-status" role="status" aria-live="polite">
+                {status}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -2947,6 +3574,95 @@ export default function ProfilePage() {
           display: block;
           margin-top: 12px;
           padding: 10px 12px;
+        }
+
+        .pf-password-modal {
+          max-width: 500px;
+        }
+
+        .pf-password-field {
+          display: grid;
+          gap: 7px;
+          margin: 0 0 14px;
+        }
+
+        .pf-password-field > span {
+          color: #334155;
+          font-size: 12px;
+          font-weight: 850;
+        }
+
+        .pf-password-field input {
+          background: #f8fafc;
+          border: 1px solid #cbd5e1;
+          border-radius: 10px;
+          color: #0f172a;
+          font: inherit;
+          min-height: 48px;
+          padding: 0 13px;
+          width: 100%;
+        }
+
+        .pf-password-input-wrap {
+          position: relative;
+        }
+
+        .pf-password-input-wrap input {
+          padding-right: 48px;
+        }
+
+        .pf-password-visibility {
+          align-items: center;
+          background: transparent;
+          border: 0;
+          color: #64748b;
+          cursor: pointer;
+          display: flex;
+          height: 40px;
+          justify-content: center;
+          padding: 0;
+          position: absolute;
+          right: 5px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 40px;
+        }
+
+        .pf-password-visibility:hover,
+        .pf-password-visibility:focus-visible {
+          color: #ff8a24;
+          outline: none;
+        }
+
+        .pf-password-field input:focus {
+          border-color: #ff8a24;
+          box-shadow: 0 0 0 3px rgba(255, 138, 36, 0.16);
+          outline: none;
+        }
+
+        .pf-password-modal form:first-of-type .pf-password-field input {
+          font-size: 23px;
+          font-weight: 950;
+          letter-spacing: 0.28em;
+          text-align: center;
+        }
+
+        .pf-password-actions {
+          display: flex;
+          gap: 10px;
+          justify-content: flex-end;
+          margin-top: 18px;
+        }
+
+        @media (max-width: 520px) {
+          .pf-password-actions {
+            align-items: stretch;
+            flex-direction: column-reverse;
+          }
+
+          .pf-password-actions .pf-inline-btn {
+            width: 100%;
+          }
         }
 
         .pf-recaptcha-slot {
@@ -6591,6 +7307,1364 @@ export default function ProfilePage() {
               -webkit-text-fill-color: #4ade80 !important;
               padding: 0 !important;
             }
+          }
+        }
+      `}</style>
+
+      <style jsx global>{`
+        html body .pf-page {
+          background:
+            radial-gradient(900px 540px at 8% 18%, rgba(17, 82, 125, 0.17), transparent 68%),
+            radial-gradient(720px 440px at 94% 12%, rgba(255, 122, 24, 0.055), transparent 72%),
+            linear-gradient(180deg, #07111b 0%, #081521 48%, #06101a 100%) !important;
+          color: #eef6fc !important;
+          min-height: calc(100vh - 72px) !important;
+          padding: 28px 22px 54px !important;
+        }
+
+        html body .pf-page .pf-layout {
+          align-items: start !important;
+          display: grid !important;
+          gap: 18px !important;
+          grid-template-areas: "sidebar content insights" !important;
+          grid-template-columns: 248px minmax(520px, 1fr) 282px !important;
+          margin: 0 auto !important;
+          max-width: 1480px !important;
+          padding: 0 !important;
+          width: 100% !important;
+        }
+
+        html body .pf-page .pf-sidebar {
+          align-self: start !important;
+          background: linear-gradient(180deg, rgba(10, 27, 42, 0.97), rgba(5, 18, 30, 0.98)) !important;
+          border: 1px solid rgba(113, 153, 184, 0.18) !important;
+          border-radius: 13px !important;
+          box-shadow: 0 22px 60px rgba(0, 6, 13, 0.24) !important;
+          display: block !important;
+          grid-area: sidebar !important;
+          min-height: 0 !important;
+          overflow: hidden !important;
+          position: sticky !important;
+          top: 90px !important;
+        }
+
+        html body .pf-page .pf-user-card {
+          align-items: center !important;
+          background:
+            radial-gradient(190px 110px at 0% 0%, rgba(255, 123, 25, 0.17), transparent 72%),
+            rgba(7, 24, 38, 0.72) !important;
+          border: 0 !important;
+          border-bottom: 1px solid rgba(113, 153, 184, 0.18) !important;
+          border-radius: 0 !important;
+          display: grid !important;
+          gap: 13px !important;
+          grid-template-columns: 68px minmax(0, 1fr) !important;
+          min-height: 116px !important;
+          padding: 18px !important;
+        }
+
+        html body .pf-page .pf-avatar,
+        html body .pf-page .pf-avatar-upload {
+          background: #10283b !important;
+          border: 2px solid rgba(255, 139, 39, 0.88) !important;
+          border-radius: 50% !important;
+          box-shadow: 0 0 0 4px rgba(255, 128, 27, 0.08) !important;
+          height: 64px !important;
+          min-height: 64px !important;
+          width: 64px !important;
+        }
+
+        html body .pf-page .pf-avatar-overlay {
+          background: #ff7a1a !important;
+          border: 2px solid #0a1927 !important;
+          border-radius: 50% !important;
+          bottom: -2px !important;
+          color: #fff !important;
+          display: flex !important;
+          height: 24px !important;
+          opacity: 1 !important;
+          right: -2px !important;
+          top: auto !important;
+          width: 24px !important;
+        }
+
+        html body .pf-page .pf-user-name {
+          color: #fff !important;
+          font-size: 15px !important;
+          font-weight: 900 !important;
+          line-height: 1.25 !important;
+          margin: 0 !important;
+        }
+
+        html body .pf-page .pf-company-badge {
+          background: transparent !important;
+          border: 0 !important;
+          color: #91a6b8 !important;
+          font-size: 11px !important;
+          font-weight: 750 !important;
+          margin: 3px 0 0 !important;
+          padding: 0 !important;
+        }
+
+        html body .pf-page .pf-avatar-actions {
+          display: flex !important;
+          gap: 7px !important;
+          margin-top: 7px !important;
+        }
+
+        html body .pf-page .pf-avatar-action {
+          background: transparent !important;
+          border: 0 !important;
+          color: #ff9b45 !important;
+          font-size: 10px !important;
+          font-weight: 850 !important;
+          gap: 4px !important;
+          padding: 0 !important;
+        }
+
+        html body .pf-page .pf-nav {
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+          width: 100% !important;
+        }
+
+        html body .pf-page .pf-nav-item {
+          align-items: center !important;
+          background: transparent !important;
+          border: 0 !important;
+          border-bottom: 1px solid rgba(113, 153, 184, 0.11) !important;
+          border-left: 3px solid transparent !important;
+          border-radius: 0 !important;
+          color: #acbac7 !important;
+          display: grid !important;
+          font-size: 13px !important;
+          font-weight: 850 !important;
+          gap: 12px !important;
+          grid-template-columns: 22px minmax(0, 1fr) auto !important;
+          height: 58px !important;
+          min-height: 58px !important;
+          padding: 0 15px !important;
+          text-align: left !important;
+        }
+
+        html body .pf-page .pf-nav-item:hover,
+        html body .pf-page .pf-nav-active {
+          background:
+            radial-gradient(180px 80px at 30% 50%, rgba(255, 126, 25, 0.13), transparent 76%),
+            rgba(13, 36, 55, 0.72) !important;
+          border-left-color: #ff7a1a !important;
+          border-top-color: transparent !important;
+          color: #fff !important;
+          padding-left: 15px !important;
+        }
+
+        html body .pf-page .pf-nav-active svg,
+        html body .pf-page .pf-nav-item:hover > svg:first-child {
+          color: #ff8b29 !important;
+        }
+
+        html body .pf-page .pf-content {
+          grid-area: content !important;
+          min-width: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+        }
+
+        html body .pf-page .pf-form {
+          display: grid !important;
+          gap: 14px !important;
+          grid-template-columns: minmax(0, 1fr) !important;
+          width: 100% !important;
+        }
+
+        html body .pf-page .pf-form > :is(section, .pf-save-bar) {
+          grid-column: 1 !important;
+          width: 100% !important;
+        }
+
+        html body .pf-page :is(.pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section) {
+          background:
+            radial-gradient(680px 220px at 8% 0%, rgba(38, 102, 148, 0.11), transparent 72%),
+            linear-gradient(180deg, rgba(11, 28, 42, 0.97), rgba(7, 21, 34, 0.99)) !important;
+          border: 1px solid rgba(101, 145, 179, 0.2) !important;
+          border-radius: 12px !important;
+          box-shadow: 0 18px 48px rgba(0, 6, 14, 0.18) !important;
+          overflow: hidden !important;
+        }
+
+        html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+          border: 0 !important;
+          display: grid !important;
+          gap: 13px !important;
+          grid-template-columns: 42px minmax(0, 1fr) auto !important;
+          min-height: 72px !important;
+          padding: 14px 18px 10px !important;
+        }
+
+        html body .pf-page .pf-info-title {
+          gap: 13px !important;
+          grid-template-columns: 42px minmax(0, 1fr) !important;
+        }
+
+        html body .pf-page :is(.pf-info-title-icon, .pf-section-head > svg) {
+          background: transparent !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          color: #ff891f !important;
+          height: 42px !important;
+          padding: 9px !important;
+          width: 42px !important;
+        }
+
+        html body .pf-page :is(.pf-info-card-head h2, .pf-section-head h2) {
+          color: #f6f9fc !important;
+          font-size: 17px !important;
+          font-weight: 900 !important;
+        }
+
+        html body .pf-page :is(.pf-info-card-head p, .pf-section-head p) {
+          color: #8294a4 !important;
+          font-size: 12px !important;
+          font-weight: 650 !important;
+        }
+
+        html body .pf-page :is(.pf-info-rows, #julkinen-profiili .pf-public-fields, #osoite .pf-address-rows) {
+          background: transparent !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          margin: 0 !important;
+          padding: 0 18px 17px !important;
+        }
+
+        html body .pf-page :is(.pf-info-row, #julkinen-profiili .pf-field, #julkinen-profiili .pf-field.pf-field-wide) {
+          background: rgba(3, 15, 25, 0.34) !important;
+          border: 1px solid rgba(112, 151, 181, 0.14) !important;
+          border-bottom: 1px solid rgba(112, 151, 181, 0.14) !important;
+          border-radius: 7px !important;
+          margin-top: 7px !important;
+          min-height: 48px !important;
+          padding: 6px 10px !important;
+        }
+
+        html body .pf-page .pf-save-bar {
+          background: transparent !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          justify-content: flex-start !important;
+          padding: 8px 0 0 !important;
+        }
+
+        html body .pf-page .pf-save-btn {
+          background: linear-gradient(135deg, #ff961f, #f26a0b) !important;
+          border: 1px solid rgba(255, 193, 131, 0.45) !important;
+          border-radius: 8px !important;
+          box-shadow: 0 14px 30px rgba(238, 99, 5, 0.2) !important;
+          min-height: 45px !important;
+        }
+
+        html body .pf-page .pf-insights {
+          align-self: start !important;
+          display: grid !important;
+          gap: 14px !important;
+          grid-area: insights !important;
+          min-width: 0 !important;
+          position: sticky !important;
+          top: 90px !important;
+        }
+
+        html body .pf-page .pf-insight-card {
+          background:
+            radial-gradient(260px 150px at 10% 0%, rgba(28, 94, 139, 0.13), transparent 72%),
+            linear-gradient(180deg, rgba(11, 28, 42, 0.98), rgba(7, 21, 34, 0.99)) !important;
+          border: 1px solid rgba(101, 145, 179, 0.2) !important;
+          border-radius: 12px !important;
+          box-shadow: 0 18px 48px rgba(0, 6, 14, 0.18) !important;
+          overflow: hidden !important;
+          padding: 17px !important;
+        }
+
+        html body .pf-page .pf-insight-heading {
+          align-items: center !important;
+          display: grid !important;
+          gap: 10px !important;
+          grid-template-columns: 35px minmax(0, 1fr) !important;
+        }
+
+        html body .pf-page .pf-insight-icon {
+          align-items: center !important;
+          background: rgba(255, 126, 25, 0.08) !important;
+          border: 1px solid rgba(255, 137, 31, 0.42) !important;
+          border-radius: 9px !important;
+          color: #ff8a1f !important;
+          display: inline-flex !important;
+          height: 35px !important;
+          justify-content: center !important;
+          width: 35px !important;
+        }
+
+        html body .pf-page .pf-insight-heading h2 {
+          color: #f7fafc !important;
+          font-size: 15px !important;
+          font-weight: 900 !important;
+          margin: 0 !important;
+        }
+
+        html body .pf-page .pf-insight-heading p {
+          color: #8193a3 !important;
+          font-size: 10px !important;
+          font-weight: 700 !important;
+          margin: 2px 0 0 !important;
+        }
+
+        html body .pf-page .pf-trust-score {
+          align-items: center !important;
+          display: flex !important;
+          flex-direction: column !important;
+          padding: 21px 0 14px !important;
+          text-align: center !important;
+        }
+
+        html body .pf-page .pf-trust-emblem {
+          align-items: center !important;
+          background:
+            radial-gradient(circle at 50% 36%, #ffbb61, #ef6d11 62%, #6d2705 100%) !important;
+          border: 1px solid rgba(255, 208, 153, 0.7) !important;
+          border-radius: 50% 50% 44% 44% !important;
+          box-shadow: 0 0 28px rgba(255, 120, 22, 0.28) !important;
+          color: #fff !important;
+          display: flex !important;
+          height: 62px !important;
+          justify-content: center !important;
+          margin-bottom: 10px !important;
+          width: 62px !important;
+        }
+
+        html body .pf-page .pf-trust-score strong {
+          color: #fff !important;
+          font-size: 19px !important;
+          font-weight: 950 !important;
+        }
+
+        html body .pf-page .pf-trust-score > span {
+          color: #c6d2dc !important;
+          font-size: 11px !important;
+          font-weight: 750 !important;
+          margin-top: 2px !important;
+        }
+
+        html body .pf-page .pf-progress-track {
+          background: rgba(106, 137, 160, 0.17) !important;
+          border-radius: 999px !important;
+          height: 6px !important;
+          overflow: hidden !important;
+          width: 100% !important;
+        }
+
+        html body .pf-page .pf-progress-track > span {
+          background: linear-gradient(90deg, #ff8d1c, #ffb13b) !important;
+          border-radius: inherit !important;
+          display: block !important;
+          height: 100% !important;
+        }
+
+        html body .pf-page .pf-insight-list {
+          border-top: 1px solid rgba(110, 148, 177, 0.14) !important;
+          display: grid !important;
+          gap: 0 !important;
+          margin-top: 15px !important;
+          padding-top: 8px !important;
+        }
+
+        html body .pf-page .pf-insight-list > div {
+          align-items: center !important;
+          color: #8193a2 !important;
+          display: flex !important;
+          font-size: 11px !important;
+          font-weight: 700 !important;
+          gap: 8px !important;
+          justify-content: space-between !important;
+          min-height: 30px !important;
+        }
+
+        html body .pf-page .pf-insight-list > div.is-complete {
+          color: #c3d1dc !important;
+        }
+
+        html body .pf-page .pf-insight-list > div.is-complete svg {
+          color: #32d16d !important;
+        }
+
+        html body .pf-page .pf-insight-dot {
+          border: 1px solid #587083 !important;
+          border-radius: 50% !important;
+          height: 13px !important;
+          width: 13px !important;
+        }
+
+        html body .pf-page .pf-insight-action {
+          align-items: center !important;
+          background: transparent !important;
+          border: 1px solid #f47816 !important;
+          border-radius: 7px !important;
+          color: #ff8b25 !important;
+          display: flex !important;
+          font-size: 12px !important;
+          font-weight: 900 !important;
+          gap: 7px !important;
+          justify-content: center !important;
+          margin-top: 12px !important;
+          min-height: 39px !important;
+          width: 100% !important;
+        }
+
+        html body .pf-page .pf-completion-overview {
+          align-items: center !important;
+          display: grid !important;
+          gap: 13px !important;
+          grid-template-columns: 70px minmax(0, 1fr) !important;
+          padding: 20px 0 8px !important;
+        }
+
+        html body .pf-page .pf-completion-ring {
+          align-items: center !important;
+          background: conic-gradient(#ff8b1f var(--profile-progress), rgba(101, 137, 164, 0.18) 0) !important;
+          border-radius: 50% !important;
+          display: flex !important;
+          height: 68px !important;
+          justify-content: center !important;
+          position: relative !important;
+          width: 68px !important;
+        }
+
+        html body .pf-page .pf-completion-ring::before {
+          background: #0a1a29 !important;
+          border-radius: 50% !important;
+          content: "" !important;
+          inset: 8px !important;
+          position: absolute !important;
+        }
+
+        html body .pf-page .pf-completion-ring span {
+          color: #fff !important;
+          font-size: 15px !important;
+          font-weight: 950 !important;
+          position: relative !important;
+        }
+
+        html body .pf-page .pf-completion-overview > div:last-child {
+          display: grid !important;
+          gap: 3px !important;
+        }
+
+        html body .pf-page .pf-completion-overview strong {
+          color: #eef5fb !important;
+          font-size: 12px !important;
+          font-weight: 900 !important;
+        }
+
+        html body .pf-page .pf-completion-overview > div:last-child span {
+          color: #8193a3 !important;
+          font-size: 10px !important;
+          line-height: 1.35 !important;
+        }
+
+        html body .pf-page .pf-completion-list {
+          max-height: 228px !important;
+          overflow-y: auto !important;
+          padding-right: 3px !important;
+        }
+
+        html body .pf-page .pf-avatar-crop-modal {
+          background: linear-gradient(180deg, #0c2234, #071725) !important;
+          border: 1px solid rgba(255, 139, 36, 0.38) !important;
+          border-radius: 14px !important;
+          box-shadow: 0 28px 90px rgba(0, 0, 0, 0.58) !important;
+        }
+
+        html body .pf-page .pf-avatar-crop-frame {
+          border: 2px solid #ff8420 !important;
+          box-shadow: 0 0 0 6px rgba(255, 126, 26, 0.08) !important;
+        }
+
+        @media (max-width: 1250px) {
+          html body .pf-page .pf-layout {
+            grid-template-areas:
+              "sidebar content"
+              "insights insights" !important;
+            grid-template-columns: 230px minmax(0, 1fr) !important;
+          }
+
+          html body .pf-page .pf-insights {
+            display: grid !important;
+            grid-area: insights !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            position: static !important;
+          }
+        }
+
+        @media (max-width: 900px) {
+          html body .pf-page {
+            padding: 14px 10px 34px !important;
+          }
+
+          html body .pf-page .pf-layout {
+            grid-template-areas:
+              "sidebar"
+              "content"
+              "insights" !important;
+            grid-template-columns: 1fr !important;
+          }
+
+          html body .pf-page .pf-sidebar {
+            position: static !important;
+          }
+
+          html body .pf-page .pf-nav {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          }
+
+          html body .pf-page .pf-nav-item {
+            border: 1px solid rgba(113, 153, 184, 0.12) !important;
+            border-left: 3px solid transparent !important;
+          }
+
+          html body .pf-page .pf-nav-active,
+          html body .pf-page .pf-nav-item:hover {
+            border-left-color: #ff7a1a !important;
+            border-top-color: rgba(113, 153, 184, 0.12) !important;
+          }
+        }
+
+        @media (max-width: 620px) {
+          html body .pf-page .pf-insights,
+          html body .pf-page .pf-nav {
+            grid-template-columns: 1fr !important;
+          }
+
+          html body .pf-page .pf-user-card {
+            grid-template-columns: 64px minmax(0, 1fr) !important;
+          }
+
+          html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+            grid-template-columns: 38px minmax(0, 1fr) !important;
+            padding: 13px !important;
+          }
+
+          html body .pf-page :is(.pf-info-rows, #julkinen-profiili .pf-public-fields, #osoite .pf-address-rows) {
+            padding: 0 12px 12px !important;
+          }
+        }
+      `}</style>
+
+      <style jsx global>{`
+        /* Neutral graphite visual theme. Scoped to the profile page so the topbar stays untouched. */
+        html body .pf-page {
+          --pf-orange: #ff7a18;
+          --pf-orange-light: #ffad45;
+          --pf-ink: #101113;
+          --pf-panel: #1b1c1f;
+          --pf-panel-deep: #121316;
+          --pf-line: rgba(255, 255, 255, 0.1);
+          --pf-muted: #a5a7ab;
+          background:
+            linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+            radial-gradient(760px 520px at 8% 9%, rgba(255, 255, 255, 0.045), transparent 70%),
+            radial-gradient(680px 480px at 88% 24%, rgba(153, 161, 172, 0.035), transparent 72%),
+            linear-gradient(145deg, #141518 0%, #0b0c0e 52%, #151619 100%) !important;
+          background-size: 42px 42px, 42px 42px, auto, auto, auto !important;
+          color: #f7f4f0 !important;
+        }
+
+        html body .pf-page .pf-sidebar,
+        html body .pf-page :is(.pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section),
+        html body .pf-page .pf-insight-card {
+          background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 46%),
+            linear-gradient(180deg, rgba(31, 32, 35, 0.98), rgba(17, 18, 20, 0.99)) !important;
+          border: 1px solid rgba(255, 255, 255, 0.105) !important;
+          box-shadow:
+            0 24px 70px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
+        }
+
+        html body .pf-page :is(.pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section) {
+          border-radius: 16px !important;
+          overflow: hidden !important;
+          position: relative !important;
+          transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease !important;
+        }
+
+        html body .pf-page :is(.pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section)::before {
+          background: linear-gradient(90deg, var(--pf-orange), rgba(255, 174, 75, 0.68), transparent 80%) !important;
+          content: "" !important;
+          height: 2px !important;
+          left: 0 !important;
+          opacity: 0.75 !important;
+          position: absolute !important;
+          right: 0 !important;
+          top: 0 !important;
+          z-index: 2 !important;
+        }
+
+        html body .pf-page :is(.pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section):hover {
+          border-color: rgba(255, 130, 34, 0.3) !important;
+          box-shadow:
+            0 27px 74px rgba(0, 0, 0, 0.34),
+            0 0 0 1px rgba(255, 126, 26, 0.035),
+            inset 0 1px 0 rgba(255, 255, 255, 0.055) !important;
+        }
+
+        html body .pf-page .pf-sidebar {
+          border-radius: 16px !important;
+        }
+
+        html body .pf-page .pf-user-card {
+          align-items: center !important;
+          background:
+            radial-gradient(180px 120px at 12% 8%, rgba(255, 137, 37, 0.22), transparent 74%),
+            linear-gradient(135deg, rgba(45, 38, 31, 0.96), rgba(17, 16, 15, 0.98)) !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.105) !important;
+          gap: 16px !important;
+          grid-template-columns: 78px minmax(0, 1fr) !important;
+          min-height: 136px !important;
+          overflow: hidden !important;
+          padding: 20px 17px !important;
+          position: relative !important;
+        }
+
+        html body .pf-page .pf-user-card::after {
+          border: 1px solid rgba(255, 139, 47, 0.13) !important;
+          border-radius: 50% !important;
+          content: "" !important;
+          height: 130px !important;
+          pointer-events: none !important;
+          position: absolute !important;
+          right: -70px !important;
+          top: -72px !important;
+          width: 130px !important;
+        }
+
+        html body .pf-page .pf-avatar,
+        html body .pf-page .pf-avatar-upload {
+          background: linear-gradient(145deg, #30271f, #12110f) !important;
+          border: 2px solid #ff8a27 !important;
+          box-shadow:
+            0 0 0 5px rgba(255, 122, 24, 0.1),
+            0 12px 28px rgba(0, 0, 0, 0.34) !important;
+          height: 72px !important;
+          min-height: 72px !important;
+          width: 72px !important;
+        }
+
+        html body .pf-page .pf-avatar-overlay {
+          background: linear-gradient(145deg, #ffad45, #f06408) !important;
+          border-color: #171411 !important;
+          box-shadow: 0 5px 12px rgba(0, 0, 0, 0.34) !important;
+          height: 27px !important;
+          width: 27px !important;
+        }
+
+        html body .pf-page .pf-user-name {
+          color: #fafafa !important;
+          font-size: 16px !important;
+          letter-spacing: -0.01em !important;
+        }
+
+        html body .pf-page .pf-company-badge {
+          color: #b8afa6 !important;
+          font-size: 11px !important;
+        }
+
+        html body .pf-page .pf-avatar-actions {
+          align-items: center !important;
+          flex-wrap: wrap !important;
+          gap: 6px !important;
+          position: relative !important;
+          z-index: 1 !important;
+        }
+
+        html body .pf-page .pf-avatar-action {
+          background: rgba(255, 255, 255, 0.055) !important;
+          border: 1px solid rgba(255, 255, 255, 0.11) !important;
+          border-radius: 6px !important;
+          color: #fff4e8 !important;
+          min-height: 25px !important;
+          padding: 0 8px !important;
+        }
+
+        html body .pf-page .pf-avatar-action:hover {
+          background: rgba(255, 122, 24, 0.13) !important;
+          border-color: rgba(255, 137, 41, 0.42) !important;
+          color: #ffaf57 !important;
+        }
+
+        html body .pf-page .pf-avatar-action.danger {
+          background: rgba(255, 68, 68, 0.07) !important;
+          border-color: rgba(255, 92, 92, 0.24) !important;
+          color: #ff9a90 !important;
+        }
+
+        html body .pf-page .pf-nav-item {
+          border-bottom-color: rgba(255, 255, 255, 0.075) !important;
+          color: #aaa49d !important;
+          min-height: 62px !important;
+          transition: background 160ms ease, color 160ms ease !important;
+        }
+
+        html body .pf-page .pf-nav-item > svg:first-child {
+          color: #77736f !important;
+          filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.25)) !important;
+        }
+
+        html body .pf-page .pf-nav-item:hover,
+        html body .pf-page .pf-nav-active {
+          background:
+            linear-gradient(90deg, rgba(255, 119, 16, 0.22), rgba(255, 135, 31, 0.055) 72%, transparent) !important;
+          border-left-color: #ff7a18 !important;
+          color: #fff9f2 !important;
+        }
+
+        html body .pf-page .pf-nav-active::after {
+          background: #ff8a28 !important;
+          border-radius: 999px !important;
+          box-shadow: 0 0 14px rgba(255, 123, 25, 0.58) !important;
+          content: "" !important;
+          height: 26px !important;
+          justify-self: end !important;
+          width: 3px !important;
+        }
+
+        html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+          background:
+            linear-gradient(90deg, rgba(255, 122, 24, 0.055), transparent 44%) !important;
+          min-height: 82px !important;
+          padding: 17px 20px 12px !important;
+        }
+
+        html body .pf-page :is(.pf-info-title-icon, .pf-section-head > svg) {
+          background: linear-gradient(145deg, rgba(255, 154, 54, 0.2), rgba(255, 102, 8, 0.07)) !important;
+          border: 1px solid rgba(255, 139, 40, 0.36) !important;
+          border-radius: 12px !important;
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            0 8px 20px rgba(0, 0, 0, 0.2) !important;
+          color: #ff952f !important;
+        }
+
+        html body .pf-page #julkinen-profiili .pf-section-head > svg {
+          background: linear-gradient(145deg, rgba(255, 183, 76, 0.2), rgba(255, 114, 13, 0.06)) !important;
+          border-color: rgba(255, 166, 65, 0.36) !important;
+          color: #ffb04e !important;
+        }
+
+        html body .pf-page :is(.pf-info-card-head h2, .pf-section-head h2) {
+          color: #fffaf4 !important;
+          font-size: 18px !important;
+          letter-spacing: -0.015em !important;
+        }
+
+        html body .pf-page :is(.pf-info-card-head p, .pf-section-head p) {
+          color: #9fa2a7 !important;
+          font-weight: 650 !important;
+        }
+
+        html body .pf-page :is(.pf-info-rows, #julkinen-profiili .pf-public-fields, #osoite .pf-address-rows) {
+          padding: 0 20px 20px !important;
+        }
+
+        html body .pf-page :is(.pf-info-row, #julkinen-profiili .pf-field, #julkinen-profiili .pf-field.pf-field-wide) {
+          background:
+            linear-gradient(90deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.008)) !important;
+          border-color: rgba(255, 255, 255, 0.085) !important;
+          border-bottom-color: rgba(255, 255, 255, 0.085) !important;
+          border-radius: 9px !important;
+          min-height: 52px !important;
+          transition: background 160ms ease, border-color 160ms ease !important;
+        }
+
+        html body .pf-page :is(.pf-info-row, #julkinen-profiili .pf-field):hover {
+          background: linear-gradient(90deg, rgba(255, 127, 28, 0.065), rgba(255, 255, 255, 0.014)) !important;
+          border-color: rgba(255, 145, 52, 0.2) !important;
+        }
+
+        html body .pf-page :is(.pf-info-row-icon, .pf-field-icon) {
+          background: linear-gradient(145deg, #303237, #1c1d20) !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+          color: #d2d4d8 !important;
+        }
+
+        html body .pf-page :is(.pf-info-row, #julkinen-profiili .pf-field):hover :is(.pf-info-row-icon, .pf-field-icon) {
+          background: linear-gradient(145deg, rgba(255, 141, 43, 0.22), rgba(255, 91, 5, 0.08)) !important;
+          border-color: rgba(255, 145, 52, 0.3) !important;
+          color: #ffad56 !important;
+        }
+
+        html body .pf-page :is(.pf-info-label, .pf-field label) {
+          color: #a4a7ac !important;
+        }
+
+        html body .pf-page :is(
+          .pf-info-value input,
+          .pf-info-value input:disabled,
+          .pf-info-value > span,
+          .pf-phone-number,
+          #julkinen-profiili input,
+          #julkinen-profiili textarea,
+          #osoite input
+        ) {
+          color: #fafafa !important;
+          -webkit-text-fill-color: #fafafa !important;
+        }
+
+        html body .pf-page :is(
+          .pf-info-value input:not(:disabled):focus,
+          #julkinen-profiili input:focus,
+          #julkinen-profiili textarea:focus,
+          #osoite input:focus
+        ) {
+          background: rgba(255, 123, 24, 0.075) !important;
+          border-color: rgba(255, 147, 56, 0.36) !important;
+          box-shadow: 0 0 0 3px rgba(255, 122, 24, 0.07) !important;
+        }
+
+        html body .pf-page :is(.pf-inline-btn, .company-seller-small-btn) {
+          background: #242529 !important;
+          border-color: rgba(255, 255, 255, 0.13) !important;
+          color: #f3f4f5 !important;
+        }
+
+        html body .pf-page :is(.pf-inline-btn.verify, .company-seller-add-btn, .pf-save-btn) {
+          background: linear-gradient(135deg, #ff9d35, #f26708) !important;
+          border-color: rgba(255, 193, 126, 0.48) !important;
+          box-shadow:
+            0 13px 28px rgba(224, 81, 0, 0.22),
+            inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+          color: #fff !important;
+        }
+
+        html body .pf-page :is(.pf-inline-btn.verify, .company-seller-add-btn, .pf-save-btn):hover {
+          filter: brightness(1.08) !important;
+          transform: translateY(-1px) !important;
+        }
+
+        html body .pf-page .pf-insights {
+          gap: 16px !important;
+        }
+
+        html body .pf-page .pf-insight-card {
+          border-radius: 16px !important;
+          overflow: hidden !important;
+          padding: 19px !important;
+          position: relative !important;
+        }
+
+        html body .pf-page .pf-insight-card::before {
+          background: radial-gradient(circle, rgba(255, 138, 35, 0.18), transparent 68%) !important;
+          content: "" !important;
+          height: 180px !important;
+          pointer-events: none !important;
+          position: absolute !important;
+          right: -90px !important;
+          top: -95px !important;
+          width: 180px !important;
+        }
+
+        html body .pf-page .pf-insight-icon {
+          background: linear-gradient(145deg, rgba(255, 157, 58, 0.2), rgba(255, 99, 7, 0.07)) !important;
+          border-color: rgba(255, 139, 42, 0.38) !important;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+          color: #ff9c37 !important;
+        }
+
+        html body .pf-page .pf-insight-heading h2 {
+          color: #fff9f2 !important;
+        }
+
+        html body .pf-page .pf-insight-heading p,
+        html body .pf-page .pf-completion-overview > div:last-child span {
+          color: #9fa2a7 !important;
+        }
+
+        html body .pf-page .pf-trust-emblem {
+          background:
+            radial-gradient(circle at 42% 30%, #ffd083, #ff8a24 44%, #c94600 74%, #4b1700 100%) !important;
+          border: 2px solid rgba(255, 211, 151, 0.78) !important;
+          box-shadow:
+            0 0 0 7px rgba(255, 122, 24, 0.07),
+            0 16px 32px rgba(199, 63, 0, 0.24) !important;
+          height: 72px !important;
+          width: 72px !important;
+        }
+
+        html body .pf-page .pf-progress-track {
+          background: rgba(255, 255, 255, 0.09) !important;
+          height: 7px !important;
+        }
+
+        html body .pf-page .pf-progress-track > span {
+          background: linear-gradient(90deg, #f4680b, #ffad42) !important;
+          box-shadow: 0 0 12px rgba(255, 125, 26, 0.38) !important;
+        }
+
+        html body .pf-page .pf-insight-list {
+          border-top-color: rgba(255, 255, 255, 0.085) !important;
+        }
+
+        html body .pf-page .pf-insight-list > div {
+          color: #8f9297 !important;
+        }
+
+        html body .pf-page .pf-insight-list > div.is-complete {
+          color: #c7c9cd !important;
+        }
+
+        html body .pf-page .pf-completion-ring {
+          background: conic-gradient(#ff8a21 var(--profile-progress), rgba(255, 255, 255, 0.095) 0) !important;
+          box-shadow: 0 0 25px rgba(255, 113, 13, 0.11) !important;
+        }
+
+        html body .pf-page .pf-completion-ring::before {
+          background: #191a1d !important;
+          box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        html body .pf-page .pf-insight-action {
+          background: linear-gradient(90deg, rgba(255, 122, 24, 0.09), rgba(255, 122, 24, 0.025)) !important;
+          border-color: rgba(255, 129, 31, 0.72) !important;
+          color: #ffa34a !important;
+        }
+
+        html body .pf-page :is(.company-seller-card, .company-seller-add, .company-seller-empty) {
+          background: rgba(255, 255, 255, 0.025) !important;
+          border-color: rgba(255, 255, 255, 0.09) !important;
+        }
+
+        html body .pf-page .company-seller-avatar {
+          background: linear-gradient(145deg, #ff9d38, #cf4a00) !important;
+          border-color: rgba(255, 207, 151, 0.5) !important;
+          box-shadow: 0 8px 20px rgba(198, 62, 0, 0.18) !important;
+        }
+
+        html body .pf-page .pf-public-note {
+          background: linear-gradient(90deg, rgba(255, 122, 24, 0.08), rgba(255, 255, 255, 0.018)) !important;
+          border-top-color: rgba(255, 139, 42, 0.16) !important;
+          color: #b3b5b9 !important;
+        }
+
+        html body .pf-page .pf-modal-backdrop {
+          background: rgba(4, 4, 3, 0.78) !important;
+          backdrop-filter: blur(10px) !important;
+        }
+
+        html body .pf-page :is(.pf-phone-modal, .pf-avatar-crop-modal) {
+          background:
+            radial-gradient(320px 190px at 10% 0%, rgba(255, 126, 27, 0.12), transparent 72%),
+            linear-gradient(180deg, #25262a, #131416) !important;
+          border-color: rgba(255, 139, 42, 0.34) !important;
+        }
+
+        html body .pf-page .pf-password-field > span {
+          color: #d7d1ca !important;
+        }
+
+        html body .pf-page .pf-password-field input {
+          background: rgba(255, 255, 255, 0.055) !important;
+          border-color: rgba(255, 255, 255, 0.14) !important;
+          color: #ffffff !important;
+        }
+
+        html body .pf-page .pf-password-visibility {
+          color: #aeb4bd !important;
+        }
+
+        html body .pf-page .pf-password-visibility:hover,
+        html body .pf-page .pf-password-visibility:focus-visible {
+          color: #ff9b3d !important;
+        }
+
+        html body .pf-page .pf-password-field input:focus {
+          border-color: rgba(255, 139, 42, 0.72) !important;
+          box-shadow: 0 0 0 3px rgba(255, 122, 24, 0.13) !important;
+        }
+
+        html body .pf-page .pf-password-modal .pf-phone-status {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(255, 255, 255, 0.1) !important;
+          color: #d6d8dc !important;
+        }
+
+        @media (max-width: 620px) {
+          html body .pf-page .pf-user-card {
+            grid-template-columns: 72px minmax(0, 1fr) !important;
+            padding: 17px 14px !important;
+          }
+
+          html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+            min-height: 74px !important;
+          }
+        }
+      `}</style>
+
+      <style jsx global>{`
+        html body .pf-page {
+          padding: 22px 14px 34px !important;
+        }
+
+        html body .pf-page .pf-layout {
+          gap: 24px !important;
+          grid-template-areas: "sidebar content" !important;
+          grid-template-columns: 248px minmax(620px, 1fr) !important;
+          max-width: 1126px !important;
+        }
+
+        html body .pf-page .pf-profile-heading {
+          display: block !important;
+          margin: 6px 2px 22px !important;
+        }
+
+        html body .pf-page .pf-profile-heading h1 {
+          color: #fafafa !important;
+          font-size: 25px !important;
+          font-weight: 950 !important;
+          letter-spacing: -0.03em !important;
+          margin: 0 0 5px !important;
+        }
+
+        html body .pf-page .pf-profile-heading p {
+          color: #a5a8ad !important;
+          font-size: 13px !important;
+          margin: 0 !important;
+        }
+
+        html body .pf-page .pf-sidebar {
+          top: 86px !important;
+        }
+
+        html body .pf-page .pf-user-card {
+          grid-template-columns: 78px minmax(0, 1fr) !important;
+          min-height: 180px !important;
+        }
+
+        html body .pf-page .pf-sidebar-progress {
+          display: grid !important;
+          gap: 9px !important;
+          grid-column: 1 / -1 !important;
+          margin-top: 5px !important;
+          position: relative !important;
+          width: 100% !important;
+          z-index: 1 !important;
+        }
+
+        html body .pf-page .pf-sidebar-progress > div {
+          align-items: center !important;
+          color: #c7c9cd !important;
+          display: flex !important;
+          font-size: 11px !important;
+          font-weight: 800 !important;
+          justify-content: space-between !important;
+        }
+
+        html body .pf-page .pf-sidebar-progress strong {
+          color: #fff !important;
+          font-size: 12px !important;
+        }
+
+        html body .pf-page .pf-sidebar-progress-track {
+          background: rgba(255, 255, 255, 0.1) !important;
+          border-radius: 999px !important;
+          display: block !important;
+          height: 6px !important;
+          overflow: hidden !important;
+        }
+
+        html body .pf-page .pf-sidebar-progress-track > span {
+          background: linear-gradient(90deg, #f06408, #ff9b34) !important;
+          border-radius: inherit !important;
+          box-shadow: 0 0 12px rgba(255, 122, 24, 0.38) !important;
+          display: block !important;
+          height: 100% !important;
+        }
+
+        html body .pf-page .pf-nav-item {
+          min-height: 56px !important;
+        }
+
+        html body .pf-page .pf-logout-button {
+          background: rgba(255, 255, 255, 0.025) !important;
+          border: 1px solid rgba(255, 255, 255, 0.11) !important;
+          border-radius: 9px !important;
+          color: #f1f2f3 !important;
+          margin: 14px !important;
+          min-height: 43px !important;
+          width: calc(100% - 28px) !important;
+        }
+
+        html body .pf-page .pf-logout-button:hover {
+          background: rgba(255, 122, 24, 0.1) !important;
+          border-color: rgba(255, 136, 39, 0.34) !important;
+        }
+
+        html body .pf-page :is(.pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section) {
+          border-radius: 14px !important;
+        }
+
+        html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+          min-height: 72px !important;
+          padding: 14px 22px 6px !important;
+        }
+
+        html body .pf-page :is(.pf-info-rows, #julkinen-profiili .pf-public-fields, #osoite .pf-address-rows) {
+          margin: 0 28px 16px !important;
+          padding: 0 !important;
+        }
+
+        html body .pf-page :is(.pf-info-row, #julkinen-profiili .pf-field, #julkinen-profiili .pf-field.pf-field-wide) {
+          background: transparent !important;
+          border: 0 !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.095) !important;
+          border-radius: 0 !important;
+          margin: 0 !important;
+          min-height: 48px !important;
+          padding: 6px 4px !important;
+        }
+
+        html body .pf-page :is(.pf-info-row, #julkinen-profiili .pf-field):last-child {
+          border-bottom: 0 !important;
+        }
+
+        html body .pf-page :is(.pf-info-row, #julkinen-profiili .pf-field):hover {
+          background: linear-gradient(90deg, rgba(255, 124, 25, 0.065), transparent) !important;
+          border-color: rgba(255, 153, 67, 0.2) !important;
+        }
+
+        html body .pf-page :is(.pf-info-row-icon, .pf-field-icon) {
+          background: transparent !important;
+          border: 0 !important;
+          color: #a8a19a !important;
+        }
+
+        html body .pf-page .pf-insights {
+          top: 86px !important;
+        }
+
+        html body .pf-page .pf-insight-card {
+          padding: 21px !important;
+        }
+
+        html body .pf-page .pf-help-card .pf-insight-action {
+          margin-top: 18px !important;
+          text-decoration: none !important;
+        }
+
+        html body .pf-page .pf-mfa-value {
+          align-items: center !important;
+          display: flex !important;
+          gap: 10px !important;
+          justify-content: flex-end !important;
+        }
+
+        html body .pf-page .pf-mfa-state {
+          background: rgba(255, 255, 255, 0.055) !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          border-radius: 999px !important;
+          color: #aaa29a !important;
+          font-size: 11px !important;
+          font-weight: 850 !important;
+          padding: 5px 10px !important;
+          white-space: nowrap !important;
+        }
+
+        html body .pf-page .pf-mfa-state.is-enabled {
+          background: rgba(68, 190, 88, 0.12) !important;
+          border-color: rgba(78, 207, 100, 0.28) !important;
+          color: #74df83 !important;
+        }
+
+        html body .pf-page .pf-mfa-manage-btn {
+          min-width: 112px !important;
+        }
+
+        html body .pf-page .pf-mfa-modal {
+          max-width: 580px !important;
+          width: calc(100% - 28px) !important;
+        }
+
+        html body .pf-page .pf-mfa-options {
+          display: grid !important;
+          gap: 12px !important;
+          margin: 22px 0 14px !important;
+        }
+
+        html body .pf-page .pf-mfa-options > button {
+          align-items: center !important;
+          background:
+            linear-gradient(100deg, rgba(255, 128, 29, 0.1), rgba(255, 255, 255, 0.025)) !important;
+          border: 1px solid rgba(255, 255, 255, 0.12) !important;
+          border-radius: 12px !important;
+          color: #f8f1ea !important;
+          cursor: pointer !important;
+          display: grid !important;
+          gap: 13px !important;
+          grid-template-columns: 48px minmax(0, 1fr) 20px !important;
+          min-height: 88px !important;
+          padding: 13px 15px !important;
+          text-align: left !important;
+          transition: border-color 160ms ease, transform 160ms ease !important;
+        }
+
+        html body .pf-page .pf-mfa-options > button:hover {
+          border-color: rgba(255, 139, 42, 0.46) !important;
+          transform: translateY(-1px) !important;
+        }
+
+        html body .pf-page .pf-mfa-option-icon {
+          align-items: center !important;
+          background: linear-gradient(145deg, #ff9d38, #d54b00) !important;
+          border-radius: 11px !important;
+          color: #fff !important;
+          display: flex !important;
+          height: 48px !important;
+          justify-content: center !important;
+          width: 48px !important;
+        }
+
+        html body .pf-page .pf-mfa-options strong,
+        html body .pf-page .pf-mfa-options small {
+          display: block !important;
+        }
+
+        html body .pf-page .pf-mfa-options strong {
+          font-size: 14px !important;
+          margin-bottom: 4px !important;
+        }
+
+        html body .pf-page .pf-mfa-options small {
+          color: #a8a098 !important;
+          font-size: 11px !important;
+          line-height: 1.4 !important;
+        }
+
+        html body .pf-page .pf-mfa-options .pf-mfa-option-arrow {
+          background: transparent !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          color: currentColor !important;
+          display: block !important;
+          outline: 0 !important;
+          padding: 0 !important;
+        }
+
+        html body .pf-page .pf-mfa-disable {
+          background: transparent !important;
+          border: 0 !important;
+          color: #ff8e84 !important;
+          cursor: pointer !important;
+          font-size: 12px !important;
+          font-weight: 800 !important;
+          padding: 10px !important;
+          width: 100% !important;
+        }
+
+        html body .pf-page .pf-mfa-qr {
+          background: #fff !important;
+          border: 8px solid #fff !important;
+          border-radius: 13px !important;
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.38) !important;
+          height: 220px !important;
+          margin: 20px auto 14px !important;
+          overflow: hidden !important;
+          width: 220px !important;
+        }
+
+        html body .pf-page .pf-mfa-qr img {
+          display: block !important;
+          height: 100% !important;
+          width: 100% !important;
+        }
+
+        html body .pf-page .pf-mfa-secret {
+          background: rgba(255, 255, 255, 0.045) !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          border-radius: 9px !important;
+          display: grid !important;
+          gap: 5px !important;
+          margin: 0 auto 14px !important;
+          max-width: 390px !important;
+          padding: 10px 13px !important;
+          text-align: center !important;
+        }
+
+        html body .pf-page .pf-mfa-secret span {
+          color: #9f978f !important;
+          font-size: 10px !important;
+          font-weight: 800 !important;
+          text-transform: uppercase !important;
+        }
+
+        html body .pf-page .pf-mfa-secret code {
+          color: #ffb35d !important;
+          font-size: 12px !important;
+          overflow-wrap: anywhere !important;
+        }
+
+        html body .pf-page .pf-mfa-code-field {
+          display: grid !important;
+          gap: 7px !important;
+          margin: 0 auto 17px !important;
+          max-width: 300px !important;
+        }
+
+        html body .pf-page .pf-mfa-code-field span {
+          color: #c5bdb5 !important;
+          font-size: 12px !important;
+          font-weight: 800 !important;
+        }
+
+        html body .pf-page .pf-mfa-code-field input {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border: 1px solid rgba(255, 144, 49, 0.3) !important;
+          border-radius: 9px !important;
+          color: #fff !important;
+          font-size: 24px !important;
+          font-weight: 950 !important;
+          letter-spacing: 0.28em !important;
+          min-height: 52px !important;
+          text-align: center !important;
+        }
+
+        @media (max-width: 1250px) {
+          html body .pf-page .pf-layout {
+            grid-template-columns: 230px minmax(0, 1fr) !important;
+          }
+        }
+
+        @media (max-width: 900px) {
+          html body .pf-page .pf-layout {
+            grid-template-areas:
+              "sidebar"
+              "content" !important;
+            grid-template-columns: 1fr !important;
+          }
+        }
+
+        @media (max-width: 620px) {
+          html body .pf-page .pf-profile-heading {
+            margin: 4px 4px 15px !important;
+          }
+
+          html body .pf-page .pf-mfa-value {
+            align-items: stretch !important;
+            flex-direction: column !important;
+          }
+
+          html body .pf-page .pf-mfa-options > button {
+            grid-template-columns: 43px minmax(0, 1fr) !important;
+          }
+
+          html body .pf-page .pf-mfa-options > button > svg:last-child {
+            display: none !important;
           }
         }
       `}</style>

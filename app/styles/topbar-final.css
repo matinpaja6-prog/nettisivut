@@ -7120,3 +7120,8 @@ html body header.universal-home-topbar .universal-home-header-search {
     font-size: 9px !important;
   }
 }
+/* Use the round Maskines mark without exposing its square image background. */
+html body .universal-home-brand-logo {
+  border-radius: 50% !important;
+  clip-path: circle(49% at 50% 50%) !important;
+}

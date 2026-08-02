@@ -1776,7 +1776,7 @@ export default function ListingPage({
                   <div className="seller-avatar-detail">
                     {sellerAvatarUrl
                       ? <img src={sellerAvatarUrl} alt="" className="seller-avatar-img" referrerPolicy="no-referrer" />
-                      : sellerInitial}
+                      : <span className="seller-avatar-initial">{sellerInitial}</span>}
                   </div>
 
                   <div className="seller-info">
@@ -8335,6 +8335,59 @@ export default function ListingPage({
             max-width: none !important;
             margin: 0 !important;
           }
+        }
+
+        /* Keep the shared no-photo avatar visible after all responsive seller-card rules. */
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card
+          .seller-avatar-detail.seller-avatar-detail:not(:has(img)) {
+          position: relative !important;
+          overflow: hidden !important;
+          background: #25282c !important;
+          background-image: none !important;
+          border: 2px solid #ff861d !important;
+          box-shadow: none !important;
+          color: #ffffff !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card
+          .seller-avatar-detail.seller-avatar-detail:not(:has(img))
+          > .seller-avatar-initial.seller-avatar-initial {
+          position: absolute !important;
+          inset: 0 !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          width: 100% !important;
+          height: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: transparent !important;
+          color: #ffffff !important;
+          font-size: clamp(28px, 4vw, 42px) !important;
+          font-weight: 950 !important;
+          line-height: 1 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card
+          .seller-avatar-detail.seller-avatar-detail
+          > img.seller-avatar-img.seller-avatar-img {
+          position: absolute !important;
+          inset: 0 !important;
+          display: block !important;
+          width: 100% !important;
+          height: 100% !important;
+          max-width: none !important;
+          max-height: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          border: 0 !important;
+          border-radius: inherit !important;
+          background: transparent !important;
+          object-fit: cover !important;
+          object-position: center center !important;
         }
 
       `}</style>

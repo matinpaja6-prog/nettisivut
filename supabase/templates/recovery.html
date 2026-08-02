@@ -25,24 +25,24 @@
 
                 {{ if eq .Data.locale "sv" }}
                   <h1 style="margin:0 0 13px;font-size:28px;line-height:1.25;color:#10243e;">Skapa ett nytt lÃ¶senord</h1>
-                  <p style="max-width:420px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Vi fick en begÃ¤ran om att byta lÃ¶senordet till ditt Maskines-konto. FortsÃ¤tt sÃ¤kert med knappen nedan.</p>
+                  <p style="max-width:420px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Vi fick en begÃ¤ran om att byta lÃ¶senordet till ditt Maskines-konto. Ange koden nedan i Maskines.</p>
                 {{ else if eq .Data.locale "en" }}
                   <h1 style="margin:0 0 13px;font-size:28px;line-height:1.25;color:#10243e;">Create a new password</h1>
-                  <p style="max-width:420px;margin:0;color:#607189;font-size:16px;line-height:1.65;">We received a request to change the password for your Maskines account. Continue securely using the button below.</p>
+                  <p style="max-width:420px;margin:0;color:#607189;font-size:16px;line-height:1.65;">We received a request to change the password for your Maskines account. Enter the code below in Maskines.</p>
                 {{ else }}
                   <h1 style="margin:0 0 13px;font-size:28px;line-height:1.25;color:#10243e;">Luo uusi salasana</h1>
-                  <p style="max-width:420px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Saimme pyynnÃ¶n vaihtaa Maskines-tilisi salasanan. Jatka turvallisesti alla olevasta painikkeesta.</p>
+                  <p style="max-width:420px;margin:0;color:#607189;font-size:16px;line-height:1.65;">Saimme pyynnÃ¶n vaihtaa Maskines-tilisi salasanan. SyÃ¶tÃ¤ alla oleva koodi Maskines-palvelussa.</p>
                 {{ end }}
               </td>
             </tr>
 
             <tr>
               <td align="center" style="padding:20px 34px 29px;">
-                <a href="{{ .ConfirmationURL }}" style="display:inline-block;background-color:#ff7817;background-image:linear-gradient(135deg,#ff8b32 0%,#f56800 100%);color:#ffffff;text-decoration:none;font-size:16px;font-weight:800;border-radius:12px;padding:16px 30px;box-shadow:0 10px 22px rgba(255,120,23,.28);">
-                  {{ if eq .Data.locale "sv" }}Byt lÃ¶senord{{ else if eq .Data.locale "en" }}Change password{{ else }}Vaihda salasana{{ end }}
-                </a>
+                <div style="display:inline-block;background-color:#fff8f2;border:2px solid #ffb77e;color:#10243e;font-size:32px;font-weight:900;letter-spacing:9px;border-radius:12px;padding:16px 24px;">
+                  {{ .Token }}
+                </div>
                 <div style="margin-top:17px;color:#8a98aa;font-size:12px;line-height:1.5;">
-                  {{ if eq .Data.locale "sv" }}LÃ¤nken upphÃ¶r snart att gÃ¤lla av sÃ¤kerhetsskÃ¤l.{{ else if eq .Data.locale "en" }}For your security, this link will expire soon.{{ else }}TurvallisuussyistÃ¤ linkki vanhenee pian.{{ end }}
+                  {{ if eq .Data.locale "sv" }}Ange koden i Maskines. Koden upphÃ¶r snart att gÃ¤lla.{{ else if eq .Data.locale "en" }}Enter this code in Maskines. The code will expire soon.{{ else }}SyÃ¶tÃ¤ koodi Maskines-palvelussa. Koodi vanhenee pian.{{ end }}
                 </div>
               </td>
             </tr>

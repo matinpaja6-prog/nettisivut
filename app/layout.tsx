@@ -17,7 +17,6 @@ import "./styles/sell.css";
 import "./styles/listing-detail.css";
 import "./styles/profile.css";
 import "./styles/final-clean.css";
-import "./styles/seller-profile-final.css";
 import "./styles/profile-cards-final.css";
 import "./styles/profile-reference.css";
 import "./styles/profile-absolute-final.css";
@@ -25,7 +24,6 @@ import "./styles/auth-final.css";
 import "./styles/mobile-home-final.css";
 import "./styles/profile-symmetry-final.css";
 import "./styles/mobile-final.css";
-import "./styles/seller-phone-reference.css";
 import "./styles/info-pages.css";
 import "./styles/topbar-final.css";
 import "./styles/home-latest-final.css";
@@ -37,6 +35,14 @@ import "./styles/listing-detail-mobile-fix.css";
 import "./styles/tablet-final.css";
 import "./styles/responsive-system.css";
 import "./styles/notification-fix.css";
+import "./styles/auth-unified-final.css";
+import "./styles/user-background-final.css";
+import "./styles/home-hero-responsive-final.css";
+import "./styles/public-profile-reference.css";
+import "./styles/profile-gray-final.css";
+import "./styles/default-avatar-final.css";
+import "./styles/neutral-detail-final.css";
+import "./styles/requested-polish.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";
@@ -85,7 +91,7 @@ export const metadata: Metadata = {
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
       { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
-      { url: "/maskines-icon.png", sizes: "512x512", type: "image/png" }
+      { url: "/maskines-share-logo.png", sizes: "1200x1200", type: "image/png" }
     ],
     shortcut: "/favicon.ico",
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }]
@@ -137,9 +143,8 @@ export default function RootLayout({
     (function () {
       try {
         var raw = localStorage.getItem('arctic-appearance-cache-v1');
-        if (!raw) return;
-        var a = JSON.parse(raw);
-        if (!a || typeof a !== 'object') return;
+        var a = raw ? JSON.parse(raw) : {};
+        if (!a || typeof a !== 'object') a = {};
         var r = document.documentElement.style;
         if (a.hero_image_url) r.setProperty('--hero-bg-url', 'url("' + a.hero_image_url + '")');
         if (a.primary_color) {
@@ -190,6 +195,31 @@ export default function RootLayout({
         if (a.line_color) r.setProperty('--line', a.line_color);
         if (a.topbar_color) r.setProperty('--site-topbar', a.topbar_color);
         if (a.hero_overlay) r.setProperty('--hero-overlay', a.hero_overlay);
+
+        var userBackground = a.background_color || '#0b1118';
+        var rawUserSettings = localStorage.getItem('maskines-user-settings-v1');
+        if (rawUserSettings) {
+          var userSettings = JSON.parse(rawUserSettings);
+          if (userSettings && userSettings.backgroundColor) {
+            userBackground = String(userSettings.backgroundColor);
+          }
+        }
+        var colorMatch = userBackground.match(/^#?([0-9a-f]{6})$/i);
+        var isLightUserBackground = false;
+        if (colorMatch) {
+          var colorHex = colorMatch[1];
+          var colorRed = parseInt(colorHex.slice(0, 2), 16) / 255;
+          var colorGreen = parseInt(colorHex.slice(2, 4), 16) / 255;
+          var colorBlue = parseInt(colorHex.slice(4, 6), 16) / 255;
+          isLightUserBackground = 0.2126 * colorRed + 0.7152 * colorGreen + 0.0722 * colorBlue > 0.62;
+        }
+        document.documentElement.dataset.userBackgroundTone = isLightUserBackground ? 'light' : 'dark';
+        r.setProperty('--maskines-page-background', userBackground);
+        r.setProperty('--maskines-page-text', isLightUserBackground ? '#101820' : '#f4f8fc');
+        r.setProperty('--maskines-page-muted', isLightUserBackground ? '#506172' : '#9aaabe');
+        r.setProperty('--bg', userBackground);
+        r.setProperty('--site-bg', userBackground);
+        r.setProperty('--app-page-bg', 'none');
       } catch (e) {}
     })();
   `;

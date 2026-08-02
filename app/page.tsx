@@ -73,7 +73,7 @@ export default async function HomePage() {
         url: PUBLIC_SITE_URL,
         logo: {
           "@type": "ImageObject",
-          url: absoluteSiteUrl("/maskines-icon.png")
+          url: absoluteSiteUrl("/maskines-share-logo.png")
         }
       },
       {

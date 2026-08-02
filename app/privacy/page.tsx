@@ -24,7 +24,7 @@ const fiCopy: LegalCopy = {
     { title: "GDPR-oikeudet kuuluvat sinulle", text: "Voit pyytää pääsyä tietoihin, korjausta, poistoa, rajoittamista, siirtoa tai vastustaa käsittelyä." }
   ],
   sections: [
-    { title: "1. Rekisterinpitäjä", body: ["Rekisterinpitäjä on Arctic Parts Oy. Tietosuoja-asioissa voit ottaa yhteyttä osoitteeseen info@maskines.com.", "Y-tunnus ja postiosoite täydennetään palveluun, kun yritystiedot vahvistetaan julkaisuun."] },
+    { title: "1. Rekisterinpitäjä", body: ["Rekisterinpitäjä on Arctic Parts Oy. Tietosuoja-asioissa voit ottaa yhteyttä osoitteeseen info@maskines.com.", "Y-tunnus: 3576714-8. Postiosoite täydennetään palveluun, kun yritystiedot vahvistetaan julkaisuun."] },
     { title: "2. Kerättävät tiedot", body: ["Keräämme vain palvelun kannalta tarpeellisia tietoja."], bullets: ["tilin perustiedot, kuten nimi, sähköposti, puhelinnumero ja sijainti", "yritystilin tiedot, kuten yrityksen nimi ja y-tunnus", "ilmoitusten kuvat, hinnat, varaosatiedot, kuvaukset ja sijainnit", "viestit, arvostelut, ilmoitukset ja turvallisuuteen liittyvät lokitiedot"] },
     { title: "3. Käyttötarkoitukset", body: ["Tietoja käytetään käyttäjätilin ylläpitoon, ilmoitusten julkaisuun, ostajan ja myyjän yhteydenpitoon, asiakastukeen, turvallisuuteen, väärinkäytösten estoon ja palvelun kehittämiseen."] },
     { title: "4. Oikeusperuste", body: ["Käsittely perustuu sopimuksen toteuttamiseen, lakisääteisiin velvoitteisiin, oikeutettuun etuun palvelun turvallisuuden vuoksi sekä suostumukseen silloin, kun suostumusta erikseen pyydetään."] },
@@ -52,7 +52,7 @@ const privacyCopy: Record<Locale, LegalCopy> = {
       { title: "GDPR rights belong to you", text: "You may request access, correction, erasure, restriction, portability or object to processing." }
     ],
     sections: [
-      { title: "1. Controller", body: ["The controller is Arctic Parts Oy. For privacy matters contact info@maskines.com.", "Business ID and postal address will be added when company details are confirmed for publication."] },
+      { title: "1. Controller", body: ["The controller is Arctic Parts Oy. For privacy matters contact info@maskines.com.", "Business ID: 3576714-8. The postal address will be added when company details are confirmed for publication."] },
       { title: "2. Data we collect", body: ["We collect only data necessary for the service."], bullets: ["account details such as name, email, phone and location", "company account details such as company name and business ID", "listing photos, prices, part details, descriptions and locations", "messages, reviews, notifications and security logs"] },
       { title: "3. Purposes", body: ["Data is used for account management, publishing listings, buyer-seller communication, customer support, security, preventing misuse and improving the service."] },
       { title: "4. Legal basis", body: ["Processing is based on contract performance, legal obligations, legitimate interests for service security and consent where consent is requested."] },
@@ -100,24 +100,27 @@ export default function PrivacyPage() {
           ))}
         </section>
         <div className="privacy-content">
-          {copy.sections.map((section, index) => (
-            <section key={section.title} className="privacy-section">
-              <h2>
-                <span className="legal-number">{index + 1}</span>
+          {copy.sections.map((section) => (
+            <details key={section.title} className="privacy-section legal-accordion-item">
+              <summary>
                 <span>{stripSectionNumber(section.title)}</span>
-              </h2>
-              {section.body.map((text) => <p key={text}>{text}</p>)}
-              {section.bullets ? <ul>{section.bullets.map((item) => <li key={item}>{item}</li>)}</ul> : null}
-              {section.links ? (
-                <p className="legal-source-links">
-                  {section.links.map((link) => (
-                    <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}</a>
-                  ))}
-                </p>
-              ) : null}
-            </section>
+                <span className="legal-accordion-chevron" aria-hidden="true" />
+              </summary>
+              <div className="legal-accordion-body">
+                {section.body.map((text) => <p key={text}>{text}</p>)}
+                {section.bullets ? <ul>{section.bullets.map((item) => <li key={item}>{item}</li>)}</ul> : null}
+                {section.links ? (
+                  <p className="legal-source-links">
+                    {section.links.map((link) => (
+                      <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}</a>
+                    ))}
+                  </p>
+                ) : null}
+              </div>
+            </details>
           ))}
         </div>
+        <p className="legal-updated-footer">{copy.updated}</p>
       </article>
       <style>{`
         .privacy-clean-page .privacy-shell {

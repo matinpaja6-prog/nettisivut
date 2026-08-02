@@ -348,7 +348,7 @@ function TopbarMaskinesLogo() {
   return (
     <Image
       className="universal-home-brand-logo"
-      src="/maskines-icon.png"
+      src="/maskines-share-logo.png"
       alt="Maskines"
       width={96}
       height={96}
@@ -402,6 +402,7 @@ export default function UniversalTopbar() {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const avatarChangeVersionRef = useRef(0);
   const [profileInitial, setProfileInitial] = useState("?");
   const [profileDisplayName, setProfileDisplayName] = useState(ui.fallbackProfile);
   const [reviewRequests, setReviewRequests] = useState<PurchaseReviewRequest[]>([]);
@@ -494,9 +495,10 @@ export default function UniversalTopbar() {
         setAvatarUrl(null);
       }
 
+      const avatarChangeVersion = avatarChangeVersionRef.current;
       const profile = await getTopbarProfile(nextUserId);
       if (cancelled || generation !== syncGeneration) return;
-      if (profile) {
+      if (profile && avatarChangeVersion === avatarChangeVersionRef.current) {
         setAvatarUrl(profile.avatar_url ?? null);
       }
       const displayName = getTopbarProfileDisplayName(
@@ -557,14 +559,17 @@ export default function UniversalTopbar() {
     let cancelled = false;
 
     async function refreshOwnProfile() {
+      const avatarChangeVersion = avatarChangeVersionRef.current;
       const profile = await getTopbarProfile(activeUserId);
       if (cancelled || !profile) return;
 
-      if (profile.avatar_url) {
-        const separator = profile.avatar_url.includes("?") ? "&" : "?";
-        setAvatarUrl(`${profile.avatar_url}${separator}avatar=${Date.now()}`);
-      } else {
-        setAvatarUrl(null);
+      if (avatarChangeVersion === avatarChangeVersionRef.current) {
+        if (profile.avatar_url) {
+          const separator = profile.avatar_url.includes("?") ? "&" : "?";
+          setAvatarUrl(`${profile.avatar_url}${separator}avatar=${Date.now()}`);
+        } else {
+          setAvatarUrl(null);
+        }
       }
 
       const displayName = getTopbarProfileDisplayName(profile);
@@ -596,6 +601,8 @@ export default function UniversalTopbar() {
     function onProfileAvatarChanged(event: Event) {
       const detail = (event as CustomEvent<ProfileAvatarChangedDetail>).detail;
       if (!detail || detail.userId !== userId) return;
+
+      avatarChangeVersionRef.current += 1;
 
       if (!detail.avatarUrl) {
         setAvatarUrl(null);
@@ -988,6 +995,11 @@ export default function UniversalTopbar() {
     setNotificationOpen(false);
     setProfileOpen(false);
 
+    if (canonicalPathname.startsWith("/seller/") || canonicalPathname.startsWith("/profile/")) {
+      window.dispatchEvent(new CustomEvent("seller-profile-open-filters"));
+      return;
+    }
+
     if (canonicalPathname === "/") {
       window.dispatchEvent(new CustomEvent("open-category-drawer", { detail: { step } }));
       return;
@@ -1325,7 +1337,7 @@ export default function UniversalTopbar() {
           {userId ? (
             <>
               <div className="universal-profile-menu-head" aria-hidden="true">
-                <span className="universal-profile-menu-avatar">
+                <span className={`universal-profile-menu-avatar ${avatarUrl ? "has-photo" : "no-photo"}`}>
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
@@ -1407,6 +1419,8 @@ export default function UniversalTopbar() {
       document.body
     )
     : null;
+
+  if (isAuthRoute) return null;
 
   return (
     <>
@@ -1700,7 +1714,10 @@ export default function UniversalTopbar() {
               }
             }}
           >
-            <span className="universal-profile-avatar" aria-hidden="true">
+            <span
+              className={`universal-profile-avatar ${avatarUrl ? "has-photo" : "no-photo"}`}
+              aria-hidden="true"
+            >
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -1711,9 +1728,6 @@ export default function UniversalTopbar() {
               ) : (
                 <span className="profile-avatar-initial">{profileInitial}</span>
               )}
-              <span className="universal-profile-avatar-lock">
-                <LockKeyhole size={9} strokeWidth={3} />
-              </span>
             </span>
             <span className="rebuilt-profile-button-copy">
               <strong>{t.profile}</strong>

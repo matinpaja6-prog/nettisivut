@@ -1,0 +1,67 @@
+/* Final desktop hero lock: preserve the artwork ratio and keep the copy readable
+   across wide viewports and browser zoom levels. */
+@media (min-width: 901px) {
+  html body main[data-home-page] [data-home-intro-showcase]:not(#maskines-home-showcase-final) {
+    height: clamp(420px, 30vw, 620px) !important;
+    min-height: clamp(420px, 30vw, 620px) !important;
+    position: relative !important;
+  }
+
+  html body main[data-home-page] [data-home-intro-showcase]:not(#maskines-home-showcase-final) [data-home-hero-art] {
+    inset: 0 !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [data-home-intro-showcase]:not(#maskines-home-showcase-final) [data-home-hero-art] img,
+  html body main[data-home-page] [data-home-intro-showcase]:not(#maskines-home-showcase-final) #home-hero-artwork {
+    height: 100% !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [data-home-intro-showcase]:not(#maskines-home-showcase-final) [data-home-hero-copy]:not(#maskines-home-copy-final) {
+    align-content: center !important;
+    box-sizing: border-box !important;
+    max-width: 1100px !important;
+    padding-block: clamp(36px, 5vw, 76px) !important;
+    padding-left: clamp(40px, calc((100vw - 1410px) / 2 + 48px), 250px) !important;
+    padding-right: 24px !important;
+    width: min(1100px, 82vw) !important;
+  }
+
+  html body main[data-home-page] [data-home-intro-showcase]:not(#maskines-home-showcase-final) [data-home-headline]:not(#maskines-home-headline-final) {
+    font-size: clamp(44px, 3.2vw, 68px) !important;
+    line-height: 1.06 !important;
+    max-width: 760px !important;
+    width: 100% !important;
+  }
+
+  html body main[data-home-page] [data-home-intro-showcase]:not(#maskines-home-showcase-final) [data-home-headline]:not(#maskines-home-headline-final) > span {
+    white-space: nowrap !important;
+  }
+
+  html body main[data-home-page] [data-home-intro-showcase]:not(#maskines-home-showcase-final) [data-home-subtitle]:not(#maskines-home-subtitle-final) {
+    font-size: clamp(14px, 1vw, 17px) !important;
+    line-height: 1.55 !important;
+    max-width: 820px !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1100px) {
+  html body main[data-home-page] [data-home-intro-showcase]:not(#maskines-home-showcase-final) [data-home-hero-copy]:not(#maskines-home-copy-final) {
+    padding-left: clamp(32px, 5vw, 56px) !important;
+    max-width: 820px !important;
+    width: min(820px, 88vw) !important;
+  }
+
+  html body main[data-home-page] [data-home-intro-showcase]:not(#maskines-home-showcase-final) [data-home-headline]:not(#maskines-home-headline-final) {
+    font-size: clamp(40px, 5vw, 52px) !important;
+  }
+}

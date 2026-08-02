@@ -167,7 +167,6 @@ begin
         and postal_code is not null
         and city is not null
         and country is not null
-        and birth_date is not null
       )
   into phone_verified, profile_completed
   from public.profiles

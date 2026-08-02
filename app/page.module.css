@@ -31355,3 +31355,47 @@
     width: auto !important;
   }
 }
+
+/* Desktop hero: keep the complete artwork visible at every browser scale and
+   prevent the intro copy from becoming oversized on wide displays. */
+@media (min-width: 901px) {
+  :global(html body main[data-home-page]) [data-home-intro-showcase].heroShowcase.heroShowcase {
+    aspect-ratio: auto !important;
+    height: clamp(320px, 21vw, 360px) !important;
+    min-height: clamp(320px, 21vw, 360px) !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-intro-showcase].heroShowcase [data-home-hero-art].heroShowcaseArt {
+    inset: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-intro-showcase].heroShowcase :global(#home-hero-artwork) {
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-intro-showcase].heroShowcase [data-home-hero-copy].heroShowcaseCopy {
+    align-content: center !important;
+    max-width: none !important;
+    padding-bottom: clamp(28px, 3vw, 48px) !important;
+    padding-left: clamp(28px, calc((100vw - 1410px) / 2 + 48px), 250px) !important;
+    padding-top: clamp(28px, 3vw, 48px) !important;
+    width: min(920px, 70vw) !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-intro-showcase].heroShowcase [data-home-headline].heroHeadline {
+    font-size: clamp(36px, 2.35vw, 44px) !important;
+    line-height: 1.06 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-intro-showcase].heroShowcase [data-home-subtitle].heroReferenceSubtitle {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+}

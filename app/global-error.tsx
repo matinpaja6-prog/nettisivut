@@ -1,11 +1,15 @@
 "use client";
 
 export default function GlobalError({
-  reset
+  reset: _reset
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  function reloadPage() {
+    window.location.reload();
+  }
+
   return (
     <html lang="fi">
       <body>
@@ -21,12 +25,12 @@ export default function GlobalError({
           }}
         >
           <section style={{ maxWidth: 520 }}>
-            <h1 style={{ margin: "0 0 12px", fontSize: 34 }}>Sivu ladattiin uudelleen</h1>
+            <h1 style={{ margin: "0 0 12px", fontSize: 34 }}>Sivun lataaminen keskeytyi</h1>
             <p style={{ color: "#b9c8d8", lineHeight: 1.5 }}>
-              Tapahtui tilapainen latausvirhe. Yrita uudelleen.
+              Tapahtui tilapäinen latausvirhe. Yritä uudelleen.
             </p>
             <button
-              onClick={reset}
+              onClick={reloadPage}
               style={{
                 marginTop: 18,
                 border: "1px solid rgba(255,255,255,0.18)",
@@ -38,7 +42,7 @@ export default function GlobalError({
                 cursor: "pointer"
               }}
             >
-              Lataa uudelleen
+              Yritä uudelleen
             </button>
           </section>
         </main>

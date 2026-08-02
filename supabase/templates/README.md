@@ -16,3 +16,5 @@ and body for that template as well.
 
 For multilingual password recovery emails, publish `recovery-subject.txt` and
 `recovery.html` under **Authentication → Email Templates → Reset password**.
+This template displays Supabase's six-digit `{{ .Token }}` because the profile
+password-change flow verifies a recovery code instead of opening a reset link.

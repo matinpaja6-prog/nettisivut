@@ -2415,6 +2415,7 @@ function SellPageContent() {
   } | null>(null);
   const [pendingCategoryAdvance, setPendingCategoryAdvance] = useState<"group" | "detail" | null>(null);
   const [accountProfile, setAccountProfile] = useState<UserProfile | null>(null);
+  const [listingAccessChecked, setListingAccessChecked] = useState(false);
   const [companySellers, setCompanySellers] = useState<CompanySeller[]>([]);
   const [selectedCompanySellerId, setSelectedCompanySellerId] = useState("");
   const uploadedImagesRef = useRef<UploadedImage[]>([]);
@@ -3164,53 +3165,69 @@ function SellPageContent() {
   }, [multiParts]);
 
   useEffect(() => {
-    if (accountProfile || currentStep < 4) return;
-
     let cancelled = false;
 
-    async function loadAccountContext() {
+    async function checkListingAccess() {
       const {
         getCompanySellers,
         getSafeAuthUser,
         getProfile,
+        hasRequiredListingProfileDetails,
         supabase
       } = await import("@/lib/supabase");
 
-      if (!supabase) return;
+      if (!supabase) {
+        if (!cancelled) setListingAccessChecked(true);
+        return;
+      }
 
       const user = await getSafeAuthUser();
+      if (cancelled) return;
 
-      if (!user || cancelled) return;
+      if (!user) {
+        router.replace("/auth?mode=login&reason=sell&next=%2Fsell");
+        return;
+      }
 
       const { data: profile } = await getProfile(user.id);
       if (cancelled) return;
 
-      setAccountProfile(profile);
-
-      if (profile?.account_type !== "company") {
-        setCompanySellers([]);
-        setSelectedCompanySellerId("");
+      if (!profile || !hasRequiredListingProfileDetails(profile)) {
+        try {
+          sessionStorage.setItem(
+            "maskines_listing_profile_notice",
+            "Täytä puhelinnumero ja kaikki osoitetiedot ennen ilmoituksen luomista."
+          );
+        } catch {}
+        router.replace("/profile");
         return;
       }
 
-      const { data: sellers } = await getCompanySellers(profile.id);
-      if (cancelled) return;
+      setAccountProfile(profile);
 
-      const nextSellers = sellers ?? [];
-      setCompanySellers(nextSellers);
-      setSelectedCompanySellerId((current) =>
-        nextSellers.some((seller) => seller.id === current)
-          ? current
-          : ""
-      );
+      if (profile.account_type === "company") {
+        const { data: sellers } = await getCompanySellers(profile.id);
+        if (cancelled) return;
+
+        const nextSellers = sellers ?? [];
+        setCompanySellers(nextSellers);
+        setSelectedCompanySellerId((current) =>
+          nextSellers.some((seller) => seller.id === current) ? current : ""
+        );
+      } else {
+        setCompanySellers([]);
+        setSelectedCompanySellerId("");
+      }
+
+      setListingAccessChecked(true);
     }
 
-    void loadAccountContext();
+    void checkListingAccess();
 
     return () => {
       cancelled = true;
     };
-  }, [accountProfile, currentStep]);
+  }, [router]);
 
   useEffect(() => {
     return () => {
@@ -3650,6 +3667,7 @@ function SellPageContent() {
   }
 
   function updateMultiPartPrice(id: string, price: string) {
+    const numericPrice = price.replace(/\D/g, "");
     setMultiParts((current) => {
       const part = current[id];
       if (!part) return current;
@@ -3658,7 +3676,7 @@ function SellPageContent() {
         ...current,
         [id]: {
           ...part,
-          price
+          price: numericPrice
         }
       };
     });
@@ -4106,6 +4124,28 @@ function SellPageContent() {
     setIsPublishing(true);
 
     try {
+      const {
+        getSafeAuthUser,
+        getProfile,
+        hasRequiredListingProfileDetails
+      } = await import("@/lib/supabase");
+      const user = await getSafeAuthUser();
+
+      if (!user) {
+        setPublishError("Kirjaudu sisään ennen ilmoituksen julkaisemista.");
+        return;
+      }
+
+      const { data: latestProfile } = await getProfile(user.id);
+      if (!hasRequiredListingProfileDetails(latestProfile)) {
+        setPublishError(
+          "Täytä profiiliisi puhelinnumero, katuosoite, postinumero, kaupunki ja maa ennen ilmoituksen julkaisemista."
+        );
+        return;
+      }
+
+      setAccountProfile(latestProfile);
+
       const publicationGroupId =
         mode === "multiple"
           ? globalThis.crypto?.randomUUID?.() ?? `multi-${Date.now()}-${Math.random().toString(36).slice(2)}`
@@ -5351,7 +5391,7 @@ function SellPageContent() {
                 icon={Euro}
                 inputMode="numeric"
                 value={listingPrice}
-                onChange={setListingPrice}
+                onChange={(value) => setListingPrice(value.replace(/\D/g, ""))}
               />
               {singlePriceSuggestion ? (
                 <PriceSuggestionCard
@@ -5842,6 +5882,10 @@ function SellPageContent() {
         <p>{st("Tarkista vielä otsikot, hinnat, kuvat ja sijainti ennen julkaisua.")}</p>
       </div>
     );
+  }
+
+  if (!listingAccessChecked) {
+    return <PageLoadingFallback />;
   }
 
   return (

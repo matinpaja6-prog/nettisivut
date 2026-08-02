@@ -13,7 +13,6 @@ create table if not exists public.profiles (
   public_address text not null default '',
   city text not null check (char_length(city) between 2 and 80),
   country text not null default 'Suomi',
-  birth_date date,
   online boolean not null default false,
   last_seen timestamptz,
   created_at timestamptz not null default now(),

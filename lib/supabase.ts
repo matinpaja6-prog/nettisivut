@@ -12,7 +12,7 @@ import {
   listingLocales,
   type ListingLocale
 } from "./listing-translations";
-import { isUuidLike, slugifyProfileName } from "./routes";
+import { isUuidLike, pagePath, slugifyProfileName } from "./routes";
 import { cleanOptionalUserText, cleanUserText } from "./text-input";
 
 /* =========================
@@ -71,8 +71,6 @@ export type UserProfile = {
   city: string;
 
   country: string;
-
-  birth_date: string | null;
 
   bio?: string | null;
 
@@ -346,11 +344,24 @@ export function isProfileCompleted(
     profile.address &&
     profile.postal_code &&
     profile.city &&
-    profile.country &&
-    profile.birth_date
+    profile.country
 
   );
 
+}
+
+export function hasRequiredListingProfileDetails(
+  profile: UserProfile | null | undefined
+) {
+  if (!profile) return false;
+
+  return [
+    profile.phone,
+    profile.address,
+    profile.postal_code,
+    profile.city,
+    profile.country
+  ].every((value) => typeof value === "string" && value.trim().length > 0);
 }
 
 /* =========================
@@ -2172,6 +2183,15 @@ export async function createListing(
 
     const { data: profile } = await getProfile(user.id);
 
+    if (!hasRequiredListingProfileDetails(profile)) {
+      return {
+        data: null,
+        error: new Error(
+          "Täytä profiiliisi puhelinnumero ja kaikki osoitetiedot ennen ilmoituksen julkaisemista."
+        )
+      };
+    }
+
     if (profile?.is_banned) {
       return {
         data: null,
@@ -2614,6 +2634,33 @@ export async function sendRegistrationOtpWithEmail(
 
 }
 
+export async function sendLoginOtpWithEmail(email: string) {
+  if (!supabase) {
+    return { data: null, error: new Error("Supabase ei ole konfiguroitu.") };
+  }
+
+  try {
+    return await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false }
+    });
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
+export async function verifyLoginOtpWithEmail(email: string, token: string) {
+  if (!supabase) {
+    return { data: null, error: new Error("Supabase ei ole konfiguroitu.") };
+  }
+
+  try {
+    return await supabase.auth.verifyOtp({ email, token, type: "email" });
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
 export async function verifyRegistrationOtpWithEmail(
   email: string,
   token: string
@@ -2781,7 +2828,7 @@ export async function resetPassword(
           redirectTo:
             typeof window !==
             "undefined"
-              ? `${window.location.origin}/auth${locale ? `?lang=${locale}` : ""}`
+              ? `${window.location.origin}${pagePath("auth", locale)}?recovery=1${locale ? `&lang=${locale}` : ""}`
               : undefined
         }
       );
@@ -2795,6 +2842,75 @@ export async function resetPassword(
 
   }
 
+}
+
+export async function requestPasswordChangeCode(
+  locale: "fi" | "en" | "sv" | "no" = "fi"
+) {
+  if (!supabase) {
+    return { data: null, error: new Error("Supabase ei ole konfiguroitu.") };
+  }
+
+  try {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+
+    if (sessionError || !accessToken) {
+      return { data: null, error: sessionError ?? new Error("Kirjautuminen ei ole voimassa.") };
+    }
+
+    const response = await fetch("/api/account/password/request", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ locale })
+    });
+    const payload = await response.json().catch(() => null) as {
+      ok?: boolean;
+      error?: string;
+    } | null;
+
+    if (!response.ok || !payload?.ok) {
+      return {
+        data: null,
+        error: new Error(payload?.error || "Vahvistuskoodin lähettäminen epäonnistui.")
+      };
+    }
+
+    return { data: payload, error: null };
+  } catch (error) {
+    return {
+      data: null,
+      error:
+        error instanceof Error && /failed to fetch/i.test(error.message)
+          ? new Error("Palvelimeen ei saatu yhteyttä. Päivitä sivu ja yritä uudelleen.")
+          : error
+    };
+  }
+}
+
+export async function verifyPasswordResetOtp(
+  email: string,
+  token: string
+) {
+  if (!supabase) {
+    return {
+      data: null,
+      error: new Error("Supabase ei ole konfiguroitu.")
+    };
+  }
+
+  try {
+    return await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: "recovery"
+    });
+  } catch (error) {
+    return { data: null, error };
+  }
 }
 
 export async function updatePassword(
@@ -2934,7 +3050,6 @@ export type AdminProfileRow = {
   postal_code?: string | null;
   city?: string | null;
   country?: string | null;
-  birth_date?: string | null;
   public_id?: string | null;
   username?: string | null;
   bio?: string | null;
@@ -3264,7 +3379,6 @@ export async function adminUpdateProfile(
     phone: string;
     country: string;
     city: string;
-    birth_date: string;
     company_name: string;
     business_id: string;
   }>
@@ -6177,11 +6291,13 @@ export async function uploadAvatar(
   if (!supabase) return { url: null, error: new Error("Supabase ei ole konfiguroitu.") };
   try {
     const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${userId}/avatar.${ext}`;
+    // A new object path prevents the CDN/browser from serving an older image
+    // after an upsert to the same public URL.
+    const path = `${userId}/avatar-${Date.now()}-${crypto.randomUUID()}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from("avatars")
-      .upload(path, file, { upsert: true, contentType: file.type });
+      .upload(path, file, { upsert: false, contentType: file.type });
 
     if (uploadError) return { url: null, error: uploadError };
 
@@ -6191,10 +6307,24 @@ export async function uploadAvatar(
 
     const url = urlData.publicUrl;
 
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({ avatar_url: url })
-      .eq("id", userId);
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) {
+      return { url: null, error: new Error("Kirjautuminen ei ole voimassa.") };
+    }
+
+    const updateResponse = await fetch("/api/profiles/avatar", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ avatarUrl: url })
+    });
+    const updateResult = await updateResponse.json().catch(() => ({})) as { error?: string };
+    const updateError = updateResponse.ok
+      ? null
+      : new Error(updateResult.error || "Profiilikuvan tallennus epäonnistui.");
 
     if (!updateError) {
       dispatchProfileAvatarChanged(userId, url);
@@ -6203,6 +6333,33 @@ export async function uploadAvatar(
     return { url, error: updateError };
   } catch (error) {
     return { url: null, error };
+  }
+}
+
+export async function updateProfileAvatar(
+  avatarUrl: string | null
+): Promise<{ error: unknown }> {
+  if (!supabase) return { error: new Error("Supabase ei ole konfiguroitu.") };
+
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) return { error: new Error("Kirjautuminen ei ole voimassa.") };
+
+    const response = await fetch("/api/profiles/avatar", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ avatarUrl })
+    });
+    const result = await response.json().catch(() => ({})) as { error?: string };
+    return {
+      error: response.ok ? null : new Error(result.error || "Profiilikuvan tallennus epäonnistui.")
+    };
+  } catch (error) {
+    return { error };
   }
 }
 

@@ -1,0 +1,149 @@
+/* Small visual refinements requested for the profile and global topbar. */
+html body .pf-page.pf-page .pf-phone-change-btn,
+html body .pf-page.pf-page .pf-phone-change-btn:hover:not(:disabled),
+html body .pf-page.pf-page .pf-phone-change-btn:focus-visible {
+  box-shadow: none !important;
+}
+
+html body header.universal-app-topbar .language-switcher,
+html body header.universal-app-topbar.universal-home-topbar .language-switcher {
+  border-color: rgba(255, 122, 26, 0.82) !important;
+}
+
+html body header.universal-app-topbar .language-switcher:hover,
+html body header.universal-app-topbar .language-switcher:focus-within,
+html body header.universal-app-topbar.universal-home-topbar .language-switcher:hover,
+html body header.universal-app-topbar.universal-home-topbar .language-switcher:focus-within {
+  border-color: #ff8f33 !important;
+}
+
+/* Password verification modal: a bare orange close mark. */
+html body .pf-modal-backdrop .pf-password-modal .pf-modal-close,
+html body .pf-modal-backdrop .pf-password-modal .pf-modal-close:hover {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: #ff7a1a !important;
+}
+
+html body .pf-modal-backdrop .pf-password-modal .pf-modal-close:focus-visible {
+  outline: 2px solid rgba(255, 122, 26, 0.7);
+  outline-offset: 2px;
+}
+
+/*
+ * Profile photos must occupy the avatar viewport itself. Older, more specific
+ * rules used `object-fit: contain`, white image backgrounds and padding. That
+ * combination left portrait photos as a narrow strip in the middle of the
+ * white avatar tile in the topbar and seller cards.
+ */
+html body :is(
+  .universal-profile-avatar,
+  .universal-profile-menu-avatar,
+  .pf-page .pf-avatar,
+  .seller-page .seller-ref-avatar,
+  .listing-detail-page .seller-avatar-detail
+) {
+  position: relative !important;
+  isolation: isolate;
+  overflow: hidden !important;
+}
+
+html body :is(
+  header.universal-app-topbar .universal-profile-avatar > img,
+  header.universal-app-topbar .universal-profile-menu-avatar > img,
+  .pf-page .pf-avatar > img,
+  .seller-page .seller-ref-avatar.has-photo > img,
+  .listing-detail-page .seller-avatar-detail > img,
+  .listing-detail-page .seller-avatar-img
+) {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: inherit !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  height: 100% !important;
+  inset: 0 !important;
+  margin: 0 !important;
+  max-height: none !important;
+  max-width: none !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  padding: 0 !important;
+  position: absolute !important;
+  transform: none !important;
+  width: 100% !important;
+}
+
+/* Keep the no-photo initial full-size; it must not collapse into a grey bar. */
+html body :is(
+  .universal-profile-avatar,
+  .universal-profile-menu-avatar,
+  .pf-page .pf-avatar,
+  .listing-detail-page .seller-avatar-detail
+) > :is(.profile-avatar-initial, .seller-avatar-initial) {
+  align-items: center !important;
+  background: transparent !important;
+  border-radius: inherit !important;
+  display: flex !important;
+  height: 100% !important;
+  inset: 0 !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 100% !important;
+}
+
+/* Use an explicit state class in the account control. This also works in
+ * browsers where a complex :has() selector is dropped from the cascade. */
+html body header.universal-app-topbar
+  .rebuilt-profile-button.rebuilt-profile-button
+  .universal-profile-avatar.universal-profile-avatar.no-photo,
+html body header.universal-app-topbar
+  .universal-profile-menu-avatar.universal-profile-menu-avatar.no-photo {
+  background: #25282c !important;
+  background-image: none !important;
+  border: 2px solid #ff861d !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+html body header.universal-app-topbar
+  :is(
+    .universal-profile-avatar.universal-profile-avatar.no-photo,
+    .universal-profile-menu-avatar.universal-profile-menu-avatar.no-photo
+  )
+  > .profile-avatar-initial.profile-avatar-initial {
+  align-items: center !important;
+  background: transparent !important;
+  color: #ffffff !important;
+  display: flex !important;
+  height: 100% !important;
+  inset: 0 !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 100% !important;
+}
+
+html body header.universal-app-topbar
+  :is(
+    .universal-profile-avatar.universal-profile-avatar.has-photo,
+    .universal-profile-menu-avatar.universal-profile-menu-avatar.has-photo
+  )
+  > img {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: inherit !important;
+  display: block !important;
+  height: 100% !important;
+  inset: 0 !important;
+  margin: 0 !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 100% !important;
+}

@@ -733,3 +733,7 @@ html body .site-footer .footer-col h4 {
     gap: 24px !important;
   }
 }
+/* The footer intentionally stays typographic; the Maskines mark lives in the header. */
+html body .site-footer .footer-logo-disabled {
+  display: none !important;
+}

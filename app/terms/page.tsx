@@ -114,17 +114,20 @@ export default function TermsPage() {
           ))}
         </section>
         <div className="terms-content">
-          {copy.sections.map((section, index) => (
-            <section key={section.title} className="terms-section">
-              <h2>
-                <span className="legal-number">{index + 1}</span>
+          {copy.sections.map((section) => (
+            <details key={section.title} className="terms-section legal-accordion-item">
+              <summary>
                 <span>{stripSectionNumber(section.title)}</span>
-              </h2>
-              {section.body.map((text) => <p key={text}>{text}</p>)}
-              {section.bullets && <ul>{section.bullets.map((item) => <li key={item}>{item}</li>)}</ul>}
-            </section>
+                <span className="legal-accordion-chevron" aria-hidden="true" />
+              </summary>
+              <div className="legal-accordion-body">
+                {section.body.map((text) => <p key={text}>{text}</p>)}
+                {section.bullets && <ul>{section.bullets.map((item) => <li key={item}>{item}</li>)}</ul>}
+              </div>
+            </details>
           ))}
         </div>
+        <p className="legal-updated-footer">{copy.updated}</p>
       </article>
 
       <style>{`

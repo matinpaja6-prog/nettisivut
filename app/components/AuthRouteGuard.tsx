@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { getSafeAuthUser, supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/lib/i18n";
 import { canonicalPathFromLocalized, pagePath } from "@/lib/routes";
 
@@ -37,8 +37,16 @@ export default function AuthRouteGuard() {
     let cancelled = false;
 
     async function checkAccess() {
-      const user = supabase ? await getSafeAuthUser().catch(() => null) : null;
-      if (cancelled || user) return;
+      const { data } = supabase
+        ? await supabase.auth.getSession().catch(() => ({ data: { session: null } }))
+        : { data: { session: null } };
+      const session = data.session;
+      if (cancelled) return;
+
+      // MFA is completed as part of the explicit /auth login flow. Protected
+      // pages only check that a session exists, so opening Oma profiili never
+      // launches a new MFA challenge in the middle of an existing session.
+      if (session) return;
 
       const next = `${pathname}${window.location.search}${window.location.hash}`;
       router.replace(`${pagePath("auth", locale)}?mode=login&next=${encodeURIComponent(next)}`);
