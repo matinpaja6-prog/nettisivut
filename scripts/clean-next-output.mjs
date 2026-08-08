@@ -26,3 +26,12 @@ await Promise.all(
       })
     )
 );
+
+// Compiler caches are safe to preserve, but the server fetch cache can contain
+// stale Supabase responses from an older deployment (including cached 404s).
+await rm(path.join(nextDirectory, "cache", "fetch-cache"), {
+  recursive: true,
+  force: true,
+  maxRetries: 3,
+  retryDelay: 100
+});

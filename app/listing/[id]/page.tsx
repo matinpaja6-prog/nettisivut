@@ -7,6 +7,11 @@ import { getListingById, getListingDisplayNumber } from "@/lib/supabase";
 import ListingPageClient from "./ListingPageClient";
 import { generateListingMetadata } from "./metadata";
 
+// Listing availability and visibility come directly from Supabase. Do not
+// persist a failed database response in Next's full-route/fetch cache.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const generateMetadata = generateListingMetadata;
 
 function cleanStructuredText(value?: string | null) {
