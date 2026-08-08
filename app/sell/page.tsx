@@ -4065,7 +4065,6 @@ function SellPageContent() {
       image_url: resolvedImageUrls[0],
       image_urls: resolvedImageUrls,
       seller_name: isCompanyAccount ? selectedCompanySeller?.name.trim() ?? "" : "",
-      seller_email: "",
       seller_phone: isCompanyAccount ? selectedCompanySeller?.phone.trim() || null : null,
       company_name: isCompanyAccount ? accountProfile?.company_name ?? null : null,
       seller_avatar_url: null,

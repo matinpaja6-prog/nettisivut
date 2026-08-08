@@ -83,8 +83,6 @@ export type Listing = {
 
   seller_avatar_url?: string | null;
 
-  seller_email: string;
-
   seller_phone?: string | null;
 
   seller_phone_verified?: boolean | null;

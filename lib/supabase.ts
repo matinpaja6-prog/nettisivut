@@ -636,11 +636,14 @@ const BASE_LISTING_CARD_COLUMN_LIST = [
 const OPTIONAL_LISTING_CARD_COLUMN_LIST = [
   "original_language",
   "translations",
+  "listing_mode",
+  "vehicle_subtype",
   "part_number",
+  "part_model",
   "image_urls",
   "company_name",
   "seller_avatar_url",
-  "seller_email",
+  "seller_phone",
   "view_count",
   "is_sold",
   "is_hidden",
@@ -951,7 +954,7 @@ export async function getListingById(
 
     const result = await supabase
       .from("listings")
-      .select("*")
+      .select(LISTING_CARD_SELECT)
       .eq("id", resolvedListingId)
       .maybeSingle<Listing>();
 
@@ -1187,7 +1190,7 @@ export async function getListingsBySeller(
 
     return await supabase
       .from("listings")
-      .select("*")
+      .select(LISTING_CARD_SELECT)
       .eq("seller_id", sellerId)
       .order(
         "created_at",
@@ -1396,7 +1399,7 @@ export async function updateListing(
       .update(translatedListing)
       .eq("id", listingId)
       .eq("seller_id", user.id)
-      .select()
+      .select(LISTING_CARD_SELECT)
       .single<Listing>();
 
     const fallbackListing = { ...translatedListing };
@@ -1427,7 +1430,7 @@ export async function updateListing(
         .update(fallbackListing)
         .eq("id", listingId)
         .eq("seller_id", user.id)
-        .select()
+        .select(LISTING_CARD_SELECT)
         .single<Listing>();
     }
 
@@ -1787,7 +1790,7 @@ export async function getSoldListingsBySeller(sellerId: string) {
 
     const fallback = await supabase
       .from("listings")
-      .select("*")
+      .select(LISTING_CARD_SELECT)
       .eq("seller_id", sellerId)
       .eq("is_sold", true)
       .order("sold_at", { ascending: false })
@@ -2165,7 +2168,6 @@ function cleanListingInput(listing: ListingInput): ListingInput {
     description: cleanUserText(listing.description, 5000),
     seller_name: cleanUserText(listing.seller_name, 160),
     company_name: cleanOptionalUserText(listing.company_name, 160),
-    seller_email: cleanUserText(listing.seller_email, 180),
     seller_phone: cleanOptionalUserText(listing.seller_phone, 40)
   };
 }
@@ -2233,7 +2235,6 @@ export async function createListing(
       ...cleanedListing,
       location: cleanedListing.location || profile?.city?.trim() || "Ei maaritetty",
       seller_name: cleanedListing.seller_name || profileName?.trim() || user.email || "Myyja",
-      seller_email: cleanedListing.seller_email || user.email || "",
       seller_phone: cleanedListing.seller_phone ?? profile?.phone ?? null,
       seller_avatar_url: listing.seller_avatar_url ?? profile?.avatar_url ?? null,
       company_name:
@@ -2269,7 +2270,7 @@ export async function createListing(
           ...fallbackPayload,
           seller_id: user.id
         })
-        .select()
+        .select(LISTING_CARD_SELECT)
         .single<Listing>();
 
     let result = await insertListingPayload();

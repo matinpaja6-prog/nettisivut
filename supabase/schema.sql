@@ -130,7 +130,7 @@ create table if not exists public.listings (
   image_url text not null,
   image_urls text[] not null default '{}',
   seller_name text not null,
-  seller_email text not null,
+  seller_email text not null default '',
   seller_phone text,
   view_count integer not null default 0 check (view_count >= 0),
   created_at timestamptz not null default now()
