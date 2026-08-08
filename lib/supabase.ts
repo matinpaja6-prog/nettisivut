@@ -636,10 +636,7 @@ const BASE_LISTING_CARD_COLUMN_LIST = [
 const OPTIONAL_LISTING_CARD_COLUMN_LIST = [
   "original_language",
   "translations",
-  "listing_mode",
-  "vehicle_subtype",
   "part_number",
-  "part_model",
   "image_urls",
   "company_name",
   "seller_avatar_url",
