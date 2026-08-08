@@ -25,6 +25,7 @@ import "./styles/mobile-home-final.css";
 import "./styles/profile-symmetry-final.css";
 import "./styles/mobile-final.css";
 import "./styles/info-pages.css";
+import "./styles/cookie-consent.css";
 import "./styles/topbar-final.css";
 import "./styles/home-latest-final.css";
 import "./styles/footer-final-polish.css";
@@ -65,6 +66,7 @@ import AuthRouteGuard from "./components/AuthRouteGuard";
 import AutoTranslate from "./components/AutoTranslate";
 import SourceFog from "./components/SourceFog";
 import GlobalNavigationSpinner from "./components/GlobalNavigationSpinner";
+import CookieConsentGate from "./components/CookieConsentGate";
 import { PUBLIC_SITE_URL } from "@/lib/site-url";
 
 export const metadata: Metadata = {
@@ -297,26 +299,28 @@ export default function RootLayout({
         <SourceFog />
       </head>
       <body suppressHydrationWarning>
-        <TaxonomyProvider>
-          <InstantNavigation />
-          <GlobalNavigationSpinner />
-          <AuthRouteGuard />
-          <Suspense fallback={null}>
-            <NavigationHistory />
-          </Suspense>
-          <VisitorLanguageGate />
-          <AutoTranslate />
-          <SiteAppearance />
-          <OnlinePresence />
-          <SiteVisitTracker />
-          <ProfileCompletionGate />
-          <UniversalTopbar />
-          {children}
-          <RequiredReviewGate />
-          <FloatingChat />
-          <BottomNav />
-          <Footer />
-        </TaxonomyProvider>
+        <CookieConsentGate>
+          <TaxonomyProvider>
+            <InstantNavigation />
+            <GlobalNavigationSpinner />
+            <AuthRouteGuard />
+            <Suspense fallback={null}>
+              <NavigationHistory />
+            </Suspense>
+            <VisitorLanguageGate />
+            <AutoTranslate />
+            <SiteAppearance />
+            <OnlinePresence />
+            <SiteVisitTracker />
+            <ProfileCompletionGate />
+            <UniversalTopbar />
+            {children}
+            <RequiredReviewGate />
+            <FloatingChat />
+            <BottomNav />
+            <Footer />
+          </TaxonomyProvider>
+        </CookieConsentGate>
       </body>
     </html>
   );

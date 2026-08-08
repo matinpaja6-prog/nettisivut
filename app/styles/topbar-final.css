@@ -4502,6 +4502,14 @@ html body > .universal-profile-menu-portal > .universal-profile-menu-close {
   display: none !important;
 }
 
+@media (min-width: 761px) {
+  html body > .universal-profile-menu-portal {
+    left: var(--profile-menu-left, auto) !important;
+    right: auto !important;
+    top: var(--profile-menu-top, calc(var(--topbar-h, 64px) + 8px)) !important;
+  }
+}
+
 @media (max-width: 760px) {
   html body > .universal-profile-menu-portal {
     left: 4px !important;
