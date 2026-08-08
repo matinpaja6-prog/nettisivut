@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent } from "react";
 import { createPortal } from "react-dom";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -415,6 +415,7 @@ export default function UniversalTopbar() {
   const [sellerLevelStats, setSellerLevelStats] = useState<SellerLevelStats>(emptySellerLevelStats);
   const [topbarDropdownOpen, setTopbarDropdownOpen] = useState<TopbarDropdownKey>(null);
   const [topbarDropdownRect, setTopbarDropdownRect] = useState<DOMRect | null>(null);
+  const [profileMenuPosition, setProfileMenuPosition] = useState({ left: 14, top: 72 });
   const [authSurfaceActive, setAuthSurfaceActive] = useState(isAuthRoute);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuOverlayRef = useRef<HTMLDivElement>(null);
@@ -764,6 +765,16 @@ export default function UniversalTopbar() {
   useEffect(() => {
     if (!profileOpen) return;
 
+    function updateProfileMenuPosition() {
+      const anchor = profileMenuRef.current?.getBoundingClientRect();
+      if (!anchor) return;
+
+      const edgeGap = 14;
+      const menuWidth = Math.min(320, window.innerWidth - edgeGap * 2);
+      const left = Math.max(edgeGap, Math.min(anchor.left, window.innerWidth - menuWidth - edgeGap));
+      setProfileMenuPosition({ left, top: anchor.bottom + 8 });
+    }
+
     function closeOnOutsideClick(event: PointerEvent | MouseEvent) {
       const target = event.target;
       if (
@@ -779,13 +790,18 @@ export default function UniversalTopbar() {
       if (event.key === "Escape") setProfileOpen(false);
     }
 
+    updateProfileMenuPosition();
     document.addEventListener("pointerdown", closeOnOutsideClick);
     document.addEventListener("mousedown", closeOnOutsideClick);
     document.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("resize", updateProfileMenuPosition);
+    window.addEventListener("scroll", updateProfileMenuPosition, true);
     return () => {
       document.removeEventListener("pointerdown", closeOnOutsideClick);
       document.removeEventListener("mousedown", closeOnOutsideClick);
       document.removeEventListener("keydown", closeOnEscape);
+      window.removeEventListener("resize", updateProfileMenuPosition);
+      window.removeEventListener("scroll", updateProfileMenuPosition, true);
     };
   }, [profileOpen]);
 
@@ -1324,6 +1340,10 @@ export default function UniversalTopbar() {
         <div
           ref={profileMenuOverlayRef}
           className="universal-profile-menu universal-profile-menu-portal"
+          style={{
+            "--profile-menu-left": `${profileMenuPosition.left}px`,
+            "--profile-menu-top": `${profileMenuPosition.top}px`
+          } as CSSProperties}
           role="menu"
           data-no-auto-translate
           translate="no"

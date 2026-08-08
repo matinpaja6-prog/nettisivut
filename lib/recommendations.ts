@@ -6,6 +6,7 @@
 
 import type { Listing } from "@/lib/listings";
 import type { UserPreferenceProfile } from "@/lib/supabase";
+import { readCookieConsentSettings } from "@/lib/cookie-consent";
 
 const STORAGE_KEY_BASE = "recoHistory_v1";
 const MAX_HISTORY = 60;
@@ -45,7 +46,7 @@ export type RecoProfile = {
 };
 
 function safeGetHistory(): ViewEvent[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined" || !readCookieConsentSettings().personalization) return [];
   try {
     const raw = localStorage.getItem(storageKey());
     if (!raw) return [];
@@ -57,7 +58,7 @@ function safeGetHistory(): ViewEvent[] {
 }
 
 function safeSetHistory(events: ViewEvent[]) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !readCookieConsentSettings().personalization) return;
   try {
     localStorage.setItem(storageKey(), JSON.stringify(events.slice(-MAX_HISTORY)));
   } catch {
@@ -196,6 +197,7 @@ export function buildRecoProfile(
   dbProfile?: UserPreferenceProfile | null
 ): RecoProfile {
   const local = getRecommendationProfile();
+  if (typeof window !== "undefined" && !readCookieConsentSettings().personalization) return local;
   if (!dbProfile) return local;
 
   const allDbValues = [

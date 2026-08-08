@@ -5,7 +5,6 @@ import { ArrowRight, Globe2, ShieldCheck } from "lucide-react";
 import {
   applyLocale,
   isLocale,
-  normalizeLocale,
   purgeInvalidLocaleStorage,
   type SupportedLocale
 } from "@/lib/i18n";
@@ -87,13 +86,12 @@ export default function VisitorLanguageGate() {
     const params = new URLSearchParams(window.location.search);
     const forcePromptOnce = params.get(FORCE_PROMPT_PARAM) === "1";
     const immediateLocale = localStorage.getItem("locale");
-    const normalizedImmediateLocale = normalizeLocale(immediateLocale, "fi");
 
     // A locally selected language is authoritative and is available before
     // the visitor API responds. Apply it immediately so the first visible
     // frame is already in the right language.
-    if (!forcePromptOnce && isLocale(normalizedImmediateLocale)) {
-      applyLocale(normalizedImmediateLocale);
+    if (!forcePromptOnce && isLocale(immediateLocale)) {
+      applyLocale(immediateLocale);
       markVisitorLanguageReady();
     }
 
@@ -105,7 +103,6 @@ export default function VisitorLanguageGate() {
           openTimer = setTimeout(() => {
             if (!cancelled) setOpen(true);
           }, 450);
-          markVisitorLanguageReady();
           return;
         }
 
@@ -122,7 +119,6 @@ export default function VisitorLanguageGate() {
           openTimer = setTimeout(() => {
             if (!cancelled) setOpen(true);
           }, 450);
-          markVisitorLanguageReady();
           return;
         }
 
@@ -147,7 +143,6 @@ export default function VisitorLanguageGate() {
         openTimer = setTimeout(() => {
           if (!cancelled) setOpen(true);
         }, 450);
-        markVisitorLanguageReady();
       })
       .catch(() => {
         // A temporary IP lookup failure must not hide the language choice from
@@ -156,7 +151,6 @@ export default function VisitorLanguageGate() {
           openTimer = setTimeout(() => {
             if (!cancelled) setOpen(true);
           }, 450);
-          markVisitorLanguageReady();
         }
       });
 
@@ -215,6 +209,7 @@ export default function VisitorLanguageGate() {
     }
     applyLocale(locale);
     setOpen(false);
+    markVisitorLanguageReady();
   }
 
   if (!open) return null;
