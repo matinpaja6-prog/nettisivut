@@ -32,6 +32,7 @@ export default function TurnstileWidget({
   const onTokenRef = useRef(onToken);
   const [scriptReady, setScriptReady] = useState(false);
   const [widgetError, setWidgetError] = useState("");
+  const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   useEffect(() => {
@@ -62,6 +63,28 @@ export default function TurnstileWidget({
     onTokenRef.current = onToken;
   }, [onToken]);
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateWidth = () => {
+      const nextWidth = container.getBoundingClientRect().width;
+      if (nextWidth > 0) {
+        setContainerWidth((currentWidth) =>
+          currentWidth !== null && Math.abs(currentWidth - nextWidth) < 1
+            ? currentWidth
+            : nextWidth
+        );
+      }
+    };
+
+    updateWidth();
+    const resizeObserver = new ResizeObserver(updateWidth);
+    resizeObserver.observe(container);
+
+    return () => resizeObserver.disconnect();
+  }, []);
+
   const removeWidget = useCallback(() => {
     if (widgetIdRef.current && window.turnstile) {
       window.turnstile.remove(widgetIdRef.current);
@@ -70,15 +93,22 @@ export default function TurnstileWidget({
   }, []);
 
   useEffect(() => {
-    if (!scriptReady || !siteKey || !containerRef.current || !window.turnstile) return;
+    if (
+      !scriptReady ||
+      !siteKey ||
+      containerWidth === null ||
+      !containerRef.current ||
+      !window.turnstile
+    ) return;
 
     removeWidget();
     setWidgetError("");
+    const widgetSize = containerWidth < 300 ? "compact" : "flexible";
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: siteKey,
       action,
       theme: "auto",
-      size: "flexible",
+      size: widgetSize,
       appearance: "always",
       retry: "auto",
       "refresh-expired": "auto",
@@ -102,14 +132,14 @@ export default function TurnstileWidget({
     });
 
     return removeWidget;
-  }, [action, removeWidget, resetKey, scriptReady, siteKey]);
+  }, [action, containerWidth, removeWidget, resetKey, scriptReady, siteKey]);
 
   if (!siteKey) {
     return <p role="alert">Bottitarkistuksen sivustoavain puuttuu.</p>;
   }
 
   return (
-    <div className={className}>
+    <div className={["turnstile-widget", className].filter(Boolean).join(" ")}>
       <Script
         id="cloudflare-turnstile"
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"

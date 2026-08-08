@@ -27625,8 +27625,8 @@
   }
 }
 
-/* Definitive phone filter panel. */
-@media (max-width: 720px) {
+/* Definitive compact filter panel for phones and tablets. */
+@media (max-width: 900px) {
   .heroRightRail,
   .heroRightRailOpen {
     background: #061522 !important;
@@ -27992,8 +27992,8 @@
   }
 }
 
-/* Isolated mobile sheet form: intentionally independent from legacy hero filters. */
-@media (max-width: 720px) {
+/* Isolated phone/tablet sheet form: intentionally independent from legacy hero filters. */
+@media (max-width: 900px) {
   .mobileFilterSheet > .heroRailHeader,
   .mobileFilterSheet > .heroRailEdgeToggle,
   .mobileFilterSheet > .heroSearchPanel,
@@ -28188,7 +28188,7 @@
 }
 
 /* Compact search sheet for phones, tablets and narrow desktop windows. */
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   :global(html body) .mobileFilterBackdrop {
     background: #15171d !important;
     border: 0 !important;
@@ -28333,6 +28333,154 @@
     margin-top: 2px !important;
     padding: 14px 0 calc(76px + env(safe-area-inset-bottom, 0px)) !important;
     position: sticky !important;
+  }
+}
+
+/* Tablet home layout: at these widths the desktop filter rail leaves too
+   little room for the search and selling cards. Keep the content fluid in one
+   column and use the compact filter sheet instead. */
+@media (min-width: 721px) and (max-width: 900px) {
+  :global(html body) main[data-home-page] .heroWrap,
+  :global(html body) main[data-home-page] .heroWrap > .container,
+  :global(html body) main[data-home-page] .hero,
+  :global(html body) main[data-home-page] .heroInner,
+  :global(html body) main[data-home-page] .heroLeadPanel {
+    box-sizing: border-box !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) main[data-home-page] .heroWrap > .container,
+  :global(html body) main[data-home-page] .hero,
+  :global(html body) main[data-home-page] .heroInner {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  :global(html body) main[data-home-page] .heroInner {
+    display: block !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  :global(html body) main[data-home-page] .heroLeadPanel {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    overflow: hidden !important;
+  }
+
+  :global(html body) main[data-home-page] [data-home-intro-showcase].heroShowcase {
+    border-left: 0 !important;
+    border-radius: 0 !important;
+    border-right: 0 !important;
+    height: clamp(400px, 58vw, 470px) !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) main[data-home-page] [data-home-intro-showcase] .heroShowcaseArt {
+    height: 100% !important;
+    inset: 0 !important;
+    opacity: 1 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) main[data-home-page] [data-home-intro-showcase] .heroShowcaseArt img {
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: 52% center !important;
+    width: 100% !important;
+  }
+
+  :global(html body) main[data-home-page] [data-home-hero-copy].heroShowcaseCopy {
+    align-content: center !important;
+    box-sizing: border-box !important;
+    justify-items: center !important;
+    max-width: none !important;
+    min-height: 100% !important;
+    padding: 32px clamp(24px, 7vw, 64px) !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+
+  :global(html body) main[data-home-page] [data-home-headline].heroHeadline {
+    font-size: clamp(38px, 6vw, 49px) !important;
+    line-height: 1.06 !important;
+    margin: 0 auto !important;
+    max-width: 620px !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  :global(html body) main[data-home-page] [data-home-headline].heroHeadline > span,
+  :global(html body) main[data-home-page] [data-home-subtitle].heroReferenceSubtitle {
+    text-align: center !important;
+  }
+
+  :global(html body) main[data-home-page] .heroMainSearchPanel,
+  :global(html body) main[data-home-page] .heroSellCallout,
+  :global(html body) main[data-home-page] .heroReferenceBenefits,
+  :global(html body) main[data-home-page] .heroDesktopLatest,
+  :global(html body) main[data-home-page] .heroMarketplaceStats {
+    box-sizing: border-box !important;
+    margin-left: 14px !important;
+    margin-right: 14px !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: calc(100% - 28px) !important;
+  }
+
+  :global(html body) main[data-home-page] .heroMainSearchPanel {
+    margin-top: 0 !important;
+  }
+
+  :global(html body) main[data-home-page] .heroMainSearch {
+    grid-template-columns: 20px minmax(0, 1fr) max-content !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) main[data-home-page] .heroMainSearchInput {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  :global(html body) main[data-home-page] .heroMainSearchButton[data-mobile-filter="true"] {
+    min-width: 104px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    width: auto !important;
+  }
+
+  :global(html body) main[data-home-page] .heroSellCallout {
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+  }
+
+  :global(html body) main[data-home-page] .heroSellCallout > a {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestGrid,
+  :global(html body) main[data-home-page] .heroDesktopLatestGridExpanded {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  :global(html body):has(.mobileFilterSheet) :global(.bottom-nav.bottom-nav-main),
+  :global(html body):has(.mobileFilterSheet) :global(.floating-chat),
+  :global(html body):has(.mobileFilterSheet) :global(.fc-button),
+  :global(html body):has(.mobileFilterSheet) :global(.rebuilt-chat-button),
+  :global(html body):has(.mobileFilterSheet) :global(.fc-panel) {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 }
 
@@ -29756,11 +29904,10 @@
   }
 
   :global(html body) .heroLeadPanel > .heroSellCallout {
-    background:
-      radial-gradient(circle at 0 50%, rgba(255, 122, 26, 0.13), transparent 42%),
-      linear-gradient(135deg, rgba(11, 29, 45, 0.99), rgba(5, 17, 28, 0.99)) !important;
+    background: linear-gradient(135deg, rgba(11, 29, 45, 0.99), rgba(5, 17, 28, 0.99)) !important;
     border: 1px solid rgba(255, 122, 26, 0.54) !important;
     border-radius: 11px !important;
+    box-shadow: none !important;
     gap: 5px 11px !important;
     grid-template-columns: 38px minmax(0, 1fr) !important;
     margin: 18px 0 0 !important;
@@ -31321,6 +31468,115 @@
 
   :global(html body main[data-home-page]) .heroRightRail:global(#home-filtered-filter-rail) {
     grid-column: 3 !important;
+  }
+}
+
+/* Final tablet safeguards. These deliberately live after the legacy homepage
+   rules so an 8–11 inch viewport never falls back to the squeezed desktop
+   rail or to unstyled browser buttons. */
+@media (min-width: 721px) and (max-width: 900px) {
+  :global(html body) > .heroRightRail.mobileFilterSheet,
+  :global(html body) > .heroRightRailOpen.mobileFilterSheet,
+  :global(html body) > .heroRightRail.mobileFilterSheetExpanded,
+  :global(html body) > .heroRightRailOpen.mobileFilterSheetExpanded {
+    border-radius: 16px 16px 0 0 !important;
+    height: calc(100dvh - 84px) !important;
+    max-height: calc(100dvh - 84px) !important;
+    padding-left: clamp(18px, 4vw, 32px) !important;
+    padding-right: clamp(18px, 4vw, 32px) !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileSheetForm {
+    box-sizing: border-box !important;
+    gap: 12px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileSheetField,
+  :global(html body) .mobileFilterSheet .heroFilterFieldWrap,
+  :global(html body) .mobileFilterSheet .heroYearRangeField,
+  :global(html body) .mobileFilterSheet .trackMatDimensionGroup {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileSheetSelect,
+  :global(html body) .mobileFilterSheet .heroFilterSelect,
+  :global(html body) .mobileFilterSheet .heroYearBox,
+  :global(html body) .mobileFilterSheet .heroFilterInput {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) .mobileFilterSheet .mobileSheetSelect strong,
+  :global(html body) .mobileFilterSheet .heroFilterSelect strong,
+  :global(html body) .mobileFilterSheet .heroYearBox strong {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  :global(html body) main[data-home-page] .heroSellCallout {
+    align-items: center !important;
+    gap: 10px 14px !important;
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 18px 20px !important;
+  }
+
+  :global(html body) main[data-home-page] .heroSellCallout > span:nth-child(2) {
+    min-width: 0 !important;
+  }
+
+  :global(html body) main[data-home-page] .heroSellCallout strong,
+  :global(html body) main[data-home-page] .heroSellCallout small {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+  }
+
+  :global(html body) main[data-home-page] .heroSellCallout strong {
+    font-size: clamp(14px, 2.1vw, 17px) !important;
+    line-height: 1.25 !important;
+  }
+
+  :global(html body) main[data-home-page] .heroSellCallout > a {
+    grid-column: 1 / -1 !important;
+    margin-top: 4px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) main[data-home-page] .heroReferenceBenefits {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    overflow: hidden !important;
+  }
+
+  :global(html body) main[data-home-page] .heroReferenceBenefits > span,
+  :global(html body) main[data-home-page] .heroReferenceBenefits > span > * {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  :global(html body) main[data-home-page] .heroReferenceBenefits strong,
+  :global(html body) main[data-home-page] .heroReferenceBenefits small {
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestGrid,
+  :global(html body) main[data-home-page] .heroDesktopLatestGridExpanded {
+    gap: 12px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
 

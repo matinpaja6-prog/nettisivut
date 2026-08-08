@@ -8667,6 +8667,209 @@ export default function ProfilePage() {
             display: none !important;
           }
         }
+
+        /* Login palette for every profile tab and account surface. */
+        html body .pf-page {
+          --pf-auth-page: #071421;
+          --pf-auth-surface: #0b151f;
+          --pf-auth-surface-deep: #06101b;
+          --pf-auth-input: rgba(3, 17, 29, 0.78);
+          --pf-auth-line: rgba(112, 145, 175, 0.3);
+          --pf-auth-line-soft: rgba(119, 147, 174, 0.2);
+          --pf-auth-text: #f5f8fb;
+          --pf-auth-muted: #93a5b8;
+          --pf-auth-icon: #8fa2b5;
+          --pf-auth-orange: var(--brand-primary, #ff7a18);
+          --pf-auth-orange-light: var(--brand-accent, #ff8f20);
+          background:
+            radial-gradient(circle at 50% 8%, color-mix(in srgb, var(--pf-auth-orange) 8%, transparent), transparent 35%),
+            var(--pf-auth-page) !important;
+          color: var(--pf-auth-text) !important;
+        }
+
+        html body .pf-page .pf-sidebar,
+        html body .pf-page :is(.pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section),
+        html body .pf-page .pf-insight-card,
+        html body .pf-page .pf-save-bar {
+          background:
+            radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--pf-auth-orange) 5%, transparent), transparent 38%),
+            linear-gradient(155deg, var(--pf-auth-surface), var(--pf-auth-surface-deep)) !important;
+          border-color: var(--pf-auth-line) !important;
+          box-shadow:
+            0 24px 70px rgba(0, 0, 0, 0.32),
+            inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+        }
+
+        html body .pf-page :is(.pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section)::before {
+          background: linear-gradient(90deg, var(--pf-auth-orange), var(--pf-auth-orange-light), transparent 82%) !important;
+        }
+
+        html body .pf-page :is(.pf-section, .pf-info-card, .pf-public-profile-section, .pf-company-sellers-section):hover {
+          border-color: color-mix(in srgb, var(--pf-auth-orange) 42%, transparent) !important;
+          box-shadow:
+            0 27px 74px rgba(0, 0, 0, 0.36),
+            0 0 0 1px color-mix(in srgb, var(--pf-auth-orange) 5%, transparent),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+        }
+
+        html body .pf-page .pf-user-card {
+          background:
+            radial-gradient(220px 140px at 8% 0%, color-mix(in srgb, var(--pf-auth-orange) 12%, transparent), transparent 72%),
+            linear-gradient(155deg, var(--pf-auth-surface), var(--pf-auth-surface-deep)) !important;
+          border-bottom-color: var(--pf-auth-line-soft) !important;
+        }
+
+        html body .pf-page .pf-user-card::after {
+          border-color: color-mix(in srgb, var(--pf-auth-orange) 18%, transparent) !important;
+        }
+
+        html body .pf-page .pf-avatar,
+        html body .pf-page .pf-avatar-upload,
+        html body .pf-page .profile-avatar-initial {
+          background:
+            radial-gradient(circle at 42% 24%, color-mix(in srgb, var(--pf-auth-orange) 18%, transparent), transparent 58%),
+            var(--pf-auth-input) !important;
+          border-color: var(--pf-auth-orange) !important;
+        }
+
+        html body .pf-page .pf-user-name,
+        html body .pf-page :is(.pf-info-card-head h2, .pf-section-head h2),
+        html body .pf-page .pf-insight-heading h2 {
+          color: var(--pf-auth-text) !important;
+        }
+
+        html body .pf-page .pf-company-badge,
+        html body .pf-page :is(.pf-info-card-head p, .pf-section-head p),
+        html body .pf-page :is(.pf-info-label, .pf-field label),
+        html body .pf-page .pf-insight-heading p,
+        html body .pf-page .pf-completion-overview > div:last-child span,
+        html body .pf-page .pf-last-updated {
+          color: var(--pf-auth-muted) !important;
+        }
+
+        html body .pf-page .pf-nav-item {
+          border-bottom-color: var(--pf-auth-line-soft) !important;
+          color: var(--pf-auth-muted) !important;
+        }
+
+        html body .pf-page .pf-nav-item > svg:first-child {
+          color: var(--pf-auth-icon) !important;
+        }
+
+        html body .pf-page .pf-nav-item:hover,
+        html body .pf-page .pf-nav-active {
+          background: linear-gradient(90deg, color-mix(in srgb, var(--pf-auth-orange) 18%, transparent), transparent 86%) !important;
+          border-left-color: var(--pf-auth-orange) !important;
+          color: var(--pf-auth-text) !important;
+        }
+
+        html body .pf-page .pf-nav-active::after {
+          background: var(--pf-auth-orange) !important;
+          box-shadow: 0 0 14px color-mix(in srgb, var(--pf-auth-orange) 52%, transparent) !important;
+        }
+
+        html body .pf-page :is(.pf-info-card-head, .pf-section-head) {
+          background: linear-gradient(90deg, color-mix(in srgb, var(--pf-auth-orange) 6%, transparent), transparent 48%) !important;
+        }
+
+        html body .pf-page :is(.pf-info-title-icon, .pf-section-head > svg),
+        html body .pf-page #julkinen-profiili .pf-section-head > svg,
+        html body .pf-page .pf-insight-icon {
+          background: color-mix(in srgb, var(--pf-auth-orange) 9%, transparent) !important;
+          border-color: color-mix(in srgb, var(--pf-auth-orange) 48%, transparent) !important;
+          color: var(--pf-auth-orange-light) !important;
+        }
+
+        html body .pf-page :is(.pf-info-rows, #julkinen-profiili .pf-public-fields, #osoite .pf-address-rows) {
+          background: transparent !important;
+          border-color: var(--pf-auth-line-soft) !important;
+        }
+
+        html body .pf-page :is(.pf-info-row, #julkinen-profiili .pf-field, #julkinen-profiili .pf-field.pf-field-wide) {
+          background: linear-gradient(90deg, rgba(255, 255, 255, 0.018), transparent) !important;
+          border-color: var(--pf-auth-line-soft) !important;
+          border-bottom-color: var(--pf-auth-line-soft) !important;
+        }
+
+        html body .pf-page :is(.pf-info-row, #julkinen-profiili .pf-field):hover {
+          background: linear-gradient(90deg, color-mix(in srgb, var(--pf-auth-orange) 6%, transparent), transparent) !important;
+          border-color: color-mix(in srgb, var(--pf-auth-orange) 22%, transparent) !important;
+        }
+
+        html body .pf-page :is(.pf-info-row-icon, .pf-field-icon) {
+          background: var(--pf-auth-input) !important;
+          border-color: var(--pf-auth-line) !important;
+          color: var(--pf-auth-icon) !important;
+        }
+
+        html body .pf-page :is(.pf-info-row, #julkinen-profiili .pf-field):hover :is(.pf-info-row-icon, .pf-field-icon) {
+          background: color-mix(in srgb, var(--pf-auth-orange) 10%, var(--pf-auth-input)) !important;
+          border-color: color-mix(in srgb, var(--pf-auth-orange) 36%, transparent) !important;
+          color: var(--pf-auth-orange-light) !important;
+        }
+
+        html body .pf-page :is(
+          .pf-info-value input,
+          .pf-info-value input:disabled,
+          .pf-info-value > span,
+          .pf-phone-number,
+          #julkinen-profiili input,
+          #julkinen-profiili textarea,
+          #osoite input
+        ) {
+          color: var(--pf-auth-text) !important;
+          -webkit-text-fill-color: var(--pf-auth-text) !important;
+        }
+
+        html body .pf-page :is(
+          .pf-info-value input:not(:disabled):focus,
+          #julkinen-profiili input:focus,
+          #julkinen-profiili textarea:focus,
+          #osoite input:focus
+        ) {
+          background: var(--pf-auth-input) !important;
+          border-color: var(--pf-auth-orange) !important;
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--pf-auth-orange) 14%, transparent) !important;
+        }
+
+        html body .pf-page :is(.pf-avatar-action, .pf-inline-btn, .company-seller-small-btn, .pf-logout-button) {
+          background: var(--pf-auth-input) !important;
+          border-color: var(--pf-auth-line) !important;
+          color: #eff5fa !important;
+        }
+
+        html body .pf-page :is(.pf-inline-btn.verify, .company-seller-add-btn, .pf-save-btn) {
+          background: linear-gradient(100deg, var(--pf-auth-orange-light), var(--pf-auth-orange)) !important;
+          border-color: color-mix(in srgb, var(--pf-auth-orange-light) 62%, transparent) !important;
+          box-shadow: 0 12px 26px color-mix(in srgb, var(--pf-auth-orange) 20%, transparent) !important;
+          color: #ffffff !important;
+        }
+
+        html body .pf-page :is(.company-seller-card, .company-seller-add, .company-seller-empty),
+        html body .pf-page :is(.pf-phone-modal, .pf-avatar-crop-modal) {
+          background: var(--pf-auth-input) !important;
+          border-color: var(--pf-auth-line) !important;
+        }
+
+        html body .pf-page .pf-modal-backdrop {
+          background: rgba(2, 8, 14, 0.78) !important;
+        }
+
+        html body .pf-page .pf-password-field > span,
+        html body .pf-page .pf-mfa-code-field span {
+          color: #e4edf5 !important;
+        }
+
+        html body .pf-page :is(.pf-password-field input, .pf-mfa-code-field input) {
+          background: var(--pf-auth-input) !important;
+          border-color: var(--pf-auth-line) !important;
+          color: var(--pf-auth-text) !important;
+        }
+
+        html body .pf-page :is(.pf-password-field input, .pf-mfa-code-field input):focus {
+          border-color: var(--pf-auth-orange) !important;
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--pf-auth-orange) 14%, transparent) !important;
+        }
       `}</style>
 
     </main>

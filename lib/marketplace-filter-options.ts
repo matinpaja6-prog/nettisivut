@@ -424,7 +424,7 @@ export function buildMarketplaceFilterOptions({
     brand,
     model,
     [],
-    subtypeModels ? models : undefined
+    subtypeModels ?? undefined
   );
 
   return {

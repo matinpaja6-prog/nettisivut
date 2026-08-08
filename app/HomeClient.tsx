@@ -1688,21 +1688,28 @@ function BodyPortal({ enabled, children }: { enabled: boolean; children: ReactNo
 }
 
 export default function Home({
-  initialListings = []
+  initialListings = [],
+  initialSearchQuery = ""
 }: {
   initialListings?: Listing[];
+  initialSearchQuery?: string;
 }) {
   return (
     <Suspense fallback={<PageLoadingFallback />}>
-      <HomeContent initialListings={initialListings} />
+      <HomeContent
+        initialListings={initialListings}
+        initialSearchQuery={initialSearchQuery}
+      />
     </Suspense>
   );
 }
 
 function HomeContent({
-  initialListings
+  initialListings,
+  initialSearchQuery
 }: {
   initialListings: Listing[];
+  initialSearchQuery: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -1732,6 +1739,7 @@ function HomeContent({
   const resultsRef = useRef<HTMLElement | null>(null);
   const favoritesHydrated = useRef(false);
   const listingsPageFetchRef = useRef(false);
+  const fullSearchCatalogRequestedRef = useRef(false);
   const garageUrlFilterAppliedRef = useRef(false);
 
   const [activeLocale, setActiveLocale] = useState<SupportedLocale>("fi");
@@ -1748,7 +1756,7 @@ function HomeContent({
 
   const [favorites, setFavorites] = useState<string[]>([]);
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialSearchQuery);
   const [compactHeroSearch, setCompactHeroSearch] = useState(false);
   // Keep the server and browser's first render identical. The responsive
   // effect below applies the actual viewport state immediately after mount.
@@ -1759,7 +1767,7 @@ function HomeContent({
   const mobileSheetFormRef = useRef<HTMLDivElement | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [listingsExpanded, setListingsExpanded] = useState(false);
+  const [listingsExpanded, setListingsExpanded] = useState(Boolean(initialSearchQuery));
   const [catalogOnlyView, setCatalogOnlyView] = useState(false);
   const [pageJumpValue, setPageJumpValue] = useState("");
   const [pageJumpOpen, setPageJumpOpen] = useState(false);
@@ -2053,7 +2061,7 @@ function HomeContent({
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(100000);
   const [appliedListingFilters, setAppliedListingFilters] = useState<AppliedListingFilters>({
-    query: "",
+    query: initialSearchQuery,
     category: "",
     subcategory: "",
     vehicleType: "",
@@ -2074,9 +2082,9 @@ function HomeContent({
   });
 
   const [sort, setSort] = useState<SortValue>("Osuvimmat ensin");
-  const [recommendationsMode, setRecommendationsMode] = useState(true);
+  const [recommendationsMode, setRecommendationsMode] = useState(!initialSearchQuery);
   const [homeSortOpen, setHomeSortOpen] = useState(false);
-  const [homeLatestExpanded, setHomeLatestExpanded] = useState(false);
+  const [homeLatestExpanded, setHomeLatestExpanded] = useState(Boolean(initialSearchQuery));
   const [sortSheetOpen, setSortSheetOpen] = useState(false);
 
   useEffect(() => {
@@ -2412,9 +2420,9 @@ function HomeContent({
   }, [homeLatestExpanded, catalogOnlyView, compactHeroSearch]);
 
   useEffect(() => {
-    const media = window.matchMedia("(max-width: 800px)");
+    const media = window.matchMedia("(max-width: 900px)");
     const closeCompactSearch = () => {
-      if (!media.matches && window.innerWidth > 800) return;
+      if (!media.matches && window.innerWidth > 900) return;
 
       setHomeSearchPanelOpen(false);
       setMobileFilterExpanded(false);
@@ -2422,7 +2430,7 @@ function HomeContent({
       setActiveHeroFilter(null);
     };
     const syncCompactSearch = () => {
-      const isMobileSearch = media.matches || window.innerWidth <= 800;
+      const isMobileSearch = media.matches || window.innerWidth <= 900;
       setCompactHeroSearch(isMobileSearch);
       if (isMobileSearch) closeCompactSearch();
     };
@@ -2439,7 +2447,7 @@ function HomeContent({
 
   const openMobileHomeSearchSheet = useCallback(() => {
     const isMobileSearch = typeof window !== "undefined"
-      ? window.matchMedia("(max-width: 800px)").matches || window.innerWidth <= 800
+      ? window.matchMedia("(max-width: 900px)").matches || window.innerWidth <= 900
       : compactHeroSearch;
 
     if (isMobileSearch) {
@@ -2459,7 +2467,7 @@ function HomeContent({
 
   const handleHeroMainSearchButtonClick = useCallback((event: ReactMouseEvent<HTMLButtonElement>) => {
     const isMobileSearch = typeof window !== "undefined"
-      ? window.matchMedia("(max-width: 800px)").matches || window.innerWidth <= 800
+      ? window.matchMedia("(max-width: 900px)").matches || window.innerWidth <= 900
       : compactHeroSearch;
 
     if (!isMobileSearch) return;
@@ -2944,6 +2952,46 @@ function HomeContent({
     setLocaleReady(true);
   }, []);
 
+  /*
+   * The initial home feed is intentionally capped for a fast first paint.
+   * A search must not use that cap, though: part-number listings are often
+   * older than the newest feed page. Load the complete public catalogue once
+   * the user submits a search and merge it into the already rendered cards.
+   */
+  useEffect(() => {
+    const searchTerm = appliedListingFilters.query.trim();
+    if (!searchTerm || fullSearchCatalogRequestedRef.current) return;
+
+    let cancelled = false;
+    fullSearchCatalogRequestedRef.current = true;
+
+    void getListings({ includeOptionalFields: true })
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          fullSearchCatalogRequestedRef.current = false;
+          console.warn("Koko ilmoitushaun lataus epäonnistui.", error);
+          return;
+        }
+
+        const publicData = (data ?? []).filter(isPublicListing);
+        setListings((current) => {
+          const listingsById = new Map(current.map((listing) => [listing.id, listing]));
+          for (const listing of publicData) listingsById.set(listing.id, listing);
+          return Array.from(listingsById.values());
+        });
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        fullSearchCatalogRequestedRef.current = false;
+        console.warn("Koko ilmoitushaun lataus epäonnistui.", error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [appliedListingFilters.query]);
+
   useEffect(() => {
     if (!localeReady) return;
     applyLocale(activeLocale);
@@ -3274,12 +3322,8 @@ function HomeContent({
           listing.price >= appliedMinPrice &&
           listing.price <= appliedMaxPrice;
 
-        if (queryIsIdentifierSearch) {
-          return directIdentifierMatch && matchesPrice;
-        }
-
-        if (directPartNumberMatch) {
-          return matchesPrice;
+        if (queryIsIdentifierSearch || directPartNumberMatch) {
+          return (directIdentifierMatch || directPartNumberMatch) && matchesPrice;
         }
 
         return (
@@ -4916,13 +4960,13 @@ function HomeContent({
                 className={styles.heroDesktopLatest}
               >
                 {!hasNoHomeSearchResults ? (
-                <div className={styles.heroDesktopLatestHead}>
+                <div data-home-latest-head className={styles.heroDesktopLatestHead}>
                   <strong>
                     {!homeLatestExpanded
                       ? homeResultsText.latest
                       : homeResultsText.results(filteredListings.length)}
                   </strong>
-                  <div className={styles.heroDesktopLatestActions}>
+                  <div data-home-latest-actions className={styles.heroDesktopLatestActions}>
                     {renderSortControl(styles.heroDesktopLatestSort)}
                   </div>
                 </div>

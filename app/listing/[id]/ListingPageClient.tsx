@@ -633,6 +633,52 @@ export default function ListingPage({
   const swipeMovedRef =
     useRef(false);
 
+  const sellerCardHeaderRef =
+    useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const header = sellerCardHeaderRef.current;
+    if (!header) return;
+
+    const narrowPhone = window.matchMedia("(max-width: 420px)");
+    const profileButton = header.querySelector<HTMLElement>(".seller-profile-btn-top");
+    const mobileProperties: Array<[string, string]> = [
+      ["align-items", "start"],
+      ["display", "grid"],
+      ["flex-direction", "column"],
+      ["gap", "12px"],
+      ["grid-template-columns", "minmax(0, 1fr)"],
+      ["justify-items", "start"]
+    ];
+
+    const syncSellerHeaderLayout = () => {
+      for (const [property, value] of mobileProperties) {
+        if (narrowPhone.matches) {
+          header.style.setProperty(property, value, "important");
+        } else {
+          header.style.removeProperty(property);
+        }
+      }
+
+      if (profileButton) {
+        if (narrowPhone.matches) {
+          profileButton.style.setProperty("align-self", "end", "important");
+          profileButton.style.setProperty("justify-self", "end", "important");
+          profileButton.style.setProperty("margin", "0", "important");
+        } else {
+          profileButton.style.removeProperty("align-self");
+          profileButton.style.removeProperty("justify-self");
+          profileButton.style.removeProperty("margin");
+        }
+      }
+    };
+
+    syncSellerHeaderLayout();
+    narrowPhone.addEventListener("change", syncSellerHeaderLayout);
+
+    return () => narrowPhone.removeEventListener("change", syncSellerHeaderLayout);
+  }, [listing?.id]);
+
   const sellerIdForPublicStats =
     listing?.seller_id ?? null;
 
@@ -1752,7 +1798,7 @@ export default function ListingPage({
             <div className="seller-card" data-seller-panel>
 
               <div className="seller-card-body seller-card-panel">
-                <div className="seller-card-top">
+                <div ref={sellerCardHeaderRef} id="listing-seller-card-header" className="seller-card-top seller-card-top-mobile-safe">
                   {sellerAccountTypeLabel ? (
                     <div className={`seller-type-corner${sellerCompanyVerifiedAt ? " is-company-verified" : ""}`}>
                       <ShieldCheck size={14} />
@@ -2145,7 +2191,14 @@ export default function ListingPage({
             onClick={() => setPreviewImage(null)}
             aria-label="Sulje kuvan esikatselu"
           />
-          <div className="listing-image-preview-panel">
+          <div
+            className="listing-image-preview-panel"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) {
+                setPreviewImage(null);
+              }
+            }}
+          >
             <OptimizedListingImage
               src={previewImage}
               alt={listingText.title}

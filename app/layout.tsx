@@ -43,6 +43,11 @@ import "./styles/profile-gray-final.css";
 import "./styles/default-avatar-final.css";
 import "./styles/neutral-detail-final.css";
 import "./styles/requested-polish.css";
+import "./styles/seller-card-mobile-fix.css";
+import "./styles/auth-surface-color-fix.css";
+import "./styles/auth-loading.css";
+import "./styles/unified-sheet-surfaces.css";
+import "./styles/site-responsive-final.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";
@@ -181,6 +186,7 @@ export default function RootLayout({
             '#0e1721': true
           };
           var cardColor = legacyCardColors[rawCardColor] ? '#071321' : a.card_color;
+          r.setProperty('--app-sheet-surface', cardColor);
           r.setProperty('--site-card', cardColor);
           r.setProperty('--listing-card-bg', cardColor);
         }

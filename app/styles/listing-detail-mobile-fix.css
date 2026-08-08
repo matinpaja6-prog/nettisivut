@@ -516,6 +516,88 @@ html body [class*="heroFilterMenuOption"][class*="Active"] {
   }
 }
 
+/* Mobile listing lightbox: keep the app bars visible, preserve the complete
+   photo and use the rest of the viewport as the outside-to-close area. */
+@media (max-width: 720px) {
+  html body main.page.listing-detail-page.listing-detail-page
+    .listing-image-preview.listing-image-preview {
+    --listing-preview-bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+    --listing-preview-top: calc(var(--topbar-h, 64px) + 6px);
+    align-items: center !important;
+    background: #010812 !important;
+    height: calc(100dvh - var(--listing-preview-top)) !important;
+    inset: var(--listing-preview-top) 0 0 !important;
+    justify-content: center !important;
+    padding:
+      14px
+      12px
+      calc(var(--listing-preview-bottom) + 14px) !important;
+    -webkit-transform: translateZ(0) !important;
+    width: 100vw !important;
+  }
+
+  html body main.page.listing-detail-page.listing-detail-page
+    .listing-image-preview-backdrop.listing-image-preview-backdrop {
+    background: #010812 !important;
+    inset: 0 !important;
+  }
+
+  html body:has(.listing-image-preview) .universal-app-topbar {
+    z-index: 2147481900 !important;
+  }
+
+  html body:has(.listing-image-preview) .bottom-nav.bottom-nav-main {
+    z-index: 2147481900 !important;
+  }
+
+  html body main.page.listing-detail-page.listing-detail-page
+    .listing-image-preview-panel.listing-image-preview-panel {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 12px !important;
+    height: auto !important;
+    max-height: calc(100dvh - var(--listing-preview-top) - var(--listing-preview-bottom) - 28px) !important;
+    max-width: calc(100vw - 24px) !important;
+    width: calc(100vw - 24px) !important;
+  }
+
+  html body main.page.listing-detail-page.listing-detail-page
+    .listing-image-preview-panel.listing-image-preview-panel > img {
+    display: block !important;
+    height: auto !important;
+    max-height: calc(100dvh - var(--listing-preview-top) - var(--listing-preview-bottom) - 28px) !important;
+    max-width: calc(100vw - 24px) !important;
+    min-width: 100% !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    width: 100% !important;
+  }
+
+  html body main.page.listing-detail-page.listing-detail-page
+    .listing-image-preview-close.listing-image-preview-close {
+    height: 38px !important;
+    right: 8px !important;
+    top: 8px !important;
+    width: 38px !important;
+  }
+}
+
+@supports not (height: 100dvh) {
+  @media (max-width: 720px) {
+    html body main.page.listing-detail-page.listing-detail-page
+      .listing-image-preview.listing-image-preview {
+      height: calc(100vh - var(--listing-preview-top)) !important;
+    }
+
+    html body main.page.listing-detail-page.listing-detail-page
+      .listing-image-preview-panel.listing-image-preview-panel,
+    html body main.page.listing-detail-page.listing-detail-page
+      .listing-image-preview-panel.listing-image-preview-panel > img {
+      max-height: calc(100vh - var(--listing-preview-top) - var(--listing-preview-bottom) - 28px) !important;
+    }
+  }
+}
+
 html body .listing-detail-page .seller-contact-merged .contact-login-notice {
   align-items: center !important;
   background:

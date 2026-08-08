@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { listingNumberUrlId, listingPath, listingUrlId, pagePath } from "@/lib/routes";
+import { seoListingSearchQuery, seoSearchPath } from "@/lib/seo-search";
 import { absoluteSiteUrl } from "@/lib/site-url";
 import { getListingDisplayNumber, getListings } from "@/lib/supabase";
 
@@ -51,5 +52,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
   );
 
-  return [...staticEntries, ...listingEntries];
+  const searchPages = new Map<string, Date | undefined>();
+  for (const listing of listings.filter((item) => !item.is_hidden && !item.is_sold)) {
+    const query = seoListingSearchQuery(listing);
+    if (!query) continue;
+    const path = seoSearchPath(query);
+    const createdAt = new Date(listing.created_at);
+    const date = Number.isNaN(createdAt.getTime()) ? undefined : createdAt;
+    const previous = searchPages.get(path);
+    if (!previous || (date && date > previous)) searchPages.set(path, date);
+  }
+
+  const searchEntries: MetadataRoute.Sitemap = [...searchPages.entries()].map(
+    ([path, lastModified]) => ({
+      url: absoluteSiteUrl(path),
+      ...(lastModified ? { lastModified } : {}),
+      changeFrequency: "daily",
+      priority: 0.75
+    })
+  );
+
+  return [...staticEntries, ...searchEntries, ...listingEntries];
 }

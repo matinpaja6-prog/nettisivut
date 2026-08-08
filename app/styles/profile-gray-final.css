@@ -7,11 +7,11 @@ html body:has(.pf-page) {
 
 html body .pf-page {
   --pf-grey-page: #181a1d;
-  --pf-grey-panel: #1e2023;
-  --pf-grey-panel-raised: #24272b;
-  --pf-grey-field: #202327;
-  --pf-grey-border: #3a3e43;
-  --pf-grey-border-soft: #30343a;
+  --pf-grey-panel: var(--app-sheet-surface, #0b151f);
+  --pf-grey-panel-raised: var(--app-sheet-surface-raised, #0a1b2a);
+  --pf-grey-field: var(--app-sheet-surface-raised, #081827);
+  --pf-grey-border: var(--app-sheet-border, #263b4e);
+  --pf-grey-border-soft: var(--app-sheet-border, #1d3244);
   --pf-grey-icon: #aeb6c0;
   background: var(--maskines-page-background, var(--site-bg, var(--pf-grey-page))) !important;
   background-color: var(--maskines-page-background, var(--site-bg, var(--pf-grey-page))) !important;
@@ -146,9 +146,9 @@ html body .pf-page .pf-avatar-action.danger {
  * visual result even when those rules are rendered after the global CSS.
  */
 html body .pf-page.pf-page {
-  --pf-unified-surface: #1e2023;
-  --pf-unified-surface-hover: #25282c;
-  --pf-unified-line: #3a3e43;
+  --pf-unified-surface: var(--app-sheet-surface, #0b151f);
+  --pf-unified-surface-hover: var(--app-sheet-surface-raised, #0a1b2a);
+  --pf-unified-line: var(--app-sheet-border, #263b4e);
   --pf-cool-accent: #ff8a22;
   --pf-cool-accent-strong: #f36f0b;
   background: var(--maskines-page-background, var(--site-bg, #181a1d)) !important;
@@ -407,7 +407,7 @@ html body .pf-page.pf-page :is(
   .pf-insight-icon,
   .pf-mfa-option-icon
 ) {
-  background: #25282c !important;
+  background: var(--pf-unified-surface-hover) !important;
   border: 1px solid rgba(255, 137, 34, 0.72) !important;
   color: #ff922f !important;
 }
@@ -424,7 +424,7 @@ html body .pf-page.pf-page :is(
   #julkinen-profiili textarea,
   #osoite input
 ) {
-  background: #25282c !important;
+  background: var(--pf-unified-surface-hover) !important;
   border-color: rgba(255, 132, 31, 0.52) !important;
   color: #f3f4f5 !important;
 }

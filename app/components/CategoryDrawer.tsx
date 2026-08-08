@@ -803,10 +803,10 @@ export const ENGINE_MODELS: Record<string, Record<string, string[]>> = {
   Mopot: {
     Yamaha:  ["Minarelli AM6 (DT 50 R, TZR 50)", "Yamaha 2-tahti 80cc (DT 80, RD 80)", "Minarelli Pysty \u2013 Vertical skootteri (BW's, Slider, MBK Booster, Stunt)", "Minarelli Vaaka \u2013 Horizontal skootteri (Aerox, Jog, Neo's, MBK Nitro, Ovetto)", "4-tahti 125cc (Xenter 125, WR125)"],
     Honda:   ["Honda 2-tahti (NSR 50, MB 80)", "Honda 4-tahti skootteri (Dio, SH 50, Zoomer, Vision)", "Honda 4-tahti 125cc (MSX 125, PCX 125, CBF 125)"],
-    Derbi:   ["Minarelli AM6 (GPR 50 -2005, Senda SM/DRD -2005)", "Derbi D50B0 (Senda 50 2006+, GPR 50 2006+)", "Minarelli Vaaka \u2013 Horizontal skootteri (Vamos 50)", "4-tahti 125cc (Mulhacen 125, Terra 125)"],
+    Derbi:   ["Rabasa - vanha malli (ennen 2006)", "Rabasa - uusi malli (D50B0, 2006+)", "Minarelli Vaaka \u2013 Horizontal skootteri (Vamos 50)", "4-tahti 125cc (Mulhacen 125, Terra 125)"],
     Rieju:   ["Minarelli AM6 (RS1, RS2, RS3, MRT, RR, RRX, Spike, Marathon)"],
     KTM:     ["KTM 2-tahti mini (SX 50, SX 65)", "4-tahti 125cc (Duke 125, RC 125, Duke 200)"],
-    Aprilia: ["Minarelli AM6 (RS 50 -2005, RX 50 -2005, MX 50)", "Derbi D50B0 (RS 50 2006+, RX 50 2006+, SX 50, RS4 50)", "Minarelli Vaaka \u2013 Horizontal skootteri (SR 50 R, Scarabeo 50)", "4-tahti 125cc (RS4 125, RS 125)"]
+    Aprilia: ["Minarelli AM6 (RS 50 -2005, RX 50 -2005, MX 50)", "Rabasa - uusi malli (D50B0, 2006+)", "Minarelli Vaaka \u2013 Horizontal skootteri (SR 50 R, Scarabeo 50)", "4-tahti 125cc (RS4 125, RS 125)"]
   }
 };
 
@@ -900,8 +900,8 @@ export const MODEL_ENGINE_OPTIONS: Record<string, Record<string, Record<string, 
       Jog: ["Minarelli Vaaka – Horizontal skootteri (Aerox, Jog, Neo's, MBK Nitro, Ovetto)"]
     },
     Derbi: {
-      Senda: ["Derbi D50B0 (Senda 50 2006+, GPR 50 2006+)", "Minarelli AM6 (GPR 50 -2005, Senda SM/DRD -2005)"],
-      GPR: ["Derbi D50B0 (Senda 50 2006+, GPR 50 2006+)", "Minarelli AM6 (GPR 50 -2005, Senda SM/DRD -2005)"]
+      Senda: ["Rabasa - vanha malli (ennen 2006)", "Rabasa - uusi malli (D50B0, 2006+)"],
+      GPR: ["Rabasa - vanha malli (ennen 2006)", "Rabasa - uusi malli (D50B0, 2006+)"]
     },
     Rieju: {
       MRT: ["Minarelli AM6 (RS1, RS2, RS3, MRT, RR, RRX, Spike, Marathon)"],
@@ -914,6 +914,19 @@ const CUSTOM_OPTION_LABEL = "Muu (kirjoita itse)";
 
 function uniqueOptions(values: Array<string | undefined>) {
   return Array.from(new Set(values.filter((value): value is string => Boolean(value?.trim()))));
+}
+
+function modelNamesMatch(first: string, second: string) {
+  const normalizedFirst = normalizeIconText(first).trim();
+  const normalizedSecond = normalizeIconText(second).trim();
+  if (!normalizedFirst || !normalizedSecond) return false;
+  if (normalizedFirst === normalizedSecond) return true;
+
+  const [shorter, longer] = normalizedFirst.length <= normalizedSecond.length
+    ? [normalizedFirst, normalizedSecond]
+    : [normalizedSecond, normalizedFirst];
+
+  return shorter.length >= 2 && longer.startsWith(`${shorter} `);
 }
 
 export const VEHICLE_SUBTYPE_OPTIONS: Record<string, string[]> = {
@@ -1003,7 +1016,7 @@ export function getModelEngineOptions(
   brand: string,
   model: string,
   fallback: string[],
-  allowedModels?: string[]
+  allowedModelsByBrand?: Record<string, string[]>
 ) {
   const vehicleKey = getCategoryVehicleKey(vehicle);
   const commonVehicleKey = getCommonVehicleKey(vehicle);
@@ -1028,30 +1041,29 @@ export function getModelEngineOptions(
         const exact = modelsByName[model];
         if (exact?.length) return exact;
 
-        const fuzzy = Object.entries(modelsByName).find(([key]) => {
-          const normalizedKey = normalizeIconText(key);
-          return normalizedModel.includes(normalizedKey) || normalizedKey.includes(normalizedModel);
-        });
+        const fuzzy = Object.entries(modelsByName).find(([key]) =>
+          modelNamesMatch(normalizedModel, key)
+        );
         return fuzzy?.[1] ?? [];
       });
     });
     if (matchingEngines.length > 0) return uniqueOptions(matchingEngines);
   }
 
-  if (allowedModels) {
-    const normalizedAllowedModels = allowedModels.map(normalizeIconText);
+  if (allowedModelsByBrand) {
     const subtypeEngines = modelEngineSources.flatMap((source) => {
-      const brands = brand ? [source[brand]].filter(Boolean) : Object.values(source);
-      return brands.flatMap((modelsByName) =>
-        Object.entries(modelsByName).flatMap(([modelName, engines]) => {
-          const normalizedModelName = normalizeIconText(modelName);
-          const matchesAllowedModel = normalizedAllowedModels.some(
-            (allowedModel) =>
-              allowedModel.includes(normalizedModelName) || normalizedModelName.includes(allowedModel)
+      const brands = brand
+        ? ([[brand, source[brand]]] as const).filter((entry) => Boolean(entry[1]))
+        : Object.entries(source);
+      return brands.flatMap(([sourceBrand, modelsByName]) => {
+        const allowedModels = allowedModelsByBrand[sourceBrand] ?? [];
+        return Object.entries(modelsByName).flatMap(([modelName, engines]) => {
+          const matchesAllowedModel = allowedModels.some((allowedModel) =>
+            modelNamesMatch(allowedModel, modelName)
           );
           return matchesAllowedModel ? engines : [];
-        })
-      );
+        });
+      });
     });
 
     return uniqueOptions([...subtypeEngines, ...fallback]);
@@ -1260,14 +1272,14 @@ const COMMON_MODEL_ENGINES_BY_VEHICLE: Record<string, Record<string, Record<stri
       Rocket: ["Minarelli vertical AC"]
     },
     Derbi: {
-      Senda: ["Derbi D50B0", "Derbi EBS", "Derbi EBE"],
-      DRD: ["Derbi D50B0", "Derbi EBS"],
-      Xtreme: ["Derbi D50B0", "Derbi EBS"],
-      Racing: ["Derbi D50B0", "Derbi EBS"],
-      GPR: ["Derbi D50B0", "Derbi EBS", "Derbi EBE"],
-      Atlantis: ["Piaggio Hi-Per2", "Derbi EBS"],
+      Senda: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      DRD: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      Xtreme: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      Racing: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      GPR: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      Atlantis: ["Piaggio Hi-Per2"],
       Variant: ["Piaggio Hi-Per2"],
-      Terra: ["Derbi D50B0"]
+      Terra: ["Rabasa - uusi malli (D50B0)"]
     },
     Rieju: {
       MRT: ["Minarelli AM6"],
@@ -1280,9 +1292,9 @@ const COMMON_MODEL_ENGINES_BY_VEHICLE: Record<string, Record<string, Record<stri
       Spike: ["Minarelli AM6"]
     },
     Aprilia: {
-      SX: ["Derbi D50B0", "Minarelli AM6"],
-      RX: ["Derbi D50B0", "Minarelli AM6"],
-      RS: ["Derbi D50B0", "Minarelli AM6"],
+      SX: ["Rabasa - uusi malli (D50B0)", "Minarelli AM6"],
+      RX: ["Rabasa - uusi malli (D50B0)", "Minarelli AM6"],
+      RS: ["Rabasa - uusi malli (D50B0)", "Minarelli AM6"],
       SR: ["Piaggio Hi-Per2 AC", "Piaggio Hi-Per2 LC", "Minarelli horizontal AC", "Minarelli horizontal LC", "Morini"],
       Rally: ["Minarelli horizontal AC", "Piaggio Hi-Per2 AC"],
       Sonic: ["Minarelli horizontal AC", "Minarelli horizontal LC"],
@@ -1313,8 +1325,8 @@ const COMMON_MODEL_ENGINES_BY_VEHICLE: Record<string, Record<string, Record<stri
     },
     Gilera: {
       Runner: ["Piaggio Hi-Per2 LC", "Piaggio PureJet"],
-      SMT: ["Derbi D50B0"],
-      RCR: ["Derbi D50B0"],
+      SMT: ["Rabasa - uusi malli (D50B0)"],
+      RCR: ["Rabasa - uusi malli (D50B0)"],
       Stalker: ["Piaggio Hi-Per2 AC"],
       DNA: ["Piaggio Hi-Per2 LC"],
       Ice: ["Piaggio Hi-Per2 AC"],

@@ -1,0 +1,28 @@
+/* Loaded as its own asset so mobile browsers cannot reuse an older immutable
+   global stylesheet after this seller-card fix is deployed. */
+@media (max-width: 420px) {
+  html body #listing-seller-card-header.seller-card-top-mobile-safe {
+    align-items: start !important;
+    display: grid !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-items: start !important;
+  }
+
+  html body #listing-seller-card-header
+    .seller-type-corner.seller-type-corner,
+  html body #listing-seller-card-header
+    .seller-profile-btn-top.seller-profile-btn-top {
+    margin: 0 !important;
+    max-width: 100% !important;
+    position: static !important;
+    width: max-content !important;
+  }
+
+  html body #listing-seller-card-header
+    .seller-profile-btn-top.seller-profile-btn-top {
+    align-self: end !important;
+    justify-self: end !important;
+  }
+}

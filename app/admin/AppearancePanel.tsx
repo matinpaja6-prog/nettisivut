@@ -25,6 +25,7 @@ import {
 import {
   DEFAULT_APPEARANCE,
   fetchSiteAppearance,
+  normalizeCardColor,
   saveSiteAppearance,
   uploadHeroImage,
   type SiteAppearance
@@ -139,8 +140,10 @@ function applyToIframe(doc: Document | null | undefined, a: SiteAppearance) {
     root.style.setProperty("--brand-dark-surface", a.surface_color);
   }
   if (a.card_color) {
-    root.style.setProperty("--site-card", a.card_color);
-    root.style.setProperty("--listing-card-bg", a.card_color);
+    const cardColor = normalizeCardColor(a.card_color);
+    root.style.setProperty("--app-sheet-surface", cardColor);
+    root.style.setProperty("--site-card", cardColor);
+    root.style.setProperty("--listing-card-bg", cardColor);
   }
   if (a.text_color) {
     root.style.setProperty("--text", a.text_color);
@@ -471,7 +474,7 @@ export default function AppearancePanel({ onToastAction: onToast }: Props) {
               onChange={(v) => update("background_color", v)}
             />
             <ColorRow
-              label="Myynti-ilmoitusten tausta"
+              label="Kaikkien lehtien ja korttien väri"
               value={form.card_color ?? DEFAULT_APPEARANCE.card_color ?? "#071321"}
               onChange={(v) => update("card_color", v)}
             />

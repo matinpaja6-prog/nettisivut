@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { Bell, Car, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, MessageCircle, Plus, Search, SlidersHorizontal, UserRound, Users, Wrench } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bell, Car, Home, LockKeyhole, MessageCircle, Plus, Search, SlidersHorizontal, UserRound, Wrench } from "lucide-react";
 import {
   CHAT_NOTIFICATIONS_CHANGED_EVENT,
   getPendingPurchaseReviewRequests,
@@ -22,14 +22,7 @@ import {
   type PurchaseReviewRequest,
 } from "@/lib/supabase";
 import { useLanguage, type Locale } from "@/lib/i18n";
-import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profileRootPath, translateLocalizedPath } from "@/lib/routes";
-
-const LOCALES = [
-  { code: "fi", label: "Suomi", iso: "fi" },
-  { code: "en", label: "English", iso: "gb" },
-  { code: "sv", label: "Svenska", iso: "se" },
-  { code: "no", label: "Norsk", iso: "no" }
-];
+import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profileRootPath } from "@/lib/routes";
 
 type BottomNavCopy = {
   primaryNavigation: string;
@@ -161,44 +154,26 @@ const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
 const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
 const OPEN_HOME_FILTERS_STORAGE_KEY = "maskinesOpenHomeFilters";
 
-function FlagImg({ iso }: { iso: string }) {
-  return (
-    <img
-      src={`https://flagcdn.com/24x18/${iso}.png`}
-      width={22}
-      height={16}
-      alt=""
-      style={{ borderRadius: 3, objectFit: "cover", flexShrink: 0 }}
-    />
-  );
-}
-
 export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { t, locale, activeLocale, setLocale } = useLanguage();
+  const { t, locale, activeLocale } = useLanguage();
   const canonicalPathname = canonicalPathFromLocalized(pathname || "/");
   const authHref = pagePath("auth", activeLocale);
   const sellHref = pagePath("sell", activeLocale);
   const messagesHref = pagePath("messages", activeLocale);
   const profileHref = profileRootPath(activeLocale);
-  const myListingsHref = pagePath("my-listings", activeLocale);
   const garageHref = pagePath("garage", activeLocale);
-  const savedHref = pagePath("saved", activeLocale);
-  const followedHref = pagePath("followed", activeLocale);
   const searchAlertsHref = pagePath("search-alerts", activeLocale);
-  const contactHref = pagePath("contact", activeLocale);
   const [notifCount, setNotifCount] = useState(0);
   const [reviewRequests, setReviewRequests] = useState<PurchaseReviewRequest[]>([]);
   const [alertNotifs, setAlertNotifs] = useState<AlertNotification[]>([]);
   const [unreadConvs, setUnreadConvs] = useState<ConversationSummary[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [garageOpen, setGarageOpen] = useState(false);
   const [garageVehicles, setGarageVehicles] = useState<GarageVehicle[]>([]);
-  const sheetRef = useRef<HTMLDivElement>(null);
   const sellActionHref =
     userId
       ? sellHref
@@ -206,7 +181,6 @@ export default function BottomNav() {
 
   useEffect(() => {
     const closeTransientPanels = () => {
-      setProfileOpen(false);
       setNotifOpen(false);
       setGarageOpen(false);
     };
@@ -237,7 +211,6 @@ export default function BottomNav() {
       setUserId(session?.user?.id ?? null);
       setAuthChecked(true);
       if (!session?.user) {
-        setProfileOpen(false);
         setNotifOpen(false);
         setGarageOpen(false);
       }
@@ -387,14 +360,7 @@ export default function BottomNav() {
     return `/?${params.toString()}`;
   };
 
-  const handleSignOut = async () => {
-    setProfileOpen(false);
-    await supabase?.auth.signOut();
-    router.push("/");
-  };
-
   const openCategorySearch = () => {
-    setProfileOpen(false);
     setNotifOpen(false);
     setGarageOpen(false);
 
@@ -439,20 +405,7 @@ export default function BottomNav() {
     );
   }
 
-  const selectLocale = (nextLocale: Parameters<typeof setLocale>[0]) => {
-    setLocale(nextLocale);
-    setProfileOpen(false);
-
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("lang");
-      url.pathname = translateLocalizedPath(url.pathname, nextLocale);
-      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-    }
-  };
-
   const goToLogin = () => {
-    setProfileOpen(false);
     setNotifOpen(false);
     setGarageOpen(false);
     router.push(`${authHref}?mode=login`);
@@ -465,7 +418,9 @@ export default function BottomNav() {
   if (!userId) {
     return (
       <nav
+        id="maskines-bottom-nav-stable"
         className="bottom-nav bottom-nav-main bottom-nav-guest"
+        data-device-bottom-nav="true"
         aria-label={copy.primaryNavigation}
         data-no-auto-translate
         translate="no"
@@ -501,7 +456,9 @@ export default function BottomNav() {
   return (
     <>
       <nav
+        id="maskines-bottom-nav-stable"
         className="bottom-nav bottom-nav-main"
+        data-device-bottom-nav="true"
         aria-label={copy.primaryNavigation}
         data-no-auto-translate
         translate="no"
@@ -540,20 +497,14 @@ export default function BottomNav() {
         </button>
         )}
 
-        <button
-          type="button"
-          className={`bottom-nav-item${garageOpen || canonicalPathname.startsWith("/garage") ? " active" : ""}`}
-          onClick={() => {
-            if (!userId) {
-              goToLogin();
-              return;
-            }
-            setGarageOpen((open) => !open);
-          }}
+        <Link
+          href={profileHref}
+          className={`bottom-nav-item${canonicalPathname.startsWith("/profile") ? " active" : ""}`}
+          aria-label={copy.profile}
         >
-          <span className="bottom-nav-icon"><Car size={22} /></span>
-          <span className="bottom-nav-label">{userId ? copy.garage : copy.login}</span>
-        </button>
+          <span className="bottom-nav-icon"><UserRound size={22} /></span>
+          <span className="bottom-nav-label">{copy.profile}</span>
+        </Link>
       </nav>
 
       <nav
@@ -607,18 +558,14 @@ export default function BottomNav() {
         </button>
         )}
 
-        <button type="button"
-          className={`bottom-nav-item${canonicalPathname.startsWith("/profile") || canonicalPathname.startsWith("/my-listings") ? " active" : ""}`}
-          onClick={() => {
-            if (!userId) {
-              goToLogin();
-              return;
-            }
-            setProfileOpen(true);
-          }}>
-          <span className="bottom-nav-icon">{userId ? <UserRound size={22} /> : <LockKeyhole size={22} />}</span>
-          <span className="bottom-nav-label">{userId ? copy.profile : copy.login}</span>
-        </button>
+        <Link
+          href={profileHref}
+          className={`bottom-nav-item${canonicalPathname.startsWith("/profile") ? " active" : ""}`}
+          aria-label={copy.profile}
+        >
+          <span className="bottom-nav-icon"><UserRound size={22} /></span>
+          <span className="bottom-nav-label">{copy.profile}</span>
+        </Link>
       </nav>
 
       {garageOpen && (
@@ -693,90 +640,6 @@ export default function BottomNav() {
             )}
           </div>
         </>
-      )}
-
-      {profileOpen && (
-        <div className="bn-sheet-backdrop" onClick={() => setProfileOpen(false)}>
-          <div
-            ref={sheetRef}
-            className="bn-sheet"
-            data-no-auto-translate
-            translate="no"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="bn-sheet-handle" />
-
-            {userId ? (
-              <>
-                <Link href={profileHref}    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><UserRound size={18} />{t.editProfile}</Link>
-                <Link href={contactHref}    className="bn-sheet-link" onClick={() => setProfileOpen(false)}><MessageCircle size={18} />{copy.contactMaskines}</Link>
-                <Link href={myListingsHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><ClipboardList size={18} />{t.myListings}</Link>
-                <Link href={garageHref}     className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Car size={18} />{t.garageTitle}</Link>
-                <Link href={messagesHref}   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Mail size={18} />{t.messages}</Link>
-                <Link href={savedHref}      className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Heart size={18} />{t.savedListings}</Link>
-                <Link href={followedHref}   className="bn-sheet-link" onClick={() => setProfileOpen(false)}><Users size={18} />{copy.followed}</Link>
-                <div className="bn-sheet-divider" />
-                <div className="bn-sheet-lang">
-                  {LOCALES.map((loc) => (
-                    <button key={loc.code} type="button"
-                      className={`bn-lang-btn${activeLocale === loc.code ? " active" : ""}`}
-                      data-locale-option={loc.code}
-                      onPointerDown={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        selectLocale(loc.code as Parameters<typeof setLocale>[0]);
-                      }}
-                      onMouseDown={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        selectLocale(loc.code as Parameters<typeof setLocale>[0]);
-                      }}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        selectLocale(loc.code as Parameters<typeof setLocale>[0]);
-                      }}>
-                      <FlagImg iso={loc.iso} />
-                      {loc.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="bn-sheet-divider" />
-                <button type="button" className="bn-sheet-signout" onClick={handleSignOut}><DoorOpen size={18} />{t.signOut}</button>
-              </>
-            ) : (
-              <>
-                <Link href={authHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><LockKeyhole size={18} />{t.login}</Link>
-                <Link href={contactHref} className="bn-sheet-link" onClick={() => setProfileOpen(false)}><MessageCircle size={18} />{copy.contactMaskines}</Link>
-                <div className="bn-sheet-lang">
-                  {LOCALES.map((loc) => (
-                    <button key={loc.code} type="button"
-                      className={`bn-lang-btn${activeLocale === loc.code ? " active" : ""}`}
-                      data-locale-option={loc.code}
-                      onPointerDown={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        selectLocale(loc.code as Parameters<typeof setLocale>[0]);
-                      }}
-                      onMouseDown={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        selectLocale(loc.code as Parameters<typeof setLocale>[0]);
-                      }}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        selectLocale(loc.code as Parameters<typeof setLocale>[0]);
-                      }}>
-                      <FlagImg iso={loc.iso} />
-                      {loc.label}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
       )}
 
       {notifOpen && (

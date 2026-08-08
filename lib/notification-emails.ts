@@ -112,6 +112,7 @@ function emailFrame(input: {
   settingsLabel: string;
   settingsUrl: string;
   note?: string;
+  brandedHeader?: boolean;
 }) {
   const lang = input.locale === "no" ? "nb" : input.locale;
 
@@ -141,7 +142,13 @@ function emailFrame(input: {
       <tr>
         <td class="email-shell" align="center" style="padding:28px 16px 34px;">
           <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;max-width:640px;overflow:hidden;border:1px solid #24384b;border-radius:18px;background:#0d1b29;box-shadow:0 12px 32px rgba(7,17,29,.16);">
-            <tr>
+            ${input.brandedHeader ? `<tr>
+              <td class="email-header" align="center" style="padding:27px 24px 24px;border-bottom:5px solid #ff7a1a;background:#071c31;">
+                <img src="https://maskines.com/maskines-email-logo.png" width="82" height="82" alt="Maskines" style="display:block;width:82px;height:82px;margin:0 auto 10px;border:0;border-radius:50%;">
+                <div style="font:900 italic 27px/32px Arial,Helvetica,sans-serif;letter-spacing:.7px;color:#ffffff;">MASKINES</div>
+                <div style="margin-top:3px;font:800 10px/14px Arial,Helvetica,sans-serif;letter-spacing:4px;color:#ff7a1a;">MARKETPLACE</div>
+              </td>
+            </tr>` : `<tr>
               <td style="height:6px;background:#ff7a1a;font-size:0;line-height:0;">&nbsp;</td>
             </tr>
             <tr>
@@ -153,9 +160,10 @@ function emailFrame(input: {
                   </tr>
                 </table>
               </td>
-            </tr>
+            </tr>`}
             <tr>
               <td class="email-content" style="padding:30px 30px 28px;">
+                ${input.brandedHeader ? `<p style="margin:0 0 12px;font:800 11px/1 Arial,Helvetica,sans-serif;letter-spacing:1.6px;color:#ff9a4d;">${escapeHtml(input.eyebrow)}</p>` : ""}
                 <h1 class="email-title" style="margin:0 0 11px;font:900 30px/1.15 Arial,Helvetica,sans-serif;color:#ffffff;">${escapeHtml(input.title)}</h1>
                 <p style="margin:0 0 23px;font:500 16px/1.55 Arial,Helvetica,sans-serif;color:#c2ceda;">${escapeHtml(input.lead)}</p>
                 ${input.card}
@@ -268,7 +276,8 @@ export function newMessageEmail(input: {
     settingsText: String(text.settings),
     settingsLabel: String(text.settingsLink),
     settingsUrl: input.settingsUrl,
-    note: String(text.privacy)
+    note: String(text.privacy),
+    brandedHeader: true
   });
 
   return {

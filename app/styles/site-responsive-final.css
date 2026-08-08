@@ -1,0 +1,1459 @@
+/*
+ * Final site-wide responsive frame.
+ *
+ * The project contains route-specific layouts from several generations. This
+ * last-loaded layer gives every route the same centered content measure and
+ * the same header breakpoints without changing the Maskines visual identity.
+ */
+
+:root {
+  --site-frame-max: 1240px;
+  --site-frame-gutter: clamp(14px, 2.4vw, 32px);
+  --site-header-height: 72px;
+}
+
+html,
+body {
+  max-width: 100%;
+  min-width: 320px;
+  overflow-x: clip;
+}
+
+html body main,
+html body main > *,
+html body main section,
+html body main article,
+html body main aside,
+html body main form,
+html body main fieldset,
+html body main [class*="grid"],
+html body main [class*="Grid"] {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+html body img,
+html body video,
+html body canvas,
+html body svg {
+  max-width: 100%;
+}
+
+html body :where(input, select, textarea, button) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Shared centered route frames. Full-bleed backgrounds stay on their page
+   roots while the interactive content follows one consistent measure. */
+html body :where(
+  .garage-container,
+  .followed-container,
+  .saved-container,
+  .messages-desktop-shell,
+  .pf-layout,
+  .sa-layout,
+  .help-shell,
+  .privacy-shell,
+  .terms-shell
+),
+html body main.listing-detail-page > .container,
+html body main.my-listings-page > section,
+html body main.sell-page-responsive > section,
+html body main.settings-page-responsive > [class*="settingsShell"] {
+  box-sizing: border-box !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: var(--site-frame-max) !important;
+  min-width: 0 !important;
+  width: calc(100% - (2 * var(--site-frame-gutter))) !important;
+}
+
+html body :where(
+  .admin-page,
+  .about-showcase-page,
+  .auth-page,
+  .followed-page,
+  .garage-page,
+  .help-page,
+  .messages-page,
+  .my-listings-page,
+  .pf-page,
+  .privacy-page,
+  .sa-page,
+  .safety-page,
+  .saved-page,
+  .sell-page-responsive,
+  .settings-page-responsive,
+  .terms-page
+) {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+/* Nettimoto-style header geometry: a full-width color surface with one
+   centered content row. */
+html body header.universal-app-topbar {
+  align-items: center !important;
+  background: rgba(3, 12, 22, 0.98) !important;
+  border-bottom: 2px solid rgba(255, 122, 26, 0.86) !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  gap: clamp(14px, 2vw, 28px) !important;
+  height: var(--site-header-height) !important;
+  justify-content: space-between !important;
+  max-height: var(--site-header-height) !important;
+  min-height: var(--site-header-height) !important;
+  overflow: visible !important;
+  padding-left: max(var(--site-frame-gutter), calc((100vw - var(--site-frame-max)) / 2)) !important;
+  padding-right: max(var(--site-frame-gutter), calc((100vw - var(--site-frame-max)) / 2)) !important;
+  position: sticky !important;
+  top: 0 !important;
+  width: 100% !important;
+  z-index: 1100 !important;
+}
+
+html body header.universal-app-topbar::before,
+html body header.universal-app-topbar::after {
+  content: none !important;
+  display: none !important;
+}
+
+html body header.universal-app-topbar .universal-home-navigation {
+  align-items: center !important;
+  display: flex !important;
+  flex: 1 1 auto !important;
+  gap: clamp(26px, 3vw, 48px) !important;
+  height: 100% !important;
+  inset: auto !important;
+  margin: 0 !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  order: 1 !important;
+  overflow: hidden !important;
+  position: static !important;
+  transform: none !important;
+  width: auto !important;
+}
+
+html body header.universal-app-topbar .universal-home-brand {
+  align-items: center !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  gap: 10px !important;
+  height: 100% !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  position: static !important;
+  transform: none !important;
+}
+
+html body header.universal-app-topbar .universal-home-brand-logo {
+  flex: 0 0 auto !important;
+  height: 52px !important;
+  width: 52px !important;
+}
+
+html body header.universal-app-topbar .universal-home-brand-copy {
+  display: grid !important;
+  line-height: 1 !important;
+  min-width: 0 !important;
+}
+
+html body header.universal-app-topbar .universal-home-primary-nav,
+html body header.universal-app-topbar .universal-home-navigation .universal-home-primary-nav {
+  align-items: center !important;
+  display: flex !important;
+  flex: 1 1 auto !important;
+  gap: clamp(16px, 1.7vw, 28px) !important;
+  height: 100% !important;
+  inset: auto !important;
+  justify-content: flex-start !important;
+  margin: 0 !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  position: static !important;
+  transform: none !important;
+  width: auto !important;
+}
+
+html body header.universal-app-topbar .universal-home-primary-nav > * {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  color: #f5f8fb !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  height: 40px !important;
+  justify-content: center !important;
+  padding: 0 10px !important;
+  position: static !important;
+  white-space: nowrap !important;
+}
+
+html body header.universal-app-topbar .universal-home-primary-nav > *.is-active {
+  background: rgba(255, 122, 26, 0.12) !important;
+  color: #ff8b2b !important;
+}
+
+html body header.universal-app-topbar .universal-topbar-actions {
+  align-items: center !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  gap: 10px !important;
+  height: 100% !important;
+  justify-content: flex-end !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  order: 2 !important;
+  position: static !important;
+  transform: none !important;
+}
+
+html body header.universal-app-topbar .universal-home-header-search {
+  display: none !important;
+}
+
+html body header.universal-app-topbar :where(
+  .rebuilt-login-button,
+  .universal-create-button,
+  .rebuilt-profile-button,
+  .universal-icon-button,
+  .language-switcher
+) {
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  max-height: 44px !important;
+  min-height: 40px !important;
+  position: relative !important;
+}
+
+/* Menus remain anchored to the viewport and never exceed the screen. */
+html body :where(.universal-profile-menu-portal, .universal-nav-menu-portal) {
+  max-width: calc(100vw - (2 * var(--site-frame-gutter))) !important;
+}
+
+html body header.universal-app-topbar .universal-notification-menu {
+  max-height: calc(100dvh - var(--site-header-height) - 20px) !important;
+  max-width: calc(100vw - (2 * var(--site-frame-gutter))) !important;
+  right: 0 !important;
+}
+
+@media (max-width: 1180px) and (min-width: 901px) {
+  :root {
+    --site-frame-gutter: clamp(16px, 2vw, 24px);
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation {
+    gap: 18px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav {
+    gap: 8px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav > * {
+    font-size: 12px !important;
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav > :nth-child(n + 4) {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo {
+    height: 46px !important;
+    width: 46px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  :root {
+    --site-frame-gutter: clamp(12px, 3vw, 22px);
+    --site-header-height: 68px;
+  }
+
+  html body header.universal-app-topbar {
+    gap: 10px !important;
+    overflow: visible !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation {
+    flex: 1 1 auto !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-primary-nav {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo {
+    height: 44px !important;
+    width: 44px !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions {
+    gap: 7px !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button strong,
+  html body header.universal-app-topbar .rebuilt-profile-button-copy,
+  html body header.universal-app-topbar .rebuilt-profile-chevron {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .universal-create-button,
+  html body header.universal-app-topbar .rebuilt-profile-button {
+    min-width: 42px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    width: 42px !important;
+  }
+
+  html body :where(
+    .garage-container,
+    .followed-container,
+    .saved-container,
+    .messages-desktop-shell,
+    .pf-layout,
+    .sa-layout,
+    .help-shell,
+    .privacy-shell,
+    .terms-shell
+  ),
+  html body main.listing-detail-page > .container,
+  html body main.my-listings-page > section,
+  html body main.sell-page-responsive > section,
+  html body main.settings-page-responsive > [class*="settingsShell"] {
+    width: calc(100% - (2 * var(--site-frame-gutter))) !important;
+  }
+
+  html body .pf-layout,
+  html body .sa-layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/*
+ * Definitive topbar layout states.
+ *
+ * 1181px+  : full desktop navigation
+ * 561-1180 : compact header (brand + actions, no colliding link row)
+ * <=560px  : mobile sizing from the rules above
+ *
+ * The ID alternative only raises specificity; it never matches markup.
+ */
+@media (min-width: 1181px) {
+  html body :is(#maskines-topbar-responsive-lock, header.universal-app-topbar) {
+    column-gap: clamp(20px, 2.2vw, 36px) !important;
+  }
+
+  html body :is(#maskines-topbar-responsive-lock, header.universal-app-topbar)
+    .universal-home-navigation {
+    flex: 1 1 auto !important;
+    gap: clamp(20px, 2.2vw, 36px) !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body :is(#maskines-topbar-responsive-lock, header.universal-app-topbar)
+    .universal-home-primary-nav {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    gap: clamp(8px, 1.05vw, 17px) !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+  }
+
+  html body :is(#maskines-topbar-responsive-lock, header.universal-app-topbar)
+    .universal-home-primary-nav > * {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+  }
+}
+
+@media (min-width: 561px) and (max-width: 1180px) {
+  html body :is(#maskines-topbar-responsive-lock, header.universal-app-topbar) {
+    column-gap: 20px !important;
+  }
+
+  html body :is(#maskines-topbar-responsive-lock, header.universal-app-topbar)
+    .universal-home-navigation {
+    flex: 0 1 auto !important;
+    gap: 0 !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body :is(#maskines-topbar-responsive-lock, header.universal-app-topbar)
+    .universal-home-primary-nav {
+    display: none !important;
+  }
+
+  html body :is(#maskines-topbar-responsive-lock, header.universal-app-topbar)
+    .universal-home-brand {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  html body :is(#maskines-topbar-responsive-lock, header.universal-app-topbar)
+    .universal-topbar-actions {
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+  }
+}
+
+/* The legacy responsive layer deliberately carries ID-level specificity via
+   :is(#rs-never, ...). Match that level here so this last-loaded frame wins. */
+@media (min-width: 901px) {
+  html body :is(#maskines-site-frame-lock, header.universal-app-topbar) {
+    box-sizing: border-box !important;
+    display: flex !important;
+    height: var(--site-header-height) !important;
+    justify-content: space-between !important;
+    margin: 0 !important;
+    max-height: var(--site-header-height) !important;
+    min-height: var(--site-header-height) !important;
+    padding-left: max(var(--site-frame-gutter), calc((100vw - var(--site-frame-max)) / 2)) !important;
+    padding-right: max(var(--site-frame-gutter), calc((100vw - var(--site-frame-max)) / 2)) !important;
+    width: 100% !important;
+  }
+
+  html body :is(#maskines-site-frame-lock, header.universal-app-topbar)
+    .universal-home-navigation {
+    align-items: center !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    gap: clamp(24px, 3vw, 44px) !important;
+    height: 100% !important;
+    inset: auto !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  html body :is(#maskines-site-frame-lock, header.universal-app-topbar)
+    .universal-home-navigation .universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    gap: clamp(12px, 1.35vw, 22px) !important;
+    height: 100% !important;
+    inset: auto !important;
+    justify-content: flex-start !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  html body :is(#maskines-site-frame-lock, header.universal-app-topbar)
+    .universal-topbar-actions {
+    align-items: center !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    height: 100% !important;
+    inset: auto !important;
+    margin: 0 !important;
+    position: static !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --site-frame-gutter: 12px;
+    --site-header-height: 64px;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-logo {
+    height: 40px !important;
+    width: 40px !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-brand-copy {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-login-button strong {
+    display: none !important;
+  }
+
+  html body header.universal-app-topbar .rebuilt-login-button {
+    min-width: 42px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    width: 42px !important;
+  }
+
+  html body :where(
+    .garage-container,
+    .followed-container,
+    .saved-container,
+    .messages-desktop-shell,
+    .pf-layout,
+    .sa-layout,
+    .help-shell,
+    .privacy-shell,
+    .terms-shell
+  ),
+  html body main.listing-detail-page > .container,
+  html body main.my-listings-page > section,
+  html body main.sell-page-responsive > section,
+  html body main.settings-page-responsive > [class*="settingsShell"] {
+    width: calc(100% - 24px) !important;
+  }
+}
+
+/* Absolute final frame lock. Several older home-header files use highly
+   specific !important selectors, so these rules intentionally outrank them. */
+@media (min-width: 901px) {
+  html body header.universal-app-topbar.universal-app-topbar.universal-app-topbar {
+    display: flex !important;
+    height: var(--site-header-height) !important;
+    justify-content: space-between !important;
+    margin: 0 !important;
+    max-height: var(--site-header-height) !important;
+    min-height: var(--site-header-height) !important;
+    padding-left: max(var(--site-frame-gutter), calc((100vw - var(--site-frame-max)) / 2)) !important;
+    padding-right: max(var(--site-frame-gutter), calc((100vw - var(--site-frame-max)) / 2)) !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar.universal-app-topbar.universal-app-topbar
+    .universal-home-navigation.universal-home-navigation {
+    align-items: center !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    gap: clamp(24px, 3vw, 44px) !important;
+    height: 100% !important;
+    inset: auto !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar.universal-app-topbar.universal-app-topbar
+    .universal-home-navigation.universal-home-navigation
+    .universal-home-primary-nav.universal-home-primary-nav {
+    align-items: center !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    gap: clamp(12px, 1.35vw, 22px) !important;
+    height: 100% !important;
+    inset: auto !important;
+    justify-content: flex-start !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    position: static !important;
+    transform: none !important;
+    width: auto !important;
+  }
+
+  html body header.universal-app-topbar.universal-app-topbar.universal-app-topbar
+    .universal-topbar-actions.universal-topbar-actions {
+    align-items: center !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    height: 100% !important;
+    inset: auto !important;
+    margin: 0 !important;
+    position: static !important;
+    transform: none !important;
+  }
+
+  html body header.universal-app-topbar.universal-app-topbar.universal-app-topbar
+    .universal-home-header-search.universal-home-header-search {
+    display: none !important;
+  }
+
+  html body main[data-home-page][data-home-page]
+    [data-home-layout][data-home-layout] {
+    box-sizing: border-box !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: var(--site-frame-max) !important;
+    min-width: 0 !important;
+    width: calc(100% - (2 * var(--site-frame-gutter))) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  html body header.universal-app-topbar.universal-app-topbar.universal-app-topbar {
+    padding-left: var(--site-frame-gutter) !important;
+    padding-right: var(--site-frame-gutter) !important;
+  }
+
+  html body header.universal-app-topbar.universal-app-topbar.universal-app-topbar
+    .universal-home-navigation.universal-home-navigation
+    .universal-home-primary-nav.universal-home-primary-nav {
+    display: none !important;
+  }
+}
+
+/* Keep these state switches as the physical last rules in the bundle. */
+@media (min-width: 1181px) {
+  html body :is(#maskines-topbar-state-lock, header.universal-app-topbar)
+    .universal-home-navigation.universal-home-navigation
+    .universal-home-primary-nav.universal-home-primary-nav {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    gap: clamp(8px, 1.05vw, 17px) !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+  }
+
+  html body :is(#maskines-topbar-state-lock, header.universal-app-topbar)
+    .universal-home-primary-nav.universal-home-primary-nav > * {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  html body :is(#maskines-topbar-state-lock, header.universal-app-topbar)
+    .universal-home-navigation.universal-home-navigation
+    .universal-home-primary-nav.universal-home-primary-nav {
+    display: none !important;
+  }
+
+  html body :is(#maskines-topbar-state-lock, header.universal-app-topbar)
+    .universal-home-navigation.universal-home-navigation {
+    flex: 0 1 auto !important;
+    gap: 0 !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body :is(#maskines-topbar-state-lock, header.universal-app-topbar)
+    .universal-topbar-actions.universal-topbar-actions {
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+  }
+}
+
+/* Desktop safety lock for the viewport-driven bottom navigation. */
+@media (min-width: 901px) {
+  html body .bottom-nav.bottom-nav-main,
+  html body .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"] {
+    display: none !important;
+  }
+
+  html body:has(> .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"]) {
+    padding-bottom: 0 !important;
+  }
+
+  html body:has(> .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"])
+    :is(.floating-chat, .fc-button, .rebuilt-chat-button) {
+    bottom: 28px !important;
+  }
+}
+
+/* Balanced homepage tablet layout. The older home styles mix desktop grid
+   columns with compact controls around 800-1000px, leaving half the page
+   empty. Data attributes make this independent of CSS-module class hashes. */
+@media (min-width: 721px) and (max-width: 900px) {
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-layout] {
+    display: block !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-results-mode] {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-intro-showcase] {
+    order: 1 !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-results-search] {
+    order: 2 !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-sell-callout] {
+    order: 3 !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-benefits] {
+    order: 4 !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-results-list] {
+    order: 5 !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-results-search],
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-sell-callout],
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-benefits],
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-results-list] {
+    box-sizing: border-box !important;
+    margin-left: 18px !important;
+    margin-right: 18px !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: calc(100% - 36px) !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-results-search] {
+    margin-top: 2px !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-sell-callout] {
+    align-items: center !important;
+    display: grid !important;
+    gap: 12px 16px !important;
+    grid-template-columns: 50px minmax(0, 1fr) minmax(150px, 190px) !important;
+    padding: 16px 18px !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-sell-callout] > a {
+    grid-column: 3 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-benefits] {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-listing-grid] {
+    display: grid !important;
+    gap: 14px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-listing-card="true"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 800px) {
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-sell-callout] {
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-sell-callout] > a {
+    grid-column: 1 / -1 !important;
+  }
+
+  html body :is(#maskines-tablet-home-lock, main[data-home-page])
+    [data-home-benefits] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Ultra-wide home hero: Nettimoto-style full-viewport artwork with a bounded
+   banner height, while the copy follows the same centred 1450px marketplace
+   frame instead of drifting toward the outer screen edge. */
+@media (min-width: 1600px) {
+  /* On ultra-wide screens, align the hero message with the compact header
+     frame. The extra :not() hooks intentionally match the legacy selector's
+     specificity so this adjustment stays isolated to this breakpoint. */
+  html body :is(#maskines-ultrawide-hero-lock, main[data-home-page])
+    [data-home-intro-showcase]:not(#maskines-home-showcase-final)
+    [data-home-hero-copy]:not(#maskines-home-copy-final) {
+    padding-left: clamp(120px, 8vw, 150px) !important;
+  }
+
+  html body :is(#maskines-ultrawide-hero-lock, main[data-home-page])
+    [data-home-intro-showcase] {
+    aspect-ratio: auto !important;
+    height: clamp(520px, 28vw, 720px) !important;
+    left: 50% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-height: 720px !important;
+    max-width: none !important;
+    min-height: 520px !important;
+    position: relative !important;
+    transform: translateX(-50%) !important;
+    width: 100vw !important;
+  }
+
+  html body :is(#maskines-ultrawide-hero-lock, main[data-home-page])
+    [data-home-hero-art],
+  html body :is(#maskines-ultrawide-hero-lock, main[data-home-page])
+    [data-home-hero-art] img {
+    height: 100% !important;
+    max-height: none !important;
+    width: 100% !important;
+  }
+
+  html body :is(#maskines-ultrawide-hero-lock, main[data-home-page])
+    [data-home-hero-art] img {
+    object-fit: cover !important;
+    object-position: 50% 55% !important;
+  }
+
+  html body :is(#maskines-ultrawide-hero-lock, main[data-home-page])
+    [data-home-hero-copy] {
+    box-sizing: border-box !important;
+    margin-left: max(24px, calc((100vw - 1450px) / 2 - 40px)) !important;
+    margin-right: 0 !important;
+    max-width: 520px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: clamp(72px, 5vw, 96px) !important;
+    transform: none !important;
+    width: 520px !important;
+  }
+
+  html body :is(#maskines-ultrawide-hero-lock, main[data-home-page])
+    [data-home-headline] {
+    font-size: clamp(48px, 3.1vw, 60px) !important;
+    line-height: 1.05 !important;
+    max-width: 520px !important;
+    width: 100% !important;
+  }
+
+  html body :is(#maskines-ultrawide-hero-lock, main[data-home-page])
+    [data-home-subtitle] {
+    font-size: 16px !important;
+    max-width: 520px !important;
+    width: 100% !important;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1599px) {
+  html body :is(#maskines-desktop-hero-copy-lock, main[data-home-page])
+    [data-home-hero-copy] {
+    /* Keep the copy inside the viewport. The former -40px translation could
+       cancel the responsive left gutter and crop the first letters. */
+    transform: none !important;
+  }
+
+  html body :is(#maskines-desktop-hero-copy-lock, main[data-home-page])
+    [data-home-headline] {
+    font-size: clamp(36px, 3.1vw, 44px) !important;
+  }
+}
+
+/* Phone latest-listing header: title left, sorting control at the right edge. */
+@media (max-width: 720px) {
+  html body :is(#maskines-phone-sort-lock, main[data-home-page])
+    [data-home-latest-head] {
+    align-items: center !important;
+    display: grid !important;
+    gap: 10px !important;
+    grid-template-columns: minmax(0, 1fr) 150px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  html body :is(#maskines-phone-sort-lock, main[data-home-page])
+    [data-home-latest-head] > strong {
+    font-size: clamp(16px, 4.4vw, 18px) !important;
+    line-height: 1.15 !important;
+    min-width: 0 !important;
+    text-align: left !important;
+  }
+
+  html body :is(#maskines-phone-sort-lock, main[data-home-page])
+    [data-home-latest-actions] {
+    justify-content: flex-end !important;
+    justify-self: end !important;
+    margin-left: auto !important;
+    max-width: 150px !important;
+    min-width: 0 !important;
+    width: 150px !important;
+  }
+
+  html body :is(#maskines-phone-sort-lock, main[data-home-page])
+    [data-home-latest-actions] [class*="heroDesktopLatestSort"],
+  html body :is(#maskines-phone-sort-lock, main[data-home-page])
+    [data-home-latest-actions] [class*="sortButtonFace"] {
+    justify-self: end !important;
+    max-width: 150px !important;
+    width: 150px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  html body :is(#maskines-phone-sort-lock, main[data-home-page])
+    [data-home-latest-head] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body :is(#maskines-phone-sort-lock, main[data-home-page])
+    [data-home-latest-actions] {
+    justify-self: end !important;
+  }
+}
+
+/* One consistent compact topbar from small phones through tablets. */
+@media (max-width: 900px) {
+  html body :is(#maskines-compact-topbar-lock, header.universal-app-topbar) {
+    background: #020d19 !important;
+    border-bottom: 1px solid #ff7417 !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body :is(#maskines-compact-topbar-lock, header.universal-app-topbar)
+    .universal-home-navigation.universal-home-navigation {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body :is(#maskines-compact-topbar-lock, header.universal-app-topbar)
+    .universal-home-brand.universal-home-brand {
+    align-items: center !important;
+    display: inline-flex !important;
+    flex: 0 1 auto !important;
+    gap: 10px !important;
+    height: 100% !important;
+    max-width: calc(100vw - 150px) !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    width: auto !important;
+  }
+
+  html body :is(#maskines-compact-topbar-lock, header.universal-app-topbar)
+    .universal-home-brand-logo.universal-home-brand-logo {
+    flex: 0 0 44px !important;
+    height: 44px !important;
+    max-height: 44px !important;
+    width: 44px !important;
+  }
+
+  html body :is(#maskines-compact-topbar-lock, header.universal-app-topbar)
+    .universal-home-brand-copy.universal-home-brand-copy {
+    display: grid !important;
+    flex: 0 1 auto !important;
+    gap: 2px !important;
+    line-height: 1 !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body :is(#maskines-compact-topbar-lock, header.universal-app-topbar)
+    .universal-home-brand-copy strong {
+    color: #f8fbff !important;
+    font-size: clamp(15px, 2.5vw, 19px) !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.035em !important;
+    white-space: nowrap !important;
+  }
+
+  html body :is(#maskines-compact-topbar-lock, header.universal-app-topbar)
+    .universal-home-brand-copy small {
+    color: rgba(220, 229, 238, 0.78) !important;
+    font-size: clamp(8px, 1.45vw, 10px) !important;
+    font-weight: 750 !important;
+    letter-spacing: 0.24em !important;
+    white-space: nowrap !important;
+  }
+
+  html body :is(#maskines-compact-topbar-lock, header.universal-app-topbar)
+    .universal-topbar-actions.universal-topbar-actions {
+    flex: 0 0 auto !important;
+    gap: 8px !important;
+    margin-left: auto !important;
+    overflow: visible !important;
+  }
+
+  html body :is(#maskines-compact-topbar-lock, header.universal-app-topbar)
+    .universal-language-wrap {
+    order: 99 !important;
+  }
+}
+
+/* Final iPad/tablet polish. */
+@media (min-width: 721px) and (max-width: 900px) {
+  html body :is(#maskines-ipad-polish-lock, main[data-home-page])
+    [data-home-intro-showcase]::after {
+    background: none !important;
+    content: none !important;
+    display: none !important;
+  }
+
+  html body :is(#maskines-ipad-polish-lock, main[data-home-page])
+    [data-home-latest-head] {
+    align-items: center !important;
+    display: grid !important;
+    gap: 16px !important;
+    grid-template-columns: minmax(0, 1fr) 190px !important;
+    margin: 0 0 14px !important;
+    max-width: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  html body :is(#maskines-ipad-polish-lock, main[data-home-page])
+    [data-home-latest-head] > strong {
+    justify-self: start !important;
+    margin: 0 !important;
+    text-align: left !important;
+  }
+
+  html body :is(#maskines-ipad-polish-lock, main[data-home-page])
+    [data-home-latest-actions] {
+    justify-content: flex-end !important;
+    justify-self: end !important;
+    margin: 0 !important;
+    max-width: 190px !important;
+    width: 190px !important;
+  }
+
+  html body :is(#maskines-ipad-polish-lock, main[data-home-page])
+    [data-home-latest-actions] [class*="heroDesktopLatestSort"],
+  html body :is(#maskines-ipad-polish-lock, main[data-home-page])
+    [data-home-latest-actions] [class*="sortButtonFace"] {
+    justify-self: end !important;
+    max-width: 190px !important;
+    width: 190px !important;
+  }
+
+  html body :is(#maskines-ipad-polish-lock, nav.bottom-nav.bottom-nav-main)
+    .bottom-nav-center-action .bottom-nav-icon {
+    background: linear-gradient(180deg, rgba(255, 126, 30, 0.2), rgba(255, 98, 10, 0.08)) !important;
+    border: 1px solid rgba(255, 126, 30, 0.92) !important;
+    border-radius: 9px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 4px 12px rgba(255, 91, 0, 0.16) !important;
+    color: #ff8a2b !important;
+    height: 29px !important;
+    width: 36px !important;
+  }
+
+  html body :is(#maskines-ipad-polish-lock, nav.bottom-nav.bottom-nav-main)
+    .bottom-nav-center-action .bottom-nav-icon svg {
+    color: currentColor !important;
+    display: block !important;
+    height: 17px !important;
+    opacity: 1 !important;
+    stroke: currentColor !important;
+    stroke-width: 2.5 !important;
+    visibility: visible !important;
+    width: 17px !important;
+  }
+
+  html body :is(#maskines-ipad-polish-lock, nav.bottom-nav.bottom-nav-main)
+    .bottom-nav-center-action .bottom-nav-label {
+    color: rgba(236, 243, 249, 0.9) !important;
+    font-weight: 850 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  html body :is(#maskines-compact-topbar-lock, header.universal-app-topbar)
+    .universal-home-brand-copy.universal-home-brand-copy {
+    display: grid !important;
+  }
+
+  html body :is(#maskines-compact-topbar-lock, header.universal-app-topbar)
+    .universal-home-brand.universal-home-brand {
+    max-width: none !important;
+  }
+}
+
+/* Keep the Maskines wordmark visible and identical across compact devices.
+   Only the secondary Marketplace line is removed to preserve room for actions. */
+@media (max-width: 900px) {
+  html body :is(#maskines-visible-brand-lock, header.universal-app-topbar.universal-home-topbar)
+    .universal-home-brand.universal-home-brand {
+    flex: 0 0 auto !important;
+    gap: 8px !important;
+    max-width: none !important;
+    overflow: visible !important;
+    width: auto !important;
+  }
+
+  html body :is(#maskines-visible-brand-lock, header.universal-app-topbar.universal-home-topbar)
+    .universal-home-brand-logo.universal-home-brand-logo {
+    flex: 0 0 42px !important;
+    height: 42px !important;
+    max-height: 42px !important;
+    width: 42px !important;
+  }
+
+  html body :is(#maskines-visible-brand-lock, header.universal-app-topbar.universal-home-topbar)
+    .universal-home-brand-copy.universal-home-brand-copy {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body :is(#maskines-visible-brand-lock, header.universal-app-topbar.universal-home-topbar)
+    .universal-home-brand-copy strong {
+    color: #f8fbff !important;
+    display: block !important;
+    font-size: 17px !important;
+    font-style: italic !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.035em !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  html body :is(#maskines-visible-brand-lock, header.universal-app-topbar.universal-home-topbar)
+    .universal-home-brand-copy small {
+    display: none !important;
+  }
+}
+
+/* The filter breakpoint now matches BottomNav. Up to 900px the desktop rail
+   must never remain embedded below the listings; it is a portaled sheet. */
+@media (max-width: 900px) {
+  html body :is(#maskines-compact-filter-lock, main[data-home-page])
+    [data-home-filter-rail][data-home-filter-sheet="false"] {
+    display: none !important;
+  }
+
+  html body > [data-home-filter-rail][data-home-filter-sheet="true"] {
+    box-sizing: border-box !important;
+    bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+    left: 50% !important;
+    margin: 0 !important;
+    max-height: min(84dvh, 760px) !important;
+    max-width: 720px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    position: fixed !important;
+    right: auto !important;
+    top: auto !important;
+    transform: translateX(-50%) translateY(var(--mobile-sheet-offset, 0px)) !important;
+    width: min(720px, calc(100dvw - 28px)) !important;
+    z-index: 2147483647 !important;
+  }
+
+  html body > [data-mobile-filter-backdrop="true"] {
+    background: rgba(0, 0, 0, 0.62) !important;
+    display: block !important;
+    height: 100dvh !important;
+    inset: 0 !important;
+    position: fixed !important;
+    width: 100dvw !important;
+    z-index: 2147483646 !important;
+  }
+
+  html body:has(> [data-home-filter-rail][data-home-filter-sheet="true"])
+    .bottom-nav.bottom-nav-main,
+  html body:has(> [data-home-filter-rail][data-home-filter-sheet="true"])
+    .floating-chat,
+  html body:has(> [data-home-filter-rail][data-home-filter-sheet="true"])
+    .fc-button,
+  html body:has(> [data-home-filter-rail][data-home-filter-sheet="true"])
+    .rebuilt-chat-button {
+    display: none !important;
+  }
+
+  /* BottomNav is always mounted after auth resolution. Keep it visible on the
+     home page unless a real filter backdrop or category drawer is open. */
+  html :is(
+    #maskines-bottom-nav-stability-lock,
+    body:has(main[data-home-page]):not(:has(> [data-mobile-filter-backdrop="true"])):not(:has(.cd-drawer-open))
+  ) > nav.bottom-nav.bottom-nav-main[data-device-bottom-nav="true"] {
+    display: grid !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+  }
+}
+
+/* Absolute bottom-navigation lock. A real ID deliberately outranks every
+   legacy route/class selector that used to make the bar flash and disappear. */
+@media (max-width: 900px) {
+  html body #maskines-bottom-nav-stable {
+    bottom: max(8px, env(safe-area-inset-bottom, 0px)) !important;
+    display: grid !important;
+    left: max(8px, env(safe-area-inset-left, 0px)) !important;
+    margin: 0 !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: fixed !important;
+    right: max(8px, env(safe-area-inset-right, 0px)) !important;
+    top: auto !important;
+    transform: none !important;
+    visibility: visible !important;
+    width: auto !important;
+    z-index: 2147483000 !important;
+  }
+
+  html body:has(> [data-mobile-filter-backdrop="true"])
+    #maskines-bottom-nav-stable,
+  html body:has(.cd-drawer-open) #maskines-bottom-nav-stable {
+    display: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body #maskines-bottom-nav-stable {
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+}
+
+@media (min-width: 901px) {
+  html body #maskines-bottom-nav-stable {
+    display: none !important;
+  }
+}
+
+/* Keep the app navigation and homepage footer available throughout the
+   compact/tablet range, including the expanded latest-listings state. */
+@media (max-width: 900px) {
+  html body main[data-home-page] {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 100dvh !important;
+    overflow: visible !important;
+  }
+
+  html body main[data-home-page] [data-home-background-region] {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body nav#maskines-bottom-nav-stable.bottom-nav.bottom-nav-main[data-device-bottom-nav="true"] {
+    display: grid !important;
+  }
+
+  html body:has(> #maskines-bottom-nav-stable) {
+    padding-bottom: 76px !important;
+  }
+
+  html body:has(main[data-home-page]) .site-footer.site-footer,
+  html body:has(main[data-home-page][data-home-latest-expanded="true"]) .site-footer.site-footer {
+    display: block !important;
+    visibility: visible !important;
+  }
+}
+
+/* Definitive narrow-footer grid. This lives after the older footer themes so
+   four columns can never be squeezed into a phone-sized viewport. */
+@media (max-width: 600px) {
+  html body :is(#maskines-narrow-footer-lock, .site-footer.site-footer) {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  html body :is(#maskines-narrow-footer-lock, .site-footer.site-footer) .footer-inner {
+    gap: 36px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html body :is(#maskines-narrow-footer-lock, .site-footer.site-footer) .footer-links-grid {
+    column-gap: 28px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    row-gap: 34px !important;
+  }
+
+  html body :is(#maskines-narrow-footer-lock, .site-footer.site-footer) .footer-col,
+  html body :is(#maskines-narrow-footer-lock, .site-footer.site-footer) .footer-col a {
+    min-width: 0 !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+}
+
+@media (max-width: 420px) {
+  html body :is(#maskines-narrow-footer-lock, .site-footer.site-footer) .footer-links-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* One language control at every breakpoint. The old dark button gradient was
+   visible below the rectangular flag and looked like an extra black block. */
+html body header.universal-app-topbar
+  :is(#maskines-language-control-lock, .universal-language-wrap) {
+  align-items: center !important;
+  align-self: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  flex: 0 0 42px !important;
+  height: 42px !important;
+  margin: 0 !important;
+  max-height: 42px !important;
+  max-width: 42px !important;
+  min-height: 42px !important;
+  min-width: 42px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  width: 42px !important;
+}
+
+html body header.universal-app-topbar
+  :is(#maskines-language-control-lock, .universal-language-wrap)
+  > [data-global-language-menu] {
+  align-items: center !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  height: 42px !important;
+  margin: 0 !important;
+  max-height: 42px !important;
+  max-width: 42px !important;
+  min-height: 42px !important;
+  min-width: 42px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  width: 42px !important;
+}
+
+html body header.universal-app-topbar
+  :is(#maskines-language-control-lock, .universal-language-wrap)
+  .language-switcher {
+  align-items: center !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 122, 26, 0.82) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  flex: 0 0 42px !important;
+  height: 42px !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  max-height: 42px !important;
+  max-width: 42px !important;
+  min-height: 42px !important;
+  min-width: 42px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  width: 42px !important;
+}
+
+html body header.universal-app-topbar
+  :is(#maskines-language-control-lock, .universal-language-wrap)::before,
+html body header.universal-app-topbar
+  :is(#maskines-language-control-lock, .universal-language-wrap)::after,
+html body header.universal-app-topbar
+  :is(#maskines-language-control-lock, .universal-language-wrap)
+  > [data-global-language-menu]::before,
+html body header.universal-app-topbar
+  :is(#maskines-language-control-lock, .universal-language-wrap)
+  > [data-global-language-menu]::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* One authoritative Maskines wordmark on every route and viewport. */
+html body :is(#maskines-unified-wordmark-lock, header.universal-app-topbar)
+  :is(.universal-home-brand.universal-home-brand, .universal-page-brand-home.universal-page-brand-home)
+  .universal-home-brand-copy.universal-home-brand-copy {
+  align-items: start !important;
+  display: grid !important;
+  flex: 0 0 auto !important;
+  gap: 3px !important;
+  line-height: 1 !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+html body :is(#maskines-unified-wordmark-lock, header.universal-app-topbar)
+  :is(.universal-home-brand.universal-home-brand, .universal-page-brand-home.universal-page-brand-home)
+  .universal-home-brand-copy.universal-home-brand-copy strong {
+  color: #ff7a1a !important;
+  display: block !important;
+  font-family: inherit !important;
+  font-size: 19px !important;
+  font-style: italic !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.025em !important;
+  line-height: 0.9 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+html body :is(#maskines-unified-wordmark-lock, header.universal-app-topbar)
+  :is(.universal-home-brand.universal-home-brand, .universal-page-brand-home.universal-page-brand-home)
+  .universal-home-brand-copy.universal-home-brand-copy small {
+  color: rgba(220, 229, 238, 0.82) !important;
+  display: block !important;
+  font-family: inherit !important;
+  font-size: 9px !important;
+  font-style: italic !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.27em !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+/* Keep the topbar surface identical instead of letting route and viewport
+   rules alternate between transparent, translucent and solid navy. */
+html body :is(#maskines-unified-topbar-color-lock, header.universal-app-topbar) {
+  background: #020d19 !important;
+  border-bottom: 1px solid #ff7417 !important;
+  box-shadow: none !important;
+}
+
+/* Tablet layout used to add 28px above the home artwork at 721-900px. The
+   surrounding container already supplies all required horizontal spacing. */
+@media (min-width: 721px) and (max-width: 900px) {
+  html body :is(#maskines-tablet-hero-edge-lock, main[data-home-page])
+    [data-home-hero] {
+    padding-top: 0 !important;
+  }
+}

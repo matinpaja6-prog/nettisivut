@@ -1643,6 +1643,14 @@ export async function recordSoldListing(
       listing.subcategory?.trim() ||
       listing.category?.trim() ||
       "Poistettu ilmoitus";
+    const publicationGroupId =
+      listing.translations?._meta?.publication_group_id?.trim();
+    const soldListingMode: "single" | "multiple" =
+      listing.listing_mode === "multiple" ||
+      listing.translations?._meta?.listing_mode === "multiple" ||
+      Boolean(publicationGroupId)
+        ? "multiple"
+        : "single";
 
     // Store only the minimum required data. Keep a generic non-empty title so
     // older databases where sold_listings.title is still NOT NULL can accept it.
@@ -1667,10 +1675,11 @@ export async function recordSoldListing(
       condition: listing.condition ?? null,
       location: listing.location ?? null,
       image_url: null,
-      listing_mode: listing.listing_mode ?? "single",
+      listing_mode: soldListingMode,
       sold_at: soldAt
     };
 
+    let usedLegacySoldListingsSchema = false;
     let insertResult = await supabase
       .from("sold_listings")
       .insert(soldPayload)
@@ -1678,6 +1687,7 @@ export async function recordSoldListing(
       .single<SoldListing>();
 
     if (hasMissingListingColumns(insertResult.error)) {
+      usedLegacySoldListingsSchema = true;
       const optionalSoldColumns = new Set([
         "listing_mode",
         "vehicle_subtype",
@@ -1699,7 +1709,13 @@ export async function recordSoldListing(
     }
 
     if (!insertResult.error) {
-      return { data: insertResult.data, error: null };
+      return {
+        data:
+          usedLegacySoldListingsSchema && insertResult.data
+            ? { ...insertResult.data, listing_mode: soldListingMode }
+            : insertResult.data,
+        error: null
+      };
     }
 
     // Duplicate listing_id (unique violation 23505) — fetch existing record
@@ -1709,7 +1725,13 @@ export async function recordSoldListing(
         .select("*")
         .eq("listing_id", listing.id)
         .single<SoldListing>();
-      return { data: existing.data, error: existing.error };
+      return {
+        data:
+          existing.data && !existing.data.listing_mode
+            ? { ...existing.data, listing_mode: soldListingMode }
+            : existing.data,
+        error: existing.error
+      };
     }
 
     return { data: null, error: insertResult.error };
@@ -2596,54 +2618,49 @@ export async function sendRegistrationOtpWithEmail(
   metadata?: Record<string, string>,
   emailRedirectTo?: string
 ) {
-
-  if (!supabase) {
-
-    return {
-      data: null,
-      error: new Error(
-        "Supabase ei ole konfiguroitu."
-      )
-    };
-
-  }
-
   try {
-
-    return await supabase.auth
-      .signInWithOtp({
-
+    const response = await fetch("/api/auth/email/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        kind: "registration",
         email,
-
-        options: {
-          shouldCreateUser: true,
-          ...(metadata ? { data: metadata } : {}),
-          ...(emailRedirectTo ? { emailRedirectTo } : {})
-        }
-
-      });
-
+        locale: metadata?.locale,
+        metadata,
+        redirectTo: emailRedirectTo
+      })
+    });
+    const result = await response.json().catch(() => ({})) as { error?: string };
+    return response.ok
+      ? { data: { sent: true }, error: null }
+      : { data: null, error: new Error(result.error || "PIN-koodin lähetys epäonnistui.") };
   } catch (error) {
-
-    return {
-      data: null,
-      error
-    };
-
+    return { data: null, error };
   }
-
 }
 
-export async function sendLoginOtpWithEmail(email: string) {
-  if (!supabase) {
-    return { data: null, error: new Error("Supabase ei ole konfiguroitu.") };
-  }
-
+export async function sendLoginOtpWithEmail(
+  email: string,
+  locale: "fi" | "en" | "sv" | "no" = "fi",
+  accessToken?: string,
+  challenge?: string
+) {
   try {
-    return await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: false }
+    const response = await fetch("/api/auth/email/request", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+      },
+      body: JSON.stringify({ kind: "login", email, locale, challenge })
     });
+    const result = await response.json().catch(() => ({})) as {
+      error?: string;
+      challenge?: string;
+    };
+    return response.ok
+      ? { data: { challenge: result.challenge ?? "" }, error: null }
+      : { data: null, error: new Error(result.error || "Kirjautumiskoodin lähetys epäonnistui.") };
   } catch (error) {
     return { data: null, error };
   }
@@ -2800,48 +2817,27 @@ export async function resetPassword(
   locale?: "fi" | "en" | "sv" | "no"
 ) {
 
-  if (!supabase) {
-
-    return {
-      data: null,
-      error: new Error(
-        "Supabase ei ole konfiguroitu."
-      )
-    };
-
-  }
-
   try {
-
-    if (locale) {
-      const { data: sessionData } = await supabase.auth.getSession();
-
-      if (sessionData.session?.user) {
-        await supabase.auth.updateUser({ data: { locale } });
-      }
-    }
-
-    return await supabase.auth
-      .resetPasswordForEmail(
+    const redirectTo = typeof window !== "undefined"
+      ? `${window.location.origin}${pagePath("auth", locale)}?recovery=1${locale ? `&lang=${locale}` : ""}`
+      : undefined;
+    const response = await fetch("/api/auth/email/request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        kind: "password-reset",
         email,
-        {
-          redirectTo:
-            typeof window !==
-            "undefined"
-              ? `${window.location.origin}${pagePath("auth", locale)}?recovery=1${locale ? `&lang=${locale}` : ""}`
-              : undefined
-        }
-      );
-
+        locale,
+        redirectTo
+      })
+    });
+    const result = await response.json().catch(() => ({})) as { error?: string };
+    return response.ok
+      ? { data: { sent: true }, error: null }
+      : { data: null, error: new Error(result.error || "Palautuslinkin lähetys epäonnistui.") };
   } catch (error) {
-
-    return {
-      data: null,
-      error
-    };
-
+    return { data: null, error };
   }
-
 }
 
 export async function requestPasswordChangeCode(

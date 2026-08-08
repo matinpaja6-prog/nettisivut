@@ -1,22 +1,21 @@
 /* Final footer sizing and hierarchy. Imported last so legacy compact rules cannot shrink it. */
 html body .site-footer {
-  background:
-    radial-gradient(760px 230px at 8% 0%, rgba(255, 122, 26, 0.08), transparent 72%),
-    linear-gradient(180deg, #071522 0%, #050f1a 100%) !important;
-  border-top: 1px solid rgba(255, 122, 26, 0.48) !important;
+  background: linear-gradient(180deg, #071522 0%, #050f1a 100%) !important;
+  border-bottom: 0 !important;
+  border-top: 2px solid #ff7a1a !important;
+  box-shadow: none !important;
   color: rgba(226, 236, 246, 0.82) !important;
   min-height: 310px !important;
   padding: 54px clamp(24px, 4vw, 64px) 0 !important;
 }
 
 html body .site-footer::before {
-  background: linear-gradient(90deg, transparent, #ff7a1a 24%, #ff9d2e 50%, #ff7a1a 76%, transparent) !important;
-  box-shadow: 0 0 18px rgba(255, 122, 26, 0.28) !important;
-  content: "" !important;
-  display: block !important;
-  height: 1px !important;
-  inset: 0 0 auto !important;
-  position: absolute !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  content: none !important;
+  display: none !important;
+  height: 0 !important;
 }
 
 html body .site-footer .footer-inner {
@@ -582,20 +581,31 @@ html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer .foot
   }
 }
 
-/* Keep the footer divider orange at tablet and phone widths as well. */
+/* Keep the sharp orange footer divider at tablet and phone widths as well. */
 @media (max-width: 900px) {
   html body .site-footer.site-footer,
   html body:has([class*="heroDesktopLatest"]) .site-footer,
   html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer {
-    border-top: 1px solid rgba(255, 122, 26, 0.72) !important;
+    border-top: 2px solid #ff7a1a !important;
+    box-shadow: none !important;
   }
 
   html body .site-footer.site-footer::before,
   html body:has([class*="heroDesktopLatest"]) .site-footer::before,
   html body:has(main [aria-label="Markkinapaikan tunnusluvut"]) .site-footer::before {
-    background: rgba(255, 122, 26, 0.72) !important;
+    background: none !important;
+    content: none !important;
+    display: none !important;
+    height: 0 !important;
     box-shadow: none !important;
   }
+}
+
+/* Keep the homepage-to-footer boundary seamless. */
+html body main[data-home-page] > [data-home-background-region] {
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
 }
 
 @media (max-width: 720px) {

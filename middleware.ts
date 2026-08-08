@@ -7,6 +7,11 @@ import {
 
 const PUBLIC_FILE =
   /\.(?:avif|bmp|css|csv|eot|gif|ico|jpe?g|js|json|map|mp3|mp4|ogg|otf|pdf|png|svg|txt|webmanifest|webm|webp|woff2?|xml)$/i;
+const CROSS_ORIGIN_BRAND_ASSETS = new Set([
+  "/maskines-email-logo.png",
+  "/maskines-icon.png",
+  "/maskines-share-logo.png"
+]);
 const CANONICAL_HOST = "maskines.com";
 const LEGACY_HOSTS = new Set(["maskinet.com", "www.maskinet.com"]);
 const TRUSTED_MUTATION_ORIGINS = new Set([
@@ -162,6 +167,7 @@ function getApiRateLimit(pathname: string, method: string) {
   if (pathname.startsWith("/api/google-maps-script")) return 30;
   if (!isUnsafeMethod(method)) return 180;
   if (pathname.startsWith("/api/account/delete")) return 3;
+  if (pathname.startsWith("/api/auth/email")) return 5;
   if (pathname.startsWith("/api/auth/login")) return 10;
   if (pathname.startsWith("/api/admin")) return 20;
   if (pathname.startsWith("/api/contact")) return 5;
@@ -287,7 +293,11 @@ export async function middleware(request: NextRequest) {
     pathname === "/favicon.ico" ||
     PUBLIC_FILE.test(pathname)
   ) {
-    return applySecurityHeaders(NextResponse.next());
+    const response = applySecurityHeaders(NextResponse.next());
+    if (CROSS_ORIGIN_BRAND_ASSETS.has(pathname)) {
+      response.headers.set("Cross-Origin-Resource-Policy", "cross-origin");
+    }
+    return response;
   }
 
   // Keep the administration route reachable so an administrator can remove

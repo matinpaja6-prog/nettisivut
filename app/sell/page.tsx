@@ -1351,7 +1351,7 @@ const vehicleDetailPresets: Record<
     ],
     models: ["DT", "Senda", "MRT", "RX", "SX", "RS"],
     engineCcs: ["50", "65", "70", "72", "75", "77", "80", "85", "86", "88", "90", "94", "100", "110"],
-    engineTypes: ["2-tahti", "4-tahti", "AM6", "Derbi D50B0"]
+    engineTypes: ["2-tahti", "4-tahti", "Minarelli AM6", "Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"]
   }
 };
 
@@ -1578,11 +1578,11 @@ const vehicleModelEngines: Record<string, Record<string, Record<string, string[]
       Zoomer: ["Honda GET"]
     },
     Derbi: {
-      Senda: ["Derbi D50B0", "Derbi EBS"],
-      DRD: ["Derbi D50B0", "Derbi EBS"],
-      Xtreme: ["Derbi D50B0"],
-      Racing: ["Derbi D50B0"],
-      GPR: ["Derbi D50B0", "Derbi EBS"],
+      Senda: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      DRD: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      Xtreme: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      Racing: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      GPR: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
       Variant: ["Piaggio Hi-Per2"]
     },
     Rieju: {
@@ -1601,9 +1601,9 @@ const vehicleModelEngines: Record<string, Record<string, Record<string, string[]
       SMC: ["KTM LC4"]
     },
     Aprilia: {
-      SX: ["Derbi D50B0", "Minarelli AM6"],
-      RX: ["Derbi D50B0", "Minarelli AM6"],
-      RS: ["Derbi D50B0", "Minarelli AM6"],
+      SX: ["Rabasa - uusi malli (D50B0)", "Minarelli AM6"],
+      RX: ["Rabasa - uusi malli (D50B0)", "Minarelli AM6"],
+      RS: ["Rabasa - uusi malli (D50B0)", "Minarelli AM6"],
       SR: ["Piaggio Hi-Per2", "Minarelli horizontal"],
       Tuono: ["Minarelli AM6"],
       Pegaso: ["Rotax 655"]
@@ -1700,14 +1700,14 @@ const commonModelEnginesByVehicle: Record<string, Record<string, Record<string, 
       Rocket: ["Minarelli vertical AC"]
     },
     Derbi: {
-      Senda: ["Derbi D50B0", "Derbi EBS", "Derbi EBE"],
-      DRD: ["Derbi D50B0", "Derbi EBS"],
-      Xtreme: ["Derbi D50B0", "Derbi EBS"],
-      Racing: ["Derbi D50B0", "Derbi EBS"],
-      GPR: ["Derbi D50B0", "Derbi EBS", "Derbi EBE"],
-      Atlantis: ["Piaggio Hi-Per2", "Derbi EBS"],
+      Senda: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      DRD: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      Xtreme: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      Racing: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      GPR: ["Rabasa - vanha malli", "Rabasa - uusi malli (D50B0)"],
+      Atlantis: ["Piaggio Hi-Per2"],
       Variant: ["Piaggio Hi-Per2"],
-      Terra: ["Derbi D50B0"]
+      Terra: ["Rabasa - uusi malli (D50B0)"]
     },
     Rieju: {
       MRT: ["Minarelli AM6"],
@@ -1720,9 +1720,9 @@ const commonModelEnginesByVehicle: Record<string, Record<string, Record<string, 
       Spike: ["Minarelli AM6"]
     },
     Aprilia: {
-      SX: ["Derbi D50B0", "Minarelli AM6"],
-      RX: ["Derbi D50B0", "Minarelli AM6"],
-      RS: ["Derbi D50B0", "Minarelli AM6"],
+      SX: ["Rabasa - uusi malli (D50B0)", "Minarelli AM6"],
+      RX: ["Rabasa - uusi malli (D50B0)", "Minarelli AM6"],
+      RS: ["Rabasa - uusi malli (D50B0)", "Minarelli AM6"],
       SR: ["Piaggio Hi-Per2 AC", "Piaggio Hi-Per2 LC", "Minarelli horizontal AC", "Minarelli horizontal LC", "Morini"],
       Rally: ["Minarelli horizontal AC", "Piaggio Hi-Per2 AC"],
       Sonic: ["Minarelli horizontal AC", "Minarelli horizontal LC"],
@@ -1753,8 +1753,8 @@ const commonModelEnginesByVehicle: Record<string, Record<string, Record<string, 
     },
     Gilera: {
       Runner: ["Piaggio Hi-Per2 LC", "Piaggio PureJet"],
-      SMT: ["Derbi D50B0"],
-      RCR: ["Derbi D50B0"],
+      SMT: ["Rabasa - uusi malli (D50B0)"],
+      RCR: ["Rabasa - uusi malli (D50B0)"],
       Stalker: ["Piaggio Hi-Per2 AC"],
       DNA: ["Piaggio Hi-Per2 LC"],
       Ice: ["Piaggio Hi-Per2 AC"],

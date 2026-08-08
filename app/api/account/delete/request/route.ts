@@ -1,6 +1,10 @@
 import { createHash, randomInt } from "crypto";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import {
+  claimAuthEmailCooldown,
+  releaseAuthEmailCooldown
+} from "@/lib/auth-email-rate-limit";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey =
@@ -157,6 +161,18 @@ export async function POST(request: Request) {
     );
   }
 
+  const cooldown = claimAuthEmailCooldown(email);
+  if (!cooldown.allowed) {
+    return NextResponse.json(
+      {
+        error: `Uuden sähköpostin voi lähettää kerran minuutissa. Odota vielä ${cooldown.retryAfterSeconds} sekuntia.`,
+        retryAfter: cooldown.retryAfterSeconds
+      },
+      { status: 429, headers: { "Retry-After": String(cooldown.retryAfterSeconds) } }
+    );
+  }
+  const cooldownLease = cooldown.lease;
+
   const code =
     String(randomInt(100000, 1000000));
 
@@ -171,6 +187,7 @@ export async function POST(request: Request) {
       });
 
   if (insertError) {
+    releaseAuthEmailCooldown(cooldownLease);
     return NextResponse.json(
       {
         error:
@@ -182,10 +199,20 @@ export async function POST(request: Request) {
     );
   }
 
-  const emailResult =
-    await sendDeletionEmail({ to: email, code });
+  let emailResult: Awaited<ReturnType<typeof sendDeletionEmail>>;
+  try {
+    emailResult = await sendDeletionEmail({ to: email, code });
+  } catch (error) {
+    releaseAuthEmailCooldown(cooldownLease);
+    console.error("Account deletion email failed:", error);
+    return NextResponse.json(
+      { error: "Sähköpostin lähettäminen epäonnistui." },
+      { status: 503 }
+    );
+  }
 
   if (!emailResult.sent) {
+    releaseAuthEmailCooldown(cooldownLease);
     return NextResponse.json({
       ok: true,
       emailSent: false,

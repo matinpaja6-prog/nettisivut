@@ -163,6 +163,33 @@ const nextConfig: NextConfig = {
             value: "public, max-age=31536000, immutable"
           }
         ]
+      },
+      {
+        source: "/maskines-email-logo.png",
+        headers: [
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "cross-origin"
+          }
+        ]
+      },
+      {
+        source: "/maskines-icon.png",
+        headers: [
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "cross-origin"
+          }
+        ]
+      },
+      {
+        source: "/maskines-share-logo.png",
+        headers: [
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "cross-origin"
+          }
+        ]
       }
     ];
   },

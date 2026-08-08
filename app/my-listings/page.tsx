@@ -293,7 +293,8 @@ const fallbackListingImage =
   "https://images.unsplash.com/photo-1516321318423-f06f85e504b3";
 
 const myListingsCachePrefix = "arcticparts:my-listings:";
-const dismissedCompletedGroupsPrefix = "arcticparts:dismissed-completed-groups:";
+const removedCompletedGroupsPrefix = "arcticparts:removed-completed-groups:";
+const legacyDismissedGroupsPrefix = "arcticparts:dismissed-completed-groups:";
 const myListingsStatsHistoryPrefix = "arcticparts:my-listings-stats:";
 type StatsRange = "1d" | "7d" | "30d" | "all";
 type StatsSnapshot = {
@@ -323,8 +324,8 @@ function myListingsCacheKey(userId: string) {
   return `${myListingsCachePrefix}${userId}`;
 }
 
-function dismissedCompletedGroupsKey(userId: string) {
-  return `${dismissedCompletedGroupsPrefix}${userId}`;
+function removedCompletedGroupsKey(userId: string) {
+  return `${removedCompletedGroupsPrefix}${userId}`;
 }
 
 function myListingsStatsHistoryKey(userId: string) {
@@ -358,11 +359,13 @@ function writeCachedMyListings(userId: string, nextListings: Listing[]) {
   }
 }
 
-function readDismissedCompletedGroupKeys(userId: string) {
+function readRemovedCompletedGroupKeys(userId: string) {
   if (typeof window === "undefined") return new Set<string>();
 
   try {
-    const raw = window.localStorage.getItem(dismissedCompletedGroupsKey(userId));
+    const raw =
+      window.localStorage.getItem(removedCompletedGroupsKey(userId)) ??
+      window.localStorage.getItem(`${legacyDismissedGroupsPrefix}${userId}`);
     if (!raw) return new Set<string>();
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return new Set<string>();
@@ -372,16 +375,16 @@ function readDismissedCompletedGroupKeys(userId: string) {
   }
 }
 
-function writeDismissedCompletedGroupKeys(userId: string, keys: Set<string>) {
+function writeRemovedCompletedGroupKeys(userId: string, keys: Set<string>) {
   if (typeof window === "undefined") return;
 
   try {
     window.localStorage.setItem(
-      dismissedCompletedGroupsKey(userId),
+      removedCompletedGroupsKey(userId),
       JSON.stringify(Array.from(keys))
     );
   } catch {
-    // This only controls local UI visibility; sales history stays in the database.
+    // Removing the summary must never affect persisted sales data.
   }
 }
 
@@ -548,7 +551,7 @@ export default function MyListingsPage() {
 
   const [soldListings, setSoldListings] =
     useState<SoldListing[]>([]);
-  const [dismissedCompletedGroupKeys, setDismissedCompletedGroupKeys] = useState<Set<string>>(() => new Set());
+  const [removedCompletedGroupKeys, setRemovedCompletedGroupKeys] = useState<Set<string>>(() => new Set());
   const [statsHistory, setStatsHistory] = useState<StatsHistory>({});
 
   const [listingsCacheReady, setListingsCacheReady] =
@@ -673,13 +676,13 @@ export default function MyListingsPage() {
   useEffect(() => {
 
     if (!user) {
-      setDismissedCompletedGroupKeys(new Set());
+      setRemovedCompletedGroupKeys(new Set());
       setStatsHistory({});
       return;
     }
 
     let cancelled = false;
-    setDismissedCompletedGroupKeys(readDismissedCompletedGroupKeys(user.id));
+    setRemovedCompletedGroupKeys(readRemovedCompletedGroupKeys(user.id));
     setStatsHistory(readMyListingsStatsHistory(user.id));
     const cachedListings = readCachedMyListings(user.id);
 
@@ -1354,16 +1357,14 @@ export default function MyListingsPage() {
 
   }
 
-  async function dismissCompletedGroup(groupKey: string) {
-    setDismissedCompletedGroupKeys((prev) => {
-      const next = new Set(prev);
+  function deleteCompletedGroup(groupKey: string) {
+    setRemovedCompletedGroupKeys((previous) => {
+      const next = new Set(previous);
       next.add(groupKey);
-      if (user) {
-        writeDismissedCompletedGroupKeys(user.id, next);
-      }
+      if (user) writeRemovedCompletedGroupKeys(user.id, next);
       return next;
     });
-    setStatus("Multi-koonti piilotettu. Myyntisumma säilyy tilastoissa.");
+    setStatus("Multi-koonti poistettu. Myyntitiedot ja tilastot säilyvät ennallaan.");
   }
 
   const activeListingsValue =
@@ -1620,13 +1621,31 @@ export default function MyListingsPage() {
     }
 
     for (const sold of soldListings) {
-      if (sold.listing_mode !== "multiple") continue;
-
       const vehicleKey = getVehicleGroupKey(sold);
       if (!vehicleKey) continue;
       const matchingActiveGroups = Array.from(groupMap.values()).filter(
         (group) => group.vehicleKey === vehicleKey && group.active.length > 0
       );
+
+      // Older sold_listings schemas do not have listing_mode. A sold part can
+      // still be tied safely to the sole active multi-publication for the same
+      // vehicle, as long as that publication existed before the sale.
+      if (sold.listing_mode !== "multiple") {
+        if (sold.listing_mode === "single" || matchingActiveGroups.length !== 1) continue;
+
+        const soldAt = new Date(sold.sold_at || sold.created_at || "").getTime();
+        const groupCreatedAt = Math.min(
+          ...matchingActiveGroups[0].active.map((listing) =>
+            new Date(listing.created_at || "").getTime()
+          )
+        );
+        if (
+          !Number.isFinite(soldAt) ||
+          !Number.isFinite(groupCreatedAt) ||
+          soldAt < groupCreatedAt
+        ) continue;
+      }
+
       const key = matchingActiveGroups.length === 1
         ? matchingActiveGroups[0].key
         : `vehicle:${vehicleKey}`;
@@ -1652,13 +1671,13 @@ export default function MyListingsPage() {
         completed: group.active.length === 0 && group.sold.length > 0
       }))
       .filter((group) => {
-        if (group.completed && dismissedCompletedGroupKeys.has(group.key)) return false;
+        if (group.completed && removedCompletedGroupKeys.has(group.key)) return false;
         if (!group.hasMultiListing) return false;
         if (group.active.length > 0) return true;
         return group.completed && isWithinHours(group.latestAt, 12);
       })
       .sort((a, b) => b.latestAt.localeCompare(a.latestAt));
-  }, [activeTab, dismissedCompletedGroupKeys, filteredListings, soldListings]);
+  }, [activeTab, filteredListings, removedCompletedGroupKeys, soldListings]);
 
   const groupedListingIds = useMemo(() => {
     const ids = new Set<string>();
@@ -1730,7 +1749,7 @@ export default function MyListingsPage() {
 
     <main className={`${styles.page} my-listings-page`}>
 
-      <header className={styles.header}>
+      <header className={styles.header} data-app-sheet>
 
         <div>
           <h1 className={styles.title}>{pageText.management}</h1>
@@ -1765,7 +1784,7 @@ export default function MyListingsPage() {
         <>
         <div className={styles.stats}>
 
-          <div className={styles.statCard}>
+          <div className={styles.statCard} data-app-sheet>
             <div className={styles.statHead}>
               <span className={`${styles.statIcon} ${styles.cyan}`}>
                 <Tag size={22} />
@@ -1781,7 +1800,7 @@ export default function MyListingsPage() {
             </div>
           </div>
 
-          <div className={styles.statCard}>
+          <div className={styles.statCard} data-app-sheet>
             <div className={styles.statHead}>
               <span className={`${styles.statIcon} ${styles.green}`}>
                 <TrendingUp size={22} />
@@ -1799,7 +1818,7 @@ export default function MyListingsPage() {
             </div>
           </div>
 
-          <div className={styles.statCard}>
+          <div className={styles.statCard} data-app-sheet>
             <div className={styles.statHead}>
               <span className={`${styles.statIcon} ${styles.purple}`}>
                 <Eye size={22} />
@@ -1815,7 +1834,7 @@ export default function MyListingsPage() {
             </div>
           </div>
 
-          <div className={styles.statCard}>
+          <div className={styles.statCard} data-app-sheet>
             <div className={styles.statHead}>
               <span className={`${styles.statIcon} ${styles.orange}`}>
                 <MessageCircle size={22} />
@@ -1839,7 +1858,7 @@ export default function MyListingsPage() {
       )}
 
       {!user && (
-        <div className="profile-alert" style={{ maxWidth: 1320, margin: "0 auto 24px" }}>
+        <div className="profile-alert" data-app-sheet="true" style={{ maxWidth: 1320, margin: "0 auto 24px" }}>
           <LockKeyhole size={20} />
           <span>{pageText.loginToView}</span>
           <Link href="/auth">{t.login}</Link>
@@ -1847,9 +1866,9 @@ export default function MyListingsPage() {
       )}
 
       {user && (
-        <section className={styles.panel}>
+        <section className={styles.panel} data-app-sheet>
 
-          <div className={styles.panelTopbar}>
+          <div className={styles.panelTopbar} data-app-sheet>
 
             <div className={styles.tabs}>
               {tabs.map((tab) => (
@@ -1867,9 +1886,9 @@ export default function MyListingsPage() {
           </div>
 
           {!listingsCacheReady && listings.length === 0 ? (
-            <div className={styles.emptyState} aria-busy="true" />
+            <div className={styles.emptyState} data-app-sheet aria-busy="true" />
           ) : filteredListings.length === 0 && multiGroups.length === 0 ? (
-            <div className={styles.emptyState}>
+            <div className={styles.emptyState} data-app-sheet>
               <Tag size={28} />
               <span>{pageText.noListings}</span>
               <Link href="/sell">{t.createListing}</Link>
@@ -1905,6 +1924,7 @@ export default function MyListingsPage() {
                   <article
                     className={`${styles.multiGroupRow} ${group.completed ? styles.multiGroupCompleted : ""}`}
                     key={`group-${group.key}`}
+                    data-app-sheet="true"
                   >
                     <div className={styles.multiGroupIcon}>
                       <ClipboardList size={24} />
@@ -1959,8 +1979,8 @@ export default function MyListingsPage() {
                         <button
                           type="button"
                           className={`${styles.actionBtn} ${styles.actionDanger}`}
-                          onClick={() => dismissCompletedGroup(group.key)}
-                          title="Koonti piilotetaan pysyvästi tästä näkymästä. Myyntisumma säilyy tilastoissa."
+                          onClick={() => deleteCompletedGroup(group.key)}
+                          title="Poistaa multi-koonnin hallintanäkymästä. Myyntitiedot säilyvät tilastoissa."
                         >
                           <Trash2 size={14} />
                           Poista koonti
@@ -2029,6 +2049,7 @@ export default function MyListingsPage() {
                     className={styles.row}
                     key={listing.id}
                     data-listing-id={listing.id}
+                    data-app-sheet="true"
                     style={editing ? { display: "block" } : undefined}
                   >
 

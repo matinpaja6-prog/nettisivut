@@ -46,12 +46,12 @@ function subtypeModelPredicate(vehicle: string, subtype: string) {
   if (vehicleKey === "mopo" || vehicleKey === "mopot") {
     const scooterModels = [
       "aerox", "agility", "ark", "aragon", "atlantis", "booster", "bws", "chrono",
-      "dink", "dio", "elyseo", "f act", "fly", "ice", "ideo", "jetforce", "jog",
+      "address", "dink", "dio", "dna", "elyseo", "f12", "f15", "f act", "fly", "ice", "ideo", "jetforce", "jog",
       "katana", "kisbee", "lead", "liberty", "ludix", "matrix", "mojito", "neos",
       "nitro", "nrg", "oliver", "ovetto", "people", "phantom", "popcorn", "primavera",
-      "rocket", "runner", "ry6", "scooter", "scarabeo", "sfera", "sfx", "sh", "slider",
+      "rally", "rocket", "runner", "ry6", "scooter", "scarabeo", "sfera", "sfx", "sh", "slider",
       "sonic", "speedfight", "sprint", "sr", "stalker", "stunt", "super 8", "trekker",
-      "typhoon", "variant", "vespa", "vitality", "vivacity", "why", "x8r", "xor", "zip",
+      "storm", "street magic", "track", "typhoon", "variant", "vespa", "vision", "vitality", "vivacity", "why", "x8r", "xor", "zip",
       "zoomer", "zuma"
     ];
     if (subtypeKey === "skootteri") return (model: string) => includesFragment(model, scooterModels);

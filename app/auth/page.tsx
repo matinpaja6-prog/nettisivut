@@ -444,6 +444,7 @@ function AuthPageContent() {
   const [loginMfaFactorId, setLoginMfaFactorId] = useState("");
   const [loginMfaEmail, setLoginMfaEmail] = useState("");
   const [loginMfaCode, setLoginMfaCode] = useState("");
+  const [loginMfaEmailChallenge, setLoginMfaEmailChallenge] = useState("");
   const [loginMfaStatus, setLoginMfaStatus] = useState("");
   const [loginMfaSubmitting, setLoginMfaSubmitting] = useState(false);
   const [loginMfaRecovery, setLoginMfaRecovery] = useState(false);
@@ -458,6 +459,18 @@ function AuthPageContent() {
 
     authRedirectStartedRef.current = true;
     router.replace(authRedirectPath);
+
+    // A client-side transition can occasionally remain pending after Supabase
+    // has updated the session. Do not leave an authenticated user stranded on
+    // the headerless auth loading surface if that happens.
+    window.setTimeout(() => {
+      const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+      const currentAuthPath = authPagePath.replace(/\/$/, "") || "/";
+
+      if (currentPath === currentAuthPath) {
+        window.location.replace(authRedirectPath);
+      }
+    }, 2000);
   }
 
   async function prepareSecondFactor(targetUser: User) {
@@ -495,9 +508,13 @@ function AuthPageContent() {
         targetUser.email
       ) {
         const targetEmail = targetUser.email;
-        await signOut();
-        const { error } = await sendLoginOtpWithEmail(targetEmail);
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) throw new Error("Kirjautuminen ei ole enää voimassa.");
+        const { data, error } = await sendLoginOtpWithEmail(targetEmail, locale, accessToken);
         if (error) throw error;
+        setLoginMfaEmailChallenge(data?.challenge ?? "");
+        await signOut();
 
         setLoginMfaFactorId("");
         setLoginMfaEmail(targetEmail);
@@ -553,6 +570,7 @@ function AuthPageContent() {
           setLoginMfaMode(null);
           setLoginMfaRecovery(false);
           setLoginMfaCode("");
+          setLoginMfaEmailChallenge("");
           setLoginMfaStatus("");
           setStatus("Authenticator poistettiin turvallisesti. Kirjaudu nyt uudelleen. Voit lisätä uuden Oma profiili -sivulla.");
           return;
@@ -563,6 +581,7 @@ function AuthPageContent() {
 
       setLoginMfaMode(null);
       setLoginMfaCode("");
+      setLoginMfaEmailChallenge("");
       setLoginMfaStatus("");
       setStatus(t.authLoginSuccess);
       redirectAfterSuccessfulAuth();
@@ -594,9 +613,10 @@ function AuthPageContent() {
       const result = (await response.json().catch(() => ({}))) as { error?: string };
       if (!response.ok) throw new Error(result.error || "Palautusta ei voitu aloittaa.");
 
-      await signOut();
-      const { error } = await sendLoginOtpWithEmail(loginMfaEmail);
+      const { data: emailData, error } = await sendLoginOtpWithEmail(loginMfaEmail, locale, accessToken);
       if (error) throw error;
+      setLoginMfaEmailChallenge(emailData?.challenge ?? "");
+      await signOut();
 
       setLoginMfaRecovery(true);
       setLoginMfaMode("email");
@@ -612,7 +632,13 @@ function AuthPageContent() {
   async function resendLoginEmailCode() {
     if (!loginMfaEmail || loginMfaSubmitting) return;
     setLoginMfaSubmitting(true);
-    const { error } = await sendLoginOtpWithEmail(loginMfaEmail);
+    const { data, error } = await sendLoginOtpWithEmail(
+      loginMfaEmail,
+      locale,
+      undefined,
+      loginMfaEmailChallenge
+    );
+    if (data?.challenge) setLoginMfaEmailChallenge(data.challenge);
     setLoginMfaSubmitting(false);
     setLoginMfaStatus(
       error
@@ -1438,6 +1464,14 @@ function AuthPageContent() {
   const showProfileRegistrationForm = Boolean(
     user && profileLookupDone && needsProfile
   );
+  const showAuthLoading = Boolean(
+    user &&
+    !recoveryMode &&
+    !loginMfaMode &&
+    !registrationPinPending &&
+    !emailPending &&
+    !showProfileRegistrationForm
+  );
   const primaryAuthActionLabel =
     authMode === "register"
       ? "Rekisteröidy"
@@ -1533,17 +1567,19 @@ function AuthPageContent() {
   }
 
   return (
-    <main className="auth-page simple-auth-page" onClick={handleAuthBackgroundClick}>
+    <main className={`auth-page simple-auth-page${showAuthLoading ? " auth-loading-page" : ""}`} onClick={handleAuthBackgroundClick}>
       <section className="simple-auth auth-centered">
-        <button
-          type="button"
-          className="auth-mobile-back-home"
-          aria-label="Takaisin etusivulle"
-          onClick={returnToHome}
-        >
-          <ArrowLeft size={26} aria-hidden="true" />
-          <span>Takaisin etusivulle</span>
-        </button>
+        {!showAuthLoading && (
+          <button
+            type="button"
+            className="auth-mobile-back-home"
+            aria-label="Takaisin etusivulle"
+            onClick={returnToHome}
+          >
+            <ArrowLeft size={26} aria-hidden="true" />
+            <span>Takaisin etusivulle</span>
+          </button>
+        )}
         {recoveryMode ? (
           <form
             className="auth-card simple-card password-reset-card"
@@ -1654,6 +1690,7 @@ function AuthPageContent() {
                 setLoginMfaMode(null);
                 setLoginMfaRecovery(false);
                 setLoginMfaCode("");
+                setLoginMfaEmailChallenge("");
                 setLoginMfaStatus("");
               }}
             >
@@ -1959,14 +1996,8 @@ function AuthPageContent() {
             {status ? <span className="form-note">{status}</span> : null}
           </form>
         ) : (
-          <div className="auth-card simple-card email-confirm-card">
-            <div className="profile-completion-head">
-              <span className="eyebrow">Hetki...</span>
-              <h1>Viimeistellään rekisteröintiä</h1>
-            </div>
-            {status && status !== t.authCreatingUser && status !== t.authProfileSavedMsg && (
-              <span className="form-note">{status}</span>
-            )}
+          <div className="auth-loading" role="status" aria-live="polite" aria-label="Ladataan sivua">
+            <span className="auth-loading-spinner" aria-hidden="true" />
           </div>
         )}
       </section>

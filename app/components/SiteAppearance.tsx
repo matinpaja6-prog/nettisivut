@@ -50,6 +50,7 @@ function applyAppearance(a: SiteAppearance) {
   }
   if (a.card_color) {
     const cardColor = normalizeCardColor(a.card_color);
+    root.style.setProperty("--app-sheet-surface", cardColor);
     root.style.setProperty("--site-card", cardColor);
     root.style.setProperty("--listing-card-bg", cardColor);
   }

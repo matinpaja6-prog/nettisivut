@@ -840,7 +840,11 @@ export default function UniversalTopbar() {
   const hasNotificationItems =
     visibleReviewRequests.length + visibleAlertNotifications.length + visibleUnreadConversations.length > 0;
   const isHomePage = canonicalPathname === "/";
-  const isAuthPage = isAuthRoute && authSurfaceActive;
+  // Keep the focused login/register surface headerless, but restore the full
+  // topbar as soon as authentication succeeds. This also covers the short
+  // window before the auth page redirects to its destination.
+  const isAuthPage = isAuthRoute && authSurfaceActive && !userId;
+  const shouldHideTopbar = isAuthRoute && !userId;
   const controlsLocked = !authChecked;
   const sellerLevel = calculateSellerLevel(sellerLevelStats);
   const sellerLevelTooltip = sellerLevel.maxLevel
@@ -1420,7 +1424,7 @@ export default function UniversalTopbar() {
     )
     : null;
 
-  if (isAuthRoute) return null;
+  if (shouldHideTopbar) return null;
 
   return (
     <>

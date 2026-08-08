@@ -1835,6 +1835,13 @@ html body .seller-page .sp-filter-show-results {
     justify-content: center !important;
   }
 
+  html body:has(.seller-page .seller-home-filter-bar.is-open) .bottom-nav,
+  html body:has(.seller-page .seller-home-filter-bar.is-open) .floating-chat,
+  html body:has(.seller-page .seller-home-filter-bar.is-open) .fc-button,
+  html body:has(.seller-page .seller-home-filter-bar.is-open) .rebuilt-chat-button {
+    display: none !important;
+  }
+
   html body .seller-page .seller-home-filter-bar {
     align-content: start !important;
     background: #15171d !important;
@@ -1844,7 +1851,7 @@ html body .seller-page .sp-filter-show-results {
     bottom: 0 !important;
     box-shadow: 0 -24px 46px rgba(0, 0, 0, 0.5) !important;
     gap: 11px !important;
-    left: 0 !important;
+    left: 50% !important;
     margin: 0 !important;
     height: var(--seller-filter-sheet-height, auto) !important;
     max-height: min(68dvh, 610px) !important;
@@ -1852,9 +1859,10 @@ html body .seller-page .sp-filter-show-results {
     overflow-x: hidden !important;
     overflow-y: hidden !important;
     padding: 12px 16px 0 !important;
-    right: 0 !important;
+    right: auto !important;
     top: auto !important;
-    width: 100vw !important;
+    transform: translateX(-50%) !important;
+    width: min(calc(100vw - 12px), 430px) !important;
     z-index: 9001 !important;
     overscroll-behavior: contain !important;
     transition: max-height 240ms cubic-bezier(0.22, 1, 0.36, 1), height 240ms cubic-bezier(0.22, 1, 0.36, 1) !important;
@@ -1886,7 +1894,7 @@ html body .seller-page .sp-filter-show-results {
     flex: 0 0 auto !important;
     height: 13px !important;
     justify-content: center !important;
-    margin: 0 0 6px !important;
+    margin: -8px 0 4px !important;
     order: -2 !important;
     cursor: grab !important;
     position: relative !important;
@@ -1938,7 +1946,7 @@ html body .seller-page .sp-filter-show-results {
     display: grid !important;
     flex: 0 0 auto !important;
     grid-template-columns: 40px minmax(0, 1fr) 40px !important;
-    margin: -8px 0 8px !important;
+    margin: 0 0 8px !important;
     order: -1 !important;
     padding: 0 !important;
     position: relative !important;
@@ -1995,13 +2003,17 @@ html body .seller-page .sp-filter-show-results {
   }
 
   html body .seller-page .seller-home-filter-actions {
+    align-self: center !important;
     background: #15171d !important;
     border-top: 1px solid rgba(83, 105, 133, 0.36) !important;
+    bottom: auto !important;
+    box-sizing: border-box !important;
     box-shadow: 0 -14px 22px #15171d !important;
     flex: 0 0 auto !important;
     margin: 4px -16px 0 !important;
-    padding: 12px 16px calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+    padding: 12px 16px max(14px, env(safe-area-inset-bottom, 0px)) !important;
     position: relative !important;
+    width: calc(100% + 32px) !important;
     z-index: 5 !important;
   }
 

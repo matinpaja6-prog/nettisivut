@@ -2,7 +2,11 @@
 html body .pf-page.pf-page .pf-phone-change-btn,
 html body .pf-page.pf-page .pf-phone-change-btn:hover:not(:disabled),
 html body .pf-page.pf-page .pf-phone-change-btn:focus-visible {
+  background: #ff7a18 !important;
+  background-image: none !important;
+  border-color: #ff8f33 !important;
   box-shadow: none !important;
+  color: #ffffff !important;
 }
 
 html body header.universal-app-topbar .language-switcher,
@@ -146,4 +150,36 @@ html body header.universal-app-topbar
   padding: 0 !important;
   position: absolute !important;
   width: 100% !important;
+}
+
+/* The description text belongs to the surrounding detail sheet. Prevent the
+   paragraph itself from becoming a shorter blue rectangle on desktop. */
+html body
+  main.page.listing-detail-page.listing-detail-page
+  .description-card.description-card
+  .listing-section-content.listing-section-content
+  > p {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Cloudflare Turnstile has a 300px minimum width in flexible mode. The
+   component switches to its compact layout below that width; keep it centered
+   in narrow auth cards. */
+.turnstile-widget {
+  max-width: 100%;
+  overflow: hidden;
+  width: 100%;
+}
+
+.turnstile-widget > div[aria-label="Bottitarkistus"] {
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+  width: 100%;
 }

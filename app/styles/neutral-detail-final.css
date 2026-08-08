@@ -1,7 +1,7 @@
 /* Final neutral treatment for the listing detail view. */
 html body main.listing-detail-page.listing-detail-page {
   --listing-neutral-page: var(--maskines-page-background, var(--site-bg, #181a1d));
-  --listing-neutral-card: #1e2023;
+  --listing-neutral-card: #062142;
   --listing-neutral-raised: #25282c;
   --listing-neutral-line: #3a3e43;
   background: var(--listing-neutral-page) !important;
@@ -26,14 +26,35 @@ html body main.listing-detail-page.listing-detail-page :is(
   .contact-card,
   .description-card,
   .listing-facts-card,
-  .listing-extra-card,
-  .similar-listings-section
+  .listing-extra-card
 ) {
   background: var(--listing-neutral-card) !important;
   background-color: var(--listing-neutral-card) !important;
   background-image: none !important;
   border-color: var(--listing-neutral-line) !important;
   box-shadow: none !important;
+}
+
+html body main.listing-detail-page.listing-detail-page :is(
+  .similar-listings-section,
+  .similar-listings-head
+) {
+  background: var(--listing-neutral-page) !important;
+  background-color: var(--listing-neutral-page) !important;
+  background-image: none !important;
+}
+
+/* Keep the seller panel on the same surface as the listing sheet. The extra
+   attribute specificity intentionally wins over the older component-local
+   colour experiments that are still shipped with the detail page. */
+html body main.page.listing-detail-page.listing-detail-page
+  .seller-card.seller-card[data-seller-panel],
+html body main.page.listing-detail-page.listing-detail-page
+  .seller-card.seller-card[data-seller-panel]
+  > .seller-card-body.seller-card-panel {
+  background: var(--listing-neutral-card) !important;
+  background-color: var(--listing-neutral-card) !important;
+  background-image: none !important;
 }
 
 html body main.listing-detail-page.listing-detail-page :is(

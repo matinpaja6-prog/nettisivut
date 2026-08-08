@@ -516,3 +516,95 @@ body:has(.bn-garage-panel) .fc-button {
     font-size: 9px !important;
   }
 }
+
+/* Navigation is mounted after auth resolution. CSS alone controls its layout:
+   phone/tablet at <= 1100px and hidden on wider desktop layouts. */
+.bottom-nav.bottom-nav-main[data-device-bottom-nav="true"] {
+  display: grid;
+}
+
+html body:has(> .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"]) {
+  padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+}
+
+html body:has(> .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"]) .floating-chat,
+html body:has(> .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"]) .fc-button,
+html body:has(> .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"]) .rebuilt-chat-button {
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (min-width: 761px) and (max-width: 1366px) {
+  html body .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"] {
+    align-items: center !important;
+    background: linear-gradient(180deg, rgba(3, 12, 23, 0.98), rgba(1, 7, 15, 0.98)) !important;
+    border: 1px solid rgba(32, 72, 106, 0.82) !important;
+    border-radius: 12px !important;
+    bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.44) !important;
+    gap: 6px !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    margin: 0 !important;
+    min-height: 64px !important;
+    padding: 6px !important;
+    position: fixed !important;
+    right: max(12px, env(safe-area-inset-right, 0px)) !important;
+    top: auto !important;
+    width: auto !important;
+    z-index: 2147481800 !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"].bottom-nav-guest {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"] .bottom-nav-item {
+    align-items: center !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 9px !important;
+    color: rgba(222, 232, 241, 0.88) !important;
+    display: grid !important;
+    gap: 2px !important;
+    grid-template-rows: 27px 15px !important;
+    justify-items: center !important;
+    min-height: 50px !important;
+    min-width: 0 !important;
+    padding: 4px 6px !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"] .bottom-nav-icon {
+    align-items: center !important;
+    color: currentColor !important;
+    display: inline-flex !important;
+    height: 26px !important;
+    justify-content: center !important;
+    width: 26px !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"] .bottom-nav-label {
+    color: currentColor !important;
+    display: block !important;
+    font-size: 10px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-align: center !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"] .bottom-nav-item.active {
+    background: rgba(5, 18, 31, 0.94) !important;
+    border-color: rgba(255, 122, 26, 0.72) !important;
+    color: #ff7a1a !important;
+  }
+
+  html body .bottom-nav.bottom-nav-main[data-device-bottom-nav="true"] .bottom-nav-center-action .bottom-nav-icon {
+    background: linear-gradient(135deg, #ff9a24, #ff6815) !important;
+    border: 1px solid rgba(255, 215, 174, 0.68) !important;
+    border-radius: 999px !important;
+    color: #ffffff !important;
+  }
+}
