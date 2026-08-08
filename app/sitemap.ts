@@ -5,7 +5,11 @@ import { seoListingSearchQuery, seoSearchPath } from "@/lib/seo-search";
 import { absoluteSiteUrl } from "@/lib/site-url";
 import { getListingDisplayNumber, getListings } from "@/lib/supabase";
 
-export const revalidate = 3_600;
+// The sitemap must reflect newly published listings as soon as Google fetches
+// it. A cached static sitemap can otherwise lag behind the marketplace and
+// leave new listing URLs undiscoverable until the next regeneration.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const PUBLIC_STATIC_PATHS = [
   "/",
@@ -52,25 +56,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
   );
 
-  const searchPages = new Map<string, Date | undefined>();
+  const groupedSearchPages = new Map<
+    string,
+    { count: number; lastModified?: Date }
+  >();
+
   for (const listing of listings.filter((item) => !item.is_hidden && !item.is_sold)) {
     const query = seoListingSearchQuery(listing);
     if (!query) continue;
+
     const path = seoSearchPath(query);
     const createdAt = new Date(listing.created_at);
     const date = Number.isNaN(createdAt.getTime()) ? undefined : createdAt;
-    const previous = searchPages.get(path);
-    if (!previous || (date && date > previous)) searchPages.set(path, date);
+    const group = groupedSearchPages.get(path);
+
+    groupedSearchPages.set(path, {
+      count: (group?.count ?? 0) + 1,
+      lastModified:
+        !group?.lastModified || (date && date > group.lastModified)
+          ? date
+          : group.lastModified
+    });
   }
 
-  const searchEntries: MetadataRoute.Sitemap = [...searchPages.entries()].map(
-    ([path, lastModified]) => ({
+  const searchEntries: MetadataRoute.Sitemap = [...groupedSearchPages.entries()]
+    .filter(([, group]) => group.count > 1)
+    .map(([path, group]) => ({
       url: absoluteSiteUrl(path),
-      ...(lastModified ? { lastModified } : {}),
+      ...(group.lastModified ? { lastModified: group.lastModified } : {}),
       changeFrequency: "daily",
-      priority: 0.75
-    })
-  );
+      priority: 0.85
+    }));
 
   return [...staticEntries, ...searchEntries, ...listingEntries];
 }
