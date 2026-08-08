@@ -25,7 +25,7 @@ const termsCopy: Record<Locale, {
       { title: "7. Vastuu ja saatavuus", body: ["Pyrimme pitämään palvelun toimivana ja turvallisena, mutta emme takaa keskeytyksetöntä saatavuutta. Emme vastaa käyttäjien välisen kaupan toteutumisesta, tuotteen virheistä, toimituksen viivästymisestä tai välillisistä vahingoista."] },
       { title: "8. Tietosuoja", body: ["Henkilötietoja käsitellään tietosuojaselosteen mukaisesti. Emme myy henkilötietoja. Käyttäjä vastaa siitä, ettei julkaise ilmoituksissa tai viesteissä tarpeettomia henkilötietoja."] },
       { title: "9. Ehtojen muuttaminen", body: ["Voimme päivittää käyttöehtoja, kun palvelu muuttuu tai lainsäädäntö edellyttää muutoksia. Olennaisista muutoksista kerrotaan palvelussa tai sähköpostitse ennen voimaantuloa."] },
-      { title: "10. Sovellettava laki ja yhteys", body: ["Näihin ehtoihin sovelletaan Suomen lakia. Kysymykset: tuki@arcticparts.fi"] }
+      { title: "10. Sovellettava laki ja yhteys", body: ["Näihin ehtoihin sovelletaan Suomen lakia. Kysymykset: info@maskines.com"] }
     ]
   },
   en: {
@@ -45,7 +45,7 @@ const termsCopy: Record<Locale, {
       { title: "7. Liability and availability", body: ["We aim to keep the service functional and secure, but do not guarantee uninterrupted availability. We are not responsible for user-to-user transactions, product defects, delivery delays or indirect damages."] },
       { title: "8. Privacy", body: ["Personal data is processed according to the Privacy Notice. We do not sell personal data. Users should avoid publishing unnecessary personal data in listings or messages."] },
       { title: "9. Changes", body: ["We may update these terms when the service or law changes. Material changes are announced in the service or by email before they take effect."] },
-      { title: "10. Governing law and contact", body: ["Finnish law applies. Questions: tuki@arcticparts.fi"] }
+      { title: "10. Governing law and contact", body: ["Finnish law applies. Questions: info@maskines.com"] }
     ]
   },
   sv: {
@@ -61,7 +61,7 @@ const termsCopy: Record<Locale, {
       { title: "7. Ansvar", body: ["Vi strävar efter en fungerande tjänst men garanterar inte oavbruten tillgång och ansvarar inte för användarnas affärer."] },
       { title: "8. Integritet", body: ["Personuppgifter behandlas enligt integritetspolicyn. Vi säljer inte personuppgifter."] },
       { title: "9. Ändringar", body: ["Villkoren kan uppdateras när tjänsten eller lagen ändras. Väsentliga ändringar meddelas i tjänsten eller via e-post."] },
-      { title: "10. Lag och kontakt", body: ["Finsk lag gäller. Frågor: tuki@arcticparts.fi"] }
+      { title: "10. Lag och kontakt", body: ["Finsk lag gäller. Frågor: info@maskines.com"] }
     ]
   },
   no: {
@@ -77,7 +77,7 @@ const termsCopy: Record<Locale, {
       { title: "7. Ansvar", body: ["Vi prøver å holde tjenesten tilgjengelig, men garanterer ikke avbruddsfri drift og er ikke ansvarlige for handler mellom brukere."] },
       { title: "8. Personvern", body: ["Personopplysninger behandles etter personvernerklæringen. Vi selger ikke personopplysninger."] },
       { title: "9. Endringer", body: ["Vilkårene kan oppdateres når tjenesten eller loven endres. Vesentlige endringer varsles."] },
-      { title: "10. Lov og kontakt", body: ["Finsk lov gjelder. Spørsmål: tuki@arcticparts.fi"] }
+      { title: "10. Lov og kontakt", body: ["Finsk lov gjelder. Spørsmål: info@maskines.com"] }
     ]
   },
 };

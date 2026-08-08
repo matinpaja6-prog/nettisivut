@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowRight,
+  ChevronRight,
   Globe2,
   HandHeart,
   Heart,
@@ -264,7 +264,7 @@ export default function AboutPage() {
               </Link>
               <Link className="about-showcase-secondary" href={pagePath("faq", locale)}>
                 {copy.viewHelp}
-                <ArrowRight size={15} aria-hidden="true" />
+                <ChevronRight size={15} aria-hidden="true" />
               </Link>
             </div>
           </div>

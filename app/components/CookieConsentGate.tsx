@@ -208,11 +208,12 @@ export default function CookieConsentGate({ children }: { children: ReactNode })
       {isBlocked ? (
         <div className="cookie-consent-backdrop" role="presentation">
           <section className="cookie-consent-dialog" role="dialog" aria-modal="true" aria-labelledby="cookie-consent-title" aria-describedby="cookie-consent-description">
-            <button type="button" className="cookie-consent-close" aria-label={text.essential} onClick={() => selectChoice("essential")}>
-              <X aria-hidden="true" />
-            </button>
-
-            <span className="cookie-consent-eyebrow">{text.eyebrow}</span>
+            <div className="cookie-consent-topline">
+              <span className="cookie-consent-eyebrow">{text.eyebrow}</span>
+              <button type="button" className="cookie-consent-close" aria-label={text.essential} onClick={() => selectChoice("essential")}>
+                <X aria-hidden="true" />
+              </button>
+            </div>
             <h2 id="cookie-consent-title">{text.title}</h2>
             <p id="cookie-consent-description" className="cookie-consent-description">{text.description}</p>
 
