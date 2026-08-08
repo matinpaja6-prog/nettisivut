@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
+import { cache } from "react";
 
 import HomeClient from "@/app/HomeClient";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import {
   formatSeoSearchLabel,
-  listingMatchesSeoQuery,
+  seoListingSearchQuery,
   seoSearchPath,
   seoSearchQueryFromSlug
 } from "@/lib/seo-search";
@@ -17,33 +19,38 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-async function getSearchPageData(slug: string) {
+const getSearchPageData = cache(async (slug: string) => {
   const query = seoSearchQueryFromSlug(slug);
   const { data } = await getListings({
     includeOptionalFields: true,
     enrichSellerProfiles: false
   });
   const listings = data.filter((listing) => !listing.is_hidden && !listing.is_sold);
-  const matches = listings.filter((listing) => listingMatchesSeoQuery(listing, query));
+  const matches = listings.filter(
+    (listing) => seoListingSearchQuery(listing) === query
+  );
 
   return { query, listings, matches };
-}
+});
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const { query, matches } = await getSearchPageData(slug);
   const label = formatSeoSearchLabel(query);
   const canonical = absoluteSiteUrl(seoSearchPath(query));
+  const isCollection = matches.length > 1;
   const title = `${label} – kaikki ilmoitukset | Maskines`;
-  const description = matches.length > 0
+  const description = isCollection
     ? `Katso kaikki Maskinesin ${label} -ilmoitukset. ${matches.length} myynnissä olevaa varaosailmoitusta samassa haussa.`
-    : `Hae Maskinesista ${label} -varaosia ja ilmoituksia.`;
+    : `Katso ${label} -varaosailmoitus Maskines-palvelussa.`;
 
   return {
     title: { absolute: title },
     description,
-    alternates: { canonical },
-    robots: matches.length > 0
+    alternates: {
+      canonical: isCollection ? canonical : absoluteSiteUrl("/ilmoitukset")
+    },
+    robots: isCollection
       ? { index: true, follow: true }
       : { index: false, follow: true },
     openGraph: {
@@ -64,6 +71,13 @@ function serializeStructuredData(value: unknown) {
 export default async function SeoSearchPage({ params }: PageProps) {
   const { slug } = await params;
   const { query, listings, matches } = await getSearchPageData(slug);
+
+  if (matches.length < 2) {
+    permanentRedirect(
+      matches[0] ? listingPath(listingUrlId(matches[0])) : "/ilmoitukset"
+    );
+  }
+
   const label = formatSeoSearchLabel(query);
   const canonical = absoluteSiteUrl(seoSearchPath(query));
   const structuredData = {
