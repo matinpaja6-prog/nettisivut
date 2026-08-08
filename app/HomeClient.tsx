@@ -1606,6 +1606,18 @@ function listingImageSrc(listing: Listing) {
   return safeImageSrc(firstStoredImage);
 }
 
+function listingImageSeoAlt(listing: Listing, localizedTitle: string) {
+  const title = localizedTitle.trim();
+  const normalizedTitle = title.toLocaleLowerCase("fi");
+  const missingVehicleDetails = [listing.brand, listing.model, listing.year]
+    .map((value) => String(value ?? "").trim())
+    .filter((value) => value && !normalizedTitle.includes(value.toLocaleLowerCase("fi")));
+
+  return [...missingVehicleDetails, title, formatPrice(listing.price)]
+    .filter(Boolean)
+    .join(" – ");
+}
+
 function normalizeLocation(value: string) {
   return value
     .toLowerCase()
@@ -5013,7 +5025,17 @@ function HomeContent({
                           <span className={styles.cardImageBlur} aria-hidden="true">
                             <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
                           </span>
-                          <OptimizedListingImage src={listingImageSrc(listing)} alt={listingText.title} />
+                          <Link
+                            href={listingPath(listingUrlId(listing), locale)}
+                            className={styles.listingImageSeoLink}
+                            aria-label={`${t.openListing} ${listingImageSeoAlt(listing, listingText.title)}`}
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            <OptimizedListingImage
+                              src={listingImageSrc(listing)}
+                              alt={listingImageSeoAlt(listing, listingText.title)}
+                            />
+                          </Link>
                           {canUseFavorites && <button
                             type="button"
                             data-home-latest-favorite="true"
@@ -6030,21 +6052,23 @@ function HomeContent({
                       {heroLatestListings.map((listing) => {
                         const listingText = getListingText(listing);
                         return (
-                          <button
+                          <Link
                             key={listing.id}
-                            type="button"
+                            href={listingPath(listingUrlId(listing), locale)}
                             className={styles.heroLatestCard}
-                            onClick={() => openListing(listing)}
                           >
                             <span className={styles.heroLatestImage}>
-                              <OptimizedListingImage src={listingImageSrc(listing)} alt={listingText.title} />
+                              <OptimizedListingImage
+                                src={listingImageSrc(listing)}
+                                alt={listingImageSeoAlt(listing, listingText.title)}
+                              />
                             </span>
                             <span className={styles.heroLatestInfo}>
                               <strong>{listingText.title}</strong>
                               <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} compact />
                               <span>{formatPrice(listing.price)}</span>
                             </span>
-                          </button>
+                          </Link>
                         );
                       })}
                     </div>
@@ -6113,10 +6137,17 @@ function HomeContent({
                           <span className={styles.cardImageBlur} aria-hidden="true">
                             <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
                           </span>
-                          <OptimizedListingImage
-                            src={listingImageSrc(listing)}
-                            alt={listingText.title}
-                          />
+                          <Link
+                            href={listingPath(listingUrlId(listing), locale)}
+                            className={styles.listingImageSeoLink}
+                            aria-label={`${t.openListing} ${listingImageSeoAlt(listing, listingText.title)}`}
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            <OptimizedListingImage
+                              src={listingImageSrc(listing)}
+                              alt={listingImageSeoAlt(listing, listingText.title)}
+                            />
+                          </Link>
                           {canUseFavorites && <button
                             onClick={(e) => toggleFavorite(e, listing.id)}
                             onMouseDown={(e) => e.stopPropagation()}
@@ -6321,10 +6352,17 @@ function HomeContent({
                       <span className={styles.cardImageBlur} aria-hidden="true">
                         <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
                       </span>
-                      <OptimizedListingImage
-                        src={listingImageSrc(listing)}
-                        alt={listingText.title}
-                      />
+                      <Link
+                        href={listingPath(listingUrlId(listing), locale)}
+                        className={styles.listingImageSeoLink}
+                        aria-label={`${t.openListing} ${listingImageSeoAlt(listing, listingText.title)}`}
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <OptimizedListingImage
+                          src={listingImageSrc(listing)}
+                          alt={listingImageSeoAlt(listing, listingText.title)}
+                        />
+                      </Link>
                       {isListingNew(listing.created_at) && (
                         <span className={styles.newBadge} aria-label={t.newBadge}>
                           {t.newBadge}

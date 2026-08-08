@@ -1426,6 +1426,16 @@ export default function ListingPage({
     const tVehicle = vehicleTypeMap[locale]?.[listing.vehicle_type ?? ""] ?? listing.vehicle_type ?? "";
     return { ...baseListingText, title: `${tLeaf} - ${tVehicle}`.trim() };
   })();
+  const listingImageDescription = [
+    listing.brand,
+    listing.model,
+    listing.year,
+    listingText.title,
+    formatPrice(listing.price)
+  ]
+    .map((value) => String(value ?? "").trim())
+    .filter(Boolean)
+    .join(" – ");
   const descriptionWithoutVehicleMeta =
     (listingText.description || "")
       .replace(/^(?:Ajoneuvo:[^\n]*\n?)?(?:Merkki:[^\n]*\n?)?(?:Malli:[^\n]*\n?)?(?:Vuosimalli:[^\n]*\n?)?/i, "")
@@ -1544,7 +1554,7 @@ export default function ListingPage({
                   <OptimizedListingImage
                     src={activeImage}
                     className="main-img"
-                    alt={listingText.title}
+                    alt={listingImageDescription}
                     priority
                     sizes="(max-width: 900px) 100vw, 760px"
                   />
@@ -2201,7 +2211,7 @@ export default function ListingPage({
           >
             <OptimizedListingImage
               src={previewImage}
-              alt={listingText.title}
+              alt={listingImageDescription}
               priority
               sizes="96vw"
               onTouchStart={startImageSwipe}

@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
-import { getListingPartNumber, type Listing } from "@/lib/listings";
+import { formatPrice, getListingPartNumber, type Listing } from "@/lib/listings";
 import { listingNumberUrlId, listingPath, listingUrlId } from "@/lib/routes";
 import { absoluteSiteUrl } from "@/lib/site-url";
 import { getListingById, getListingDisplayNumber } from "@/lib/supabase";
@@ -31,10 +31,21 @@ function schemaCondition(condition?: string | null) {
 
 function buildProductStructuredData(listing: Listing, url: string) {
   const partNumber = getListingPartNumber(listing);
+  const listingTitle = cleanStructuredText(listing.title);
+  const normalizedTitle = listingTitle.toLocaleLowerCase("fi");
+  const missingVehicleDetails = [listing.brand, listing.model, listing.year]
+    .map((value) => cleanStructuredText(value))
+    .filter((value) => value && !normalizedTitle.includes(value.toLocaleLowerCase("fi")));
+  const searchableProductName = [...missingVehicleDetails, listingTitle].join(" ");
   const images = [...new Set([listing.image_url, ...(listing.image_urls ?? [])])]
     .map((image) => cleanStructuredText(image))
     .filter((image) => image && !image.startsWith("data:") && !image.startsWith("blob:"))
-    .map((image) => absoluteSiteUrl(image));
+    .map((image, index) => ({
+      "@type": "ImageObject",
+      contentUrl: absoluteSiteUrl(image),
+      name: `${searchableProductName} – kuva ${index + 1}`,
+      caption: `${searchableProductName}, ${formatPrice(Number(listing.price) || 0)}`
+    }));
   const additionalProperties = [
     ["Ajoneuvotyyppi", listing.vehicle_type],
     ["Merkki", listing.brand],
@@ -53,9 +64,15 @@ function buildProductStructuredData(listing: Listing, url: string) {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: cleanStructuredText(listing.title),
+    name: searchableProductName,
     description: cleanStructuredText(listing.description).slice(0, 5_000),
     url,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": url,
+      name: searchableProductName,
+      primaryImageOfPage: images[0]
+    },
     ...(images.length > 0 ? { image: images } : {}),
     ...(listing.brand
       ? {

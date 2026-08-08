@@ -28336,6 +28336,10 @@
   }
 }
 
+.listingImageSeoLink {
+  display: contents;
+}
+
 /* Tablet home layout: at these widths the desktop filter rail leaves too
    little room for the search and selling cards. Keep the content fluid in one
    column and use the compact filter sheet instead. */
