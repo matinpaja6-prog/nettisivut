@@ -5801,7 +5801,7 @@ function HomeContent({
                   <input
                     className={styles.heroMainSearchInput}
                     type="search"
-                    placeholder={compactHeroSearch && locale === "fi" ? "Hae oem, merkki..." : t.searchPlaceholder}
+                    placeholder={locale === "fi" ? "Hae OEM, merkkiä, mallia..." : t.searchPlaceholder}
                     value={query}
                     onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
                     aria-label={t.searchLabel}

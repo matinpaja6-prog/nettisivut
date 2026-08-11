@@ -315,6 +315,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Valitse vuosimalli": "Choose model year",
     "Valitse cc": "Choose cc",
     "Valitse moottorityyppi": "Choose engine type",
+    "Ei valintaa": "No selection",
     "Kirjoita tyyppi": "Type manually",
     "Kirjoita merkki": "Type brand",
     "Kirjoita malli": "Type model",
@@ -438,6 +439,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Valitse vuosimalli": "Välj årsmodell",
     "Valitse cc": "Välj cc",
     "Valitse moottorityyppi": "Välj motortyp",
+    "Ei valintaa": "Inget val",
     "Kirjoita tyyppi": "Skriv typ",
     "Kirjoita merkki": "Skriv märke",
     "Kirjoita malli": "Skriv modell",
@@ -560,6 +562,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Valitse vuosimalli": "Velg årsmodell",
     "Valitse cc": "Velg cc",
     "Valitse moottorityyppi": "Velg motortype",
+    "Ei valintaa": "Ingen valgt",
     "Kirjoita tyyppi": "Skriv type",
     "Kirjoita merkki": "Skriv merke",
     "Kirjoita malli": "Skriv modell",
@@ -3481,16 +3484,16 @@ function SellPageContent() {
     if (pendingCategoryAdvance === "group") {
       if (!selectedCategory) return;
 
-      setPendingCategoryAdvance(null);
-      if (categoryGroupOptions.length > 0) {
-        setCategoryAutoOpenTarget({ field: "group", nonce: Date.now() });
-      }
-      return;
+      const timer = window.setTimeout(() => {
+        setPendingCategoryAdvance(null);
+        if (categoryGroupOptions.length > 0) {
+          setCategoryAutoOpenTarget({ field: "group", nonce: Date.now() });
+        }
+      }, 40);
+      return () => window.clearTimeout(timer);
     }
 
     if (pendingCategoryAdvance !== "detail" || !selectedCategoryGroup) return;
-
-    setPendingCategoryAdvance(null);
 
     const groupIsLeaf = selectedSubcategories.some(
       (item) => splitCategoryPath(item).length === 1 && item === selectedCategoryGroup
@@ -3501,14 +3504,21 @@ function SellPageContent() {
     });
 
     if (groupIsLeaf && !hasDeeperCategory) {
+      setPendingCategoryAdvance(null);
       setSubcategory(selectedCategoryGroup);
       setCategoryAutoOpenTarget(null);
       return;
     }
 
     if (detailCategoryOptions.length > 0) {
-      setCategoryAutoOpenTarget({ field: "detail", nonce: Date.now() });
+      const timer = window.setTimeout(() => {
+        setPendingCategoryAdvance(null);
+        setCategoryAutoOpenTarget({ field: "detail", nonce: Date.now() });
+      }, 40);
+      return () => window.clearTimeout(timer);
     }
+
+    setPendingCategoryAdvance(null);
   }, [
     categoryGroupOptions.length,
     detailCategoryOptions.length,
@@ -4641,9 +4651,13 @@ function SellPageContent() {
 
                             <div className={styles.multiPartPhotos}>
                               <label className={styles.multiPartPhotoAdd}>
-                                <Camera size={17} aria-hidden="true" />
-                                <span>Lisää kuvat</span>
+                                <span className={styles.multiPartPhotoPrompt}>
+                                  <Camera size={17} color="#ff7a1a" stroke="#ff7a1a" aria-hidden="true" />
+                                  <span style={{ color: "#ff7a1a", WebkitTextFillColor: "#ff7a1a" }}>{st("Lisää kuvat")}</span>
+                                </span>
                                 <input
+                                  className={styles.multiPartPhotoInput}
+                                  aria-label={st("Lisää kuvat")}
                                   type="file"
                                   accept="image/*"
                                   multiple
@@ -4831,9 +4845,13 @@ function SellPageContent() {
 
                 <div className={styles.multiPartPhotos}>
                   <label className={styles.multiPartPhotoAdd}>
-                    <Camera size={17} aria-hidden="true" />
-                    <span>{st("Lisää kuvat")}</span>
+                    <span className={styles.multiPartPhotoPrompt}>
+                      <Camera size={17} color="#ff7a1a" stroke="#ff7a1a" aria-hidden="true" />
+                      <span style={{ color: "#ff7a1a", WebkitTextFillColor: "#ff7a1a" }}>{st("Lisää kuvat")}</span>
+                    </span>
                     <input
+                      className={styles.multiPartPhotoInput}
+                      aria-label={st("Lisää kuvat")}
                       type="file"
                       accept="image/*"
                       multiple
@@ -5033,9 +5051,13 @@ function SellPageContent() {
 
                   <div className={styles.multiPartPhotos}>
                     <label className={styles.multiPartPhotoAdd}>
-                      <Camera size={17} aria-hidden="true" />
-                      <span>{st("Lisää kuvat")}</span>
+                      <span className={styles.multiPartPhotoPrompt}>
+                        <Camera size={17} color="#ff7a1a" stroke="#ff7a1a" aria-hidden="true" />
+                        <span style={{ color: "#ff7a1a", WebkitTextFillColor: "#ff7a1a" }}>{st("Lisää kuvat")}</span>
+                      </span>
                       <input
+                        className={styles.multiPartPhotoInput}
+                        aria-label={st("Lisää kuvat")}
                         type="file"
                         accept="image/*"
                         multiple
@@ -5764,17 +5786,6 @@ function SellPageContent() {
                 placeholder={st("Valitse pääkategoria")}
                 translateText={translateCategoryText}
                 autoOpenNonce={categoryAutoOpenTarget?.field === "category" ? categoryAutoOpenTarget.nonce : 0}
-                open={categoryAutoOpenTarget?.field === "category"}
-                onOpenChange={(open) => {
-                  if (open) {
-                    setCategoryAutoOpenTarget({ field: "category", nonce: Date.now() });
-                    return;
-                  }
-
-                  setCategoryAutoOpenTarget((current) =>
-                    current?.field === "category" ? null : current
-                  );
-                }}
               />
               <CategorySelect
                 label={st("Alakategoria")}
@@ -5789,17 +5800,6 @@ function SellPageContent() {
                 }}
                 options={categoryGroupOptions}
                 autoOpenNonce={categoryAutoOpenTarget?.field === "group" ? categoryAutoOpenTarget.nonce : 0}
-                open={categoryAutoOpenTarget?.field === "group"}
-                onOpenChange={(open) => {
-                  if (open) {
-                    setCategoryAutoOpenTarget({ field: "group", nonce: Date.now() });
-                    return;
-                  }
-
-                  setCategoryAutoOpenTarget((current) =>
-                    current?.field === "group" ? null : current
-                  );
-                }}
                 placeholder={st("Valitse pääkategoria")}
                 translateText={translateCategoryText}
               />
@@ -5815,17 +5815,6 @@ function SellPageContent() {
                 }}
                 options={detailCategoryOptions}
                 autoOpenNonce={categoryAutoOpenTarget?.field === "detail" ? categoryAutoOpenTarget.nonce : 0}
-                open={categoryAutoOpenTarget?.field === "detail"}
-                onOpenChange={(open) => {
-                  if (open) {
-                    setCategoryAutoOpenTarget({ field: "detail", nonce: Date.now() });
-                    return;
-                  }
-
-                  setCategoryAutoOpenTarget((current) =>
-                    current?.field === "detail" ? null : current
-                  );
-                }}
                 placeholder={st("Valitse alakategoria")}
                 translateText={translateCategoryText}
               />
@@ -5980,9 +5969,13 @@ function SellPageContent() {
 
                               <div className={styles.multiPartPhotos}>
                                 <label className={styles.multiPartPhotoAdd}>
-                                  <Camera size={17} aria-hidden="true" />
-                                  <span>Lisää kuvat</span>
+                                  <span className={styles.multiPartPhotoPrompt}>
+                                    <Camera size={17} color="#ff7a1a" stroke="#ff7a1a" aria-hidden="true" />
+                                    <span style={{ color: "#ff7a1a", WebkitTextFillColor: "#ff7a1a" }}>{st("Lisää kuvat")}</span>
+                                  </span>
                                   <input
+                                    className={styles.multiPartPhotoInput}
+                                    aria-label={st("Lisää kuvat")}
                                     type="file"
                                     accept="image/*"
                                     multiple
@@ -6847,6 +6840,13 @@ function PresetField({
     }, 60);
   }
 
+  function clearSelection() {
+    if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
+    onCustomModeChange(false);
+    onChange("");
+    onOpenChange(false);
+  }
+
   function toggleOptions() {
     onOpenChange(!open);
   }
@@ -6867,11 +6867,8 @@ function PresetField({
             inputRef(element);
           }}
           value={displayValue}
-          onFocus={() => {
-            if (!effectiveCustomMode) onOpenChange(true);
-          }}
           onClick={() => {
-            if (!effectiveCustomMode) onOpenChange(true);
+            if (!effectiveCustomMode) toggleOptions();
           }}
           onBlur={() => {
             window.setTimeout(() => onOpenChange(false), 120);
@@ -6914,6 +6911,24 @@ function PresetField({
             data-sell-preset-version="dark-2"
             role="listbox"
           >
+            <button
+              type="button"
+              data-sell-preset-option="true"
+              data-active={!value && !effectiveCustomMode ? "true" : "false"}
+              className={!value && !effectiveCustomMode ? styles.presetOptionActive : ""}
+              style={{
+                background: !value && !effectiveCustomMode ? "#8fc2f3" : "#061726",
+                backgroundColor: !value && !effectiveCustomMode ? "#8fc2f3" : "#061726",
+                color: !value && !effectiveCustomMode ? "#04111f" : "#dce8f7"
+              }}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={(event) => {
+                event.stopPropagation();
+                clearSelection();
+              }}
+            >
+              {translateText("Ei valintaa")}
+            </button>
             {presetOptions.map((option) => {
               const active = option === value && isKnownValue;
 
@@ -7082,8 +7097,6 @@ function CategorySelect({
   options,
   placeholder,
   autoOpenNonce,
-  open: controlledOpen,
-  onOpenChange,
   onChange,
   translateText = (text: string) => text
 }: {
@@ -7093,32 +7106,51 @@ function CategorySelect({
   options: SelectOption[];
   placeholder: string;
   autoOpenNonce?: number;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
   onChange: (value: string) => void;
   translateText?: (text: string) => string;
 }) {
   const hasOptions = options.length > 0;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const shellRef = useRef<HTMLSpanElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const open = controlledOpen ?? uncontrolledOpen;
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const handledAutoOpenNonceRef = useRef(0);
+  const focusedAutoOpenNonceRef = useRef(0);
+  const open = uncontrolledOpen;
   const selectedOption = options.find((option) => option.value === value);
   const displayValue = hasOptions ? translateText(selectedOption?.label ?? placeholder) : placeholder;
   const showFullMenu = options.length <= 12;
 
   const setSelectOpen = useCallback((nextOpen: boolean) => {
-    if (onOpenChange) {
-      onOpenChange(nextOpen);
-      return;
-    }
-
     setUncontrolledOpen(nextOpen);
-  }, [onOpenChange]);
+  }, []);
 
   useEffect(() => {
-    if (!autoOpenNonce || !hasOptions || open) return;
+    if (
+      !autoOpenNonce ||
+      !hasOptions ||
+      handledAutoOpenNonceRef.current === autoOpenNonce
+    ) return;
+
+    handledAutoOpenNonceRef.current = autoOpenNonce;
     setSelectOpen(true);
-  }, [autoOpenNonce, hasOptions, open, setSelectOpen]);
+  }, [autoOpenNonce, hasOptions, setSelectOpen]);
+
+  useEffect(() => {
+    if (
+      !autoOpenNonce ||
+      !hasOptions ||
+      !open ||
+      focusedAutoOpenNonceRef.current === autoOpenNonce
+    ) return;
+
+    focusedAutoOpenNonceRef.current = autoOpenNonce;
+    const frame = window.requestAnimationFrame(() => {
+      buttonRef.current?.focus({ preventScroll: true });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [autoOpenNonce, hasOptions, open]);
 
   useEffect(() => {
     if (!open || !showFullMenu) return;
@@ -7142,6 +7174,27 @@ function CategorySelect({
     return () => window.cancelAnimationFrame(frame);
   }, [open, showFullMenu]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    let listening = false;
+    const closeFromOutside = (event: PointerEvent) => {
+      const target = event.target;
+      if (target instanceof Node && shellRef.current?.contains(target)) return;
+      setSelectOpen(false);
+    };
+
+    const frame = window.requestAnimationFrame(() => {
+      listening = true;
+      document.addEventListener("pointerdown", closeFromOutside);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      if (listening) document.removeEventListener("pointerdown", closeFromOutside);
+    };
+  }, [open, setSelectOpen]);
+
   function chooseOption(nextValue: string) {
     setSelectOpen(false);
     onChange(nextValue);
@@ -7154,16 +7207,15 @@ function CategorySelect({
     >
       <span>{label}</span>
       <span
+        ref={shellRef}
         className={`${styles.categorySelectShell} ${open ? styles.categorySelectOpen : ""}`}
         data-sell-category-select="true"
-        onBlur={() => {
-          window.setTimeout(() => setSelectOpen(false), 120);
-        }}
       >
         <span className={styles.categorySelectIcon}>
           {value ? getMultiCategoryIcon(value) : <Icon size={22} aria-hidden="true" />}
         </span>
         <button
+          ref={buttonRef}
           type="button"
           className={`${styles.categorySelectButton} ${value ? "" : styles.categorySelectPlaceholder}`}
           onMouseDown={(event) => event.preventDefault()}

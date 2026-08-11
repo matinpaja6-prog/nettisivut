@@ -6450,7 +6450,7 @@
     line-height: 1.12; max-width: 150px; white-space: normal;
   }
   :global(html body) main[data-home-page] .heroDesktopLatestActions {
-    justify-content: flex-end; justify-self: end; margin-left: auto; max-width: 140px; width: 140px;
+    justify-content: flex-end; justify-self: end; margin-left: auto; max-width: 140px; transform: translateX(-8px); width: 140px;
   }
   :global(html body) main[data-home-page] .heroDesktopLatestSort {
     justify-items: end; justify-self: end; max-width: 140px; transform: none; width: 140px;
@@ -6468,10 +6468,42 @@
     grid-template-columns: minmax(0, 1fr) 132px;
   }
   :global(html body) main[data-home-page] .heroDesktopLatestActions {
-    justify-content: flex-end; max-width: 132px; width: 132px;
+    justify-content: flex-end; max-width: 132px; transform: translateX(-4px); width: 132px;
   }
   :global(html body) main[data-home-page] .heroDesktopLatestSort, :global(html body) main[data-home-page] .heroDesktopLatestSort .sortButtonFace {
     max-width: 132px; width: 132px;
+  }
+}
+
+/* The compact sort popover must layer above the first listing row. */
+@media (max-width: 760px) {
+  :global(html body) main[data-home-page] [data-home-results-list].heroDesktopLatest {
+    overflow: visible !important;
+    position: relative;
+    z-index: 20;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestHead {
+    overflow: visible !important;
+    position: relative;
+    z-index: 80;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestActions,
+  :global(html body) main[data-home-page] .heroDesktopLatestSort,
+  :global(html body) main[data-home-page] .heroDesktopLatestSort.sortControlOpen {
+    overflow: visible !important;
+    position: relative;
+    z-index: 90;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestSort .sortMenuPanel {
+    z-index: 1000 !important;
+  }
+
+  :global(html body) main[data-home-page] .heroDesktopLatestGrid {
+    position: relative;
+    z-index: 1;
   }
 }
 :global(html body) .heroRightRail .heroRailHeaderClear {
@@ -8531,6 +8563,14 @@
   color: #16232c !important;
   text-shadow: none !important;
   -webkit-text-fill-color: #16232c !important;
+}
+
+/* Keep the highlighted hero phrase orange in the light appearance as well. */
+:global(html[data-theme="light"] body) main[data-home-page] .heroHeadline .heroHeadlineAccent,
+:global(html[data-user-background-tone="light"] body) main[data-home-page] .heroHeadline .heroHeadlineAccent {
+  color: #ff7a1a !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: #ff7a1a !important;
 }
 
 :global(html[data-theme="light"] body) main[data-home-page] .heroDesktopLatestCard,

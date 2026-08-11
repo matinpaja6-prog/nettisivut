@@ -1552,7 +1552,7 @@
 .multiListingDetails label {
   display: grid; gap: 7px;
 }
-.multiListingDetails label > span {
+.multiListingDetails label:not(.multiPartPhotoAdd) > span {
   color: #9fb0c5; font-weight: 850;
 }
 .multiListingWideField, .multiPartPhotos {
@@ -1700,7 +1700,7 @@
 .multiListingDetails label {
   max-width: none;
 }
-.multiListingDetails label > span {
+.multiListingDetails label:not(.multiPartPhotoAdd) > span {
   font-size: 11px;
 }
 .multiListingRow textarea {
@@ -2049,7 +2049,7 @@
   .multiListingDetails label {
     gap: 6px;
   }
-  .multiListingDetails label > span {
+  .multiListingDetails label:not(.multiPartPhotoAdd) > span {
     font-size: 11px;
   }
   .multiListingRow textarea {
@@ -3261,6 +3261,40 @@
   white-space: normal;
 }
 
+.multiPartPhotoPrompt {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #ffb35c;
+  pointer-events: none;
+}
+
+.multiPartPhotoPrompt > svg {
+  display: block;
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  color: currentColor;
+  stroke: currentColor;
+}
+
+.multiPartPhotoPrompt > span {
+  display: block;
+  max-width: 100%;
+  color: currentColor;
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1.1;
+  text-align: center;
+  white-space: normal;
+}
+
 .multiPartPhoto {
   width: 72px;
   height: 62px;
@@ -3268,16 +3302,124 @@
 }
 
 .multiPartPhotoAdd input[type="file"] {
-  position: absolute !important;
-  inset: 0 !important;
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  opacity: 0 !important;
-  cursor: pointer;
+  display: none !important;
+}
+
+.multiPartPhotoInput {
+  display: none !important;
+}
+
+.multiPartPhotoInput::file-selector-button,
+.multiPartPhotoInput::-webkit-file-upload-button {
+  display: none !important;
+}
+
+/* Final light mobile polish for multi-category selection and listing editing. */
+:global(html[data-theme="light"]) .multiWholeVehicleCard {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #b8c5cc !important;
+  box-shadow: none !important;
+  color: #16232c !important;
+}
+
+:global(html[data-theme="light"]) .multiWholeVehicleCard:hover,
+:global(html[data-theme="light"]) .multiWholeVehicleSelected {
+  background: #fff1e7 !important;
+  background-color: #fff1e7 !important;
+  border-color: #ff9b52 !important;
+  box-shadow: 0 0 0 2px rgba(255, 122, 26, 0.1) !important;
+}
+
+:global(html[data-theme="light"]) .multiWholeVehicleCard :is(strong, small) {
+  color: #253842 !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #253842 !important;
+}
+
+:global(html[data-theme="light"]) .multiSelectedBar {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #cbd3d7 !important;
+  box-shadow: none !important;
+}
+
+:global(html[data-theme="light"]) .multiSelectedBar button {
+  background: #edf1f2 !important;
+  background-color: #edf1f2 !important;
+  background-image: none !important;
+  border: 1px solid #9eafb9 !important;
+  box-shadow: none !important;
+  color: #243742 !important;
+  -webkit-text-fill-color: #243742 !important;
+}
+
+:global(html[data-theme="light"]) .multiSelectedBar button[aria-expanded="true"] {
+  background: #fff1e7 !important;
+  background-color: #fff1e7 !important;
+  border-color: #ff9b52 !important;
+  color: #7c3600 !important;
+  -webkit-text-fill-color: #7c3600 !important;
+}
+
+:global(html[data-theme="light"]) :is(.multiListingCategoryHeader, .multiListingGroupHeader) {
+  background: #eef2f4 !important;
+  background-color: #eef2f4 !important;
+  background-image: none !important;
+  border-color: #cbd3d7 !important;
+  box-shadow: none !important;
+  color: #253842 !important;
+}
+
+:global(html[data-theme="light"]) :is(.multiListingCategoryHeader, .multiListingGroupHeader) small {
+  background: #dfe7eb !important;
+  background-color: #dfe7eb !important;
+  border-color: #bdcbd2 !important;
+  color: #425762 !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #425762 !important;
+}
+
+:global(html[data-theme="light"]) .multiPartPhotoAdd {
+  background: #fffaf6 !important;
+  background-color: #fffaf6 !important;
+  background-image: none !important;
+  border: 1px dashed #ff7a1a !important;
+  box-shadow: none !important;
+  color: #d85d00 !important;
+}
+
+:global(html[data-theme="light"]) .multiPartPhotoAdd :is(svg, span) {
+  color: #d85d00 !important;
+  opacity: 1 !important;
+  stroke: currentColor !important;
+  -webkit-text-fill-color: #d85d00 !important;
+}
+
+:global(html[data-theme="light"]) .vehicleActions {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #cbd3d7 !important;
+  box-shadow: 0 -8px 22px rgba(22, 35, 44, 0.1) !important;
+}
+
+@media (max-width: 720px) {
+  :global(html[data-theme="light"]) .multiSelectedBar {
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+
+  :global(html[data-theme="light"]) .multiSelectedBar button {
+    min-height: 40px !important;
+  }
+
+  :global(html[data-theme="light"]) .vehicleActions {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-top: 1px solid #cbd3d7 !important;
+  }
 }
 
 .multiListingMetaPanel .plainIconShell {
@@ -3342,8 +3484,16 @@
 }
 
 :global(html[data-theme="light"]) .multiPartPhotoAdd > span {
-  color: #40515c !important;
-  -webkit-text-fill-color: #40515c !important;
+  color: #d85d00 !important;
+  -webkit-text-fill-color: #d85d00 !important;
+}
+
+:global(html[data-theme="light"]) .multiPartPhotoPrompt,
+:global(html[data-theme="light"]) .multiPartPhotoPrompt :is(svg, span) {
+  color: #d85d00 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  -webkit-text-fill-color: #d85d00 !important;
 }
 
 .multiListingSummary .conditionSelectCompact .categorySelectButton {
@@ -3425,5 +3575,218 @@
   .multiPartPhoto {
     width: 72px;
     height: 62px;
+  }
+}
+
+/* Desktop multi-listing editor: one clean outer frame and equal-sized fields. */
+@media (min-width: 721px) {
+  .vehicleForm:has(.listingStack) {
+    border-radius: 0;
+  }
+
+  .multiListingCategory {
+    overflow: hidden;
+    border: 1px solid rgba(126, 158, 190, 0.28);
+    border-radius: 0;
+  }
+
+  .multiListingCategoryBody {
+    gap: 0;
+    padding: 0;
+  }
+
+  .multiListingGroup {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .multiListingGroupHeader {
+    min-height: 40px;
+    padding: 8px 14px;
+    border: 0;
+    border-bottom: 1px solid rgba(126, 158, 190, 0.2);
+    border-radius: 0;
+  }
+
+  .multiListingTable {
+    gap: 0;
+    padding: 0;
+  }
+
+  .multiListingRow,
+  .multiListingRow[open],
+  .multiListingSinglePart {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .multiListingSummary {
+    grid-template-columns: 24px 28px minmax(180px, 1fr) 160px 160px 34px;
+    min-height: 60px;
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(126, 158, 190, 0.2);
+  }
+
+  .multiListingSummary .multiPriceCell,
+  .multiListingSummary .conditionSelectCompact,
+  .multiListingSummary .conditionSelectCompact .categorySelectShell {
+    width: 160px;
+    min-width: 160px;
+    max-width: 160px;
+  }
+
+  .multiListingSummary .multiPriceCell input,
+  .multiListingSummary .conditionSelectCompact .categorySelectShell {
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    box-sizing: border-box;
+  }
+
+  .multiListingDetails {
+    align-items: start;
+    gap: 14px;
+    padding: 16px 24px 18px;
+    border: 0;
+    background: transparent;
+  }
+
+  .multiListingDetails label:not(.multiPartPhotoAdd) {
+    align-content: start;
+    align-self: start;
+    grid-auto-rows: auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .multiListingDetails label:not(.multiPartPhotoAdd) > input {
+    width: 100%;
+    height: 46px;
+    min-height: 46px;
+    max-height: 46px;
+    box-sizing: border-box;
+  }
+
+  .multiListingDetails .multiListingWideField textarea {
+    width: 100%;
+    min-height: 82px;
+    box-sizing: border-box;
+  }
+
+  .vehicleActions {
+    grid-template-columns: 190px 190px;
+  }
+
+  .vehicleActions > button {
+    width: 190px;
+    min-width: 190px;
+    box-sizing: border-box;
+  }
+}
+
+/* Mobile multi-listing editor: keep only one outer outline and clean rounded corners. */
+@media (max-width: 720px) {
+  .page:has(.vehicleContent),
+  .shell:has(.vehicleContent) {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .vehicleContent {
+    min-height: 0;
+  }
+
+  .vehicleForm:has(.listingStack) {
+    border-radius: 0 !important;
+  }
+
+  .multiListingCategory {
+    border: 1px solid rgba(126, 158, 190, 0.28) !important;
+    border-radius: 0 !important;
+    background-clip: padding-box !important;
+    box-shadow: none !important;
+  }
+
+  .multiListingCategoryHeader {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .multiListingCategoryBody {
+    gap: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  .multiListingGroup,
+  .multiListingTable,
+  .multiListingRow,
+  .multiListingRow[open],
+  .multiListingRowOpen,
+  .multiListingSinglePart,
+  .multiListingDetails {
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .multiListingGroup,
+  .multiListingTable {
+    gap: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .multiListingGroupHeader {
+    min-height: 42px;
+    padding: 8px 12px;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(126, 158, 190, 0.2) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .multiListingSummary,
+  .multiListingRow[open] .multiListingSummary,
+  .multiListingRowOpen .multiListingSummary {
+    border: 0 !important;
+    border-bottom: 1px solid rgba(126, 158, 190, 0.2) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .multiListingDetails {
+    gap: 10px;
+    padding: 12px !important;
+    background: transparent !important;
+  }
+
+  .multiListingDetails label:not(.multiPartPhotoAdd),
+  .multiListingDetails label:not(.multiPartPhotoAdd) > input,
+  .multiListingDetails .multiListingWideField textarea {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .multiListingDetails label:not(.multiPartPhotoAdd) > input {
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+  }
+
+  .multiListingDetails .multiListingWideField textarea {
+    min-height: 94px;
+  }
+
+  .multiListingDetails > :last-child {
+    margin-bottom: 0;
   }
 }
