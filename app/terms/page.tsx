@@ -138,9 +138,9 @@ export default function TermsPage() {
         }
 
         .terms-clean-page .terms-shell {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
           display: grid;
           gap: 18px;
           margin: 0 auto;
@@ -159,10 +159,10 @@ export default function TermsPage() {
         }
 
         .terms-clean-page .terms-eyebrow {
-          background: rgba(255, 122, 26, 0.14) !important;
-          border: 1px solid rgba(255, 122, 26, 0.34) !important;
+          background: rgba(255, 122, 26, 0.14);
+          border: 1px solid rgba(255, 122, 26, 0.34);
           border-radius: 999px;
-          color: #ffb45f !important;
+          color: #ffb45f;
           display: inline-flex;
           font-size: 12px;
           font-weight: 950;
@@ -172,7 +172,7 @@ export default function TermsPage() {
         }
 
         .terms-clean-page h1 {
-          color: #fff !important;
+          color: #fff;
           font-size: clamp(48px, 7vw, 82px);
           letter-spacing: 0;
           line-height: 0.95;
@@ -181,7 +181,7 @@ export default function TermsPage() {
         }
 
         .terms-clean-page .terms-hero p {
-          color: rgba(215, 226, 238, 0.72) !important;
+          color: rgba(215, 226, 238, 0.72);
           font-size: 14px;
           font-weight: 850;
           margin: 14px 0 0;
@@ -198,13 +198,13 @@ export default function TermsPage() {
         .terms-clean-page .terms-privacy-link,
         .terms-clean-page .terms-back {
           align-items: center;
-          background: rgba(15, 33, 53, 0.86) !important;
-          border: 1px solid rgba(255, 122, 26, 0.32) !important;
-          border-radius: 8px !important;
-          color: #f4f8fc !important;
+          background: rgba(15, 33, 53, 0.86);
+          border: 1px solid rgba(255, 122, 26, 0.32);
+          border-radius: 8px;
+          color: #f4f8fc;
           display: inline-flex;
           gap: 8px;
-          box-shadow: none !important;
+          box-shadow: none;
           font-weight: 950;
           min-height: 42px;
           padding: 0 14px;
@@ -212,25 +212,25 @@ export default function TermsPage() {
         }
 
         .terms-clean-page .terms-back {
-          border-color: rgba(151, 178, 205, 0.2) !important;
+          border-color: rgba(151, 178, 205, 0.2);
         }
 
         .terms-clean-page .terms-summary {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
           display: grid;
           gap: 12px;
           grid-template-columns: 1fr;
-          padding: 0 !important;
+          padding: 0;
           width: 100%;
         }
 
         .terms-clean-page .terms-summary-item {
-          background: linear-gradient(135deg, rgba(12, 29, 42, 0.96), rgba(5, 18, 31, 0.98)) !important;
-          border: 1px solid rgba(92, 132, 166, 0.26) !important;
+          background: linear-gradient(135deg, rgba(12, 29, 42, 0.96), rgba(5, 18, 31, 0.98));
+          border: 1px solid rgba(92, 132, 166, 0.26);
           border-radius: 8px;
-          box-shadow: 0 18px 50px rgba(0, 5, 14, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+          box-shadow: 0 18px 50px rgba(0, 5, 14, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.03);
           display: grid;
           gap: 12px;
           min-width: 0;
@@ -249,29 +249,29 @@ export default function TermsPage() {
         }
 
         .terms-clean-page .terms-content {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
           display: grid;
           gap: 12px;
         }
 
         .terms-clean-page .terms-section {
-          background: linear-gradient(135deg, rgba(12, 29, 42, 0.96), rgba(5, 18, 31, 0.98)) !important;
-          border: 1px solid rgba(92, 132, 166, 0.26) !important;
-          border-radius: 8px !important;
-          box-shadow: 0 18px 50px rgba(0, 5, 14, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
-          color: #f4f8fc !important;
+          background: linear-gradient(135deg, rgba(12, 29, 42, 0.96), rgba(5, 18, 31, 0.98));
+          border: 1px solid rgba(92, 132, 166, 0.26);
+          border-radius: 8px;
+          box-shadow: 0 18px 50px rgba(0, 5, 14, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+          color: #f4f8fc;
           display: grid;
           gap: 12px;
           min-width: 0;
-          padding: clamp(18px, 3vw, 26px) !important;
+          padding: clamp(18px, 3vw, 26px);
         }
 
         .terms-clean-page .terms-section h2 {
-          border-top: 0 !important;
+          border-top: 0;
           overflow-wrap: anywhere;
-          padding-top: 0 !important;
+          padding-top: 0;
         }
 
         .terms-clean-page .terms-section p,

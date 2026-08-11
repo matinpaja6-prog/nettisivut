@@ -1,54 +1,8 @@
 ﻿import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import "./globals.css";
-import "./styles/header.css";
-import "./styles/home.css";
-import "./styles/seller.css";
-import "./styles/workspace.css";
-import "./styles/chrome.css";
-import "./styles/auth.css";
-import "./styles/garage.css";
-import "./styles/legal.css";
-import "./styles/messages.css";
-import "./styles/my-listings.css";
-import "./styles/saved.css";
-import "./styles/followed.css";
-import "./styles/sell.css";
-import "./styles/listing-detail.css";
-import "./styles/profile.css";
-import "./styles/final-clean.css";
-import "./styles/profile-cards-final.css";
-import "./styles/profile-reference.css";
-import "./styles/profile-absolute-final.css";
-import "./styles/auth-final.css";
-import "./styles/mobile-home-final.css";
-import "./styles/profile-symmetry-final.css";
-import "./styles/mobile-final.css";
-import "./styles/info-pages.css";
-import "./styles/cookie-consent.css";
-import "./styles/topbar-final.css";
-import "./styles/home-latest-final.css";
-import "./styles/footer-final-polish.css";
-import "./styles/home-topbar-center.css";
-import "./styles/listing-cards-unified.css";
-import "./styles/track-mat-final.css";
-import "./styles/listing-detail-mobile-fix.css";
-import "./styles/tablet-final.css";
-import "./styles/responsive-system.css";
-import "./styles/notification-fix.css";
-import "./styles/auth-unified-final.css";
-import "./styles/user-background-final.css";
-import "./styles/home-hero-responsive-final.css";
-import "./styles/public-profile-reference.css";
-import "./styles/profile-gray-final.css";
-import "./styles/default-avatar-final.css";
-import "./styles/neutral-detail-final.css";
-import "./styles/requested-polish.css";
-import "./styles/seller-card-mobile-fix.css";
-import "./styles/auth-surface-color-fix.css";
-import "./styles/auth-loading.css";
-import "./styles/unified-sheet-surfaces.css";
-import "./styles/site-responsive-final.css";
+import "./styles/legacy.css";
+import "./styles/themes.css";
 import OnlinePresence from "./components/OnlinePresence";
 import Footer from "./components/Footer";
 import FloatingChat from "./components/FloatingChat";
@@ -204,29 +158,55 @@ export default function RootLayout({
         if (a.topbar_color) r.setProperty('--site-topbar', a.topbar_color);
         if (a.hero_overlay) r.setProperty('--hero-overlay', a.hero_overlay);
 
-        var userBackground = a.background_color || '#0b1118';
+        var userTheme = 'dark';
         var rawUserSettings = localStorage.getItem('maskines-user-settings-v1');
         if (rawUserSettings) {
           var userSettings = JSON.parse(rawUserSettings);
-          if (userSettings && userSettings.backgroundColor) {
-            userBackground = String(userSettings.backgroundColor);
+          if (userSettings && (userSettings.theme === 'dark' || userSettings.theme === 'light')) {
+            userTheme = userSettings.theme;
+          } else if (userSettings && userSettings.backgroundColor) {
+            var legacyColor = String(userSettings.backgroundColor).replace('#', '');
+            if (/^[0-9a-f]{6}$/i.test(legacyColor)) {
+              var legacyRed = parseInt(legacyColor.slice(0, 2), 16) / 255;
+              var legacyGreen = parseInt(legacyColor.slice(2, 4), 16) / 255;
+              var legacyBlue = parseInt(legacyColor.slice(4, 6), 16) / 255;
+              userTheme = 0.2126 * legacyRed + 0.7152 * legacyGreen + 0.0722 * legacyBlue > 0.62 ? 'light' : 'dark';
+            }
           }
         }
-        var colorMatch = userBackground.match(/^#?([0-9a-f]{6})$/i);
-        var isLightUserBackground = false;
-        if (colorMatch) {
-          var colorHex = colorMatch[1];
-          var colorRed = parseInt(colorHex.slice(0, 2), 16) / 255;
-          var colorGreen = parseInt(colorHex.slice(2, 4), 16) / 255;
-          var colorBlue = parseInt(colorHex.slice(4, 6), 16) / 255;
-          isLightUserBackground = 0.2126 * colorRed + 0.7152 * colorGreen + 0.0722 * colorBlue > 0.62;
-        }
-        document.documentElement.dataset.userBackgroundTone = isLightUserBackground ? 'light' : 'dark';
+        var lightTheme = userTheme === 'light';
+        var userBackground = lightTheme ? '#f0f2f3' : '#0b1118';
+        var userSurface = lightTheme ? '#fcfcfb' : '#061a2c';
+        var userRaised = lightTheme ? '#f5f6f6' : '#061a2c';
+        var userSoft = lightTheme ? '#e8ecee' : '#061a2c';
+        var userText = lightTheme ? '#16232c' : '#f4f8fc';
+        var userMuted = lightTheme ? '#5f707c' : '#9aaabe';
+        var userLine = lightTheme ? '#cbd3d7' : 'rgba(151, 178, 205, 0.22)';
+        document.documentElement.dataset.theme = userTheme;
+        document.documentElement.dataset.userBackgroundTone = userTheme;
+        document.documentElement.style.colorScheme = userTheme;
         r.setProperty('--maskines-page-background', userBackground);
-        r.setProperty('--maskines-page-text', isLightUserBackground ? '#101820' : '#f4f8fc');
-        r.setProperty('--maskines-page-muted', isLightUserBackground ? '#506172' : '#9aaabe');
+        r.setProperty('--maskines-page-text', userText);
+        r.setProperty('--maskines-page-muted', userMuted);
         r.setProperty('--bg', userBackground);
+        r.setProperty('--bg-2', userSurface);
+        r.setProperty('--surface', userSurface);
+        r.setProperty('--surface-2', userRaised);
+        r.setProperty('--surface-3', userSoft);
+        r.setProperty('--text', userText);
+        r.setProperty('--muted', userMuted);
+        r.setProperty('--line', userLine);
         r.setProperty('--site-bg', userBackground);
+        r.setProperty('--site-card', userSurface);
+        r.setProperty('--listing-card-bg', userSurface);
+        r.setProperty('--app-sheet-surface', userSurface);
+        r.setProperty('--app-sheet-surface-raised', userRaised);
+        r.setProperty('--app-sheet-border', userLine);
+        r.setProperty('--site-topbar', lightTheme ? '#fcfcfb' : '#06131f');
+        r.setProperty('--orange', '#ff7a1a');
+        r.setProperty('--orange-2', '#ff8a24');
+        r.setProperty('--brand-primary', '#ff7a1a');
+        r.setProperty('--brand-accent', '#ff8a24');
         r.setProperty('--app-page-bg', 'none');
       } catch (e) {}
     })();
@@ -291,9 +271,37 @@ export default function RootLayout({
     })();
   `;
 
+  const earlyFirstVisitReset = `
+    (function () {
+      try {
+        var url = new URL(window.location.href);
+        if (url.searchParams.get('newVisitor') !== '1') return;
+
+        localStorage.removeItem('locale');
+        localStorage.removeItem('maskines-cookie-consent-v2');
+        localStorage.removeItem('maskines-user-settings-v1');
+
+        var keys = Object.keys(localStorage);
+        for (var i = 0; i < keys.length; i += 1) {
+          if (keys[i].indexOf('visitor-language:') === 0) {
+            localStorage.removeItem(keys[i]);
+          }
+        }
+
+        document.cookie = 'locale=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0; SameSite=Lax';
+        document.cookie = 'maskines_cookie_consent_v2=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0; SameSite=Lax; Secure';
+        document.documentElement.removeAttribute('data-visitor-language-ready');
+
+        url.searchParams.delete('newVisitor');
+        window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+      } catch (e) {}
+    })();
+  `;
+
   return (
     <html lang="fi" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: earlyFirstVisitReset }} />
         <script dangerouslySetInnerHTML={{ __html: earlyLocale }} />
         <script dangerouslySetInnerHTML={{ __html: earlyAppearance }} />
         <SourceFog />

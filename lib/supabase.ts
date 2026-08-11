@@ -4206,6 +4206,21 @@ export async function getPublicSellerLevelStats(
   if (!supabase) return { data: empty, error: null };
 
   try {
+    try {
+      const response = await fetch(
+        `/api/seller-level-stats?sellerId=${encodeURIComponent(sellerId)}`,
+        { cache: "no-store" }
+      );
+
+      if (response.ok) {
+        const data = (await response.json()) as Partial<SellerLevelStats>;
+        return { data: normalizeSellerLevelStats(data), error: null };
+      }
+    } catch {
+      // A relative API URL is unavailable during server-side use. Continue
+      // with the Supabase compatibility queries below.
+    }
+
     const [
       listingsResult,
       soldResult,
@@ -4220,9 +4235,7 @@ export async function getPublicSellerLevelStats(
       supabase
         .from("sold_listings")
         .select("id", { count: "exact", head: true })
-        .eq("seller_id", sellerId)
-        .not("buyer_id", "is", null)
-        .gt("sold_price", 0),
+        .eq("seller_id", sellerId),
       supabase
         .from("seller_reviews")
         .select("id", { count: "exact", head: true })

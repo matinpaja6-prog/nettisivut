@@ -1,10 +1,10 @@
-import { DEFAULT_APPEARANCE } from "@/lib/site-appearance";
-
 export type UserSettings = {
   notificationsEnabled: boolean;
   notificationSoundEnabled: boolean;
-  backgroundColor: string;
+  theme: UserTheme;
 };
+
+export type UserTheme = "dark" | "light";
 
 export const USER_SETTINGS_STORAGE_KEY = "maskines-user-settings-v1";
 export const USER_SETTINGS_EVENT = "maskines-user-settings-changed";
@@ -12,15 +12,18 @@ export const USER_SETTINGS_EVENT = "maskines-user-settings-changed";
 export const defaultUserSettings: UserSettings = {
   notificationsEnabled: true,
   notificationSoundEnabled: true,
-  backgroundColor: DEFAULT_APPEARANCE.background_color ?? "#0b1118"
+  theme: "dark"
 };
 
 function normalizeSettings(value: unknown): UserSettings {
-  const raw = value && typeof value === "object" ? value as Partial<UserSettings> : {};
+  const raw = value && typeof value === "object"
+    ? value as Partial<UserSettings> & { backgroundColor?: string }
+    : {};
+  const legacyTheme = raw.backgroundColor && isLightColor(raw.backgroundColor) ? "light" : "dark";
   return {
     notificationsEnabled: raw.notificationsEnabled ?? defaultUserSettings.notificationsEnabled,
     notificationSoundEnabled: raw.notificationSoundEnabled ?? defaultUserSettings.notificationSoundEnabled,
-    backgroundColor: raw.backgroundColor || defaultUserSettings.backgroundColor
+    theme: raw.theme === "light" || raw.theme === "dark" ? raw.theme : legacyTheme
   };
 }
 
@@ -41,25 +44,78 @@ export function saveUserSettings(nextSettings: UserSettings) {
   window.dispatchEvent(new CustomEvent(USER_SETTINGS_EVENT, { detail: nextSettings }));
 }
 
-export function applyUserBackgroundColor(color: string) {
+export function applyUserTheme(theme: UserTheme) {
   if (typeof document === "undefined") return;
 
   const root = document.documentElement;
-  const isLight = isLightColor(color);
-  const textColor = isLight ? "#101820" : "#f4f8fc";
-  const mutedColor = isLight ? "#506172" : "#9aaabe";
+  const isLight = theme === "light";
+  const palette = isLight
+    ? {
+        background: "#f0f2f3",
+        surface: "#fcfcfb",
+        surfaceRaised: "#f5f6f6",
+        surfaceSoft: "#e8ecee",
+        text: "#16232c",
+        muted: "#5f707c",
+        soft: "#344854",
+        line: "#cbd3d7",
+        topbar: "#fcfcfb",
+        panelBorder: "#cbd3d7",
+        divider: "#dfe4e6"
+      }
+    : {
+        background: "#0b1118",
+        // Keep every dark-theme sheet on the same navy surface.  These
+        // values feed cards, side panels, forms and modal surfaces across
+        // the whole application, so individual pages no longer drift to
+        // slightly different blue/grey shades.
+        surface: "#061a2c",
+        surfaceRaised: "#061a2c",
+        surfaceSoft: "#061a2c",
+        text: "#f4f8fc",
+        muted: "#9aaabe",
+        soft: "#c9d5e2",
+        line: "rgba(151, 178, 205, 0.22)",
+        topbar: "#06131f",
+        panelBorder: "rgba(151, 178, 205, 0.2)",
+        divider: "rgba(151, 178, 205, 0.12)"
+      };
 
-  root.dataset.userBackgroundTone = isLight ? "light" : "dark";
-  root.style.setProperty("--maskines-page-background", color);
-  root.style.setProperty("--maskines-page-text", textColor);
-  root.style.setProperty("--maskines-page-muted", mutedColor);
-  root.style.setProperty("--maskines-settings-panel-bg", "rgba(14, 23, 33, 0.92)");
-  root.style.setProperty("--maskines-settings-panel-border", "rgba(151, 178, 205, 0.18)");
-  root.style.setProperty("--maskines-settings-divider", "rgba(151, 178, 205, 0.12)");
-  root.style.setProperty("--bg", color);
-  root.style.setProperty("--site-bg", color);
+  root.dataset.theme = theme;
+  root.dataset.userBackgroundTone = theme;
+  root.style.colorScheme = theme;
+  root.style.setProperty("--maskines-page-background", palette.background);
+  root.style.setProperty("--maskines-page-text", palette.text);
+  root.style.setProperty("--maskines-page-muted", palette.muted);
+  root.style.setProperty("--maskines-settings-panel-bg", palette.surface);
+  root.style.setProperty("--maskines-settings-panel-border", palette.panelBorder);
+  root.style.setProperty("--maskines-settings-divider", palette.divider);
+  root.style.setProperty("--bg", palette.background);
+  root.style.setProperty("--bg-2", palette.surface);
+  root.style.setProperty("--surface", palette.surface);
+  root.style.setProperty("--surface-2", palette.surfaceRaised);
+  root.style.setProperty("--surface-3", palette.surfaceSoft);
+  root.style.setProperty("--text", palette.text);
+  root.style.setProperty("--muted", palette.muted);
+  root.style.setProperty("--soft", palette.soft);
+  root.style.setProperty("--line", palette.line);
+  root.style.setProperty("--site-bg", palette.background);
+  root.style.setProperty("--site-card", palette.surface);
+  root.style.setProperty("--listing-card-bg", palette.surface);
+  root.style.setProperty("--app-sheet-surface", palette.surface);
+  root.style.setProperty("--app-sheet-surface-raised", palette.surfaceRaised);
+  root.style.setProperty("--app-sheet-border", palette.line);
+  root.style.setProperty("--site-topbar", palette.topbar);
+  root.style.setProperty("--brand-dark", palette.background);
+  root.style.setProperty("--brand-dark-surface", palette.surface);
+  root.style.setProperty("--brand-dark-surface-strong", palette.surfaceRaised);
+  root.style.setProperty("--brand-text-on-dark", palette.text);
+  root.style.setProperty("--brand-muted-on-dark", palette.muted);
+  root.style.setProperty("--orange", "#ff7a1a");
+  root.style.setProperty("--orange-2", "#ff8a24");
+  root.style.setProperty("--brand-primary", "#ff7a1a");
+  root.style.setProperty("--brand-accent", "#ff8a24");
   root.style.setProperty("--app-page-bg", "none");
-
 }
 
 function isLightColor(color: string) {

@@ -2157,7 +2157,7 @@ function MessagesPageContent() {
           background:
             radial-gradient(760px 320px at 90% -8%, rgba(255, 122, 26, 0.12), transparent 62%),
             radial-gradient(680px 300px at 8% 0%, rgba(64, 216, 255, 0.08), transparent 68%),
-            #0b1118 !important;
+            #0b1118;
           color: #f4f8fc;
         }
 
@@ -2191,7 +2191,7 @@ function MessagesPageContent() {
           align-items: center;
           gap: 8px;
           margin-bottom: 10px;
-          color: #ffb45f !important;
+          color: #ffb45f;
           font-size: 12px;
           font-weight: 950;
           letter-spacing: 0.08em;
@@ -2210,7 +2210,7 @@ function MessagesPageContent() {
         .messages-hero-lead {
           max-width: 560px;
           margin: 10px 0 0;
-          color: rgba(226, 244, 255, 0.72) !important;
+          color: rgba(226, 244, 255, 0.72);
           font-size: 14px;
           font-weight: 750;
           line-height: 1.5;
@@ -2232,7 +2232,7 @@ function MessagesPageContent() {
           border: 1px solid rgba(151, 178, 205, 0.16);
           border-radius: 14px;
           background: rgba(3, 12, 24, 0.42);
-          color: rgba(244, 248, 252, 0.9) !important;
+          color: rgba(244, 248, 252, 0.9);
           font-size: 13px;
           font-weight: 750;
           line-height: 1.35;
@@ -2272,7 +2272,7 @@ function MessagesPageContent() {
           place-items: center;
           flex: 0 0 auto;
           color: #fff;
-          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%) !important;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%);
           box-shadow: 0 14px 28px rgba(255, 122, 26, 0.22);
         }
 
@@ -2283,7 +2283,7 @@ function MessagesPageContent() {
         }
 
         .messages-stat-label {
-          color: rgba(226, 244, 255, 0.62) !important;
+          color: rgba(226, 244, 255, 0.62);
           font-size: 12px;
           font-weight: 900;
         }
@@ -2306,7 +2306,7 @@ function MessagesPageContent() {
         }
 
         .messages-stat-positive {
-          color: #ffb45f !important;
+          color: #ffb45f;
           font-weight: 950;
         }
 
@@ -2334,7 +2334,7 @@ function MessagesPageContent() {
           display: grid;
           place-items: center;
           color: #fff;
-          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%) !important;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%);
           box-shadow: 0 16px 34px rgba(255, 122, 26, 0.24);
         }
 
@@ -2348,7 +2348,7 @@ function MessagesPageContent() {
 
         .messages-empty p {
           margin: 0;
-          color: rgba(226, 244, 255, 0.72) !important;
+          color: rgba(226, 244, 255, 0.72);
           font-size: 14px;
           font-weight: 750;
         }
@@ -2363,8 +2363,8 @@ function MessagesPageContent() {
           padding: 0 16px;
           border-radius: 13px;
           border: 1px solid rgba(255, 210, 165, 0.58);
-          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%) !important;
-          color: #fff !important;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%);
+          color: #fff;
           font-weight: 950;
           text-decoration: none;
           box-shadow: 0 16px 34px rgba(255, 122, 26, 0.22);
@@ -2474,7 +2474,7 @@ function MessagesPageContent() {
           align-items: center;
           gap: 6px;
           width: fit-content;
-          color: #ffb45f !important;
+          color: #ffb45f;
           font-size: 13px;
           font-weight: 950;
         }
@@ -2534,7 +2534,7 @@ function MessagesPageContent() {
           background:
             radial-gradient(860px 340px at 88% 0%, rgba(255, 122, 26, 0.16), transparent 66%),
             radial-gradient(780px 320px at 10% -6%, rgba(64, 177, 255, 0.12), transparent 68%),
-            linear-gradient(180deg, #030b15 0%, #071523 48%, #06111d 100%) !important;
+            linear-gradient(180deg, #030b15 0%, #071523 48%, #06111d 100%);
         }
 
         .messages-shell {
@@ -2552,7 +2552,7 @@ function MessagesPageContent() {
           background:
             radial-gradient(740px 270px at 100% 22%, rgba(255, 122, 26, 0.16), transparent 68%),
             radial-gradient(620px 260px at 3% 0%, rgba(70, 154, 220, 0.2), transparent 70%),
-            linear-gradient(145deg, rgba(17, 39, 61, 0.96), rgba(8, 22, 38, 0.98)) !important;
+            linear-gradient(145deg, rgba(17, 39, 61, 0.96), rgba(8, 22, 38, 0.98));
         }
 
         .messages-hero::before {
@@ -2595,7 +2595,7 @@ function MessagesPageContent() {
         }
 
         .messages-hero .eyebrow {
-          color: #4f9fe8 !important;
+          color: #4f9fe8;
           letter-spacing: 0.18em;
         }
 
@@ -2666,7 +2666,7 @@ function MessagesPageContent() {
         }
 
         .messages-stat-positive {
-          color: #ff8a22 !important;
+          color: #ff8a22;
           text-transform: uppercase;
         }
 
@@ -2880,420 +2880,420 @@ function MessagesPageContent() {
         }
 
         .messages-page {
-          padding: 18px 0 96px !important;
+          padding: 18px 0 96px;
           background:
             radial-gradient(1040px 420px at 94% 0%, rgba(255, 122, 18, 0.16), transparent 64%),
             radial-gradient(840px 340px at 12% -8%, rgba(54, 143, 216, 0.14), transparent 66%),
-            linear-gradient(180deg, #020912 0%, #061321 48%, #040c16 100%) !important;
-          color: #eef6ff !important;
+            linear-gradient(180deg, #020912 0%, #061321 48%, #040c16 100%);
+          color: #eef6ff;
         }
 
         .messages-shell {
-          width: min(1284px, calc(100vw - 64px)) !important;
-          max-width: none !important;
-          padding: 0 !important;
-          gap: 16px !important;
+          width: min(1284px, calc(100vw - 64px));
+          max-width: none;
+          padding: 0;
+          gap: 16px;
         }
 
         .messages-hero {
-          position: relative !important;
-          display: grid !important;
-          grid-template-columns: 126px minmax(0, 1fr) minmax(360px, 410px) !important;
-          align-items: center !important;
-          min-height: 242px !important;
-          gap: 26px !important;
-          overflow: hidden !important;
-          padding: 36px 72px 34px 38px !important;
-          border: 1px solid rgba(100, 145, 190, 0.42) !important;
-          border-radius: 20px !important;
+          position: relative;
+          display: grid;
+          grid-template-columns: 126px minmax(0, 1fr) minmax(360px, 410px);
+          align-items: center;
+          min-height: 242px;
+          gap: 26px;
+          overflow: hidden;
+          padding: 36px 72px 34px 38px;
+          border: 1px solid rgba(100, 145, 190, 0.42);
+          border-radius: 20px;
           background:
             radial-gradient(720px 260px at 98% 16%, rgba(255, 124, 22, 0.17), transparent 68%),
             radial-gradient(620px 260px at 2% 0%, rgba(80, 153, 218, 0.2), transparent 70%),
-            linear-gradient(145deg, rgba(18, 42, 66, 0.94), rgba(7, 20, 35, 0.98)) !important;
+            linear-gradient(145deg, rgba(18, 42, 66, 0.94), rgba(7, 20, 35, 0.98));
           box-shadow:
             0 26px 72px rgba(0, 7, 20, 0.36),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         .messages-hero::before {
-          content: "" !important;
-          position: absolute !important;
-          inset: 0 !important;
-          width: auto !important;
+          content: "";
+          position: absolute;
+          inset: 0;
+          width: auto;
           background:
             repeating-radial-gradient(ellipse at 83% 50%, rgba(86, 151, 206, 0.18) 0 1px, transparent 1px 12px),
-            radial-gradient(260px 220px at 98% 12%, rgba(255, 116, 24, 0.18), transparent 68%) !important;
-          opacity: 0.5 !important;
-          pointer-events: none !important;
-          mask-image: linear-gradient(90deg, transparent 30%, #000 72%, transparent 100%) !important;
-          -webkit-mask-image: linear-gradient(90deg, transparent 30%, #000 72%, transparent 100%) !important;
+            radial-gradient(260px 220px at 98% 12%, rgba(255, 116, 24, 0.18), transparent 68%);
+          opacity: 0.5;
+          pointer-events: none;
+          mask-image: linear-gradient(90deg, transparent 30%, #000 72%, transparent 100%);
+          -webkit-mask-image: linear-gradient(90deg, transparent 30%, #000 72%, transparent 100%);
         }
 
         .messages-hero-icon {
-          width: 106px !important;
-          height: 106px !important;
-          border-radius: 18px !important;
-          border: 1px solid rgba(255, 160, 65, 0.78) !important;
+          width: 106px;
+          height: 106px;
+          border-radius: 18px;
+          border: 1px solid rgba(255, 160, 65, 0.78);
           background:
             radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.18), transparent 33%),
-            linear-gradient(145deg, #ff9c26, #f05f00 72%) !important;
+            linear-gradient(145deg, #ff9c26, #f05f00 72%);
           box-shadow:
             0 22px 48px rgba(255, 112, 18, 0.32),
-            inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.28);
         }
 
         .messages-hero-icon svg {
-          width: 58px !important;
-          height: 58px !important;
-          fill: currentColor !important;
-          stroke-width: 0 !important;
+          width: 58px;
+          height: 58px;
+          fill: currentColor;
+          stroke-width: 0;
         }
 
         .messages-hero .eyebrow {
-          color: #4f9fe8 !important;
-          font-size: 13px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0.16em !important;
+          color: #4f9fe8;
+          font-size: 13px;
+          font-weight: 950;
+          letter-spacing: 0.16em;
         }
 
         .messages-hero h1 {
-          margin: 10px 0 8px !important;
-          font-size: clamp(3rem, 4.8vw, 3.9rem) !important;
-          line-height: 1 !important;
-          letter-spacing: 0 !important;
+          margin: 10px 0 8px;
+          font-size: clamp(3rem, 4.8vw, 3.9rem);
+          line-height: 1;
+          letter-spacing: 0;
         }
 
         .messages-hero-lead {
-          max-width: 440px !important;
-          color: rgba(226, 242, 255, 0.78) !important;
-          font-size: 15.5px !important;
-          font-weight: 700 !important;
+          max-width: 440px;
+          color: rgba(226, 242, 255, 0.78);
+          font-size: 15.5px;
+          font-weight: 700;
         }
 
         .messages-hero-copy {
-          width: min(100%, 410px) !important;
-          max-width: none !important;
-          gap: 2px !important;
-          padding: 0 !important;
-          border: 0 !important;
-          background: transparent !important;
-          justify-self: end !important;
+          width: min(100%, 410px);
+          max-width: none;
+          gap: 2px;
+          padding: 0;
+          border: 0;
+          background: transparent;
+          justify-self: end;
         }
 
         .messages-hero-copy span {
-          min-height: 78px !important;
-          align-items: center !important;
-          padding: 18px 26px !important;
-          border: 1px solid rgba(100, 145, 190, 0.36) !important;
-          border-radius: 14px !important;
-          background: rgba(4, 16, 31, 0.68) !important;
-          color: rgba(244, 248, 252, 0.92) !important;
-          font-size: 14px !important;
-          font-weight: 750 !important;
+          min-height: 78px;
+          align-items: center;
+          padding: 18px 26px;
+          border: 1px solid rgba(100, 145, 190, 0.36);
+          border-radius: 14px;
+          background: rgba(4, 16, 31, 0.68);
+          color: rgba(244, 248, 252, 0.92);
+          font-size: 14px;
+          font-weight: 750;
         }
 
         .messages-hero-copy svg,
         .messages-stat-positive,
         .conversation-open {
-          color: #ff8a22 !important;
+          color: #ff8a22;
         }
 
         .messages-stats {
-          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-          gap: 16px !important;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 16px;
         }
 
         .messages-stat-card {
-          position: relative !important;
-          min-height: 128px !important;
-          padding: 24px 58px 22px 28px !important;
-          border-radius: 14px !important;
-          border: 1px solid rgba(100, 145, 190, 0.38) !important;
+          position: relative;
+          min-height: 128px;
+          padding: 24px 58px 22px 28px;
+          border-radius: 14px;
+          border: 1px solid rgba(100, 145, 190, 0.38);
           background:
             radial-gradient(360px 160px at 100% 0%, rgba(255, 122, 26, 0.1), transparent 70%),
-            linear-gradient(145deg, rgba(16, 38, 60, 0.92), rgba(7, 20, 35, 0.98)) !important;
+            linear-gradient(145deg, rgba(16, 38, 60, 0.92), rgba(7, 20, 35, 0.98));
           box-shadow:
             0 18px 46px rgba(0, 7, 18, 0.26),
-            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.06);
         }
 
         .messages-stat-card::after {
-          content: ">" !important;
-          position: absolute !important;
-          right: 24px !important;
-          top: 50% !important;
-          transform: translateY(-50%) scaleY(1.55) !important;
-          color: rgba(180, 209, 235, 0.72) !important;
-          font-size: 28px !important;
-          font-weight: 300 !important;
-          line-height: 1 !important;
+          content: ">";
+          position: absolute;
+          right: 24px;
+          top: 50%;
+          transform: translateY(-50%) scaleY(1.55);
+          color: rgba(180, 209, 235, 0.72);
+          font-size: 28px;
+          font-weight: 300;
+          line-height: 1;
         }
 
         .messages-stat-icon {
-          width: 64px !important;
-          height: 64px !important;
-          border: 1px solid rgba(255, 160, 65, 0.58) !important;
-          border-radius: 14px !important;
-          background: linear-gradient(135deg, #ff9a24, #ff6b16 62%, #ed5f00) !important;
-          color: #fff !important;
-          box-shadow: 0 16px 34px rgba(255, 112, 18, 0.28) !important;
+          width: 64px;
+          height: 64px;
+          border: 1px solid rgba(255, 160, 65, 0.58);
+          border-radius: 14px;
+          background: linear-gradient(135deg, #ff9a24, #ff6b16 62%, #ed5f00);
+          color: #fff;
+          box-shadow: 0 16px 34px rgba(255, 112, 18, 0.28);
         }
 
         .messages-stat-label {
-          color: rgba(185, 207, 228, 0.8) !important;
-          font-size: 13px !important;
-          letter-spacing: 0.16em !important;
-          text-transform: uppercase !important;
+          color: rgba(185, 207, 228, 0.8);
+          font-size: 13px;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
         }
 
         .messages-stat-text strong {
-          font-size: 30px !important;
-          color: #fff !important;
+          font-size: 30px;
+          color: #fff;
         }
 
         .conversation-list {
-          gap: 6px !important;
+          gap: 6px;
         }
 
         .conversation-card {
-          display: grid !important;
-          grid-template-columns: 138px minmax(0, 1fr) 156px 58px !important;
-          align-items: center !important;
-          min-height: 156px !important;
-          gap: 16px !important;
-          padding: 16px 24px 14px 20px !important;
-          border: 1px solid rgba(100, 145, 190, 0.34) !important;
-          border-radius: 14px !important;
+          display: grid;
+          grid-template-columns: 138px minmax(0, 1fr) 156px 58px;
+          align-items: center;
+          min-height: 156px;
+          gap: 16px;
+          padding: 16px 24px 14px 20px;
+          border: 1px solid rgba(100, 145, 190, 0.34);
+          border-radius: 14px;
           background:
             radial-gradient(520px 190px at 86% 0%, rgba(255, 122, 26, 0.08), transparent 70%),
-            linear-gradient(145deg, rgba(14, 34, 56, 0.94), rgba(7, 19, 34, 0.99)) !important;
+            linear-gradient(145deg, rgba(14, 34, 56, 0.94), rgba(7, 19, 34, 0.99));
           box-shadow:
             0 18px 48px rgba(0, 7, 18, 0.24),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
         .conversation-image {
-          width: 138px !important;
-          height: 118px !important;
-          border-radius: 12px !important;
+          width: 138px;
+          height: 118px;
+          border-radius: 12px;
         }
 
         .conversation-image img {
-          width: 100% !important;
-          height: 100% !important;
-          border-radius: 11px !important;
-          object-fit: cover !important;
+          width: 100%;
+          height: 100%;
+          border-radius: 11px;
+          object-fit: cover;
         }
 
         .conversation-main {
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) 156px !important;
-          grid-template-rows: auto auto auto auto !important;
-          column-gap: 18px !important;
-          row-gap: 6px !important;
-          padding: 0 !important;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 156px;
+          grid-template-rows: auto auto auto auto;
+          column-gap: 18px;
+          row-gap: 6px;
+          padding: 0;
         }
 
         .conversation-head,
         .conversation-title-row {
-          display: contents !important;
+          display: contents;
         }
 
         .conversation-head > div {
-          grid-column: 1 !important;
-          grid-row: 1 !important;
+          grid-column: 1;
+          grid-row: 1;
         }
 
         .conversation-head strong {
-          color: rgba(178, 205, 228, 0.82) !important;
-          font-size: 16px !important;
-          font-weight: 900 !important;
+          color: rgba(178, 205, 228, 0.82);
+          font-size: 16px;
+          font-weight: 900;
         }
 
         .conversation-head time {
-          position: static !important;
-          grid-column: 2 !important;
-          grid-row: 1 !important;
-          justify-self: end !important;
-          padding: 0 !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          color: rgba(190, 214, 235, 0.86) !important;
-          font-size: 15px !important;
-          font-weight: 900 !important;
+          position: static;
+          grid-column: 2;
+          grid-row: 1;
+          justify-self: end;
+          padding: 0;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          color: rgba(190, 214, 235, 0.86);
+          font-size: 15px;
+          font-weight: 900;
         }
 
         .conversation-title-row h2 {
-          grid-column: 1 !important;
-          grid-row: 2 !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          color: #fff !important;
-          font-size: 24px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
-          line-height: 1.16 !important;
-          white-space: normal !important;
+          grid-column: 1;
+          grid-row: 2;
+          margin: 0;
+          padding: 0;
+          color: #fff;
+          font-size: 24px;
+          font-weight: 950;
+          letter-spacing: 0;
+          line-height: 1.16;
+          white-space: normal;
         }
 
         .conversation-title-row small {
-          grid-column: 2 !important;
-          grid-row: 2 !important;
-          justify-self: end !important;
-          align-self: start !important;
-          min-width: 90px !important;
-          margin: 0 !important;
-          padding: 9px 16px !important;
-          border: 0 !important;
-          border-radius: 10px !important;
-          background: linear-gradient(135deg, #ff9a24, #ff6b16 62%, #ed5f00) !important;
-          box-shadow: 0 12px 28px rgba(255, 112, 18, 0.28) !important;
-          color: #fff !important;
-          font-size: 20px !important;
-          font-weight: 950 !important;
-          line-height: 1 !important;
-          text-align: center !important;
+          grid-column: 2;
+          grid-row: 2;
+          justify-self: end;
+          align-self: start;
+          min-width: 90px;
+          margin: 0;
+          padding: 9px 16px;
+          border: 0;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #ff9a24, #ff6b16 62%, #ed5f00);
+          box-shadow: 0 12px 28px rgba(255, 112, 18, 0.28);
+          color: #fff;
+          font-size: 20px;
+          font-weight: 950;
+          line-height: 1;
+          text-align: center;
         }
 
         .conversation-main p {
-          grid-column: 1 !important;
-          grid-row: 3 !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          border: 0 !important;
-          background: transparent !important;
-          color: rgba(178, 205, 228, 0.82) !important;
-          font-size: 15px !important;
-          font-weight: 800 !important;
+          grid-column: 1;
+          grid-row: 3;
+          margin: 0;
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: rgba(178, 205, 228, 0.82);
+          font-size: 15px;
+          font-weight: 800;
         }
 
         .conversation-open {
-          grid-column: 1 !important;
-          grid-row: 4 !important;
-          display: inline-flex !important;
-          width: 224px !important;
-          min-height: 36px !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 10px !important;
-          border: 1px solid rgba(255, 138, 34, 0.56) !important;
-          border-radius: 999px !important;
-          background: rgba(255, 122, 26, 0.08) !important;
-          font-size: 14px !important;
-          font-weight: 950 !important;
-          text-transform: uppercase !important;
+          grid-column: 1;
+          grid-row: 4;
+          display: inline-flex;
+          width: 224px;
+          min-height: 36px;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          border: 1px solid rgba(255, 138, 34, 0.56);
+          border-radius: 999px;
+          background: rgba(255, 122, 26, 0.08);
+          font-size: 14px;
+          font-weight: 950;
+          text-transform: uppercase;
         }
 
         .conversation-delete {
-          position: static !important;
-          width: 58px !important;
-          height: 58px !important;
-          align-self: start !important;
-          justify-self: end !important;
-          border-radius: 14px !important;
-          border: 1px solid rgba(100, 145, 190, 0.36) !important;
-          background: rgba(4, 16, 31, 0.72) !important;
-          color: rgba(190, 214, 235, 0.78) !important;
+          position: static;
+          width: 58px;
+          height: 58px;
+          align-self: start;
+          justify-self: end;
+          border-radius: 14px;
+          border: 1px solid rgba(100, 145, 190, 0.36);
+          background: rgba(4, 16, 31, 0.72);
+          color: rgba(190, 214, 235, 0.78);
         }
 
         @media (max-width: 900px) {
           .messages-shell {
-            width: min(100% - 24px, 1284px) !important;
+            width: min(100% - 24px, 1284px);
           }
 
           .messages-hero,
           .messages-stats {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr;
           }
 
           .messages-hero {
-            padding: 22px !important;
+            padding: 22px;
           }
 
           .messages-hero-copy {
-            justify-self: stretch !important;
-            width: 100% !important;
+            justify-self: stretch;
+            width: 100%;
           }
 
           .conversation-card {
-            grid-template-columns: 96px minmax(0, 1fr) 44px !important;
-            min-height: 0 !important;
-            padding: 12px !important;
+            grid-template-columns: 96px minmax(0, 1fr) 44px;
+            min-height: 0;
+            padding: 12px;
           }
 
           .conversation-image {
-            width: 96px !important;
-            height: 96px !important;
+            width: 96px;
+            height: 96px;
           }
 
           .conversation-main {
-            grid-template-columns: minmax(0, 1fr) auto !important;
-            row-gap: 5px !important;
+            grid-template-columns: minmax(0, 1fr) auto;
+            row-gap: 5px;
           }
 
           .conversation-title-row h2 {
-            font-size: 18px !important;
+            font-size: 18px;
           }
 
           .conversation-title-row small {
-            font-size: 15px !important;
-            min-width: 72px !important;
-            padding: 8px 12px !important;
+            font-size: 15px;
+            min-width: 72px;
+            padding: 8px 12px;
           }
 
           .conversation-open {
-            width: 184px !important;
+            width: 184px;
           }
 
           .conversation-delete {
-            width: 44px !important;
-            height: 44px !important;
+            width: 44px;
+            height: 44px;
           }
         }
 
         @media (max-width: 560px) {
           .messages-page {
-            padding-top: 12px !important;
+            padding-top: 12px;
           }
 
           .messages-hero {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr;
           }
 
           .messages-hero-icon {
-            width: 82px !important;
-            height: 82px !important;
+            width: 82px;
+            height: 82px;
           }
 
           .messages-hero h1 {
-            font-size: 2.45rem !important;
+            font-size: 2.45rem;
           }
 
           .conversation-card {
-            grid-template-columns: 84px minmax(0, 1fr) 40px !important;
-            gap: 10px !important;
+            grid-template-columns: 84px minmax(0, 1fr) 40px;
+            gap: 10px;
           }
 
           .conversation-image {
-            width: 84px !important;
-            height: 84px !important;
-            grid-row: auto !important;
+            width: 84px;
+            height: 84px;
+            grid-row: auto;
           }
 
           .conversation-main {
-            display: grid !important;
-            grid-template-columns: 1fr !important;
+            display: grid;
+            grid-template-columns: 1fr;
           }
 
           .conversation-head,
           .conversation-title-row {
-            display: grid !important;
+            display: grid;
           }
 
           .conversation-head time,
           .conversation-title-row small {
-            justify-self: start !important;
+            justify-self: start;
           }
 
           .conversation-title-row h2,
@@ -3301,1842 +3301,1842 @@ function MessagesPageContent() {
           .conversation-title-row small,
           .conversation-main p,
           .conversation-open {
-            grid-column: 1 !important;
-            grid-row: auto !important;
+            grid-column: 1;
+            grid-row: auto;
           }
 
           .conversation-title-row h2 {
-            font-size: 16px !important;
+            font-size: 16px;
           }
 
           .conversation-main p {
-            white-space: nowrap !important;
+            white-space: nowrap;
           }
 
           .conversation-open {
-            width: 100% !important;
-            min-height: 34px !important;
-            font-size: 12px !important;
+            width: 100%;
+            min-height: 34px;
+            font-size: 12px;
           }
 
           .conversation-delete {
-            width: 40px !important;
-            height: 40px !important;
-            grid-column: auto !important;
-            grid-row: auto !important;
+            width: 40px;
+            height: 40px;
+            grid-column: auto;
+            grid-row: auto;
           }
         }
 
         .messages-inbox-page {
-          min-height: calc(100vh - 74px) !important;
-          padding: 14px 16px 18px !important;
-          background: var(--site-bg, var(--bg, #0b1118)) !important;
-          color: #eef7ff !important;
+          min-height: calc(100vh - 74px);
+          padding: 14px 16px 18px;
+          background: var(--site-bg, var(--bg, #0b1118));
+          color: #eef7ff;
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          width: min(1420px, calc(100vw - 32px)) !important;
-          min-height: min(720px, calc(100vh - 106px)) !important;
-          margin: 0 auto !important;
-          display: grid !important;
-          grid-template-columns: 320px minmax(0, 1fr) !important;
-          gap: 14px !important;
+          width: min(1420px, calc(100vw - 32px));
+          min-height: min(720px, calc(100vh - 106px));
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: 320px minmax(0, 1fr);
+          gap: 14px;
         }
 
         .messages-inbox-page .messages-sidebar,
         .messages-inbox-page .chat-wrapper {
-          border: 1px solid rgba(74, 104, 132, 0.45) !important;
-          border-radius: 8px !important;
-          background: rgba(5, 18, 30, 0.78) !important;
-          box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28) !important;
-          overflow: hidden !important;
+          border: 1px solid rgba(74, 104, 132, 0.45);
+          border-radius: 8px;
+          background: rgba(5, 18, 30, 0.78);
+          box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
+          overflow: hidden;
         }
 
         .messages-inbox-page .messages-sidebar {
-          display: flex !important;
-          flex-direction: column !important;
-          min-height: 0 !important;
-          padding: 14px 10px 10px !important;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+          padding: 14px 10px 10px;
         }
 
         .messages-inbox-page .sidebar-heading h1 {
-          margin: 0 0 14px !important;
-          color: #f6fbff !important;
-          font-size: 22px !important;
-          font-weight: 900 !important;
-          letter-spacing: 0 !important;
+          margin: 0 0 14px;
+          color: #f6fbff;
+          font-size: 22px;
+          font-weight: 900;
+          letter-spacing: 0;
         }
 
         .messages-inbox-page .message-tabs {
-          display: grid !important;
-          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-          overflow: hidden !important;
-          border: 1px solid rgba(80, 111, 140, 0.42) !important;
-          border-radius: 6px !important;
-          background: rgba(5, 16, 27, 0.82) !important;
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          overflow: hidden;
+          border: 1px solid rgba(80, 111, 140, 0.42);
+          border-radius: 6px;
+          background: rgba(5, 16, 27, 0.82);
         }
 
         .messages-inbox-page .message-tabs button {
-          height: 34px !important;
-          border: 0 !important;
-          border-right: 1px solid rgba(80, 111, 140, 0.34) !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          color: #a9b8c6 !important;
-          font-size: 11px !important;
-          font-weight: 800 !important;
-          box-shadow: none !important;
+          height: 34px;
+          border: 0;
+          border-right: 1px solid rgba(80, 111, 140, 0.34);
+          border-radius: 0;
+          background: transparent;
+          color: #a9b8c6;
+          font-size: 11px;
+          font-weight: 800;
+          box-shadow: none;
         }
 
         .messages-inbox-page .message-tabs button:last-child {
-          border-right: 0 !important;
+          border-right: 0;
         }
 
         .messages-inbox-page .message-tabs .active {
-          color: #ff8a1c !important;
-          background: linear-gradient(180deg, rgba(255, 122, 26, 0.16), rgba(255, 122, 26, 0.06)) !important;
+          color: #ff8a1c;
+          background: linear-gradient(180deg, rgba(255, 122, 26, 0.16), rgba(255, 122, 26, 0.06));
         }
 
         .messages-inbox-page .message-tabs span,
         .messages-inbox-page .sidebar-unread {
-          display: inline-grid !important;
-          place-items: center !important;
-          min-width: 18px !important;
-          height: 18px !important;
-          border-radius: 999px !important;
-          background: #ff6b00 !important;
-          color: #fff !important;
-          font-size: 10px !important;
-          font-weight: 900 !important;
+          display: inline-grid;
+          place-items: center;
+          min-width: 18px;
+          height: 18px;
+          border-radius: 999px;
+          background: #ff6b00;
+          color: #fff;
+          font-size: 10px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .message-search {
-          height: 36px !important;
-          margin: 10px 0 8px !important;
-          display: grid !important;
-          grid-template-columns: auto minmax(0, 1fr) 34px !important;
-          align-items: center !important;
-          gap: 8px !important;
-          padding-left: 10px !important;
-          border: 1px solid rgba(80, 111, 140, 0.4) !important;
-          border-radius: 6px !important;
-          background: rgba(3, 13, 23, 0.86) !important;
-          color: #7f93a6 !important;
-          font-size: 11px !important;
-          font-weight: 700 !important;
+          height: 36px;
+          margin: 10px 0 8px;
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) 34px;
+          align-items: center;
+          gap: 8px;
+          padding-left: 10px;
+          border: 1px solid rgba(80, 111, 140, 0.4);
+          border-radius: 6px;
+          background: rgba(3, 13, 23, 0.86);
+          color: #7f93a6;
+          font-size: 11px;
+          font-weight: 700;
         }
 
         .messages-inbox-page .message-search span {
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .message-search button {
-          width: 34px !important;
-          height: 34px !important;
-          border: 0 !important;
-          border-left: 1px solid rgba(80, 111, 140, 0.32) !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          color: #b8c8d8 !important;
-          box-shadow: none !important;
+          width: 34px;
+          height: 34px;
+          border: 0;
+          border-left: 1px solid rgba(80, 111, 140, 0.32);
+          border-radius: 0;
+          background: transparent;
+          color: #b8c8d8;
+          box-shadow: none;
         }
 
         .messages-inbox-page .sidebar-list {
-          min-height: 0 !important;
-          overflow-y: auto !important;
-          display: grid !important;
+          min-height: 0;
+          overflow-y: auto;
+          display: grid;
         }
 
         .messages-inbox-page .sidebar-conversation {
-          position: relative !important;
-          min-height: 66px !important;
-          display: grid !important;
-          grid-template-columns: 42px minmax(0, 1fr) auto !important;
-          align-items: center !important;
-          gap: 9px !important;
-          padding: 8px !important;
-          border-bottom: 1px solid rgba(80, 111, 140, 0.22) !important;
-          color: #dbe7f3 !important;
-          text-decoration: none !important;
+          position: relative;
+          min-height: 66px;
+          display: grid;
+          grid-template-columns: 42px minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 9px;
+          padding: 8px;
+          border-bottom: 1px solid rgba(80, 111, 140, 0.22);
+          color: #dbe7f3;
+          text-decoration: none;
         }
 
         .messages-inbox-page .sidebar-conversation.active {
-          border-left: 2px solid #ff7a00 !important;
-          background: linear-gradient(90deg, rgba(255, 122, 26, 0.12), rgba(255, 122, 26, 0.02)) !important;
+          border-left: 2px solid #ff7a00;
+          background: linear-gradient(90deg, rgba(255, 122, 26, 0.12), rgba(255, 122, 26, 0.02));
         }
 
         .messages-inbox-page .sidebar-avatar {
-          position: relative !important;
-          width: 36px !important;
-          height: 36px !important;
-          display: grid !important;
-          place-items: center !important;
-          border-radius: 999px !important;
-          background: #f8fafc !important;
-          color: #152334 !important;
-          font-size: 13px !important;
-          font-weight: 950 !important;
-          overflow: visible !important;
+          position: relative;
+          width: 36px;
+          height: 36px;
+          display: grid;
+          place-items: center;
+          border-radius: 999px;
+          background: #f8fafc;
+          color: #152334;
+          font-size: 13px;
+          font-weight: 950;
+          overflow: visible;
         }
 
         .messages-inbox-page .sidebar-avatar img {
-          width: 100% !important;
-          height: 100% !important;
-          border-radius: 999px !important;
-          object-fit: cover !important;
+          width: 100%;
+          height: 100%;
+          border-radius: 999px;
+          object-fit: cover;
         }
 
         .messages-inbox-page .sidebar-avatar span {
-          position: absolute !important;
-          right: 0 !important;
-          bottom: 0 !important;
-          width: 9px !important;
-          height: 9px !important;
-          border-radius: 999px !important;
-          background: #22c55e !important;
-          box-shadow: 0 0 0 2px #06111d !important;
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          width: 9px;
+          height: 9px;
+          border-radius: 999px;
+          background: #22c55e;
+          box-shadow: 0 0 0 2px #06111d;
         }
 
         .messages-inbox-page .sidebar-copy {
-          min-width: 0 !important;
-          display: grid !important;
-          gap: 4px !important;
+          min-width: 0;
+          display: grid;
+          gap: 4px;
         }
 
         .messages-inbox-page .sidebar-copy div {
-          display: flex !important;
-          align-items: center !important;
-          gap: 8px !important;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
 
         .messages-inbox-page .sidebar-copy strong,
         .messages-inbox-page .sidebar-copy p {
-          min-width: 0 !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .sidebar-copy strong {
-          color: #f4f8fc !important;
-          font-size: 12.5px !important;
-          font-weight: 900 !important;
+          color: #f4f8fc;
+          font-size: 12.5px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .sidebar-copy time {
-          margin-left: auto !important;
-          color: #8fa3b6 !important;
-          font-size: 10px !important;
-          font-weight: 800 !important;
+          margin-left: auto;
+          color: #8fa3b6;
+          font-size: 10px;
+          font-weight: 800;
         }
 
         .messages-inbox-page .sidebar-copy p {
-          margin: 0 !important;
-          color: #90a5b8 !important;
-          font-size: 11px !important;
-          font-weight: 700 !important;
+          margin: 0;
+          color: #90a5b8;
+          font-size: 11px;
+          font-weight: 700;
         }
 
         .messages-inbox-page .archive-button {
-          height: 34px !important;
-          margin-top: 10px !important;
-          border: 1px solid rgba(80, 111, 140, 0.42) !important;
-          border-radius: 6px !important;
-          background: rgba(4, 15, 26, 0.76) !important;
-          color: #b9c8d8 !important;
-          font-size: 11px !important;
-          font-weight: 800 !important;
-          box-shadow: none !important;
+          height: 34px;
+          margin-top: 10px;
+          border: 1px solid rgba(80, 111, 140, 0.42);
+          border-radius: 6px;
+          background: rgba(4, 15, 26, 0.76);
+          color: #b9c8d8;
+          font-size: 11px;
+          font-weight: 800;
+          box-shadow: none;
         }
 
         .messages-inbox-page .chat-wrapper {
-          display: flex !important;
-          flex-direction: column !important;
-          min-height: 0 !important;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
         }
 
         .messages-inbox-page .header {
-          min-height: 54px !important;
-          padding: 8px 12px !important;
-          display: grid !important;
-          grid-template-columns: 34px minmax(0, 1fr) !important;
-          gap: 10px !important;
-          background: rgba(5, 18, 30, 0.92) !important;
-          border-bottom: 1px solid rgba(80, 111, 140, 0.34) !important;
+          min-height: 54px;
+          padding: 8px 12px;
+          display: grid;
+          grid-template-columns: 34px minmax(0, 1fr);
+          gap: 10px;
+          background: rgba(5, 18, 30, 0.92);
+          border-bottom: 1px solid rgba(80, 111, 140, 0.34);
         }
 
         .messages-inbox-page .back-button {
-          width: 34px !important;
-          height: 34px !important;
-          display: grid !important;
-          place-items: center !important;
-          border: 1px solid rgba(80, 111, 140, 0.42) !important;
-          border-radius: 6px !important;
-          background: rgba(4, 15, 26, 0.8) !important;
-          color: #9fb3c7 !important;
-          text-decoration: none !important;
+          width: 34px;
+          height: 34px;
+          display: grid;
+          place-items: center;
+          border: 1px solid rgba(80, 111, 140, 0.42);
+          border-radius: 6px;
+          background: rgba(4, 15, 26, 0.8);
+          color: #9fb3c7;
+          text-decoration: none;
         }
 
         .messages-inbox-page .seller {
-          display: grid !important;
-          grid-template-columns: auto minmax(0, 1fr) !important;
-          align-items: center !important;
-          gap: 10px !important;
-          min-width: 0 !important;
-          text-decoration: none !important;
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr);
+          align-items: center;
+          gap: 10px;
+          min-width: 0;
+          text-decoration: none;
         }
 
         .messages-inbox-page .avatar {
-          width: 36px !important;
-          height: 36px !important;
-          border-radius: 999px !important;
-          background: #f8fafc !important;
-          display: grid !important;
-          place-items: center !important;
-          color: #1f2937 !important;
-          overflow: visible !important;
-          position: relative !important;
+          width: 36px;
+          height: 36px;
+          border-radius: 999px;
+          background: #f8fafc;
+          display: grid;
+          place-items: center;
+          color: #1f2937;
+          overflow: visible;
+          position: relative;
         }
 
         .messages-inbox-page .avatar img {
-          width: 100% !important;
-          height: 100% !important;
-          border-radius: 999px !important;
-          object-fit: cover !important;
+          width: 100%;
+          height: 100%;
+          border-radius: 999px;
+          object-fit: cover;
         }
 
         .messages-inbox-page .seller-info strong {
-          color: #f4f8fc !important;
-          font-size: 13px !important;
-          font-weight: 900 !important;
-          line-height: 1.1 !important;
+          color: #f4f8fc;
+          font-size: 13px;
+          font-weight: 900;
+          line-height: 1.1;
         }
 
         .messages-inbox-page .online-status {
-          margin: 2px 0 0 !important;
-          color: #8fa3b6 !important;
-          font-size: 10px !important;
-          font-weight: 800 !important;
+          margin: 2px 0 0;
+          color: #8fa3b6;
+          font-size: 10px;
+          font-weight: 800;
         }
 
         .messages-inbox-page .chat-listing-strip {
-          display: grid !important;
-          grid-template-columns: 78px minmax(0, 1fr) auto !important;
-          align-items: center !important;
-          gap: 12px !important;
-          min-height: 86px !important;
-          margin: 0 12px 8px !important;
-          padding: 10px !important;
-          border: 1px solid rgba(80, 111, 140, 0.32) !important;
-          border-radius: 6px !important;
-          background: rgba(6, 20, 34, 0.82) !important;
+          display: grid;
+          grid-template-columns: 78px minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 12px;
+          min-height: 86px;
+          margin: 0 12px 8px;
+          padding: 10px;
+          border: 1px solid rgba(80, 111, 140, 0.32);
+          border-radius: 6px;
+          background: rgba(6, 20, 34, 0.82);
         }
 
         .messages-inbox-page .listing-thumb,
         .messages-inbox-page .listing-thumb img {
-          width: 72px !important;
-          height: 58px !important;
-          border-radius: 6px !important;
-          object-fit: cover !important;
+          width: 72px;
+          height: 58px;
+          border-radius: 6px;
+          object-fit: cover;
         }
 
         .messages-inbox-page .listing-summary {
-          min-width: 0 !important;
-          display: grid !important;
-          gap: 5px !important;
+          min-width: 0;
+          display: grid;
+          gap: 5px;
         }
 
         .messages-inbox-page .listing-summary strong {
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
-          color: #e7f1fb !important;
-          font-size: 13px !important;
-          font-weight: 800 !important;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: #e7f1fb;
+          font-size: 13px;
+          font-weight: 800;
         }
 
         .messages-inbox-page .listing-summary span {
-          color: #fff !important;
-          font-size: 18px !important;
-          font-weight: 950 !important;
+          color: #fff;
+          font-size: 18px;
+          font-weight: 950;
         }
 
         .messages-inbox-page .listing-open {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 7px !important;
-          min-height: 34px !important;
-          padding: 0 14px !important;
-          border: 1px solid rgba(80, 111, 140, 0.44) !important;
-          border-radius: 6px !important;
-          background: rgba(18, 36, 55, 0.9) !important;
-          color: #dce8f3 !important;
-          font-size: 11px !important;
-          font-weight: 850 !important;
-          text-decoration: none !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          min-height: 34px;
+          padding: 0 14px;
+          border: 1px solid rgba(80, 111, 140, 0.44);
+          border-radius: 6px;
+          background: rgba(18, 36, 55, 0.9);
+          color: #dce8f3;
+          font-size: 11px;
+          font-weight: 850;
+          text-decoration: none;
         }
 
         .messages-inbox-page .inbox-preview-area {
-          flex: 1 !important;
-          min-height: 260px !important;
-          display: flex !important;
-          align-items: flex-start !important;
-          justify-content: flex-start !important;
-          padding: 16px 28px !important;
-          background: rgba(6, 20, 34, 0.9) !important;
+          flex: 1;
+          min-height: 260px;
+          display: flex;
+          align-items: flex-start;
+          justify-content: flex-start;
+          padding: 16px 28px;
+          background: rgba(6, 20, 34, 0.9);
         }
 
         .messages-inbox-page .preview-message {
-          max-width: min(420px, 80%) !important;
-          padding: 11px 13px 8px !important;
-          border: 1px solid rgba(126, 197, 240, 0.22) !important;
-          border-radius: 12px 12px 12px 4px !important;
-          background: rgba(20, 43, 67, 0.92) !important;
-          color: #e8f4ff !important;
+          max-width: min(420px, 80%);
+          padding: 11px 13px 8px;
+          border: 1px solid rgba(126, 197, 240, 0.22);
+          border-radius: 12px 12px 12px 4px;
+          background: rgba(20, 43, 67, 0.92);
+          color: #e8f4ff;
         }
 
         .messages-inbox-page .preview-message.own {
-          margin-left: auto !important;
-          border-radius: 12px 12px 4px 12px !important;
-          background: linear-gradient(135deg, #ff8a1c 0%, #ff7418 62%, #f06608 100%) !important;
-          color: #fff !important;
+          margin-left: auto;
+          border-radius: 12px 12px 4px 12px;
+          background: linear-gradient(135deg, #ff8a1c 0%, #ff7418 62%, #f06608 100%);
+          color: #fff;
         }
 
         .messages-inbox-page .preview-message p {
-          margin: 0 0 6px !important;
-          color: inherit !important;
-          font-size: 13px !important;
-          font-weight: 850 !important;
+          margin: 0 0 6px;
+          color: inherit;
+          font-size: 13px;
+          font-weight: 850;
         }
 
         .messages-inbox-page .preview-message span {
-          display: block !important;
-          text-align: right !important;
-          color: rgba(255, 255, 255, 0.76) !important;
-          font-size: 10px !important;
-          font-weight: 850 !important;
+          display: block;
+          text-align: right;
+          color: rgba(255, 255, 255, 0.76);
+          font-size: 10px;
+          font-weight: 850;
         }
 
         .messages-inbox-page .input-area {
-          padding: 12px !important;
-          border-top: 1px solid rgba(80, 111, 140, 0.34) !important;
-          background: rgba(5, 18, 30, 0.94) !important;
+          padding: 12px;
+          border-top: 1px solid rgba(80, 111, 140, 0.34);
+          background: rgba(5, 18, 30, 0.94);
         }
 
         .messages-inbox-page .inbox-compose-preview {
-          width: 100% !important;
-          min-height: 42px !important;
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) 34px !important;
-          align-items: center !important;
-          gap: 8px !important;
-          padding: 0 4px 0 16px !important;
-          border: 1px solid rgba(80, 120, 155, 0.52) !important;
-          border-radius: 6px !important;
-          background: linear-gradient(180deg, rgba(24, 44, 66, 0.92), rgba(14, 31, 51, 0.96)) !important;
-          color: rgba(199, 218, 236, 0.72) !important;
-          font-size: 12px !important;
-          font-weight: 800 !important;
-          text-decoration: none !important;
+          width: 100%;
+          min-height: 42px;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 34px;
+          align-items: center;
+          gap: 8px;
+          padding: 0 4px 0 16px;
+          border: 1px solid rgba(80, 120, 155, 0.52);
+          border-radius: 6px;
+          background: linear-gradient(180deg, rgba(24, 44, 66, 0.92), rgba(14, 31, 51, 0.96));
+          color: rgba(199, 218, 236, 0.72);
+          font-size: 12px;
+          font-weight: 800;
+          text-decoration: none;
         }
 
         .messages-inbox-page .inbox-compose-preview span {
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .inbox-compose-preview svg {
-          width: 34px !important;
-          height: 34px !important;
-          padding: 8px !important;
-          border-radius: 6px !important;
-          background: linear-gradient(135deg, #ff9824 0%, #ff7a08 52%, #f06400 100%) !important;
-          color: #fff !important;
-          box-shadow: 0 10px 20px rgba(255, 112, 10, 0.28) !important;
+          width: 34px;
+          height: 34px;
+          padding: 8px;
+          border-radius: 6px;
+          background: linear-gradient(135deg, #ff9824 0%, #ff7a08 52%, #f06400 100%);
+          color: #fff;
+          box-shadow: 0 10px 20px rgba(255, 112, 10, 0.28);
         }
 
         .messages-inbox-page .sidebar-empty,
         .messages-inbox-page .messages-login-panel {
-          padding: 22px !important;
-          color: #9fb3c7 !important;
-          text-align: center !important;
-          font-size: 13px !important;
-          font-weight: 800 !important;
+          padding: 22px;
+          color: #9fb3c7;
+          text-align: center;
+          font-size: 13px;
+          font-weight: 800;
         }
 
         .messages-inbox-page .messages-login-panel {
-          height: 100% !important;
-          display: grid !important;
-          place-items: center !important;
-          align-content: center !important;
-          gap: 12px !important;
+          height: 100%;
+          display: grid;
+          place-items: center;
+          align-content: center;
+          gap: 12px;
         }
 
         .messages-inbox-page .messages-login-panel a {
-          color: #ffb86c !important;
+          color: #ffb86c;
         }
 
         .messages-inbox-page .sidebar-loading .sidebar-avatar,
         .messages-inbox-page .sidebar-loading strong,
         .messages-inbox-page .sidebar-loading p {
-          animation: messagePulse 1.4s ease-in-out infinite !important;
-          background: linear-gradient(90deg, rgba(32, 56, 78, 0.8), rgba(57, 83, 106, 0.8), rgba(32, 56, 78, 0.8)) !important;
-          border-radius: 999px !important;
-          color: transparent !important;
+          animation: messagePulse 1.4s ease-in-out infinite;
+          background: linear-gradient(90deg, rgba(32, 56, 78, 0.8), rgba(57, 83, 106, 0.8), rgba(32, 56, 78, 0.8));
+          border-radius: 999px;
+          color: transparent;
         }
 
         .messages-inbox-page .sidebar-loading strong {
-          display: block !important;
-          height: 13px !important;
-          width: 120px !important;
+          display: block;
+          height: 13px;
+          width: 120px;
         }
 
         .messages-inbox-page .sidebar-loading p {
-          height: 11px !important;
-          width: 160px !important;
+          height: 11px;
+          width: 160px;
         }
 
         @media (max-width: 900px) {
           .messages-inbox-page {
-            padding: 0 !important;
+            padding: 0;
           }
 
           .messages-inbox-page .messages-desktop-shell {
-            width: 100vw !important;
-            min-height: calc(100vh - 70px) !important;
-            grid-template-columns: 1fr !important;
+            width: 100vw;
+            min-height: calc(100vh - 70px);
+            grid-template-columns: 1fr;
           }
 
           .messages-inbox-page .messages-sidebar {
-            border-radius: 0 !important;
+            border-radius: 0;
           }
 
           .messages-inbox-page .chat-wrapper {
-            display: none !important;
+            display: none;
           }
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          width: min(1240px, calc(100vw - 20px)) !important;
-          min-height: min(760px, calc(100vh - 92px)) !important;
-          grid-template-columns: 260px minmax(0, 1fr) !important;
-          gap: 12px !important;
-          margin: 0 auto !important;
+          width: min(1240px, calc(100vw - 20px));
+          min-height: min(760px, calc(100vh - 92px));
+          grid-template-columns: 260px minmax(0, 1fr);
+          gap: 12px;
+          margin: 0 auto;
         }
 
         .messages-inbox-page .mobile-chat-back {
-          display: none !important;
+          display: none;
         }
 
         .messages-inbox-page .chat-wrapper {
-          display: flex !important;
-          min-height: min(760px, calc(100vh - 92px)) !important;
-          border-radius: 6px !important;
-          background: #06131f !important;
+          display: flex;
+          min-height: min(760px, calc(100vh - 92px));
+          border-radius: 6px;
+          background: #06131f;
         }
 
         .messages-inbox-page .messages-sidebar {
-          min-height: min(760px, calc(100vh - 92px)) !important;
+          min-height: min(760px, calc(100vh - 92px));
         }
 
         .messages-inbox-page .sidebar-conversation {
-          border: 0 !important;
-          border-bottom: 1px solid rgba(80, 111, 140, 0.22) !important;
-          text-align: left !important;
-          cursor: pointer !important;
+          border: 0;
+          border-bottom: 1px solid rgba(80, 111, 140, 0.22);
+          text-align: left;
+          cursor: pointer;
         }
 
         .messages-inbox-page .header {
-          grid-template-columns: minmax(0, 1fr) !important;
+          grid-template-columns: minmax(0, 1fr);
         }
 
         .messages-inbox-page .messages-area,
         .messages-inbox-page .chat-window,
         .messages-inbox-page .chat-window .messages {
-          background: #061522 !important;
+          background: #061522;
         }
 
         .messages-inbox-page .chat-window {
-          height: 100% !important;
-          padding: 14px 10px 12px !important;
+          height: 100%;
+          padding: 14px 10px 12px;
         }
 
         .messages-inbox-page .input-area {
-          padding: 10px !important;
-          background: #06131f !important;
+          padding: 10px;
+          background: #06131f;
         }
 
         .messages-inbox-page .input-area form {
-          min-height: 58px !important;
-          border-radius: 6px !important;
-          background: #0b1d30 !important;
+          min-height: 58px;
+          border-radius: 6px;
+          background: #0b1d30;
         }
 
         @media (max-width: 900px) {
           .messages-inbox-page {
-            min-height: calc(100dvh - var(--topbar-h, 62px)) !important;
-            padding: 0 !important;
-            overflow: hidden !important;
+            min-height: calc(100dvh - var(--topbar-h, 62px));
+            padding: 0;
+            overflow: hidden;
           }
 
           .messages-inbox-page .messages-desktop-shell {
-            width: 100% !important;
-            min-height: calc(100dvh - var(--topbar-h, 62px)) !important;
-            height: calc(100dvh - var(--topbar-h, 62px)) !important;
-            display: block !important;
-            margin: 0 !important;
+            width: 100%;
+            min-height: calc(100dvh - var(--topbar-h, 62px));
+            height: calc(100dvh - var(--topbar-h, 62px));
+            display: block;
+            margin: 0;
           }
 
           .messages-inbox-page .messages-sidebar,
           .messages-inbox-page .chat-wrapper {
-            border: 0 !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            min-height: 100% !important;
-            height: 100% !important;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            min-height: 100%;
+            height: 100%;
           }
 
           .messages-inbox-page .messages-sidebar {
-            display: flex !important;
-            padding: 14px 10px 10px !important;
+            display: flex;
+            padding: 14px 10px 10px;
           }
 
           .messages-inbox-page .chat-wrapper {
-            display: none !important;
+            display: none;
           }
 
           .messages-inbox-page.mobile-conversation-open .messages-sidebar {
-            display: none !important;
+            display: none;
           }
 
           .messages-inbox-page.mobile-conversation-open .chat-wrapper {
-            display: flex !important;
+            display: flex;
           }
 
           .messages-inbox-page .header {
-            grid-template-columns: 38px minmax(0, 1fr) !important;
-            min-height: 58px !important;
-            padding: 8px 10px !important;
+            grid-template-columns: 38px minmax(0, 1fr);
+            min-height: 58px;
+            padding: 8px 10px;
           }
 
           .messages-inbox-page .mobile-chat-back {
-            align-items: center !important;
-            align-self: center !important;
-            background: rgba(4, 15, 26, 0.88) !important;
-            border: 1px solid rgba(80, 111, 140, 0.42) !important;
-            border-radius: 8px !important;
-            color: #dbeafe !important;
-            display: inline-flex !important;
-            height: 36px !important;
-            justify-content: center !important;
-            padding: 0 !important;
-            width: 36px !important;
+            align-items: center;
+            align-self: center;
+            background: rgba(4, 15, 26, 0.88);
+            border: 1px solid rgba(80, 111, 140, 0.42);
+            border-radius: 8px;
+            color: #dbeafe;
+            display: inline-flex;
+            height: 36px;
+            justify-content: center;
+            padding: 0;
+            width: 36px;
           }
 
           .messages-inbox-page .chat-listing-strip {
-            grid-template-columns: 58px minmax(0, 1fr) !important;
-            gap: 10px !important;
-            margin: 0 8px 8px !important;
-            min-height: 72px !important;
-            padding: 8px !important;
+            grid-template-columns: 58px minmax(0, 1fr);
+            gap: 10px;
+            margin: 0 8px 8px;
+            min-height: 72px;
+            padding: 8px;
           }
 
           .messages-inbox-page .listing-thumb,
           .messages-inbox-page .listing-thumb img {
-            width: 52px !important;
-            height: 48px !important;
+            width: 52px;
+            height: 48px;
           }
 
           .messages-inbox-page .listing-summary span {
-            font-size: 15px !important;
+            font-size: 15px;
           }
 
           .messages-inbox-page .listing-open {
-            grid-column: 1 / -1 !important;
-            min-height: 32px !important;
-            width: 100% !important;
+            grid-column: 1 / -1;
+            min-height: 32px;
+            width: 100%;
           }
 
           .messages-inbox-page .inbox-preview-area {
-            flex: 1 1 auto !important;
-            min-height: 0 !important;
-            overflow: hidden !important;
-            padding: 0 !important;
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden;
+            padding: 0;
           }
 
           .messages-inbox-page .chat-window {
-            height: 100% !important;
-            padding: 12px 10px !important;
+            height: 100%;
+            padding: 12px 10px;
           }
 
           .messages-inbox-page .input-area {
-            flex: 0 0 auto !important;
-            padding: 8px !important;
-            padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+            flex: 0 0 auto;
+            padding: 8px;
+            padding-bottom: calc(8px + env(safe-area-inset-bottom));
           }
 
           .messages-inbox-page .sidebar-heading h1 {
-            font-size: 20px !important;
-            margin-bottom: 12px !important;
+            font-size: 20px;
+            margin-bottom: 12px;
           }
 
           .messages-inbox-page .sidebar-list {
-            flex: 1 1 auto !important;
+            flex: 1 1 auto;
           }
 
           .messages-inbox-page .sidebar-conversation {
-            min-height: 70px !important;
+            min-height: 70px;
           }
 
           .messages-inbox-page .archive-button {
-            flex: 0 0 auto !important;
+            flex: 0 0 auto;
           }
         }
 
         .messages-inbox-page {
-          min-height: calc(100vh - var(--topbar-h, 0px)) !important;
-          padding: 16px 0 26px !important;
+          min-height: calc(100vh - var(--topbar-h, 0px));
+          padding: 16px 0 26px;
           background:
             radial-gradient(780px 360px at 82% -18%, rgba(255, 126, 22, 0.09), transparent 64%),
             radial-gradient(560px 300px at 12% 8%, rgba(63, 124, 173, 0.1), transparent 70%),
-            linear-gradient(180deg, #07111d 0%, #06111c 48%, #05101a 100%) !important;
+            linear-gradient(180deg, #07111d 0%, #06111c 48%, #05101a 100%);
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          width: min(1470px, calc(100vw - 32px)) !important;
-          min-height: min(768px, calc(100vh - var(--topbar-h, 62px) - 32px)) !important;
-          display: grid !important;
-          grid-template-columns: 270px minmax(0, 1fr) !important;
-          gap: 18px !important;
-          margin: 0 auto !important;
+          width: min(1470px, calc(100vw - 32px));
+          min-height: min(768px, calc(100vh - var(--topbar-h, 62px) - 32px));
+          display: grid;
+          grid-template-columns: 270px minmax(0, 1fr);
+          gap: 18px;
+          margin: 0 auto;
         }
 
         .messages-inbox-page .messages-sidebar,
         .messages-inbox-page .chat-wrapper {
-          border: 1px solid rgba(54, 83, 111, 0.58) !important;
-          background: rgba(5, 18, 30, 0.82) !important;
-          box-shadow: 0 22px 70px rgba(0, 8, 20, 0.28) !important;
-          backdrop-filter: blur(12px) saturate(1.04) !important;
+          border: 1px solid rgba(54, 83, 111, 0.58);
+          background: rgba(5, 18, 30, 0.82);
+          box-shadow: 0 22px 70px rgba(0, 8, 20, 0.28);
+          backdrop-filter: blur(12px) saturate(1.04);
         }
 
         .messages-inbox-page .messages-sidebar {
-          min-height: inherit !important;
-          padding: 15px 14px 14px !important;
-          border-radius: 8px !important;
+          min-height: inherit;
+          padding: 15px 14px 14px;
+          border-radius: 8px;
         }
 
         .messages-inbox-page .sidebar-heading h1 {
-          margin: 0 0 14px !important;
-          color: #f7fbff !important;
-          font-size: 20px !important;
-          line-height: 1.05 !important;
-          letter-spacing: 0 !important;
+          margin: 0 0 14px;
+          color: #f7fbff;
+          font-size: 20px;
+          line-height: 1.05;
+          letter-spacing: 0;
         }
 
         .messages-inbox-page .message-tabs {
-          height: 36px !important;
-          margin-bottom: 10px !important;
-          border-color: rgba(58, 89, 118, 0.72) !important;
-          border-radius: 6px !important;
-          background: rgba(4, 15, 26, 0.56) !important;
+          height: 36px;
+          margin-bottom: 10px;
+          border-color: rgba(58, 89, 118, 0.72);
+          border-radius: 6px;
+          background: rgba(4, 15, 26, 0.56);
         }
 
         .messages-inbox-page .message-tabs button {
-          border-radius: 0 !important;
-          color: #b9c9d8 !important;
-          font-size: 10px !important;
-          font-weight: 850 !important;
+          border-radius: 0;
+          color: #b9c9d8;
+          font-size: 10px;
+          font-weight: 850;
         }
 
         .messages-inbox-page .message-tabs button.active {
-          color: #ff8618 !important;
-          background: linear-gradient(180deg, rgba(255, 126, 22, 0.17), rgba(255, 126, 22, 0.06)) !important;
-          box-shadow: inset 0 -2px 0 #ff7a12 !important;
+          color: #ff8618;
+          background: linear-gradient(180deg, rgba(255, 126, 22, 0.17), rgba(255, 126, 22, 0.06));
+          box-shadow: inset 0 -2px 0 #ff7a12;
         }
 
         .messages-inbox-page .message-tabs button span,
         .messages-inbox-page .sidebar-unread {
-          background: linear-gradient(135deg, #ff9822, #ff6f0c) !important;
-          color: #ffffff !important;
-          box-shadow: 0 8px 18px rgba(255, 112, 12, 0.25) !important;
+          background: linear-gradient(135deg, #ff9822, #ff6f0c);
+          color: #ffffff;
+          box-shadow: 0 8px 18px rgba(255, 112, 12, 0.25);
         }
 
         .messages-inbox-page .message-search {
-          display: grid !important;
-          grid-template-columns: 18px minmax(0, 1fr) 34px !important;
-          align-items: center !important;
-          gap: 8px !important;
-          height: 38px !important;
-          margin-bottom: 8px !important;
-          border-color: rgba(56, 86, 114, 0.58) !important;
-          border-radius: 6px !important;
-          background: rgba(3, 13, 23, 0.9) !important;
+          display: grid;
+          grid-template-columns: 18px minmax(0, 1fr) 34px;
+          align-items: center;
+          gap: 8px;
+          height: 38px;
+          margin-bottom: 8px;
+          border-color: rgba(56, 86, 114, 0.58);
+          border-radius: 6px;
+          background: rgba(3, 13, 23, 0.9);
         }
 
         .messages-inbox-page .message-search input {
-          min-width: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          border: 0 !important;
-          background: transparent !important;
-          color: #dce9f6 !important;
-          font-size: 11px !important;
-          font-weight: 750 !important;
-          outline: none !important;
+          min-width: 0;
+          width: 100%;
+          height: 100%;
+          border: 0;
+          background: transparent;
+          color: #dce9f6;
+          font-size: 11px;
+          font-weight: 750;
+          outline: none;
         }
 
         .messages-inbox-page .message-search input::placeholder {
-          color: #8fa4b7 !important;
-          opacity: 1 !important;
+          color: #8fa4b7;
+          opacity: 1;
         }
 
         .messages-inbox-page .sidebar-list {
-          gap: 0 !important;
-          padding-right: 0 !important;
+          gap: 0;
+          padding-right: 0;
         }
 
         .messages-inbox-page .sidebar-conversation {
-          min-height: 58px !important;
-          grid-template-columns: 38px minmax(0, 1fr) 22px !important;
-          gap: 8px !important;
-          padding: 7px 6px !important;
-          border-bottom: 1px solid rgba(49, 76, 102, 0.38) !important;
-          border-left: 2px solid transparent !important;
-          border-radius: 6px !important;
-          background: transparent !important;
+          min-height: 58px;
+          grid-template-columns: 38px minmax(0, 1fr) 22px;
+          gap: 8px;
+          padding: 7px 6px;
+          border-bottom: 1px solid rgba(49, 76, 102, 0.38);
+          border-left: 2px solid transparent;
+          border-radius: 6px;
+          background: transparent;
         }
 
         .messages-inbox-page .sidebar-conversation.active {
-          border-left-color: #ff7a12 !important;
-          background: linear-gradient(90deg, rgba(255, 122, 18, 0.15), rgba(255, 122, 18, 0.02)) !important;
-          box-shadow: inset 0 0 0 1px rgba(255, 122, 18, 0.08) !important;
+          border-left-color: #ff7a12;
+          background: linear-gradient(90deg, rgba(255, 122, 18, 0.15), rgba(255, 122, 18, 0.02));
+          box-shadow: inset 0 0 0 1px rgba(255, 122, 18, 0.08);
         }
 
         .messages-inbox-page .sidebar-avatar {
-          width: 34px !important;
-          height: 34px !important;
-          border: 1px solid rgba(224, 238, 250, 0.9) !important;
-          box-shadow: 0 0 0 2px rgba(5, 18, 30, 0.95) !important;
+          width: 34px;
+          height: 34px;
+          border: 1px solid rgba(224, 238, 250, 0.9);
+          box-shadow: 0 0 0 2px rgba(5, 18, 30, 0.95);
         }
 
         .messages-inbox-page .sidebar-copy strong {
-          font-size: 12px !important;
+          font-size: 12px;
         }
 
         .messages-inbox-page .sidebar-copy time {
-          font-size: 9.5px !important;
+          font-size: 9.5px;
         }
 
         .messages-inbox-page .sidebar-copy p {
-          color: #8fa5b8 !important;
-          font-size: 10.5px !important;
+          color: #8fa5b8;
+          font-size: 10.5px;
         }
 
         .messages-inbox-page .archive-button {
-          height: 30px !important;
-          margin-top: 9px !important;
-          border-color: rgba(56, 86, 114, 0.58) !important;
-          background: rgba(3, 13, 23, 0.7) !important;
+          height: 30px;
+          margin-top: 9px;
+          border-color: rgba(56, 86, 114, 0.58);
+          background: rgba(3, 13, 23, 0.7);
         }
 
         .messages-inbox-page .chat-wrapper {
-          min-height: inherit !important;
-          overflow: hidden !important;
-          border-radius: 8px !important;
+          min-height: inherit;
+          overflow: hidden;
+          border-radius: 8px;
         }
 
         .messages-inbox-page .header {
-          min-height: 52px !important;
-          padding: 8px 14px !important;
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) auto !important;
-          align-items: center !important;
-          gap: 16px !important;
-          background: linear-gradient(180deg, rgba(5, 18, 30, 0.98), rgba(4, 15, 26, 0.96)) !important;
-          border-bottom: 1px solid rgba(50, 78, 105, 0.52) !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
+          min-height: 52px;
+          padding: 8px 14px;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 16px;
+          background: linear-gradient(180deg, rgba(5, 18, 30, 0.98), rgba(4, 15, 26, 0.96));
+          border-bottom: 1px solid rgba(50, 78, 105, 0.52);
+          border-radius: 0;
+          box-shadow: none;
         }
 
         .messages-inbox-page .seller {
-          grid-template-columns: 38px minmax(0, 1fr) !important;
-          gap: 10px !important;
+          grid-template-columns: 38px minmax(0, 1fr);
+          gap: 10px;
         }
 
         .messages-inbox-page .avatar {
-          width: 36px !important;
-          height: 36px !important;
-          box-shadow: 0 0 0 2px rgba(5, 18, 30, 0.95) !important;
+          width: 36px;
+          height: 36px;
+          box-shadow: 0 0 0 2px rgba(5, 18, 30, 0.95);
         }
 
         .messages-inbox-page .seller-info strong {
-          font-size: 13px !important;
-          letter-spacing: 0 !important;
+          font-size: 13px;
+          letter-spacing: 0;
         }
 
         .messages-inbox-page .online-status.online {
-          color: #7fe7ad !important;
+          color: #7fe7ad;
         }
 
         .messages-inbox-page .chat-actions {
-          display: flex !important;
-          align-items: center !important;
-          gap: 14px !important;
+          display: flex;
+          align-items: center;
+          gap: 14px;
         }
 
         .messages-inbox-page .chat-action-menu-wrap {
-          position: relative !important;
+          position: relative;
         }
 
         .messages-inbox-page .chat-actions button {
-          width: 24px !important;
-          height: 24px !important;
-          display: inline-grid !important;
-          place-items: center !important;
-          border: 0 !important;
-          border-radius: 6px !important;
-          background: transparent !important;
-          color: #b6c8d8 !important;
-          padding: 0 !important;
-          box-shadow: none !important;
+          width: 24px;
+          height: 24px;
+          display: inline-grid;
+          place-items: center;
+          border: 0;
+          border-radius: 6px;
+          background: transparent;
+          color: #b6c8d8;
+          padding: 0;
+          box-shadow: none;
         }
 
         .messages-inbox-page .chat-actions button:hover {
-          background: rgba(126, 197, 240, 0.1) !important;
-          color: #ffffff !important;
+          background: rgba(126, 197, 240, 0.1);
+          color: #ffffff;
         }
 
         .messages-inbox-page .chat-action-menu {
-          position: absolute !important;
-          right: 0 !important;
-          top: calc(100% + 8px) !important;
-          z-index: 30 !important;
-          width: 190px !important;
-          padding: 6px !important;
-          border: 1px solid rgba(65, 94, 121, 0.68) !important;
-          border-radius: 8px !important;
-          background: rgba(7, 20, 34, 0.98) !important;
-          box-shadow: 0 18px 42px rgba(0, 7, 18, 0.38) !important;
+          position: absolute;
+          right: 0;
+          top: calc(100% + 8px);
+          z-index: 30;
+          width: 190px;
+          padding: 6px;
+          border: 1px solid rgba(65, 94, 121, 0.68);
+          border-radius: 8px;
+          background: rgba(7, 20, 34, 0.98);
+          box-shadow: 0 18px 42px rgba(0, 7, 18, 0.38);
         }
 
         .messages-inbox-page .chat-action-menu button {
-          width: 100% !important;
-          height: 34px !important;
-          display: flex !important;
-          justify-content: flex-start !important;
-          gap: 8px !important;
-          padding: 0 9px !important;
-          color: #dce9f6 !important;
-          font-size: 11px !important;
-          font-weight: 800 !important;
-          white-space: nowrap !important;
+          width: 100%;
+          height: 34px;
+          display: flex;
+          justify-content: flex-start;
+          gap: 8px;
+          padding: 0 9px;
+          color: #dce9f6;
+          font-size: 11px;
+          font-weight: 800;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .chat-action-menu button.danger {
-          color: #ff8d8d !important;
+          color: #ff8d8d;
         }
 
         .messages-inbox-page .conversation-details {
-          min-height: inherit !important;
-          display: flex !important;
-          flex-direction: column !important;
-          gap: 12px !important;
-          overflow-y: auto !important;
+          min-height: inherit;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          overflow-y: auto;
         }
 
         .messages-inbox-page .details-card {
-          display: grid !important;
-          gap: 14px !important;
-          padding: 16px 14px !important;
-          border: 1px solid rgba(54, 83, 111, 0.58) !important;
-          border-radius: 7px !important;
-          background: #071522 !important;
-          box-shadow: none !important;
+          display: grid;
+          gap: 14px;
+          padding: 16px 14px;
+          border: 1px solid rgba(54, 83, 111, 0.58);
+          border-radius: 7px;
+          background: #071522;
+          box-shadow: none;
         }
 
         .messages-inbox-page .details-card h2 {
-          margin: 0 !important;
-          color: #f7fbff !important;
-          font-size: 15px !important;
-          font-weight: 900 !important;
-          letter-spacing: 0 !important;
+          margin: 0;
+          color: #f7fbff;
+          font-size: 15px;
+          font-weight: 900;
+          letter-spacing: 0;
         }
 
         .messages-inbox-page .details-listing,
         .messages-inbox-page .details-seller {
-          display: grid !important;
-          grid-template-columns: 76px minmax(0, 1fr) !important;
-          align-items: center !important;
-          gap: 12px !important;
+          display: grid;
+          grid-template-columns: 76px minmax(0, 1fr);
+          align-items: center;
+          gap: 12px;
         }
 
         .messages-inbox-page .details-listing img {
-          width: 76px !important;
-          height: 64px !important;
-          border-radius: 5px !important;
-          object-fit: cover !important;
+          width: 76px;
+          height: 64px;
+          border-radius: 5px;
+          object-fit: cover;
         }
 
         .messages-inbox-page .details-listing strong,
         .messages-inbox-page .details-seller strong {
-          display: block !important;
-          color: #f4f8fc !important;
-          font-size: 13px !important;
-          font-weight: 900 !important;
-          line-height: 1.3 !important;
+          display: block;
+          color: #f4f8fc;
+          font-size: 13px;
+          font-weight: 900;
+          line-height: 1.3;
         }
 
         .messages-inbox-page .details-listing span {
-          display: block !important;
-          margin-top: 8px !important;
-          color: #ffffff !important;
-          font-size: 21px !important;
-          font-weight: 950 !important;
+          display: block;
+          margin-top: 8px;
+          color: #ffffff;
+          font-size: 21px;
+          font-weight: 950;
         }
 
         .messages-inbox-page .details-seller {
-          grid-template-columns: 52px minmax(0, 1fr) !important;
-          min-height: 56px !important;
+          grid-template-columns: 52px minmax(0, 1fr);
+          min-height: 56px;
         }
 
         .messages-inbox-page .details-seller .avatar {
-          width: 50px !important;
-          height: 50px !important;
+          width: 50px;
+          height: 50px;
         }
 
         .messages-inbox-page .details-seller span {
-          color: #7fe7ad !important;
-          font-size: 11px !important;
-          font-weight: 800 !important;
+          color: #7fe7ad;
+          font-size: 11px;
+          font-weight: 800;
         }
 
         .messages-inbox-page .details-card dl {
-          display: grid !important;
-          gap: 8px !important;
-          margin: 0 !important;
+          display: grid;
+          gap: 8px;
+          margin: 0;
         }
 
         .messages-inbox-page .details-card dl div {
-          display: flex !important;
-          justify-content: space-between !important;
-          gap: 12px !important;
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
         }
 
         .messages-inbox-page .details-card dt,
         .messages-inbox-page .details-card dd {
-          margin: 0 !important;
-          font-size: 11px !important;
-          font-weight: 850 !important;
+          margin: 0;
+          font-size: 11px;
+          font-weight: 850;
         }
 
         .messages-inbox-page .details-card dt {
-          color: #91a8bb !important;
+          color: #91a8bb;
         }
 
         .messages-inbox-page .details-card dd {
-          color: #f2f7fc !important;
-          text-align: right !important;
+          color: #f2f7fc;
+          text-align: right;
         }
 
         .messages-inbox-page .details-button,
         .messages-inbox-page .details-card > button {
-          min-height: 36px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 8px !important;
-          width: 100% !important;
-          border: 1px solid rgba(63, 96, 126, 0.74) !important;
-          border-radius: 5px !important;
-          background: #081a2b !important;
-          color: #dce9f6 !important;
-          font-size: 11px !important;
-          font-weight: 900 !important;
-          text-decoration: none !important;
+          min-height: 36px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          width: 100%;
+          border: 1px solid rgba(63, 96, 126, 0.74);
+          border-radius: 5px;
+          background: #081a2b;
+          color: #dce9f6;
+          font-size: 11px;
+          font-weight: 900;
+          text-decoration: none;
         }
 
         .messages-inbox-page .details-card > button.danger {
-          color: #ff8d8d !important;
+          color: #ff8d8d;
         }
 
         .messages-inbox-page .chat-listing-strip {
-          min-height: 72px !important;
-          margin: 0 !important;
-          padding: 10px 14px !important;
-          grid-template-columns: 78px minmax(0, 1fr) auto !important;
-          gap: 12px !important;
-          border: 0 !important;
-          border-bottom: 1px solid rgba(50, 78, 105, 0.52) !important;
-          border-radius: 0 !important;
-          background: rgba(6, 20, 34, 0.78) !important;
+          min-height: 72px;
+          margin: 0;
+          padding: 10px 14px;
+          grid-template-columns: 78px minmax(0, 1fr) auto;
+          gap: 12px;
+          border: 0;
+          border-bottom: 1px solid rgba(50, 78, 105, 0.52);
+          border-radius: 0;
+          background: rgba(6, 20, 34, 0.78);
         }
 
         .messages-inbox-page .listing-thumb,
         .messages-inbox-page .listing-thumb img {
-          width: 76px !important;
-          height: 56px !important;
-          border-radius: 6px !important;
+          width: 76px;
+          height: 56px;
+          border-radius: 6px;
         }
 
         .messages-inbox-page .listing-summary strong {
-          font-size: 12px !important;
-          font-weight: 780 !important;
+          font-size: 12px;
+          font-weight: 780;
         }
 
         .messages-inbox-page .listing-summary span {
-          font-size: 18px !important;
-          font-weight: 820 !important;
+          font-size: 18px;
+          font-weight: 820;
         }
 
         .messages-inbox-page .listing-open {
-          min-height: 32px !important;
-          padding: 0 13px !important;
-          border-color: rgba(65, 94, 121, 0.66) !important;
-          border-radius: 5px !important;
-          background: rgba(22, 41, 59, 0.92) !important;
-          font-size: 10.5px !important;
+          min-height: 32px;
+          padding: 0 13px;
+          border-color: rgba(65, 94, 121, 0.66);
+          border-radius: 5px;
+          background: rgba(22, 41, 59, 0.92);
+          font-size: 10.5px;
         }
 
         .messages-inbox-page .inbox-preview-area {
-          flex: 1 1 auto !important;
-          min-height: 0 !important;
-          padding: 0 !important;
-          background: #061522 !important;
-          overflow: hidden !important;
+          flex: 1 1 auto;
+          min-height: 0;
+          padding: 0;
+          background: #061522;
+          overflow: hidden;
         }
 
         .messages-inbox-page .chat-window {
-          width: 100% !important;
-          height: 100% !important;
-          padding: 14px 18px 12px !important;
+          width: 100%;
+          height: 100%;
+          padding: 14px 18px 12px;
           background:
             radial-gradient(640px 260px at 54% 0%, rgba(17, 54, 82, 0.22), transparent 72%),
-            #061522 !important;
+            #061522;
         }
 
         .messages-inbox-page .chat-window .messages {
-          width: 100% !important;
-          max-width: none !important;
-          margin: 0 !important;
-          gap: 18px !important;
+          width: 100%;
+          max-width: none;
+          margin: 0;
+          gap: 18px;
         }
 
         .messages-inbox-page .chat-window .row {
-          width: 100% !important;
-          min-height: 48px !important;
-          display: flex !important;
-          align-items: flex-start !important;
-          gap: 10px !important;
-          padding: 0 !important;
-          background: transparent !important;
-          box-shadow: none !important;
+          width: 100%;
+          min-height: 48px;
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          padding: 0;
+          background: transparent;
+          box-shadow: none;
         }
 
         .messages-inbox-page .chat-window .own-row {
-          justify-content: flex-end !important;
+          justify-content: flex-end;
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .other {
-          display: grid !important;
-          gap: 7px !important;
-          max-width: min(440px, 78%) !important;
-          min-width: 72px !important;
-          padding: 11px 13px 8px !important;
-          border: 0 !important;
-          border-radius: 7px !important;
-          overflow: hidden !important;
-          color: #ffffff !important;
+          display: grid;
+          gap: 7px;
+          max-width: min(440px, 78%);
+          min-width: 72px;
+          padding: 11px 13px 8px;
+          border: 0;
+          border-radius: 7px;
+          overflow: hidden;
+          color: #ffffff;
         }
 
         .messages-inbox-page .chat-window .own {
-          margin-left: auto !important;
-          border-bottom-right-radius: 4px !important;
-          background: linear-gradient(180deg, #ff861a 0%, #ff760f 58%, #ff6a00 100%) !important;
-          box-shadow: 0 14px 30px rgba(255, 102, 0, 0.28) !important;
+          margin-left: auto;
+          border-bottom-right-radius: 4px;
+          background: linear-gradient(180deg, #ff861a 0%, #ff760f 58%, #ff6a00 100%);
+          box-shadow: 0 14px 30px rgba(255, 102, 0, 0.28);
         }
 
         .messages-inbox-page .chat-window .other {
-          border-bottom-left-radius: 4px !important;
-          background: linear-gradient(180deg, #172434 0%, #132231 100%) !important;
-          box-shadow: 0 14px 30px rgba(0, 8, 20, 0.3) !important;
-          color: #e8f4ff !important;
+          border-bottom-left-radius: 4px;
+          background: linear-gradient(180deg, #172434 0%, #132231 100%);
+          box-shadow: 0 14px 30px rgba(0, 8, 20, 0.3);
+          color: #e8f4ff;
         }
 
         .messages-inbox-page .chat-window .own p,
         .messages-inbox-page .chat-window .other p {
-          margin: 0 !important;
-          color: inherit !important;
-          font-size: 12.5px !important;
-          font-weight: 650 !important;
-          line-height: 1.45 !important;
-          overflow-wrap: anywhere !important;
+          margin: 0;
+          color: inherit;
+          font-size: 12.5px;
+          font-weight: 650;
+          line-height: 1.45;
+          overflow-wrap: anywhere;
         }
 
         .messages-inbox-page .chat-window .message-meta {
-          min-height: 14px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-self: end !important;
-          gap: 5px !important;
-          color: rgba(255, 255, 255, 0.84) !important;
-          font-size: 10.5px !important;
-          font-weight: 750 !important;
-          line-height: 1 !important;
+          min-height: 14px;
+          display: inline-flex;
+          align-items: center;
+          justify-self: end;
+          gap: 5px;
+          color: rgba(255, 255, 255, 0.84);
+          font-size: 10.5px;
+          font-weight: 750;
+          line-height: 1;
         }
 
         .messages-inbox-page .chat-window .other .message-meta {
-          color: rgba(210, 231, 247, 0.68) !important;
+          color: rgba(210, 231, 247, 0.68);
         }
 
         .messages-inbox-page .chat-window .read-state {
-          min-width: 15px !important;
-          height: 14px !important;
-          padding: 0 !important;
-          border: 0 !important;
-          background: transparent !important;
-          color: rgba(255, 255, 255, 0.86) !important;
+          min-width: 15px;
+          height: 14px;
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: rgba(255, 255, 255, 0.86);
         }
 
         .messages-inbox-page .chat-window .read-state span {
-          display: none !important;
+          display: none;
         }
 
         .messages-inbox-page .chat-window .message-avatar {
-          width: 34px !important;
-          height: 34px !important;
-          align-self: flex-end !important;
-          border: 1px solid rgba(226, 244, 255, 0.82) !important;
+          width: 34px;
+          height: 34px;
+          align-self: flex-end;
+          border: 1px solid rgba(226, 244, 255, 0.82);
           box-shadow:
             0 0 0 2px rgba(3, 14, 30, 0.96),
-            0 12px 24px rgba(0, 8, 22, 0.32) !important;
+            0 12px 24px rgba(0, 8, 22, 0.32);
         }
 
         .messages-inbox-page .input-area {
-          padding: 10px !important;
-          border-top: 1px solid rgba(50, 78, 105, 0.52) !important;
-          background: rgba(5, 18, 30, 0.98) !important;
+          padding: 10px;
+          border-top: 1px solid rgba(50, 78, 105, 0.52);
+          background: rgba(5, 18, 30, 0.98);
         }
 
         .messages-inbox-page .input-area form {
-          min-height: 52px !important;
-          grid-template-columns: 26px 26px 26px minmax(0, 1fr) 42px !important;
-          grid-template-rows: 42px !important;
-          align-items: center !important;
-          gap: 7px !important;
-          padding: 5px 6px !important;
-          border-color: rgba(50, 78, 105, 0.54) !important;
-          border-radius: 6px !important;
-          background: rgba(7, 22, 36, 0.98) !important;
+          min-height: 52px;
+          grid-template-columns: 26px 26px 26px minmax(0, 1fr) 42px;
+          grid-template-rows: 42px;
+          align-items: center;
+          gap: 7px;
+          padding: 5px 6px;
+          border-color: rgba(50, 78, 105, 0.54);
+          border-radius: 6px;
+          background: rgba(7, 22, 36, 0.98);
         }
 
         .messages-inbox-page .input-area input[type="text"],
         .messages-inbox-page .input-area input:not([type]) {
-          grid-column: 4 !important;
-          grid-row: 1 !important;
-          height: 38px !important;
-          padding: 0 12px !important;
-          border-radius: 5px !important;
-          background: #ffffff !important;
-          color: #152334 !important;
+          grid-column: 4;
+          grid-row: 1;
+          height: 38px;
+          padding: 0 12px;
+          border-radius: 5px;
+          background: #ffffff;
+          color: #152334;
         }
 
         .messages-inbox-page .input-area input::placeholder {
-          color: #6c7a89 !important;
+          color: #6c7a89;
         }
 
         .messages-inbox-page .input-area .tools {
-          display: contents !important;
+          display: contents;
         }
 
         .messages-inbox-page .input-area .tool {
-          width: 26px !important;
-          height: 26px !important;
-          color: #b9c8d8 !important;
-          border-radius: 5px !important;
+          width: 26px;
+          height: 26px;
+          color: #b9c8d8;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(1) {
-          grid-column: 1 !important;
-          grid-row: 1 !important;
+          grid-column: 1;
+          grid-row: 1;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(2) {
-          grid-column: 2 !important;
-          grid-row: 1 !important;
+          grid-column: 2;
+          grid-row: 1;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(3) {
-          grid-column: 3 !important;
-          grid-row: 1 !important;
+          grid-column: 3;
+          grid-row: 1;
         }
 
         .messages-inbox-page .input-area .send {
-          grid-column: 5 !important;
-          grid-row: 1 !important;
-          width: 42px !important;
-          height: 42px !important;
-          border-radius: 7px !important;
-          background: linear-gradient(135deg, #ff9822, #ff7613 58%, #f06400) !important;
-          box-shadow: 0 14px 30px rgba(255, 112, 12, 0.32) !important;
+          grid-column: 5;
+          grid-row: 1;
+          width: 42px;
+          height: 42px;
+          border-radius: 7px;
+          background: linear-gradient(135deg, #ff9822, #ff7613 58%, #f06400);
+          box-shadow: 0 14px 30px rgba(255, 112, 12, 0.32);
         }
 
         @media (max-width: 900px) {
           .messages-inbox-page {
-            min-height: calc(100dvh - var(--topbar-h, 62px)) !important;
-            padding: 0 !important;
+            min-height: calc(100dvh - var(--topbar-h, 62px));
+            padding: 0;
           }
 
           .messages-inbox-page .messages-desktop-shell {
-            width: 100% !important;
-            min-height: calc(100dvh - var(--topbar-h, 62px)) !important;
-            height: calc(100dvh - var(--topbar-h, 62px)) !important;
-            display: block !important;
+            width: 100%;
+            min-height: calc(100dvh - var(--topbar-h, 62px));
+            height: calc(100dvh - var(--topbar-h, 62px));
+            display: block;
           }
 
           .messages-inbox-page .conversation-details {
-            display: none !important;
+            display: none;
           }
 
           .messages-inbox-page .messages-sidebar,
           .messages-inbox-page .chat-wrapper {
-            height: 100% !important;
-            min-height: 100% !important;
-            border-radius: 0 !important;
-            border-left: 0 !important;
-            border-right: 0 !important;
+            height: 100%;
+            min-height: 100%;
+            border-radius: 0;
+            border-left: 0;
+            border-right: 0;
           }
 
           .messages-inbox-page .messages-sidebar {
-            padding: 14px 10px 10px !important;
+            padding: 14px 10px 10px;
           }
 
           .messages-inbox-page .header {
-            grid-template-columns: 38px minmax(0, 1fr) auto !important;
-            min-height: 58px !important;
-            gap: 10px !important;
-            padding: 8px 10px !important;
+            grid-template-columns: 38px minmax(0, 1fr) auto;
+            min-height: 58px;
+            gap: 10px;
+            padding: 8px 10px;
           }
 
           .messages-inbox-page .mobile-chat-back {
-            display: inline-flex !important;
+            display: inline-flex;
           }
 
           .messages-inbox-page .chat-actions {
-            gap: 6px !important;
+            gap: 6px;
           }
 
           .messages-inbox-page .chat-actions button {
-            width: 22px !important;
-            height: 22px !important;
+            width: 22px;
+            height: 22px;
           }
 
           .messages-inbox-page .chat-listing-strip {
-            grid-template-columns: 58px minmax(0, 1fr) !important;
-            padding: 8px !important;
+            grid-template-columns: 58px minmax(0, 1fr);
+            padding: 8px;
           }
 
           .messages-inbox-page .listing-open {
-            grid-column: 1 / -1 !important;
+            grid-column: 1 / -1;
           }
 
           .messages-inbox-page .input-area form {
-            grid-template-columns: 24px 24px 24px minmax(0, 1fr) 38px !important;
-            grid-template-rows: 38px !important;
+            grid-template-columns: 24px 24px 24px minmax(0, 1fr) 38px;
+            grid-template-rows: 38px;
           }
 
           .messages-inbox-page .input-area input[type="text"],
           .messages-inbox-page .input-area input:not([type]) {
-            height: 34px !important;
+            height: 34px;
           }
 
           .messages-inbox-page .input-area .send {
-            width: 38px !important;
-            height: 38px !important;
+            width: 38px;
+            height: 38px;
           }
         }
 
         @media (max-width: 420px) {
           .messages-inbox-page .message-tabs button {
-            font-size: 10px !important;
+            font-size: 10px;
           }
 
           .messages-inbox-page .sidebar-conversation {
-            grid-template-columns: 40px minmax(0, 1fr) auto !important;
-            gap: 8px !important;
-            padding: 8px 6px !important;
+            grid-template-columns: 40px minmax(0, 1fr) auto;
+            gap: 8px;
+            padding: 8px 6px;
           }
 
           .messages-inbox-page .sidebar-avatar,
           .messages-inbox-page .avatar {
-            width: 34px !important;
-            height: 34px !important;
+            width: 34px;
+            height: 34px;
           }
         }
 
         .messages-inbox-page {
-          min-height: calc(100vh - var(--topbar-h, 0px)) !important;
-          padding: 0 !important;
-          overflow: hidden !important;
-          background: var(--site-bg, var(--bg, #0b1118)) !important;
+          min-height: calc(100vh - var(--topbar-h, 0px));
+          padding: 0;
+          overflow: hidden;
+          background: var(--site-bg, var(--bg, #0b1118));
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          width: min(760px, 100vw) !important;
-          height: calc(100vh - var(--topbar-h, 0px)) !important;
-          min-height: 600px !important;
-          display: grid !important;
-          grid-template-columns: 260px minmax(0, 1fr) !important;
-          gap: 20px !important;
-          margin: 0 !important;
-          padding: 16px 8px 8px 16px !important;
+          width: min(760px, 100vw);
+          height: calc(100vh - var(--topbar-h, 0px));
+          min-height: 600px;
+          display: grid;
+          grid-template-columns: 260px minmax(0, 1fr);
+          gap: 20px;
+          margin: 0;
+          padding: 16px 8px 8px 16px;
         }
 
         .messages-inbox-page .messages-sidebar {
-          height: 100% !important;
-          min-height: 0 !important;
-          padding: 5px 0 0 !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          box-shadow: none !important;
-          backdrop-filter: none !important;
+          height: 100%;
+          min-height: 0;
+          padding: 5px 0 0;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
+          backdrop-filter: none;
         }
 
         .messages-inbox-page .sidebar-heading h1 {
-          margin: 0 0 15px 2px !important;
-          color: #f5f9ff !important;
-          font-size: 18px !important;
-          font-weight: 950 !important;
+          margin: 0 0 15px 2px;
+          color: #f5f9ff;
+          font-size: 18px;
+          font-weight: 950;
         }
 
         .messages-inbox-page .message-tabs {
-          height: 32px !important;
-          margin-bottom: 10px !important;
-          overflow: hidden !important;
-          border: 1px solid rgba(57, 90, 119, 0.62) !important;
-          border-radius: 5px !important;
-          background: rgba(4, 15, 26, 0.7) !important;
+          height: 32px;
+          margin-bottom: 10px;
+          overflow: hidden;
+          border: 1px solid rgba(57, 90, 119, 0.62);
+          border-radius: 5px;
+          background: rgba(4, 15, 26, 0.7);
         }
 
         .messages-inbox-page .message-tabs button {
-          min-width: 0 !important;
-          padding: 0 8px !important;
-          border: 0 !important;
-          border-right: 1px solid rgba(57, 90, 119, 0.34) !important;
-          border-radius: 0 !important;
-          color: #c1cedc !important;
-          font-size: 10px !important;
-          font-weight: 850 !important;
-          box-shadow: none !important;
+          min-width: 0;
+          padding: 0 8px;
+          border: 0;
+          border-right: 1px solid rgba(57, 90, 119, 0.34);
+          border-radius: 0;
+          color: #c1cedc;
+          font-size: 10px;
+          font-weight: 850;
+          box-shadow: none;
         }
 
         .messages-inbox-page .message-tabs button:last-child {
-          border-right: 0 !important;
+          border-right: 0;
         }
 
         .messages-inbox-page .message-tabs button.active {
-          color: #ff8518 !important;
-          background: linear-gradient(180deg, rgba(255, 119, 15, 0.18), rgba(255, 119, 15, 0.05)) !important;
-          box-shadow: inset 0 -2px 0 #ff7a12 !important;
+          color: #ff8518;
+          background: linear-gradient(180deg, rgba(255, 119, 15, 0.18), rgba(255, 119, 15, 0.05));
+          box-shadow: inset 0 -2px 0 #ff7a12;
         }
 
         .messages-inbox-page .message-tabs button span,
         .messages-inbox-page .sidebar-unread {
-          min-width: 17px !important;
-          height: 17px !important;
-          padding: 0 5px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          border-radius: 999px !important;
-          background: #ff7412 !important;
-          color: #fff !important;
-          font-size: 10px !important;
-          line-height: 1 !important;
+          min-width: 17px;
+          height: 17px;
+          padding: 0 5px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 999px;
+          background: #ff7412;
+          color: #fff;
+          font-size: 10px;
+          line-height: 1;
         }
 
         .messages-inbox-page .message-search {
-          height: 34px !important;
-          margin-bottom: 9px !important;
-          padding: 0 0 0 10px !important;
-          border: 1px solid rgba(57, 90, 119, 0.58) !important;
-          border-radius: 5px !important;
-          background: rgba(4, 15, 26, 0.76) !important;
+          height: 34px;
+          margin-bottom: 9px;
+          padding: 0 0 0 10px;
+          border: 1px solid rgba(57, 90, 119, 0.58);
+          border-radius: 5px;
+          background: rgba(4, 15, 26, 0.76);
         }
 
         .messages-inbox-page .message-search input {
-          font-size: 10.5px !important;
-          font-weight: 750 !important;
+          font-size: 10.5px;
+          font-weight: 750;
         }
 
         .messages-inbox-page .message-search button {
-          width: 34px !important;
-          height: 34px !important;
-          border-left: 1px solid rgba(57, 90, 119, 0.44) !important;
+          width: 34px;
+          height: 34px;
+          border-left: 1px solid rgba(57, 90, 119, 0.44);
         }
 
         .messages-inbox-page .sidebar-list {
-          flex: 1 1 auto !important;
-          min-height: 0 !important;
-          overflow-y: auto !important;
-          display: block !important;
+          flex: 1 1 auto;
+          min-height: 0;
+          overflow-y: auto;
+          display: block;
         }
 
         .messages-inbox-page .sidebar-conversation {
-          width: 100% !important;
-          min-height: 54px !important;
-          display: grid !important;
-          grid-template-columns: 38px minmax(0, 1fr) 20px !important;
-          align-items: center !important;
-          gap: 9px !important;
-          padding: 7px 7px !important;
-          border: 0 !important;
-          border-bottom: 1px solid rgba(51, 78, 103, 0.34) !important;
-          border-left: 2px solid transparent !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          text-align: left !important;
+          width: 100%;
+          min-height: 54px;
+          display: grid;
+          grid-template-columns: 38px minmax(0, 1fr) 20px;
+          align-items: center;
+          gap: 9px;
+          padding: 7px 7px;
+          border: 0;
+          border-bottom: 1px solid rgba(51, 78, 103, 0.34);
+          border-left: 2px solid transparent;
+          border-radius: 0;
+          background: transparent;
+          text-align: left;
         }
 
         .messages-inbox-page .sidebar-conversation.active {
-          border-left-color: #ff7412 !important;
-          background: linear-gradient(90deg, rgba(255, 116, 18, 0.18), rgba(255, 116, 18, 0.02)) !important;
+          border-left-color: #ff7412;
+          background: linear-gradient(90deg, rgba(255, 116, 18, 0.18), rgba(255, 116, 18, 0.02));
         }
 
         .messages-inbox-page .sidebar-avatar {
-          width: 34px !important;
-          height: 34px !important;
-          border: 1px solid rgba(234, 246, 255, 0.9) !important;
-          box-shadow: none !important;
+          width: 34px;
+          height: 34px;
+          border: 1px solid rgba(234, 246, 255, 0.9);
+          box-shadow: none;
         }
 
         .messages-inbox-page .sidebar-copy {
-          gap: 3px !important;
+          gap: 3px;
         }
 
         .messages-inbox-page .sidebar-copy strong {
-          color: #f5f9ff !important;
-          font-size: 12px !important;
-          font-weight: 850 !important;
+          color: #f5f9ff;
+          font-size: 12px;
+          font-weight: 850;
         }
 
         .messages-inbox-page .sidebar-copy time {
-          color: #97a8b8 !important;
-          font-size: 9.5px !important;
-          font-weight: 750 !important;
+          color: #97a8b8;
+          font-size: 9.5px;
+          font-weight: 750;
         }
 
         .messages-inbox-page .sidebar-copy p {
-          color: #9aaaba !important;
-          font-size: 10.5px !important;
-          font-weight: 650 !important;
+          color: #9aaaba;
+          font-size: 10.5px;
+          font-weight: 650;
         }
 
         .messages-inbox-page .archive-button {
-          height: 28px !important;
-          margin: 7px 0 0 !important;
-          border: 1px solid rgba(57, 90, 119, 0.58) !important;
-          border-radius: 5px !important;
-          background: rgba(4, 15, 26, 0.74) !important;
-          color: #c9d5e1 !important;
-          font-size: 10.5px !important;
-          font-weight: 800 !important;
+          height: 28px;
+          margin: 7px 0 0;
+          border: 1px solid rgba(57, 90, 119, 0.58);
+          border-radius: 5px;
+          background: rgba(4, 15, 26, 0.74);
+          color: #c9d5e1;
+          font-size: 10.5px;
+          font-weight: 800;
         }
 
         .messages-inbox-page .chat-wrapper {
-          height: 100% !important;
-          min-height: 0 !important;
-          display: flex !important;
-          flex-direction: column !important;
-          overflow: hidden !important;
-          border: 0 !important;
-          border-left: 1px solid rgba(42, 68, 94, 0.42) !important;
-          border-radius: 0 !important;
+          height: 100%;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          border: 0;
+          border-left: 1px solid rgba(42, 68, 94, 0.42);
+          border-radius: 0;
           background:
             radial-gradient(520px 260px at 58% 8%, rgba(12, 55, 88, 0.22), transparent 68%),
-            linear-gradient(180deg, rgba(5, 17, 29, 0.84), rgba(5, 16, 27, 0.88)) !important;
-          box-shadow: none !important;
-          backdrop-filter: none !important;
+            linear-gradient(180deg, rgba(5, 17, 29, 0.84), rgba(5, 16, 27, 0.88));
+          box-shadow: none;
+          backdrop-filter: none;
         }
 
         .messages-inbox-page .header {
-          min-height: 42px !important;
-          padding: 0 0 10px !important;
-          display: grid !important;
-          grid-template-columns: 34px minmax(0, 1fr) auto !important;
-          align-items: center !important;
-          gap: 8px !important;
-          border: 0 !important;
-          background: transparent !important;
-          box-shadow: none !important;
+          min-height: 42px;
+          padding: 0 0 10px;
+          display: grid;
+          grid-template-columns: 34px minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 8px;
+          border: 0;
+          background: transparent;
+          box-shadow: none;
         }
 
         .messages-inbox-page .mobile-chat-back {
-          width: 30px !important;
-          height: 30px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          border: 1px solid rgba(57, 90, 119, 0.58) !important;
-          border-radius: 5px !important;
-          background: rgba(4, 15, 26, 0.72) !important;
-          color: #dce8f4 !important;
+          width: 30px;
+          height: 30px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(57, 90, 119, 0.58);
+          border-radius: 5px;
+          background: rgba(4, 15, 26, 0.72);
+          color: #dce8f4;
         }
 
         .messages-inbox-page .seller {
-          grid-template-columns: 34px minmax(0, 1fr) !important;
-          gap: 8px !important;
+          grid-template-columns: 34px minmax(0, 1fr);
+          gap: 8px;
         }
 
         .messages-inbox-page .avatar {
-          width: 34px !important;
-          height: 34px !important;
-          box-shadow: none !important;
+          width: 34px;
+          height: 34px;
+          box-shadow: none;
         }
 
         .messages-inbox-page .seller-info strong {
-          color: #f5f9ff !important;
-          font-size: 12.5px !important;
-          font-weight: 900 !important;
+          color: #f5f9ff;
+          font-size: 12.5px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .online-status {
-          color: #8da0b2 !important;
-          font-size: 9.5px !important;
-          font-weight: 750 !important;
+          color: #8da0b2;
+          font-size: 9.5px;
+          font-weight: 750;
         }
 
         .messages-inbox-page .online-status.online {
-          color: #6fe7a4 !important;
+          color: #6fe7a4;
         }
 
         .messages-inbox-page .chat-actions {
-          gap: 12px !important;
+          gap: 12px;
         }
 
         .messages-inbox-page .chat-actions button {
-          width: 20px !important;
-          height: 20px !important;
-          color: #c7d4e2 !important;
+          width: 20px;
+          height: 20px;
+          color: #c7d4e2;
         }
 
         .messages-inbox-page .chat-listing-strip {
-          min-height: 70px !important;
-          margin: 0 0 14px !important;
-          padding: 8px !important;
-          display: grid !important;
-          grid-template-columns: 78px minmax(0, 1fr) auto !important;
-          gap: 11px !important;
-          align-items: center !important;
-          border: 1px solid rgba(42, 68, 94, 0.46) !important;
-          border-radius: 5px !important;
-          background: rgba(5, 18, 30, 0.66) !important;
+          min-height: 70px;
+          margin: 0 0 14px;
+          padding: 8px;
+          display: grid;
+          grid-template-columns: 78px minmax(0, 1fr) auto;
+          gap: 11px;
+          align-items: center;
+          border: 1px solid rgba(42, 68, 94, 0.46);
+          border-radius: 5px;
+          background: rgba(5, 18, 30, 0.66);
         }
 
         .messages-inbox-page .listing-thumb,
         .messages-inbox-page .listing-thumb img {
-          width: 76px !important;
-          height: 56px !important;
-          border-radius: 5px !important;
+          width: 76px;
+          height: 56px;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .listing-summary strong {
-          color: #f5f9ff !important;
-          font-size: 12px !important;
-          font-weight: 750 !important;
+          color: #f5f9ff;
+          font-size: 12px;
+          font-weight: 750;
         }
 
         .messages-inbox-page .listing-summary span {
-          margin-top: 4px !important;
-          color: #fff !important;
-          font-size: 17px !important;
-          font-weight: 900 !important;
+          margin-top: 4px;
+          color: #fff;
+          font-size: 17px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .listing-open {
-          min-height: 34px !important;
-          padding: 0 12px !important;
-          border: 1px solid rgba(57, 90, 119, 0.58) !important;
-          border-radius: 5px !important;
-          background: rgba(14, 32, 51, 0.9) !important;
-          color: #dce8f4 !important;
-          font-size: 10.5px !important;
-          font-weight: 800 !important;
+          min-height: 34px;
+          padding: 0 12px;
+          border: 1px solid rgba(57, 90, 119, 0.58);
+          border-radius: 5px;
+          background: rgba(14, 32, 51, 0.9);
+          color: #dce8f4;
+          font-size: 10.5px;
+          font-weight: 800;
         }
 
         .messages-inbox-page .inbox-preview-area {
-          flex: 1 1 auto !important;
-          min-height: 0 !important;
-          padding: 0 !important;
-          overflow: hidden !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          box-shadow: none !important;
+          flex: 1 1 auto;
+          min-height: 0;
+          padding: 0;
+          overflow: hidden;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
         }
 
         .messages-inbox-page .messages-area.inbox-preview-area,
         body .messages-inbox-page .messages-area.inbox-preview-area,
         body > main.messages-inbox-page .messages-area.inbox-preview-area {
-          border: 0 !important;
-          outline: 0 !important;
-          box-shadow: none !important;
-          background: transparent !important;
-          background-image: none !important;
-          color: #e8f2fc !important;
+          border: 0;
+          outline: 0;
+          box-shadow: none;
+          background: transparent;
+          background-image: none;
+          color: #e8f2fc;
         }
 
         .messages-inbox-page .chat-window {
-          width: 100% !important;
-          height: 100% !important;
-          padding: 2px 8px 12px 0 !important;
-          background: transparent !important;
-          background-image: none !important;
-          border: 0 !important;
-          box-shadow: none !important;
+          width: 100%;
+          height: 100%;
+          padding: 2px 8px 12px 0;
+          background: transparent;
+          background-image: none;
+          border: 0;
+          box-shadow: none;
         }
 
         .messages-inbox-page .chat-window .messages {
-          width: 100% !important;
-          max-width: none !important;
-          gap: 18px !important;
-          padding: 0 !important;
-          background: transparent !important;
-          background-image: none !important;
-          border: 0 !important;
-          box-shadow: none !important;
+          width: 100%;
+          max-width: none;
+          gap: 18px;
+          padding: 0;
+          background: transparent;
+          background-image: none;
+          border: 0;
+          box-shadow: none;
         }
 
         .messages-inbox-page .chat-window .row {
-          padding: 0 6px 0 0 !important;
+          padding: 0 6px 0 0;
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .other {
-          max-width: min(380px, 78%) !important;
-          padding: 10px 12px 8px !important;
-          border-radius: 6px !important;
+          max-width: min(380px, 78%);
+          padding: 10px 12px 8px;
+          border-radius: 6px;
         }
 
         .messages-inbox-page .chat-window .own {
-          background: linear-gradient(180deg, #ff8619, #ff730c) !important;
-          box-shadow: 0 16px 34px rgba(255, 112, 12, 0.28) !important;
+          background: linear-gradient(180deg, #ff8619, #ff730c);
+          box-shadow: 0 16px 34px rgba(255, 112, 12, 0.28);
         }
 
         .messages-inbox-page .chat-window .other {
-          background: linear-gradient(180deg, #172637, #142332) !important;
-          box-shadow: 0 14px 28px rgba(0, 7, 18, 0.28) !important;
+          background: linear-gradient(180deg, #172637, #142332);
+          box-shadow: 0 14px 28px rgba(0, 7, 18, 0.28);
         }
 
         .messages-inbox-page .chat-window .own p,
         .messages-inbox-page .chat-window .other p {
-          font-size: 12px !important;
-          line-height: 1.42 !important;
+          font-size: 12px;
+          line-height: 1.42;
         }
 
         .messages-inbox-page .input-area {
-          padding: 0 !important;
-          border: 0 !important;
-          background: transparent !important;
+          padding: 0;
+          border: 0;
+          background: transparent;
         }
 
         .messages-inbox-page .input-area form {
-          min-height: 52px !important;
-          grid-template-columns: 34px 34px minmax(0, 1fr) 42px !important;
-          grid-template-rows: 44px !important;
-          gap: 0 !important;
-          padding: 4px !important;
-          border: 1px solid rgba(57, 90, 119, 0.58) !important;
-          border-radius: 6px !important;
-          background: rgba(5, 18, 30, 0.76) !important;
+          min-height: 52px;
+          grid-template-columns: 34px 34px minmax(0, 1fr) 42px;
+          grid-template-rows: 44px;
+          gap: 0;
+          padding: 4px;
+          border: 1px solid rgba(57, 90, 119, 0.58);
+          border-radius: 6px;
+          background: rgba(5, 18, 30, 0.76);
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(1) {
-          grid-column: 1 !important;
+          grid-column: 1;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(2) {
-          display: none !important;
+          display: none;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(3) {
-          grid-column: 2 !important;
+          grid-column: 2;
         }
 
         .messages-inbox-page .input-area .tool {
-          width: 34px !important;
-          height: 44px !important;
-          color: #b8c8d8 !important;
+          width: 34px;
+          height: 44px;
+          color: #b8c8d8;
         }
 
         .messages-inbox-page .input-area input[type="text"],
         .messages-inbox-page .input-area input:not([type]) {
-          grid-column: 3 !important;
-          height: 44px !important;
-          padding: 0 12px !important;
-          background: transparent !important;
-          color: #e9f2fb !important;
-          font-size: 12px !important;
-          font-weight: 650 !important;
+          grid-column: 3;
+          height: 44px;
+          padding: 0 12px;
+          background: transparent;
+          color: #e9f2fb;
+          font-size: 12px;
+          font-weight: 650;
         }
 
         .messages-inbox-page .input-area input::placeholder {
-          color: #8193a4 !important;
+          color: #8193a4;
         }
 
         .messages-inbox-page .input-area .send {
-          grid-column: 4 !important;
-          width: 34px !important;
-          height: 34px !important;
-          border-radius: 6px !important;
-          background: linear-gradient(135deg, #247cff, #1f65d8) !important;
-          box-shadow: 0 12px 26px rgba(31, 101, 216, 0.3) !important;
+          grid-column: 4;
+          width: 34px;
+          height: 34px;
+          border-radius: 6px;
+          background: linear-gradient(135deg, #247cff, #1f65d8);
+          box-shadow: 0 12px 26px rgba(31, 101, 216, 0.3);
         }
 
         @media (min-width: 981px) {
           .messages-inbox-page .messages-desktop-shell {
-            width: min(760px, calc(100vw - 28px)) !important;
+            width: min(760px, calc(100vw - 28px));
           }
         }
 
         .messages-inbox-page {
-          position: relative !important;
-          isolation: isolate !important;
+          position: relative;
+          isolation: isolate;
           background:
             linear-gradient(135deg, rgba(255, 122, 18, 0.05) 0%, transparent 18%),
-            linear-gradient(180deg, rgba(5, 18, 30, 0.94) 0%, rgba(7, 21, 30, 0.98) 56%, #050e17 100%) !important;
+            linear-gradient(180deg, rgba(5, 18, 30, 0.94) 0%, rgba(7, 21, 30, 0.98) 56%, #050e17 100%);
         }
 
         .messages-inbox-page::before {
-          content: "" !important;
-          position: absolute !important;
-          inset: 0 !important;
-          z-index: -1 !important;
-          pointer-events: none !important;
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: -1;
+          pointer-events: none;
           background:
             linear-gradient(90deg, rgba(126, 197, 240, 0.035) 1px, transparent 1px),
             linear-gradient(180deg, rgba(126, 197, 240, 0.028) 1px, transparent 1px),
             linear-gradient(120deg, transparent 0%, rgba(255, 122, 18, 0.055) 44%, transparent 72%),
-            linear-gradient(180deg, rgba(8, 33, 52, 0.42), transparent 48%) !important;
+            linear-gradient(180deg, rgba(8, 33, 52, 0.42), transparent 48%);
           background-size:
             42px 42px,
             42px 42px,
             100% 100%,
-            100% 100% !important;
-          opacity: 0.9 !important;
+            100% 100%;
+          opacity: 0.9;
         }
 
         .messages-inbox-page::after {
-          content: "" !important;
-          position: absolute !important;
-          inset: 0 !important;
-          z-index: -1 !important;
-          pointer-events: none !important;
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: -1;
+          pointer-events: none;
           background:
             linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.22) 100%),
             repeating-linear-gradient(
@@ -5145,3520 +5145,3520 @@ function MessagesPageContent() {
               rgba(255, 255, 255, 0.018) 1px,
               transparent 1px,
               transparent 5px
-            ) !important;
-          mix-blend-mode: screen !important;
-          opacity: 0.34 !important;
+            );
+          mix-blend-mode: screen;
+          opacity: 0.34;
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          width: min(750px, calc(100vw - 22px)) !important;
-          min-height: min(642px, calc(100vh - var(--topbar-h, 0px) - 14px)) !important;
-          height: min(642px, calc(100vh - var(--topbar-h, 0px) - 14px)) !important;
-          grid-template-columns: 266px minmax(0, 1fr) !important;
-          gap: 16px !important;
-          padding: 14px 8px 8px 14px !important;
+          width: min(750px, calc(100vw - 22px));
+          min-height: min(642px, calc(100vh - var(--topbar-h, 0px) - 14px));
+          height: min(642px, calc(100vh - var(--topbar-h, 0px) - 14px));
+          grid-template-columns: 266px minmax(0, 1fr);
+          gap: 16px;
+          padding: 14px 8px 8px 14px;
         }
 
         .messages-inbox-page .messages-sidebar {
-          color: #f6fbff !important;
+          color: #f6fbff;
         }
 
         .messages-inbox-page .sidebar-heading h1 {
-          margin: 0 0 13px 2px !important;
-          text-shadow: 0 10px 30px rgba(0, 0, 0, 0.32) !important;
+          margin: 0 0 13px 2px;
+          text-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
         }
 
         .messages-inbox-page .message-tabs,
         .messages-inbox-page .message-search,
         .messages-inbox-page .archive-button {
-          background: rgba(3, 13, 23, 0.72) !important;
-          border-color: rgba(68, 104, 134, 0.58) !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+          background: rgba(3, 13, 23, 0.72);
+          border-color: rgba(68, 104, 134, 0.58);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
         }
 
         .messages-inbox-page .message-tabs {
-          border-radius: 5px !important;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .message-tabs button.active {
           background:
-            linear-gradient(180deg, rgba(255, 128, 26, 0.22), rgba(255, 128, 26, 0.07)) !important;
-          color: #ff8a1d !important;
+            linear-gradient(180deg, rgba(255, 128, 26, 0.22), rgba(255, 128, 26, 0.07));
+          color: #ff8a1d;
         }
 
         .messages-inbox-page .sidebar-conversation {
-          min-height: 56px !important;
-          border-bottom-color: rgba(48, 78, 104, 0.34) !important;
+          min-height: 56px;
+          border-bottom-color: rgba(48, 78, 104, 0.34);
         }
 
         .messages-inbox-page .sidebar-conversation.active {
           background:
             linear-gradient(90deg, rgba(255, 116, 18, 0.18), rgba(255, 116, 18, 0.03)),
-            linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent) !important;
-          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035) !important;
+            linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent);
+          box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035);
         }
 
         .messages-inbox-page .chat-wrapper {
-          border-left-color: rgba(58, 89, 116, 0.5) !important;
+          border-left-color: rgba(58, 89, 116, 0.5);
           background:
             linear-gradient(90deg, rgba(255, 122, 18, 0.026), transparent 26%),
-            linear-gradient(180deg, rgba(4, 15, 26, 0.6), rgba(4, 14, 24, 0.84)) !important;
+            linear-gradient(180deg, rgba(4, 15, 26, 0.6), rgba(4, 14, 24, 0.84));
         }
 
         .messages-inbox-page .header {
           background:
-            linear-gradient(180deg, rgba(5, 18, 31, 0.86), rgba(5, 18, 31, 0.44)) !important;
-          border-bottom: 1px solid rgba(58, 89, 116, 0.34) !important;
-          margin-bottom: 7px !important;
+            linear-gradient(180deg, rgba(5, 18, 31, 0.86), rgba(5, 18, 31, 0.44));
+          border-bottom: 1px solid rgba(58, 89, 116, 0.34);
+          margin-bottom: 7px;
         }
 
         .messages-inbox-page .chat-listing-strip {
-          min-height: 72px !important;
-          margin: 0 0 12px !important;
+          min-height: 72px;
+          margin: 0 0 12px;
           background:
-            linear-gradient(180deg, rgba(8, 26, 43, 0.78), rgba(5, 18, 31, 0.72)) !important;
-          border-color: rgba(58, 89, 116, 0.5) !important;
+            linear-gradient(180deg, rgba(8, 26, 43, 0.78), rgba(5, 18, 31, 0.72));
+          border-color: rgba(58, 89, 116, 0.5);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.035),
-            0 18px 44px rgba(0, 6, 18, 0.16) !important;
+            0 18px 44px rgba(0, 6, 18, 0.16);
         }
 
         .messages-inbox-page .chat-window {
-          padding: 2px 8px 10px 0 !important;
+          padding: 2px 8px 10px 0;
         }
 
         .messages-inbox-page .chat-window .messages {
-          gap: 17px !important;
+          gap: 17px;
         }
 
         .messages-inbox-page .chat-window .own {
           background:
             linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 36%),
-            linear-gradient(180deg, #ff8619 0%, #ff730c 100%) !important;
+            linear-gradient(180deg, #ff8619 0%, #ff730c 100%);
           box-shadow:
             0 18px 38px rgba(255, 112, 12, 0.25),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .messages-inbox-page .chat-window .other {
           background:
             linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 38%),
-            linear-gradient(180deg, #172637 0%, #142332 100%) !important;
+            linear-gradient(180deg, #172637 0%, #142332 100%);
           box-shadow:
             0 14px 30px rgba(0, 7, 18, 0.24),
-            inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.035);
         }
 
         .messages-inbox-page .input-area form {
           background:
-            linear-gradient(180deg, rgba(8, 25, 41, 0.84), rgba(5, 18, 31, 0.82)) !important;
-          border-color: rgba(68, 104, 134, 0.56) !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+            linear-gradient(180deg, rgba(8, 25, 41, 0.84), rgba(5, 18, 31, 0.82));
+          border-color: rgba(68, 104, 134, 0.56);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
         }
 
         .messages-inbox-page .input-area .send {
-          background: linear-gradient(135deg, #2a83ff, #1f63d5) !important;
+          background: linear-gradient(135deg, #2a83ff, #1f63d5);
         }
 
         .messages-inbox-page {
-          padding: 20px 16px !important;
+          padding: 20px 16px;
           background:
             radial-gradient(900px 520px at 78% -12%, rgba(37, 100, 152, 0.16), transparent 68%),
             radial-gradient(720px 420px at 8% 8%, rgba(255, 122, 18, 0.07), transparent 62%),
-            linear-gradient(180deg, #040d18 0%, #06121f 48%, #050d17 100%) !important;
+            linear-gradient(180deg, #040d18 0%, #06121f 48%, #050d17 100%);
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          width: min(1440px, calc(100vw - 32px)) !important;
-          height: min(920px, calc(100vh - var(--topbar-h, 0px) - 40px)) !important;
-          min-height: 760px !important;
-          grid-template-columns: minmax(380px, 462px) minmax(0, 1fr) !important;
-          gap: 8px !important;
-          padding: 0 !important;
-          margin: 0 auto !important;
+          width: min(1440px, calc(100vw - 32px));
+          height: min(920px, calc(100vh - var(--topbar-h, 0px) - 40px));
+          min-height: 760px;
+          grid-template-columns: minmax(380px, 462px) minmax(0, 1fr);
+          gap: 8px;
+          padding: 0;
+          margin: 0 auto;
         }
 
         .messages-inbox-page .messages-sidebar,
         .messages-inbox-page .chat-wrapper {
-          border: 1px solid rgba(79, 111, 143, 0.48) !important;
-          border-radius: 22px !important;
+          border: 1px solid rgba(79, 111, 143, 0.48);
+          border-radius: 22px;
           background:
             radial-gradient(700px 300px at 20% 0%, rgba(32, 74, 112, 0.17), transparent 70%),
-            linear-gradient(180deg, rgba(7, 19, 33, 0.94), rgba(4, 14, 25, 0.96)) !important;
+            linear-gradient(180deg, rgba(7, 19, 33, 0.94), rgba(4, 14, 25, 0.96));
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.045),
-            0 28px 80px rgba(0, 8, 22, 0.28) !important;
+            0 28px 80px rgba(0, 8, 22, 0.28);
         }
 
         .messages-inbox-page .messages-sidebar {
-          padding: 34px 16px 20px !important;
-          display: flex !important;
-          flex-direction: column !important;
+          padding: 34px 16px 20px;
+          display: flex;
+          flex-direction: column;
         }
 
         .messages-inbox-page .sidebar-heading h1 {
-          margin: 0 0 30px 7px !important;
-          font-size: 32px !important;
-          line-height: 1 !important;
-          font-weight: 950 !important;
+          margin: 0 0 30px 7px;
+          font-size: 32px;
+          line-height: 1;
+          font-weight: 950;
         }
 
         .messages-inbox-page .message-tabs {
-          height: 58px !important;
-          margin-bottom: 32px !important;
-          border-radius: 13px !important;
-          background: rgba(9, 25, 43, 0.82) !important;
+          height: 58px;
+          margin-bottom: 32px;
+          border-radius: 13px;
+          background: rgba(9, 25, 43, 0.82);
         }
 
         .messages-inbox-page .message-tabs button {
-          font-size: 15px !important;
-          font-weight: 850 !important;
-          padding: 0 18px !important;
+          font-size: 15px;
+          font-weight: 850;
+          padding: 0 18px;
         }
 
         .messages-inbox-page .message-tabs button.active {
-          border: 1px solid rgba(255, 119, 15, 0.72) !important;
-          border-radius: 12px !important;
+          border: 1px solid rgba(255, 119, 15, 0.72);
+          border-radius: 12px;
           background:
             radial-gradient(120px 70px at 50% 100%, rgba(255, 122, 18, 0.24), transparent 72%),
-            linear-gradient(180deg, rgba(92, 50, 25, 0.86), rgba(47, 31, 26, 0.92)) !important;
+            linear-gradient(180deg, rgba(92, 50, 25, 0.86), rgba(47, 31, 26, 0.92));
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.08),
-            0 14px 32px rgba(255, 112, 12, 0.12) !important;
+            0 14px 32px rgba(255, 112, 12, 0.12);
         }
 
         .messages-inbox-page .message-tabs button span {
-          min-width: 30px !important;
-          height: 30px !important;
-          margin-left: 10px !important;
-          font-size: 15px !important;
+          min-width: 30px;
+          height: 30px;
+          margin-left: 10px;
+          font-size: 15px;
         }
 
         .messages-inbox-page .message-search {
-          height: 62px !important;
-          margin-bottom: 26px !important;
-          grid-template-columns: 38px minmax(0, 1fr) 56px !important;
-          border-radius: 12px !important;
-          background: rgba(6, 20, 35, 0.88) !important;
+          height: 62px;
+          margin-bottom: 26px;
+          grid-template-columns: 38px minmax(0, 1fr) 56px;
+          border-radius: 12px;
+          background: rgba(6, 20, 35, 0.88);
         }
 
         .messages-inbox-page .message-search svg {
-          width: 24px !important;
-          height: 24px !important;
+          width: 24px;
+          height: 24px;
         }
 
         .messages-inbox-page .message-search input {
-          font-size: 17px !important;
-          font-weight: 600 !important;
+          font-size: 17px;
+          font-weight: 600;
         }
 
         .messages-inbox-page .message-search button {
-          width: 56px !important;
-          height: 62px !important;
+          width: 56px;
+          height: 62px;
         }
 
         .messages-inbox-page .sidebar-conversation {
-          min-height: 118px !important;
-          grid-template-columns: 82px minmax(0, 1fr) 42px !important;
-          gap: 18px !important;
-          padding: 18px 18px !important;
-          margin-bottom: 14px !important;
-          border: 1px solid rgba(63, 92, 122, 0.34) !important;
-          border-left: 2px solid transparent !important;
-          border-radius: 9px !important;
-          background: rgba(5, 17, 30, 0.54) !important;
+          min-height: 118px;
+          grid-template-columns: 82px minmax(0, 1fr) 42px;
+          gap: 18px;
+          padding: 18px 18px;
+          margin-bottom: 14px;
+          border: 1px solid rgba(63, 92, 122, 0.34);
+          border-left: 2px solid transparent;
+          border-radius: 9px;
+          background: rgba(5, 17, 30, 0.54);
         }
 
         .messages-inbox-page .sidebar-conversation.active {
-          border-left-color: #ff7412 !important;
-          border-color: rgba(255, 122, 18, 0.6) rgba(63, 92, 122, 0.42) rgba(63, 92, 122, 0.42) #ff7412 !important;
+          border-left-color: #ff7412;
+          border-color: rgba(255, 122, 18, 0.6) rgba(63, 92, 122, 0.42) rgba(63, 92, 122, 0.42) #ff7412;
           background:
             radial-gradient(190px 110px at 15% 50%, rgba(255, 122, 18, 0.22), transparent 70%),
-            linear-gradient(90deg, rgba(75, 53, 39, 0.86), rgba(16, 31, 47, 0.8)) !important;
+            linear-gradient(90deg, rgba(75, 53, 39, 0.86), rgba(16, 31, 47, 0.8));
         }
 
         .messages-inbox-page .sidebar-avatar {
-          width: 72px !important;
-          height: 72px !important;
+          width: 72px;
+          height: 72px;
         }
 
         .messages-inbox-page .sidebar-avatar span {
-          width: 16px !important;
-          height: 16px !important;
+          width: 16px;
+          height: 16px;
         }
 
         .messages-inbox-page .sidebar-copy {
-          gap: 11px !important;
+          gap: 11px;
         }
 
         .messages-inbox-page .sidebar-copy strong {
-          font-size: 21px !important;
-          font-weight: 950 !important;
+          font-size: 21px;
+          font-weight: 950;
         }
 
         .messages-inbox-page .sidebar-copy time {
-          font-size: 18px !important;
-          font-weight: 650 !important;
+          font-size: 18px;
+          font-weight: 650;
         }
 
         .messages-inbox-page .sidebar-copy p {
-          font-size: 18px !important;
-          font-weight: 600 !important;
+          font-size: 18px;
+          font-weight: 600;
         }
 
         .messages-inbox-page .sidebar-unread {
-          min-width: 32px !important;
-          height: 32px !important;
-          font-size: 17px !important;
+          min-width: 32px;
+          height: 32px;
+          font-size: 17px;
         }
 
         .messages-inbox-page .archive-button {
-          height: 76px !important;
-          margin-top: auto !important;
-          border-radius: 12px !important;
-          background: linear-gradient(180deg, rgba(18, 43, 68, 0.94), rgba(9, 28, 48, 0.96)) !important;
-          font-size: 18px !important;
-          font-weight: 900 !important;
-          gap: 12px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
+          height: 76px;
+          margin-top: auto;
+          border-radius: 12px;
+          background: linear-gradient(180deg, rgba(18, 43, 68, 0.94), rgba(9, 28, 48, 0.96));
+          font-size: 18px;
+          font-weight: 900;
+          gap: 12px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .messages-inbox-page .chat-wrapper {
-          padding: 24px 24px 16px !important;
-          border-left: 1px solid rgba(79, 111, 143, 0.48) !important;
+          padding: 24px 24px 16px;
+          border-left: 1px solid rgba(79, 111, 143, 0.48);
         }
 
         .messages-inbox-page .header {
-          min-height: 82px !important;
-          margin: 0 0 18px !important;
-          padding: 0 !important;
-          grid-template-columns: 56px 76px minmax(0, 1fr) auto !important;
-          gap: 16px !important;
-          border: 0 !important;
-          background: transparent !important;
+          min-height: 82px;
+          margin: 0 0 18px;
+          padding: 0;
+          grid-template-columns: 56px 76px minmax(0, 1fr) auto;
+          gap: 16px;
+          border: 0;
+          background: transparent;
         }
 
         .messages-inbox-page .mobile-chat-back {
-          width: 56px !important;
-          height: 56px !important;
-          border-radius: 14px !important;
+          width: 56px;
+          height: 56px;
+          border-radius: 14px;
         }
 
         .messages-inbox-page .seller {
-          display: contents !important;
+          display: contents;
         }
 
         .messages-inbox-page .avatar {
-          width: 66px !important;
-          height: 66px !important;
+          width: 66px;
+          height: 66px;
         }
 
         .messages-inbox-page .seller-info {
-          align-self: center !important;
+          align-self: center;
         }
 
         .messages-inbox-page .seller-info strong {
-          font-size: 26px !important;
-          line-height: 1 !important;
+          font-size: 26px;
+          line-height: 1;
         }
 
         .messages-inbox-page .online-status {
-          margin-top: 8px !important;
-          font-size: 18px !important;
-          font-weight: 850 !important;
+          margin-top: 8px;
+          font-size: 18px;
+          font-weight: 850;
         }
 
         .messages-inbox-page .chat-actions {
-          gap: 16px !important;
+          gap: 16px;
         }
 
         .messages-inbox-page .chat-actions button {
-          width: 52px !important;
-          height: 52px !important;
-          border: 1px solid rgba(68, 102, 134, 0.56) !important;
-          border-radius: 14px !important;
-          background: linear-gradient(180deg, rgba(18, 43, 68, 0.9), rgba(9, 28, 48, 0.92)) !important;
+          width: 52px;
+          height: 52px;
+          border: 1px solid rgba(68, 102, 134, 0.56);
+          border-radius: 14px;
+          background: linear-gradient(180deg, rgba(18, 43, 68, 0.9), rgba(9, 28, 48, 0.92));
         }
 
         .messages-inbox-page .chat-actions button svg {
-          width: 25px !important;
-          height: 25px !important;
+          width: 25px;
+          height: 25px;
         }
 
         .messages-inbox-page .chat-listing-strip {
-          min-height: 148px !important;
-          grid-template-columns: 170px minmax(0, 1fr) 214px !important;
-          gap: 24px !important;
-          margin: 0 0 28px !important;
-          padding: 16px !important;
-          border-radius: 14px !important;
+          min-height: 148px;
+          grid-template-columns: 170px minmax(0, 1fr) 214px;
+          gap: 24px;
+          margin: 0 0 28px;
+          padding: 16px;
+          border-radius: 14px;
         }
 
         .messages-inbox-page .listing-thumb,
         .messages-inbox-page .listing-thumb img {
-          width: 156px !important;
-          height: 116px !important;
-          border-radius: 8px !important;
+          width: 156px;
+          height: 116px;
+          border-radius: 8px;
         }
 
         .messages-inbox-page .listing-summary strong {
-          font-size: 22px !important;
-          font-weight: 900 !important;
+          font-size: 22px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .listing-summary span {
-          margin-top: 16px !important;
-          font-size: 36px !important;
+          margin-top: 16px;
+          font-size: 36px;
         }
 
         .messages-inbox-page .listing-open {
-          min-height: 70px !important;
-          border-radius: 12px !important;
-          font-size: 18px !important;
-          font-weight: 900 !important;
+          min-height: 70px;
+          border-radius: 12px;
+          font-size: 18px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .chat-window {
-          padding: 0 0 14px !important;
+          padding: 0 0 14px;
         }
 
         .messages-inbox-page .chat-window .date-divider {
-          margin: 10px 0 28px !important;
-          font-size: 15px !important;
+          margin: 10px 0 28px;
+          font-size: 15px;
         }
 
         .messages-inbox-page .chat-window .date-divider span {
-          padding: 8px 20px !important;
+          padding: 8px 20px;
         }
 
         .messages-inbox-page .chat-window .messages {
-          gap: 22px !important;
+          gap: 22px;
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .other {
-          min-width: 210px !important;
-          max-width: min(560px, 72%) !important;
-          padding: 24px 24px 18px !important;
-          border-radius: 14px !important;
+          min-width: 210px;
+          max-width: min(560px, 72%);
+          padding: 24px 24px 18px;
+          border-radius: 14px;
         }
 
         .messages-inbox-page .chat-window .own p,
         .messages-inbox-page .chat-window .other p {
-          font-size: 19px !important;
-          font-weight: 800 !important;
-          line-height: 1.4 !important;
+          font-size: 19px;
+          font-weight: 800;
+          line-height: 1.4;
         }
 
         .messages-inbox-page .chat-window .message-meta {
-          font-size: 17px !important;
-          margin-top: 10px !important;
+          font-size: 17px;
+          margin-top: 10px;
         }
 
         .messages-inbox-page .input-area form {
-          min-height: 112px !important;
-          grid-template-columns: 76px minmax(0, 1fr) 76px 76px !important;
-          grid-template-rows: 76px !important;
-          gap: 16px !important;
-          padding: 18px 22px !important;
-          border-radius: 14px !important;
+          min-height: 112px;
+          grid-template-columns: 76px minmax(0, 1fr) 76px 76px;
+          grid-template-rows: 76px;
+          gap: 16px;
+          padding: 18px 22px;
+          border-radius: 14px;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(1) {
-          grid-column: 1 !important;
+          grid-column: 1;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(3) {
-          grid-column: 3 !important;
+          grid-column: 3;
         }
 
         .messages-inbox-page .input-area .tool {
-          width: 58px !important;
-          height: 58px !important;
-          border-radius: 14px !important;
-          background: rgba(17, 41, 66, 0.78) !important;
+          width: 58px;
+          height: 58px;
+          border-radius: 14px;
+          background: rgba(17, 41, 66, 0.78);
         }
 
         .messages-inbox-page .input-area .tool svg {
-          width: 30px !important;
-          height: 30px !important;
+          width: 30px;
+          height: 30px;
         }
 
         .messages-inbox-page .input-area input[type="text"],
         .messages-inbox-page .input-area input:not([type]) {
-          grid-column: 2 !important;
-          height: 72px !important;
-          padding: 0 26px !important;
-          border: 1px solid rgba(83, 118, 151, 0.7) !important;
-          border-radius: 12px !important;
-          font-size: 22px !important;
+          grid-column: 2;
+          height: 72px;
+          padding: 0 26px;
+          border: 1px solid rgba(83, 118, 151, 0.7);
+          border-radius: 12px;
+          font-size: 22px;
         }
 
         .messages-inbox-page .input-area .send {
-          grid-column: 4 !important;
-          width: 68px !important;
-          height: 68px !important;
-          border-radius: 14px !important;
+          grid-column: 4;
+          width: 68px;
+          height: 68px;
+          border-radius: 14px;
         }
 
         .messages-inbox-page .input-area .send svg {
-          width: 34px !important;
-          height: 34px !important;
+          width: 34px;
+          height: 34px;
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          width: min(1220px, calc(100vw - 24px)) !important;
-          height: min(760px, calc(100vh - var(--topbar-h, 0px) - 28px)) !important;
-          min-height: 640px !important;
-          grid-template-columns: minmax(320px, 400px) minmax(0, 1fr) !important;
-          gap: 10px !important;
+          width: min(1220px, calc(100vw - 24px));
+          height: min(760px, calc(100vh - var(--topbar-h, 0px) - 28px));
+          min-height: 640px;
+          grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
+          gap: 10px;
         }
 
         .messages-inbox-page .messages-sidebar,
         .messages-inbox-page .chat-wrapper {
-          border-radius: 18px !important;
+          border-radius: 18px;
         }
 
         .messages-inbox-page .messages-sidebar {
-          padding: 28px 14px 18px !important;
+          padding: 28px 14px 18px;
         }
 
         .messages-inbox-page .sidebar-heading h1 {
-          margin-bottom: 24px !important;
-          font-size: 28px !important;
+          margin-bottom: 24px;
+          font-size: 28px;
         }
 
         .messages-inbox-page .message-tabs {
-          height: 50px !important;
-          margin-bottom: 26px !important;
-          border-radius: 11px !important;
+          height: 50px;
+          margin-bottom: 26px;
+          border-radius: 11px;
         }
 
         .messages-inbox-page .message-tabs button {
-          position: relative !important;
-          overflow: visible !important;
-          padding: 0 14px !important;
-          font-size: 14px !important;
+          position: relative;
+          overflow: visible;
+          padding: 0 14px;
+          font-size: 14px;
         }
 
         .messages-inbox-page .message-tabs button.active {
-          border-radius: 10px !important;
+          border-radius: 10px;
         }
 
         .messages-inbox-page .message-tabs button span {
-          position: absolute !important;
-          right: 12px !important;
-          bottom: -12px !important;
-          min-width: 28px !important;
-          height: 28px !important;
-          margin: 0 !important;
-          border: 2px solid rgba(255, 255, 255, 0.96) !important;
-          font-size: 14px !important;
-          font-weight: 950 !important;
-          box-shadow: 0 10px 22px rgba(255, 112, 12, 0.34) !important;
+          position: absolute;
+          right: 12px;
+          bottom: -12px;
+          min-width: 28px;
+          height: 28px;
+          margin: 0;
+          border: 2px solid rgba(255, 255, 255, 0.96);
+          font-size: 14px;
+          font-weight: 950;
+          box-shadow: 0 10px 22px rgba(255, 112, 12, 0.34);
         }
 
         .messages-inbox-page .message-search {
-          height: 52px !important;
-          margin-bottom: 22px !important;
-          grid-template-columns: 34px minmax(0, 1fr) 50px !important;
+          height: 52px;
+          margin-bottom: 22px;
+          grid-template-columns: 34px minmax(0, 1fr) 50px;
         }
 
         .messages-inbox-page .message-search input {
-          font-size: 15px !important;
+          font-size: 15px;
         }
 
         .messages-inbox-page .message-search button {
-          width: 50px !important;
-          height: 52px !important;
+          width: 50px;
+          height: 52px;
         }
 
         .messages-inbox-page .sidebar-conversation {
-          min-height: 94px !important;
-          grid-template-columns: 64px minmax(0, 1fr) 36px !important;
-          gap: 14px !important;
-          padding: 14px !important;
-          margin-bottom: 12px !important;
+          min-height: 94px;
+          grid-template-columns: 64px minmax(0, 1fr) 36px;
+          gap: 14px;
+          padding: 14px;
+          margin-bottom: 12px;
         }
 
         .messages-inbox-page .sidebar-avatar {
-          width: 58px !important;
-          height: 58px !important;
+          width: 58px;
+          height: 58px;
         }
 
         .messages-inbox-page .sidebar-avatar span {
-          width: 14px !important;
-          height: 14px !important;
+          width: 14px;
+          height: 14px;
         }
 
         .messages-inbox-page .sidebar-copy {
-          gap: 8px !important;
+          gap: 8px;
         }
 
         .messages-inbox-page .sidebar-copy strong {
-          font-size: 18px !important;
+          font-size: 18px;
         }
 
         .messages-inbox-page .sidebar-copy time {
-          font-size: 15px !important;
+          font-size: 15px;
         }
 
         .messages-inbox-page .sidebar-copy p {
-          font-size: 15px !important;
+          font-size: 15px;
         }
 
         .messages-inbox-page .sidebar-unread {
-          min-width: 28px !important;
-          height: 28px !important;
-          font-size: 15px !important;
+          min-width: 28px;
+          height: 28px;
+          font-size: 15px;
         }
 
         .messages-inbox-page .archive-button {
-          height: 62px !important;
-          border-radius: 11px !important;
-          font-size: 16px !important;
+          height: 62px;
+          border-radius: 11px;
+          font-size: 16px;
         }
 
         .messages-inbox-page .chat-wrapper {
-          padding: 18px 18px 14px !important;
+          padding: 18px 18px 14px;
         }
 
         .messages-inbox-page .header {
-          min-height: 66px !important;
-          grid-template-columns: 48px 60px minmax(0, 1fr) auto !important;
-          gap: 12px !important;
-          margin-bottom: 14px !important;
+          min-height: 66px;
+          grid-template-columns: 48px 60px minmax(0, 1fr) auto;
+          gap: 12px;
+          margin-bottom: 14px;
         }
 
         .messages-inbox-page .mobile-chat-back {
-          width: 46px !important;
-          height: 46px !important;
-          border-radius: 12px !important;
+          width: 46px;
+          height: 46px;
+          border-radius: 12px;
         }
 
         .messages-inbox-page .avatar {
-          width: 56px !important;
-          height: 56px !important;
+          width: 56px;
+          height: 56px;
         }
 
         .messages-inbox-page .seller-info strong {
-          font-size: 22px !important;
+          font-size: 22px;
         }
 
         .messages-inbox-page .online-status {
-          margin-top: 6px !important;
-          font-size: 16px !important;
+          margin-top: 6px;
+          font-size: 16px;
         }
 
         .messages-inbox-page .chat-actions {
-          gap: 12px !important;
+          gap: 12px;
         }
 
         .messages-inbox-page .chat-actions button {
-          width: 44px !important;
-          height: 44px !important;
-          border-radius: 12px !important;
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
         }
 
         .messages-inbox-page .chat-actions button svg {
-          width: 21px !important;
-          height: 21px !important;
+          width: 21px;
+          height: 21px;
         }
 
         .messages-inbox-page .chat-listing-strip {
-          min-height: 118px !important;
-          grid-template-columns: 132px minmax(0, 1fr) 180px !important;
-          gap: 18px !important;
-          margin-bottom: 24px !important;
-          padding: 14px !important;
-          border-radius: 13px !important;
+          min-height: 118px;
+          grid-template-columns: 132px minmax(0, 1fr) 180px;
+          gap: 18px;
+          margin-bottom: 24px;
+          padding: 14px;
+          border-radius: 13px;
         }
 
         .messages-inbox-page .listing-thumb,
         .messages-inbox-page .listing-thumb img {
-          width: 122px !important;
-          height: 90px !important;
+          width: 122px;
+          height: 90px;
         }
 
         .messages-inbox-page .listing-summary strong {
-          font-size: 19px !important;
+          font-size: 19px;
         }
 
         .messages-inbox-page .listing-summary span {
-          margin-top: 12px !important;
-          font-size: 30px !important;
+          margin-top: 12px;
+          font-size: 30px;
         }
 
         .messages-inbox-page .listing-open {
-          min-height: 58px !important;
-          border-radius: 11px !important;
-          font-size: 16px !important;
+          min-height: 58px;
+          border-radius: 11px;
+          font-size: 16px;
         }
 
         .messages-inbox-page .chat-window .date-divider {
-          margin: 8px 0 24px !important;
-          font-size: 13px !important;
+          margin: 8px 0 24px;
+          font-size: 13px;
         }
 
         .messages-inbox-page .chat-window .date-divider span {
-          padding: 7px 18px !important;
+          padding: 7px 18px;
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .other {
-          min-width: 170px !important;
-          max-width: min(470px, 72%) !important;
-          padding: 20px 20px 16px !important;
-          border-radius: 13px !important;
+          min-width: 170px;
+          max-width: min(470px, 72%);
+          padding: 20px 20px 16px;
+          border-radius: 13px;
         }
 
         .messages-inbox-page .chat-window .own p,
         .messages-inbox-page .chat-window .other p {
-          font-size: 16px !important;
+          font-size: 16px;
         }
 
         .messages-inbox-page .chat-window .message-meta {
-          font-size: 14px !important;
-          margin-top: 8px !important;
+          font-size: 14px;
+          margin-top: 8px;
         }
 
         .messages-inbox-page .input-area form {
-          min-height: 86px !important;
-          grid-template-columns: 58px minmax(0, 1fr) 58px 58px !important;
-          grid-template-rows: 58px !important;
-          gap: 12px !important;
-          padding: 14px 16px !important;
-          border-radius: 13px !important;
+          min-height: 86px;
+          grid-template-columns: 58px minmax(0, 1fr) 58px 58px;
+          grid-template-rows: 58px;
+          gap: 12px;
+          padding: 14px 16px;
+          border-radius: 13px;
         }
 
         .messages-inbox-page .input-area .tool {
-          width: 48px !important;
-          height: 48px !important;
-          border-radius: 12px !important;
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
         }
 
         .messages-inbox-page .input-area .tool svg {
-          width: 25px !important;
-          height: 25px !important;
+          width: 25px;
+          height: 25px;
         }
 
         .messages-inbox-page .input-area input[type="text"],
         .messages-inbox-page .input-area input:not([type]) {
-          height: 56px !important;
-          padding: 0 22px !important;
-          border-radius: 11px !important;
-          font-size: 19px !important;
+          height: 56px;
+          padding: 0 22px;
+          border-radius: 11px;
+          font-size: 19px;
         }
 
         .messages-inbox-page .input-area .send {
-          width: 56px !important;
-          height: 56px !important;
-          border-radius: 12px !important;
+          width: 56px;
+          height: 56px;
+          border-radius: 12px;
         }
 
         .messages-inbox-page .input-area .send svg {
-          width: 29px !important;
-          height: 29px !important;
+          width: 29px;
+          height: 29px;
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          width: min(1060px, calc(100vw - 28px)) !important;
-          height: min(650px, calc(100vh - var(--topbar-h, 0px) - 32px)) !important;
-          min-height: 560px !important;
-          grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) !important;
-          gap: 10px !important;
+          width: min(1060px, calc(100vw - 28px));
+          height: min(650px, calc(100vh - var(--topbar-h, 0px) - 32px));
+          min-height: 560px;
+          grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+          gap: 10px;
         }
 
         .messages-inbox-page .messages-sidebar,
         .messages-inbox-page .chat-wrapper {
-          border-radius: 16px !important;
+          border-radius: 16px;
         }
 
         .messages-inbox-page .messages-sidebar {
-          padding: 24px 13px 16px !important;
+          padding: 24px 13px 16px;
         }
 
         .messages-inbox-page .sidebar-heading h1 {
-          margin-bottom: 22px !important;
-          font-size: 25px !important;
+          margin-bottom: 22px;
+          font-size: 25px;
         }
 
         .messages-inbox-page .message-tabs {
-          height: 46px !important;
-          margin-bottom: 22px !important;
+          height: 46px;
+          margin-bottom: 22px;
         }
 
         .messages-inbox-page .message-tabs button {
-          padding: 0 12px !important;
-          font-size: 13px !important;
+          padding: 0 12px;
+          font-size: 13px;
         }
 
         .messages-inbox-page .message-tabs button span {
-          right: 10px !important;
-          bottom: -10px !important;
-          min-width: 25px !important;
-          height: 25px !important;
-          font-size: 13px !important;
+          right: 10px;
+          bottom: -10px;
+          min-width: 25px;
+          height: 25px;
+          font-size: 13px;
         }
 
         .messages-inbox-page .message-search {
-          height: 48px !important;
-          margin-bottom: 20px !important;
-          grid-template-columns: 31px minmax(0, 1fr) 46px !important;
+          height: 48px;
+          margin-bottom: 20px;
+          grid-template-columns: 31px minmax(0, 1fr) 46px;
         }
 
         .messages-inbox-page .message-search input {
-          font-size: 14px !important;
+          font-size: 14px;
         }
 
         .messages-inbox-page .message-search button {
-          width: 46px !important;
-          height: 48px !important;
+          width: 46px;
+          height: 48px;
         }
 
         .messages-inbox-page .sidebar-conversation {
-          min-height: 82px !important;
-          grid-template-columns: 56px minmax(0, 1fr) 32px !important;
-          gap: 12px !important;
-          padding: 12px !important;
-          margin-bottom: 10px !important;
+          min-height: 82px;
+          grid-template-columns: 56px minmax(0, 1fr) 32px;
+          gap: 12px;
+          padding: 12px;
+          margin-bottom: 10px;
         }
 
         .messages-inbox-page .sidebar-avatar {
-          width: 50px !important;
-          height: 50px !important;
+          width: 50px;
+          height: 50px;
         }
 
         .messages-inbox-page .sidebar-copy strong {
-          font-size: 16px !important;
+          font-size: 16px;
         }
 
         .messages-inbox-page .sidebar-copy time,
         .messages-inbox-page .sidebar-copy p {
-          font-size: 13px !important;
+          font-size: 13px;
         }
 
         .messages-inbox-page .archive-button {
-          height: 54px !important;
-          font-size: 14px !important;
+          height: 54px;
+          font-size: 14px;
         }
 
         .messages-inbox-page .chat-wrapper {
-          padding: 16px 16px 12px !important;
+          padding: 16px 16px 12px;
         }
 
         .messages-inbox-page .header {
-          min-height: 56px !important;
-          grid-template-columns: 42px 52px minmax(0, 1fr) auto !important;
-          gap: 10px !important;
-          margin-bottom: 12px !important;
+          min-height: 56px;
+          grid-template-columns: 42px 52px minmax(0, 1fr) auto;
+          gap: 10px;
+          margin-bottom: 12px;
         }
 
         .messages-inbox-page .mobile-chat-back {
-          width: 40px !important;
-          height: 40px !important;
+          width: 40px;
+          height: 40px;
         }
 
         .messages-inbox-page .avatar {
-          width: 48px !important;
-          height: 48px !important;
+          width: 48px;
+          height: 48px;
         }
 
         .messages-inbox-page .seller-info strong {
-          font-size: 19px !important;
+          font-size: 19px;
         }
 
         .messages-inbox-page .online-status {
-          font-size: 14px !important;
+          font-size: 14px;
         }
 
         .messages-inbox-page .chat-actions button {
-          width: 38px !important;
-          height: 38px !important;
+          width: 38px;
+          height: 38px;
         }
 
         .messages-inbox-page .chat-actions button svg {
-          width: 19px !important;
-          height: 19px !important;
+          width: 19px;
+          height: 19px;
         }
 
         .messages-inbox-page .chat-listing-strip {
-          min-height: 98px !important;
-          grid-template-columns: 104px minmax(0, 1fr) 158px !important;
-          gap: 14px !important;
-          margin-bottom: 18px !important;
-          padding: 12px !important;
+          min-height: 98px;
+          grid-template-columns: 104px minmax(0, 1fr) 158px;
+          gap: 14px;
+          margin-bottom: 18px;
+          padding: 12px;
         }
 
         .messages-inbox-page .listing-thumb,
         .messages-inbox-page .listing-thumb img {
-          width: 96px !important;
-          height: 72px !important;
+          width: 96px;
+          height: 72px;
         }
 
         .messages-inbox-page .listing-summary strong {
-          font-size: 17px !important;
+          font-size: 17px;
         }
 
         .messages-inbox-page .listing-summary span {
-          margin-top: 8px !important;
-          font-size: 26px !important;
+          margin-top: 8px;
+          font-size: 26px;
         }
 
         .messages-inbox-page .listing-open {
-          min-height: 50px !important;
-          font-size: 14px !important;
+          min-height: 50px;
+          font-size: 14px;
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .other {
-          min-width: 150px !important;
-          max-width: min(390px, 72%) !important;
-          padding: 16px 17px 13px !important;
-          border-radius: 12px !important;
+          min-width: 150px;
+          max-width: min(390px, 72%);
+          padding: 16px 17px 13px;
+          border-radius: 12px;
         }
 
         .messages-inbox-page .chat-window .own p,
         .messages-inbox-page .chat-window .other p {
-          font-size: 14px !important;
+          font-size: 14px;
         }
 
         .messages-inbox-page .chat-window .message-meta {
-          font-size: 12.5px !important;
+          font-size: 12.5px;
         }
 
         .messages-inbox-page .input-area form {
-          min-height: 72px !important;
-          grid-template-columns: 48px minmax(0, 1fr) 48px 48px !important;
-          grid-template-rows: 48px !important;
-          gap: 10px !important;
-          padding: 11px 12px !important;
+          min-height: 72px;
+          grid-template-columns: 48px minmax(0, 1fr) 48px 48px;
+          grid-template-rows: 48px;
+          gap: 10px;
+          padding: 11px 12px;
         }
 
         .messages-inbox-page .input-area .tool {
-          width: 40px !important;
-          height: 40px !important;
+          width: 40px;
+          height: 40px;
         }
 
         .messages-inbox-page .input-area .tool svg {
-          width: 21px !important;
-          height: 21px !important;
+          width: 21px;
+          height: 21px;
         }
 
         .messages-inbox-page .input-area input[type="text"],
         .messages-inbox-page .input-area input:not([type]) {
-          height: 46px !important;
-          padding: 0 18px !important;
-          font-size: 16px !important;
+          height: 46px;
+          padding: 0 18px;
+          font-size: 16px;
         }
 
         .messages-inbox-page .input-area .send {
-          width: 46px !important;
-          height: 46px !important;
+          width: 46px;
+          height: 46px;
         }
 
         .messages-inbox-page .input-area .send svg {
-          width: 25px !important;
-          height: 25px !important;
+          width: 25px;
+          height: 25px;
         }
 
         .messages-inbox-page {
-          min-height: calc(100vh - var(--topbar-h, 0px)) !important;
-          padding: 12px 16px 14px !important;
-          overflow: hidden !important;
+          min-height: calc(100vh - var(--topbar-h, 0px));
+          padding: 12px 16px 14px;
+          overflow: hidden;
           background:
             radial-gradient(860px 420px at 52% 8%, rgba(20, 67, 102, 0.18), transparent 68%),
-            linear-gradient(180deg, #050f1a 0%, #06121d 56%, #040b13 100%) !important;
+            linear-gradient(180deg, #050f1a 0%, #06121d 56%, #040b13 100%);
         }
 
         .messages-inbox-page .messages-page-back {
-          width: min(1380px, calc(100vw - 32px)) !important;
-          height: 34px !important;
-          margin: 0 auto 10px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          gap: 8px !important;
-          color: #f3f8ff !important;
-          font-size: 12px !important;
-          font-weight: 850 !important;
-          text-decoration: none !important;
+          width: min(1380px, calc(100vw - 32px));
+          height: 34px;
+          margin: 0 auto 10px;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          color: #f3f8ff;
+          font-size: 12px;
+          font-weight: 850;
+          text-decoration: none;
         }
 
         .messages-inbox-page .messages-page-back svg {
-          color: #ff7a12 !important;
+          color: #ff7a12;
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          width: min(1380px, calc(100vw - 32px)) !important;
-          height: min(650px, calc(100vh - var(--topbar-h, 0px) - 58px)) !important;
-          min-height: 560px !important;
-          display: grid !important;
-          grid-template-columns: 345px minmax(0, 1fr) 275px !important;
-          gap: 10px !important;
-          margin: 0 auto !important;
-          padding: 0 !important;
+          width: min(1380px, calc(100vw - 32px));
+          height: min(650px, calc(100vh - var(--topbar-h, 0px) - 58px));
+          min-height: 560px;
+          display: grid;
+          grid-template-columns: 345px minmax(0, 1fr) 275px;
+          gap: 10px;
+          margin: 0 auto;
+          padding: 0;
         }
 
         .messages-inbox-page .messages-sidebar,
         .messages-inbox-page .chat-wrapper,
         .messages-inbox-page .messages-info-panel {
-          min-height: 0 !important;
-          height: 100% !important;
-          border: 1px solid rgba(51, 82, 110, 0.54) !important;
-          border-radius: 6px !important;
+          min-height: 0;
+          height: 100%;
+          border: 1px solid rgba(51, 82, 110, 0.54);
+          border-radius: 6px;
           background:
             radial-gradient(520px 220px at 12% 0%, rgba(20, 63, 96, 0.14), transparent 70%),
-            rgba(5, 17, 29, 0.9) !important;
-          box-shadow: none !important;
+            rgba(5, 17, 29, 0.9);
+          box-shadow: none;
         }
 
         .messages-inbox-page .messages-sidebar {
-          padding: 18px 14px 12px !important;
+          padding: 18px 14px 12px;
         }
 
         .messages-inbox-page .sidebar-heading {
-          display: flex !important;
-          align-items: baseline !important;
-          gap: 9px !important;
-          margin-bottom: 16px !important;
+          display: flex;
+          align-items: baseline;
+          gap: 9px;
+          margin-bottom: 16px;
         }
 
         .messages-inbox-page .sidebar-heading h1 {
-          margin: 0 !important;
-          font-size: 24px !important;
-          font-weight: 950 !important;
-          line-height: 1 !important;
+          margin: 0;
+          font-size: 24px;
+          font-weight: 950;
+          line-height: 1;
         }
 
         .messages-inbox-page .sidebar-heading::after {
-          content: attr(data-all-conversations) !important;
-          color: #8ca0b4 !important;
-          font-size: 11px !important;
-          font-weight: 650 !important;
+          content: attr(data-all-conversations);
+          color: #8ca0b4;
+          font-size: 11px;
+          font-weight: 650;
         }
 
         .messages-inbox-page .message-tabs {
-          height: 34px !important;
-          margin-bottom: 14px !important;
-          border-radius: 5px !important;
-          background: rgba(5, 18, 31, 0.78) !important;
+          height: 34px;
+          margin-bottom: 14px;
+          border-radius: 5px;
+          background: rgba(5, 18, 31, 0.78);
         }
 
         .messages-inbox-page .message-tabs button {
-          padding: 0 16px !important;
-          font-size: 11px !important;
-          font-weight: 850 !important;
+          padding: 0 16px;
+          font-size: 11px;
+          font-weight: 850;
         }
 
         .messages-inbox-page .message-tabs button.active {
-          border: 1px solid rgba(255, 122, 18, 0.72) !important;
-          border-radius: 4px !important;
-          background: linear-gradient(180deg, rgba(255, 122, 18, 0.24), rgba(255, 122, 18, 0.08)) !important;
+          border: 1px solid rgba(255, 122, 18, 0.72);
+          border-radius: 4px;
+          background: linear-gradient(180deg, rgba(255, 122, 18, 0.24), rgba(255, 122, 18, 0.08));
         }
 
         .messages-inbox-page .message-tabs button span {
-          position: static !important;
-          min-width: 22px !important;
-          height: 22px !important;
-          margin-left: 7px !important;
-          border: 0 !important;
-          font-size: 11px !important;
+          position: static;
+          min-width: 22px;
+          height: 22px;
+          margin-left: 7px;
+          border: 0;
+          font-size: 11px;
         }
 
         .messages-inbox-page .message-search {
-          height: 40px !important;
-          margin-bottom: 12px !important;
-          grid-template-columns: 30px minmax(0, 1fr) 38px !important;
-          border-radius: 5px !important;
+          height: 40px;
+          margin-bottom: 12px;
+          grid-template-columns: 30px minmax(0, 1fr) 38px;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .message-search input {
-          font-size: 11px !important;
+          font-size: 11px;
         }
 
         .messages-inbox-page .message-search button {
-          width: 38px !important;
-          height: 40px !important;
+          width: 38px;
+          height: 40px;
         }
 
         .messages-inbox-page .sidebar-conversation {
-          min-height: 58px !important;
-          grid-template-columns: 44px minmax(0, 1fr) 28px !important;
-          gap: 10px !important;
-          margin-bottom: 7px !important;
-          padding: 9px 10px !important;
-          border-radius: 5px !important;
-          background: rgba(4, 15, 26, 0.58) !important;
+          min-height: 58px;
+          grid-template-columns: 44px minmax(0, 1fr) 28px;
+          gap: 10px;
+          margin-bottom: 7px;
+          padding: 9px 10px;
+          border-radius: 5px;
+          background: rgba(4, 15, 26, 0.58);
         }
 
         .messages-inbox-page .sidebar-conversation.active {
-          border-left-color: #ff7412 !important;
+          border-left-color: #ff7412;
           background:
             linear-gradient(90deg, rgba(255, 116, 18, 0.18), rgba(255, 116, 18, 0.04)),
-            rgba(14, 27, 40, 0.86) !important;
+            rgba(14, 27, 40, 0.86);
         }
 
         .messages-inbox-page .sidebar-avatar {
-          width: 38px !important;
-          height: 38px !important;
+          width: 38px;
+          height: 38px;
         }
 
         .messages-inbox-page .sidebar-copy {
-          gap: 4px !important;
+          gap: 4px;
         }
 
         .messages-inbox-page .sidebar-copy strong {
-          font-size: 12.5px !important;
-          font-weight: 900 !important;
+          font-size: 12.5px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .sidebar-copy time,
         .messages-inbox-page .sidebar-copy p {
-          font-size: 10.5px !important;
+          font-size: 10.5px;
         }
 
         .messages-inbox-page .sidebar-unread {
-          min-width: 22px !important;
-          height: 22px !important;
-          font-size: 11px !important;
+          min-width: 22px;
+          height: 22px;
+          font-size: 11px;
         }
 
         .messages-inbox-page .archive-button {
-          height: 38px !important;
-          font-size: 12px !important;
-          border-radius: 5px !important;
+          height: 38px;
+          font-size: 12px;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .chat-wrapper {
-          padding: 14px 14px 10px !important;
+          padding: 14px 14px 10px;
         }
 
         .messages-inbox-page .header {
-          min-height: 52px !important;
-          grid-template-columns: 44px 48px minmax(0, 1fr) auto !important;
-          gap: 10px !important;
-          margin-bottom: 8px !important;
+          min-height: 52px;
+          grid-template-columns: 44px 48px minmax(0, 1fr) auto;
+          gap: 10px;
+          margin-bottom: 8px;
         }
 
         .messages-inbox-page .mobile-chat-back {
-          width: 34px !important;
-          height: 34px !important;
-          border-radius: 5px !important;
+          width: 34px;
+          height: 34px;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .avatar {
-          width: 44px !important;
-          height: 44px !important;
+          width: 44px;
+          height: 44px;
         }
 
         .messages-inbox-page .seller-info strong {
-          font-size: 17px !important;
+          font-size: 17px;
         }
 
         .messages-inbox-page .online-status {
-          margin-top: 5px !important;
-          font-size: 11px !important;
+          margin-top: 5px;
+          font-size: 11px;
         }
 
         .messages-inbox-page .chat-actions {
-          gap: 7px !important;
+          gap: 7px;
         }
 
         .messages-inbox-page .chat-actions button {
-          width: 32px !important;
-          height: 32px !important;
-          border-radius: 5px !important;
+          width: 32px;
+          height: 32px;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .chat-actions button svg {
-          width: 16px !important;
-          height: 16px !important;
+          width: 16px;
+          height: 16px;
         }
 
         .messages-inbox-page .chat-listing-strip {
-          min-height: 82px !important;
-          grid-template-columns: 76px minmax(0, 1fr) 130px !important;
-          gap: 12px !important;
-          margin-bottom: 12px !important;
-          padding: 10px !important;
-          border-radius: 5px !important;
+          min-height: 82px;
+          grid-template-columns: 76px minmax(0, 1fr) 130px;
+          gap: 12px;
+          margin-bottom: 12px;
+          padding: 10px;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .listing-thumb,
         .messages-inbox-page .listing-thumb img {
-          width: 66px !important;
-          height: 54px !important;
-          border-radius: 5px !important;
+          width: 66px;
+          height: 54px;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .listing-summary strong {
-          font-size: 12px !important;
+          font-size: 12px;
         }
 
         .messages-inbox-page .listing-summary span {
-          margin-top: 5px !important;
-          font-size: 18px !important;
+          margin-top: 5px;
+          font-size: 18px;
         }
 
         .messages-inbox-page .listing-open {
-          min-height: 36px !important;
-          border-radius: 5px !important;
-          font-size: 11px !important;
+          min-height: 36px;
+          border-radius: 5px;
+          font-size: 11px;
         }
 
         .messages-inbox-page .chat-window .date-divider {
-          margin: 2px 0 14px !important;
-          font-size: 10px !important;
+          margin: 2px 0 14px;
+          font-size: 10px;
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .other {
-          min-width: 130px !important;
-          max-width: min(360px, 74%) !important;
-          padding: 12px 13px 9px !important;
-          border-radius: 7px !important;
+          min-width: 130px;
+          max-width: min(360px, 74%);
+          padding: 12px 13px 9px;
+          border-radius: 7px;
         }
 
         .messages-inbox-page .chat-window .own p,
         .messages-inbox-page .chat-window .other p {
-          font-size: 12px !important;
+          font-size: 12px;
         }
 
         .messages-inbox-page .chat-window .message-meta {
-          font-size: 10.5px !important;
-          margin-top: 4px !important;
+          font-size: 10.5px;
+          margin-top: 4px;
         }
 
         .messages-inbox-page .input-area form {
-          min-height: 52px !important;
-          grid-template-columns: 34px minmax(0, 1fr) 34px 34px !important;
-          grid-template-rows: 34px !important;
-          gap: 8px !important;
-          padding: 8px !important;
-          border-radius: 5px !important;
+          min-height: 52px;
+          grid-template-columns: 34px minmax(0, 1fr) 34px 34px;
+          grid-template-rows: 34px;
+          gap: 8px;
+          padding: 8px;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .input-area .tool {
-          width: 30px !important;
-          height: 30px !important;
-          border-radius: 5px !important;
+          width: 30px;
+          height: 30px;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .input-area .tool svg {
-          width: 16px !important;
-          height: 16px !important;
+          width: 16px;
+          height: 16px;
         }
 
         .messages-inbox-page .input-area input[type="text"],
         .messages-inbox-page .input-area input:not([type]) {
-          height: 34px !important;
-          padding: 0 12px !important;
-          border-radius: 5px !important;
-          font-size: 12px !important;
+          height: 34px;
+          padding: 0 12px;
+          border-radius: 5px;
+          font-size: 12px;
         }
 
         .messages-inbox-page .input-area .send {
-          width: 34px !important;
-          height: 34px !important;
-          border-radius: 5px !important;
+          width: 34px;
+          height: 34px;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .input-area .send svg {
-          width: 18px !important;
-          height: 18px !important;
+          width: 18px;
+          height: 18px;
         }
 
         .messages-inbox-page .messages-info-panel {
-          display: flex !important;
-          flex-direction: column !important;
-          gap: 12px !important;
-          padding: 10px !important;
-          overflow-y: auto !important;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          padding: 10px;
+          overflow-y: auto;
         }
 
         .messages-inbox-page .messages-info-card {
-          display: grid !important;
-          gap: 12px !important;
-          padding: 14px !important;
-          border: 1px solid rgba(51, 82, 110, 0.54) !important;
-          border-radius: 6px !important;
-          background: rgba(6, 19, 32, 0.82) !important;
+          display: grid;
+          gap: 12px;
+          padding: 14px;
+          border: 1px solid rgba(51, 82, 110, 0.54);
+          border-radius: 6px;
+          background: rgba(6, 19, 32, 0.82);
         }
 
         .messages-inbox-page .messages-info-card h2 {
-          margin: 0 !important;
-          color: #f5f9ff !important;
-          font-size: 14px !important;
-          font-weight: 900 !important;
+          margin: 0;
+          color: #f5f9ff;
+          font-size: 14px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .messages-info-card-head {
-          display: flex !important;
-          align-items: center !important;
-          justify-content: space-between !important;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
         }
 
         .messages-inbox-page .messages-info-card-head button {
-          width: 24px !important;
-          height: 24px !important;
-          border: 0 !important;
-          background: transparent !important;
-          color: #cbd7e4 !important;
-          box-shadow: none !important;
+          width: 24px;
+          height: 24px;
+          border: 0;
+          background: transparent;
+          color: #cbd7e4;
+          box-shadow: none;
         }
 
         .messages-inbox-page .messages-info-listing,
         .messages-inbox-page .messages-info-seller {
-          display: grid !important;
-          grid-template-columns: 66px minmax(0, 1fr) !important;
-          align-items: center !important;
-          gap: 12px !important;
+          display: grid;
+          grid-template-columns: 66px minmax(0, 1fr);
+          align-items: center;
+          gap: 12px;
         }
 
         .messages-inbox-page .messages-info-listing img {
-          width: 66px !important;
-          height: 56px !important;
-          border-radius: 5px !important;
-          object-fit: cover !important;
+          width: 66px;
+          height: 56px;
+          border-radius: 5px;
+          object-fit: cover;
         }
 
         .messages-inbox-page .messages-info-listing strong,
         .messages-inbox-page .messages-info-seller strong {
-          display: block !important;
-          color: #f5f9ff !important;
-          font-size: 13px !important;
-          font-weight: 900 !important;
+          display: block;
+          color: #f5f9ff;
+          font-size: 13px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .messages-info-listing span {
-          display: block !important;
-          margin-top: 7px !important;
-          color: #fff !important;
-          font-size: 19px !important;
-          font-weight: 950 !important;
+          display: block;
+          margin-top: 7px;
+          color: #fff;
+          font-size: 19px;
+          font-weight: 950;
         }
 
         .messages-inbox-page .messages-info-primary,
         .messages-inbox-page .messages-info-secondary {
-          min-height: 36px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 8px !important;
-          border: 1px solid rgba(64, 96, 126, 0.58) !important;
-          border-radius: 5px !important;
-          color: #f5f9ff !important;
-          font-size: 11px !important;
-          font-weight: 850 !important;
-          text-decoration: none !important;
-          background: rgba(8, 25, 42, 0.84) !important;
+          min-height: 36px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          border: 1px solid rgba(64, 96, 126, 0.58);
+          border-radius: 5px;
+          color: #f5f9ff;
+          font-size: 11px;
+          font-weight: 850;
+          text-decoration: none;
+          background: rgba(8, 25, 42, 0.84);
         }
 
         .messages-inbox-page .messages-info-primary {
-          border-color: rgba(255, 130, 30, 0.58) !important;
-          background: linear-gradient(135deg, #ff8518, #ff6900) !important;
+          border-color: rgba(255, 130, 30, 0.58);
+          background: linear-gradient(135deg, #ff8518, #ff6900);
         }
 
         .messages-inbox-page .messages-info-seller {
-          grid-template-columns: 50px minmax(0, 1fr) !important;
+          grid-template-columns: 50px minmax(0, 1fr);
         }
 
         .messages-inbox-page .messages-info-seller .avatar {
-          width: 46px !important;
-          height: 46px !important;
+          width: 46px;
+          height: 46px;
         }
 
         .messages-inbox-page .seller-presence {
-          display: block !important;
-          margin-top: 3px !important;
-          color: #65e69c !important;
-          font-size: 10px !important;
-          font-weight: 850 !important;
+          display: block;
+          margin-top: 3px;
+          color: #65e69c;
+          font-size: 10px;
+          font-weight: 850;
         }
 
         .messages-inbox-page .messages-info-seller small,
         .messages-inbox-page .messages-info-seller em {
-          display: flex !important;
-          align-items: center !important;
-          gap: 5px !important;
-          margin-top: 6px !important;
-          color: #c0ccda !important;
-          font-size: 10px !important;
-          font-style: normal !important;
-          font-weight: 700 !important;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          margin-top: 6px;
+          color: #c0ccda;
+          font-size: 10px;
+          font-style: normal;
+          font-weight: 700;
         }
 
         .messages-inbox-page .messages-info-seller small svg {
-          color: #ff991f !important;
-          fill: currentColor !important;
+          color: #ff991f;
+          fill: currentColor;
         }
 
         .messages-inbox-page .safety-info-card h2 {
-          display: flex !important;
-          align-items: center !important;
-          gap: 8px !important;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
 
         .messages-inbox-page .safety-info-card h2 svg {
-          color: #ff7a12 !important;
+          color: #ff7a12;
         }
 
         .messages-inbox-page .safety-info-card p {
-          margin: 0 !important;
-          color: #aab9c8 !important;
-          font-size: 11px !important;
-          line-height: 1.55 !important;
+          margin: 0;
+          color: #aab9c8;
+          font-size: 11px;
+          line-height: 1.55;
         }
 
         .messages-inbox-page .safety-info-card a {
-          color: #ff8a1d !important;
-          font-weight: 850 !important;
+          color: #ff8a1d;
+          font-weight: 850;
         }
 
         .messages-inbox-page .message-tabs button.active {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 7px !important;
-          padding: 0 10px !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          padding: 0 10px;
         }
 
         .messages-inbox-page .message-tabs button span {
-          position: static !important;
-          transform: none !important;
-          flex: 0 0 auto !important;
-          min-width: 20px !important;
-          height: 20px !important;
-          margin: 0 !important;
-          padding: 0 6px !important;
-          border: 0 !important;
-          font-size: 11px !important;
-          line-height: 1 !important;
+          position: static;
+          transform: none;
+          flex: 0 0 auto;
+          min-width: 20px;
+          height: 20px;
+          margin: 0;
+          padding: 0 6px;
+          border: 0;
+          font-size: 11px;
+          line-height: 1;
         }
 
         .messages-inbox-page .input-area form {
-          grid-template-columns: minmax(0, 1fr) 36px 36px 42px !important;
-          grid-template-rows: 42px !important;
+          grid-template-columns: minmax(0, 1fr) 36px 36px 42px;
+          grid-template-rows: 42px;
         }
 
         .messages-inbox-page .input-area input[type="text"],
         .messages-inbox-page .input-area input:not([type]) {
-          grid-column: 1 !important;
-          grid-row: 1 !important;
-          height: 42px !important;
+          grid-column: 1;
+          grid-row: 1;
+          height: 42px;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(1) {
-          grid-column: 2 !important;
-          grid-row: 1 !important;
+          grid-column: 2;
+          grid-row: 1;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(2) {
-          display: none !important;
+          display: none;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(3) {
-          grid-column: 3 !important;
-          grid-row: 1 !important;
-          display: inline-flex !important;
+          grid-column: 3;
+          grid-row: 1;
+          display: inline-flex;
         }
 
         .messages-inbox-page .input-area .send {
-          grid-column: 4 !important;
-          grid-row: 1 !important;
+          grid-column: 4;
+          grid-row: 1;
         }
 
         .messages-inbox-page .seller-presence.offline {
-          color: #8ea1b4 !important;
+          color: #8ea1b4;
         }
 
         .messages-inbox-page {
-          min-height: calc(100dvh - var(--topbar-h, 0px)) !important;
-          padding: 10px 18px 18px !important;
-          overflow: hidden !important;
+          min-height: calc(100dvh - var(--topbar-h, 0px));
+          padding: 10px 18px 18px;
+          overflow: hidden;
         }
 
         .messages-inbox-page .messages-page-back {
-          height: 26px !important;
-          margin: 0 auto 8px !important;
+          height: 26px;
+          margin: 0 auto 8px;
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          width: min(1380px, calc(100vw - 36px)) !important;
-          height: calc(100dvh - var(--topbar-h, 0px) - 54px) !important;
-          min-height: 0 !important;
-          grid-template-columns: 345px minmax(560px, 1fr) 275px !important;
-          gap: 10px !important;
+          width: min(1380px, calc(100vw - 36px));
+          height: calc(100dvh - var(--topbar-h, 0px) - 54px);
+          min-height: 0;
+          grid-template-columns: 345px minmax(560px, 1fr) 275px;
+          gap: 10px;
         }
 
         .messages-inbox-page .messages-sidebar,
         .messages-inbox-page .chat-wrapper,
         .messages-inbox-page .messages-info-panel {
-          height: 100% !important;
-          min-height: 0 !important;
+          height: 100%;
+          min-height: 0;
         }
 
         .messages-inbox-page .messages-sidebar {
-          padding: 18px 14px 12px !important;
+          padding: 18px 14px 12px;
         }
 
         .messages-inbox-page .message-tabs {
-          height: 38px !important;
-          overflow: visible !important;
+          height: 38px;
+          overflow: visible;
         }
 
         .messages-inbox-page .message-tabs button {
-          overflow: visible !important;
+          overflow: visible;
         }
 
         .messages-inbox-page .message-tabs button.active {
-          position: relative !important;
+          position: relative;
         }
 
         .messages-inbox-page .message-tabs button span {
-          position: absolute !important;
-          right: 8px !important;
-          top: 50% !important;
-          bottom: auto !important;
-          transform: translateY(-50%) !important;
-          min-width: 22px !important;
-          height: 22px !important;
-          margin: 0 !important;
-          border: 0 !important;
-          box-shadow: 0 8px 18px rgba(255, 112, 12, 0.28) !important;
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          bottom: auto;
+          transform: translateY(-50%);
+          min-width: 22px;
+          height: 22px;
+          margin: 0;
+          border: 0;
+          box-shadow: 0 8px 18px rgba(255, 112, 12, 0.28);
         }
 
         .messages-inbox-page .chat-wrapper {
-          padding: 14px !important;
+          padding: 14px;
         }
 
         .messages-inbox-page .inbox-preview-area {
-          flex: 1 1 auto !important;
-          min-height: 0 !important;
+          flex: 1 1 auto;
+          min-height: 0;
         }
 
         .messages-inbox-page .chat-window {
-          height: 100% !important;
-          padding-bottom: 8px !important;
+          height: 100%;
+          padding-bottom: 8px;
         }
 
         .messages-inbox-page .input-area {
-          flex: 0 0 auto !important;
+          flex: 0 0 auto;
         }
 
         .messages-inbox-page .input-area form {
-          min-height: 58px !important;
-          grid-template-columns: 40px minmax(0, 1fr) 40px 44px !important;
-          grid-template-rows: 40px !important;
-          align-items: center !important;
-          gap: 8px !important;
-          padding: 8px !important;
+          min-height: 58px;
+          grid-template-columns: 40px minmax(0, 1fr) 40px 44px;
+          grid-template-rows: 40px;
+          align-items: center;
+          gap: 8px;
+          padding: 8px;
         }
 
         .messages-inbox-page .input-area input[type="text"],
         .messages-inbox-page .input-area input:not([type]) {
-          height: 40px !important;
-          font-size: 13px !important;
+          height: 40px;
+          font-size: 13px;
         }
 
         .messages-inbox-page .input-area .tool {
-          width: 36px !important;
-          height: 36px !important;
+          width: 36px;
+          height: 36px;
         }
 
         .messages-inbox-page .input-area .send {
-          width: 40px !important;
-          height: 40px !important;
-          background: linear-gradient(135deg, #2f83ff, #1f63d5) !important;
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #2f83ff, #1f63d5);
         }
 
         .messages-inbox-page .input-area .send svg {
-          width: 22px !important;
-          height: 22px !important;
+          width: 22px;
+          height: 22px;
         }
 
         @media (max-width: 1100px) {
           .messages-inbox-page .messages-desktop-shell {
-            grid-template-columns: 300px minmax(0, 1fr) !important;
+            grid-template-columns: 300px minmax(0, 1fr);
           }
 
           .messages-inbox-page .messages-info-panel {
-            display: none !important;
+            display: none;
           }
         }
 
         .messages-inbox-page .message-tabs button.active {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 7px !important;
-          padding: 0 10px !important;
-          position: relative !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          padding: 0 10px;
+          position: relative;
         }
 
         .messages-inbox-page .message-tabs button span {
-          position: static !important;
-          inset: auto !important;
-          transform: none !important;
-          flex: 0 0 auto !important;
-          min-width: 20px !important;
-          height: 20px !important;
-          margin: 0 !important;
-          padding: 0 6px !important;
-          border: 0 !important;
-          font-size: 11px !important;
-          line-height: 1 !important;
+          position: static;
+          inset: auto;
+          transform: none;
+          flex: 0 0 auto;
+          min-width: 20px;
+          height: 20px;
+          margin: 0;
+          padding: 0 6px;
+          border: 0;
+          font-size: 11px;
+          line-height: 1;
         }
 
         .messages-inbox-page .input-area form {
-          grid-template-columns: minmax(0, 1fr) 36px 36px 42px !important;
-          grid-template-rows: 42px !important;
-          min-height: 58px !important;
+          grid-template-columns: minmax(0, 1fr) 36px 36px 42px;
+          grid-template-rows: 42px;
+          min-height: 58px;
         }
 
         .messages-inbox-page .input-area input[type="text"],
         .messages-inbox-page .input-area input:not([type]) {
-          grid-column: 1 !important;
-          grid-row: 1 !important;
-          height: 42px !important;
+          grid-column: 1;
+          grid-row: 1;
+          height: 42px;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(1) {
-          grid-column: 2 !important;
-          grid-row: 1 !important;
+          grid-column: 2;
+          grid-row: 1;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(2) {
-          display: none !important;
+          display: none;
         }
 
         .messages-inbox-page .input-area .tool:nth-of-type(3) {
-          grid-column: 3 !important;
-          grid-row: 1 !important;
-          display: inline-flex !important;
+          grid-column: 3;
+          grid-row: 1;
+          display: inline-flex;
         }
 
         .messages-inbox-page .input-area .send {
-          grid-column: 4 !important;
-          grid-row: 1 !important;
+          grid-column: 4;
+          grid-row: 1;
         }
 
         .messages-inbox-page .seller-presence.offline {
-          color: #8ea1b4 !important;
+          color: #8ea1b4;
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          height: calc(100dvh - var(--topbar-h, 0px) - 28px) !important;
+          height: calc(100dvh - var(--topbar-h, 0px) - 28px);
         }
 
         .messages-inbox-page .header {
-          grid-template-columns: 48px minmax(0, 1fr) auto !important;
+          grid-template-columns: 48px minmax(0, 1fr) auto;
         }
 
         .messages-inbox-page .seller {
-          display: grid !important;
-          grid-template-columns: 44px minmax(0, 1fr) !important;
-          align-items: center !important;
-          gap: 10px !important;
+          display: grid;
+          grid-template-columns: 44px minmax(0, 1fr);
+          align-items: center;
+          gap: 10px;
         }
 
         .messages-inbox-page .mobile-chat-back,
         .messages-inbox-page .messages-page-back {
-          display: none !important;
+          display: none;
         }
 
         .messages-inbox-page .header {
-          grid-template-columns: minmax(0, 1fr) !important;
-          align-items: center !important;
+          grid-template-columns: minmax(0, 1fr);
+          align-items: center;
         }
 
         .messages-inbox-page .seller {
-          display: grid !important;
-          grid-template-columns: 46px minmax(0, 1fr) !important;
-          align-items: center !important;
-          gap: 10px !important;
-          min-width: 0 !important;
-          width: 100% !important;
+          display: grid;
+          grid-template-columns: 46px minmax(0, 1fr);
+          align-items: center;
+          gap: 10px;
+          min-width: 0;
+          width: 100%;
         }
 
         .messages-inbox-page .seller-info {
-          min-width: 0 !important;
+          min-width: 0;
         }
 
         .messages-inbox-page .seller-info strong {
-          display: block !important;
-          max-width: 100% !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
-          line-height: 1.1 !important;
+          display: block;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          line-height: 1.1;
         }
 
         .messages-inbox-page .online-status,
         .messages-inbox-page .seller-presence {
-          max-width: 100% !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .chat-actions,
         .messages-inbox-page .chat-action-menu-wrap {
-          display: none !important;
+          display: none;
         }
 
         .messages-inbox-page .header {
-          background: transparent !important;
-          background-image: none !important;
-          border: 0 !important;
-          border-bottom: 0 !important;
-          box-shadow: none !important;
-          margin-bottom: 10px !important;
-          padding: 0 !important;
+          background: transparent;
+          background-image: none;
+          border: 0;
+          border-bottom: 0;
+          box-shadow: none;
+          margin-bottom: 10px;
+          padding: 0;
         }
 
         body .messages-inbox-page .chat-wrapper > header.header,
         html body .messages-inbox-page .chat-wrapper > header.header,
         main.messages-inbox-page .chat-wrapper > header.header {
-          background: transparent !important;
-          background-color: transparent !important;
-          background-image: none !important;
-          border: 0 !important;
-          border-top: 0 !important;
-          border-right: 0 !important;
-          border-bottom: 0 !important;
-          border-left: 0 !important;
-          box-shadow: none !important;
-          outline: 0 !important;
+          background: transparent;
+          background-color: transparent;
+          background-image: none;
+          border: 0;
+          border-top: 0;
+          border-right: 0;
+          border-bottom: 0;
+          border-left: 0;
+          box-shadow: none;
+          outline: 0;
         }
 
         body .messages-inbox-page .chat-wrapper > header.header::before,
         body .messages-inbox-page .chat-wrapper > header.header::after,
         html body .messages-inbox-page .chat-wrapper > header.header::before,
         html body .messages-inbox-page .chat-wrapper > header.header::after {
-          content: none !important;
-          display: none !important;
+          content: none;
+          display: none;
         }
 
         body .messages-inbox-page .chat-wrapper > header.header .seller,
         html body .messages-inbox-page .chat-wrapper > header.header .seller {
-          background: transparent !important;
-          background-color: transparent !important;
-          background-image: none !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          outline: 0 !important;
+          background: transparent;
+          background-color: transparent;
+          background-image: none;
+          border: 0;
+          box-shadow: none;
+          outline: 0;
         }
 
         .messages-inbox-page .chat-window .messages {
-          gap: 18px !important;
+          gap: 18px;
         }
 
         .messages-inbox-page .chat-window .row {
-          align-items: flex-start !important;
-          gap: 8px !important;
+          align-items: flex-start;
+          gap: 8px;
         }
 
         .messages-inbox-page .chat-window .message-avatar {
-          align-self: flex-start !important;
-          width: 26px !important;
-          height: 26px !important;
-          margin-top: 2px !important;
-          border: 0 !important;
-          box-shadow: none !important;
+          align-self: flex-start;
+          width: 26px;
+          height: 26px;
+          margin-top: 2px;
+          border: 0;
+          box-shadow: none;
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .other {
-          min-width: 130px !important;
-          max-width: min(440px, 78%) !important;
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) auto !important;
-          gap: 8px !important;
-          padding: 13px 15px 10px !important;
-          border: 0 !important;
-          border-radius: 8px !important;
+          min-width: 130px;
+          max-width: min(440px, 78%);
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 8px;
+          padding: 13px 15px 10px;
+          border: 0;
+          border-radius: 8px;
         }
 
         .messages-inbox-page .chat-window .own {
-          min-height: 60px !important;
-          min-width: 210px !important;
-          margin-left: auto !important;
-          border-bottom-right-radius: 5px !important;
+          min-height: 60px;
+          min-width: 210px;
+          margin-left: auto;
+          border-bottom-right-radius: 5px;
           background:
             linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 35%),
-            linear-gradient(180deg, #ff7f14 0%, #ff6900 100%) !important;
-          box-shadow: 0 18px 38px rgba(255, 105, 0, 0.25) !important;
+            linear-gradient(180deg, #ff7f14 0%, #ff6900 100%);
+          box-shadow: 0 18px 38px rgba(255, 105, 0, 0.25);
         }
 
         .messages-inbox-page .chat-window .other {
-          border-bottom-left-radius: 5px !important;
+          border-bottom-left-radius: 5px;
           background:
             linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 42%),
-            linear-gradient(180deg, #152433 0%, #111f2e 100%) !important;
-          box-shadow: 0 14px 30px rgba(0, 8, 20, 0.26) !important;
+            linear-gradient(180deg, #152433 0%, #111f2e 100%);
+          box-shadow: 0 14px 30px rgba(0, 8, 20, 0.26);
         }
 
         .messages-inbox-page .chat-window .own p,
         .messages-inbox-page .chat-window .other p {
-          color: inherit !important;
-          font-size: 12px !important;
-          font-weight: 650 !important;
-          grid-column: 1 / -1 !important;
-          line-height: 1.5 !important;
+          color: inherit;
+          font-size: 12px;
+          font-weight: 650;
+          grid-column: 1 / -1;
+          line-height: 1.5;
         }
 
         .messages-inbox-page .chat-window .message-meta {
-          margin-top: 0 !important;
-          font-size: 10.5px !important;
-          font-weight: 750 !important;
-          opacity: 0.82 !important;
+          margin-top: 0;
+          font-size: 10.5px;
+          font-weight: 750;
+          opacity: 0.82;
         }
 
         .messages-inbox-page .chat-window .outside-time {
-          align-self: flex-end !important;
-          margin: 0 0 4px -2px !important;
-          color: rgba(160, 176, 194, 0.72) !important;
-          font-size: 10.5px !important;
-          font-weight: 750 !important;
-          line-height: 1 !important;
-          white-space: nowrap !important;
+          align-self: flex-end;
+          margin: 0 0 4px -2px;
+          color: rgba(160, 176, 194, 0.72);
+          font-size: 10.5px;
+          font-weight: 750;
+          line-height: 1;
+          white-space: nowrap;
         }
 
         body .messages-inbox-page.messages-page {
-          min-height: calc(100dvh - var(--topbar-h, 56px)) !important;
-          height: calc(100dvh - var(--topbar-h, 56px)) !important;
-          padding: 18px 28px 20px !important;
-          overflow: hidden !important;
-          background: #10232d !important;
-          color: #f4f8fc !important;
+          min-height: calc(100dvh - var(--topbar-h, 56px));
+          height: calc(100dvh - var(--topbar-h, 56px));
+          padding: 18px 28px 20px;
+          overflow: hidden;
+          background: #10232d;
+          color: #f4f8fc;
         }
 
         .messages-inbox-page *,
         .messages-inbox-page *::before,
         .messages-inbox-page *::after {
-          box-sizing: border-box !important;
-          letter-spacing: 0 !important;
+          box-sizing: border-box;
+          letter-spacing: 0;
         }
 
         .messages-inbox-page .messages-desktop-shell {
-          width: min(1380px, calc(100vw - 56px)) !important;
-          height: calc(100dvh - var(--topbar-h, 56px) - 38px) !important;
-          min-height: 0 !important;
-          display: grid !important;
-          grid-template-columns: 345px minmax(540px, 1fr) 275px !important;
-          gap: 10px !important;
-          margin: 0 auto !important;
-          padding: 0 !important;
+          width: min(1380px, calc(100vw - 56px));
+          height: calc(100dvh - var(--topbar-h, 56px) - 38px);
+          min-height: 0;
+          display: grid;
+          grid-template-columns: 345px minmax(540px, 1fr) 275px;
+          gap: 10px;
+          margin: 0 auto;
+          padding: 0;
         }
 
         .messages-inbox-page .messages-sidebar,
         .messages-inbox-page .chat-wrapper,
         .messages-inbox-page .messages-info-panel {
-          min-width: 0 !important;
-          min-height: 0 !important;
-          height: 100% !important;
-          border: 1px solid #294760 !important;
-          border-radius: 6px !important;
-          background: #061522 !important;
-          box-shadow: none !important;
-          overflow: hidden !important;
+          min-width: 0;
+          min-height: 0;
+          height: 100%;
+          border: 1px solid #294760;
+          border-radius: 6px;
+          background: #061522;
+          box-shadow: none;
+          overflow: hidden;
         }
 
         .messages-inbox-page .messages-sidebar {
-          display: flex !important;
-          flex-direction: column !important;
-          padding: 22px 14px 14px !important;
+          display: flex;
+          flex-direction: column;
+          padding: 22px 14px 14px;
         }
 
         .messages-inbox-page .sidebar-heading {
-          display: flex !important;
-          align-items: baseline !important;
-          gap: 8px !important;
-          margin: 0 0 16px !important;
+          display: flex;
+          align-items: baseline;
+          gap: 8px;
+          margin: 0 0 16px;
         }
 
         .messages-inbox-page .sidebar-heading h1 {
-          margin: 0 !important;
-          color: #f6f9fd !important;
-          font-size: 24px !important;
-          font-weight: 950 !important;
-          line-height: 1 !important;
+          margin: 0;
+          color: #f6f9fd;
+          font-size: 24px;
+          font-weight: 950;
+          line-height: 1;
         }
 
         .messages-inbox-page .sidebar-heading::after {
-          content: attr(data-all-conversations) !important;
-          color: #93a6b7 !important;
-          font-size: 11px !important;
-          font-weight: 800 !important;
+          content: attr(data-all-conversations);
+          color: #93a6b7;
+          font-size: 11px;
+          font-weight: 800;
         }
 
         .messages-inbox-page .message-tabs {
-          flex: 0 0 auto !important;
-          height: 38px !important;
-          display: grid !important;
-          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-          margin: 0 0 26px !important;
-          overflow: hidden !important;
-          border: 1px solid #294760 !important;
-          border-radius: 5px !important;
-          background: #071a2b !important;
+          flex: 0 0 auto;
+          height: 38px;
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          margin: 0 0 26px;
+          overflow: hidden;
+          border: 1px solid #294760;
+          border-radius: 5px;
+          background: #071a2b;
         }
 
         .messages-inbox-page .message-tabs button {
-          min-width: 0 !important;
-          height: 36px !important;
-          padding: 0 8px !important;
-          border: 0 !important;
-          border-right: 1px solid #243d55 !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          color: #b5c2cf !important;
-          box-shadow: none !important;
-          font-size: 11px !important;
-          font-weight: 900 !important;
-          line-height: 1 !important;
+          min-width: 0;
+          height: 36px;
+          padding: 0 8px;
+          border: 0;
+          border-right: 1px solid #243d55;
+          border-radius: 0;
+          background: transparent;
+          color: #b5c2cf;
+          box-shadow: none;
+          font-size: 11px;
+          font-weight: 900;
+          line-height: 1;
         }
 
         .messages-inbox-page .message-tabs button:last-child {
-          border-right: 0 !important;
+          border-right: 0;
         }
 
         .messages-inbox-page .message-tabs button.active {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 7px !important;
-          border: 1px solid #ff7a12 !important;
-          border-radius: 4px !important;
-          background: #07111d !important;
-          color: #ffffff !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          border: 1px solid #ff7a12;
+          border-radius: 4px;
+          background: #07111d;
+          color: #ffffff;
         }
 
         .messages-inbox-page .message-tabs button span,
         .messages-inbox-page .sidebar-unread {
-          position: static !important;
-          display: inline-grid !important;
-          place-items: center !important;
-          min-width: 20px !important;
-          height: 20px !important;
-          margin: 0 !important;
-          padding: 0 6px !important;
-          border: 0 !important;
-          border-radius: 999px !important;
-          background: #ff7412 !important;
-          color: #ffffff !important;
-          box-shadow: none !important;
-          font-size: 11px !important;
-          font-weight: 950 !important;
-          line-height: 1 !important;
-          transform: none !important;
+          position: static;
+          display: inline-grid;
+          place-items: center;
+          min-width: 20px;
+          height: 20px;
+          margin: 0;
+          padding: 0 6px;
+          border: 0;
+          border-radius: 999px;
+          background: #ff7412;
+          color: #ffffff;
+          box-shadow: none;
+          font-size: 11px;
+          font-weight: 950;
+          line-height: 1;
+          transform: none;
         }
 
         .messages-inbox-page .message-search {
-          flex: 0 0 auto !important;
-          height: 40px !important;
-          display: grid !important;
-          grid-template-columns: 32px minmax(0, 1fr) 38px !important;
-          align-items: center !important;
-          gap: 0 !important;
-          margin: 0 0 12px !important;
-          padding: 0 0 0 10px !important;
-          border: 1px solid #294760 !important;
-          border-radius: 5px !important;
-          background: #092034 !important;
-          color: #a9b9c9 !important;
+          flex: 0 0 auto;
+          height: 40px;
+          display: grid;
+          grid-template-columns: 32px minmax(0, 1fr) 38px;
+          align-items: center;
+          gap: 0;
+          margin: 0 0 12px;
+          padding: 0 0 0 10px;
+          border: 1px solid #294760;
+          border-radius: 5px;
+          background: #092034;
+          color: #a9b9c9;
         }
 
         .messages-inbox-page .message-search svg {
-          width: 20px !important;
-          height: 20px !important;
-          color: #94a9bb !important;
+          width: 20px;
+          height: 20px;
+          color: #94a9bb;
         }
 
         .messages-inbox-page .message-search input {
-          min-width: 0 !important;
-          height: 38px !important;
-          border: 0 !important;
-          background: transparent !important;
-          color: #f4f8fc !important;
-          outline: 0 !important;
-          font-size: 11px !important;
-          font-weight: 800 !important;
+          min-width: 0;
+          height: 38px;
+          border: 0;
+          background: transparent;
+          color: #f4f8fc;
+          outline: 0;
+          font-size: 11px;
+          font-weight: 800;
         }
 
         .messages-inbox-page .message-search input::placeholder {
-          color: #8ea1b4 !important;
-          opacity: 1 !important;
+          color: #8ea1b4;
+          opacity: 1;
         }
 
         .messages-inbox-page .message-search button {
-          width: 38px !important;
-          height: 38px !important;
-          border: 0 !important;
-          border-left: 1px solid #294760 !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          color: #c6d4e2 !important;
-          box-shadow: none !important;
+          width: 38px;
+          height: 38px;
+          border: 0;
+          border-left: 1px solid #294760;
+          border-radius: 0;
+          background: transparent;
+          color: #c6d4e2;
+          box-shadow: none;
         }
 
         .messages-inbox-page .sidebar-list {
-          min-height: 0 !important;
-          display: flex !important;
-          flex: 1 1 auto !important;
-          flex-direction: column !important;
-          gap: 7px !important;
-          overflow-y: auto !important;
-          padding: 0 1px 8px !important;
+          min-height: 0;
+          display: flex;
+          flex: 1 1 auto;
+          flex-direction: column;
+          gap: 7px;
+          overflow-y: auto;
+          padding: 0 1px 8px;
         }
 
         .messages-inbox-page .sidebar-conversation {
-          position: relative !important;
-          min-height: 58px !important;
-          width: 100% !important;
-          display: grid !important;
-          grid-template-columns: 44px minmax(0, 1fr) auto !important;
-          align-items: center !important;
-          gap: 10px !important;
-          margin: 0 !important;
-          padding: 9px 8px !important;
-          border: 1px solid transparent !important;
-          border-radius: 5px !important;
-          background: transparent !important;
-          color: inherit !important;
-          box-shadow: none !important;
-          text-align: left !important;
+          position: relative;
+          min-height: 58px;
+          width: 100%;
+          display: grid;
+          grid-template-columns: 44px minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 10px;
+          margin: 0;
+          padding: 9px 8px;
+          border: 1px solid transparent;
+          border-radius: 5px;
+          background: transparent;
+          color: inherit;
+          box-shadow: none;
+          text-align: left;
         }
 
         .messages-inbox-page .sidebar-conversation:hover {
-          border-color: rgba(255, 122, 18, 0.42) !important;
-          background: rgba(255, 122, 18, 0.06) !important;
-          transform: none !important;
+          border-color: rgba(255, 122, 18, 0.42);
+          background: rgba(255, 122, 18, 0.06);
+          transform: none;
         }
 
         .messages-inbox-page .sidebar-conversation.active {
-          border-color: #ff7412 !important;
-          background: #2a2424 !important;
+          border-color: #ff7412;
+          background: #2a2424;
         }
 
         .messages-inbox-page .sidebar-avatar {
-          position: relative !important;
-          width: 42px !important;
-          height: 42px !important;
-          display: grid !important;
-          place-items: center !important;
-          overflow: visible !important;
-          border: 2px solid #eef8ff !important;
-          border-radius: 999px !important;
-          background: #f8fbff !important;
-          color: #0e2434 !important;
-          box-shadow: 0 0 0 2px #061522 !important;
-          font-size: 11px !important;
-          font-weight: 950 !important;
+          position: relative;
+          width: 42px;
+          height: 42px;
+          display: grid;
+          place-items: center;
+          overflow: visible;
+          border: 2px solid #eef8ff;
+          border-radius: 999px;
+          background: #f8fbff;
+          color: #0e2434;
+          box-shadow: 0 0 0 2px #061522;
+          font-size: 11px;
+          font-weight: 950;
         }
 
         .messages-inbox-page .sidebar-avatar img {
-          width: 100% !important;
-          height: 100% !important;
-          display: block !important;
-          border-radius: inherit !important;
-          object-fit: cover !important;
+          width: 100%;
+          height: 100%;
+          display: block;
+          border-radius: inherit;
+          object-fit: cover;
         }
 
         .messages-inbox-page .sidebar-avatar span,
         .messages-inbox-page .avatar-presence {
-          position: absolute !important;
-          right: -2px !important;
-          bottom: -2px !important;
-          width: 14px !important;
-          height: 14px !important;
-          border: 2px solid #061522 !important;
-          border-radius: 999px !important;
-          background: #24e275 !important;
+          position: absolute;
+          right: -2px;
+          bottom: -2px;
+          width: 14px;
+          height: 14px;
+          border: 2px solid #061522;
+          border-radius: 999px;
+          background: #24e275;
         }
 
         .messages-inbox-page .sidebar-copy {
-          min-width: 0 !important;
-          display: grid !important;
-          gap: 5px !important;
+          min-width: 0;
+          display: grid;
+          gap: 5px;
         }
 
         .messages-inbox-page .sidebar-copy > div {
-          min-width: 0 !important;
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) auto !important;
-          gap: 10px !important;
-          align-items: center !important;
+          min-width: 0;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 10px;
+          align-items: center;
         }
 
         .messages-inbox-page .sidebar-copy strong {
-          overflow: hidden !important;
-          color: #f7fbff !important;
-          font-size: 12.5px !important;
-          font-weight: 950 !important;
-          line-height: 1.2 !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          overflow: hidden;
+          color: #f7fbff;
+          font-size: 12.5px;
+          font-weight: 950;
+          line-height: 1.2;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .sidebar-copy time {
-          color: #9bacbd !important;
-          font-size: 10.5px !important;
-          font-weight: 850 !important;
-          white-space: nowrap !important;
+          color: #9bacbd;
+          font-size: 10.5px;
+          font-weight: 850;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .sidebar-copy p {
-          overflow: hidden !important;
-          margin: 0 !important;
-          color: #a8b8c8 !important;
-          font-size: 10.5px !important;
-          font-weight: 750 !important;
-          line-height: 1.3 !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          overflow: hidden;
+          margin: 0;
+          color: #a8b8c8;
+          font-size: 10.5px;
+          font-weight: 750;
+          line-height: 1.3;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .archive-button {
-          flex: 0 0 auto !important;
-          width: 100% !important;
-          min-height: 38px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 9px !important;
-          border: 1px solid #335473 !important;
-          border-radius: 5px !important;
-          background: #102f4b !important;
-          color: #d7e4f1 !important;
-          box-shadow: none !important;
-          font-size: 12px !important;
-          font-weight: 900 !important;
+          flex: 0 0 auto;
+          width: 100%;
+          min-height: 38px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 9px;
+          border: 1px solid #335473;
+          border-radius: 5px;
+          background: #102f4b;
+          color: #d7e4f1;
+          box-shadow: none;
+          font-size: 12px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .chat-wrapper {
-          display: flex !important;
-          flex-direction: column !important;
-          padding: 14px !important;
+          display: flex;
+          flex-direction: column;
+          padding: 14px;
         }
 
         .messages-inbox-page .header {
-          flex: 0 0 auto !important;
-          min-height: 52px !important;
-          display: flex !important;
-          align-items: center !important;
-          margin: 0 0 10px !important;
-          padding: 0 !important;
-          border: 0 !important;
-          background: transparent !important;
-          box-shadow: none !important;
+          flex: 0 0 auto;
+          min-height: 52px;
+          display: flex;
+          align-items: center;
+          margin: 0 0 10px;
+          padding: 0;
+          border: 0;
+          background: transparent;
+          box-shadow: none;
         }
 
         .messages-inbox-page .mobile-chat-back {
-          display: none !important;
+          display: none;
         }
 
         .messages-inbox-page .seller {
-          min-width: 0 !important;
-          display: grid !important;
-          grid-template-columns: 46px minmax(0, 1fr) !important;
-          align-items: center !important;
-          gap: 10px !important;
-          width: 100% !important;
+          min-width: 0;
+          display: grid;
+          grid-template-columns: 46px minmax(0, 1fr);
+          align-items: center;
+          gap: 10px;
+          width: 100%;
         }
 
         .messages-inbox-page .avatar {
-          position: relative !important;
-          width: 46px !important;
-          height: 46px !important;
-          display: grid !important;
-          place-items: center !important;
-          overflow: visible !important;
-          border: 2px solid #effaff !important;
-          border-radius: 999px !important;
-          background: #f8fbff !important;
-          color: #0e2434 !important;
-          box-shadow: 0 0 0 2px #061522 !important;
-          font-size: 12px !important;
-          font-weight: 950 !important;
+          position: relative;
+          width: 46px;
+          height: 46px;
+          display: grid;
+          place-items: center;
+          overflow: visible;
+          border: 2px solid #effaff;
+          border-radius: 999px;
+          background: #f8fbff;
+          color: #0e2434;
+          box-shadow: 0 0 0 2px #061522;
+          font-size: 12px;
+          font-weight: 950;
         }
 
         .messages-inbox-page .avatar img,
         .messages-inbox-page .avatar-fallback {
-          width: 100% !important;
-          height: 100% !important;
-          display: grid !important;
-          place-items: center !important;
-          border-radius: inherit !important;
-          object-fit: cover !important;
+          width: 100%;
+          height: 100%;
+          display: grid;
+          place-items: center;
+          border-radius: inherit;
+          object-fit: cover;
         }
 
         .messages-inbox-page .seller-info {
-          min-width: 0 !important;
+          min-width: 0;
         }
 
         .messages-inbox-page .seller-info strong {
-          display: block !important;
-          overflow: hidden !important;
-          color: #f7fbff !important;
-          font-size: 17px !important;
-          font-weight: 950 !important;
-          line-height: 1.1 !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          display: block;
+          overflow: hidden;
+          color: #f7fbff;
+          font-size: 17px;
+          font-weight: 950;
+          line-height: 1.1;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .online-status,
         .messages-inbox-page .seller-presence {
-          display: block !important;
-          overflow: hidden !important;
-          margin: 5px 0 0 !important;
-          color: #59e896 !important;
-          font-size: 11px !important;
-          font-weight: 900 !important;
-          line-height: 1.15 !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          display: block;
+          overflow: hidden;
+          margin: 5px 0 0;
+          color: #59e896;
+          font-size: 11px;
+          font-weight: 900;
+          line-height: 1.15;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .online-status.offline,
         .messages-inbox-page .seller-presence.offline {
-          color: #8ea1b4 !important;
+          color: #8ea1b4;
         }
 
         .messages-inbox-page .chat-listing-strip {
-          flex: 0 0 auto !important;
-          min-height: 82px !important;
-          display: grid !important;
-          grid-template-columns: 76px minmax(0, 1fr) auto !important;
-          align-items: center !important;
-          gap: 12px !important;
-          margin: 0 0 14px !important;
-          padding: 10px !important;
-          border: 1px solid #294760 !important;
-          border-radius: 5px !important;
-          background: #082036 !important;
+          flex: 0 0 auto;
+          min-height: 82px;
+          display: grid;
+          grid-template-columns: 76px minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 12px;
+          margin: 0 0 14px;
+          padding: 10px;
+          border: 1px solid #294760;
+          border-radius: 5px;
+          background: #082036;
         }
 
         .messages-inbox-page .listing-thumb,
         .messages-inbox-page .listing-thumb img {
-          width: 66px !important;
-          height: 56px !important;
-          display: block !important;
-          overflow: hidden !important;
-          border-radius: 5px !important;
+          width: 66px;
+          height: 56px;
+          display: block;
+          overflow: hidden;
+          border-radius: 5px;
         }
 
         .messages-inbox-page .listing-thumb img {
-          object-fit: cover !important;
+          object-fit: cover;
         }
 
         .messages-inbox-page .listing-summary {
-          min-width: 0 !important;
+          min-width: 0;
         }
 
         .messages-inbox-page .listing-summary strong {
-          display: block !important;
-          overflow: hidden !important;
-          color: #f7fbff !important;
-          font-size: 12px !important;
-          font-weight: 950 !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          display: block;
+          overflow: hidden;
+          color: #f7fbff;
+          font-size: 12px;
+          font-weight: 950;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .listing-summary span {
-          display: block !important;
-          margin-top: 8px !important;
-          color: #ffffff !important;
-          font-size: 18px !important;
-          font-weight: 950 !important;
-          line-height: 1 !important;
+          display: block;
+          margin-top: 8px;
+          color: #ffffff;
+          font-size: 18px;
+          font-weight: 950;
+          line-height: 1;
         }
 
         .messages-inbox-page .listing-open {
-          min-height: 36px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 8px !important;
-          padding: 0 14px !important;
-          border: 1px solid #335473 !important;
-          border-radius: 5px !important;
-          background: #102f4b !important;
-          color: #f3f8ff !important;
-          text-decoration: none !important;
-          white-space: nowrap !important;
-          font-size: 11px !important;
-          font-weight: 900 !important;
+          min-height: 36px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 0 14px;
+          border: 1px solid #335473;
+          border-radius: 5px;
+          background: #102f4b;
+          color: #f3f8ff;
+          text-decoration: none;
+          white-space: nowrap;
+          font-size: 11px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .messages-area {
-          min-height: 0 !important;
-          flex: 1 1 auto !important;
-          overflow: hidden !important;
+          min-height: 0;
+          flex: 1 1 auto;
+          overflow: hidden;
         }
 
         .messages-inbox-page .chat-window {
-          height: 100% !important;
-          padding: 0 16px 14px !important;
-          background: transparent !important;
-          overflow-y: auto !important;
+          height: 100%;
+          padding: 0 16px 14px;
+          background: transparent;
+          overflow-y: auto;
         }
 
         .messages-inbox-page .chat-window .messages {
-          min-height: 100% !important;
-          gap: 18px !important;
-          justify-content: flex-start !important;
-          padding-top: 0 !important;
+          min-height: 100%;
+          gap: 18px;
+          justify-content: flex-start;
+          padding-top: 0;
         }
 
         .messages-inbox-page .chat-window .date-divider {
-          margin: 0 0 14px !important;
-          color: #788da2 !important;
-          font-size: 10px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
+          margin: 0 0 14px;
+          color: #788da2;
+          font-size: 10px;
+          font-weight: 950;
+          letter-spacing: 0;
         }
 
         .messages-inbox-page .chat-window .date-divider span {
-          border: 1px solid #294760 !important;
-          border-radius: 999px !important;
-          background: #071a2b !important;
-          padding: 7px 18px !important;
+          border: 1px solid #294760;
+          border-radius: 999px;
+          background: #071a2b;
+          padding: 7px 18px;
         }
 
         .messages-inbox-page .chat-window .date-divider::before,
         .messages-inbox-page .chat-window .date-divider::after {
-          background: #172d40 !important;
+          background: #172d40;
         }
 
         .messages-inbox-page .chat-window .row {
-          align-items: flex-start !important;
-          gap: 8px !important;
+          align-items: flex-start;
+          gap: 8px;
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .other {
-          max-width: min(440px, 78%) !important;
-          min-width: 130px !important;
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) auto !important;
-          gap: 8px !important;
-          border: 0 !important;
-          border-radius: 8px !important;
-          padding: 13px 15px 10px !important;
+          max-width: min(440px, 78%);
+          min-width: 130px;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 8px;
+          border: 0;
+          border-radius: 8px;
+          padding: 13px 15px 10px;
         }
 
         .messages-inbox-page .chat-window .own {
-          min-width: 210px !important;
-          min-height: 63px !important;
-          margin-left: auto !important;
-          border-bottom-right-radius: 5px !important;
-          background: linear-gradient(180deg, #ff8118 0%, #ff6900 100%) !important;
-          box-shadow: 0 20px 40px rgba(255, 105, 0, 0.28) !important;
-          color: #ffffff !important;
+          min-width: 210px;
+          min-height: 63px;
+          margin-left: auto;
+          border-bottom-right-radius: 5px;
+          background: linear-gradient(180deg, #ff8118 0%, #ff6900 100%);
+          box-shadow: 0 20px 40px rgba(255, 105, 0, 0.28);
+          color: #ffffff;
         }
 
         .messages-inbox-page .chat-window .other {
-          border-bottom-left-radius: 5px !important;
-          background: #101f2e !important;
-          box-shadow: 0 14px 30px rgba(0, 8, 20, 0.24) !important;
-          color: #eaf3fc !important;
+          border-bottom-left-radius: 5px;
+          background: #101f2e;
+          box-shadow: 0 14px 30px rgba(0, 8, 20, 0.24);
+          color: #eaf3fc;
         }
 
         .messages-inbox-page .chat-window .own p,
         .messages-inbox-page .chat-window .other p {
-          grid-column: 1 / -1 !important;
-          margin: 0 !important;
-          color: inherit !important;
-          font-size: 12px !important;
-          font-weight: 750 !important;
-          line-height: 1.5 !important;
+          grid-column: 1 / -1;
+          margin: 0;
+          color: inherit;
+          font-size: 12px;
+          font-weight: 750;
+          line-height: 1.5;
         }
 
         .messages-inbox-page .chat-window .message-meta,
         .messages-inbox-page .chat-window .outside-time {
-          font-size: 10.5px !important;
-          font-weight: 850 !important;
-          line-height: 1 !important;
+          font-size: 10.5px;
+          font-weight: 850;
+          line-height: 1;
         }
 
         .messages-inbox-page .chat-window .message-meta {
-          justify-self: end !important;
-          margin: 0 !important;
-          color: rgba(255, 255, 255, 0.86) !important;
+          justify-self: end;
+          margin: 0;
+          color: rgba(255, 255, 255, 0.86);
         }
 
         .messages-inbox-page .chat-window .outside-time {
-          align-self: flex-end !important;
-          margin: 0 0 4px -2px !important;
-          color: #7f93a6 !important;
+          align-self: flex-end;
+          margin: 0 0 4px -2px;
+          color: #7f93a6;
         }
 
         .messages-inbox-page .input-area {
-          flex: 0 0 auto !important;
-          padding-top: 8px !important;
+          flex: 0 0 auto;
+          padding-top: 8px;
         }
 
         .messages-inbox-page .input-area .wrapper {
-          gap: 8px !important;
+          gap: 8px;
         }
 
         .messages-inbox-page .input-area form {
-          min-height: 54px !important;
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) 38px 38px 42px !important;
-          grid-template-rows: 42px !important;
-          align-items: center !important;
-          gap: 8px !important;
-          padding: 6px 8px !important;
-          border: 1px solid #294760 !important;
-          border-radius: 5px !important;
-          background: #092034 !important;
-          box-shadow: none !important;
+          min-height: 54px;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 38px 38px 42px;
+          grid-template-rows: 42px;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 8px;
+          border: 1px solid #294760;
+          border-radius: 5px;
+          background: #092034;
+          box-shadow: none;
         }
 
         .messages-inbox-page .input-area form > input[type="file"] {
-          display: none !important;
+          display: none;
         }
 
         .messages-inbox-page .input-area form > input:not([type="file"]) {
-          grid-column: 1 !important;
-          grid-row: 1 !important;
-          width: 100% !important;
-          height: 42px !important;
-          min-width: 0 !important;
-          padding: 0 12px !important;
-          border: 1px solid #335473 !important;
-          border-radius: 5px !important;
-          background: #071a2b !important;
-          color: #f3f8ff !important;
-          box-shadow: none !important;
-          font-size: 12px !important;
-          font-weight: 800 !important;
+          grid-column: 1;
+          grid-row: 1;
+          width: 100%;
+          height: 42px;
+          min-width: 0;
+          padding: 0 12px;
+          border: 1px solid #335473;
+          border-radius: 5px;
+          background: #071a2b;
+          color: #f3f8ff;
+          box-shadow: none;
+          font-size: 12px;
+          font-weight: 800;
         }
 
         .messages-inbox-page .input-area form > input:not([type="file"])::placeholder {
-          color: #8ea1b4 !important;
-          opacity: 1 !important;
+          color: #8ea1b4;
+          opacity: 1;
         }
 
         .messages-inbox-page .input-area .tools {
-          display: contents !important;
+          display: contents;
         }
 
         .messages-inbox-page .input-area .tool {
-          width: 34px !important;
-          height: 34px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          border: 0 !important;
-          border-radius: 5px !important;
-          background: #102f4b !important;
-          color: #aac2d7 !important;
-          box-shadow: none !important;
+          width: 34px;
+          height: 34px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 0;
+          border-radius: 5px;
+          background: #102f4b;
+          color: #aac2d7;
+          box-shadow: none;
         }
 
         .messages-inbox-page .input-area .tools .tool:nth-child(1) {
-          grid-column: 2 !important;
-          grid-row: 1 !important;
+          grid-column: 2;
+          grid-row: 1;
         }
 
         .messages-inbox-page .input-area .tools .tool:nth-child(2) {
-          display: none !important;
+          display: none;
         }
 
         .messages-inbox-page .input-area .tools .tool:nth-child(3) {
-          grid-column: 3 !important;
-          grid-row: 1 !important;
+          grid-column: 3;
+          grid-row: 1;
         }
 
         .messages-inbox-page .input-area .send {
-          display: flex !important;
-          grid-column: 4 !important;
-          grid-row: 1 !important;
-          width: 42px !important;
-          height: 42px !important;
-          min-width: 42px !important;
-          border: 1px solid #69a2ff !important;
-          border-radius: 5px !important;
-          background: linear-gradient(135deg, #347fff 0%, #245fdf 100%) !important;
-          color: #ffffff !important;
-          box-shadow: none !important;
+          display: flex;
+          grid-column: 4;
+          grid-row: 1;
+          width: 42px;
+          height: 42px;
+          min-width: 42px;
+          border: 1px solid #69a2ff;
+          border-radius: 5px;
+          background: linear-gradient(135deg, #347fff 0%, #245fdf 100%);
+          color: #ffffff;
+          box-shadow: none;
         }
 
         .messages-inbox-page .input-area .send svg {
-          width: 22px !important;
-          height: 22px !important;
+          width: 22px;
+          height: 22px;
         }
 
         .messages-inbox-page .messages-info-panel {
-          display: flex !important;
-          flex-direction: column !important;
-          gap: 12px !important;
-          padding: 10px !important;
-          overflow-y: auto !important;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          padding: 10px;
+          overflow-y: auto;
         }
 
         .messages-inbox-page .messages-info-card {
-          display: grid !important;
-          gap: 12px !important;
-          padding: 14px !important;
-          border: 1px solid #294760 !important;
-          border-radius: 6px !important;
-          background: #061522 !important;
-          box-shadow: none !important;
+          display: grid;
+          gap: 12px;
+          padding: 14px;
+          border: 1px solid #294760;
+          border-radius: 6px;
+          background: #061522;
+          box-shadow: none;
         }
 
         .messages-inbox-page .messages-info-card h2 {
-          margin: 0 !important;
-          color: #f7fbff !important;
-          font-size: 14px !important;
-          font-weight: 950 !important;
-          line-height: 1.2 !important;
+          margin: 0;
+          color: #f7fbff;
+          font-size: 14px;
+          font-weight: 950;
+          line-height: 1.2;
         }
 
         .messages-inbox-page .messages-info-card-head {
-          display: flex !important;
-          align-items: center !important;
-          justify-content: space-between !important;
-          gap: 10px !important;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
         }
 
         .messages-inbox-page .messages-info-card-head button {
-          width: 24px !important;
-          height: 24px !important;
-          min-height: 0 !important;
-          border: 0 !important;
-          border-radius: 5px !important;
-          background: transparent !important;
-          color: #bdcddd !important;
-          box-shadow: none !important;
+          width: 24px;
+          height: 24px;
+          min-height: 0;
+          border: 0;
+          border-radius: 5px;
+          background: transparent;
+          color: #bdcddd;
+          box-shadow: none;
         }
 
         .messages-inbox-page .messages-info-listing,
         .messages-inbox-page .messages-info-seller {
-          min-width: 0 !important;
-          display: grid !important;
-          grid-template-columns: 66px minmax(0, 1fr) !important;
-          align-items: center !important;
-          gap: 12px !important;
+          min-width: 0;
+          display: grid;
+          grid-template-columns: 66px minmax(0, 1fr);
+          align-items: center;
+          gap: 12px;
         }
 
         .messages-inbox-page .messages-info-listing img {
-          width: 66px !important;
-          height: 56px !important;
-          display: block !important;
-          border-radius: 5px !important;
-          object-fit: cover !important;
+          width: 66px;
+          height: 56px;
+          display: block;
+          border-radius: 5px;
+          object-fit: cover;
         }
 
         .messages-inbox-page .messages-info-listing strong,
         .messages-inbox-page .messages-info-seller strong {
-          display: block !important;
-          overflow: hidden !important;
-          color: #f7fbff !important;
-          font-size: 13px !important;
-          font-weight: 950 !important;
-          line-height: 1.25 !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          display: block;
+          overflow: hidden;
+          color: #f7fbff;
+          font-size: 13px;
+          font-weight: 950;
+          line-height: 1.25;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .messages-info-listing span {
-          display: block !important;
-          margin-top: 8px !important;
-          color: #ffffff !important;
-          font-size: 19px !important;
-          font-weight: 950 !important;
-          line-height: 1 !important;
+          display: block;
+          margin-top: 8px;
+          color: #ffffff;
+          font-size: 19px;
+          font-weight: 950;
+          line-height: 1;
         }
 
         .messages-inbox-page .messages-info-primary,
         .messages-inbox-page .messages-info-secondary {
-          min-height: 36px !important;
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 8px !important;
-          padding: 0 12px !important;
-          border: 1px solid #335473 !important;
-          border-radius: 5px !important;
-          background: #092034 !important;
-          color: #f3f8ff !important;
-          box-shadow: none !important;
-          text-decoration: none !important;
-          font-size: 11px !important;
-          font-weight: 900 !important;
+          min-height: 36px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 0 12px;
+          border: 1px solid #335473;
+          border-radius: 5px;
+          background: #092034;
+          color: #f3f8ff;
+          box-shadow: none;
+          text-decoration: none;
+          font-size: 11px;
+          font-weight: 900;
         }
 
         .messages-inbox-page .messages-info-primary {
-          border-color: #ff8c28 !important;
-          background: linear-gradient(135deg, #ff871a 0%, #ff6900 100%) !important;
-          color: #ffffff !important;
+          border-color: #ff8c28;
+          background: linear-gradient(135deg, #ff871a 0%, #ff6900 100%);
+          color: #ffffff;
         }
 
         .messages-inbox-page .messages-info-seller {
-          grid-template-columns: 50px minmax(0, 1fr) !important;
+          grid-template-columns: 50px minmax(0, 1fr);
         }
 
         .messages-inbox-page .messages-info-seller .avatar {
-          width: 48px !important;
-          height: 48px !important;
+          width: 48px;
+          height: 48px;
         }
 
         .messages-inbox-page .messages-info-seller small,
         .messages-inbox-page .messages-info-seller em {
-          display: flex !important;
-          align-items: center !important;
-          gap: 5px !important;
-          margin-top: 6px !important;
-          overflow: hidden !important;
-          color: #bdc9d6 !important;
-          font-size: 10px !important;
-          font-style: normal !important;
-          font-weight: 800 !important;
-          line-height: 1.2 !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          margin-top: 6px;
+          overflow: hidden;
+          color: #bdc9d6;
+          font-size: 10px;
+          font-style: normal;
+          font-weight: 800;
+          line-height: 1.2;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .messages-info-seller small svg,
         .messages-inbox-page .safety-info-card h2 svg {
-          color: #ff8a1d !important;
-          fill: currentColor !important;
+          color: #ff8a1d;
+          fill: currentColor;
         }
 
         .messages-inbox-page .safety-info-card h2 {
-          display: flex !important;
-          align-items: center !important;
-          gap: 8px !important;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
 
         .messages-inbox-page .safety-info-card p {
-          margin: 0 !important;
-          color: #aab9c8 !important;
-          font-size: 11px !important;
-          font-weight: 650 !important;
-          line-height: 1.55 !important;
+          margin: 0;
+          color: #aab9c8;
+          font-size: 11px;
+          font-weight: 650;
+          line-height: 1.55;
         }
 
         .messages-inbox-page .safety-info-card a {
-          color: #ff8a1d !important;
-          font-weight: 900 !important;
+          color: #ff8a1d;
+          font-weight: 900;
         }
 
         .messages-inbox-page .messages-login-panel,
         .messages-inbox-page .messages-empty {
-          min-height: 100% !important;
-          display: grid !important;
-          place-content: center !important;
-          justify-items: center !important;
-          gap: 12px !important;
-          color: #d8e6f3 !important;
-          text-align: center !important;
+          min-height: 100%;
+          display: grid;
+          place-content: center;
+          justify-items: center;
+          gap: 12px;
+          color: #d8e6f3;
+          text-align: center;
         }
 
         @media (max-width: 1180px) {
           .messages-inbox-page .messages-desktop-shell {
-            grid-template-columns: 320px minmax(0, 1fr) !important;
+            grid-template-columns: 320px minmax(0, 1fr);
           }
 
           .messages-inbox-page .messages-info-panel {
-            display: none !important;
+            display: none;
           }
         }
 
         @media (max-width: 760px) {
           body .messages-inbox-page.messages-page {
-            height: calc(100dvh - var(--topbar-h, 56px)) !important;
-            padding: 10px !important;
+            height: calc(100dvh - var(--topbar-h, 56px));
+            padding: 10px;
           }
 
           .messages-inbox-page .messages-desktop-shell {
-            width: 100% !important;
-            height: calc(100dvh - var(--topbar-h, 56px) - 20px) !important;
-            grid-template-columns: minmax(0, 1fr) !important;
+            width: 100%;
+            height: calc(100dvh - var(--topbar-h, 56px) - 20px);
+            grid-template-columns: minmax(0, 1fr);
           }
 
           .messages-inbox-page .messages-sidebar,
           .messages-inbox-page .chat-wrapper {
-            grid-column: 1 !important;
-            grid-row: 1 !important;
+            grid-column: 1;
+            grid-row: 1;
           }
 
           .messages-inbox-page .chat-wrapper {
-            display: none !important;
+            display: none;
           }
 
           .messages-inbox-page.mobile-conversation-open .messages-sidebar {
-            display: none !important;
+            display: none;
           }
 
           .messages-inbox-page.mobile-conversation-open .chat-wrapper {
-            display: flex !important;
+            display: flex;
           }
 
           .messages-inbox-page .messages-sidebar {
-            padding: 18px 12px 12px !important;
+            padding: 18px 12px 12px;
           }
 
           .messages-inbox-page .message-tabs {
-            margin-bottom: 14px !important;
+            margin-bottom: 14px;
           }
 
           .messages-inbox-page .header {
-            gap: 10px !important;
+            gap: 10px;
           }
 
           .messages-inbox-page .mobile-chat-back {
-            display: none !important;
+            display: none;
           }
 
           .messages-inbox-page .chat-listing-strip {
-            grid-template-columns: 58px minmax(0, 1fr) !important;
+            grid-template-columns: 58px minmax(0, 1fr);
           }
 
           .messages-inbox-page .listing-thumb,
           .messages-inbox-page .listing-thumb img {
-            width: 52px !important;
-            height: 46px !important;
+            width: 52px;
+            height: 46px;
           }
 
           .messages-inbox-page .listing-open {
-            grid-column: 1 / -1 !important;
-            width: 100% !important;
+            grid-column: 1 / -1;
+            width: 100%;
           }
 
           .messages-inbox-page .chat-window {
-            padding: 0 4px 12px !important;
+            padding: 0 4px 12px;
           }
 
           .messages-inbox-page .chat-window .own,
           .messages-inbox-page .chat-window .other {
-            max-width: 86% !important;
+            max-width: 86%;
           }
 
           .messages-inbox-page .input-area form {
-            grid-template-columns: minmax(0, 1fr) 34px 34px 38px !important;
-            gap: 6px !important;
-            padding: 6px !important;
+            grid-template-columns: minmax(0, 1fr) 34px 34px 38px;
+            gap: 6px;
+            padding: 6px;
           }
 
           .messages-inbox-page .input-area form > input:not([type="file"]) {
-            height: 40px !important;
+            height: 40px;
           }
 
           .messages-inbox-page .input-area .tool {
-            width: 32px !important;
-            height: 32px !important;
+            width: 32px;
+            height: 32px;
           }
 
           .messages-inbox-page .input-area .send {
-            width: 38px !important;
-            min-width: 38px !important;
-            height: 40px !important;
+            width: 38px;
+            min-width: 38px;
+            height: 40px;
           }
 
           .messages-inbox-page .input-area {
-            margin: 0 -10px -10px !important;
-            padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px)) !important;
-            background: #061522 !important;
-            border-top: 1px solid rgba(80, 120, 155, 0.42) !important;
+            margin: 0 -10px -10px;
+            padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+            background: #061522;
+            border-top: 1px solid rgba(80, 120, 155, 0.42);
           }
 
           .messages-inbox-page .input-area form {
-            width: 100% !important;
+            width: 100%;
           }
         }
 
         .messages-inbox-page .messages-area.inbox-preview-area {
-          position: relative !important;
-          border-top: 1px solid rgba(35, 62, 84, 0.58) !important;
+          position: relative;
+          border-top: 1px solid rgba(35, 62, 84, 0.58);
           background:
             radial-gradient(520px 260px at 72% 24%, rgba(19, 60, 88, 0.16), transparent 70%),
-            #061522 !important;
+            #061522;
         }
 
         .messages-inbox-page .messages-area.inbox-preview-area::before {
-          content: "" !important;
-          position: absolute !important;
-          inset: 0 !important;
-          pointer-events: none !important;
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
           background:
-            linear-gradient(90deg, rgba(6, 21, 34, 0.9), transparent 18%, transparent 82%, rgba(6, 21, 34, 0.9)) !important;
+            linear-gradient(90deg, rgba(6, 21, 34, 0.9), transparent 18%, transparent 82%, rgba(6, 21, 34, 0.9));
         }
 
         .messages-inbox-page .chat-window {
-          position: relative !important;
-          z-index: 1 !important;
-          padding: 22px 28px 16px !important;
+          position: relative;
+          z-index: 1;
+          padding: 22px 28px 16px;
         }
 
         .messages-inbox-page .chat-window .messages {
-          gap: 20px !important;
+          gap: 20px;
         }
 
         .messages-inbox-page .chat-window .message-avatar {
-          display: none !important;
+          display: none;
         }
 
         .messages-inbox-page .chat-window .row {
-          min-height: auto !important;
+          min-height: auto;
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .other {
-          min-height: 62px !important;
-          border-radius: 8px !important;
-          padding: 14px 16px 10px !important;
+          min-height: 62px;
+          border-radius: 8px;
+          padding: 14px 16px 10px;
         }
 
         .messages-inbox-page .chat-window .own {
-          width: min(520px, 74%) !important;
-          min-width: min(360px, 74%) !important;
+          width: min(520px, 74%);
+          min-width: min(360px, 74%);
           background:
             linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 34%),
-            linear-gradient(180deg, #ff8318 0%, #ff6900 100%) !important;
+            linear-gradient(180deg, #ff8318 0%, #ff6900 100%);
           box-shadow:
             0 24px 44px rgba(255, 105, 0, 0.28),
-            0 0 0 1px rgba(255, 255, 255, 0.03) inset !important;
+            0 0 0 1px rgba(255, 255, 255, 0.03) inset;
         }
 
         .messages-inbox-page .chat-window .other {
-          width: fit-content !important;
-          min-width: 132px !important;
-          max-width: min(360px, 74%) !important;
+          width: fit-content;
+          min-width: 132px;
+          max-width: min(360px, 74%);
           background:
             linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 44%),
-            #101f2e !important;
+            #101f2e;
           box-shadow:
             0 16px 32px rgba(0, 8, 20, 0.28),
-            0 0 0 1px rgba(255, 255, 255, 0.025) inset !important;
+            0 0 0 1px rgba(255, 255, 255, 0.025) inset;
         }
 
         .messages-inbox-page .chat-window .own p,
         .messages-inbox-page .chat-window .other p {
-          align-self: start !important;
-          grid-column: 1 / -1 !important;
-          padding-right: 0 !important;
-          font-size: 12px !important;
-          font-weight: 760 !important;
-          line-height: 1.45 !important;
+          align-self: start;
+          grid-column: 1 / -1;
+          padding-right: 0;
+          font-size: 12px;
+          font-weight: 760;
+          line-height: 1.45;
         }
 
         .messages-inbox-page .chat-window .message-meta {
-          grid-column: 2 !important;
-          align-self: end !important;
-          justify-self: end !important;
-          gap: 5px !important;
-          margin-top: 2px !important;
+          grid-column: 2;
+          align-self: end;
+          justify-self: end;
+          gap: 5px;
+          margin-top: 2px;
         }
 
         .messages-inbox-page .chat-window .read-state {
-          width: 14px !important;
-          min-width: 14px !important;
-          height: 14px !important;
+          width: 14px;
+          min-width: 14px;
+          height: 14px;
         }
 
         .messages-inbox-page .chat-window .read-state svg {
-          width: 14px !important;
-          height: 14px !important;
+          width: 14px;
+          height: 14px;
         }
 
         .messages-inbox-page .chat-window .outside-time {
-          align-self: center !important;
-          margin: 0 0 0 0 !important;
-          color: #7f93a6 !important;
+          align-self: center;
+          margin: 0 0 0 0;
+          color: #7f93a6;
         }
 
         .messages-inbox-page .chat-wrapper {
-          background: #061522 !important;
+          background: #061522;
         }
 
         .messages-inbox-page .chat-listing-strip {
-          margin-bottom: 0 !important;
+          margin-bottom: 0;
         }
 
         .messages-inbox-page .input-area {
-          border-top: 1px solid rgba(35, 62, 84, 0.58) !important;
-          padding-top: 8px !important;
+          border-top: 1px solid rgba(35, 62, 84, 0.58);
+          padding-top: 8px;
         }
 
         @media (max-width: 760px) {
           .messages-inbox-page .chat-window {
-            padding: 18px 10px 14px !important;
+            padding: 18px 10px 14px;
           }
 
           .messages-inbox-page .chat-window .own {
-            width: min(320px, 88%) !important;
-            min-width: min(240px, 88%) !important;
+            width: min(320px, 88%);
+            min-width: min(240px, 88%);
           }
 
           .messages-inbox-page .chat-window .other {
-            max-width: min(320px, 88%) !important;
+            max-width: min(320px, 88%);
           }
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .other {
-          width: fit-content !important;
-          min-width: 0 !important;
-          max-width: min(420px, 78%) !important;
-          min-height: 0 !important;
+          width: fit-content;
+          min-width: 0;
+          max-width: min(420px, 78%);
+          min-height: 0;
         }
 
         .messages-inbox-page .chat-window .own {
-          margin-left: 0 !important;
+          margin-left: 0;
         }
 
         .messages-inbox-page .chat-window .own-row {
-          justify-content: flex-end !important;
+          justify-content: flex-end;
         }
 
         @media (max-width: 760px) {
           .messages-inbox-page .chat-window .own,
           .messages-inbox-page .chat-window .other {
-            max-width: 88% !important;
+            max-width: 88%;
           }
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .other {
-          gap: 6px !important;
-          max-width: min(380px, 76%) !important;
-          padding: 9px 11px 7px !important;
+          gap: 6px;
+          max-width: min(380px, 76%);
+          padding: 9px 11px 7px;
         }
 
         .messages-inbox-page .chat-window .own p,
         .messages-inbox-page .chat-window .other p {
-          font-size: 11px !important;
-          line-height: 1.35 !important;
+          font-size: 11px;
+          line-height: 1.35;
         }
 
         .messages-inbox-page .chat-window .message-meta {
-          font-size: 10px !important;
-          gap: 4px !important;
-          margin-top: 0 !important;
+          font-size: 10px;
+          gap: 4px;
+          margin-top: 0;
         }
 
         .messages-inbox-page .chat-window .read-state,
         .messages-inbox-page .chat-window .read-state svg {
-          height: 13px !important;
+          height: 13px;
         }
 
         .messages-inbox-page .chat-window .read-state {
-          width: 18px !important;
-          min-width: 18px !important;
-          gap: 0 !important;
+          width: 18px;
+          min-width: 18px;
+          gap: 0;
         }
 
         .messages-inbox-page .chat-window .read-state svg {
-          width: 13px !important;
-          min-width: 13px !important;
+          width: 13px;
+          min-width: 13px;
         }
 
         .messages-inbox-page .chat-window .read-check-second {
-          margin-left: -5px !important;
+          margin-left: -5px;
         }
 
         .messages-inbox-page .chat-window .read-state {
-          color: rgba(255, 255, 255, 0.86) !important;
+          color: rgba(255, 255, 255, 0.86);
         }
 
         .messages-inbox-page .chat-window .message-meta.is-read .read-state {
-          color: #38a7ff !important;
+          color: #38a7ff;
         }
 
         .messages-inbox-page .chat-window .own {
-          align-items: end !important;
-          column-gap: 8px !important;
-          grid-template-columns: auto auto !important;
+          align-items: end;
+          column-gap: 8px;
+          grid-template-columns: auto auto;
         }
 
         .messages-inbox-page .chat-window .own p {
-          grid-column: 1 !important;
-          line-height: 1.3 !important;
+          grid-column: 1;
+          line-height: 1.3;
         }
 
         .messages-inbox-page .chat-window .own .message-meta {
-          grid-column: 2 !important;
-          align-self: end !important;
-          margin-left: 1px !important;
+          grid-column: 2;
+          align-self: end;
+          margin-left: 1px;
         }
 
         .messages-inbox-page .chat-window .read-state {
-          width: 16px !important;
-          min-width: 16px !important;
-          height: 12px !important;
-          gap: 1px !important;
-          position: relative !important;
-          transform: translateY(-1px) !important;
+          width: 16px;
+          min-width: 16px;
+          height: 12px;
+          gap: 1px;
+          position: relative;
+          transform: translateY(-1px);
         }
 
         .messages-inbox-page .chat-window .read-tick {
-          border-bottom: 1.55px solid currentColor !important;
-          border-right: 1.55px solid currentColor !important;
-          display: block !important;
-          flex: 0 0 auto !important;
-          height: 7px !important;
-          position: absolute !important;
-          top: 1px !important;
-          transform: rotate(45deg) !important;
-          width: 4.2px !important;
+          border-bottom: 1.55px solid currentColor;
+          border-right: 1.55px solid currentColor;
+          display: block;
+          flex: 0 0 auto;
+          height: 7px;
+          position: absolute;
+          top: 1px;
+          transform: rotate(45deg);
+          width: 4.2px;
         }
 
         .messages-inbox-page .chat-window .read-tick:first-of-type {
-          left: 2px !important;
+          left: 2px;
         }
 
         .messages-inbox-page .chat-window .read-tick:nth-of-type(2) {
-          left: 7px !important;
+          left: 7px;
         }
 
         .messages-inbox-page .chat-window .read-state svg {
-          width: 12px !important;
-          min-width: 12px !important;
-          height: 12px !important;
+          width: 12px;
+          min-width: 12px;
+          height: 12px;
         }
 
         .messages-inbox-page .chat-window .read-check-second {
-          margin-left: -4px !important;
+          margin-left: -4px;
         }
 
         .messages-inbox-page .chat-window .message-meta.is-read .read-state,
         .messages-inbox-page .chat-window .read-state.is-read {
-          color: #009dff !important;
-          filter: none !important;
+          color: #009dff;
+          filter: none;
         }
 
         .messages-inbox-page .chat-window .message-meta {
-          color: rgba(232, 244, 255, 0.72) !important;
-          font-size: 10.5px !important;
-          font-variant-numeric: tabular-nums !important;
-          font-weight: 760 !important;
-          gap: 4px !important;
-          min-height: 15px !important;
+          color: rgba(232, 244, 255, 0.72);
+          font-size: 10.5px;
+          font-variant-numeric: tabular-nums;
+          font-weight: 760;
+          gap: 4px;
+          min-height: 15px;
         }
 
         .messages-inbox-page .chat-window .read-state {
-          color: rgba(232, 244, 255, 0.72) !important;
-          height: 15px !important;
-          min-width: 23px !important;
-          width: 23px !important;
-          transform: translateY(-1px) !important;
+          color: rgba(232, 244, 255, 0.72);
+          height: 15px;
+          min-width: 23px;
+          width: 23px;
+          transform: translateY(-1px);
         }
 
         .messages-inbox-page .chat-window .read-tick {
-          border-bottom: 2.15px solid currentColor !important;
-          border-radius: 0 0 1px 0 !important;
-          border-right: 2.15px solid currentColor !important;
-          height: 10px !important;
-          top: 0 !important;
-          width: 5.5px !important;
+          border-bottom: 2.15px solid currentColor;
+          border-radius: 0 0 1px 0;
+          border-right: 2.15px solid currentColor;
+          height: 10px;
+          top: 0;
+          width: 5.5px;
         }
 
         .messages-inbox-page .chat-window .read-tick:first-of-type {
-          left: 5px !important;
+          left: 5px;
         }
 
         .messages-inbox-page .chat-window .read-tick:nth-of-type(2) {
-          left: 12px !important;
+          left: 12px;
         }
 
         .messages-inbox-page .chat-window .read-state span {
-          display: none !important;
+          display: none;
         }
 
         @media (max-width: 760px) {
           .messages-inbox-page .chat-window .own,
           .messages-inbox-page .chat-window .other {
-            max-width: 88% !important;
-            padding: 8px 10px 7px !important;
+            max-width: 88%;
+            padding: 8px 10px 7px;
           }
         }
 
         .messages-inbox-page .sidebar-conversation {
-          grid-template-columns: 42px minmax(0, 1fr) auto !important;
-          min-height: 62px !important;
-          padding: 8px 40px 8px 8px !important;
-          border-radius: 7px !important;
+          grid-template-columns: 42px minmax(0, 1fr) auto;
+          min-height: 62px;
+          padding: 8px 40px 8px 8px;
+          border-radius: 7px;
           transition:
             background 0.14s ease,
             border-color 0.14s ease,
-            box-shadow 0.14s ease !important;
+            box-shadow 0.14s ease;
         }
 
         .messages-inbox-page .sidebar-conversation.has-notification {
-          border-color: rgba(255, 122, 18, 0.82) !important;
+          border-color: rgba(255, 122, 18, 0.82);
           background:
             linear-gradient(90deg, rgba(255, 122, 18, 0.16), rgba(255, 122, 18, 0.04)),
-            rgba(14, 22, 33, 0.72) !important;
-          box-shadow: inset 3px 0 0 #ff7a12 !important;
+            rgba(14, 22, 33, 0.72);
+          box-shadow: inset 3px 0 0 #ff7a12;
         }
 
         .messages-inbox-page .sidebar-conversation.has-notification:hover {
           background:
             linear-gradient(90deg, rgba(255, 122, 18, 0.22), rgba(255, 122, 18, 0.07)),
-            rgba(18, 30, 43, 0.86) !important;
+            rgba(18, 30, 43, 0.86);
         }
 
         .messages-inbox-page .sidebar-conversation.active {
-          border-color: #ff7a12 !important;
+          border-color: #ff7a12;
           background:
             linear-gradient(90deg, rgba(255, 122, 18, 0.17), rgba(255, 122, 18, 0.06)),
-            #171c24 !important;
+            #171c24;
         }
 
         .messages-inbox-page .sidebar-copy {
-          gap: 4px !important;
+          gap: 4px;
         }
 
         .messages-inbox-page .sidebar-copy strong {
-          font-size: 14px !important;
-          line-height: 1.05 !important;
+          font-size: 14px;
+          line-height: 1.05;
         }
 
         .messages-inbox-page .sidebar-copy time {
-          color: #9db2c5 !important;
-          font-size: 11px !important;
-          font-weight: 850 !important;
+          color: #9db2c5;
+          font-size: 11px;
+          font-weight: 850;
         }
 
         .messages-inbox-page .sidebar-copy p {
-          color: #aebfce !important;
-          font-size: 11.5px !important;
-          line-height: 1.2 !important;
+          color: #aebfce;
+          font-size: 11.5px;
+          line-height: 1.2;
         }
 
         .messages-inbox-page .sidebar-unread {
-          position: absolute !important;
-          right: 13px !important;
-          bottom: 9px !important;
-          min-width: 18px !important;
-          height: 18px !important;
-          padding: 0 5px !important;
-          background: #ff7412 !important;
-          font-size: 10px !important;
+          position: absolute;
+          right: 13px;
+          bottom: 9px;
+          min-width: 18px;
+          height: 18px;
+          padding: 0 5px;
+          background: #ff7412;
+          font-size: 10px;
         }
 
         .messages-inbox-page .sidebar-dismiss-notification {
-          position: absolute !important;
-          top: 7px !important;
-          right: 8px !important;
-          z-index: 2 !important;
-          width: 22px !important;
-          height: 22px !important;
-          display: inline-grid !important;
-          place-items: center !important;
-          border: 1px solid rgba(255, 255, 255, 0.13) !important;
-          border-radius: 999px !important;
-          background: rgba(4, 14, 24, 0.78) !important;
-          color: rgba(238, 247, 255, 0.84) !important;
-          cursor: pointer !important;
-          opacity: 0.78 !important;
+          position: absolute;
+          top: 7px;
+          right: 8px;
+          z-index: 2;
+          width: 22px;
+          height: 22px;
+          display: inline-grid;
+          place-items: center;
+          border: 1px solid rgba(255, 255, 255, 0.13);
+          border-radius: 999px;
+          background: rgba(4, 14, 24, 0.78);
+          color: rgba(238, 247, 255, 0.84);
+          cursor: pointer;
+          opacity: 0.78;
           transition:
             opacity 0.14s ease,
             background 0.14s ease,
             color 0.14s ease,
-            border-color 0.14s ease !important;
+            border-color 0.14s ease;
         }
 
         .messages-inbox-page .sidebar-dismiss-notification:hover,
         .messages-inbox-page .sidebar-dismiss-notification:focus-visible {
-          opacity: 1 !important;
-          border-color: rgba(255, 122, 18, 0.72) !important;
-          background: #ff7412 !important;
-          color: #ffffff !important;
-          outline: 0 !important;
+          opacity: 1;
+          border-color: rgba(255, 122, 18, 0.72);
+          background: #ff7412;
+          color: #ffffff;
+          outline: 0;
         }
 
         .messages-inbox-page .sidebar-conversation {
-          cursor: pointer !important;
-          padding-right: 66px !important;
+          cursor: pointer;
+          padding-right: 66px;
         }
 
         .messages-inbox-page .sidebar-conversation:focus-visible {
-          outline: 2px solid rgba(255, 122, 18, 0.76) !important;
-          outline-offset: 2px !important;
+          outline: 2px solid rgba(255, 122, 18, 0.76);
+          outline-offset: 2px;
         }
 
         .messages-inbox-page .sidebar-actions {
-          align-items: center !important;
-          display: inline-flex !important;
-          gap: 8px !important;
-          position: absolute !important;
-          right: 7px !important;
-          top: 7px !important;
-          z-index: 4 !important;
+          align-items: center;
+          display: inline-flex;
+          gap: 8px;
+          position: absolute;
+          right: 7px;
+          top: 7px;
+          z-index: 4;
         }
 
         .messages-inbox-page .sidebar-profile-link {
-          align-items: center !important;
-          appearance: none !important;
-          background: rgba(4, 14, 24, 0.62) !important;
-          border: 1px solid rgba(80, 120, 155, 0.34) !important;
-          border-radius: 6px !important;
-          color: #f5f8fb !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          gap: 6px !important;
-          height: 30px !important;
-          justify-content: center !important;
-          line-height: 1 !important;
-          padding: 0 10px !important;
-          text-decoration: none !important;
+          align-items: center;
+          appearance: none;
+          background: rgba(4, 14, 24, 0.62);
+          border: 1px solid rgba(80, 120, 155, 0.34);
+          border-radius: 6px;
+          color: #f5f8fb;
+          cursor: pointer;
+          display: inline-flex;
+          gap: 6px;
+          height: 30px;
+          justify-content: center;
+          line-height: 1;
+          padding: 0 10px;
+          text-decoration: none;
           transition:
             background 0.14s ease,
             border-color 0.14s ease,
             color 0.14s ease,
-            transform 0.14s ease !important;
-          width: auto !important;
+            transform 0.14s ease;
+          width: auto;
         }
 
         .messages-inbox-page .sidebar-profile-link svg {
-          color: #ff9a24 !important;
-          flex: 0 0 auto !important;
+          color: #ff9a24;
+          flex: 0 0 auto;
         }
 
         .messages-inbox-page .sidebar-profile-link span {
-          display: inline !important;
-          font-size: 11px !important;
-          font-weight: 850 !important;
-          letter-spacing: 0 !important;
-          line-height: 1 !important;
+          display: inline;
+          font-size: 11px;
+          font-weight: 850;
+          letter-spacing: 0;
+          line-height: 1;
         }
 
         .messages-inbox-page .sidebar-delete-conversation {
-          align-items: center !important;
-          appearance: none !important;
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          color: #ff4d4d !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          height: 18px !important;
-          justify-content: center !important;
-          line-height: 1 !important;
-          padding: 0 !important;
-          width: 18px !important;
+          align-items: center;
+          appearance: none;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          color: #ff4d4d;
+          cursor: pointer;
+          display: inline-flex;
+          height: 18px;
+          justify-content: center;
+          line-height: 1;
+          padding: 0;
+          width: 18px;
         }
 
         .messages-inbox-page .sidebar-delete-conversation svg {
-          height: 12px !important;
-          width: 12px !important;
+          height: 12px;
+          width: 12px;
         }
 
         .messages-inbox-page .sidebar-profile-link:hover,
         .messages-inbox-page .sidebar-profile-link:focus-visible {
-          background: rgba(255, 122, 18, 0.18) !important;
-          border-color: rgba(255, 122, 18, 0.72) !important;
-          color: #ff9a3c !important;
-          outline: 0 !important;
+          background: rgba(255, 122, 18, 0.18);
+          border-color: rgba(255, 122, 18, 0.72);
+          color: #ff9a3c;
+          outline: 0;
         }
 
         .messages-inbox-page .sidebar-delete-conversation:hover,
         .messages-inbox-page .sidebar-delete-conversation:focus-visible {
-          background: transparent !important;
-          border-color: transparent !important;
-          color: #ff2f2f !important;
-          outline: 0 !important;
+          background: transparent;
+          border-color: transparent;
+          color: #ff2f2f;
+          outline: 0;
         }
 
         .messages-inbox-page .sidebar-conversation .sidebar-unread {
-          right: 12px !important;
-          top: 38px !important;
-          bottom: auto !important;
+          right: 12px;
+          top: 38px;
+          bottom: auto;
         }
 
         .messages-inbox-page .header-profile-link {
-          align-items: center !important;
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 999px !important;
-          color: #ff9a24 !important;
-          display: inline-flex !important;
-          flex: 0 0 auto !important;
-          gap: 6px !important;
-          font-size: 11px !important;
-          font-weight: 900 !important;
-          margin-left: auto !important;
-          min-height: 30px !important;
-          padding: 0 4px !important;
-          text-decoration: none !important;
+          align-items: center;
+          background: transparent;
+          border: 0;
+          border-radius: 999px;
+          color: #ff9a24;
+          display: inline-flex;
+          flex: 0 0 auto;
+          gap: 6px;
+          font-size: 11px;
+          font-weight: 900;
+          margin-left: auto;
+          min-height: 30px;
+          padding: 0 4px;
+          text-decoration: none;
           transition:
             background 0.14s ease,
-            color 0.14s ease !important;
+            color 0.14s ease;
         }
 
         .messages-inbox-page .header-profile-link svg {
-          color: #ff9a24 !important;
-          height: 15px !important;
-          width: 15px !important;
+          color: #ff9a24;
+          height: 15px;
+          width: 15px;
         }
 
         .messages-inbox-page .header-profile-link:hover,
         .messages-inbox-page .header-profile-link:focus-visible {
-          background: rgba(255, 122, 18, 0.13) !important;
-          color: #ffffff !important;
-          outline: 0 !important;
+          background: rgba(255, 122, 18, 0.13);
+          color: #ffffff;
+          outline: 0;
         }
 
         @media (max-width: 640px) {
           .messages-inbox-page .header-profile-link span {
-            display: none !important;
+            display: none;
           }
 
           .messages-inbox-page .header-profile-link {
-            height: 32px !important;
-            justify-content: center !important;
-            padding: 0 !important;
-            width: 32px !important;
+            height: 32px;
+            justify-content: center;
+            padding: 0;
+            width: 32px;
           }
         }
 
         /* Image messages: show the uploaded image as the message, not as a tiny thumbnail inside an orange bubble. */
         .messages-inbox-page .chat-window .row:has(.message-image-button) {
-          min-height: 0 !important;
-          padding: 5px 0 !important;
+          min-height: 0;
+          padding: 5px 0;
         }
 
         .messages-inbox-page .chat-window .own:has(.message-image-button),
         .messages-inbox-page .chat-window .other:has(.message-image-button),
         .messages-inbox-page .chat-window .image-only {
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) !important;
-          gap: 6px !important;
-          max-width: min(430px, 72%) !important;
-          min-width: min(220px, 54vw) !important;
-          padding: 6px !important;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr);
+          gap: 6px;
+          max-width: min(430px, 72%);
+          min-width: min(220px, 54vw);
+          padding: 6px;
           background:
             linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 48%),
-            rgba(9, 24, 40, 0.9) !important;
-          border: 1px solid rgba(98, 145, 187, 0.34) !important;
-          border-radius: 10px !important;
+            rgba(9, 24, 40, 0.9);
+          border: 1px solid rgba(98, 145, 187, 0.34);
+          border-radius: 10px;
           box-shadow:
             0 16px 34px rgba(0, 7, 18, 0.28),
-            inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
-          color: rgba(230, 242, 255, 0.86) !important;
-          overflow: visible !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.045);
+          color: rgba(230, 242, 255, 0.86);
+          overflow: visible;
         }
 
         .messages-inbox-page .chat-window .own:has(.message-image-button) {
-          border-color: rgba(255, 185, 116, 0.48) !important;
+          border-color: rgba(255, 185, 116, 0.48);
           background:
             linear-gradient(180deg, rgba(255, 255, 255, 0.09), transparent 36%),
-            linear-gradient(180deg, #ff851a 0%, #ff6900 100%) !important;
+            linear-gradient(180deg, #ff851a 0%, #ff6900 100%);
           box-shadow:
             0 18px 38px rgba(255, 105, 0, 0.28),
-            inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.14);
         }
 
         .messages-inbox-page .chat-window .own:has(.message-image-button) {
-          justify-items: end !important;
-          margin-left: auto !important;
+          justify-items: end;
+          margin-left: auto;
         }
 
         .messages-inbox-page .chat-window .other:has(.message-image-button) {
-          justify-items: start !important;
-          margin-right: auto !important;
+          justify-items: start;
+          margin-right: auto;
         }
 
         .messages-inbox-page .chat-window .message-image-button {
-          appearance: none !important;
-          background: rgba(4, 15, 28, 0.72) !important;
-          border: 0 !important;
-          border-radius: 8px !important;
-          box-shadow: none !important;
-          cursor: zoom-in !important;
-          display: block !important;
-          line-height: 0 !important;
-          overflow: hidden !important;
-          padding: 0 !important;
-          width: min(320px, 58vw) !important;
+          appearance: none;
+          background: rgba(4, 15, 28, 0.72);
+          border: 0;
+          border-radius: 8px;
+          box-shadow: none;
+          cursor: zoom-in;
+          display: block;
+          line-height: 0;
+          overflow: hidden;
+          padding: 0;
+          width: min(320px, 58vw);
         }
 
         .messages-inbox-page .chat-window .message-image {
           background:
             radial-gradient(180px 120px at 50% 20%, rgba(255, 122, 18, 0.1), transparent 72%),
-            #071826 !important;
-          border: 0 !important;
-          border-radius: 8px !important;
-          box-shadow: none !important;
-          display: block !important;
-          height: auto !important;
-          max-height: 300px !important;
-          max-width: none !important;
-          min-height: 130px !important;
-          object-fit: contain !important;
-          width: 100% !important;
+            #071826;
+          border: 0;
+          border-radius: 8px;
+          box-shadow: none;
+          display: block;
+          height: auto;
+          max-height: 300px;
+          max-width: none;
+          min-height: 130px;
+          object-fit: contain;
+          width: 100%;
         }
 
         .messages-inbox-page .chat-window .own:has(.message-image-button) p,
         .messages-inbox-page .chat-window .other:has(.message-image-button) p {
-          background: rgba(3, 13, 23, 0.48) !important;
-          border: 0 !important;
-          border-radius: 7px !important;
-          color: #eef7ff !important;
-          padding: 7px 8px !important;
-          width: 100% !important;
+          background: rgba(3, 13, 23, 0.48);
+          border: 0;
+          border-radius: 7px;
+          color: #eef7ff;
+          padding: 7px 8px;
+          width: 100%;
         }
 
         .messages-inbox-page .chat-window .own:has(.message-image-button) p {
-          background: transparent !important;
-          color: #ffffff !important;
+          background: transparent;
+          color: #ffffff;
         }
 
         .messages-inbox-page .chat-window .own:has(.message-image-button) .message-meta {
-          align-items: center !important;
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 999px !important;
-          color: rgba(255, 244, 232, 0.94) !important;
-          display: inline-flex !important;
-          gap: 5px !important;
-          justify-self: end !important;
-          margin-top: 0 !important;
-          min-height: 16px !important;
-          padding: 0 !important;
+          align-items: center;
+          background: transparent;
+          border: 0;
+          border-radius: 999px;
+          color: rgba(255, 244, 232, 0.94);
+          display: inline-flex;
+          gap: 5px;
+          justify-self: end;
+          margin-top: 0;
+          min-height: 16px;
+          padding: 0;
         }
 
         .messages-inbox-page .chat-window .own:has(.message-image-button) .read-state {
-          height: 12px !important;
-          min-width: 18px !important;
-          opacity: 1 !important;
-          transform: translateY(-1px) !important;
-          width: 18px !important;
+          height: 12px;
+          min-width: 18px;
+          opacity: 1;
+          transform: translateY(-1px);
+          width: 18px;
         }
 
         .messages-inbox-page .chat-window .own:has(.message-image-button) .read-tick {
-          border-bottom-width: 1.65px !important;
-          border-right-width: 1.65px !important;
-          height: 7px !important;
-          width: 4px !important;
+          border-bottom-width: 1.65px;
+          border-right-width: 1.65px;
+          height: 7px;
+          width: 4px;
         }
 
         .messages-inbox-page .chat-window .read-state {
-          color: rgba(255, 246, 232, 0.96) !important;
-          height: 14px !important;
-          min-width: 18px !important;
-          opacity: 1 !important;
-          position: relative !important;
-          transform: translate(5px, -1px) !important;
-          width: 18px !important;
+          color: rgba(255, 246, 232, 0.96);
+          height: 14px;
+          min-width: 18px;
+          opacity: 1;
+          position: relative;
+          transform: translate(5px, -1px);
+          width: 18px;
         }
 
         .messages-inbox-page .chat-window .read-check-icon {
-          display: block !important;
-          height: 13px !important;
-          overflow: visible !important;
-          width: 17px !important;
+          display: block;
+          height: 13px;
+          overflow: visible;
+          width: 17px;
         }
 
         .messages-inbox-page .chat-window .read-check-icon path {
-          fill: none !important;
-          stroke: currentColor !important;
-          stroke-linecap: round !important;
-          stroke-linejoin: round !important;
-          stroke-width: 2.05 !important;
+          fill: none;
+          stroke: currentColor;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+          stroke-width: 2.05;
         }
 
         .messages-inbox-page .chat-window .message-meta.is-read .read-state,
         .messages-inbox-page .chat-window .read-state.is-read {
-          color: #009dff !important;
+          color: #009dff;
         }
 
         .messages-inbox-page .chat-window .read-tick {
-          border-bottom: 2px solid currentColor !important;
-          border-radius: 0 0 1px 0 !important;
-          border-right: 2px solid currentColor !important;
-          height: 9px !important;
-          position: absolute !important;
-          top: 0 !important;
-          transform: rotate(43deg) !important;
-          transform-origin: center !important;
-          width: 5px !important;
+          border-bottom: 2px solid currentColor;
+          border-radius: 0 0 1px 0;
+          border-right: 2px solid currentColor;
+          height: 9px;
+          position: absolute;
+          top: 0;
+          transform: rotate(43deg);
+          transform-origin: center;
+          width: 5px;
         }
 
         .messages-inbox-page .chat-window .read-tick:first-of-type {
-          left: 2px !important;
+          left: 2px;
         }
 
         .messages-inbox-page .chat-window .read-tick:nth-of-type(2) {
-          left: 8px !important;
+          left: 8px;
         }
 
         .messages-inbox-page .chat-window .message-image-button:hover .message-image {
-          transform: none !important;
+          transform: none;
         }
 
         .messages-inbox-page .chat-window .own,
         .messages-inbox-page .chat-window .own:has(.message-image-button),
         .messages-inbox-page .chat-window .image-only.own {
-          box-shadow: none !important;
+          box-shadow: none;
         }
 
         .messages-inbox-page .message-tabs {
-          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
         .messages-inbox-page .message-tabs button {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 6px !important;
-          min-width: 0 !important;
-          white-space: nowrap !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          min-width: 0;
+          white-space: nowrap;
         }
 
         .messages-inbox-page .message-tabs button span {
-          flex: 0 0 auto !important;
+          flex: 0 0 auto;
         }
 
         body .messages-inbox-page.messages-page {
-          background: var(--site-bg, var(--bg, #0b1118)) !important;
-          background-image: none !important;
+          background: var(--site-bg, var(--bg, #0b1118));
+          background-image: none;
         }
 
         .messages-inbox-page .chat-window .message-meta.is-read .read-state,
         .messages-inbox-page .chat-window .read-state.is-read {
-          color: #00b7ff !important;
-          filter: none !important;
-          height: 14px !important;
-          min-width: 18px !important;
-          width: 18px !important;
+          color: #00b7ff;
+          filter: none;
+          height: 14px;
+          min-width: 18px;
+          width: 18px;
         }
 
         .messages-inbox-page .chat-window .message-meta.is-read .read-tick,
         .messages-inbox-page .chat-window .read-state.is-read .read-tick {
-          border-bottom-width: 2px !important;
-          border-right-width: 2px !important;
-          height: 9px !important;
-          width: 5px !important;
+          border-bottom-width: 2px;
+          border-right-width: 2px;
+          height: 9px;
+          width: 5px;
         }
 
         @media (max-width: 640px) {
           .messages-inbox-page .chat-window .own:has(.message-image-button),
           .messages-inbox-page .chat-window .other:has(.message-image-button),
           .messages-inbox-page .chat-window .image-only {
-            max-width: 84% !important;
-            min-width: min(210px, 74vw) !important;
+            max-width: 84%;
+            min-width: min(210px, 74vw);
           }
 
           .messages-inbox-page .chat-window .message-image-button {
-            width: min(280px, 76vw) !important;
+            width: min(280px, 76vw);
           }
 
           .messages-inbox-page .chat-window .message-image {
-            max-height: 260px !important;
-            min-height: 120px !important;
+            max-height: 260px;
+            min-height: 120px;
           }
         }
       `}</style>

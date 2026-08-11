@@ -173,11 +173,25 @@ export default function BottomNav() {
   const [authChecked, setAuthChecked] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [garageOpen, setGarageOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [garageVehicles, setGarageVehicles] = useState<GarageVehicle[]>([]);
+  const [pageModalOpen, setPageModalOpen] = useState(false);
   const sellActionHref =
     userId
       ? sellHref
       : `${authHref}?mode=login&next=${encodeURIComponent(sellHref)}&reason=sell`;
+
+  useEffect(() => {
+    const updateModalState = () => {
+      setPageModalOpen(Boolean(document.querySelector('[role="dialog"][aria-modal="true"]')));
+    };
+
+    updateModalState();
+    const observer = new MutationObserver(updateModalState);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const closeTransientPanels = () => {
@@ -190,6 +204,15 @@ export default function BottomNav() {
 
     return () => window.removeEventListener("pageshow", closeTransientPanels);
   }, [canonicalPathname]);
+
+  useEffect(() => {
+    const syncProfileMenuState = (event: Event) => {
+      setProfileOpen(Boolean((event as CustomEvent<boolean>).detail));
+    };
+
+    window.addEventListener("maskines:profile-menu-state", syncProfileMenuState);
+    return () => window.removeEventListener("maskines:profile-menu-state", syncProfileMenuState);
+  }, []);
 
   useEffect(() => {
     if (!supabase) {
@@ -411,7 +434,16 @@ export default function BottomNav() {
     router.push(`${authHref}?mode=login`);
   };
 
-  if (!authChecked) {
+  const toggleProfileMenu = () => {
+    setNotifOpen(false);
+    setGarageOpen(false);
+    window.dispatchEvent(new Event("maskines:toggle-profile-menu"));
+  };
+
+  // Authentication uses full-screen cards and bottom sheets. Keep the mobile
+  // navigation out of every auth state so it cannot cover PIN, MFA or password
+  // reset controls.
+  if (canonicalPathname === "/auth" || pageModalOpen || !authChecked) {
     return null;
   }
 
@@ -425,7 +457,7 @@ export default function BottomNav() {
         data-no-auto-translate
         translate="no"
       >
-        <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
+        <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" && !profileOpen ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Home size={22} /></span>
           <span className="bottom-nav-label">{copy.home}</span>
         </Link>
@@ -463,7 +495,7 @@ export default function BottomNav() {
         data-no-auto-translate
         translate="no"
       >
-        <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
+        <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" && !profileOpen ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Home size={22} /></span>
           <span className="bottom-nav-label">{copy.home}</span>
         </Link>
@@ -497,14 +529,17 @@ export default function BottomNav() {
         </button>
         )}
 
-        <Link
-          href={profileHref}
-          className={`bottom-nav-item${canonicalPathname.startsWith("/profile") ? " active" : ""}`}
+        <button
+          type="button"
+          className={`bottom-nav-item${profileOpen || canonicalPathname.startsWith("/profile") ? " active" : ""}`}
           aria-label={copy.profile}
+          aria-expanded={profileOpen}
+          data-profile-menu-toggle="true"
+          onClick={toggleProfileMenu}
         >
           <span className="bottom-nav-icon"><UserRound size={22} /></span>
           <span className="bottom-nav-label">{copy.profile}</span>
-        </Link>
+        </button>
       </nav>
 
       <nav
@@ -513,7 +548,7 @@ export default function BottomNav() {
         data-no-auto-translate
         translate="no"
       >
-        <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" ? " active" : ""}`}>
+        <Link href="/" className={`bottom-nav-item${canonicalPathname === "/" && !profileOpen ? " active" : ""}`}>
           <span className="bottom-nav-icon"><Home size={22} /></span>
           <span className="bottom-nav-label">{copy.home}</span>
         </Link>

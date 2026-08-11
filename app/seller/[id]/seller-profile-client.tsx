@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import homeStyles from "../../page.module.css";
-import { Bell, Building2, CalendarDays, Check, ChevronDown, CircleX, Clock3, Crosshair, ExternalLink, Globe2, Heart, MapPin, MessageCircle, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, TrendingDown, TrendingUp, UserCheck, UserPlus, Users, X } from "lucide-react";
-import { formatPrice, normalizeVehicleType, type Listing } from "@/lib/listings";
+import { Bell, Building2, CalendarDays, Check, ChevronDown, ChevronRight, CircleX, Clock3, Cog, Crosshair, ExternalLink, Globe2, Heart, MapPin, MessageCircle, Palette, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, TrendingDown, TrendingUp, UserCheck, UserPlus, Users, X } from "lucide-react";
+import { formatPrice, isVehicleListing, normalizeVehicleType, type Listing } from "@/lib/listings";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
+import { generatedUiTranslations } from "@/lib/generated-ui-translations";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 import { calculateSellerLevel } from "@/lib/seller-level";
@@ -27,6 +29,8 @@ import {
   buildMarketplaceFilterOptions,
   getMarketplaceYearFilterMax
 } from "@/lib/marketplace-filter-options";
+import { VEHICLE_ACCESSORY_OPTIONS, readVehicleAccessories, translateVehicleAccessory } from "@/lib/vehicle-accessories";
+import { VEHICLE_COLOR_OPTIONS, readVehicleColors, translateVehicleColor } from "@/lib/vehicle-colors";
 import {
   getPublicListingsBySeller,
   getSavedListingIds,
@@ -389,6 +393,38 @@ function getSellerInitials(name: string, locale: Locale) {
 type TabKey = "listings" | "reviews" | "about";
 type ListingSort = "relevance" | "newest" | "oldest" | "priceAsc" | "priceDesc" | "nearest";
 type ReviewSort = "newest" | "oldest" | "highest" | "lowest";
+type SellerListingMode = "parts" | "vehicles";
+type SellerListingResultMode = SellerListingMode | "all";
+
+const SELLER_VEHICLE_ENGINE_KIND_OPTIONS = ["2-tahti", "4-tahti", "Diesel", "Sähkö"] as const;
+const SELLER_VEHICLE_DRIVE_TYPE_OPTIONS = [
+  "Etuveto",
+  "Kuusipyöräveto",
+  "Hihnaveto",
+  "Neliveto",
+  "Kardaaniveto",
+  "Takaveto",
+  "Ketjuveto"
+] as const;
+const SELLER_VEHICLE_ROAD_LEGAL_OPTIONS = [
+  "Tieliikennekelpoinen",
+  "Ei tieliikennekelpoinen"
+] as const;
+const SELLER_VEHICLE_MILEAGE_FILTER_MAX = 200000;
+const SELLER_VEHICLE_HOURS_FILTER_MAX = 5000;
+const SELLER_VEHICLE_PRICE_FILTER_MAX = 100000;
+
+function sellerVehicleDescriptionValue(description: string | null | undefined, label: string) {
+  const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return (description ?? "").match(new RegExp(`${escapedLabel}:\\s*([^\\r\\n]+)`, "i"))?.[1]?.trim() ?? "";
+}
+
+function sellerVehicleDescriptionNumber(description: string | null | undefined, label: string) {
+  const value = sellerVehicleDescriptionValue(description, label);
+  if (!value) return null;
+  const parsed = Number(value.replace(/[^\d]/g, ""));
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
 type SellerAppliedFilters = {
   searchQuery: string;
@@ -408,6 +444,18 @@ type SellerAppliedFilters = {
   trackMatLengthFilter: string;
   trackMatWidthFilter: string;
   trackMatPitchFilter: string;
+  vehicleMileageMinFilter: string;
+  vehicleMileageMaxFilter: string;
+  vehicleHoursMinFilter: string;
+  vehicleHoursMaxFilter: string;
+  vehicleRegistrationFilter: string;
+  vehicleEngineKindFilter: string;
+  vehicleDriveTypeFilter: string;
+  vehicleRoadLegalFilter: string;
+  vehiclePriceMinFilter: string;
+  vehiclePriceMaxFilter: string;
+  vehicleAccessoriesFilter: string[];
+  vehicleColorsFilter: string[];
 };
 
 const EMPTY_SELLER_APPLIED_FILTERS: SellerAppliedFilters = {
@@ -427,7 +475,19 @@ const EMPTY_SELLER_APPLIED_FILTERS: SellerAppliedFilters = {
   subcategoryFilter: "",
   trackMatLengthFilter: "",
   trackMatWidthFilter: "",
-  trackMatPitchFilter: ""
+  trackMatPitchFilter: "",
+  vehicleMileageMinFilter: "",
+  vehicleMileageMaxFilter: "",
+  vehicleHoursMinFilter: "",
+  vehicleHoursMaxFilter: "",
+  vehicleRegistrationFilter: "",
+  vehicleEngineKindFilter: "",
+  vehicleDriveTypeFilter: "",
+  vehicleRoadLegalFilter: "",
+  vehiclePriceMinFilter: "",
+  vehiclePriceMaxFilter: "",
+  vehicleAccessoriesFilter: [],
+  vehicleColorsFilter: []
 };
 
 function isSellerTrackMatSelection(value: string) {
@@ -479,6 +539,25 @@ function sellerListingMatchesFilters(
   if (filters.yearMaxFilter && (!Number.isFinite(listingYear) || listingYear > Number.parseInt(filters.yearMaxFilter, 10))) return false;
   if (filters.engineCcFilter && !sellerTextMatches([listing.engine_cc, haystack].filter(Boolean).join(" "), filters.engineCcFilter)) return false;
   if (filters.engineModelFilter && !sellerTextMatches([listing.engine_model, haystack].filter(Boolean).join(" "), filters.engineModelFilter)) return false;
+  const listingMileage = sellerVehicleDescriptionNumber(listing.description, "Ajokilometrit");
+  const listingHours = sellerVehicleDescriptionNumber(listing.description, "Käyttötunnit");
+  const mileageMin = Number(filters.vehicleMileageMinFilter || "0");
+  const mileageMax = Number(filters.vehicleMileageMaxFilter || "0");
+  const hoursMin = Number(filters.vehicleHoursMinFilter || "0");
+  const hoursMax = Number(filters.vehicleHoursMaxFilter || "0");
+  if ((mileageMin || mileageMax) && (listingMileage === null || (mileageMin && listingMileage < mileageMin) || (mileageMax && listingMileage > mileageMax))) return false;
+  if ((hoursMin || hoursMax) && (listingHours === null || (hoursMin && listingHours < hoursMin) || (hoursMax && listingHours > hoursMax))) return false;
+  if (filters.vehicleRegistrationFilter && !normalizeSellerFilterText(sellerVehicleDescriptionValue(listing.description, "Rekisteritunnus")).replace(/\s+/g, "").includes(normalizeSellerFilterText(filters.vehicleRegistrationFilter).replace(/\s+/g, ""))) return false;
+  if (filters.vehicleEngineKindFilter && normalizeSellerFilterText(sellerVehicleDescriptionValue(listing.description, "Moottorin tyyppi")) !== normalizeSellerFilterText(filters.vehicleEngineKindFilter)) return false;
+  if (filters.vehicleDriveTypeFilter && normalizeSellerFilterText(sellerVehicleDescriptionValue(listing.description, "Vetotapa")) !== normalizeSellerFilterText(filters.vehicleDriveTypeFilter)) return false;
+  if (filters.vehicleRoadLegalFilter && normalizeSellerFilterText(sellerVehicleDescriptionValue(listing.description, "Tieliikennekelpoisuus")) !== normalizeSellerFilterText(filters.vehicleRoadLegalFilter)) return false;
+  const priceMin = Number(filters.vehiclePriceMinFilter || "0");
+  const priceMax = Number(filters.vehiclePriceMaxFilter || "0");
+  if ((priceMin && Number(listing.price) < priceMin) || (priceMax && Number(listing.price) > priceMax)) return false;
+  const listingAccessories = readVehicleAccessories(listing.description).map(normalizeSellerFilterText);
+  if (filters.vehicleAccessoriesFilter.length > 0 && !filters.vehicleAccessoriesFilter.every((accessory) => listingAccessories.includes(normalizeSellerFilterText(accessory)))) return false;
+  const listingColors = readVehicleColors(listing.description).map(normalizeSellerFilterText);
+  if (filters.vehicleColorsFilter.length > 0 && !filters.vehicleColorsFilter.some((color) => listingColors.includes(normalizeSellerFilterText(color)))) return false;
   if (filters.categoryFilter && normalizeCategoryFilter(listing.category) !== normalizeCategoryFilter(filters.categoryFilter)) return false;
   if (filters.subcategoryParentFilter) {
     const parentMatches = sellerSubcategoryMatches(listing.subcategory, filters.subcategoryParentFilter);
@@ -554,6 +633,11 @@ const vehicleTypeTranslations: Record<Locale, Record<string, string>> = {
 export default function SellerProfileClient({ sellerId }: { sellerId: string }) {
   const router = useRouter();
   const { t, locale } = useLanguage();
+  const sft = useCallback((text: string) => {
+    if (locale === "fi") return text;
+    const translations = generatedUiTranslations as Partial<Record<Exclude<Locale, "fi">, Record<string, string>>>;
+    return translations[locale]?.[text] ?? text;
+  }, [locale]);
   const taxonomy = useTaxonomy();
   const partsCategories = useMemo(() => categoriesAsRecord(taxonomy), [taxonomy]);
   const vehicleBrands = useMemo(() => vehicleBrandsRecord(taxonomy), [taxonomy]);
@@ -590,6 +674,8 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const [avatarFailed, setAvatarFailed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [listingSort, setListingSort] = useState<ListingSort>("relevance");
+  const [sellerListingMode, setSellerListingMode] = useState<SellerListingMode>("parts");
+  const [appliedSellerListingMode, setAppliedSellerListingMode] = useState<SellerListingResultMode>("all");
   const [sortOpen, setSortOpen] = useState(false);
   const [sellerFilterPanelOpen, setSellerFilterPanelOpen] = useState(false);
   const [showAllListings, setShowAllListings] = useState(false);
@@ -611,6 +697,20 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const [trackMatWidthFilter, setTrackMatWidthFilter] = useState("");
   const [trackMatPitchFilter, setTrackMatPitchFilter] = useState("");
   const [vehicleSubtypeFilter, setVehicleSubtypeFilter] = useState("");
+  const [vehicleMileageMinFilter, setVehicleMileageMinFilter] = useState("");
+  const [vehicleMileageMaxFilter, setVehicleMileageMaxFilter] = useState("");
+  const [vehicleHoursMinFilter, setVehicleHoursMinFilter] = useState("");
+  const [vehicleHoursMaxFilter, setVehicleHoursMaxFilter] = useState("");
+  const [vehicleRegistrationFilter, setVehicleRegistrationFilter] = useState("");
+  const [vehicleEngineKindFilter, setVehicleEngineKindFilter] = useState("");
+  const [vehicleDriveTypeFilter, setVehicleDriveTypeFilter] = useState("");
+  const [vehicleRoadLegalFilter, setVehicleRoadLegalFilter] = useState("");
+  const [vehiclePriceMinFilter, setVehiclePriceMinFilter] = useState("");
+  const [vehiclePriceMaxFilter, setVehiclePriceMaxFilter] = useState("");
+  const [vehicleAccessoriesFilter, setVehicleAccessoriesFilter] = useState<string[]>([]);
+  const [vehicleColorsFilter, setVehicleColorsFilter] = useState<string[]>([]);
+  const [vehicleAccessoriesOpen, setVehicleAccessoriesOpen] = useState(false);
+  const [vehicleColorsOpen, setVehicleColorsOpen] = useState(false);
   const [sellerFilterSheetExpanded, setSellerFilterSheetExpanded] = useState(false);
   const [sellerFilterSheetDragging, setSellerFilterSheetDragging] = useState(false);
   const [sellerFilterSheetDragHeight, setSellerFilterSheetDragHeight] = useState<number | null>(null);
@@ -719,6 +819,18 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       setTrackMatLengthFilter(appliedSellerFilters.trackMatLengthFilter);
       setTrackMatWidthFilter(appliedSellerFilters.trackMatWidthFilter);
       setTrackMatPitchFilter(appliedSellerFilters.trackMatPitchFilter);
+      setVehicleMileageMinFilter(appliedSellerFilters.vehicleMileageMinFilter);
+      setVehicleMileageMaxFilter(appliedSellerFilters.vehicleMileageMaxFilter);
+      setVehicleHoursMinFilter(appliedSellerFilters.vehicleHoursMinFilter);
+      setVehicleHoursMaxFilter(appliedSellerFilters.vehicleHoursMaxFilter);
+      setVehicleRegistrationFilter(appliedSellerFilters.vehicleRegistrationFilter);
+      setVehicleEngineKindFilter(appliedSellerFilters.vehicleEngineKindFilter);
+      setVehicleDriveTypeFilter(appliedSellerFilters.vehicleDriveTypeFilter);
+      setVehicleRoadLegalFilter(appliedSellerFilters.vehicleRoadLegalFilter);
+      setVehiclePriceMinFilter(appliedSellerFilters.vehiclePriceMinFilter);
+      setVehiclePriceMaxFilter(appliedSellerFilters.vehiclePriceMaxFilter);
+      setVehicleAccessoriesFilter(appliedSellerFilters.vehicleAccessoriesFilter);
+      setVehicleColorsFilter(appliedSellerFilters.vehicleColorsFilter);
       setSellerFilterSheetExpanded(false);
       setSortOpen(false);
       setSellerFilterPanelOpen(true);
@@ -787,9 +899,17 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }
 
   const filteredListings = useMemo(() => {
-    const copy = listings.filter((listing) =>
-      sellerListingMatchesFilters(listing, appliedSellerFilters, locale, selectedSubcategoryParentChildren)
-    );
+    const copy = listings
+      .filter((listing) =>
+        appliedSellerListingMode === "all"
+          ? true
+          : appliedSellerListingMode === "vehicles"
+            ? isVehicleListing(listing)
+            : !isVehicleListing(listing)
+      )
+      .filter((listing) =>
+        sellerListingMatchesFilters(listing, appliedSellerFilters, locale, selectedSubcategoryParentChildren)
+      );
 
     return copy.sort((a, b) => {
       if (appliedSellerFilters.listingSort === "oldest") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
@@ -797,7 +917,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       if (appliedSellerFilters.listingSort === "priceDesc") return Number(b.price ?? 0) - Number(a.price ?? 0);
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
-  }, [appliedSellerFilters, listings, locale, selectedSubcategoryParentChildren]);
+  }, [appliedSellerFilters, appliedSellerListingMode, listings, locale, selectedSubcategoryParentChildren]);
 
   const sellerFilterOptions = useMemo(() => {
     return buildMarketplaceFilterOptions({
@@ -830,7 +950,19 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     subcategoryFilter,
     trackMatLengthFilter,
     trackMatWidthFilter,
-    trackMatPitchFilter
+    trackMatPitchFilter,
+    vehicleMileageMinFilter,
+    vehicleMileageMaxFilter,
+    vehicleHoursMinFilter,
+    vehicleHoursMaxFilter,
+    vehicleRegistrationFilter,
+    vehicleEngineKindFilter,
+    vehicleDriveTypeFilter,
+    vehicleRoadLegalFilter,
+    vehiclePriceMinFilter,
+    vehiclePriceMaxFilter,
+    vehicleAccessoriesFilter,
+    vehicleColorsFilter
   }), [
     brandFilter,
     categoryFilter,
@@ -844,6 +976,18 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     trackMatLengthFilter,
     trackMatPitchFilter,
     trackMatWidthFilter,
+    vehicleDriveTypeFilter,
+    vehicleEngineKindFilter,
+    vehicleHoursMaxFilter,
+    vehicleHoursMinFilter,
+    vehicleMileageMaxFilter,
+    vehicleMileageMinFilter,
+    vehicleRegistrationFilter,
+    vehicleRoadLegalFilter,
+    vehiclePriceMaxFilter,
+    vehiclePriceMinFilter,
+    vehicleAccessoriesFilter,
+    vehicleColorsFilter,
     vehicleSubtypeFilter,
     vehicleTypeFilter,
     yearFilter,
@@ -851,13 +995,17 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     yearMinFilter
   ]);
   const draftFilteredListingCount = useMemo(
-    () => listings.filter((listing) => sellerListingMatchesFilters(
-      listing,
-      draftSellerFilters,
-      locale,
-      sellerFilterOptions.subcategories
-    )).length,
-    [draftSellerFilters, listings, locale, sellerFilterOptions.subcategories]
+    () => listings
+      .filter((listing) =>
+        sellerListingMode === "vehicles" ? isVehicleListing(listing) : !isVehicleListing(listing)
+      )
+      .filter((listing) => sellerListingMatchesFilters(
+        listing,
+        draftSellerFilters,
+        locale,
+        sellerFilterOptions.subcategories
+      )).length,
+    [draftSellerFilters, listings, locale, sellerFilterOptions.subcategories, sellerListingMode]
   );
   const trackMatDimensionsVisible = isSellerTrackMatSelection(subcategoryFilter);
   const yearSliderMin = MARKETPLACE_YEAR_FILTER_MIN;
@@ -868,6 +1016,72 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const yearSliderLeft = ((selectedYearMin - yearSliderMin) / yearSliderRange) * 100;
   const yearSliderRight = 100 - ((selectedYearMax - yearSliderMin) / yearSliderRange) * 100;
   const sellerYearSliderRef = useRef<HTMLDivElement | null>(null);
+  const sellerRangeThumbLeft = (percent: number) =>
+    `calc(${percent}% + ${4 - (8 * percent) / 100}px)`;
+
+  const renderSellerNumericRangeSlider = ({
+    label,
+    minValue,
+    maxValue,
+    maximum,
+    step,
+    onMinChange,
+    onMaxChange
+  }: {
+    label: string;
+    minValue: string;
+    maxValue: string;
+    maximum: number;
+    step: number;
+    onMinChange: (value: string) => void;
+    onMaxChange: (value: string) => void;
+  }) => {
+    const selectedMinValue = Math.min(Number(minValue || 0), maximum);
+    const selectedMaxValue = Math.max(selectedMinValue, Math.min(Number(maxValue || maximum), maximum));
+    const selectedMinPercent = (selectedMinValue / maximum) * 100;
+    const selectedMaxPercent = (selectedMaxValue / maximum) * 100;
+
+    return (
+      <div
+        className={homeStyles.vehicleNumericSlider}
+        data-range-active={minValue || maxValue ? "true" : "false"}
+        role="group"
+        aria-label={label}
+        style={{
+          "--filter-range-min": `${selectedMinPercent}%`,
+          "--filter-range-max": `${selectedMaxPercent}%`
+        } as CSSProperties}
+      >
+        <span className={homeStyles.vehicleNumericSliderLine} aria-hidden="true" />
+        <span className={homeStyles.rangeVisualThumb} style={{ left: sellerRangeThumbLeft(selectedMinPercent) }} aria-hidden="true" />
+        <span className={homeStyles.rangeVisualThumb} style={{ left: sellerRangeThumbLeft(selectedMaxPercent) }} aria-hidden="true" />
+        <input
+          type="range"
+          min={0}
+          max={maximum}
+          step={step}
+          value={selectedMinValue}
+          aria-label={`${label}, minimi`}
+          onInput={(event) => {
+            const next = Math.min(Number(event.currentTarget.value), selectedMaxValue);
+            onMinChange(next === 0 ? "" : String(next));
+          }}
+        />
+        <input
+          type="range"
+          min={0}
+          max={maximum}
+          step={step}
+          value={selectedMaxValue}
+          aria-label={`${label}, maksimi`}
+          onInput={(event) => {
+            const next = Math.max(Number(event.currentTarget.value), selectedMinValue);
+            onMaxChange(next === maximum ? "" : String(next));
+          }}
+        />
+      </div>
+    );
+  };
 
   const updateSellerYearRangeFromPointer = useCallback((clientX: number, handle?: "min" | "max") => {
     const slider = sellerYearSliderRef.current;
@@ -957,6 +1171,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }, [filteredListings, sellerListingPage]);
 
   const hasAdvancedFilters =
+    appliedSellerListingMode !== "all" ||
     appliedSellerFilters.searchQuery.trim() !== "" ||
     appliedSellerFilters.vehicleTypeFilter.trim() !== "" ||
     appliedSellerFilters.vehicleSubtypeFilter.trim() !== "" ||
@@ -972,7 +1187,19 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     appliedSellerFilters.subcategoryFilter.trim() !== "" ||
     appliedSellerFilters.trackMatLengthFilter.trim() !== "" ||
     appliedSellerFilters.trackMatWidthFilter.trim() !== "" ||
-    appliedSellerFilters.trackMatPitchFilter.trim() !== "";
+    appliedSellerFilters.trackMatPitchFilter.trim() !== "" ||
+    appliedSellerFilters.vehicleMileageMinFilter.trim() !== "" ||
+    appliedSellerFilters.vehicleMileageMaxFilter.trim() !== "" ||
+    appliedSellerFilters.vehicleHoursMinFilter.trim() !== "" ||
+    appliedSellerFilters.vehicleHoursMaxFilter.trim() !== "" ||
+    appliedSellerFilters.vehicleRegistrationFilter.trim() !== "" ||
+    appliedSellerFilters.vehicleEngineKindFilter.trim() !== "" ||
+    appliedSellerFilters.vehicleDriveTypeFilter.trim() !== "" ||
+    appliedSellerFilters.vehicleRoadLegalFilter.trim() !== "" ||
+    appliedSellerFilters.vehiclePriceMinFilter.trim() !== "" ||
+    appliedSellerFilters.vehiclePriceMaxFilter.trim() !== "" ||
+    appliedSellerFilters.vehicleAccessoriesFilter.length > 0 ||
+    appliedSellerFilters.vehicleColorsFilter.length > 0;
 
   const reviewIds = useMemo(() => reviews.map((review) => review.id), [reviews]);
   const reviewIdsKey = reviewIds.join("|");
@@ -994,9 +1221,48 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     setTrackMatLengthFilter("");
     setTrackMatWidthFilter("");
     setTrackMatPitchFilter("");
+    setVehicleMileageMinFilter("");
+    setVehicleMileageMaxFilter("");
+    setVehicleHoursMinFilter("");
+    setVehicleHoursMaxFilter("");
+    setVehicleRegistrationFilter("");
+    setVehicleEngineKindFilter("");
+    setVehicleDriveTypeFilter("");
+    setVehicleRoadLegalFilter("");
+    setVehiclePriceMinFilter("");
+    setVehiclePriceMaxFilter("");
+    setVehicleAccessoriesFilter([]);
+    setVehicleColorsFilter([]);
+    setVehicleAccessoriesOpen(false);
+    setVehicleColorsOpen(false);
     setAppliedSellerFilters({ ...EMPTY_SELLER_APPLIED_FILTERS });
+    setAppliedSellerListingMode("all");
     setSellerListingPage(1);
     setShowAllListings(false);
+  }
+
+  function selectSellerListingMode(nextMode: SellerListingMode) {
+    if (nextMode === sellerListingMode) return;
+
+    setSellerListingMode(nextMode);
+    setCategoryFilter("");
+    setSubcategoryParentFilter("");
+    setSubcategoryFilter("");
+    setTrackMatLengthFilter("");
+    setTrackMatWidthFilter("");
+    setTrackMatPitchFilter("");
+    setVehicleMileageMinFilter("");
+    setVehicleMileageMaxFilter("");
+    setVehicleHoursMinFilter("");
+    setVehicleHoursMaxFilter("");
+    setVehicleRegistrationFilter("");
+    setVehicleEngineKindFilter("");
+    setVehicleDriveTypeFilter("");
+    setVehicleRoadLegalFilter("");
+    setVehiclePriceMinFilter("");
+    setVehiclePriceMaxFilter("");
+    setVehicleAccessoriesFilter([]);
+    setVehicleColorsFilter([]);
   }
 
   function toggleSellerFilters() {
@@ -1006,6 +1272,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     }
 
     setSearchQuery(appliedSellerFilters.searchQuery);
+    setSellerListingMode(appliedSellerListingMode === "all" ? "parts" : appliedSellerListingMode);
     setListingSort(appliedSellerFilters.listingSort);
     setVehicleTypeFilter(appliedSellerFilters.vehicleTypeFilter);
     setVehicleSubtypeFilter(appliedSellerFilters.vehicleSubtypeFilter);
@@ -1022,6 +1289,18 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     setTrackMatLengthFilter(appliedSellerFilters.trackMatLengthFilter);
     setTrackMatWidthFilter(appliedSellerFilters.trackMatWidthFilter);
     setTrackMatPitchFilter(appliedSellerFilters.trackMatPitchFilter);
+    setVehicleMileageMinFilter(appliedSellerFilters.vehicleMileageMinFilter);
+    setVehicleMileageMaxFilter(appliedSellerFilters.vehicleMileageMaxFilter);
+    setVehicleHoursMinFilter(appliedSellerFilters.vehicleHoursMinFilter);
+    setVehicleHoursMaxFilter(appliedSellerFilters.vehicleHoursMaxFilter);
+    setVehicleRegistrationFilter(appliedSellerFilters.vehicleRegistrationFilter);
+    setVehicleEngineKindFilter(appliedSellerFilters.vehicleEngineKindFilter);
+    setVehicleDriveTypeFilter(appliedSellerFilters.vehicleDriveTypeFilter);
+    setVehicleRoadLegalFilter(appliedSellerFilters.vehicleRoadLegalFilter);
+    setVehiclePriceMinFilter(appliedSellerFilters.vehiclePriceMinFilter);
+    setVehiclePriceMaxFilter(appliedSellerFilters.vehiclePriceMaxFilter);
+    setVehicleAccessoriesFilter(appliedSellerFilters.vehicleAccessoriesFilter);
+    setVehicleColorsFilter(appliedSellerFilters.vehicleColorsFilter);
     setSellerFilterSheetExpanded(false);
     setSellerFilterPanelOpen(true);
   }
@@ -1038,14 +1317,27 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       yearMinFilter,
       yearMaxFilter,
       engineCcFilter,
-      engineModelFilter,
+      engineModelFilter: sellerListingMode === "vehicles" ? "" : engineModelFilter,
       categoryFilter,
       subcategoryParentFilter,
       subcategoryFilter,
       trackMatLengthFilter,
       trackMatWidthFilter,
-      trackMatPitchFilter
+      trackMatPitchFilter,
+      vehicleMileageMinFilter,
+      vehicleMileageMaxFilter,
+      vehicleHoursMinFilter,
+      vehicleHoursMaxFilter,
+      vehicleRegistrationFilter,
+      vehicleEngineKindFilter,
+      vehicleDriveTypeFilter,
+      vehicleRoadLegalFilter,
+      vehiclePriceMinFilter,
+      vehiclePriceMaxFilter,
+      vehicleAccessoriesFilter,
+      vehicleColorsFilter
     });
+    setAppliedSellerListingMode(sellerListingMode);
     setSellerListingPage(1);
     setShowAllListings(false);
     setSellerFilterPanelOpen(false);
@@ -1183,15 +1475,27 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   useEffect(() => {
     let cancelled = false;
 
-    getPublicSellerLevelStats(resolvedSellerId).then(({ data }) => {
-      if (!cancelled && data) {
-        setLevelStats(data);
-        writeSellerProfileCachePatch(sellerId, { levelStats: data });
-      }
-    });
+    const refreshLevelStats = () => {
+      void getPublicSellerLevelStats(resolvedSellerId).then(({ data }) => {
+        if (!cancelled && data) {
+          setLevelStats(data);
+          writeSellerProfileCachePatch(sellerId, { levelStats: data });
+        }
+      });
+    };
+
+    const refreshVisibleProfile = () => {
+      if (document.visibilityState === "visible") refreshLevelStats();
+    };
+
+    refreshLevelStats();
+    window.addEventListener("focus", refreshLevelStats);
+    document.addEventListener("visibilitychange", refreshVisibleProfile);
 
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", refreshLevelStats);
+      document.removeEventListener("visibilitychange", refreshVisibleProfile);
     };
   }, [resolvedSellerId, sellerId]);
 
@@ -2019,15 +2323,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             </div>
           </div>
 
-          {(profile?.bio?.trim() || (isCompany && companyWebsite)) && (
+          {profile?.bio?.trim() && (
             <article className="seller-ref-about seller-ref-about-highlight">
-              {profile?.bio?.trim() && <p>{profile.bio.trim()}</p>}
-              {isCompany && companyWebsite && (
-                <a href={companyWebsite.href} target="_blank" rel="noreferrer">
-                  <Globe2 size={15} aria-hidden="true" />
-                  {companyWebsite.label}
-                </a>
-              )}
+              <p>{profile.bio.trim()}</p>
             </article>
           )}
 
@@ -2105,18 +2403,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                   </div>
                 )}
               </>
-            )}
-            {isCompany && companyWebsite && (
-              <div className="seller-ref-detail-row">
-                <Globe2 size={20} aria-hidden="true" />
-                <span>{refLabels.website}</span>
-                <strong>
-                  <a href={companyWebsite.href} target="_blank" rel="noreferrer">
-                    {companyWebsite.label}
-                    <ExternalLink size={13} aria-hidden="true" />
-                  </a>
-                </strong>
-              </div>
             )}
             <div className="seller-ref-detail-row">
               <MessageCircle size={20} aria-hidden="true" />
@@ -2416,6 +2702,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       <button
                         type="button"
                         className="sp-sort-button"
+                        data-seller-sort-button="true"
                         aria-haspopup="menu"
                         aria-expanded={sortOpen}
                         onClick={() => setSortOpen((open) => !open)}
@@ -2425,7 +2712,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                         <ChevronDown size={15} className="sp-sort-chevron" aria-hidden="true" />
                       </button>
                       {sortOpen && (
-                        <div className="sp-sort-menu" role="menu">
+                        <div className="sp-sort-menu" data-seller-sort-menu="true" role="menu">
                           {sortOptions.map((option) => {
                             const Icon = option.icon;
                             const selected = option.value === appliedSellerFilters.listingSort;
@@ -2433,6 +2720,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                               <button
                                 type="button"
                                 className={`sp-sort-option${selected ? " selected" : ""}`}
+                                data-seller-sort-option="true"
                                 role="menuitemradio"
                                 aria-checked={selected}
                                 key={option.value}
@@ -2473,7 +2761,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     type="button"
                     className="seller-home-filter-backdrop"
                     data-mobile-filter-backdrop="true"
-                    aria-label="Sulje kategoriointi"
+                    aria-label={sft("Sulje kategoriointi")}
                     onClick={() => setSellerFilterPanelOpen(false)}
                   />
                 )}
@@ -2493,7 +2781,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     className="seller-mobile-filter-drag-handle"
                     role="button"
                     tabIndex={0}
-                    aria-label="Muuta suodatuspaneelin korkeutta"
+                    aria-label={sft("Muuta suodatuspaneelin korkeutta")}
                     aria-expanded={sellerFilterSheetExpanded}
                     onPointerDown={startSellerFilterSheetDrag}
                     onKeyDown={handleSellerFilterSheetKeyDown}
@@ -2502,21 +2790,47 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                   </div>
                   <header className="seller-home-filter-head">
                     <strong>
-                      <span className="seller-filter-title-desktop">Suodattimet</span>
-                      <span className="seller-filter-title-mobile">Suodata hakua</span>
+                      <span className="seller-filter-title-desktop">{sft("Suodattimet")}</span>
+                      <span className="seller-filter-title-mobile">{sft("Suodata hakua")}</span>
                     </strong>
                     <div>
-                      <button type="button" className="seller-filter-head-reset" onClick={resetListingFilters}>Nollaa suodatukset</button>
-                      <button type="button" className="seller-filter-head-close" aria-label="Sulje kategoriointi" onClick={() => setSellerFilterPanelOpen(false)}>
+                      <button type="button" className="seller-filter-head-reset" onClick={resetListingFilters}>{sft("Nollaa suodatukset")}</button>
+                      <button type="button" className="seller-filter-head-close" aria-label={sft("Sulje kategoriointi")} onClick={() => setSellerFilterPanelOpen(false)}>
                         <X size={23} strokeWidth={2.6} aria-hidden="true" />
                       </button>
                     </div>
                   </header>
 
+                  <section
+                    className={homeStyles.marketplaceRailSwitch}
+                    aria-label={sft("Valitse suodatettava ilmoitustyyppi")}
+                  >
+                    <div className={homeStyles.marketplaceModeTabs} role="tablist" aria-label={sft("Ilmoitustyyppi")}>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={sellerListingMode === "parts"}
+                        className={sellerListingMode === "parts" ? homeStyles.marketplaceModeTabActive : ""}
+                        onClick={() => selectSellerListingMode("parts")}
+                      >
+                        {sft("Varaosat")}
+                      </button>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={sellerListingMode === "vehicles"}
+                        className={sellerListingMode === "vehicles" ? homeStyles.marketplaceModeTabActive : ""}
+                        onClick={() => selectSellerListingMode("vehicles")}
+                      >
+                        {sft("Ajoneuvot")}
+                      </button>
+                    </div>
+                  </section>
+
                   <div className="seller-mobile-filter-content">
 
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-vehicle`}>
-                    <span className={homeStyles.heroFilterLabel}>Ajoneuvolaji</span>
+                    <span className={homeStyles.heroFilterLabel}>{sft("Ajoneuvolaji")}</span>
                     <select
                       className={`${homeStyles.heroFilterSelect} seller-home-filter-select`}
                       value={vehicleTypeFilter}
@@ -2527,43 +2841,45 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                         setModelFilter("");
                       }}
                     >
-                      <option value="">Kaikki ajoneuvot</option>
+                      <option value="">{sft("Kaikki ajoneuvot")}</option>
                       {sellerFilterOptions.vehicleTypes.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
                   </label>
 
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-type`}>
-                    <span className={homeStyles.heroFilterLabel}>Tyyppi</span>
+                    <span className={homeStyles.heroFilterLabel}>{sft("Tyyppi")}</span>
                     <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={vehicleSubtypeFilter} onChange={(event) => setVehicleSubtypeFilter(event.target.value)}>
-                      <option value="">Kaikki tyypit</option>
+                      <option value="">{sft("Kaikki tyypit")}</option>
                       {sellerFilterOptions.vehicleSubtypes.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
                   </label>
 
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-brand`}>
-                    <span className={homeStyles.heroFilterLabel}>Merkki</span>
+                    <span className={homeStyles.heroFilterLabel}>{sft("Merkki")}</span>
                     <select
                       className={`${homeStyles.heroFilterSelect} seller-home-filter-select`}
                       value={brandFilter}
                       onChange={(event) => { setBrandFilter(event.target.value); setModelFilter(""); }}
                     >
-                      <option value="">Kaikki merkit</option>
+                      <option value="">{sft("Kaikki merkit")}</option>
                       {sellerFilterOptions.brands.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
                   </label>
 
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-model`}>
-                    <span className={homeStyles.heroFilterLabel}>Malli</span>
+                    <span className={homeStyles.heroFilterLabel}>{sft("Malli")}</span>
                     <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={modelFilter} onChange={(event) => setModelFilter(event.target.value)}>
-                      <option value="">Kaikki mallit</option>
+                      <option value="">{sft("Kaikki mallit")}</option>
                       {sellerFilterOptions.models.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
                   </label>
 
-                  <div className="seller-filter-section-title">Osakategoriointi</div>
+                  {sellerListingMode === "parts" && (
+                  <>
+                  <div className="seller-filter-section-title">{sft("Osakategoriointi")}</div>
 
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-category`}>
-                    <span className={homeStyles.heroFilterLabel}>Pääkategoria</span>
+                    <span className={homeStyles.heroFilterLabel}>{sft("Pääkategoria")}</span>
                     <select
                       className={`${homeStyles.heroFilterSelect} seller-home-filter-select`}
                       value={categoryFilter}
@@ -2576,13 +2892,13 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                         setTrackMatPitchFilter("");
                       }}
                     >
-                      <option value="">Kaikki kategoriat</option>
+                      <option value="">{sft("Kaikki kategoriat")}</option>
                       {sellerFilterOptions.categories.map((option) => <option key={option} value={option}>{translateCategory(locale, option)}</option>)}
                     </select>
                   </label>
 
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-subcategory`}>
-                    <span className={homeStyles.heroFilterLabel}>Alakategoria</span>
+                    <span className={homeStyles.heroFilterLabel}>{sft("Alakategoria")}</span>
                     <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={subcategoryParentFilter} onChange={(event) => {
                       setSubcategoryParentFilter(event.target.value);
                       setSubcategoryFilter("");
@@ -2590,13 +2906,13 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       setTrackMatWidthFilter("");
                       setTrackMatPitchFilter("");
                     }}>
-                      <option value="">Kaikki alakategoriat</option>
+                      <option value="">{sft("Kaikki alakategoriat")}</option>
                       {sellerFilterOptions.subcategoryParents.map((option) => <option key={option} value={option}>{translateCategory(locale, categoryLeaf(option))}</option>)}
                     </select>
                   </label>
 
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-part`}>
-                    <span className={homeStyles.heroFilterLabel}>Tarkempi osa</span>
+                    <span className={homeStyles.heroFilterLabel}>{sft("Tarkempi osa")}</span>
                     <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={subcategoryFilter} onChange={(event) => {
                       const nextValue = event.target.value;
                       setSubcategoryFilter(nextValue);
@@ -2606,7 +2922,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                         setTrackMatPitchFilter("");
                       }
                     }}>
-                      <option value="">Kaikki tarkemmat osat</option>
+                      <option value="">{sft("Kaikki tarkemmat osat")}</option>
                       {sellerFilterOptions.subcategories.map((option) => <option key={option} value={option}>{translateCategory(locale, categoryLeaf(option))}</option>)}
                     </select>
                   </label>
@@ -2650,23 +2966,25 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       </div>
                     </fieldset>
                   )}
+                  </>
+                  )}
 
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-engine-cc`}>
-                    <span className={homeStyles.heroFilterLabel}>Moottoritilavuus (cm³)</span>
+                    <span className={homeStyles.heroFilterLabel}>{sft("Moottoritilavuus (cm³)")}</span>
                     <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={engineCcFilter} onChange={(event) => setEngineCcFilter(event.target.value)}>
-                      <option value="">Kaikki koot</option>
+                      <option value="">{sft("Kaikki koot")}</option>
                       {sellerFilterOptions.engineCcs.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
                   </label>
 
                   <div className="seller-home-filter-years">
-                    <span>Vuosimalli</span>
+                    <span>{sft("Vuosimalli")}</span>
                     <select value={yearMinFilter} onChange={(event) => setYearMinFilter(event.target.value)}>
-                      <option value="">Minimi</option>
+                      <option value="">{sft("Minimi")}</option>
                       {sellerFilterOptions.years.map((option) => <option key={`min-${option}`} value={option}>{option}</option>)}
                     </select>
                     <select value={yearMaxFilter} onChange={(event) => setYearMaxFilter(event.target.value)}>
-                      <option value="">Maksimi</option>
+                      <option value="">{sft("Maksimi")}</option>
                       {sellerFilterOptions.years.map((option) => <option key={`max-${option}`} value={option}>{option}</option>)}
                     </select>
                     <div
@@ -2709,16 +3027,153 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     </div>
                   </div>
 
-                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-engine-model`}>
-                    <span className={homeStyles.heroFilterLabel}>Moottori</span>
-                    <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={engineModelFilter} onChange={(event) => setEngineModelFilter(event.target.value)}>
-                      <option value="">Kaikki moottorit</option>
-                      {sellerFilterOptions.engineModels.map((option) => <option key={option} value={option}>{option}</option>)}
-                    </select>
-                  </label>
+                  {sellerListingMode !== "vehicles" ? (
+                    <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-engine-model`}>
+                      <span className={homeStyles.heroFilterLabel}>{sft("Moottori")}</span>
+                      <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={engineModelFilter} onChange={(event) => setEngineModelFilter(event.target.value)}>
+                        <option value="">{sft("Kaikki moottorit")}</option>
+                        {sellerFilterOptions.engineModels.map((option) => <option key={option} value={option}>{option}</option>)}
+                      </select>
+                    </label>
+                  ) : null}
+
+                  {sellerListingMode === "vehicles" && (
+                    <section className={`${homeStyles.vehicleUsageFilters} seller-vehicle-extra-filters`} aria-label={sft("Ajoneuvon lisätiedot")}>
+                      <label className={homeStyles.vehicleUsageField}>
+                        <span>{sft("Moottorin tyyppi")}</span>
+                        <span className={`${homeStyles.vehicleUsageSelectShell} seller-vehicle-select-shell`}>
+                          <select value={vehicleEngineKindFilter} onChange={(event) => setVehicleEngineKindFilter(event.target.value)}>
+                            <option value="">{sft("Ei väliä")}</option>
+                            {SELLER_VEHICLE_ENGINE_KIND_OPTIONS.map((option) => <option key={option} value={option}>{sft(option)}</option>)}
+                          </select>
+                          <ChevronDown size={14} aria-hidden="true" />
+                        </span>
+                      </label>
+
+                      <label className={homeStyles.vehicleUsageField}>
+                        <span>{sft("Vetotapa")}</span>
+                        <span className={`${homeStyles.vehicleUsageSelectShell} seller-vehicle-select-shell`}>
+                          <select value={vehicleDriveTypeFilter} onChange={(event) => setVehicleDriveTypeFilter(event.target.value)}>
+                            <option value="">{sft("Ei väliä")}</option>
+                            {SELLER_VEHICLE_DRIVE_TYPE_OPTIONS.map((option) => <option key={option} value={option}>{sft(option)}</option>)}
+                          </select>
+                          <ChevronDown size={14} aria-hidden="true" />
+                        </span>
+                      </label>
+
+                      <label className={homeStyles.vehicleUsageField}>
+                        <span>{sft("Tieliikennekelpoisuus")}</span>
+                        <span className={`${homeStyles.vehicleUsageSelectShell} seller-vehicle-select-shell`}>
+                          <select value={vehicleRoadLegalFilter} onChange={(event) => setVehicleRoadLegalFilter(event.target.value)}>
+                            <option value="">{sft("Ei väliä")}</option>
+                            {SELLER_VEHICLE_ROAD_LEGAL_OPTIONS.map((option) => <option key={option} value={option}>{sft(option)}</option>)}
+                          </select>
+                          <ChevronDown size={14} aria-hidden="true" />
+                        </span>
+                      </label>
+                      <span className={homeStyles.vehicleUsageSectionLabel}>{sft("Ajomäärä ja rekisteri")}</span>
+                      <label className={homeStyles.vehicleUsageField}>
+                        <span>{sft("Ajokilometrit (km)")}</span>
+                        <div className={homeStyles.vehicleUsageRange}>
+                          <input type="text" inputMode="numeric" value={vehicleMileageMinFilter} placeholder={sft("Minimi")} aria-label={sft("Ajokilometrien minimi")} onChange={(event) => setVehicleMileageMinFilter(event.target.value.replace(/\D/g, ""))} />
+                          <i aria-hidden="true">–</i>
+                          <input type="text" inputMode="numeric" value={vehicleMileageMaxFilter} placeholder={sft("Maksimi")} aria-label={sft("Ajokilometrien maksimi")} onChange={(event) => setVehicleMileageMaxFilter(event.target.value.replace(/\D/g, ""))} />
+                        </div>
+                        {renderSellerNumericRangeSlider({ label: "Ajokilometrit", minValue: vehicleMileageMinFilter, maxValue: vehicleMileageMaxFilter, maximum: SELLER_VEHICLE_MILEAGE_FILTER_MAX, step: 1000, onMinChange: setVehicleMileageMinFilter, onMaxChange: setVehicleMileageMaxFilter })}
+                      </label>
+                      <label className={homeStyles.vehicleUsageField}>
+                        <span>{sft("Käyttötunnit (h)")}</span>
+                        <div className={homeStyles.vehicleUsageRange}>
+                          <input type="text" inputMode="numeric" value={vehicleHoursMinFilter} placeholder={sft("Minimi")} aria-label={sft("Käyttötuntien minimi")} onChange={(event) => setVehicleHoursMinFilter(event.target.value.replace(/\D/g, ""))} />
+                          <i aria-hidden="true">–</i>
+                          <input type="text" inputMode="numeric" value={vehicleHoursMaxFilter} placeholder={sft("Maksimi")} aria-label={sft("Käyttötuntien maksimi")} onChange={(event) => setVehicleHoursMaxFilter(event.target.value.replace(/\D/g, ""))} />
+                        </div>
+                        {renderSellerNumericRangeSlider({ label: "Käyttötunnit", minValue: vehicleHoursMinFilter, maxValue: vehicleHoursMaxFilter, maximum: SELLER_VEHICLE_HOURS_FILTER_MAX, step: 50, onMinChange: setVehicleHoursMinFilter, onMaxChange: setVehicleHoursMaxFilter })}
+                      </label>
+                      <label className={homeStyles.vehicleUsageField}>
+                        <span>{sft("Rekisteritunnus")}</span>
+                        <input className={homeStyles.vehicleRegistrationInput} type="text" autoCapitalize="characters" value={vehicleRegistrationFilter} placeholder={sft("Esim. 123-ABC")} onChange={(event) => setVehicleRegistrationFilter(event.target.value.toUpperCase())} />
+                      </label>
+                      <span className={homeStyles.vehicleUsageSectionLabel}>{sft("Hinta")}</span>
+                      <label className={homeStyles.vehicleUsageField}>
+                        <span>{sft("Hintaväli (€)")}</span>
+                        <div className={homeStyles.vehicleUsageRange}>
+                          <input type="text" inputMode="numeric" value={vehiclePriceMinFilter} placeholder={sft("Minimi")} aria-label={sft("Hinnan minimi")} onChange={(event) => setVehiclePriceMinFilter(event.target.value.replace(/\D/g, ""))} />
+                          <i aria-hidden="true">–</i>
+                          <input type="text" inputMode="numeric" value={vehiclePriceMaxFilter} placeholder={sft("Maksimi")} aria-label={sft("Hinnan maksimi")} onChange={(event) => setVehiclePriceMaxFilter(event.target.value.replace(/\D/g, ""))} />
+                        </div>
+                        {renderSellerNumericRangeSlider({ label: "Hintaväli", minValue: vehiclePriceMinFilter, maxValue: vehiclePriceMaxFilter, maximum: SELLER_VEHICLE_PRICE_FILTER_MAX, step: 500, onMinChange: setVehiclePriceMinFilter, onMaxChange: setVehiclePriceMaxFilter })}
+                      </label>
+                      <button type="button" className={homeStyles.vehicleAccessoryFilterButton} onClick={() => setVehicleAccessoriesOpen(true)} aria-haspopup="dialog">
+                        <span><Cog size={17} aria-hidden="true" /><strong>{sft("Lisävarusteet")}</strong></span>
+                        <span>{vehicleAccessoriesFilter.length > 0 ? `${vehicleAccessoriesFilter.length} ${sft("valittu")}` : sft("Kaikki lisävarusteet")}<ChevronRight size={17} aria-hidden="true" /></span>
+                      </button>
+                      <button type="button" className={homeStyles.vehicleAccessoryFilterButton} onClick={() => setVehicleColorsOpen(true)} aria-haspopup="dialog">
+                        <span><Palette size={17} aria-hidden="true" /><strong>{sft("Väri")}</strong></span>
+                        <span>{vehicleColorsFilter.length > 0 ? `${vehicleColorsFilter.length} ${sft("valittu")}` : sft("Kaikki värit")}<ChevronRight size={17} aria-hidden="true" /></span>
+                      </button>
+                    </section>
+                  )}
+
+                  {vehicleAccessoriesOpen ? createPortal(
+                    <div className={homeStyles.vehicleAccessoryOverlay} role="presentation" onMouseDown={() => setVehicleAccessoriesOpen(false)}>
+                      <section className={homeStyles.vehicleAccessoryDialog} role="dialog" aria-modal="true" aria-labelledby="seller-filter-accessories-title" onMouseDown={(event) => event.stopPropagation()}>
+                        <header className={homeStyles.vehicleAccessoryDialogHeader}>
+                          <div><h2 id="seller-filter-accessories-title">{sft("Lisävarusteet")}</h2><p>{sft("Valitse kaikki ilmoituksesta löytyvät lisävarusteet.")}</p></div>
+                          <button type="button" onClick={() => setVehicleAccessoriesOpen(false)} aria-label={sft("Sulje lisävarusteet")}><X size={22} aria-hidden="true" /></button>
+                        </header>
+                        <div className={homeStyles.vehicleAccessoryGrid}>
+                          {VEHICLE_ACCESSORY_OPTIONS.map((accessory) => {
+                            const selected = vehicleAccessoriesFilter.includes(accessory);
+                            return (
+                              <label key={accessory} className={selected ? homeStyles.vehicleAccessoryOptionSelected : ""}>
+                                <input type="checkbox" checked={selected} onChange={() => setVehicleAccessoriesFilter((current) => current.includes(accessory) ? current.filter((item) => item !== accessory) : [...current, accessory])} />
+                                <span className={homeStyles.vehicleAccessoryCheck} aria-hidden="true">{selected ? <Check size={15} /> : null}</span>
+                                <span>{translateVehicleAccessory(locale, accessory)}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                        <footer className={homeStyles.vehicleAccessoryDialogFooter}>
+                          <button type="button" onClick={() => setVehicleAccessoriesFilter([])}>{sft("Tyhjennä valinnat")}</button>
+                          <button type="button" className={homeStyles.vehicleAccessoryDone} onClick={() => setVehicleAccessoriesOpen(false)}>{sft("Valmis")} ({vehicleAccessoriesFilter.length})</button>
+                        </footer>
+                      </section>
+                    </div>,
+                    document.body
+                  ) : null}
+
+                  {vehicleColorsOpen ? createPortal(
+                    <div className={homeStyles.vehicleAccessoryOverlay} role="presentation" onMouseDown={() => setVehicleColorsOpen(false)}>
+                      <section className={homeStyles.vehicleAccessoryDialog} role="dialog" aria-modal="true" aria-labelledby="seller-filter-colors-title" onMouseDown={(event) => event.stopPropagation()}>
+                        <header className={homeStyles.vehicleAccessoryDialogHeader}>
+                          <div><h2 id="seller-filter-colors-title">{sft("Väri")}</h2><p>{sft("Valitse yksi tai useampi ajoneuvon väri.")}</p></div>
+                          <button type="button" onClick={() => setVehicleColorsOpen(false)} aria-label={sft("Sulje värivalinta")}><X size={22} aria-hidden="true" /></button>
+                        </header>
+                        <div className={`${homeStyles.vehicleAccessoryGrid} ${homeStyles.vehicleColorGrid}`}>
+                          {VEHICLE_COLOR_OPTIONS.map((color) => {
+                            const selected = vehicleColorsFilter.includes(color.label);
+                            return (
+                              <label key={color.label} className={selected ? homeStyles.vehicleAccessoryOptionSelected : ""}>
+                                <input type="checkbox" checked={selected} onChange={() => setVehicleColorsFilter((current) => current.includes(color.label) ? current.filter((item) => item !== color.label) : [...current, color.label])} />
+                                <span className={homeStyles.vehicleAccessoryCheck} aria-hidden="true">{selected ? <Check size={15} /> : null}</span>
+                                <span>{translateVehicleColor(locale, color.label)}</span>
+                                <span className={homeStyles.vehicleColorSwatch} style={{ background: color.swatch }} aria-hidden="true">{color.label === "Muu" ? "?" : null}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                        <footer className={homeStyles.vehicleAccessoryDialogFooter}>
+                          <button type="button" onClick={() => setVehicleColorsFilter([])}>{sft("Tyhjennä valinnat")}</button>
+                          <button type="button" className={homeStyles.vehicleAccessoryDone} onClick={() => setVehicleColorsOpen(false)}>{sft("Valmis")} ({vehicleColorsFilter.length})</button>
+                        </footer>
+                      </section>
+                    </div>,
+                    document.body
+                  ) : null}
 
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-sort`}>
-                    <span className={homeStyles.heroFilterLabel}>Järjestys</span>
+                    <span className={homeStyles.heroFilterLabel}>{sft("Järjestys")}</span>
                     <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={listingSort} onChange={(event) => setListingSort(event.target.value as ListingSort)}>
                       {sortOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                     </select>
@@ -2728,9 +3183,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
 
                   <div className="seller-home-filter-actions">
                     <button type="button" onClick={applySellerFilters}>
-                      Näytä tulokset ({draftFilteredListingCount})
+                      {sft("Näytä tulokset")} ({draftFilteredListingCount})
                     </button>
-                    <button type="button" onClick={resetListingFilters}>Tyhjennä hakuehdot</button>
+                    <button type="button" onClick={resetListingFilters}>{sft("Tyhjennä hakuehdot")}</button>
                   </div>
                 </form>
                 {filteredListings.length === 0 ? (
@@ -2739,7 +3194,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       <Search size={48} />
                     </div>
                     <h3>{refLabels.noFilterResults}</h3>
-                    <p>Muokkaa suodatusta tai nollaa suodatukset.</p>
+                    <p>{sft("Muokkaa suodatusta tai nollaa suodatukset.")}</p>
                   </div>
                 ) : (
                 <>
@@ -2759,7 +3214,10 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     role="link"
                     tabIndex={0}
                     aria-label={`${t.openListing} ${title}`}
-                    onClick={() => router.push(listingPath(listingUrlId(listing), locale))}
+                    onClick={(event) => {
+                      if ((event.target as HTMLElement).closest('[data-listing-favorite="true"]')) return;
+                      router.push(listingPath(listingUrlId(listing), locale));
+                    }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
@@ -2780,7 +3238,10 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       {currentUserId && <button
                         type="button"
                         className={`${homeStyles.favoriteButton}${isFavorite ? ` ${homeStyles.favoriteButtonActive}` : ""}`}
+                        data-listing-favorite="true"
+                        data-listing-id={listing.id}
                         aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
+                        aria-pressed={isFavorite}
                         onClick={(event) => toggleFavorite(event, listing.id)}
                         onPointerDown={(event) => event.stopPropagation()}
                         onTouchStart={(event) => event.stopPropagation()}
@@ -3067,8 +3528,8 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
         .seller-page {
           min-height: 100vh;
           padding: clamp(18px, 3vw, 34px) 0 88px;
-          background: var(--site-bg, #c8d0d7) !important;
-          background-image: none !important;
+          background: var(--site-bg, #c8d0d7);
+          background-image: none;
           color: #0f172a;
         }
 
@@ -3314,14 +3775,14 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
         }
 
         .sp-search-field .sp-search-input {
-          appearance: none !important;
-          -webkit-appearance: none !important;
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          outline: 0 !important;
-          padding: 0 !important;
+          appearance: none;
+          -webkit-appearance: none;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          outline: 0;
+          padding: 0;
         }
 
         .sp-sort-wrap {
@@ -3379,10 +3840,10 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
         }
 
         .seller-listing-card {
-          display: grid !important;
-          grid-template-rows: 220px 1fr !important;
-          height: 410px !important;
-          min-height: 410px !important;
+          display: grid;
+          grid-template-rows: 220px 1fr;
+          height: 410px;
+          min-height: 410px;
           outline: 1px solid rgba(255, 154, 36, 0.72);
           outline-offset: -1px;
           transition: border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
@@ -3395,23 +3856,23 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
         }
 
         .seller-listing-image {
-          display: block !important;
+          display: block;
           background: #06111f;
           overflow: hidden;
           border-bottom: 1px solid rgba(255, 122, 26, 0.28);
-          height: 220px !important;
-          max-height: 220px !important;
-          min-height: 220px !important;
+          height: 220px;
+          max-height: 220px;
+          min-height: 220px;
           position: relative;
-          width: 100% !important;
+          width: 100%;
         }
 
         .seller-listing-image img {
-          width: 100% !important;
-          height: 100% !important;
-          max-height: 220px !important;
-          object-fit: cover !important;
-          display: block !important;
+          width: 100%;
+          height: 100%;
+          max-height: 220px;
+          object-fit: cover;
+          display: block;
         }
 
         .seller-listing-heart {
@@ -3656,17 +4117,17 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
           }
 
           .seller-listing-card {
-            border-radius: 12px !important;
-            grid-template-rows: 118px 1fr !important;
-            height: 276px !important;
-            min-height: 276px !important;
+            border-radius: 12px;
+            grid-template-rows: 118px 1fr;
+            height: 276px;
+            min-height: 276px;
           }
 
           .seller-listing-image,
           .seller-listing-image img {
-            height: 118px !important;
-            max-height: 118px !important;
-            min-height: 118px !important;
+            height: 118px;
+            max-height: 118px;
+            min-height: 118px;
           }
 
           .seller-listing-heart {
@@ -3718,6 +4179,130 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             font-size: 10px;
             padding: 4px 7px;
           }
+        }
+
+        /* Unified own/public profile surface: no gray divider stripes or hover recoloring. */
+        .seller-page :is(
+          .seller-ref-hero,
+          .seller-ref-copy,
+          .seller-ref-pill-row,
+          .seller-ref-phone-pill,
+          .seller-ref-about,
+          .seller-ref-about-highlight,
+          .seller-ref-stats,
+          .seller-ref-stat,
+          .seller-ref-detail-card,
+          .seller-ref-detail-row
+        ) {
+          border-color: transparent !important;
+          transition: none !important;
+        }
+
+        .seller-page :is(
+          .seller-ref-copy,
+          .seller-ref-pill-row,
+          .seller-ref-about,
+          .seller-ref-about-highlight,
+          .seller-ref-stats,
+          .seller-ref-stat,
+          .seller-ref-detail-card,
+          .seller-ref-detail-row
+        )::before,
+        .seller-page :is(
+          .seller-ref-copy,
+          .seller-ref-pill-row,
+          .seller-ref-about,
+          .seller-ref-about-highlight,
+          .seller-ref-stats,
+          .seller-ref-stat,
+          .seller-ref-detail-card,
+          .seller-ref-detail-row
+        )::after {
+          display: none !important;
+          content: none !important;
+        }
+
+        .seller-page .seller-ref-copy,
+        .seller-page .seller-ref-pill-row,
+        .seller-page .seller-ref-detail-row,
+        .seller-page .seller-ref-stat,
+        .seller-page .seller-ref-stat + .seller-ref-stat {
+          border: 0 !important;
+          border-top: 0 !important;
+          border-right: 0 !important;
+          border-bottom: 0 !important;
+          border-left: 0 !important;
+          box-shadow: none !important;
+        }
+
+        .seller-page .seller-ref-stats {
+          gap: 0 !important;
+          padding: 0 !important;
+          border: 1px solid #31536b !important;
+          border-radius: 14px !important;
+          box-shadow: none !important;
+        }
+
+        .seller-page :is(
+          .seller-profile-listings-panel,
+          .seller-tab-loading,
+          .seller-tab-loading-placeholder,
+          .sp-empty,
+          .seller-review-dashboard,
+          .seller-ref-about,
+          .sp-tabs
+        ) {
+          border: 0 !important;
+          box-shadow: none !important;
+          transition: none !important;
+        }
+
+        .seller-page :is(
+          .seller-profile-listings-panel,
+          .seller-tab-loading,
+          .seller-tab-loading-placeholder,
+          .sp-empty,
+          .seller-review-dashboard,
+          .seller-ref-about,
+          .sp-tabs
+        )::before,
+        .seller-page :is(
+          .seller-profile-listings-panel,
+          .seller-tab-loading,
+          .seller-tab-loading-placeholder,
+          .sp-empty,
+          .seller-review-dashboard,
+          .seller-ref-about,
+          .sp-tabs
+        )::after {
+          content: none !important;
+          display: none !important;
+        }
+
+        .seller-page .seller-ref-stat {
+          border-radius: 0 !important;
+          background: transparent !important;
+        }
+
+        .seller-page :is(.seller-ref-stat, .seller-ref-phone-pill, .seller-ref-link-pill):hover,
+        .seller-page :is(.seller-ref-stat, .seller-ref-phone-pill, .seller-ref-link-pill):focus-visible,
+        .seller-page :is(.seller-ref-stat, .seller-ref-phone-pill, .seller-ref-link-pill):active {
+          background: transparent !important;
+          border-color: transparent !important;
+          box-shadow: none !important;
+          color: inherit !important;
+          filter: none !important;
+          outline: none !important;
+          transform: none !important;
+        }
+
+        .seller-page .seller-ref-stats > .seller-ref-stat + .seller-ref-stat {
+          border-left: 1px solid #31536b !important;
+        }
+
+        .seller-page .seller-ref-stat > :is(svg, strong, span),
+        .seller-page .seller-ref-phone-pill > * {
+          transition: none !important;
         }
       `}</style>
     </main>

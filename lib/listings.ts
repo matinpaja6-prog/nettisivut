@@ -138,6 +138,7 @@ export type ListingTranslations = Partial<
   _meta?: {
     publication_group_id?: string | null;
     listing_mode?: "single" | "multiple" | null;
+    marketplace_kind?: "part" | "vehicle" | null;
   };
 };
 
@@ -145,6 +146,17 @@ export type ListingInput = Omit<
   Listing,
   "id" | "created_at"
 >;
+
+export const VEHICLE_LISTING_CATEGORY = "Ajoneuvot";
+
+export function isVehicleListing(
+  listing: Pick<Listing, "category" | "translations">
+) {
+  if (listing.translations?._meta?.marketplace_kind === "vehicle") return true;
+
+  const category = listing.category?.trim().toLocaleLowerCase("fi-FI") ?? "";
+  return ["ajoneuvo", "ajoneuvot", "kokonainen ajoneuvo"].includes(category);
+}
 
 export function extractListingPartNumber(value?: string | null) {
   const text = value ?? "";

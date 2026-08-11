@@ -22,11 +22,11 @@ import {
   Cog,
   Disc3,
   Gift,
-  Gauge,
   Grid2X2,
   Heart,
   MapPin,
   Package,
+  Palette,
   RotateCcw,
   Search,
   Settings2,
@@ -34,7 +34,6 @@ import {
   SlidersHorizontal,
   TrendingDown,
   TrendingUp,
-  Wrench,
   Zap,
   X
 } from "lucide-react";
@@ -44,6 +43,7 @@ import {
   formatPrice,
   getListingPartNumber,
   isKnownVehicleType,
+  isVehicleListing,
   normalizeVehicleType,
   subcategoryGroups,
   type Listing
@@ -61,6 +61,16 @@ import {
   writeCachedListings
 } from "@/lib/client-listings-cache";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
+import {
+  VEHICLE_ACCESSORY_OPTIONS,
+  readVehicleAccessories,
+  translateVehicleAccessory
+} from "@/lib/vehicle-accessories";
+import {
+  VEHICLE_COLOR_OPTIONS,
+  readVehicleColors,
+  translateVehicleColor
+} from "@/lib/vehicle-colors";
 import {
   FINLAND_MUNICIPALITIES,
   FINLAND_MUNICIPALITIES_BY_REGION,
@@ -265,10 +275,10 @@ const translations = {
     login: "Kirjaudu",
     signOut: "Kirjaudu ulos",
     heroTitle: "Maskines",
-    heroSubtitle: "Pohjoismaiden käytettyjen kelkka-, mönkijä-, mopo- ja moottoripyöräosien markkinapaikka.",
+    heroSubtitle: "Pohjoismainen markkinapaikka käytetyille varaosille ja ajoneuvoille.",
     heroLeadStart: "Nopea haku",
     heroLeadHighlight: "osta ja myy",
-    heroLeadEnd: "varaosat helposti",
+    heroLeadEnd: "varaosat ja ajoneuvot",
     heroTrustFast: "Nopea ja helppo listaaminen",
     heroTrustFree: "Ilmainen myynti ostajalle",
     heroTrustSafe: "Turvallinen kauppa Suomessa",
@@ -295,7 +305,7 @@ const translations = {
     brandTagline: "Kaikki varaosat. Kaikilta. Sinulle.",
     searchLabel: "Haku",
     searchCta: "Hae",
-    searchPlaceholder: "Hae varaosia, merkkiä tai mallia...",
+    searchPlaceholder: "Hae varaosia, merkkiä, mallia tai varaosanumeroa...",
     vehicleSelection: "Ajoneuvon valinta",
     content: "Sisältö",
     popularProducts: "Suositut tuotteet",
@@ -814,11 +824,42 @@ type AppliedListingFilters = {
   yearMaxQuery: string;
   engineCcQuery: string;
   engineModelQuery: string;
+  vehicleMileageMinQuery: string;
+  vehicleMileageMaxQuery: string;
+  vehicleHoursMinQuery: string;
+  vehicleHoursMaxQuery: string;
+  vehicleRegistrationQuery: string;
+  vehicleEngineKindQuery: string;
+  vehicleDriveTypeQuery: string;
+  vehicleRoadLegalQuery: string;
+  vehicleAccessoriesQuery: string[];
+  vehicleColorsQuery: string[];
   trackMatDimensionQuery: string;
   minPrice: number;
   maxPrice: number;
   garageFilterId: string;
 };
+
+type MarketplaceMode = "parts" | "vehicles";
+type MarketplaceResultMode = MarketplaceMode | "all";
+
+const VEHICLE_ENGINE_KIND_OPTIONS = ["2-tahti", "4-tahti", "Diesel", "Sähkö"] as const;
+const VEHICLE_DRIVE_TYPE_OPTIONS = [
+  "Etuveto",
+  "Kuusipyöräveto",
+  "Hihnaveto",
+  "Neliveto",
+  "Kardaaniveto",
+  "Takaveto",
+  "Ketjuveto"
+] as const;
+const VEHICLE_ROAD_LEGAL_OPTIONS = [
+  "Tieliikennekelpoinen",
+  "Ei tieliikennekelpoinen"
+] as const;
+const VEHICLE_MILEAGE_FILTER_MAX = 200000;
+const VEHICLE_HOURS_FILTER_MAX = 5000;
+const VEHICLE_PRICE_FILTER_MAX = 100000;
 
 function hasAppliedFilters(filters: AppliedListingFilters) {
   return (
@@ -837,6 +878,16 @@ function hasAppliedFilters(filters: AppliedListingFilters) {
     Boolean(filters.yearMaxQuery.trim()) ||
     Boolean(filters.engineCcQuery.trim()) ||
     Boolean(filters.engineModelQuery.trim()) ||
+    Boolean(filters.vehicleMileageMinQuery.trim()) ||
+    Boolean(filters.vehicleMileageMaxQuery.trim()) ||
+    Boolean(filters.vehicleHoursMinQuery.trim()) ||
+    Boolean(filters.vehicleHoursMaxQuery.trim()) ||
+    Boolean(filters.vehicleRegistrationQuery.trim()) ||
+    Boolean(filters.vehicleEngineKindQuery) ||
+    Boolean(filters.vehicleDriveTypeQuery) ||
+    Boolean(filters.vehicleRoadLegalQuery) ||
+    filters.vehicleAccessoriesQuery.length > 0 ||
+    filters.vehicleColorsQuery.length > 0 ||
     Boolean(filters.trackMatDimensionQuery.trim()) ||
     filters.minPrice !== 0 ||
     filters.maxPrice !== 100000
@@ -1243,6 +1294,24 @@ function normalizeSearchText(value?: string | null) {
 
 function compactSearchText(value?: string | null) {
   return normalizeSearchText(value).replace(/\s+/g, "");
+}
+
+function vehicleDescriptionNumber(description: string | null | undefined, label: string) {
+  const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = (description ?? "").match(new RegExp(`${escapedLabel}:\\s*([\\d\\s.,]+)`, "i"));
+  if (!match) return null;
+
+  const value = Number(match[1].replace(/[^\d]/g, ""));
+  return Number.isFinite(value) ? value : null;
+}
+
+function vehicleRegistrationFromDescription(description?: string | null) {
+  return vehicleDescriptionValue(description, "Rekisteritunnus");
+}
+
+function vehicleDescriptionValue(description: string | null | undefined, label: string) {
+  const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return (description ?? "").match(new RegExp(`${escapedLabel}:\\s*([^\\r\\n]+)`, "i"))?.[1]?.trim() ?? "";
 }
 
 const MARKETPLACE_SEARCH_TERM_GROUPS: readonly (readonly string[])[] = [
@@ -1725,6 +1794,11 @@ function HomeContent({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [marketplaceMode, setMarketplaceMode] = useState<MarketplaceMode>(() =>
+    searchParams.get("market") === "vehicles" ? "vehicles" : "parts"
+  );
+  const [appliedMarketplaceMode, setAppliedMarketplaceMode] = useState<MarketplaceResultMode>("all");
+  const isVehicleMarketplace = marketplaceMode === "vehicles";
 
   const taxonomy = useTaxonomy();
   const partsCategories = useMemo(() => categoriesAsRecord(taxonomy), [taxonomy]);
@@ -1743,7 +1817,8 @@ function HomeContent({
   const taxonomyVehicleLabels = useMemo(() => {
     const labels: Record<string, string> = {};
     for (const vehicle of taxonomy.vehicles) {
-      labels[vehicle.key] = vehicle.label || vehicle.pillLabel || vehicle.key;
+      labels[vehicle.key] =
+        vehicle.label?.trim() || vehicle.pillLabel?.trim() || vehicle.key.trim();
     }
     return labels;
   }, [taxonomy]);
@@ -2053,6 +2128,18 @@ function HomeContent({
   const [yearMaxQuery, setYearMaxQuery] = useState("");
   const [engineCcQuery, setEngineCcQuery] = useState("");
   const [engineModelQuery, setEngineModelQuery] = useState("");
+  const [vehicleMileageMinQuery, setVehicleMileageMinQuery] = useState("");
+  const [vehicleMileageMaxQuery, setVehicleMileageMaxQuery] = useState("");
+  const [vehicleHoursMinQuery, setVehicleHoursMinQuery] = useState("");
+  const [vehicleHoursMaxQuery, setVehicleHoursMaxQuery] = useState("");
+  const [vehicleRegistrationQuery, setVehicleRegistrationQuery] = useState("");
+  const [vehicleEngineKindQuery, setVehicleEngineKindQuery] = useState("");
+  const [vehicleDriveTypeQuery, setVehicleDriveTypeQuery] = useState("");
+  const [vehicleRoadLegalQuery, setVehicleRoadLegalQuery] = useState("");
+  const [vehicleAccessoriesQuery, setVehicleAccessoriesQuery] = useState<string[]>([]);
+  const [vehicleAccessoriesOpen, setVehicleAccessoriesOpen] = useState(false);
+  const [vehicleColorsQuery, setVehicleColorsQuery] = useState<string[]>([]);
+  const [vehicleColorsOpen, setVehicleColorsOpen] = useState(false);
   const [trackMatLengthQuery, setTrackMatLengthQuery] = useState("");
   const [trackMatLengthCustomQuery, setTrackMatLengthCustomQuery] = useState("");
   const [trackMatWidthQuery, setTrackMatWidthQuery] = useState("");
@@ -2087,6 +2174,16 @@ function HomeContent({
     yearMaxQuery: "",
     engineCcQuery: "",
     engineModelQuery: "",
+    vehicleMileageMinQuery: "",
+    vehicleMileageMaxQuery: "",
+    vehicleHoursMinQuery: "",
+    vehicleHoursMaxQuery: "",
+    vehicleRegistrationQuery: "",
+    vehicleEngineKindQuery: "",
+    vehicleDriveTypeQuery: "",
+    vehicleRoadLegalQuery: "",
+    vehicleAccessoriesQuery: [],
+    vehicleColorsQuery: [],
     trackMatDimensionQuery: "",
     minPrice: 0,
     maxPrice: 100000,
@@ -2136,6 +2233,60 @@ function HomeContent({
   const [dbPreferenceProfile, setDbPreferenceProfile] = useState<UserPreferenceProfile | null>(null);
 
   const t = translations[locale];
+  const vehicleOptionCopy = {
+    fi: {
+      accessories: "Lis\u00e4varusteet",
+      allAccessories: "Kaikki lis\u00e4varusteet",
+      accessoriesDescription: "Valitse kaikki ilmoituksesta l\u00f6ytyv\u00e4t lis\u00e4varusteet.",
+      closeAccessories: "Sulje lis\u00e4varusteet",
+      color: "V\u00e4ri",
+      allColors: "Kaikki v\u00e4rit",
+      colorDescription: "Valitse yksi tai useampi ajoneuvon v\u00e4ri.",
+      closeColors: "Sulje v\u00e4rivalinta",
+      clearSelections: "Tyhjenn\u00e4 valinnat",
+      done: "Valmis",
+      selected: (count: number) => `${count} valittu`
+    },
+    en: {
+      accessories: "Accessories",
+      allAccessories: "All accessories",
+      accessoriesDescription: "Select all accessories found in the listing.",
+      closeAccessories: "Close accessories",
+      color: "Color",
+      allColors: "All colors",
+      colorDescription: "Choose one or more vehicle colors.",
+      closeColors: "Close color selection",
+      clearSelections: "Clear selections",
+      done: "Done",
+      selected: (count: number) => `${count} selected`
+    },
+    sv: {
+      accessories: "Extrautrustning",
+      allAccessories: "All extrautrustning",
+      accessoriesDescription: "V\u00e4lj all extrautrustning som finns i annonsen.",
+      closeAccessories: "St\u00e4ng extrautrustningen",
+      color: "F\u00e4rg",
+      allColors: "Alla f\u00e4rger",
+      colorDescription: "V\u00e4lj en eller flera fordonsf\u00e4rger.",
+      closeColors: "St\u00e4ng f\u00e4rgvalet",
+      clearSelections: "Rensa valen",
+      done: "Klart",
+      selected: (count: number) => `${count} valda`
+    },
+    no: {
+      accessories: "Ekstrautstyr",
+      allAccessories: "Alt ekstrautstyr",
+      accessoriesDescription: "Velg alt ekstrautstyr som finnes i annonsen.",
+      closeAccessories: "Lukk ekstrautstyr",
+      color: "Farge",
+      allColors: "Alle farger",
+      colorDescription: "Velg en eller flere kj\u00f8ret\u00f8yfarger.",
+      closeColors: "Lukk fargevalget",
+      clearSelections: "Fjern valgene",
+      done: "Ferdig",
+      selected: (count: number) => `${count} valgt`
+    }
+  }[locale];
   const homeResultsText = {
     fi: {
       editSearch: "Muokkaa hakua",
@@ -2244,6 +2395,16 @@ function HomeContent({
           yearMaxQuery,
           engineCcQuery,
           engineModelQuery,
+          vehicleMileageMinQuery,
+          vehicleMileageMaxQuery,
+          vehicleHoursMinQuery,
+          vehicleHoursMaxQuery,
+          vehicleRegistrationQuery,
+          vehicleEngineKindQuery,
+          vehicleDriveTypeQuery,
+          vehicleRoadLegalQuery,
+          vehicleAccessoriesQuery,
+          vehicleColorsQuery,
           trackMatLengthQuery,
           trackMatLengthCustomQuery,
           trackMatWidthQuery,
@@ -2269,6 +2430,16 @@ function HomeContent({
     currentPage,
     engineCcQuery,
     engineModelQuery,
+    vehicleMileageMinQuery,
+    vehicleMileageMaxQuery,
+    vehicleHoursMinQuery,
+    vehicleHoursMaxQuery,
+    vehicleRegistrationQuery,
+    vehicleEngineKindQuery,
+    vehicleDriveTypeQuery,
+    vehicleRoadLegalQuery,
+    vehicleAccessoriesQuery,
+    vehicleColorsQuery,
     trackMatLengthQuery,
     trackMatLengthCustomQuery,
     trackMatWidthQuery,
@@ -2289,7 +2460,9 @@ function HomeContent({
     subcategory,
     vehicleType,
     vehicleSubtype,
-    yearQuery
+    yearQuery,
+    yearMinQuery,
+    yearMaxQuery
   ]);
 
   const openListing = useCallback((listing: Listing) => {
@@ -2332,6 +2505,16 @@ function HomeContent({
         yearMaxQuery?: string;
         engineCcQuery?: string;
         engineModelQuery?: string;
+        vehicleMileageMinQuery?: string;
+        vehicleMileageMaxQuery?: string;
+        vehicleHoursMinQuery?: string;
+        vehicleHoursMaxQuery?: string;
+        vehicleRegistrationQuery?: string;
+        vehicleEngineKindQuery?: string;
+        vehicleDriveTypeQuery?: string;
+        vehicleRoadLegalQuery?: string;
+        vehicleAccessoriesQuery?: string[];
+        vehicleColorsQuery?: string[];
         trackMatLengthQuery?: string;
         trackMatLengthCustomQuery?: string;
         trackMatWidthQuery?: string;
@@ -2364,6 +2547,16 @@ function HomeContent({
       setYearMaxQuery(saved.yearMaxQuery ?? "");
       setEngineCcQuery(saved.engineCcQuery ?? "");
       setEngineModelQuery(saved.engineModelQuery ?? "");
+      setVehicleMileageMinQuery(saved.vehicleMileageMinQuery ?? "");
+      setVehicleMileageMaxQuery(saved.vehicleMileageMaxQuery ?? "");
+      setVehicleHoursMinQuery(saved.vehicleHoursMinQuery ?? "");
+      setVehicleHoursMaxQuery(saved.vehicleHoursMaxQuery ?? "");
+      setVehicleRegistrationQuery(saved.vehicleRegistrationQuery ?? "");
+      setVehicleEngineKindQuery(saved.vehicleEngineKindQuery ?? "");
+      setVehicleDriveTypeQuery(saved.vehicleDriveTypeQuery ?? "");
+      setVehicleRoadLegalQuery(saved.vehicleRoadLegalQuery ?? "");
+      setVehicleAccessoriesQuery(saved.vehicleAccessoriesQuery ?? []);
+      setVehicleColorsQuery(saved.vehicleColorsQuery ?? []);
       const savedTrackMatDimension = findTrackMatDimension(saved.trackMatDimensionQuery ?? "");
       setTrackMatLengthQuery(saved.trackMatLengthQuery ?? savedTrackMatDimension?.lengthCm ?? "");
       setTrackMatLengthCustomQuery(saved.trackMatLengthCustomQuery ?? "");
@@ -2389,6 +2582,16 @@ function HomeContent({
         yearMaxQuery: saved.yearMaxQuery ?? "",
         engineCcQuery: saved.engineCcQuery ?? "",
         engineModelQuery: saved.engineModelQuery ?? "",
+        vehicleMileageMinQuery: saved.vehicleMileageMinQuery ?? "",
+        vehicleMileageMaxQuery: saved.vehicleMileageMaxQuery ?? "",
+        vehicleHoursMinQuery: saved.vehicleHoursMinQuery ?? "",
+        vehicleHoursMaxQuery: saved.vehicleHoursMaxQuery ?? "",
+        vehicleRegistrationQuery: saved.vehicleRegistrationQuery ?? "",
+        vehicleEngineKindQuery: saved.vehicleEngineKindQuery ?? "",
+        vehicleDriveTypeQuery: saved.vehicleDriveTypeQuery ?? "",
+        vehicleRoadLegalQuery: saved.vehicleRoadLegalQuery ?? "",
+        vehicleAccessoriesQuery: saved.vehicleAccessoriesQuery ?? [],
+        vehicleColorsQuery: saved.vehicleColorsQuery ?? [],
         trackMatDimensionQuery: saved.trackMatDimensionQuery ?? "",
         minPrice: typeof saved.minPrice === "number" ? saved.minPrice : 0,
         maxPrice: typeof saved.maxPrice === "number" ? saved.maxPrice : 100000,
@@ -2502,6 +2705,45 @@ function HomeContent({
       : t.nearest;
   }, [t]);
 
+  function selectMarketplaceMode(nextMode: MarketplaceMode) {
+    if (nextMode === marketplaceMode) return;
+
+    setMarketplaceMode(nextMode);
+    setHomeSearchPanelOpen(true);
+    // Keep the mobile sheet at its current height when switching between
+    // parts and vehicles. Only the filter content should change.
+    setActiveHeroFilter(null);
+    setVehicleType("");
+    setVehicleSubtype("");
+    setSelectedBrand("Kaikki");
+    setModelQuery("");
+    setEngineCcQuery("");
+    setEngineModelQuery("");
+    setCategory("");
+    setSubcategory("");
+    setTrackMatLengthQuery("");
+    setTrackMatLengthCustomQuery("");
+    setTrackMatWidthQuery("");
+    setTrackMatWidthCustomQuery("");
+    setTrackMatPitchQuery("");
+    setTrackMatPitchCustomQuery("");
+    setTrackMatDimensionQuery("");
+    setVehicleMileageMinQuery("");
+    setVehicleMileageMaxQuery("");
+    setVehicleHoursMinQuery("");
+    setVehicleHoursMaxQuery("");
+    setVehicleRegistrationQuery("");
+    setVehicleEngineKindQuery("");
+    setVehicleDriveTypeQuery("");
+    setVehicleRoadLegalQuery("");
+    setVehicleAccessoriesQuery([]);
+    setVehicleAccessoriesOpen(false);
+    setVehicleColorsQuery([]);
+    setVehicleColorsOpen(false);
+    setMinPrice(0);
+    setMaxPrice(VEHICLE_PRICE_FILTER_MAX);
+  }
+
   function clearListingFilters() {
     setQuery("");
     setVehicleType("");
@@ -2516,6 +2758,18 @@ function HomeContent({
     setYearMaxQuery("");
     setEngineCcQuery("");
     setEngineModelQuery("");
+    setVehicleMileageMinQuery("");
+    setVehicleMileageMaxQuery("");
+    setVehicleHoursMinQuery("");
+    setVehicleHoursMaxQuery("");
+    setVehicleRegistrationQuery("");
+    setVehicleEngineKindQuery("");
+    setVehicleDriveTypeQuery("");
+    setVehicleRoadLegalQuery("");
+    setVehicleAccessoriesQuery([]);
+    setVehicleAccessoriesOpen(false);
+    setVehicleColorsQuery([]);
+    setVehicleColorsOpen(false);
     setTrackMatLengthQuery("");
     setTrackMatLengthCustomQuery("");
     setTrackMatWidthQuery("");
@@ -2544,11 +2798,22 @@ function HomeContent({
       yearMaxQuery: "",
       engineCcQuery: "",
       engineModelQuery: "",
+      vehicleMileageMinQuery: "",
+      vehicleMileageMaxQuery: "",
+      vehicleHoursMinQuery: "",
+      vehicleHoursMaxQuery: "",
+      vehicleRegistrationQuery: "",
+      vehicleEngineKindQuery: "",
+      vehicleDriveTypeQuery: "",
+      vehicleRoadLegalQuery: "",
+      vehicleAccessoriesQuery: [],
+      vehicleColorsQuery: [],
       trackMatDimensionQuery: "",
       minPrice: 0,
       maxPrice: 100000,
       garageFilterId: ""
     });
+    setAppliedMarketplaceMode("all");
     setActiveHeroFilter(null);
     setGarageDropdownOpen(false);
     setCurrentPage(1);
@@ -2611,6 +2876,7 @@ function HomeContent({
       const nextQuery = String((event as CustomEvent<string>).detail ?? "").trim();
       setQuery(nextQuery);
       setAppliedListingFilters((current) => ({ ...current, query: nextQuery }));
+      setAppliedMarketplaceMode("all");
       setRecommendationsMode(false);
       setListingsExpanded(true);
       setHomeLatestExpanded(true);
@@ -2651,12 +2917,23 @@ function HomeContent({
       yearMinQuery,
       yearMaxQuery,
       engineCcQuery,
-      engineModelQuery,
+      engineModelQuery: marketplaceMode === "vehicles" ? "" : engineModelQuery,
+      vehicleMileageMinQuery,
+      vehicleMileageMaxQuery,
+      vehicleHoursMinQuery,
+      vehicleHoursMaxQuery,
+      vehicleRegistrationQuery,
+      vehicleEngineKindQuery,
+      vehicleDriveTypeQuery,
+      vehicleRoadLegalQuery,
+      vehicleAccessoriesQuery,
+      vehicleColorsQuery,
       trackMatDimensionQuery,
-      minPrice,
-      maxPrice,
+      minPrice: marketplaceMode === "vehicles" ? minPrice : 0,
+      maxPrice: marketplaceMode === "vehicles" ? maxPrice : VEHICLE_PRICE_FILTER_MAX,
       garageFilterId: garageFilter?.id ?? ""
     });
+    setAppliedMarketplaceMode(marketplaceMode);
     setRecommendationsMode(false);
     setListingsExpanded(true);
     setHomeLatestExpanded(true);
@@ -2675,11 +2952,13 @@ function HomeContent({
   const activeFilterSignature = useMemo(() => (
     JSON.stringify({
       ...appliedListingFilters,
+      appliedMarketplaceMode,
       sort,
       recommendationsMode
     })
   ), [
     appliedListingFilters,
+    appliedMarketplaceMode,
     sort,
     recommendationsMode
   ]);
@@ -2691,7 +2970,9 @@ function HomeContent({
   }, [activeFilterSignature]);
 
   const translateCategoryLabel = useCallback((value: string) => {
-    return translateCategory(locale, value);
+    const source = value.trim();
+    const translated = translateCategory(locale, source).trim();
+    return translated || source;
   }, [locale]);
 
   const categoryFilterCopy = {
@@ -2745,6 +3026,60 @@ function HomeContent({
     en: "All types",
     sv: "Alla typer",
     no: "Alle typer"
+  }[locale];
+  const heroFilterCopy = {
+    fi: {
+      vehicleType: "Ajoneuvolaji",
+      allVehicles: "Kaikki ajoneuvot",
+      type: "Tyyppi",
+      brand: "Merkki",
+      allBrands: "Kaikki merkit",
+      model: "Malli",
+      allModels: "Kaikki mallit",
+      engineCapacity: "Moottoritilavuus (cm³)",
+      allEngineSizes: "Kaikki koot",
+      engine: "Moottori",
+      allEngines: "Kaikki moottorit"
+    },
+    en: {
+      vehicleType: "Vehicle type",
+      allVehicles: "All vehicles",
+      type: "Type",
+      brand: "Brand",
+      allBrands: "All brands",
+      model: "Model",
+      allModels: "All models",
+      engineCapacity: "Engine displacement (cm³)",
+      allEngineSizes: "All sizes",
+      engine: "Engine",
+      allEngines: "All engines"
+    },
+    sv: {
+      vehicleType: "Fordonstyp",
+      allVehicles: "Alla fordon",
+      type: "Typ",
+      brand: "Märke",
+      allBrands: "Alla märken",
+      model: "Modell",
+      allModels: "Alla modeller",
+      engineCapacity: "Motorvolym (cm³)",
+      allEngineSizes: "Alla storlekar",
+      engine: "Motor",
+      allEngines: "Alla motorer"
+    },
+    no: {
+      vehicleType: "Kjøretøytype",
+      allVehicles: "Alle kjøretøy",
+      type: "Type",
+      brand: "Merke",
+      allBrands: "Alle merker",
+      model: "Modell",
+      allModels: "Alle modeller",
+      engineCapacity: "Motorvolum (cm³)",
+      allEngineSizes: "Alle størrelser",
+      engine: "Motor",
+      allEngines: "Alle motorer"
+    }
   }[locale];
 
   const translateVehicleTypeLabel = useCallback((value?: string | null) => {
@@ -3065,7 +3400,10 @@ function HomeContent({
      FILTERED LISTINGS
   ====================================================== */
 
-  const buildFilteredListings = useCallback((filters: AppliedListingFilters) => {
+  const buildFilteredListings = useCallback((
+    filters: AppliedListingFilters,
+    listingMode: MarketplaceResultMode
+  ) => {
     const {
       query: appliedQuery,
       vehicleType: appliedVehicleType,
@@ -3081,6 +3419,16 @@ function HomeContent({
       yearMaxQuery: appliedYearMaxQuery,
       engineCcQuery: appliedEngineCcQuery,
       engineModelQuery: appliedEngineModelQuery,
+      vehicleMileageMinQuery: appliedVehicleMileageMinQuery,
+      vehicleMileageMaxQuery: appliedVehicleMileageMaxQuery,
+      vehicleHoursMinQuery: appliedVehicleHoursMinQuery,
+      vehicleHoursMaxQuery: appliedVehicleHoursMaxQuery,
+      vehicleRegistrationQuery: appliedVehicleRegistrationQuery,
+      vehicleEngineKindQuery: appliedVehicleEngineKindQuery,
+      vehicleDriveTypeQuery: appliedVehicleDriveTypeQuery,
+      vehicleRoadLegalQuery: appliedVehicleRoadLegalQuery,
+      vehicleAccessoriesQuery: appliedVehicleAccessoriesQuery,
+      vehicleColorsQuery: appliedVehicleColorsQuery,
       trackMatDimensionQuery: appliedTrackMatDimensionQuery,
       minPrice: appliedMinPrice,
       maxPrice: appliedMaxPrice,
@@ -3132,6 +3480,13 @@ function HomeContent({
 
     return listings
       .filter(isPublicListing)
+      .filter((listing) =>
+        listingMode === "all"
+          ? true
+          : listingMode === "vehicles"
+            ? isVehicleListing(listing)
+            : !isVehicleListing(listing)
+      )
       .filter((listing) => {
         const listingText = getListingText(listing);
         const listingPartNumber = getListingPartNumber(listing);
@@ -3285,8 +3640,57 @@ function HomeContent({
           textMatchesSearch(listing.engine_cc ?? "", appliedEngineCcQuery);
 
         const matchesEngineModel =
+          listingMode === "vehicles" ||
           !appliedEngineModelQuery ||
           textMatchesSearch(listing.engine_model ?? "", appliedEngineModelQuery);
+
+        const listingMileage = vehicleDescriptionNumber(listing.description, "Ajokilometrit");
+        const listingHours = vehicleDescriptionNumber(listing.description, "Käyttötunnit");
+        const mileageMin = Number(appliedVehicleMileageMinQuery || "0");
+        const mileageMax = Number(appliedVehicleMileageMaxQuery || "0");
+        const hoursMin = Number(appliedVehicleHoursMinQuery || "0");
+        const hoursMax = Number(appliedVehicleHoursMaxQuery || "0");
+        const hasMileageFilter = Boolean(appliedVehicleMileageMinQuery || appliedVehicleMileageMaxQuery);
+        const hasHoursFilter = Boolean(appliedVehicleHoursMinQuery || appliedVehicleHoursMaxQuery);
+        const matchesVehicleMileage =
+          !hasMileageFilter ||
+          (listingMileage !== null &&
+            (!mileageMin || listingMileage >= mileageMin) &&
+            (!mileageMax || listingMileage <= mileageMax));
+        const matchesVehicleHours =
+          !hasHoursFilter ||
+          (listingHours !== null &&
+            (!hoursMin || listingHours >= hoursMin) &&
+            (!hoursMax || listingHours <= hoursMax));
+        const matchesVehicleRegistration =
+          !appliedVehicleRegistrationQuery.trim() ||
+          compactSearchText(vehicleRegistrationFromDescription(listing.description)).includes(
+            compactSearchText(appliedVehicleRegistrationQuery)
+          );
+        const matchesVehicleEngineKind =
+          !appliedVehicleEngineKindQuery ||
+          normalizeSearchText(vehicleDescriptionValue(listing.description, "Moottorin tyyppi")) ===
+            normalizeSearchText(appliedVehicleEngineKindQuery);
+        const matchesVehicleDriveType =
+          !appliedVehicleDriveTypeQuery ||
+          normalizeSearchText(vehicleDescriptionValue(listing.description, "Vetotapa")) ===
+            normalizeSearchText(appliedVehicleDriveTypeQuery);
+        const matchesVehicleRoadLegal =
+          !appliedVehicleRoadLegalQuery ||
+          normalizeSearchText(vehicleDescriptionValue(listing.description, "Tieliikennekelpoisuus")) ===
+            normalizeSearchText(appliedVehicleRoadLegalQuery);
+        const listingVehicleAccessories = readVehicleAccessories(listing.description).map(normalizeSearchText);
+        const matchesVehicleAccessories =
+          appliedVehicleAccessoriesQuery.length === 0 ||
+          appliedVehicleAccessoriesQuery.every((accessory) =>
+            listingVehicleAccessories.includes(normalizeSearchText(accessory))
+          );
+        const listingVehicleColors = readVehicleColors(listing.description).map(normalizeSearchText);
+        const matchesVehicleColors =
+          appliedVehicleColorsQuery.length === 0 ||
+          appliedVehicleColorsQuery.some((color) =>
+            listingVehicleColors.includes(normalizeSearchText(color))
+          );
 
         const matchesTrackMatDimension =
           !appliedTrackMatDimensionQuery ||
@@ -3348,6 +3752,14 @@ function HomeContent({
           matchesIdentifier &&
           matchesLocation &&
           matchesEngineCc &&
+          matchesVehicleMileage &&
+          matchesVehicleHours &&
+          matchesVehicleRegistration &&
+          matchesVehicleEngineKind &&
+          matchesVehicleDriveType &&
+          matchesVehicleRoadLegal &&
+          matchesVehicleAccessories &&
+          matchesVehicleColors &&
           matchesTrackMatDimension &&
           matchesPrice &&
           matchesGarage
@@ -3409,6 +3821,16 @@ function HomeContent({
     yearMaxQuery,
     engineCcQuery,
     engineModelQuery,
+    vehicleMileageMinQuery,
+    vehicleMileageMaxQuery,
+    vehicleHoursMinQuery,
+    vehicleHoursMaxQuery,
+    vehicleRegistrationQuery,
+    vehicleEngineKindQuery,
+    vehicleDriveTypeQuery,
+    vehicleRoadLegalQuery,
+    vehicleAccessoriesQuery,
+    vehicleColorsQuery,
     trackMatDimensionQuery,
     minPrice,
     maxPrice,
@@ -3428,6 +3850,16 @@ function HomeContent({
     yearMaxQuery,
     engineCcQuery,
     engineModelQuery,
+    vehicleMileageMinQuery,
+    vehicleMileageMaxQuery,
+    vehicleHoursMinQuery,
+    vehicleHoursMaxQuery,
+    vehicleRegistrationQuery,
+    vehicleEngineKindQuery,
+    vehicleDriveTypeQuery,
+    vehicleRoadLegalQuery,
+    vehicleAccessoriesQuery,
+    vehicleColorsQuery,
     trackMatDimensionQuery,
     minPrice,
     maxPrice,
@@ -3435,13 +3867,13 @@ function HomeContent({
   ]);
 
   const filteredListings = useMemo(
-    () => buildFilteredListings(appliedListingFilters),
-    [appliedListingFilters, buildFilteredListings]
+    () => buildFilteredListings(appliedListingFilters, appliedMarketplaceMode),
+    [appliedListingFilters, appliedMarketplaceMode, buildFilteredListings]
   );
 
   const draftListingResultCount = useMemo(
-    () => buildFilteredListings(currentDraftListingFilters).length,
-    [buildFilteredListings, currentDraftListingFilters]
+    () => buildFilteredListings(currentDraftListingFilters, marketplaceMode).length,
+    [buildFilteredListings, currentDraftListingFilters, marketplaceMode]
   );
 
   const toggleFavoriteById = useCallback((listingId: string) => {
@@ -3472,30 +3904,6 @@ function HomeContent({
     event.stopPropagation();
     toggleFavoriteById(listingId);
   }
-
-  useEffect(() => {
-    const handleHomeLatestFavorite = (event: MouseEvent) => {
-      const target = event.target;
-      if (!(target instanceof Element)) return;
-
-      const button = target.closest<HTMLButtonElement>("[data-home-latest-favorite]");
-      if (!button) return;
-
-      const listingId = button.dataset.listingId;
-      if (!listingId) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      toggleFavoriteById(listingId);
-    };
-
-    document.addEventListener("click", handleHomeLatestFavorite, true);
-
-    return () => {
-      document.removeEventListener("click", handleHomeLatestFavorite, true);
-    };
-  }, [toggleFavoriteById]);
 
   function getGarageVehicleType(vehicle: GarageVehicle): VehicleFilter {
     return vehicle.vehicle_class === "Motocross" || vehicle.vehicle_class === "Auto" ? "Motocross"
@@ -3562,6 +3970,18 @@ function HomeContent({
     setYearMaxQuery(year);
     setEngineCcQuery("");
     setEngineModelQuery("");
+    setVehicleMileageMinQuery("");
+    setVehicleMileageMaxQuery("");
+    setVehicleHoursMinQuery("");
+    setVehicleHoursMaxQuery("");
+    setVehicleRegistrationQuery("");
+    setVehicleEngineKindQuery("");
+    setVehicleDriveTypeQuery("");
+    setVehicleRoadLegalQuery("");
+    setVehicleAccessoriesQuery([]);
+    setVehicleAccessoriesOpen(false);
+    setVehicleColorsQuery([]);
+    setVehicleColorsOpen(false);
     setAppliedListingFilters({
       query: "",
       category: "",
@@ -3577,6 +3997,16 @@ function HomeContent({
       yearMaxQuery: year,
       engineCcQuery: "",
       engineModelQuery: "",
+      vehicleMileageMinQuery: "",
+      vehicleMileageMaxQuery: "",
+      vehicleHoursMinQuery: "",
+      vehicleHoursMaxQuery: "",
+      vehicleRegistrationQuery: "",
+      vehicleEngineKindQuery: "",
+      vehicleDriveTypeQuery: "",
+      vehicleRoadLegalQuery: "",
+      vehicleAccessoriesQuery: [],
+      vehicleColorsQuery: [],
       trackMatDimensionQuery: "",
       minPrice: 0,
       maxPrice: 100000,
@@ -3609,6 +4039,18 @@ function HomeContent({
     setYearMaxQuery("");
     setEngineCcQuery("");
     setEngineModelQuery("");
+    setVehicleMileageMinQuery("");
+    setVehicleMileageMaxQuery("");
+    setVehicleHoursMinQuery("");
+    setVehicleHoursMaxQuery("");
+    setVehicleRegistrationQuery("");
+    setVehicleEngineKindQuery("");
+    setVehicleDriveTypeQuery("");
+    setVehicleRoadLegalQuery("");
+    setVehicleAccessoriesQuery([]);
+    setVehicleAccessoriesOpen(false);
+    setVehicleColorsQuery([]);
+    setVehicleColorsOpen(false);
     setAppliedListingFilters({
       query: "",
       category: categoryParam,
@@ -3624,6 +4066,16 @@ function HomeContent({
       yearMaxQuery: "",
       engineCcQuery: "",
       engineModelQuery: "",
+      vehicleMileageMinQuery: "",
+      vehicleMileageMaxQuery: "",
+      vehicleHoursMinQuery: "",
+      vehicleHoursMaxQuery: "",
+      vehicleRegistrationQuery: "",
+      vehicleEngineKindQuery: "",
+      vehicleDriveTypeQuery: "",
+      vehicleRoadLegalQuery: "",
+      vehicleAccessoriesQuery: [],
+      vehicleColorsQuery: [],
       trackMatDimensionQuery: "",
       minPrice: 0,
       maxPrice: 100000,
@@ -3694,11 +4146,12 @@ function HomeContent({
     Boolean(yearMinQuery.trim()) ||
     Boolean(yearMaxQuery.trim()) ||
     Boolean(engineCcQuery.trim()) ||
-    Boolean(engineModelQuery.trim()) ||
+    (marketplaceMode !== "vehicles" && Boolean(engineModelQuery.trim())) ||
     Boolean(trackMatDimensionQuery.trim()) ||
     minPrice !== 0 ||
     maxPrice !== 100000;
-  const hasAppliedListingFilters = hasAppliedFilters(appliedListingFilters);
+  const hasAppliedListingFilters =
+    appliedMarketplaceMode !== "all" || hasAppliedFilters(appliedListingFilters);
   const showListingResultsSection =
     catalogOnlyView;
 
@@ -3707,7 +4160,7 @@ function HomeContent({
   const recommendationsEnabled = false;
 
   const canUseRemoteListingPages =
-    !hasActiveListingFilters &&
+    !hasAppliedListingFilters &&
     (sort === "Osuvimmat ensin" || sort === "Uusimmat ensin");
 
   const sortMenuOptions = [
@@ -3744,7 +4197,7 @@ function HomeContent({
 
   const renderSortControl = (className: string) => (
     <div
-      className={`${className} ${styles.sortControlRebuilt} ${homeSortOpen ? styles.sortControlOpen : ""}`}
+      className={`${className} home-sort-control ${styles.sortControlRebuilt} ${homeSortOpen ? styles.sortControlOpen : ""}`}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
           setHomeSortOpen(false);
@@ -3756,7 +4209,7 @@ function HomeContent({
         type="button"
         aria-label={t.sort}
         aria-expanded={homeSortOpen}
-        className={styles.sortButtonFace}
+        className={`${styles.sortButtonFace} home-sort-button`}
         data-testid="home-sort-select"
         onClick={() => setHomeSortOpen((open) => !open)}
       >
@@ -3766,7 +4219,7 @@ function HomeContent({
       </button>
       {homeSortOpen && (
         <div
-          className={styles.sortMenuPanel}
+          className={`${styles.sortMenuPanel} home-sort-menu`}
           role="menu"
           onPointerDown={(event) => event.stopPropagation()}
           onClick={(event) => event.stopPropagation()}
@@ -3780,7 +4233,7 @@ function HomeContent({
                 type="button"
                 role="menuitemradio"
                 aria-checked={selected}
-                className={`${styles.sortMenuItem} ${selected ? styles.sortMenuItemActive : ""}`}
+                className={`${styles.sortMenuItem} home-sort-option ${selected ? `${styles.sortMenuItemActive} is-active` : ""}`}
                 onPointerDown={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
@@ -4010,7 +4463,8 @@ function HomeContent({
   const heroLatestListings = useMemo(() => {
     const sourceListings = hasAppliedListingFilters
       ? filteredListings
-      : listings.filter(isPublicListing);
+      : listings
+          .filter(isPublicListing);
 
     return [...sourceListings]
       .sort((a, b) => {
@@ -4059,9 +4513,9 @@ function HomeContent({
     : desktopLatestVisibleCount;
   const hasMoreLatestListings = compactLatestListings.length === latestVisibleCount;
   const hasNoHomeSearchResults =
+    !listingsLoading &&
     homeLatestExpanded &&
     hasAppliedListingFilters &&
-    !listingsLoading &&
     compactLatestListings.length === 0;
 
   useEffect(() => {
@@ -4198,7 +4652,13 @@ function HomeContent({
 
   const vehicleSubtypeOptions = useMemo(() => sharedFilterOptions.vehicleSubtypes, [sharedFilterOptions.vehicleSubtypes]);
 
-  const modelOptions = useMemo(() => sharedFilterOptions.models, [sharedFilterOptions.models]);
+  const modelOptions = useMemo(
+    () => sharedFilterOptions.models.filter((option) => {
+      const normalized = option.trim().toLocaleLowerCase("fi-FI");
+      return !/^(?:1|-)(?:\s+(?:malli|model))?$/.test(normalized);
+    }),
+    [sharedFilterOptions.models]
+  );
 
   const engineCcOptions = useMemo(() => sharedFilterOptions.engineCcs, [sharedFilterOptions.engineCcs]);
 
@@ -4226,7 +4686,8 @@ function HomeContent({
   }, [category, categorySource, railSubcategoryGroups, selectedSubcategoryParent]);
 
   function getVehiclePillLabel(vehicle: string) {
-    if (taxonomyVehicleLabels[vehicle]) return taxonomyVehicleLabels[vehicle];
+    const taxonomyLabel = taxonomyVehicleLabels[vehicle]?.trim();
+    if (taxonomyLabel) return taxonomyLabel;
     if (vehicle === "Moottorikelkka") return t.snowmobiles;
     if (vehicle === "Mönkijä") return t.atvs;
     if (vehicle === "Motocross") return t.cars;
@@ -4499,10 +4960,10 @@ function HomeContent({
   const heroFilterFields = [
     {
       key: "vehicleType",
-      label: "Ajoneuvolaji",
-      value: vehicleType ? getVehiclePillLabel(vehicleType) : "Kaikki ajoneuvot",
+      label: heroFilterCopy.vehicleType,
+      value: vehicleType ? getVehiclePillLabel(vehicleType) : heroFilterCopy.allVehicles,
       options: [
-        { label: "Kaikki ajoneuvot", value: "" },
+        { label: heroFilterCopy.allVehicles, value: "" },
         ...vehicleTypeOptions.map((option) => ({
           label: getVehiclePillLabel(option),
           value: option
@@ -4522,7 +4983,7 @@ function HomeContent({
     },
     {
       key: "vehicleSubtype",
-      label: "Tyyppi",
+      label: heroFilterCopy.type,
       value: vehicleSubtype ? translateCategoryLabel(vehicleSubtype) : allVehicleSubtypesLabel,
       options: [
         { label: allVehicleSubtypesLabel, value: "" },
@@ -4543,10 +5004,10 @@ function HomeContent({
     },
     {
       key: "brand",
-      label: "Merkki",
-      value: selectedBrand && selectedBrand !== "Kaikki" ? selectedBrand : "Kaikki merkit",
+      label: heroFilterCopy.brand,
+      value: selectedBrand && selectedBrand !== "Kaikki" ? selectedBrand : heroFilterCopy.allBrands,
       options: brandOptions.map((option) => ({
-        label: option === "Kaikki" ? "Kaikki merkit" : option,
+        label: option === "Kaikki" ? heroFilterCopy.allBrands : option,
         value: option
       })),
       onSelect: (value: string) => {
@@ -4558,10 +5019,10 @@ function HomeContent({
     },
     {
       key: "model",
-      label: "Malli",
-      value: modelQuery || "Kaikki mallit",
+      label: heroFilterCopy.model,
+      value: modelQuery || heroFilterCopy.allModels,
       options: [
-        { label: "Kaikki mallit", value: "" },
+        { label: heroFilterCopy.allModels, value: "" },
         ...modelOptions.map((option) => ({ label: option, value: option }))
       ],
       onSelect: (value: string) => {
@@ -4571,10 +5032,10 @@ function HomeContent({
     },
     {
       key: "engineCc",
-      label: "Moottoritilavuus (cm³)",
-      value: engineCcQuery || "Kaikki koot",
+      label: heroFilterCopy.engineCapacity,
+      value: engineCcQuery || heroFilterCopy.allEngineSizes,
       options: [
-        { label: "Kaikki koot", value: "" },
+        { label: heroFilterCopy.allEngineSizes, value: "" },
         ...engineCcOptions.map((option) => ({ label: option, value: option }))
       ],
       onSelect: (value: string) => {
@@ -4584,10 +5045,10 @@ function HomeContent({
     },
     {
       key: "engineModel",
-      label: "Moottori",
-      value: engineModelQuery || "Kaikki moottorit",
+      label: heroFilterCopy.engine,
+      value: engineModelQuery || heroFilterCopy.allEngines,
       options: [
-        { label: "Kaikki moottorit", value: "" },
+        { label: heroFilterCopy.allEngines, value: "" },
         ...engineModelOptions.map((option) => ({ label: option, value: option }))
       ],
       onSelect: (value: string) => {
@@ -4683,6 +5144,12 @@ function HomeContent({
     }
   ];
 
+  const marketplaceHeroFilterFields = isVehicleMarketplace
+    ? heroFilterFields.filter((field) =>
+        !["engineModel", "category", "subcategory", "detailSubcategory"].includes(field.key)
+      )
+    : heroFilterFields;
+
   function updateLocationSelection(nextSelection: LocationFilterSelection) {
     setLocationQuery(serializeLocationFilter(nextSelection));
     afterHeroFilterChange();
@@ -4757,15 +5224,444 @@ function HomeContent({
     });
   }
 
-  const heroRailFilterFields = heroFilterFields.filter((field) =>
+  const heroRailFilterFields = marketplaceHeroFilterFields.filter((field) =>
     ["vehicleType", "vehicleSubtype", "brand", "model"].includes(field.key)
   );
-  const heroRailEngineFields = heroFilterFields.filter((field) =>
+  const heroRailEngineFields = marketplaceHeroFilterFields.filter((field) =>
     ["engineCc", "engineModel"].includes(field.key)
   );
-  const heroRailPartCategoryFields = heroFilterFields.filter((field) =>
+  const heroRailPartCategoryFields = marketplaceHeroFilterFields.filter((field) =>
     ["category", "subcategory", "detailSubcategory"].includes(field.key)
   );
+
+  const rangeThumbLeft = (percent: number) =>
+    `calc(${percent}% + ${4 - (8 * percent) / 100}px)`;
+
+  function renderVehicleUsageFilters(layout: "mobile" | "desktop") {
+    if (!isVehicleMarketplace) return null;
+
+    const filterIdPrefix = `${layout}-vehicle`;
+    const numericValue = (value: string) => value.replace(/\D/g, "");
+    const renderNumericRangeSlider = ({
+      label,
+      minValue,
+      maxValue,
+      maximum,
+      step,
+      onMinChange,
+      onMaxChange
+    }: {
+      label: string;
+      minValue: string;
+      maxValue: string;
+      maximum: number;
+      step: number;
+      onMinChange: (value: string) => void;
+      onMaxChange: (value: string) => void;
+    }) => {
+      const selectedMin = Math.min(Number(minValue || 0), maximum);
+      const selectedMax = Math.max(selectedMin, Math.min(Number(maxValue || maximum), maximum));
+      const selectedMinPercent = (selectedMin / maximum) * 100;
+      const selectedMaxPercent = (selectedMax / maximum) * 100;
+
+      return (
+        <div
+          className={styles.vehicleNumericSlider}
+          data-range-active={minValue || maxValue ? "true" : "false"}
+          role="group"
+          aria-label={label}
+          style={{
+            "--filter-range-min": `${selectedMinPercent}%`,
+            "--filter-range-max": `${selectedMaxPercent}%`
+          } as CSSProperties}
+        >
+          <span className={styles.vehicleNumericSliderLine} aria-hidden="true" />
+          <span
+            className={styles.rangeVisualThumb}
+            style={{ left: rangeThumbLeft(selectedMinPercent) }}
+            aria-hidden="true"
+          />
+          <span
+            className={styles.rangeVisualThumb}
+            style={{ left: rangeThumbLeft(selectedMaxPercent) }}
+            aria-hidden="true"
+          />
+          <input
+            type="range"
+            min={0}
+            max={maximum}
+            step={step}
+            value={selectedMin}
+            aria-label={`${label}, minimi`}
+            onInput={(event) => {
+              const next = Math.min(Number(event.currentTarget.value), selectedMax);
+              onMinChange(next === 0 ? "" : String(next));
+              afterHeroFilterChange();
+            }}
+          />
+          <input
+            type="range"
+            min={0}
+            max={maximum}
+            step={step}
+            value={selectedMax}
+            aria-label={`${label}, maksimi`}
+            onInput={(event) => {
+              const next = Math.max(Number(event.currentTarget.value), selectedMin);
+              onMaxChange(next === maximum ? "" : String(next));
+              afterHeroFilterChange();
+            }}
+          />
+        </div>
+      );
+    };
+
+    return (
+      <section
+        className={styles.vehicleUsageFilters}
+        data-vehicle-filter-layout={layout}
+        aria-label="Ajoneuvon lisätiedot"
+      >
+        <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-engine-kind`}>
+          <span>Moottorin tyyppi</span>
+          <span className={styles.vehicleUsageSelectShell}>
+            <select
+              id={`${filterIdPrefix}-engine-kind`}
+              value={vehicleEngineKindQuery}
+              onChange={(event) => setVehicleEngineKindQuery(event.target.value)}
+            >
+              <option value="">Ei väliä</option>
+              {VEHICLE_ENGINE_KIND_OPTIONS.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+            <ChevronDown size={14} aria-hidden="true" />
+          </span>
+        </label>
+        <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-drive-type`}>
+          <span>Vetotapa</span>
+          <span className={styles.vehicleUsageSelectShell}>
+            <select
+              id={`${filterIdPrefix}-drive-type`}
+              value={vehicleDriveTypeQuery}
+              onChange={(event) => setVehicleDriveTypeQuery(event.target.value)}
+            >
+              <option value="">Ei väliä</option>
+              {VEHICLE_DRIVE_TYPE_OPTIONS.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+            <ChevronDown size={14} aria-hidden="true" />
+          </span>
+        </label>
+        <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-road-legal`}>
+          <span>Tieliikennekelpoisuus</span>
+          <span className={styles.vehicleUsageSelectShell}>
+            <select
+              id={`${filterIdPrefix}-road-legal`}
+              value={vehicleRoadLegalQuery}
+              onChange={(event) => setVehicleRoadLegalQuery(event.target.value)}
+            >
+              <option value="">Ei väliä</option>
+              {VEHICLE_ROAD_LEGAL_OPTIONS.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+            <ChevronDown size={14} aria-hidden="true" />
+          </span>
+        </label>
+        <span className={styles.vehicleUsageSectionLabel}>Ajomäärä ja rekisteri</span>
+        <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-mileage-min`}>
+          <span>Ajokilometrit (km)</span>
+          <div className={styles.vehicleUsageRange}>
+            <input
+              id={`${filterIdPrefix}-mileage-min`}
+              type="text"
+              inputMode="numeric"
+              value={vehicleMileageMinQuery}
+              placeholder="Minimi"
+              onChange={(event) => setVehicleMileageMinQuery(numericValue(event.target.value))}
+            />
+            <i aria-hidden="true">–</i>
+            <input
+              aria-label="Ajokilometrien maksimi"
+              type="text"
+              inputMode="numeric"
+              value={vehicleMileageMaxQuery}
+              placeholder="Maksimi"
+              onChange={(event) => setVehicleMileageMaxQuery(numericValue(event.target.value))}
+            />
+          </div>
+          {renderNumericRangeSlider({
+            label: "Ajokilometrit",
+            minValue: vehicleMileageMinQuery,
+            maxValue: vehicleMileageMaxQuery,
+            maximum: VEHICLE_MILEAGE_FILTER_MAX,
+            step: 1000,
+            onMinChange: setVehicleMileageMinQuery,
+            onMaxChange: setVehicleMileageMaxQuery
+          })}
+        </label>
+        <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-hours-min`}>
+          <span>Käyttötunnit (h)</span>
+          <div className={styles.vehicleUsageRange}>
+            <input
+              id={`${filterIdPrefix}-hours-min`}
+              type="text"
+              inputMode="numeric"
+              value={vehicleHoursMinQuery}
+              placeholder="Minimi"
+              onChange={(event) => setVehicleHoursMinQuery(numericValue(event.target.value))}
+            />
+            <i aria-hidden="true">–</i>
+            <input
+              aria-label="Käyttötuntien maksimi"
+              type="text"
+              inputMode="numeric"
+              value={vehicleHoursMaxQuery}
+              placeholder="Maksimi"
+              onChange={(event) => setVehicleHoursMaxQuery(numericValue(event.target.value))}
+            />
+          </div>
+          {renderNumericRangeSlider({
+            label: "Käyttötunnit",
+            minValue: vehicleHoursMinQuery,
+            maxValue: vehicleHoursMaxQuery,
+            maximum: VEHICLE_HOURS_FILTER_MAX,
+            step: 50,
+            onMinChange: setVehicleHoursMinQuery,
+            onMaxChange: setVehicleHoursMaxQuery
+          })}
+        </label>
+        <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-registration`}>
+          <span>Rekisteritunnus</span>
+          <input
+            id={`${filterIdPrefix}-registration`}
+            className={styles.vehicleRegistrationInput}
+            type="text"
+            autoCapitalize="characters"
+            value={vehicleRegistrationQuery}
+            placeholder="Esim. 123-ABC"
+            onChange={(event) => setVehicleRegistrationQuery(event.target.value.toUpperCase())}
+          />
+        </label>
+        <span className={styles.vehicleUsageSectionLabel}>Hinta</span>
+        <label className={styles.vehicleUsageField} htmlFor={`${filterIdPrefix}-price-min`}>
+          <span>Hintaväli (€)</span>
+          <div className={styles.vehicleUsageRange}>
+            <input
+              id={`${filterIdPrefix}-price-min`}
+              type="text"
+              inputMode="numeric"
+              value={minPrice || ""}
+              placeholder="Minimi"
+              onChange={(event) => setMinPrice(Math.min(Number(numericValue(event.target.value) || 0), maxPrice))}
+            />
+            <i aria-hidden="true">–</i>
+            <input
+              aria-label="Hinnan maksimi"
+              type="text"
+              inputMode="numeric"
+              value={maxPrice === VEHICLE_PRICE_FILTER_MAX ? "" : maxPrice}
+              placeholder="Maksimi"
+              onChange={(event) => setMaxPrice(Math.max(Number(numericValue(event.target.value) || VEHICLE_PRICE_FILTER_MAX), minPrice))}
+            />
+          </div>
+          {renderNumericRangeSlider({
+            label: "Hintaväli",
+            minValue: minPrice ? String(minPrice) : "",
+            maxValue: maxPrice === VEHICLE_PRICE_FILTER_MAX ? "" : String(maxPrice),
+            maximum: VEHICLE_PRICE_FILTER_MAX,
+            step: 500,
+            onMinChange: (value) => setMinPrice(Number(value || 0)),
+            onMaxChange: (value) => setMaxPrice(Number(value || VEHICLE_PRICE_FILTER_MAX))
+          })}
+        </label>
+        <button
+          type="button"
+          className={styles.vehicleAccessoryFilterButton}
+          onClick={() => setVehicleAccessoriesOpen(true)}
+          aria-haspopup="dialog"
+        >
+          <span>
+            <Cog size={17} aria-hidden="true" />
+            <strong>{vehicleOptionCopy.accessories}</strong>
+          </span>
+          <span>
+            {vehicleAccessoriesQuery.length > 0
+              ? vehicleOptionCopy.selected(vehicleAccessoriesQuery.length)
+              : vehicleOptionCopy.allAccessories}
+            <ChevronRight size={17} aria-hidden="true" />
+          </span>
+        </button>
+        {layout === "desktop" && vehicleAccessoriesOpen
+          ? createPortal(
+              <div className={styles.vehicleAccessoryOverlay} role="presentation" onMouseDown={() => setVehicleAccessoriesOpen(false)}>
+                <section
+                  className={styles.vehicleAccessoryDialog}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="filter-accessories-title"
+                  onMouseDown={(event) => event.stopPropagation()}
+                >
+                  <header className={styles.vehicleAccessoryDialogHeader}>
+                    <div>
+                      <h2 id="filter-accessories-title">{vehicleOptionCopy.accessories}</h2>
+                      <p>{vehicleOptionCopy.accessoriesDescription}</p>
+                    </div>
+                    <button type="button" onClick={() => setVehicleAccessoriesOpen(false)} aria-label={vehicleOptionCopy.closeAccessories}>
+                      <X size={22} aria-hidden="true" />
+                    </button>
+                  </header>
+                  <div className={styles.vehicleAccessoryGrid}>
+                    {VEHICLE_ACCESSORY_OPTIONS.map((accessory) => {
+                      const selected = vehicleAccessoriesQuery.includes(accessory);
+                      return (
+                        <label key={accessory} className={selected ? styles.vehicleAccessoryOptionSelected : ""}>
+                          <input
+                            type="checkbox"
+                            checked={selected}
+                            onChange={() => {
+                              setVehicleAccessoriesQuery((current) =>
+                                current.includes(accessory)
+                                  ? current.filter((item) => item !== accessory)
+                                  : [...current, accessory]
+                              );
+                              afterHeroFilterChange();
+                            }}
+                          />
+                          <span className={styles.vehicleAccessoryCheck} aria-hidden="true">
+                            {selected ? <Check size={15} /> : null}
+                          </span>
+                          <span>{translateVehicleAccessory(locale, accessory)}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <footer className={styles.vehicleAccessoryDialogFooter}>
+                    <button type="button" onClick={() => setVehicleAccessoriesQuery([])}>{vehicleOptionCopy.clearSelections}</button>
+                    <button type="button" className={styles.vehicleAccessoryDone} onClick={() => setVehicleAccessoriesOpen(false)}>
+                      {vehicleOptionCopy.done} ({vehicleAccessoriesQuery.length})
+                    </button>
+                  </footer>
+                </section>
+              </div>,
+              document.body
+            )
+          : null}
+        <button
+          type="button"
+          className={styles.vehicleAccessoryFilterButton}
+          onClick={() => setVehicleColorsOpen(true)}
+          aria-haspopup="dialog"
+        >
+          <span>
+            <Palette size={17} aria-hidden="true" />
+            <strong>{vehicleOptionCopy.color}</strong>
+          </span>
+          <span>
+            {vehicleColorsQuery.length > 0
+              ? vehicleOptionCopy.selected(vehicleColorsQuery.length)
+              : vehicleOptionCopy.allColors}
+            <ChevronRight size={17} aria-hidden="true" />
+          </span>
+        </button>
+        {layout === "desktop" && vehicleColorsOpen
+          ? createPortal(
+              <div className={styles.vehicleAccessoryOverlay} role="presentation" onMouseDown={() => setVehicleColorsOpen(false)}>
+                <section
+                  className={styles.vehicleAccessoryDialog}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="filter-colors-title"
+                  onMouseDown={(event) => event.stopPropagation()}
+                >
+                  <header className={styles.vehicleAccessoryDialogHeader}>
+                    <div>
+                      <h2 id="filter-colors-title">{vehicleOptionCopy.color}</h2>
+                      <p>{vehicleOptionCopy.colorDescription}</p>
+                    </div>
+                    <button type="button" onClick={() => setVehicleColorsOpen(false)} aria-label={vehicleOptionCopy.closeColors}>
+                      <X size={22} aria-hidden="true" />
+                    </button>
+                  </header>
+                  <div className={`${styles.vehicleAccessoryGrid} ${styles.vehicleColorGrid}`}>
+                    {VEHICLE_COLOR_OPTIONS.map((color) => {
+                      const selected = vehicleColorsQuery.includes(color.label);
+                      return (
+                        <label key={color.label} className={selected ? styles.vehicleAccessoryOptionSelected : ""}>
+                          <input
+                            type="checkbox"
+                            checked={selected}
+                            onChange={() => {
+                              setVehicleColorsQuery((current) =>
+                                current.includes(color.label)
+                                  ? current.filter((item) => item !== color.label)
+                                  : [...current, color.label]
+                              );
+                              afterHeroFilterChange();
+                            }}
+                          />
+                          <span className={styles.vehicleAccessoryCheck} aria-hidden="true">
+                            {selected ? <Check size={15} /> : null}
+                          </span>
+                          <span>{translateVehicleColor(locale, color.label)}</span>
+                          <span
+                            className={styles.vehicleColorSwatch}
+                            style={{ background: color.swatch }}
+                            aria-hidden="true"
+                          >
+                            {color.label === "Muu" ? "?" : null}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <footer className={styles.vehicleAccessoryDialogFooter}>
+                    <button type="button" onClick={() => setVehicleColorsQuery([])}>{vehicleOptionCopy.clearSelections}</button>
+                    <button type="button" className={styles.vehicleAccessoryDone} onClick={() => setVehicleColorsOpen(false)}>
+                      {vehicleOptionCopy.done} ({vehicleColorsQuery.length})
+                    </button>
+                  </footer>
+                </section>
+              </div>,
+              document.body
+            )
+          : null}
+      </section>
+    );
+  }
+
+  function renderMarketplaceModeSwitch(layout: "mobile" | "desktop") {
+    return (
+      <section
+        className={styles.marketplaceRailSwitch}
+        data-marketplace-switch-layout={layout}
+        aria-label="Valitse markkinapaikka"
+      >
+        <div className={`${styles.marketplaceModeTabs} home-marketplace-mode-tabs`} role="tablist" aria-label="Ilmoitustyyppi">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={!isVehicleMarketplace}
+            className={`home-marketplace-mode-tab${!isVehicleMarketplace ? ` ${styles.marketplaceModeTabActive} is-active` : ""}`}
+            onClick={() => selectMarketplaceMode("parts")}
+          >
+            Varaosat
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={isVehicleMarketplace}
+            className={`home-marketplace-mode-tab${isVehicleMarketplace ? ` ${styles.marketplaceModeTabActive} is-active` : ""}`}
+            onClick={() => selectMarketplaceMode("vehicles")}
+          >
+            Ajoneuvot
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   const startMobileFilterDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -4819,7 +5715,11 @@ function HomeContent({
       <div data-home-background-region className={styles.heroWrap}>
         <div data-home-background-container className={styles.container}>
   <section data-home-hero className={styles.hero} aria-label="Hero">
-    <div data-home-layout className={styles.heroInner}>
+    <div
+      data-home-layout
+      className={styles.heroInner}
+      style={!homeLatestExpanded && !compactHeroSearch ? { position: "relative" } : undefined}
+    >
       <div
         id={
           homeLatestExpanded && hasAppliedListingFilters
@@ -4838,9 +5738,13 @@ function HomeContent({
             <h1 data-home-headline className={styles.heroHeadline}>
                     <span style={{ display: "block", width: "100%" }}>{t.heroLeadStart}</span>
                     <span className={styles.heroHeadlineAccent} style={{ display: "block", width: "100%" }}>{t.heroLeadHighlight}</span>
-                    <span style={{ display: "block", width: "100%" }}>{t.heroLeadEnd}</span>
+                    <span style={{ display: "block", width: "100%" }}>
+                      {t.heroLeadEnd}
+                    </span>
                   </h1>
-            <p data-home-subtitle className={styles.heroReferenceSubtitle}>{t.heroSubtitle}</p>
+            <p data-home-subtitle className={styles.heroReferenceSubtitle}>
+              {t.heroSubtitle}
+            </p>
                   <div className={styles.heroDesktopActions}>
                     <button
                       type="button"
@@ -4891,13 +5795,13 @@ function HomeContent({
                     applyListingFilters();
                   }}
                 >
-                  <span className={styles.heroMainSearchIcon} aria-hidden="true">
+                  <span className={`${styles.heroMainSearchIcon} home-search-icon`} aria-hidden="true">
                     <Search size={16} />
                   </span>
                   <input
                     className={styles.heroMainSearchInput}
                     type="search"
-                    placeholder={t.searchPlaceholder}
+                    placeholder={compactHeroSearch && locale === "fi" ? "Hae oem, merkki..." : t.searchPlaceholder}
                     value={query}
                     onChange={(e) => { setQuery(e.target.value); setCurrentPage(1); }}
                     aria-label={t.searchLabel}
@@ -4909,13 +5813,13 @@ function HomeContent({
                     type={compactHeroSearch ? "button" : "submit"}
                     className={styles.heroMainSearchButton}
                     data-mobile-filter={compactHeroSearch ? "true" : undefined}
-                    aria-label={compactHeroSearch ? t.filters : t.searchLabel}
+                    aria-label={compactHeroSearch ? homeResultsText.filter : t.searchLabel}
                     onClick={handleHeroMainSearchButtonClick}
                   >
                     {compactHeroSearch ? (
                       <>
                         <SlidersHorizontal size={18} aria-hidden="true" />
-                        <span>{t.filters}</span>
+                        <span>{homeResultsText.filter}</span>
                       </>
                     ) : (
                       <>
@@ -4973,7 +5877,7 @@ function HomeContent({
               >
                 {!hasNoHomeSearchResults ? (
                 <div data-home-latest-head className={styles.heroDesktopLatestHead}>
-                  <strong>
+                  <strong className="home-latest-heading">
                     {!homeLatestExpanded
                       ? homeResultsText.latest
                       : homeResultsText.results(filteredListings.length)}
@@ -5013,8 +5917,12 @@ function HomeContent({
                         role="link"
                         tabIndex={0}
                         aria-label={`${t.openListing} ${listingText.title}`}
-                        onClick={() => openListing(listing)}
+                        onClick={(event) => {
+                          if ((event.target as HTMLElement).closest('[data-home-latest-favorite="true"]')) return;
+                          openListing(listing);
+                        }}
                         onKeyDown={(event) => {
+                          if ((event.target as HTMLElement).closest('[data-home-latest-favorite="true"]')) return;
                           if (event.key === "Enter" || event.key === " ") {
                             event.preventDefault();
                             openListing(listing);
@@ -5039,6 +5947,7 @@ function HomeContent({
                           {canUseFavorites && <button
                             type="button"
                             data-home-latest-favorite="true"
+                            data-listing-favorite="true"
                             data-listing-id={listing.id}
                             className={`${styles.favoriteButton} ${styles.heroDesktopFavorite} ${
                               isFavorite ? `${styles.favoriteButtonActive} ${styles.heroDesktopFavoriteActive}` : ""
@@ -5056,8 +5965,14 @@ function HomeContent({
                             }}
                             onTouchEnd={(event) => event.stopPropagation()}
                             aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
+                            aria-pressed={isFavorite}
                           >
-                            <span data-home-latest-heart aria-hidden="true">♥</span>
+                            <Heart
+                              data-home-latest-heart
+                              size={18}
+                              fill={isFavorite ? "currentColor" : "none"}
+                              aria-hidden="true"
+                            />
                           </button>}
                         </div>
                         <div className={`${styles.cardBody} ${styles.heroDesktopLatestBody}`}>
@@ -5108,8 +6023,13 @@ function HomeContent({
               </div>
               {!homeLatestExpanded ? (
                 <div data-home-sell-callout className={styles.heroSellCallout}>
-                  <span className={styles.heroSellCalloutIcon}><Package size={26} aria-hidden="true" /></span>
-                  <span><strong>Lisää ajoneuvosi osat myyntiin nopeasti yhdellä ilmoituksella</strong><small>Lisää kuvat ja tiedot helposti — tavoita ostajat ympäri Suomen.</small></span>
+                  <span className={styles.heroSellCalloutIcon}>
+                    <Package size={26} aria-hidden="true" />
+                  </span>
+                  <span>
+                    <strong>Lisää varaosat tai ajoneuvo myyntiin helposti</strong>
+                    <small>Valitse ilmoitustyyppi ja lisää kuvat sekä tiedot — tavoita ostajat ympäri Suomen.</small>
+                  </span>
                   <Link href="/sell">Aloita myynti</Link>
                 </div>
               ) : null}
@@ -5174,7 +6094,7 @@ function HomeContent({
   id={
     homeLatestExpanded && hasAppliedListingFilters
       ? "home-filtered-filter-rail"
-      : undefined
+      : "home-filter-rail"
   }
   data-home-filter-rail
   data-home-filter-sheet={compactHeroSearch ? "true" : "false"}
@@ -5184,11 +6104,7 @@ function HomeContent({
               style={
                 compactHeroSearch
                   ? ({ "--mobile-sheet-offset": `${mobileFilterDragOffset}px` } as CSSProperties)
-                  : {
-                    maxWidth: "410px",
-                    right: 0,
-                    width: "410px"
-                  } as CSSProperties
+                  : undefined
               }
             >
               {(!compactHeroSearch || homeSearchPanelOpen) ? (
@@ -5233,15 +6149,18 @@ function HomeContent({
                         onPointerDown={(event) => event.stopPropagation()}
                         onTouchStart={(event) => event.stopPropagation()}
                       >
-                        {heroFilterFields.slice(0, 2).map((field) => (
+                        {renderMarketplaceModeSwitch("mobile")}
+
+                        {isVehicleMarketplace ? (
+                          <span className={styles.vehicleUsageSectionLabel}>Ajoneuvon perustiedot</span>
+                        ) : null}
+
+                        {marketplaceHeroFilterFields.slice(0, 2).map((field) => (
                           <div
                             key={`mobile-${field.key}`}
                             className={styles.mobileSheetField}
-                            data-no-auto-translate={[
-                              "category",
-                              "subcategory",
-                              "detailSubcategory"
-                            ].includes(field.key) ? "" : undefined}
+                            data-no-auto-translate
+                            translate="no"
                           >
                             <span>{field.label}</span>
                             <button
@@ -5263,6 +6182,41 @@ function HomeContent({
                                       if (!(field.key === "detailSubcategory" && isTrackMatSelection(option.value))) {
                                         setActiveHeroFilter(null);
                                       }
+                                    }}
+                                  >
+                                    {option.label}
+                                  </button>
+                                )) : <span>Ei valintoja</span>}
+                              </div>
+                            ) : null}
+                          </div>
+                        ))}
+
+                        {marketplaceHeroFilterFields.slice(2, 4).map((field) => (
+                          <div
+                            key={`mobile-${field.key}`}
+                            className={styles.mobileSheetField}
+                            data-no-auto-translate
+                            translate="no"
+                          >
+                            <span>{field.label}</span>
+                            <button
+                              type="button"
+                              className={styles.mobileSheetSelect}
+                              onClick={(event) => toggleMobileHeroFilter(field.key, event.currentTarget.parentElement ?? event.currentTarget)}
+                            >
+                              <strong>{field.value}</strong>
+                              <ChevronDown size={15} aria-hidden="true" />
+                            </button>
+                            {activeHeroFilter === field.key ? (
+                              <div className={styles.mobileSheetMenu}>
+                                {field.options.length ? field.options.map((option) => (
+                                  <button
+                                    key={`mobile-${field.key}-${option.value || "all"}`}
+                                    type="button"
+                                    onClick={() => {
+                                      field.onSelect(option.value);
+                                      setActiveHeroFilter(null);
                                     }}
                                   >
                                     {option.label}
@@ -5304,94 +6258,42 @@ function HomeContent({
                           doneLabel={locationFilterCopy.done}
                         />
 
-                        {heroFilterFields.slice(2, 4).map((field) => (
-                          <div
-                            key={`mobile-${field.key}`}
-                            className={styles.mobileSheetField}
-                          >
-                            <span>{field.label}</span>
-                            <button
-                              type="button"
-                              className={styles.mobileSheetSelect}
-                              onClick={(event) => toggleMobileHeroFilter(field.key, event.currentTarget.parentElement ?? event.currentTarget)}
-                            >
-                              <strong>{field.value}</strong>
-                              <ChevronDown size={15} aria-hidden="true" />
-                            </button>
-                            {activeHeroFilter === field.key ? (
-                              <div className={styles.mobileSheetMenu}>
-                                {field.options.length ? field.options.map((option) => (
-                                  <button
-                                    key={`mobile-${field.key}-${option.value || "all"}`}
-                                    type="button"
-                                    onClick={() => {
-                                      field.onSelect(option.value);
-                                      setActiveHeroFilter(null);
-                                    }}
-                                  >
-                                    {option.label}
-                                  </button>
-                                )) : <span>Ei valintoja</span>}
-                              </div>
-                            ) : null}
-                          </div>
-                        ))}
-
                         <div className={styles.mobileSheetField}>
                           <span>Vuosimalli</span>
                           <div className={styles.mobileSheetYearBoxes}>
-                            <button
-                              type="button"
-                              className={styles.mobileSheetSelect}
-                              onClick={() => setActiveHeroFilter((current) => current === "yearMin" ? null : "yearMin")}
-                            >
-                              <strong>{yearMinQuery || "Minimi"}</strong>
-                              <ChevronDown size={13} aria-hidden="true" />
-                            </button>
+                            <input
+                              className={styles.yearRangeTextInput}
+                              type="text"
+                              inputMode="numeric"
+                              value={yearMinQuery}
+                              placeholder="Minimi"
+                              aria-label="Vuosimallin minimi"
+                              onChange={(event) => {
+                                setYearMinQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
+                                setYearQuery("");
+                                afterHeroFilterChange();
+                              }}
+                            />
                             <span aria-hidden="true">-</span>
-                            <button
-                              type="button"
-                              className={styles.mobileSheetSelect}
-                              onClick={() => setActiveHeroFilter((current) => current === "yearMax" ? null : "yearMax")}
-                            >
-                              <strong>{yearMaxQuery || "Maksimi"}</strong>
-                              <ChevronDown size={13} aria-hidden="true" />
-                            </button>
+                            <input
+                              className={styles.yearRangeTextInput}
+                              type="text"
+                              inputMode="numeric"
+                              value={yearMaxQuery}
+                              placeholder="Maksimi"
+                              aria-label="Vuosimallin maksimi"
+                              onChange={(event) => {
+                                setYearMaxQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
+                                setYearQuery("");
+                                afterHeroFilterChange();
+                              }}
+                            />
                           </div>
-                          {activeHeroFilter === "yearMin" || activeHeroFilter === "yearMax" ? (
-                            <div className={styles.mobileSheetMenu}>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (activeHeroFilter === "yearMin") setYearMinQuery("");
-                                  else setYearMaxQuery("");
-                                  setYearQuery("");
-                                  setActiveHeroFilter(null);
-                                }}
-                              >
-                                {activeHeroFilter === "yearMin" ? "Minimi" : "Maksimi"}
-                              </button>
-                              {yearOptions.map((year) => (
-                                <button
-                                  key={`mobile-${activeHeroFilter}-${year}`}
-                                  type="button"
-                                  onClick={() => {
-                                    if (activeHeroFilter === "yearMin") setYearMinQuery(year);
-                                    else setYearMaxQuery(year);
-                                    setYearQuery("");
-                                    setActiveHeroFilter(null);
-                                    afterHeroFilterChange();
-                                  }}
-                                >
-                                  {year}
-                                </button>
-                              ))}
-                            </div>
-                          ) : null}
                           <div
                             className={styles.yearRangeClean}
                             data-year-range-clean="true"
                             data-mobile-year-range="true"
+                            data-range-active={yearMinQuery || yearMaxQuery ? "true" : "false"}
                             ref={yearSliderRef}
                             role="group"
                             aria-label="Vuosimallin rajaus"
@@ -5402,6 +6304,16 @@ function HomeContent({
                             } as CSSProperties}
                           >
                             <span className={styles.yearRangeCleanLine} aria-hidden="true" />
+                            <span
+                              className={styles.rangeVisualThumb}
+                              style={{ left: rangeThumbLeft(yearMinPercent) }}
+                              aria-hidden="true"
+                            />
+                            <span
+                              className={styles.rangeVisualThumb}
+                              style={{ left: rangeThumbLeft(yearMaxPercent) }}
+                              aria-hidden="true"
+                            />
                             <input
                               type="range"
                               className={`${styles.mobileYearRangeInput} ${styles.mobileYearRangeMin}`}
@@ -5410,8 +6322,8 @@ function HomeContent({
                               step={1}
                               value={selectedYearMin}
                               aria-label="Vuosimallin minimi"
-                              onChange={(event) => {
-                                const next = Math.min(Number(event.target.value), selectedYearMax);
+                              onInput={(event) => {
+                                const next = Math.min(Number(event.currentTarget.value), selectedYearMax);
                                 setYearMinQuery(next === YEAR_FILTER_MIN ? "" : String(next));
                                 setYearQuery("");
                                 afterHeroFilterChange();
@@ -5425,8 +6337,8 @@ function HomeContent({
                               step={1}
                               value={selectedYearMax}
                               aria-label="Vuosimallin maksimi"
-                              onChange={(event) => {
-                                const next = Math.max(Number(event.target.value), selectedYearMin);
+                              onInput={(event) => {
+                                const next = Math.max(Number(event.currentTarget.value), selectedYearMin);
                                 setYearMaxQuery(next === YEAR_FILTER_MAX ? "" : String(next));
                                 setYearQuery("");
                                 afterHeroFilterChange();
@@ -5435,15 +6347,16 @@ function HomeContent({
                           </div>
                         </div>
 
-                        {heroFilterFields.slice(4).map((field) => (
+                        {isVehicleMarketplace ? (
+                          <span className={styles.vehicleUsageSectionLabel}>Moottori ja tekniikka</span>
+                        ) : null}
+
+                        {marketplaceHeroFilterFields.slice(4).map((field) => (
                           <div
                             key={`mobile-${field.key}`}
                             className={styles.mobileSheetField}
-                            data-no-auto-translate={[
-                              "category",
-                              "subcategory",
-                              "detailSubcategory"
-                            ].includes(field.key) ? "" : undefined}
+                            data-no-auto-translate
+                            translate="no"
                           >
                             {field.key === "category" ? <b className={styles.mobileSheetSectionTitle}>Osakategoriointi</b> : null}
                             <span>{field.label}</span>
@@ -5478,6 +6391,8 @@ function HomeContent({
                             ) : null}
                           </div>
                         ))}
+
+                        {renderVehicleUsageFilters("mobile")}
 
                         {trackMatDimensionFieldVisible ? (
                           <div id="mobile-track-mat-dimension" className={styles.trackMatDimensionGroup}>
@@ -5587,11 +6502,9 @@ function HomeContent({
                       </div>
                     </>
                   ) : null}
+                  {!compactHeroSearch ? renderMarketplaceModeSwitch("desktop") : null}
                   <div className={styles.heroRailHeader}>
                     <strong>{t.filters}</strong>
-                    <button type="button" className={styles.heroRailHeaderClear} onClick={clearListingFilters}>
-                      {t.resetFilters}
-                    </button>
                   </div>
                   <div className={styles.heroSearchPanel}>
                     <div className={styles.heroSearchRow}>
@@ -5630,8 +6543,43 @@ function HomeContent({
                     </div>
 
                     <div className={styles.heroFilterStack} aria-label={t.filters}>
+                      {isVehicleMarketplace ? (
+                        <span className={styles.vehicleUsageSectionLabel}>Ajoneuvon perustiedot</span>
+                      ) : null}
                       {heroRailFilterFields.slice(0, 2).map((field) => (
-                        <div key={field.key} className={styles.heroFilterFieldWrap}>
+                        <div key={field.key} className={styles.heroFilterFieldWrap} data-no-auto-translate translate="no">
+                          <span className={styles.heroFilterLabel}>{field.label}</span>
+                          <button
+                            type="button"
+                            className={styles.heroFilterSelect}
+                            onClick={() => setActiveHeroFilter((current) => current === field.key ? null : field.key)}
+                          >
+                            <strong>{field.value}</strong>
+                            <ChevronDown size={15} aria-hidden="true" />
+                          </button>
+                          {activeHeroFilter === field.key ? (
+                            <div className={styles.heroFilterMenu}>
+                              {field.options.length > 0 ? field.options.map((option) => (
+                                <button
+                                  key={`${field.key}-${option.value || "all"}`}
+                                  type="button"
+                                  className={styles.heroFilterMenuOption}
+                                  onClick={() => {
+                                    field.onSelect(option.value);
+                                    setActiveHeroFilter(null);
+                                  }}
+                                >
+                                  {option.label}
+                                </button>
+                              )) : (
+                                <span className={styles.heroFilterMenuEmpty}>Ei valintoja</span>
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+                      ))}
+                      {heroRailFilterFields.slice(2).map((field) => (
+                        <div key={field.key} className={styles.heroFilterFieldWrap} data-no-auto-translate translate="no">
                           <span className={styles.heroFilterLabel}>{field.label}</span>
                           <button
                             type="button"
@@ -5690,124 +6638,41 @@ function HomeContent({
                         emptyLabel={locationFilterCopy.noResults}
                         clearLabel={locationFilterCopy.clearSelections}
                       />
-                      {heroRailFilterFields.slice(2).map((field) => (
-                        <div key={field.key} className={styles.heroFilterFieldWrap}>
-                          <span className={styles.heroFilterLabel}>{field.label}</span>
-                          <button
-                            type="button"
-                            className={styles.heroFilterSelect}
-                            onClick={() => setActiveHeroFilter((current) => current === field.key ? null : field.key)}
-                          >
-                            <strong>{field.value}</strong>
-                            <ChevronDown size={15} aria-hidden="true" />
-                          </button>
-                          {activeHeroFilter === field.key ? (
-                            <div className={styles.heroFilterMenu}>
-                              {field.options.length > 0 ? field.options.map((option) => (
-                                <button
-                                  key={`${field.key}-${option.value || "all"}`}
-                                  type="button"
-                                  className={styles.heroFilterMenuOption}
-                                  onClick={() => {
-                                    field.onSelect(option.value);
-                                    setActiveHeroFilter(null);
-                                  }}
-                                >
-                                  {option.label}
-                                </button>
-                              )) : (
-                                <span className={styles.heroFilterMenuEmpty}>Ei valintoja</span>
-                              )}
-                            </div>
-                          ) : null}
-                        </div>
-                      ))}
                       <div className={styles.heroYearRangeField}>
                         <span className={styles.heroYearRangeLabel}>Vuosimalli</span>
                         <div className={styles.heroYearBoxes}>
-                          <div className={styles.heroYearSelectWrap}>
-                            <button
-                              type="button"
-                              className={styles.heroYearBox}
-                              onClick={() => setActiveHeroFilter((current) => current === "yearMin" ? null : "yearMin")}
-                            >
-                              <strong>{yearMinQuery || "Minimi"}</strong>
-                              <ChevronDown size={13} aria-hidden="true" />
-                            </button>
-                            {activeHeroFilter === "yearMin" ? (
-                              <div className={styles.heroFilterMenu}>
-                                <button
-                                  type="button"
-                                  className={styles.heroFilterMenuOption}
-                                  onClick={() => {
-                                    setYearMinQuery("");
-                                    setYearQuery("");
-                                    setActiveHeroFilter(null);
-                                  }}
-                                >
-                                  Minimi
-                                </button>
-                                {yearOptions.map((year) => (
-                                  <button
-                                    key={`year-min-${year}`}
-                                    type="button"
-                                    className={styles.heroFilterMenuOption}
-                                    onClick={() => {
-                                      setYearMinQuery(year);
-                                      setYearQuery("");
-                                      setActiveHeroFilter(null);
-                                    }}
-                                  >
-                                    {year}
-                                  </button>
-                                ))}
-                              </div>
-                            ) : null}
-                          </div>
+                          <input
+                            className={styles.yearRangeTextInput}
+                            type="text"
+                            inputMode="numeric"
+                            value={yearMinQuery}
+                            placeholder="Minimi"
+                            aria-label="Vuosimallin minimi"
+                            onChange={(event) => {
+                              setYearMinQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
+                              setYearQuery("");
+                              afterHeroFilterChange();
+                            }}
+                          />
                           <span className={styles.heroYearDash} aria-hidden="true">-</span>
-                          <div className={styles.heroYearSelectWrap}>
-                            <button
-                              type="button"
-                              className={styles.heroYearBox}
-                              onClick={() => setActiveHeroFilter((current) => current === "yearMax" ? null : "yearMax")}
-                            >
-                              <strong>{yearMaxQuery || "Maksimi"}</strong>
-                              <ChevronDown size={13} aria-hidden="true" />
-                            </button>
-                            {activeHeroFilter === "yearMax" ? (
-                              <div className={styles.heroFilterMenu}>
-                                <button
-                                  type="button"
-                                  className={styles.heroFilterMenuOption}
-                                  onClick={() => {
-                                    setYearMaxQuery("");
-                                    setYearQuery("");
-                                    setActiveHeroFilter(null);
-                                  }}
-                                >
-                                  Maksimi
-                                </button>
-                                {yearOptions.map((year) => (
-                                  <button
-                                    key={`year-max-${year}`}
-                                    type="button"
-                                    className={styles.heroFilterMenuOption}
-                                    onClick={() => {
-                                      setYearMaxQuery(year);
-                                      setYearQuery("");
-                                      setActiveHeroFilter(null);
-                                    }}
-                                  >
-                                    {year}
-                                  </button>
-                                ))}
-                              </div>
-                            ) : null}
-                          </div>
+                          <input
+                            className={styles.yearRangeTextInput}
+                            type="text"
+                            inputMode="numeric"
+                            value={yearMaxQuery}
+                            placeholder="Maksimi"
+                            aria-label="Vuosimallin maksimi"
+                            onChange={(event) => {
+                              setYearMaxQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
+                              setYearQuery("");
+                              afterHeroFilterChange();
+                            }}
+                          />
                         </div>
                         <div
                           className={styles.yearRangeClean}
                           data-year-range-clean="true"
+                          data-range-active={yearMinQuery || yearMaxQuery ? "true" : "false"}
                           ref={yearSliderRef}
                           role="group"
                           aria-label="Vuosimallin rajaus"
@@ -5819,6 +6684,16 @@ function HomeContent({
                           onMouseDown={startYearRangeMouseDrag}
                         >
                           <span className={styles.yearRangeCleanLine} aria-hidden="true" />
+                          <span
+                            className={styles.rangeVisualThumb}
+                            style={{ left: rangeThumbLeft(yearMinPercent) }}
+                            aria-hidden="true"
+                          />
+                          <span
+                            className={styles.rangeVisualThumb}
+                            style={{ left: rangeThumbLeft(yearMaxPercent) }}
+                            aria-hidden="true"
+                          />
                           <input
                             type="range"
                             className={`${styles.desktopYearRangeInput} ${styles.mobileYearRangeMin}`}
@@ -5827,8 +6702,8 @@ function HomeContent({
                             step={1}
                             value={selectedYearMin}
                             aria-label="Vuosimallin minimi"
-                            onChange={(event) => {
-                              const next = Math.min(Number(event.target.value), selectedYearMax);
+                            onInput={(event) => {
+                              const next = Math.min(Number(event.currentTarget.value), selectedYearMax);
                               setYearMinQuery(next === YEAR_FILTER_MIN ? "" : String(next));
                               setYearQuery("");
                               afterHeroFilterChange();
@@ -5842,8 +6717,8 @@ function HomeContent({
                             step={1}
                             value={selectedYearMax}
                             aria-label="Vuosimallin maksimi"
-                            onChange={(event) => {
-                              const next = Math.max(Number(event.target.value), selectedYearMin);
+                            onInput={(event) => {
+                              const next = Math.max(Number(event.currentTarget.value), selectedYearMin);
                               setYearMaxQuery(next === YEAR_FILTER_MAX ? "" : String(next));
                               setYearQuery("");
                               afterHeroFilterChange();
@@ -5851,8 +6726,11 @@ function HomeContent({
                           />
                         </div>
                       </div>
+                      {isVehicleMarketplace ? (
+                        <span className={styles.vehicleUsageSectionLabel}>Moottori ja tekniikka</span>
+                      ) : null}
                       {heroRailEngineFields.map((field) => (
-                        <div key={field.key} className={styles.heroFilterFieldWrap}>
+                        <div key={field.key} className={styles.heroFilterFieldWrap} data-no-auto-translate translate="no">
                           <span className={styles.heroFilterLabel}>{field.label}</span>
                           <button
                             type="button"
@@ -5889,10 +6767,13 @@ function HomeContent({
                       ))}
                     </div>
 
+                    {renderVehicleUsageFilters("desktop")}
+
+                    {heroRailPartCategoryFields.length > 0 || trackMatDimensionFieldVisible ? (
                     <div className={styles.heroPartCategoryStack} aria-label="Osakategoriointi">
                       <span className={styles.heroPartCategoryTitle}>Osakategoriointi</span>
                       {heroRailPartCategoryFields.map((field) => (
-                        <div key={field.key} className={styles.heroFilterFieldWrap} data-no-auto-translate>
+                        <div key={field.key} className={styles.heroFilterFieldWrap} data-no-auto-translate translate="no">
                           <span className={styles.heroFilterLabel}>{field.label}</span>
                           <button
                             type="button"
@@ -6023,6 +6904,7 @@ function HomeContent({
                         </div>
                       ) : null}
                     </div>
+                    ) : null}
 
                     <div className={styles.heroRailActions}>
                       <button
@@ -6125,7 +7007,10 @@ function HomeContent({
                         role="link"
                         tabIndex={0}
                         aria-label={`${t.openListing} ${listingText.title}`}
-                        onClick={() => openListing(listing)}
+                        onClick={(event) => {
+                          if ((event.target as HTMLElement).closest('[data-listing-favorite="true"]')) return;
+                          openListing(listing);
+                        }}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
@@ -6154,8 +7039,11 @@ function HomeContent({
                             onPointerDown={(e) => e.stopPropagation()}
                             onTouchStart={(e) => e.stopPropagation()}
                             className={`${styles.favoriteButton} ${isFavorite ? styles.favoriteButtonActive : ""}`}
+                            data-listing-favorite="true"
+                            data-listing-id={listing.id}
                             type="button"
                             aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
+                            aria-pressed={isFavorite}
                           >
                             <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
                           </button>}
@@ -6339,7 +7227,10 @@ function HomeContent({
                     role="link"
                     tabIndex={0}
                     aria-label={`${t.openListing} ${listingText.title}`}
-                    onClick={() => openListing(listing)}
+                    onClick={(event) => {
+                      if ((event.target as HTMLElement).closest('[data-listing-favorite="true"]')) return;
+                      openListing(listing);
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
@@ -6376,8 +7267,11 @@ function HomeContent({
                         className={`${styles.favoriteButton} ${
                           isFavorite ? styles.favoriteButtonActive : ""
                         }`}
+                        data-listing-favorite="true"
+                        data-listing-id={listing.id}
                         type="button"
                         aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
+                        aria-pressed={isFavorite}
                       >
                         <Heart
                           size={14}

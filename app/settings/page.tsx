@@ -6,7 +6,7 @@ import { languageOptions, useLanguage, type Locale, type SupportedLocale } from 
 import { translateLocalizedPath } from "@/lib/routes";
 import { getSafeAuthUser, supabase } from "@/lib/supabase";
 import {
-  applyUserBackgroundColor,
+  applyUserTheme,
   defaultUserSettings,
   readUserSettings,
   saveUserSettings,
@@ -21,26 +21,16 @@ const languageFlags: Record<SupportedLocale, { flag: "fi" | "gb" | "se" | "no" }
   no: { flag: "no" }
 };
 
-const backgroundPresets = [
-  { labels: { fi: "Nykyinen tumma", en: "Current dark", sv: "Nuvarande mörk",
-    no: "Nåværende mørk",
-  }, value: "#0b1118" },
-  { labels: { fi: "Tummansininen", en: "Deep blue", sv: "Djupblå",
-    no: "Dypblå",
-  }, value: "#102033" },
-  { labels: { fi: "Grafiitti", en: "Graphite", sv: "Grafit",
-    no: "Grafitt",
-  }, value: "#151a22" },
-  { labels: { fi: "Jääsininen", en: "Ice blue", sv: "Isblå",
-    no: "Isblå",
-  }, value: "#c8d8e8" }
-] satisfies Array<{ labels: Record<Locale, string>; value: string }>;
+const themeOptions = [
+  { labels: { fi: "Tumma teema", en: "Dark theme", sv: "Mörkt tema", no: "Mørkt tema" }, value: "dark", swatch: "#0b1118" },
+  { labels: { fi: "Vaalea teema", en: "Light theme", sv: "Ljust tema", no: "Lyst tema" }, value: "light", swatch: "#f0f2f3" }
+] satisfies Array<{ labels: Record<Locale, string>; value: UserSettings["theme"]; swatch: string }>;
 
 
 const copy = {
   fi: {
     title: "Sivuasetukset",
-    subtitle: "Valitse kieli, ilmoitusten toiminta ja sivun pohjaväri tälle laitteelle.",
+    subtitle: "Valitse kieli, ilmoitusten toiminta ja sivuston teema tälle laitteelle.",
     languageTitle: "Kieli",
     languageDesc: "Käytetään sivuston teksteissä ja reiteissä.",
     notificationsTitle: "Ilmoitukset",
@@ -58,14 +48,14 @@ const copy = {
     browserPermission: "Salli selaimen ilmoitukset",
     browserPermissionGranted: "Selaimen ilmoitukset sallittu",
     browserPermissionDenied: "Selaimen ilmoitukset estetty selaimessa",
-    backgroundTitle: "Sivun pohjaväri",
-    backgroundDesc: "Valitse koko sivuston taustaväri itsellesi.",
+    backgroundTitle: "Teema",
+    backgroundDesc: "Valitse tumma tai vaalea teema. Oranssi säilyy korostevärinä.",
     saved: "Tallennettu",
     instructions: "Ohjeet"
   },
   en: {
     title: "Page Settings",
-    subtitle: "Choose language, notification behavior and the page background color for this device.",
+    subtitle: "Choose language, notification behavior and the site theme for this device.",
     languageTitle: "Language",
     languageDesc: "Used for site text and localized routes.",
     notificationsTitle: "Notifications",
@@ -83,8 +73,8 @@ const copy = {
     browserPermission: "Allow browser notifications",
     browserPermissionGranted: "Browser notifications allowed",
     browserPermissionDenied: "Browser notifications blocked in browser",
-    backgroundTitle: "Page background",
-    backgroundDesc: "Choose the site background color for yourself.",
+    backgroundTitle: "Theme",
+    backgroundDesc: "Choose the dark or light theme. Orange remains the accent color.",
     saved: "Saved",
     instructions: "Instructions"
   },
@@ -108,8 +98,8 @@ const copy = {
     browserPermission: "Tillåt webbläsaraviseringar",
     browserPermissionGranted: "Webbläsaraviseringar tillåtna",
     browserPermissionDenied: "Webbläsaraviseringar blockerade i webbläsaren",
-    backgroundTitle: "Sidans bakgrundsfärg",
-    backgroundDesc: "Välj webbplatsens bakgrundsfärg.",
+    backgroundTitle: "Tema",
+    backgroundDesc: "Välj mörkt eller ljust tema. Orange förblir accentfärgen.",
     saved: "Sparat",
     instructions: "Instruktioner"
   },
@@ -133,8 +123,8 @@ const copy = {
     browserPermission: "Tillat nettleservarsler",
     browserPermissionGranted: "Nettleservarsler er tillatt",
     browserPermissionDenied: "Nettleservarsler er blokkert i nettleseren",
-    backgroundTitle: "Sidens bakgrunnsfarge",
-    backgroundDesc: "Velg nettstedets bakgrunnsfarge.",
+    backgroundTitle: "Tema",
+    backgroundDesc: "Velg mørkt eller lyst tema. Oransje forblir aksentfargen.",
     saved: "Lagret",
     instructions: "Instruksjoner"
   },
@@ -184,7 +174,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const stored = readUserSettings();
     setSettings(stored);
-    applyUserBackgroundColor(stored.backgroundColor);
+    applyUserTheme(stored.theme);
     if ("Notification" in window) {
       setPermission(Notification.permission);
     }
@@ -240,7 +230,7 @@ export default function SettingsPage() {
   function persist(next: UserSettings) {
     setSettings(next);
     saveUserSettings(next);
-    applyUserBackgroundColor(next.backgroundColor);
+    applyUserTheme(next.theme);
     setSavedAt(Date.now());
   }
 
@@ -290,11 +280,11 @@ export default function SettingsPage() {
     setSavedAt(Date.now());
   }
 
-  function updateBackground(value: string) {
+  function updateTheme(value: UserSettings["theme"]) {
     setSettings((current) => {
-      const next = { ...current, backgroundColor: value };
+      const next = { ...current, theme: value };
       saveUserSettings(next);
-      applyUserBackgroundColor(value);
+      applyUserTheme(value);
       setSavedAt(Date.now());
       return next;
     });
@@ -489,17 +479,17 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className={styles.presetList}>
-              {backgroundPresets.map((preset) => (
+              {themeOptions.map((themeOption) => (
                 <button
-                  key={preset.value}
+                  key={themeOption.value}
                   type="button"
-                  className={`${styles.choiceButton} ${preset.value.toLowerCase() === settings.backgroundColor.toLowerCase() ? styles.choiceButtonActive : ""}`}
-                  aria-pressed={preset.value.toLowerCase() === settings.backgroundColor.toLowerCase()}
-                  onClick={() => updateBackground(preset.value)}
+                  className={`${styles.choiceButton} ${themeOption.value === settings.theme ? styles.choiceButtonActive : ""}`}
+                  aria-pressed={themeOption.value === settings.theme}
+                  onClick={() => updateTheme(themeOption.value)}
                 >
-                  <span className={styles.swatch} style={{ background: preset.value }} />
-                  <strong>{preset.labels[locale]}</strong>
-                  {preset.value.toLowerCase() === settings.backgroundColor.toLowerCase() ? <Check className={styles.presetCheck} size={17} /> : null}
+                  <span className={styles.swatch} style={{ background: themeOption.swatch }} />
+                  <strong>{themeOption.labels[locale]}</strong>
+                  {themeOption.value === settings.theme ? <Check className={styles.presetCheck} size={17} /> : null}
                 </button>
               ))}
             </div>

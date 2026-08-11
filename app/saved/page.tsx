@@ -263,7 +263,10 @@ export default function SavedListingsPage() {
                   role="link"
                   tabIndex={0}
                   aria-label={`${t.openListing} ${getListingTitle(listing)}`}
-                  onClick={() => router.push(listingPath(listingUrlId(listing), locale))}
+                  onClick={(event) => {
+                    if ((event.target as HTMLElement).closest('[data-listing-favorite="true"]')) return;
+                    router.push(listingPath(listingUrlId(listing), locale));
+                  }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
@@ -296,8 +299,11 @@ export default function SavedListingsPage() {
                       className={`${marketplaceStyles.favoriteButton} ${
                         isFavorite ? marketplaceStyles.favoriteButtonActive : ""
                       } saved-favorite ${isFavorite ? "is-active" : ""}`}
+                      data-listing-favorite="true"
+                      data-listing-id={listing.id}
                       type="button"
                       aria-label={isFavorite ? t.removeFavorite : t.addFavorite}
+                      aria-pressed={isFavorite}
                     >
                       <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
                     </button>}
@@ -340,7 +346,7 @@ export default function SavedListingsPage() {
           background:
             radial-gradient(760px 320px at 88% -8%, rgba(255, 122, 26, 0.12), transparent 62%),
             radial-gradient(680px 300px at 8% 0%, rgba(64, 216, 255, 0.08), transparent 68%),
-            #0b1118 !important;
+            #0b1118;
           color: #f4f8fc;
         }
 
@@ -637,307 +643,307 @@ export default function SavedListingsPage() {
         }
 
         body .saved-page.saved-shell {
-          min-height: 100vh !important;
-          padding: 24px 0 88px !important;
+          min-height: 100vh;
+          padding: 24px 0 88px;
           background:
             radial-gradient(820px 460px at 78% 42%, rgba(18, 63, 104, 0.2), transparent 70%),
             radial-gradient(620px 340px at 15% 16%, rgba(19, 73, 119, 0.18), transparent 72%),
-            linear-gradient(180deg, #030b17 0%, #071322 48%, #06111e 100%) !important;
-          color: #f8fbff !important;
+            linear-gradient(180deg, #030b17 0%, #071322 48%, #06111e 100%);
+          color: #f8fbff;
         }
 
         body .saved-page .saved-container {
-          width: min(1298px, calc(100vw - 238px)) !important;
-          gap: 47px !important;
-          margin: 0 auto !important;
+          width: min(1298px, calc(100vw - 238px));
+          gap: 47px;
+          margin: 0 auto;
         }
 
         body .saved-page .saved-hero {
-          min-height: 174px !important;
-          padding: 36px 36px 36px 37px !important;
-          border: 1px solid rgba(185, 204, 222, 0.27) !important;
-          border-radius: 25px !important;
+          min-height: 174px;
+          padding: 36px 36px 36px 37px;
+          border: 1px solid rgba(185, 204, 222, 0.27);
+          border-radius: 25px;
           background:
             radial-gradient(520px 260px at 4% 0%, rgba(35, 95, 139, 0.52), transparent 72%),
             radial-gradient(720px 320px at 100% 0%, rgba(147, 91, 48, 0.12), transparent 75%),
-            linear-gradient(145deg, rgba(14, 33, 53, 0.96), rgba(12, 22, 36, 0.97)) !important;
+            linear-gradient(145deg, rgba(14, 33, 53, 0.96), rgba(12, 22, 36, 0.97));
           box-shadow:
             0 26px 60px rgba(0, 8, 20, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.07);
         }
 
         body .saved-page .saved-hero-main {
-          gap: 25px !important;
+          gap: 25px;
         }
 
         body .saved-page .saved-hero-icon {
-          width: 78px !important;
-          height: 78px !important;
-          border-radius: 17px !important;
-          color: #ffffff !important;
+          width: 78px;
+          height: 78px;
+          border-radius: 17px;
+          color: #ffffff;
           background:
             radial-gradient(circle at 32% 22%, rgba(255, 255, 255, 0.28), transparent 32%),
-            linear-gradient(135deg, #ffad29 0%, #ff7114 52%, #ed5100 100%) !important;
-          border: 1px solid rgba(255, 201, 143, 0.35) !important;
+            linear-gradient(135deg, #ffad29 0%, #ff7114 52%, #ed5100 100%);
+          border: 1px solid rgba(255, 201, 143, 0.35);
           box-shadow:
             0 0 34px rgba(255, 116, 20, 0.54),
             0 16px 28px rgba(0, 0, 0, 0.26),
-            inset 0 1px 0 rgba(255, 255, 255, 0.26) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.26);
         }
 
         body .saved-page .saved-hero-icon svg {
-          width: 40px !important;
-          height: 40px !important;
+          width: 40px;
+          height: 40px;
         }
 
         body .saved-page .saved-hero-copy span {
-          margin-bottom: 9px !important;
-          color: #ff8a1a !important;
-          font-size: 16px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
+          margin-bottom: 9px;
+          color: #ff8a1a;
+          font-size: 16px;
+          font-weight: 950;
+          letter-spacing: 0;
         }
 
         body .saved-page .saved-hero-copy h1 {
-          margin: 0 !important;
-          color: #ffffff !important;
-          font-size: clamp(34px, 2.65vw, 40px) !important;
-          line-height: 1.02 !important;
-          letter-spacing: 0 !important;
-          text-shadow: 0 12px 26px rgba(0, 8, 20, 0.38) !important;
+          margin: 0;
+          color: #ffffff;
+          font-size: clamp(34px, 2.65vw, 40px);
+          line-height: 1.02;
+          letter-spacing: 0;
+          text-shadow: 0 12px 26px rgba(0, 8, 20, 0.38);
         }
 
         body .saved-page .saved-hero-copy p {
-          margin-top: 9px !important;
-          color: rgba(222, 235, 245, 0.76) !important;
-          font-size: 16px !important;
-          font-weight: 750 !important;
+          margin-top: 9px;
+          color: rgba(222, 235, 245, 0.76);
+          font-size: 16px;
+          font-weight: 750;
         }
 
         body .saved-page .saved-hero-stat {
-          min-width: 110px !important;
-          min-height: 101px !important;
-          border-radius: 12px !important;
-          border: 1px solid rgba(185, 204, 222, 0.16) !important;
-          background: linear-gradient(180deg, rgba(31, 48, 68, 0.66), rgba(20, 34, 50, 0.55)) !important;
+          min-width: 110px;
+          min-height: 101px;
+          border-radius: 12px;
+          border: 1px solid rgba(185, 204, 222, 0.16);
+          background: linear-gradient(180deg, rgba(31, 48, 68, 0.66), rgba(20, 34, 50, 0.55));
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.05),
-            0 16px 30px rgba(0, 8, 20, 0.14) !important;
+            0 16px 30px rgba(0, 8, 20, 0.14);
         }
 
         body .saved-page .saved-hero-stat strong {
-          color: #ffffff !important;
-          font-size: 34px !important;
-          line-height: 1 !important;
+          color: #ffffff;
+          font-size: 34px;
+          line-height: 1;
         }
 
         body .saved-page .saved-hero-stat span {
-          margin-top: 5px !important;
-          color: #ffd48d !important;
-          font-size: 13px !important;
+          margin-top: 5px;
+          color: #ffd48d;
+          font-size: 13px;
         }
 
         body .saved-page .saved-empty {
-          min-height: 536px !important;
-          gap: 14px !important;
-          padding: 48px 28px !important;
-          border: 1px dashed rgba(171, 196, 220, 0.42) !important;
-          border-radius: 27px !important;
+          min-height: 536px;
+          gap: 14px;
+          padding: 48px 28px;
+          border: 1px dashed rgba(171, 196, 220, 0.42);
+          border-radius: 27px;
           background:
             radial-gradient(680px 320px at 50% 36%, rgba(17, 67, 111, 0.3), transparent 72%),
-            linear-gradient(180deg, rgba(7, 25, 43, 0.56), rgba(5, 18, 31, 0.34)) !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+            linear-gradient(180deg, rgba(7, 25, 43, 0.56), rgba(5, 18, 31, 0.34));
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
         }
 
         body .saved-page .saved-empty-orbit {
-          position: relative !important;
-          width: 230px !important;
-          height: 230px !important;
-          display: grid !important;
-          place-items: center !important;
-          margin: 0 0 -2px !important;
+          position: relative;
+          width: 230px;
+          height: 230px;
+          display: grid;
+          place-items: center;
+          margin: 0 0 -2px;
         }
 
         body .saved-page .saved-orbit-ring {
-          position: absolute !important;
-          inset: 50% auto auto 50% !important;
-          border: 1px solid rgba(255, 122, 24, 0.22) !important;
-          border-radius: 999px !important;
-          transform: translate(-50%, -50%) !important;
+          position: absolute;
+          inset: 50% auto auto 50%;
+          border: 1px solid rgba(255, 122, 24, 0.22);
+          border-radius: 999px;
+          transform: translate(-50%, -50%);
         }
 
         body .saved-page .saved-orbit-ring:nth-child(1) {
-          width: 116px !important;
-          height: 116px !important;
+          width: 116px;
+          height: 116px;
         }
 
         body .saved-page .saved-orbit-ring:nth-child(2) {
-          width: 154px !important;
-          height: 154px !important;
-          border-color: rgba(255, 122, 24, 0.16) !important;
+          width: 154px;
+          height: 154px;
+          border-color: rgba(255, 122, 24, 0.16);
         }
 
         body .saved-page .saved-orbit-ring:nth-child(3) {
-          width: 192px !important;
-          height: 192px !important;
-          border-color: rgba(255, 122, 24, 0.1) !important;
+          width: 192px;
+          height: 192px;
+          border-color: rgba(255, 122, 24, 0.1);
         }
 
         body .saved-page .saved-orbit-dot {
-          position: absolute !important;
-          width: 6px !important;
-          height: 6px !important;
-          border-radius: 999px !important;
-          background: #ff7a1a !important;
-          box-shadow: 0 0 12px rgba(255, 122, 24, 0.95) !important;
+          position: absolute;
+          width: 6px;
+          height: 6px;
+          border-radius: 999px;
+          background: #ff7a1a;
+          box-shadow: 0 0 12px rgba(255, 122, 24, 0.95);
         }
 
         body .saved-page .saved-orbit-dot:nth-child(4) {
-          left: 23px !important;
-          top: 111px !important;
+          left: 23px;
+          top: 111px;
         }
 
         body .saved-page .saved-orbit-dot:nth-child(5) {
-          right: 34px !important;
-          top: 30px !important;
+          right: 34px;
+          top: 30px;
         }
 
         body .saved-page .saved-orbit-dot:nth-child(6) {
-          right: 38px !important;
-          top: 141px !important;
+          right: 38px;
+          top: 141px;
         }
 
         body .saved-page .saved-empty-icon {
-          width: 78px !important;
-          height: 78px !important;
-          border-radius: 16px !important;
-          z-index: 1 !important;
+          width: 78px;
+          height: 78px;
+          border-radius: 16px;
+          z-index: 1;
           background:
             radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25), transparent 34%),
-            linear-gradient(135deg, #ffaa28 0%, #ff7215 54%, #ef5200 100%) !important;
-          border: 1px solid rgba(255, 201, 143, 0.34) !important;
+            linear-gradient(135deg, #ffaa28 0%, #ff7215 54%, #ef5200 100%);
+          border: 1px solid rgba(255, 201, 143, 0.34);
           box-shadow:
             0 0 34px rgba(255, 116, 20, 0.46),
             0 18px 30px rgba(0, 8, 20, 0.28),
-            inset 0 1px 0 rgba(255, 255, 255, 0.26) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.26);
         }
 
         body .saved-page .saved-empty strong {
-          color: #ffffff !important;
-          font-size: 32px !important;
-          line-height: 1.15 !important;
-          letter-spacing: 0 !important;
-          text-shadow: 0 12px 28px rgba(0, 8, 20, 0.44) !important;
+          color: #ffffff;
+          font-size: 32px;
+          line-height: 1.15;
+          letter-spacing: 0;
+          text-shadow: 0 12px 28px rgba(0, 8, 20, 0.44);
         }
 
         body .saved-page .saved-empty > span {
-          color: rgba(222, 235, 245, 0.75) !important;
-          font-size: 17px !important;
-          font-weight: 750 !important;
-          max-width: 520px !important;
+          color: rgba(222, 235, 245, 0.75);
+          font-size: 17px;
+          font-weight: 750;
+          max-width: 520px;
         }
 
         body .saved-page .saved-empty-link {
-          min-height: 57px !important;
-          margin-top: 5px !important;
-          padding: 0 20px !important;
-          border-radius: 11px !important;
-          border: 1px solid rgba(255, 201, 143, 0.46) !important;
-          background: linear-gradient(135deg, #ff981f 0%, #ff6c12 52%, #ef5200 100%) !important;
-          color: #ffffff !important;
-          font-size: 17px !important;
-          font-weight: 950 !important;
-          gap: 13px !important;
+          min-height: 57px;
+          margin-top: 5px;
+          padding: 0 20px;
+          border-radius: 11px;
+          border: 1px solid rgba(255, 201, 143, 0.46);
+          background: linear-gradient(135deg, #ff981f 0%, #ff6c12 52%, #ef5200 100%);
+          color: #ffffff;
+          font-size: 17px;
+          font-weight: 950;
+          gap: 13px;
           box-shadow:
             0 0 30px rgba(255, 116, 20, 0.34),
             0 15px 28px rgba(0, 8, 20, 0.25),
-            inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.22);
         }
 
         @media (max-width: 720px) {
           body .saved-page.saved-shell {
-            padding: 14px 0 74px !important;
+            padding: 14px 0 74px;
           }
 
           body .saved-page .saved-container {
-            width: min(100% - 24px, 1160px) !important;
-            gap: 18px !important;
+            width: min(100% - 24px, 1160px);
+            gap: 18px;
           }
 
           body .saved-page .saved-hero {
-            min-height: 0 !important;
-            padding: 20px !important;
+            min-height: 0;
+            padding: 20px;
           }
 
           body .saved-page .saved-hero-main {
-            gap: 14px !important;
+            gap: 14px;
           }
 
           body .saved-page .saved-hero-icon {
-            width: 54px !important;
-            height: 54px !important;
+            width: 54px;
+            height: 54px;
           }
 
           body .saved-page .saved-hero-icon svg {
-            width: 28px !important;
-            height: 28px !important;
+            width: 28px;
+            height: 28px;
           }
 
           body .saved-page .saved-hero-copy h1 {
-            font-size: clamp(27px, 8vw, 34px) !important;
+            font-size: clamp(27px, 8vw, 34px);
           }
 
           body .saved-page .saved-hero-copy p {
-            font-size: 14px !important;
+            font-size: 14px;
           }
 
           body .saved-page .saved-hero-stat {
-            min-height: 58px !important;
-            min-width: 100% !important;
-            padding: 0 16px !important;
+            min-height: 58px;
+            min-width: 100%;
+            padding: 0 16px;
           }
 
           body .saved-page .saved-empty {
-            min-height: 430px !important;
-            padding: 32px 18px !important;
+            min-height: 430px;
+            padding: 32px 18px;
           }
 
           body .saved-page .saved-empty-orbit {
-            width: 170px !important;
-            height: 170px !important;
+            width: 170px;
+            height: 170px;
           }
 
           body .saved-page .saved-orbit-ring:nth-child(1) {
-            width: 92px !important;
-            height: 92px !important;
+            width: 92px;
+            height: 92px;
           }
 
           body .saved-page .saved-orbit-ring:nth-child(2) {
-            width: 124px !important;
-            height: 124px !important;
+            width: 124px;
+            height: 124px;
           }
 
           body .saved-page .saved-orbit-ring:nth-child(3) {
-            width: 154px !important;
-            height: 154px !important;
+            width: 154px;
+            height: 154px;
           }
 
           body .saved-page .saved-empty-icon {
-            width: 68px !important;
-            height: 68px !important;
+            width: 68px;
+            height: 68px;
           }
 
           body .saved-page .saved-empty strong {
-            font-size: 26px !important;
+            font-size: 26px;
           }
 
           body .saved-page .saved-empty > span {
-            font-size: 15px !important;
+            font-size: 15px;
           }
 
           body .saved-page .saved-empty-link {
-            min-height: 50px !important;
-            font-size: 15px !important;
+            min-height: 50px;
+            font-size: 15px;
           }
 
           .saved-shell {
@@ -1029,96 +1035,96 @@ export default function SavedListingsPage() {
         /* Match the front page favorite heart: orange, round, and clearly active. */
         body .saved-page .saved-card-image .saved-favorite,
         body .saved-page .saved-card-image [class*="favoriteButton"].saved-favorite {
-          align-items: center !important;
-          background: rgba(3, 19, 38, 0.72) !important;
-          border: 1px solid rgba(226, 232, 240, 0.72) !important;
-          border-radius: 999px !important;
+          align-items: center;
+          background: rgba(3, 19, 38, 0.72);
+          border: 1px solid rgba(226, 232, 240, 0.72);
+          border-radius: 999px;
           box-shadow:
             0 10px 24px rgba(0, 10, 24, 0.34),
-            inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
-          color: #ffffff !important;
-          display: inline-flex !important;
-          height: 34px !important;
-          justify-content: center !important;
-          line-height: 0 !important;
-          padding: 0 !important;
-          right: 10px !important;
-          top: 10px !important;
-          transform: none !important;
-          width: 34px !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.14);
+          color: #ffffff;
+          display: inline-flex;
+          height: 34px;
+          justify-content: center;
+          line-height: 0;
+          padding: 0;
+          right: 10px;
+          top: 10px;
+          transform: none;
+          width: 34px;
         }
 
         body .saved-page .saved-card-image .saved-favorite:hover,
         body .saved-page .saved-card-image [class*="favoriteButton"].saved-favorite:hover {
-          background: rgba(255, 107, 22, 0.92) !important;
-          border-color: rgba(255, 210, 168, 0.9) !important;
-          color: #ffffff !important;
-          transform: translateY(-1px) scale(1.03) !important;
+          background: rgba(255, 107, 22, 0.92);
+          border-color: rgba(255, 210, 168, 0.9);
+          color: #ffffff;
+          transform: translateY(-1px) scale(1.03);
         }
 
         body .saved-page .saved-card-image .saved-favorite.is-active,
         body .saved-page .saved-card-image [class*="favoriteButtonActive"].saved-favorite,
         body .saved-page .saved-card-image [class*="favoriteButtonActive"].saved-favorite:hover {
-          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%) !important;
-          border-color: rgba(255, 210, 168, 0.9) !important;
+          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%);
+          border-color: rgba(255, 210, 168, 0.9);
           box-shadow:
             0 12px 28px rgba(255, 107, 22, 0.38),
-            inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
-          color: #ffffff !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.28);
+          color: #ffffff;
         }
 
         body .saved-page .saved-card-image .saved-favorite svg,
         body .saved-page .saved-card-image [class*="favoriteButton"].saved-favorite svg {
-          display: block !important;
-          fill: currentColor !important;
-          height: 17px !important;
-          margin: 0 !important;
-          stroke-width: 2.4 !important;
-          width: 17px !important;
+          display: block;
+          fill: currentColor;
+          height: 17px;
+          margin: 0;
+          stroke-width: 2.4;
+          width: 17px;
         }
 
         body .saved-page .saved-empty-icon {
-          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%) !important;
-          color: #ffffff !important;
+          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%);
+          color: #ffffff;
         }
 
         body .saved-page .saved-card-image .saved-new-badge,
         body .saved-page .saved-card-image [class*="newBadge"].saved-new-badge {
-          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%) !important;
-          border: 1px solid rgba(187, 247, 208, 0.72) !important;
+          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+          border: 1px solid rgba(187, 247, 208, 0.72);
           box-shadow:
             0 3px 9px rgba(22, 163, 74, 0.34),
-            inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
-          color: #ffffff !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.25);
+          color: #ffffff;
         }
 
         @media (max-width: 640px) {
           body .saved-page .saved-card-image .saved-favorite,
           body .saved-page .saved-card-image [class*="favoriteButton"].saved-favorite {
-            height: 30px !important;
-            right: 7px !important;
-            top: 7px !important;
-            width: 30px !important;
+            height: 30px;
+            right: 7px;
+            top: 7px;
+            width: 30px;
           }
 
           body .saved-page .saved-card-image .saved-favorite svg,
           body .saved-page .saved-card-image [class*="favoriteButton"].saved-favorite svg {
-            height: 15px !important;
-            width: 15px !important;
+            height: 15px;
+            width: 15px;
           }
         }
 
         /* Follow the admin appearance base/background color. Keep this last so it wins old page gradients. */
         body:has(.saved-page),
         html body:has(.saved-page) {
-          background: var(--site-bg, var(--bg, #0b1118)) !important;
-          background-image: none !important;
+          background: var(--site-bg, var(--bg, #0b1118));
+          background-image: none;
         }
 
         html body .saved-page.saved-shell,
         html body .saved-page {
-          background: var(--site-bg, var(--bg, #0b1118)) !important;
-          background-image: none !important;
+          background: var(--site-bg, var(--bg, #0b1118));
+          background-image: none;
         }
       `}</style>
     </main>

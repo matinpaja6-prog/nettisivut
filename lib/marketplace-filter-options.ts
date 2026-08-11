@@ -31,6 +31,9 @@ export function uniqueMarketplaceOptions(values: Array<string | number | null | 
 const UNIFIED_ALL_CATEGORY_ORDER = [
   "Moottori",
   "Voimansiirto",
+  "Polttoainejärjestelmä",
+  "Jäähdytysjärjestelmä",
+  "Pakoputkisto",
   "Jousitus & ohjaus",
   "Jarrut",
   "Renkaat & vanteet",
@@ -68,7 +71,24 @@ function legacyCombinedCategoryTarget(category: string, subcategory: string): st
   }
 
   if (category === "Sähköjärjestelmät") return "Sähköjärjestelmä";
-  if (category === "Jäähdytys & polttoaine" || category === "Pakoputkisto") return "Moottori";
+  if (category === "Moottori") {
+    if (subcategory.startsWith("Vaihteisto / ") || subcategory.startsWith("Kytkin / ")) {
+      return "Voimansiirto";
+    }
+    if (subcategory.startsWith("Imu- & polttoaineosat / ")) return "Polttoainejärjestelmä";
+    if (subcategory.startsWith("Jäähdytysjärjestelmä / ")) return "Jäähdytysjärjestelmä";
+    if (subcategory.startsWith("Pakoputkisto / ")) return "Pakoputkisto";
+    return "Moottori";
+  }
+  if (category === "Jäähdytys & polttoaine") {
+    const coolingPart =
+      subcategory === "Kokonainen jäähdytysjärjestelmä" ||
+      subcategory === "Jäähdyttimet" ||
+      subcategory === "Vesipumput" ||
+      subcategory === "Letkut";
+    return coolingPart ? "Jäähdytysjärjestelmä" : "Polttoainejärjestelmä";
+  }
+  if (category === "Pakoputkisto") return "Pakoputkisto";
   if (category === "Runko & katteet") return "Runko & koriosat";
   return category;
 }
@@ -299,7 +319,9 @@ export function buildMarketplaceCategorySource({
   if (!vehicleType) return buildUnifiedAllVehicleCategories(allVehicleCategories);
   const vehicleKey = getCategoryVehicleKey(vehicleType);
   const categorySource = vehicleCategories[vehicleType] ?? vehicleCategories[vehicleKey] ?? allVehicleCategories;
-  return filterVehiclePartCategoriesBySubtype(categorySource, vehicleKey, vehicleSubtype);
+  return buildUnifiedAllVehicleCategories(
+    filterVehiclePartCategoriesBySubtype(categorySource, vehicleKey, vehicleSubtype)
+  );
 }
 
 export function buildMarketplaceSubcategoryGroups({

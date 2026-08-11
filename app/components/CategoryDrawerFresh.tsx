@@ -983,7 +983,7 @@ export default function CategoryDrawer({
           padding: 0;
           text-align: left;
         }
-        .cd-filter-submit:hover .cd-title { color: #ffb454 !important; }
+        .cd-filter-submit:hover .cd-title { color: #ffb454; }
         .cd-title { flex: 1; font-size: 16px; font-weight: 800; color: #0f172a; }
         .cd-logo { font-size: 18px; }
         .cd-close {
@@ -1106,75 +1106,75 @@ export default function CategoryDrawer({
         .cd-drawer {
           background:
             radial-gradient(440px 280px at 0% 0%, rgba(255, 107, 22, 0.1), transparent 62%),
-            linear-gradient(180deg, #062442 0%, #031326 100%) !important;
+            linear-gradient(180deg, #062442 0%, #031326 100%);
           border-left: 1px solid rgba(126, 197, 240, 0.28);
           border-right: 0;
-          box-shadow: -18px 0 70px rgba(0, 8, 22, 0.46) !important;
+          box-shadow: -18px 0 70px rgba(0, 8, 22, 0.46);
           color: #d8e2ec;
         }
         .cd-header,
         .cd-crumbs,
         .cd-footer {
-          background: rgba(3, 19, 38, 0.86) !important;
-          border-color: rgba(126, 197, 240, 0.2) !important;
+          background: rgba(3, 19, 38, 0.86);
+          border-color: rgba(126, 197, 240, 0.2);
         }
         .cd-title,
         .cd-label,
         .cd-crumb-current {
-          color: #d8e2ec !important;
+          color: #d8e2ec;
         }
         .cd-step-hint,
         .cd-field-label {
-          color: rgba(203, 213, 225, 0.72) !important;
+          color: rgba(203, 213, 225, 0.72);
         }
         .cd-item {
-          color: #d8e2ec !important;
+          color: #d8e2ec;
         }
         .cd-item:hover {
-          background: rgba(126, 197, 240, 0.1) !important;
+          background: rgba(126, 197, 240, 0.1);
         }
         .cd-item-active {
-          background: rgba(255, 107, 22, 0.16) !important;
-          color: #ffffff !important;
+          background: rgba(255, 107, 22, 0.16);
+          color: #ffffff;
         }
         .cd-icon,
         .cd-crumb-item,
         .cd-search-row,
         .cd-cc-select,
         .cd-reset {
-          background: rgba(203, 213, 225, 0.92) !important;
-          border-color: rgba(126, 197, 240, 0.34) !important;
-          color: #071827 !important;
+          background: rgba(203, 213, 225, 0.92);
+          border-color: rgba(126, 197, 240, 0.34);
+          color: #071827;
         }
         .cd-item-active .cd-icon,
         .cd-extra-filters {
-          background: rgba(3, 19, 38, 0.42) !important;
-          border-color: rgba(126, 197, 240, 0.18) !important;
+          background: rgba(3, 19, 38, 0.42);
+          border-color: rgba(126, 197, 240, 0.18);
         }
         .cd-input {
-          color: #071827 !important;
+          color: #071827;
         }
         .cd-skip-row {
-          border-color: rgba(126, 197, 240, 0.18) !important;
+          border-color: rgba(126, 197, 240, 0.18);
         }
         .cd-skip-btn {
-          background: rgba(203, 213, 225, 0.92) !important;
-          border-color: rgba(126, 197, 240, 0.38) !important;
-          color: #071827 !important;
+          background: rgba(203, 213, 225, 0.92);
+          border-color: rgba(126, 197, 240, 0.38);
+          color: #071827;
         }
         .cd-close,
         .cd-crumb-x,
         .cd-arrow {
-          color: rgba(203, 213, 225, 0.76) !important;
+          color: rgba(203, 213, 225, 0.76);
         }
         .cd-header {
           min-height: 72px;
-          padding: 14px 18px !important;
-          gap: 12px !important;
+          padding: 14px 18px;
+          gap: 12px;
           background:
             radial-gradient(220px 90px at 12% 0%, rgba(255, 126, 31, 0.18), transparent 70%),
-            linear-gradient(135deg, rgba(3, 19, 38, 0.98) 0%, rgba(5, 35, 62, 0.94) 100%) !important;
-          border-bottom: 1px solid rgba(126, 197, 240, 0.24) !important;
+            linear-gradient(135deg, rgba(3, 19, 38, 0.98) 0%, rgba(5, 35, 62, 0.94) 100%);
+          border-bottom: 1px solid rgba(126, 197, 240, 0.24);
           box-shadow: 0 14px 30px rgba(0, 8, 22, 0.22);
         }
         .cd-logo {
@@ -1190,81 +1190,81 @@ export default function CategoryDrawer({
           flex: 0 0 auto;
         }
         .cd-title {
-          font-size: 17px !important;
-          letter-spacing: 0 !important;
+          font-size: 17px;
+          letter-spacing: 0;
         }
         .cd-close {
-          width: 36px !important;
-          height: 36px !important;
-          border-radius: 12px !important;
-          background: rgba(216, 226, 236, 0.1) !important;
-          border: 1px solid rgba(216, 226, 236, 0.16) !important;
+          width: 36px;
+          height: 36px;
+          border-radius: 12px;
+          background: rgba(216, 226, 236, 0.1);
+          border: 1px solid rgba(216, 226, 236, 0.16);
         }
         .cd-close:hover {
-          background: #ff7a1f !important;
-          color: #ffffff !important;
-          border-color: rgba(255, 210, 168, 0.72) !important;
+          background: #ff7a1f;
+          color: #ffffff;
+          border-color: rgba(255, 210, 168, 0.72);
           transform: translateY(-1px);
         }
         .cd-crumbs {
-          padding: 10px 18px 12px !important;
-          gap: 8px !important;
+          padding: 10px 18px 12px;
+          gap: 8px;
           background:
-            linear-gradient(180deg, rgba(5, 28, 50, 0.96), rgba(3, 19, 38, 0.94)) !important;
-          border-bottom: 1px solid rgba(126, 197, 240, 0.22) !important;
+            linear-gradient(180deg, rgba(5, 28, 50, 0.96), rgba(3, 19, 38, 0.94));
+          border-bottom: 1px solid rgba(126, 197, 240, 0.22);
         }
         .cd-crumb-seg {
-          gap: 7px !important;
+          gap: 7px;
         }
         .cd-crumb-sep {
           width: 18px;
           height: 18px;
           padding: 3px;
           border-radius: 999px;
-          color: rgba(216, 226, 236, 0.76) !important;
+          color: rgba(216, 226, 236, 0.76);
           background: rgba(216, 226, 236, 0.1);
         }
         .cd-crumb-item {
           min-height: 32px;
-          gap: 4px !important;
-          padding: 3px 4px 3px 10px !important;
-          border-radius: 10px !important;
+          gap: 4px;
+          padding: 3px 4px 3px 10px;
+          border-radius: 10px;
           background:
-            linear-gradient(135deg, rgba(216, 226, 236, 0.96), rgba(171, 190, 207, 0.9)) !important;
-          border: 1px solid rgba(255, 255, 255, 0.34) !important;
+            linear-gradient(135deg, rgba(216, 226, 236, 0.96), rgba(171, 190, 207, 0.9));
+          border: 1px solid rgba(255, 255, 255, 0.34);
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.56), 0 8px 18px rgba(0, 8, 22, 0.2);
         }
         .cd-crumb-btn {
-          padding: 3px 3px !important;
-          color: #071827 !important;
-          font-size: 12px !important;
+          padding: 3px 3px;
+          color: #071827;
+          font-size: 12px;
         }
         .cd-crumb-btn:hover,
         .cd-crumb-current:hover {
-          background: transparent !important;
-          color: #071827 !important;
+          background: transparent;
+          color: #071827;
         }
         .cd-crumb-x {
           width: 22px;
           height: 22px;
           display: grid;
           place-items: center;
-          padding: 0 !important;
-          border-radius: 999px !important;
-          color: #071827 !important;
-          background: rgba(7, 24, 39, 0.1) !important;
+          padding: 0;
+          border-radius: 999px;
+          color: #071827;
+          background: rgba(7, 24, 39, 0.1);
         }
         .cd-crumb-x:hover {
-          background: #ff7a1f !important;
-          color: #ffffff !important;
+          background: #ff7a1f;
+          color: #ffffff;
         }
         .cd-skip-btn:hover,
         .cd-apply {
-          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%) !important;
+          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%);
           box-shadow: 0 12px 28px rgba(255, 107, 22, 0.26);
         }
         .cd-apply:hover {
-          background: linear-gradient(135deg, #ffb955 0%, #ff8129 48%, #f06608 100%) !important;
+          background: linear-gradient(135deg, #ffb955 0%, #ff8129 48%, #f06608 100%);
         }
 
         .cd-start {
@@ -1402,400 +1402,400 @@ export default function CategoryDrawer({
 
         /* Final drawer structure: every choice is its own clear gray bar. */
         .cd-body {
-          padding: 8px 0 14px !important;
+          padding: 8px 0 14px;
         }
         .cd-list {
-          display: grid !important;
-          gap: 8px !important;
-          padding: 10px 14px !important;
+          display: grid;
+          gap: 8px;
+          padding: 10px 14px;
         }
         .cd-list li {
-          margin: 0 !important;
+          margin: 0;
         }
         .cd-item {
-          min-height: 50px !important;
-          padding: 9px 10px !important;
-          border: 1px solid rgba(126, 197, 240, 0.22) !important;
-          border-radius: 11px !important;
+          min-height: 50px;
+          padding: 9px 10px;
+          border: 1px solid rgba(126, 197, 240, 0.22);
+          border-radius: 11px;
           background:
-            linear-gradient(180deg, rgba(19, 53, 83, 0.92) 0%, rgba(11, 39, 66, 0.94) 100%) !important;
+            linear-gradient(180deg, rgba(19, 53, 83, 0.92) 0%, rgba(11, 39, 66, 0.94) 100%);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.06),
-            0 10px 20px rgba(0, 8, 22, 0.12) !important;
+            0 10px 20px rgba(0, 8, 22, 0.12);
         }
         .cd-item-branch {
           background:
             linear-gradient(90deg, rgba(53, 65, 83, 0.24), transparent 34%),
-            linear-gradient(180deg, rgba(18, 55, 88, 0.96) 0%, rgba(9, 41, 70, 0.96) 100%) !important;
+            linear-gradient(180deg, rgba(18, 55, 88, 0.96) 0%, rgba(9, 41, 70, 0.96) 100%);
         }
         .cd-item-leaf {
           background:
             linear-gradient(90deg, rgba(73, 199, 216, 0.08) 0%, transparent 40%),
-            linear-gradient(180deg, rgba(10, 30, 52, 0.96) 0%, rgba(5, 18, 38, 0.98) 100%) !important;
-          border: 1px solid rgba(73, 199, 216, 0.14) !important;
-          padding-left: 20px !important;
-          position: relative !important;
+            linear-gradient(180deg, rgba(10, 30, 52, 0.96) 0%, rgba(5, 18, 38, 0.98) 100%);
+          border: 1px solid rgba(73, 199, 216, 0.14);
+          padding-left: 20px;
+          position: relative;
         }
         .cd-item-leaf::before {
-          background: linear-gradient(180deg, rgba(73, 199, 216, 0.9), rgba(255, 149, 43, 0.6)) !important;
-          border-radius: 999px !important;
-          bottom: 20% !important;
-          content: "" !important;
-          display: block !important;
-          left: 10px !important;
-          position: absolute !important;
-          top: 20% !important;
-          width: 3px !important;
+          background: linear-gradient(180deg, rgba(73, 199, 216, 0.9), rgba(255, 149, 43, 0.6));
+          border-radius: 999px;
+          bottom: 20%;
+          content: "";
+          display: block;
+          left: 10px;
+          position: absolute;
+          top: 20%;
+          width: 3px;
         }
         .cd-item-active.cd-item-leaf {
           background:
             linear-gradient(90deg, rgba(255, 149, 43, 0.12) 0%, transparent 50%),
-            linear-gradient(180deg, rgba(12, 34, 58, 0.98) 0%, rgba(7, 20, 42, 0.99) 100%) !important;
-          border-color: rgba(255, 149, 43, 0.5) !important;
+            linear-gradient(180deg, rgba(12, 34, 58, 0.98) 0%, rgba(7, 20, 42, 0.99) 100%);
+          border-color: rgba(255, 149, 43, 0.5);
         }
         .cd-item-active.cd-item-leaf::before {
-          background: linear-gradient(180deg, #ffad45, #ff7a1f) !important;
+          background: linear-gradient(180deg, #ffad45, #ff7a1f);
         }
         .cd-item:hover {
           background:
             linear-gradient(90deg, rgba(166, 181, 196, 0.14), transparent 42%),
-            linear-gradient(180deg, rgba(28, 67, 101, 0.98) 0%, rgba(13, 47, 78, 0.98) 100%) !important;
-          border-color: rgba(166, 181, 196, 0.5) !important;
+            linear-gradient(180deg, rgba(28, 67, 101, 0.98) 0%, rgba(13, 47, 78, 0.98) 100%);
+          border-color: rgba(166, 181, 196, 0.5);
         }
         .cd-item-active {
           background:
-            linear-gradient(90deg, rgba(255, 107, 22, 0.24), rgba(88, 96, 110, 0.26) 48%, rgba(20, 45, 70, 0.92) 100%) !important;
-          border-color: rgba(255, 164, 90, 0.62) !important;
+            linear-gradient(90deg, rgba(255, 107, 22, 0.24), rgba(88, 96, 110, 0.26) 48%, rgba(20, 45, 70, 0.92) 100%);
+          border-color: rgba(255, 164, 90, 0.62);
         }
         .cd-icon,
         .cd-icon-sm {
-          background: linear-gradient(180deg, #b8c2cd 0%, #929eab 100%) !important;
-          border: 1px solid rgba(123, 135, 149, 0.9) !important;
-          color: #071827 !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+          background: linear-gradient(180deg, #b8c2cd 0%, #929eab 100%);
+          border: 1px solid rgba(123, 135, 149, 0.9);
+          color: #071827;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
         }
         .cd-icon svg,
         .cd-icon-sm svg {
-          stroke: #071827 !important;
+          stroke: #071827;
         }
         .cd-part-picture {
-          display: block !important;
-          height: 32px !important;
-          width: 32px !important;
+          display: block;
+          height: 32px;
+          width: 32px;
         }
         .cd-icon-sm .cd-part-picture {
-          height: 30px !important;
-          width: 30px !important;
+          height: 30px;
+          width: 30px;
         }
         .cd-arrow {
-          width: 24px !important;
-          height: 24px !important;
-          padding: 4px !important;
-          border-radius: 999px !important;
-          background: rgba(166, 181, 196, 0.14) !important;
-          color: rgba(216, 226, 236, 0.9) !important;
+          width: 24px;
+          height: 24px;
+          padding: 4px;
+          border-radius: 999px;
+          background: rgba(166, 181, 196, 0.14);
+          color: rgba(216, 226, 236, 0.9);
         }
         .cd-check {
-          width: 24px !important;
-          height: 24px !important;
-          padding: 4px !important;
-          border-radius: 999px !important;
-          background: rgba(255, 107, 22, 0.18) !important;
-          color: #ffffff !important;
+          width: 24px;
+          height: 24px;
+          padding: 4px;
+          border-radius: 999px;
+          background: rgba(255, 107, 22, 0.18);
+          color: #ffffff;
         }
         .cd-step-hint {
-          margin: 8px 14px 4px !important;
-          padding: 9px 10px !important;
-          border: 1px solid rgba(126, 197, 240, 0.18) !important;
-          border-radius: 10px !important;
-          background: rgba(8, 37, 63, 0.82) !important;
+          margin: 8px 14px 4px;
+          padding: 9px 10px;
+          border: 1px solid rgba(126, 197, 240, 0.18);
+          border-radius: 10px;
+          background: rgba(8, 37, 63, 0.82);
         }
         .cd-crumb-item,
         .cd-search-row,
         .cd-cc-select,
         .cd-reset,
         .cd-skip-btn {
-          background: linear-gradient(180deg, #b8c2cd 0%, #929eab 100%) !important;
-          border-color: rgba(123, 135, 149, 0.9) !important;
-          color: #071827 !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+          background: linear-gradient(180deg, #b8c2cd 0%, #929eab 100%);
+          border-color: rgba(123, 135, 149, 0.9);
+          color: #071827;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
         }
         .cd-crumb-btn,
         .cd-crumb-current,
         .cd-skip-btn,
         .cd-reset {
-          color: #071827 !important;
+          color: #071827;
         }
         .cd-skip-row {
-          padding: 10px 18px 8px !important;
+          padding: 10px 18px 8px;
         }
 
         .cd-skip-row .cd-skip-btn {
           background:
             radial-gradient(140px 60px at 0% 0%, rgba(255, 154, 36, 0.18), transparent 72%),
-            linear-gradient(145deg, rgba(8, 37, 63, 0.96), rgba(3, 19, 38, 0.98)) !important;
-          border: 1px solid rgba(255, 154, 36, 0.48) !important;
-          border-radius: 12px !important;
+            linear-gradient(145deg, rgba(8, 37, 63, 0.96), rgba(3, 19, 38, 0.98));
+          border: 1px solid rgba(255, 154, 36, 0.48);
+          border-radius: 12px;
           box-shadow:
             0 12px 24px rgba(0, 8, 22, 0.18),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-          color: #e6f1fb !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+          color: #e6f1fb;
         }
 
         .cd-skip-row .cd-skip-btn:hover {
           background:
             radial-gradient(140px 60px at 0% 0%, rgba(255, 154, 36, 0.24), transparent 72%),
-            linear-gradient(145deg, rgba(12, 49, 80, 0.98), rgba(5, 25, 48, 0.98)) !important;
-          border-color: rgba(255, 184, 94, 0.74) !important;
-          color: #ffffff !important;
+            linear-gradient(145deg, rgba(12, 49, 80, 0.98), rgba(5, 25, 48, 0.98));
+          border-color: rgba(255, 184, 94, 0.74);
+          color: #ffffff;
         }
 
         /* Final drawer gray treatment: bars must read as gray, and chip X must be clear. */
         .cd-item,
         .cd-item-branch,
         .cd-item-leaf {
-          min-height: 60px !important;
-          gap: 12px !important;
-          padding: 8px 10px !important;
+          min-height: 60px;
+          gap: 12px;
+          padding: 8px 10px;
           background:
-            linear-gradient(180deg, rgba(82, 96, 112, 0.94) 0%, rgba(55, 69, 86, 0.96) 100%) !important;
-          border-color: rgba(173, 186, 201, 0.34) !important;
+            linear-gradient(180deg, rgba(82, 96, 112, 0.94) 0%, rgba(55, 69, 86, 0.96) 100%);
+          border-color: rgba(173, 186, 201, 0.34);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.12),
-            0 10px 22px rgba(0, 8, 22, 0.16) !important;
+            0 10px 22px rgba(0, 8, 22, 0.16);
         }
         .cd-item:hover {
           background:
-            linear-gradient(180deg, rgba(98, 113, 130, 0.98) 0%, rgba(66, 82, 101, 0.98) 100%) !important;
-          border-color: rgba(203, 213, 225, 0.52) !important;
+            linear-gradient(180deg, rgba(98, 113, 130, 0.98) 0%, rgba(66, 82, 101, 0.98) 100%);
+          border-color: rgba(203, 213, 225, 0.52);
         }
         .cd-item-active {
           background:
-            linear-gradient(90deg, rgba(255, 122, 31, 0.28), rgba(91, 102, 116, 0.98) 44%, rgba(63, 76, 92, 0.98) 100%) !important;
-          border-color: rgba(255, 164, 90, 0.7) !important;
+            linear-gradient(90deg, rgba(255, 122, 31, 0.28), rgba(91, 102, 116, 0.98) 44%, rgba(63, 76, 92, 0.98) 100%);
+          border-color: rgba(255, 164, 90, 0.7);
         }
         .cd-arrow {
-          background: rgba(203, 213, 225, 0.22) !important;
-          border: 1px solid rgba(203, 213, 225, 0.18) !important;
-          color: #edf3f8 !important;
-          stroke: #edf3f8 !important;
+          background: rgba(203, 213, 225, 0.22);
+          border: 1px solid rgba(203, 213, 225, 0.18);
+          color: #edf3f8;
+          stroke: #edf3f8;
         }
         .cd-crumb-item {
-          align-items: center !important;
-          gap: 4px !important;
-          padding: 2px 3px 2px 8px !important;
+          align-items: center;
+          gap: 4px;
+          padding: 2px 3px 2px 8px;
         }
         .cd-crumb-x {
-          align-items: center !important;
-          background: rgba(7, 24, 39, 0.18) !important;
-          border: 1px solid rgba(7, 24, 39, 0.16) !important;
-          border-radius: 999px !important;
-          color: #071827 !important;
-          display: inline-flex !important;
-          font-size: 13px !important;
-          font-weight: 950 !important;
-          height: 18px !important;
-          justify-content: center !important;
-          line-height: 1 !important;
-          padding: 0 !important;
-          width: 18px !important;
+          align-items: center;
+          background: rgba(7, 24, 39, 0.18);
+          border: 1px solid rgba(7, 24, 39, 0.16);
+          border-radius: 999px;
+          color: #071827;
+          display: inline-flex;
+          font-size: 13px;
+          font-weight: 950;
+          height: 18px;
+          justify-content: center;
+          line-height: 1;
+          padding: 0;
+          width: 18px;
         }
         .cd-crumb-x:hover {
-          background: #ff7a1f !important;
-          border-color: rgba(255, 210, 168, 0.82) !important;
-          color: #ffffff !important;
+          background: #ff7a1f;
+          border-color: rgba(255, 210, 168, 0.82);
+          color: #ffffff;
         }
 
         .cd-thumb {
           background:
-            linear-gradient(180deg, #314557 0%, #0b2133 100%) !important;
-          border: 1px solid rgba(203, 213, 225, 0.5) !important;
-          border-radius: 10px !important;
+            linear-gradient(180deg, #314557 0%, #0b2133 100%);
+          border: 1px solid rgba(203, 213, 225, 0.5);
+          border-radius: 10px;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.2),
             inset 0 -10px 18px rgba(0, 8, 22, 0.28),
-            0 6px 14px rgba(0, 8, 22, 0.2) !important;
-          flex: 0 0 48px !important;
-          height: 42px !important;
-          padding: 2px !important;
-          width: 48px !important;
-          min-width: 48px !important;
-          overflow: hidden !important;
+            0 6px 14px rgba(0, 8, 22, 0.2);
+          flex: 0 0 48px;
+          height: 42px;
+          padding: 2px;
+          width: 48px;
+          min-width: 48px;
+          overflow: hidden;
         }
         .cd-icon-sm.cd-thumb {
-          flex-basis: 44px !important;
-          height: 38px !important;
-          min-width: 44px !important;
-          width: 44px !important;
+          flex-basis: 44px;
+          height: 38px;
+          min-width: 44px;
+          width: 44px;
         }
         .cd-item-active .cd-thumb {
           background:
-            linear-gradient(180deg, #3b4f61 0%, #102a3f 100%) !important;
-          border-color: rgba(255, 164, 90, 0.92) !important;
+            linear-gradient(180deg, #3b4f61 0%, #102a3f 100%);
+          border-color: rgba(255, 164, 90, 0.92);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.2),
             inset 0 -10px 18px rgba(0, 8, 22, 0.28),
             0 0 0 1px rgba(255, 122, 31, 0.3),
-            0 8px 18px rgba(255, 107, 22, 0.18) !important;
+            0 8px 18px rgba(255, 107, 22, 0.18);
         }
         .cd-thumb > svg:not(.cd-part-picture),
         .cd-thumb .lucide-more-horizontal,
         .cd-thumb .lucide-ellipsis {
-          display: none !important;
+          display: none;
         }
         .cd-thumb .cd-part-picture {
-          display: block !important;
-          border-radius: 8px !important;
-          height: 100% !important;
-          width: 100% !important;
+          display: block;
+          border-radius: 8px;
+          height: 100%;
+          width: 100%;
         }
         .cd-thumb .cd-part-shadow * {
-          fill: rgba(255, 255, 255, 0.18) !important;
-          stroke: rgba(255, 255, 255, 0.22) !important;
+          fill: rgba(255, 255, 255, 0.18);
+          stroke: rgba(255, 255, 255, 0.22);
         }
         .cd-thumb .cd-part-main * {
-          stroke: #071827 !important;
+          stroke: #071827;
         }
         .cd-thumb .cd-part-main circle,
         .cd-thumb .cd-part-main rect:not([fill="none"]) {
-          fill: #071827 !important;
+          fill: #071827;
         }
 
         .cd-list:not(.cd-category-photo-list) {
-          gap: 10px !important;
-          padding: 12px 14px 16px !important;
+          gap: 10px;
+          padding: 12px 14px 16px;
         }
         .cd-list:not(.cd-category-photo-list) .cd-item {
-          align-items: center !important;
+          align-items: center;
           background:
             linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent 38%),
-            linear-gradient(180deg, rgba(75, 91, 109, 0.98) 0%, rgba(50, 64, 81, 0.98) 100%) !important;
-          border-color: rgba(204, 216, 226, 0.38) !important;
-          border-radius: 14px !important;
-          display: flex !important;
-          min-height: 58px !important;
-          overflow: hidden !important;
-          padding: 10px 12px !important;
-          position: relative !important;
+            linear-gradient(180deg, rgba(75, 91, 109, 0.98) 0%, rgba(50, 64, 81, 0.98) 100%);
+          border-color: rgba(204, 216, 226, 0.38);
+          border-radius: 14px;
+          display: flex;
+          min-height: 58px;
+          overflow: hidden;
+          padding: 10px 12px;
+          position: relative;
         }
         .cd-list:not(.cd-category-photo-list) .cd-item::before {
-          background: rgba(205, 216, 226, 0.28) !important;
-          bottom: 10px !important;
-          content: "" !important;
-          left: 0 !important;
-          position: absolute !important;
-          top: 10px !important;
-          width: 3px !important;
+          background: rgba(205, 216, 226, 0.28);
+          bottom: 10px;
+          content: "";
+          left: 0;
+          position: absolute;
+          top: 10px;
+          width: 3px;
         }
         .cd-list:not(.cd-category-photo-list) .cd-item-branch::before {
-          background: linear-gradient(180deg, #ff9a24, #35d7f2) !important;
+          background: linear-gradient(180deg, #ff9a24, #35d7f2);
         }
         .cd-list:not(.cd-category-photo-list) .cd-item:hover {
           background:
             linear-gradient(90deg, rgba(255, 154, 36, 0.12), transparent 42%),
-            linear-gradient(180deg, rgba(89, 106, 125, 1) 0%, rgba(60, 77, 96, 1) 100%) !important;
-          border-color: rgba(255, 185, 112, 0.58) !important;
-          transform: translateY(-1px) !important;
+            linear-gradient(180deg, rgba(89, 106, 125, 1) 0%, rgba(60, 77, 96, 1) 100%);
+          border-color: rgba(255, 185, 112, 0.58);
+          transform: translateY(-1px);
         }
         .cd-list:not(.cd-category-photo-list) .cd-item-active {
           background:
-            linear-gradient(90deg, rgba(255, 122, 31, 0.32), rgba(80, 96, 113, 0.98) 48%, rgba(56, 72, 90, 0.98) 100%) !important;
-          border-color: rgba(255, 166, 88, 0.82) !important;
+            linear-gradient(90deg, rgba(255, 122, 31, 0.32), rgba(80, 96, 113, 0.98) 48%, rgba(56, 72, 90, 0.98) 100%);
+          border-color: rgba(255, 166, 88, 0.82);
         }
         .cd-list:not(.cd-category-photo-list) .cd-label {
-          color: #f5f9fc !important;
-          flex: 1 !important;
-          font-size: 14px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
-          line-height: 1.18 !important;
-          min-width: 0 !important;
-          text-shadow: 0 1px 10px rgba(0, 8, 22, 0.26) !important;
+          color: #f5f9fc;
+          flex: 1;
+          font-size: 14px;
+          font-weight: 950;
+          letter-spacing: 0;
+          line-height: 1.18;
+          min-width: 0;
+          text-shadow: 0 1px 10px rgba(0, 8, 22, 0.26);
         }
         .cd-list:not(.cd-category-photo-list) .cd-item-leaf .cd-label {
-          color: rgba(245, 249, 252, 0.92) !important;
-          font-weight: 850 !important;
+          color: rgba(245, 249, 252, 0.92);
+          font-weight: 850;
         }
         .cd-list:not(.cd-category-photo-list) .cd-icon-sm.cd-thumb {
           background:
             linear-gradient(180deg, rgba(229, 236, 243, 0.16), rgba(6, 21, 34, 0.16)),
-            linear-gradient(180deg, #26394b 0%, #071827 100%) !important;
-          border-color: rgba(203, 213, 225, 0.38) !important;
-          border-radius: 12px !important;
-          flex-basis: 42px !important;
-          height: 40px !important;
-          min-width: 42px !important;
-          width: 42px !important;
+            linear-gradient(180deg, #26394b 0%, #071827 100%);
+          border-color: rgba(203, 213, 225, 0.38);
+          border-radius: 12px;
+          flex-basis: 42px;
+          height: 40px;
+          min-width: 42px;
+          width: 42px;
         }
         .cd-list:not(.cd-category-photo-list) .cd-arrow,
         .cd-list:not(.cd-category-photo-list) .cd-check {
-          margin-left: auto !important;
-          flex: 0 0 auto !important;
+          margin-left: auto;
+          flex: 0 0 auto;
         }
 
         .cd-drawer {
-          max-width: min(94vw, 460px) !important;
-          width: 460px !important;
+          max-width: min(94vw, 460px);
+          width: 460px;
         }
 
         .cd-category-photo-list {
-          display: grid !important;
-          gap: 14px !important;
-          padding: 14px !important;
+          display: grid;
+          gap: 14px;
+          padding: 14px;
         }
         .cd-category-photo-list li {
-          margin: 0 !important;
+          margin: 0;
         }
         .cd-category-photo-card {
           --cd-category-photo: linear-gradient(135deg, #223445 0%, #071827 100%);
-          align-items: flex-end !important;
+          align-items: flex-end;
           background:
             linear-gradient(180deg, rgba(5, 18, 31, 0.18), rgba(1, 10, 19, 0.78)),
             var(--cd-category-photo),
             radial-gradient(240px 130px at 78% 18%, rgba(126, 197, 240, 0.18), transparent 72%),
-            linear-gradient(135deg, #223445 0%, #071827 100%) !important;
-          background-position: center center, center center, center center, center center !important;
-          background-repeat: no-repeat, no-repeat, no-repeat, no-repeat !important;
-          background-size: cover, cover, cover, cover !important;
-          border: 1px solid rgba(173, 186, 201, 0.28) !important;
-          border-radius: 0 !important;
+            linear-gradient(135deg, #223445 0%, #071827 100%);
+          background-position: center center, center center, center center, center center;
+          background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+          background-size: cover, cover, cover, cover;
+          border: 1px solid rgba(173, 186, 201, 0.28);
+          border-radius: 0;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.08),
             inset 0 -50px 90px rgba(0, 8, 22, 0.66),
-            0 18px 42px rgba(0, 8, 22, 0.34) !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          display: flex !important;
-          min-height: 190px !important;
-          overflow: hidden !important;
-          padding: 22px !important;
-          position: relative !important;
-          text-align: left !important;
-          width: 100% !important;
+            0 18px 42px rgba(0, 8, 22, 0.34);
+          color: #ffffff;
+          cursor: pointer;
+          display: flex;
+          min-height: 190px;
+          overflow: hidden;
+          padding: 22px;
+          position: relative;
+          text-align: left;
+          width: 100%;
         }
         .cd-category-photo-card::before {
-          display: none !important;
+          display: none;
         }
         .cd-category-photo-card::after {
           background:
             linear-gradient(180deg, rgba(2, 12, 26, 0.12) 0%, rgba(2, 12, 26, 0.42) 48%, rgba(2, 12, 26, 0.94) 100%),
-            linear-gradient(90deg, rgba(2, 12, 26, 0.68), rgba(2, 12, 26, 0.16) 60%, rgba(2, 12, 26, 0.3)) !important;
-          content: "" !important;
-          inset: 0 !important;
-          position: absolute !important;
-          z-index: 1 !important;
+            linear-gradient(90deg, rgba(2, 12, 26, 0.68), rgba(2, 12, 26, 0.16) 60%, rgba(2, 12, 26, 0.3));
+          content: "";
+          inset: 0;
+          position: absolute;
+          z-index: 1;
         }
         .cd-category-photo-card:hover {
-          border-color: rgba(255, 164, 90, 0.72) !important;
+          border-color: rgba(255, 164, 90, 0.72);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.1),
             inset 0 -50px 90px rgba(0, 8, 22, 0.66),
             0 22px 52px rgba(0, 8, 22, 0.44),
-            0 0 0 1px rgba(255, 122, 31, 0.2) !important;
-          transform: translateY(-1px) !important;
+            0 0 0 1px rgba(255, 122, 31, 0.2);
+          transform: translateY(-1px);
         }
         .cd-category-photo-active {
-          border-color: rgba(255, 164, 90, 0.9) !important;
+          border-color: rgba(255, 164, 90, 0.9);
         }
         .cd-category-photo-card.cd-thumb-engine,
         .cd-category-photo-card.cd-thumb-drivetrain {
@@ -1835,60 +1835,60 @@ export default function CategoryDrawer({
           --cd-category-photo: url("/category-main/runko-katteet.png");
         }
         .cd-category-photo-media {
-          display: none !important;
+          display: none;
         }
         .cd-category-photo-media::before,
         .cd-category-photo-media::after {
-          display: none !important;
+          display: none;
         }
         .cd-category-photo-media::before {
-          background: linear-gradient(180deg, rgba(203, 213, 225, 0.18), rgba(203, 213, 225, 0.02)) !important;
-          height: 44% !important;
-          left: 0 !important;
-          right: 0 !important;
-          top: 0 !important;
+          background: linear-gradient(180deg, rgba(203, 213, 225, 0.18), rgba(203, 213, 225, 0.02));
+          height: 44%;
+          left: 0;
+          right: 0;
+          top: 0;
         }
         .cd-category-photo-media::after {
           background:
             radial-gradient(circle at 22% 30%, rgba(230, 236, 242, 0.24) 0 8px, transparent 9px),
             radial-gradient(circle at 66% 26%, rgba(230, 236, 242, 0.18) 0 5px, transparent 6px),
-            linear-gradient(90deg, rgba(230, 236, 242, 0.2), rgba(230, 236, 242, 0.04)) !important;
-          height: 28% !important;
-          left: -12% !important;
-          opacity: 0.38 !important;
-          top: 12% !important;
-          transform: rotate(-8deg) !important;
-          width: 124% !important;
+            linear-gradient(90deg, rgba(230, 236, 242, 0.2), rgba(230, 236, 242, 0.04));
+          height: 28%;
+          left: -12%;
+          opacity: 0.38;
+          top: 12%;
+          transform: rotate(-8deg);
+          width: 124%;
         }
         .cd-category-photo-icon {
-          display: none !important;
+          display: none;
         }
         .cd-category-photo-icon .cd-part-picture {
-          height: 86px !important;
-          width: 118px !important;
+          height: 86px;
+          width: 118px;
         }
         .cd-category-photo-icon .cd-part-main *,
         .cd-category-photo-icon .cd-part-shadow * {
-          stroke: rgba(229, 236, 243, 0.82) !important;
+          stroke: rgba(229, 236, 243, 0.82);
         }
         .cd-category-photo-icon .cd-part-main circle,
         .cd-category-photo-icon .cd-part-main rect:not([fill="none"]) {
-          fill: rgba(229, 236, 243, 0.82) !important;
+          fill: rgba(229, 236, 243, 0.82);
         }
         .cd-category-photo-title {
-          color: #ffffff !important;
-          font-size: 25px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
-          line-height: 1.02 !important;
-          max-width: 86% !important;
-          position: relative !important;
-          text-shadow: 0 4px 18px rgba(0, 4, 12, 0.84) !important;
-          text-transform: uppercase !important;
-          z-index: 2 !important;
+          color: #ffffff;
+          font-size: 25px;
+          font-weight: 950;
+          letter-spacing: 0;
+          line-height: 1.02;
+          max-width: 86%;
+          position: relative;
+          text-shadow: 0 4px 18px rgba(0, 4, 12, 0.84);
+          text-transform: uppercase;
+          z-index: 2;
         }
         .cd-category-photo-arrow {
-          display: none !important;
+          display: none;
         }
         .cd-category-photo-card.cd-thumb-drivetrain::before,
         .cd-category-photo-card.cd-thumb-clutch::before,
@@ -1897,7 +1897,7 @@ export default function CategoryDrawer({
             repeating-linear-gradient(0deg, rgba(230, 236, 242, 0.1) 0 4px, transparent 4px 13px),
             radial-gradient(circle at 24% 28%, rgba(230, 236, 242, 0.26) 0 44px, transparent 46px),
             radial-gradient(circle at 72% 18%, rgba(230, 236, 242, 0.12) 0 30px, transparent 32px),
-            linear-gradient(135deg, rgba(82, 96, 112, 0.56), rgba(5, 18, 31, 0.78)) !important;
+            linear-gradient(135deg, rgba(82, 96, 112, 0.56), rgba(5, 18, 31, 0.78));
         }
         .cd-category-photo-card.cd-thumb-suspension::before,
         .cd-category-photo-card.cd-thumb-track::before,
@@ -1905,27 +1905,27 @@ export default function CategoryDrawer({
           background:
             linear-gradient(108deg, transparent 0 32%, rgba(230, 236, 242, 0.16) 33% 36%, transparent 37%),
             radial-gradient(ellipse at 56% 42%, rgba(230, 236, 242, 0.2) 0 48px, transparent 50px),
-            linear-gradient(135deg, rgba(35, 64, 88, 0.72), rgba(5, 18, 31, 0.82)) !important;
+            linear-gradient(135deg, rgba(35, 64, 88, 0.72), rgba(5, 18, 31, 0.82));
         }
         .cd-category-photo-card.cd-thumb-electric::before,
         .cd-category-photo-card.cd-thumb-battery::before {
           background:
             linear-gradient(112deg, transparent 0 45%, rgba(255, 169, 64, 0.22) 46% 49%, transparent 50%),
             radial-gradient(circle at 72% 24%, rgba(255, 169, 64, 0.16) 0 44px, transparent 46px),
-            linear-gradient(135deg, rgba(47, 66, 83, 0.72), rgba(4, 15, 28, 0.82)) !important;
+            linear-gradient(135deg, rgba(47, 66, 83, 0.72), rgba(4, 15, 28, 0.82));
         }
         .cd-category-photo-card.cd-thumb-cooling::before,
         .cd-category-photo-card.cd-thumb-fuel::before {
           background:
             radial-gradient(ellipse at 72% 24%, rgba(95, 214, 235, 0.18) 0 44px, transparent 46px),
             radial-gradient(ellipse at 28% 52%, rgba(230, 236, 242, 0.15) 0 34px, transparent 36px),
-            linear-gradient(135deg, rgba(28, 75, 92, 0.7), rgba(4, 15, 28, 0.84)) !important;
+            linear-gradient(135deg, rgba(28, 75, 92, 0.7), rgba(4, 15, 28, 0.84));
         }
         .cd-category-photo-card.cd-thumb-exhaust::before {
           background:
             linear-gradient(16deg, transparent 0 34%, rgba(230, 236, 242, 0.18) 35% 38%, transparent 39%),
             radial-gradient(ellipse at 66% 32%, rgba(230, 236, 242, 0.17) 0 48px, transparent 50px),
-            linear-gradient(135deg, rgba(80, 86, 94, 0.68), rgba(4, 15, 28, 0.84)) !important;
+            linear-gradient(135deg, rgba(80, 86, 94, 0.68), rgba(4, 15, 28, 0.84));
         }
         .cd-category-photo-card.cd-thumb-frame::before,
         .cd-category-photo-card.cd-thumb-body::before,
@@ -1934,155 +1934,155 @@ export default function CategoryDrawer({
           background:
             linear-gradient(126deg, transparent 0 18%, rgba(230, 236, 242, 0.12) 19% 42%, transparent 43%),
             radial-gradient(ellipse at 70% 34%, rgba(230, 236, 242, 0.13) 0 54px, transparent 56px),
-            linear-gradient(135deg, rgba(68, 84, 101, 0.7), rgba(4, 15, 28, 0.84)) !important;
+            linear-gradient(135deg, rgba(68, 84, 101, 0.7), rgba(4, 15, 28, 0.84));
         }
         /* Sub-group list (step 4) */
         .cd-sub-group-list {
-          display: grid !important;
-          gap: 10px !important;
-          padding: 12px 14px 16px !important;
+          display: grid;
+          gap: 10px;
+          padding: 12px 14px 16px;
         }
         .cd-sub-group-list li {
-          margin: 0 !important;
+          margin: 0;
         }
         .cd-sub-group-list .cd-category-photo-card {
           background:
             var(--cd-category-photo),
-            linear-gradient(135deg, #223445 0%, #071827 100%) !important;
-          background-position: center top !important;
-          background-repeat: no-repeat !important;
-          background-size: cover !important;
-          border-radius: 14px !important;
+            linear-gradient(135deg, #223445 0%, #071827 100%);
+          background-position: center top;
+          background-repeat: no-repeat;
+          background-size: cover;
+          border-radius: 14px;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.06),
             inset 0 -30px 50px rgba(0, 4, 14, 0.28),
-            0 14px 32px rgba(0, 4, 14, 0.22) !important;
-          min-height: 210px !important;
-          padding: 16px 18px !important;
+            0 14px 32px rgba(0, 4, 14, 0.22);
+          min-height: 210px;
+          padding: 16px 18px;
         }
         .cd-sub-group-list .cd-category-photo-card::after {
           background:
             linear-gradient(180deg, rgba(2, 10, 20, 0.0) 0%, rgba(2, 10, 20, 0.0) 65%, rgba(2, 10, 20, 0.82) 100%),
-            linear-gradient(90deg, rgba(2, 10, 20, 0.04), transparent 50%) !important;
+            linear-gradient(90deg, rgba(2, 10, 20, 0.04), transparent 50%);
         }
         .cd-sub-group-list .cd-category-photo-title {
-          font-size: 19px !important;
+          font-size: 19px;
         }
         /* Sub-group image slots — point each subgroup at its dedicated PNG. */
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-moottorit {
-          --cd-category-photo: url("/category-sub/moottorit.png") !important;
+          --cd-category-photo: url("/category-sub/moottorit.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-kytkimet {
-          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
+          --cd-category-photo: url("/category-sub/kytkimet.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-variaattorit {
-          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
+          --cd-category-photo: url("/category-sub/variaattorit.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-voimansiirto {
-          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
+          --cd-category-photo: url("/category-sub/voimansiirto.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-telasto {
-          --cd-category-photo: url("/category-sub/telasto.png") !important;
+          --cd-category-photo: url("/category-sub/telasto.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-alusta {
-          --cd-category-photo: url("/category-sub/alusta.png") !important;
+          --cd-category-photo: url("/category-sub/alusta.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-renkaat-vanteet {
-          --cd-category-photo: url("/category-sub/rengas.png") !important;
+          --cd-category-photo: url("/category-sub/rengas.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-tukivarret {
-          --cd-category-photo: url("/category-sub/tukivarret.png") !important;
+          --cd-category-photo: url("/category-sub/tukivarret.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-iskunvaimentimet {
-          --cd-category-photo: url("/category-sub/iskunvaimentimet.png") !important;
+          --cd-category-photo: url("/category-sub/iskunvaimentimet.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-ohjaus {
-          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
+          --cd-category-photo: url("/category-sub/ohjaus.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-hallintalaitteet {
-          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-jarrut {
-          --cd-category-photo: url("/category-sub/jarrut.png") !important;
+          --cd-category-photo: url("/category-sub/jarrut.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-sukset {
-          --cd-category-photo: url("/category-sub/sukset.png") !important;
+          --cd-category-photo: url("/category-sub/sukset.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-sahko {
-          --cd-category-photo: url("/category-sub/sahko.png") !important;
+          --cd-category-photo: url("/category-sub/sahko.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-sytytys {
-          --cd-category-photo: url("/category-sub/sytytys.png") !important;
+          --cd-category-photo: url("/category-sub/sytytys.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-jaahdytys {
-          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
+          --cd-category-photo: url("/category-sub/jaahdytys.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-polttoaine {
-          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
+          --cd-category-photo: url("/category-sub/polttoaine.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-pakoputkisto {
-          --cd-category-photo: url("/category-sub/putkisto.png") !important;
+          --cd-category-photo: url("/category-sub/putkisto.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-runko {
-          --cd-category-photo: url("/category-sub/runko.png") !important;
+          --cd-category-photo: url("/category-sub/runko.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-katteet {
-          --cd-category-photo: url("/category-sub/katteet.png") !important;
+          --cd-category-photo: url("/category-sub/katteet.png");
         }
 
         /* Final category drawer cleanup: no grey slabs, and vehicle fields stay white. */
         .cd-start-hero {
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          padding: 2px 2px 10px !important;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          padding: 2px 2px 10px;
         }
         .cd-start-eyebrow {
-          background: transparent !important;
-          background-image: none !important;
-          box-shadow: none !important;
-          display: inline-block !important;
-          padding: 0 !important;
-          width: auto !important;
+          background: transparent;
+          background-image: none;
+          box-shadow: none;
+          display: inline-block;
+          padding: 0;
+          width: auto;
         }
         .cd-extra-filters,
         .cd-extra-row,
         .cd-extra-field,
         .cd-skip-row {
-          background: transparent !important;
-          border-color: rgba(126, 197, 240, 0.18) !important;
-          box-shadow: none !important;
+          background: transparent;
+          border-color: rgba(126, 197, 240, 0.18);
+          box-shadow: none;
         }
         .cd-extra-filters {
-          padding-top: 10px !important;
+          padding-top: 10px;
         }
         .cd-search-row,
         .cd-cc-select,
         .cd-extra-field .cd-input {
-          background: #eef6fc !important;
-          border: 1px solid rgba(126, 197, 240, 0.42) !important;
-          color: #071827 !important;
+          background: #eef6fc;
+          border: 1px solid rgba(126, 197, 240, 0.42);
+          color: #071827;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.75),
-            0 8px 18px rgba(0, 8, 22, 0.12) !important;
+            0 8px 18px rgba(0, 8, 22, 0.12);
         }
         .cd-search-row:focus-within,
         .cd-cc-select:focus,
         .cd-extra-field .cd-input:focus {
-          border-color: rgba(255, 145, 38, 0.86) !important;
+          border-color: rgba(255, 145, 38, 0.86);
           box-shadow:
             0 0 0 1px rgba(255, 145, 38, 0.28),
-            0 14px 30px rgba(255, 107, 22, 0.14) !important;
+            0 14px 30px rgba(255, 107, 22, 0.14);
         }
         .cd-search-row .cd-input {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          color: #071827 !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          color: #071827;
         }
         .cd-input::placeholder {
-          color: rgba(71, 85, 105, 0.72) !important;
+          color: rgba(71, 85, 105, 0.72);
         }
         .cd-cc-select option {
           background: #eef6fc;
@@ -2091,284 +2091,284 @@ export default function CategoryDrawer({
 
         @media (max-width: 520px) {
           .cd-drawer {
-            width: 100vw !important;
-            max-width: 100vw !important;
+            width: 100vw;
+            max-width: 100vw;
           }
 
           .cd-list:not(.cd-category-photo-list) {
-            display: grid !important;
-            gap: 9px !important;
-            grid-template-columns: 1fr !important;
-            padding: 12px 14px 18px !important;
+            display: grid;
+            gap: 9px;
+            grid-template-columns: 1fr;
+            padding: 12px 14px 18px;
           }
 
           .cd-list:not(.cd-category-photo-list) .cd-item,
           .cd-list:not(.cd-category-photo-list) .cd-item-leaf {
-            align-items: center !important;
-            display: grid !important;
-            gap: 10px !important;
-            grid-template-columns: 46px minmax(0, 1fr) 28px !important;
-            min-height: 62px !important;
-            padding: 9px 10px !important;
-            width: 100% !important;
+            align-items: center;
+            display: grid;
+            gap: 10px;
+            grid-template-columns: 46px minmax(0, 1fr) 28px;
+            min-height: 62px;
+            padding: 9px 10px;
+            width: 100%;
           }
 
           .cd-list:not(.cd-category-photo-list) .cd-item-leaf::before {
-            left: 0 !important;
+            left: 0;
           }
 
           .cd-list:not(.cd-category-photo-list) .cd-icon-sm.cd-thumb {
-            flex: 0 0 46px !important;
-            height: 42px !important;
-            min-width: 46px !important;
-            width: 46px !important;
+            flex: 0 0 46px;
+            height: 42px;
+            min-width: 46px;
+            width: 46px;
           }
 
           .cd-list:not(.cd-category-photo-list) .cd-label {
-            display: block !important;
-            font-size: 13px !important;
-            line-height: 1.18 !important;
-            min-width: 0 !important;
-            overflow: visible !important;
-            overflow-wrap: anywhere !important;
-            text-overflow: clip !important;
-            white-space: normal !important;
+            display: block;
+            font-size: 13px;
+            line-height: 1.18;
+            min-width: 0;
+            overflow: visible;
+            overflow-wrap: anywhere;
+            text-overflow: clip;
+            white-space: normal;
           }
 
           .cd-list:not(.cd-category-photo-list) .cd-arrow,
           .cd-list:not(.cd-category-photo-list) .cd-check {
-            justify-self: end !important;
-            margin-left: 0 !important;
+            justify-self: end;
+            margin-left: 0;
           }
 
           .cd-category-photo-card {
-            min-height: 166px !important;
-            padding: 18px !important;
+            min-height: 166px;
+            padding: 18px;
           }
           .cd-sub-group-list .cd-category-photo-card {
-            min-height: 110px !important;
-            padding: 14px 16px !important;
+            min-height: 110px;
+            padding: 14px 16px;
           }
           .cd-category-photo-title {
-            font-size: 21px !important;
+            font-size: 21px;
           }
           .cd-sub-group-list .cd-category-photo-title {
-            font-size: 17px !important;
+            font-size: 17px;
           }
           .cd-category-photo-icon {
-            right: -18px !important;
-            transform: scale(2.36) rotate(-5deg) !important;
+            right: -18px;
+            transform: scale(2.36) rotate(-5deg);
           }
         }
 
         /* Final placement: keep the drawer below the app topbar and remove the stray filter pill. */
         .cd-backdrop {
-          top: var(--topbar-h, 72px) !important;
-          z-index: 980 !important;
+          top: var(--topbar-h, 72px);
+          z-index: 980;
         }
 
         .cd-drawer {
-          top: var(--topbar-h, 72px) !important;
-          bottom: 0 !important;
-          height: calc(100dvh - var(--topbar-h, 72px)) !important;
-          z-index: 990 !important;
-          border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
+          top: var(--topbar-h, 72px);
+          bottom: 0;
+          height: calc(100dvh - var(--topbar-h, 72px));
+          z-index: 990;
+          border-top: 1px solid rgba(151, 178, 205, 0.18);
         }
 
         .cd-header {
-          align-items: center !important;
-          background: transparent !important;
-          border: 0 !important;
-          display: flex !important;
-          gap: 8px !important;
-          justify-content: flex-start !important;
-          left: 16px !important;
-          min-height: 46px !important;
-          padding: 0 !important;
-          pointer-events: none !important;
-          position: absolute !important;
-          right: 16px !important;
-          top: 10px !important;
-          z-index: 3020 !important;
+          align-items: center;
+          background: transparent;
+          border: 0;
+          display: flex;
+          gap: 8px;
+          justify-content: flex-start;
+          left: 16px;
+          min-height: 46px;
+          padding: 0;
+          pointer-events: none;
+          position: absolute;
+          right: 16px;
+          top: 10px;
+          z-index: 3020;
         }
 
         .cd-body {
-          inset: auto !important;
-          position: relative !important;
-          padding-top: 58px !important;
-          width: auto !important;
+          inset: auto;
+          position: relative;
+          padding-top: 58px;
+          width: auto;
         }
 
         .cd-category-photo-list {
-          padding-top: 92px !important;
+          padding-top: 92px;
         }
 
         .cd-filter-submit {
-          align-items: center !important;
-          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 100%) !important;
-          border: 1px solid rgba(255, 224, 194, 0.78) !important;
-          border-radius: 999px !important;
-          box-shadow: 0 12px 24px rgba(255, 107, 22, 0.24) !important;
-          color: #ffffff !important;
-          display: inline-flex !important;
-          flex: 0 0 34px !important;
-          height: 34px !important;
-          justify-content: center !important;
-          max-width: 34px !important;
-          min-height: 34px !important;
-          min-width: 34px !important;
-          padding: 0 !important;
-          pointer-events: auto !important;
-          margin-right: 4px !important;
-          width: 34px !important;
+          align-items: center;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 100%);
+          border: 1px solid rgba(255, 224, 194, 0.78);
+          border-radius: 999px;
+          box-shadow: 0 12px 24px rgba(255, 107, 22, 0.24);
+          color: #ffffff;
+          display: inline-flex;
+          flex: 0 0 34px;
+          height: 34px;
+          justify-content: center;
+          max-width: 34px;
+          min-height: 34px;
+          min-width: 34px;
+          padding: 0;
+          pointer-events: auto;
+          margin-right: 4px;
+          width: 34px;
         }
 
         .cd-close {
-          align-items: center !important;
-          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 100%) !important;
-          border: 1px solid rgba(255, 224, 194, 0.78) !important;
-          border-radius: 999px !important;
-          box-shadow: 0 12px 24px rgba(255, 107, 22, 0.22) !important;
-          color: #ffffff !important;
-          display: inline-flex !important;
-          flex: 0 0 34px !important;
-          height: 34px !important;
-          justify-content: center !important;
-          margin-left: auto !important;
-          max-width: 34px !important;
-          min-height: 34px !important;
-          min-width: 34px !important;
-          padding: 0 !important;
-          pointer-events: auto !important;
-          position: relative !important;
-          width: 34px !important;
-          z-index: 21 !important;
+          align-items: center;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 100%);
+          border: 1px solid rgba(255, 224, 194, 0.78);
+          border-radius: 999px;
+          box-shadow: 0 12px 24px rgba(255, 107, 22, 0.22);
+          color: #ffffff;
+          display: inline-flex;
+          flex: 0 0 34px;
+          height: 34px;
+          justify-content: center;
+          margin-left: auto;
+          max-width: 34px;
+          min-height: 34px;
+          min-width: 34px;
+          padding: 0;
+          pointer-events: auto;
+          position: relative;
+          width: 34px;
+          z-index: 21;
         }
 
         .cd-back {
-          align-items: center !important;
-          background: rgba(8, 22, 36, 0.78) !important;
-          border: 1px solid rgba(216, 226, 236, 0.32) !important;
-          border-radius: 999px !important;
-          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.32) !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          flex: 0 0 34px !important;
-          height: 34px !important;
-          justify-content: center !important;
-          max-width: 34px !important;
-          margin-right: 0 !important;
-          min-height: 34px !important;
-          min-width: 34px !important;
-          padding: 0 !important;
-          pointer-events: auto !important;
-          position: relative !important;
-          width: 34px !important;
-          z-index: 21 !important;
+          align-items: center;
+          background: rgba(8, 22, 36, 0.78);
+          border: 1px solid rgba(216, 226, 236, 0.32);
+          border-radius: 999px;
+          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.32);
+          color: #ffffff;
+          cursor: pointer;
+          display: inline-flex;
+          flex: 0 0 34px;
+          height: 34px;
+          justify-content: center;
+          max-width: 34px;
+          margin-right: 0;
+          min-height: 34px;
+          min-width: 34px;
+          padding: 0;
+          pointer-events: auto;
+          position: relative;
+          width: 34px;
+          z-index: 21;
           transition: background 0.15s ease, border-color 0.15s ease;
         }
         .cd-back:hover {
-          background: rgba(255, 122, 31, 0.92) !important;
-          border-color: rgba(255, 210, 168, 0.78) !important;
+          background: rgba(255, 122, 31, 0.92);
+          border-color: rgba(255, 210, 168, 0.78);
         }
 
         .cd-crumbs {
-          align-items: flex-start !important;
-          background: rgba(4, 16, 31, 0.9) !important;
-          border: 1px solid rgba(151, 178, 205, 0.18) !important;
-          border-radius: 12px !important;
-          box-shadow: none !important;
-          display: flex !important;
-          flex-wrap: wrap !important;
-          gap: 6px !important;
-          margin: 58px 12px 0 !important;
-          overflow: visible !important;
-          padding: 10px !important;
-          scrollbar-width: none !important;
-          position: relative !important;
-          z-index: 25 !important;
-          white-space: normal !important;
+          align-items: flex-start;
+          background: rgba(4, 16, 31, 0.9);
+          border: 1px solid rgba(151, 178, 205, 0.18);
+          border-radius: 12px;
+          box-shadow: none;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin: 58px 12px 0;
+          overflow: visible;
+          padding: 10px;
+          scrollbar-width: none;
+          position: relative;
+          z-index: 25;
+          white-space: normal;
         }
 
         .cd-crumbs::-webkit-scrollbar {
-          display: none !important;
+          display: none;
         }
 
         .cd-crumb-seg,
         .cd-crumb-item {
-          align-items: center !important;
-          display: inline-flex !important;
-          flex: 0 0 auto !important;
+          align-items: center;
+          display: inline-flex;
+          flex: 0 0 auto;
         }
 
         .cd-crumb-item {
-          background: rgba(13, 31, 49, 0.96) !important;
-          border: 1px solid rgba(151, 178, 205, 0.28) !important;
-          border-radius: 10px !important;
-          gap: 2px !important;
-          min-height: 30px !important;
-          padding: 0 5px 0 9px !important;
+          background: rgba(13, 31, 49, 0.96);
+          border: 1px solid rgba(151, 178, 205, 0.28);
+          border-radius: 10px;
+          gap: 2px;
+          min-height: 30px;
+          padding: 0 5px 0 9px;
         }
 
         .cd-crumb-btn {
-          background: transparent !important;
-          border: 0 !important;
-          color: rgba(226, 235, 244, 0.92) !important;
-          cursor: pointer !important;
-          font-size: 12px !important;
-          font-weight: 800 !important;
-          min-height: 0 !important;
-          padding: 0 !important;
-          white-space: nowrap !important;
+          background: transparent;
+          border: 0;
+          color: rgba(226, 235, 244, 0.92);
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 800;
+          min-height: 0;
+          padding: 0;
+          white-space: nowrap;
         }
 
         .cd-crumb-btn:hover,
         .cd-crumb-current:hover {
-          background: transparent !important;
-          color: #ffffff !important;
+          background: transparent;
+          color: #ffffff;
         }
 
         .cd-crumb-current {
-          color: #ffffff !important;
+          color: #ffffff;
         }
 
         .cd-crumb-x {
-          align-items: center !important;
-          background: rgba(151, 178, 205, 0.13) !important;
-          border: 1px solid rgba(151, 178, 205, 0.28) !important;
-          border-radius: 999px !important;
-          color: rgba(226, 244, 255, 0.86) !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          font-size: 11px !important;
-          font-weight: 900 !important;
-          height: 22px !important;
-          justify-content: center !important;
-          margin-left: 5px !important;
-          min-height: 22px !important;
-          padding: 0 !important;
-          width: 22px !important;
+          align-items: center;
+          background: rgba(151, 178, 205, 0.13);
+          border: 1px solid rgba(151, 178, 205, 0.28);
+          border-radius: 999px;
+          color: rgba(226, 244, 255, 0.86);
+          cursor: pointer;
+          display: inline-flex;
+          font-size: 11px;
+          font-weight: 900;
+          height: 22px;
+          justify-content: center;
+          margin-left: 5px;
+          min-height: 22px;
+          padding: 0;
+          width: 22px;
         }
 
         .cd-crumb-x:hover {
-          background: rgba(239, 68, 68, 0.9) !important;
-          border-color: rgba(255, 190, 190, 0.72) !important;
-          color: #ffffff !important;
+          background: rgba(239, 68, 68, 0.9);
+          border-color: rgba(255, 190, 190, 0.72);
+          color: #ffffff;
         }
 
         .cd-crumb-sep {
-          color: rgba(151, 178, 205, 0.5) !important;
-          flex: 0 0 auto !important;
-          margin: 0 2px !important;
+          color: rgba(151, 178, 205, 0.5);
+          flex: 0 0 auto;
+          margin: 0 2px;
         }
 
         .cd-drawer:has(.cd-crumbs) .cd-body {
-          padding-top: 14px !important;
+          padding-top: 14px;
         }
 
         .cd-drawer:has(.cd-crumbs) .cd-category-photo-list {
-          padding-top: 18px !important;
+          padding-top: 18px;
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-cylinder,
@@ -2377,368 +2377,368 @@ export default function CategoryDrawer({
         .cd-list .cd-category-photo-card.cd-thumb-crank,
         .cd-list .cd-category-photo-card.cd-thumb-block,
         .cd-list .cd-category-photo-card.cd-thumb-bearing {
-          --cd-category-photo: url("/category-sub/moottorit.png") !important;
+          --cd-category-photo: url("/category-sub/moottorit.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-clutch {
-          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
+          --cd-category-photo: url("/category-sub/kytkimet.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-variator {
-          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
+          --cd-category-photo: url("/category-sub/variaattorit.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-belt {
-          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
+          --cd-category-photo: url("/category-sub/voimansiirto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-track {
-          --cd-category-photo: url("/category-sub/telasto.png") !important;
+          --cd-category-photo: url("/category-sub/telasto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-wheel {
-          --cd-category-photo: url("/category-sub/rengas.png") !important;
+          --cd-category-photo: url("/category-sub/rengas.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-suspension {
-          --cd-category-photo: url("/category-sub/alusta.png") !important;
+          --cd-category-photo: url("/category-sub/alusta.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-steering {
-          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
+          --cd-category-photo: url("/category-sub/ohjaus.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-controls {
-          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-brake {
-          --cd-category-photo: url("/category-sub/jarrut.png") !important;
+          --cd-category-photo: url("/category-sub/jarrut.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-ski {
-          --cd-category-photo: url("/category-sub/sukset.png") !important;
+          --cd-category-photo: url("/category-sub/sukset.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-electric,
         .cd-list .cd-category-photo-card.cd-thumb-battery {
-          --cd-category-photo: url("/category-sub/sahko.png") !important;
+          --cd-category-photo: url("/category-sub/sahko.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-cooling {
-          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
+          --cd-category-photo: url("/category-sub/jaahdytys.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-fuel {
-          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
+          --cd-category-photo: url("/category-sub/polttoaine.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-exhaust {
-          --cd-category-photo: url("/category-sub/putkisto.png") !important;
+          --cd-category-photo: url("/category-sub/putkisto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-body,
         .cd-list .cd-category-photo-card.cd-thumb-glass {
-          --cd-category-photo: url("/category-sub/katteet.png") !important;
+          --cd-category-photo: url("/category-sub/katteet.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-frame,
         .cd-list .cd-category-photo-card.cd-thumb-seat {
-          --cd-category-photo: url("/category-sub/runko.png") !important;
+          --cd-category-photo: url("/category-sub/runko.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-moottori-voimansiirto {
-          --cd-category-photo: url("/category-main/moottori-voimansiirto.png") !important;
+          --cd-category-photo: url("/category-main/moottori-voimansiirto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-alusta-telasto {
-          --cd-category-photo: url("/category-main/alusta-telasto.png") !important;
+          --cd-category-photo: url("/category-main/alusta-telasto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-ohjaus-hallintalaitteet {
-          --cd-category-photo: url("/category-main/ohjaus-hallintalaitteet.png") !important;
+          --cd-category-photo: url("/category-main/ohjaus-hallintalaitteet.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-sahkojarjestelmat {
-          --cd-category-photo: url("/category-main/sahkojarjestelmat.png") !important;
+          --cd-category-photo: url("/category-main/sahkojarjestelmat.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-jaahdytys-polttoaine {
-          --cd-category-photo: url("/category-main/jaahdytys-polttoaine.png") !important;
+          --cd-category-photo: url("/category-main/jaahdytys-polttoaine.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-pakoputkisto {
-          --cd-category-photo: url("/category-main/pakoputkisto.png") !important;
+          --cd-category-photo: url("/category-main/pakoputkisto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-runko-katteet {
-          --cd-category-photo: url("/category-main/runko-katteet.png") !important;
+          --cd-category-photo: url("/category-main/runko-katteet.png");
         }
 
         .cd-list .cd-category-photo-card {
           background:
-            linear-gradient(135deg, #223445 0%, #071827 100%) !important;
-          border-color: rgba(173, 186, 201, 0.28) !important;
-          color: #ffffff !important;
+            linear-gradient(135deg, #223445 0%, #071827 100%);
+          border-color: rgba(173, 186, 201, 0.28);
+          color: #ffffff;
         }
 
         .cd-list .cd-category-photo-card::before {
-          background: var(--cd-category-photo) !important;
-          background-position: right center !important;
-          background-repeat: no-repeat !important;
-          background-size: cover !important;
-          content: "" !important;
-          display: block !important;
-          filter: brightness(1.42) contrast(1.08) saturate(1.06) !important;
-          inset: 0 !important;
-          opacity: 0.94 !important;
-          position: absolute !important;
-          transform: scale(1.025) !important;
-          z-index: 0 !important;
+          background: var(--cd-category-photo);
+          background-position: right center;
+          background-repeat: no-repeat;
+          background-size: cover;
+          content: "";
+          display: block;
+          filter: brightness(1.42) contrast(1.08) saturate(1.06);
+          inset: 0;
+          opacity: 0.94;
+          position: absolute;
+          transform: scale(1.025);
+          z-index: 0;
         }
 
         .cd-list .cd-category-photo-card::after {
           background:
             linear-gradient(90deg, rgba(2, 12, 26, 0.82) 0%, rgba(2, 12, 26, 0.42) 48%, rgba(2, 12, 26, 0.14) 100%),
-            linear-gradient(180deg, rgba(2, 12, 26, 0.02) 0%, rgba(2, 12, 26, 0.32) 100%) !important;
-          z-index: 1 !important;
+            linear-gradient(180deg, rgba(2, 12, 26, 0.02) 0%, rgba(2, 12, 26, 0.32) 100%);
+          z-index: 1;
         }
 
         .cd-list .cd-category-photo-card:hover,
         .cd-list .cd-category-photo-card.cd-category-photo-active {
-          border-color: rgba(255, 164, 90, 0.9) !important;
-          color: #ffffff !important;
+          border-color: rgba(255, 164, 90, 0.9);
+          color: #ffffff;
         }
 
         .cd-leaf-photo-list {
-          gap: 8px !important;
-          padding: 10px 12px 14px !important;
+          gap: 8px;
+          padding: 10px 12px 14px;
         }
 
         .cd-leaf-photo-list .cd-category-photo-card {
-          align-items: center !important;
+          align-items: center;
           background:
             var(--cd-category-photo),
-            linear-gradient(180deg, rgba(12, 28, 44, 0.96), rgba(7, 18, 31, 0.98)) !important;
-          background-position: center !important;
-          background-size: cover !important;
-          border-color: rgba(151, 178, 205, 0.24) !important;
-          box-shadow: none !important;
-          min-height: 62px !important;
-          padding: 10px 14px !important;
+            linear-gradient(180deg, rgba(12, 28, 44, 0.96), rgba(7, 18, 31, 0.98));
+          background-position: center;
+          background-size: cover;
+          border-color: rgba(151, 178, 205, 0.24);
+          box-shadow: none;
+          min-height: 62px;
+          padding: 10px 14px;
         }
 
         .cd-leaf-photo-list .cd-category-photo-card::before {
           background:
             linear-gradient(90deg, rgba(2, 12, 26, 0.78), rgba(2, 12, 26, 0.18)),
-            var(--cd-category-photo) !important;
-          background-position: center !important;
-          background-size: cover !important;
-          content: "" !important;
-          display: block !important;
-          inset: 0 !important;
-          opacity: 0.86 !important;
-          position: absolute !important;
-          z-index: 0 !important;
+            var(--cd-category-photo);
+          background-position: center;
+          background-size: cover;
+          content: "";
+          display: block;
+          inset: 0;
+          opacity: 0.86;
+          position: absolute;
+          z-index: 0;
         }
 
         .cd-leaf-photo-list .cd-category-photo-card::after {
-          background: linear-gradient(90deg, rgba(2, 12, 26, 0.82), rgba(2, 12, 26, 0.26)) !important;
-          z-index: 1 !important;
+          background: linear-gradient(90deg, rgba(2, 12, 26, 0.82), rgba(2, 12, 26, 0.26));
+          z-index: 1;
         }
 
         .cd-leaf-photo-list .cd-category-photo-title {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          font-size: 15px !important;
-          line-height: 1.1 !important;
-          min-height: 0 !important;
-          padding: 0 !important;
-          position: relative !important;
-          z-index: 2 !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          font-size: 15px;
+          line-height: 1.1;
+          min-height: 0;
+          padding: 0;
+          position: relative;
+          z-index: 2;
         }
 
         .cd-final-leaf-list {
-          display: grid !important;
-          gap: 8px !important;
-          padding: 10px 12px 14px !important;
+          display: grid;
+          gap: 8px;
+          padding: 10px 12px 14px;
         }
 
         .cd-final-leaf-item {
-          align-items: center !important;
+          align-items: center;
           background:
-            linear-gradient(180deg, rgba(8, 25, 41, 0.98), rgba(5, 17, 30, 0.98)) !important;
-          border: 1px solid rgba(151, 178, 205, 0.28) !important;
-          border-radius: 8px !important;
-          box-shadow: none !important;
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) auto !important;
-          min-height: 43px !important;
-          padding: 0 14px !important;
+            linear-gradient(180deg, rgba(8, 25, 41, 0.98), rgba(5, 17, 30, 0.98));
+          border: 1px solid rgba(151, 178, 205, 0.28);
+          border-radius: 8px;
+          box-shadow: none;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          min-height: 43px;
+          padding: 0 14px;
         }
 
         .cd-final-leaf-item::before {
-          display: none !important;
-          content: none !important;
+          display: none;
+          content: none;
         }
 
         .cd-final-leaf-item .cd-label {
-          color: #ffffff !important;
-          font-size: 13px !important;
-          font-weight: 900 !important;
-          line-height: 1.15 !important;
-          min-width: 0 !important;
-          overflow-wrap: anywhere !important;
+          color: #ffffff;
+          font-size: 13px;
+          font-weight: 900;
+          line-height: 1.15;
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
 
         .cd-final-leaf-item .cd-arrow,
         .cd-final-leaf-item .cd-check {
-          justify-self: end !important;
-          margin: 0 !important;
+          justify-self: end;
+          margin: 0;
         }
 
         .cd-final-leaf-item:hover,
         .cd-final-leaf-item.cd-item-active {
           background:
-            linear-gradient(180deg, rgba(15, 35, 52, 0.98), rgba(8, 23, 37, 0.98)) !important;
-          border-color: rgba(255, 122, 24, 0.95) !important;
+            linear-gradient(180deg, rgba(15, 35, 52, 0.98), rgba(8, 23, 37, 0.98));
+          border-color: rgba(255, 122, 24, 0.95);
         }
 
         .cd-close {
-          align-items: center !important;
-          display: inline-flex !important;
-          justify-content: center !important;
-          margin-left: auto !important;
-          position: relative !important;
-          z-index: 5 !important;
+          align-items: center;
+          display: inline-flex;
+          justify-content: center;
+          margin-left: auto;
+          position: relative;
+          z-index: 5;
         }
 
         body:has(.cd-drawer-open) .bottom-nav {
-          display: none !important;
+          display: none;
         }
 
         body:has(.cd-drawer-open) .universal-app-topbar {
-          background: rgba(3, 9, 20, 0.96) !important;
-          display: grid !important;
-          left: 0 !important;
-          min-height: var(--topbar-h, 72px) !important;
-          opacity: 1 !important;
-          position: fixed !important;
-          right: 0 !important;
-          top: 0 !important;
-          transform: none !important;
-          visibility: visible !important;
-          width: 100% !important;
-          z-index: 4000 !important;
+          background: rgba(3, 9, 20, 0.96);
+          display: grid;
+          left: 0;
+          min-height: var(--topbar-h, 72px);
+          opacity: 1;
+          position: fixed;
+          right: 0;
+          top: 0;
+          transform: none;
+          visibility: visible;
+          width: 100%;
+          z-index: 4000;
         }
 
         body:has(.cd-drawer-open) .universal-app-topbar.universal-home-topbar,
         body:has(.cd-drawer-open) header.universal-app-topbar,
         body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar {
-          background: rgba(3, 9, 20, 0.96) !important;
-          display: grid !important;
-          left: 0 !important;
-          opacity: 1 !important;
-          pointer-events: auto !important;
-          position: fixed !important;
-          right: 0 !important;
-          top: 0 !important;
-          transform: none !important;
-          visibility: visible !important;
-          width: 100% !important;
-          z-index: 4000 !important;
+          background: rgba(3, 9, 20, 0.96);
+          display: grid;
+          left: 0;
+          opacity: 1;
+          pointer-events: auto;
+          position: fixed;
+          right: 0;
+          top: 0;
+          transform: none;
+          visibility: visible;
+          width: 100%;
+          z-index: 4000;
         }
 
         body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-navigation,
         body:has(.cd-drawer-open) header.universal-app-topbar .universal-primary-navigation,
         body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-brand,
         body:has(.cd-drawer-open) header.universal-app-topbar .universal-topbar-actions {
-          opacity: 1 !important;
-          pointer-events: auto !important;
-          visibility: visible !important;
+          opacity: 1;
+          pointer-events: auto;
+          visibility: visible;
         }
 
         @media (max-width: 520px) {
           .cd-backdrop {
-            top: var(--topbar-h, 72px) !important;
-            z-index: 980 !important;
+            top: var(--topbar-h, 72px);
+            z-index: 980;
           }
 
           .cd-drawer {
-            border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
-            top: var(--topbar-h, 72px) !important;
-            height: calc(100dvh - var(--topbar-h, 72px)) !important;
-            z-index: 990 !important;
+            border-top: 1px solid rgba(151, 178, 205, 0.18);
+            top: var(--topbar-h, 72px);
+            height: calc(100dvh - var(--topbar-h, 72px));
+            z-index: 990;
           }
 
           .cd-header {
-            padding-top: max(10px, env(safe-area-inset-top)) !important;
-            right: 14px !important;
-            top: max(10px, env(safe-area-inset-top)) !important;
+            padding-top: max(10px, env(safe-area-inset-top));
+            right: 14px;
+            top: max(10px, env(safe-area-inset-top));
           }
         }
 
         @media (max-width: 720px) {
           .cd-backdrop {
-            inset: var(--topbar-h, 72px) 0 0 0 !important;
-            top: var(--topbar-h, 72px) !important;
-            z-index: 980 !important;
+            inset: var(--topbar-h, 72px) 0 0 0;
+            top: var(--topbar-h, 72px);
+            z-index: 980;
           }
 
           .cd-drawer {
-            border-radius: 0 !important;
-            border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
-            inset: var(--topbar-h, 72px) 0 0 0 !important;
-            height: calc(100dvh - var(--topbar-h, 72px)) !important;
-            max-height: calc(100dvh - var(--topbar-h, 72px)) !important;
-            max-width: 100vw !important;
-            top: var(--topbar-h, 72px) !important;
-            width: 100vw !important;
-            z-index: 990 !important;
+            border-radius: 0;
+            border-top: 1px solid rgba(151, 178, 205, 0.18);
+            inset: var(--topbar-h, 72px) 0 0 0;
+            height: calc(100dvh - var(--topbar-h, 72px));
+            max-height: calc(100dvh - var(--topbar-h, 72px));
+            max-width: 100vw;
+            top: var(--topbar-h, 72px);
+            width: 100vw;
+            z-index: 990;
           }
 
           .cd-body {
-            padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
-            padding-top: calc(58px + env(safe-area-inset-top)) !important;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
+            padding-top: calc(58px + env(safe-area-inset-top));
           }
 
           .cd-header {
-            align-items: center !important;
-            background: rgba(4, 16, 31, 0.78) !important;
-            border: 1px solid rgba(151, 178, 205, 0.18) !important;
-            border-radius: 18px !important;
-            box-shadow: 0 14px 34px rgba(0, 8, 22, 0.26) !important;
-            display: flex !important;
-            gap: 8px !important;
-            left: 12px !important;
-            padding: 8px !important;
-            right: 12px !important;
-            top: max(8px, env(safe-area-inset-top)) !important;
-            width: auto !important;
+            align-items: center;
+            background: rgba(4, 16, 31, 0.78);
+            border: 1px solid rgba(151, 178, 205, 0.18);
+            border-radius: 18px;
+            box-shadow: 0 14px 34px rgba(0, 8, 22, 0.26);
+            display: flex;
+            gap: 8px;
+            left: 12px;
+            padding: 8px;
+            right: 12px;
+            top: max(8px, env(safe-area-inset-top));
+            width: auto;
           }
 
           .cd-header .cd-filter-submit,
           .cd-header .cd-back,
           .cd-header .cd-close {
-            flex: 0 0 34px !important;
-            height: 34px !important;
-            margin: 0 !important;
-            min-height: 34px !important;
-            min-width: 34px !important;
-            width: 34px !important;
+            flex: 0 0 34px;
+            height: 34px;
+            margin: 0;
+            min-height: 34px;
+            min-width: 34px;
+            width: 34px;
           }
 
           .cd-header .cd-close {
-            margin-left: auto !important;
+            margin-left: auto;
           }
 
           .cd-drawer .cd-crumbs {
-            margin-top: calc(66px + env(safe-area-inset-top)) !important;
+            margin-top: calc(66px + env(safe-area-inset-top));
           }
 
           .cd-drawer:has(.cd-crumbs) .cd-body {
-            padding-top: 8px !important;
+            padding-top: 8px;
           }
 
           body:has(.cd-drawer-open) .heroWrap,
@@ -2746,132 +2746,132 @@ export default function CategoryDrawer({
           body:has(.cd-drawer-open) .bottom-nav,
           body:has(.cd-drawer-open) .floating-chat,
           body:has(.cd-drawer-open) .fc-button {
-            pointer-events: none !important;
+            pointer-events: none;
           }
         }
 
         /* Final exact image map: exact category wins over generic part-kind guesses. */
         .cd-category-photo-card.cd-subgrp-moottorit {
-          --cd-category-photo: url("/category-sub/moottorit.png") !important;
+          --cd-category-photo: url("/category-sub/moottorit.png");
         }
         .cd-category-photo-card.cd-subgrp-kytkimet {
-          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
+          --cd-category-photo: url("/category-sub/kytkimet.png");
         }
         .cd-category-photo-card.cd-subgrp-variaattorit {
-          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
+          --cd-category-photo: url("/category-sub/variaattorit.png");
         }
         .cd-category-photo-card.cd-subgrp-voimansiirto {
-          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
+          --cd-category-photo: url("/category-sub/voimansiirto.png");
         }
         .cd-category-photo-card.cd-subgrp-telasto {
-          --cd-category-photo: url("/category-sub/telasto.png") !important;
+          --cd-category-photo: url("/category-sub/telasto.png");
         }
         .cd-category-photo-card.cd-subgrp-alusta {
-          --cd-category-photo: url("/category-sub/alusta.png") !important;
+          --cd-category-photo: url("/category-sub/alusta.png");
         }
         .cd-category-photo-card.cd-subgrp-renkaat-vanteet {
-          --cd-category-photo: url("/category-sub/rengas.png") !important;
+          --cd-category-photo: url("/category-sub/rengas.png");
         }
         .cd-category-photo-card.cd-subgrp-tukivarret {
-          --cd-category-photo: url("/category-sub/tukivarret.png") !important;
+          --cd-category-photo: url("/category-sub/tukivarret.png");
         }
         .cd-category-photo-card.cd-subgrp-iskunvaimentimet {
-          --cd-category-photo: url("/category-sub/iskunvaimentimet.png") !important;
+          --cd-category-photo: url("/category-sub/iskunvaimentimet.png");
         }
         .cd-category-photo-card.cd-subgrp-ohjaus {
-          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
+          --cd-category-photo: url("/category-sub/ohjaus.png");
         }
         .cd-category-photo-card.cd-subgrp-hallintalaitteet {
-          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png");
         }
         .cd-category-photo-card.cd-subgrp-jarrut {
-          --cd-category-photo: url("/category-sub/jarrut.png") !important;
+          --cd-category-photo: url("/category-sub/jarrut.png");
         }
         .cd-category-photo-card.cd-subgrp-sukset {
-          --cd-category-photo: url("/category-sub/sukset.png") !important;
+          --cd-category-photo: url("/category-sub/sukset.png");
         }
         .cd-category-photo-card.cd-subgrp-sahko {
-          --cd-category-photo: url("/category-sub/sahko.png") !important;
+          --cd-category-photo: url("/category-sub/sahko.png");
         }
         .cd-category-photo-card.cd-subgrp-sytytys {
-          --cd-category-photo: url("/category-sub/sytytys.png") !important;
+          --cd-category-photo: url("/category-sub/sytytys.png");
         }
         .cd-category-photo-card.cd-subgrp-jaahdytys {
-          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
+          --cd-category-photo: url("/category-sub/jaahdytys.png");
         }
         .cd-category-photo-card.cd-subgrp-polttoaine {
-          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
+          --cd-category-photo: url("/category-sub/polttoaine.png");
         }
         .cd-category-photo-card.cd-subgrp-pakoputkisto {
-          --cd-category-photo: url("/category-sub/putkisto.png") !important;
+          --cd-category-photo: url("/category-sub/putkisto.png");
         }
         .cd-category-photo-card.cd-subgrp-runko {
-          --cd-category-photo: url("/category-sub/runko.png") !important;
+          --cd-category-photo: url("/category-sub/runko.png");
         }
         .cd-category-photo-card.cd-subgrp-katteet {
-          --cd-category-photo: url("/category-sub/katteet.png") !important;
+          --cd-category-photo: url("/category-sub/katteet.png");
         }
 
         /* Same image lock with stronger specificity for every drawer/page. */
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-moottorit {
-          --cd-category-photo: url("/category-sub/moottorit.png") !important;
+          --cd-category-photo: url("/category-sub/moottorit.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-kytkimet {
-          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
+          --cd-category-photo: url("/category-sub/kytkimet.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-variaattorit {
-          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
+          --cd-category-photo: url("/category-sub/variaattorit.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-voimansiirto {
-          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
+          --cd-category-photo: url("/category-sub/voimansiirto.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-telasto {
-          --cd-category-photo: url("/category-sub/telasto.png") !important;
+          --cd-category-photo: url("/category-sub/telasto.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-alusta {
-          --cd-category-photo: url("/category-sub/alusta.png") !important;
+          --cd-category-photo: url("/category-sub/alusta.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-renkaat-vanteet {
-          --cd-category-photo: url("/category-sub/rengas.png") !important;
+          --cd-category-photo: url("/category-sub/rengas.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-tukivarret {
-          --cd-category-photo: url("/category-sub/tukivarret.png") !important;
+          --cd-category-photo: url("/category-sub/tukivarret.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-iskunvaimentimet {
-          --cd-category-photo: url("/category-sub/iskunvaimentimet.png") !important;
+          --cd-category-photo: url("/category-sub/iskunvaimentimet.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-ohjaus {
-          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
+          --cd-category-photo: url("/category-sub/ohjaus.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-hallintalaitteet {
-          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-jarrut {
-          --cd-category-photo: url("/category-sub/jarrut.png") !important;
+          --cd-category-photo: url("/category-sub/jarrut.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-sukset {
-          --cd-category-photo: url("/category-sub/sukset.png") !important;
+          --cd-category-photo: url("/category-sub/sukset.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-sahko {
-          --cd-category-photo: url("/category-sub/sahko.png") !important;
+          --cd-category-photo: url("/category-sub/sahko.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-sytytys {
-          --cd-category-photo: url("/category-sub/sytytys.png") !important;
+          --cd-category-photo: url("/category-sub/sytytys.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-jaahdytys {
-          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
+          --cd-category-photo: url("/category-sub/jaahdytys.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-polttoaine {
-          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
+          --cd-category-photo: url("/category-sub/polttoaine.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-pakoputkisto {
-          --cd-category-photo: url("/category-sub/putkisto.png") !important;
+          --cd-category-photo: url("/category-sub/putkisto.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-runko {
-          --cd-category-photo: url("/category-sub/runko.png") !important;
+          --cd-category-photo: url("/category-sub/runko.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-katteet {
-          --cd-category-photo: url("/category-sub/katteet.png") !important;
+          --cd-category-photo: url("/category-sub/katteet.png");
         }
       `}</style>
     </>

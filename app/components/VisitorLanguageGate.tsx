@@ -10,10 +10,10 @@ import {
 } from "@/lib/i18n";
 
 const LANGUAGES: Array<{ code: SupportedLocale; country: string; flag: string; language: string }> = [
-  { code: "fi", country: "Suomi", flag: "fi", language: "Finnish" },
+  { code: "fi", country: "Suomi", flag: "fi", language: "Suomi" },
   { code: "en", country: "English", flag: "gb", language: "English" },
-  { code: "sv", country: "Sverige", flag: "se", language: "Swedish" },
-  { code: "no", country: "Norge", flag: "no", language: "Norwegian" }
+  { code: "sv", country: "Sverige", flag: "se", language: "Svenska" },
+  { code: "no", country: "Norge", flag: "no", language: "Norsk" }
 ];
 
 const STORAGE_PREFIX = "visitor-language:";
@@ -97,9 +97,11 @@ export default function VisitorLanguageGate() {
 
     fetch("/api/visitor-language", { cache: "no-store" })
       .then((response) => response.json() as Promise<VisitorLanguageResponse>)
-      .then(({ fingerprint: nextFingerprint, selectedLocale }) => {
+      .then(({ fingerprint: nextFingerprint }) => {
         if (cancelled) return;
         if (!nextFingerprint) {
+          if (!forcePromptOnce && isLocale(immediateLocale)) return;
+
           openTimer = setTimeout(() => {
             if (!cancelled) setOpen(true);
           }, 450);
@@ -122,6 +124,15 @@ export default function VisitorLanguageGate() {
           return;
         }
 
+        // A language stored in this browser means the visitor has already
+        // completed the first-visit language step. Do not ask again merely
+        // because their network fingerprint has changed.
+        if (isLocale(immediateLocale)) {
+          localStorage.setItem(`${STORAGE_PREFIX}${nextFingerprint}`, immediateLocale);
+          rememberOnServer(immediateLocale);
+          return;
+        }
+
         const rememberedLocale =
           localStorage.getItem(`${STORAGE_PREFIX}${nextFingerprint}`);
 
@@ -129,13 +140,6 @@ export default function VisitorLanguageGate() {
           localStorage.setItem(`${STORAGE_PREFIX}${nextFingerprint}`, rememberedLocale);
           rememberOnServer(rememberedLocale);
           applyLocale(rememberedLocale);
-          markVisitorLanguageReady();
-          return;
-        }
-
-        if (isLocale(selectedLocale)) {
-          localStorage.setItem(`${STORAGE_PREFIX}${nextFingerprint}`, selectedLocale);
-          applyLocale(selectedLocale);
           markVisitorLanguageReady();
           return;
         }
@@ -221,6 +225,7 @@ export default function VisitorLanguageGate() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="visitor-language-title"
+        data-no-auto-translate
       >
         <div className="visitor-language-globe" aria-hidden="true">
           <Globe2 size={38} strokeWidth={1.8} />

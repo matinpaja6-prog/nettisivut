@@ -100,12 +100,9 @@ export default function Footer() {
   const text = footerText[locale];
   const canonicalPathname = canonicalPathFromLocalized(pathname || "/");
 
-  const hideFooter =
-    canonicalPathname.startsWith("/auth") ||
-    canonicalPathname.startsWith("/messages") ||
-    canonicalPathname.startsWith("/profile") ||
-    canonicalPathname.startsWith("/privacy") ||
-    canonicalPathname.startsWith("/terms");
+  // Keep the global footer visible throughout the application. Authentication
+  // screens are the only exception because they intentionally use a compact shell.
+  const hideFooter = canonicalPathname.startsWith("/auth");
 
   if (hideFooter) return null;
 

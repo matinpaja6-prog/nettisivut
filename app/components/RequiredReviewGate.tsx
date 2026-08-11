@@ -353,13 +353,13 @@ export default function RequiredReviewGate() {
         .review-gate-card {
           width: min(520px, 100%);
           border-radius: 22px;
-          background: linear-gradient(180deg, #ffffff 0%, #eef7fd 100%) !important;
-          border: 1px solid rgba(100, 116, 139, 0.18) !important;
-          box-shadow: 0 32px 100px rgba(15, 23, 42, 0.35) !important;
+          background: linear-gradient(180deg, #ffffff 0%, #eef7fd 100%);
+          border: 1px solid rgba(100, 116, 139, 0.18);
+          box-shadow: 0 32px 100px rgba(15, 23, 42, 0.35);
           padding: 28px;
           display: grid;
           gap: 16px;
-          color: #071827 !important;
+          color: #071827;
           position: relative;
         }
 
@@ -393,19 +393,19 @@ export default function RequiredReviewGate() {
           font-size: 24px;
           font-weight: 950;
           line-height: 1.15;
-          color: #071827 !important;
+          color: #071827;
         }
 
         .review-gate-card p {
           margin: 0;
-          color: #25445c !important;
+          color: #25445c;
           font-weight: 650;
           line-height: 1.5;
         }
 
         .review-gate-card p strong {
-          color: #071827 !important;
-          font-weight: 950 !important;
+          color: #071827;
+          font-weight: 950;
         }
 
         .review-gate-stars {
@@ -436,29 +436,29 @@ export default function RequiredReviewGate() {
           gap: 8px;
           font-size: 13px;
           font-weight: 850;
-          color: #17344a !important;
+          color: #17344a;
         }
 
         .review-gate-card textarea {
           min-height: 120px;
           resize: vertical;
           border-radius: 14px;
-          border: 1.5px solid rgba(126, 156, 179, 0.42) !important;
-          background: #d9e8f3 !important;
+          border: 1.5px solid rgba(126, 156, 179, 0.42);
+          background: #d9e8f3;
           padding: 12px;
           font: inherit;
-          color: #071827 !important;
+          color: #071827;
           outline: none;
         }
 
         .review-gate-card textarea::placeholder {
-          color: #3b5568 !important;
-          opacity: 1 !important;
+          color: #3b5568;
+          opacity: 1;
         }
 
         .review-gate-card textarea:focus {
-          border-color: #2563eb !important;
-          background: #ffffff !important;
+          border-color: #2563eb;
+          background: #ffffff;
         }
 
         .review-gate-status {

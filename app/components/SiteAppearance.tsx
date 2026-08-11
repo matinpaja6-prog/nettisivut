@@ -10,7 +10,7 @@ import {
 } from "@/lib/site-appearance";
 import { supabase } from "@/lib/supabase";
 import {
-  applyUserBackgroundColor,
+  applyUserTheme,
   readUserSettings,
   USER_SETTINGS_EVENT,
   type UserSettings
@@ -81,7 +81,7 @@ export default function SiteAppearance() {
       const a = await fetchSiteAppearance();
       if (!cancelled) {
         applyAppearance(a);
-        applyUserBackgroundColor(readUserSettings().backgroundColor);
+        applyUserTheme(readUserSettings().theme);
       }
     }
     void load();
@@ -92,9 +92,9 @@ export default function SiteAppearance() {
     window.addEventListener(APPEARANCE_EVENT, onChange);
     function onUserSettingsChange(event: Event) {
       const settings = (event as CustomEvent<UserSettings>).detail;
-      applyUserBackgroundColor(settings?.backgroundColor ?? readUserSettings().backgroundColor);
+      applyUserTheme(settings?.theme ?? readUserSettings().theme);
     }
-    applyUserBackgroundColor(readUserSettings().backgroundColor);
+    applyUserTheme(readUserSettings().theme);
     window.addEventListener(USER_SETTINGS_EVENT, onUserSettingsChange);
 
     // Live updates from other admin tabs via Supabase realtime.

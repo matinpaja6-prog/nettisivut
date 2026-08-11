@@ -11,6 +11,7 @@ import {
   filterVehicleBrandModelsBySubtype,
   mergeVehicleBrandModels
 } from "@/lib/vehicle-subtype-models";
+import { applyNettimotoVehicleModels } from "@/lib/nettimoto-vehicle-models";
 import {
   X, ChevronRight, ChevronLeft, Wrench,
   Settings2, Zap, Thermometer, Droplets, Shield, Activity,
@@ -1157,6 +1158,12 @@ export const BRAND_MODELS: Record<string, Record<string, string[]>> = {
   },
 };
 
+applyNettimotoVehicleModels(BRAND_MODELS["Moottoripy\u00f6r\u00e4"], "motorcycle");
+applyNettimotoVehicleModels(BRAND_MODELS.Moottorikelkka, "snowmobile");
+applyNettimotoVehicleModels(BRAND_MODELS["M\u00f6nkij\u00e4"], "atv");
+applyNettimotoVehicleModels(BRAND_MODELS.Motocross, "motocross");
+applyNettimotoVehicleModels(BRAND_MODELS.Mopot, "moped");
+
 export const COMMON_BRAND_MODELS_BY_VEHICLE: Record<string, Record<string, string[]>> = {
   snowmobile: {
     Lynx: ["Rave RS", "Rave Racing", "Rave", "Rave RE", "Xtrim", "Xterrain", "Boondocker", "Shredder", "Commander", "Adventure", "49 Ranger", "69 Ranger", "Yeti", "GLX"],
@@ -1219,6 +1226,11 @@ export const COMMON_BRAND_MODELS_BY_VEHICLE: Record<string, Record<string, strin
     Solifer: ["SM", "SFR", "Export", "Suzuki PV"]
   }
 };
+
+applyNettimotoVehicleModels(COMMON_BRAND_MODELS_BY_VEHICLE.snowmobile, "snowmobile");
+applyNettimotoVehicleModels(COMMON_BRAND_MODELS_BY_VEHICLE.atv, "atv");
+applyNettimotoVehicleModels(COMMON_BRAND_MODELS_BY_VEHICLE.motocross, "motocross");
+applyNettimotoVehicleModels(COMMON_BRAND_MODELS_BY_VEHICLE.moped, "moped");
 
 const COMMON_MODEL_ENGINES_BY_VEHICLE: Record<string, Record<string, Record<string, string[]>>> = {
   snowmobile: {
@@ -3177,7 +3189,7 @@ export default function CategoryDrawer({
           padding: 0;
           text-align: left;
         }
-        .cd-filter-submit:hover .cd-title { color: #ffb454 !important; }
+        .cd-filter-submit:hover .cd-title { color: #ffb454; }
         .cd-title { flex: 1; font-size: 16px; font-weight: 800; color: #0f172a; }
         .cd-logo { font-size: 18px; }
         .cd-close {
@@ -3263,36 +3275,36 @@ export default function CategoryDrawer({
         .cd-apply:hover { background: #ff8a24; }
         .cd-results-footer {
           background:
-            linear-gradient(180deg, rgba(3, 19, 38, 0.74), rgba(3, 19, 38, 0.98)) !important;
-          border-top: 1px solid rgba(126, 197, 240, 0.24) !important;
-          box-shadow: 0 -16px 34px rgba(0, 8, 22, 0.28) !important;
-          flex-shrink: 0 !important;
-          padding: 12px 14px calc(12px + env(safe-area-inset-bottom)) !important;
+            linear-gradient(180deg, rgba(3, 19, 38, 0.74), rgba(3, 19, 38, 0.98));
+          border-top: 1px solid rgba(126, 197, 240, 0.24);
+          box-shadow: 0 -16px 34px rgba(0, 8, 22, 0.28);
+          flex-shrink: 0;
+          padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
         }
         .cd-results-button {
-          align-items: center !important;
-          background: linear-gradient(135deg, #ffad45 0%, #ff7a1f 48%, #e85a00 100%) !important;
-          border: 1px solid rgba(255, 207, 160, 0.82) !important;
-          border-radius: 12px !important;
+          align-items: center;
+          background: linear-gradient(135deg, #ffad45 0%, #ff7a1f 48%, #e85a00 100%);
+          border: 1px solid rgba(255, 207, 160, 0.82);
+          border-radius: 12px;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.22),
-            0 14px 28px rgba(255, 106, 18, 0.25) !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          font-size: 15px !important;
-          font-weight: 950 !important;
-          justify-content: center !important;
-          letter-spacing: 0 !important;
-          line-height: 1.1 !important;
-          min-height: 50px !important;
-          padding: 0 18px !important;
-          text-align: center !important;
-          touch-action: manipulation !important;
-          width: 100% !important;
+            0 14px 28px rgba(255, 106, 18, 0.25);
+          color: #ffffff;
+          cursor: pointer;
+          display: inline-flex;
+          font-size: 15px;
+          font-weight: 950;
+          justify-content: center;
+          letter-spacing: 0;
+          line-height: 1.1;
+          min-height: 50px;
+          padding: 0 18px;
+          text-align: center;
+          touch-action: manipulation;
+          width: 100%;
         }
         .cd-results-button:hover {
-          filter: brightness(1.05) !important;
+          filter: brightness(1.05);
         }
         .cd-step-hint {
           font-size: 11px; color: #94a3b8; padding: 10px 18px 4px;
@@ -3332,522 +3344,522 @@ export default function CategoryDrawer({
           display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px;
         }
         .cd-model-panel {
-          margin: 0 14px 14px !important;
-          padding: 14px !important;
-          border: 1px solid rgba(126, 197, 240, 0.22) !important;
-          border-radius: 12px !important;
+          margin: 0 14px 14px;
+          padding: 14px;
+          border: 1px solid rgba(126, 197, 240, 0.22);
+          border-radius: 12px;
           background:
             radial-gradient(180px 90px at 0% 0%, rgba(255, 122, 26, 0.08), transparent 70%),
-            rgba(5, 20, 34, 0.72) !important;
+            rgba(5, 20, 34, 0.72);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.05),
-            0 12px 24px rgba(0, 8, 22, 0.18) !important;
+            0 12px 24px rgba(0, 8, 22, 0.18);
         }
         .cd-inline-vehicle-panel {
-          display: none !important;
-          margin: 12px 14px 8px !important;
-          padding: 0 0 12px !important;
-          border: 1px solid rgba(126, 197, 240, 0.22) !important;
-          border-radius: 12px !important;
+          display: none;
+          margin: 12px 14px 8px;
+          padding: 0 0 12px;
+          border: 1px solid rgba(126, 197, 240, 0.22);
+          border-radius: 12px;
           background:
             radial-gradient(220px 120px at 0% 0%, rgba(255, 122, 26, 0.1), transparent 72%),
-            linear-gradient(180deg, rgba(5, 28, 50, 0.96), rgba(3, 19, 38, 0.94)) !important;
+            linear-gradient(180deg, rgba(5, 28, 50, 0.96), rgba(3, 19, 38, 0.94));
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.06),
-            0 14px 30px rgba(0, 8, 22, 0.22) !important;
-          overflow: hidden !important;
+            0 14px 30px rgba(0, 8, 22, 0.22);
+          overflow: hidden;
         }
         .cd-inline-vehicle-panel .cd-step-hint {
-          margin: 0 !important;
-          border-left: 0 !important;
-          border-right: 0 !important;
-          border-top: 0 !important;
-          border-radius: 0 !important;
+          margin: 0;
+          border-left: 0;
+          border-right: 0;
+          border-top: 0;
+          border-radius: 0;
         }
         .cd-inline-vehicle-panel .cd-vehicle-detail-grid {
-          margin: 0 !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          padding: 12px !important;
+          margin: 0;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          padding: 12px;
         }
         .cd-inline-vehicle-panel .cd-input {
-          margin-top: 6px !important;
-          min-height: 38px !important;
-          width: 100% !important;
+          margin-top: 6px;
+          min-height: 38px;
+          width: 100%;
         }
         .cd-inline-actions {
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) auto !important;
-          gap: 8px !important;
-          padding: 0 12px !important;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 8px;
+          padding: 0 12px;
         }
         .cd-inline-actions .cd-apply,
         .cd-inline-actions .cd-reset {
-          min-height: 38px !important;
-          width: auto !important;
+          min-height: 38px;
+          width: auto;
         }
         .cd-vehicle-step {
-          align-content: start !important;
-          display: grid !important;
-          gap: 14px !important;
-          min-height: calc(100dvh - 132px) !important;
-          padding: 14px !important;
+          align-content: start;
+          display: grid;
+          gap: 14px;
+          min-height: calc(100dvh - 132px);
+          padding: 14px;
         }
         .cd-vehicle-step-head {
           background:
             radial-gradient(240px 130px at 0% 0%, rgba(255, 122, 26, 0.13), transparent 70%),
-            linear-gradient(180deg, rgba(8, 39, 68, 0.98), rgba(3, 19, 38, 0.96)) !important;
-          border: 1px solid rgba(126, 197, 240, 0.24) !important;
-          border-radius: 12px !important;
-          box-shadow: 0 14px 30px rgba(0, 8, 22, 0.18) !important;
-          display: grid !important;
-          gap: 6px !important;
-          padding: 13px 14px !important;
+            linear-gradient(180deg, rgba(8, 39, 68, 0.98), rgba(3, 19, 38, 0.96));
+          border: 1px solid rgba(126, 197, 240, 0.24);
+          border-radius: 12px;
+          box-shadow: 0 14px 30px rgba(0, 8, 22, 0.18);
+          display: grid;
+          gap: 6px;
+          padding: 13px 14px;
         }
         .cd-vehicle-step-head .cd-step-hint {
-          background: transparent !important;
-          border: 0 !important;
-          margin: 0 !important;
-          padding: 0 !important;
+          background: transparent;
+          border: 0;
+          margin: 0;
+          padding: 0;
         }
         .cd-vehicle-step-head strong {
-          color: #ffffff !important;
-          font-size: 20px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
-          line-height: 1.1 !important;
-          overflow-wrap: anywhere !important;
+          color: #ffffff;
+          font-size: 20px;
+          font-weight: 950;
+          letter-spacing: 0;
+          line-height: 1.1;
+          overflow-wrap: anywhere;
         }
         .cd-vehicle-head-fields {
-          display: grid !important;
-          gap: 10px !important;
-          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-          width: 100% !important;
+          display: grid;
+          gap: 10px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          width: 100%;
         }
         .cd-vehicle-type-menu {
-          display: grid !important;
-          gap: 7px !important;
-          margin: 0 !important;
-          min-width: 0 !important;
-          width: 100% !important;
+          display: grid;
+          gap: 7px;
+          margin: 0;
+          min-width: 0;
+          width: 100%;
         }
         .cd-vehicle-type-menu.is-disabled {
-          opacity: 0.58 !important;
+          opacity: 0.58;
         }
         .cd-vehicle-type-menu span {
-          color: rgba(216, 226, 236, 0.72) !important;
-          font-size: 11px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
-          line-height: 1 !important;
-          text-transform: uppercase !important;
+          color: rgba(216, 226, 236, 0.72);
+          font-size: 11px;
+          font-weight: 950;
+          letter-spacing: 0;
+          line-height: 1;
+          text-transform: uppercase;
         }
         .cd-vehicle-type-trigger {
-          align-items: center !important;
+          align-items: center;
           background:
-            linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98)) !important;
-          border: 1px solid rgba(255, 122, 26, 0.82) !important;
-          border-radius: 9px !important;
+            linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98));
+          border: 1px solid rgba(255, 122, 26, 0.82);
+          border-radius: 9px;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.06),
-            0 0 0 1px rgba(255, 122, 26, 0.12) !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          display: grid !important;
-          gap: 10px !important;
-          grid-template-columns: minmax(0, 1fr) auto !important;
-          height: 46px !important;
-          justify-content: center !important;
-          min-width: 0 !important;
-          padding: 0 12px !important;
-          width: 100% !important;
+            0 0 0 1px rgba(255, 122, 26, 0.12);
+          color: #ffffff;
+          cursor: pointer;
+          display: grid;
+          gap: 10px;
+          grid-template-columns: minmax(0, 1fr) auto;
+          height: 46px;
+          justify-content: center;
+          min-width: 0;
+          padding: 0 12px;
+          width: 100%;
         }
         .cd-vehicle-type-trigger:disabled {
-          cursor: not-allowed !important;
+          cursor: not-allowed;
         }
         .cd-vehicle-type-trigger strong {
-          color: #ffffff !important;
-          font-size: 20px !important;
-          font-weight: 950 !important;
-          line-height: 1.1 !important;
-          min-width: 0 !important;
-          overflow: hidden !important;
-          text-align: left !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          color: #ffffff;
+          font-size: 20px;
+          font-weight: 950;
+          line-height: 1.1;
+          min-width: 0;
+          overflow: hidden;
+          text-align: left;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
         .cd-vehicle-type-trigger svg {
-          color: #ff8a1c !important;
+          color: #ff8a1c;
         }
         .cd-vehicle-type-options {
-          background: #06182a !important;
-          border: 1px solid rgba(126, 197, 240, 0.38) !important;
-          border-radius: 9px !important;
-          box-shadow: 0 18px 34px rgba(0, 8, 22, 0.44) !important;
-          display: grid !important;
-          gap: 3px !important;
-          margin-top: 6px !important;
-          max-height: min(236px, 42dvh) !important;
-          overflow-y: auto !important;
-          overscroll-behavior: contain !important;
-          padding: 5px !important;
-          scrollbar-color: rgba(126, 197, 240, 0.45) transparent !important;
-          scrollbar-width: thin !important;
-          width: 100% !important;
-          z-index: 84 !important;
+          background: #06182a;
+          border: 1px solid rgba(126, 197, 240, 0.38);
+          border-radius: 9px;
+          box-shadow: 0 18px 34px rgba(0, 8, 22, 0.44);
+          display: grid;
+          gap: 3px;
+          margin-top: 6px;
+          max-height: min(236px, 42dvh);
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          padding: 5px;
+          scrollbar-color: rgba(126, 197, 240, 0.45) transparent;
+          scrollbar-width: thin;
+          width: 100%;
+          z-index: 84;
         }
         .cd-vehicle-type-option {
-          background: rgba(8, 31, 52, 0.72) !important;
-          border: 0 !important;
-          border-radius: 7px !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          font-size: 15px !important;
-          font-weight: 950 !important;
-          line-height: 1.1 !important;
-          min-height: 36px !important;
-          padding: 8px 10px !important;
-          text-align: left !important;
-          width: 100% !important;
+          background: rgba(8, 31, 52, 0.72);
+          border: 0;
+          border-radius: 7px;
+          color: #ffffff;
+          cursor: pointer;
+          font-size: 15px;
+          font-weight: 950;
+          line-height: 1.1;
+          min-height: 36px;
+          padding: 8px 10px;
+          text-align: left;
+          width: 100%;
         }
         .cd-vehicle-type-option:hover,
         .cd-vehicle-type-option.is-active {
-          background: #92c2f1 !important;
-          color: #031326 !important;
+          background: #92c2f1;
+          color: #031326;
         }
         .cd-vehicle-kind-grid {
-          display: grid !important;
-          gap: 9px !important;
-          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-          margin: 0 !important;
-          width: 100% !important;
+          display: grid;
+          gap: 9px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          margin: 0;
+          width: 100%;
         }
         .cd-vehicle-kind-card {
-          align-items: center !important;
+          align-items: center;
           background:
-            linear-gradient(180deg, rgba(7, 31, 54, 0.98), rgba(3, 17, 32, 0.98)) !important;
-          border: 1px solid rgba(126, 197, 240, 0.28) !important;
-          border-radius: 10px !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          display: grid !important;
-          gap: 8px !important;
-          grid-template-columns: 42px minmax(0, 1fr) !important;
-          min-height: 58px !important;
-          padding: 8px !important;
-          text-align: left !important;
+            linear-gradient(180deg, rgba(7, 31, 54, 0.98), rgba(3, 17, 32, 0.98));
+          border: 1px solid rgba(126, 197, 240, 0.28);
+          border-radius: 10px;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+          color: #ffffff;
+          cursor: pointer;
+          display: grid;
+          gap: 8px;
+          grid-template-columns: 42px minmax(0, 1fr);
+          min-height: 58px;
+          padding: 8px;
+          text-align: left;
         }
         .cd-vehicle-kind-card .cd-start-picture {
-          border-radius: 8px !important;
-          height: 36px !important;
-          min-height: 0 !important;
-          width: 42px !important;
+          border-radius: 8px;
+          height: 36px;
+          min-height: 0;
+          width: 42px;
         }
         .cd-vehicle-kind-card .cd-start-photo {
-          height: 100% !important;
-          object-fit: cover !important;
-          width: 100% !important;
+          height: 100%;
+          object-fit: cover;
+          width: 100%;
         }
         .cd-vehicle-kind-copy {
-          display: grid !important;
-          gap: 2px !important;
-          min-width: 0 !important;
+          display: grid;
+          gap: 2px;
+          min-width: 0;
         }
         .cd-vehicle-kind-copy strong {
-          color: #ffffff !important;
-          font-size: 13px !important;
-          font-weight: 950 !important;
-          line-height: 1.15 !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          color: #ffffff;
+          font-size: 13px;
+          font-weight: 950;
+          line-height: 1.15;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
         .cd-vehicle-kind-copy small {
-          color: rgba(216, 226, 236, 0.68) !important;
-          font-size: 11px !important;
-          font-weight: 750 !important;
-          line-height: 1.2 !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          color: rgba(216, 226, 236, 0.68);
+          font-size: 11px;
+          font-weight: 750;
+          line-height: 1.2;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
         .cd-vehicle-kind-card-active {
           background:
-            linear-gradient(180deg, rgba(255, 122, 26, 0.98), rgba(255, 104, 18, 0.98)) !important;
-          border-color: rgba(255, 208, 160, 0.9) !important;
+            linear-gradient(180deg, rgba(255, 122, 26, 0.98), rgba(255, 104, 18, 0.98));
+          border-color: rgba(255, 208, 160, 0.9);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.22),
-            0 12px 26px rgba(255, 106, 18, 0.2) !important;
+            0 12px 26px rgba(255, 106, 18, 0.2);
         }
         .cd-category-vehicle-inline {
-          background: rgba(3, 17, 32, 0.72) !important;
-          border: 1px solid rgba(126, 197, 240, 0.22) !important;
-          border-radius: 12px !important;
-          display: grid !important;
-          gap: 8px !important;
-          margin: 0 0 10px !important;
-          padding: 10px !important;
+          background: rgba(3, 17, 32, 0.72);
+          border: 1px solid rgba(126, 197, 240, 0.22);
+          border-radius: 12px;
+          display: grid;
+          gap: 8px;
+          margin: 0 0 10px;
+          padding: 10px;
         }
         .cd-category-vehicle-inline .cd-step-hint {
-          background: transparent !important;
-          border: 0 !important;
-          margin: 0 !important;
-          padding: 0 !important;
+          background: transparent;
+          border: 0;
+          margin: 0;
+          padding: 0;
         }
         .cd-vehicle-kind-grid-compact {
-          grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+          grid-template-columns: repeat(5, minmax(0, 1fr));
         }
         .cd-vehicle-kind-grid-compact .cd-vehicle-kind-card {
-          gap: 6px !important;
-          grid-template-columns: 24px minmax(0, 1fr) !important;
-          min-height: 40px !important;
-          padding: 6px 7px !important;
+          gap: 6px;
+          grid-template-columns: 24px minmax(0, 1fr);
+          min-height: 40px;
+          padding: 6px 7px;
         }
         .cd-vehicle-kind-grid-compact .cd-vehicle-kind-card .cd-start-picture {
-          height: 24px !important;
-          width: 24px !important;
+          height: 24px;
+          width: 24px;
         }
         .cd-vehicle-kind-grid-compact .cd-vehicle-kind-copy strong {
-          font-size: 11px !important;
+          font-size: 11px;
         }
         .cd-vehicle-kind-grid-compact .cd-vehicle-kind-copy small {
-          display: none !important;
+          display: none;
         }
         .cd-vehicle-step > .cd-vehicle-detail-grid {
-          align-content: start !important;
+          align-content: start;
           background:
-            linear-gradient(180deg, rgba(7, 31, 54, 0.98), rgba(3, 17, 32, 0.98)) !important;
-          border: 1px solid rgba(126, 197, 240, 0.24) !important;
-          border-radius: 12px !important;
+            linear-gradient(180deg, rgba(7, 31, 54, 0.98), rgba(3, 17, 32, 0.98));
+          border: 1px solid rgba(126, 197, 240, 0.24);
+          border-radius: 12px;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.06),
-            0 16px 34px rgba(0, 8, 22, 0.2) !important;
-          display: grid !important;
-          gap: 12px !important;
-          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-          margin: 0 !important;
-          padding: 14px !important;
+            0 16px 34px rgba(0, 8, 22, 0.2);
+          display: grid;
+          gap: 12px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          margin: 0;
+          padding: 14px;
         }
         .cd-vehicle-step .cd-detail-field {
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          gap: 8px !important;
-          padding: 0 !important;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          gap: 8px;
+          padding: 0;
         }
         .cd-vehicle-step .cd-field-label {
-          color: rgba(216, 226, 236, 0.86) !important;
-          font-size: 12px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
-          line-height: 1.15 !important;
-          overflow-wrap: anywhere !important;
-          text-transform: none !important;
+          color: rgba(216, 226, 236, 0.86);
+          font-size: 12px;
+          font-weight: 950;
+          letter-spacing: 0;
+          line-height: 1.15;
+          overflow-wrap: anywhere;
+          text-transform: none;
         }
         .cd-vehicle-step .cd-cc-select,
         .cd-vehicle-step .cd-input {
-          appearance: auto !important;
-          background: linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98)) !important;
-          border: 1px solid rgba(126, 197, 240, 0.34) !important;
-          border-radius: 8px !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
-          color: #ffffff !important;
-          font-size: 13px !important;
-          font-weight: 850 !important;
-          line-height: 1.2 !important;
-          min-height: 42px !important;
-          overflow: hidden !important;
-          padding: 0 10px !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
-          width: 100% !important;
+          appearance: auto;
+          background: linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98));
+          border: 1px solid rgba(126, 197, 240, 0.34);
+          border-radius: 8px;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+          color: #ffffff;
+          font-size: 13px;
+          font-weight: 850;
+          line-height: 1.2;
+          min-height: 42px;
+          overflow: hidden;
+          padding: 0 10px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          width: 100%;
         }
         .cd-vehicle-step .cd-cc-select:disabled {
-          color: rgba(216, 226, 236, 0.55) !important;
-          opacity: 1 !important;
+          color: rgba(216, 226, 236, 0.55);
+          opacity: 1;
         }
         .cd-vehicle-step .cd-combo-input::placeholder {
-          color: rgba(216, 226, 236, 0.62) !important;
-          opacity: 1 !important;
+          color: rgba(216, 226, 236, 0.62);
+          opacity: 1;
         }
         .cd-vehicle-step .cd-input {
-          margin-top: 8px !important;
+          margin-top: 8px;
         }
         .cd-combo-wrap {
-          position: relative !important;
-          width: 100% !important;
+          position: relative;
+          width: 100%;
         }
         .cd-combo-control {
-          align-items: stretch !important;
-          background: linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98)) !important;
-          border: 1px solid rgba(126, 197, 240, 0.34) !important;
-          border-radius: 8px !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) 36px !important;
-          overflow: hidden !important;
-          width: 100% !important;
+          align-items: stretch;
+          background: linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98));
+          border: 1px solid rgba(126, 197, 240, 0.34);
+          border-radius: 8px;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) 36px;
+          overflow: hidden;
+          width: 100%;
         }
         .cd-combo-control .cd-combo-input {
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          border-right: 0 !important;
-          box-shadow: none !important;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          border-right: 0;
+          box-shadow: none;
         }
         .cd-combo-toggle {
-          align-items: center !important;
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          color: rgba(255, 255, 255, 0.86) !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          justify-content: center !important;
-          min-height: 42px !important;
-          padding: 0 !important;
+          align-items: center;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          color: rgba(255, 255, 255, 0.86);
+          cursor: pointer;
+          display: inline-flex;
+          justify-content: center;
+          min-height: 42px;
+          padding: 0;
         }
         .cd-combo-toggle:disabled {
-          cursor: not-allowed !important;
-          opacity: 0.55 !important;
+          cursor: not-allowed;
+          opacity: 0.55;
         }
         .cd-combo-open .cd-combo-control {
-          border-color: rgba(255, 122, 26, 0.86) !important;
+          border-color: rgba(255, 122, 26, 0.86);
         }
         .cd-combo-menu {
-          background: #06182a !important;
-          border: 1px solid rgba(126, 197, 240, 0.34) !important;
-          border-radius: 9px !important;
-          box-shadow: 0 18px 34px rgba(0, 8, 22, 0.34) !important;
-          display: grid !important;
-          gap: 3px !important;
-          grid-template-columns: 1fr !important;
-          left: 0 !important;
-          max-height: min(238px, 42dvh) !important;
-          overflow-y: auto !important;
-          overscroll-behavior: contain !important;
-          padding: 5px !important;
-          position: absolute !important;
-          right: 0 !important;
-          scrollbar-color: rgba(126, 197, 240, 0.45) transparent !important;
-          scrollbar-width: thin !important;
-          top: calc(100% + 6px) !important;
-          z-index: 80 !important;
+          background: #06182a;
+          border: 1px solid rgba(126, 197, 240, 0.34);
+          border-radius: 9px;
+          box-shadow: 0 18px 34px rgba(0, 8, 22, 0.34);
+          display: grid;
+          gap: 3px;
+          grid-template-columns: 1fr;
+          left: 0;
+          max-height: min(238px, 42dvh);
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          padding: 5px;
+          position: absolute;
+          right: 0;
+          scrollbar-color: rgba(126, 197, 240, 0.45) transparent;
+          scrollbar-width: thin;
+          top: calc(100% + 6px);
+          z-index: 80;
         }
         .cd-combo-menu[data-full-menu="true"] {
-          max-height: none !important;
-          overflow-y: visible !important;
-          scrollbar-width: none !important;
+          max-height: none;
+          overflow-y: visible;
+          scrollbar-width: none;
         }
         .cd-combo-menu[data-full-menu="true"]::-webkit-scrollbar {
-          display: none !important;
+          display: none;
         }
         .cd-combo-option {
-          background: rgba(8, 31, 52, 0.72) !important;
-          border: 0 !important;
-          border-radius: 7px !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          font-size: 12px !important;
-          font-weight: 800 !important;
-          line-height: 1.15 !important;
-          min-height: 30px !important;
-          overflow: hidden !important;
-          padding: 7px 9px !important;
-          text-align: left !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
-          width: 100% !important;
+          background: rgba(8, 31, 52, 0.72);
+          border: 0;
+          border-radius: 7px;
+          color: #ffffff;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 800;
+          line-height: 1.15;
+          min-height: 30px;
+          overflow: hidden;
+          padding: 7px 9px;
+          text-align: left;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          width: 100%;
         }
         .cd-combo-option:hover,
         .cd-combo-option-active {
-          background: #92c2f1 !important;
-          color: #031326 !important;
+          background: #92c2f1;
+          color: #031326;
         }
         .cd-combo-option-custom {
-          color: #ffffff !important;
-          font-weight: 950 !important;
-          margin-top: 4px !important;
+          color: #ffffff;
+          font-weight: 950;
+          margin-top: 4px;
         }
         .cd-vehicle-actions {
-          align-self: start !important;
-          display: grid !important;
-          gap: 9px !important;
-          grid-template-columns: minmax(0, 1fr) auto !important;
+          align-self: start;
+          display: grid;
+          gap: 9px;
+          grid-template-columns: minmax(0, 1fr) auto;
         }
         .cd-vehicle-actions button {
-          align-items: center !important;
-          display: inline-flex !important;
-          font-size: 13px !important;
-          font-weight: 950 !important;
-          justify-content: center !important;
-          line-height: 1.1 !important;
-          min-height: 44px !important;
-          padding: 0 14px !important;
-          text-align: center !important;
-          white-space: normal !important;
-          width: 100% !important;
-          writing-mode: horizontal-tb !important;
+          align-items: center;
+          display: inline-flex;
+          font-size: 13px;
+          font-weight: 950;
+          justify-content: center;
+          line-height: 1.1;
+          min-height: 44px;
+          padding: 0 14px;
+          text-align: center;
+          white-space: normal;
+          width: 100%;
+          writing-mode: horizontal-tb;
         }
         .cd-vehicle-actions .cd-vehicle-next {
-          background: linear-gradient(135deg, #ffad45 0%, #ff7a1f 48%, #e85a00 100%) !important;
-          border: 1px solid rgba(255, 190, 120, 0.72) !important;
-          color: #ffffff !important;
+          background: linear-gradient(135deg, #ffad45 0%, #ff7a1f 48%, #e85a00 100%);
+          border: 1px solid rgba(255, 190, 120, 0.72);
+          color: #ffffff;
         }
         .cd-vehicle-actions .cd-vehicle-clear {
-          background: linear-gradient(180deg, #cbd6df, #9faebc) !important;
-          border: 1px solid rgba(224, 233, 240, 0.68) !important;
-          color: #071827 !important;
-          min-width: 92px !important;
+          background: linear-gradient(180deg, #cbd6df, #9faebc);
+          border: 1px solid rgba(224, 233, 240, 0.68);
+          color: #071827;
+          min-width: 92px;
         }
         .cd-vehicle-detail-grid {
-          display: grid !important;
-          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-          gap: 14px 22px !important;
-          padding: 16px 20px 18px !important;
-          margin: 0 10px 12px !important;
-          border: 1px solid rgba(126, 197, 240, 0.2) !important;
-          border-radius: 12px !important;
-          background: rgba(3, 19, 38, 0.38) !important;
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 14px 22px;
+          padding: 16px 20px 18px;
+          margin: 0 10px 12px;
+          border: 1px solid rgba(126, 197, 240, 0.2);
+          border-radius: 12px;
+          background: rgba(3, 19, 38, 0.38);
         }
         .cd-detail-field {
-          display: grid !important;
-          gap: 7px !important;
-          min-width: 0 !important;
+          display: grid;
+          gap: 7px;
+          min-width: 0;
         }
         .cd-detail-field .cd-field-label {
-          color: #f4f8fc !important;
-          font-size: 13px !important;
-          font-weight: 950 !important;
-          text-transform: none !important;
-          letter-spacing: 0 !important;
+          color: #f4f8fc;
+          font-size: 13px;
+          font-weight: 950;
+          text-transform: none;
+          letter-spacing: 0;
         }
         .cd-detail-field .cd-cc-select,
         .cd-detail-field .cd-input {
-          min-height: 40px !important;
-          border-radius: 7px !important;
-          border: 1px solid rgba(126, 197, 240, 0.2) !important;
-          background: rgba(5, 22, 39, 0.96) !important;
-          color: #dbe7f1 !important;
-          font-size: 13px !important;
-          font-weight: 850 !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+          min-height: 40px;
+          border-radius: 7px;
+          border: 1px solid rgba(126, 197, 240, 0.2);
+          background: rgba(5, 22, 39, 0.96);
+          color: #dbe7f1;
+          font-size: 13px;
+          font-weight: 850;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
         .cd-detail-field .cd-cc-select {
-          appearance: auto !important;
-          color-scheme: dark !important;
+          appearance: auto;
+          color-scheme: dark;
         }
         .cd-detail-field .cd-cc-select:disabled {
-          opacity: 0.56 !important;
-          cursor: not-allowed !important;
+          opacity: 0.56;
+          cursor: not-allowed;
         }
         @media (max-width: 760px) {
           .cd-vehicle-detail-grid {
-            grid-template-columns: 1fr !important;
-            padding: 14px !important;
-            gap: 12px !important;
+            grid-template-columns: 1fr;
+            padding: 14px;
+            gap: 12px;
           }
         }
         .cd-model-chip {
@@ -3856,41 +3868,41 @@ export default function CategoryDrawer({
           cursor: pointer; transition: all .14s; white-space: nowrap;
         }
         .cd-model-chip:hover { border-color: #93c5fd; color: #ff8a24; background: rgba(255, 122, 26, 0.14); }
-        .cd-model-chip-active { border-color: #ff7a1a !important; background: rgba(255, 122, 26, 0.14) !important; color: #ff8a24 !important; }
+        .cd-model-chip-active { border-color: #ff7a1a; background: rgba(255, 122, 26, 0.14); color: #ff8a24; }
         .cd-model-chip-muu { border-style: dashed; color: #64748b; }
         .cd-drawer {
           background:
             radial-gradient(440px 280px at 0% 0%, rgba(255, 107, 22, 0.1), transparent 62%),
-            linear-gradient(180deg, #062442 0%, #031326 100%) !important;
+            linear-gradient(180deg, #062442 0%, #031326 100%);
           border-left: 1px solid rgba(126, 197, 240, 0.28);
           border-right: 0;
-          box-shadow: -18px 0 70px rgba(0, 8, 22, 0.46) !important;
+          box-shadow: -18px 0 70px rgba(0, 8, 22, 0.46);
           color: #d8e2ec;
         }
         .cd-header,
         .cd-crumbs,
         .cd-footer {
-          background: rgba(3, 19, 38, 0.86) !important;
-          border-color: rgba(126, 197, 240, 0.2) !important;
+          background: rgba(3, 19, 38, 0.86);
+          border-color: rgba(126, 197, 240, 0.2);
         }
         .cd-title,
         .cd-label,
         .cd-crumb-current {
-          color: #d8e2ec !important;
+          color: #d8e2ec;
         }
         .cd-step-hint,
         .cd-field-label {
-          color: rgba(203, 213, 225, 0.72) !important;
+          color: rgba(203, 213, 225, 0.72);
         }
         .cd-item {
-          color: #d8e2ec !important;
+          color: #d8e2ec;
         }
         .cd-item:hover {
-          background: rgba(126, 197, 240, 0.1) !important;
+          background: rgba(126, 197, 240, 0.1);
         }
         .cd-item-active {
-          background: rgba(255, 107, 22, 0.16) !important;
-          color: #ffffff !important;
+          background: rgba(255, 107, 22, 0.16);
+          color: #ffffff;
         }
         .cd-icon,
         .cd-crumb-item,
@@ -3898,44 +3910,44 @@ export default function CategoryDrawer({
         .cd-cc-select,
         .cd-model-chip,
         .cd-reset {
-          background: rgba(203, 213, 225, 0.92) !important;
-          border-color: rgba(126, 197, 240, 0.34) !important;
-          color: #071827 !important;
+          background: rgba(203, 213, 225, 0.92);
+          border-color: rgba(126, 197, 240, 0.34);
+          color: #071827;
         }
         .cd-item-active .cd-icon,
         .cd-model-chip-active {
-          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%) !important;
-          color: #ffffff !important;
-          border-color: rgba(255, 210, 168, 0.72) !important;
+          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%);
+          color: #ffffff;
+          border-color: rgba(255, 210, 168, 0.72);
         }
         .cd-extra-filters {
-          background: rgba(3, 19, 38, 0.42) !important;
-          border-color: rgba(126, 197, 240, 0.18) !important;
+          background: rgba(3, 19, 38, 0.42);
+          border-color: rgba(126, 197, 240, 0.18);
         }
         .cd-input {
-          color: #071827 !important;
+          color: #071827;
         }
         .cd-skip-row {
-          border-color: rgba(126, 197, 240, 0.18) !important;
+          border-color: rgba(126, 197, 240, 0.18);
         }
         .cd-skip-btn {
-          background: rgba(203, 213, 225, 0.92) !important;
-          border-color: rgba(126, 197, 240, 0.38) !important;
-          color: #071827 !important;
+          background: rgba(203, 213, 225, 0.92);
+          border-color: rgba(126, 197, 240, 0.38);
+          color: #071827;
         }
         .cd-close,
         .cd-crumb-x,
         .cd-arrow {
-          color: rgba(203, 213, 225, 0.76) !important;
+          color: rgba(203, 213, 225, 0.76);
         }
         .cd-header {
           min-height: 72px;
-          padding: 14px 18px !important;
-          gap: 12px !important;
+          padding: 14px 18px;
+          gap: 12px;
           background:
             radial-gradient(220px 90px at 12% 0%, rgba(255, 126, 31, 0.18), transparent 70%),
-            linear-gradient(135deg, rgba(3, 19, 38, 0.98) 0%, rgba(5, 35, 62, 0.94) 100%) !important;
-          border-bottom: 1px solid rgba(126, 197, 240, 0.24) !important;
+            linear-gradient(135deg, rgba(3, 19, 38, 0.98) 0%, rgba(5, 35, 62, 0.94) 100%);
+          border-bottom: 1px solid rgba(126, 197, 240, 0.24);
           box-shadow: 0 14px 30px rgba(0, 8, 22, 0.22);
         }
         .cd-logo {
@@ -3951,85 +3963,85 @@ export default function CategoryDrawer({
           flex: 0 0 auto;
         }
         .cd-title {
-          font-size: 17px !important;
-          letter-spacing: 0 !important;
+          font-size: 17px;
+          letter-spacing: 0;
         }
         .cd-close {
-          width: 36px !important;
-          height: 36px !important;
-          border-radius: 12px !important;
-          background: rgba(216, 226, 236, 0.1) !important;
-          border: 1px solid rgba(216, 226, 236, 0.16) !important;
+          width: 36px;
+          height: 36px;
+          border-radius: 12px;
+          background: rgba(216, 226, 236, 0.1);
+          border: 1px solid rgba(216, 226, 236, 0.16);
         }
         .cd-close:hover {
-          background: #ff7a1f !important;
-          color: #ffffff !important;
-          border-color: rgba(255, 210, 168, 0.72) !important;
+          background: #ff7a1f;
+          color: #ffffff;
+          border-color: rgba(255, 210, 168, 0.72);
           transform: translateY(-1px);
         }
         .cd-crumbs {
-          padding: 10px 18px 12px !important;
-          gap: 8px !important;
+          padding: 10px 18px 12px;
+          gap: 8px;
           background:
-            linear-gradient(180deg, rgba(5, 28, 50, 0.96), rgba(3, 19, 38, 0.94)) !important;
-          border-bottom: 1px solid rgba(126, 197, 240, 0.22) !important;
+            linear-gradient(180deg, rgba(5, 28, 50, 0.96), rgba(3, 19, 38, 0.94));
+          border-bottom: 1px solid rgba(126, 197, 240, 0.22);
         }
         .cd-crumb-seg {
-          gap: 7px !important;
+          gap: 7px;
         }
         .cd-crumb-sep {
           width: 18px;
           height: 18px;
           padding: 3px;
           border-radius: 999px;
-          color: rgba(216, 226, 236, 0.76) !important;
+          color: rgba(216, 226, 236, 0.76);
           background: rgba(216, 226, 236, 0.1);
         }
         .cd-crumb-item {
           min-height: 32px;
-          gap: 4px !important;
-          padding: 3px 4px 3px 10px !important;
-          border-radius: 10px !important;
+          gap: 4px;
+          padding: 3px 4px 3px 10px;
+          border-radius: 10px;
           background:
-            linear-gradient(135deg, rgba(216, 226, 236, 0.96), rgba(171, 190, 207, 0.9)) !important;
-          border: 1px solid rgba(255, 255, 255, 0.34) !important;
+            linear-gradient(135deg, rgba(216, 226, 236, 0.96), rgba(171, 190, 207, 0.9));
+          border: 1px solid rgba(255, 255, 255, 0.34);
           box-shadow: inset 0 1px 0 rgba(255,255,255,0.56), 0 8px 18px rgba(0, 8, 22, 0.2);
         }
         .cd-crumb-btn {
-          padding: 3px 3px !important;
-          color: #071827 !important;
-          font-size: 12px !important;
+          padding: 3px 3px;
+          color: #071827;
+          font-size: 12px;
         }
         .cd-crumb-btn:hover,
         .cd-crumb-current:hover {
-          background: transparent !important;
-          color: #071827 !important;
+          background: transparent;
+          color: #071827;
         }
         .cd-crumb-x {
           width: 22px;
           height: 22px;
           display: grid;
           place-items: center;
-          padding: 0 !important;
-          border-radius: 999px !important;
-          color: #071827 !important;
-          background: rgba(7, 24, 39, 0.1) !important;
+          padding: 0;
+          border-radius: 999px;
+          color: #071827;
+          background: rgba(7, 24, 39, 0.1);
         }
         .cd-crumb-x:hover {
-          background: #ff7a1f !important;
-          color: #ffffff !important;
+          background: #ff7a1f;
+          color: #ffffff;
         }
         .cd-skip-btn:hover,
         .cd-model-chip:hover {
-          background: rgba(203, 213, 225, 0.98) !important;
-          color: #071827 !important;
+          background: rgba(203, 213, 225, 0.98);
+          color: #071827;
         }
         .cd-apply {
-          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%) !important;
+          background: linear-gradient(135deg, #ffae3d 0%, #ff7a1f 48%, #e85a00 100%);
           box-shadow: 0 12px 28px rgba(255, 107, 22, 0.26);
         }
         .cd-apply:hover {
-          background: linear-gradient(135deg, #ffb955 0%, #ff8129 48%, #f06608 100%) !important;
+          background: linear-gradient(135deg, #ffb955 0%, #ff8129 48%, #f06608 100%);
         }
 
         .cd-start {
@@ -4167,113 +4179,113 @@ export default function CategoryDrawer({
 
         /* Final drawer structure: every choice is its own clear gray bar. */
         .cd-body {
-          padding: 8px 0 14px !important;
+          padding: 8px 0 14px;
         }
         .cd-list {
-          display: grid !important;
-          gap: 8px !important;
-          padding: 10px 14px !important;
+          display: grid;
+          gap: 8px;
+          padding: 10px 14px;
         }
         .cd-list li {
-          margin: 0 !important;
+          margin: 0;
         }
         .cd-item {
-          min-height: 50px !important;
-          padding: 9px 10px !important;
-          border: 1px solid rgba(126, 197, 240, 0.22) !important;
-          border-radius: 11px !important;
+          min-height: 50px;
+          padding: 9px 10px;
+          border: 1px solid rgba(126, 197, 240, 0.22);
+          border-radius: 11px;
           background:
-            linear-gradient(180deg, rgba(19, 53, 83, 0.92) 0%, rgba(11, 39, 66, 0.94) 100%) !important;
+            linear-gradient(180deg, rgba(19, 53, 83, 0.92) 0%, rgba(11, 39, 66, 0.94) 100%);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.06),
-            0 10px 20px rgba(0, 8, 22, 0.12) !important;
+            0 10px 20px rgba(0, 8, 22, 0.12);
         }
         .cd-item-branch {
           background:
             linear-gradient(90deg, rgba(53, 65, 83, 0.24), transparent 34%),
-            linear-gradient(180deg, rgba(18, 55, 88, 0.96) 0%, rgba(9, 41, 70, 0.96) 100%) !important;
+            linear-gradient(180deg, rgba(18, 55, 88, 0.96) 0%, rgba(9, 41, 70, 0.96) 100%);
         }
         .cd-item-leaf {
           background:
             linear-gradient(90deg, rgba(73, 199, 216, 0.08) 0%, transparent 40%),
-            linear-gradient(180deg, rgba(10, 30, 52, 0.96) 0%, rgba(5, 18, 38, 0.98) 100%) !important;
-          border: 1px solid rgba(73, 199, 216, 0.14) !important;
-          padding-left: 20px !important;
-          position: relative !important;
+            linear-gradient(180deg, rgba(10, 30, 52, 0.96) 0%, rgba(5, 18, 38, 0.98) 100%);
+          border: 1px solid rgba(73, 199, 216, 0.14);
+          padding-left: 20px;
+          position: relative;
         }
         .cd-item-leaf::before {
-          background: linear-gradient(180deg, rgba(73, 199, 216, 0.9), rgba(255, 149, 43, 0.6)) !important;
-          border-radius: 999px !important;
-          bottom: 20% !important;
-          content: "" !important;
-          display: block !important;
-          left: 10px !important;
-          position: absolute !important;
-          top: 20% !important;
-          width: 3px !important;
+          background: linear-gradient(180deg, rgba(73, 199, 216, 0.9), rgba(255, 149, 43, 0.6));
+          border-radius: 999px;
+          bottom: 20%;
+          content: "";
+          display: block;
+          left: 10px;
+          position: absolute;
+          top: 20%;
+          width: 3px;
         }
         .cd-item-active.cd-item-leaf {
           background:
             linear-gradient(90deg, rgba(255, 149, 43, 0.12) 0%, transparent 50%),
-            linear-gradient(180deg, rgba(12, 34, 58, 0.98) 0%, rgba(7, 20, 42, 0.99) 100%) !important;
-          border-color: rgba(255, 149, 43, 0.5) !important;
+            linear-gradient(180deg, rgba(12, 34, 58, 0.98) 0%, rgba(7, 20, 42, 0.99) 100%);
+          border-color: rgba(255, 149, 43, 0.5);
         }
         .cd-item-active.cd-item-leaf::before {
-          background: linear-gradient(180deg, #ffad45, #ff7a1f) !important;
+          background: linear-gradient(180deg, #ffad45, #ff7a1f);
         }
         .cd-item:hover {
           background:
             linear-gradient(90deg, rgba(166, 181, 196, 0.14), transparent 42%),
-            linear-gradient(180deg, rgba(28, 67, 101, 0.98) 0%, rgba(13, 47, 78, 0.98) 100%) !important;
-          border-color: rgba(166, 181, 196, 0.5) !important;
+            linear-gradient(180deg, rgba(28, 67, 101, 0.98) 0%, rgba(13, 47, 78, 0.98) 100%);
+          border-color: rgba(166, 181, 196, 0.5);
         }
         .cd-item-active {
           background:
-            linear-gradient(90deg, rgba(255, 107, 22, 0.24), rgba(88, 96, 110, 0.26) 48%, rgba(20, 45, 70, 0.92) 100%) !important;
-          border-color: rgba(255, 164, 90, 0.62) !important;
+            linear-gradient(90deg, rgba(255, 107, 22, 0.24), rgba(88, 96, 110, 0.26) 48%, rgba(20, 45, 70, 0.92) 100%);
+          border-color: rgba(255, 164, 90, 0.62);
         }
         .cd-icon,
         .cd-icon-sm {
-          background: linear-gradient(180deg, #b8c2cd 0%, #929eab 100%) !important;
-          border: 1px solid rgba(123, 135, 149, 0.9) !important;
-          color: #071827 !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+          background: linear-gradient(180deg, #b8c2cd 0%, #929eab 100%);
+          border: 1px solid rgba(123, 135, 149, 0.9);
+          color: #071827;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
         }
         .cd-icon svg,
         .cd-icon-sm svg {
-          stroke: #071827 !important;
+          stroke: #071827;
         }
         .cd-part-picture {
-          display: block !important;
-          height: 32px !important;
-          width: 32px !important;
+          display: block;
+          height: 32px;
+          width: 32px;
         }
         .cd-icon-sm .cd-part-picture {
-          height: 30px !important;
-          width: 30px !important;
+          height: 30px;
+          width: 30px;
         }
         .cd-arrow {
-          width: 24px !important;
-          height: 24px !important;
-          padding: 4px !important;
-          border-radius: 999px !important;
-          background: rgba(166, 181, 196, 0.14) !important;
-          color: rgba(216, 226, 236, 0.9) !important;
+          width: 24px;
+          height: 24px;
+          padding: 4px;
+          border-radius: 999px;
+          background: rgba(166, 181, 196, 0.14);
+          color: rgba(216, 226, 236, 0.9);
         }
         .cd-check {
-          width: 24px !important;
-          height: 24px !important;
-          padding: 4px !important;
-          border-radius: 999px !important;
-          background: rgba(255, 107, 22, 0.18) !important;
-          color: #ffffff !important;
+          width: 24px;
+          height: 24px;
+          padding: 4px;
+          border-radius: 999px;
+          background: rgba(255, 107, 22, 0.18);
+          color: #ffffff;
         }
         .cd-step-hint {
-          margin: 8px 14px 4px !important;
-          padding: 9px 10px !important;
-          border: 1px solid rgba(126, 197, 240, 0.18) !important;
-          border-radius: 10px !important;
-          background: rgba(8, 37, 63, 0.82) !important;
+          margin: 8px 14px 4px;
+          padding: 9px 10px;
+          border: 1px solid rgba(126, 197, 240, 0.18);
+          border-radius: 10px;
+          background: rgba(8, 37, 63, 0.82);
         }
         .cd-crumb-item,
         .cd-search-row,
@@ -4281,287 +4293,287 @@ export default function CategoryDrawer({
         .cd-model-chip,
         .cd-reset,
         .cd-skip-btn {
-          background: linear-gradient(180deg, #b8c2cd 0%, #929eab 100%) !important;
-          border-color: rgba(123, 135, 149, 0.9) !important;
-          color: #071827 !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+          background: linear-gradient(180deg, #b8c2cd 0%, #929eab 100%);
+          border-color: rgba(123, 135, 149, 0.9);
+          color: #071827;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
         }
         .cd-crumb-btn,
         .cd-crumb-current,
         .cd-skip-btn,
         .cd-reset {
-          color: #071827 !important;
+          color: #071827;
         }
         .cd-skip-row {
-          padding: 10px 18px 8px !important;
+          padding: 10px 18px 8px;
         }
 
         .cd-skip-row .cd-skip-btn {
           background:
             radial-gradient(140px 60px at 0% 0%, rgba(255, 154, 36, 0.18), transparent 72%),
-            linear-gradient(145deg, rgba(8, 37, 63, 0.96), rgba(3, 19, 38, 0.98)) !important;
-          border: 1px solid rgba(255, 154, 36, 0.48) !important;
-          border-radius: 12px !important;
+            linear-gradient(145deg, rgba(8, 37, 63, 0.96), rgba(3, 19, 38, 0.98));
+          border: 1px solid rgba(255, 154, 36, 0.48);
+          border-radius: 12px;
           box-shadow:
             0 12px 24px rgba(0, 8, 22, 0.18),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-          color: #e6f1fb !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+          color: #e6f1fb;
         }
 
         .cd-skip-row .cd-skip-btn:hover {
           background:
             radial-gradient(140px 60px at 0% 0%, rgba(255, 154, 36, 0.24), transparent 72%),
-            linear-gradient(145deg, rgba(12, 49, 80, 0.98), rgba(5, 25, 48, 0.98)) !important;
-          border-color: rgba(255, 184, 94, 0.74) !important;
-          color: #ffffff !important;
+            linear-gradient(145deg, rgba(12, 49, 80, 0.98), rgba(5, 25, 48, 0.98));
+          border-color: rgba(255, 184, 94, 0.74);
+          color: #ffffff;
         }
 
         /* Final drawer gray treatment: bars must read as gray, and chip X must be clear. */
         .cd-item,
         .cd-item-branch,
         .cd-item-leaf {
-          min-height: 60px !important;
-          gap: 12px !important;
-          padding: 8px 10px !important;
+          min-height: 60px;
+          gap: 12px;
+          padding: 8px 10px;
           background:
-            linear-gradient(180deg, rgba(82, 96, 112, 0.94) 0%, rgba(55, 69, 86, 0.96) 100%) !important;
-          border-color: rgba(173, 186, 201, 0.34) !important;
+            linear-gradient(180deg, rgba(82, 96, 112, 0.94) 0%, rgba(55, 69, 86, 0.96) 100%);
+          border-color: rgba(173, 186, 201, 0.34);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.12),
-            0 10px 22px rgba(0, 8, 22, 0.16) !important;
+            0 10px 22px rgba(0, 8, 22, 0.16);
         }
         .cd-item:hover {
           background:
-            linear-gradient(180deg, rgba(98, 113, 130, 0.98) 0%, rgba(66, 82, 101, 0.98) 100%) !important;
-          border-color: rgba(203, 213, 225, 0.52) !important;
+            linear-gradient(180deg, rgba(98, 113, 130, 0.98) 0%, rgba(66, 82, 101, 0.98) 100%);
+          border-color: rgba(203, 213, 225, 0.52);
         }
         .cd-item-active {
           background:
-            linear-gradient(90deg, rgba(255, 122, 31, 0.28), rgba(91, 102, 116, 0.98) 44%, rgba(63, 76, 92, 0.98) 100%) !important;
-          border-color: rgba(255, 164, 90, 0.7) !important;
+            linear-gradient(90deg, rgba(255, 122, 31, 0.28), rgba(91, 102, 116, 0.98) 44%, rgba(63, 76, 92, 0.98) 100%);
+          border-color: rgba(255, 164, 90, 0.7);
         }
         .cd-arrow {
-          background: rgba(203, 213, 225, 0.22) !important;
-          border: 1px solid rgba(203, 213, 225, 0.18) !important;
-          color: #edf3f8 !important;
-          stroke: #edf3f8 !important;
+          background: rgba(203, 213, 225, 0.22);
+          border: 1px solid rgba(203, 213, 225, 0.18);
+          color: #edf3f8;
+          stroke: #edf3f8;
         }
         .cd-crumb-item {
-          align-items: center !important;
-          gap: 4px !important;
-          padding: 2px 3px 2px 8px !important;
+          align-items: center;
+          gap: 4px;
+          padding: 2px 3px 2px 8px;
         }
         .cd-crumb-x {
-          align-items: center !important;
-          background: rgba(7, 24, 39, 0.18) !important;
-          border: 1px solid rgba(7, 24, 39, 0.16) !important;
-          border-radius: 999px !important;
-          color: #071827 !important;
-          display: inline-flex !important;
-          font-size: 13px !important;
-          font-weight: 950 !important;
-          height: 18px !important;
-          justify-content: center !important;
-          line-height: 1 !important;
-          padding: 0 !important;
-          width: 18px !important;
+          align-items: center;
+          background: rgba(7, 24, 39, 0.18);
+          border: 1px solid rgba(7, 24, 39, 0.16);
+          border-radius: 999px;
+          color: #071827;
+          display: inline-flex;
+          font-size: 13px;
+          font-weight: 950;
+          height: 18px;
+          justify-content: center;
+          line-height: 1;
+          padding: 0;
+          width: 18px;
         }
         .cd-crumb-x:hover {
-          background: #ff7a1f !important;
-          border-color: rgba(255, 210, 168, 0.82) !important;
-          color: #ffffff !important;
+          background: #ff7a1f;
+          border-color: rgba(255, 210, 168, 0.82);
+          color: #ffffff;
         }
 
         .cd-thumb {
           background:
-            linear-gradient(180deg, #314557 0%, #0b2133 100%) !important;
-          border: 1px solid rgba(203, 213, 225, 0.5) !important;
-          border-radius: 10px !important;
+            linear-gradient(180deg, #314557 0%, #0b2133 100%);
+          border: 1px solid rgba(203, 213, 225, 0.5);
+          border-radius: 10px;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.2),
             inset 0 -10px 18px rgba(0, 8, 22, 0.28),
-            0 6px 14px rgba(0, 8, 22, 0.2) !important;
-          flex: 0 0 48px !important;
-          height: 42px !important;
-          padding: 2px !important;
-          width: 48px !important;
-          min-width: 48px !important;
-          overflow: hidden !important;
+            0 6px 14px rgba(0, 8, 22, 0.2);
+          flex: 0 0 48px;
+          height: 42px;
+          padding: 2px;
+          width: 48px;
+          min-width: 48px;
+          overflow: hidden;
         }
         .cd-icon-sm.cd-thumb {
-          flex-basis: 44px !important;
-          height: 38px !important;
-          min-width: 44px !important;
-          width: 44px !important;
+          flex-basis: 44px;
+          height: 38px;
+          min-width: 44px;
+          width: 44px;
         }
         .cd-item-active .cd-thumb {
           background:
-            linear-gradient(180deg, #3b4f61 0%, #102a3f 100%) !important;
-          border-color: rgba(255, 164, 90, 0.92) !important;
+            linear-gradient(180deg, #3b4f61 0%, #102a3f 100%);
+          border-color: rgba(255, 164, 90, 0.92);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.2),
             inset 0 -10px 18px rgba(0, 8, 22, 0.28),
             0 0 0 1px rgba(255, 122, 31, 0.3),
-            0 8px 18px rgba(255, 107, 22, 0.18) !important;
+            0 8px 18px rgba(255, 107, 22, 0.18);
         }
         .cd-thumb > svg:not(.cd-part-picture),
         .cd-thumb .lucide-more-horizontal,
         .cd-thumb .lucide-ellipsis {
-          display: none !important;
+          display: none;
         }
         .cd-thumb .cd-part-picture {
-          display: block !important;
-          border-radius: 8px !important;
-          height: 100% !important;
-          width: 100% !important;
+          display: block;
+          border-radius: 8px;
+          height: 100%;
+          width: 100%;
         }
         .cd-thumb .cd-part-shadow * {
-          fill: rgba(255, 255, 255, 0.18) !important;
-          stroke: rgba(255, 255, 255, 0.22) !important;
+          fill: rgba(255, 255, 255, 0.18);
+          stroke: rgba(255, 255, 255, 0.22);
         }
         .cd-thumb .cd-part-main * {
-          stroke: #071827 !important;
+          stroke: #071827;
         }
         .cd-thumb .cd-part-main circle,
         .cd-thumb .cd-part-main rect:not([fill="none"]) {
-          fill: #071827 !important;
+          fill: #071827;
         }
 
         .cd-list:not(.cd-category-photo-list) {
-          gap: 10px !important;
-          padding: 12px 14px 16px !important;
+          gap: 10px;
+          padding: 12px 14px 16px;
         }
         .cd-list:not(.cd-category-photo-list) .cd-item {
-          align-items: center !important;
+          align-items: center;
           background:
             linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent 38%),
-            linear-gradient(180deg, rgba(75, 91, 109, 0.98) 0%, rgba(50, 64, 81, 0.98) 100%) !important;
-          border-color: rgba(204, 216, 226, 0.38) !important;
-          border-radius: 14px !important;
-          display: flex !important;
-          min-height: 58px !important;
-          overflow: hidden !important;
-          padding: 10px 12px !important;
-          position: relative !important;
+            linear-gradient(180deg, rgba(75, 91, 109, 0.98) 0%, rgba(50, 64, 81, 0.98) 100%);
+          border-color: rgba(204, 216, 226, 0.38);
+          border-radius: 14px;
+          display: flex;
+          min-height: 58px;
+          overflow: hidden;
+          padding: 10px 12px;
+          position: relative;
         }
         .cd-list:not(.cd-category-photo-list) .cd-item::before {
-          background: rgba(205, 216, 226, 0.28) !important;
-          bottom: 10px !important;
-          content: "" !important;
-          left: 0 !important;
-          position: absolute !important;
-          top: 10px !important;
-          width: 3px !important;
+          background: rgba(205, 216, 226, 0.28);
+          bottom: 10px;
+          content: "";
+          left: 0;
+          position: absolute;
+          top: 10px;
+          width: 3px;
         }
         .cd-list:not(.cd-category-photo-list) .cd-item-branch::before {
-          background: linear-gradient(180deg, #ff9a24, #35d7f2) !important;
+          background: linear-gradient(180deg, #ff9a24, #35d7f2);
         }
         .cd-list:not(.cd-category-photo-list) .cd-item:hover {
           background:
             linear-gradient(90deg, rgba(255, 154, 36, 0.12), transparent 42%),
-            linear-gradient(180deg, rgba(89, 106, 125, 1) 0%, rgba(60, 77, 96, 1) 100%) !important;
-          border-color: rgba(255, 185, 112, 0.58) !important;
-          transform: translateY(-1px) !important;
+            linear-gradient(180deg, rgba(89, 106, 125, 1) 0%, rgba(60, 77, 96, 1) 100%);
+          border-color: rgba(255, 185, 112, 0.58);
+          transform: translateY(-1px);
         }
         .cd-list:not(.cd-category-photo-list) .cd-item-active {
           background:
-            linear-gradient(90deg, rgba(255, 122, 31, 0.32), rgba(80, 96, 113, 0.98) 48%, rgba(56, 72, 90, 0.98) 100%) !important;
-          border-color: rgba(255, 166, 88, 0.82) !important;
+            linear-gradient(90deg, rgba(255, 122, 31, 0.32), rgba(80, 96, 113, 0.98) 48%, rgba(56, 72, 90, 0.98) 100%);
+          border-color: rgba(255, 166, 88, 0.82);
         }
         .cd-list:not(.cd-category-photo-list) .cd-label {
-          color: #f5f9fc !important;
-          flex: 1 !important;
-          font-size: 14px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
-          line-height: 1.18 !important;
-          min-width: 0 !important;
-          text-shadow: 0 1px 10px rgba(0, 8, 22, 0.26) !important;
+          color: #f5f9fc;
+          flex: 1;
+          font-size: 14px;
+          font-weight: 950;
+          letter-spacing: 0;
+          line-height: 1.18;
+          min-width: 0;
+          text-shadow: 0 1px 10px rgba(0, 8, 22, 0.26);
         }
         .cd-list:not(.cd-category-photo-list) .cd-item-leaf .cd-label {
-          color: rgba(245, 249, 252, 0.92) !important;
-          font-weight: 850 !important;
+          color: rgba(245, 249, 252, 0.92);
+          font-weight: 850;
         }
         .cd-list:not(.cd-category-photo-list) .cd-icon-sm.cd-thumb {
           background:
             linear-gradient(180deg, rgba(229, 236, 243, 0.16), rgba(6, 21, 34, 0.16)),
-            linear-gradient(180deg, #26394b 0%, #071827 100%) !important;
-          border-color: rgba(203, 213, 225, 0.38) !important;
-          border-radius: 12px !important;
-          flex-basis: 42px !important;
-          height: 40px !important;
-          min-width: 42px !important;
-          width: 42px !important;
+            linear-gradient(180deg, #26394b 0%, #071827 100%);
+          border-color: rgba(203, 213, 225, 0.38);
+          border-radius: 12px;
+          flex-basis: 42px;
+          height: 40px;
+          min-width: 42px;
+          width: 42px;
         }
         .cd-list:not(.cd-category-photo-list) .cd-arrow,
         .cd-list:not(.cd-category-photo-list) .cd-check {
-          margin-left: auto !important;
-          flex: 0 0 auto !important;
+          margin-left: auto;
+          flex: 0 0 auto;
         }
 
         .cd-drawer {
-          max-width: min(94vw, 460px) !important;
-          width: 460px !important;
+          max-width: min(94vw, 460px);
+          width: 460px;
         }
 
         .cd-category-photo-list {
-          display: grid !important;
-          gap: 14px !important;
-          padding: 14px !important;
+          display: grid;
+          gap: 14px;
+          padding: 14px;
         }
         .cd-category-photo-list li {
-          margin: 0 !important;
+          margin: 0;
         }
         .cd-category-photo-card {
           --cd-category-photo: linear-gradient(135deg, #223445 0%, #071827 100%);
-          align-items: flex-end !important;
+          align-items: flex-end;
           background:
             linear-gradient(180deg, rgba(5, 18, 31, 0.18), rgba(1, 10, 19, 0.78)),
             var(--cd-category-photo),
             radial-gradient(240px 130px at 78% 18%, rgba(126, 197, 240, 0.18), transparent 72%),
-            linear-gradient(135deg, #223445 0%, #071827 100%) !important;
-          background-position: center center, center center, center center, center center !important;
-          background-repeat: no-repeat, no-repeat, no-repeat, no-repeat !important;
-          background-size: cover, cover, cover, cover !important;
-          border: 1px solid rgba(173, 186, 201, 0.28) !important;
-          border-radius: 0 !important;
+            linear-gradient(135deg, #223445 0%, #071827 100%);
+          background-position: center center, center center, center center, center center;
+          background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+          background-size: cover, cover, cover, cover;
+          border: 1px solid rgba(173, 186, 201, 0.28);
+          border-radius: 0;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.08),
             inset 0 -50px 90px rgba(0, 8, 22, 0.66),
-            0 18px 42px rgba(0, 8, 22, 0.34) !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          display: flex !important;
-          min-height: 190px !important;
-          overflow: hidden !important;
-          padding: 22px !important;
-          position: relative !important;
-          text-align: left !important;
-          width: 100% !important;
+            0 18px 42px rgba(0, 8, 22, 0.34);
+          color: #ffffff;
+          cursor: pointer;
+          display: flex;
+          min-height: 190px;
+          overflow: hidden;
+          padding: 22px;
+          position: relative;
+          text-align: left;
+          width: 100%;
         }
         .cd-category-photo-card::before {
-          display: none !important;
+          display: none;
         }
         .cd-category-photo-card::after {
           background:
             linear-gradient(180deg, rgba(2, 12, 26, 0.12) 0%, rgba(2, 12, 26, 0.42) 48%, rgba(2, 12, 26, 0.94) 100%),
-            linear-gradient(90deg, rgba(2, 12, 26, 0.68), rgba(2, 12, 26, 0.16) 60%, rgba(2, 12, 26, 0.3)) !important;
-          content: "" !important;
-          inset: 0 !important;
-          position: absolute !important;
-          z-index: 1 !important;
+            linear-gradient(90deg, rgba(2, 12, 26, 0.68), rgba(2, 12, 26, 0.16) 60%, rgba(2, 12, 26, 0.3));
+          content: "";
+          inset: 0;
+          position: absolute;
+          z-index: 1;
         }
         .cd-category-photo-card:hover {
-          border-color: rgba(255, 164, 90, 0.72) !important;
+          border-color: rgba(255, 164, 90, 0.72);
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.1),
             inset 0 -50px 90px rgba(0, 8, 22, 0.66),
             0 22px 52px rgba(0, 8, 22, 0.44),
-            0 0 0 1px rgba(255, 122, 31, 0.2) !important;
-          transform: translateY(-1px) !important;
+            0 0 0 1px rgba(255, 122, 31, 0.2);
+          transform: translateY(-1px);
         }
         .cd-category-photo-active {
-          border-color: rgba(255, 164, 90, 0.9) !important;
+          border-color: rgba(255, 164, 90, 0.9);
         }
         .cd-category-photo-card.cd-thumb-engine,
         .cd-category-photo-card.cd-thumb-drivetrain {
@@ -4601,60 +4613,60 @@ export default function CategoryDrawer({
           --cd-category-photo: url("/category-main/runko-katteet.png");
         }
         .cd-category-photo-media {
-          display: none !important;
+          display: none;
         }
         .cd-category-photo-media::before,
         .cd-category-photo-media::after {
-          display: none !important;
+          display: none;
         }
         .cd-category-photo-media::before {
-          background: linear-gradient(180deg, rgba(203, 213, 225, 0.18), rgba(203, 213, 225, 0.02)) !important;
-          height: 44% !important;
-          left: 0 !important;
-          right: 0 !important;
-          top: 0 !important;
+          background: linear-gradient(180deg, rgba(203, 213, 225, 0.18), rgba(203, 213, 225, 0.02));
+          height: 44%;
+          left: 0;
+          right: 0;
+          top: 0;
         }
         .cd-category-photo-media::after {
           background:
             radial-gradient(circle at 22% 30%, rgba(230, 236, 242, 0.24) 0 8px, transparent 9px),
             radial-gradient(circle at 66% 26%, rgba(230, 236, 242, 0.18) 0 5px, transparent 6px),
-            linear-gradient(90deg, rgba(230, 236, 242, 0.2), rgba(230, 236, 242, 0.04)) !important;
-          height: 28% !important;
-          left: -12% !important;
-          opacity: 0.38 !important;
-          top: 12% !important;
-          transform: rotate(-8deg) !important;
-          width: 124% !important;
+            linear-gradient(90deg, rgba(230, 236, 242, 0.2), rgba(230, 236, 242, 0.04));
+          height: 28%;
+          left: -12%;
+          opacity: 0.38;
+          top: 12%;
+          transform: rotate(-8deg);
+          width: 124%;
         }
         .cd-category-photo-icon {
-          display: none !important;
+          display: none;
         }
         .cd-category-photo-icon .cd-part-picture {
-          height: 86px !important;
-          width: 118px !important;
+          height: 86px;
+          width: 118px;
         }
         .cd-category-photo-icon .cd-part-main *,
         .cd-category-photo-icon .cd-part-shadow * {
-          stroke: rgba(229, 236, 243, 0.82) !important;
+          stroke: rgba(229, 236, 243, 0.82);
         }
         .cd-category-photo-icon .cd-part-main circle,
         .cd-category-photo-icon .cd-part-main rect:not([fill="none"]) {
-          fill: rgba(229, 236, 243, 0.82) !important;
+          fill: rgba(229, 236, 243, 0.82);
         }
         .cd-category-photo-title {
-          color: #ffffff !important;
-          font-size: 25px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
-          line-height: 1.02 !important;
-          max-width: 86% !important;
-          position: relative !important;
-          text-shadow: 0 4px 18px rgba(0, 4, 12, 0.84) !important;
-          text-transform: uppercase !important;
-          z-index: 2 !important;
+          color: #ffffff;
+          font-size: 25px;
+          font-weight: 950;
+          letter-spacing: 0;
+          line-height: 1.02;
+          max-width: 86%;
+          position: relative;
+          text-shadow: 0 4px 18px rgba(0, 4, 12, 0.84);
+          text-transform: uppercase;
+          z-index: 2;
         }
         .cd-category-photo-arrow {
-          display: none !important;
+          display: none;
         }
         .cd-category-photo-card.cd-thumb-drivetrain::before,
         .cd-category-photo-card.cd-thumb-clutch::before,
@@ -4663,7 +4675,7 @@ export default function CategoryDrawer({
             repeating-linear-gradient(0deg, rgba(230, 236, 242, 0.1) 0 4px, transparent 4px 13px),
             radial-gradient(circle at 24% 28%, rgba(230, 236, 242, 0.26) 0 44px, transparent 46px),
             radial-gradient(circle at 72% 18%, rgba(230, 236, 242, 0.12) 0 30px, transparent 32px),
-            linear-gradient(135deg, rgba(82, 96, 112, 0.56), rgba(5, 18, 31, 0.78)) !important;
+            linear-gradient(135deg, rgba(82, 96, 112, 0.56), rgba(5, 18, 31, 0.78));
         }
         .cd-category-photo-card.cd-thumb-suspension::before,
         .cd-category-photo-card.cd-thumb-track::before,
@@ -4671,27 +4683,27 @@ export default function CategoryDrawer({
           background:
             linear-gradient(108deg, transparent 0 32%, rgba(230, 236, 242, 0.16) 33% 36%, transparent 37%),
             radial-gradient(ellipse at 56% 42%, rgba(230, 236, 242, 0.2) 0 48px, transparent 50px),
-            linear-gradient(135deg, rgba(35, 64, 88, 0.72), rgba(5, 18, 31, 0.82)) !important;
+            linear-gradient(135deg, rgba(35, 64, 88, 0.72), rgba(5, 18, 31, 0.82));
         }
         .cd-category-photo-card.cd-thumb-electric::before,
         .cd-category-photo-card.cd-thumb-battery::before {
           background:
             linear-gradient(112deg, transparent 0 45%, rgba(255, 169, 64, 0.22) 46% 49%, transparent 50%),
             radial-gradient(circle at 72% 24%, rgba(255, 169, 64, 0.16) 0 44px, transparent 46px),
-            linear-gradient(135deg, rgba(47, 66, 83, 0.72), rgba(4, 15, 28, 0.82)) !important;
+            linear-gradient(135deg, rgba(47, 66, 83, 0.72), rgba(4, 15, 28, 0.82));
         }
         .cd-category-photo-card.cd-thumb-cooling::before,
         .cd-category-photo-card.cd-thumb-fuel::before {
           background:
             radial-gradient(ellipse at 72% 24%, rgba(95, 214, 235, 0.18) 0 44px, transparent 46px),
             radial-gradient(ellipse at 28% 52%, rgba(230, 236, 242, 0.15) 0 34px, transparent 36px),
-            linear-gradient(135deg, rgba(28, 75, 92, 0.7), rgba(4, 15, 28, 0.84)) !important;
+            linear-gradient(135deg, rgba(28, 75, 92, 0.7), rgba(4, 15, 28, 0.84));
         }
         .cd-category-photo-card.cd-thumb-exhaust::before {
           background:
             linear-gradient(16deg, transparent 0 34%, rgba(230, 236, 242, 0.18) 35% 38%, transparent 39%),
             radial-gradient(ellipse at 66% 32%, rgba(230, 236, 242, 0.17) 0 48px, transparent 50px),
-            linear-gradient(135deg, rgba(80, 86, 94, 0.68), rgba(4, 15, 28, 0.84)) !important;
+            linear-gradient(135deg, rgba(80, 86, 94, 0.68), rgba(4, 15, 28, 0.84));
         }
         .cd-category-photo-card.cd-thumb-frame::before,
         .cd-category-photo-card.cd-thumb-body::before,
@@ -4700,155 +4712,155 @@ export default function CategoryDrawer({
           background:
             linear-gradient(126deg, transparent 0 18%, rgba(230, 236, 242, 0.12) 19% 42%, transparent 43%),
             radial-gradient(ellipse at 70% 34%, rgba(230, 236, 242, 0.13) 0 54px, transparent 56px),
-            linear-gradient(135deg, rgba(68, 84, 101, 0.7), rgba(4, 15, 28, 0.84)) !important;
+            linear-gradient(135deg, rgba(68, 84, 101, 0.7), rgba(4, 15, 28, 0.84));
         }
         /* Sub-group list (step 4) */
         .cd-sub-group-list {
-          display: grid !important;
-          gap: 10px !important;
-          padding: 12px 14px 16px !important;
+          display: grid;
+          gap: 10px;
+          padding: 12px 14px 16px;
         }
         .cd-sub-group-list li {
-          margin: 0 !important;
+          margin: 0;
         }
         .cd-sub-group-list .cd-category-photo-card {
           background:
             var(--cd-category-photo),
-            linear-gradient(135deg, #223445 0%, #071827 100%) !important;
-          background-position: center top !important;
-          background-repeat: no-repeat !important;
-          background-size: cover !important;
-          border-radius: 14px !important;
+            linear-gradient(135deg, #223445 0%, #071827 100%);
+          background-position: center top;
+          background-repeat: no-repeat;
+          background-size: cover;
+          border-radius: 14px;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.06),
             inset 0 -30px 50px rgba(0, 4, 14, 0.28),
-            0 14px 32px rgba(0, 4, 14, 0.22) !important;
-          min-height: 210px !important;
-          padding: 16px 18px !important;
+            0 14px 32px rgba(0, 4, 14, 0.22);
+          min-height: 210px;
+          padding: 16px 18px;
         }
         .cd-sub-group-list .cd-category-photo-card::after {
           background:
             linear-gradient(180deg, rgba(2, 10, 20, 0.0) 0%, rgba(2, 10, 20, 0.0) 65%, rgba(2, 10, 20, 0.82) 100%),
-            linear-gradient(90deg, rgba(2, 10, 20, 0.04), transparent 50%) !important;
+            linear-gradient(90deg, rgba(2, 10, 20, 0.04), transparent 50%);
         }
         .cd-sub-group-list .cd-category-photo-title {
-          font-size: 19px !important;
+          font-size: 19px;
         }
         /* Sub-group image slots — point each subgroup at its dedicated PNG. */
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-moottorit {
-          --cd-category-photo: url("/category-sub/moottorit.png") !important;
+          --cd-category-photo: url("/category-sub/moottorit.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-kytkimet {
-          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
+          --cd-category-photo: url("/category-sub/kytkimet.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-variaattorit {
-          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
+          --cd-category-photo: url("/category-sub/variaattorit.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-voimansiirto {
-          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
+          --cd-category-photo: url("/category-sub/voimansiirto.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-telasto {
-          --cd-category-photo: url("/category-sub/telasto.png") !important;
+          --cd-category-photo: url("/category-sub/telasto.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-alusta {
-          --cd-category-photo: url("/category-sub/alusta.png") !important;
+          --cd-category-photo: url("/category-sub/alusta.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-renkaat-vanteet {
-          --cd-category-photo: url("/category-sub/rengas.png") !important;
+          --cd-category-photo: url("/category-sub/rengas.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-tukivarret {
-          --cd-category-photo: url("/category-sub/tukivarret.png") !important;
+          --cd-category-photo: url("/category-sub/tukivarret.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-iskunvaimentimet {
-          --cd-category-photo: url("/category-sub/iskunvaimentimet.png") !important;
+          --cd-category-photo: url("/category-sub/iskunvaimentimet.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-ohjaus {
-          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
+          --cd-category-photo: url("/category-sub/ohjaus.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-hallintalaitteet {
-          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-jarrut {
-          --cd-category-photo: url("/category-sub/jarrut.png") !important;
+          --cd-category-photo: url("/category-sub/jarrut.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-sukset {
-          --cd-category-photo: url("/category-sub/sukset.png") !important;
+          --cd-category-photo: url("/category-sub/sukset.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-sahko {
-          --cd-category-photo: url("/category-sub/sahko.png") !important;
+          --cd-category-photo: url("/category-sub/sahko.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-sytytys {
-          --cd-category-photo: url("/category-sub/sytytys.png") !important;
+          --cd-category-photo: url("/category-sub/sytytys.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-jaahdytys {
-          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
+          --cd-category-photo: url("/category-sub/jaahdytys.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-polttoaine {
-          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
+          --cd-category-photo: url("/category-sub/polttoaine.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-pakoputkisto {
-          --cd-category-photo: url("/category-sub/putkisto.png") !important;
+          --cd-category-photo: url("/category-sub/putkisto.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-runko {
-          --cd-category-photo: url("/category-sub/runko.png") !important;
+          --cd-category-photo: url("/category-sub/runko.png");
         }
         .cd-sub-group-list .cd-category-photo-card.cd-subgrp-katteet {
-          --cd-category-photo: url("/category-sub/katteet.png") !important;
+          --cd-category-photo: url("/category-sub/katteet.png");
         }
 
         /* Final category drawer cleanup: no grey slabs, and vehicle fields stay white. */
         .cd-start-hero {
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          padding: 2px 2px 10px !important;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          padding: 2px 2px 10px;
         }
         .cd-start-eyebrow {
-          background: transparent !important;
-          background-image: none !important;
-          box-shadow: none !important;
-          display: inline-block !important;
-          padding: 0 !important;
-          width: auto !important;
+          background: transparent;
+          background-image: none;
+          box-shadow: none;
+          display: inline-block;
+          padding: 0;
+          width: auto;
         }
         .cd-extra-filters,
         .cd-extra-row,
         .cd-extra-field,
         .cd-skip-row {
-          background: transparent !important;
-          border-color: rgba(126, 197, 240, 0.18) !important;
-          box-shadow: none !important;
+          background: transparent;
+          border-color: rgba(126, 197, 240, 0.18);
+          box-shadow: none;
         }
         .cd-extra-filters {
-          padding-top: 10px !important;
+          padding-top: 10px;
         }
         .cd-search-row,
         .cd-cc-select,
         .cd-extra-field .cd-input {
-          background: #eef6fc !important;
-          border: 1px solid rgba(126, 197, 240, 0.42) !important;
-          color: #071827 !important;
+          background: #eef6fc;
+          border: 1px solid rgba(126, 197, 240, 0.42);
+          color: #071827;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.75),
-            0 8px 18px rgba(0, 8, 22, 0.12) !important;
+            0 8px 18px rgba(0, 8, 22, 0.12);
         }
         .cd-search-row:focus-within,
         .cd-cc-select:focus,
         .cd-extra-field .cd-input:focus {
-          border-color: rgba(255, 145, 38, 0.86) !important;
+          border-color: rgba(255, 145, 38, 0.86);
           box-shadow:
             0 0 0 1px rgba(255, 145, 38, 0.28),
-            0 14px 30px rgba(255, 107, 22, 0.14) !important;
+            0 14px 30px rgba(255, 107, 22, 0.14);
         }
         .cd-search-row .cd-input {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          color: #071827 !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          color: #071827;
         }
         .cd-input::placeholder {
-          color: rgba(71, 85, 105, 0.72) !important;
+          color: rgba(71, 85, 105, 0.72);
         }
         .cd-cc-select option {
           background: #eef6fc;
@@ -4857,284 +4869,284 @@ export default function CategoryDrawer({
 
         @media (max-width: 520px) {
           .cd-drawer {
-            width: 100vw !important;
-            max-width: 100vw !important;
+            width: 100vw;
+            max-width: 100vw;
           }
 
           .cd-list:not(.cd-category-photo-list) {
-            display: grid !important;
-            gap: 9px !important;
-            grid-template-columns: 1fr !important;
-            padding: 12px 14px 18px !important;
+            display: grid;
+            gap: 9px;
+            grid-template-columns: 1fr;
+            padding: 12px 14px 18px;
           }
 
           .cd-list:not(.cd-category-photo-list) .cd-item,
           .cd-list:not(.cd-category-photo-list) .cd-item-leaf {
-            align-items: center !important;
-            display: grid !important;
-            gap: 10px !important;
-            grid-template-columns: 46px minmax(0, 1fr) 28px !important;
-            min-height: 62px !important;
-            padding: 9px 10px !important;
-            width: 100% !important;
+            align-items: center;
+            display: grid;
+            gap: 10px;
+            grid-template-columns: 46px minmax(0, 1fr) 28px;
+            min-height: 62px;
+            padding: 9px 10px;
+            width: 100%;
           }
 
           .cd-list:not(.cd-category-photo-list) .cd-item-leaf::before {
-            left: 0 !important;
+            left: 0;
           }
 
           .cd-list:not(.cd-category-photo-list) .cd-icon-sm.cd-thumb {
-            flex: 0 0 46px !important;
-            height: 42px !important;
-            min-width: 46px !important;
-            width: 46px !important;
+            flex: 0 0 46px;
+            height: 42px;
+            min-width: 46px;
+            width: 46px;
           }
 
           .cd-list:not(.cd-category-photo-list) .cd-label {
-            display: block !important;
-            font-size: 13px !important;
-            line-height: 1.18 !important;
-            min-width: 0 !important;
-            overflow: visible !important;
-            overflow-wrap: anywhere !important;
-            text-overflow: clip !important;
-            white-space: normal !important;
+            display: block;
+            font-size: 13px;
+            line-height: 1.18;
+            min-width: 0;
+            overflow: visible;
+            overflow-wrap: anywhere;
+            text-overflow: clip;
+            white-space: normal;
           }
 
           .cd-list:not(.cd-category-photo-list) .cd-arrow,
           .cd-list:not(.cd-category-photo-list) .cd-check {
-            justify-self: end !important;
-            margin-left: 0 !important;
+            justify-self: end;
+            margin-left: 0;
           }
 
           .cd-category-photo-card {
-            min-height: 166px !important;
-            padding: 18px !important;
+            min-height: 166px;
+            padding: 18px;
           }
           .cd-sub-group-list .cd-category-photo-card {
-            min-height: 110px !important;
-            padding: 14px 16px !important;
+            min-height: 110px;
+            padding: 14px 16px;
           }
           .cd-category-photo-title {
-            font-size: 21px !important;
+            font-size: 21px;
           }
           .cd-sub-group-list .cd-category-photo-title {
-            font-size: 17px !important;
+            font-size: 17px;
           }
           .cd-category-photo-icon {
-            right: -18px !important;
-            transform: scale(2.36) rotate(-5deg) !important;
+            right: -18px;
+            transform: scale(2.36) rotate(-5deg);
           }
         }
 
         /* Final placement: keep the drawer below the app topbar and remove the stray filter pill. */
         .cd-backdrop {
-          top: var(--topbar-h, 72px) !important;
-          z-index: 980 !important;
+          top: var(--topbar-h, 72px);
+          z-index: 980;
         }
 
         .cd-drawer {
-          top: var(--topbar-h, 72px) !important;
-          bottom: 0 !important;
-          height: calc(100dvh - var(--topbar-h, 72px)) !important;
-          z-index: 990 !important;
-          border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
+          top: var(--topbar-h, 72px);
+          bottom: 0;
+          height: calc(100dvh - var(--topbar-h, 72px));
+          z-index: 990;
+          border-top: 1px solid rgba(151, 178, 205, 0.18);
         }
 
         .cd-header {
-          align-items: center !important;
-          background: transparent !important;
-          border: 0 !important;
-          display: flex !important;
-          gap: 8px !important;
-          justify-content: flex-start !important;
-          left: 16px !important;
-          min-height: 46px !important;
-          padding: 0 !important;
-          pointer-events: none !important;
-          position: absolute !important;
-          right: 16px !important;
-          top: 10px !important;
-          z-index: 3020 !important;
+          align-items: center;
+          background: transparent;
+          border: 0;
+          display: flex;
+          gap: 8px;
+          justify-content: flex-start;
+          left: 16px;
+          min-height: 46px;
+          padding: 0;
+          pointer-events: none;
+          position: absolute;
+          right: 16px;
+          top: 10px;
+          z-index: 3020;
         }
 
         .cd-body {
-          inset: auto !important;
-          position: relative !important;
-          padding-top: 58px !important;
-          width: auto !important;
+          inset: auto;
+          position: relative;
+          padding-top: 58px;
+          width: auto;
         }
 
         .cd-category-photo-list {
-          padding-top: 92px !important;
+          padding-top: 92px;
         }
 
         .cd-filter-submit {
-          align-items: center !important;
-          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 100%) !important;
-          border: 1px solid rgba(255, 224, 194, 0.78) !important;
-          border-radius: 999px !important;
-          box-shadow: 0 12px 24px rgba(255, 107, 22, 0.24) !important;
-          color: #ffffff !important;
-          display: inline-flex !important;
-          flex: 0 0 34px !important;
-          height: 34px !important;
-          justify-content: center !important;
-          max-width: 34px !important;
-          min-height: 34px !important;
-          min-width: 34px !important;
-          padding: 0 !important;
-          pointer-events: auto !important;
-          margin-right: 4px !important;
-          width: 34px !important;
+          align-items: center;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 100%);
+          border: 1px solid rgba(255, 224, 194, 0.78);
+          border-radius: 999px;
+          box-shadow: 0 12px 24px rgba(255, 107, 22, 0.24);
+          color: #ffffff;
+          display: inline-flex;
+          flex: 0 0 34px;
+          height: 34px;
+          justify-content: center;
+          max-width: 34px;
+          min-height: 34px;
+          min-width: 34px;
+          padding: 0;
+          pointer-events: auto;
+          margin-right: 4px;
+          width: 34px;
         }
 
         .cd-close {
-          align-items: center !important;
-          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 100%) !important;
-          border: 1px solid rgba(255, 224, 194, 0.78) !important;
-          border-radius: 999px !important;
-          box-shadow: 0 12px 24px rgba(255, 107, 22, 0.22) !important;
-          color: #ffffff !important;
-          display: inline-flex !important;
-          flex: 0 0 34px !important;
-          height: 34px !important;
-          justify-content: center !important;
-          margin-left: auto !important;
-          max-width: 34px !important;
-          min-height: 34px !important;
-          min-width: 34px !important;
-          padding: 0 !important;
-          pointer-events: auto !important;
-          position: relative !important;
-          width: 34px !important;
-          z-index: 21 !important;
+          align-items: center;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 100%);
+          border: 1px solid rgba(255, 224, 194, 0.78);
+          border-radius: 999px;
+          box-shadow: 0 12px 24px rgba(255, 107, 22, 0.22);
+          color: #ffffff;
+          display: inline-flex;
+          flex: 0 0 34px;
+          height: 34px;
+          justify-content: center;
+          margin-left: auto;
+          max-width: 34px;
+          min-height: 34px;
+          min-width: 34px;
+          padding: 0;
+          pointer-events: auto;
+          position: relative;
+          width: 34px;
+          z-index: 21;
         }
 
         .cd-back {
-          align-items: center !important;
-          background: rgba(8, 22, 36, 0.78) !important;
-          border: 1px solid rgba(216, 226, 236, 0.32) !important;
-          border-radius: 999px !important;
-          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.32) !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          flex: 0 0 34px !important;
-          height: 34px !important;
-          justify-content: center !important;
-          max-width: 34px !important;
-          margin-right: 0 !important;
-          min-height: 34px !important;
-          min-width: 34px !important;
-          padding: 0 !important;
-          pointer-events: auto !important;
-          position: relative !important;
-          width: 34px !important;
-          z-index: 21 !important;
+          align-items: center;
+          background: rgba(8, 22, 36, 0.78);
+          border: 1px solid rgba(216, 226, 236, 0.32);
+          border-radius: 999px;
+          box-shadow: 0 8px 18px rgba(0, 0, 0, 0.32);
+          color: #ffffff;
+          cursor: pointer;
+          display: inline-flex;
+          flex: 0 0 34px;
+          height: 34px;
+          justify-content: center;
+          max-width: 34px;
+          margin-right: 0;
+          min-height: 34px;
+          min-width: 34px;
+          padding: 0;
+          pointer-events: auto;
+          position: relative;
+          width: 34px;
+          z-index: 21;
           transition: background 0.15s ease, border-color 0.15s ease;
         }
         .cd-back:hover {
-          background: rgba(255, 122, 31, 0.92) !important;
-          border-color: rgba(255, 210, 168, 0.78) !important;
+          background: rgba(255, 122, 31, 0.92);
+          border-color: rgba(255, 210, 168, 0.78);
         }
 
         .cd-crumbs {
-          align-items: flex-start !important;
-          background: rgba(4, 16, 31, 0.9) !important;
-          border: 1px solid rgba(151, 178, 205, 0.18) !important;
-          border-radius: 12px !important;
-          box-shadow: none !important;
-          display: flex !important;
-          flex-wrap: wrap !important;
-          gap: 6px !important;
-          margin: 58px 12px 0 !important;
-          overflow: visible !important;
-          padding: 10px !important;
-          scrollbar-width: none !important;
-          position: relative !important;
-          z-index: 25 !important;
-          white-space: normal !important;
+          align-items: flex-start;
+          background: rgba(4, 16, 31, 0.9);
+          border: 1px solid rgba(151, 178, 205, 0.18);
+          border-radius: 12px;
+          box-shadow: none;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin: 58px 12px 0;
+          overflow: visible;
+          padding: 10px;
+          scrollbar-width: none;
+          position: relative;
+          z-index: 25;
+          white-space: normal;
         }
 
         .cd-crumbs::-webkit-scrollbar {
-          display: none !important;
+          display: none;
         }
 
         .cd-crumb-seg,
         .cd-crumb-item {
-          align-items: center !important;
-          display: inline-flex !important;
-          flex: 0 0 auto !important;
+          align-items: center;
+          display: inline-flex;
+          flex: 0 0 auto;
         }
 
         .cd-crumb-item {
-          background: rgba(13, 31, 49, 0.96) !important;
-          border: 1px solid rgba(151, 178, 205, 0.28) !important;
-          border-radius: 10px !important;
-          gap: 2px !important;
-          min-height: 30px !important;
-          padding: 0 5px 0 9px !important;
+          background: rgba(13, 31, 49, 0.96);
+          border: 1px solid rgba(151, 178, 205, 0.28);
+          border-radius: 10px;
+          gap: 2px;
+          min-height: 30px;
+          padding: 0 5px 0 9px;
         }
 
         .cd-crumb-btn {
-          background: transparent !important;
-          border: 0 !important;
-          color: rgba(226, 235, 244, 0.92) !important;
-          cursor: pointer !important;
-          font-size: 12px !important;
-          font-weight: 800 !important;
-          min-height: 0 !important;
-          padding: 0 !important;
-          white-space: nowrap !important;
+          background: transparent;
+          border: 0;
+          color: rgba(226, 235, 244, 0.92);
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 800;
+          min-height: 0;
+          padding: 0;
+          white-space: nowrap;
         }
 
         .cd-crumb-btn:hover,
         .cd-crumb-current:hover {
-          background: transparent !important;
-          color: #ffffff !important;
+          background: transparent;
+          color: #ffffff;
         }
 
         .cd-crumb-current {
-          color: #ffffff !important;
+          color: #ffffff;
         }
 
         .cd-crumb-x {
-          align-items: center !important;
-          background: rgba(151, 178, 205, 0.13) !important;
-          border: 1px solid rgba(151, 178, 205, 0.28) !important;
-          border-radius: 999px !important;
-          color: rgba(226, 244, 255, 0.86) !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          font-size: 11px !important;
-          font-weight: 900 !important;
-          height: 22px !important;
-          justify-content: center !important;
-          margin-left: 5px !important;
-          min-height: 22px !important;
-          padding: 0 !important;
-          width: 22px !important;
+          align-items: center;
+          background: rgba(151, 178, 205, 0.13);
+          border: 1px solid rgba(151, 178, 205, 0.28);
+          border-radius: 999px;
+          color: rgba(226, 244, 255, 0.86);
+          cursor: pointer;
+          display: inline-flex;
+          font-size: 11px;
+          font-weight: 900;
+          height: 22px;
+          justify-content: center;
+          margin-left: 5px;
+          min-height: 22px;
+          padding: 0;
+          width: 22px;
         }
 
         .cd-crumb-x:hover {
-          background: rgba(239, 68, 68, 0.9) !important;
-          border-color: rgba(255, 190, 190, 0.72) !important;
-          color: #ffffff !important;
+          background: rgba(239, 68, 68, 0.9);
+          border-color: rgba(255, 190, 190, 0.72);
+          color: #ffffff;
         }
 
         .cd-crumb-sep {
-          color: rgba(151, 178, 205, 0.5) !important;
-          flex: 0 0 auto !important;
-          margin: 0 2px !important;
+          color: rgba(151, 178, 205, 0.5);
+          flex: 0 0 auto;
+          margin: 0 2px;
         }
 
         .cd-drawer:has(.cd-crumbs) .cd-body {
-          padding-top: 14px !important;
+          padding-top: 14px;
         }
 
         .cd-drawer:has(.cd-crumbs) .cd-category-photo-list {
-          padding-top: 18px !important;
+          padding-top: 18px;
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-cylinder,
@@ -5143,368 +5155,368 @@ export default function CategoryDrawer({
         .cd-list .cd-category-photo-card.cd-thumb-crank,
         .cd-list .cd-category-photo-card.cd-thumb-block,
         .cd-list .cd-category-photo-card.cd-thumb-bearing {
-          --cd-category-photo: url("/category-sub/moottorit.png") !important;
+          --cd-category-photo: url("/category-sub/moottorit.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-clutch {
-          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
+          --cd-category-photo: url("/category-sub/kytkimet.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-variator {
-          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
+          --cd-category-photo: url("/category-sub/variaattorit.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-belt {
-          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
+          --cd-category-photo: url("/category-sub/voimansiirto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-track {
-          --cd-category-photo: url("/category-sub/telasto.png") !important;
+          --cd-category-photo: url("/category-sub/telasto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-wheel {
-          --cd-category-photo: url("/category-sub/rengas.png") !important;
+          --cd-category-photo: url("/category-sub/rengas.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-suspension {
-          --cd-category-photo: url("/category-sub/alusta.png") !important;
+          --cd-category-photo: url("/category-sub/alusta.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-steering {
-          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
+          --cd-category-photo: url("/category-sub/ohjaus.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-controls {
-          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-brake {
-          --cd-category-photo: url("/category-sub/jarrut.png") !important;
+          --cd-category-photo: url("/category-sub/jarrut.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-ski {
-          --cd-category-photo: url("/category-sub/sukset.png") !important;
+          --cd-category-photo: url("/category-sub/sukset.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-electric,
         .cd-list .cd-category-photo-card.cd-thumb-battery {
-          --cd-category-photo: url("/category-sub/sahko.png") !important;
+          --cd-category-photo: url("/category-sub/sahko.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-cooling {
-          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
+          --cd-category-photo: url("/category-sub/jaahdytys.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-fuel {
-          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
+          --cd-category-photo: url("/category-sub/polttoaine.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-exhaust {
-          --cd-category-photo: url("/category-sub/putkisto.png") !important;
+          --cd-category-photo: url("/category-sub/putkisto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-body,
         .cd-list .cd-category-photo-card.cd-thumb-glass {
-          --cd-category-photo: url("/category-sub/katteet.png") !important;
+          --cd-category-photo: url("/category-sub/katteet.png");
         }
 
         .cd-list .cd-category-photo-card.cd-thumb-frame,
         .cd-list .cd-category-photo-card.cd-thumb-seat {
-          --cd-category-photo: url("/category-sub/runko.png") !important;
+          --cd-category-photo: url("/category-sub/runko.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-moottori-voimansiirto {
-          --cd-category-photo: url("/category-main/moottori-voimansiirto.png") !important;
+          --cd-category-photo: url("/category-main/moottori-voimansiirto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-alusta-telasto {
-          --cd-category-photo: url("/category-main/alusta-telasto.png") !important;
+          --cd-category-photo: url("/category-main/alusta-telasto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-ohjaus-hallintalaitteet {
-          --cd-category-photo: url("/category-main/ohjaus-hallintalaitteet.png") !important;
+          --cd-category-photo: url("/category-main/ohjaus-hallintalaitteet.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-sahkojarjestelmat {
-          --cd-category-photo: url("/category-main/sahkojarjestelmat.png") !important;
+          --cd-category-photo: url("/category-main/sahkojarjestelmat.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-jaahdytys-polttoaine {
-          --cd-category-photo: url("/category-main/jaahdytys-polttoaine.png") !important;
+          --cd-category-photo: url("/category-main/jaahdytys-polttoaine.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-pakoputkisto {
-          --cd-category-photo: url("/category-main/pakoputkisto.png") !important;
+          --cd-category-photo: url("/category-main/pakoputkisto.png");
         }
 
         .cd-list .cd-category-photo-card.cd-main-runko-katteet {
-          --cd-category-photo: url("/category-main/runko-katteet.png") !important;
+          --cd-category-photo: url("/category-main/runko-katteet.png");
         }
 
         .cd-list .cd-category-photo-card {
           background:
-            linear-gradient(135deg, #223445 0%, #071827 100%) !important;
-          border-color: rgba(173, 186, 201, 0.28) !important;
-          color: #ffffff !important;
+            linear-gradient(135deg, #223445 0%, #071827 100%);
+          border-color: rgba(173, 186, 201, 0.28);
+          color: #ffffff;
         }
 
         .cd-list .cd-category-photo-card::before {
-          background: var(--cd-category-photo) !important;
-          background-position: right center !important;
-          background-repeat: no-repeat !important;
-          background-size: cover !important;
-          content: "" !important;
-          display: block !important;
-          filter: brightness(1.42) contrast(1.08) saturate(1.06) !important;
-          inset: 0 !important;
-          opacity: 0.94 !important;
-          position: absolute !important;
-          transform: scale(1.025) !important;
-          z-index: 0 !important;
+          background: var(--cd-category-photo);
+          background-position: right center;
+          background-repeat: no-repeat;
+          background-size: cover;
+          content: "";
+          display: block;
+          filter: brightness(1.42) contrast(1.08) saturate(1.06);
+          inset: 0;
+          opacity: 0.94;
+          position: absolute;
+          transform: scale(1.025);
+          z-index: 0;
         }
 
         .cd-list .cd-category-photo-card::after {
           background:
             linear-gradient(90deg, rgba(2, 12, 26, 0.82) 0%, rgba(2, 12, 26, 0.42) 48%, rgba(2, 12, 26, 0.14) 100%),
-            linear-gradient(180deg, rgba(2, 12, 26, 0.02) 0%, rgba(2, 12, 26, 0.32) 100%) !important;
-          z-index: 1 !important;
+            linear-gradient(180deg, rgba(2, 12, 26, 0.02) 0%, rgba(2, 12, 26, 0.32) 100%);
+          z-index: 1;
         }
 
         .cd-list .cd-category-photo-card:hover,
         .cd-list .cd-category-photo-card.cd-category-photo-active {
-          border-color: rgba(255, 164, 90, 0.9) !important;
-          color: #ffffff !important;
+          border-color: rgba(255, 164, 90, 0.9);
+          color: #ffffff;
         }
 
         .cd-leaf-photo-list {
-          gap: 8px !important;
-          padding: 10px 12px 14px !important;
+          gap: 8px;
+          padding: 10px 12px 14px;
         }
 
         .cd-leaf-photo-list .cd-category-photo-card {
-          align-items: center !important;
+          align-items: center;
           background:
             var(--cd-category-photo),
-            linear-gradient(180deg, rgba(12, 28, 44, 0.96), rgba(7, 18, 31, 0.98)) !important;
-          background-position: center !important;
-          background-size: cover !important;
-          border-color: rgba(151, 178, 205, 0.24) !important;
-          box-shadow: none !important;
-          min-height: 62px !important;
-          padding: 10px 14px !important;
+            linear-gradient(180deg, rgba(12, 28, 44, 0.96), rgba(7, 18, 31, 0.98));
+          background-position: center;
+          background-size: cover;
+          border-color: rgba(151, 178, 205, 0.24);
+          box-shadow: none;
+          min-height: 62px;
+          padding: 10px 14px;
         }
 
         .cd-leaf-photo-list .cd-category-photo-card::before {
           background:
             linear-gradient(90deg, rgba(2, 12, 26, 0.78), rgba(2, 12, 26, 0.18)),
-            var(--cd-category-photo) !important;
-          background-position: center !important;
-          background-size: cover !important;
-          content: "" !important;
-          display: block !important;
-          inset: 0 !important;
-          opacity: 0.86 !important;
-          position: absolute !important;
-          z-index: 0 !important;
+            var(--cd-category-photo);
+          background-position: center;
+          background-size: cover;
+          content: "";
+          display: block;
+          inset: 0;
+          opacity: 0.86;
+          position: absolute;
+          z-index: 0;
         }
 
         .cd-leaf-photo-list .cd-category-photo-card::after {
-          background: linear-gradient(90deg, rgba(2, 12, 26, 0.82), rgba(2, 12, 26, 0.26)) !important;
-          z-index: 1 !important;
+          background: linear-gradient(90deg, rgba(2, 12, 26, 0.82), rgba(2, 12, 26, 0.26));
+          z-index: 1;
         }
 
         .cd-leaf-photo-list .cd-category-photo-title {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          font-size: 15px !important;
-          line-height: 1.1 !important;
-          min-height: 0 !important;
-          padding: 0 !important;
-          position: relative !important;
-          z-index: 2 !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          font-size: 15px;
+          line-height: 1.1;
+          min-height: 0;
+          padding: 0;
+          position: relative;
+          z-index: 2;
         }
 
         .cd-final-leaf-list {
-          display: grid !important;
-          gap: 8px !important;
-          padding: 10px 12px 14px !important;
+          display: grid;
+          gap: 8px;
+          padding: 10px 12px 14px;
         }
 
         .cd-final-leaf-item {
-          align-items: center !important;
+          align-items: center;
           background:
-            linear-gradient(180deg, rgba(8, 25, 41, 0.98), rgba(5, 17, 30, 0.98)) !important;
-          border: 1px solid rgba(151, 178, 205, 0.28) !important;
-          border-radius: 8px !important;
-          box-shadow: none !important;
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) auto !important;
-          min-height: 43px !important;
-          padding: 0 14px !important;
+            linear-gradient(180deg, rgba(8, 25, 41, 0.98), rgba(5, 17, 30, 0.98));
+          border: 1px solid rgba(151, 178, 205, 0.28);
+          border-radius: 8px;
+          box-shadow: none;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          min-height: 43px;
+          padding: 0 14px;
         }
 
         .cd-final-leaf-item::before {
-          display: none !important;
-          content: none !important;
+          display: none;
+          content: none;
         }
 
         .cd-final-leaf-item .cd-label {
-          color: #ffffff !important;
-          font-size: 13px !important;
-          font-weight: 900 !important;
-          line-height: 1.15 !important;
-          min-width: 0 !important;
-          overflow-wrap: anywhere !important;
+          color: #ffffff;
+          font-size: 13px;
+          font-weight: 900;
+          line-height: 1.15;
+          min-width: 0;
+          overflow-wrap: anywhere;
         }
 
         .cd-final-leaf-item .cd-arrow,
         .cd-final-leaf-item .cd-check {
-          justify-self: end !important;
-          margin: 0 !important;
+          justify-self: end;
+          margin: 0;
         }
 
         .cd-final-leaf-item:hover,
         .cd-final-leaf-item.cd-item-active {
           background:
-            linear-gradient(180deg, rgba(15, 35, 52, 0.98), rgba(8, 23, 37, 0.98)) !important;
-          border-color: rgba(255, 122, 24, 0.95) !important;
+            linear-gradient(180deg, rgba(15, 35, 52, 0.98), rgba(8, 23, 37, 0.98));
+          border-color: rgba(255, 122, 24, 0.95);
         }
 
         .cd-close {
-          align-items: center !important;
-          display: inline-flex !important;
-          justify-content: center !important;
-          margin-left: auto !important;
-          position: relative !important;
-          z-index: 5 !important;
+          align-items: center;
+          display: inline-flex;
+          justify-content: center;
+          margin-left: auto;
+          position: relative;
+          z-index: 5;
         }
 
         body:has(.cd-drawer-open) .bottom-nav {
-          display: none !important;
+          display: none;
         }
 
         body:has(.cd-drawer-open) .universal-app-topbar {
-          background: rgba(3, 9, 20, 0.96) !important;
-          display: grid !important;
-          left: 0 !important;
-          min-height: var(--topbar-h, 72px) !important;
-          opacity: 1 !important;
-          position: fixed !important;
-          right: 0 !important;
-          top: 0 !important;
-          transform: none !important;
-          visibility: visible !important;
-          width: 100% !important;
-          z-index: 4000 !important;
+          background: rgba(3, 9, 20, 0.96);
+          display: grid;
+          left: 0;
+          min-height: var(--topbar-h, 72px);
+          opacity: 1;
+          position: fixed;
+          right: 0;
+          top: 0;
+          transform: none;
+          visibility: visible;
+          width: 100%;
+          z-index: 4000;
         }
 
         body:has(.cd-drawer-open) .universal-app-topbar.universal-home-topbar,
         body:has(.cd-drawer-open) header.universal-app-topbar,
         body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar {
-          background: rgba(3, 9, 20, 0.96) !important;
-          display: grid !important;
-          left: 0 !important;
-          opacity: 1 !important;
-          pointer-events: auto !important;
-          position: fixed !important;
-          right: 0 !important;
-          top: 0 !important;
-          transform: none !important;
-          visibility: visible !important;
-          width: 100% !important;
-          z-index: 4000 !important;
+          background: rgba(3, 9, 20, 0.96);
+          display: grid;
+          left: 0;
+          opacity: 1;
+          pointer-events: auto;
+          position: fixed;
+          right: 0;
+          top: 0;
+          transform: none;
+          visibility: visible;
+          width: 100%;
+          z-index: 4000;
         }
 
         body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-navigation,
         body:has(.cd-drawer-open) header.universal-app-topbar .universal-primary-navigation,
         body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-brand,
         body:has(.cd-drawer-open) header.universal-app-topbar .universal-topbar-actions {
-          opacity: 1 !important;
-          pointer-events: auto !important;
-          visibility: visible !important;
+          opacity: 1;
+          pointer-events: auto;
+          visibility: visible;
         }
 
         @media (max-width: 520px) {
           .cd-backdrop {
-            top: var(--topbar-h, 72px) !important;
-            z-index: 980 !important;
+            top: var(--topbar-h, 72px);
+            z-index: 980;
           }
 
           .cd-drawer {
-            border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
-            top: var(--topbar-h, 72px) !important;
-            height: calc(100dvh - var(--topbar-h, 72px)) !important;
-            z-index: 990 !important;
+            border-top: 1px solid rgba(151, 178, 205, 0.18);
+            top: var(--topbar-h, 72px);
+            height: calc(100dvh - var(--topbar-h, 72px));
+            z-index: 990;
           }
 
           .cd-header {
-            padding-top: max(10px, env(safe-area-inset-top)) !important;
-            right: 14px !important;
-            top: max(10px, env(safe-area-inset-top)) !important;
+            padding-top: max(10px, env(safe-area-inset-top));
+            right: 14px;
+            top: max(10px, env(safe-area-inset-top));
           }
         }
 
         @media (max-width: 720px) {
           .cd-backdrop {
-            inset: var(--topbar-h, 72px) 0 0 0 !important;
-            top: var(--topbar-h, 72px) !important;
-            z-index: 980 !important;
+            inset: var(--topbar-h, 72px) 0 0 0;
+            top: var(--topbar-h, 72px);
+            z-index: 980;
           }
 
           .cd-drawer {
-            border-radius: 0 !important;
-            border-top: 1px solid rgba(151, 178, 205, 0.18) !important;
-            inset: var(--topbar-h, 72px) 0 0 0 !important;
-            height: calc(100dvh - var(--topbar-h, 72px)) !important;
-            max-height: calc(100dvh - var(--topbar-h, 72px)) !important;
-            max-width: 100vw !important;
-            top: var(--topbar-h, 72px) !important;
-            width: 100vw !important;
-            z-index: 990 !important;
+            border-radius: 0;
+            border-top: 1px solid rgba(151, 178, 205, 0.18);
+            inset: var(--topbar-h, 72px) 0 0 0;
+            height: calc(100dvh - var(--topbar-h, 72px));
+            max-height: calc(100dvh - var(--topbar-h, 72px));
+            max-width: 100vw;
+            top: var(--topbar-h, 72px);
+            width: 100vw;
+            z-index: 990;
           }
 
           .cd-body {
-            padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
-            padding-top: calc(58px + env(safe-area-inset-top)) !important;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
+            padding-top: calc(58px + env(safe-area-inset-top));
           }
 
           .cd-header {
-            align-items: center !important;
-            background: rgba(4, 16, 31, 0.78) !important;
-            border: 1px solid rgba(151, 178, 205, 0.18) !important;
-            border-radius: 18px !important;
-            box-shadow: 0 14px 34px rgba(0, 8, 22, 0.26) !important;
-            display: flex !important;
-            gap: 8px !important;
-            left: 12px !important;
-            padding: 8px !important;
-            right: 12px !important;
-            top: max(8px, env(safe-area-inset-top)) !important;
-            width: auto !important;
+            align-items: center;
+            background: rgba(4, 16, 31, 0.78);
+            border: 1px solid rgba(151, 178, 205, 0.18);
+            border-radius: 18px;
+            box-shadow: 0 14px 34px rgba(0, 8, 22, 0.26);
+            display: flex;
+            gap: 8px;
+            left: 12px;
+            padding: 8px;
+            right: 12px;
+            top: max(8px, env(safe-area-inset-top));
+            width: auto;
           }
 
           .cd-header .cd-filter-submit,
           .cd-header .cd-back,
           .cd-header .cd-close {
-            flex: 0 0 34px !important;
-            height: 34px !important;
-            margin: 0 !important;
-            min-height: 34px !important;
-            min-width: 34px !important;
-            width: 34px !important;
+            flex: 0 0 34px;
+            height: 34px;
+            margin: 0;
+            min-height: 34px;
+            min-width: 34px;
+            width: 34px;
           }
 
           .cd-header .cd-close {
-            margin-left: auto !important;
+            margin-left: auto;
           }
 
           .cd-drawer .cd-crumbs {
-            margin-top: calc(66px + env(safe-area-inset-top)) !important;
+            margin-top: calc(66px + env(safe-area-inset-top));
           }
 
           .cd-drawer:has(.cd-crumbs) .cd-body {
-            padding-top: 8px !important;
+            padding-top: 8px;
           }
 
           body:has(.cd-drawer-open) .heroWrap,
@@ -5512,334 +5524,334 @@ export default function CategoryDrawer({
           body:has(.cd-drawer-open) .bottom-nav,
           body:has(.cd-drawer-open) .floating-chat,
           body:has(.cd-drawer-open) .fc-button {
-            pointer-events: none !important;
+            pointer-events: none;
           }
         }
 
         /* Final exact image map: exact category wins over generic part-kind guesses. */
         .cd-category-photo-card.cd-subgrp-moottorit {
-          --cd-category-photo: url("/category-sub/moottorit.png") !important;
+          --cd-category-photo: url("/category-sub/moottorit.png");
         }
         .cd-category-photo-card.cd-subgrp-kytkimet {
-          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
+          --cd-category-photo: url("/category-sub/kytkimet.png");
         }
         .cd-category-photo-card.cd-subgrp-variaattorit {
-          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
+          --cd-category-photo: url("/category-sub/variaattorit.png");
         }
         .cd-category-photo-card.cd-subgrp-voimansiirto {
-          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
+          --cd-category-photo: url("/category-sub/voimansiirto.png");
         }
         .cd-category-photo-card.cd-subgrp-telasto {
-          --cd-category-photo: url("/category-sub/telasto.png") !important;
+          --cd-category-photo: url("/category-sub/telasto.png");
         }
         .cd-category-photo-card.cd-subgrp-alusta {
-          --cd-category-photo: url("/category-sub/alusta.png") !important;
+          --cd-category-photo: url("/category-sub/alusta.png");
         }
         .cd-category-photo-card.cd-subgrp-renkaat-vanteet {
-          --cd-category-photo: url("/category-sub/rengas.png") !important;
+          --cd-category-photo: url("/category-sub/rengas.png");
         }
         .cd-category-photo-card.cd-subgrp-tukivarret {
-          --cd-category-photo: url("/category-sub/tukivarret.png") !important;
+          --cd-category-photo: url("/category-sub/tukivarret.png");
         }
         .cd-category-photo-card.cd-subgrp-iskunvaimentimet {
-          --cd-category-photo: url("/category-sub/iskunvaimentimet.png") !important;
+          --cd-category-photo: url("/category-sub/iskunvaimentimet.png");
         }
         .cd-category-photo-card.cd-subgrp-ohjaus {
-          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
+          --cd-category-photo: url("/category-sub/ohjaus.png");
         }
         .cd-category-photo-card.cd-subgrp-hallintalaitteet {
-          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png");
         }
         .cd-category-photo-card.cd-subgrp-jarrut {
-          --cd-category-photo: url("/category-sub/jarrut.png") !important;
+          --cd-category-photo: url("/category-sub/jarrut.png");
         }
         .cd-category-photo-card.cd-subgrp-sukset {
-          --cd-category-photo: url("/category-sub/sukset.png") !important;
+          --cd-category-photo: url("/category-sub/sukset.png");
         }
         .cd-category-photo-card.cd-subgrp-sahko {
-          --cd-category-photo: url("/category-sub/sahko.png") !important;
+          --cd-category-photo: url("/category-sub/sahko.png");
         }
         .cd-category-photo-card.cd-subgrp-sytytys {
-          --cd-category-photo: url("/category-sub/sytytys.png") !important;
+          --cd-category-photo: url("/category-sub/sytytys.png");
         }
         .cd-category-photo-card.cd-subgrp-jaahdytys {
-          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
+          --cd-category-photo: url("/category-sub/jaahdytys.png");
         }
         .cd-category-photo-card.cd-subgrp-polttoaine {
-          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
+          --cd-category-photo: url("/category-sub/polttoaine.png");
         }
         .cd-category-photo-card.cd-subgrp-pakoputkisto {
-          --cd-category-photo: url("/category-sub/putkisto.png") !important;
+          --cd-category-photo: url("/category-sub/putkisto.png");
         }
         .cd-category-photo-card.cd-subgrp-runko {
-          --cd-category-photo: url("/category-sub/runko.png") !important;
+          --cd-category-photo: url("/category-sub/runko.png");
         }
         .cd-category-photo-card.cd-subgrp-katteet {
-          --cd-category-photo: url("/category-sub/katteet.png") !important;
+          --cd-category-photo: url("/category-sub/katteet.png");
         }
 
         /* Same image lock with stronger specificity for every drawer/page. */
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-moottorit {
-          --cd-category-photo: url("/category-sub/moottorit.png") !important;
+          --cd-category-photo: url("/category-sub/moottorit.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-kytkimet {
-          --cd-category-photo: url("/category-sub/kytkimet.png") !important;
+          --cd-category-photo: url("/category-sub/kytkimet.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-variaattorit {
-          --cd-category-photo: url("/category-sub/variaattorit.png") !important;
+          --cd-category-photo: url("/category-sub/variaattorit.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-voimansiirto {
-          --cd-category-photo: url("/category-sub/voimansiirto.png") !important;
+          --cd-category-photo: url("/category-sub/voimansiirto.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-telasto {
-          --cd-category-photo: url("/category-sub/telasto.png") !important;
+          --cd-category-photo: url("/category-sub/telasto.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-alusta {
-          --cd-category-photo: url("/category-sub/alusta.png") !important;
+          --cd-category-photo: url("/category-sub/alusta.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-renkaat-vanteet {
-          --cd-category-photo: url("/category-sub/rengas.png") !important;
+          --cd-category-photo: url("/category-sub/rengas.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-tukivarret {
-          --cd-category-photo: url("/category-sub/tukivarret.png") !important;
+          --cd-category-photo: url("/category-sub/tukivarret.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-iskunvaimentimet {
-          --cd-category-photo: url("/category-sub/iskunvaimentimet.png") !important;
+          --cd-category-photo: url("/category-sub/iskunvaimentimet.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-ohjaus {
-          --cd-category-photo: url("/category-sub/ohjaus.png") !important;
+          --cd-category-photo: url("/category-sub/ohjaus.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-hallintalaitteet {
-          --cd-category-photo: url("/category-sub/Hallintalaitteet.png") !important;
+          --cd-category-photo: url("/category-sub/Hallintalaitteet.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-jarrut {
-          --cd-category-photo: url("/category-sub/jarrut.png") !important;
+          --cd-category-photo: url("/category-sub/jarrut.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-sukset {
-          --cd-category-photo: url("/category-sub/sukset.png") !important;
+          --cd-category-photo: url("/category-sub/sukset.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-sahko {
-          --cd-category-photo: url("/category-sub/sahko.png") !important;
+          --cd-category-photo: url("/category-sub/sahko.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-sytytys {
-          --cd-category-photo: url("/category-sub/sytytys.png") !important;
+          --cd-category-photo: url("/category-sub/sytytys.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-jaahdytys {
-          --cd-category-photo: url("/category-sub/jaahdytys.png") !important;
+          --cd-category-photo: url("/category-sub/jaahdytys.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-polttoaine {
-          --cd-category-photo: url("/category-sub/polttoaine.png") !important;
+          --cd-category-photo: url("/category-sub/polttoaine.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-pakoputkisto {
-          --cd-category-photo: url("/category-sub/putkisto.png") !important;
+          --cd-category-photo: url("/category-sub/putkisto.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-runko {
-          --cd-category-photo: url("/category-sub/runko.png") !important;
+          --cd-category-photo: url("/category-sub/runko.png");
         }
         .cd-list.cd-sub-group-list .cd-category-photo-card.cd-subgrp-katteet {
-          --cd-category-photo: url("/category-sub/katteet.png") !important;
+          --cd-category-photo: url("/category-sub/katteet.png");
         }
 
         /* Final lock: vehicle refinement is a readable standalone page. */
         .cd-drawer .cd-body > .cd-vehicle-step {
-          align-content: start !important;
-          grid-template-rows: auto auto auto !important;
-          padding: 14px !important;
+          align-content: start;
+          grid-template-rows: auto auto auto;
+          padding: 14px;
         }
         .cd-drawer .cd-vehicle-step .cd-vehicle-step-head {
-          align-self: start !important;
-          min-height: 0 !important;
-          padding: 12px 14px !important;
+          align-self: start;
+          min-height: 0;
+          padding: 12px 14px;
         }
         .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid {
-          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-          gap: 12px !important;
-          margin: 0 !important;
-          padding: 14px !important;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
+          margin: 0;
+          padding: 14px;
         }
         .cd-drawer .cd-vehicle-step .cd-parts-inline-panel {
-          align-content: start !important;
+          align-content: start;
           background:
-            linear-gradient(180deg, rgba(7, 31, 54, 0.98), rgba(3, 17, 32, 0.98)) !important;
-          border: 1px solid rgba(126, 197, 240, 0.24) !important;
-          border-radius: 12px !important;
+            linear-gradient(180deg, rgba(7, 31, 54, 0.98), rgba(3, 17, 32, 0.98));
+          border: 1px solid rgba(126, 197, 240, 0.24);
+          border-radius: 12px;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.06),
-            0 16px 34px rgba(0, 8, 22, 0.2) !important;
-          display: grid !important;
-          gap: 10px !important;
-          margin: 0 !important;
-          padding: 14px !important;
+            0 16px 34px rgba(0, 8, 22, 0.2);
+          display: grid;
+          gap: 10px;
+          margin: 0;
+          padding: 14px;
         }
         .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-step-hint {
-          background: transparent !important;
-          border: 0 !important;
-          color: rgba(216, 226, 236, 0.72) !important;
-          font-size: 11px !important;
-          font-weight: 950 !important;
-          line-height: 1 !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          text-transform: uppercase !important;
+          background: transparent;
+          border: 0;
+          color: rgba(216, 226, 236, 0.72);
+          font-size: 11px;
+          font-weight: 950;
+          line-height: 1;
+          margin: 0;
+          padding: 0;
+          text-transform: uppercase;
         }
         .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          display: grid !important;
-          gap: 12px !important;
-          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-          margin: 0 !important;
-          padding: 0 !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          display: grid;
+          gap: 12px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          margin: 0;
+          padding: 0;
         }
         .cd-drawer .cd-vehicle-step .cd-parts-inline-panel .cd-detail-field:last-child {
-          grid-column: 1 / -1 !important;
+          grid-column: 1 / -1;
         }
 
         .cd-drawer .cd-field-label {
-          font-size: 12px !important;
-          line-height: 1.05 !important;
+          font-size: 12px;
+          line-height: 1.05;
         }
 
         .cd-drawer .cd-combo-control,
         .cd-drawer .cd-vehicle-type-trigger {
-          min-height: 48px !important;
+          min-height: 48px;
         }
 
         .cd-drawer .cd-combo-input,
         .cd-drawer .cd-vehicle-type-trigger strong {
-          font-size: 13px !important;
+          font-size: 13px;
         }
 
         .cd-drawer .cd-combo-control {
-          grid-template-columns: 28px minmax(0, 1fr) 24px !important;
-          padding: 0 10px !important;
+          grid-template-columns: 28px minmax(0, 1fr) 24px;
+          padding: 0 10px;
         }
         .cd-drawer .cd-vehicle-step .cd-detail-field {
-          min-width: 0 !important;
-          overflow: visible !important;
-          border: 0 !important;
-          background: transparent !important;
-          padding: 0 !important;
+          min-width: 0;
+          overflow: visible;
+          border: 0;
+          background: transparent;
+          padding: 0;
         }
         .cd-drawer .cd-vehicle-step .cd-field-label {
-          white-space: normal !important;
+          white-space: normal;
         }
         .cd-drawer .cd-vehicle-step .cd-cc-select,
         .cd-drawer .cd-vehicle-step .cd-input {
-          max-width: 100% !important;
-          min-width: 0 !important;
+          max-width: 100%;
+          min-width: 0;
         }
         .cd-drawer .cd-vehicle-step .cd-vehicle-actions {
-          display: grid !important;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto !important;
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
         }
         .cd-drawer .cd-vehicle-step .cd-vehicle-actions button {
-          writing-mode: horizontal-tb !important;
+          writing-mode: horizontal-tb;
         }
         /* Final lock: every dropdown surface inside the category drawer stays dark. */
         .cd-drawer .cd-cc-select,
         .cd-drawer .cd-combo-input {
           background:
-            linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98)) !important;
-          border-color: rgba(126, 197, 240, 0.38) !important;
-          color: #ffffff !important;
-          -webkit-text-fill-color: #ffffff !important;
+            linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98));
+          border-color: rgba(126, 197, 240, 0.38);
+          color: #ffffff;
+          -webkit-text-fill-color: #ffffff;
         }
         .cd-drawer .cd-cc-select option {
-          background: #06182a !important;
-          color: #ffffff !important;
-          font-weight: 850 !important;
+          background: #06182a;
+          color: #ffffff;
+          font-weight: 850;
         }
         .cd-drawer .cd-combo-menu {
-          background: #06182a !important;
-          border-color: rgba(126, 197, 240, 0.38) !important;
-          box-shadow: 0 18px 34px rgba(0, 8, 22, 0.44) !important;
-          scrollbar-color: rgba(126, 197, 240, 0.45) transparent !important;
+          background: #06182a;
+          border-color: rgba(126, 197, 240, 0.38);
+          box-shadow: 0 18px 34px rgba(0, 8, 22, 0.44);
+          scrollbar-color: rgba(126, 197, 240, 0.45) transparent;
         }
         .cd-drawer .cd-combo-option {
-          background: rgba(8, 31, 52, 0.72) !important;
-          color: #ffffff !important;
+          background: rgba(8, 31, 52, 0.72);
+          color: #ffffff;
         }
         .cd-drawer .cd-combo-option:hover,
         .cd-drawer .cd-combo-option-active {
-          background: #92c2f1 !important;
-          color: #031326 !important;
+          background: #92c2f1;
+          color: #031326;
         }
         .cd-vehicle-type-menu .cd-vehicle-type-options,
         .cd-category-vehicle-inline .cd-vehicle-type-options,
         .cd-drawer .cd-vehicle-type-options {
-          position: absolute !important;
-          top: calc(100% + 8px) !important;
-          right: 0 !important;
-          left: 0 !important;
-          z-index: 120 !important;
-          background: #06182a !important;
-          background-color: #06182a !important;
-          background-image: none !important;
-          color: #ffffff !important;
+          position: absolute;
+          top: calc(100% + 8px);
+          right: 0;
+          left: 0;
+          z-index: 120;
+          background: #06182a;
+          background-color: #06182a;
+          background-image: none;
+          color: #ffffff;
           box-shadow:
             inset 0 0 0 9999px #06182a,
-            0 18px 34px rgba(0, 8, 22, 0.44) !important;
+            0 18px 34px rgba(0, 8, 22, 0.44);
         }
         .cd-vehicle-type-menu,
         .cd-category-vehicle-inline .cd-vehicle-type-menu,
         .cd-drawer .cd-vehicle-type-menu {
-          position: relative !important;
+          position: relative;
         }
         .cd-category-vehicle-inline {
-          align-items: start !important;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-          min-height: 172px !important;
-          overflow: visible !important;
+          align-items: start;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          min-height: 172px;
+          overflow: visible;
         }
         .cd-category-vehicle-inline .cd-step-hint {
-          grid-column: 1 / -1 !important;
+          grid-column: 1 / -1;
         }
         .cd-category-vehicle-inline .cd-vehicle-type-menu {
-          align-self: start !important;
-          min-width: 0 !important;
+          align-self: start;
+          min-width: 0;
         }
         .cd-vehicle-step-head .cd-vehicle-type-trigger,
         .cd-category-vehicle-inline .cd-vehicle-type-trigger,
         .cd-drawer .cd-vehicle-type-trigger,
         .cd-drawer .cd-vehicle-type-menu.is-open .cd-vehicle-type-trigger,
         .cd-category-vehicle-inline .cd-vehicle-type-menu.is-open .cd-vehicle-type-trigger {
-          border: 1.5px solid #ff7a1f !important;
+          border: 1.5px solid #ff7a1f;
           box-shadow:
             0 0 0 1px rgba(255, 122, 31, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.06);
         }
         .cd-vehicle-step-head .cd-vehicle-type-options,
         .cd-category-vehicle-inline .cd-vehicle-type-options,
         .cd-drawer .cd-vehicle-type-options {
-          border: 1.5px solid #ff7a1f !important;
+          border: 1.5px solid #ff7a1f;
         }
         .cd-vehicle-step-head .cd-vehicle-head-fields,
         .cd-category-vehicle-inline {
-          grid-template-columns: minmax(170px, 1fr) minmax(170px, 1fr) !important;
+          grid-template-columns: minmax(170px, 1fr) minmax(170px, 1fr);
         }
         .cd-vehicle-step-head .cd-vehicle-type-trigger,
         .cd-category-vehicle-inline .cd-vehicle-type-trigger,
         .cd-drawer .cd-vehicle-type-trigger {
-          height: auto !important;
-          min-height: 46px !important;
-          padding: 7px 12px !important;
+          height: auto;
+          min-height: 46px;
+          padding: 7px 12px;
         }
         .cd-vehicle-step-head .cd-vehicle-type-trigger strong,
         .cd-category-vehicle-inline .cd-vehicle-type-trigger strong,
         .cd-drawer .cd-vehicle-type-trigger strong {
-          font-size: clamp(12px, 1.05vw, 16px) !important;
-          line-height: 1.12 !important;
-          display: -webkit-box !important;
-          max-height: 2.3em !important;
-          overflow: hidden !important;
-          overflow-wrap: normal !important;
-          text-overflow: ellipsis !important;
-          white-space: normal !important;
-          word-break: normal !important;
-          -webkit-box-orient: vertical !important;
-          -webkit-line-clamp: 2 !important;
+          font-size: clamp(12px, 1.05vw, 16px);
+          line-height: 1.12;
+          display: -webkit-box;
+          max-height: 2.3em;
+          overflow: hidden;
+          overflow-wrap: normal;
+          text-overflow: ellipsis;
+          white-space: normal;
+          word-break: normal;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
         }
         .cd-vehicle-step .cd-cc-select,
         .cd-vehicle-step .cd-input,
@@ -5847,20 +5859,20 @@ export default function CategoryDrawer({
         .cd-category-vehicle-inline .cd-cc-select,
         .cd-category-vehicle-inline .cd-input,
         .cd-category-vehicle-inline .cd-combo-input {
-          font-size: clamp(11px, 1.05vw, 13px) !important;
-          line-height: 1.22 !important;
-          min-height: 46px !important;
-          overflow: visible !important;
-          overflow-wrap: anywhere !important;
-          padding-bottom: 6px !important;
-          padding-top: 6px !important;
-          text-overflow: clip !important;
-          white-space: normal !important;
+          font-size: clamp(11px, 1.05vw, 13px);
+          line-height: 1.22;
+          min-height: 46px;
+          overflow: visible;
+          overflow-wrap: anywhere;
+          padding-bottom: 6px;
+          padding-top: 6px;
+          text-overflow: clip;
+          white-space: normal;
         }
         .cd-drawer .cd-combo-control,
         .cd-category-vehicle-inline .cd-combo-control,
         .cd-vehicle-step .cd-combo-control {
-          gap: 0 !important;
+          gap: 0;
         }
         .cd-drawer .cd-combo-control .cd-combo-input,
         .cd-drawer .cd-combo-control .cd-combo-toggle,
@@ -5868,58 +5880,58 @@ export default function CategoryDrawer({
         .cd-category-vehicle-inline .cd-combo-control .cd-combo-toggle,
         .cd-vehicle-step .cd-combo-control .cd-combo-input,
         .cd-vehicle-step .cd-combo-control .cd-combo-toggle {
-          border-left: 0 !important;
-          border-right: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
+          border-left: 0;
+          border-right: 0;
+          border-radius: 0;
+          box-shadow: none;
         }
         .cd-drawer .cd-combo-control .cd-combo-input,
         .cd-category-vehicle-inline .cd-combo-control .cd-combo-input,
         .cd-vehicle-step .cd-combo-control .cd-combo-input {
-          appearance: none !important;
-          background: transparent !important;
-          background-color: transparent !important;
-          background-image: none !important;
-          border: 0 !important;
-          outline: 0 !important;
-          -webkit-appearance: none !important;
+          appearance: none;
+          background: transparent;
+          background-color: transparent;
+          background-image: none;
+          border: 0;
+          outline: 0;
+          -webkit-appearance: none;
         }
         .cd-drawer .cd-combo-control .cd-combo-toggle,
         .cd-category-vehicle-inline .cd-combo-control .cd-combo-toggle,
         .cd-vehicle-step .cd-combo-control .cd-combo-toggle {
-          background: transparent !important;
-          outline: 0 !important;
+          background: transparent;
+          outline: 0;
         }
         .cd-drawer .cd-detail-field .cd-cc-select,
         .cd-category-vehicle-inline .cd-detail-field .cd-cc-select,
         .cd-vehicle-step .cd-detail-field .cd-cc-select {
-          background-image: linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98)) !important;
+          background-image: linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98));
         }
         .cd-drawer .cd-combo-disabled .cd-combo-control,
         .cd-vehicle-step .cd-combo-disabled .cd-combo-control {
           background:
-            linear-gradient(180deg, rgba(7, 24, 42, 0.72), rgba(4, 17, 32, 0.72)) !important;
-          border-color: rgba(255, 122, 31, 0.42) !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
-          cursor: not-allowed !important;
-          opacity: 0.58 !important;
+            linear-gradient(180deg, rgba(7, 24, 42, 0.72), rgba(4, 17, 32, 0.72));
+          border-color: rgba(255, 122, 31, 0.42);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+          cursor: not-allowed;
+          opacity: 0.58;
         }
         .cd-drawer .cd-combo-disabled .cd-combo-input,
         .cd-vehicle-step .cd-combo-disabled .cd-combo-input {
-          color: rgba(216, 226, 236, 0.58) !important;
-          cursor: not-allowed !important;
-          -webkit-text-fill-color: rgba(216, 226, 236, 0.58) !important;
+          color: rgba(216, 226, 236, 0.58);
+          cursor: not-allowed;
+          -webkit-text-fill-color: rgba(216, 226, 236, 0.58);
         }
         .cd-drawer .cd-combo-disabled .cd-combo-input::placeholder,
         .cd-vehicle-step .cd-combo-disabled .cd-combo-input::placeholder {
-          color: rgba(216, 226, 236, 0.58) !important;
-          opacity: 1 !important;
+          color: rgba(216, 226, 236, 0.58);
+          opacity: 1;
         }
         .cd-drawer .cd-combo-disabled .cd-combo-toggle,
         .cd-vehicle-step .cd-combo-disabled .cd-combo-toggle {
-          color: rgba(255, 138, 28, 0.58) !important;
-          cursor: not-allowed !important;
-          opacity: 1 !important;
+          color: rgba(255, 138, 28, 0.58);
+          cursor: not-allowed;
+          opacity: 1;
         }
         .cd-vehicle-type-menu .cd-vehicle-type-options::before,
         .cd-category-vehicle-inline .cd-vehicle-type-options::before,
@@ -5937,9 +5949,9 @@ export default function CategoryDrawer({
         .cd-drawer .cd-vehicle-type-option {
           position: relative;
           z-index: 1;
-          background: #081f34 !important;
-          background-color: #081f34 !important;
-          color: #ffffff !important;
+          background: #081f34;
+          background-color: #081f34;
+          color: #ffffff;
         }
         .cd-vehicle-type-menu .cd-vehicle-type-option:hover,
         .cd-vehicle-type-menu .cd-vehicle-type-option.is-active,
@@ -5947,245 +5959,245 @@ export default function CategoryDrawer({
         .cd-category-vehicle-inline .cd-vehicle-type-option.is-active,
         .cd-drawer .cd-vehicle-type-option:hover,
         .cd-drawer .cd-vehicle-type-option.is-active {
-          background: #92c2f1 !important;
-          background-color: #92c2f1 !important;
-          color: #031326 !important;
+          background: #92c2f1;
+          background-color: #92c2f1;
+          color: #031326;
         }
         @media (max-width: 760px) {
           .cd-vehicle-kind-grid-compact {
-            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
           }
           .cd-category-vehicle-inline {
-            margin: 0 0 8px !important;
-            padding: 8px !important;
+            margin: 0 0 8px;
+            padding: 8px;
           }
         }
         @media (max-width: 520px) {
           .cd-drawer .cd-body > .cd-vehicle-step {
-            min-height: calc(100dvh - 112px) !important;
-            padding: 10px !important;
+            min-height: calc(100dvh - 112px);
+            padding: 10px;
           }
           .cd-drawer .cd-vehicle-step .cd-vehicle-step-head {
-            padding: 10px 12px !important;
+            padding: 10px 12px;
           }
           .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid {
-            grid-template-columns: 1fr !important;
-            gap: 9px !important;
-            padding: 10px !important;
+            grid-template-columns: 1fr;
+            gap: 9px;
+            padding: 10px;
           }
           .cd-drawer .cd-vehicle-step .cd-detail-field {
-            padding: 0 !important;
+            padding: 0;
           }
           .cd-drawer .cd-vehicle-step .cd-field-label {
-            font-size: 12px !important;
+            font-size: 12px;
           }
           .cd-drawer .cd-vehicle-step .cd-cc-select,
           .cd-drawer .cd-vehicle-step .cd-input {
-            font-size: 14px !important;
-            min-height: 43px !important;
+            font-size: 14px;
+            min-height: 43px;
           }
           .cd-drawer .cd-vehicle-step .cd-vehicle-actions {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr;
           }
           .cd-drawer .cd-vehicle-step .cd-vehicle-actions .cd-vehicle-clear {
-            min-width: 0 !important;
+            min-width: 0;
           }
           .cd-drawer .cd-vehicle-kind-grid {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr;
           }
           .cd-drawer .cd-vehicle-kind-grid-compact {
-            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
           }
           .cd-drawer .cd-vehicle-kind-card {
-            min-height: 46px !important;
+            min-height: 46px;
           }
           .cd-vehicle-head-fields {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr;
           }
         }
 
         @media (max-width: 720px) {
           .cd-drawer .cd-crumbs {
-            align-items: flex-start !important;
-            display: flex !important;
-            flex-wrap: wrap !important;
-            gap: 7px 8px !important;
-            justify-content: flex-start !important;
-            padding: 8px 10px 10px !important;
+            align-items: flex-start;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px 8px;
+            justify-content: flex-start;
+            padding: 8px 10px 10px;
           }
 
           .cd-drawer .cd-crumb-seg {
-            align-items: center !important;
-            display: inline-flex !important;
-            flex: 0 1 auto !important;
-            gap: 5px !important;
-            min-width: 0 !important;
+            align-items: center;
+            display: inline-flex;
+            flex: 0 1 auto;
+            gap: 5px;
+            min-width: 0;
           }
 
           .cd-drawer .cd-crumb-sep {
-            align-items: center !important;
-            background: transparent !important;
-            border: 0 !important;
-            border-radius: 0 !important;
-            color: rgba(151, 178, 205, 0.72) !important;
-            display: inline-flex !important;
-            flex: 0 0 14px !important;
-            height: 18px !important;
-            justify-content: center !important;
-            padding: 0 !important;
-            stroke-width: 2.8 !important;
-            width: 14px !important;
+            align-items: center;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            color: rgba(151, 178, 205, 0.72);
+            display: inline-flex;
+            flex: 0 0 14px;
+            height: 18px;
+            justify-content: center;
+            padding: 0;
+            stroke-width: 2.8;
+            width: 14px;
           }
 
           .cd-drawer button.cd-crumb-sep {
-            appearance: none !important;
-            -webkit-appearance: none !important;
-            cursor: pointer !important;
-            margin: 0 !important;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            margin: 0;
           }
 
           .cd-drawer button.cd-crumb-sep:hover,
           .cd-drawer button.cd-crumb-sep:focus-visible {
-            color: rgba(255, 138, 31, 0.95) !important;
-            outline: 0 !important;
+            color: rgba(255, 138, 31, 0.95);
+            outline: 0;
           }
 
           .cd-drawer button.cd-crumb-sep svg {
-            display: block !important;
-            pointer-events: none !important;
+            display: block;
+            pointer-events: none;
           }
 
           .cd-drawer .cd-crumb-item {
             background:
-              linear-gradient(180deg, rgba(20, 44, 66, 0.98), rgba(8, 27, 45, 0.98)) !important;
-            border: 1px solid rgba(126, 197, 240, 0.34) !important;
-            border-radius: 10px !important;
+              linear-gradient(180deg, rgba(20, 44, 66, 0.98), rgba(8, 27, 45, 0.98));
+            border: 1px solid rgba(126, 197, 240, 0.34);
+            border-radius: 10px;
             box-shadow:
               inset 0 1px 0 rgba(255, 255, 255, 0.08),
-              0 6px 14px rgba(0, 8, 22, 0.16) !important;
-            gap: 4px !important;
-            max-width: min(100%, 250px) !important;
-            min-height: 30px !important;
-            padding: 4px 4px 4px 8px !important;
+              0 6px 14px rgba(0, 8, 22, 0.16);
+            gap: 4px;
+            max-width: min(100%, 250px);
+            min-height: 30px;
+            padding: 4px 4px 4px 8px;
           }
 
           .cd-drawer .cd-crumb-btn {
-            color: #f6fbff !important;
-            cursor: pointer !important;
-            font-size: 12px !important;
-            font-weight: 900 !important;
-            line-height: 1.12 !important;
-            max-width: 206px !important;
-            min-width: 0 !important;
-            overflow: visible !important;
-            padding: 0 !important;
-            text-overflow: clip !important;
-            white-space: normal !important;
-            word-break: normal !important;
-            overflow-wrap: anywhere !important;
-            display: -webkit-box !important;
-            -webkit-box-orient: vertical !important;
-            -webkit-line-clamp: 3 !important;
+            color: #f6fbff;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 900;
+            line-height: 1.12;
+            max-width: 206px;
+            min-width: 0;
+            overflow: visible;
+            padding: 0;
+            text-overflow: clip;
+            white-space: normal;
+            word-break: normal;
+            overflow-wrap: anywhere;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
           }
 
           .cd-drawer .cd-crumb-current {
-            color: #f6fbff !important;
+            color: #f6fbff;
           }
 
           .cd-drawer .cd-crumb-seg:has(.cd-crumb-current) .cd-crumb-item {
             background:
-              linear-gradient(180deg, rgba(28, 55, 78, 0.98), rgba(12, 35, 56, 0.98)) !important;
-            border-color: rgba(255, 138, 31, 0.48) !important;
+              linear-gradient(180deg, rgba(28, 55, 78, 0.98), rgba(12, 35, 56, 0.98));
+            border-color: rgba(255, 138, 31, 0.48);
           }
 
           .cd-drawer .cd-crumb-x {
-            flex: 0 0 20px !important;
-            height: 20px !important;
-            width: 20px !important;
+            flex: 0 0 20px;
+            height: 20px;
+            width: 20px;
           }
 
           .cd-drawer .cd-crumb-item .cd-crumb-x {
-            background: transparent !important;
-            border: 0 !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            color: #ff5a52 !important;
-            flex: 0 0 16px !important;
-            font-size: 13px !important;
-            height: 18px !important;
-            line-height: 1 !important;
-            min-height: 18px !important;
-            min-width: 16px !important;
-            opacity: 0.95 !important;
-            padding: 0 !important;
-            width: 16px !important;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            color: #ff5a52;
+            flex: 0 0 16px;
+            font-size: 13px;
+            height: 18px;
+            line-height: 1;
+            min-height: 18px;
+            min-width: 16px;
+            opacity: 0.95;
+            padding: 0;
+            width: 16px;
           }
 
           .cd-drawer .cd-crumb-item .cd-crumb-x:hover,
           .cd-drawer .cd-crumb-item .cd-crumb-x:focus-visible {
-            background: transparent !important;
-            border: 0 !important;
-            color: #ff2f24 !important;
-            outline: 0 !important;
+            background: transparent;
+            border: 0;
+            color: #ff2f24;
+            outline: 0;
           }
 
           .cd-drawer .cd-final-leaf-list {
-            gap: 10px !important;
-            padding: 10px 12px 18px !important;
+            gap: 10px;
+            padding: 10px 12px 18px;
           }
 
           .cd-drawer .cd-final-leaf-list .cd-final-leaf-item,
           .cd-drawer .cd-sub-group-list .cd-item-leaf.cd-final-leaf-item {
-            align-items: center !important;
+            align-items: center;
             background:
               radial-gradient(140px 80px at 0% 0%, rgba(255, 122, 31, 0.16), transparent 72%),
-              linear-gradient(180deg, rgba(63, 80, 98, 0.98) 0%, rgba(36, 54, 73, 0.98) 100%) !important;
-            border: 1px solid rgba(255, 158, 74, 0.46) !important;
-            border-left-color: rgba(255, 132, 31, 0.76) !important;
-            border-radius: 12px !important;
+              linear-gradient(180deg, rgba(63, 80, 98, 0.98) 0%, rgba(36, 54, 73, 0.98) 100%);
+            border: 1px solid rgba(255, 158, 74, 0.46);
+            border-left-color: rgba(255, 132, 31, 0.76);
+            border-radius: 12px;
             box-shadow:
               inset 0 1px 0 rgba(255, 255, 255, 0.16),
               inset 0 -14px 24px rgba(0, 8, 22, 0.18),
-              0 10px 22px rgba(0, 8, 22, 0.22) !important;
-            display: grid !important;
-            grid-template-columns: minmax(0, 1fr) 34px !important;
-            min-height: 54px !important;
-            padding: 8px 12px !important;
-            width: 100% !important;
+              0 10px 22px rgba(0, 8, 22, 0.22);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 34px;
+            min-height: 54px;
+            padding: 8px 12px;
+            width: 100%;
           }
 
           .cd-drawer .cd-final-leaf-list .cd-final-leaf-item .cd-label,
           .cd-drawer .cd-sub-group-list .cd-item-leaf.cd-final-leaf-item .cd-label {
-            color: #f8fbff !important;
-            display: block !important;
-            font-size: 15px !important;
-            font-weight: 950 !important;
-            letter-spacing: 0 !important;
-            line-height: 1.15 !important;
-            max-width: 100% !important;
-            min-width: 0 !important;
-            overflow: visible !important;
-            overflow-wrap: normal !important;
-            text-wrap: balance !important;
-            white-space: normal !important;
-            word-break: normal !important;
+            color: #f8fbff;
+            display: block;
+            font-size: 15px;
+            font-weight: 950;
+            letter-spacing: 0;
+            line-height: 1.15;
+            max-width: 100%;
+            min-width: 0;
+            overflow: visible;
+            overflow-wrap: normal;
+            text-wrap: balance;
+            white-space: normal;
+            word-break: normal;
           }
 
           .cd-drawer .cd-final-leaf-list .cd-final-leaf-item .cd-arrow,
           .cd-drawer .cd-final-leaf-list .cd-final-leaf-item .cd-check,
           .cd-drawer .cd-sub-group-list .cd-item-leaf.cd-final-leaf-item .cd-arrow,
           .cd-drawer .cd-sub-group-list .cd-item-leaf.cd-final-leaf-item .cd-check {
-            align-items: center !important;
-            background: rgba(226, 238, 248, 0.16) !important;
-            border: 1px solid rgba(226, 238, 248, 0.18) !important;
-            border-radius: 999px !important;
-            color: #ffffff !important;
-            display: inline-flex !important;
-            height: 28px !important;
-            justify-content: center !important;
-            justify-self: end !important;
-            padding: 5px !important;
-            width: 28px !important;
+            align-items: center;
+            background: rgba(226, 238, 248, 0.16);
+            border: 1px solid rgba(226, 238, 248, 0.18);
+            border-radius: 999px;
+            color: #ffffff;
+            display: inline-flex;
+            height: 28px;
+            justify-content: center;
+            justify-self: end;
+            padding: 5px;
+            width: 28px;
           }
 
           .cd-drawer .cd-final-leaf-list .cd-final-leaf-item:hover,
@@ -6194,133 +6206,133 @@ export default function CategoryDrawer({
           .cd-drawer .cd-sub-group-list .cd-item-leaf.cd-final-leaf-item.cd-item-active {
             background:
               radial-gradient(160px 90px at 0% 0%, rgba(255, 138, 31, 0.26), transparent 74%),
-              linear-gradient(180deg, rgba(72, 92, 112, 0.98) 0%, rgba(42, 62, 82, 0.98) 100%) !important;
-            border-color: rgba(255, 166, 82, 0.82) !important;
+              linear-gradient(180deg, rgba(72, 92, 112, 0.98) 0%, rgba(42, 62, 82, 0.98) 100%);
+            border-color: rgba(255, 166, 82, 0.82);
             box-shadow:
               inset 0 1px 0 rgba(255, 255, 255, 0.18),
               0 12px 26px rgba(0, 8, 22, 0.28),
-              0 0 0 1px rgba(255, 122, 31, 0.14) !important;
+              0 0 0 1px rgba(255, 122, 31, 0.14);
           }
         }
 
         .cd-drawer .cd-body {
-          padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important;
+          padding-bottom: calc(104px + env(safe-area-inset-bottom));
         }
 
         .cd-drawer .cd-results-footer {
-          bottom: 0 !important;
-          left: 0 !important;
-          position: absolute !important;
-          right: 0 !important;
-          z-index: 4090 !important;
+          bottom: 0;
+          left: 0;
+          position: absolute;
+          right: 0;
+          z-index: 4090;
         }
 
         .cd-drawer .cd-results-button {
-          min-height: 52px !important;
+          min-height: 52px;
         }
 
         /* Reference-style side drawer requested from the mockup. */
         .cd-backdrop {
           background:
             radial-gradient(800px 520px at 40% 0%, rgba(22, 52, 78, 0.28), transparent 72%),
-            rgba(0, 7, 16, 0.72) !important;
-          backdrop-filter: blur(5px) saturate(1.05) !important;
+            rgba(0, 7, 16, 0.72);
+          backdrop-filter: blur(5px) saturate(1.05);
         }
 
         .cd-drawer {
           background:
             radial-gradient(540px 420px at 78% 12%, rgba(28, 68, 102, 0.24), transparent 72%),
-            linear-gradient(180deg, rgba(9, 25, 42, 0.98), rgba(3, 13, 25, 0.99)) !important;
-          border: 1px solid rgba(126, 158, 190, 0.38) !important;
-          border-radius: 18px 0 0 18px !important;
+            linear-gradient(180deg, rgba(9, 25, 42, 0.98), rgba(3, 13, 25, 0.99));
+          border: 1px solid rgba(126, 158, 190, 0.38);
+          border-radius: 18px 0 0 18px;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.05),
-            0 34px 90px rgba(0, 8, 22, 0.44) !important;
-          bottom: 0 !important;
-          height: calc(100dvh - var(--topbar-h, 72px)) !important;
-          left: auto !important;
-          max-height: calc(100dvh - var(--topbar-h, 72px)) !important;
-          max-width: min(465px, 100vw) !important;
-          overflow: hidden !important;
-          right: 0 !important;
-          top: var(--topbar-h, 72px) !important;
-          transform: translateX(0) !important;
-          width: min(465px, 100vw) !important;
+            0 34px 90px rgba(0, 8, 22, 0.44);
+          bottom: 0;
+          height: calc(100dvh - var(--topbar-h, 72px));
+          left: auto;
+          max-height: calc(100dvh - var(--topbar-h, 72px));
+          max-width: min(465px, 100vw);
+          overflow: hidden;
+          right: 0;
+          top: var(--topbar-h, 72px);
+          transform: translateX(0);
+          width: min(465px, 100vw);
         }
 
         .cd-drawer-open {
-          transform: translateX(0) !important;
+          transform: translateX(0);
         }
 
         .cd-header {
-          background: transparent !important;
-          border: 0 !important;
-          min-height: 62px !important;
-          padding: 12px 14px 0 18px !important;
+          background: transparent;
+          border: 0;
+          min-height: 62px;
+          padding: 12px 14px 0 18px;
         }
 
         .cd-drawer:not(:has(.cd-crumbs)) .cd-body {
-          padding-top: 0 !important;
+          padding-top: 0;
         }
 
         .cd-close,
         .cd-back {
-          background: rgba(8, 22, 38, 0.86) !important;
-          border: 1px solid rgba(126, 158, 190, 0.42) !important;
-          border-radius: 999px !important;
-          color: #ffffff !important;
+          background: rgba(8, 22, 38, 0.86);
+          border: 1px solid rgba(126, 158, 190, 0.42);
+          border-radius: 999px;
+          color: #ffffff;
         }
 
         .cd-close {
-          height: 46px !important;
-          width: 46px !important;
+          height: 46px;
+          width: 46px;
         }
 
         .cd-back {
-          height: 46px !important;
-          width: 46px !important;
+          height: 46px;
+          width: 46px;
         }
 
         .cd-crumbs {
-          background: rgba(2, 13, 24, 0.78) !important;
-          border: 1px solid rgba(126, 158, 190, 0.22) !important;
-          border-radius: 22px !important;
-          margin: 8px 18px 16px !important;
-          min-height: 70px !important;
-          padding: 12px !important;
+          background: rgba(2, 13, 24, 0.78);
+          border: 1px solid rgba(126, 158, 190, 0.22);
+          border-radius: 22px;
+          margin: 8px 18px 16px;
+          min-height: 70px;
+          padding: 12px;
         }
 
         .cd-crumb-item {
-          background: linear-gradient(180deg, rgba(18, 41, 64, 0.92), rgba(8, 23, 40, 0.96)) !important;
-          border: 1px solid rgba(126, 158, 190, 0.28) !important;
-          border-radius: 999px !important;
-          min-height: 44px !important;
-          padding: 0 12px 0 20px !important;
+          background: linear-gradient(180deg, rgba(18, 41, 64, 0.92), rgba(8, 23, 40, 0.96));
+          border: 1px solid rgba(126, 158, 190, 0.28);
+          border-radius: 999px;
+          min-height: 44px;
+          padding: 0 12px 0 20px;
         }
 
         .cd-crumb-btn {
-          color: #ffffff !important;
-          font-size: 15px !important;
-          font-weight: 950 !important;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 950;
         }
 
         .cd-crumb-x {
-          color: #ffffff !important;
-          font-size: 24px !important;
+          color: #ffffff;
+          font-size: 24px;
         }
 
         .cd-body {
-          padding: 0 18px !important;
+          padding: 0 18px;
         }
 
         .cd-drawer .cd-body {
-          padding-bottom: 0 !important;
+          padding-bottom: 0;
         }
 
         .cd-drawer .cd-body > .cd-vehicle-step {
-          gap: 14px !important;
-          min-height: 0 !important;
-          padding: 0 !important;
+          gap: 14px;
+          min-height: 0;
+          padding: 0;
         }
 
         .cd-drawer .cd-vehicle-step .cd-vehicle-step-head,
@@ -6328,823 +6340,823 @@ export default function CategoryDrawer({
         .cd-drawer .cd-vehicle-step .cd-parts-inline-panel {
           background:
             radial-gradient(420px 180px at 18% 0%, rgba(21, 65, 104, 0.28), transparent 72%),
-            linear-gradient(180deg, rgba(8, 31, 52, 0.82), rgba(4, 18, 34, 0.9)) !important;
-          border: 1px solid rgba(126, 158, 190, 0.28) !important;
-          border-radius: 14px !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
-          padding: 14px !important;
+            linear-gradient(180deg, rgba(8, 31, 52, 0.82), rgba(4, 18, 34, 0.9));
+          border: 1px solid rgba(126, 158, 190, 0.28);
+          border-radius: 14px;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+          padding: 14px;
         }
 
         .cd-drawer .cd-vehicle-step .cd-step-hint,
         .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-step-hint {
-          color: rgba(216, 226, 236, 0.78) !important;
-          font-size: 12px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0.08em !important;
-          line-height: 1.1 !important;
-          text-transform: uppercase !important;
+          color: rgba(216, 226, 236, 0.78);
+          font-size: 12px;
+          font-weight: 950;
+          letter-spacing: 0.08em;
+          line-height: 1.1;
+          text-transform: uppercase;
         }
 
         .cd-drawer .cd-vehicle-head-fields,
         .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
         .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid {
-          gap: 12px !important;
-          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          gap: 12px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .cd-drawer .cd-vehicle-step .cd-parts-inline-panel .cd-detail-field:last-child {
-          grid-column: 1 / -1 !important;
+          grid-column: 1 / -1;
         }
 
         .cd-drawer .cd-vehicle-step .cd-field-label,
         .cd-drawer .cd-vehicle-type-menu span {
-          color: rgba(216, 226, 236, 0.78) !important;
-          font-size: 13px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0.055em !important;
-          text-transform: uppercase !important;
+          color: rgba(216, 226, 236, 0.78);
+          font-size: 13px;
+          font-weight: 950;
+          letter-spacing: 0.055em;
+          text-transform: uppercase;
         }
 
         .cd-drawer .cd-combo-control,
         .cd-drawer .cd-vehicle-type-trigger {
           background:
-            linear-gradient(180deg, rgba(10, 30, 50, 0.96), rgba(5, 18, 34, 0.98)) !important;
-          border: 1.5px solid rgba(126, 158, 190, 0.44) !important;
-          border-radius: 12px !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
-          min-height: 48px !important;
+            linear-gradient(180deg, rgba(10, 30, 50, 0.96), rgba(5, 18, 34, 0.98));
+          border: 1.5px solid rgba(126, 158, 190, 0.44);
+          border-radius: 12px;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+          min-height: 48px;
         }
 
         .cd-drawer .cd-combo-open .cd-combo-control,
         .cd-drawer .cd-vehicle-type-menu.is-open .cd-vehicle-type-trigger {
-          border-color: #ff8a1c !important;
+          border-color: #ff8a1c;
           box-shadow:
             0 0 0 1px rgba(255, 138, 28, 0.22),
             0 18px 34px rgba(255, 122, 31, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         .cd-drawer .cd-combo-control {
-          grid-template-columns: 38px minmax(0, 1fr) 38px !important;
+          grid-template-columns: 38px minmax(0, 1fr) 38px;
         }
 
         .cd-drawer .cd-combo-icon {
-          align-items: center !important;
-          color: rgba(226, 238, 248, 0.86) !important;
-          display: inline-flex !important;
-          justify-content: center !important;
-          min-width: 38px !important;
+          align-items: center;
+          color: rgba(226, 238, 248, 0.86);
+          display: inline-flex;
+          justify-content: center;
+          min-width: 38px;
         }
 
         .cd-drawer .cd-combo-input,
         .cd-drawer .cd-vehicle-type-trigger strong {
-          color: #ffffff !important;
-          font-size: 15px !important;
-          font-weight: 950 !important;
-          -webkit-text-fill-color: #ffffff !important;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 950;
+          -webkit-text-fill-color: #ffffff;
         }
 
         .cd-drawer .cd-combo-input::placeholder {
-          color: rgba(216, 226, 236, 0.52) !important;
-          -webkit-text-fill-color: rgba(216, 226, 236, 0.52) !important;
+          color: rgba(216, 226, 236, 0.52);
+          -webkit-text-fill-color: rgba(216, 226, 236, 0.52);
         }
 
         .cd-drawer .cd-vehicle-type-trigger {
-          grid-template-columns: 32px minmax(0, 1fr) 28px !important;
-          padding: 0 12px !important;
+          grid-template-columns: 32px minmax(0, 1fr) 28px;
+          padding: 0 12px;
         }
 
         .cd-drawer .cd-vehicle-type-trigger > svg:first-child {
-          color: rgba(226, 238, 248, 0.86) !important;
+          color: rgba(226, 238, 248, 0.86);
         }
 
         .cd-drawer .cd-combo-toggle svg,
         .cd-drawer .cd-vehicle-type-trigger > svg:last-child {
-          color: rgba(226, 238, 248, 0.9) !important;
+          color: rgba(226, 238, 248, 0.9);
         }
 
         .cd-drawer .cd-vehicle-actions {
-          border-bottom: 1px solid rgba(126, 197, 240, 0.16) !important;
-          display: grid !important;
-          gap: 10px !important;
-          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-          padding-bottom: 14px !important;
+          border-bottom: 1px solid rgba(126, 197, 240, 0.16);
+          display: grid;
+          gap: 10px;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          padding-bottom: 14px;
         }
 
         .cd-drawer .cd-vehicle-actions button {
-          border-radius: 12px !important;
-          display: inline-flex !important;
-          font-size: 14px !important;
-          font-weight: 950 !important;
-          gap: 8px !important;
-          min-height: 46px !important;
+          border-radius: 12px;
+          display: inline-flex;
+          font-size: 14px;
+          font-weight: 950;
+          gap: 8px;
+          min-height: 46px;
         }
 
         .cd-drawer .cd-vehicle-actions .cd-vehicle-next {
-          background: linear-gradient(135deg, #ffb047 0%, #ff7a1f 48%, #f05c00 100%) !important;
-          border: 1px solid rgba(255, 190, 120, 0.76) !important;
-          box-shadow: 0 18px 34px rgba(255, 104, 18, 0.24) !important;
-          color: #ffffff !important;
+          background: linear-gradient(135deg, #ffb047 0%, #ff7a1f 48%, #f05c00 100%);
+          border: 1px solid rgba(255, 190, 120, 0.76);
+          box-shadow: 0 18px 34px rgba(255, 104, 18, 0.24);
+          color: #ffffff;
         }
 
         .cd-drawer .cd-vehicle-actions .cd-vehicle-clear {
-          background: linear-gradient(180deg, rgba(18, 41, 64, 0.92), rgba(8, 23, 40, 0.96)) !important;
-          border: 1px solid rgba(126, 158, 190, 0.46) !important;
-          color: #ffffff !important;
+          background: linear-gradient(180deg, rgba(18, 41, 64, 0.92), rgba(8, 23, 40, 0.96));
+          border: 1px solid rgba(126, 158, 190, 0.46);
+          color: #ffffff;
         }
 
         .cd-drawer .cd-results-footer {
-          background: transparent !important;
-          border-top: 0 !important;
-          padding: 12px 18px 18px !important;
-          position: static !important;
+          background: transparent;
+          border-top: 0;
+          padding: 12px 18px 18px;
+          position: static;
         }
 
         .cd-drawer .cd-results-button {
-          align-items: center !important;
+          align-items: center;
           background:
             radial-gradient(140px 80px at 100% 50%, rgba(255, 122, 31, 0.34), transparent 74%),
-            linear-gradient(180deg, rgba(13, 34, 55, 0.98), rgba(5, 17, 32, 0.98)) !important;
-          border: 1.5px solid rgba(255, 122, 31, 0.9) !important;
-          border-radius: 16px !important;
+            linear-gradient(180deg, rgba(13, 34, 55, 0.98), rgba(5, 17, 32, 0.98));
+          border: 1.5px solid rgba(255, 122, 31, 0.9);
+          border-radius: 16px;
           box-shadow:
             inset 0 1px 0 rgba(255, 255, 255, 0.08),
-            0 20px 44px rgba(0, 8, 22, 0.22) !important;
-          color: #ffffff !important;
-          display: grid !important;
-          font-size: 18px !important;
-          font-weight: 950 !important;
-          grid-template-columns: 38px minmax(0, 1fr) 30px !important;
-          justify-items: start !important;
-          min-height: 66px !important;
-          padding: 0 18px !important;
-          text-align: left !important;
+            0 20px 44px rgba(0, 8, 22, 0.22);
+          color: #ffffff;
+          display: grid;
+          font-size: 18px;
+          font-weight: 950;
+          grid-template-columns: 38px minmax(0, 1fr) 30px;
+          justify-items: start;
+          min-height: 66px;
+          padding: 0 18px;
+          text-align: left;
         }
 
         .cd-drawer .cd-results-button svg:first-child {
-          color: #ff8a1c !important;
+          color: #ff8a1c;
         }
 
         .cd-drawer .cd-results-button svg:last-child {
-          color: #ffffff !important;
-          justify-self: end !important;
+          color: #ffffff;
+          justify-self: end;
         }
 
         .cd-drawer .cd-vehicle-actions,
         .cd-drawer .cd-vehicle-step .cd-vehicle-actions {
-          display: none !important;
+          display: none;
         }
 
         .cd-drawer .cd-results-footer {
-          display: grid !important;
-          gap: 10px !important;
-          grid-template-columns: minmax(0, 1.35fr) minmax(132px, 0.65fr) !important;
+          display: grid;
+          gap: 10px;
+          grid-template-columns: minmax(0, 1.35fr) minmax(132px, 0.65fr);
         }
 
         .cd-drawer .cd-results-clear-button {
-          align-items: center !important;
-          background: linear-gradient(180deg, rgba(18, 41, 64, 0.92), rgba(8, 23, 40, 0.96)) !important;
-          border: 1px solid rgba(126, 158, 190, 0.52) !important;
-          border-radius: 16px !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          font-size: 15px !important;
-          font-weight: 950 !important;
-          gap: 8px !important;
-          justify-content: center !important;
-          min-height: 66px !important;
-          padding: 0 14px !important;
-          white-space: nowrap !important;
+          align-items: center;
+          background: linear-gradient(180deg, rgba(18, 41, 64, 0.92), rgba(8, 23, 40, 0.96));
+          border: 1px solid rgba(126, 158, 190, 0.52);
+          border-radius: 16px;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+          color: #ffffff;
+          cursor: pointer;
+          display: inline-flex;
+          font-size: 15px;
+          font-weight: 950;
+          gap: 8px;
+          justify-content: center;
+          min-height: 66px;
+          padding: 0 14px;
+          white-space: nowrap;
         }
 
         .cd-drawer .cd-results-clear-button svg {
-          color: #ffffff !important;
-          flex: 0 0 auto !important;
+          color: #ffffff;
+          flex: 0 0 auto;
         }
 
         @media (max-width: 760px) {
           .cd-drawer {
-            border-radius: 0 !important;
-            left: auto !important;
-            max-height: calc(100dvh - var(--topbar-h, 72px)) !important;
-            max-width: 100vw !important;
-            right: 0 !important;
-            top: var(--topbar-h, 72px) !important;
-            transform: none !important;
-            width: min(465px, 100vw) !important;
+            border-radius: 0;
+            left: auto;
+            max-height: calc(100dvh - var(--topbar-h, 72px));
+            max-width: 100vw;
+            right: 0;
+            top: var(--topbar-h, 72px);
+            transform: none;
+            width: min(465px, 100vw);
           }
 
           .cd-drawer-open {
-            transform: none !important;
+            transform: none;
           }
 
           .cd-header {
-            min-height: 58px !important;
-            padding: 10px 12px 0 !important;
+            min-height: 58px;
+            padding: 10px 12px 0;
           }
 
           .cd-close {
-            height: 42px !important;
-            width: 42px !important;
+            height: 42px;
+            width: 42px;
           }
 
           .cd-crumbs {
-            margin: 8px 16px 16px !important;
-            min-height: 68px !important;
-            padding: 12px !important;
+            margin: 8px 16px 16px;
+            min-height: 68px;
+            padding: 12px;
           }
 
           .cd-body {
-            padding: 0 16px !important;
+            padding: 0 16px;
           }
 
           .cd-drawer .cd-vehicle-head-fields,
           .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
           .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid,
           .cd-drawer .cd-vehicle-actions {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr;
           }
 
           .cd-drawer .cd-vehicle-step .cd-vehicle-step-head,
           .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
           .cd-drawer .cd-vehicle-step .cd-parts-inline-panel {
-            border-radius: 14px !important;
-            padding: 16px !important;
+            border-radius: 14px;
+            padding: 16px;
           }
 
           .cd-drawer .cd-results-footer {
-            padding: 16px !important;
+            padding: 16px;
           }
 
           .cd-drawer .cd-results-button {
-            font-size: 18px !important;
-            min-height: 62px !important;
+            font-size: 18px;
+            min-height: 62px;
           }
         }
 
         /* Actual final cleanup: compact side drawer, no overlapped header, readable fields. */
         body:has(.cd-drawer-open) header.universal-app-topbar,
         body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar {
-          display: grid !important;
-          min-height: 64px !important;
-          opacity: 1 !important;
-          position: fixed !important;
-          top: 0 !important;
-          visibility: visible !important;
-          z-index: 7000 !important;
+          display: grid;
+          min-height: 64px;
+          opacity: 1;
+          position: fixed;
+          top: 0;
+          visibility: visible;
+          z-index: 7000;
         }
 
         .cd-backdrop {
-          inset: 64px 0 0 0 !important;
-          top: 64px !important;
-          z-index: 980 !important;
+          inset: 64px 0 0 0;
+          top: 64px;
+          z-index: 980;
         }
 
         .cd-drawer {
-          border-radius: 14px 0 0 14px !important;
-          bottom: 0 !important;
-          display: grid !important;
-          grid-template-rows: 58px minmax(0, 1fr) auto !important;
-          height: calc(100dvh - 64px) !important;
-          left: auto !important;
-          max-height: calc(100dvh - 64px) !important;
-          max-width: min(465px, 100vw) !important;
-          overflow: hidden !important;
-          right: 0 !important;
-          top: 64px !important;
-          width: min(465px, 100vw) !important;
-          z-index: 990 !important;
+          border-radius: 14px 0 0 14px;
+          bottom: 0;
+          display: grid;
+          grid-template-rows: 58px minmax(0, 1fr) auto;
+          height: calc(100dvh - 64px);
+          left: auto;
+          max-height: calc(100dvh - 64px);
+          max-width: min(465px, 100vw);
+          overflow: hidden;
+          right: 0;
+          top: 64px;
+          width: min(465px, 100vw);
+          z-index: 990;
         }
 
         .cd-header {
-          align-items: center !important;
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          display: flex !important;
-          grid-row: 1 !important;
-          justify-content: flex-end !important;
-          min-height: 58px !important;
-          padding: 10px 12px 0 12px !important;
-          position: static !important;
-          width: auto !important;
+          align-items: center;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          display: flex;
+          grid-row: 1;
+          justify-content: flex-end;
+          min-height: 58px;
+          padding: 10px 12px 0 12px;
+          position: static;
+          width: auto;
         }
 
         .cd-close {
-          flex: 0 0 42px !important;
-          height: 42px !important;
-          margin-left: auto !important;
-          min-height: 42px !important;
-          min-width: 42px !important;
-          width: 42px !important;
+          flex: 0 0 42px;
+          height: 42px;
+          margin-left: auto;
+          min-height: 42px;
+          min-width: 42px;
+          width: 42px;
         }
 
         .cd-body {
-          grid-row: 2 !important;
-          min-height: 0 !important;
-          overflow-x: hidden !important;
-          overflow-y: auto !important;
-          padding: 0 14px 12px !important;
+          grid-row: 2;
+          min-height: 0;
+          overflow-x: hidden;
+          overflow-y: auto;
+          padding: 0 14px 12px;
         }
 
         .cd-results-footer {
-          grid-row: 3 !important;
+          grid-row: 3;
         }
 
         .cd-drawer .cd-vehicle-head-fields,
         .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
         .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid {
-          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .cd-drawer .cd-vehicle-step .cd-parts-inline-panel .cd-detail-field:last-child {
-          grid-column: 1 / -1 !important;
+          grid-column: 1 / -1;
         }
 
         .cd-drawer .cd-vehicle-actions,
         .cd-drawer .cd-vehicle-step .cd-vehicle-actions {
-          display: none !important;
+          display: none;
         }
 
         .cd-drawer .cd-vehicle-step .cd-vehicle-step-head,
         .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
         .cd-drawer .cd-vehicle-step .cd-parts-inline-panel {
-          padding: 14px !important;
+          padding: 14px;
         }
 
         .cd-drawer .cd-combo-input,
         .cd-drawer .cd-vehicle-type-trigger strong {
-          font-size: 11.5px !important;
-          font-weight: 950 !important;
-          line-height: 1.08 !important;
-          min-width: 0 !important;
-          overflow: hidden !important;
-          text-overflow: clip !important;
-          white-space: nowrap !important;
-          word-break: normal !important;
+          font-size: 11.5px;
+          font-weight: 950;
+          line-height: 1.08;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: clip;
+          white-space: nowrap;
+          word-break: normal;
         }
 
         .cd-drawer .cd-combo-control,
         .cd-drawer .cd-vehicle-type-trigger {
-          align-items: center !important;
-          gap: 4px !important;
-          grid-template-columns: 18px minmax(0, 1fr) 16px !important;
-          min-height: 50px !important;
-          padding: 0 7px !important;
+          align-items: center;
+          gap: 4px;
+          grid-template-columns: 18px minmax(0, 1fr) 16px;
+          min-height: 50px;
+          padding: 0 7px;
         }
 
         .cd-drawer .cd-combo-icon,
         .cd-drawer .cd-vehicle-type-trigger > svg:first-child {
-          height: 17px !important;
-          width: 17px !important;
+          height: 17px;
+          width: 17px;
         }
 
         .cd-drawer .cd-combo-toggle,
         .cd-drawer .cd-vehicle-type-trigger > svg:last-child {
-          height: 16px !important;
-          min-width: 16px !important;
-          width: 16px !important;
+          height: 16px;
+          min-width: 16px;
+          width: 16px;
         }
 
         .cd-drawer .cd-combo-input {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          height: 100% !important;
-          padding: 0 !important;
-          width: 100% !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          height: 100%;
+          padding: 0;
+          width: 100%;
         }
 
         .cd-drawer .cd-combo-input::placeholder {
-          color: rgba(222, 233, 242, 0.78) !important;
-          -webkit-text-fill-color: rgba(222, 233, 242, 0.78) !important;
-          opacity: 1 !important;
+          color: rgba(222, 233, 242, 0.78);
+          -webkit-text-fill-color: rgba(222, 233, 242, 0.78);
+          opacity: 1;
         }
 
         .cd-drawer .cd-combo-disabled .cd-combo-input,
         .cd-drawer .cd-combo-disabled .cd-combo-input::placeholder,
         .cd-drawer .cd-vehicle-type-trigger:disabled strong {
-          color: rgba(205, 220, 232, 0.72) !important;
-          -webkit-text-fill-color: rgba(205, 220, 232, 0.72) !important;
-          opacity: 1 !important;
+          color: rgba(205, 220, 232, 0.72);
+          -webkit-text-fill-color: rgba(205, 220, 232, 0.72);
+          opacity: 1;
         }
 
         .cd-drawer .cd-combo-disabled .cd-combo-control,
         .cd-drawer .cd-vehicle-type-trigger:disabled {
-          opacity: 0.76 !important;
+          opacity: 0.76;
         }
 
         .cd-drawer .cd-combo-control,
         .cd-drawer .cd-vehicle-type-trigger,
         .cd-drawer .cd-vehicle-step .cd-combo-control,
         .cd-drawer .cd-vehicle-step .cd-vehicle-type-trigger {
-          column-gap: 8px !important;
-          display: grid !important;
-          grid-template-columns: 18px minmax(0, 1fr) 18px !important;
-          padding-left: 12px !important;
-          padding-right: 10px !important;
+          column-gap: 8px;
+          display: grid;
+          grid-template-columns: 18px minmax(0, 1fr) 18px;
+          padding-left: 12px;
+          padding-right: 10px;
         }
 
         .cd-drawer .cd-combo-icon,
         .cd-drawer .cd-vehicle-type-trigger > svg:first-child {
-          align-items: center !important;
-          color: rgba(219, 234, 247, 0.9) !important;
-          display: inline-flex !important;
-          grid-column: 1 !important;
-          justify-content: center !important;
-          justify-self: center !important;
-          margin: 0 !important;
+          align-items: center;
+          color: rgba(219, 234, 247, 0.9);
+          display: inline-flex;
+          grid-column: 1;
+          justify-content: center;
+          justify-self: center;
+          margin: 0;
         }
 
         .cd-drawer .cd-combo-icon svg {
-          height: 17px !important;
-          width: 17px !important;
+          height: 17px;
+          width: 17px;
         }
 
         .cd-drawer .cd-combo-input,
         .cd-drawer .cd-vehicle-type-trigger strong {
-          grid-column: 2 !important;
-          justify-self: stretch !important;
+          grid-column: 2;
+          justify-self: stretch;
         }
 
         .cd-drawer .cd-combo-input {
-          padding-left: 7px !important;
+          padding-left: 7px;
         }
 
         .cd-drawer .cd-vehicle-type-trigger strong {
-          padding-left: 2px !important;
+          padding-left: 2px;
         }
 
         .cd-drawer .cd-combo-toggle,
         .cd-drawer .cd-vehicle-type-trigger > svg:last-child {
-          grid-column: 3 !important;
-          justify-self: end !important;
-          margin: 0 !important;
+          grid-column: 3;
+          justify-self: end;
+          margin: 0;
         }
 
         .cd-drawer .cd-extra-detail-panel {
-          border-top: 1px solid rgba(126, 197, 240, 0.14) !important;
-          display: grid !important;
-          gap: 10px !important;
-          grid-column: 1 / -1 !important;
-          margin-top: 2px !important;
-          padding-top: 12px !important;
+          border-top: 1px solid rgba(126, 197, 240, 0.14);
+          display: grid;
+          gap: 10px;
+          grid-column: 1 / -1;
+          margin-top: 2px;
+          padding-top: 12px;
         }
 
         .cd-drawer .cd-extra-field {
-          display: grid !important;
-          gap: 7px !important;
-          min-width: 0 !important;
+          display: grid;
+          gap: 7px;
+          min-width: 0;
         }
 
         .cd-drawer .cd-extra-label {
-          color: rgba(216, 226, 236, 0.84) !important;
-          font-size: 12px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
-          line-height: 1.1 !important;
-          text-transform: uppercase !important;
+          color: rgba(216, 226, 236, 0.84);
+          font-size: 12px;
+          font-weight: 950;
+          letter-spacing: 0;
+          line-height: 1.1;
+          text-transform: uppercase;
         }
 
         .cd-drawer .cd-track-mat-select-shell,
         .cd-drawer .cd-extra-input-shell {
-          align-items: center !important;
-          background: linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98)) !important;
-          border: 1px solid rgba(126, 197, 240, 0.42) !important;
-          border-radius: 10px !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-          color: #ffffff !important;
-          display: grid !important;
-          grid-template-columns: 22px minmax(0, 1fr) 18px !important;
-          min-height: 52px !important;
-          padding: 0 12px !important;
-          position: relative !important;
-          width: 100% !important;
+          align-items: center;
+          background: linear-gradient(180deg, rgba(8, 31, 52, 0.98), rgba(4, 19, 36, 0.98));
+          border: 1px solid rgba(126, 197, 240, 0.42);
+          border-radius: 10px;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+          color: #ffffff;
+          display: grid;
+          grid-template-columns: 22px minmax(0, 1fr) 18px;
+          min-height: 52px;
+          padding: 0 12px;
+          position: relative;
+          width: 100%;
         }
 
         .cd-drawer button.cd-track-mat-select-shell {
-          cursor: pointer !important;
-          font: inherit !important;
-          text-align: left !important;
+          cursor: pointer;
+          font: inherit;
+          text-align: left;
         }
 
         .cd-drawer .cd-track-mat-icon,
         .cd-drawer .cd-extra-input-shell > svg {
-          align-items: center !important;
-          color: #ff8a1c !important;
-          display: inline-flex !important;
-          justify-content: center !important;
+          align-items: center;
+          color: #ff8a1c;
+          display: inline-flex;
+          justify-content: center;
         }
 
         .cd-drawer .cd-track-mat-value {
-          display: grid !important;
-          gap: 2px !important;
-          min-width: 0 !important;
-          padding: 0 8px !important;
+          display: grid;
+          gap: 2px;
+          min-width: 0;
+          padding: 0 8px;
         }
 
         .cd-drawer .cd-track-mat-value strong,
         .cd-drawer .cd-track-mat-value small {
-          display: block !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .cd-drawer .cd-track-mat-value strong {
-          color: #ffffff !important;
-          font-size: 13px !important;
-          font-weight: 950 !important;
-          line-height: 1.05 !important;
+          color: #ffffff;
+          font-size: 13px;
+          font-weight: 950;
+          line-height: 1.05;
         }
 
         .cd-drawer .cd-track-mat-value small {
-          color: rgba(216, 226, 236, 0.78) !important;
-          font-size: 11px !important;
-          font-weight: 850 !important;
+          color: rgba(216, 226, 236, 0.78);
+          font-size: 11px;
+          font-weight: 850;
         }
 
         .cd-drawer .cd-track-mat-value-empty strong {
-          color: rgba(216, 226, 236, 0.76) !important;
+          color: rgba(216, 226, 236, 0.76);
         }
 
         .cd-drawer .cd-track-mat-select-shell > svg:last-child {
-          color: rgba(226, 238, 248, 0.92) !important;
-          justify-self: end !important;
+          color: rgba(226, 238, 248, 0.92);
+          justify-self: end;
         }
 
         .cd-drawer .cd-track-mat-select-shell.is-open {
-          border-color: rgba(255, 122, 26, 0.78) !important;
-          box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.12) !important;
+          border-color: rgba(255, 122, 26, 0.78);
+          box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.12);
         }
 
         .cd-drawer .cd-track-mat-select-shell.is-open > svg:last-child {
-          transform: rotate(180deg) !important;
+          transform: rotate(180deg);
         }
 
         .cd-drawer .cd-track-mat-menu {
           background:
             radial-gradient(240px 160px at 12% 0%, rgba(36, 96, 142, 0.18), transparent 72%),
-            #06182a !important;
-          border: 1px solid rgba(126, 197, 240, 0.36) !important;
-          border-radius: 12px !important;
-          box-shadow: 0 18px 38px rgba(0, 8, 22, 0.5) !important;
-          display: grid !important;
-          gap: 4px !important;
-          margin-top: 7px !important;
-          max-height: min(300px, 42dvh) !important;
-          overflow-x: hidden !important;
-          overflow-y: auto !important;
-          overscroll-behavior: contain !important;
-          padding: 6px !important;
-          scrollbar-color: rgba(126, 197, 240, 0.5) transparent !important;
-          scrollbar-width: thin !important;
-          width: 100% !important;
-          -webkit-overflow-scrolling: touch !important;
+            #06182a;
+          border: 1px solid rgba(126, 197, 240, 0.36);
+          border-radius: 12px;
+          box-shadow: 0 18px 38px rgba(0, 8, 22, 0.5);
+          display: grid;
+          gap: 4px;
+          margin-top: 7px;
+          max-height: min(300px, 42dvh);
+          overflow-x: hidden;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          padding: 6px;
+          scrollbar-color: rgba(126, 197, 240, 0.5) transparent;
+          scrollbar-width: thin;
+          width: 100%;
+          -webkit-overflow-scrolling: touch;
         }
 
         .cd-drawer .cd-track-mat-option {
-          align-items: center !important;
-          background: rgba(8, 31, 52, 0.72) !important;
-          border: 1px solid rgba(126, 197, 240, 0.12) !important;
-          border-radius: 9px !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          display: grid !important;
-          gap: 3px !important;
-          grid-template-columns: minmax(0, 1fr) auto !important;
-          min-height: 40px !important;
-          padding: 8px 10px !important;
-          text-align: left !important;
-          width: 100% !important;
+          align-items: center;
+          background: rgba(8, 31, 52, 0.72);
+          border: 1px solid rgba(126, 197, 240, 0.12);
+          border-radius: 9px;
+          color: #ffffff;
+          cursor: pointer;
+          display: grid;
+          gap: 3px;
+          grid-template-columns: minmax(0, 1fr) auto;
+          min-height: 40px;
+          padding: 8px 10px;
+          text-align: left;
+          width: 100%;
         }
 
         .cd-drawer .cd-track-mat-option strong,
         .cd-drawer .cd-track-mat-option span {
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          white-space: nowrap !important;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .cd-drawer .cd-track-mat-option strong {
-          font-size: 13px !important;
-          font-weight: 950 !important;
+          font-size: 13px;
+          font-weight: 950;
         }
 
         .cd-drawer .cd-track-mat-option span {
-          color: rgba(216, 226, 236, 0.72) !important;
-          font-size: 12px !important;
-          font-weight: 850 !important;
+          color: rgba(216, 226, 236, 0.72);
+          font-size: 12px;
+          font-weight: 850;
         }
 
         .cd-drawer .cd-track-mat-option:hover,
         .cd-drawer .cd-track-mat-option.is-active {
-          background: rgba(146, 194, 241, 0.96) !important;
-          border-color: rgba(210, 232, 255, 0.7) !important;
-          color: #031326 !important;
+          background: rgba(146, 194, 241, 0.96);
+          border-color: rgba(210, 232, 255, 0.7);
+          color: #031326;
         }
 
         .cd-drawer .cd-track-mat-option:hover span,
         .cd-drawer .cd-track-mat-option.is-active span {
-          color: rgba(3, 19, 38, 0.72) !important;
+          color: rgba(3, 19, 38, 0.72);
         }
 
         .cd-drawer .cd-track-mat-option-custom {
-          border-color: rgba(255, 122, 26, 0.34) !important;
+          border-color: rgba(255, 122, 26, 0.34);
         }
 
         .cd-drawer .cd-extra-input {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          color: #ffffff !important;
-          font: inherit !important;
-          font-size: 13px !important;
-          font-weight: 900 !important;
-          min-width: 0 !important;
-          outline: 0 !important;
-          padding: 0 0 0 8px !important;
-          width: 100% !important;
-          -webkit-text-fill-color: #ffffff !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          color: #ffffff;
+          font: inherit;
+          font-size: 13px;
+          font-weight: 900;
+          min-width: 0;
+          outline: 0;
+          padding: 0 0 0 8px;
+          width: 100%;
+          -webkit-text-fill-color: #ffffff;
         }
 
         .cd-drawer .cd-extra-input::placeholder {
-          color: rgba(216, 226, 236, 0.62) !important;
-          opacity: 1 !important;
-          -webkit-text-fill-color: rgba(216, 226, 236, 0.62) !important;
+          color: rgba(216, 226, 236, 0.62);
+          opacity: 1;
+          -webkit-text-fill-color: rgba(216, 226, 236, 0.62);
         }
 
         @media (min-width: 861px) {
           body:has(.cd-drawer-open) header.universal-app-topbar,
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar {
-            display: block !important;
-            height: 64px !important;
-            min-height: 64px !important;
-            overflow: visible !important;
-            padding: 0 !important;
+            display: block;
+            height: 64px;
+            min-height: 64px;
+            overflow: visible;
+            padding: 0;
           }
 
           body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-navigation,
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-navigation,
           body:has(.cd-drawer-open) header.universal-app-topbar .universal-primary-navigation,
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-primary-navigation {
-            display: block !important;
-            height: 64px !important;
-            overflow: visible !important;
-            width: 100% !important;
+            display: block;
+            height: 64px;
+            overflow: visible;
+            width: 100%;
           }
 
           body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-brand,
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-brand {
-            align-items: center !important;
-            display: inline-flex !important;
-            height: 64px !important;
-            left: 14px !important;
-            opacity: 1 !important;
-            position: absolute !important;
-            top: 0 !important;
-            transform: none !important;
-            visibility: visible !important;
-            width: 82px !important;
-            z-index: 20 !important;
+            align-items: center;
+            display: inline-flex;
+            height: 64px;
+            left: 14px;
+            opacity: 1;
+            position: absolute;
+            top: 0;
+            transform: none;
+            visibility: visible;
+            width: 82px;
+            z-index: 20;
           }
 
           body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-brand-logo,
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-brand-logo {
-            display: block !important;
-            height: auto !important;
-            max-height: 50px !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            width: 78px !important;
+            display: block;
+            height: auto;
+            max-height: 50px;
+            opacity: 1;
+            visibility: visible;
+            width: 78px;
           }
 
           body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav,
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
-            align-items: center !important;
-            display: flex !important;
-            gap: clamp(14px, 1.8vw, 28px) !important;
-            height: 64px !important;
-            justify-content: center !important;
-            left: 50% !important;
-            margin: 0 !important;
-            max-width: calc(100vw - 560px) !important;
-            min-width: 0 !important;
-            overflow: hidden !important;
-            position: absolute !important;
-            right: auto !important;
-            top: 0 !important;
-            transform: translateX(-50%) !important;
-            width: max-content !important;
-            z-index: 12 !important;
+            align-items: center;
+            display: flex;
+            gap: clamp(14px, 1.8vw, 28px);
+            height: 64px;
+            justify-content: center;
+            left: 50%;
+            margin: 0;
+            max-width: calc(100vw - 560px);
+            min-width: 0;
+            overflow: hidden;
+            position: absolute;
+            right: auto;
+            top: 0;
+            transform: translateX(-50%);
+            width: max-content;
+            z-index: 12;
           }
 
           body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav :is(a, button),
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
           body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
-            flex: 0 1 auto !important;
-            font-size: 13px !important;
-            max-width: 116px !important;
-            min-width: 0 !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            white-space: nowrap !important;
+            flex: 0 1 auto;
+            font-size: 13px;
+            max-width: 116px;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
 
           body:has(.cd-drawer-open) header.universal-app-topbar .universal-topbar-actions,
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-topbar-actions {
-            align-items: center !important;
-            display: flex !important;
-            gap: 8px !important;
-            height: 64px !important;
-            justify-content: flex-end !important;
-            margin: 0 !important;
-            max-width: calc(100vw - 116px) !important;
-            min-width: 0 !important;
-            position: absolute !important;
-            right: 14px !important;
-            top: 50% !important;
-            transform: translateY(-50%) !important;
-            width: auto !important;
-            z-index: 14 !important;
+            align-items: center;
+            display: flex;
+            gap: 8px;
+            height: 64px;
+            justify-content: flex-end;
+            margin: 0;
+            max-width: calc(100vw - 116px);
+            min-width: 0;
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: auto;
+            z-index: 14;
           }
         }
 
         @media (min-width: 861px) and (max-width: 1160px) {
           body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav,
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav {
-            gap: 12px !important;
-            left: 42% !important;
-            max-width: calc(100vw - 520px) !important;
+            gap: 12px;
+            left: 42%;
+            max-width: calc(100vw - 520px);
           }
 
           body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav :is(a, button),
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav :is(a, button),
           body:has(.cd-drawer-open) header.universal-app-topbar .universal-home-primary-nav a.universal-contact-cta,
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar .universal-home-primary-nav a.universal-contact-cta {
-            font-size: 12px !important;
-            max-width: 94px !important;
+            font-size: 12px;
+            max-width: 94px;
           }
         }
 
         @media (max-width: 520px) {
           body:has(.cd-drawer-open) header.universal-app-topbar,
           body:has(.cd-drawer-open) header.universal-app-topbar.universal-home-topbar {
-            min-height: 72px !important;
+            min-height: 72px;
           }
 
           .cd-backdrop {
             background:
               radial-gradient(520px 360px at 40% 0%, rgba(24, 74, 116, 0.28), transparent 70%),
-              rgba(0, 7, 16, 0.76) !important;
-            inset: 72px 0 0 0 !important;
-            top: 72px !important;
+              rgba(0, 7, 16, 0.76);
+            inset: 72px 0 0 0;
+            top: 72px;
           }
 
           .cd-drawer {
             background:
               radial-gradient(480px 320px at 20% 8%, rgba(34, 87, 126, 0.24), transparent 72%),
-              linear-gradient(180deg, rgba(9, 26, 45, 0.99), rgba(2, 11, 22, 0.995)) !important;
-            border: 1px solid rgba(126, 158, 190, 0.26) !important;
-            border-radius: 18px 18px 0 0 !important;
+              linear-gradient(180deg, rgba(9, 26, 45, 0.99), rgba(2, 11, 22, 0.995));
+            border: 1px solid rgba(126, 158, 190, 0.26);
+            border-radius: 18px 18px 0 0;
             box-shadow:
               inset 0 1px 0 rgba(255, 255, 255, 0.06),
-              0 -18px 70px rgba(0, 8, 22, 0.44) !important;
-            grid-template-rows: 64px minmax(0, 1fr) auto !important;
-            height: calc(100dvh - 84px) !important;
-            left: 6px !important;
-            max-height: calc(100dvh - 84px) !important;
-            max-width: calc(100vw - 12px) !important;
-            right: 6px !important;
-            top: 84px !important;
-            width: calc(100vw - 12px) !important;
+              0 -18px 70px rgba(0, 8, 22, 0.44);
+            grid-template-rows: 64px minmax(0, 1fr) auto;
+            height: calc(100dvh - 84px);
+            left: 6px;
+            max-height: calc(100dvh - 84px);
+            max-width: calc(100vw - 12px);
+            right: 6px;
+            top: 84px;
+            width: calc(100vw - 12px);
           }
 
           .cd-header {
-            min-height: 64px !important;
-            padding: 12px 12px 0 !important;
+            min-height: 64px;
+            padding: 12px 12px 0;
           }
 
           .cd-close {
-            background: rgba(8, 22, 38, 0.9) !important;
-            border-color: rgba(126, 158, 190, 0.42) !important;
-            flex-basis: 44px !important;
-            height: 44px !important;
-            min-height: 44px !important;
-            min-width: 44px !important;
-            width: 44px !important;
+            background: rgba(8, 22, 38, 0.9);
+            border-color: rgba(126, 158, 190, 0.42);
+            flex-basis: 44px;
+            height: 44px;
+            min-height: 44px;
+            min-width: 44px;
+            width: 44px;
           }
 
           .cd-body {
-            padding: 0 16px 14px !important;
+            padding: 0 16px 14px;
           }
 
           .cd-drawer .cd-body > .cd-vehicle-step {
-            gap: 14px !important;
+            gap: 14px;
           }
 
           .cd-drawer .cd-vehicle-step .cd-vehicle-step-head,
@@ -7152,180 +7164,180 @@ export default function CategoryDrawer({
           .cd-drawer .cd-vehicle-step .cd-parts-inline-panel {
             background:
               radial-gradient(380px 180px at 14% 0%, rgba(38, 94, 136, 0.24), transparent 72%),
-              linear-gradient(180deg, rgba(8, 31, 52, 0.9), rgba(4, 18, 34, 0.94)) !important;
-            border: 1px solid rgba(126, 158, 190, 0.34) !important;
-            border-radius: 18px !important;
+              linear-gradient(180deg, rgba(8, 31, 52, 0.9), rgba(4, 18, 34, 0.94));
+            border: 1px solid rgba(126, 158, 190, 0.34);
+            border-radius: 18px;
             box-shadow:
               inset 0 1px 0 rgba(255, 255, 255, 0.055),
-              0 12px 30px rgba(0, 8, 22, 0.18) !important;
-            padding: 14px !important;
+              0 12px 30px rgba(0, 8, 22, 0.18);
+            padding: 14px;
           }
 
           .cd-drawer .cd-vehicle-head-fields,
           .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
           .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid {
-            gap: 13px !important;
-            grid-template-columns: 1fr !important;
+            gap: 13px;
+            grid-template-columns: 1fr;
           }
 
           .cd-drawer .cd-vehicle-step .cd-parts-inline-panel .cd-detail-field:last-child {
-            grid-column: auto !important;
+            grid-column: auto;
           }
 
           .cd-drawer .cd-field-label,
           .cd-drawer .cd-vehicle-step .cd-step-hint,
           .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-step-hint {
-            color: rgba(226, 238, 248, 0.84) !important;
-            font-size: 13px !important;
-            letter-spacing: 0.08em !important;
-            line-height: 1.15 !important;
+            color: rgba(226, 238, 248, 0.84);
+            font-size: 13px;
+            letter-spacing: 0.08em;
+            line-height: 1.15;
           }
 
           .cd-drawer .cd-vehicle-step .cd-vehicle-step-head > .cd-step-hint,
           .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-step-hint {
-            align-items: center !important;
-            color: #ffffff !important;
-            display: flex !important;
-            font-size: clamp(17px, 5.2vw, 22px) !important;
-            font-weight: 1000 !important;
-            gap: 12px !important;
-            letter-spacing: 0 !important;
-            margin: 0 0 18px !important;
-            text-transform: uppercase !important;
+            align-items: center;
+            color: #ffffff;
+            display: flex;
+            font-size: clamp(17px, 5.2vw, 22px);
+            font-weight: 1000;
+            gap: 12px;
+            letter-spacing: 0;
+            margin: 0 0 18px;
+            text-transform: uppercase;
           }
 
           .cd-drawer .cd-step-hint-icon {
-            align-items: center !important;
+            align-items: center;
             background:
               radial-gradient(circle at 35% 30%, rgba(255, 154, 36, 0.34), transparent 46%),
-              rgba(255, 122, 26, 0.08) !important;
-            border: 1px solid rgba(255, 122, 26, 0.42) !important;
-            border-radius: 999px !important;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-            color: #ff8a1c !important;
-            display: inline-flex !important;
-            flex: 0 0 38px !important;
-            height: 38px !important;
-            justify-content: center !important;
-            width: 38px !important;
+              rgba(255, 122, 26, 0.08);
+            border: 1px solid rgba(255, 122, 26, 0.42);
+            border-radius: 999px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            color: #ff8a1c;
+            display: inline-flex;
+            flex: 0 0 38px;
+            height: 38px;
+            justify-content: center;
+            width: 38px;
           }
 
           .cd-drawer .cd-combo-control,
           .cd-drawer .cd-vehicle-type-trigger,
           .cd-drawer .cd-vehicle-step .cd-combo-control,
           .cd-drawer .cd-vehicle-step .cd-vehicle-type-trigger {
-            background: rgba(3, 15, 28, 0.72) !important;
-            border: 1px solid rgba(148, 178, 207, 0.42) !important;
-            border-radius: 14px !important;
-            gap: 11px !important;
-            grid-template-columns: 24px minmax(0, 1fr) 20px !important;
-            min-height: 62px !important;
-            padding: 0 14px !important;
+            background: rgba(3, 15, 28, 0.72);
+            border: 1px solid rgba(148, 178, 207, 0.42);
+            border-radius: 14px;
+            gap: 11px;
+            grid-template-columns: 24px minmax(0, 1fr) 20px;
+            min-height: 62px;
+            padding: 0 14px;
           }
 
           .cd-drawer .cd-combo-input,
           .cd-drawer .cd-vehicle-type-trigger strong {
-            color: #ffffff !important;
-            font-size: clamp(14px, 4.3vw, 17px) !important;
-            font-weight: 950 !important;
-            line-height: 1.15 !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            white-space: nowrap !important;
-            -webkit-text-fill-color: #ffffff !important;
+            color: #ffffff;
+            font-size: clamp(14px, 4.3vw, 17px);
+            font-weight: 950;
+            line-height: 1.15;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            -webkit-text-fill-color: #ffffff;
           }
 
           .cd-drawer .cd-combo-icon,
           .cd-drawer .cd-vehicle-type-trigger > svg:first-child {
-            color: rgba(226, 238, 248, 0.88) !important;
-            height: 24px !important;
-            width: 24px !important;
+            color: rgba(226, 238, 248, 0.88);
+            height: 24px;
+            width: 24px;
           }
 
           body:has(.cd-drawer-open) .rebuilt-chat-button,
           body:has(.cd-drawer-open) .floating-chat,
           body:has(.cd-drawer-open) .fc-button {
-            display: none !important;
+            display: none;
           }
 
           .cd-drawer .cd-vehicle-type-menu {
-            min-width: 0 !important;
-            position: relative !important;
-            width: 100% !important;
+            min-width: 0;
+            position: relative;
+            width: 100%;
           }
 
           .cd-drawer .cd-vehicle-type-options {
-            border-radius: 10px !important;
-            box-shadow: 0 18px 34px rgba(0, 8, 22, 0.52) !important;
-            left: 0 !important;
-            min-width: 100% !important;
-            padding: 5px !important;
-            right: 0 !important;
-            width: 100% !important;
-            z-index: 160 !important;
+            border-radius: 10px;
+            box-shadow: 0 18px 34px rgba(0, 8, 22, 0.52);
+            left: 0;
+            min-width: 100%;
+            padding: 5px;
+            right: 0;
+            width: 100%;
+            z-index: 160;
           }
 
           .cd-drawer .cd-vehicle-head-fields .cd-vehicle-type-menu:not(.cd-vehicle-subtype-menu) .cd-vehicle-type-options {
-            left: 0 !important;
-            right: auto !important;
-            min-width: 100% !important;
-            width: 100% !important;
+            left: 0;
+            right: auto;
+            min-width: 100%;
+            width: 100%;
           }
 
           .cd-drawer .cd-vehicle-head-fields .cd-vehicle-subtype-menu .cd-vehicle-type-options {
-            left: auto !important;
-            right: 0 !important;
-            min-width: 100% !important;
-            width: 100% !important;
+            left: auto;
+            right: 0;
+            min-width: 100%;
+            width: 100%;
           }
 
           .cd-drawer .cd-vehicle-type-option,
           .cd-drawer .cd-combo-option {
-            border-radius: 10px !important;
-            font-size: 15px !important;
-            font-weight: 950 !important;
-            line-height: 1.15 !important;
-            min-height: 48px !important;
-            padding: 12px 14px !important;
-            white-space: normal !important;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 950;
+            line-height: 1.15;
+            min-height: 48px;
+            padding: 12px 14px;
+            white-space: normal;
           }
 
           .cd-results-footer {
-            background: linear-gradient(180deg, rgba(2, 11, 22, 0.68), rgba(2, 11, 22, 0.98)) !important;
-            border-top: 1px solid rgba(126, 158, 190, 0.2) !important;
-            gap: 10px !important;
-            grid-template-columns: minmax(0, 1.18fr) minmax(108px, 0.82fr) !important;
-            padding: 10px calc(14px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left)) !important;
+            background: linear-gradient(180deg, rgba(2, 11, 22, 0.68), rgba(2, 11, 22, 0.98));
+            border-top: 1px solid rgba(126, 158, 190, 0.2);
+            gap: 10px;
+            grid-template-columns: minmax(0, 1.18fr) minmax(108px, 0.82fr);
+            padding: 10px calc(14px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));
           }
 
           .cd-drawer .cd-results-button,
           .cd-drawer .cd-results-clear-button {
-            border-radius: 14px !important;
-            font-size: clamp(14px, 4vw, 17px) !important;
-            min-height: 54px !important;
-            padding: 0 12px !important;
+            border-radius: 14px;
+            font-size: clamp(14px, 4vw, 17px);
+            min-height: 54px;
+            padding: 0 12px;
           }
 
           .cd-drawer .cd-results-button {
             box-shadow:
               0 10px 24px rgba(255, 107, 22, 0.24),
-              inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
-            grid-template-columns: 26px minmax(0, 1fr) 16px !important;
+              inset 0 1px 0 rgba(255, 255, 255, 0.18);
+            grid-template-columns: 26px minmax(0, 1fr) 16px;
           }
 
           .cd-drawer .cd-results-clear-button {
-            gap: 7px !important;
+            gap: 7px;
           }
 
           .cd-drawer .cd-results-button svg,
           .cd-drawer .cd-results-clear-button svg {
-            height: 20px !important;
-            width: 20px !important;
+            height: 20px;
+            width: 20px;
           }
 
           .cd-drawer .cd-results-button span,
           .cd-drawer .cd-results-clear-button span {
-            min-width: 0 !important;
+            min-width: 0;
           }
         }
 
@@ -7333,11 +7345,11 @@ export default function CategoryDrawer({
           .cd-drawer .cd-vehicle-head-fields,
           .cd-drawer .cd-body > .cd-vehicle-step > .cd-vehicle-detail-grid,
           .cd-drawer .cd-vehicle-step .cd-parts-inline-panel > .cd-vehicle-detail-grid {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr;
           }
 
           .cd-drawer .cd-vehicle-step .cd-parts-inline-panel .cd-detail-field:last-child {
-            grid-column: auto !important;
+            grid-column: auto;
           }
         }
       `}</style>

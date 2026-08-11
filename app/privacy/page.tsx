@@ -184,7 +184,7 @@ export default function PrivacyPage() {
         }
 
         .privacy-clean-page .privacy-summary-item {
-          background: linear-gradient(135deg, rgba(12, 29, 42, 0.96), rgba(5, 18, 31, 0.98)) !important;
+          background: linear-gradient(135deg, rgba(12, 29, 42, 0.96), rgba(5, 18, 31, 0.98));
           border: 1px solid rgba(92, 132, 166, 0.26);
           border-radius: 8px;
           box-shadow: 0 18px 50px rgba(0, 5, 14, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -211,7 +211,7 @@ export default function PrivacyPage() {
         }
 
         .privacy-clean-page .privacy-section {
-          background: linear-gradient(135deg, rgba(12, 29, 42, 0.96), rgba(5, 18, 31, 0.98)) !important;
+          background: linear-gradient(135deg, rgba(12, 29, 42, 0.96), rgba(5, 18, 31, 0.98));
           border: 1px solid rgba(92, 132, 166, 0.26);
           border-radius: 8px;
           box-shadow: 0 18px 50px rgba(0, 5, 14, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.03);
@@ -236,7 +236,7 @@ export default function PrivacyPage() {
           display: flex;
           flex-wrap: wrap;
           gap: 10px;
-          margin-top: 14px !important;
+          margin-top: 14px;
         }
 
         .privacy-clean-page .legal-source-links a {

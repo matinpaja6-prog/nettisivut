@@ -36,6 +36,7 @@ import {
   fallbackListings,
   formatPrice,
   getListingPartNumber,
+  isVehicleListing,
   type Listing
 } from "@/lib/listings";
 import { getLocalizedListingText } from "@/lib/listing-translations";
@@ -51,6 +52,8 @@ import {
   profilePath
 } from "@/lib/routes";
 import { absoluteSiteUrl } from "@/lib/site-url";
+import { readVehicleAccessories } from "@/lib/vehicle-accessories";
+import { readVehicleColors, VEHICLE_COLORS_DESCRIPTION_LABEL } from "@/lib/vehicle-colors";
 
 import { trackListingView, setRecoUserId } from "@/lib/recommendations";
 
@@ -367,6 +370,119 @@ function formatLocation(value: string | null | undefined) {
     .filter(Boolean)
     .join(", ");
 }
+
+function readDescriptionField(description: string | null | undefined, label: string) {
+  const normalizedLabel = label.trim().toLocaleLowerCase("fi-FI");
+
+  for (const line of (description ?? "").split(/\r?\n/)) {
+    const separatorIndex = line.indexOf(":");
+    if (separatorIndex < 0) continue;
+
+    const lineLabel = line.slice(0, separatorIndex).trim().toLocaleLowerCase("fi-FI");
+    if (lineLabel === normalizedLabel) return line.slice(separatorIndex + 1).trim();
+  }
+
+  return "";
+}
+
+function removeDescriptionFields(description: string, labels: readonly string[]) {
+  const normalizedLabels = new Set(
+    labels.map((label) => label.trim().toLocaleLowerCase("fi-FI"))
+  );
+
+  return description
+    .split(/\r?\n/)
+    .filter((line) => {
+      const separatorIndex = line.indexOf(":");
+      if (separatorIndex < 0) return true;
+
+      const lineLabel = line.slice(0, separatorIndex).trim().toLocaleLowerCase("fi-FI");
+      return !normalizedLabels.has(lineLabel);
+    })
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+const vehicleFactText: Record<Locale, {
+  listingType: string;
+  registration: string;
+  mileage: string;
+  operatingHours: string;
+  engineDisplacement: string;
+  engineModel: string;
+  engineKind: string;
+  driveType: string;
+  roadLegal: string;
+  accessories: string;
+  color: string;
+}> = {
+  fi: {
+    listingType: "Ilmoitustyyppi",
+    registration: "Rekisteritunnus",
+    mileage: "Ajokilometrit",
+    operatingHours: "Käyttötunnit",
+    engineDisplacement: "Moottoritilavuus",
+    engineModel: "Moottori / malli",
+    engineKind: "Moottorin tyyppi",
+    driveType: "Vetotapa",
+    roadLegal: "Tieliikennekelpoisuus",
+    accessories: "Lisävarusteet",
+    color: "Väri"
+  },
+  en: {
+    listingType: "Listing type",
+    registration: "Registration number",
+    mileage: "Mileage",
+    operatingHours: "Operating hours",
+    engineDisplacement: "Engine displacement",
+    engineModel: "Engine / model",
+    engineKind: "Engine type",
+    driveType: "Drive type",
+    roadLegal: "Road legality",
+    accessories: "Accessories",
+    color: "Color"
+  },
+  sv: {
+    listingType: "Annonstyp",
+    registration: "Registreringsnummer",
+    mileage: "Mätarställning",
+    operatingHours: "Drifttimmar",
+    engineDisplacement: "Motorvolym",
+    engineModel: "Motor / modell",
+    engineKind: "Motortyp",
+    driveType: "Drivtyp",
+    roadLegal: "Trafikduglighet",
+    accessories: "Tillbehör",
+    color: "Färg"
+  },
+  no: {
+    listingType: "Annonsetype",
+    registration: "Registreringsnummer",
+    mileage: "Kilometerstand",
+    operatingHours: "Driftstimer",
+    engineDisplacement: "Motorvolum",
+    engineModel: "Motor / modell",
+    engineKind: "Motortype",
+    driveType: "Drivtype",
+    roadLegal: "Veigodkjenning",
+    accessories: "Ekstrautstyr",
+    color: "Farge"
+  }
+};
+
+const VEHICLE_DESCRIPTION_FIELDS = [
+  "Ajoneuvotyyppi",
+  "Toimitustapa",
+  "Ajokilometrit",
+  "Käyttötunnit",
+  "Rekisteritunnus",
+  "Moottorin tyyppi",
+  "Vetotapa",
+  "Tieliikennekelpoisuus",
+  "Lisävarusteet",
+  VEHICLE_COLORS_DESCRIPTION_LABEL
+] as const;
 
 const listingExtraText: Record<
   Locale,
@@ -1358,6 +1474,8 @@ export default function ListingPage({
     no: { Moottorikelkka: "Sn\u00f8scooter", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motocross", Mopot: "Moped" },
   };
   const baseListingText = getLocalizedListingText(listing, locale);
+  const vehicleFacts = vehicleFactText[locale];
+  const listingIsVehicle = isVehicleListing(listing);
   const listingPartNumber = getListingPartNumber(listing);
   const listingIsTrackMat = [
     listing.category,
@@ -1447,11 +1565,48 @@ export default function ListingPage({
     listing.vehicle_subtype?.trim() ||
     descriptionWithoutVehicleMeta.match(/(?:^|\n)Ajoneuvotyyppi:\s*([^\n]+)/i)?.[1]?.trim() ||
     "";
+  const listingVehicleMileage = readDescriptionField(listing.description, "Ajokilometrit");
+  const listingVehicleHours = readDescriptionField(listing.description, "Käyttötunnit");
+  const listingVehicleRegistration = readDescriptionField(listing.description, "Rekisteritunnus");
+  const listingVehicleEngineKind = readDescriptionField(listing.description, "Moottorin tyyppi");
+  const listingVehicleDriveType = readDescriptionField(listing.description, "Vetotapa");
+  const listingVehicleRoadLegal = readDescriptionField(listing.description, "Tieliikennekelpoisuus");
+  const listingVehicleAccessories = readVehicleAccessories(listing.description);
+  const listingVehicleColors = readVehicleColors(listing.description);
+  const listingEngineCc = listing.engine_cc?.trim() || "";
+  const formattedEngineCc = listingEngineCc
+    ? /(?:cc|cm³|cm3)/i.test(listingEngineCc)
+      ? listingEngineCc
+      : `${listingEngineCc} cm³`
+    : "";
+  const combinedVehicleEngine = [formattedEngineCc, listingVehicleEngineKind]
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .join(", ");
+  const combinedVehicleEngineLabel = {
+    fi: "Moottori",
+    en: "Engine",
+    sv: "Motor",
+    no: "Motor"
+  }[locale];
+  const formattedVehicleMileage = listingVehicleMileage
+    ? /\bkm\b/i.test(listingVehicleMileage)
+      ? listingVehicleMileage
+      : `${listingVehicleMileage} km`
+    : "";
+  const formattedVehicleHours = listingVehicleHours
+    ? /\bh\b/i.test(listingVehicleHours)
+      ? listingVehicleHours
+      : `${listingVehicleHours} h`
+    : "";
+  const vehicleEquipmentTitle = ({
+    fi: "Varusteet",
+    en: "Equipment",
+    sv: "Utrustning",
+    no: "Utstyr"
+  } as const)[locale];
   const listingDescription =
-    descriptionWithoutVehicleMeta
-      .replace(/(?:^|\n)Ajoneuvotyyppi:\s*[^\n]+/i, "")
-      .replace(/(?:^|\n)Toimitustapa:\s*[^\n]+/i, "")
-      .trim() || ui.noDescription;
+    removeDescriptionFields(descriptionWithoutVehicleMeta, VEHICLE_DESCRIPTION_FIELDS) || ui.noDescription;
   const sellerAvatarUrl = listing.seller_avatar_url || sellerProfileAvatarUrl;
 
   return (
@@ -1491,12 +1646,14 @@ export default function ListingPage({
                 </button>
 
                 {isLoggedIn && <button
+                  type="button"
                   onClick={toggleSave}
-                  className={`icon-btn ${
+                  className={`icon-btn listing-favorite-button ${
                     saved ? "icon-saved" : ""
                   }`}
                   title={saved ? ui.saved : ui.save}
                   aria-label={saved ? ui.saved : ui.save}
+                  aria-pressed={saved}
                 >
                   <Heart
                     size={20}
@@ -1607,11 +1764,14 @@ export default function ListingPage({
                 </button>
 
                 {isLoggedIn && <button
+                  type="button"
                   onClick={toggleSave}
-                  className={`icon-btn ${
+                  className={`icon-btn listing-favorite-button ${
                     saved ? "icon-saved" : ""
                   }`}
                   title={saved ? ui.saved : ui.save}
+                  aria-label={saved ? ui.saved : ui.save}
+                  aria-pressed={saved}
                 >
                   <Heart
                     size={20}
@@ -1692,12 +1852,14 @@ export default function ListingPage({
                   </button>
 
                   {isLoggedIn && <button
+                    type="button"
                     onClick={toggleSave}
-                    className={`icon-btn ${
+                    className={`icon-btn listing-favorite-button ${
                       saved ? "icon-saved" : ""
                     }`}
                     title={saved ? ui.saved : ui.save}
                     aria-label={saved ? ui.saved : ui.save}
+                    aria-pressed={saved}
                   >
                     <Heart
                       size={20}
@@ -1729,7 +1891,9 @@ export default function ListingPage({
               </button>
 
               <div className={additionalInfoOpen ? "listing-section-content" : "listing-section-content is-collapsed"}>
-                <p>{listingDescription}</p>
+                <p className={listingDescription === ui.noDescription ? "listing-description-empty" : ""}>
+                  {listingDescription}
+                </p>
               </div>
 
             </div>
@@ -1748,50 +1912,77 @@ export default function ListingPage({
 
               <div className={basicInfoOpen ? "listing-section-content" : "listing-section-content is-collapsed"}>
 
-              <div className="listing-fact-grid">
-                <span>
-                  <strong>{ui.vehicle}</strong>
-                  {translateVehicleTypeLabel(listing.vehicle_type)}
-                </span>
-                <span>
-                  <strong>{extraUi.vehicleSubtype}</strong>
-                  {listingVehicleSubtype ? translateCategory(locale, listingVehicleSubtype) : ui.notSpecified}
-                </span>
-                {parsedPartModelDetails.partModel && (
-                  <span>
-                    <strong>{ui.partModel}</strong>
-                    {parsedPartModelDetails.partModel}
-                  </span>
+              <div className={`listing-fact-grid ${listingIsVehicle ? "listing-vehicle-facts" : ""}`}>
+                {listingIsVehicle ? (
+                  [
+                    { label: ui.vehicle, value: listing.vehicle_type ? translateVehicleTypeLabel(listing.vehicle_type) : "" },
+                    { label: extraUi.vehicleSubtype, value: listingVehicleSubtype ? translateCategory(locale, listingVehicleSubtype) : "" },
+                    { label: ui.brand, value: listing.brand || "" },
+                    { label: ui.model, value: listing.model || "" },
+                    { label: ui.year, value: listing.year ? String(listing.year) : "" },
+                    { label: vehicleFacts.registration, value: listingVehicleRegistration },
+                    { label: vehicleFacts.mileage, value: formattedVehicleMileage },
+                    { label: vehicleFacts.operatingHours, value: formattedVehicleHours },
+                    { label: combinedVehicleEngineLabel, value: combinedVehicleEngine },
+                    { label: vehicleFacts.engineModel, value: listing.engine_model || "" },
+                    { label: vehicleFacts.driveType, value: listingVehicleDriveType },
+                    { label: vehicleFacts.roadLegal, value: listingVehicleRoadLegal },
+                    { label: vehicleFacts.color, value: listingVehicleColors.join(", ") },
+                    { label: ui.location, value: listingLocation }
+                  ]
+                    .filter((item) => item.value.trim().length > 0)
+                    .map((item) => (
+                      <span key={item.label}><strong>{item.label}</strong>{item.value}</span>
+                    ))
+                ) : (
+                  <>
+                    <span>
+                      <strong>{ui.vehicle}</strong>
+                      {translateVehicleTypeLabel(listing.vehicle_type)}
+                    </span>
+                    <span>
+                      <strong>{extraUi.vehicleSubtype}</strong>
+                      {listingVehicleSubtype ? translateCategory(locale, listingVehicleSubtype) : ui.notSpecified}
+                    </span>
+                    {parsedPartModelDetails.partModel && (
+                      <span>
+                        <strong>{ui.partModel}</strong>
+                        {parsedPartModelDetails.partModel}
+                      </span>
+                    )}
+                    {parsedPartModelDetails.trackMatDimensions && (
+                      <span>
+                        <strong>{ui.trackMatDimensions}</strong>
+                        {parsedPartModelDetails.trackMatDimensions}
+                      </span>
+                    )}
+                    {listingPartNumber && (
+                      <span>
+                        <strong>{ui.partNumber}</strong>
+                        {listingPartNumber}
+                      </span>
+                    )}
+                    <span><strong>{ui.brandModel}</strong>{listingBrandModel || ui.notSpecified}</span>
+                    <span><strong>{ui.year}</strong>{listing.year || ui.notSpecified}</span>
+                    <span><strong>{ui.condition}</strong>{translateConditionLabel(listing.condition)}</span>
+                    <span>
+                      <strong>{extraUi.delivery}</strong>
+                      {listingDeliveryMethod ? translateDeliveryMethod(locale, listingDeliveryMethod) : ui.notSpecified}
+                    </span>
+                  </>
                 )}
-                {parsedPartModelDetails.trackMatDimensions && (
-                  <span>
-                    <strong>{ui.trackMatDimensions}</strong>
-                    {parsedPartModelDetails.trackMatDimensions}
-                  </span>
-                )}
-                {listingPartNumber && (
-                  <span>
-                    <strong>{ui.partNumber}</strong>
-                    {listingPartNumber}
-                  </span>
-                )}
-                <span>
-                  <strong>{ui.brandModel}</strong>
-                  {listingBrandModel || ui.notSpecified}
-                </span>
-                <span>
-                  <strong>{ui.year}</strong>
-                  {listing.year || ui.notSpecified}
-                </span>
-                <span>
-                  <strong>{ui.condition}</strong>
-                  {translateConditionLabel(listing.condition)}
-                </span>
-                <span>
-                  <strong>{extraUi.delivery}</strong>
-                  {listingDeliveryMethod ? translateDeliveryMethod(locale, listingDeliveryMethod) : ui.notSpecified}
-                </span>
               </div>
+
+              {listingIsVehicle && listingVehicleAccessories.length > 0 ? (
+                <section className="listing-vehicle-equipment" aria-label={vehicleEquipmentTitle}>
+                  <h3>{vehicleEquipmentTitle}</h3>
+                  <div>
+                    {listingVehicleAccessories.map((accessory) => (
+                      <span key={accessory}>{accessory}</span>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
 
               </div>
 
@@ -2117,7 +2308,10 @@ export default function ListingPage({
                     role="link"
                     tabIndex={0}
                     aria-label={`Avaa ilmoitus ${itemText.title}`}
-                    onClick={() => openSimilarListing(item)}
+                    onClick={(event) => {
+                      if ((event.target as HTMLElement).closest('[data-listing-favorite="true"]')) return;
+                      openSimilarListing(item);
+                    }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
@@ -2145,7 +2339,10 @@ export default function ListingPage({
                         className={`${homeStyles.favoriteButton} ${
                           isFavorite ? homeStyles.favoriteButtonActive : ""
                         }`}
+                        data-listing-favorite="true"
+                        data-listing-id={item.id}
                         type="button"
+                        aria-pressed={isFavorite}
                         aria-label={isFavorite ? "Poista suosikeista" : "Lisää suosikkeihin"}
                       >
                         <Heart
@@ -3056,89 +3253,89 @@ export default function ListingPage({
           background:
             radial-gradient(760px 320px at 88% -8%, rgba(255, 122, 26, 0.12), transparent 62%),
             radial-gradient(680px 300px at 8% 0%, rgba(64, 216, 255, 0.08), transparent 68%),
-            #0b1118 !important;
-          color: #f4f8fc !important;
+            #0b1118;
+          color: #f4f8fc;
         }
 
         .container {
-          width: min(1320px, calc(100vw - 32px)) !important;
-          max-width: none !important;
-          padding: clamp(18px, 3vw, 34px) 0 88px !important;
+          width: min(1320px, calc(100vw - 32px));
+          max-width: none;
+          padding: clamp(18px, 3vw, 34px) 0 88px;
         }
 
         .layout {
-          grid-template-columns: minmax(0, 1fr) minmax(280px, 330px) !important;
-          gap: 18px !important;
+          grid-template-columns: minmax(0, 1fr) minmax(280px, 330px);
+          gap: 18px;
         }
 
         .main {
           background:
             radial-gradient(680px 260px at 100% 0%, rgba(255, 122, 26, 0.1), transparent 70%),
-            linear-gradient(145deg, rgba(13, 29, 46, 0.96), rgba(7, 17, 29, 0.98)) !important;
-          border: 1px solid rgba(151, 178, 205, 0.2) !important;
-          border-radius: 20px !important;
-          box-shadow: 0 24px 70px rgba(0, 7, 18, 0.34), inset 0 1px 0 rgba(255,255,255,0.05) !important;
-          padding: clamp(18px, 3vw, 28px) !important;
+            linear-gradient(145deg, rgba(13, 29, 46, 0.96), rgba(7, 17, 29, 0.98));
+          border: 1px solid rgba(151, 178, 205, 0.2);
+          border-radius: 20px;
+          box-shadow: 0 24px 70px rgba(0, 7, 18, 0.34), inset 0 1px 0 rgba(255,255,255,0.05);
+          padding: clamp(18px, 3vw, 28px);
         }
 
         .title-row {
-          margin-bottom: 18px !important;
+          margin-bottom: 18px;
         }
 
         .title-row h1 {
-          color: #ffffff !important;
-          font-size: clamp(1.55rem, 2.4vw, 2.15rem) !important;
-          font-weight: 950 !important;
-          line-height: 1.12 !important;
+          color: #ffffff;
+          font-size: clamp(1.55rem, 2.4vw, 2.15rem);
+          font-weight: 950;
+          line-height: 1.12;
         }
 
         .sub-info,
         .desktop-image-meta,
         .listing-id {
-          color: rgba(226, 244, 255, 0.68) !important;
-          font-size: 13px !important;
+          color: rgba(226, 244, 255, 0.68);
+          font-size: 13px;
         }
 
         .desktop-image-meta strong {
-          color: #ffb45f !important;
+          color: #ffb45f;
         }
 
         .listing-kicker span {
-          background: rgba(255, 122, 26, 0.12) !important;
-          border-color: rgba(255, 122, 26, 0.3) !important;
-          color: #ffd1a3 !important;
+          background: rgba(255, 122, 26, 0.12);
+          border-color: rgba(255, 122, 26, 0.3);
+          color: #ffd1a3;
         }
 
         .image-wrapper {
-          background: #06111f !important;
-          border: 1px solid rgba(151, 178, 205, 0.2) !important;
-          border-radius: 18px !important;
-          box-shadow: 0 18px 54px rgba(0, 7, 18, 0.28) !important;
+          background: #06111f;
+          border: 1px solid rgba(151, 178, 205, 0.2);
+          border-radius: 18px;
+          box-shadow: 0 18px 54px rgba(0, 7, 18, 0.28);
         }
 
         .main-img-button {
-          position: relative !important;
-          min-height: clamp(360px, 52vw, 620px) !important;
-          overflow: hidden !important;
-          background: #06111f !important;
+          position: relative;
+          min-height: clamp(360px, 52vw, 620px);
+          overflow: hidden;
+          background: #06111f;
         }
 
         .listing-image-soft-bg {
-          position: absolute !important;
-          inset: 0 !important;
-          display: block !important;
-          overflow: hidden !important;
-          pointer-events: none !important;
+          position: absolute;
+          inset: 0;
+          display: block;
+          overflow: hidden;
+          pointer-events: none;
         }
 
         .listing-image-soft-bg img {
-          width: 100% !important;
-          height: 100% !important;
-          display: block !important;
-          object-fit: cover !important;
-          filter: blur(22px) saturate(0.85) brightness(0.56) !important;
-          transform: scale(1.08) !important;
-          opacity: 0.8 !important;
+          width: 100%;
+          height: 100%;
+          display: block;
+          object-fit: cover;
+          filter: blur(22px) saturate(0.85) brightness(0.56);
+          transform: scale(1.08);
+          opacity: 0.8;
         }
 
         .listing-image-soft-bg::after {
@@ -3149,80 +3346,80 @@ export default function ListingPage({
         }
 
         .main-img {
-          position: relative !important;
-          z-index: 1 !important;
-          width: 100% !important;
-          height: clamp(360px, 52vw, 620px) !important;
-          object-fit: contain !important;
-          object-position: center center !important;
-          background: transparent !important;
+          position: relative;
+          z-index: 1;
+          width: 100%;
+          height: clamp(360px, 52vw, 620px);
+          object-fit: contain;
+          object-position: center center;
+          background: transparent;
         }
 
         .image-wrapper::after {
-          z-index: 2 !important;
-          box-shadow: inset 0 -90px 80px rgba(0, 7, 18, 0.22) !important;
+          z-index: 2;
+          box-shadow: inset 0 -90px 80px rgba(0, 7, 18, 0.22);
         }
 
         .image-badge,
         .gallery-arrow,
         .image-zoom-button {
-          z-index: 4 !important;
+          z-index: 4;
         }
 
         .image-badge {
-          background: rgba(3, 12, 24, 0.72) !important;
-          border-color: rgba(151, 178, 205, 0.24) !important;
-          color: #ffffff !important;
+          background: rgba(3, 12, 24, 0.72);
+          border-color: rgba(151, 178, 205, 0.24);
+          color: #ffffff;
         }
 
         .price-actions-row {
-          align-items: center !important;
-          margin-top: 16px !important;
+          align-items: center;
+          margin-top: 16px;
         }
 
         .price-display {
-          color: #ffffff !important;
-          font-size: clamp(1.8rem, 3vw, 2.35rem) !important;
-          font-weight: 950 !important;
+          color: #ffffff;
+          font-size: clamp(1.8rem, 3vw, 2.35rem);
+          font-weight: 950;
         }
 
         .icon-btn {
-          background: rgba(12, 28, 46, 0.86) !important;
-          border-color: rgba(151, 178, 205, 0.22) !important;
-          color: #f4f8fc !important;
-          box-shadow: none !important;
+          background: rgba(12, 28, 46, 0.86);
+          border-color: rgba(151, 178, 205, 0.22);
+          color: #f4f8fc;
+          box-shadow: none;
         }
 
         .icon-btn.icon-saved {
-          background: rgba(255, 122, 26, 0.16) !important;
-          border-color: rgba(255, 122, 26, 0.48) !important;
-          color: #ffb45f !important;
+          background: rgba(255, 122, 26, 0.16);
+          border-color: rgba(255, 122, 26, 0.48);
+          color: #ffb45f;
         }
 
         .thumbs {
-          display: flex !important;
-          gap: 10px !important;
-          margin-top: 14px !important;
-          overflow-x: auto !important;
-          padding-bottom: 2px !important;
+          display: flex;
+          gap: 10px;
+          margin-top: 14px;
+          overflow-x: auto;
+          padding-bottom: 2px;
         }
 
         .thumbs img,
         .mobile-image-thumbs img {
-          width: 82px !important;
-          height: 64px !important;
-          flex: 0 0 auto !important;
-          border: 2px solid rgba(151, 178, 205, 0.2) !important;
-          border-radius: 12px !important;
-          background: #06111f !important;
-          object-fit: contain !important;
-          padding: 2px !important;
+          width: 82px;
+          height: 64px;
+          flex: 0 0 auto;
+          border: 2px solid rgba(151, 178, 205, 0.2);
+          border-radius: 12px;
+          background: #06111f;
+          object-fit: contain;
+          padding: 2px;
         }
 
         .thumbs img.active,
         .mobile-image-thumbs button.active img {
-          border-color: rgba(255, 122, 26, 0.72) !important;
-          box-shadow: 0 0 0 2px rgba(255, 122, 26, 0.16) !important;
+          border-color: rgba(255, 122, 26, 0.72);
+          box-shadow: 0 0 0 2px rgba(255, 122, 26, 0.16);
         }
 
         .description-card,
@@ -3232,243 +3429,243 @@ export default function ListingPage({
         .seller-card {
           background:
             radial-gradient(520px 220px at 100% 0%, rgba(255, 122, 26, 0.1), transparent 70%),
-            linear-gradient(145deg, rgba(13, 29, 46, 0.96), rgba(7, 17, 29, 0.98)) !important;
-          border: 1px solid rgba(151, 178, 205, 0.2) !important;
-          border-radius: 18px !important;
-          box-shadow: 0 18px 46px rgba(0, 7, 18, 0.28), inset 0 1px 0 rgba(255,255,255,0.04) !important;
-          color: #f4f8fc !important;
+            linear-gradient(145deg, rgba(13, 29, 46, 0.96), rgba(7, 17, 29, 0.98));
+          border: 1px solid rgba(151, 178, 205, 0.2);
+          border-radius: 18px;
+          box-shadow: 0 18px 46px rgba(0, 7, 18, 0.28), inset 0 1px 0 rgba(255,255,255,0.04);
+          color: #f4f8fc;
         }
 
         .description-card {
-          margin-top: 18px !important;
-          padding: 0 !important;
-          overflow: hidden !important;
+          margin-top: 18px;
+          padding: 0;
+          overflow: hidden;
         }
 
         .listing-section-toggle {
-          min-height: 58px !important;
-          padding: 0 18px !important;
-          background: rgba(3, 12, 24, 0.22) !important;
-          border: 0 !important;
-          color: #ffffff !important;
-          font-size: 1rem !important;
-          font-weight: 950 !important;
+          min-height: 58px;
+          padding: 0 18px;
+          background: rgba(3, 12, 24, 0.22);
+          border: 0;
+          color: #ffffff;
+          font-size: 1rem;
+          font-weight: 950;
         }
 
         .listing-section-content {
-          padding: 16px 18px 18px !important;
+          padding: 16px 18px 18px;
         }
 
         .description-card p {
-          color: rgba(226, 244, 255, 0.74) !important;
-          font-size: 14px !important;
-          font-weight: 700 !important;
-          line-height: 1.65 !important;
-          margin: 0 !important;
+          color: rgba(226, 244, 255, 0.74);
+          font-size: 14px;
+          font-weight: 700;
+          line-height: 1.65;
+          margin: 0;
         }
 
         .listing-fact-grid {
-          gap: 10px !important;
-          margin: 0 !important;
+          gap: 10px;
+          margin: 0;
         }
 
         .listing-fact-grid span {
-          min-height: 74px !important;
-          background: rgba(3, 12, 24, 0.38) !important;
-          border: 1px solid rgba(151, 178, 205, 0.16) !important;
-          border-radius: 14px !important;
-          color: rgba(226, 244, 255, 0.82) !important;
+          min-height: 74px;
+          background: rgba(3, 12, 24, 0.38);
+          border: 1px solid rgba(151, 178, 205, 0.16);
+          border-radius: 14px;
+          color: rgba(226, 244, 255, 0.82);
         }
 
         .listing-fact-grid strong {
-          color: #ffb45f !important;
-          font-size: 11px !important;
-          letter-spacing: 0.06em !important;
+          color: #ffb45f;
+          font-size: 11px;
+          letter-spacing: 0.06em;
         }
 
         .seller-card {
-          overflow: hidden !important;
-          padding: 0 !important;
+          overflow: hidden;
+          padding: 0;
         }
 
         .seller-profile-btn {
-          background: rgba(255, 122, 26, 0.14) !important;
-          border-color: rgba(255, 122, 26, 0.34) !important;
-          color: #ffd1a3 !important;
-          box-shadow: none !important;
+          background: rgba(255, 122, 26, 0.14);
+          border-color: rgba(255, 122, 26, 0.34);
+          color: #ffd1a3;
+          box-shadow: none;
         }
 
         .contact-card {
-          padding: 18px !important;
+          padding: 18px;
         }
 
         .contact-card h3 {
-          color: #ffffff !important;
-          font-size: 16px !important;
-          margin-bottom: 14px !important;
+          color: #ffffff;
+          font-size: 16px;
+          margin-bottom: 14px;
         }
 
         .message-btn,
         .phone-btn,
         .login-contact {
-          min-height: 50px !important;
-          height: auto !important;
-          border-radius: 12px !important;
-          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%) !important;
-          border-color: rgba(255, 210, 165, 0.58) !important;
-          box-shadow: 0 16px 34px rgba(255, 122, 26, 0.22) !important;
-          font-size: 14px !important;
+          min-height: 50px;
+          height: auto;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%);
+          border-color: rgba(255, 210, 165, 0.58);
+          box-shadow: 0 16px 34px rgba(255, 122, 26, 0.22);
+          font-size: 14px;
         }
 
         @media (max-width: 1280px) {
           .layout {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr;
           }
 
           .sidebar {
-            position: static !important;
+            position: static;
           }
         }
 
         @media (max-width: 640px) {
           .container {
-            width: min(100% - 24px, 1320px) !important;
-            padding-top: 14px !important;
+            width: min(100% - 24px, 1320px);
+            padding-top: 14px;
           }
 
           .main {
-            display: flex !important;
-            flex-direction: column !important;
-            padding: 14px !important;
-            border-radius: 18px !important;
+            display: flex;
+            flex-direction: column;
+            padding: 14px;
+            border-radius: 18px;
           }
 
           .image-wrapper {
-            order: 1 !important;
-            margin-bottom: 14px !important;
+            order: 1;
+            margin-bottom: 14px;
           }
 
           .title-row {
-            order: 2 !important;
-            margin-bottom: 8px !important;
+            order: 2;
+            margin-bottom: 8px;
           }
 
           .desktop-image-meta {
-            order: 3 !important;
-            margin: 0 0 14px !important;
+            order: 3;
+            margin: 0 0 14px;
           }
 
           .price-actions-row {
-            order: 4 !important;
-            margin-top: 8px !important;
-            margin-bottom: 14px !important;
+            order: 4;
+            margin-top: 8px;
+            margin-bottom: 14px;
           }
 
           .thumbs {
-            order: 5 !important;
-            margin-top: 0 !important;
-            margin-bottom: 16px !important;
+            order: 5;
+            margin-top: 0;
+            margin-bottom: 16px;
           }
 
           .listing-facts-card {
-            order: 6 !important;
+            order: 6;
           }
 
           .listing-extra-card {
-            order: 7 !important;
+            order: 7;
           }
 
           .mobile-listing-id {
-            align-items: center !important;
-            color: rgba(226, 244, 255, 0.74) !important;
-            display: flex !important;
-            font-size: 13px !important;
-            font-weight: 900 !important;
-            justify-content: space-between !important;
-            gap: 12px !important;
-            margin-bottom: 6px !important;
-            width: 100% !important;
+            align-items: center;
+            color: rgba(226, 244, 255, 0.74);
+            display: flex;
+            font-size: 13px;
+            font-weight: 900;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 6px;
+            width: 100%;
           }
 
           .mobile-listing-id strong {
-            color: #ffffff !important;
-            display: inline-flex !important;
-            flex: 0 0 auto !important;
-            font-size: 1.15rem !important;
-            font-weight: 950 !important;
-            line-height: 1 !important;
+            color: #ffffff;
+            display: inline-flex;
+            flex: 0 0 auto;
+            font-size: 1.15rem;
+            font-weight: 950;
+            line-height: 1;
           }
 
           .title-row h1 {
-            font-size: 1.45rem !important;
+            font-size: 1.45rem;
           }
 
           .sub-info,
           .desktop-image-meta {
-            gap: 7px !important;
-            font-size: 12px !important;
+            gap: 7px;
+            font-size: 12px;
           }
 
           .desktop-image-meta {
-            align-items: center !important;
-            border-bottom: 1px solid rgba(151, 178, 205, 0.22) !important;
-            display: flex !important;
-            flex-wrap: wrap !important;
-            line-height: 1.35 !important;
-            padding-bottom: 12px !important;
+            align-items: center;
+            border-bottom: 1px solid rgba(151, 178, 205, 0.22);
+            display: flex;
+            flex-wrap: wrap;
+            line-height: 1.35;
+            padding-bottom: 12px;
           }
 
           .desktop-image-meta strong {
-            display: none !important;
+            display: none;
           }
 
           .image-badge {
-            bottom: auto !important;
-            left: 10px !important;
-            min-height: 28px !important;
-            padding: 0 8px !important;
-            top: 10px !important;
+            bottom: auto;
+            left: 10px;
+            min-height: 28px;
+            padding: 0 8px;
+            top: 10px;
           }
 
           .mobile-image-actions {
-            bottom: 12px !important;
-            display: flex !important;
-            gap: 10px !important;
-            position: absolute !important;
-            right: 12px !important;
-            z-index: 5 !important;
+            bottom: 12px;
+            display: flex;
+            gap: 10px;
+            position: absolute;
+            right: 12px;
+            z-index: 5;
           }
 
           .mobile-image-actions .icon-btn {
-            backdrop-filter: blur(10px) !important;
-            background: rgba(3, 12, 24, 0.76) !important;
-            border-color: rgba(255, 255, 255, 0.28) !important;
-            border-radius: 999px !important;
-            height: 42px !important;
-            width: 42px !important;
+            backdrop-filter: blur(10px);
+            background: rgba(3, 12, 24, 0.76);
+            border-color: rgba(255, 255, 255, 0.28);
+            border-radius: 999px;
+            height: 42px;
+            width: 42px;
           }
 
           .main-img-button,
           .main-img {
-            height: min(72vh, 520px) !important;
-            min-height: 340px !important;
+            height: min(72vh, 520px);
+            min-height: 340px;
           }
 
           .price-actions-row {
-            display: none !important;
+            display: none;
           }
 
           .image-actions {
-            width: 100% !important;
-            justify-content: space-between !important;
+            width: 100%;
+            justify-content: space-between;
           }
 
           .price-display {
-            font-size: 2rem !important;
+            font-size: 2rem;
           }
 
           .listing-fact-grid {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr;
           }
         }
 
@@ -3476,224 +3673,224 @@ export default function ListingPage({
         .listing-detail-page .sidebar {
           background:
             radial-gradient(280px 180px at 100% 0%, rgba(255, 122, 26, 0.1), transparent 72%),
-            linear-gradient(180deg, rgba(13, 28, 45, 0.96), rgba(7, 20, 34, 0.96)) !important;
-          border: 1px solid rgba(151, 178, 205, 0.22) !important;
-          border-radius: 18px !important;
-          box-shadow: 0 18px 48px rgba(0, 6, 16, 0.22) !important;
-          display: grid !important;
-          gap: 22px !important;
-          padding: 22px !important;
+            linear-gradient(180deg, rgba(13, 28, 45, 0.96), rgba(7, 20, 34, 0.96));
+          border: 1px solid rgba(151, 178, 205, 0.22);
+          border-radius: 18px;
+          box-shadow: 0 18px 48px rgba(0, 6, 16, 0.22);
+          display: grid;
+          gap: 22px;
+          padding: 22px;
         }
 
         .listing-detail-page .seller-card,
         .listing-detail-page .contact-card {
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          overflow: visible !important;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          overflow: visible;
         }
 
         .listing-detail-page .seller-card {
-          padding: 0 !important;
+          padding: 0;
         }
 
         .listing-detail-page .seller-card-header {
-          justify-content: flex-start !important;
-          padding: 0 !important;
+          justify-content: flex-start;
+          padding: 0;
         }
 
         .listing-detail-page .seller-card-label {
-          background: transparent !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          color: #ffb45f !important;
-          display: block !important;
-          font-size: 11px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0.08em !important;
-          line-height: 1 !important;
-          margin: 3px 0 7px !important;
-          padding: 0 !important;
-          transform: translateY(4px) !important;
+          background: transparent;
+          border: 0;
+          border-radius: 0;
+          color: #ffb45f;
+          display: block;
+          font-size: 11px;
+          font-weight: 950;
+          letter-spacing: 0.08em;
+          line-height: 1;
+          margin: 3px 0 7px;
+          padding: 0;
+          transform: translateY(4px);
         }
 
         .listing-detail-page .seller-card-body {
-          align-items: center !important;
-          display: grid !important;
-          grid-template-columns: 64px minmax(0, 1fr) !important;
-          gap: 12px !important;
-          margin: 16px 0 0 !important;
-          min-height: 96px !important;
-          padding: 0 !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          background: transparent !important;
+          align-items: center;
+          display: grid;
+          grid-template-columns: 64px minmax(0, 1fr);
+          gap: 12px;
+          margin: 16px 0 0;
+          min-height: 96px;
+          padding: 0;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
         }
 
         .listing-detail-page .seller-profile-btn {
-          align-items: center !important;
+          align-items: center;
           background:
-            linear-gradient(180deg, rgba(17, 39, 61, 0.98), rgba(8, 24, 42, 0.98)) !important;
-          border: 1px solid rgba(255, 122, 26, 0.42) !important;
-          border-radius: 13px !important;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
-          color: #ffffff !important;
-          display: flex !important;
-          font-size: 14px !important;
-          font-weight: 950 !important;
-          gap: 8px !important;
-          height: 46px !important;
-          justify-content: center !important;
-          margin: 8px 0 0 !important;
-          padding: 0 14px !important;
-          text-decoration: none !important;
-          width: 100% !important;
+            linear-gradient(180deg, rgba(17, 39, 61, 0.98), rgba(8, 24, 42, 0.98));
+          border: 1px solid rgba(255, 122, 26, 0.42);
+          border-radius: 13px;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+          color: #ffffff;
+          display: flex;
+          font-size: 14px;
+          font-weight: 950;
+          gap: 8px;
+          height: 46px;
+          justify-content: center;
+          margin: 8px 0 0;
+          padding: 0 14px;
+          text-decoration: none;
+          width: 100%;
         }
 
         .listing-detail-page .seller-profile-btn svg {
-          color: #ffb45f !important;
-          height: 16px !important;
-          width: 16px !important;
+          color: #ffb45f;
+          height: 16px;
+          width: 16px;
         }
 
         .listing-detail-page .seller-profile-btn:hover {
-          border-color: rgba(255, 154, 36, 0.72) !important;
-          filter: brightness(1.05) !important;
-          transform: translateY(-1px) !important;
+          border-color: rgba(255, 154, 36, 0.72);
+          filter: brightness(1.05);
+          transform: translateY(-1px);
         }
 
         .listing-detail-page .seller-avatar-detail {
-          width: 64px !important;
-          height: 64px !important;
-          border-radius: 18px !important;
-          border: 1px solid rgba(255, 122, 26, 0.34) !important;
-          box-shadow: 0 14px 28px rgba(0, 7, 18, 0.22) !important;
-          background: rgba(3, 12, 24, 0.54) !important;
+          width: 64px;
+          height: 64px;
+          border-radius: 18px;
+          border: 1px solid rgba(255, 122, 26, 0.34);
+          box-shadow: 0 14px 28px rgba(0, 7, 18, 0.22);
+          background: rgba(3, 12, 24, 0.54);
         }
 
         .listing-detail-page .seller-avatar-img {
-          border-radius: 18px !important;
-          object-fit: cover !important;
+          border-radius: 18px;
+          object-fit: cover;
         }
 
         .listing-detail-page .seller-name-row strong {
-          color: #ffffff !important;
-          display: block !important;
-          font-size: 17px !important;
-          font-weight: 950 !important;
-          max-width: 100% !important;
-          white-space: normal !important;
+          color: #ffffff;
+          display: block;
+          font-size: 17px;
+          font-weight: 950;
+          max-width: 100%;
+          white-space: normal;
         }
 
         .listing-detail-page .seller-card .verified-chip {
-          background: transparent !important;
-          border: 0 !important;
-          color: #4ade80 !important;
-          padding: 0 !important;
+          background: transparent;
+          border: 0;
+          color: #4ade80;
+          padding: 0;
         }
 
         .listing-detail-page .seller-card .verified-chip svg {
-          color: #22c55e !important;
-          filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.28)) !important;
+          color: #22c55e;
+          filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.28));
         }
 
         .listing-detail-page .seller-location {
-          color: rgba(226, 244, 255, 0.72) !important;
-          font-size: 13px !important;
-          font-weight: 850 !important;
+          color: rgba(226, 244, 255, 0.72);
+          font-size: 13px;
+          font-weight: 850;
         }
 
         .listing-detail-page .seller-website {
-          align-items: center !important;
-          color: #7dd3fc !important;
-          display: inline-flex !important;
-          font-size: 13px !important;
-          font-weight: 900 !important;
-          gap: 6px !important;
-          margin-top: 6px !important;
-          max-width: 100% !important;
+          align-items: center;
+          color: #7dd3fc;
+          display: inline-flex;
+          font-size: 13px;
+          font-weight: 900;
+          gap: 6px;
+          margin-top: 6px;
+          max-width: 100%;
         }
 
         .listing-detail-page .seller-website svg {
-          color: #ffb45f !important;
-          flex: 0 0 auto !important;
+          color: #ffb45f;
+          flex: 0 0 auto;
         }
 
         .listing-detail-page .seller-card-arrow {
-          color: #ffb45f !important;
+          color: #ffb45f;
         }
 
         .listing-detail-page .contact-card {
-          display: grid !important;
-          gap: 10px !important;
-          margin-top: 4px !important;
-          padding: 0 !important;
+          display: grid;
+          gap: 10px;
+          margin-top: 4px;
+          padding: 0;
         }
 
         .listing-detail-page .contact-card h3 {
-          color: #ffffff !important;
-          font-size: 17px !important;
-          font-weight: 950 !important;
-          line-height: 1.15 !important;
-          margin: 0 0 2px !important;
+          color: #ffffff;
+          font-size: 17px;
+          font-weight: 950;
+          line-height: 1.15;
+          margin: 0 0 2px;
         }
 
         .listing-detail-page .contact-card .message-btn,
         .listing-detail-page .contact-card .phone-btn,
         .listing-detail-page .contact-card .login-contact,
         .listing-detail-page .contact-card .phone-number {
-          align-items: center !important;
-          border-radius: 13px !important;
-          box-sizing: border-box !important;
-          display: flex !important;
-          gap: 9px !important;
-          height: 54px !important;
-          justify-content: center !important;
-          margin: 0 !important;
-          min-height: 54px !important;
-          padding: 0 16px !important;
-          text-align: center !important;
-          text-decoration: none !important;
-          width: 100% !important;
+          align-items: center;
+          border-radius: 13px;
+          box-sizing: border-box;
+          display: flex;
+          gap: 9px;
+          height: 54px;
+          justify-content: center;
+          margin: 0;
+          min-height: 54px;
+          padding: 0 16px;
+          text-align: center;
+          text-decoration: none;
+          width: 100%;
         }
 
         .listing-detail-page .contact-card .message-btn {
           background:
-            linear-gradient(180deg, rgba(20, 42, 64, 0.96), rgba(10, 27, 45, 0.96)) !important;
-          border: 1px solid rgba(151, 178, 205, 0.36) !important;
-          color: #ffffff !important;
-          font-size: 14px !important;
-          font-weight: 950 !important;
+            linear-gradient(180deg, rgba(20, 42, 64, 0.96), rgba(10, 27, 45, 0.96));
+          border: 1px solid rgba(151, 178, 205, 0.36);
+          color: #ffffff;
+          font-size: 14px;
+          font-weight: 950;
           box-shadow:
             0 10px 24px rgba(0, 6, 16, 0.18),
-            inset 0 1px 0 rgba(255,255,255,0.06) !important;
+            inset 0 1px 0 rgba(255,255,255,0.06);
         }
 
         .listing-detail-page .contact-card .phone-btn,
         .listing-detail-page .contact-card .login-contact {
-          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%) !important;
-          border: 1px solid rgba(255, 210, 165, 0.62) !important;
-          color: #ffffff !important;
-          font-size: 14px !important;
-          font-weight: 950 !important;
-          box-shadow: 0 16px 34px rgba(255, 122, 26, 0.22) !important;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 58%, #e65300 100%);
+          border: 1px solid rgba(255, 210, 165, 0.62);
+          color: #ffffff;
+          font-size: 14px;
+          font-weight: 950;
+          box-shadow: 0 16px 34px rgba(255, 122, 26, 0.22);
         }
 
         .listing-detail-page .contact-card .message-btn svg,
         .listing-detail-page .contact-card .phone-btn svg,
         .listing-detail-page .contact-card .login-contact svg,
         .listing-detail-page .contact-card .phone-number svg {
-          flex: 0 0 auto !important;
-          height: 18px !important;
-          width: 18px !important;
+          flex: 0 0 auto;
+          height: 18px;
+          width: 18px;
         }
 
         .listing-detail-page .contact-card .message-btn:hover,
         .listing-detail-page .contact-card .phone-btn:hover,
         .listing-detail-page .contact-card .login-contact:hover {
-          filter: brightness(1.05) !important;
-          transform: translateY(-1px) !important;
+          filter: brightness(1.05);
+          transform: translateY(-1px);
         }
 
         .similar-listings-section {
@@ -3829,16 +4026,16 @@ export default function ListingPage({
 
         @media (max-width: 640px) {
           .listing-detail-page .seller-card-body {
-            grid-template-columns: 58px minmax(0, 1fr) !important;
+            grid-template-columns: 58px minmax(0, 1fr);
           }
 
           .listing-detail-page .sidebar {
-            padding: 18px !important;
+            padding: 18px;
           }
 
           .listing-detail-page .seller-avatar-detail {
-            width: 58px !important;
-            height: 58px !important;
+            width: 58px;
+            height: 58px;
           }
 
           .similar-listings-section {
@@ -3912,150 +4109,150 @@ export default function ListingPage({
 
         /* Final gallery arrow placement: centered on both sides of the image. */
         .listing-detail-page .image-wrapper .gallery-arrow {
-          align-items: center !important;
-          background: rgba(3, 12, 24, 0.76) !important;
-          border: 1px solid rgba(151, 178, 205, 0.28) !important;
-          border-radius: 999px !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          height: 46px !important;
-          justify-content: center !important;
-          padding: 0 !important;
-          position: absolute !important;
-          top: 50% !important;
-          transform: translateY(-50%) !important;
-          width: 46px !important;
-          z-index: 6 !important;
+          align-items: center;
+          background: rgba(3, 12, 24, 0.76);
+          border: 1px solid rgba(151, 178, 205, 0.28);
+          border-radius: 999px;
+          color: #ffffff;
+          cursor: pointer;
+          display: inline-flex;
+          height: 46px;
+          justify-content: center;
+          padding: 0;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 46px;
+          z-index: 6;
         }
 
         .listing-detail-page .image-wrapper .gallery-arrow-left {
-          left: 18px !important;
+          left: 18px;
         }
 
         .listing-detail-page .image-wrapper .gallery-arrow-right {
-          right: 18px !important;
+          right: 18px;
         }
 
         .listing-detail-page .image-wrapper .gallery-arrow:hover {
-          background: rgba(255, 122, 26, 0.92) !important;
-          border-color: rgba(255, 208, 164, 0.8) !important;
+          background: rgba(255, 122, 26, 0.92);
+          border-color: rgba(255, 208, 164, 0.8);
         }
 
         @media (max-width: 640px) {
           .listing-detail-page .image-wrapper .gallery-arrow {
-            height: 38px !important;
-            top: 44% !important;
-            width: 38px !important;
+            height: 38px;
+            top: 44%;
+            width: 38px;
           }
 
           .listing-detail-page .image-wrapper .gallery-arrow-left {
-            left: 10px !important;
+            left: 10px;
           }
 
           .listing-detail-page .image-wrapper .gallery-arrow-right {
-            right: 10px !important;
+            right: 10px;
           }
 
           .listing-detail-page .mobile-image-thumbs {
-            gap: 6px !important;
-            padding: 7px 8px !important;
+            gap: 6px;
+            padding: 7px 8px;
           }
 
           .listing-detail-page .mobile-image-thumbs button {
-            height: 54px !important;
-            min-width: 42px !important;
-            width: 42px !important;
+            height: 54px;
+            min-width: 42px;
+            width: 42px;
           }
 
           .listing-detail-page .mobile-image-thumbs img {
-            border-radius: 7px !important;
-            height: 54px !important;
-            padding: 1px !important;
-            width: 42px !important;
+            border-radius: 7px;
+            height: 54px;
+            padding: 1px;
+            width: 42px;
           }
         }
 
         /* Final similar listings image lock: every card keeps the same image size. */
         .listing-detail-page .similar-listing-card {
-          grid-template-rows: 168px minmax(132px, auto) !important;
-          min-height: 0 !important;
+          grid-template-rows: 168px minmax(132px, auto);
+          min-height: 0;
         }
 
         .listing-detail-page .similar-listing-image {
-          aspect-ratio: 16 / 10 !important;
-          display: block !important;
-          height: 168px !important;
-          max-height: 168px !important;
-          min-height: 168px !important;
-          overflow: hidden !important;
-          position: relative !important;
-          width: 100% !important;
+          aspect-ratio: 16 / 10;
+          display: block;
+          height: 168px;
+          max-height: 168px;
+          min-height: 168px;
+          overflow: hidden;
+          position: relative;
+          width: 100%;
         }
 
         .listing-detail-page .similar-listing-image img {
-          display: block !important;
-          height: 100% !important;
-          inset: 0 !important;
-          object-fit: cover !important;
-          object-position: center !important;
-          position: absolute !important;
-          width: 100% !important;
+          display: block;
+          height: 100%;
+          inset: 0;
+          object-fit: cover;
+          object-position: center;
+          position: absolute;
+          width: 100%;
         }
 
         .listing-detail-page .listing-image-preview-arrow {
-          align-items: center !important;
-          background: rgba(3, 12, 24, 0.78) !important;
-          border: 1px solid rgba(151, 178, 205, 0.28) !important;
-          border-radius: 999px !important;
-          color: #ffffff !important;
-          cursor: pointer !important;
-          display: inline-flex !important;
-          height: 46px !important;
-          justify-content: center !important;
-          padding: 0 !important;
-          position: absolute !important;
-          top: 50% !important;
-          transform: translateY(-50%) !important;
-          width: 46px !important;
-          z-index: 3 !important;
+          align-items: center;
+          background: rgba(3, 12, 24, 0.78);
+          border: 1px solid rgba(151, 178, 205, 0.28);
+          border-radius: 999px;
+          color: #ffffff;
+          cursor: pointer;
+          display: inline-flex;
+          height: 46px;
+          justify-content: center;
+          padding: 0;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 46px;
+          z-index: 3;
         }
 
         .listing-detail-page .listing-image-preview-arrow-left {
-          left: 14px !important;
+          left: 14px;
         }
 
         .listing-detail-page .listing-image-preview-arrow-right {
-          right: 14px !important;
+          right: 14px;
         }
 
         .listing-detail-page .listing-image-preview-arrow:hover {
-          background: rgba(255, 122, 26, 0.92) !important;
-          border-color: rgba(255, 208, 164, 0.8) !important;
+          background: rgba(255, 122, 26, 0.92);
+          border-color: rgba(255, 208, 164, 0.8);
         }
 
         @media (max-width: 640px) {
           .listing-detail-page .similar-listing-card {
-            grid-template-rows: 118px minmax(132px, auto) !important;
+            grid-template-rows: 118px minmax(132px, auto);
           }
 
           .listing-detail-page .similar-listing-image {
-            height: 118px !important;
-            max-height: 118px !important;
-            min-height: 118px !important;
+            height: 118px;
+            max-height: 118px;
+            min-height: 118px;
           }
 
           .listing-detail-page .listing-image-preview-arrow {
-            height: 38px !important;
-            width: 38px !important;
+            height: 38px;
+            width: 38px;
           }
 
           .listing-detail-page .listing-image-preview-arrow-left {
-            left: 8px !important;
+            left: 8px;
           }
 
           .listing-detail-page .listing-image-preview-arrow-right {
-            right: 8px !important;
+            right: 8px;
           }
         }
 
@@ -4072,17 +4269,17 @@ export default function ListingPage({
         .listing-detail-page .listing-facts-card,
         .listing-detail-page .listing-extra-card,
         .listing-detail-page .similar-listings-section {
-          border: 0 !important;
-          border-color: transparent !important;
-          box-shadow: none !important;
-          outline: 0 !important;
+          border: 0;
+          border-color: transparent;
+          box-shadow: none;
+          outline: 0;
         }
 
         .listing-detail-page .main,
         .listing-detail-page .sidebar,
         .listing-detail-page .seller-card,
         .listing-detail-page .contact-card {
-          background-clip: padding-box !important;
+          background-clip: padding-box;
         }
 
         .listing-detail-page .sidebar,
@@ -4090,7 +4287,7 @@ export default function ListingPage({
         .listing-detail-page .seller-card-body,
         .listing-detail-page .seller-info,
         .listing-detail-page .contact-card {
-          text-align: center !important;
+          text-align: center;
         }
 
         .listing-detail-page .seller-card-body,
@@ -4106,32 +4303,32 @@ export default function ListingPage({
         .listing-detail-page .contact-card .phone-btn,
         .listing-detail-page .contact-card .phone-number,
         .listing-detail-page .contact-card .login-contact {
-          align-items: center !important;
-          justify-content: center !important;
-          margin-left: auto !important;
-          margin-right: auto !important;
+          align-items: center;
+          justify-content: center;
+          margin-left: auto;
+          margin-right: auto;
         }
 
         @media (min-width: 761px) {
           .listing-detail-page .layout {
-            grid-template-columns: minmax(0, 1fr) minmax(300px, 360px) !important;
+            grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
           }
 
           .listing-detail-page .sidebar {
-            bottom: auto !important;
-            left: auto !important;
-            max-height: calc(100vh - 104px) !important;
-            overflow: auto !important;
-            position: fixed !important;
-            right: max(20px, calc((100vw - 1320px) / 2 + 20px)) !important;
-            scrollbar-width: none !important;
-            top: 86px !important;
-            width: clamp(300px, 24vw, 360px) !important;
-            z-index: 30 !important;
+            bottom: auto;
+            left: auto;
+            max-height: calc(100vh - 104px);
+            overflow: auto;
+            position: fixed;
+            right: max(20px, calc((100vw - 1320px) / 2 + 20px));
+            scrollbar-width: none;
+            top: 86px;
+            width: clamp(300px, 24vw, 360px);
+            z-index: 30;
           }
 
           .listing-detail-page .sidebar::-webkit-scrollbar {
-            display: none !important;
+            display: none;
           }
         }
 
@@ -4142,316 +4339,316 @@ export default function ListingPage({
         .listing-detail-page .gallery-arrow,
         .listing-detail-page .listing-image-preview-arrow,
         .listing-detail-page .mobile-image-thumbs button {
-          box-shadow: none !important;
+          box-shadow: none;
         }
 
         /* Keep the seller panel in the page flow and center its contents. */
         @media (min-width: 761px) {
           .listing-detail-page .sidebar {
-            left: auto !important;
-            max-height: none !important;
-            overflow: visible !important;
-            position: static !important;
-            right: auto !important;
-            top: auto !important;
-            width: auto !important;
-            z-index: auto !important;
+            left: auto;
+            max-height: none;
+            overflow: visible;
+            position: static;
+            right: auto;
+            top: auto;
+            width: auto;
+            z-index: auto;
           }
         }
 
         .listing-detail-page .seller-card-body,
         .listing-detail-page .seller-card-link {
-          grid-template-columns: 1fr !important;
+          grid-template-columns: 1fr;
         }
 
         .listing-detail-page .seller-info,
         .listing-detail-page .seller-name-row {
-          width: 100% !important;
+          width: 100%;
         }
 
         .listing-detail-page .seller-profile-btn {
-          align-self: center !important;
-          border-radius: 999px !important;
-          display: inline-flex !important;
-          margin: 16px auto 0 !important;
-          min-height: 42px !important;
-          padding: 0 18px !important;
-          width: min(100%, 230px) !important;
+          align-self: center;
+          border-radius: 999px;
+          display: inline-flex;
+          margin: 16px auto 0;
+          min-height: 42px;
+          padding: 0 18px;
+          width: min(100%, 230px);
         }
 
         .listing-detail-page .seller-card-link {
-          width: 100% !important;
+          width: 100%;
         }
 
         .listing-detail-page .seller-profile-btn {
-          grid-area: profile !important;
-          height: 38px !important;
-          margin: 4px auto 0 !important;
-          min-height: 38px !important;
-          width: min(100%, 220px) !important;
+          grid-area: profile;
+          height: 38px;
+          margin: 4px auto 0;
+          min-height: 38px;
+          width: min(100%, 220px);
         }
 
         @media (min-width: 641px) {
           .listing-detail-page .desktop-image-meta {
-            box-sizing: border-box !important;
-            margin: 0 0 12px !important;
-            padding-inline: clamp(28px, 3.6vw, 56px) !important;
-            width: 100% !important;
+            box-sizing: border-box;
+            margin: 0 0 12px;
+            padding-inline: clamp(28px, 3.6vw, 56px);
+            width: 100%;
           }
 
           .listing-detail-page .desktop-image-meta strong {
-            margin-left: auto !important;
+            margin-left: auto;
           }
 
           .listing-detail-page .image-badge {
-            bottom: auto !important;
-            left: clamp(28px, 3.6vw, 54px) !important;
-            top: 18px !important;
+            bottom: auto;
+            left: clamp(28px, 3.6vw, 54px);
+            top: 18px;
           }
 
           .listing-detail-page .image-zoom-button {
-            right: clamp(28px, 3.6vw, 54px) !important;
-            top: 18px !important;
+            right: clamp(28px, 3.6vw, 54px);
+            top: 18px;
           }
 
           .listing-detail-page .image-wrapper .gallery-arrow-left {
-            left: clamp(28px, 3.6vw, 54px) !important;
+            left: clamp(28px, 3.6vw, 54px);
           }
 
           .listing-detail-page .image-wrapper .gallery-arrow-right {
-            right: clamp(28px, 3.6vw, 54px) !important;
+            right: clamp(28px, 3.6vw, 54px);
           }
         }
 
         @media (max-width: 420px) {
           .listing-detail-page .seller-card-link {
-            padding: 16px !important;
+            padding: 16px;
           }
         }
 
         /* Seller profile card match to reference */
         .listing-detail-page .sidebar {
-          background: transparent !important;
-          padding: 0 !important;
-          gap: 0 !important;
+          background: transparent;
+          padding: 0;
+          gap: 0;
         }
 
         .listing-detail-page .seller-card {
-          border-radius: 34px !important;
-          border: 1px solid rgba(136, 177, 220, 0.28) !important;
+          border-radius: 34px;
+          border: 1px solid rgba(136, 177, 220, 0.28);
           background:
             radial-gradient(120% 100% at 50% 0%, rgba(20, 61, 120, 0.34), rgba(5, 24, 52, 0.95) 66%),
-            linear-gradient(180deg, rgba(7, 29, 56, 0.98), rgba(5, 23, 46, 0.98)) !important;
+            linear-gradient(180deg, rgba(7, 29, 56, 0.98), rgba(5, 23, 46, 0.98));
           box-shadow:
             0 30px 80px rgba(1, 10, 24, 0.56),
-            inset 0 1px 0 rgba(195, 227, 255, 0.2) !important;
-          overflow: hidden !important;
+            inset 0 1px 0 rgba(195, 227, 255, 0.2);
+          overflow: hidden;
         }
 
         .listing-detail-page .seller-card-body.seller-card-panel {
-          display: grid !important;
-          grid-template-columns: 86px minmax(0, 1fr) !important;
-          gap: 14px !important;
-          padding: 18px 18px !important;
-          margin: 0 !important;
+          display: grid;
+          grid-template-columns: 86px minmax(0, 1fr);
+          gap: 14px;
+          padding: 18px 18px;
+          margin: 0;
         }
 
         .listing-detail-page .seller-card-top {
-          grid-column: 1 / -1 !important;
-          display: flex !important;
-          justify-content: flex-end !important;
-          margin-bottom: 4px !important;
+          grid-column: 1 / -1;
+          display: flex;
+          justify-content: flex-end;
+          margin-bottom: 4px;
         }
 
         .listing-detail-page .seller-profile-btn {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          color: rgba(230, 241, 255, 0.84) !important;
-          font-size: 17px !important;
-          font-weight: 700 !important;
-          height: auto !important;
-          min-height: 0 !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          width: auto !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          color: rgba(230, 241, 255, 0.84);
+          font-size: 17px;
+          font-weight: 700;
+          height: auto;
+          min-height: 0;
+          margin: 0;
+          padding: 0;
+          width: auto;
         }
 
         .listing-detail-page .seller-avatar-detail,
         .listing-detail-page .seller-avatar-img {
-          width: 86px !important;
-          height: 86px !important;
-          border-radius: 14px !important;
-          border: 0 !important;
-          background: #ffffff !important;
+          width: 86px;
+          height: 86px;
+          border-radius: 14px;
+          border: 0;
+          background: #ffffff;
         }
 
         .listing-detail-page .seller-name-row strong {
-          font-size: clamp(26px, 5.5vw, 48px) !important;
-          line-height: 1.06 !important;
-          font-weight: 900 !important;
-          letter-spacing: -0.02em !important;
-          word-break: break-word !important;
+          font-size: clamp(26px, 5.5vw, 48px);
+          line-height: 1.06;
+          font-weight: 900;
+          letter-spacing: -0.02em;
+          word-break: break-word;
         }
 
         .listing-detail-page .seller-card .verified-chip {
-          color: #46e58f !important;
-          font-size: 18px !important;
-          font-weight: 800 !important;
-          gap: 8px !important;
+          color: #46e58f;
+          font-size: 18px;
+          font-weight: 800;
+          gap: 8px;
         }
 
         .listing-detail-page .seller-meta-rows {
-          grid-column: 1 / -1 !important;
-          border-top: 1px solid rgba(146, 180, 214, 0.28) !important;
-          margin-top: 8px !important;
-          padding-top: 22px !important;
-          gap: 14px !important;
+          grid-column: 1 / -1;
+          border-top: 1px solid rgba(146, 180, 214, 0.28);
+          margin-top: 8px;
+          padding-top: 22px;
+          gap: 14px;
         }
 
         .listing-detail-page .seller-meta-row {
-          justify-content: flex-start !important;
-          font-size: 18px !important;
-          color: rgba(219, 231, 245, 0.76) !important;
+          justify-content: flex-start;
+          font-size: 18px;
+          color: rgba(219, 231, 245, 0.76);
         }
 
         .listing-detail-page .seller-meta-row strong {
-          font-size: clamp(20px, 4.6vw, 36px) !important;
-          font-weight: 850 !important;
-          color: #ffffff !important;
+          font-size: clamp(20px, 4.6vw, 36px);
+          font-weight: 850;
+          color: #ffffff;
         }
 
         .listing-detail-page .seller-contact-merged {
-          grid-column: 1 / -1 !important;
-          margin-top: 18px !important;
-          gap: 14px !important;
+          grid-column: 1 / -1;
+          margin-top: 18px;
+          gap: 14px;
         }
 
         .listing-detail-page .seller-contact-merged .message-btn,
         .listing-detail-page .seller-contact-merged .phone-btn,
         .listing-detail-page .seller-contact-merged .phone-number,
         .listing-detail-page .seller-contact-merged .login-contact {
-          width: 100% !important;
-          height: 54px !important;
-          min-height: 54px !important;
-          border-radius: 16px !important;
-          font-size: 16px !important;
-          font-weight: 850 !important;
+          width: 100%;
+          height: 54px;
+          min-height: 54px;
+          border-radius: 16px;
+          font-size: 16px;
+          font-weight: 850;
         }
 
         .listing-detail-page .contact-card {
-          display: none !important;
+          display: none;
         }
 
         .listing-detail-page .seller-contact-merged .message-btn {
-          background: linear-gradient(90deg, #ff9b1d 0%, #ff5f00 100%) !important;
-          border: 1px solid rgba(255, 185, 101, 0.62) !important;
-          color: #ffffff !important;
+          background: linear-gradient(90deg, #ff9b1d 0%, #ff5f00 100%);
+          border: 1px solid rgba(255, 185, 101, 0.62);
+          color: #ffffff;
         }
 
         .listing-detail-page .seller-contact-merged .phone-btn,
         .listing-detail-page .seller-contact-merged .phone-number,
         .listing-detail-page .seller-contact-merged .login-contact {
-          background: rgba(7, 31, 58, 0.72) !important;
-          border: 2px solid #ff9c26 !important;
-          color: #f4f8ff !important;
+          background: rgba(7, 31, 58, 0.72);
+          border: 2px solid #ff9c26;
+          color: #f4f8ff;
         }
 
         /* Hard final override for seller card layout integrity */
         .listing-detail-page .seller-card-body.seller-card-panel {
-          display: block !important;
-          padding: 20px 16px !important;
+          display: block;
+          padding: 20px 16px;
         }
 
         .listing-detail-page .seller-card-top {
-          display: flex !important;
-          justify-content: space-between !important;
-          align-items: center !important;
-          margin-bottom: 14px !important;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 14px;
         }
 
         .listing-detail-page .seller-identity-row {
-          display: grid !important;
-          grid-template-columns: 72px minmax(0, 1fr) !important;
-          gap: 12px !important;
-          align-items: center !important;
+          display: grid;
+          grid-template-columns: 72px minmax(0, 1fr);
+          gap: 12px;
+          align-items: center;
         }
 
         .listing-detail-page .seller-info,
         .listing-detail-page .seller-name-row {
-          display: block !important;
-          text-align: left !important;
-          width: 100% !important;
-          min-width: 0 !important;
+          display: block;
+          text-align: left;
+          width: 100%;
+          min-width: 0;
         }
 
         .listing-detail-page .seller-name-row strong {
-          display: block !important;
-          font-size: 22px !important;
-          line-height: 1.15 !important;
-          white-space: normal !important;
-          word-break: normal !important;
-          overflow-wrap: anywhere !important;
-          max-width: 100% !important;
+          display: block;
+          font-size: 22px;
+          line-height: 1.15;
+          white-space: normal;
+          word-break: normal;
+          overflow-wrap: anywhere;
+          max-width: 100%;
         }
 
         .listing-detail-page .seller-card .verified-chip {
-          display: inline-flex !important;
-          margin-top: 4px !important;
-          font-size: 14px !important;
+          display: inline-flex;
+          margin-top: 4px;
+          font-size: 14px;
         }
 
         .listing-detail-page .seller-avatar-detail,
         .listing-detail-page .seller-avatar-img {
-          width: 72px !important;
-          height: 72px !important;
-          border-radius: 12px !important;
+          width: 72px;
+          height: 72px;
+          border-radius: 12px;
         }
 
         .listing-detail-page .seller-meta-rows {
-          margin-top: 14px !important;
-          padding-top: 12px !important;
-          border-top: 1px solid rgba(146, 180, 214, 0.28) !important;
-          display: grid !important;
-          gap: 8px !important;
+          margin-top: 14px;
+          padding-top: 12px;
+          border-top: 1px solid rgba(146, 180, 214, 0.28);
+          display: grid;
+          gap: 8px;
         }
 
         .listing-detail-page .seller-meta-row {
-          display: flex !important;
-          justify-content: flex-start !important;
-          align-items: baseline !important;
-          gap: 6px !important;
-          font-size: 14px !important;
+          display: flex;
+          justify-content: flex-start;
+          align-items: baseline;
+          gap: 6px;
+          font-size: 14px;
         }
 
         .listing-detail-page .seller-meta-row strong {
-          font-size: 14px !important;
-          line-height: 1.3 !important;
+          font-size: 14px;
+          line-height: 1.3;
         }
 
         .listing-detail-page .seller-contact-merged {
-          margin-top: 14px !important;
-          display: grid !important;
-          gap: 10px !important;
+          margin-top: 14px;
+          display: grid;
+          gap: 10px;
         }
 
         .listing-detail-page .seller-contact-merged .message-btn,
         .listing-detail-page .seller-contact-merged .phone-btn,
         .listing-detail-page .seller-contact-merged .phone-number,
         .listing-detail-page .seller-contact-merged .login-contact {
-          height: 48px !important;
-          min-height: 48px !important;
-          border-radius: 14px !important;
-          font-size: 15px !important;
-          padding: 0 12px !important;
+          height: 48px;
+          min-height: 48px;
+          border-radius: 14px;
+          font-size: 15px;
+          padding: 0 12px;
         }
 
         .listing-detail-page .similar-home-grid {
-          margin-top: 18px !important;
+          margin-top: 18px;
         }
 
         .listing-detail-page .similar-home-card {
-          min-width: 0 !important;
+          min-width: 0;
         }
 
         .listing-detail-page .container::before,
@@ -4462,11 +4659,11 @@ export default function ListingPage({
         .listing-detail-page .main::after,
         .listing-detail-page .sidebar::before,
         .listing-detail-page .sidebar::after {
-          background: none !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          content: none !important;
-          display: none !important;
+          background: none;
+          border: 0;
+          box-shadow: none;
+          content: none;
+          display: none;
         }
 
         /* Force unified seller panel background with no inner color bars. */
@@ -4478,17 +4675,17 @@ export default function ListingPage({
         .listing-detail-page .seller-employee-name,
         .listing-detail-page .seller-address,
         .listing-detail-page .seller-card-actions {
-          background: transparent !important;
-          background-image: none !important;
-          border: 0 !important;
-          box-shadow: none !important;
+          background: transparent;
+          background-image: none;
+          border: 0;
+          box-shadow: none;
         }
 
         .listing-detail-page .seller-card {
-          background: #06203a !important;
-          background-image: none !important;
-          border: 0 !important;
-          box-shadow: none !important;
+          background: #06203a;
+          background-image: none;
+          border: 0;
+          box-shadow: none;
         }
 
         .listing-detail-page .sidebar,
@@ -4502,969 +4699,969 @@ export default function ListingPage({
         .listing-detail-page .seller-employee-name,
         .listing-detail-page .seller-address,
         .listing-detail-page .seller-card-actions {
-          background: #06203a !important;
-          background-image: none !important;
-          border-color: transparent !important;
-          box-shadow: none !important;
+          background: #06203a;
+          background-image: none;
+          border-color: transparent;
+          box-shadow: none;
         }
 
         /* Reference-match seller card (final) */
         .listing-detail-page .seller-card {
-          border-radius: 42px !important;
-          border: 1px solid rgba(173, 205, 238, 0.35) !important;
+          border-radius: 42px;
+          border: 1px solid rgba(173, 205, 238, 0.35);
           background:
             radial-gradient(120% 140% at 15% 0%, rgba(72, 115, 172, 0.35), transparent 45%),
             radial-gradient(120% 140% at 100% 100%, rgba(0, 57, 122, 0.2), transparent 55%),
-            linear-gradient(180deg, #052247 0%, #021735 100%) !important;
+            linear-gradient(180deg, #052247 0%, #021735 100%);
           box-shadow:
             0 24px 70px rgba(0, 8, 20, 0.48),
-            inset 0 1px 0 rgba(215, 235, 255, 0.22) !important;
-          overflow: hidden !important;
+            inset 0 1px 0 rgba(215, 235, 255, 0.22);
+          overflow: hidden;
         }
         .listing-detail-page .seller-card-body.seller-card-panel {
-          display: block !important;
-          padding: 26px 22px 24px !important;
+          display: block;
+          padding: 26px 22px 24px;
         }
         .listing-detail-page .seller-card-top {
-          display: flex !important;
-          justify-content: space-between !important;
-          align-items: center !important;
-          margin-bottom: 18px !important;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 18px;
         }
         .listing-detail-page .seller-card-label {
-          color: #ffb255 !important;
-          font-size: 34px !important;
-          font-weight: 900 !important;
-          letter-spacing: 0 !important;
-          margin: 0 !important;
-          transform: none !important;
+          color: #ffb255;
+          font-size: 34px;
+          font-weight: 900;
+          letter-spacing: 0;
+          margin: 0;
+          transform: none;
         }
         .listing-detail-page .seller-profile-btn {
-          background: transparent !important;
-          border: 0 !important;
-          color: rgba(228, 237, 248, 0.92) !important;
-          font-size: 26px !important;
-          font-weight: 700 !important;
-          padding: 0 !important;
+          background: transparent;
+          border: 0;
+          color: rgba(228, 237, 248, 0.92);
+          font-size: 26px;
+          font-weight: 700;
+          padding: 0;
         }
         .listing-detail-page .seller-identity-row {
-          display: grid !important;
-          grid-template-columns: 140px minmax(0, 1fr) !important;
-          gap: 22px !important;
-          align-items: center !important;
+          display: grid;
+          grid-template-columns: 140px minmax(0, 1fr);
+          gap: 22px;
+          align-items: center;
         }
         .listing-detail-page .seller-avatar-detail,
         .listing-detail-page .seller-avatar-img {
-          width: 140px !important;
-          height: 140px !important;
-          border-radius: 20px !important;
-          background: #fff !important;
+          width: 140px;
+          height: 140px;
+          border-radius: 20px;
+          background: #fff;
         }
         .listing-detail-page .seller-name-row strong {
-          font-size: 48px !important;
-          line-height: 1.05 !important;
-          font-weight: 900 !important;
-          letter-spacing: -0.02em !important;
-          white-space: normal !important;
-          word-break: normal !important;
-          overflow-wrap: anywhere !important;
+          font-size: 48px;
+          line-height: 1.05;
+          font-weight: 900;
+          letter-spacing: -0.02em;
+          white-space: normal;
+          word-break: normal;
+          overflow-wrap: anywhere;
         }
         .listing-detail-page .seller-card .verified-chip {
-          color: #46ec95 !important;
-          font-size: 20px !important;
-          font-weight: 800 !important;
-          gap: 8px !important;
-          margin-top: 8px !important;
+          color: #46ec95;
+          font-size: 20px;
+          font-weight: 800;
+          gap: 8px;
+          margin-top: 8px;
         }
         .listing-detail-page .seller-meta-rows {
-          border-top: 1px solid rgba(174, 202, 231, 0.32) !important;
-          margin-top: 14px !important;
-          padding-top: 20px !important;
-          gap: 14px !important;
+          border-top: 1px solid rgba(174, 202, 231, 0.32);
+          margin-top: 14px;
+          padding-top: 20px;
+          gap: 14px;
         }
         .listing-detail-page .seller-meta-row {
-          font-size: 22px !important;
-          color: rgba(218, 229, 243, 0.8) !important;
-          gap: 10px !important;
+          font-size: 22px;
+          color: rgba(218, 229, 243, 0.8);
+          gap: 10px;
         }
         .listing-detail-page .seller-meta-row strong {
-          color: #fff !important;
-          font-size: 22px !important;
-          font-weight: 800 !important;
+          color: #fff;
+          font-size: 22px;
+          font-weight: 800;
         }
         .listing-detail-page .seller-divider {
-          margin: 18px 0 !important;
-          border-color: rgba(174, 202, 231, 0.26) !important;
+          margin: 18px 0;
+          border-color: rgba(174, 202, 231, 0.26);
         }
         .listing-detail-page .seller-contact-merged .message-btn,
         .listing-detail-page .seller-contact-merged .phone-btn,
         .listing-detail-page .seller-contact-merged .phone-number {
-          height: 64px !important;
-          min-height: 64px !important;
-          border-radius: 20px !important;
-          font-size: 18px !important;
-          font-weight: 850 !important;
+          height: 64px;
+          min-height: 64px;
+          border-radius: 20px;
+          font-size: 18px;
+          font-weight: 850;
         }
         .listing-detail-page .seller-contact-merged .message-btn {
-          background: linear-gradient(90deg, #ff9b1f 0%, #ff6300 100%) !important;
-          border: 1px solid rgba(255, 180, 84, 0.58) !important;
-          color: #fff !important;
+          background: linear-gradient(90deg, #ff9b1f 0%, #ff6300 100%);
+          border: 1px solid rgba(255, 180, 84, 0.58);
+          color: #fff;
         }
         .listing-detail-page .seller-contact-merged .phone-btn,
         .listing-detail-page .seller-contact-merged .phone-number {
-          background: rgba(0, 26, 58, 0.65) !important;
-          border: 2px solid #ff961f !important;
-          color: #eef3fa !important;
+          background: rgba(0, 26, 58, 0.65);
+          border: 2px solid #ff961f;
+          color: #eef3fa;
         }
-        .listing-detail-page .contact-card { display: none !important; }
+        .listing-detail-page .contact-card { display: none; }
 
         @media (min-width: 761px) {
           .listing-detail-page .sidebar {
-            max-width: 920px !important;
-            width: 100% !important;
-            margin: 0 auto !important;
+            max-width: 920px;
+            width: 100%;
+            margin: 0 auto;
           }
           .listing-detail-page .seller-card-body.seller-card-panel {
-            padding: 54px 54px 46px !important;
+            padding: 54px 54px 46px;
           }
           .listing-detail-page .seller-card-top {
-            margin-bottom: 34px !important;
+            margin-bottom: 34px;
           }
           .listing-detail-page .seller-card-label {
-            display: none !important;
+            display: none;
           }
           .listing-detail-page .seller-profile-btn {
-            font-size: 48px !important;
+            font-size: 48px;
           }
           .listing-detail-page .seller-identity-row {
-            grid-template-columns: 248px minmax(0, 1fr) !important;
-            gap: 32px !important;
+            grid-template-columns: 248px minmax(0, 1fr);
+            gap: 32px;
           }
           .listing-detail-page .seller-avatar-detail,
           .listing-detail-page .seller-avatar-img {
-            width: 248px !important;
-            height: 248px !important;
-            border-radius: 30px !important;
+            width: 248px;
+            height: 248px;
+            border-radius: 30px;
           }
           .listing-detail-page .seller-name-row strong {
-            font-size: 74px !important;
-            line-height: 1.03 !important;
+            font-size: 74px;
+            line-height: 1.03;
           }
           .listing-detail-page .seller-card .verified-chip {
-            font-size: 56px !important;
+            font-size: 56px;
           }
           .listing-detail-page .seller-divider {
-            margin: 40px 0 28px !important;
+            margin: 40px 0 28px;
           }
           .listing-detail-page .seller-meta-row {
-            font-size: 56px !important;
-            gap: 16px !important;
+            font-size: 56px;
+            gap: 16px;
           }
           .listing-detail-page .seller-meta-row strong {
-            font-size: 56px !important;
+            font-size: 56px;
           }
           .listing-detail-page .seller-contact-merged {
-            margin-top: 36px !important;
-            gap: 20px !important;
+            margin-top: 36px;
+            gap: 20px;
           }
           .listing-detail-page .seller-contact-merged .message-btn,
           .listing-detail-page .seller-contact-merged .phone-btn,
           .listing-detail-page .seller-contact-merged .phone-number {
-            height: 136px !important;
-            min-height: 136px !important;
-            border-radius: 32px !important;
-            font-size: 64px !important;
+            height: 136px;
+            min-height: 136px;
+            border-radius: 32px;
+            font-size: 64px;
           }
         }
 
         @media (max-width: 760px) {
-          .listing-detail-page .seller-card { border-radius: 22px !important; }
-          .listing-detail-page .seller-card-body.seller-card-panel { padding: 16px !important; }
-          .listing-detail-page .seller-card-label { font-size: 28px !important; }
-          .listing-detail-page .seller-profile-btn { font-size: 15px !important; }
-          .listing-detail-page .seller-identity-row { grid-template-columns: 72px minmax(0, 1fr) !important; gap: 10px !important; }
+          .listing-detail-page .seller-card { border-radius: 22px; }
+          .listing-detail-page .seller-card-body.seller-card-panel { padding: 16px; }
+          .listing-detail-page .seller-card-label { font-size: 28px; }
+          .listing-detail-page .seller-profile-btn { font-size: 15px; }
+          .listing-detail-page .seller-identity-row { grid-template-columns: 72px minmax(0, 1fr); gap: 10px; }
           .listing-detail-page .seller-avatar-detail,
-          .listing-detail-page .seller-avatar-img { width: 72px !important; height: 72px !important; border-radius: 12px !important; }
-          .listing-detail-page .seller-name-row strong { font-size: 18px !important; line-height: 1.08 !important; max-width: 160px !important; }
-          .listing-detail-page .seller-card .verified-chip { font-size: 14px !important; margin-top: 4px !important; }
-          .listing-detail-page .seller-meta-rows { margin-top: 10px !important; padding-top: 14px !important; }
-          .listing-detail-page .seller-meta-row { font-size: 12px !important; gap: 6px !important; }
-          .listing-detail-page .seller-meta-row strong { font-size: 12px !important; }
+          .listing-detail-page .seller-avatar-img { width: 72px; height: 72px; border-radius: 12px; }
+          .listing-detail-page .seller-name-row strong { font-size: 18px; line-height: 1.08; max-width: 160px; }
+          .listing-detail-page .seller-card .verified-chip { font-size: 14px; margin-top: 4px; }
+          .listing-detail-page .seller-meta-rows { margin-top: 10px; padding-top: 14px; }
+          .listing-detail-page .seller-meta-row { font-size: 12px; gap: 6px; }
+          .listing-detail-page .seller-meta-row strong { font-size: 12px; }
           .listing-detail-page .seller-contact-merged .message-btn,
           .listing-detail-page .seller-contact-merged .phone-btn,
-          .listing-detail-page .seller-contact-merged .phone-number { height: 54px !important; min-height: 54px !important; border-radius: 16px !important; font-size: 14px !important; }
-          .listing-detail-page .seller-divider { margin: 14px 0 !important; }
+          .listing-detail-page .seller-contact-merged .phone-number { height: 54px; min-height: 54px; border-radius: 16px; font-size: 14px; }
+          .listing-detail-page .seller-divider { margin: 14px 0; }
         }
 
         /* Seller card final reference lock */
         .listing-detail-page .sidebar {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          padding: 0 !important;
-          max-width: 380px !important;
-          width: 100% !important;
-          margin: 0 !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          padding: 0;
+          max-width: 380px;
+          width: 100%;
+          margin: 0;
         }
 
         .listing-detail-page .seller-card {
-          border: 1px solid rgba(139, 178, 219, 0.34) !important;
-          border-radius: 30px !important;
+          border: 1px solid rgba(139, 178, 219, 0.34);
+          border-radius: 30px;
           background:
             radial-gradient(120% 120% at 8% 0%, rgba(79, 119, 164, 0.32), transparent 45%),
             radial-gradient(100% 90% at 100% 100%, rgba(0, 55, 115, 0.18), transparent 55%),
-            linear-gradient(180deg, #062447 0%, #031935 100%) !important;
+            linear-gradient(180deg, #062447 0%, #031935 100%);
           box-shadow:
             0 22px 54px rgba(0, 8, 22, 0.48),
-            inset 0 1px 0 rgba(220, 238, 255, 0.18) !important;
-          overflow: hidden !important;
+            inset 0 1px 0 rgba(220, 238, 255, 0.18);
+          overflow: hidden;
         }
 
         .listing-detail-page .seller-card-body.seller-card-panel {
-          background: transparent !important;
-          display: block !important;
-          padding: 28px 26px 26px !important;
+          background: transparent;
+          display: block;
+          padding: 28px 26px 26px;
         }
 
         .listing-detail-page .seller-card-top {
-          display: flex !important;
-          justify-content: flex-end !important;
-          align-items: center !important;
-          margin: 0 0 30px !important;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          margin: 0 0 30px;
         }
 
         .listing-detail-page .seller-card-label {
-          display: none !important;
+          display: none;
         }
 
         .listing-detail-page .seller-profile-btn {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 10px !important;
-          width: auto !important;
-          height: auto !important;
-          min-height: 0 !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          box-shadow: none !important;
-          color: rgba(226, 236, 249, 0.86) !important;
-          font-size: 18px !important;
-          font-weight: 650 !important;
-          line-height: 1 !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          width: auto;
+          height: auto;
+          min-height: 0;
+          margin: 0;
+          padding: 0;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
+          color: rgba(226, 236, 249, 0.86);
+          font-size: 18px;
+          font-weight: 650;
+          line-height: 1;
         }
 
         .listing-detail-page .seller-profile-btn svg {
-          color: rgba(226, 236, 249, 0.84) !important;
-          width: 22px !important;
-          height: 22px !important;
+          color: rgba(226, 236, 249, 0.84);
+          width: 22px;
+          height: 22px;
         }
 
         .listing-detail-page .seller-identity-row {
-          display: grid !important;
-          grid-template-columns: 92px minmax(0, 1fr) !important;
-          align-items: center !important;
-          gap: 22px !important;
-          background: transparent !important;
+          display: grid;
+          grid-template-columns: 92px minmax(0, 1fr);
+          align-items: center;
+          gap: 22px;
+          background: transparent;
         }
 
         .listing-detail-page .seller-avatar-detail,
         .listing-detail-page .seller-avatar-img {
-          width: 92px !important;
-          height: 92px !important;
-          border-radius: 18px !important;
-          background: #ffffff !important;
-          border: 0 !important;
-          box-shadow: 0 14px 26px rgba(0, 8, 20, 0.22) !important;
-          object-fit: cover !important;
+          width: 92px;
+          height: 92px;
+          border-radius: 18px;
+          background: #ffffff;
+          border: 0;
+          box-shadow: 0 14px 26px rgba(0, 8, 20, 0.22);
+          object-fit: cover;
         }
 
         .listing-detail-page .seller-info,
         .listing-detail-page .seller-name-row {
-          display: block !important;
-          width: 100% !important;
-          min-width: 0 !important;
-          text-align: left !important;
-          background: transparent !important;
+          display: block;
+          width: 100%;
+          min-width: 0;
+          text-align: left;
+          background: transparent;
         }
 
         .listing-detail-page .seller-name-row strong {
-          display: block !important;
-          max-width: 100% !important;
-          color: #ffffff !important;
-          font-size: 30px !important;
-          font-weight: 900 !important;
-          letter-spacing: 0 !important;
-          line-height: 1.08 !important;
-          white-space: normal !important;
-          word-break: normal !important;
-          overflow-wrap: anywhere !important;
-          text-align: left !important;
+          display: block;
+          max-width: 100%;
+          color: #ffffff;
+          font-size: 30px;
+          font-weight: 900;
+          letter-spacing: 0;
+          line-height: 1.08;
+          white-space: normal;
+          word-break: normal;
+          overflow-wrap: anywhere;
+          text-align: left;
         }
 
         .listing-detail-page .seller-card .verified-chip {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: flex-start !important;
-          gap: 8px !important;
-          margin: 10px 0 0 !important;
-          padding: 0 !important;
-          border: 0 !important;
-          background: transparent !important;
-          color: #45e78c !important;
-          font-size: 17px !important;
-          font-weight: 800 !important;
-          line-height: 1.15 !important;
-          text-align: left !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 8px;
+          margin: 10px 0 0;
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: #45e78c;
+          font-size: 17px;
+          font-weight: 800;
+          line-height: 1.15;
+          text-align: left;
         }
 
         .listing-detail-page .seller-card .verified-chip svg {
-          width: 22px !important;
-          height: 22px !important;
-          color: #43e789 !important;
-          fill: #43e789 !important;
-          stroke: #062447 !important;
-          stroke-width: 3 !important;
+          width: 22px;
+          height: 22px;
+          color: #43e789;
+          fill: #43e789;
+          stroke: #062447;
+          stroke-width: 3;
         }
 
         .listing-detail-page .seller-meta-rows {
-          display: grid !important;
-          gap: 18px !important;
-          margin: 34px 0 0 !important;
-          padding: 26px 0 0 !important;
-          border-top: 1px solid rgba(177, 203, 230, 0.3) !important;
-          background: transparent !important;
+          display: grid;
+          gap: 18px;
+          margin: 34px 0 0;
+          padding: 26px 0 0;
+          border-top: 1px solid rgba(177, 203, 230, 0.3);
+          background: transparent;
         }
 
         .listing-detail-page .seller-meta-row {
-          display: grid !important;
-          grid-template-columns: 32px auto 1fr !important;
-          align-items: center !important;
-          gap: 10px !important;
-          color: rgba(219, 229, 242, 0.78) !important;
-          font-size: 20px !important;
-          font-weight: 650 !important;
-          line-height: 1.2 !important;
-          text-align: left !important;
-          background: transparent !important;
+          display: grid;
+          grid-template-columns: 32px auto 1fr;
+          align-items: center;
+          gap: 10px;
+          color: rgba(219, 229, 242, 0.78);
+          font-size: 20px;
+          font-weight: 650;
+          line-height: 1.2;
+          text-align: left;
+          background: transparent;
         }
 
         .listing-detail-page .seller-meta-row svg {
-          width: 24px !important;
-          height: 24px !important;
-          color: rgba(219, 229, 242, 0.82) !important;
+          width: 24px;
+          height: 24px;
+          color: rgba(219, 229, 242, 0.82);
         }
 
         .listing-detail-page .seller-meta-row strong {
-          color: #ffffff !important;
-          font-size: 20px !important;
-          font-weight: 800 !important;
-          line-height: 1.2 !important;
-          white-space: normal !important;
+          color: #ffffff;
+          font-size: 20px;
+          font-weight: 800;
+          line-height: 1.2;
+          white-space: normal;
         }
 
         .listing-detail-page .seller-divider {
-          display: none !important;
+          display: none;
         }
 
         .listing-detail-page .seller-contact-merged {
-          display: grid !important;
-          gap: 14px !important;
-          margin: 34px 0 0 !important;
-          background: transparent !important;
+          display: grid;
+          gap: 14px;
+          margin: 34px 0 0;
+          background: transparent;
         }
 
         .listing-detail-page .seller-contact-merged .message-btn,
         .listing-detail-page .seller-contact-merged .phone-btn,
         .listing-detail-page .seller-contact-merged .phone-number,
         .listing-detail-page .seller-contact-merged .login-contact {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 16px !important;
-          width: 100% !important;
-          height: 62px !important;
-          min-height: 62px !important;
-          margin: 0 !important;
-          padding: 0 18px !important;
-          border-radius: 16px !important;
-          box-shadow: none !important;
-          font-size: 22px !important;
-          font-weight: 800 !important;
-          letter-spacing: 0 !important;
-          line-height: 1 !important;
-          text-decoration: none !important;
-          text-align: center !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          width: 100%;
+          height: 62px;
+          min-height: 62px;
+          margin: 0;
+          padding: 0 18px;
+          border-radius: 16px;
+          box-shadow: none;
+          font-size: 22px;
+          font-weight: 800;
+          letter-spacing: 0;
+          line-height: 1;
+          text-decoration: none;
+          text-align: center;
         }
 
         .listing-detail-page .seller-contact-merged .message-btn {
-          background: linear-gradient(90deg, #ff991f 0%, #ff5f00 100%) !important;
-          border: 1px solid rgba(255, 181, 91, 0.7) !important;
-          color: #ffffff !important;
+          background: linear-gradient(90deg, #ff991f 0%, #ff5f00 100%);
+          border: 1px solid rgba(255, 181, 91, 0.7);
+          color: #ffffff;
         }
 
         .listing-detail-page .seller-contact-merged .phone-btn,
         .listing-detail-page .seller-contact-merged .phone-number,
         .listing-detail-page .seller-contact-merged .login-contact {
-          background: transparent !important;
-          border: 2px solid #ff9418 !important;
-          color: #f6f8fc !important;
+          background: transparent;
+          border: 2px solid #ff9418;
+          color: #f6f8fc;
         }
 
         .listing-detail-page .seller-contact-merged svg {
-          width: 26px !important;
-          height: 26px !important;
-          flex: 0 0 auto !important;
+          width: 26px;
+          height: 26px;
+          flex: 0 0 auto;
         }
 
         .listing-detail-page .contact-card {
-          display: none !important;
+          display: none;
         }
 
         @media (max-width: 420px) {
           .listing-detail-page .sidebar {
-            max-width: 100% !important;
+            max-width: 100%;
           }
 
           .listing-detail-page .seller-card {
-            border-radius: 24px !important;
+            border-radius: 24px;
           }
 
           .listing-detail-page .seller-card-body.seller-card-panel {
-            padding: 24px 22px 22px !important;
+            padding: 24px 22px 22px;
           }
 
           .listing-detail-page .seller-card-top {
-            margin-bottom: 26px !important;
+            margin-bottom: 26px;
           }
 
           .listing-detail-page .seller-profile-btn {
-            font-size: 15px !important;
+            font-size: 15px;
           }
 
           .listing-detail-page .seller-profile-btn svg {
-            width: 18px !important;
-            height: 18px !important;
+            width: 18px;
+            height: 18px;
           }
 
           .listing-detail-page .seller-identity-row {
-            grid-template-columns: 72px minmax(0, 1fr) !important;
-            gap: 18px !important;
+            grid-template-columns: 72px minmax(0, 1fr);
+            gap: 18px;
           }
 
           .listing-detail-page .seller-avatar-detail,
           .listing-detail-page .seller-avatar-img {
-            width: 72px !important;
-            height: 72px !important;
-            border-radius: 14px !important;
+            width: 72px;
+            height: 72px;
+            border-radius: 14px;
           }
 
           .listing-detail-page .seller-name-row strong {
-            font-size: 34px !important;
+            font-size: 34px;
           }
 
           .listing-detail-page .seller-card .verified-chip {
-            font-size: 22px !important;
+            font-size: 22px;
           }
 
           .listing-detail-page .seller-card .verified-chip svg {
-            width: 18px !important;
-            height: 18px !important;
+            width: 18px;
+            height: 18px;
           }
 
           .listing-detail-page .seller-meta-row {
-            grid-template-columns: 26px auto 1fr !important;
-            font-size: 17px !important;
+            grid-template-columns: 26px auto 1fr;
+            font-size: 17px;
           }
 
           .listing-detail-page .seller-meta-row strong {
-            font-size: 17px !important;
+            font-size: 17px;
           }
 
           .listing-detail-page .seller-contact-merged .message-btn,
           .listing-detail-page .seller-contact-merged .phone-btn,
           .listing-detail-page .seller-contact-merged .phone-number,
           .listing-detail-page .seller-contact-merged .login-contact {
-            height: 58px !important;
-            min-height: 58px !important;
-            font-size: 19px !important;
+            height: 58px;
+            min-height: 58px;
+            font-size: 19px;
           }
         }
       `}</style>
       <style jsx global>{`
         .listing-detail-page .sidebar {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          padding: 0 !important;
-          max-width: 380px !important;
-          width: 100% !important;
-          margin: 0 !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          padding: 0;
+          max-width: 380px;
+          width: 100%;
+          margin: 0;
         }
 
         .listing-detail-page .seller-card {
-          border: 1px solid rgba(139, 178, 219, 0.34) !important;
-          border-radius: 30px !important;
+          border: 1px solid rgba(139, 178, 219, 0.34);
+          border-radius: 30px;
           background:
             radial-gradient(120% 120% at 8% 0%, rgba(79, 119, 164, 0.32), transparent 45%),
             radial-gradient(100% 90% at 100% 100%, rgba(0, 55, 115, 0.18), transparent 55%),
-            linear-gradient(180deg, #062447 0%, #031935 100%) !important;
+            linear-gradient(180deg, #062447 0%, #031935 100%);
           box-shadow:
             0 22px 54px rgba(0, 8, 22, 0.48),
-            inset 0 1px 0 rgba(220, 238, 255, 0.18) !important;
-          overflow: hidden !important;
+            inset 0 1px 0 rgba(220, 238, 255, 0.18);
+          overflow: hidden;
         }
 
         .listing-detail-page .seller-card-body.seller-card-panel {
-          background: transparent !important;
-          display: block !important;
-          padding: 30px 28px 28px !important;
+          background: transparent;
+          display: block;
+          padding: 30px 28px 28px;
         }
 
         .listing-detail-page .seller-card-top {
-          display: flex !important;
-          justify-content: flex-end !important;
-          align-items: center !important;
-          margin: 0 0 30px !important;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          margin: 0 0 30px;
         }
 
         .listing-detail-page .seller-card-label {
-          display: none !important;
+          display: none;
         }
 
         .listing-detail-page .seller-profile-btn {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 10px !important;
-          width: auto !important;
-          height: auto !important;
-          min-height: 0 !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          box-shadow: none !important;
-          color: rgba(226, 236, 249, 0.88) !important;
-          font-size: 18px !important;
-          font-weight: 650 !important;
-          line-height: 1 !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          width: auto;
+          height: auto;
+          min-height: 0;
+          margin: 0;
+          padding: 0;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          box-shadow: none;
+          color: rgba(226, 236, 249, 0.88);
+          font-size: 18px;
+          font-weight: 650;
+          line-height: 1;
         }
 
         .listing-detail-page .seller-profile-btn svg {
-          color: rgba(226, 236, 249, 0.86) !important;
-          width: 24px !important;
-          height: 24px !important;
+          color: rgba(226, 236, 249, 0.86);
+          width: 24px;
+          height: 24px;
         }
 
         .listing-detail-page .seller-identity-row {
-          display: grid !important;
-          grid-template-columns: 96px minmax(0, 1fr) !important;
-          align-items: center !important;
-          gap: 24px !important;
-          background: transparent !important;
+          display: grid;
+          grid-template-columns: 96px minmax(0, 1fr);
+          align-items: center;
+          gap: 24px;
+          background: transparent;
         }
 
         .listing-detail-page .seller-avatar-detail,
         .listing-detail-page .seller-avatar-img {
-          width: 96px !important;
-          height: 96px !important;
-          border-radius: 18px !important;
-          background: #ffffff !important;
-          border: 0 !important;
-          box-shadow: 0 14px 26px rgba(0, 8, 20, 0.22) !important;
-          object-fit: cover !important;
+          width: 96px;
+          height: 96px;
+          border-radius: 18px;
+          background: #ffffff;
+          border: 0;
+          box-shadow: 0 14px 26px rgba(0, 8, 20, 0.22);
+          object-fit: cover;
         }
 
         .listing-detail-page .seller-info,
         .listing-detail-page .seller-name-row {
-          display: block !important;
-          width: 100% !important;
-          min-width: 0 !important;
-          text-align: left !important;
-          background: transparent !important;
+          display: block;
+          width: 100%;
+          min-width: 0;
+          text-align: left;
+          background: transparent;
         }
 
         .listing-detail-page .seller-name-row strong {
-          display: block !important;
-          max-width: 100% !important;
-          color: #ffffff !important;
-          font-size: 30px !important;
-          font-weight: 900 !important;
-          letter-spacing: 0 !important;
-          line-height: 1.08 !important;
-          white-space: normal !important;
-          word-break: normal !important;
-          overflow-wrap: anywhere !important;
-          text-align: left !important;
+          display: block;
+          max-width: 100%;
+          color: #ffffff;
+          font-size: 30px;
+          font-weight: 900;
+          letter-spacing: 0;
+          line-height: 1.08;
+          white-space: normal;
+          word-break: normal;
+          overflow-wrap: anywhere;
+          text-align: left;
         }
 
         .listing-detail-page .seller-card .verified-chip {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: flex-start !important;
-          gap: 8px !important;
-          margin: 10px 0 0 !important;
-          padding: 0 !important;
-          border: 0 !important;
-          background: transparent !important;
-          color: #45e78c !important;
-          font-size: 17px !important;
-          font-weight: 800 !important;
-          line-height: 1.15 !important;
-          text-align: left !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 8px;
+          margin: 10px 0 0;
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: #45e78c;
+          font-size: 17px;
+          font-weight: 800;
+          line-height: 1.15;
+          text-align: left;
         }
 
         .listing-detail-page .seller-card .verified-chip svg {
-          width: 22px !important;
-          height: 22px !important;
-          color: #43e789 !important;
-          fill: #43e789 !important;
-          stroke: #062447 !important;
-          stroke-width: 3 !important;
+          width: 22px;
+          height: 22px;
+          color: #43e789;
+          fill: #43e789;
+          stroke: #062447;
+          stroke-width: 3;
         }
 
         .listing-detail-page .seller-meta-rows {
-          display: grid !important;
-          gap: 18px !important;
-          margin: 34px 0 0 !important;
-          padding: 26px 0 0 !important;
-          border-top: 1px solid rgba(177, 203, 230, 0.3) !important;
-          background: transparent !important;
+          display: grid;
+          gap: 18px;
+          margin: 34px 0 0;
+          padding: 26px 0 0;
+          border-top: 1px solid rgba(177, 203, 230, 0.3);
+          background: transparent;
         }
 
         .listing-detail-page .seller-meta-row {
-          display: grid !important;
-          grid-template-columns: 32px auto 1fr !important;
-          align-items: center !important;
-          gap: 10px !important;
-          color: rgba(219, 229, 242, 0.78) !important;
-          font-size: 20px !important;
-          font-weight: 650 !important;
-          line-height: 1.2 !important;
-          text-align: left !important;
-          background: transparent !important;
+          display: grid;
+          grid-template-columns: 32px auto 1fr;
+          align-items: center;
+          gap: 10px;
+          color: rgba(219, 229, 242, 0.78);
+          font-size: 20px;
+          font-weight: 650;
+          line-height: 1.2;
+          text-align: left;
+          background: transparent;
         }
 
         .listing-detail-page .seller-meta-row svg {
-          width: 24px !important;
-          height: 24px !important;
-          color: rgba(219, 229, 242, 0.82) !important;
+          width: 24px;
+          height: 24px;
+          color: rgba(219, 229, 242, 0.82);
         }
 
         .listing-detail-page .seller-meta-row strong {
-          color: #ffffff !important;
-          font-size: 20px !important;
-          font-weight: 800 !important;
-          line-height: 1.2 !important;
-          white-space: normal !important;
+          color: #ffffff;
+          font-size: 20px;
+          font-weight: 800;
+          line-height: 1.2;
+          white-space: normal;
         }
 
         .listing-detail-page .seller-divider {
-          display: none !important;
+          display: none;
         }
 
         .listing-detail-page .seller-contact-merged {
-          display: grid !important;
-          gap: 14px !important;
-          margin: 34px 0 0 !important;
-          background: transparent !important;
+          display: grid;
+          gap: 14px;
+          margin: 34px 0 0;
+          background: transparent;
         }
 
         .listing-detail-page .seller-contact-merged .message-btn,
         .listing-detail-page .seller-contact-merged .phone-btn,
         .listing-detail-page .seller-contact-merged .phone-number,
         .listing-detail-page .seller-contact-merged .login-contact {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 16px !important;
-          width: 100% !important;
-          height: 62px !important;
-          min-height: 62px !important;
-          margin: 0 !important;
-          padding: 0 18px !important;
-          border-radius: 16px !important;
-          box-shadow: none !important;
-          font-size: 22px !important;
-          font-weight: 800 !important;
-          letter-spacing: 0 !important;
-          line-height: 1 !important;
-          text-decoration: none !important;
-          text-align: center !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          width: 100%;
+          height: 62px;
+          min-height: 62px;
+          margin: 0;
+          padding: 0 18px;
+          border-radius: 16px;
+          box-shadow: none;
+          font-size: 22px;
+          font-weight: 800;
+          letter-spacing: 0;
+          line-height: 1;
+          text-decoration: none;
+          text-align: center;
         }
 
         .listing-detail-page .seller-contact-merged .message-btn {
-          background: linear-gradient(90deg, #ff991f 0%, #ff5f00 100%) !important;
-          border: 1px solid rgba(255, 181, 91, 0.7) !important;
-          color: #ffffff !important;
+          background: linear-gradient(90deg, #ff991f 0%, #ff5f00 100%);
+          border: 1px solid rgba(255, 181, 91, 0.7);
+          color: #ffffff;
         }
 
         .listing-detail-page .seller-contact-merged .phone-btn,
         .listing-detail-page .seller-contact-merged .phone-number,
         .listing-detail-page .seller-contact-merged .login-contact {
-          background: transparent !important;
-          border: 2px solid #ff9418 !important;
-          color: #f6f8fc !important;
+          background: transparent;
+          border: 2px solid #ff9418;
+          color: #f6f8fc;
         }
 
         .listing-detail-page .seller-contact-merged svg {
-          width: 26px !important;
-          height: 26px !important;
-          flex: 0 0 auto !important;
+          width: 26px;
+          height: 26px;
+          flex: 0 0 auto;
         }
 
         .listing-detail-page .contact-card {
-          display: none !important;
+          display: none;
         }
 
         @media (max-width: 420px) {
           .listing-detail-page .seller-card {
-            border-radius: 24px !important;
+            border-radius: 24px;
           }
 
           .listing-detail-page .seller-card-body.seller-card-panel {
-            padding: 24px 22px 22px !important;
+            padding: 24px 22px 22px;
           }
 
           .listing-detail-page .seller-card-top {
-            margin-bottom: 26px !important;
+            margin-bottom: 26px;
           }
 
           .listing-detail-page .seller-profile-btn {
-            font-size: 15px !important;
+            font-size: 15px;
           }
 
           .listing-detail-page .seller-profile-btn svg {
-            width: 18px !important;
-            height: 18px !important;
+            width: 18px;
+            height: 18px;
           }
 
           .listing-detail-page .seller-identity-row {
-            grid-template-columns: 72px minmax(0, 1fr) !important;
-            gap: 18px !important;
+            grid-template-columns: 72px minmax(0, 1fr);
+            gap: 18px;
           }
 
           .listing-detail-page .seller-avatar-detail,
           .listing-detail-page .seller-avatar-img {
-            width: 72px !important;
-            height: 72px !important;
-            border-radius: 14px !important;
+            width: 72px;
+            height: 72px;
+            border-radius: 14px;
           }
 
           .listing-detail-page .seller-name-row strong {
-            font-size: 30px !important;
+            font-size: 30px;
           }
 
           .listing-detail-page .seller-card .verified-chip {
-            font-size: 16px !important;
+            font-size: 16px;
           }
 
           .listing-detail-page .seller-card .verified-chip svg {
-            width: 18px !important;
-            height: 18px !important;
+            width: 18px;
+            height: 18px;
           }
 
           .listing-detail-page .seller-meta-row {
-            grid-template-columns: 26px auto 1fr !important;
-            font-size: 17px !important;
+            grid-template-columns: 26px auto 1fr;
+            font-size: 17px;
           }
 
           .listing-detail-page .seller-meta-row strong {
-            font-size: 17px !important;
+            font-size: 17px;
           }
 
           .listing-detail-page .seller-contact-merged .message-btn,
           .listing-detail-page .seller-contact-merged .phone-btn,
           .listing-detail-page .seller-contact-merged .phone-number,
           .listing-detail-page .seller-contact-merged .login-contact {
-            height: 58px !important;
-            min-height: 58px !important;
-            font-size: 19px !important;
+            height: 58px;
+            min-height: 58px;
+            font-size: 19px;
           }
         }
 
         main.listing-detail-page .seller-card .seller-card-top a.seller-profile-btn.seller-profile-btn-top {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          gap: 10px !important;
-          width: auto !important;
-          height: auto !important;
-          min-height: 0 !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          background: transparent !important;
-          background-image: none !important;
-          box-shadow: none !important;
-          color: rgba(226, 236, 249, 0.88) !important;
-          font-size: 18px !important;
-          font-weight: 650 !important;
-          line-height: 1 !important;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          width: auto;
+          height: auto;
+          min-height: 0;
+          margin: 0;
+          padding: 0;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          background-image: none;
+          box-shadow: none;
+          color: rgba(226, 236, 249, 0.88);
+          font-size: 18px;
+          font-weight: 650;
+          line-height: 1;
         }
 
         main.listing-detail-page .seller-card .seller-card-top a.seller-profile-btn.seller-profile-btn-top svg {
-          color: rgba(226, 236, 249, 0.86) !important;
-          width: 24px !important;
-          height: 24px !important;
+          color: rgba(226, 236, 249, 0.86);
+          width: 24px;
+          height: 24px;
         }
 
         @media (min-width: 900px) {
           body main.page.listing-detail-page.listing-detail-page section.layout.layout {
-            grid-template-columns: minmax(0, 1fr) minmax(320px, 350px) !important;
-            align-items: start !important;
+            grid-template-columns: minmax(0, 1fr) minmax(320px, 350px);
+            align-items: start;
           }
 
           body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar {
-            max-width: 350px !important;
-            width: 100% !important;
+            max-width: 350px;
+            width: 100%;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card {
-            border-radius: 24px !important;
+            border-radius: 24px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-card-body.seller-card-panel {
-            padding: 18px 20px 18px !important;
+            padding: 18px 20px 18px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-card-top.seller-card-top {
-            margin: 0 0 14px !important;
+            margin: 0 0 14px;
           }
 
           .listing-detail-page .seller-profile-btn,
           main.listing-detail-page .seller-card .seller-card-top a.seller-profile-btn.seller-profile-btn-top {
-            background: transparent !important;
-            background-image: none !important;
-            border: 0 !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            color: rgba(226, 236, 249, 0.88) !important;
-            font-size: 14px !important;
-            font-weight: 650 !important;
-            padding: 0 !important;
-            width: auto !important;
+            background: transparent;
+            background-image: none;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            color: rgba(226, 236, 249, 0.88);
+            font-size: 14px;
+            font-weight: 650;
+            padding: 0;
+            width: auto;
           }
 
           .listing-detail-page .seller-profile-btn svg,
           main.listing-detail-page .seller-card .seller-card-top a.seller-profile-btn.seller-profile-btn-top svg {
-            width: 18px !important;
-            height: 18px !important;
+            width: 18px;
+            height: 18px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-identity-row.seller-identity-row {
-            grid-template-columns: 70px minmax(0, 1fr) !important;
-            gap: 14px !important;
+            grid-template-columns: 70px minmax(0, 1fr);
+            gap: 14px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-avatar-detail.seller-avatar-detail,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-avatar-img.seller-avatar-img {
-            width: 70px !important;
-            height: 70px !important;
-            border-radius: 14px !important;
+            width: 70px;
+            height: 70px;
+            border-radius: 14px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-name-row.seller-name-row strong {
-            font-size: 22px !important;
-            line-height: 1.08 !important;
-            white-space: normal !important;
-            overflow-wrap: anywhere !important;
+            font-size: 22px;
+            line-height: 1.08;
+            white-space: normal;
+            overflow-wrap: anywhere;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .verified-chip.verified-chip {
-            font-size: 14px !important;
-            margin-top: 6px !important;
+            font-size: 14px;
+            margin-top: 6px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .verified-chip.verified-chip svg {
-            width: 16px !important;
-            height: 16px !important;
+            width: 16px;
+            height: 16px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-rows.seller-meta-rows {
-            gap: 7px !important;
-            margin-top: 16px !important;
-            padding-top: 0 !important;
+            gap: 7px;
+            margin-top: 16px;
+            padding-top: 0;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row {
-            grid-template-columns: 24px auto 1fr !important;
-            gap: 8px !important;
-            font-size: 14px !important;
-            line-height: 1.05 !important;
+            grid-template-columns: 24px auto 1fr;
+            gap: 8px;
+            font-size: 14px;
+            line-height: 1.05;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row svg {
-            width: 18px !important;
-            height: 18px !important;
+            width: 18px;
+            height: 18px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row strong {
-            font-size: 14px !important;
+            font-size: 14px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged {
-            gap: 10px !important;
-            margin-top: 18px !important;
+            gap: 10px;
+            margin-top: 18px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .message-btn,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-btn,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-number,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .login-contact {
-            height: 42px !important;
-            min-height: 42px !important;
-            border-radius: 12px !important;
-            font-size: 15px !important;
+            height: 42px;
+            min-height: 42px;
+            border-radius: 12px;
+            font-size: 15px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged svg {
-            width: 19px !important;
-            height: 19px !important;
+            width: 19px;
+            height: 19px;
           }
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-rows.seller-meta-rows,
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row {
-          background: transparent !important;
-          background-color: transparent !important;
-          background-image: none !important;
-          border: 0 !important;
-          box-shadow: none !important;
+          background: transparent;
+          background-color: transparent;
+          background-image: none;
+          border: 0;
+          box-shadow: none;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-rows.seller-meta-rows {
-          border-top: 0 !important;
+          border-top: 0;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row::before,
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row::after,
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-rows.seller-meta-rows::before,
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-rows.seller-meta-rows::after {
-          display: none !important;
-          content: none !important;
+          display: none;
+          content: none;
         }
 
         @media (max-width: 420px) {
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-name-row.seller-name-row strong {
-            font-size: 30px !important;
-            line-height: 1.08 !important;
+            font-size: 30px;
+            line-height: 1.08;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .verified-chip.verified-chip {
-            font-size: 16px !important;
-            line-height: 1.15 !important;
+            font-size: 16px;
+            line-height: 1.15;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .verified-chip.verified-chip svg {
-            width: 18px !important;
-            height: 18px !important;
+            width: 18px;
+            height: 18px;
           }
         }
 
@@ -5473,1702 +5670,1702 @@ export default function ListingPage({
           background:
             repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 10px),
             radial-gradient(900px 520px at 18% 0%, rgba(20, 72, 122, 0.3), transparent 64%),
-            linear-gradient(180deg, #06111e 0%, #020912 100%) !important;
+            linear-gradient(180deg, #06111e 0%, #020912 100%);
         }
 
         main.listing-detail-page .container {
-          max-width: 1240px !important;
-          padding: 22px 20px 54px !important;
+          max-width: 1240px;
+          padding: 22px 20px 54px;
         }
 
         body main.page.listing-detail-page.listing-detail-page section.layout.layout {
-          grid-template-columns: minmax(0, 780px) minmax(320px, 350px) !important;
-          gap: 18px !important;
-          justify-content: center !important;
+          grid-template-columns: minmax(0, 780px) minmax(320px, 350px);
+          gap: 18px;
+          justify-content: center;
         }
 
         main.listing-detail-page .main {
           background:
             radial-gradient(100% 80% at 10% 0%, rgba(33, 81, 130, 0.34), transparent 56%),
-            linear-gradient(180deg, #061d39 0%, #031425 100%) !important;
-          border: 1px solid rgba(128, 167, 210, 0.28) !important;
-          border-radius: 22px !important;
-          box-shadow: 0 24px 58px rgba(0, 8, 20, 0.38) !important;
-          overflow: hidden !important;
-          padding: 26px !important;
+            linear-gradient(180deg, #061d39 0%, #031425 100%);
+          border: 1px solid rgba(128, 167, 210, 0.28);
+          border-radius: 22px;
+          box-shadow: 0 24px 58px rgba(0, 8, 20, 0.38);
+          overflow: hidden;
+          padding: 26px;
         }
 
         main.listing-detail-page .listing-featured-pill {
-          align-items: center !important;
-          border: 1px solid rgba(255, 141, 24, 0.72) !important;
-          border-radius: 999px !important;
-          color: #ff9a1f !important;
-          display: inline-flex !important;
-          font-size: 12px !important;
-          font-weight: 900 !important;
-          gap: 8px !important;
-          margin: 0 0 12px !important;
-          padding: 6px 12px !important;
-          text-transform: uppercase !important;
-          width: fit-content !important;
+          align-items: center;
+          border: 1px solid rgba(255, 141, 24, 0.72);
+          border-radius: 999px;
+          color: #ff9a1f;
+          display: inline-flex;
+          font-size: 12px;
+          font-weight: 900;
+          gap: 8px;
+          margin: 0 0 12px;
+          padding: 6px 12px;
+          text-transform: uppercase;
+          width: fit-content;
         }
 
         main.listing-detail-page .listing-featured-pill svg {
-          width: 14px !important;
-          height: 14px !important;
+          width: 14px;
+          height: 14px;
         }
 
         main.listing-detail-page .title-row {
-          margin-bottom: 18px !important;
+          margin-bottom: 18px;
         }
 
         main.listing-detail-page .title-row h1 {
-          color: #ffffff !important;
-          font-size: 30px !important;
-          font-weight: 900 !important;
-          letter-spacing: 0 !important;
-          line-height: 1.1 !important;
+          color: #ffffff;
+          font-size: 30px;
+          font-weight: 900;
+          letter-spacing: 0;
+          line-height: 1.1;
         }
 
         main.listing-detail-page .desktop-image-meta {
-          color: rgba(230, 239, 249, 0.86) !important;
-          font-size: 14px !important;
-          font-weight: 750 !important;
-          margin: 0 0 18px !important;
-          padding: 0 !important;
+          color: rgba(230, 239, 249, 0.86);
+          font-size: 14px;
+          font-weight: 750;
+          margin: 0 0 18px;
+          padding: 0;
         }
 
         main.listing-detail-page .desktop-image-meta strong {
-          color: #ffae52 !important;
-          font-size: 14px !important;
-          font-weight: 900 !important;
+          color: #ffae52;
+          font-size: 14px;
+          font-weight: 900;
         }
 
         main.listing-detail-page .image-wrapper {
-          background: #111923 !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          margin: 0 -26px !important;
+          background: #111923;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          margin: 0 -26px;
         }
 
         main.listing-detail-page .main-img-button,
         main.listing-detail-page .main-img {
-          height: min(54vh, 520px) !important;
-          min-height: 420px !important;
+          height: min(54vh, 520px);
+          min-height: 420px;
         }
 
         main.listing-detail-page .desktop-image-thumbs {
-          display: flex !important;
-          gap: 12px !important;
-          margin: -86px 0 18px !important;
-          padding: 0 18px !important;
-          position: relative !important;
-          z-index: 8 !important;
+          display: flex;
+          gap: 12px;
+          margin: -86px 0 18px;
+          padding: 0 18px;
+          position: relative;
+          z-index: 8;
         }
 
         main.listing-detail-page .desktop-image-thumbs button {
-          background: rgba(8, 18, 32, 0.78) !important;
-          border: 1px solid rgba(147, 176, 209, 0.32) !important;
-          border-radius: 8px !important;
-          cursor: pointer !important;
-          height: 72px !important;
-          overflow: hidden !important;
-          padding: 0 !important;
-          width: 118px !important;
+          background: rgba(8, 18, 32, 0.78);
+          border: 1px solid rgba(147, 176, 209, 0.32);
+          border-radius: 8px;
+          cursor: pointer;
+          height: 72px;
+          overflow: hidden;
+          padding: 0;
+          width: 118px;
         }
 
         main.listing-detail-page .desktop-image-thumbs button.active {
-          border-color: #ff9418 !important;
+          border-color: #ff9418;
         }
 
         main.listing-detail-page .desktop-image-thumbs img {
-          height: 100% !important;
-          object-fit: cover !important;
-          width: 100% !important;
+          height: 100%;
+          object-fit: cover;
+          width: 100%;
         }
 
         main.listing-detail-page .price-actions-row {
-          border-bottom: 1px solid rgba(150, 181, 215, 0.24) !important;
-          margin: 0 -26px !important;
-          padding: 20px 26px !important;
+          border-bottom: 1px solid rgba(150, 181, 215, 0.24);
+          margin: 0 -26px;
+          padding: 20px 26px;
         }
 
         main.listing-detail-page .price-display {
-          color: #ffffff !important;
-          font-size: 32px !important;
-          font-weight: 950 !important;
+          color: #ffffff;
+          font-size: 32px;
+          font-weight: 950;
         }
 
         main.listing-detail-page .description-card {
-          background: transparent !important;
-          border: 0 !important;
-          border-bottom: 1px solid rgba(150, 181, 215, 0.2) !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          margin: 0 -26px !important;
-          padding: 0 26px !important;
+          background: transparent;
+          border: 0;
+          border-bottom: 1px solid rgba(150, 181, 215, 0.2);
+          border-radius: 0;
+          box-shadow: none;
+          margin: 0 -26px;
+          padding: 0 26px;
         }
 
         main.listing-detail-page .listing-section-toggle {
-          color: #ffffff !important;
-          font-size: 15px !important;
-          font-weight: 900 !important;
-          min-height: 44px !important;
-          padding: 0 !important;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 900;
+          min-height: 44px;
+          padding: 0;
         }
 
         main.listing-detail-page .listing-section-content {
-          color: rgba(235, 243, 252, 0.9) !important;
-          padding: 0 0 20px !important;
+          color: rgba(235, 243, 252, 0.9);
+          padding: 0 0 20px;
         }
 
         main.listing-detail-page .listing-fact-grid span {
-          background: rgba(255, 255, 255, 0.04) !important;
-          border: 1px solid rgba(255, 255, 255, 0.06) !important;
-          color: rgba(235, 243, 252, 0.9) !important;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          color: rgba(235, 243, 252, 0.9);
         }
 
         main.listing-detail-page .listing-fact-grid strong {
-          color: rgba(255, 255, 255, 0.62) !important;
+          color: rgba(255, 255, 255, 0.62);
         }
 
         @media (max-width: 900px) {
           body main.page.listing-detail-page.listing-detail-page section.layout.layout {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr;
           }
 
           main.listing-detail-page .main {
-            padding: 18px !important;
+            padding: 18px;
           }
 
           main.listing-detail-page .image-wrapper,
           main.listing-detail-page .price-actions-row,
           main.listing-detail-page .description-card {
-            margin-left: -18px !important;
-            margin-right: -18px !important;
+            margin-left: -18px;
+            margin-right: -18px;
           }
 
           main.listing-detail-page .desktop-image-thumbs {
-            display: none !important;
+            display: none;
           }
 
           main.listing-detail-page .main-img-button,
           main.listing-detail-page .main-img {
-            height: min(62vh, 520px) !important;
-            min-height: 320px !important;
+            height: min(62vh, 520px);
+            min-height: 320px;
           }
         }
 
         /* Final listing page reference v2 */
         html,
         body {
-          background: #030b14 !important;
-          overflow-x: hidden !important;
+          background: #030b14;
+          overflow-x: hidden;
         }
 
         body main.page.listing-detail-page.listing-detail-page {
-          color: #f8fbff !important;
-          overflow-x: hidden !important;
+          color: #f8fbff;
+          overflow-x: hidden;
         }
 
         body main.page.listing-detail-page.listing-detail-page .container.container {
-          box-sizing: border-box !important;
-          max-width: 1220px !important;
-          padding: 20px 20px 52px !important;
-          width: 100% !important;
+          box-sizing: border-box;
+          max-width: 1220px;
+          padding: 20px 20px 52px;
+          width: 100%;
         }
 
         body main.page.listing-detail-page.listing-detail-page section.layout.layout {
-          display: grid !important;
-          gap: 18px !important;
-          grid-template-columns: minmax(0, 760px) minmax(320px, 350px) !important;
-          justify-content: center !important;
-          max-width: 1128px !important;
-          width: 100% !important;
+          display: grid;
+          gap: 18px;
+          grid-template-columns: minmax(0, 760px) minmax(320px, 350px);
+          justify-content: center;
+          max-width: 1128px;
+          width: 100%;
         }
 
         body main.page.listing-detail-page.listing-detail-page .main.main {
           background:
             radial-gradient(820px 420px at 12% 0%, rgba(37, 86, 137, 0.34), transparent 58%),
-            linear-gradient(180deg, #061d39 0%, #031426 100%) !important;
-          border: 1px solid rgba(121, 157, 198, 0.28) !important;
-          border-radius: 20px !important;
-          box-shadow: 0 24px 68px rgba(0, 6, 16, 0.42) !important;
-          box-sizing: border-box !important;
-          overflow: hidden !important;
-          padding: 24px 26px 0 !important;
-          width: 100% !important;
+            linear-gradient(180deg, #061d39 0%, #031426 100%);
+          border: 1px solid rgba(121, 157, 198, 0.28);
+          border-radius: 20px;
+          box-shadow: 0 24px 68px rgba(0, 6, 16, 0.42);
+          box-sizing: border-box;
+          overflow: hidden;
+          padding: 24px 26px 0;
+          width: 100%;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-featured-pill.listing-featured-pill {
-          border-color: rgba(255, 139, 23, 0.82) !important;
-          color: #ff9c25 !important;
-          font-size: 12px !important;
-          height: 30px !important;
-          margin-bottom: 12px !important;
-          padding: 0 13px !important;
+          border-color: rgba(255, 139, 23, 0.82);
+          color: #ff9c25;
+          font-size: 12px;
+          height: 30px;
+          margin-bottom: 12px;
+          padding: 0 13px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .title-row.title-row {
-          margin: 0 0 24px !important;
+          margin: 0 0 24px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .title-row.title-row h1 {
-          color: #ffffff !important;
-          font-size: 31px !important;
-          font-weight: 950 !important;
-          line-height: 1.08 !important;
-          margin: 0 !important;
+          color: #ffffff;
+          font-size: 31px;
+          font-weight: 950;
+          line-height: 1.08;
+          margin: 0;
         }
 
         body main.page.listing-detail-page.listing-detail-page .desktop-image-meta.desktop-image-meta {
-          color: rgba(232, 241, 251, 0.9) !important;
-          font-size: 14px !important;
-          font-weight: 800 !important;
-          gap: 14px !important;
-          margin: 0 0 22px !important;
+          color: rgba(232, 241, 251, 0.9);
+          font-size: 14px;
+          font-weight: 800;
+          gap: 14px;
+          margin: 0 0 22px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .desktop-image-meta.desktop-image-meta strong {
-          color: #ffae52 !important;
-          font-size: 14px !important;
-          font-weight: 950 !important;
+          color: #ffae52;
+          font-size: 14px;
+          font-weight: 950;
         }
 
         body main.page.listing-detail-page.listing-detail-page .image-wrapper.image-wrapper {
-          background: #101820 !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          margin: 0 -26px !important;
-          overflow: hidden !important;
+          background: #101820;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          margin: 0 -26px;
+          overflow: hidden;
         }
 
         body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button,
         body main.page.listing-detail-page.listing-detail-page .main-img.main-img {
-          height: 520px !important;
-          min-height: 520px !important;
-          max-height: 520px !important;
+          height: 520px;
+          min-height: 520px;
+          max-height: 520px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .main-img.main-img {
-          object-fit: cover !important;
-          width: 100% !important;
+          object-fit: cover;
+          width: 100%;
         }
 
         body main.page.listing-detail-page.listing-detail-page .image-badge.image-badge {
-          background: rgba(4, 12, 22, 0.78) !important;
-          border: 1px solid rgba(219, 232, 247, 0.26) !important;
-          color: #ffffff !important;
-          left: 24px !important;
-          top: 18px !important;
+          background: rgba(4, 12, 22, 0.78);
+          border: 1px solid rgba(219, 232, 247, 0.26);
+          color: #ffffff;
+          left: 24px;
+          top: 18px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .image-zoom-button.image-zoom-button {
-          background: rgba(4, 12, 22, 0.72) !important;
-          border: 1px solid rgba(219, 232, 247, 0.32) !important;
-          color: #ffffff !important;
-          right: 24px !important;
-          top: 18px !important;
+          background: rgba(4, 12, 22, 0.72);
+          border: 1px solid rgba(219, 232, 247, 0.32);
+          color: #ffffff;
+          right: 24px;
+          top: 18px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .desktop-image-thumbs.desktop-image-thumbs {
-          display: flex !important;
-          gap: 12px !important;
-          margin: -84px 0 16px !important;
-          padding: 0 18px !important;
-          position: relative !important;
-          z-index: 8 !important;
+          display: flex;
+          gap: 12px;
+          margin: -84px 0 16px;
+          padding: 0 18px;
+          position: relative;
+          z-index: 8;
         }
 
         body main.page.listing-detail-page.listing-detail-page .desktop-image-thumbs.desktop-image-thumbs button {
-          background: rgba(5, 14, 26, 0.86) !important;
-          border: 1px solid rgba(139, 169, 205, 0.36) !important;
-          border-radius: 8px !important;
-          box-shadow: none !important;
-          height: 74px !important;
-          width: 124px !important;
+          background: rgba(5, 14, 26, 0.86);
+          border: 1px solid rgba(139, 169, 205, 0.36);
+          border-radius: 8px;
+          box-shadow: none;
+          height: 74px;
+          width: 124px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .desktop-image-thumbs.desktop-image-thumbs button.active {
-          border-color: #ff9418 !important;
+          border-color: #ff9418;
         }
 
         body main.page.listing-detail-page.listing-detail-page .price-actions-row.price-actions-row {
-          border-bottom: 1px solid rgba(139, 169, 205, 0.24) !important;
-          margin: 0 -26px !important;
-          padding: 20px 26px 18px !important;
+          border-bottom: 1px solid rgba(139, 169, 205, 0.24);
+          margin: 0 -26px;
+          padding: 20px 26px 18px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .image-actions.image-actions {
-          justify-content: space-between !important;
-          width: 100% !important;
+          justify-content: space-between;
+          width: 100%;
         }
 
         body main.page.listing-detail-page.listing-detail-page .price-display.price-display {
-          color: #ffffff !important;
-          font-size: 34px !important;
-          font-weight: 950 !important;
-          line-height: 1 !important;
+          color: #ffffff;
+          font-size: 34px;
+          font-weight: 950;
+          line-height: 1;
         }
 
         body main.page.listing-detail-page.listing-detail-page .icon-btn.icon-btn {
-          background: rgba(7, 20, 36, 0.84) !important;
-          border: 1px solid rgba(148, 180, 215, 0.3) !important;
-          border-radius: 10px !important;
-          color: #ffffff !important;
+          background: rgba(7, 20, 36, 0.84);
+          border: 1px solid rgba(148, 180, 215, 0.3);
+          border-radius: 10px;
+          color: #ffffff;
         }
 
         body main.page.listing-detail-page.listing-detail-page .description-card.description-card {
-          background: transparent !important;
-          border: 0 !important;
-          border-bottom: 1px solid rgba(139, 169, 205, 0.22) !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-          margin: 0 -26px !important;
-          padding: 0 26px !important;
+          background: transparent;
+          border: 0;
+          border-bottom: 1px solid rgba(139, 169, 205, 0.22);
+          border-radius: 0;
+          box-shadow: none;
+          margin: 0 -26px;
+          padding: 0 26px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-section-toggle.listing-section-toggle {
-          background: transparent !important;
-          color: #ffffff !important;
-          font-size: 15px !important;
-          font-weight: 900 !important;
-          min-height: 46px !important;
-          padding: 0 !important;
+          background: transparent;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 900;
+          min-height: 46px;
+          padding: 0;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-section-content.listing-section-content {
-          color: rgba(237, 244, 252, 0.92) !important;
-          padding-bottom: 22px !important;
+          color: rgba(237, 244, 252, 0.92);
+          padding-bottom: 22px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-fact-grid.listing-fact-grid {
-          gap: 10px !important;
+          gap: 10px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-fact-grid.listing-fact-grid span {
-          background: rgba(255, 255, 255, 0.04) !important;
-          border: 1px solid rgba(255, 255, 255, 0.06) !important;
-          color: #ffffff !important;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          color: #ffffff;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-extra-card.listing-extra-card::after,
         body main.page.listing-detail-page.listing-detail-page .listing-facts-card.listing-facts-card::after {
-          content: none !important;
-          display: none !important;
+          content: none;
+          display: none;
         }
 
         @media (max-width: 1100px) {
           body main.page.listing-detail-page.listing-detail-page section.layout.layout {
-            grid-template-columns: minmax(0, 1fr) !important;
-            max-width: 780px !important;
+            grid-template-columns: minmax(0, 1fr);
+            max-width: 780px;
           }
         }
 
         @media (max-width: 760px) {
           body main.page.listing-detail-page.listing-detail-page .container.container {
-            padding: 14px 12px 42px !important;
+            padding: 14px 12px 42px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .main.main {
-            border-radius: 16px !important;
-            padding: 18px 18px 0 !important;
+            border-radius: 16px;
+            padding: 18px 18px 0;
           }
 
           body main.page.listing-detail-page.listing-detail-page .title-row.title-row h1 {
-            font-size: 24px !important;
+            font-size: 24px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .image-wrapper.image-wrapper,
           body main.page.listing-detail-page.listing-detail-page .price-actions-row.price-actions-row,
           body main.page.listing-detail-page.listing-detail-page .description-card.description-card {
-            margin-left: -18px !important;
-            margin-right: -18px !important;
+            margin-left: -18px;
+            margin-right: -18px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button,
           body main.page.listing-detail-page.listing-detail-page .main-img.main-img {
-            height: 330px !important;
-            min-height: 330px !important;
-            max-height: 330px !important;
+            height: 330px;
+            min-height: 330px;
+            max-height: 330px;
           }
         }
 
         /* Final reference match: page scale and section proportions */
         @media (min-width: 1281px) {
           body main.page.listing-detail-page.listing-detail-page .container.container {
-            max-width: 1240px !important;
-            padding: 20px 20px 54px !important;
+            max-width: 1240px;
+            padding: 20px 20px 54px;
           }
 
           body main.page.listing-detail-page.listing-detail-page section.layout.layout {
-            gap: 18px !important;
-            grid-template-columns: 780px 390px !important;
-            max-width: 1188px !important;
+            gap: 18px;
+            grid-template-columns: 780px 390px;
+            max-width: 1188px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .main.main {
-            border-radius: 20px !important;
-            padding: 26px 26px 0 !important;
+            border-radius: 20px;
+            padding: 26px 26px 0;
           }
 
           body main.page.listing-detail-page.listing-detail-page .title-row.title-row h1 {
-            font-size: 32px !important;
-            line-height: 1.08 !important;
+            font-size: 32px;
+            line-height: 1.08;
           }
 
           body main.page.listing-detail-page.listing-detail-page .desktop-image-meta.desktop-image-meta {
-            margin-bottom: 20px !important;
+            margin-bottom: 20px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .image-wrapper.image-wrapper {
-            margin-left: -26px !important;
-            margin-right: -26px !important;
+            margin-left: -26px;
+            margin-right: -26px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button,
           body main.page.listing-detail-page.listing-detail-page .main-img.main-img {
-            height: 520px !important;
-            min-height: 520px !important;
-            max-height: 520px !important;
+            height: 520px;
+            min-height: 520px;
+            max-height: 520px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .desktop-image-thumbs.desktop-image-thumbs {
-            display: flex !important;
-            gap: 12px !important;
-            margin: -86px 0 16px !important;
-            padding: 0 18px !important;
+            display: flex;
+            gap: 12px;
+            margin: -86px 0 16px;
+            padding: 0 18px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .desktop-image-thumbs.desktop-image-thumbs button {
-            height: 74px !important;
-            width: 124px !important;
+            height: 74px;
+            width: 124px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .price-actions-row.price-actions-row {
-            margin-left: -26px !important;
-            margin-right: -26px !important;
-            padding: 20px 26px !important;
+            margin-left: -26px;
+            margin-right: -26px;
+            padding: 20px 26px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .price-stack.price-stack {
-            display: grid !important;
-            gap: 6px !important;
+            display: grid;
+            gap: 6px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .price-display.price-display {
-            font-size: 34px !important;
+            font-size: 34px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .price-subline.price-subline {
-            color: rgba(229, 239, 250, 0.78) !important;
-            display: block !important;
-            font-size: 14px !important;
-            font-weight: 650 !important;
+            color: rgba(229, 239, 250, 0.78);
+            display: block;
+            font-size: 14px;
+            font-weight: 650;
           }
 
           body main.page.listing-detail-page.listing-detail-page .description-card.description-card {
-            margin-left: -26px !important;
-            margin-right: -26px !important;
-            padding-left: 26px !important;
-            padding-right: 26px !important;
+            margin-left: -26px;
+            margin-right: -26px;
+            padding-left: 26px;
+            padding-right: 26px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .listing-section-content.listing-section-content p {
-            color: rgba(238, 245, 253, 0.94) !important;
-            font-size: 15px !important;
-            line-height: 1.55 !important;
-            max-width: 600px !important;
+            color: rgba(238, 245, 253, 0.94);
+            font-size: 15px;
+            line-height: 1.55;
+            max-width: 600px;
           }
 
           body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar {
-            max-width: 390px !important;
-            width: 390px !important;
+            max-width: 390px;
+            width: 390px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card {
-            border-radius: 20px !important;
+            border-radius: 20px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-card-body.seller-card-panel {
-            padding: 32px 26px 28px !important;
+            padding: 32px 26px 28px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-card-top.seller-card-top {
-            margin-bottom: 26px !important;
+            margin-bottom: 26px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-identity-row.seller-identity-row {
-            grid-template-columns: 102px minmax(0, 1fr) !important;
-            gap: 22px !important;
+            grid-template-columns: 102px minmax(0, 1fr);
+            gap: 22px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-avatar-detail.seller-avatar-detail,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-avatar-img.seller-avatar-img {
-            width: 102px !important;
-            height: 102px !important;
-            border-radius: 16px !important;
+            width: 102px;
+            height: 102px;
+            border-radius: 16px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-name-row.seller-name-row strong {
-            font-size: 26px !important;
-            line-height: 1.1 !important;
+            font-size: 26px;
+            line-height: 1.1;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .verified-chip.verified-chip {
-            font-size: 16px !important;
+            font-size: 16px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-rows.seller-meta-rows {
-            gap: 16px !important;
-            margin-top: 30px !important;
-            padding-top: 0 !important;
+            gap: 16px;
+            margin-top: 30px;
+            padding-top: 0;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row {
-            font-size: 16px !important;
-            grid-template-columns: 26px auto 1fr !important;
+            font-size: 16px;
+            grid-template-columns: 26px auto 1fr;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row strong {
-            font-size: 16px !important;
+            font-size: 16px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged {
-            gap: 14px !important;
-            margin-top: 30px !important;
+            gap: 14px;
+            margin-top: 30px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .message-btn,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-btn,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-number,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .login-contact {
-            height: 56px !important;
-            min-height: 56px !important;
-            border-radius: 10px !important;
-            font-size: 18px !important;
+            height: 56px;
+            min-height: 56px;
+            border-radius: 10px;
+            font-size: 18px;
           }
         }
 
         /* Final reference match v3: responsive scale parity */
         @media (min-width: 760px) and (max-width: 1280px) {
           body main.page.listing-detail-page.listing-detail-page .container.container {
-            max-width: 940px !important;
-            padding: 18px 18px 48px !important;
+            max-width: 940px;
+            padding: 18px 18px 48px;
           }
 
           body main.page.listing-detail-page.listing-detail-page section.layout.layout {
-            display: grid !important;
-            gap: 14px !important;
-            grid-template-columns: minmax(0, 780px) !important;
-            justify-content: center !important;
-            max-width: 780px !important;
+            display: grid;
+            gap: 14px;
+            grid-template-columns: minmax(0, 780px);
+            justify-content: center;
+            max-width: 780px;
           }
 
           body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar {
-            position: static !important;
-            width: 100% !important;
-            max-width: 780px !important;
-            min-width: 0 !important;
+            position: static;
+            width: 100%;
+            max-width: 780px;
+            min-width: 0;
           }
 
           body main.page.listing-detail-page.listing-detail-page .main.main {
-            border-radius: 16px !important;
-            padding: 24px 20px 0 !important;
+            border-radius: 16px;
+            padding: 24px 20px 0;
           }
 
           body main.page.listing-detail-page.listing-detail-page .listing-featured-pill.listing-featured-pill {
-            font-size: 11px !important;
-            height: 26px !important;
-            margin-bottom: 10px !important;
+            font-size: 11px;
+            height: 26px;
+            margin-bottom: 10px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .title-row.title-row h1 {
-            font-size: 28px !important;
-            line-height: 1.08 !important;
+            font-size: 28px;
+            line-height: 1.08;
           }
 
           body main.page.listing-detail-page.listing-detail-page .desktop-image-meta.desktop-image-meta {
-            font-size: 13px !important;
-            margin-bottom: 18px !important;
+            font-size: 13px;
+            margin-bottom: 18px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .image-wrapper.image-wrapper {
-            margin-left: -20px !important;
-            margin-right: -20px !important;
+            margin-left: -20px;
+            margin-right: -20px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button,
           body main.page.listing-detail-page.listing-detail-page .main-img.main-img {
-            height: 420px !important;
-            min-height: 420px !important;
-            max-height: 420px !important;
+            height: 420px;
+            min-height: 420px;
+            max-height: 420px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .desktop-image-thumbs.desktop-image-thumbs {
-            margin: -72px 0 14px !important;
-            padding: 0 14px !important;
+            margin: -72px 0 14px;
+            padding: 0 14px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .desktop-image-thumbs.desktop-image-thumbs button {
-            height: 62px !important;
-            width: 98px !important;
+            height: 62px;
+            width: 98px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .price-actions-row.price-actions-row {
-            margin-left: -20px !important;
-            margin-right: -20px !important;
-            padding: 18px 20px !important;
+            margin-left: -20px;
+            margin-right: -20px;
+            padding: 18px 20px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .price-display.price-display {
-            font-size: 30px !important;
+            font-size: 30px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .description-card.description-card {
-            margin-left: -20px !important;
-            margin-right: -20px !important;
-            padding-left: 20px !important;
-            padding-right: 20px !important;
+            margin-left: -20px;
+            margin-right: -20px;
+            padding-left: 20px;
+            padding-right: 20px;
           }
 
           body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar {
-            min-width: 0 !important;
-            max-width: 780px !important;
-            width: 100% !important;
+            min-width: 0;
+            max-width: 780px;
+            width: 100%;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card {
-            border-radius: 16px !important;
+            border-radius: 16px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-card-body.seller-card-panel {
-            padding: 22px 18px 22px !important;
+            padding: 22px 18px 22px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-card-top.seller-card-top {
-            margin-bottom: 20px !important;
+            margin-bottom: 20px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-identity-row.seller-identity-row {
-            grid-template-columns: 82px minmax(0, 1fr) !important;
-            gap: 16px !important;
+            grid-template-columns: 82px minmax(0, 1fr);
+            gap: 16px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-avatar-detail.seller-avatar-detail,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-avatar-img.seller-avatar-img {
-            width: 82px !important;
-            height: 82px !important;
-            border-radius: 14px !important;
+            width: 82px;
+            height: 82px;
+            border-radius: 14px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-name-row.seller-name-row strong {
-            font-size: 22px !important;
-            line-height: 1.08 !important;
+            font-size: 22px;
+            line-height: 1.08;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .verified-chip.verified-chip {
-            font-size: 14px !important;
+            font-size: 14px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-rows.seller-meta-rows {
-            gap: 12px !important;
-            margin-top: 24px !important;
+            gap: 12px;
+            margin-top: 24px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row strong {
-            font-size: 14px !important;
+            font-size: 14px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged {
-            gap: 12px !important;
-            margin-top: 24px !important;
+            gap: 12px;
+            margin-top: 24px;
           }
 
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .message-btn,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-btn,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-number,
           main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged .login-contact {
-            height: 50px !important;
-            min-height: 50px !important;
-            border-radius: 10px !important;
-            font-size: 15px !important;
+            height: 50px;
+            min-height: 50px;
+            border-radius: 10px;
+            font-size: 15px;
           }
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-stats-row.seller-stats-row {
-          background: transparent !important;
-          background-color: transparent !important;
-          background-image: none !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          display: grid !important;
-          gap: 16px !important;
-          grid-template-columns: 1fr 1fr !important;
-          margin: 22px 0 0 !important;
-          padding: 0 !important;
+          background: transparent;
+          background-color: transparent;
+          background-image: none;
+          border: 0;
+          box-shadow: none;
+          display: grid;
+          gap: 16px;
+          grid-template-columns: 1fr 1fr;
+          margin: 22px 0 0;
+          padding: 0;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-type-corner.seller-type-corner {
-          align-items: center !important;
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          color: rgba(221, 233, 247, 0.86) !important;
-          display: inline-flex !important;
-          font-size: 13px !important;
-          font-weight: 800 !important;
-          gap: 7px !important;
-          justify-self: start !important;
-          line-height: 1 !important;
-          min-width: 0 !important;
-          margin-right: auto !important;
-          white-space: nowrap !important;
+          align-items: center;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          color: rgba(221, 233, 247, 0.86);
+          display: inline-flex;
+          font-size: 13px;
+          font-weight: 800;
+          gap: 7px;
+          justify-self: start;
+          line-height: 1;
+          min-width: 0;
+          margin-right: auto;
+          white-space: nowrap;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-type-corner.seller-type-corner svg {
-          color: rgba(221, 233, 247, 0.9) !important;
-          flex: 0 0 auto !important;
-          height: 15px !important;
-          width: 15px !important;
+          color: rgba(221, 233, 247, 0.9);
+          flex: 0 0 auto;
+          height: 15px;
+          width: 15px;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-type-corner.seller-type-corner strong {
-          color: #ffffff !important;
-          font-weight: 900 !important;
+          color: #ffffff;
+          font-weight: 900;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-stats-row.seller-stats-row.seller-stats-row-single {
-          grid-template-columns: 1fr !important;
+          grid-template-columns: 1fr;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-stat.seller-stat {
-          align-items: center !important;
-          background: transparent !important;
-          background-color: transparent !important;
-          background-image: none !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          display: flex !important;
-          gap: 10px !important;
-          min-width: 0 !important;
+          align-items: center;
+          background: transparent;
+          background-color: transparent;
+          background-image: none;
+          border: 0;
+          box-shadow: none;
+          display: flex;
+          gap: 10px;
+          min-width: 0;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-stat.seller-stat svg {
-          flex: 0 0 auto !important;
-          height: 21px !important;
-          width: 21px !important;
+          flex: 0 0 auto;
+          height: 21px;
+          width: 21px;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-stat.seller-stat-rating svg {
-          color: #ff9418 !important;
-          fill: #ff9418 !important;
-          stroke: #ff9418 !important;
+          color: #ff9418;
+          fill: #ff9418;
+          stroke: #ff9418;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-stat.seller-stat-sales svg {
-          color: #f7fbff !important;
-          fill: none !important;
-          stroke: #f7fbff !important;
-          stroke-width: 2.2 !important;
+          color: #f7fbff;
+          fill: none;
+          stroke: #f7fbff;
+          stroke-width: 2.2;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-stat.seller-stat span {
-          display: grid !important;
-          gap: 2px !important;
-          min-width: 0 !important;
+          display: grid;
+          gap: 2px;
+          min-width: 0;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-stat.seller-stat strong {
-          color: #ffffff !important;
-          font-size: 18px !important;
-          font-weight: 900 !important;
-          line-height: 1 !important;
+          color: #ffffff;
+          font-size: 18px;
+          font-weight: 900;
+          line-height: 1;
         }
 
         main.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-stat.seller-stat small {
-          color: rgba(238, 246, 255, 0.78) !important;
-          font-size: 11px !important;
-          font-weight: 650 !important;
-          line-height: 1.1 !important;
-          white-space: nowrap !important;
+          color: rgba(238, 246, 255, 0.78);
+          font-size: 11px;
+          font-weight: 650;
+          line-height: 1.1;
+          white-space: nowrap;
         }
 
         body main.page.listing-detail-page.listing-detail-page .main.main {
-          background: #062142 !important;
-          background-image: none !important;
+          background: #062142;
+          background-image: none;
         }
 
         body main.page.listing-detail-page.listing-detail-page .title-row.title-row {
-          align-items: flex-start !important;
-          display: flex !important;
-          gap: 16px !important;
-          justify-content: space-between !important;
-          margin-bottom: 24px !important;
+          align-items: flex-start;
+          display: flex;
+          gap: 16px;
+          justify-content: space-between;
+          margin-bottom: 24px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-featured-pill.listing-featured-pill {
-          display: none !important;
+          display: none;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-top-actions.listing-top-actions {
-          display: none !important;
+          display: none;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-bottom-actions.listing-bottom-actions {
-          align-items: center !important;
-          display: flex !important;
-          flex: 0 0 auto !important;
-          gap: 10px !important;
-          justify-content: flex-end !important;
-          margin-left: auto !important;
+          align-items: center;
+          display: flex;
+          flex: 0 0 auto;
+          gap: 10px;
+          justify-content: flex-end;
+          margin-left: auto;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-bottom-actions.listing-bottom-actions .icon-btn.icon-btn {
-          align-items: center !important;
-          background: #082449 !important;
-          border: 1px solid rgba(160, 190, 226, 0.34) !important;
-          border-radius: 10px !important;
-          box-shadow: none !important;
-          color: rgba(239, 246, 255, 0.92) !important;
-          display: inline-flex !important;
-          height: 40px !important;
-          justify-content: center !important;
-          min-height: 40px !important;
-          padding: 0 !important;
-          width: 40px !important;
+          align-items: center;
+          background: #082449;
+          border: 1px solid rgba(160, 190, 226, 0.34);
+          border-radius: 10px;
+          box-shadow: none;
+          color: rgba(239, 246, 255, 0.92);
+          display: inline-flex;
+          height: 40px;
+          justify-content: center;
+          min-height: 40px;
+          padding: 0;
+          width: 40px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-bottom-actions.listing-bottom-actions .icon-btn.icon-btn:hover {
-          background: #0a2b56 !important;
-          border-color: rgba(196, 216, 240, 0.48) !important;
+          background: #0a2b56;
+          border-color: rgba(196, 216, 240, 0.48);
         }
 
         body main.page.listing-detail-page.listing-detail-page .price-actions-row.price-actions-row,
         body main.page.listing-detail-page.listing-detail-page .description-card.description-card,
         body main.page.listing-detail-page.listing-detail-page .desktop-image-meta.desktop-image-meta {
-          background: #062142 !important;
-          background-image: none !important;
+          background: #062142;
+          background-image: none;
         }
 
         body main.page.listing-detail-page.listing-detail-page .price-actions-row.price-actions-row {
-          border-top: 0 !important;
-          border-bottom: 1px solid rgba(150, 181, 215, 0.2) !important;
+          border-top: 0;
+          border-bottom: 1px solid rgba(150, 181, 215, 0.2);
         }
 
         body main.page.listing-detail-page.listing-detail-page .image-wrapper.image-wrapper {
-          background: #062142 !important;
-          background-image: none !important;
-          box-sizing: border-box !important;
-          padding: 0 !important;
+          background: #062142;
+          background-image: none;
+          box-sizing: border-box;
+          padding: 0;
         }
 
         body main.page.listing-detail-page.listing-detail-page .image-actions.image-actions {
-          align-items: center !important;
-          display: flex !important;
-          gap: 16px !important;
-          justify-content: space-between !important;
+          align-items: center;
+          display: flex;
+          gap: 16px;
+          justify-content: space-between;
         }
 
         body main.page.listing-detail-page.listing-detail-page .price-stack.price-stack {
-          margin-right: 0 !important;
+          margin-right: 0;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-section-content.listing-section-content,
         body main.page.listing-detail-page.listing-detail-page .listing-section-content.listing-section-content p,
         body main.page.listing-detail-page.listing-detail-page .listing-fact-grid.listing-fact-grid,
         body main.page.listing-detail-page.listing-detail-page .listing-fact-grid.listing-fact-grid span {
-          background: #062142 !important;
-          background-color: #062142 !important;
-          background-image: none !important;
-          box-shadow: none !important;
+          background: #062142;
+          background-color: #062142;
+          background-image: none;
+          box-shadow: none;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-fact-grid.listing-fact-grid span {
-          border: 1px solid rgba(150, 181, 215, 0.2) !important;
-          border-radius: 10px !important;
+          border: 1px solid rgba(150, 181, 215, 0.2);
+          border-radius: 10px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-extra-card.listing-extra-card,
         body main.page.listing-detail-page.listing-detail-page .listing-facts-card.listing-facts-card {
-          background: #062142 !important;
-          background-image: none !important;
+          background: #062142;
+          background-image: none;
         }
 
         body main.page.listing-detail-page.listing-detail-page .desktop-image-thumbs.desktop-image-thumbs {
-          background: #062142 !important;
-          background-image: none !important;
+          background: #062142;
+          background-image: none;
         }
 
         body:has(main.listing-detail-page.listing-detail-page) .universal-app-topbar {
-          border-radius: 0 !important;
+          border-radius: 0;
         }
 
         body main.page.listing-detail-page.listing-detail-page .main.main,
         body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card {
-          border-radius: 10px !important;
+          border-radius: 10px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .image-wrapper.image-wrapper,
         body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button,
         body main.page.listing-detail-page.listing-detail-page .main-img.main-img {
-          border-radius: 0 !important;
-          overflow: hidden !important;
+          border-radius: 0;
+          overflow: hidden;
         }
 
         body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button {
-          background: #062142 !important;
-          box-sizing: border-box !important;
-          display: block !important;
-          max-width: none !important;
-          padding: 0 !important;
-          width: 100% !important;
+          background: #062142;
+          box-sizing: border-box;
+          display: block;
+          max-width: none;
+          padding: 0;
+          width: 100%;
         }
 
         body main.page.listing-detail-page.listing-detail-page .main-img.main-img {
-          display: block !important;
-          object-fit: cover !important;
-          width: 100% !important;
+          display: block;
+          object-fit: cover;
+          width: 100%;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-image-soft-bg.listing-image-soft-bg {
-          display: none !important;
+          display: none;
         }
 
         body main.page.listing-detail-page.listing-detail-page .image-wrapper.image-wrapper::after {
-          content: none !important;
-          display: none !important;
+          content: none;
+          display: none;
         }
 
         body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button > img.main-img.main-img {
-          height: 100% !important;
-          max-width: none !important;
-          min-width: 100% !important;
-          object-fit: cover !important;
-          object-position: center center !important;
-          width: 100% !important;
+          height: 100%;
+          max-width: none;
+          min-width: 100%;
+          object-fit: cover;
+          object-position: center center;
+          width: 100%;
         }
 
         body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button {
-          line-height: 0 !important;
-          overflow: hidden !important;
+          line-height: 0;
+          overflow: hidden;
         }
 
         body main.page.listing-detail-page.listing-detail-page .image-badge.image-badge {
-          left: 12px !important;
-          top: 12px !important;
+          left: 12px;
+          top: 12px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .image-zoom-button.image-zoom-button {
-          right: 12px !important;
-          top: 12px !important;
+          right: 12px;
+          top: 12px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .mobile-image-actions.mobile-image-actions {
-          display: none !important;
+          display: none;
         }
 
         body main.page.listing-detail-page.listing-detail-page .image-wrapper.image-wrapper {
-          background: #06111f !important;
-          border-left: 0 !important;
-          border-right: 0 !important;
-          box-sizing: border-box !important;
-          margin-left: 0 !important;
-          margin-right: 0 !important;
-          width: 100% !important;
+          background: #06111f;
+          border-left: 0;
+          border-right: 0;
+          box-sizing: border-box;
+          margin-left: 0;
+          margin-right: 0;
+          width: 100%;
         }
 
         body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button {
-          align-items: center !important;
-          background: #06111f !important;
-          display: flex !important;
-          justify-content: center !important;
-          width: 100% !important;
+          align-items: center;
+          background: #06111f;
+          display: flex;
+          justify-content: center;
+          width: 100%;
         }
 
         body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button > img.main-img.main-img {
-          display: block !important;
-          height: 520px !important;
-          max-height: 520px !important;
-          max-width: 100% !important;
-          min-height: 520px !important;
-          min-width: 0 !important;
-          object-fit: contain !important;
-          object-position: center center !important;
-          width: 100% !important;
+          display: block;
+          height: 520px;
+          max-height: 520px;
+          max-width: 100%;
+          min-height: 520px;
+          min-width: 0;
+          object-fit: contain;
+          object-position: center center;
+          width: 100%;
         }
 
         body main.page.listing-detail-page.listing-detail-page .desktop-image-thumbs.desktop-image-thumbs {
-          background: #06111f !important;
-          margin-left: 0 !important;
-          margin-right: 0 !important;
-          padding-left: 14px !important;
-          padding-right: 14px !important;
+          background: #06111f;
+          margin-left: 0;
+          margin-right: 0;
+          padding-left: 14px;
+          padding-right: 14px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-image-preview.listing-image-preview {
-          align-items: center !important;
-          inset: var(--topbar-h, 64px) 0 0 !important;
-          padding: 18px 22px 22px !important;
+          align-items: center;
+          inset: var(--topbar-h, 64px) 0 0;
+          padding: 18px 22px 22px;
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-image-preview-panel.listing-image-preview-panel {
-          max-height: min(calc(100dvh - var(--topbar-h, 64px) - 40px), 820px) !important;
-          max-width: min(94vw, 1120px) !important;
+          max-height: min(calc(100dvh - var(--topbar-h, 64px) - 40px), 820px);
+          max-width: min(94vw, 1120px);
         }
 
         body main.page.listing-detail-page.listing-detail-page .listing-image-preview-panel.listing-image-preview-panel img {
-          max-height: min(calc(100dvh - var(--topbar-h, 64px) - 40px), 820px) !important;
-          object-fit: contain !important;
+          max-height: min(calc(100dvh - var(--topbar-h, 64px) - 40px), 820px);
+          object-fit: contain;
         }
 
         body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .verified-chip.verified-chip {
-          color: #dbeafe !important;
+          color: #dbeafe;
         }
 
         body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .verified-chip.verified-chip svg {
-          color: #8fbfff !important;
-          fill: none !important;
-          stroke: #8fbfff !important;
+          color: #8fbfff;
+          fill: none;
+          stroke: #8fbfff;
         }
 
         @media (max-width: 760px) {
           body main.page.listing-detail-page.listing-detail-page .container.container {
-            padding-left: 10px !important;
-            padding-right: 10px !important;
+            padding-left: 10px;
+            padding-right: 10px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .main.main,
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card {
-            border-radius: 8px !important;
+            border-radius: 8px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .title-row.title-row {
-            margin-bottom: 14px !important;
+            margin-bottom: 14px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .desktop-image-meta.desktop-image-meta {
-            display: flex !important;
-            flex-wrap: wrap !important;
-            gap: 8px !important;
-            line-height: 1.25 !important;
-            margin-bottom: 12px !important;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            line-height: 1.25;
+            margin-bottom: 12px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .image-actions.image-actions {
-            align-items: center !important;
-            display: grid !important;
-            gap: 12px !important;
-            grid-template-columns: minmax(0, 1fr) auto !important;
+            align-items: center;
+            display: grid;
+            gap: 12px;
+            grid-template-columns: minmax(0, 1fr) auto;
           }
 
           body main.page.listing-detail-page.listing-detail-page .price-actions-row.price-actions-row {
-            padding-bottom: 16px !important;
-            padding-top: 16px !important;
+            padding-bottom: 16px;
+            padding-top: 16px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .price-display.price-display {
-            font-size: 28px !important;
-            line-height: 1 !important;
+            font-size: 28px;
+            line-height: 1;
           }
 
           body main.page.listing-detail-page.listing-detail-page .price-subline.price-subline {
-            font-size: 11px !important;
-            line-height: 1.25 !important;
+            font-size: 11px;
+            line-height: 1.25;
           }
 
           body main.page.listing-detail-page.listing-detail-page .listing-bottom-actions.listing-bottom-actions {
-            display: flex !important;
-            gap: 8px !important;
+            display: flex;
+            gap: 8px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .listing-bottom-actions.listing-bottom-actions .icon-btn.icon-btn {
-            border-radius: 8px !important;
-            height: 38px !important;
-            min-height: 38px !important;
-            width: 38px !important;
+            border-radius: 8px;
+            height: 38px;
+            min-height: 38px;
+            width: 38px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .main-img-button.main-img-button,
           body main.page.listing-detail-page.listing-detail-page .main-img.main-img {
-            height: 280px !important;
-            min-height: 280px !important;
-            max-height: 280px !important;
+            height: 280px;
+            min-height: 280px;
+            max-height: 280px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .listing-fact-grid.listing-fact-grid {
-            grid-template-columns: 1fr !important;
+            grid-template-columns: 1fr;
           }
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper) {
-          aspect-ratio: auto !important;
-          box-sizing: border-box !important;
-          height: auto !important;
-          min-height: 0 !important;
-          padding-left: 0 !important;
-          padding-right: 0 !important;
-          padding: 0 !important;
+          aspect-ratio: auto;
+          box-sizing: border-box;
+          height: auto;
+          min-height: 0;
+          padding-left: 0;
+          padding-right: 0;
+          padding: 0;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button),
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button > img.main-img.main-img) {
-          box-sizing: border-box !important;
-          margin-left: 0 !important;
-          margin-right: 0 !important;
-          max-width: none !important;
-          min-width: 100% !important;
-          width: 100% !important;
+          box-sizing: border-box;
+          margin-left: 0;
+          margin-right: 0;
+          max-width: none;
+          min-width: 100%;
+          width: 100%;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs) {
-          background: transparent !important;
-          background-color: transparent !important;
-          background-image: none !important;
+          background: transparent;
+          background-color: transparent;
+          background-image: none;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta) {
-          align-items: center !important;
-          box-sizing: border-box !important;
-          display: grid !important;
-          grid-template-columns: auto auto auto minmax(0, 1fr) auto !important;
-          padding-left: 0 !important;
-          padding-right: 0 !important;
+          align-items: center;
+          box-sizing: border-box;
+          display: grid;
+          grid-template-columns: auto auto auto minmax(0, 1fr) auto;
+          padding-left: 0;
+          padding-right: 0;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta > span:first-child) {
-          grid-column: 1 !important;
-          margin-left: 0 !important;
+          grid-column: 1;
+          margin-left: 0;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta strong) {
-          grid-column: 5 !important;
-          grid-row: 1 !important;
-          margin-left: auto !important;
-          margin-right: clamp(18px, 2.6vw, 30px) !important;
+          grid-column: 5;
+          grid-row: 1;
+          margin-left: auto;
+          margin-right: clamp(18px, 2.6vw, 30px);
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta strong),
         body main.page.listing-detail-page.listing-detail-page .desktop-image-meta.desktop-image-meta strong {
-          background: transparent !important;
-          border: 0 !important;
-          box-shadow: none !important;
-          color: #ff8a1c !important;
-          outline: 0 !important;
-          padding: 0 !important;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          color: #ff8a1c;
+          outline: 0;
+          padding: 0;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs) {
-          align-items: center !important;
-          gap: 8px !important;
-          justify-content: flex-start !important;
-          margin: -64px 0 10px !important;
-          padding: 0 18px !important;
-          pointer-events: none !important;
+          align-items: center;
+          gap: 8px;
+          justify-content: flex-start;
+          margin: -64px 0 10px;
+          padding: 0 18px;
+          pointer-events: none;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs button) {
-          background: rgba(4, 13, 25, 0.48) !important;
-          border: 1px solid rgba(255, 148, 24, 0.72) !important;
-          border-radius: 6px !important;
-          box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28) !important;
-          height: 42px !important;
-          overflow: hidden !important;
-          pointer-events: auto !important;
-          width: 68px !important;
+          background: rgba(4, 13, 25, 0.48);
+          border: 1px solid rgba(255, 148, 24, 0.72);
+          border-radius: 6px;
+          box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+          height: 42px;
+          overflow: hidden;
+          pointer-events: auto;
+          width: 68px;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs img) {
-          height: 100% !important;
-          object-fit: cover !important;
-          width: 100% !important;
+          height: 100%;
+          object-fit: cover;
+          width: 100%;
         }
 
         @media (min-width: 641px) {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper) {
-            background: #06111f !important;
+            background: #06111f;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button) {
-            align-items: center !important;
-            background: #06111f !important;
-            display: flex !important;
-            justify-content: center !important;
+            align-items: center;
+            background: #06111f;
+            display: flex;
+            justify-content: center;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button > img.main-img.main-img) {
-            height: 100% !important;
-            object-fit: contain !important;
-            object-position: center center !important;
-            width: 100% !important;
+            height: 100%;
+            object-fit: contain;
+            object-position: center center;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs) {
-            background: #062142 !important;
-            border-bottom: 1px solid rgba(143, 191, 255, 0.14) !important;
-            display: flex !important;
-            gap: 10px !important;
-            justify-content: flex-start !important;
-            margin: 0 -26px 0 !important;
-            overflow: hidden !important;
-            padding: 14px 26px 16px !important;
-            pointer-events: auto !important;
-            scrollbar-width: none !important;
+            background: #062142;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.14);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+            margin: 0 -26px 0;
+            overflow: hidden;
+            padding: 14px 26px 16px;
+            pointer-events: auto;
+            scrollbar-width: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs button) {
-            background: rgba(2, 10, 20, 0.56) !important;
-            border: 1px solid rgba(143, 191, 255, 0.32) !important;
-            border-radius: 8px !important;
-            box-shadow: none !important;
-            flex: 1 1 0 !important;
-            height: clamp(44px, 8vw, 70px) !important;
-            max-width: 94px !important;
-            min-width: 0 !important;
-            width: auto !important;
+            background: rgba(2, 10, 20, 0.56);
+            border: 1px solid rgba(143, 191, 255, 0.32);
+            border-radius: 8px;
+            box-shadow: none;
+            flex: 1 1 0;
+            height: clamp(44px, 8vw, 70px);
+            max-width: 94px;
+            min-width: 0;
+            width: auto;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs button.active) {
-            border-color: #ff8a1c !important;
-            box-shadow: 0 0 0 1px rgba(255, 138, 28, 0.24) !important;
+            border-color: #ff8a1c;
+            box-shadow: 0 0 0 1px rgba(255, 138, 28, 0.24);
           }
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-subline.price-subline) {
-          display: none !important;
+          display: none;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-actions-row.price-actions-row) {
-          display: flex !important;
-          justify-content: flex-end !important;
-          padding-bottom: 18px !important;
-          padding-top: 16px !important;
+          display: flex;
+          justify-content: flex-end;
+          padding-bottom: 18px;
+          padding-top: 16px;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-actions.image-actions) {
-          align-items: center !important;
-          display: flex !important;
-          gap: 18px !important;
-          justify-content: flex-end !important;
-          width: auto !important;
+          align-items: center;
+          display: flex;
+          gap: 18px;
+          justify-content: flex-end;
+          width: auto;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-stack.price-stack) {
-          align-items: flex-end !important;
-          text-align: right !important;
+          align-items: flex-end;
+          text-align: right;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-bottom-actions.listing-bottom-actions) {
-          display: flex !important;
-          gap: 10px !important;
+          display: flex;
+          gap: 10px;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.icon-btn.icon-btn.icon-saved) {
-          background: rgba(255, 122, 26, 0.18) !important;
-          border-color: #ff8a1c !important;
-          color: #ff8a1c !important;
+          background: rgba(255, 122, 26, 0.18);
+          border-color: #ff8a1c;
+          color: #ff8a1c;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.icon-btn.icon-btn.icon-saved svg) {
-          color: #ff8a1c !important;
-          fill: #ff8a1c !important;
-          stroke: #ff8a1c !important;
+          color: #ff8a1c;
+          fill: #ff8a1c;
+          stroke: #ff8a1c;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper .gallery-arrow.gallery-arrow) {
-          align-items: center !important;
-          background: rgba(3, 12, 24, 0.74) !important;
-          border: 1px solid rgba(255, 255, 255, 0.28) !important;
-          border-radius: 999px !important;
-          color: #ffffff !important;
-          display: inline-flex !important;
-          height: 42px !important;
-          justify-content: center !important;
-          position: absolute !important;
-          top: 50% !important;
-          transform: translateY(-50%) !important;
-          width: 42px !important;
-          z-index: 9 !important;
+          align-items: center;
+          background: rgba(3, 12, 24, 0.74);
+          border: 1px solid rgba(255, 255, 255, 0.28);
+          border-radius: 999px;
+          color: #ffffff;
+          display: inline-flex;
+          height: 42px;
+          justify-content: center;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 42px;
+          z-index: 9;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper .gallery-arrow-left.gallery-arrow-left) {
-          left: 14px !important;
+          left: 14px;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper .gallery-arrow-right.gallery-arrow-right) {
-          right: 14px !important;
+          right: 14px;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .verified-chip.verified-chip) {
-          color: #32f58a !important;
+          color: #32f58a;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .verified-chip.verified-chip svg) {
-          color: #32f58a !important;
-          fill: none !important;
-          stroke: #32f58a !important;
+          color: #32f58a;
+          fill: none;
+          stroke: #32f58a;
         }
 
         @media (max-width: 760px) {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta) {
-            display: flex !important;
-            padding-left: 0 !important;
-            padding-right: 0 !important;
+            display: flex;
+            padding-left: 0;
+            padding-right: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta > span:first-child) {
-            margin-left: 0 !important;
+            margin-left: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs) {
-            margin: -56px 0 8px !important;
-            padding-left: 12px !important;
+            margin: -56px 0 8px;
+            padding-left: 12px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs button) {
-            height: 38px !important;
-            width: 62px !important;
+            height: 38px;
+            width: 62px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-actions-row.price-actions-row) {
-            justify-content: stretch !important;
+            justify-content: stretch;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-actions.image-actions) {
-            display: grid !important;
-            grid-template-columns: minmax(0, 1fr) auto !important;
-            width: 100% !important;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-stack.price-stack) {
-            align-items: flex-start !important;
-            text-align: left !important;
+            align-items: flex-start;
+            text-align: left;
           }
         }
 
         @media (max-width: 640px) {
           :global(body) {
-            background: #07111c !important;
+            background: #07111c;
           }
 
           :global(body:has(main.listing-detail-page.listing-detail-page) .universal-app-topbar) {
-            background: #07111c !important;
-            border-bottom: 1px solid rgba(143, 191, 255, 0.12) !important;
-            border-radius: 0 !important;
-            height: 76px !important;
-            padding: 12px 12px !important;
+            background: #07111c;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.12);
+            border-radius: 0;
+            height: 76px;
+            padding: 12px 12px;
           }
 
           :global(body:has(main.listing-detail-page.listing-detail-page) .universal-return-button) {
-            height: 44px !important;
-            min-width: 44px !important;
-            overflow: hidden !important;
-            padding: 0 !important;
-            width: 44px !important;
+            height: 44px;
+            min-width: 44px;
+            overflow: hidden;
+            padding: 0;
+            width: 44px;
           }
 
           :global(body:has(main.listing-detail-page.listing-detail-page) .universal-return-button span) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) {
-            background: #07111c !important;
-            padding: 0 !important;
+            background: #07111c;
+            padding: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.container.container) {
-            max-width: 460px !important;
-            padding: 16px 10px 36px !important;
+            max-width: 460px;
+            padding: 16px 10px 36px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.layout.layout) {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 18px !important;
-            max-width: 100% !important;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            max-width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main.main) {
-            background: #062142 !important;
-            border: 1px solid rgba(75, 139, 205, 0.58) !important;
-            border-radius: 8px !important;
-            box-shadow: none !important;
-            display: flex !important;
-            flex-direction: column !important;
-            overflow: hidden !important;
-            padding: 0 !important;
+            background: #062142;
+            border: 1px solid rgba(75, 139, 205, 0.58);
+            border-radius: 8px;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper) {
-            border: 0 !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            order: 1 !important;
-            overflow: hidden !important;
+            border: 0;
+            border-radius: 0;
+            margin: 0;
+            order: 1;
+            overflow: hidden;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img.main-img) {
-            height: clamp(280px, 70vw, 340px) !important;
-            max-height: 340px !important;
-            min-height: 280px !important;
+            height: clamp(280px, 70vw, 340px);
+            max-height: 340px;
+            min-height: 280px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-badge.image-badge) {
-            background: rgba(3, 12, 24, 0.82) !important;
-            border: 1px solid rgba(255, 255, 255, 0.24) !important;
-            border-radius: 6px !important;
-            font-size: 12px !important;
-            font-weight: 950 !important;
-            left: 10px !important;
-            min-height: 24px !important;
-            padding: 0 7px !important;
-            top: 10px !important;
+            background: rgba(3, 12, 24, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.24);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 950;
+            left: 10px;
+            min-height: 24px;
+            padding: 0 7px;
+            top: 10px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-zoom-button.image-zoom-button) {
-            height: 42px !important;
-            right: 12px !important;
-            top: 12px !important;
-            width: 42px !important;
+            height: 42px;
+            right: 12px;
+            top: 12px;
+            width: 42px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-row.title-row) {
-            background: #04182d !important;
-            border: 1px solid rgba(143, 191, 255, 0.16) !important;
-            border-left: 0 !important;
-            border-right: 0 !important;
-            margin: 0 !important;
-            order: 2 !important;
-            padding: 16px 18px 14px !important;
+            background: #04182d;
+            border: 1px solid rgba(143, 191, 255, 0.16);
+            border-left: 0;
+            border-right: 0;
+            margin: 0;
+            order: 2;
+            padding: 16px 18px 14px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-left.title-left) {
-            width: 100% !important;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-listing-id.mobile-listing-id) {
-            align-items: baseline !important;
-            color: #d7e5f7 !important;
-            display: flex !important;
-            font-size: 12px !important;
-            font-weight: 900 !important;
-            gap: 8px !important;
-            justify-content: flex-start !important;
-            margin: 0 0 5px !important;
+            align-items: baseline;
+            color: #d7e5f7;
+            display: flex;
+            font-size: 12px;
+            font-weight: 900;
+            gap: 8px;
+            justify-content: flex-start;
+            margin: 0 0 5px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-listing-id.mobile-listing-id strong) {
-            color: #ffffff !important;
-            display: inline-flex !important;
-            font-size: 20px !important;
-            font-weight: 950 !important;
-            line-height: 1 !important;
+            color: #ffffff;
+            display: inline-flex;
+            font-size: 20px;
+            font-weight: 950;
+            line-height: 1;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-row.title-row h1) {
-            color: #ffffff !important;
-            font-size: 24px !important;
-            font-weight: 950 !important;
-            letter-spacing: -0.03em !important;
-            line-height: 1.08 !important;
-            margin: 0 !important;
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 950;
+            letter-spacing: -0.03em;
+            line-height: 1.08;
+            margin: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta) {
-            align-items: center !important;
-            background: #062142 !important;
-            border-bottom: 1px solid rgba(143, 191, 255, 0.2) !important;
-            color: #dbeafe !important;
-            display: flex !important;
-            flex-wrap: wrap !important;
-            font-size: 14px !important;
-            font-weight: 900 !important;
-            gap: 8px !important;
-            line-height: 1.3 !important;
-            margin: 0 !important;
-            order: 3 !important;
-            padding: 18px 18px 12px !important;
+            align-items: center;
+            background: #062142;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.2);
+            color: #dbeafe;
+            display: flex;
+            flex-wrap: wrap;
+            font-size: 14px;
+            font-weight: 900;
+            gap: 8px;
+            line-height: 1.3;
+            margin: 0;
+            order: 3;
+            padding: 18px 18px 12px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta strong) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-actions-row.price-actions-row) {
-            background: #062142 !important;
-            border-bottom: 1px solid rgba(143, 191, 255, 0.16) !important;
-            display: block !important;
-            margin: 0 !important;
-            order: 4 !important;
-            padding: 20px 18px 18px !important;
+            background: #062142;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.16);
+            display: block;
+            margin: 0;
+            order: 4;
+            padding: 20px 18px 18px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-actions.image-actions) {
-            align-items: center !important;
-            display: flex !important;
-            justify-content: space-between !important;
-            width: 100% !important;
+            align-items: center;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-stack.price-stack) {
-            align-items: flex-start !important;
-            text-align: left !important;
+            align-items: flex-start;
+            text-align: left;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-display.price-display) {
-            color: #ffffff !important;
-            font-size: 28px !important;
-            font-weight: 950 !important;
-            line-height: 1 !important;
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 950;
+            line-height: 1;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-bottom-actions.listing-bottom-actions) {
-            display: flex !important;
-            gap: 10px !important;
+            display: flex;
+            gap: 10px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-bottom-actions.listing-bottom-actions .icon-btn.icon-btn) {
-            background: #08284e !important;
-            border: 1px solid rgba(143, 191, 255, 0.42) !important;
-            border-radius: 8px !important;
-            height: 40px !important;
-            width: 40px !important;
+            background: #08284e;
+            border: 1px solid rgba(143, 191, 255, 0.42);
+            border-radius: 8px;
+            height: 40px;
+            width: 40px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.description-card.description-card) {
-            background: #062142 !important;
-            border: 0 !important;
-            margin: 0 !important;
-            order: 5 !important;
-            padding: 0 !important;
+            background: #062142;
+            border: 0;
+            margin: 0;
+            order: 5;
+            padding: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle) {
-            border-bottom: 1px solid rgba(143, 191, 255, 0.16) !important;
-            min-height: 62px !important;
-            padding: 0 18px !important;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.16);
+            min-height: 62px;
+            padding: 0 18px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-content.listing-section-content) {
-            padding: 16px 18px 22px !important;
+            padding: 16px 18px 22px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(aside.sidebar.sidebar) {
-            margin: 0 !important;
-            max-width: none !important;
-            position: static !important;
-            width: 100% !important;
+            margin: 0;
+            max-width: none;
+            position: static;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card) {
-            background: #0a2b56 !important;
-            border: 1px solid rgba(75, 139, 205, 0.56) !important;
-            border-radius: 18px !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            overflow: hidden !important;
+            background: #0a2b56;
+            border: 1px solid rgba(75, 139, 205, 0.56);
+            border-radius: 18px;
+            box-shadow: none;
+            margin: 0;
+            overflow: hidden;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-card-body.seller-card-panel) {
-            padding: 28px 26px !important;
+            padding: 28px 26px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-card-top.seller-card-top) {
-            align-items: center !important;
-            display: flex !important;
-            justify-content: space-between !important;
-            margin: 0 0 28px !important;
+            align-items: center;
+            display: flex;
+            justify-content: space-between;
+            margin: 0 0 28px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.seller-type-corner) {
-            font-size: 16px !important;
-            gap: 8px !important;
-            position: static !important;
+            font-size: 16px;
+            gap: 8px;
+            position: static;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-profile-btn-top.seller-profile-btn-top) {
-            background: transparent !important;
-            border: 0 !important;
-            color: #dbeafe !important;
-            gap: 10px !important;
-            padding: 0 !important;
+            background: transparent;
+            border: 0;
+            color: #dbeafe;
+            gap: 10px;
+            padding: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-identity-row.seller-identity-row) {
-            align-items: center !important;
-            display: grid !important;
-            gap: 18px !important;
-            grid-template-columns: 72px minmax(0, 1fr) !important;
-            margin-bottom: 30px !important;
+            align-items: center;
+            display: grid;
+            gap: 18px;
+            grid-template-columns: 72px minmax(0, 1fr);
+            margin-bottom: 30px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-avatar-detail.seller-avatar-detail),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-avatar-img.seller-avatar-img) {
-            border-radius: 10px !important;
-            height: 64px !important;
-            width: 64px !important;
+            border-radius: 10px;
+            height: 64px;
+            width: 64px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-name-row.seller-name-row strong) {
-            color: #ffffff !important;
-            font-size: 28px !important;
-            line-height: 1.05 !important;
+            color: #ffffff;
+            font-size: 28px;
+            line-height: 1.05;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .verified-chip.verified-chip) {
-            color: #dbeafe !important;
-            font-size: 16px !important;
-            margin-top: 10px !important;
+            color: #dbeafe;
+            font-size: 16px;
+            margin-top: 10px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-rows.seller-meta-rows) {
-            gap: 16px !important;
-            margin-top: 0 !important;
+            gap: 16px;
+            margin-top: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row) {
-            color: #cbd9ec !important;
-            font-size: 18px !important;
-            grid-template-columns: 26px auto minmax(0, 1fr) !important;
+            color: #cbd9ec;
+            font-size: 18px;
+            grid-template-columns: 26px auto minmax(0, 1fr);
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row strong) {
-            color: #ffffff !important;
-            font-size: 18px !important;
+            color: #ffffff;
+            font-size: 18px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-stats-row.seller-stats-row) {
-            border-top: 0 !important;
-            margin: 24px 0 0 !important;
-            padding: 0 !important;
+            border-top: 0;
+            margin: 24px 0 0;
+            padding: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-divider.seller-divider) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged) {
-            gap: 14px !important;
-            margin-top: 28px !important;
+            gap: 14px;
+            margin-top: 28px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .message-btn),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-btn),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-number),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .login-contact) {
-            border-radius: 14px !important;
-            font-size: 20px !important;
-            height: 62px !important;
-            min-height: 62px !important;
+            border-radius: 14px;
+            font-size: 20px;
+            height: 62px;
+            min-height: 62px;
           }
         }
 
@@ -7182,390 +7379,390 @@ export default function ListingPage({
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-content.listing-section-content),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span) {
-            background: #062142 !important;
-            background-color: #062142 !important;
-            background-image: none !important;
-            box-shadow: none !important;
+            background: #062142;
+            background-color: #062142;
+            background-image: none;
+            box-shadow: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-row.title-row),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-actions-row.price-actions-row),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.description-card.description-card) {
-            border-color: rgba(143, 191, 255, 0.14) !important;
+            border-color: rgba(143, 191, 255, 0.14);
           }
 
           :global(body) {
             background:
               radial-gradient(circle at 50% -8%, rgba(28, 89, 143, 0.28), transparent 42%),
-              #050d17 !important;
+              #050d17;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) {
-            background: transparent !important;
+            background: transparent;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.container.container) {
-            max-width: 430px !important;
-            padding: 12px 8px 36px !important;
+            max-width: 430px;
+            padding: 12px 8px 36px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main.main) {
             background:
-              linear-gradient(180deg, rgba(9, 47, 88, 0.98), rgba(3, 23, 43, 0.98)) !important;
-            border: 1px solid rgba(76, 144, 214, 0.62) !important;
-            border-radius: 20px !important;
-            overflow: hidden !important;
+              linear-gradient(180deg, rgba(9, 47, 88, 0.98), rgba(3, 23, 43, 0.98));
+            border: 1px solid rgba(76, 144, 214, 0.62);
+            border-radius: 20px;
+            overflow: hidden;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper) {
-            background: #06111f !important;
-            border-bottom: 1px solid rgba(143, 191, 255, 0.18) !important;
-            margin: 0 !important;
-            order: 1 !important;
+            background: #06111f;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.18);
+            margin: 0;
+            order: 1;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img.main-img) {
-            height: clamp(410px, 105vw, 560px) !important;
-            max-height: 560px !important;
-            min-height: 410px !important;
+            height: clamp(410px, 105vw, 560px);
+            max-height: 560px;
+            min-height: 410px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img.main-img) {
-            object-fit: contain !important;
-            object-position: center center !important;
+            object-fit: contain;
+            object-position: center center;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-image-soft-bg.listing-image-soft-bg) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs) {
-            align-items: center !important;
-            bottom: 10px !important;
-            display: grid !important;
-            gap: 6px !important;
-            grid-auto-flow: column !important;
-            grid-auto-columns: minmax(34px, 1fr) !important;
-            left: 12px !important;
-            overflow-x: visible !important;
-            padding: 0 0 2px !important;
-            position: absolute !important;
-            right: 12px !important;
-            scrollbar-width: none !important;
-            z-index: 8 !important;
+            align-items: center;
+            bottom: 10px;
+            display: grid;
+            gap: 6px;
+            grid-auto-flow: column;
+            grid-auto-columns: minmax(34px, 1fr);
+            left: 12px;
+            overflow-x: visible;
+            padding: 0 0 2px;
+            position: absolute;
+            right: 12px;
+            scrollbar-width: none;
+            z-index: 8;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs::-webkit-scrollbar) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs button) {
-            background: rgba(2, 10, 20, 0.72) !important;
-            border: 1px solid rgba(143, 191, 255, 0.35) !important;
-            border-radius: 7px !important;
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35) !important;
-            height: clamp(32px, 10vw, 48px) !important;
-            max-width: 52px !important;
-            min-width: 0 !important;
-            overflow: hidden !important;
-            padding: 0 !important;
-            width: 100% !important;
+            background: rgba(2, 10, 20, 0.72);
+            border: 1px solid rgba(143, 191, 255, 0.35);
+            border-radius: 7px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+            height: clamp(32px, 10vw, 48px);
+            max-width: 52px;
+            min-width: 0;
+            overflow: hidden;
+            padding: 0;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs button.active) {
-            border-color: #ff8a1c !important;
+            border-color: #ff8a1c;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs img) {
-            height: 100% !important;
-            object-fit: cover !important;
-            width: 100% !important;
+            height: 100%;
+            object-fit: cover;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-badge.image-badge) {
-            background: rgba(2, 10, 20, 0.86) !important;
-            border: 1px solid rgba(255, 255, 255, 0.18) !important;
-            border-radius: 999px !important;
-            font-size: 16px !important;
-            height: 42px !important;
-            left: 20px !important;
-            padding: 0 14px !important;
-            top: 22px !important;
+            background: rgba(2, 10, 20, 0.86);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            font-size: 16px;
+            height: 42px;
+            left: 20px;
+            padding: 0 14px;
+            top: 22px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-zoom-button.image-zoom-button) {
-            background: rgba(2, 10, 20, 0.78) !important;
-            border-radius: 999px !important;
-            height: 46px !important;
-            right: 20px !important;
-            top: 22px !important;
-            width: 46px !important;
+            background: rgba(2, 10, 20, 0.78);
+            border-radius: 999px;
+            height: 46px;
+            right: 20px;
+            top: 22px;
+            width: 46px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-actions.mobile-image-actions) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-row.title-row) {
             background:
-              linear-gradient(180deg, rgba(3, 25, 47, 0.98), rgba(4, 31, 58, 0.98)) !important;
-            border: 0 !important;
-            border-bottom: 1px solid rgba(143, 191, 255, 0.16) !important;
-            display: grid !important;
-            gap: 18px !important;
-            grid-template-columns: minmax(0, 1fr) auto !important;
-            margin: 0 !important;
-            padding: 26px 24px 22px !important;
+              linear-gradient(180deg, rgba(3, 25, 47, 0.98), rgba(4, 31, 58, 0.98));
+            border: 0;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.16);
+            display: grid;
+            gap: 18px;
+            grid-template-columns: minmax(0, 1fr) auto;
+            margin: 0;
+            padding: 26px 24px 22px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-listing-id.mobile-listing-id) {
-            color: #c9d8eb !important;
-            display: block !important;
-            font-size: 15px !important;
-            font-weight: 850 !important;
-            letter-spacing: 0.01em !important;
-            margin: 0 0 12px !important;
+            color: #c9d8eb;
+            display: block;
+            font-size: 15px;
+            font-weight: 850;
+            letter-spacing: 0.01em;
+            margin: 0 0 12px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-listing-id.mobile-listing-id strong) {
-            color: #ff8a2a !important;
-            display: inline-flex !important;
-            font-size: 13px !important;
-            font-weight: 950 !important;
-            line-height: 1 !important;
+            color: #ff8a2a;
+            display: inline-flex;
+            font-size: 13px;
+            font-weight: 950;
+            line-height: 1;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-row.title-row h1) {
-            font-size: 30px !important;
-            line-height: 1.08 !important;
-            max-width: 92% !important;
+            font-size: 30px;
+            line-height: 1.08;
+            max-width: 92%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-title-actions.mobile-title-actions) {
-            align-items: center !important;
-            display: flex !important;
-            gap: 10px !important;
-            grid-column: 1 / -1 !important;
-            justify-content: space-between !important;
-            margin-top: 6px !important;
-            width: 100% !important;
+            align-items: center;
+            display: flex;
+            gap: 10px;
+            grid-column: 1 / -1;
+            justify-content: space-between;
+            margin-top: 6px;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-title-price.mobile-title-price) {
-            color: #ffffff !important;
-            display: inline-flex !important;
-            flex: 1 1 auto !important;
-            font-size: 34px !important;
-            font-weight: 950 !important;
-            letter-spacing: -0.04em !important;
-            line-height: 1 !important;
+            color: #ffffff;
+            display: inline-flex;
+            flex: 1 1 auto;
+            font-size: 34px;
+            font-weight: 950;
+            letter-spacing: -0.04em;
+            line-height: 1;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-title-actions.mobile-title-actions .icon-btn.icon-btn) {
-            background: rgba(6, 35, 67, 0.92) !important;
-            border: 1px solid rgba(143, 191, 255, 0.34) !important;
-            border-radius: 10px !important;
-            color: #ffffff !important;
-            height: 52px !important;
-            width: 52px !important;
+            background: rgba(6, 35, 67, 0.92);
+            border: 1px solid rgba(143, 191, 255, 0.34);
+            border-radius: 10px;
+            color: #ffffff;
+            height: 52px;
+            width: 52px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta) {
-            background: transparent !important;
-            border-bottom: 1px solid rgba(143, 191, 255, 0.16) !important;
-            color: #d9e6f7 !important;
-            font-size: 16px !important;
-            font-weight: 750 !important;
-            gap: 12px !important;
-            padding: 20px 24px !important;
+            background: transparent;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.16);
+            color: #d9e6f7;
+            font-size: 16px;
+            font-weight: 750;
+            gap: 12px;
+            padding: 20px 24px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta .dot) {
-            color: rgba(217, 230, 247, 0.62) !important;
+            color: rgba(217, 230, 247, 0.62);
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-actions-row.price-actions-row) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-display.price-display) {
-            font-size: 34px !important;
+            font-size: 34px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-bottom-actions.listing-bottom-actions .icon-btn.icon-btn) {
-            background: rgba(6, 35, 67, 0.92) !important;
-            border-color: rgba(143, 191, 255, 0.34) !important;
-            border-radius: 10px !important;
-            height: 52px !important;
-            width: 52px !important;
+            background: rgba(6, 35, 67, 0.92);
+            border-color: rgba(143, 191, 255, 0.34);
+            border-radius: 10px;
+            height: 52px;
+            width: 52px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-bottom-actions.listing-bottom-actions .icon-btn.icon-btn.icon-saved) {
-            color: #ff8a1c !important;
+            color: #ff8a1c;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.description-card.description-card) {
-            background: #062142 !important;
-            border: 0 !important;
-            border-bottom: 1px solid rgba(143, 191, 255, 0.14) !important;
-            box-shadow: none !important;
+            background: #062142;
+            border: 0;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.14);
+            box-shadow: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle) {
-            background: #062142 !important;
-            border: 0 !important;
-            color: #ffffff !important;
-            font-size: 18px !important;
-            min-height: 56px !important;
-            outline: none !important;
-            padding: 0 24px !important;
+            background: #062142;
+            border: 0;
+            color: #ffffff;
+            font-size: 18px;
+            min-height: 56px;
+            outline: none;
+            padding: 0 24px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle:hover),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle:active) {
-            background: #062142 !important;
+            background: #062142;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-extra-card.listing-extra-card) {
-            margin-top: -8px !important;
+            margin-top: -8px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle:focus),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle:focus-visible) {
-            box-shadow: inset 0 0 0 1px rgba(143, 191, 255, 0.22) !important;
-            outline: none !important;
+            box-shadow: inset 0 0 0 1px rgba(143, 191, 255, 0.22);
+            outline: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle svg),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle:hover svg),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle:focus svg),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle svg path) {
-            color: #ffffff !important;
-            stroke: #ffffff !important;
+            color: #ffffff;
+            stroke: #ffffff;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-content.listing-section-content) {
-            background: #062142 !important;
-            color: #d9e6f7 !important;
-            font-size: 17px !important;
-            line-height: 1.65 !important;
-            padding: 0 24px 28px !important;
+            background: #062142;
+            color: #d9e6f7;
+            font-size: 17px;
+            line-height: 1.65;
+            padding: 0 24px 28px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid) {
-            display: grid !important;
-            gap: 16px !important;
-            grid-template-columns: 1fr !important;
+            display: grid;
+            gap: 16px;
+            grid-template-columns: 1fr;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span) {
-            align-items: center !important;
-            background: transparent !important;
-            border: 0 !important;
-            border-bottom: 1px solid rgba(143, 191, 255, 0.1) !important;
-            border-radius: 0 !important;
-            display: grid !important;
-            gap: 10px !important;
-            grid-template-columns: minmax(145px, 0.8fr) minmax(0, 1fr) !important;
-            padding: 0 0 15px !important;
+            align-items: center;
+            background: transparent;
+            border: 0;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.1);
+            border-radius: 0;
+            display: grid;
+            gap: 10px;
+            grid-template-columns: minmax(145px, 0.8fr) minmax(0, 1fr);
+            padding: 0 0 15px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span:last-child) {
-            border-bottom: 0 !important;
-            padding-bottom: 0 !important;
+            border-bottom: 0;
+            padding-bottom: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid strong) {
-            color: #aebfd5 !important;
-            font-size: 16px !important;
-            hyphens: none !important;
-            overflow-wrap: normal !important;
-            text-transform: none !important;
-            white-space: normal !important;
-            word-break: normal !important;
+            color: #aebfd5;
+            font-size: 16px;
+            hyphens: none;
+            overflow-wrap: normal;
+            text-transform: none;
+            white-space: normal;
+            word-break: normal;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(aside.sidebar.sidebar) {
-            margin-top: 18px !important;
+            margin-top: 18px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card) {
             background:
-              linear-gradient(145deg, rgba(11, 47, 89, 0.98), rgba(3, 22, 41, 0.99)) !important;
-            border-radius: 18px !important;
+              linear-gradient(145deg, rgba(11, 47, 89, 0.98), rgba(3, 22, 41, 0.99));
+            border-radius: 18px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-card-body.seller-card-panel) {
-            padding: 24px 18px 28px !important;
+            padding: 24px 18px 28px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-card-top.seller-card-top) {
-            margin-bottom: 28px !important;
+            margin-bottom: 28px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-identity-row.seller-identity-row) {
-            grid-template-columns: 98px minmax(0, 1fr) !important;
-            gap: 18px !important;
-            margin-bottom: 34px !important;
+            grid-template-columns: 98px minmax(0, 1fr);
+            gap: 18px;
+            margin-bottom: 34px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-avatar-detail.seller-avatar-detail),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-avatar-img.seller-avatar-img) {
-            border-radius: 14px !important;
-            height: 92px !important;
-            width: 92px !important;
+            border-radius: 14px;
+            height: 92px;
+            width: 92px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-name-row.seller-name-row strong) {
-            font-size: 25px !important;
+            font-size: 25px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .verified-chip.verified-chip) {
-            color: #32f58a !important;
-            font-size: 18px !important;
+            color: #32f58a;
+            font-size: 18px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .verified-chip.verified-chip svg) {
-            color: #32f58a !important;
-            stroke: #32f58a !important;
+            color: #32f58a;
+            stroke: #32f58a;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row) {
-            font-size: 17px !important;
-            grid-template-columns: 28px 82px minmax(0, 1fr) !important;
+            font-size: 17px;
+            grid-template-columns: 28px 82px minmax(0, 1fr);
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row strong) {
-            font-size: 17px !important;
+            font-size: 17px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .message-btn),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-btn),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-number),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .login-contact) {
-            border-radius: 10px !important;
-            font-size: 17px !important;
-            height: 54px !important;
-            min-height: 54px !important;
-            padding-left: 16px !important;
-            padding-right: 16px !important;
+            border-radius: 10px;
+            font-size: 17px;
+            height: 54px;
+            min-height: 54px;
+            padding-left: 16px;
+            padding-right: 16px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged svg) {
-            height: 19px !important;
-            width: 19px !important;
+            height: 19px;
+            width: 19px;
           }
         }
 
         @media (min-width: 641px) {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-title-actions.mobile-title-actions) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs),
@@ -7574,829 +7771,829 @@ export default function ListingPage({
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-content.listing-section-content),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-content.listing-section-content p) {
-            background: #062142 !important;
-            background-color: #062142 !important;
-            background-image: none !important;
-            box-shadow: none !important;
+            background: #062142;
+            background-color: #062142;
+            background-image: none;
+            box-shadow: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs) {
-            border-bottom: 0 !important;
-            margin-bottom: 0 !important;
-            padding-bottom: 10px !important;
+            border-bottom: 0;
+            margin-bottom: 0;
+            padding-bottom: 10px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-actions-row.price-actions-row) {
-            background: transparent !important;
-            border-bottom: 0 !important;
-            border-top: 0 !important;
-            margin-top: -94px !important;
-            padding-bottom: 18px !important;
-            padding-top: 20px !important;
-            pointer-events: none !important;
-            position: relative !important;
-            z-index: 12 !important;
+            background: transparent;
+            border-bottom: 0;
+            border-top: 0;
+            margin-top: -94px;
+            padding-bottom: 18px;
+            padding-top: 20px;
+            pointer-events: none;
+            position: relative;
+            z-index: 12;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-actions-row.price-actions-row .icon-btn.icon-btn) {
-            pointer-events: auto !important;
+            pointer-events: auto;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.description-card.description-card) {
-            border: 0 !important;
-            margin-top: 0 !important;
+            border: 0;
+            margin-top: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle) {
-            border-bottom: 1px solid rgba(143, 191, 255, 0.12) !important;
-            outline: none !important;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.12);
+            outline: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-content.listing-section-content) {
-            border: 0 !important;
+            border: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle:focus),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-section-toggle.listing-section-toggle:focus-visible) {
-            box-shadow: none !important;
-            outline: none !important;
+            box-shadow: none;
+            outline: none;
           }
         }
 
         @media (min-width: 641px) {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs) {
-            background: rgba(3, 13, 24, 0.78) !important;
-            backdrop-filter: blur(8px) !important;
-            border-bottom: 1px solid rgba(143, 191, 255, 0.12) !important;
-            gap: 8px !important;
-            margin: -68px -26px 0 !important;
-            padding: 8px 12px 9px !important;
-            position: relative !important;
-            z-index: 8 !important;
+            background: rgba(3, 13, 24, 0.78);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(143, 191, 255, 0.12);
+            gap: 8px;
+            margin: -68px -26px 0;
+            padding: 8px 12px 9px;
+            position: relative;
+            z-index: 8;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs button) {
-            background: rgba(226, 232, 240, 0.2) !important;
-            border: 1px solid rgba(203, 213, 225, 0.42) !important;
-            border-radius: 5px !important;
-            height: 52px !important;
-            max-width: 86px !important;
-            overflow: hidden !important;
+            background: rgba(226, 232, 240, 0.2);
+            border: 1px solid rgba(203, 213, 225, 0.42);
+            border-radius: 5px;
+            height: 52px;
+            max-width: 86px;
+            overflow: hidden;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs button.active) {
-            border-color: #ff8a1c !important;
-            box-shadow: inset 0 0 0 1px rgba(255, 138, 28, 0.45) !important;
+            border-color: #ff8a1c;
+            box-shadow: inset 0 0 0 1px rgba(255, 138, 28, 0.45);
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-thumbs.desktop-image-thumbs img) {
-            filter: saturate(0.82) contrast(1.04) !important;
-            object-fit: cover !important;
+            filter: saturate(0.82) contrast(1.04);
+            object-fit: cover;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-actions-row.price-actions-row) {
-            background: #062142 !important;
-            border: 0 !important;
-            margin: 0 -26px !important;
-            padding: 16px 26px 18px !important;
-            pointer-events: auto !important;
-            position: relative !important;
-            z-index: 1 !important;
+            background: #062142;
+            border: 0;
+            margin: 0 -26px;
+            padding: 16px 26px 18px;
+            pointer-events: auto;
+            position: relative;
+            z-index: 1;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-actions.image-actions) {
-            align-items: center !important;
-            display: flex !important;
-            justify-content: space-between !important;
-            width: 100% !important;
+            align-items: center;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-stack.price-stack) {
-            align-items: flex-start !important;
-            display: grid !important;
-            gap: 7px !important;
-            grid-template-columns: auto auto !important;
-            text-align: left !important;
+            align-items: flex-start;
+            display: grid;
+            gap: 7px;
+            grid-template-columns: auto auto;
+            text-align: left;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.fair-price-badge.fair-price-badge) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.fair-price-badge.fair-price-badge svg) {
-            color: #32f58a !important;
-            stroke: #32f58a !important;
+            color: #32f58a;
+            stroke: #32f58a;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-subline.price-subline) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-bottom-actions.listing-bottom-actions) {
-            display: flex !important;
-            gap: 10px !important;
+            display: flex;
+            gap: 10px;
           }
         }
 
         @media (max-width: 640px) {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main.main) {
-            background: #062142 !important;
-            border-color: rgba(76, 144, 214, 0.42) !important;
+            background: #062142;
+            border-color: rgba(76, 144, 214, 0.42);
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper) {
-            background: #06111f !important;
-            border: 1px solid rgba(76, 144, 214, 0.42) !important;
-            border-radius: 16px 16px 0 0 !important;
-            margin: 0 !important;
-            overflow: hidden !important;
-            position: relative !important;
+            background: #06111f;
+            border: 1px solid rgba(76, 144, 214, 0.42);
+            border-radius: 16px 16px 0 0;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button) {
-            align-items: center !important;
-            background: #06111f !important;
-            display: flex !important;
-            justify-content: center !important;
+            align-items: center;
+            background: #06111f;
+            display: flex;
+            justify-content: center;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button > img.main-img.main-img) {
-            height: clamp(300px, 82vw, 430px) !important;
-            max-height: 430px !important;
-            min-height: 300px !important;
+            height: clamp(300px, 82vw, 430px);
+            max-height: 430px;
+            min-height: 300px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button > img.main-img.main-img) {
-            object-fit: contain !important;
-            object-position: center center !important;
-            width: 100% !important;
+            object-fit: contain;
+            object-position: center center;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-image-soft-bg.listing-image-soft-bg),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-badge.image-badge) {
-            background: rgba(0, 0, 0, 0.72) !important;
-            border: 0 !important;
-            border-radius: 0 !important;
-            color: #ffffff !important;
-            font-size: 13px !important;
-            font-weight: 900 !important;
-            height: 24px !important;
-            left: 0 !important;
-            min-height: 24px !important;
-            padding: 0 7px !important;
-            top: 0 !important;
+            background: rgba(0, 0, 0, 0.72);
+            border: 0;
+            border-radius: 0;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 900;
+            height: 24px;
+            left: 0;
+            min-height: 24px;
+            padding: 0 7px;
+            top: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-zoom-button.image-zoom-button) {
-            align-items: center !important;
-            background: rgba(0, 0, 0, 0.62) !important;
-            border: 1px solid rgba(255, 255, 255, 0.16) !important;
-            border-radius: 999px !important;
-            color: #ffffff !important;
-            height: 42px !important;
-            justify-content: center !important;
-            padding: 0 !important;
-            right: 12px !important;
-            top: 12px !important;
-            width: 42px !important;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.62);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 999px;
+            color: #ffffff;
+            height: 42px;
+            justify-content: center;
+            padding: 0;
+            right: 12px;
+            top: 12px;
+            width: 42px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-actions.mobile-image-actions) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper .gallery-arrow.gallery-arrow) {
-            background: rgba(2, 10, 20, 0.62) !important;
-            border: 1px solid rgba(255, 255, 255, 0.18) !important;
-            height: 38px !important;
-            opacity: 0.92 !important;
-            width: 38px !important;
+            background: rgba(2, 10, 20, 0.62);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            height: 38px;
+            opacity: 0.92;
+            width: 38px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper .gallery-arrow-left.gallery-arrow-left) {
-            left: 12px !important;
+            left: 12px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper .gallery-arrow-right.gallery-arrow-right) {
-            right: 12px !important;
+            right: 12px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-row.title-row) {
-            padding-top: 18px !important;
+            padding-top: 18px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-row.title-row h1) {
-            font-size: clamp(24px, 7vw, 30px) !important;
+            font-size: clamp(24px, 7vw, 30px);
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-title-actions.mobile-title-actions) {
-            margin-top: 14px !important;
+            margin-top: 14px;
           }
         }
 
         @media (max-width: 640px) {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper) {
-            background: #06111f !important;
-            border: 1px solid rgba(76, 144, 214, 0.42) !important;
-            border-radius: 16px 16px 0 0 !important;
-            margin: 0 !important;
-            overflow: hidden !important;
+            background: #06111f;
+            border: 1px solid rgba(76, 144, 214, 0.42);
+            border-radius: 16px 16px 0 0;
+            margin: 0;
+            overflow: hidden;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button) {
-            background: #06111f !important;
-            padding: 0 !important;
+            background: #06111f;
+            padding: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button > img.main-img.main-img) {
-            height: clamp(315px, 86vw, 430px) !important;
-            max-height: 430px !important;
-            min-height: 315px !important;
+            height: clamp(315px, 86vw, 430px);
+            max-height: 430px;
+            min-height: 315px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.main-img-button.main-img-button > img.main-img.main-img) {
-            background: #06111f !important;
-            object-fit: contain !important;
-            object-position: center center !important;
+            background: #06111f;
+            object-fit: contain;
+            object-position: center center;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-actions.mobile-image-actions) {
-            display: none !important;
-            visibility: hidden !important;
+            display: none;
+            visibility: hidden;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs) {
-            align-items: center !important;
-            background: rgba(2, 12, 24, 0.86) !important;
-            border-top: 1px solid rgba(143, 191, 255, 0.14) !important;
-            bottom: 0 !important;
-            display: flex !important;
-            gap: 6px !important;
-            left: 0 !important;
-            overflow-x: auto !important;
-            padding: 7px 10px 8px !important;
-            position: absolute !important;
-            right: 0 !important;
-            scrollbar-width: none !important;
-            z-index: 12 !important;
+            align-items: center;
+            background: rgba(2, 12, 24, 0.86);
+            border-top: 1px solid rgba(143, 191, 255, 0.14);
+            bottom: 0;
+            display: flex;
+            gap: 6px;
+            left: 0;
+            overflow-x: auto;
+            padding: 7px 10px 8px;
+            position: absolute;
+            right: 0;
+            scrollbar-width: none;
+            z-index: 12;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs::-webkit-scrollbar) {
-            display: none !important;
+            display: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs button) {
-            aspect-ratio: 1.18 / 1 !important;
-            background: rgba(255, 255, 255, 0.08) !important;
-            border: 1px solid rgba(203, 213, 225, 0.32) !important;
-            border-radius: 5px !important;
-            flex: 1 1 0 !important;
-            height: 46px !important;
-            max-width: 68px !important;
-            min-width: 44px !important;
-            overflow: hidden !important;
+            aspect-ratio: 1.18 / 1;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(203, 213, 225, 0.32);
+            border-radius: 5px;
+            flex: 1 1 0;
+            height: 46px;
+            max-width: 68px;
+            min-width: 44px;
+            overflow: hidden;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs button.active) {
-            border-color: #ff8a1c !important;
-            box-shadow: inset 0 0 0 1px rgba(255, 138, 28, 0.5) !important;
+            border-color: #ff8a1c;
+            box-shadow: inset 0 0 0 1px rgba(255, 138, 28, 0.5);
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-image-thumbs.mobile-image-thumbs img) {
-            height: 100% !important;
-            object-fit: cover !important;
-            width: 100% !important;
+            height: 100%;
+            object-fit: cover;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-badge.image-badge) {
-            border-radius: 999px !important;
-            left: 10px !important;
-            top: 10px !important;
-            z-index: 13 !important;
+            border-radius: 999px;
+            left: 10px;
+            top: 10px;
+            z-index: 13;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-zoom-button.image-zoom-button) {
-            height: 38px !important;
-            right: 10px !important;
-            top: 10px !important;
-            width: 38px !important;
-            z-index: 13 !important;
+            height: 38px;
+            right: 10px;
+            top: 10px;
+            width: 38px;
+            z-index: 13;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper .gallery-arrow.gallery-arrow) {
-            background: rgba(2, 10, 20, 0.68) !important;
-            border: 1px solid rgba(255, 255, 255, 0.18) !important;
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28) !important;
-            height: 36px !important;
-            width: 36px !important;
-            z-index: 13 !important;
+            background: rgba(2, 10, 20, 0.68);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+            height: 36px;
+            width: 36px;
+            z-index: 13;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper .gallery-arrow-left.gallery-arrow-left) {
-            left: 10px !important;
+            left: 10px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.image-wrapper.image-wrapper .gallery-arrow-right.gallery-arrow-right) {
-            right: 10px !important;
+            right: 10px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-row.title-row) {
-            border-bottom: 1px solid rgba(143, 191, 255, 0.14) !important;
-            background: #062142 !important;
-            display: block !important;
-            padding: 18px 22px 20px !important;
+            border-bottom: 1px solid rgba(143, 191, 255, 0.14);
+            background: #062142;
+            display: block;
+            padding: 18px 22px 20px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-listing-id.mobile-listing-id) {
-            align-items: center !important;
-            color: rgba(226, 232, 240, 0.9) !important;
-            display: inline-flex !important;
-            font-size: 13px !important;
-            font-weight: 900 !important;
-            gap: 6px !important;
-            justify-content: flex-end !important;
-            letter-spacing: 0.01em !important;
-            margin: 0 0 8px !important;
-            text-align: right !important;
-            width: 100% !important;
+            align-items: center;
+            color: rgba(226, 232, 240, 0.9);
+            display: inline-flex;
+            font-size: 13px;
+            font-weight: 900;
+            gap: 6px;
+            justify-content: flex-end;
+            letter-spacing: 0.01em;
+            margin: 0 0 8px;
+            text-align: right;
+            width: 100%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-listing-id.mobile-listing-id strong) {
-            color: #ff8a2a !important;
-            display: inline-flex !important;
-            font-size: 13px !important;
-            font-weight: 950 !important;
-            line-height: 1 !important;
+            color: #ff8a2a;
+            display: inline-flex;
+            font-size: 13px;
+            font-weight: 950;
+            line-height: 1;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.title-row.title-row h1) {
-            font-size: clamp(22px, 6vw, 28px) !important;
-            line-height: 1.08 !important;
-            max-width: 92% !important;
+            font-size: clamp(22px, 6vw, 28px);
+            line-height: 1.08;
+            max-width: 92%;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-title-actions.mobile-title-actions) {
-            align-items: center !important;
-            display: flex !important;
-            gap: 10px !important;
-            justify-content: flex-start !important;
-            margin-top: 16px !important;
+            align-items: center;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+            margin-top: 16px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-title-price.mobile-title-price) {
-            font-size: clamp(28px, 7.4vw, 34px) !important;
-            line-height: 1 !important;
-            margin-right: auto !important;
+            font-size: clamp(28px, 7.4vw, 34px);
+            line-height: 1;
+            margin-right: auto;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.mobile-title-actions.mobile-title-actions .icon-btn.icon-btn) {
-            border-radius: 10px !important;
-            height: 44px !important;
-            min-width: 44px !important;
-            width: 44px !important;
+            border-radius: 10px;
+            height: 44px;
+            min-width: 44px;
+            width: 44px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card) {
-            padding: 18px 18px 24px !important;
+            padding: 18px 18px 24px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-card-top.seller-card-top) {
-            align-items: center !important;
-            gap: 8px !important;
-            margin-bottom: 18px !important;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-badge.seller-type-badge),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-profile-link.seller-profile-link) {
-            font-size: 15px !important;
-            line-height: 1.1 !important;
+            font-size: 15px;
+            line-height: 1.1;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-main.seller-main) {
-            gap: 16px !important;
-            grid-template-columns: 92px minmax(0, 1fr) !important;
-            margin-bottom: 28px !important;
+            gap: 16px;
+            grid-template-columns: 92px minmax(0, 1fr);
+            margin-bottom: 28px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-logo.seller-logo) {
-            height: 84px !important;
-            width: 84px !important;
+            height: 84px;
+            width: 84px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-name.seller-name),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card h2) {
-            font-size: 25px !important;
-            line-height: 1.08 !important;
+            font-size: 25px;
+            line-height: 1.08;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .verified-text.verified-text),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-verified.seller-verified) {
-            color: #32f58a !important;
-            font-size: 17px !important;
+            color: #32f58a;
+            font-size: 17px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta.seller-meta) {
-            gap: 14px !important;
+            gap: 14px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row) {
-            column-gap: 12px !important;
-            grid-template-columns: 26px 86px minmax(0, 1fr) !important;
+            column-gap: 12px;
+            grid-template-columns: 26px 86px minmax(0, 1fr);
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row span),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row strong) {
-            font-size: 16px !important;
-            line-height: 1.15 !important;
+            font-size: 16px;
+            line-height: 1.15;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-stats.seller-stats) {
-            margin: 24px 0 24px !important;
+            margin: 24px 0 24px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .message-btn),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-btn),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-number),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .login-contact) {
-            height: 54px !important;
-            min-height: 54px !important;
+            height: 54px;
+            min-height: 54px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-avatar-detail.seller-avatar-detail),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-avatar-img.seller-avatar-img) {
-            border-radius: 12px !important;
-            height: 72px !important;
-            width: 72px !important;
+            border-radius: 12px;
+            height: 72px;
+            width: 72px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-name-row.seller-name-row strong) {
-            font-size: 22px !important;
-            line-height: 1.08 !important;
+            font-size: 22px;
+            line-height: 1.08;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-profile-btn-top.seller-profile-btn-top) {
-            border-radius: 9px !important;
-            font-size: 12px !important;
-            gap: 5px !important;
-            min-height: 32px !important;
-            padding: 0 8px !important;
-            white-space: nowrap !important;
+            border-radius: 9px;
+            font-size: 12px;
+            gap: 5px;
+            min-height: 32px;
+            padding: 0 8px;
+            white-space: nowrap;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-profile-btn-top.seller-profile-btn-top svg) {
-            height: 14px !important;
-            width: 14px !important;
+            height: 14px;
+            width: 14px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-company-verified-line.seller-company-verified-line) {
-            background: transparent !important;
-            border: 0 !important;
-            box-shadow: none !important;
-            color: #4ade80 !important;
-            font-weight: 950 !important;
-            padding-top: 0 !important;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+            color: #4ade80;
+            font-weight: 950;
+            padding-top: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-company-verified-line.seller-company-verified-line span),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-company-verified-line.seller-company-verified-line svg) {
-            color: #4ade80 !important;
-            stroke: #4ade80 !important;
+            color: #4ade80;
+            stroke: #4ade80;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified) {
-            color: #4ade80 !important;
+            color: #4ade80;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified strong),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified svg) {
-            color: #4ade80 !important;
-            stroke: #4ade80 !important;
+            color: #4ade80;
+            stroke: #4ade80;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-btn),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-contact-merged.seller-contact-merged .phone-number) {
-            background: linear-gradient(180deg, rgba(5, 25, 46, 0.98), rgba(3, 15, 30, 0.98)) !important;
-            border: 1px solid rgba(255, 122, 26, 0.82) !important;
-            border-radius: 12px !important;
-            color: #ffffff !important;
-            font-size: 14px !important;
-            font-weight: 950 !important;
+            background: linear-gradient(180deg, rgba(5, 25, 46, 0.98), rgba(3, 15, 30, 0.98));
+            border: 1px solid rgba(255, 122, 26, 0.82);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 950;
           }
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified),
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified strong) {
-          color: #4ade80 !important;
-          -webkit-text-fill-color: #4ade80 !important;
+          color: #4ade80;
+          -webkit-text-fill-color: #4ade80;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-type-corner.is-company-verified.is-company-verified svg) {
-          color: #4ade80 !important;
-          stroke: #4ade80 !important;
+          color: #4ade80;
+          stroke: #4ade80;
         }
 
         @media (max-width: 760px) {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid) {
-            gap: 0 !important;
+            gap: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span) {
-            align-items: start !important;
-            column-gap: 14px !important;
-            grid-template-columns: minmax(108px, 0.42fr) minmax(0, 1fr) !important;
-            min-width: 0 !important;
+            align-items: start;
+            column-gap: 14px;
+            grid-template-columns: minmax(108px, 0.42fr) minmax(0, 1fr);
+            min-width: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span > strong) {
-            font-size: clamp(13px, 3.6vw, 15px) !important;
-            line-height: 1.25 !important;
-            min-width: 0 !important;
+            font-size: clamp(13px, 3.6vw, 15px);
+            line-height: 1.25;
+            min-width: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span) {
-            font-size: clamp(14px, 4vw, 17px) !important;
-            line-height: 1.35 !important;
-            overflow-wrap: anywhere !important;
-            word-break: normal !important;
+            font-size: clamp(14px, 4vw, 17px);
+            line-height: 1.35;
+            overflow-wrap: anywhere;
+            word-break: normal;
           }
         }
 
         @media (max-width: 360px) {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.listing-fact-grid.listing-fact-grid span) {
-            grid-template-columns: 1fr !important;
-            row-gap: 6px !important;
+            grid-template-columns: 1fr;
+            row-gap: 6px;
           }
         }
 
         /* Definitive responsive seller-column layout. Keep this last. */
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card),
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card *) {
-          box-sizing: border-box !important;
-          min-width: 0 !important;
-          writing-mode: horizontal-tb !important;
-          text-orientation: mixed !important;
-          word-break: normal !important;
-          hyphens: none !important;
+          box-sizing: border-box;
+          min-width: 0;
+          writing-mode: horizontal-tb;
+          text-orientation: mixed;
+          word-break: normal;
+          hyphens: none;
         }
 
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-name-row.seller-name-row strong),
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row strong),
         :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row span) {
-          max-width: 100% !important;
-          overflow-wrap: break-word !important;
-          white-space: normal !important;
+          max-width: 100%;
+          overflow-wrap: break-word;
+          white-space: normal;
         }
 
         @media (min-width: 1024px) {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.container.container) {
-            box-sizing: border-box !important;
-            width: min(calc(100% - 40px), 1240px) !important;
-            max-width: 1240px !important;
-            margin-inline: auto !important;
+            box-sizing: border-box;
+            width: min(calc(100% - 40px), 1240px);
+            max-width: 1240px;
+            margin-inline: auto;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.layout.layout) {
-            display: grid !important;
-            grid-template-columns: minmax(0, 1fr) clamp(340px, 30vw, 390px) !important;
-            align-items: start !important;
-            gap: clamp(18px, 2vw, 24px) !important;
-            width: 100% !important;
-            max-width: none !important;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) clamp(340px, 30vw, 390px);
+            align-items: start;
+            gap: clamp(18px, 2vw, 24px);
+            width: 100%;
+            max-width: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(aside.sidebar.sidebar),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card) {
-            position: static !important;
-            align-self: start !important;
-            width: 100% !important;
-            min-width: 340px !important;
-            max-width: 390px !important;
-            margin: 0 !important;
+            position: static;
+            align-self: start;
+            width: 100%;
+            min-width: 340px;
+            max-width: 390px;
+            margin: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-identity-row.seller-identity-row) {
-            display: grid !important;
-            grid-template-columns: 92px minmax(0, 1fr) !important;
-            align-items: center !important;
-            gap: 18px !important;
+            display: grid;
+            grid-template-columns: 92px minmax(0, 1fr);
+            align-items: center;
+            gap: 18px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-name-row.seller-name-row strong) {
-            display: block !important;
-            width: 100% !important;
-            font-size: clamp(22px, 2vw, 26px) !important;
-            line-height: 1.1 !important;
+            display: block;
+            width: 100%;
+            font-size: clamp(22px, 2vw, 26px);
+            line-height: 1.1;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row) {
-            display: grid !important;
-            grid-template-columns: 26px 86px minmax(0, 1fr) !important;
-            align-items: start !important;
-            gap: 10px !important;
+            display: grid;
+            grid-template-columns: 26px 86px minmax(0, 1fr);
+            align-items: start;
+            gap: 10px;
           }
         }
 
         @media (min-width: 641px) and (max-width: 1023px) {
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.container.container) {
-            box-sizing: border-box !important;
-            width: min(calc(100% - 32px), 900px) !important;
-            max-width: 900px !important;
-            margin-inline: auto !important;
+            box-sizing: border-box;
+            width: min(calc(100% - 32px), 900px);
+            max-width: 900px;
+            margin-inline: auto;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.layout.layout) {
-            display: grid !important;
-            grid-template-columns: minmax(0, 1fr) !important;
-            gap: 18px !important;
-            width: 100% !important;
-            max-width: none !important;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 18px;
+            width: 100%;
+            max-width: none;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(aside.sidebar.sidebar),
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card) {
-            position: static !important;
-            width: 100% !important;
-            min-width: 0 !important;
-            max-width: none !important;
-            margin: 0 !important;
+            position: static;
+            width: 100%;
+            min-width: 0;
+            max-width: none;
+            margin: 0;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-identity-row.seller-identity-row) {
-            display: grid !important;
-            grid-template-columns: 92px minmax(0, 1fr) !important;
-            align-items: center !important;
-            gap: 18px !important;
+            display: grid;
+            grid-template-columns: 92px minmax(0, 1fr);
+            align-items: center;
+            gap: 18px;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.seller-card.seller-card .seller-meta-row.seller-meta-row) {
-            display: grid !important;
-            grid-template-columns: 26px minmax(90px, auto) minmax(0, 1fr) !important;
-            align-items: start !important;
-            gap: 10px !important;
+            display: grid;
+            grid-template-columns: 26px minmax(90px, auto) minmax(0, 1fr);
+            align-items: start;
+            gap: 10px;
           }
         }
 
         /* Active final seller-card scale: match the wide reference card. */
         @media (min-width: 820px) {
           body main.page.listing-detail-page.listing-detail-page .container.container {
-            box-sizing: border-box !important;
-            width: min(calc(100% - 24px), 1240px) !important;
-            max-width: 1240px !important;
-            margin-inline: auto !important;
+            box-sizing: border-box;
+            width: min(calc(100% - 24px), 1240px);
+            max-width: 1240px;
+            margin-inline: auto;
           }
 
           body main.page.listing-detail-page.listing-detail-page section.layout.layout {
-            display: grid !important;
-            grid-template-columns: minmax(0, 1fr) clamp(360px, 31vw, 390px) !important;
-            align-items: start !important;
-            gap: clamp(16px, 2vw, 24px) !important;
-            width: 100% !important;
-            max-width: none !important;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) clamp(360px, 31vw, 390px);
+            align-items: start;
+            gap: clamp(16px, 2vw, 24px);
+            width: 100%;
+            max-width: none;
           }
 
           body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar,
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card {
-            position: static !important;
-            align-self: start !important;
-            box-sizing: border-box !important;
-            width: 100% !important;
-            min-width: 360px !important;
-            max-width: 390px !important;
-            margin: 0 !important;
+            position: static;
+            align-self: start;
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 360px;
+            max-width: 390px;
+            margin: 0;
           }
 
           body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar {
-            display: grid !important;
-            grid-template-columns: minmax(0, 1fr) !important;
-            align-content: start !important;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            align-content: start;
           }
 
           body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar > * {
-            grid-column: 1 / -1 !important;
-            width: 100% !important;
-            max-width: none !important;
+            grid-column: 1 / -1;
+            width: 100%;
+            max-width: none;
           }
 
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card,
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card * {
-            min-width: 0 !important;
-            writing-mode: horizontal-tb !important;
-            text-orientation: mixed !important;
-            word-break: normal !important;
-            hyphens: none !important;
+            min-width: 0;
+            writing-mode: horizontal-tb;
+            text-orientation: mixed;
+            word-break: normal;
+            hyphens: none;
           }
 
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-card-body.seller-card-panel {
-            display: block !important;
-            padding: 26px 22px 24px !important;
+            display: block;
+            padding: 26px 22px 24px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-card-top.seller-card-top {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            gap: 12px !important;
-            margin-bottom: 24px !important;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 24px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-identity-row.seller-identity-row {
-            display: grid !important;
-            grid-template-columns: 102px minmax(0, 1fr) !important;
-            align-items: center !important;
-            gap: 24px !important;
-            margin-bottom: 26px !important;
+            display: grid;
+            grid-template-columns: 102px minmax(0, 1fr);
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 26px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-avatar-detail.seller-avatar-detail,
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-avatar-img.seller-avatar-img {
-            width: 102px !important;
-            height: 102px !important;
-            border-radius: 16px !important;
+            width: 102px;
+            height: 102px;
+            border-radius: 16px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-name-row.seller-name-row strong {
-            display: block !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            font-size: clamp(24px, 2.2vw, 28px) !important;
-            line-height: 1.08 !important;
-            overflow-wrap: break-word !important;
-            white-space: normal !important;
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            font-size: clamp(24px, 2.2vw, 28px);
+            line-height: 1.08;
+            overflow-wrap: break-word;
+            white-space: normal;
           }
 
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-rows.seller-meta-rows {
-            display: grid !important;
-            gap: 14px !important;
+            display: grid;
+            gap: 14px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row {
-            display: grid !important;
-            grid-template-columns: 26px max-content minmax(0, 1fr) !important;
-            align-items: start !important;
-            gap: 10px !important;
+            display: grid;
+            grid-template-columns: 26px max-content minmax(0, 1fr);
+            align-items: start;
+            gap: 10px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row strong,
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-meta-row.seller-meta-row span {
-            max-width: 100% !important;
-            overflow-wrap: break-word !important;
-            white-space: normal !important;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            white-space: normal;
           }
 
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-stats-row.seller-stats-row {
-            display: grid !important;
-            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-            gap: 16px !important;
-            margin-top: 24px !important;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            margin-top: 24px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged,
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .seller-contact-merged.seller-contact-merged > * {
-            width: 100% !important;
-            max-width: none !important;
+            width: 100%;
+            max-width: none;
           }
         }
 
         @media (min-width: 820px) and (max-width: 1199px) {
           body main.page.listing-detail-page.listing-detail-page .title-row.title-row {
-            min-height: 0 !important;
-            height: auto !important;
-            padding: 18px 20px !important;
-            margin-bottom: 16px !important;
-            gap: 12px !important;
+            min-height: 0;
+            height: auto;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+            gap: 12px;
           }
 
           body main.page.listing-detail-page.listing-detail-page .title-row.title-row h1 {
-            max-width: min(100%, 520px) !important;
-            font-size: clamp(23px, 2.8vw, 28px) !important;
-            line-height: 1.08 !important;
+            max-width: min(100%, 520px);
+            font-size: clamp(23px, 2.8vw, 28px);
+            line-height: 1.08;
           }
 
           body main.page.listing-detail-page.listing-detail-page .desktop-image-meta.desktop-image-meta {
-            margin-bottom: 14px !important;
+            margin-bottom: 14px;
           }
         }
 
         @media (min-width: 641px) and (max-width: 819px) {
           body main.page.listing-detail-page.listing-detail-page section.layout.layout {
-            display: grid !important;
-            grid-template-columns: minmax(0, 1fr) !important;
-            gap: 18px !important;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 18px;
           }
 
           body main.page.listing-detail-page.listing-detail-page aside.sidebar.sidebar,
           body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card {
-            position: static !important;
-            width: 100% !important;
-            min-width: 0 !important;
-            max-width: none !important;
-            margin: 0 !important;
+            position: static;
+            width: 100%;
+            min-width: 0;
+            max-width: none;
+            margin: 0;
           }
         }
 
@@ -8404,53 +8601,423 @@ export default function ListingPage({
         body main.page.listing-detail-page.listing-detail-page
           .seller-card.seller-card
           .seller-avatar-detail.seller-avatar-detail:not(:has(img)) {
-          position: relative !important;
-          overflow: hidden !important;
-          background: #25282c !important;
-          background-image: none !important;
-          border: 2px solid #ff861d !important;
-          box-shadow: none !important;
-          color: #ffffff !important;
+          position: relative;
+          overflow: hidden;
+          background: #25282c;
+          background-image: none;
+          border: 2px solid #ff861d;
+          box-shadow: none;
+          color: #ffffff;
         }
 
         body main.page.listing-detail-page.listing-detail-page
           .seller-card.seller-card
           .seller-avatar-detail.seller-avatar-detail:not(:has(img))
           > .seller-avatar-initial.seller-avatar-initial {
-          position: absolute !important;
-          inset: 0 !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          width: 100% !important;
-          height: 100% !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          background: transparent !important;
-          color: #ffffff !important;
-          font-size: clamp(28px, 4vw, 42px) !important;
-          font-weight: 950 !important;
-          line-height: 1 !important;
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          background: transparent;
+          color: #ffffff;
+          font-size: clamp(28px, 4vw, 42px);
+          font-weight: 950;
+          line-height: 1;
         }
 
         body main.page.listing-detail-page.listing-detail-page
           .seller-card.seller-card
           .seller-avatar-detail.seller-avatar-detail
           > img.seller-avatar-img.seller-avatar-img {
-          position: absolute !important;
-          inset: 0 !important;
-          display: block !important;
-          width: 100% !important;
-          height: 100% !important;
-          max-width: none !important;
-          max-height: none !important;
-          margin: 0 !important;
+          position: absolute;
+          inset: 0;
+          display: block;
+          width: 100%;
+          height: 100%;
+          max-width: none;
+          max-height: none;
+          margin: 0;
+          padding: 0;
+          border: 0;
+          border-radius: inherit;
+          background: transparent;
+          object-fit: cover;
+          object-position: center center;
+        }
+
+        /* Vehicle facts use a compact specification table instead of cards. */
+        body main.page.listing-detail-page.listing-detail-page
+          .listing-fact-grid.listing-fact-grid.listing-vehicle-facts {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          column-gap: clamp(28px, 5vw, 70px);
+          row-gap: 14px;
+          margin: 0;
+          padding: 8px 0 4px;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span {
+          align-items: baseline;
+          display: grid;
+          grid-template-columns: minmax(125px, 0.72fr) minmax(0, 1fr);
+          gap: 16px;
+          min-height: 0;
+          margin: 0;
+          padding: 0;
+          background: transparent;
+          background-color: transparent;
+          background-image: none;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+          color: #edf4fc;
+          font-size: 15px;
+          font-weight: 850;
+          line-height: 1.35;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span > strong {
+          color: #9fb0c2;
+          font-size: 14px;
+          font-weight: 750;
+          letter-spacing: 0;
+          line-height: 1.35;
+          text-transform: none;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span {
+          color: #16232c;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span > strong {
+          color: #536572;
+        }
+
+        @media (max-width: 760px) {
+          body main.page.listing-detail-page.listing-detail-page
+            .listing-fact-grid.listing-fact-grid.listing-vehicle-facts {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span {
+            grid-template-columns: minmax(112px, 0.55fr) minmax(0, 1fr);
+            gap: 14px;
+          }
+        }
+
+        @media (max-width: 360px) {
+          body main.page.listing-detail-page.listing-detail-page
+            .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span {
+            grid-template-columns: 1fr;
+            gap: 4px;
+          }
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .listing-vehicle-equipment {
+          margin-top: 28px;
+          padding: 22px 0 4px;
+          border-top: 1px solid rgba(143, 191, 255, 0.16);
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .listing-vehicle-equipment h3 {
+          margin: 0 0 16px;
+          color: #ffffff;
+          font-size: 18px;
+          font-weight: 900;
+          line-height: 1.25;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .listing-vehicle-equipment > div {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          column-gap: clamp(32px, 8vw, 110px);
+          row-gap: 9px;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .listing-vehicle-equipment span {
+          color: #dce8f5;
+          font-size: 15px;
+          font-weight: 650;
+          line-height: 1.35;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page .listing-vehicle-equipment {
+          border-top-color: #cbd3d7;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page .listing-vehicle-equipment h3,
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page .listing-vehicle-equipment span {
+          color: #16232c;
+        }
+
+        @media (max-width: 520px) {
+          body main.page.listing-detail-page.listing-detail-page .listing-vehicle-equipment > div {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            column-gap: 14px;
+            row-gap: 10px;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .listing-vehicle-equipment span {
+            min-width: 0;
+            overflow-wrap: anywhere;
+          }
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .listing-description-empty {
+          align-items: center;
+          display: flex;
+          gap: 10px;
+          margin: 4px 0 0;
+          padding: 12px 14px;
+          background: rgba(143, 191, 255, 0.07);
+          border: 1px solid rgba(143, 191, 255, 0.14);
+          border-radius: 8px;
+          color: #afbdca;
+          font-size: 14px;
+          font-weight: 700;
+          line-height: 1.4;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .listing-description-empty::before {
+          align-items: center;
+          display: inline-flex;
+          flex: 0 0 20px;
+          height: 20px;
+          justify-content: center;
+          border: 1px solid currentColor;
+          border-radius: 999px;
+          content: "i";
+          font-size: 12px;
+          font-weight: 900;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page .listing-description-empty {
+          background: #f5f6f6;
+          border-color: #d7dee2;
+          color: #60717d;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .listing-section-toggle.listing-section-toggle svg,
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .listing-section-toggle.listing-section-toggle svg path {
+          color: #16232c;
+          stroke: #16232c;
+          opacity: 1;
+        }
+
+        @media (max-width: 760px) {
+          body main.page.listing-detail-page.listing-detail-page
+            .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span {
+            align-items: start;
+            grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span > strong {
+            hyphens: auto;
+            overflow-wrap: anywhere;
+            word-break: normal;
+          }
+        }
+
+        @media (max-width: 360px) {
+          body main.page.listing-detail-page.listing-detail-page
+            .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .listing-bottom-actions.listing-bottom-actions > button.icon-btn.listing-favorite-button,
+        body main.page.listing-detail-page.listing-detail-page
+          .listing-bottom-actions.listing-bottom-actions > button.icon-btn.listing-favorite-button:is(:hover, :focus-visible, :active) {
+          position: static !important;
+          align-items: center !important;
+          justify-content: center !important;
+          width: 40px !important;
+          min-width: 40px !important;
+          height: 40px !important;
+          min-height: 40px !important;
           padding: 0 !important;
-          border: 0 !important;
-          border-radius: inherit !important;
-          background: transparent !important;
-          object-fit: cover !important;
-          object-position: center center !important;
+          background: #082449 !important;
+          background-color: #082449 !important;
+          background-image: none !important;
+          border: 1px solid rgba(160, 190, 226, 0.34) !important;
+          border-radius: 10px !important;
+          box-shadow: none !important;
+          color: #ff7a1a !important;
+          transform: none !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .listing-bottom-actions.listing-bottom-actions > button.icon-btn.listing-favorite-button svg {
+          width: 18px !important;
+          height: 18px !important;
+          margin: 0 !important;
+          color: #ff7a1a !important;
+          fill: transparent !important;
+          stroke: #ff7a1a !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .listing-bottom-actions.listing-bottom-actions > button.icon-btn.listing-favorite-button.icon-saved svg {
+          fill: #ff7a1a !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card {
+          position: relative !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-card-body.seller-card-panel {
+          position: static !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-card-top.seller-card-top {
+          align-items: center !important;
+          display: flex !important;
+          gap: 10px !important;
+          justify-content: space-between !important;
+          min-height: 32px !important;
+          padding-right: 0 !important;
+          position: static !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-card-top.seller-card-top > a.seller-profile-btn.seller-profile-btn-top {
+          position: static !important;
+          top: auto !important;
+          right: auto !important;
+          z-index: 20 !important;
+          flex: 0 0 auto !important;
+          margin: 0 0 0 auto !important;
+          white-space: nowrap !important;
+        }
+
+        @media (max-width: 520px) {
+          body main.page.listing-detail-page.listing-detail-page
+            .seller-card.seller-card .seller-card-top.seller-card-top {
+            padding-right: 0 !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .seller-card.seller-card .seller-card-top.seller-card-top > a.seller-profile-btn.seller-profile-btn-top {
+            top: auto !important;
+            right: auto !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .seller-card.seller-card .seller-identity-row.seller-identity-row {
+            position: relative !important;
+            align-items: start !important;
+            padding-bottom: 28px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .seller-card.seller-card :is(.seller-info, .seller-name-row) {
+            position: static !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .seller-card.seller-card .seller-name-row.seller-name-row .verified-chip {
+            position: absolute !important;
+            top: 76px !important;
+            left: 0 !important;
+            z-index: 3 !important;
+            margin: 0 !important;
+            white-space: nowrap !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .seller-card.seller-card .seller-stats-row.seller-stats-row {
+            gap: 8px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .seller-card.seller-card .seller-stat.seller-stat {
+            gap: 7px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .seller-card.seller-card .seller-stat.seller-stat svg {
+            width: 18px !important;
+            height: 18px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .seller-card.seller-card .seller-stat.seller-stat small {
+            max-width: 100% !important;
+            font-size: clamp(8px, 2.5vw, 10px) !important;
+            letter-spacing: -0.02em !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            white-space: nowrap !important;
+          }
+        }
+
+        @media (max-width: 300px) {
+          body main.page.listing-detail-page.listing-detail-page
+            .seller-card.seller-card .seller-card-top.seller-card-top {
+            padding-top: 34px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .seller-card.seller-card .seller-card-top.seller-card-top > a.seller-profile-btn.seller-profile-btn-top {
+            position: absolute !important;
+            top: 10px !important;
+            right: 10px !important;
+          }
+        }
+
+        /* Keep the detail-page favorite readable on the light theme. This is
+           intentionally the last page-local rule so the older action-button
+           styling above cannot paint the heart navy-on-navy. */
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .listing-bottom-actions.listing-bottom-actions > button.icon-btn.listing-favorite-button,
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .listing-bottom-actions.listing-bottom-actions > button.icon-btn.listing-favorite-button:is(:hover, :focus-visible, :active) {
+          background: #ffffff !important;
+          background-color: #ffffff !important;
+          background-image: none !important;
+          border-color: #aebbc2 !important;
+          box-shadow: 0 5px 14px rgba(25, 38, 48, 0.14) !important;
+          color: #16232c !important;
+          transform: none !important;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .listing-bottom-actions.listing-bottom-actions > button.icon-btn.listing-favorite-button:not(.icon-saved) svg,
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .listing-bottom-actions.listing-bottom-actions > button.icon-btn.listing-favorite-button:not(.icon-saved) svg path {
+          color: #16232c !important;
+          fill: transparent !important;
+          stroke: #16232c !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .listing-bottom-actions.listing-bottom-actions > button.icon-btn.listing-favorite-button.icon-saved svg,
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .listing-bottom-actions.listing-bottom-actions > button.icon-btn.listing-favorite-button.icon-saved svg path {
+          color: #ff7a1a !important;
+          fill: #ff7a1a !important;
+          stroke: #ff7a1a !important;
+          opacity: 1 !important;
+          visibility: visible !important;
         }
 
       `}</style>

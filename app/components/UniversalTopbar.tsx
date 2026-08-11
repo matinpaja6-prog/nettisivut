@@ -763,6 +763,21 @@ export default function UniversalTopbar() {
   }, [notificationOpen]);
 
   useEffect(() => {
+    function toggleProfileMenuFromMobileNav() {
+      setNotificationOpen(false);
+      setTopbarDropdownOpen(null);
+      setProfileOpen((open) => !open);
+    }
+
+    window.addEventListener("maskines:toggle-profile-menu", toggleProfileMenuFromMobileNav);
+    return () => window.removeEventListener("maskines:toggle-profile-menu", toggleProfileMenuFromMobileNav);
+  }, []);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("maskines:profile-menu-state", { detail: profileOpen }));
+  }, [profileOpen]);
+
+  useEffect(() => {
     if (!profileOpen) return;
 
     function updateProfileMenuPosition() {
@@ -779,6 +794,7 @@ export default function UniversalTopbar() {
       const target = event.target;
       if (
         target instanceof Node &&
+        !(target instanceof Element && target.closest('[data-profile-menu-toggle="true"]')) &&
         !profileMenuRef.current?.contains(target) &&
         !profileMenuOverlayRef.current?.contains(target)
       ) {

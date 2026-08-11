@@ -10,7 +10,6 @@ import { sanitizePhoneInput } from "@/lib/phone-input";
 import { prepareImageFileTo1080p } from "@/app/components/chat/image-processing";
 
 import {
-  ArrowUp,
   Calendar,
   Check,
   ChevronDown,
@@ -24,7 +23,6 @@ import {
   List as ListIcon,
   LockKeyhole,
   MessageCircle,
-  MoreVertical,
   Phone,
   Search,
   Tag,
@@ -39,7 +37,6 @@ import {
   createPurchaseReviewRequest,
   deleteListing,
   findReviewBuyerByPhone,
-  getConversationCountForUser,
   getListingById,
   getListingBuyerCandidates,
   getListingsBySeller,
@@ -54,12 +51,14 @@ import {
   type ReviewBuyerLookup
 } from "@/lib/supabase";
 import { removeCachedListing, updateCachedListing } from "@/lib/client-listings-cache";
+import { removeCachedResource } from "@/lib/client-resource-cache";
 
 import styles from "./my-listings.module.css";
 
 import {
   conditions,
   formatPrice,
+  isVehicleListing,
   type Listing,
   type SoldListing
 } from "@/lib/listings";
@@ -98,12 +97,16 @@ function EditablePresetInput({
   options,
   placeholder,
   ariaLabel,
+  required = false,
+  invalid = false,
   onChange
 }: {
   value: string;
   options: string[];
   placeholder: string;
   ariaLabel: string;
+  required?: boolean;
+  invalid?: boolean;
   onChange: (value: string) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -123,6 +126,8 @@ function EditablePresetInput({
         aria-label={ariaLabel}
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-invalid={invalid}
+        required={required}
         autoComplete="off"
       />
       <button
@@ -186,29 +191,67 @@ function getListingMainImage(
   return getEditableListingImages(listing)[0] ?? fallbackListingImage;
 }
 
+const LISTING_DESCRIPTION_METADATA_LABELS = new Set(
+  [
+    "Ajoneuvo",
+    "Ajoneuvotyyppi",
+    "Merkki",
+    "Malli",
+    "Vuosimalli",
+    "Toimitustapa",
+    "Ajokilometrit",
+    "Käyttötunnit",
+    "Rekisteritunnus",
+    "Moottorin tyyppi",
+    "Moottoritilavuus",
+    "Moottorin malli",
+    "Vetotapa",
+    "Tieliikennekelpoisuus",
+    "Lisävarusteet",
+    "Ajoneuvon väri",
+    "Kategoria",
+    "Alakategoria",
+    "Kunto",
+    "Osan tarkka malli",
+    "Varaosanumero"
+  ].map((label) => label.toLocaleLowerCase("fi-FI"))
+);
+
+function isDescriptionMetadataLine(line: string) {
+  const separatorIndex = line.indexOf(":");
+  if (separatorIndex < 0) return false;
+
+  const label = line
+    .slice(0, separatorIndex)
+    .trim()
+    .toLocaleLowerCase("fi-FI");
+
+  return LISTING_DESCRIPTION_METADATA_LABELS.has(label);
+}
+
 function getUserWrittenDescription(description: string) {
-  const lines = (description || "").replace(/\r\n/g, "\n").split("\n");
-  let index = 0;
-  let removedVehicleInfo = false;
+  return (description || "")
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => !isDescriptionMetadataLine(line.trim()))
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
 
-  while (index < lines.length) {
-    const line = lines[index].trim();
+function mergeListingDescriptionMetadata(
+  originalDescription: string,
+  userDescription: string
+) {
+  const metadata = (originalDescription || "")
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .filter((line) => isDescriptionMetadataLine(line.trim()))
+    .map((line) => line.trim());
 
-    if (/^(Ajoneuvo|Merkki|Malli|Vuosimalli):/i.test(line)) {
-      removedVehicleInfo = true;
-      index += 1;
-      continue;
-    }
-
-    if (removedVehicleInfo && line.length === 0) {
-      index += 1;
-      continue;
-    }
-
-    break;
-  }
-
-  return lines.slice(index).join("\n").trimStart();
+  return [metadata.join("\n"), userDescription.trim()]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 function normalizeVehicleToken(value?: string | null) {
@@ -560,6 +603,9 @@ export default function MyListingsPage() {
   const [status, setStatus] =
     useState("");
 
+  const [editValidationErrors, setEditValidationErrors] =
+    useState<Record<string, string>>({});
+
   const [editingListingId, setEditingListingId] =
     useState<string | null>(null);
 
@@ -637,12 +683,6 @@ export default function MyListingsPage() {
   const [viewMode, setViewMode] =
     useState<"list" | "grid">("list");
 
-  const [conversationCount, setConversationCount] =
-    useState(0);
-
-  const [openMenuId, setOpenMenuId] =
-    useState<string | null>(null);
-
   const [expandedGroupKeys, setExpandedGroupKeys] =
     useState<Record<string, boolean>>({});
 
@@ -694,8 +734,12 @@ export default function MyListingsPage() {
     }
 
     getListingsBySeller(user.id)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (cancelled) return;
+        if (error) {
+          setListingsCacheReady(true);
+          return;
+        }
         const activeListings = (data ?? []).filter((l) => !l.is_sold);
         setListings(activeListings);
         setListingsCacheReady(true);
@@ -703,31 +747,20 @@ export default function MyListingsPage() {
       })
       .catch(() => {
         if (cancelled) return;
-        setListings([]);
         setListingsCacheReady(true);
       });
 
-    getConversationCountForUser(user.id)
-      .then(({ count }) => {
-        if (cancelled) return;
-        setConversationCount(count);
-      })
-      .catch(() => {
-        if (!cancelled) setConversationCount(0);
-      });
-
     getMyListingMessageCounts()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (cancelled) return;
+        if (error) return;
         const map: Record<string, ListingMessageCount> = {};
         (data ?? []).forEach((row) => {
           map[row.listing_id] = row;
         });
         setMessageCounts(map);
       })
-      .catch(() => {
-        if (!cancelled) setMessageCounts({});
-      });
+      .catch(() => undefined);
 
     getSoldListingsBySeller(user.id)
       .then(({ data }) => {
@@ -745,9 +778,60 @@ export default function MyListingsPage() {
   }, [user]);
 
   useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+
+    const refreshLiveCounts = async () => {
+      const [listingResult, messageResult] = await Promise.all([
+        getListingsBySeller(user.id),
+        getMyListingMessageCounts()
+      ]);
+
+      if (cancelled) return;
+
+      if (!listingResult.error) {
+        const activeListings = (listingResult.data ?? []).filter((listing) => !listing.is_sold);
+        setListings(activeListings);
+        setListingsCacheReady(true);
+        writeCachedMyListings(user.id, activeListings);
+      }
+
+      if (!messageResult.error) {
+        const nextMessageCounts: Record<string, ListingMessageCount> = {};
+        (messageResult.data ?? []).forEach((row) => {
+          nextMessageCounts[row.listing_id] = row;
+        });
+        setMessageCounts(nextMessageCounts);
+      }
+    };
+
+    const intervalId = window.setInterval(refreshLiveCounts, 10_000);
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void refreshLiveCounts();
+    };
+
+    window.addEventListener("focus", refreshWhenVisible);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", refreshWhenVisible);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, [user]);
+
+  useEffect(() => {
     if (!user || !listingsCacheReady) return;
     writeCachedMyListings(user.id, listings);
   }, [listings, listingsCacheReady, user]);
+
+  useEffect(() => {
+    if (!status) return;
+    const timeoutId = window.setTimeout(() => setStatus(""), 3500);
+    return () => window.clearTimeout(timeoutId);
+  }, [status]);
 
   useEffect(() => {
     if (!deleteTarget) return;
@@ -794,8 +878,7 @@ export default function MyListingsPage() {
       );
       return;
     }
-    setStatus(next ? "Ilmoitus piilotettu muilta." : "Ilmoitus jälleen näkyvissä.");
-    setOpenMenuId(null);
+    setStatus("");
   }
 
   function startEditingListing(listing: Listing) {
@@ -804,6 +887,7 @@ export default function MyListingsPage() {
     listingEditRequestIdRef.current = editRequestId;
     listingFormDirtyRef.current = false;
     setEditingListingId(listing.id);
+    setEditValidationErrors({});
     setStatus("");
 
     const listingImages = getEditableListingImages(listing);
@@ -952,6 +1036,8 @@ export default function MyListingsPage() {
   }
 
   function removeListingImage(index: number) {
+    listingFormDirtyRef.current = true;
+    setEditValidationErrors({});
     setListingForm((prev) => {
       const nextImages =
         prev.image_urls.filter((_, i) => i !== index);
@@ -969,6 +1055,7 @@ export default function MyListingsPage() {
     listingEditRequestIdRef.current += 1;
     listingFormDirtyRef.current = false;
     setEditingListingId(null);
+    setEditValidationErrors({});
     setStatus("");
 
   }
@@ -1002,14 +1089,68 @@ export default function MyListingsPage() {
 
     if (!currentListing) return;
 
-    setStatus(pageText.saving);
+    const editingVehicleListing = isVehicleListing(currentListing);
+    const nextImages = Array.from(
+      new Set(
+        [
+          ...listingForm.image_urls,
+          listingForm.image_url
+        ]
+          .map((value) => value.trim())
+          .filter(Boolean)
+      )
+    );
+    const validationErrors: Record<string, string> = {};
+    const numericYear = Number(listingForm.year);
+    const maximumYear = new Date().getFullYear() + 2;
 
+    if (listingForm.title.trim().length < 3) {
+      validationErrors.title = "Otsikossa pitää olla vähintään 3 merkkiä.";
+    }
+    if (editingVehicleListing && !listingForm.brand.trim()) {
+      validationErrors.brand = "Merkki puuttuu.";
+    }
+    if (editingVehicleListing && !listingForm.model.trim()) {
+      validationErrors.model = "Malli puuttuu.";
+    }
+    if (
+      editingVehicleListing &&
+      (
+        !listingForm.year.trim() ||
+        !Number.isInteger(numericYear) ||
+        numericYear < 1900 ||
+        numericYear > maximumYear
+      )
+    ) {
+      validationErrors.year = `Vuosimallin pitää olla väliltä 1900–${maximumYear}.`;
+    }
     if (!hasMinimumListingPrice(listingForm.price)) {
-      setStatus("Hinnan pitää olla vähintään 1 €.");
-      return;
+      validationErrors.price = "Hinnan pitää olla vähintään 1 €.";
+    }
+    if (!editingVehicleListing && !listingForm.category.trim()) {
+      validationErrors.category = "Kategoria puuttuu.";
+    }
+    if (!listingForm.condition.trim()) {
+      validationErrors.condition = "Kunto puuttuu.";
+    }
+    if (!listingForm.location_country.trim()) {
+      validationErrors.country = "Maa puuttuu.";
+    }
+    if (!listingForm.location_city.trim()) {
+      validationErrors.city = "Kaupunki puuttuu.";
+    }
+    if (listingForm.description.trim().length < 10) {
+      validationErrors.description = "Kuvauksessa pitää olla vähintään 10 merkkiä.";
+    }
+    if (nextImages.length === 0) {
+      validationErrors.images = "Ilmoituksessa pitää olla vähintään yksi kuva.";
     }
 
-    const nextImages = listingForm.image_urls.filter(Boolean);
+    setEditValidationErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      setStatus("Täytä kaikki pakolliset tiedot ennen tallentamista.");
+      return;
+    }
 
     if (
       nextImages.some((value) =>
@@ -1018,16 +1159,18 @@ export default function MyListingsPage() {
         /\.(mp4|mov|m4v|webm|avi|mkv)(?:$|[?#])/i.test(value)
       )
     ) {
+      setEditValidationErrors({
+        images: "Video ei kelpaa ilmoituksen kuvaksi. Valitse kuvatiedosto."
+      });
       setStatus("Videoita ei voi julkaista myynti-ilmoitukseen. Valitse kuvatiedosto.");
       return;
     }
 
-    const nextMainImage =
-      nextImages[0] ||
-      listingForm.image_url ||
-      fallbackListingImage;
+    setStatus(pageText.saving);
+
+    const nextMainImage = nextImages[0];
     const nextLocation =
-      buildLocation(listingForm.location_city, listingForm.location_country) || listingForm.location;
+      buildLocation(listingForm.location_city, listingForm.location_country);
 
     const { data, error } =
       await updateListing(
@@ -1042,11 +1185,14 @@ export default function MyListingsPage() {
           brand: listingForm.brand.trim(),
           model: listingForm.model.trim(),
           year: listingForm.year.trim(),
-          part_model: listingForm.part_model.trim() || null,
-          part_number: listingForm.part_number.trim() || null,
+          part_model: editingVehicleListing ? null : listingForm.part_model.trim() || null,
+          part_number: editingVehicleListing ? null : listingForm.part_number.trim() || null,
           location: nextLocation,
           condition: listingForm.condition,
-          description: listingForm.description,
+          description: mergeListingDescriptionMetadata(
+            currentListing.description,
+            listingForm.description
+          ),
           image_url: nextMainImage,
           image_urls: nextImages
         }
@@ -1071,6 +1217,7 @@ export default function MyListingsPage() {
     listingEditRequestIdRef.current += 1;
     listingFormDirtyRef.current = false;
     setEditingListingId(null);
+    setEditValidationErrors({});
     setStatus(pageText.updated);
 
   }
@@ -1284,6 +1431,8 @@ export default function MyListingsPage() {
         return;
       }
 
+      removeCachedResource(`seller-profile:${user.id}`);
+
       const soldData = soldRecord.data;
       if (soldData) {
         setSoldListings((prev) => [
@@ -1431,6 +1580,14 @@ export default function MyListingsPage() {
     [messageCounts]
   );
 
+  const listingConversationCount = useMemo(
+    () => Object.values(messageCounts).reduce(
+      (sum, messageCount) => sum + (Number(messageCount.conversation_count) || 0),
+      0
+    ),
+    [messageCounts]
+  );
+
   const currentStatsSnapshot = useMemo<StatsSnapshot>(() => ({
     listings: listings.filter((listing) => !listing.is_hidden).length,
     newListings: newListingsInRange,
@@ -1439,9 +1596,9 @@ export default function MyListingsPage() {
     views: totalViews,
     messages: totalMessageCount,
     unread: unreadMessageCount,
-    conversations: conversationCount
+    conversations: listingConversationCount
   }), [
-    conversationCount,
+    listingConversationCount,
     listings,
     newListingsInRange,
     soldInRange.length,
@@ -1481,7 +1638,11 @@ export default function MyListingsPage() {
     ...mergeStatsSnapshots(currentStatsSnapshot, statsHistory[statsRange]),
     // Never allow cached history to override live, non-cumulative counts.
     listings: currentStatsSnapshot.listings,
-    newListings: currentStatsSnapshot.newListings
+    newListings: currentStatsSnapshot.newListings,
+    views: currentStatsSnapshot.views,
+    messages: currentStatsSnapshot.messages,
+    unread: currentStatsSnapshot.unread,
+    conversations: currentStatsSnapshot.conversations
   };
 
   const visibleListings = listings.filter((l) => !l.is_hidden);
@@ -1749,7 +1910,7 @@ export default function MyListingsPage() {
 
     <main className={`${styles.page} my-listings-page`}>
 
-      <header className={styles.header} data-app-sheet>
+      {!editingListingId && <header className={styles.header}>
 
         <div>
           <h1 className={styles.title}>{pageText.management}</h1>
@@ -1778,13 +1939,13 @@ export default function MyListingsPage() {
           </div>
         )}
 
-      </header>
+      </header>}
 
-      {user && (
+      {user && !editingListingId && (
         <>
         <div className={styles.stats}>
 
-          <div className={styles.statCard} data-app-sheet>
+          <div className={styles.statCard}>
             <div className={styles.statHead}>
               <span className={`${styles.statIcon} ${styles.cyan}`}>
                 <Tag size={22} />
@@ -1795,12 +1956,11 @@ export default function MyListingsPage() {
               </div>
             </div>
             <div className={styles.statDelta}>
-              <ArrowUp size={14} />
               {displayedStats.newListings.toLocaleString("fi-FI")} uutta · {rangeLabel}
             </div>
           </div>
 
-          <div className={styles.statCard} data-app-sheet>
+          <div className={styles.statCard}>
             <div className={styles.statHead}>
               <span className={`${styles.statIcon} ${styles.green}`}>
                 <TrendingUp size={22} />
@@ -1813,12 +1973,11 @@ export default function MyListingsPage() {
               </div>
             </div>
             <div className={styles.statDelta}>
-              <ArrowUp size={14} />
               {displayedStats.soldValue.toLocaleString("fi-FI")} € yhteensä
             </div>
           </div>
 
-          <div className={styles.statCard} data-app-sheet>
+          <div className={styles.statCard}>
             <div className={styles.statHead}>
               <span className={`${styles.statIcon} ${styles.purple}`}>
                 <Eye size={22} />
@@ -1829,12 +1988,11 @@ export default function MyListingsPage() {
               </div>
             </div>
             <div className={styles.statDelta}>
-              <ArrowUp size={14} />
               {displayedStats.soldCount.toLocaleString("fi-FI")} myyntiä · {rangeLabel}
             </div>
           </div>
 
-          <div className={styles.statCard} data-app-sheet>
+          <div className={styles.statCard}>
             <div className={styles.statHead}>
               <span className={`${styles.statIcon} ${styles.orange}`}>
                 <MessageCircle size={22} />
@@ -1847,7 +2005,6 @@ export default function MyListingsPage() {
               </div>
             </div>
             <div className={styles.statDelta}>
-              <ArrowUp size={14} />
               {displayedStats.unread.toLocaleString("fi-FI")}{" "}
               lukematta · {displayedStats.conversations.toLocaleString("fi-FI")} keskustelua
             </div>
@@ -1866,9 +2023,11 @@ export default function MyListingsPage() {
       )}
 
       {user && (
-        <section className={styles.panel} data-app-sheet>
+        <section
+          className={`${styles.panel} ${editingListingId ? styles.panelEditing : ""}`}
+        >
 
-          <div className={styles.panelTopbar} data-app-sheet>
+          {!editingListingId && <div className={styles.panelTopbar}>
 
             <div className={styles.tabs}>
               {tabs.map((tab) => (
@@ -1883,7 +2042,7 @@ export default function MyListingsPage() {
               ))}
             </div>
 
-          </div>
+          </div>}
 
           {!listingsCacheReady && listings.length === 0 ? (
             <div className={styles.emptyState} data-app-sheet aria-busy="true" />
@@ -1896,7 +2055,9 @@ export default function MyListingsPage() {
           ) : (
             <div className={styles.list}>
 
-              {multiGroups.map((group) => {
+              {!editingListingId && multiGroups
+                .filter((group) => !openedGroup || group.key === openedGroup.key)
+                .map((group) => {
                 const isOpen = !!expandedGroupKeys[group.key];
                 const activeValue = group.active.reduce(
                   (sum, listing) => sum + (Number(listing.price) || 0),
@@ -1924,7 +2085,7 @@ export default function MyListingsPage() {
                   <article
                     className={`${styles.multiGroupRow} ${group.completed ? styles.multiGroupCompleted : ""}`}
                     key={`group-${group.key}`}
-                    data-app-sheet="true"
+                    data-my-listing-row
                   >
                     <div className={styles.multiGroupIcon}>
                       <ClipboardList size={24} />
@@ -1991,10 +2152,13 @@ export default function MyListingsPage() {
                 );
               })}
 
-              {renderedListings.map((listing) => {
+              {renderedListings
+                .filter((listing) => !editingListingId || listing.id === editingListingId)
+                .map((listing) => {
 
                 const editing =
                   editingListingId === listing.id;
+                const editingVehicleListing = isVehicleListing(listing);
 
                 const listingCategories =
                   (listing.vehicle_type && categoriesByVehicle[listing.vehicle_type]) ||
@@ -2049,31 +2213,26 @@ export default function MyListingsPage() {
                     className={styles.row}
                     key={listing.id}
                     data-listing-id={listing.id}
-                    data-app-sheet="true"
+                    data-my-listing-row
                     style={editing ? { display: "block" } : undefined}
                   >
 
                     {editing ? (
 
                       <div
-                        className="own-listing-edit"
+                        className={`own-listing-edit${editingVehicleListing ? " is-vehicle-listing" : ""}`}
                         onChangeCapture={() => {
                           listingFormDirtyRef.current = true;
+                          if (Object.keys(editValidationErrors).length > 0) {
+                            setEditValidationErrors({});
+                          }
                         }}
                       >
-                        <div className="own-listing-edit-head">
-                          <div>
-                            <span>Muokkaa ilmoitusta</span>
-                            <strong>{listingForm.title}</strong>
-                          </div>
-                          <small>Tallenna muutokset vasta kun tiedot näyttävät oikeilta.</small>
-                        </div>
-
                         <div className="own-listing-section">
                               <span className="own-listing-section-title">Perustiedot</span>
                               <div className="own-listing-title-fields">
                                 <label className="own-listing-field">
-                                  <span>Otsikko</span>
+                                  <span>Otsikko *</span>
                                   <input
                                     className="own-listing-title-input"
                                     value={listingForm.title}
@@ -2084,17 +2243,22 @@ export default function MyListingsPage() {
                                       })
                                     }
                                     placeholder={t.title}
+                                    minLength={3}
+                                    required
+                                    aria-invalid={Boolean(editValidationErrors.title)}
                                   />
                                 </label>
                               </div>
 
                               <div className="own-listing-grid-3">
                                 <label className="own-listing-field">
-                                  <span>Merkki</span>
+                                  <span>{editingVehicleListing ? "Merkki *" : "Merkki"}</span>
                                   <EditablePresetInput
                                     value={listingForm.brand}
                                     options={brandOptions}
                                     ariaLabel="Merkki"
+                                    required={editingVehicleListing}
+                                    invalid={Boolean(editValidationErrors.brand)}
                                     onChange={(value) =>
                                       setListingForm((current) => ({
                                         ...current,
@@ -2105,11 +2269,13 @@ export default function MyListingsPage() {
                                   />
                                 </label>
                                 <label className="own-listing-field">
-                                  <span>Malli</span>
+                                  <span>{editingVehicleListing ? "Malli *" : "Malli"}</span>
                                   <EditablePresetInput
                                     value={listingForm.model}
                                     options={modelOptions}
                                     ariaLabel="Malli"
+                                    required={editingVehicleListing}
+                                    invalid={Boolean(editValidationErrors.model)}
                                     onChange={(value) =>
                                       setListingForm((current) => ({
                                         ...current,
@@ -2120,7 +2286,7 @@ export default function MyListingsPage() {
                                   />
                                 </label>
                                 <label className="own-listing-field">
-                                  <span>Vuosimalli</span>
+                                  <span>{editingVehicleListing ? "Vuosimalli *" : "Vuosimalli"}</span>
                                   <input
                                     type="number"
                                     inputMode="numeric"
@@ -2134,13 +2300,15 @@ export default function MyListingsPage() {
                                       }))
                                     }
                                     placeholder="Esim. 2020"
+                                    required={editingVehicleListing}
+                                    aria-invalid={Boolean(editValidationErrors.year)}
                                   />
                                 </label>
                               </div>
 
                               <div className="own-listing-title-fields">
                                 <label className="own-listing-field own-listing-price-field">
-                                  <span>Hinta</span>
+                                  <span>Hinta *</span>
                                   <div className="own-listing-price-wrap">
                                     <input
                                       className="own-listing-price-input"
@@ -2155,46 +2323,54 @@ export default function MyListingsPage() {
                                         })
                                       }
                                       placeholder="1"
+                                      required
+                                      aria-invalid={Boolean(editValidationErrors.price)}
                                     />
                                     <b>€</b>
                                   </div>
                                 </label>
-                                <label className="own-listing-field">
-                                  <span>Osan tarkka malli</span>
-                                  <input
-                                    className="own-listing-part-input"
-                                    value={listingForm.part_model}
-                                    onChange={(event) =>
-                                      setListingForm({
-                                        ...listingForm,
-                                        part_model: event.target.value
-                                      })
-                                    }
-                                    placeholder="Stage6, Airsal, Malossi..."
-                                  />
-                                </label>
-                                <label className="own-listing-field">
-                                  <span>Varaosanumero</span>
-                                  <input
-                                    className="own-listing-part-input"
-                                    value={listingForm.part_number}
-                                    onChange={(event) =>
-                                      setListingForm({
-                                        ...listingForm,
-                                        part_number: event.target.value
-                                      })
-                                    }
-                                    placeholder="OEM-numero, jos tiedossa"
-                                  />
-                                </label>
+                                {!editingVehicleListing && (
+                                  <>
+                                    <label className="own-listing-field">
+                                      <span>Osan tarkka malli</span>
+                                      <input
+                                        className="own-listing-part-input"
+                                        value={listingForm.part_model}
+                                        onChange={(event) =>
+                                          setListingForm({
+                                            ...listingForm,
+                                            part_model: event.target.value
+                                          })
+                                        }
+                                        placeholder="Stage6, Airsal, Malossi..."
+                                      />
+                                    </label>
+                                    <label className="own-listing-field">
+                                      <span>Varaosanumero</span>
+                                      <input
+                                        className="own-listing-part-input"
+                                        value={listingForm.part_number}
+                                        onChange={(event) =>
+                                          setListingForm({
+                                            ...listingForm,
+                                            part_number: event.target.value
+                                          })
+                                        }
+                                        placeholder="OEM-numero, jos tiedossa"
+                                      />
+                                    </label>
+                                  </>
+                                )}
                               </div>
                             </div>
 
                         <div className="own-listing-section">
-                          <span className="own-listing-section-title">Luokittelu ja kunto</span>
+                          <span className="own-listing-section-title">
+                            {editingVehicleListing ? "Kunto" : "Luokittelu ja kunto"}
+                          </span>
                           <div className="own-listing-grid-3">
-                            <label className="own-listing-field">
-                              <span>Kategoria</span>
+                            {!editingVehicleListing && <label className="own-listing-field">
+                              <span>Kategoria *</span>
                               <select
                                 value={listingForm.category}
                                 onChange={(event) =>
@@ -2204,6 +2380,8 @@ export default function MyListingsPage() {
                                     subcategory: ""
                                   })
                                 }
+                                required
+                                aria-invalid={Boolean(editValidationErrors.category)}
                               >
                                 {Object.keys(listingCategories)
                                   .map((category) => (
@@ -2215,9 +2393,9 @@ export default function MyListingsPage() {
                                     </option>
                                   ))}
                               </select>
-                            </label>
+                            </label>}
 
-                            <label className="own-listing-field">
+                            {!editingVehicleListing && <label className="own-listing-field">
                               <span>Alakategoria</span>
                               <select
                                 value={listingForm.subcategory}
@@ -2242,10 +2420,10 @@ export default function MyListingsPage() {
                                   )
                                 )}
                               </select>
-                            </label>
+                            </label>}
 
                             <label className="own-listing-field">
-                              <span>Kunto</span>
+                              <span>Kunto *</span>
                               <select
                                 value={listingForm.condition}
                                 onChange={(event) =>
@@ -2254,6 +2432,8 @@ export default function MyListingsPage() {
                                     condition: event.target.value
                                   })
                                 }
+                                required
+                                aria-invalid={Boolean(editValidationErrors.condition)}
                               >
                                 {conditions.map(
                                   (condition) => (
@@ -2274,7 +2454,7 @@ export default function MyListingsPage() {
                           <span className="own-listing-section-title">Sijainti</span>
                           <div className="own-listing-location-pair">
                             <label className="own-listing-field">
-                              <span>Maa</span>
+                              <span>Maa *</span>
                               <input
                                 className="own-listing-location-input"
                                 value={listingForm.location_country}
@@ -2287,10 +2467,12 @@ export default function MyListingsPage() {
                                   });
                                 }}
                                 placeholder="Maa"
+                                required
+                                aria-invalid={Boolean(editValidationErrors.country)}
                               />
                             </label>
                             <label className="own-listing-field">
-                              <span>Kaupunki</span>
+                              <span>Kaupunki *</span>
                               <input
                                 className="own-listing-location-input"
                                 value={listingForm.location_city}
@@ -2303,14 +2485,19 @@ export default function MyListingsPage() {
                                   });
                                 }}
                                 placeholder="Kaupunki"
+                                required
+                                aria-invalid={Boolean(editValidationErrors.city)}
                               />
                             </label>
                           </div>
                         </div>
 
-                        <div className={`own-listing-section ${styles.editPhotoSection}`}>
+                        <div
+                          className={`own-listing-section ${styles.editPhotoSection}`}
+                          data-invalid={editValidationErrors.images ? "true" : undefined}
+                        >
                           <div className={styles.editPhotoHeader}>
-                            <span className="own-listing-section-title">Kuvat</span>
+                            <span className="own-listing-section-title">Kuvat *</span>
                             <span className={styles.editPhotoCount}>
                               {editImages.length} kuvaa
                             </span>
@@ -2365,7 +2552,7 @@ export default function MyListingsPage() {
                         </div>
 
                         <label className="own-listing-field own-listing-description-field">
-                          <span>Kuvaus</span>
+                          <span>Kuvaus *</span>
                           <textarea
                             value={listingForm.description}
                             onChange={(event) =>
@@ -2374,9 +2561,27 @@ export default function MyListingsPage() {
                                 description: event.target.value
                               })
                             }
-                            placeholder="Kerro osan kunnosta, sopivuudesta ja mahdollisista vioista."
+                            placeholder={
+                              editingVehicleListing
+                                ? "Kerro ajoneuvon kunnosta, historiasta ja mahdollisista vioista."
+                                : "Kerro osan kunnosta, sopivuudesta ja mahdollisista vioista."
+                            }
+                            minLength={10}
+                            required
+                            aria-invalid={Boolean(editValidationErrors.description)}
                           />
                         </label>
+
+                        {Object.keys(editValidationErrors).length > 0 ? (
+                          <div className="own-listing-validation-summary" role="alert" aria-live="assertive">
+                            <strong>Tarkista pakolliset tiedot</strong>
+                            <ul>
+                              {Object.entries(editValidationErrors).map(([field, message]) => (
+                                <li key={field}>{message}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null}
 
                         <div className="own-listing-actions">
 
@@ -2519,16 +2724,6 @@ export default function MyListingsPage() {
                           </button>
                         </div>
 
-                        <button
-                          type="button"
-                          className={styles.kebab}
-                          aria-label="Lisätoiminnot"
-                          onClick={() =>
-                            setOpenMenuId(openMenuId === listing.id ? null : listing.id)
-                          }
-                        >
-                          <MoreVertical size={18} />
-                        </button>
                       </>
                     )}
 

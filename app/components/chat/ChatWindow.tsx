@@ -105,17 +105,20 @@ export default function ChatWindow({
   otherName = ""
 }: Props) {
 
-  const bottomRef =
-    useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({
-      block: "end"
-    });
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    // Keep the scrolling inside the message list. scrollIntoView can also move
+    // page ancestors on mobile, which makes touch scrolling feel jumpy.
+    scrollContainer.scrollTop = scrollContainer.scrollHeight;
   }, [messages]);
 
   return (
     <div
+      ref={scrollRef}
       className="chat-window chat-window-redesign"
       data-no-auto-translate={locale === "no" ? "true" : undefined}
     >
@@ -146,13 +149,17 @@ export default function ChatWindow({
             </Fragment>
           );
         })}
-        <div ref={bottomRef} />
       </div>
 
       <style jsx>{`
         .chat-window {
           height: 100%;
+          min-height: 0;
           overflow-y: auto;
+          overscroll-behavior-y: auto;
+          scroll-behavior: auto;
+          touch-action: pan-y;
+          -webkit-overflow-scrolling: touch;
           padding: 26px clamp(18px, 4vw, 54px) 18px;
           width: 100%;
           background:

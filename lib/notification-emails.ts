@@ -124,15 +124,15 @@ function emailFrame(input: {
     <title>${escapeHtml(input.title)}</title>
     <style>
       @media only screen and (max-width: 680px) {
-        .email-shell { padding: 12px 8px !important; }
-        .email-card { border-radius: 14px !important; }
-        .email-header { padding: 21px 22px !important; }
-        .email-content { padding: 27px 22px 25px !important; }
-        .email-footer { padding: 19px 22px !important; }
-        .email-title { font-size: 27px !important; }
+        .email-shell { padding: 12px 8px; }
+        .email-card { border-radius: 14px; }
+        .email-header { padding: 21px 22px; }
+        .email-content { padding: 27px 22px 25px; }
+        .email-footer { padding: 19px 22px; }
+        .email-title { font-size: 27px; }
         .email-footer-copy,
-        .email-footer-action { display: block !important; width: 100% !important; text-align: left !important; }
-        .email-footer-action { padding-top: 14px !important; }
+        .email-footer-action { display: block; width: 100%; text-align: left; }
+        .email-footer-action { padding-top: 14px; }
       }
     </style>
   </head>

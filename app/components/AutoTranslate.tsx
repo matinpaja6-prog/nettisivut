@@ -21,7 +21,7 @@ type AttrEntry = {
 };
 
 const ATTRS: AttrName[] = ["placeholder", "title", "aria-label"];
-const TRANSLATION_CACHE_VERSION = "v16";
+const TRANSLATION_CACHE_VERSION = "v17";
 
 const WINDOWS_1252_BYTES: Record<string, number> = {
   "\u20ac": 0x80,
@@ -508,6 +508,119 @@ Object.assign(staticUiTranslations.no, {
   "Valitse alakategoria": "Velg underkategori",
   "Valitse tarkempi osa": "Velg detaljert del"
 });
+
+/* Marketplace terminology is curated instead of machine-translated so the
+   vehicle filters and listing forms read naturally in every language. */
+Object.assign(staticUiTranslations.en, {
+  "Nopea haku": "Fast search",
+  "osta ja myy": "buy and sell",
+  "varaosat ja ajoneuvot": "parts and vehicles",
+  "Pohjoismainen markkinapaikka käytetyille varaosille ja ajoneuvoille.": "A Nordic marketplace for used parts and vehicles.",
+  Ilmainen: "Free",
+  "Pohjoismainen myyntialusta": "Nordic marketplace",
+  "Osta ja myy ilmaiseksi": "Buy and sell for free",
+  "Nopeasti myyntiin": "Quick to publish",
+  "muutamassa minuutissa": "in a few minutes",
+  Palvelemme: "We serve",
+  "Suomessa ja Pohjoismaissa": "in Finland and the Nordics",
+  Ajoneuvolaji: "Vehicle type",
+  "Kaikki ajoneuvot": "All vehicles",
+  Merkki: "Brand",
+  "Kaikki merkit": "All brands",
+  Malli: "Model",
+  "Kaikki mallit": "All models",
+  "Moottoritilavuus (cm³)": "Engine displacement (cm³)",
+  "Kaikki koot": "All sizes",
+  Moottori: "Engine",
+  "Kaikki moottorit": "All engines",
+  "Ei väliä": "Any",
+  Vetotapa: "Drive type",
+  Tieliikennekelpoisuus: "Road legal",
+  "Esim. 123-ABC": "e.g. 123-ABC",
+  Ilmoitustyyppi: "Listing type",
+  Ajoneuvot: "Vehicles",
+  Ajoneuvoilmoitus: "Vehicle listing",
+  "Merkki *": "Brand *",
+  "Maa *": "Country *",
+  "Kuvat *": "Images *",
+  "Ajoneuvon lisätiedot": "Additional vehicle details",
+  "Ajomäärä ja rekisteri": "Mileage and registration",
+  "Käyttötunnit (h)": "Operating hours (h)"
+});
+
+Object.assign(staticUiTranslations.sv, {
+  "Nopea haku": "Snabb sökning",
+  "osta ja myy": "köp och sälj",
+  "varaosat ja ajoneuvot": "reservdelar och fordon",
+  "Pohjoismainen markkinapaikka käytetyille varaosille ja ajoneuvoille.": "En nordisk marknadsplats för begagnade reservdelar och fordon.",
+  Ilmainen: "Gratis",
+  "Pohjoismainen myyntialusta": "Nordisk marknadsplats",
+  "Osta ja myy ilmaiseksi": "Köp och sälj gratis",
+  "Nopeasti myyntiin": "Snabbt till salu",
+  "muutamassa minuutissa": "på några minuter",
+  Palvelemme: "Vi betjänar",
+  "Suomessa ja Pohjoismaissa": "i Finland och Norden",
+  Ajoneuvolaji: "Fordonstyp",
+  "Kaikki ajoneuvot": "Alla fordon",
+  Merkki: "Märke",
+  "Kaikki merkit": "Alla märken",
+  Malli: "Modell",
+  "Kaikki mallit": "Alla modeller",
+  "Moottoritilavuus (cm³)": "Motorvolym (cm³)",
+  "Kaikki koot": "Alla storlekar",
+  Moottori: "Motor",
+  "Kaikki moottorit": "Alla motorer",
+  "Ei väliä": "Valfritt",
+  Vetotapa: "Drivtyp",
+  Tieliikennekelpoisuus: "Godkänd för vägtrafik",
+  "Esim. 123-ABC": "T.ex. 123-ABC",
+  Ilmoitustyyppi: "Annonstyp",
+  Ajoneuvot: "Fordon",
+  Ajoneuvoilmoitus: "Fordonsannons",
+  "Merkki *": "Märke *",
+  "Maa *": "Land *",
+  "Kuvat *": "Bilder *",
+  "Ajoneuvon lisätiedot": "Ytterligare fordonsuppgifter",
+  "Ajomäärä ja rekisteri": "Körsträcka och registrering",
+  "Käyttötunnit (h)": "Drifttimmar (h)"
+});
+
+Object.assign(staticUiTranslations.no, {
+  "Nopea haku": "Raskt søk",
+  "osta ja myy": "kjøp og selg",
+  "varaosat ja ajoneuvot": "reservedeler og kjøretøy",
+  "Pohjoismainen markkinapaikka käytetyille varaosille ja ajoneuvoille.": "En nordisk markedsplass for brukte reservedeler og kjøretøy.",
+  Ilmainen: "Gratis",
+  "Pohjoismainen myyntialusta": "Nordisk markedsplass",
+  "Osta ja myy ilmaiseksi": "Kjøp og selg gratis",
+  "Nopeasti myyntiin": "Raskt til salgs",
+  "muutamassa minuutissa": "på noen minutter",
+  Palvelemme: "Vi hjelper",
+  "Suomessa ja Pohjoismaissa": "i Finland og Norden",
+  Ajoneuvolaji: "Kjøretøytype",
+  "Kaikki ajoneuvot": "Alle kjøretøy",
+  Merkki: "Merke",
+  "Kaikki merkit": "Alle merker",
+  Malli: "Modell",
+  "Kaikki mallit": "Alle modeller",
+  "Moottoritilavuus (cm³)": "Motorvolum (cm³)",
+  "Kaikki koot": "Alle størrelser",
+  Moottori: "Motor",
+  "Kaikki moottorit": "Alle motorer",
+  "Ei väliä": "Valgfritt",
+  Vetotapa: "Drivtype",
+  Tieliikennekelpoisuus: "Godkjent for vei",
+  "Esim. 123-ABC": "F.eks. 123-ABC",
+  Ilmoitustyyppi: "Annonsetype",
+  Ajoneuvot: "Kjøretøy",
+  Ajoneuvoilmoitus: "Kjøretøyannonse",
+  "Merkki *": "Merke *",
+  "Maa *": "Land *",
+  "Kuvat *": "Bilder *",
+  "Ajoneuvon lisätiedot": "Flere kjøretøyopplysninger",
+  "Ajomäärä ja rekisteri": "Kjørelengde og registrering",
+  "Käyttötunnit (h)": "Driftstimer (t)"
+});
 for (const locale of translatedLocales) {
   const normalizedDictionary: Record<string, string> = {};
 
@@ -525,7 +638,6 @@ const SKIP_SELECTOR = [
   "code",
   "pre",
   "textarea",
-  "select",
   "[contenteditable='true']",
   "[translate='no']",
   "[data-no-auto-translate]",

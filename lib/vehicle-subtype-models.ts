@@ -1,3 +1,5 @@
+import { getNettimotoMopedSubtypeModels } from "@/lib/nettimoto-moped-subtype-models";
+
 export type VehicleBrandModels = Record<string, string[]>;
 
 function normalize(value: string) {
@@ -114,12 +116,18 @@ export function filterVehicleBrandModelsBySubtype(
   source: VehicleBrandModels
 ): VehicleBrandModels | null {
   if (!vehicle || !subtype) return null;
+  const nettimotoMopedModels = getNettimotoMopedSubtypeModels(vehicle, subtype, source);
+  if (nettimotoMopedModels) return nettimotoMopedModels;
+
   const predicate = subtypeModelPredicate(vehicle, subtype);
   if (!predicate) return null;
 
   return Object.fromEntries(
     Object.entries(source)
-      .map(([brand, models]) => [brand, models.filter(predicate)] as const)
+      // The subtype decides which brands are relevant, but the model selector must
+      // still contain the brand's complete model list. This matches Nettimoto's
+      // make/model behavior and avoids hiding older numeric or legacy models.
+      .map(([brand, models]) => [brand, models.some(predicate) ? [...models] : []] as const)
       .filter(([, models]) => models.length > 0)
   );
 }

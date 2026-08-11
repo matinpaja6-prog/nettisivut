@@ -1,9 +1,0 @@
-/* Registration previously inherited the page background through a legacy
-   profile-finalize selector. Keep both authentication modes on the same
-   surface color. */
-html body main.auth-page.simple-auth-page:has(form.registration-inline-card)
-  .auth-centered {
-  background: #0b151f !important;
-  background-color: #0b151f !important;
-  background-image: none !important;
-}

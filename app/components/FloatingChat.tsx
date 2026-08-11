@@ -113,6 +113,25 @@ function mergeUniqueMessages(
 
 const DISMISSED_KEY = "chatDismissedConvsV2";
 
+const floatingChatCopy = {
+  fi: {
+    markAllRead: "Merkitse kaikki luetuiksi",
+    viewAllMessages: "Näytä kaikki viestit"
+  },
+  en: {
+    markAllRead: "Mark all as read",
+    viewAllMessages: "View all messages"
+  },
+  sv: {
+    markAllRead: "Markera alla som lästa",
+    viewAllMessages: "Visa alla meddelanden"
+  },
+  no: {
+    markAllRead: "Merk alle som lest",
+    viewAllMessages: "Vis alle meldinger"
+  }
+} as const;
+
 function getLastRead(): Record<string, number> {
   return readChatLastRead();
 }
@@ -150,6 +169,7 @@ export default function FloatingChat() {
   const pathname = usePathname();
   const router = useRouter();
   const { t, locale } = useLanguage();
+  const chatCopy = floatingChatCopy[locale] ?? floatingChatCopy.fi;
   const [userId, setUserId] = useState<string | null>(null);
   const canonicalPathname = canonicalPathFromLocalized(pathname || "/");
 
@@ -680,10 +700,10 @@ export default function FloatingChat() {
                 <div className="fc-list-footer">
                   <button type="button" className="fc-read-all" onClick={markAllRead}>
                     <span><Check size={16} /></span>
-                    Mark all as read
+                    {chatCopy.markAllRead}
                   </button>
                   <Link href={pagePath("messages", locale)} className="fc-view-all" onClick={() => setOpen(false)}>
-                    View all messages
+                    {chatCopy.viewAllMessages}
                     <ChevronRight size={18} />
                   </Link>
                 </div>
@@ -806,30 +826,30 @@ export default function FloatingChat() {
 
       <style>{`
         .rebuilt-chat-button {
-          position: fixed !important;
-          bottom: 28px !important;
-          right: 28px !important;
-          min-width: 0 !important;
-          width: 46px !important;
-          height: 46px !important;
-          border-radius: 50% !important;
-          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 52%, #e65300 100%) !important;
-          color: white !important;
-          border: 1px solid rgba(255, 220, 190, 0.72) !important;
-          cursor: pointer !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          padding: 0 !important;
-          box-shadow: 0 8px 26px rgba(255,107,22,0.46), 0 2px 8px rgba(0,0,0,0.18) !important;
-          pointer-events: auto !important;
-          isolation: isolate !important;
-          z-index: 2147483647 !important;
-          transition: transform 0.15s, box-shadow 0.15s !important;
+          position: fixed;
+          bottom: 28px;
+          right: 28px;
+          min-width: 0;
+          width: 46px;
+          height: 46px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #ff9a24 0%, #ff6b16 52%, #e65300 100%);
+          color: white;
+          border: 1px solid rgba(255, 220, 190, 0.72);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          box-shadow: 0 8px 26px rgba(255,107,22,0.46), 0 2px 8px rgba(0,0,0,0.18);
+          pointer-events: auto;
+          isolation: isolate;
+          z-index: 2147483647;
+          transition: transform 0.15s, box-shadow 0.15s;
         }
         .rebuilt-chat-button:hover {
-          transform: translateY(-2px) !important;
-          box-shadow: 0 12px 36px rgba(255,107,22,0.56) !important;
+          transform: translateY(-2px);
+          box-shadow: 0 12px 36px rgba(255,107,22,0.56);
         }
         .rebuilt-chat-badge {
           position: absolute;
@@ -863,8 +883,8 @@ export default function FloatingChat() {
           flex-direction: column;
           overflow: hidden;
           pointer-events: auto;
-          isolation: isolate !important;
-          z-index: 2147483646 !important;
+          isolation: isolate;
+          z-index: 2147483646;
         }
         .fc-header {
           display: flex;
@@ -1320,26 +1340,26 @@ export default function FloatingChat() {
         .fc-send:disabled { background: #94a3b8; cursor: not-allowed; }
 
         .fc-panel {
-          width: min(360px, calc(100vw - 28px)) !important;
-          max-height: min(510px, calc(100dvh - 96px)) !important;
-          padding: 14px !important;
-          border-radius: 16px !important;
-          border: 1px solid transparent !important;
-          background: transparent !important;
-          box-shadow: none !important;
-          color: #f8fbff !important;
-          gap: 0 !important;
+          width: min(360px, calc(100vw - 28px));
+          max-height: min(510px, calc(100dvh - 96px));
+          padding: 14px;
+          border-radius: 16px;
+          border: 1px solid transparent;
+          background: transparent;
+          box-shadow: none;
+          color: #f8fbff;
+          gap: 0;
         }
 
         .fc-list-header,
         .fc-header {
-          background-color: transparent !important;
-          background-image: none !important;
-          box-shadow: none !important;
-          border: 0 !important;
-          min-height: 46px !important;
-          padding: 0 0 10px !important;
-          gap: 10px !important;
+          background-color: transparent;
+          background-image: none;
+          box-shadow: none;
+          border: 0;
+          min-height: 46px;
+          padding: 0 0 10px;
+          gap: 10px;
         }
 
         .fc-head-icon {
@@ -1355,14 +1375,14 @@ export default function FloatingChat() {
         }
 
         .fc-title {
-          color: #ffffff !important;
-          font-size: clamp(18px, 2vw, 22px) !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
+          color: #ffffff;
+          font-size: clamp(18px, 2vw, 22px);
+          font-weight: 950;
+          letter-spacing: 0;
         }
 
         .fc-header-actions {
-          gap: 6px !important;
+          gap: 6px;
           margin-left: auto;
         }
 
@@ -1400,28 +1420,28 @@ export default function FloatingChat() {
         .fc-settings,
         .fc-close,
         .fc-back {
-          width: 34px !important;
-          height: 34px !important;
-          border-radius: 10px !important;
-          border: 1px solid rgba(151, 178, 205, 0.18) !important;
-          background: rgba(6, 18, 32, 0.58) !important;
-          color: #eef6ff !important;
-          display: grid !important;
-          place-items: center !important;
-          padding: 0 !important;
-          cursor: pointer !important;
+          width: 34px;
+          height: 34px;
+          border-radius: 10px;
+          border: 1px solid rgba(151, 178, 205, 0.18);
+          background: rgba(6, 18, 32, 0.58);
+          color: #eef6ff;
+          display: grid;
+          place-items: center;
+          padding: 0;
+          cursor: pointer;
         }
 
         .fc-settings.is-active {
-          border-color: rgba(255, 138, 31, 0.5) !important;
-          color: #ff9828 !important;
-          background: rgba(255, 122, 26, 0.13) !important;
+          border-color: rgba(255, 138, 31, 0.5);
+          color: #ff9828;
+          background: rgba(255, 122, 26, 0.13);
         }
 
         .fc-close {
-          border: 0 !important;
-          background: transparent !important;
-          color: #f8fbff !important;
+          border: 0;
+          background: transparent;
+          color: #f8fbff;
         }
 
         .fc-settings-panel {
@@ -1432,22 +1452,22 @@ export default function FloatingChat() {
           border: 1px solid rgba(151, 178, 205, 0.24);
           border-width: 0;
           border-radius: 0;
-          background: #071524 !important;
-          box-shadow: 0 18px 44px rgba(0, 8, 18, 0.34) !important;
+          background: #071524;
+          box-shadow: 0 18px 44px rgba(0, 8, 18, 0.34);
           color: #f8fbff;
         }
 
         .fc-list {
           border: 1px solid rgba(138, 161, 183, 0.34);
           border-radius: 14px;
-          background: #071524 !important;
+          background: #071524;
           box-shadow: 0 18px 44px rgba(0, 8, 18, 0.34);
-          padding: 10px !important;
+          padding: 10px;
         }
 
         .fc-setting-row {
-          background: none !important;
-          box-shadow: none !important;
+          background: none;
+          box-shadow: none;
         }
 
         .fc-settings-panel-head {
@@ -1569,11 +1589,11 @@ export default function FloatingChat() {
         }
 
         .fc-list {
-          display: grid !important;
-          gap: 6px !important;
-          max-height: min(420px, calc(100dvh - 180px)) !important;
-          padding: 10px 0 0 !important;
-          overflow-y: auto !important;
+          display: grid;
+          gap: 6px;
+          max-height: min(420px, calc(100dvh - 180px));
+          padding: 10px 0 0;
+          overflow-y: auto;
           scrollbar-color: rgba(151, 178, 205, 0.36) transparent;
           scrollbar-width: thin;
         }
@@ -1596,28 +1616,28 @@ export default function FloatingChat() {
         }
 
         .fc-panel-compact .fc-conv-item {
-          min-height: 46px !important;
-          padding-block: 4px !important;
+          min-height: 46px;
+          padding-block: 4px;
         }
 
         .fc-panel-compact .fc-conv-avatar {
-          width: 40px !important;
-          height: 34px !important;
+          width: 40px;
+          height: 34px;
         }
 
         .fc-conv-row {
-          display: grid !important;
+          display: grid;
           grid-template-columns: 16px minmax(0, 1fr);
-          align-items: center !important;
-          gap: 8px !important;
+          align-items: center;
+          gap: 8px;
           min-height: 58px;
           border-bottom: 0;
           position: relative;
         }
 
         .fc-conv-row:nth-child(2) .fc-conv-item {
-          background: rgba(9, 30, 49, 0.72) !important;
-          border-color: rgba(151, 178, 205, 0.16) !important;
+          background: rgba(9, 30, 49, 0.72);
+          border-color: rgba(151, 178, 205, 0.16);
         }
 
         .fc-row-dot {
@@ -1634,42 +1654,42 @@ export default function FloatingChat() {
         }
 
         .fc-conv-item {
-          display: grid !important;
-          grid-template-columns: 48px minmax(0, 1fr) auto !important;
-          align-items: center !important;
-          gap: 10px !important;
-          width: 100% !important;
-          min-height: 56px !important;
-          padding: 7px 9px 7px 8px !important;
-          border: 1px solid rgba(151, 178, 205, 0.16) !important;
-          border-radius: 12px !important;
-          background: rgba(9, 30, 49, 0.72) !important;
-          color: inherit !important;
+          display: grid;
+          grid-template-columns: 48px minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 10px;
+          width: 100%;
+          min-height: 56px;
+          padding: 7px 9px 7px 8px;
+          border: 1px solid rgba(151, 178, 205, 0.16);
+          border-radius: 12px;
+          background: rgba(9, 30, 49, 0.72);
+          color: inherit;
         }
 
         .fc-conv-unread {
           background:
             radial-gradient(320px 110px at 100% 0%, rgba(255, 138, 31, 0.12), transparent 72%),
-            rgba(11, 37, 60, 0.84) !important;
-          border-color: rgba(255, 138, 31, 0.28) !important;
+            rgba(11, 37, 60, 0.84);
+          border-color: rgba(255, 138, 31, 0.28);
         }
 
         .fc-conv-item:hover,
         .fc-conv-unread:hover {
           background:
             radial-gradient(360px 120px at 100% 0%, rgba(48, 147, 255, 0.12), transparent 70%),
-            rgba(9, 30, 49, 0.9) !important;
-          border-color: rgba(151, 178, 205, 0.22) !important;
+            rgba(9, 30, 49, 0.9);
+          border-color: rgba(151, 178, 205, 0.22);
         }
 
         .fc-conv-avatar {
-          width: 48px !important;
-          height: 42px !important;
-          border-radius: 9px !important;
-          background: rgba(255, 255, 255, 0.08) !important;
-          color: #ffffff !important;
-          font-size: 17px !important;
-          font-weight: 950 !important;
+          width: 48px;
+          height: 42px;
+          border-radius: 9px;
+          background: rgba(255, 255, 255, 0.08);
+          color: #ffffff;
+          font-size: 17px;
+          font-weight: 950;
           border: 1px solid rgba(255, 138, 31, 0.42);
           box-shadow: 0 12px 26px rgba(0, 8, 18, 0.22);
         }
@@ -1679,22 +1699,22 @@ export default function FloatingChat() {
         }
 
         .fc-conv-info {
-          gap: 4px !important;
+          gap: 4px;
         }
 
         .fc-conv-name {
-          color: #ffffff !important;
-          font-size: 14px !important;
-          font-weight: 950 !important;
-          letter-spacing: 0 !important;
+          color: #ffffff;
+          font-size: 14px;
+          font-weight: 950;
+          letter-spacing: 0;
         }
 
         .fc-conv-last {
-          color: rgba(202, 216, 232, 0.78) !important;
-          font-size: 12.5px !important;
-          font-weight: 750 !important;
+          color: rgba(202, 216, 232, 0.78);
+          font-size: 12.5px;
+          font-weight: 750;
           line-height: 1.28;
-          white-space: normal !important;
+          white-space: normal;
           display: -webkit-box;
           -webkit-line-clamp: 1;
           -webkit-box-orient: vertical;
@@ -1710,9 +1730,9 @@ export default function FloatingChat() {
         }
 
         .fc-conv-time {
-          color: rgba(202, 216, 232, 0.78) !important;
-          font-size: 12px !important;
-          font-weight: 800 !important;
+          color: rgba(202, 216, 232, 0.78);
+          font-size: 12px;
+          font-weight: 800;
           white-space: nowrap;
         }
 
@@ -1737,22 +1757,22 @@ export default function FloatingChat() {
         }
 
         .fc-unread-dot {
-          display: none !important;
+          display: none;
         }
 
         .fc-conv-dismiss {
-          right: 8px !important;
-          top: 8px !important;
-          transform: none !important;
-          width: 18px !important;
-          height: 18px !important;
-          background: transparent !important;
-          color: #ff9828 !important;
-          opacity: 0.72 !important;
+          right: 8px;
+          top: 8px;
+          transform: none;
+          width: 18px;
+          height: 18px;
+          background: transparent;
+          color: #ff9828;
+          opacity: 0.72;
         }
 
         .fc-conv-row:hover .fc-conv-dismiss {
-          opacity: 1 !important;
+          opacity: 1;
         }
 
         .fc-list-footer {
@@ -1802,18 +1822,18 @@ export default function FloatingChat() {
         }
 
         .fc-empty {
-          color: rgba(226, 244, 255, 0.72) !important;
-          min-height: 170px !important;
-          font-size: 14px !important;
-          font-weight: 850 !important;
+          color: rgba(226, 244, 255, 0.72);
+          min-height: 170px;
+          font-size: 14px;
+          font-weight: 850;
         }
 
         .fc-empty::before {
-          content: none !important;
+          content: none;
         }
 
         .fc-login-state strong {
-          color: #ffffff !important;
+          color: #ffffff;
         }
 
         .fc-login-state {
@@ -1823,22 +1843,22 @@ export default function FloatingChat() {
         }
 
         .fc-login-state span {
-          color: rgba(226, 244, 255, 0.72) !important;
+          color: rgba(226, 244, 255, 0.72);
         }
 
         .fc-listing-bar,
         .fc-compose {
-          background: rgba(6, 18, 32, 0.62) !important;
-          border-color: rgba(151, 178, 205, 0.18) !important;
+          background: rgba(6, 18, 32, 0.62);
+          border-color: rgba(151, 178, 205, 0.18);
         }
 
         .fc-listing-title,
         .fc-input {
-          color: #ffffff !important;
+          color: #ffffff;
         }
 
         .fc-messages {
-          background: rgba(4, 15, 28, 0.42) !important;
+          background: rgba(4, 15, 28, 0.42);
         }
 
         /* Keep the floating chat visually unified: one navy surface, orange accents. */
@@ -1852,24 +1872,24 @@ export default function FloatingChat() {
         .fc-settings,
         .fc-back,
         .fc-settings-panel-head button {
-          background-color: #071524 !important;
-          background-image: none !important;
-          box-shadow: none !important;
+          background-color: #071524;
+          background-image: none;
+          box-shadow: none;
         }
 
         .fc-panel {
-          border-color: transparent !important;
-          background: transparent !important;
-          box-shadow: none !important;
+          border-color: transparent;
+          background: transparent;
+          box-shadow: none;
         }
 
         .fc-list {
-          border: 1px solid rgba(31, 73, 108, 0.84) !important;
-          border-radius: 14px !important;
+          border: 1px solid rgba(31, 73, 108, 0.84);
+          border-radius: 14px;
           background:
             radial-gradient(320px 160px at 100% 0%, rgba(19, 68, 105, 0.34), transparent 72%),
-            linear-gradient(145deg, #071524, #06111e) !important;
-          box-shadow: 0 20px 48px rgba(0, 8, 18, 0.34) !important;
+            linear-gradient(145deg, #071524, #06111e);
+          box-shadow: 0 20px 48px rgba(0, 8, 18, 0.34);
         }
 
         .fc-list,
@@ -1880,70 +1900,70 @@ export default function FloatingChat() {
         .fc-filter-tabs,
         .fc-settings,
         .fc-back {
-          border-color: rgba(31, 73, 108, 0.72) !important;
+          border-color: rgba(31, 73, 108, 0.72);
         }
 
         .fc-list-header,
         .fc-header,
         .fc-settings-panel-head,
         .fc-setting-row {
-          border-color: rgba(255, 138, 31, 0.34) !important;
+          border-color: rgba(255, 138, 31, 0.34);
         }
 
         .fc-list-header,
         .fc-header {
-          border: 0 !important;
+          border: 0;
         }
 
         .fc-filter-tabs button {
-          border-color: rgba(31, 73, 108, 0.72) !important;
-          background: #071524 !important;
-          color: #d7e6f5 !important;
+          border-color: rgba(31, 73, 108, 0.72);
+          background: #071524;
+          color: #d7e6f5;
         }
 
         .fc-filter-tabs button.active,
         .fc-settings.is-active {
-          border-color: rgba(255, 138, 31, 0.72) !important;
-          background: rgba(255, 122, 26, 0.16) !important;
-          color: #ff9828 !important;
+          border-color: rgba(255, 138, 31, 0.72);
+          background: rgba(255, 122, 26, 0.16);
+          color: #ff9828;
         }
 
         .fc-setting-switch {
-          border-color: #1f496c !important;
-          background: #0d2942 !important;
+          border-color: #1f496c;
+          background: #0d2942;
         }
 
         .fc-setting-switch::after {
-          background: #d7e6f5 !important;
+          background: #d7e6f5;
         }
 
         .fc-row-dot {
-          background: #ff8a1f !important;
-          box-shadow: 0 0 0 4px rgba(255, 138, 31, 0.1) !important;
+          background: #ff8a1f;
+          box-shadow: 0 0 0 4px rgba(255, 138, 31, 0.1);
         }
 
         .fc-row-dot.is-unread {
-          background: #ff8a1f !important;
-          box-shadow: 0 0 0 4px rgba(255, 138, 31, 0.1) !important;
+          background: #ff8a1f;
+          box-shadow: 0 0 0 4px rgba(255, 138, 31, 0.1);
         }
 
         .fc-conv-unread {
-          border-color: rgba(255, 138, 31, 0.42) !important;
-          background: #071524 !important;
+          border-color: rgba(255, 138, 31, 0.42);
+          background: #071524;
         }
 
         .fc-conv-item:hover,
         .fc-conv-unread:hover {
-          border-color: rgba(255, 138, 31, 0.62) !important;
-          background: #0a1d30 !important;
+          border-color: rgba(255, 138, 31, 0.62);
+          background: #0a1d30;
         }
 
         .fc-list-header,
         .fc-header {
           position: relative;
-          border: 0 !important;
-          background: transparent !important;
-          box-shadow: none !important;
+          border: 0;
+          background: transparent;
+          box-shadow: none;
         }
 
         .fc-list-header::after,
@@ -1959,56 +1979,56 @@ export default function FloatingChat() {
         }
 
         .fc-close {
-          border: 0 !important;
-          background: transparent !important;
-          box-shadow: none !important;
-          color: #d7e6f5 !important;
+          border: 0;
+          background: transparent;
+          box-shadow: none;
+          color: #d7e6f5;
         }
 
         @media (max-width: 768px) {
           .rebuilt-chat-button {
-            bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
-            display: flex !important;
-            height: 44px !important;
-            min-width: 44px !important;
-            padding: 0 !important;
-            right: 14px !important;
-            width: 44px !important;
-            z-index: 2147483647 !important;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            display: flex;
+            height: 44px;
+            min-width: 44px;
+            padding: 0;
+            right: 14px;
+            width: 44px;
+            z-index: 2147483647;
           }
 
           .rebuilt-chat-label {
-            display: none !important;
+            display: none;
           }
 
           .rebuilt-chat-button svg {
-            height: 18px !important;
-            width: 18px !important;
+            height: 18px;
+            width: 18px;
           }
 
           .rebuilt-chat-badge {
-            min-width: 17px !important;
-            height: 17px !important;
-            font-size: 10px !important;
-            top: -4px !important;
-            right: -4px !important;
+            min-width: 17px;
+            height: 17px;
+            font-size: 10px;
+            top: -4px;
+            right: -4px;
           }
 
           .fc-panel {
-            bottom: calc(68px + env(safe-area-inset-bottom, 0px)) !important;
-            display: flex !important;
-            max-height: min(500px, calc(100dvh - 92px)) !important;
-            padding: 12px !important;
-            right: 12px !important;
-            width: min(330px, calc(100vw - 24px)) !important;
-            z-index: 2147483646 !important;
+            bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+            display: flex;
+            max-height: min(500px, calc(100dvh - 92px));
+            padding: 12px;
+            right: 12px;
+            width: min(330px, calc(100vw - 24px));
+            z-index: 2147483646;
           }
 
           .fc-list-header,
           .fc-header {
-            min-height: 42px !important;
-            padding-bottom: 8px !important;
-            gap: 6px !important;
+            min-height: 42px;
+            padding-bottom: 8px;
+            gap: 6px;
           }
 
           .fc-head-icon {
@@ -2017,7 +2037,7 @@ export default function FloatingChat() {
           }
 
           .fc-title {
-            font-size: 16px !important;
+            font-size: 16px;
           }
 
           .fc-filter-tabs {
@@ -2033,18 +2053,18 @@ export default function FloatingChat() {
           .fc-settings,
           .fc-close,
           .fc-back {
-            width: 30px !important;
-            height: 30px !important;
+            width: 30px;
+            height: 30px;
           }
 
           .fc-list {
-            max-height: min(400px, calc(100dvh - 164px)) !important;
-            padding-top: 8px !important;
+            max-height: min(400px, calc(100dvh - 164px));
+            padding-top: 8px;
           }
 
           .fc-conv-row {
             grid-template-columns: 14px minmax(0, 1fr);
-            gap: 6px !important;
+            gap: 6px;
             min-height: 56px;
           }
 
@@ -2054,26 +2074,26 @@ export default function FloatingChat() {
           }
 
           .fc-conv-item {
-            grid-template-columns: 40px minmax(0, 1fr) auto !important;
-            gap: 8px !important;
-            min-height: 52px !important;
-            padding: 6px 7px !important;
+            grid-template-columns: 40px minmax(0, 1fr) auto;
+            gap: 8px;
+            min-height: 52px;
+            padding: 6px 7px;
           }
 
           .fc-conv-avatar {
-            width: 40px !important;
-            height: 36px !important;
-            border-radius: 8px !important;
-            font-size: 14px !important;
+            width: 40px;
+            height: 36px;
+            border-radius: 8px;
+            font-size: 14px;
           }
 
           .fc-conv-name {
-            font-size: 12px !important;
+            font-size: 12px;
           }
 
           .fc-conv-last,
           .fc-conv-time {
-            font-size: 11px !important;
+            font-size: 11px;
           }
 
           .fc-conv-meta {
@@ -2134,11 +2154,11 @@ export default function FloatingChat() {
 
         html body .fc-panel > .fc-header,
         html body .fc-panel > .fc-list-header {
-          background: transparent !important;
-          background-color: transparent !important;
-          background-image: none !important;
-          box-shadow: none !important;
-          border: 0 !important;
+          background: transparent;
+          background-color: transparent;
+          background-image: none;
+          box-shadow: none;
+          border: 0;
         }
 
         html body .fc-panel > .fc-header::after,
@@ -2154,92 +2174,92 @@ export default function FloatingChat() {
         }
 
         html body .fc-panel > .fc-header .fc-close {
-          background: transparent !important;
-          background-color: transparent !important;
-          background-image: none !important;
-          border: 0 !important;
-          box-shadow: none !important;
+          background: transparent;
+          background-color: transparent;
+          background-image: none;
+          border: 0;
+          box-shadow: none;
         }
 
         html body .fc-panel {
-          background: #071524 !important;
-          background-color: #071524 !important;
-          background-image: none !important;
-          border: 1px solid rgba(31, 73, 108, 0.84) !important;
-          box-shadow: 0 20px 48px rgba(0, 8, 18, 0.34) !important;
+          background: #071524;
+          background-color: #071524;
+          background-image: none;
+          border: 1px solid rgba(31, 73, 108, 0.84);
+          box-shadow: 0 20px 48px rgba(0, 8, 18, 0.34);
         }
 
         html body .fc-panel > .fc-list,
         html body .fc-panel > .fc-login-state {
-          background: #071524 !important;
-          background-color: #071524 !important;
-          background-image: none !important;
-          border: 0 !important;
-          box-shadow: none !important;
+          background: #071524;
+          background-color: #071524;
+          background-image: none;
+          border: 0;
+          box-shadow: none;
         }
 
         html body .fc-panel .fc-conv-item,
         html body .fc-panel .fc-conv-row:nth-child(2) .fc-conv-item {
-          background: #071524 !important;
-          background-color: #071524 !important;
-          background-image: none !important;
-          padding-right: 32px !important;
+          background: #071524;
+          background-color: #071524;
+          background-image: none;
+          padding-right: 32px;
         }
 
         html body .fc-panel .fc-conv-dismiss {
-          position: absolute !important;
-          right: 8px !important;
-          top: 50% !important;
-          transform: translateY(-50%) !important;
-          z-index: 5 !important;
-          display: grid !important;
-          place-items: center !important;
-          width: 20px !important;
-          height: 20px !important;
-          min-width: 20px !important;
-          padding: 0 !important;
-          border: 0 !important;
-          border-radius: 999px !important;
-          background: transparent !important;
-          background-color: transparent !important;
-          background-image: none !important;
-          box-shadow: none !important;
-          color: #ff8a1f !important;
-          cursor: pointer !important;
-          opacity: 0.92 !important;
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 5;
+          display: grid;
+          place-items: center;
+          width: 20px;
+          height: 20px;
+          min-width: 20px;
+          padding: 0;
+          border: 0;
+          border-radius: 999px;
+          background: transparent;
+          background-color: transparent;
+          background-image: none;
+          box-shadow: none;
+          color: #ff8a1f;
+          cursor: pointer;
+          opacity: 0.92;
         }
 
         html body .fc-panel .fc-conv-dismiss:hover {
-          background: rgba(255, 138, 31, 0.12) !important;
-          color: #ffb15f !important;
-          opacity: 1 !important;
+          background: rgba(255, 138, 31, 0.12);
+          color: #ffb15f;
+          opacity: 1;
         }
 
         html body .fc-panel .fc-conv-row {
-          grid-template-columns: 16px minmax(0, 1fr) !important;
-          overflow: visible !important;
+          grid-template-columns: 16px minmax(0, 1fr);
+          overflow: visible;
         }
 
         html body .fc-panel .fc-row-dot {
-          justify-self: center !important;
-          width: 8px !important;
-          height: 8px !important;
-          margin: 0 !important;
-          background: #ff8a1f !important;
-          box-shadow: 0 0 0 3px rgba(255, 138, 31, 0.1) !important;
+          justify-self: center;
+          width: 8px;
+          height: 8px;
+          margin: 0;
+          background: #ff8a1f;
+          box-shadow: 0 0 0 3px rgba(255, 138, 31, 0.1);
         }
 
         html body:has(.cd-drawer-open) .rebuilt-chat-button,
         html body:has(.cd-drawer-open) .fc-panel {
-          display: none !important;
-          opacity: 0 !important;
-          pointer-events: none !important;
-          visibility: hidden !important;
+          display: none;
+          opacity: 0;
+          pointer-events: none;
+          visibility: hidden;
         }
 
         @media (max-width: 480px) {
           html body .fc-panel {
-            width: min(330px, calc(100vw - 24px)) !important;
+            width: min(330px, calc(100vw - 24px));
           }
         }
       `}</style>

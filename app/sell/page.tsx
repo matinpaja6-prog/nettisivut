@@ -21,6 +21,7 @@ import {
   Camera,
   ChevronDown,
   Check,
+  Clock3,
   ClipboardList,
   Cog,
   CircleDot,
@@ -29,9 +30,11 @@ import {
   FileText,
   Flame,
   FolderTree,
+  Gauge,
   Layers3,
   MapPin,
   PackagePlus,
+  Palette,
   Ruler,
   Send,
   Search,
@@ -47,18 +50,34 @@ import {
 } from "lucide-react";
 
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
-import { useLanguage, type Locale } from "@/lib/i18n";
-import { subcategoryGroups, type ListingInput } from "@/lib/listings";
+import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
+import { generatedUiTranslations } from "@/lib/generated-ui-translations";
+import {
+  subcategoryGroups,
+  VEHICLE_LISTING_CATEGORY,
+  type ListingInput
+} from "@/lib/listings";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import {
   filterVehicleBrandModelsBySubtype,
   mergeVehicleBrandModels
 } from "@/lib/vehicle-subtype-models";
+import { applyNettimotoVehicleModels } from "@/lib/nettimoto-vehicle-models";
 import type {
   CompanySeller,
   UserProfile
 } from "@/lib/supabase";
 import { buildVehicleCategoriesFromTaxonomy } from "@/lib/taxonomy";
+import {
+  VEHICLE_ACCESSORIES_DESCRIPTION_LABEL,
+  VEHICLE_ACCESSORY_OPTIONS,
+  translateVehicleAccessory
+} from "@/lib/vehicle-accessories";
+import {
+  VEHICLE_COLORS_DESCRIPTION_LABEL,
+  VEHICLE_COLOR_OPTIONS,
+  translateVehicleColor
+} from "@/lib/vehicle-colors";
 import styles from "./sell-first.module.css";
 
 type ListingMode = "multiple" | "single";
@@ -268,6 +287,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Luo myynti-ilmoitus": "Create sales listing",
     "Valitse ilmoitustyyppi": "Choose listing type",
     "Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.": "Choose whether to list several parts from the same vehicle or one individual part.",
+    "Valitse, haluatko listata useita osia samasta ajoneuvosta, yksittäisen osan vai kokonaisen ajoneuvon.": "Choose whether to list several parts from one vehicle, one individual part, or a complete vehicle.",
     "Useampi osa samasta ajoneuvosta": "Several parts from one vehicle",
     "Useampi ilmoitus": "Multiple listings",
     "Yksittäinen ilmoitus": "Single listing",
@@ -390,6 +410,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Luo myynti-ilmoitus": "Skapa försäljningsannons",
     "Valitse ilmoitustyyppi": "Välj annonstyp",
     "Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.": "Välj om du vill lista flera delar från samma fordon eller en enskild del.",
+    "Valitse, haluatko listata useita osia samasta ajoneuvosta, yksittäisen osan vai kokonaisen ajoneuvon.": "Välj om du vill lista flera delar från samma fordon, en enskild del eller ett komplett fordon.",
     "Useampi osa samasta ajoneuvosta": "Flera delar från samma fordon",
     "Useampi ilmoitus": "Flera annonser",
     "Yksittäinen ilmoitus": "Enskild annons",
@@ -512,6 +533,7 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Luo myynti-ilmoitus": "Opprett salgsannonse",
     "Valitse ilmoitustyyppi": "Velg annonsetype",
     "Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.": "Velg om du vil liste flere deler fra samme kjøretøy eller én enkelt del.",
+    "Valitse, haluatko listata useita osia samasta ajoneuvosta, yksittäisen osan vai kokonaisen ajoneuvon.": "Velg om du vil liste flere deler fra samme kjøretøy, én enkelt del eller et komplett kjøretøy.",
     "Useampi osa samasta ajoneuvosta": "Flere deler fra samme kjøretøy",
     "Useampi ilmoitus": "Flere annonser",
     "Yksittäinen ilmoitus": "Enkelt annonse",
@@ -674,7 +696,8 @@ Object.assign(extraSellTranslations.en, {
   "Poista ilmoitus": "Remove listing",
   "Poista kuva": "Remove image",
   "Sijainti ja toimitus": "Location and delivery",
-  "Kaupunki tai paikkakunta": "City or town"
+  "Kaupunki tai paikkakunta": "City or town",
+  "Kokokelkka": "Complete snowmobile"
 });
 
 Object.assign(extraSellTranslations.sv, {
@@ -715,7 +738,55 @@ Object.assign(extraSellTranslations.sv, {
   "Poista ilmoitus": "Ta bort annons",
   "Poista kuva": "Ta bort bild",
   "Sijainti ja toimitus": "Plats och leverans",
-  "Kaupunki tai paikkakunta": "Stad eller ort"
+  "Kaupunki tai paikkakunta": "Stad eller ort",
+  "Kokokelkka": "Komplett sn\u00f6skoter"
+});
+
+Object.assign(extraSellTranslations.no, {
+  "Monikategoriointi": "Multikategorisering",
+  "Valitse koko ajoneuvo tai poimi myyt\u00e4v\u00e4t osat p\u00e4\u00e4kategorian ja alakategorian kautta.": "Velg hele kj\u00f8ret\u00f8yet eller delene som skal selges via hoved- og underkategoriene.",
+  "valittu": "valgt",
+  "valittua": "valgte",
+  "osa": "del",
+  "osaa": "deler",
+  "n\u00e4kyy": "vises",
+  "p\u00e4\u00e4kategoriaa valittu": "hovedkategorier valgt",
+  "Myyn koko ajoneuvon": "Jeg selger hele kj\u00f8ret\u00f8yet",
+  "valitsee kaikki ajoneuvon osakategoriat kerralla.": "velger alle kj\u00f8ret\u00f8yets delkategorier samtidig.",
+  "Kategoriat ja osat": "Kategorier og deler",
+  "Hae kategoriaa tai osaa": "S\u00f8k etter kategori eller del",
+  "Ei osumia": "Ingen treff",
+  "Kokeile toista hakusanaa.": "Pr\u00f8v et annet s\u00f8keord.",
+  "Valittuja kategorioita": "Valgte kategorier",
+  "Ilmoituksesi n\u00e4kyy": "Annonsen din vises i",
+  "kategoriassa": "kategorier",
+  "N\u00e4yt\u00e4 valitut": "Vis valgte",
+  "Piilota valitut": "Skjul valgte",
+  "Ei valittuja kategorioita": "Ingen valgte kategorier",
+  "Valitse osia listasta, niin ne n\u00e4kyv\u00e4t t\u00e4ss\u00e4.": "Velg deler fra listen, s\u00e5 vises de her.",
+  "Lis\u00e4\u00e4 myyt\u00e4v\u00e4t osat": "Legg til delene som skal selges",
+  "ilmoitusta t\u00e4ytetty": "annonser utfylt",
+  "valittua tuotetta": "valgte produkter",
+  "Osan tarkka malli": "N\u00f8yaktig delmodell",
+  "Telamaton tarkat tiedot": "N\u00f8yaktige beltedetaljer",
+  "Pituus, leveys, harjakorkeus, jako tai muut tarkat tiedot": "Lengde, bredde, kamh\u00f8yde, deling eller andre n\u00f8yaktige opplysninger",
+  "Esim. 154 x 15 x 2.5, 3.0 jako, hyv\u00e4kuntoinen": "F.eks. 154 x 15 x 2,5, 3,0 deling, i god stand",
+  "Kirjoita osan malli": "Skriv inn delmodellen",
+  "Osanumero / OEM": "Delenummer / OEM",
+  "Kirjoita osanumero": "Skriv inn delenummeret",
+  "Lis\u00e4tiedot": "Ytterligere opplysninger",
+  "Kirjoita lis\u00e4tiedot, viat, sopivuus tai muut huomiot": "Skriv inn tilleggsopplysninger, feil, kompatibilitet eller andre merknader",
+  "Kirjoita telamaton mitat, kunto, sopivuus ja muut huomiot": "Skriv inn beltets m\u00e5l, tilstand, kompatibilitet og andre merknader",
+  "Lis\u00e4\u00e4 kuvat": "Legg til bilder",
+  "Ei valittuja osia": "Ingen valgte deler",
+  "Palaa kategoriaan ja valitse myyt\u00e4v\u00e4t osat tai koko ajoneuvo.": "G\u00e5 tilbake til kategoriene og velg delene som skal selges eller hele kj\u00f8ret\u00f8yet.",
+  "Ehdotus": "Forslag",
+  "Haetaan...": "Henter...",
+  "Poista ilmoitus": "Fjern annonsen",
+  "Poista kuva": "Fjern bildet",
+  "Sijainti ja toimitus": "Sted og levering",
+  "Kaupunki tai paikkakunta": "By eller sted",
+  "Kokokelkka": "Komplett sn\u00f8scooter"
 });
 
 function decodeMojibake(text: string) {
@@ -758,7 +829,10 @@ function translateSell(locale: Locale, text: string) {
   ]));
 
   for (const candidate of candidates) {
-    const translation = sellTranslations[locale][candidate] ?? extraSellTranslations[locale][candidate];
+    const generatedTranslations = generatedUiTranslations as Partial<Record<Exclude<Locale, "fi">, Record<string, string>>>;
+    const translation = sellTranslations[locale][candidate]
+      ?? extraSellTranslations[locale][candidate]
+      ?? generatedTranslations[locale]?.[candidate];
     if (translation) return decodeMojibake(translation);
   }
 
@@ -783,6 +857,21 @@ type VehicleDetails = {
   engineCc: string;
   engineType: string;
 };
+
+const vehicleEngineKindOptions = ["2-tahti", "4-tahti", "Diesel", "Sähkö"] as const;
+const vehicleDriveTypeOptions = [
+  "Etuveto",
+  "Kuusipyöräveto",
+  "Hihnaveto",
+  "Neliveto",
+  "Kardaaniveto",
+  "Takaveto",
+  "Ketjuveto"
+] as const;
+const vehicleRoadLegalOptions = [
+  "Tieliikennekelpoinen",
+  "Ei tieliikennekelpoinen"
+] as const;
 
 type VehicleDetailKey = keyof VehicleDetails;
 
@@ -832,6 +921,7 @@ type SellDraftPart = Omit<MultiPartSelection, "images"> & {
 
 type SellDraftState = {
   version: 1;
+  isVehicleSale?: boolean;
   mode: ListingMode;
   currentStep: number;
   vehicleTypeKey: string;
@@ -846,6 +936,14 @@ type SellDraftState = {
   trackMatDetails?: string;
   partNumber: string;
   listingPrice: string;
+  vehicleMileage?: string;
+  vehicleHours?: string;
+  vehicleRegistration?: string;
+  vehicleEngineKind?: string;
+  vehicleDriveType?: string;
+  vehicleRoadLegal?: string;
+  vehicleAccessories?: string[];
+  vehicleColors?: string[];
   multiParts: Record<string, SellDraftPart>;
   activeMultiListingIndex: number;
   expandedMultiCategories: Record<string, boolean>;
@@ -867,6 +965,8 @@ type SellDraftState = {
 const sellDraftDbName = "maskines-sell-drafts";
 const sellDraftStoreName = "drafts";
 const sellDraftKey = "current";
+const sellPartsDraftKey = "current-parts";
+const sellVehicleDraftKey = "current-vehicles";
 
 function openSellDraftDb() {
   return new Promise<IDBDatabase>((resolve, reject) => {
@@ -884,12 +984,12 @@ function openSellDraftDb() {
   });
 }
 
-async function readSellDraft() {
+async function readSellDraft(key: string) {
   const db = await openSellDraftDb();
 
   return new Promise<SellDraftState | null>((resolve, reject) => {
     const transaction = db.transaction(sellDraftStoreName, "readonly");
-    const request = transaction.objectStore(sellDraftStoreName).get(sellDraftKey);
+    const request = transaction.objectStore(sellDraftStoreName).get(key);
 
     request.onerror = () => reject(request.error ?? new Error("Luonnoksen lukeminen epaonnistui."));
     request.onsuccess = () => resolve((request.result as SellDraftState | undefined) ?? null);
@@ -901,12 +1001,12 @@ async function readSellDraft() {
   });
 }
 
-async function writeSellDraft(draft: SellDraftState) {
+async function writeSellDraft(draft: SellDraftState, key: string) {
   const db = await openSellDraftDb();
 
   return new Promise<void>((resolve, reject) => {
     const transaction = db.transaction(sellDraftStoreName, "readwrite");
-    transaction.objectStore(sellDraftStoreName).put(draft, sellDraftKey);
+    transaction.objectStore(sellDraftStoreName).put(draft, key);
     transaction.oncomplete = () => {
       db.close();
       resolve();
@@ -918,12 +1018,12 @@ async function writeSellDraft(draft: SellDraftState) {
   });
 }
 
-async function deleteSellDraft() {
+async function deleteSellDraft(key: string) {
   const db = await openSellDraftDb();
 
   return new Promise<void>((resolve, reject) => {
     const transaction = db.transaction(sellDraftStoreName, "readwrite");
-    transaction.objectStore(sellDraftStoreName).delete(sellDraftKey);
+    transaction.objectStore(sellDraftStoreName).delete(key);
     transaction.oncomplete = () => {
       db.close();
       resolve();
@@ -956,6 +1056,15 @@ const singleSteps: SellStep[] = [
   { number: 7, title: "Julkaise", description: "Tarkista ja julkaise", icon: Send }
 ];
 
+const vehicleSaleSteps: SellStep[] = [
+  { number: 1, title: "Ajoneuvoilmoitus", description: "Yksi ajoneuvo, yksi ilmoitus", icon: Tags },
+  { number: 2, title: "Ajoneuvon tiedot", description: "Täytä ajoneuvon tiedot", icon: FileText },
+  { number: 3, title: "Hinta & sijainti", description: "Aseta hinta ja paikka", icon: MapPin },
+  { number: 4, title: "Kuvat", description: "Lisää ajoneuvon kuvat", icon: Camera },
+  { number: 5, title: "Otsikko ja kuvaus", description: "Kerro ajoneuvosta", icon: ClipboardList },
+  { number: 6, title: "Julkaise", description: "Tarkista ja julkaise", icon: Send }
+];
+
 const multipleSteps: SellStep[] = [
   { number: 1, title: "Ilmoituksen tyyppi", description: "Valitse myyntityyppi", icon: Tags },
   { number: 2, title: "Ajoneuvon tiedot", description: "Täytä ajoneuvon tiedot", icon: FileText },
@@ -982,7 +1091,7 @@ const modeCards: Array<{
   },
   {
     value: "single",
-    title: "Yksittäinen ilmoitus",
+    title: "Yksittäinen varaosa",
     text: [
       "Myy yksi osa kerrallaan.",
       "Sopii yksittäisille osille tai harvinaisille tuotteille."
@@ -1416,6 +1525,12 @@ const vehicleBrandModels: Record<string, Record<string, string[]>> = {
   }
 };
 
+applyNettimotoVehicleModels(vehicleBrandModels["Moottoripy\u00f6r\u00e4"], "motorcycle");
+applyNettimotoVehicleModels(vehicleBrandModels.Moottorikelkka, "snowmobile");
+applyNettimotoVehicleModels(vehicleBrandModels["M\u00f6nkij\u00e4"], "atv");
+applyNettimotoVehicleModels(vehicleBrandModels.Motocross, "motocross");
+applyNettimotoVehicleModels(vehicleBrandModels.Mopo, "moped");
+
 const vehicleModelEngines: Record<string, Record<string, Record<string, string[]>>> = {
   Moottorikelkka: {
     Lynx: {
@@ -1675,6 +1790,11 @@ const commonBrandModelsByVehicle: Record<string, Record<string, string[]>> = {
     "Solifer": ["SM", "SFR", "Export", "Suzuki PV"]
   }
 };
+
+applyNettimotoVehicleModels(commonBrandModelsByVehicle.snowmobile, "snowmobile");
+applyNettimotoVehicleModels(commonBrandModelsByVehicle.atv, "atv");
+applyNettimotoVehicleModels(commonBrandModelsByVehicle.motocross, "motocross");
+applyNettimotoVehicleModels(commonBrandModelsByVehicle.moped, "moped");
 
 const commonModelEnginesByVehicle: Record<string, Record<string, Record<string, string[]>>> = {
   moped: {
@@ -2344,6 +2464,9 @@ function getMultiCategoryIcon(name: string) {
 function SellPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const vehicleSaleRequested = searchParams.get("market") === "vehicles";
+  const [isVehicleSale, setIsVehicleSale] = useState(vehicleSaleRequested);
+  const [sellIntentResolved, setSellIntentResolved] = useState(vehicleSaleRequested);
   const taxonomy = useTaxonomy();
   const { locale } = useLanguage();
   const st = useCallback((text: string) => translateSell(locale, text), [locale]);
@@ -2357,9 +2480,13 @@ function SellPageContent() {
   );
   const translateCategoryText = useCallback((text: string) => {
     const parts = splitCategoryPath(text);
-    if (parts.length > 1) return parts.map((part) => st(part)).join(" / ");
-    return st(text);
-  }, [st]);
+    const translatePart = (part: string) => {
+      const translated = translateCategory(locale, part);
+      return translated === part ? st(part) : translated;
+    };
+    if (parts.length > 1) return parts.map(translatePart).join(" / ");
+    return translatePart(text);
+  }, [locale, st]);
   const garagePrefillAppliedRef = useRef(false);
   const shellRef = useRef<HTMLElement | null>(null);
   const vehicleContentRef = useRef<HTMLElement | null>(null);
@@ -2375,6 +2502,16 @@ function SellPageContent() {
   const [vehicleDetails, setVehicleDetails] = useState<VehicleDetails>(
     () => buildEmptyVehicleDetails()
   );
+  const [vehicleMileage, setVehicleMileage] = useState("");
+  const [vehicleHours, setVehicleHours] = useState("");
+  const [vehicleRegistration, setVehicleRegistration] = useState("");
+  const [vehicleEngineKind, setVehicleEngineKind] = useState("");
+  const [vehicleDriveType, setVehicleDriveType] = useState("");
+  const [vehicleRoadLegal, setVehicleRoadLegal] = useState("");
+  const [vehicleAccessories, setVehicleAccessories] = useState<string[]>([]);
+  const [vehicleAccessoriesOpen, setVehicleAccessoriesOpen] = useState(false);
+  const [vehicleColors, setVehicleColors] = useState<string[]>([]);
+  const [vehicleColorsOpen, setVehicleColorsOpen] = useState(false);
   const [customVehicleFields, setCustomVehicleFields] = useState<
     Partial<Record<VehicleDetailKey, boolean>>
   >({});
@@ -2428,11 +2565,40 @@ function SellPageContent() {
   const steps =
     useMemo(
       () =>
-        mode === "single"
+        isVehicleSale
+          ? vehicleSaleSteps
+          : mode === "single"
           ? singleSteps
           : multipleSteps,
-      [mode]
+      [isVehicleSale, mode]
     );
+  const currentDraftKey = isVehicleSale ? sellVehicleDraftKey : sellPartsDraftKey;
+
+  useEffect(() => {
+    let pendingVehicleSale = false;
+
+    try {
+      pendingVehicleSale = sessionStorage.getItem("maskines-pending-sell-market") === "vehicles";
+      sessionStorage.removeItem("maskines-pending-sell-market");
+    } catch {
+      /* Session storage is only a fallback for redirects through sign-in. */
+    }
+
+    const nextVehicleSale = vehicleSaleRequested || pendingVehicleSale;
+    setIsVehicleSale(nextVehicleSale);
+    setSellIntentResolved(true);
+  }, [vehicleSaleRequested]);
+
+  useEffect(() => {
+    if (!isVehicleSale) return;
+    setMode("single");
+    setDeliveryMethod("pickup");
+    setCategory("");
+    setCategoryGroup("");
+    setSubcategory("");
+    setPartModel("");
+    setPartNumber("");
+  }, [isVehicleSale]);
   const vehicleCategories = useMemo(
     () => buildVehicleCategoriesFromTaxonomy(taxonomy, vehicleType.key, vehicleDetails.vehicleSubtype),
     [taxonomy, vehicleDetails.vehicleSubtype, vehicleType.key]
@@ -2742,6 +2908,16 @@ function SellPageContent() {
     if (currentStep > 1 || mode !== "single") return true;
     if (vehicleType.key !== vehicleCards[1].key) return true;
     if (Object.values(vehicleDetails).some((value) => value.trim())) return true;
+    if (
+      vehicleMileage ||
+      vehicleHours ||
+      vehicleRegistration ||
+      vehicleEngineKind ||
+      vehicleDriveType ||
+      vehicleRoadLegal ||
+      vehicleAccessories.length > 0 ||
+      vehicleColors.length > 0
+    ) return true;
     if (category || categoryGroup || subcategory || condition) return true;
     if (partModel || trackMatDetails || partNumber || listingPrice || listingLocation || listingTitle || listingDescription) return true;
     if (deliveryMethod !== "both" || selectedCompanySellerId) return true;
@@ -2765,12 +2941,21 @@ function SellPageContent() {
     selectedCompanySellerId,
     subcategory,
     uploadedImages.length,
+    vehicleAccessories.length,
+    vehicleColors.length,
     vehicleDetails,
+    vehicleDriveType,
+    vehicleEngineKind,
+    vehicleHours,
+    vehicleMileage,
+    vehicleRegistration,
+    vehicleRoadLegal,
     vehicleType.key
   ]);
 
   const buildDraftState = useCallback((): SellDraftState => ({
     version: 1,
+    isVehicleSale,
     mode,
     currentStep,
     vehicleTypeKey: vehicleType.key,
@@ -2785,6 +2970,14 @@ function SellPageContent() {
     trackMatDetails,
     partNumber,
     listingPrice,
+    vehicleMileage,
+    vehicleHours,
+    vehicleRegistration,
+    vehicleEngineKind,
+    vehicleDriveType,
+    vehicleRoadLegal,
+    vehicleAccessories,
+    vehicleColors,
     multiParts: Object.fromEntries(
       Object.entries(multiParts).map(([id, part]) => [
         id,
@@ -2821,6 +3014,7 @@ function SellPageContent() {
     expandedMultiCategories,
     expandedMultiGroups,
     expandedMultiSections,
+    isVehicleSale,
     listingDescription,
     listingLocation,
     listingPrice,
@@ -2836,7 +3030,15 @@ function SellPageContent() {
     showSelectedMultiParts,
     subcategory,
     uploadedImages,
+    vehicleAccessories,
+    vehicleColors,
     vehicleDetails,
+    vehicleDriveType,
+    vehicleEngineKind,
+    vehicleHours,
+    vehicleMileage,
+    vehicleRegistration,
+    vehicleRoadLegal,
     vehicleType.key
   ]);
 
@@ -2885,19 +3087,39 @@ function SellPageContent() {
   }, [selectedMultiPartList]);
 
   useEffect(() => {
+    if (!sellIntentResolved) return;
+
     let cancelled = false;
 
     async function hydrateDraft() {
       try {
-        const draft = await readSellDraft();
+        let draft = await readSellDraft(currentDraftKey);
+        if (!draft && !isVehicleSale) {
+          draft = await readSellDraft(sellDraftKey);
+          if (draft) void deleteSellDraft(sellDraftKey).catch(() => undefined);
+        }
         if (cancelled || categoryInteractionStartedRef.current || !draft || draft.version !== 1) return;
+        if (Boolean(draft.isVehicleSale) !== isVehicleSale) return;
 
         garagePrefillAppliedRef.current = true;
         listingLocationTouchedRef.current = draft.listingLocationTouched;
         setMode(draft.mode);
-        setCurrentStep(Math.max(1, Math.min(draft.currentStep, draft.mode === "single" ? singleSteps.length : multipleSteps.length)));
+        const draftStepCount = isVehicleSale
+          ? vehicleSaleSteps.length
+          : draft.mode === "single"
+            ? singleSteps.length
+            : multipleSteps.length;
+        setCurrentStep(Math.max(1, Math.min(draft.currentStep, draftStepCount)));
         setVehicleType(vehicleCards.find((vehicle) => vehicle.key === draft.vehicleTypeKey) ?? emptyVehicleType);
         setVehicleDetails(draft.vehicleDetails);
+        setVehicleMileage(draft.vehicleMileage ?? "");
+        setVehicleHours(draft.vehicleHours ?? "");
+        setVehicleRegistration(draft.vehicleRegistration ?? "");
+        setVehicleEngineKind(draft.vehicleEngineKind ?? "");
+        setVehicleDriveType(draft.vehicleDriveType ?? "");
+        setVehicleRoadLegal(draft.vehicleRoadLegal ?? "");
+        setVehicleAccessories(draft.vehicleAccessories ?? []);
+        setVehicleColors(draft.vehicleColors ?? []);
         setCustomVehicleFields(draft.customVehicleFields);
         vehicleAutoAdvancedFieldsRef.current = draft.customVehicleFields;
         setCategory(draft.category);
@@ -2946,28 +3168,28 @@ function SellPageContent() {
     return () => {
       cancelled = true;
     };
-  }, [createImageFromDraft]);
+  }, [createImageFromDraft, currentDraftKey, isVehicleSale, sellIntentResolved]);
 
   useEffect(() => {
     if (!draftHydratedRef.current || draftClearedOrPublishedRef.current) return;
 
     const timeout = window.setTimeout(() => {
       if (!hasDraftContent()) return;
-      void writeSellDraft(buildDraftState()).catch(() => undefined);
+      void writeSellDraft(buildDraftState(), currentDraftKey).catch(() => undefined);
     }, 600);
 
     return () => window.clearTimeout(timeout);
-  }, [buildDraftState, hasDraftContent]);
+  }, [buildDraftState, currentDraftKey, hasDraftContent]);
 
   useEffect(() => {
     function saveDraftBeforeLeaving() {
       if (!draftHydratedRef.current || draftClearedOrPublishedRef.current || !hasDraftContent()) return;
-      void writeSellDraft(buildDraftState()).catch(() => undefined);
+      void writeSellDraft(buildDraftState(), currentDraftKey).catch(() => undefined);
     }
 
     window.addEventListener("pagehide", saveDraftBeforeLeaving);
     return () => window.removeEventListener("pagehide", saveDraftBeforeLeaving);
-  }, [buildDraftState, hasDraftContent]);
+  }, [buildDraftState, currentDraftKey, hasDraftContent]);
 
   useEffect(() => {
     if (garagePrefillAppliedRef.current) return;
@@ -3003,7 +3225,7 @@ function SellPageContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    const engineModel = vehicleDetails.engineType.trim();
+    const engineModel = isVehicleSale ? "" : vehicleDetails.engineType.trim();
     const engineCc = vehicleDetails.engineCc.trim();
 
     if (
@@ -3052,6 +3274,7 @@ function SellPageContent() {
     mode,
     selectedCategory,
     selectedDetailCategory,
+    isVehicleSale,
     vehicleDetails.engineCc,
     vehicleDetails.engineType,
     vehicleDetails.year
@@ -3528,15 +3751,6 @@ function SellPageContent() {
     setExpandedMultiGroups({});
   }
 
-  function getOpenMultiSectionName(categoryName: string) {
-    const prefix = `${categoryName}::`;
-    const openKey = Object.keys(expandedMultiSections).find(
-      (sectionKey) => sectionKey.startsWith(prefix) && expandedMultiSections[sectionKey]
-    );
-
-    return openKey ? openKey.slice(prefix.length) : "";
-  }
-
   function toggleMultiCategory(categoryName: string) {
     setCategory(categoryName);
     setExpandedMultiCategories((current) =>
@@ -3544,6 +3758,27 @@ function SellPageContent() {
     );
     setExpandedMultiSections({});
     setExpandedMultiGroups({});
+  }
+
+  function renderMultiPartRows(parts: MultiPartOption[]) {
+    return parts.map((part) => {
+      const partChecked = Boolean(multiParts[part.id]);
+      const wholePart = part.detail.toLowerCase().includes("kokonainen");
+
+      return (
+        <button
+          key={part.id}
+          type="button"
+          className={`${styles.multiDetailRow} ${wholePart ? styles.multiDetailWhole : ""} ${partChecked ? styles.multiDetailSelected : ""}`}
+          onClick={() => toggleMultiPart(part)}
+        >
+          <span className={`${styles.multiCheck} ${partChecked ? styles.multiCheckOn : ""}`}>
+            {partChecked ? <Check size={14} aria-hidden="true" /> : null}
+          </span>
+          <span>{translateCategoryText(part.detail)}</span>
+        </button>
+      );
+    });
   }
 
   function renderMultiGroup(categoryName: string, groupItem: MultiPartGroup) {
@@ -3614,24 +3849,7 @@ function SellPageContent() {
 
         {groupOpen ? (
           <div className={styles.multiGroupDetails}>
-            {visibleGroupParts.map((part) => {
-              const partChecked = Boolean(multiParts[part.id]);
-              const wholePart = part.detail.toLowerCase().includes("kokonainen");
-
-              return (
-                <button
-                  key={part.id}
-                  type="button"
-                  className={`${styles.multiDetailRow} ${wholePart ? styles.multiDetailWhole : ""} ${partChecked ? styles.multiDetailSelected : ""}`}
-                  onClick={() => toggleMultiPart(part)}
-                >
-                  <span className={`${styles.multiCheck} ${partChecked ? styles.multiCheckOn : ""}`}>
-                    {partChecked ? <Check size={14} aria-hidden="true" /> : null}
-                  </span>
-                  <span>{translateCategoryText(part.detail)}</span>
-                </button>
-              );
-            })}
+            {renderMultiPartRows(visibleGroupParts)}
           </div>
         ) : null}
       </div>
@@ -3786,6 +4004,7 @@ function SellPageContent() {
   }
 
   function chooseListingMode(nextMode: ListingMode) {
+    setIsVehicleSale(false);
     setMode(nextMode);
     try {
       sessionStorage.setItem("sell-listing-mode", nextMode);
@@ -3796,6 +4015,28 @@ function SellPageContent() {
     setCurrentStep(2);
   }
 
+  function chooseVehicleSaleMode() {
+    setIsVehicleSale(true);
+    setMode("single");
+    setDeliveryMethod("pickup");
+    setCategory("");
+    setCategoryGroup("");
+    setSubcategory("");
+    setPartModel("");
+    setPartNumber("");
+    setCondition("");
+    setVehicleTypeMenuOpen(!vehicleType.key);
+    setCurrentStep(2);
+
+    try {
+      sessionStorage.setItem("sell-listing-mode", "single");
+    } catch {
+      /* optional */
+    }
+
+    router.replace("/sell?market=vehicles", { scroll: false });
+  }
+
   function resetSellDraft() {
     draftClearedOrPublishedRef.current = true;
     setShowResetConfirm(false);
@@ -3804,6 +4045,16 @@ function SellPageContent() {
     setCurrentStep(1);
     setVehicleType(emptyVehicleType);
     setVehicleDetails(buildEmptyVehicleDetails());
+    setVehicleMileage("");
+    setVehicleHours("");
+    setVehicleRegistration("");
+    setVehicleEngineKind("");
+    setVehicleDriveType("");
+    setVehicleRoadLegal("");
+    setVehicleAccessories([]);
+    setVehicleAccessoriesOpen(false);
+    setVehicleColors([]);
+    setVehicleColorsOpen(false);
     setCustomVehicleFields({});
     vehicleAutoAdvancedFieldsRef.current = {};
     categoryEntryAutoOpenRef.current = false;
@@ -3841,7 +4092,7 @@ function SellPageContent() {
     setSelectedCompanySellerId("");
     garagePrefillAppliedRef.current = true;
 
-    void deleteSellDraft()
+    void deleteSellDraft(currentDraftKey)
       .catch(() => undefined)
       .finally(() => {
         draftClearedOrPublishedRef.current = false;
@@ -3945,6 +4196,14 @@ function SellPageContent() {
   }
 
   function getAutomaticListingTitle(part?: MultiPartSelection) {
+    if (isVehicleSale) {
+      return [
+        vehicleDetails.brand.trim(),
+        vehicleDetails.model.trim(),
+        vehicleDetails.year.trim()
+      ].filter(Boolean).join(" ").trim() || vehicleType.key || "Ajoneuvo";
+    }
+
     const partTitle = part
       ? part.detail || part.group || part.category
       : selectedDetailCategory || selectedCategoryGroup || selectedCategory;
@@ -3961,6 +4220,14 @@ function SellPageContent() {
   }
 
   function getTranslatedAutomaticListingTitle(part?: MultiPartSelection) {
+    if (isVehicleSale) {
+      return [
+        vehicleDetails.brand.trim(),
+        vehicleDetails.model.trim(),
+        vehicleDetails.year.trim()
+      ].filter(Boolean).join(" ").trim() || st(vehicleType.key || "Ajoneuvo");
+    }
+
     const partTitle = part
       ? part.detail || part.group || part.category
       : selectedDetailCategory || selectedCategoryGroup || selectedCategory;
@@ -3981,13 +4248,53 @@ function SellPageContent() {
     return deliveryMethodOptions.find((option) => option.value === method)?.label ?? "L\u00e4hetys ja nouto";
   }
 
+  function toggleVehicleAccessory(accessory: string) {
+    setVehicleAccessories((current) =>
+      current.includes(accessory)
+        ? current.filter((item) => item !== accessory)
+        : [...current, accessory]
+    );
+  }
+
+  function toggleVehicleColor(color: string) {
+    setVehicleColors((current) =>
+      current.includes(color)
+        ? current.filter((item) => item !== color)
+        : [...current, color]
+    );
+  }
+
   function appendDeliveryMethod(description: string) {
     return [
       description.trim(),
       vehicleDetails.vehicleSubtype.trim()
         ? `Ajoneuvotyyppi: ${vehicleDetails.vehicleSubtype.trim()}`
         : "",
-      `Toimitustapa: ${getDeliveryMethodLabel()}`
+      isVehicleSale && vehicleMileage.trim()
+        ? `Ajokilometrit: ${vehicleMileage.trim()} km`
+        : "",
+      isVehicleSale && vehicleHours.trim()
+        ? `Käyttötunnit: ${vehicleHours.trim()} h`
+        : "",
+      isVehicleSale && vehicleRegistration.trim()
+        ? `Rekisteritunnus: ${vehicleRegistration.trim()}`
+        : "",
+      isVehicleSale && vehicleEngineKind
+        ? `Moottorin tyyppi: ${vehicleEngineKind}`
+        : "",
+      isVehicleSale && vehicleDriveType
+        ? `Vetotapa: ${vehicleDriveType}`
+        : "",
+      isVehicleSale && vehicleRoadLegal
+        ? `Tieliikennekelpoisuus: ${vehicleRoadLegal}`
+        : "",
+      isVehicleSale && vehicleAccessories.length > 0
+        ? `${VEHICLE_ACCESSORIES_DESCRIPTION_LABEL}: ${vehicleAccessories.join(", ")}`
+        : "",
+      isVehicleSale && vehicleColors.length > 0
+        ? `${VEHICLE_COLORS_DESCRIPTION_LABEL}: ${vehicleColors.join(", ")}`
+        : "",
+      isVehicleSale ? "" : `Toimitustapa: ${getDeliveryMethodLabel()}`
     ].filter(Boolean).join("\n\n");
   }
 
@@ -3995,8 +4302,9 @@ function SellPageContent() {
     return (
       <div className={styles.deliveryMethodField}>
         <span>{st("Toimitustapa")}</span>
-        <div className={styles.deliveryMethodSelectShell}>
+        <div className={styles.deliveryMethodSelectShell} data-sell-control-shell="true">
           <select
+            data-sell-control="select"
             value={deliveryMethod}
             onChange={(event) => setDeliveryMethod(event.target.value as DeliveryMethod)}
             aria-label={st("Toimitustapa")}
@@ -4023,7 +4331,9 @@ function SellPageContent() {
       ? part.title.trim() || getAutomaticListingTitle(part)
       : listingTitle.trim() || getAutomaticListingTitle();
     const baseDescription =
-      mode === "multiple"
+      isVehicleSale
+        ? listingDescription.trim()
+        : mode === "multiple"
         ? part?.description.trim() || `Myynnissa ${part?.detail ?? "varaosa"}. Tarkemmat tiedot saat myyjalta viestilla.`
         : listingDescription.trim();
     const description = appendDeliveryMethod(baseDescription);
@@ -4033,14 +4343,21 @@ function SellPageContent() {
     return {
       title,
       original_language: "fi",
-      translations: publicationGroupId
+      translations: isVehicleSale
         ? {
+            _meta: {
+              listing_mode: "single",
+              marketplace_kind: "vehicle"
+            }
+          }
+        : publicationGroupId
+          ? {
             _meta: {
               publication_group_id: publicationGroupId,
               listing_mode: "multiple"
             }
           }
-        : null,
+          : null,
       listing_mode: mode,
       price,
       vehicle_type: vehicleType.title,
@@ -4048,19 +4365,25 @@ function SellPageContent() {
       model: vehicleDetails.model.trim(),
       year: vehicleDetails.year.trim(),
       engine_cc: vehicleDetails.engineCc.trim(),
-      engine_model: vehicleDetails.engineType.trim(),
-      category: part?.category ?? selectedCategory,
-      subcategory: part?.detail ?? selectedDetailCategory,
-      part_model: mode === "single"
-        ? buildPartModelDetails(partModel, trackMatDetails, selectedSinglePartNeedsTrackMatDimensions)
-        : buildPartModelDetails(
-            part?.partModel ?? "",
-            part?.trackMatDetails ?? "",
-            Boolean(part && [part.category, part.group, part.detail].some(isTrackMatText))
-          ),
-      part_number: mode === "single" ? partNumber.trim() || null : part?.partNumber.trim() || null,
+      engine_model: isVehicleSale ? null : vehicleDetails.engineType.trim(),
+      category: isVehicleSale ? VEHICLE_LISTING_CATEGORY : part?.category ?? selectedCategory,
+      subcategory: isVehicleSale ? vehicleType.title : part?.detail ?? selectedDetailCategory,
+      part_model: isVehicleSale
+        ? null
+        : mode === "single"
+          ? buildPartModelDetails(partModel, trackMatDetails, selectedSinglePartNeedsTrackMatDimensions)
+          : buildPartModelDetails(
+              part?.partModel ?? "",
+              part?.trackMatDetails ?? "",
+              Boolean(part && [part.category, part.group, part.detail].some(isTrackMatText))
+            ),
+      part_number: isVehicleSale
+        ? null
+        : mode === "single"
+          ? partNumber.trim() || null
+          : part?.partNumber.trim() || null,
       location: buildListingLocation(listingLocation, profileCity, profileCountry),
-      condition: part?.condition ?? condition,
+      condition: isVehicleSale ? "Ei määritelty" : part?.condition ?? condition,
       description,
       image_url: resolvedImageUrls[0],
       image_urls: resolvedImageUrls,
@@ -4080,8 +4403,11 @@ function SellPageContent() {
 
   function validateListingPayload(payload: ListingInput, imageCount: number) {
     if (payload.title.trim().length < 3) return "Lisää vähintään 3 merkin otsikko.";
+    if (isVehicleSale && !vehicleType.key) return "Valitse ajoneuvoluokka ennen julkaisua.";
+    if (isVehicleSale && !vehicleDetails.brand.trim()) return "Lisää ajoneuvon merkki ennen julkaisua.";
+    if (isVehicleSale && !vehicleDetails.model.trim()) return "Lisää ajoneuvon malli ennen julkaisua.";
     if (!String(payload.category ?? "").trim()) return "Valitse kategoria ennen julkaisua.";
-    if (!String(payload.condition ?? "").trim()) return "Valitse kuntoluokitus ennen julkaisua.";
+    if (!isVehicleSale && !String(payload.condition ?? "").trim()) return "Valitse kuntoluokitus ennen julkaisua.";
     if (payload.price <= 0) return "Lisää ilmoitukselle hinta. Hinnan täytyy olla vähintään 1 euro.";
     if (imageCount <= 0) return "Lisää vähintään yksi kuva jokaiseen julkaistavaan ilmoitukseen.";
     if (listingNeedsTrackMatDimensions(payload)) {
@@ -4208,7 +4534,7 @@ function SellPageContent() {
       }
 
       draftClearedOrPublishedRef.current = true;
-      await deleteSellDraft().catch(() => undefined);
+      await deleteSellDraft(currentDraftKey).catch(() => undefined);
       const returnHref = firstListingId ? listingPath(firstListingUrlId || firstListingId) : "/my-listings";
 
       router.push(returnHref);
@@ -4244,6 +4570,7 @@ function SellPageContent() {
 
   function getStepLead() {
     if (currentStep === 2) return st("Valitse ajoneuvoluokka");
+    if (currentStep === 3 && isVehicleSale) return "Aseta ajoneuvolle myyntihinta ja sijainti.";
     if (currentStep === 3) return mode === "single"
       ? st("Valitse tuotteen kategoria ja lisää hinta.")
       : st("Valitse yhteinen kategoriointi ilmoituksille.");
@@ -4388,9 +4715,9 @@ function SellPageContent() {
           <span />
           <span />
           <span />
-          <span>Nimi</span>
-          <span>Hinta (€)</span>
-          <span>Kunto</span>
+          <span>{st("Nimi")}</span>
+          <span>{st("Hinta (€)")}</span>
+          <span>{st("Kunto")}</span>
           <span />
         </div>
         {parts.map((part, index) => {
@@ -4854,6 +5181,10 @@ function SellPageContent() {
       return (
         <div className={styles.vehicleWorkspace}>
           <form className={styles.vehicleForm}>
+            <div className={styles.vehicleFormSectionHeading} aria-hidden="true">
+              <strong>{st("Perustiedot")}</strong>
+              <span />
+            </div>
             <div
               ref={vehicleTypeMenuRef}
               className={`${styles.vehicleTypePicker} ${vehicleTypeMenuOpen ? styles.vehicleTypePickerOpen : ""}`}
@@ -4998,7 +5329,7 @@ function SellPageContent() {
               onChange={(value) => updateVehicleDetail("engineCc", value)}
               customMode={Boolean(customVehicleFields.engineCc)}
               onCustomModeChange={(customMode) => updateVehicleCustomMode("engineCc", customMode)}
-              onComplete={() => completeVehicleField("engineCc", "engineType")}
+              onComplete={() => completeVehicleField("engineCc", isVehicleSale ? undefined : "engineType")}
               inputRef={(element) => {
                 vehicleFieldRefs.current.engineCc = element;
               }}
@@ -5006,30 +5337,180 @@ function SellPageContent() {
               customPlaceholder={st("Kirjoita cc")}
               translateText={st}
             />
-            <PresetField
-              fieldKey="engineType"
-              label={st("Moottori / moottorityyppi")}
-              value={vehicleDetails.engineType}
-              options={engineTypeOptions}
-              open={openVehiclePresetField === "engineType"}
-              onOpenChange={(open) => setVehiclePresetFieldOpen("engineType", open)}
-              onChange={(value) => updateVehicleDetail("engineType", value)}
-              customMode={Boolean(customVehicleFields.engineType)}
-              onCustomModeChange={(customMode) => updateVehicleCustomMode("engineType", customMode)}
-              onComplete={() => completeVehicleField("engineType")}
-              inputRef={(element) => {
-                vehicleFieldRefs.current.engineType = element;
-              }}
-              placeholder={st("Valitse moottorityyppi")}
-              customPlaceholder={st("Kirjoita moottori")}
-              translateText={st}
-            />
+            {!isVehicleSale ? (
+              <PresetField
+                fieldKey="engineType"
+                label={st("Moottori / moottorityyppi")}
+                value={vehicleDetails.engineType}
+                options={engineTypeOptions}
+                open={openVehiclePresetField === "engineType"}
+                onOpenChange={(open) => setVehiclePresetFieldOpen("engineType", open)}
+                onChange={(value) => updateVehicleDetail("engineType", value)}
+                customMode={Boolean(customVehicleFields.engineType)}
+                onCustomModeChange={(customMode) => updateVehicleCustomMode("engineType", customMode)}
+                onComplete={() => completeVehicleField("engineType")}
+                inputRef={(element) => {
+                  vehicleFieldRefs.current.engineType = element;
+                }}
+                placeholder={st("Valitse moottorityyppi")}
+                customPlaceholder={st("Kirjoita moottori")}
+                translateText={st}
+              />
+            ) : null}
+            {isVehicleSale ? (
+              <section className={styles.vehicleSaleMetrics} aria-label={st("Ajoneuvon ajomäärä ja rekisteritiedot")}>
+                <div className={styles.vehicleFormSectionHeading} aria-hidden="true">
+                  <strong>{st("Tiedot")}</strong>
+                  <span />
+                </div>
+                <DetailInput
+                  label={st("Ajokilometrit (km)")}
+                  icon={Gauge}
+                  inputMode="numeric"
+                  placeholder={st("Esim. 12 500")}
+                  value={vehicleMileage}
+                  onChange={(value) => setVehicleMileage(value.replace(/[^\d]/g, ""))}
+                />
+                <DetailInput
+                  label={st("Käyttötunnit (h)")}
+                  icon={Clock3}
+                  inputMode="numeric"
+                  placeholder={st("Esim. 320")}
+                  value={vehicleHours}
+                  onChange={(value) => setVehicleHours(value.replace(/[^\d]/g, ""))}
+                />
+                <DetailInput
+                  label={st("Rekisteritunnus (vapaaehtoinen)")}
+                  icon={Tags}
+                  placeholder={st("Esim. 123-ABC")}
+                  value={vehicleRegistration}
+                  onChange={(value) => setVehicleRegistration(value.toLocaleUpperCase("fi-FI"))}
+                />
+                <label className={styles.deliveryMethodField}>
+                  <span>{st("Moottorin tyyppi")}</span>
+                  <span className={styles.deliveryMethodSelectShell} data-sell-control-shell="true">
+                    <select
+                      data-sell-control="select"
+                      aria-label={st("Moottorin tyyppi")}
+                      value={vehicleEngineKind}
+                      onChange={(event) => setVehicleEngineKind(event.target.value)}
+                    >
+                      <option value="">{st("Ei väliä")}</option>
+                      {vehicleEngineKindOptions.map((option) => (
+                        <option key={option} value={option}>{st(option)}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </span>
+                </label>
+                <label className={styles.deliveryMethodField}>
+                  <span>{st("Vetotapa")}</span>
+                  <span className={styles.deliveryMethodSelectShell} data-sell-control-shell="true">
+                    <select
+                      data-sell-control="select"
+                      aria-label={st("Vetotapa")}
+                      value={vehicleDriveType}
+                      onChange={(event) => setVehicleDriveType(event.target.value)}
+                    >
+                      <option value="">{st("Ei väliä")}</option>
+                      {vehicleDriveTypeOptions.map((option) => (
+                        <option key={option} value={option}>{st(option)}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </span>
+                </label>
+                <label className={styles.deliveryMethodField}>
+                  <span>{st("Tieliikennekelpoisuus")}</span>
+                  <span className={styles.deliveryMethodSelectShell} data-sell-control-shell="true">
+                    <select
+                      data-sell-control="select"
+                      aria-label={st("Tieliikennekelpoisuus")}
+                      value={vehicleRoadLegal}
+                      onChange={(event) => setVehicleRoadLegal(event.target.value)}
+                    >
+                      <option value="">{st("Ei väliä")}</option>
+                      {vehicleRoadLegalOptions.map((option) => (
+                        <option key={option} value={option}>{st(option)}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </span>
+                </label>
+                <div className={styles.vehicleOptionButtons}>
+                  <button
+                    type="button"
+                    className={styles.vehicleAccessoriesButton}
+                    onClick={() => setVehicleAccessoriesOpen(true)}
+                    aria-haspopup="dialog"
+                  >
+                    <span>
+                      <Wrench size={18} aria-hidden="true" />
+                      <strong>{st("Lisävarusteet")}</strong>
+                    </span>
+                    <span className={styles.vehicleAccessoriesButtonValue}>
+                      {vehicleAccessories.length > 0
+                        ? formatSelectedCount(vehicleAccessories.length)
+                        : st("Valitse lisävarusteet")}
+                      <ChevronDown size={18} aria-hidden="true" />
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.vehicleAccessoriesButton}
+                    onClick={() => setVehicleColorsOpen(true)}
+                    aria-haspopup="dialog"
+                  >
+                    <span>
+                      <Palette size={18} aria-hidden="true" />
+                      <strong>{st("Väri")}</strong>
+                    </span>
+                    <span className={styles.vehicleAccessoriesButtonValue}>
+                      {vehicleColors.length > 0
+                        ? formatSelectedCount(vehicleColors.length)
+                        : st("Valitse väri")}
+                      <ChevronDown size={18} aria-hidden="true" />
+                    </span>
+                  </button>
+                </div>
+              </section>
+            ) : null}
           </form>
         </div>
       );
     }
 
     if (currentStep === 3) {
+      if (isVehicleSale) {
+        return (
+          <div className={styles.categoryStep}>
+            <section className={styles.productDetailsPanel} aria-label={st("Ajoneuvon hinta ja sijainti")}>
+              <h2>{st("Ajoneuvon hinta ja sijainti")}</h2>
+              <p className={styles.vehicleSaleStepCopy}>
+                {st("Lisää myyntihinta ja paikkakunta, jossa ajoneuvo sijaitsee.")}
+              </p>
+              <div className={styles.productDetailsGrid}>
+                <DetailInput
+                  label={st("Hinta (€)")}
+                  icon={Euro}
+                  inputMode="numeric"
+                  value={listingPrice}
+                  onChange={(value) => setListingPrice(value.replace(/\D/g, ""))}
+                />
+                <PlainIconInput
+                  label={st("Sijainti")}
+                  icon={MapPin}
+                  placeholder={profileCity || st("Kaupunki tai paikkakunta")}
+                  value={listingLocation}
+                  onChange={updateListingLocation}
+                  inputRef={listingLocationInputRef}
+                />
+              </div>
+            </section>
+          </div>
+        );
+      }
+
       if (mode === "multiple") {
         return (
           <div className={styles.multiCategoryStep}>
@@ -5128,10 +5609,6 @@ function SellPageContent() {
                           <div className={styles.multiCategoryGroups}>
                             {categoryItem.sections.length > 0
                               ? categoryItem.sections
-                                .filter((sectionItem) => {
-                                  const openSectionName = getOpenMultiSectionName(categoryItem.name);
-                                  return !openSectionName || sectionItem.name === openSectionName;
-                                })
                                 .map((sectionItem) => {
                                 const sectionSelectedCount = sectionItem.parts.filter((part) => multiParts[part.id]).length;
                                 const sectionChecked = sectionSelectedCount > 0;
@@ -5196,7 +5673,7 @@ function SellPageContent() {
 
                                     {sectionOpen ? (
                                       <div className={styles.multiSectionGroups}>
-                                        {sectionItem.groups.map((groupItem) => renderMultiGroup(categoryItem.name, groupItem))}
+                                        {renderMultiPartRows(sectionItem.parts)}
                                       </div>
                                     ) : null}
                                   </div>
@@ -5599,7 +6076,7 @@ function SellPageContent() {
       return renderMultiDeliveryStep();
     }
 
-    if (mode === "single" && currentStep === 4) {
+    if (!isVehicleSale && mode === "single" && currentStep === 4) {
       return (
         <div className={styles.conditionStep}>
           <section className={styles.conditionPanel} aria-label={st("Kunto ja sijainti")}>
@@ -5636,7 +6113,7 @@ function SellPageContent() {
       );
     }
 
-    if (mode === "single" && currentStep === 5) {
+    if (mode === "single" && currentStep === (isVehicleSale ? 4 : 5)) {
       return (
         <div className={styles.photosStep}>
           <label
@@ -5719,7 +6196,7 @@ function SellPageContent() {
       );
     }
 
-    if (mode === "single" && currentStep === 6) {
+    if (mode === "single" && currentStep === (isVehicleSale ? 5 : 6)) {
       return (
         <section className={styles.detailsPanel} aria-label={st("Otsikko ja kuvaus")}>
           <label className={styles.detailsField}>
@@ -5731,7 +6208,11 @@ function SellPageContent() {
               maxLength={80}
               value={listingTitle}
               onChange={(event) => setListingTitle(event.target.value)}
-              placeholder={st("Esim. Ski-Doo variaattori 850 E-TEC")}
+              placeholder={
+                isVehicleSale
+                  ? "Esim. Lynx Rave RE 600R 2023"
+                  : st("Esim. Ski-Doo variaattori 850 E-TEC")
+              }
             />
             <small className={styles.automaticTitleHint}>
               {st("T\u00e4m\u00e4 on otsikko jos et itse otsikoi:")} {getTranslatedAutomaticListingTitle()}
@@ -5748,7 +6229,9 @@ function SellPageContent() {
               value={listingDescription}
               onChange={(event) => setListingDescription(event.target.value)}
               placeholder={
-                selectedSinglePartNeedsTrackMatDimensions
+                isVehicleSale
+                  ? "Kerro ajomäärä tai käyttötunnit, huoltohistoria, varusteet, kunto ja muut tärkeät tiedot..."
+                  : selectedSinglePartNeedsTrackMatDimensions
                   ? "Kirjoita telamaton mitat, kunto, sopivuus ja muut tärkeät tiedot..."
                   : st("Kerro kunto, ominaisuudet, sopivuus ja muut t\u00e4rke\u00e4t tiedot...")
               }
@@ -5760,12 +6243,12 @@ function SellPageContent() {
               {st("Vinkit hyv\u00e4\u00e4n kuvaukseen")}
             </h2>
             <div>
-              <span><Check size={18} aria-hidden="true" /> {st("Kerro t\u00e4rkeimm\u00e4t ominaisuudet")}</span>
+              <span><Check size={18} aria-hidden="true" /> {isVehicleSale ? "Kerro ajomäärä tai käyttötunnit" : st("Kerro t\u00e4rkeimm\u00e4t ominaisuudet")}</span>
               <span><Check size={18} aria-hidden="true" /> {st("Mainitse kunto")}</span>
               {selectedSinglePartNeedsTrackMatDimensions ? (
                 <span><Check size={18} aria-hidden="true" /> Kirjoita telamaton mitat</span>
               ) : null}
-              <span><Check size={18} aria-hidden="true" /> {st("Lis\u00e4\u00e4 sopivuustiedot")}</span>
+              <span><Check size={18} aria-hidden="true" /> {isVehicleSale ? "Mainitse huollot ja varusteet" : st("Lis\u00e4\u00e4 sopivuustiedot")}</span>
               <span><Check size={18} aria-hidden="true" /> {st("Ole rehellinen ja tarkka")}</span>
             </div>
           </section>
@@ -5782,17 +6265,28 @@ function SellPageContent() {
     ]).map((part) => st(part)).join(" ");
     const technicalSummary = uniqueOptions([
       vehicleDetails.engineCc ? `${vehicleDetails.engineCc} cc` : "",
-      vehicleDetails.engineType
+      isVehicleSale ? "" : vehicleDetails.engineType
     ]).join(" / ");
-    const categorySummary = uniqueOptions([
-      selectedCategory,
-      selectedCategoryGroup,
-      selectedDetailCategory
-    ]).map((part) => translateCategoryText(part)).join(" / ");
+    const categorySummary = isVehicleSale
+      ? [VEHICLE_LISTING_CATEGORY, vehicleType.title].filter(Boolean).join(" / ")
+      : uniqueOptions([
+          selectedCategory,
+          selectedCategoryGroup,
+          selectedDetailCategory
+        ]).map((part) => translateCategoryText(part)).join(" / ");
     const publishStats = [
-      { label: st("Tyyppi"), value: mode === "single" ? st("Yksitt\u00e4inen ilmoitus") : st("Useampi ilmoitus") },
+      {
+        label: st("Tyyppi"),
+        value: isVehicleSale
+          ? "Ajoneuvoilmoitus"
+          : mode === "single"
+            ? st("Yksitt\u00e4inen ilmoitus")
+            : st("Useampi ilmoitus")
+      },
       { label: st("Hinta"), value: listingPrice.trim() ? `${listingPrice.trim()} ${st("euroa")}` : st("Ei lisatty") },
-      { label: st("Kunto"), value: condition ? st(condition) : st("Ei lisatty") },
+      ...(!isVehicleSale
+        ? [{ label: st("Kunto"), value: condition ? st(condition) : st("Ei lisatty") }]
+        : []),
       { label: st("Kuvat"), value: `${uploadedImages.length} ${st("kpl")}` },
       ...(isCompanyAccount
         ? [{ label: st("Myyj\u00e4"), value: selectedCompanySeller?.name ?? st("Valitsematta") }]
@@ -5802,13 +6296,41 @@ function SellPageContent() {
       { label: st("Ajoneuvo"), value: vehicleSummary || st("Ei lisatty") },
       { label: st("Tekniikka"), value: technicalSummary || st("Ei lisatty") },
       { label: st("Kategoria"), value: categorySummary || st("Ei lisatty") },
-      { label: st("Sijainti"), value: buildListingLocation(listingLocation, profileCity, profileCountry) || st("Ei lisatty") },
-      { label: st("Toimitustapa"), value: st(getDeliveryMethodLabel()) },
-      { label: st("Osan malli"), value: partModel.trim() || st("Ei lisatty") },
-      ...(selectedSinglePartNeedsTrackMatDimensions
-        ? [{ label: st("Telamaton mitat"), value: trackMatDetails.trim() || st("Ei lisatty") }]
+      ...(isVehicleSale
+        ? [
+            { label: st("Ajokilometrit"), value: vehicleMileage.trim() ? `${vehicleMileage.trim()} km` : st("Ei lisatty") },
+            { label: st("Käyttötunnit"), value: vehicleHours.trim() ? `${vehicleHours.trim()} h` : st("Ei lisatty") },
+            { label: st("Rekisteritunnus"), value: vehicleRegistration.trim() || st("Ei lisatty") },
+            { label: st("Moottorin tyyppi"), value: vehicleEngineKind ? st(vehicleEngineKind) : st("Ei lisatty") },
+            { label: st("Vetotapa"), value: vehicleDriveType ? st(vehicleDriveType) : st("Ei lisatty") },
+            { label: st("Tieliikennekelpoisuus"), value: vehicleRoadLegal ? st(vehicleRoadLegal) : st("Ei lisatty") },
+            {
+              label: st("Lisävarusteet"),
+              value: vehicleAccessories.length > 0
+                ? vehicleAccessories.map((value) => translateVehicleAccessory(locale, value)).join(", ")
+                : st("Ei lisatty")
+            },
+            {
+              label: st("Väri"),
+              value: vehicleColors.length > 0
+                ? vehicleColors.map((value) => translateVehicleColor(locale, value)).join(", ")
+                : st("Ei lisatty")
+            }
+          ]
         : []),
-      { label: st("Varaosanumero"), value: partNumber.trim() || st("Ei lisatty") }
+      { label: st("Sijainti"), value: buildListingLocation(listingLocation, profileCity, profileCountry) || st("Ei lisatty") },
+      ...(!isVehicleSale
+        ? [{ label: st("Toimitustapa"), value: st(getDeliveryMethodLabel()) }]
+        : []),
+      ...(!isVehicleSale
+        ? [
+            { label: st("Osan malli"), value: partModel.trim() || st("Ei lisatty") },
+            ...(selectedSinglePartNeedsTrackMatDimensions
+              ? [{ label: st("Telamaton mitat"), value: trackMatDetails.trim() || st("Ei lisatty") }]
+              : []),
+            { label: st("Varaosanumero"), value: partNumber.trim() || st("Ei lisatty") }
+          ]
+        : [])
     ];
 
     return (
@@ -5863,9 +6385,14 @@ function SellPageContent() {
 
         <section className={styles.publishSummary} aria-label={st("Ilmoituksen yhteenveto")}>
           <div className={styles.publishTitleBlock}>
-            <span>{st("Otsikko")}</span>
-            <strong>{listingTitle.trim() || getTranslatedAutomaticListingTitle()}</strong>
-            <p>{listingDescription.trim() || st("Kuvausta ei ole viela lisatty.")}</p>
+            <div>
+              <span>{st("Otsikko")}</span>
+              <strong>{listingTitle.trim() || getTranslatedAutomaticListingTitle()}</strong>
+            </div>
+            <div className={styles.publishDescriptionPreview}>
+              <span>{st("Kuvaus")}</span>
+              <p>{listingDescription.trim() || st("Kuvausta ei ole viela lisatty.")}</p>
+            </div>
           </div>
 
           <div className={styles.publishRows}>
@@ -5985,13 +6512,13 @@ function SellPageContent() {
             <header className={styles.header}>
               <h1>{st("Luo myynti-ilmoitus")}</h1>
               <h2>{st("Valitse ilmoitustyyppi")}</h2>
-              <p>{st("Valitse, haluatko listata useita osia samasta ajoneuvosta vai yksittäisen osan.")}</p>
+              <p>{st("Valitse, haluatko listata useita osia samasta ajoneuvosta, yksittäisen osan vai kokonaisen ajoneuvon.")}</p>
             </header>
 
             <div className={styles.modeGrid} role="radiogroup" aria-label={st("Ilmoitustyyppi")}>
               {modeCards.map((card) => {
                 const Icon = card.icon;
-                const active = mode === card.value;
+                const active = !isVehicleSale && mode === card.value;
 
                 return (
                   <button
@@ -6020,6 +6547,28 @@ function SellPageContent() {
                   </button>
                 );
               })}
+              <button
+                type="button"
+                className={`${styles.modeCard} ${isVehicleSale ? styles.modeCardSelected : ""}`}
+                role="radio"
+                aria-checked={isVehicleSale}
+                onClick={chooseVehicleSaleMode}
+              >
+                {isVehicleSale ? (
+                  <span className={styles.modeCheck} aria-hidden="true">
+                    <Check size={24} />
+                  </span>
+                ) : null}
+                <span className={styles.modeIcon} aria-hidden="true">
+                  <Gauge size={50} strokeWidth={1.9} />
+                </span>
+                <strong>Myyn kokonaisen ajoneuvon</strong>
+                <i aria-hidden="true" />
+                <span className={styles.modeCopy}>
+                  <span>Yksi ajoneuvo julkaistaan yhtenä ilmoituksena.</span>
+                  <span>Ei varaosakategorioita eikä multi-ilmoitusta.</span>
+                </span>
+              </button>
             </div>
 
             <button type="button" className={styles.continueButton} onClick={continueToNextStep}>
@@ -6106,6 +6655,103 @@ function SellPageContent() {
                 Nollaa luonnos
               </button>
             </div>
+          </section>
+        </div>
+      ) : null}
+      {vehicleAccessoriesOpen ? (
+        <div className={styles.accessoryPickerOverlay} role="presentation" onMouseDown={() => setVehicleAccessoriesOpen(false)}>
+          <section
+            className={styles.accessoryPickerDialog}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sell-accessories-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <header className={styles.accessoryPickerHeader}>
+              <div>
+                <h2 id="sell-accessories-title">{st("Lisävarusteet")}</h2>
+                <p>{st("Valitse kaikki ajoneuvoon kuuluvat lisävarusteet.")}</p>
+              </div>
+              <button type="button" onClick={() => setVehicleAccessoriesOpen(false)} aria-label={st("Sulje lisävarusteet")}>
+                <X size={22} aria-hidden="true" />
+              </button>
+            </header>
+            <div className={styles.accessoryPickerGrid}>
+              {VEHICLE_ACCESSORY_OPTIONS.map((accessory) => {
+                const selected = vehicleAccessories.includes(accessory);
+                return (
+                  <label key={accessory} className={selected ? styles.accessoryPickerOptionSelected : ""}>
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => toggleVehicleAccessory(accessory)}
+                    />
+                    <span className={styles.accessoryPickerCheck} aria-hidden="true">
+                      {selected ? <Check size={15} /> : null}
+                    </span>
+                    <span>{translateVehicleAccessory(locale, accessory)}</span>
+                  </label>
+                );
+              })}
+            </div>
+            <footer className={styles.accessoryPickerFooter}>
+              <button type="button" onClick={() => setVehicleAccessories([])}>{st("Tyhjennä valinnat")}</button>
+              <button type="button" className={styles.accessoryPickerDone} onClick={() => setVehicleAccessoriesOpen(false)}>
+                {st("Valmis")} ({vehicleAccessories.length})
+              </button>
+            </footer>
+          </section>
+        </div>
+      ) : null}
+      {vehicleColorsOpen ? (
+        <div className={styles.accessoryPickerOverlay} role="presentation" onMouseDown={() => setVehicleColorsOpen(false)}>
+          <section
+            className={styles.accessoryPickerDialog}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sell-colors-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <header className={styles.accessoryPickerHeader}>
+              <div>
+                <h2 id="sell-colors-title">{st("Väri")}</h2>
+                <p>{st("Valitse yksi tai useampi ajoneuvon väri.")}</p>
+              </div>
+              <button type="button" onClick={() => setVehicleColorsOpen(false)} aria-label={st("Sulje värivalinta")}>
+                <X size={22} aria-hidden="true" />
+              </button>
+            </header>
+            <div className={`${styles.accessoryPickerGrid} ${styles.colorPickerGrid}`}>
+              {VEHICLE_COLOR_OPTIONS.map((color) => {
+                const selected = vehicleColors.includes(color.label);
+                return (
+                  <label key={color.label} className={selected ? styles.accessoryPickerOptionSelected : ""}>
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => toggleVehicleColor(color.label)}
+                    />
+                    <span className={styles.accessoryPickerCheck} aria-hidden="true">
+                      {selected ? <Check size={15} /> : null}
+                    </span>
+                    <span>{translateVehicleColor(locale, color.label)}</span>
+                    <span
+                      className={styles.colorPickerSwatch}
+                      style={{ background: color.swatch }}
+                      aria-hidden="true"
+                    >
+                      {color.label === "Muu" ? "?" : null}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <footer className={styles.accessoryPickerFooter}>
+              <button type="button" onClick={() => setVehicleColors([])}>{st("Tyhjennä valinnat")}</button>
+              <button type="button" className={styles.accessoryPickerDone} onClick={() => setVehicleColorsOpen(false)}>
+                {st("Valmis")} ({vehicleColors.length})
+              </button>
+            </footer>
           </section>
         </div>
       ) : null}
@@ -6267,12 +6913,6 @@ function PresetField({
             data-sell-preset-options="true"
             data-sell-preset-version="dark-2"
             role="listbox"
-            style={{
-              background: "#061726",
-              backgroundColor: "#061726",
-              borderColor: "rgba(143, 194, 243, 0.36)",
-              color: "#dce8f7"
-            }}
           >
             {presetOptions.map((option) => {
               const active = option === value && isKnownValue;
@@ -6829,9 +7469,10 @@ function DetailInput({
   return (
     <label className={styles.detailInputField}>
       <span>{label}</span>
-      <span className={styles.detailInputShell}>
+      <span className={styles.detailInputShell} data-sell-control-shell="true">
         <Icon size={24} aria-hidden="true" />
         <input
+          data-sell-control="input"
           inputMode={inputMode}
           placeholder={placeholder}
           value={value}
@@ -6860,9 +7501,10 @@ function PlainIconInput({
   return (
     <label className={styles.plainIconField}>
       <span>{label}</span>
-      <span className={styles.plainIconShell}>
+      <span className={styles.plainIconShell} data-sell-control-shell="true">
         <Icon size={22} aria-hidden="true" />
         <input
+          data-sell-control="input"
           ref={inputRef}
           placeholder={placeholder}
           value={value}
