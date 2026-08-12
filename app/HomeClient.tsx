@@ -6243,7 +6243,7 @@ function HomeContent({
                               }}
                             />
                             {activeHeroFilter === field.key ? (
-                              <div className={styles.mobileSheetMenu}>
+                              <div className={styles.mobileSheetMenu} data-mobile-native-menu>
                                 {field.options.length ? field.options.map((option) => (
                                   <button
                                     key={`mobile-${field.key}-${option.value || "all"}`}
@@ -6290,7 +6290,7 @@ function HomeContent({
                               }}
                             />
                             {activeHeroFilter === field.key ? (
-                              <div className={styles.mobileSheetMenu}>
+                              <div className={styles.mobileSheetMenu} data-mobile-native-menu>
                                 {field.options.length ? field.options.map((option) => (
                                   <button
                                     key={`mobile-${field.key}-${option.value || "all"}`}
@@ -6460,7 +6460,7 @@ function HomeContent({
                               }}
                             />
                             {activeHeroFilter === field.key ? (
-                              <div className={styles.mobileSheetMenu}>
+                              <div className={styles.mobileSheetMenu} data-mobile-native-menu>
                                 {field.options.length ? field.options.map((option) => (
                                   <button
                                     key={`mobile-${field.key}-${option.value || "all"}`}

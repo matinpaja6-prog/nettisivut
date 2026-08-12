@@ -129,6 +129,22 @@ html, body, #__next {
     margin: 0;
     opacity: 0;
     cursor: pointer;
+    pointer-events: auto !important;
+    touch-action: manipulation;
+  }
+
+  /* A native select owns the interaction on phones. Custom desktop menus may
+     still be opened by focus/auto-advance state, but they must never appear
+     behind or after the operating system picker. */
+  [data-mobile-native-menu],
+  [data-sell-category-menu],
+  [data-sell-condition-menu],
+  [data-sell-preset-options],
+  [data-sell-vehicle-menu],
+  .cd-combo-menu,
+  .cd-vehicle-type-options,
+  .garage-dropdown-menu {
+    display: none !important;
   }
 
   html body .mobile-native-select option,
@@ -184,6 +200,11 @@ html, body, #__next {
   .cd-vehicle-type-menu > .mobile-native-select {
     inset: auto 0 0;
     height: 46px;
+  }
+
+  [data-sell-vehicle-native] > .mobile-native-select {
+    inset: auto 0 0;
+    height: 50px;
   }
 
   html[data-theme="light"] body .mobileFilterSheet .home-marketplace-mode-tabs,

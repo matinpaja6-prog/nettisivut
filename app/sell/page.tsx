@@ -5211,8 +5211,30 @@ function SellPageContent() {
             <div
               ref={vehicleTypeMenuRef}
               className={`${styles.vehicleTypePicker} ${vehicleTypeMenuOpen ? styles.vehicleTypePickerOpen : ""}`}
+              data-sell-vehicle-native
             >
               <span className={styles.vehicleTypeLabel}>{st("Ajoneuvo")}</span>
+              <MobileNativeSelect
+                value={vehicleType.key}
+                label={st("Valitse ajoneuvoluokka")}
+                options={vehicleCards.map((vehicle) => ({
+                  value: vehicle.key,
+                  label: st(vehicle.title)
+                }))}
+                onChange={(nextKey) => {
+                  const nextVehicle = vehicleCards.find((vehicle) => vehicle.key === nextKey);
+                  if (!nextVehicle) return;
+                  setVehicleType(nextVehicle);
+                  setVehicleTypeMenuOpen(false);
+                  setVehicleDetails(buildEmptyVehicleDetails());
+                  setCustomVehicleFields({});
+                  vehicleAutoAdvancedFieldsRef.current = {};
+                  setCategory("");
+                  setCategoryGroup("");
+                  setSubcategory("");
+                  focusVehicleField("vehicleSubtype");
+                }}
+              />
               <button
                 type="button"
                 className={styles.vehicleTypeTrigger}
