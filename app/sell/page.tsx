@@ -1150,8 +1150,9 @@ function openMobileNativePicker(id: string) {
     select.showPicker();
     return true;
   } catch {
-    // Safari versions without showPicker still open the native picker when the
-    // transparent select receives the user's next tap.
+    // Older iOS Safari versions do not expose showPicker(), but some still
+    // honor a programmatic click while the original touch activation is live.
+    select.click();
     return false;
   }
 }
@@ -4028,8 +4029,11 @@ function SellPageContent() {
     } catch {
       /* optional */
     }
-    setVehicleTypeMenuOpen(!vehicleType.key);
-    setCurrentStep(2);
+    flushSync(() => {
+      setVehicleTypeMenuOpen(!vehicleType.key);
+      setCurrentStep(2);
+    });
+    openMobileNativePicker(vehicleType.key ? "sell-preset-native-vehicleSubtype" : "sell-vehicle-type-native");
   }
 
   function chooseListingMode(nextMode: ListingMode) {
@@ -4040,8 +4044,11 @@ function SellPageContent() {
     } catch {
       /* optional */
     }
-    setVehicleTypeMenuOpen(!vehicleType.key);
-    setCurrentStep(2);
+    flushSync(() => {
+      setVehicleTypeMenuOpen(!vehicleType.key);
+      setCurrentStep(2);
+    });
+    openMobileNativePicker(vehicleType.key ? "sell-preset-native-vehicleSubtype" : "sell-vehicle-type-native");
   }
 
   function chooseVehicleSaleMode() {
@@ -4054,8 +4061,11 @@ function SellPageContent() {
     setPartModel("");
     setPartNumber("");
     setCondition("");
-    setVehicleTypeMenuOpen(!vehicleType.key);
-    setCurrentStep(2);
+    flushSync(() => {
+      setVehicleTypeMenuOpen(!vehicleType.key);
+      setCurrentStep(2);
+    });
+    openMobileNativePicker(vehicleType.key ? "sell-preset-native-vehicleSubtype" : "sell-vehicle-type-native");
 
     try {
       sessionStorage.setItem("sell-listing-mode", "single");
@@ -5240,6 +5250,7 @@ function SellPageContent() {
             >
               <span className={styles.vehicleTypeLabel}>{st("Ajoneuvo")}</span>
               <MobileNativeSelect
+                id="sell-vehicle-type-native"
                 value={vehicleType.key}
                 label={st("Valitse ajoneuvoluokka")}
                 options={vehicleCards.map((vehicle) => ({
@@ -5249,15 +5260,17 @@ function SellPageContent() {
                 onChange={(nextKey) => {
                   const nextVehicle = vehicleCards.find((vehicle) => vehicle.key === nextKey);
                   if (!nextVehicle) return;
-                  setVehicleType(nextVehicle);
-                  setVehicleTypeMenuOpen(false);
-                  setVehicleDetails(buildEmptyVehicleDetails());
-                  setCustomVehicleFields({});
-                  vehicleAutoAdvancedFieldsRef.current = {};
-                  setCategory("");
-                  setCategoryGroup("");
-                  setSubcategory("");
-                  focusVehicleField("vehicleSubtype");
+                  flushSync(() => {
+                    setVehicleType(nextVehicle);
+                    setVehicleTypeMenuOpen(false);
+                    setVehicleDetails(buildEmptyVehicleDetails());
+                    setCustomVehicleFields({});
+                    vehicleAutoAdvancedFieldsRef.current = {};
+                    setCategory("");
+                    setCategoryGroup("");
+                    setSubcategory("");
+                  });
+                  openMobileNativePicker("sell-preset-native-vehicleSubtype");
                 }}
               />
               <button
@@ -5319,6 +5332,7 @@ function SellPageContent() {
 
             <PresetField
               fieldKey="vehicleSubtype"
+              nextNativeFieldKey="brand"
               label={st("Tyyppi")}
               value={vehicleDetails.vehicleSubtype}
               options={vehiclePreset.typeOptions}
@@ -5337,6 +5351,7 @@ function SellPageContent() {
             />
             <PresetField
               fieldKey="brand"
+              nextNativeFieldKey="model"
               label={st("Merkki")}
               value={vehicleDetails.brand}
               options={taxonomyBrandOptions}
@@ -5355,6 +5370,7 @@ function SellPageContent() {
             />
             <PresetField
               fieldKey="model"
+              nextNativeFieldKey="year"
               label={st("Malli")}
               value={vehicleDetails.model}
               options={modelOptions}
@@ -5373,6 +5389,7 @@ function SellPageContent() {
             />
             <PresetField
               fieldKey="year"
+              nextNativeFieldKey="engineCc"
               label={st("Vuosimalli")}
               value={vehicleDetails.year}
               options={vehicleYearOptions}
@@ -5391,6 +5408,7 @@ function SellPageContent() {
             />
             <PresetField
               fieldKey="engineCc"
+              nextNativeFieldKey={isVehicleSale ? undefined : "engineType"}
               label={st("Moottorin koko (cc)")}
               value={vehicleDetails.engineCc}
               options={vehiclePreset.engineCcs}
@@ -6539,7 +6557,13 @@ function SellPageContent() {
             <button
               key={step.number}
               type="button"
-              className={step.number === currentStep ? styles.mobileStepActive : ""}
+              className={
+                step.number === currentStep
+                  ? styles.mobileStepActive
+                  : step.number < currentStep
+                    ? styles.mobileStepCompleted
+                    : ""
+              }
               onClick={() => setCurrentStep(step.number)}
               aria-label={`${st("Siirry vaiheeseen")} ${step.number}: ${st(step.title)}`}
             >
@@ -6820,6 +6844,7 @@ export default function SellPage() {
 
 function PresetField({
   fieldKey,
+  nextNativeFieldKey,
   label,
   value,
   options,
@@ -6835,6 +6860,7 @@ function PresetField({
   translateText = (text: string) => text
 }: {
   fieldKey: VehicleDetailKey;
+  nextNativeFieldKey?: VehicleDetailKey;
   label: string;
   value: string;
   options: string[];
@@ -6878,13 +6904,15 @@ function PresetField({
 
   function selectOption(option: string) {
     if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
-    onCustomModeChange(false);
-    onChange(option);
-    onOpenChange(false);
-    window.setTimeout(() => {
+    flushSync(() => {
+      onCustomModeChange(false);
+      onChange(option);
       onOpenChange(false);
       onComplete();
-    }, 40);
+    });
+    if (nextNativeFieldKey) {
+      openMobileNativePicker(`sell-preset-native-${nextNativeFieldKey}`);
+    }
     window.setTimeout(() => onOpenChange(false), 140);
   }
 
@@ -6921,6 +6949,7 @@ function PresetField({
       >
         {!effectiveCustomMode ? (
           <MobileNativeSelect
+            id={`sell-preset-native-${fieldKey}`}
             value={isKnownValue ? value : ""}
             label={label}
             options={[
