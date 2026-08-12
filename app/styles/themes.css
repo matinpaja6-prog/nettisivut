@@ -556,6 +556,29 @@ html[data-theme="light"] body main.auth-page.simple-auth-page :is(input, select,
   color: var(--theme-text) !important;
 }
 
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-inline-card .register-country-field > select {
+  background-color: #ffffff !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2316232c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-position: right 18px center !important;
+  background-repeat: no-repeat !important;
+  background-size: 14px 14px !important;
+  color: var(--theme-text) !important;
+  color-scheme: light !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-inline-card select :is(option, optgroup),
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-inline-card select option {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: var(--theme-text) !important;
+  color-scheme: light !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+}
+
 html[data-theme="light"] body main.auth-page.simple-auth-page input::placeholder {
   color: #71808f !important;
   opacity: 1;
@@ -565,6 +588,112 @@ html[data-theme="light"] body main.auth-page.simple-auth-page :is(.auth-submit, 
   background: var(--theme-accent) !important;
   border-color: #ff9a52 !important;
   color: #ffffff !important;
+}
+
+/* Email verification is authored as a dark card in legacy.css. Give every
+   nested surface an explicit light-theme color so inherited dark-theme
+   fills and low-opacity text cannot leak into this state. */
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card {
+  background: var(--theme-surface) !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card .eyebrow {
+  background: #fff3e8 !important;
+  border-color: #ffc997 !important;
+  color: #9a3e00 !important;
+  -webkit-text-fill-color: #9a3e00 !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card > .profile-alert {
+  background: #f2f6f8 !important;
+  background-image: none !important;
+  border-color: var(--theme-line) !important;
+  box-shadow: none !important;
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card > .profile-alert span,
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card > .profile-alert strong {
+  color: var(--theme-text) !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card > .profile-alert small {
+  color: var(--theme-muted) !important;
+  -webkit-text-fill-color: var(--theme-muted) !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card > label {
+  color: var(--theme-text) !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card > label input {
+  background: #ffffff !important;
+  border-color: var(--theme-line-strong) !important;
+  box-shadow: inset 0 1px 2px rgba(22, 35, 44, 0.06) !important;
+  color: var(--theme-text) !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card > label input:focus {
+  border-color: var(--theme-accent) !important;
+  box-shadow: 0 0 0 4px rgba(255, 122, 26, 0.14) !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card > button[type="submit"]:disabled {
+  background: #ffe1ca !important;
+  border-color: #ffc79e !important;
+  box-shadow: none !important;
+  color: #71370f !important;
+  -webkit-text-fill-color: #71370f !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card .registration-pin-actions .secondary-button {
+  background: #ffffff !important;
+  border-color: var(--theme-line) !important;
+  box-shadow: none !important;
+  color: #334956 !important;
+  -webkit-text-fill-color: #334956 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card .registration-pin-actions .secondary-button svg {
+  color: var(--theme-accent) !important;
+  stroke: currentColor !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card .registration-pin-actions .secondary-button:is(:hover, :focus-visible) {
+  background: #fff7f0 !important;
+  border-color: #ffb477 !important;
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page
+  .registration-pin-card .registration-pin-status {
+  background: #eef2f4 !important;
+  color: #405560 !important;
+  -webkit-text-fill-color: #405560 !important;
+  opacity: 1 !important;
 }
 
 html[data-theme="light"] body .pf-page.pf-page {

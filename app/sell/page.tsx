@@ -6308,7 +6308,7 @@ function SellPageContent() {
               onChange={(event) => setListingDescription(event.target.value)}
               placeholder={
                 isVehicleSale
-                  ? "Kerro ajomäärä tai käyttötunnit, huoltohistoria, varusteet, kunto ja muut tärkeät tiedot..."
+                  ? st("Lisätiedot ajoneuvosta")
                   : selectedSinglePartNeedsTrackMatDimensions
                   ? "Kirjoita telamaton mitat, kunto, sopivuus ja muut tärkeät tiedot..."
                   : st("Kerro kunto, ominaisuudet, sopivuus ja muut t\u00e4rke\u00e4t tiedot...")

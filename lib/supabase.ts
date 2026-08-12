@@ -3680,7 +3680,7 @@ export async function getPublicProfile(
         return { data: null, error: candidates.error };
       }
 
-      const match = (candidates.data ?? []).find((candidate) => {
+      const matches = (candidates.data ?? []).filter((candidate) => {
         const profile = candidate as Partial<UserProfile>;
         const displayName =
           profile.account_type === "company"
@@ -3699,7 +3699,19 @@ export async function getPublicProfile(
         ].some((value) => slugifyProfileName(value) === wantedSlug);
       });
 
-      return { data: (match ?? null) as UserProfile | null, error: null };
+      // Legacy name-based URLs are safe only while the name is unambiguous.
+      // Never pick the first matching row: that can expose another user's
+      // avatar and profile data when two accounts share a display name.
+      if (matches.length !== 1) {
+        return {
+          data: null,
+          error: matches.length > 1
+            ? new Error("Profiililinkki ei ole yksilöllinen. Avaa profiili käyttäjän yksilöllisestä linkistä.")
+            : null
+        };
+      }
+
+      return { data: matches[0] as UserProfile, error: null };
     }
 
     const byId = await withMissingCompanyVerificationFallback(

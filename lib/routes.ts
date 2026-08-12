@@ -115,15 +115,15 @@ export function listingUrlId(
 }
 
 export function profilePath(id?: string | null, name?: string | null, locale?: string | null) {
-  const slug = slugifyProfileName(name);
-  const fallback = id ? String(id) : "";
+  // Display-name slugs are not account identifiers: two users can have the
+  // same name. Always route new links with the immutable profile UUID so a
+  // link can resolve to exactly one account. Keep `name` in the signature for
+  // existing call sites and for UI labels, but never use it as identity.
+  void name;
+  const profileId = id ? String(id).trim() : "";
   const segment = profileSegments[routeLocale(locale)];
 
-  if (slug) {
-    return `/${segment}/${encodeURIComponent(slug)}`;
-  }
-
-  return `/${segment}/${encodeURIComponent(fallback)}`;
+  return `/${segment}/${encodeURIComponent(profileId)}`;
 }
 
 export function legacySellerPath(id?: string | null) {

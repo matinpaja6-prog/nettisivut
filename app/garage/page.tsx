@@ -698,7 +698,6 @@ export default function GaragePage() {
                       >
                         <div className="garage-vehicle-details">
                           <span className="garage-vehicle-type">
-                            <span className="garage-vehicle-type-mark" aria-hidden="true" />
                             {vehicleClass ? classLabels[vehicleClass] : t.garageDefaultVehicle}
                           </span>
                           {vehicle.nickname && (
@@ -728,9 +727,11 @@ export default function GaragePage() {
                         </div>
                       </div>
                       <button
+                        type="button"
                         className="garage-vehicle-delete"
                         onClick={() => setDeleteTarget(vehicle)}
                         title={t.garageConfirmDelete}
+                        aria-label={`${t.garageConfirmDelete}: ${vehicle.make} ${vehicle.model}`}
                       >
                         <Trash2 size={15} />
                       </button>
@@ -2847,6 +2848,147 @@ export default function GaragePage() {
           .garage-vehicle-menu {
             top: 9px;
             right: 14px;
+          }
+        }
+
+        /* Compact mobile vehicle card. */
+        @media (min-width: 641px) {
+          .garage-vehicle-card {
+            align-items: center;
+            box-sizing: border-box;
+            min-height: 126px;
+            overflow: hidden;
+            padding: 18px 122px 18px 20px;
+            width: 100%;
+          }
+
+          .garage-vehicle-info {
+            align-items: center;
+            display: grid !important;
+            gap: 20px;
+            grid-template-columns: minmax(0, 1fr) !important;
+            min-width: 0;
+            width: 100%;
+          }
+
+          .garage-vehicle-details {
+            min-width: 0;
+            width: 100%;
+          }
+
+          .garage-vehicle-name {
+            overflow-wrap: normal;
+            word-break: normal;
+          }
+
+          .garage-vehicle-arrow {
+            height: 42px;
+            margin: 0;
+            position: absolute;
+            right: 68px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 42px;
+          }
+
+          .garage-vehicle-menu {
+            display: none;
+          }
+
+          .garage-vehicle-delete {
+            bottom: auto;
+            height: 42px;
+            margin: 0;
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 42px;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .garage-vehicle-card {
+            box-sizing: border-box;
+            min-height: 0;
+            overflow: hidden;
+            padding: 15px 58px 15px 14px;
+            width: 100%;
+          }
+
+          .garage-vehicle-info {
+            align-items: center;
+            display: grid !important;
+            gap: 10px;
+            grid-template-columns: minmax(0, 1fr) !important;
+            min-width: 0;
+            width: 100%;
+          }
+
+          .garage-vehicle-details {
+            gap: 5px;
+            min-width: 0;
+            width: 100%;
+          }
+
+          .garage-vehicle-type,
+          .garage-vehicle-nickname {
+            display: block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .garage-vehicle-type {
+            color: #596975;
+            font-size: 10px;
+            letter-spacing: 0.07em;
+          }
+
+          .garage-vehicle-nickname {
+            font-size: 11px;
+          }
+
+          .garage-vehicle-name {
+            font-size: 21px;
+            line-height: 1.05;
+            overflow-wrap: normal;
+            padding-right: 0;
+            word-break: normal;
+          }
+
+          .garage-vehicle-meta {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 7px;
+            min-width: 0;
+          }
+
+          .garage-vehicle-year {
+            font-size: 13px;
+          }
+
+          .garage-vehicle-class-tag {
+            box-sizing: border-box;
+            font-size: 11px;
+            max-width: 100%;
+            padding: 5px 8px;
+            white-space: nowrap;
+          }
+
+          .garage-vehicle-menu,
+          .garage-vehicle-arrow {
+            display: none;
+          }
+
+          .garage-vehicle-delete {
+            bottom: auto;
+            margin: 0;
+            position: absolute;
+            right: 12px;
+            top: 14px;
+            transform: none;
           }
         }
       `}</style>
