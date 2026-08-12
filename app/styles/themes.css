@@ -6004,9 +6004,10 @@ html[data-theme="light"] body main.sell-page-responsive.sell-page-responsive
   html[data-theme="light"] body header.universal-app-topbar
     .universal-home-primary-nav > a.universal-contact-cta:is(:hover, :focus-visible, .is-active) {
     background: #12314d !important;
-    border-color: #ff7a1a !important;
+    border-color: #173a57 !important;
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
+    box-shadow: none !important;
   }
 
   html[data-theme="light"] body header.universal-app-topbar
@@ -6075,4 +6076,39 @@ html[data-theme="light"] body main.garage-page.garage-page
   background: #fff0e5 !important;
   color: #9c4300 !important;
   -webkit-text-fill-color: #9c4300 !important;
+}
+
+/* The global form theme must not turn the custom garage list white in dark
+   mode. These selectors intentionally come last so every make/model/year menu
+   keeps the same dark surface and readable option text. */
+html[data-theme="dark"] body main.garage-page.garage-page
+  :is(.garage-dropdown-trigger, .garage-dropdown-menu),
+html:not([data-theme="light"]) body main.garage-page.garage-page
+  :is(.garage-dropdown-trigger, .garage-dropdown-menu) {
+  background: #061726 !important;
+  background-color: #061726 !important;
+  background-image: none !important;
+  border-color: rgba(126, 197, 240, 0.38) !important;
+  color: #f8fbff !important;
+  color-scheme: dark !important;
+  -webkit-text-fill-color: #f8fbff !important;
+}
+
+html[data-theme="dark"] body main.garage-page.garage-page .garage-dropdown-menu button,
+html:not([data-theme="light"]) body main.garage-page.garage-page .garage-dropdown-menu button {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  color: #f8fbff !important;
+  -webkit-text-fill-color: #f8fbff !important;
+}
+
+html[data-theme="dark"] body main.garage-page.garage-page
+  .garage-dropdown-menu button:is(:hover, :focus-visible, [aria-selected="true"]),
+html:not([data-theme="light"]) body main.garage-page.garage-page
+  .garage-dropdown-menu button:is(:hover, :focus-visible, [aria-selected="true"]) {
+  background: rgba(255, 122, 26, 0.18) !important;
+  background-color: rgba(255, 122, 26, 0.18) !important;
+  color: #ff9a3d !important;
+  -webkit-text-fill-color: #ff9a3d !important;
 }
