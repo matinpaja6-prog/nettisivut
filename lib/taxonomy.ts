@@ -76,7 +76,7 @@ export const DEFAULT_VEHICLES: VehicleEntry[] = [
     pillLabel: "Moottorikelkat",
     desc: "Kelkat, telastot, moottorit",
     image: "/vehicles/moottorikelkka.png",
-    brands: ["Lynx", "Ski-Doo", "Polaris", "Arctic Cat"]
+    brands: ["Lynx", "Ski-Doo", "Polaris", "Arctic Cat", "Yamaha"]
   },
   {
     key: "Mönkijä",

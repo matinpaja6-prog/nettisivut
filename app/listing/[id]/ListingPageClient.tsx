@@ -653,7 +653,6 @@ export default function ListingPage({
   if (initialListingRef.current === undefined) {
     initialListingRef.current =
       initialListing ??
-      readCachedListing(params.id) ??
       fallbackListings.find((item) =>
         String(item.id) === String(params.id) ||
         String(item.listing_number ?? "") === String(params.id)
@@ -674,10 +673,16 @@ export default function ListingPage({
     useState<string | null>(null);
 
   const [basicInfoOpen, setBasicInfoOpen] =
-    useState(false);
+    useState(() => Boolean(initialListingRef.current && isVehicleListing(initialListingRef.current)));
 
   const [additionalInfoOpen, setAdditionalInfoOpen] =
     useState(true);
+
+  useEffect(() => {
+    if (listing) {
+      setBasicInfoOpen(isVehicleListing(listing));
+    }
+  }, [listing?.id]);
 
   const [showPhone, setShowPhone] =
     useState(false);
@@ -1674,7 +1679,6 @@ export default function ListingPage({
               <span>
                 {ui.updated} {formatDate(listing.created_at, locale)}
               </span>
-              <span className="dot">•</span>
               <span className="desktop-meta-location">
                 {listingLocation}
                 <MapPin size={15} />
@@ -1878,25 +1882,27 @@ export default function ListingPage({
 
             {/* DETAILS */}
 
-            <div className="description-card listing-facts-card">
+            {!listingIsVehicle && (
+              <div className="description-card listing-facts-card">
 
-              <button
-                type="button"
-                className="listing-section-toggle"
-                aria-expanded={additionalInfoOpen}
-                onClick={() => setAdditionalInfoOpen((open) => !open)}
-              >
-                <span>{ui.description}</span>
-                {additionalInfoOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </button>
+                <button
+                  type="button"
+                  className="listing-section-toggle"
+                  aria-expanded={additionalInfoOpen}
+                  onClick={() => setAdditionalInfoOpen((open) => !open)}
+                >
+                  <span>{ui.description}</span>
+                  {additionalInfoOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </button>
 
-              <div className={additionalInfoOpen ? "listing-section-content" : "listing-section-content is-collapsed"}>
-                <p className={listingDescription === ui.noDescription ? "listing-description-empty" : ""}>
-                  {listingDescription}
-                </p>
+                <div className={additionalInfoOpen ? "listing-section-content" : "listing-section-content is-collapsed"}>
+                  <p className={listingDescription === ui.noDescription ? "listing-description-empty" : ""}>
+                    {listingDescription}
+                  </p>
+                </div>
+
               </div>
-
-            </div>
+            )}
 
             <div className="description-card listing-extra-card">
 
@@ -1927,8 +1933,7 @@ export default function ListingPage({
                     { label: vehicleFacts.engineModel, value: listing.engine_model || "" },
                     { label: vehicleFacts.driveType, value: listingVehicleDriveType },
                     { label: vehicleFacts.roadLegal, value: listingVehicleRoadLegal },
-                    { label: vehicleFacts.color, value: listingVehicleColors.join(", ") },
-                    { label: ui.location, value: listingLocation }
+                    { label: vehicleFacts.color, value: listingVehicleColors.join(", ") }
                   ]
                     .filter((item) => item.value.trim().length > 0)
                     .map((item) => (
@@ -1987,6 +1992,28 @@ export default function ListingPage({
               </div>
 
             </div>
+
+            {listingIsVehicle && (
+              <div className="description-card listing-facts-card">
+
+                <button
+                  type="button"
+                  className="listing-section-toggle"
+                  aria-expanded={additionalInfoOpen}
+                  onClick={() => setAdditionalInfoOpen((open) => !open)}
+                >
+                  <span>{ui.description}</span>
+                  {additionalInfoOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </button>
+
+                <div className={additionalInfoOpen ? "listing-section-content" : "listing-section-content is-collapsed"}>
+                  <p className={listingDescription === ui.noDescription ? "listing-description-empty" : ""}>
+                    {listingDescription}
+                  </p>
+                </div>
+
+              </div>
+            )}
 
           </div>
 
@@ -7577,14 +7604,18 @@ export default function ListingPage({
             background: transparent;
             border-bottom: 1px solid rgba(143, 191, 255, 0.16);
             color: #d9e6f7;
-            font-size: 16px;
+            align-items: flex-start;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            font-size: 12px;
             font-weight: 750;
-            gap: 12px;
-            padding: 20px 24px;
+            gap: 3px;
+            line-height: 1.2;
+            padding: 7px 16px;
           }
 
-          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta .dot) {
-            color: rgba(217, 230, 247, 0.62);
+          :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.desktop-image-meta.desktop-image-meta > span) {
+            white-space: nowrap;
           }
 
           :global(body) :global(main.page.listing-detail-page.listing-detail-page) :global(.price-actions-row.price-actions-row) {
@@ -8623,8 +8654,9 @@ export default function ListingPage({
           height: 100%;
           margin: 0;
           padding: 0;
-          background: transparent;
-          color: #ffffff;
+          background: transparent !important;
+          color: #ffffff !important;
+          -webkit-text-fill-color: #ffffff !important;
           font-size: clamp(28px, 4vw, 42px);
           font-weight: 950;
           line-height: 1;
@@ -8655,18 +8687,18 @@ export default function ListingPage({
           .listing-fact-grid.listing-fact-grid.listing-vehicle-facts {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          column-gap: clamp(28px, 5vw, 70px);
-          row-gap: 14px;
+          column-gap: clamp(18px, 3vw, 36px);
+          row-gap: 8px;
           margin: 0;
-          padding: 8px 0 4px;
+          padding: 4px 0 2px;
         }
 
         body main.page.listing-detail-page.listing-detail-page
           .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span {
           align-items: baseline;
           display: grid;
-          grid-template-columns: minmax(125px, 0.72fr) minmax(0, 1fr);
-          gap: 16px;
+          grid-template-columns: minmax(108px, 0.62fr) minmax(0, 1fr);
+          gap: 10px;
           min-height: 0;
           margin: 0;
           padding: 0;
@@ -8677,7 +8709,7 @@ export default function ListingPage({
           border-radius: 0;
           box-shadow: none;
           color: #edf4fc;
-          font-size: 15px;
+          font-size: 14px;
           font-weight: 850;
           line-height: 1.35;
         }
@@ -8685,7 +8717,7 @@ export default function ListingPage({
         body main.page.listing-detail-page.listing-detail-page
           .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span > strong {
           color: #9fb0c2;
-          font-size: 14px;
+          font-size: 13px;
           font-weight: 750;
           letter-spacing: 0;
           line-height: 1.35;
@@ -8706,13 +8738,13 @@ export default function ListingPage({
           body main.page.listing-detail-page.listing-detail-page
             .listing-fact-grid.listing-fact-grid.listing-vehicle-facts {
             grid-template-columns: 1fr;
-            gap: 12px;
+            gap: 8px;
           }
 
           body main.page.listing-detail-page.listing-detail-page
             .listing-fact-grid.listing-fact-grid.listing-vehicle-facts > span {
-            grid-template-columns: minmax(112px, 0.55fr) minmax(0, 1fr);
-            gap: 14px;
+            grid-template-columns: minmax(104px, 0.55fr) minmax(0, 1fr);
+            gap: 10px;
           }
         }
 
@@ -8808,6 +8840,26 @@ export default function ListingPage({
           color: #60717d;
         }
 
+        body main.page.listing-detail-page.listing-detail-page
+          .listing-facts-card.listing-facts-card
+          .listing-section-content.listing-section-content {
+          background: transparent !important;
+          background-color: transparent !important;
+          background-image: none !important;
+          border: 0 !important;
+          box-shadow: none !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .listing-facts-card.listing-facts-card
+          .listing-section-content.listing-section-content > p:not(.listing-description-empty) {
+          background: transparent !important;
+          background-color: transparent !important;
+          background-image: none !important;
+          border: 0 !important;
+          box-shadow: none !important;
+        }
+
         html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
           .listing-section-toggle.listing-section-toggle svg,
         html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
@@ -8898,6 +8950,11 @@ export default function ListingPage({
 
         body main.page.listing-detail-page.listing-detail-page
           .seller-card.seller-card .seller-card-top.seller-card-top > a.seller-profile-btn.seller-profile-btn-top {
+          background: transparent !important;
+          background-color: transparent !important;
+          background-image: none !important;
+          border: 0 !important;
+          box-shadow: none !important;
           position: static !important;
           top: auto !important;
           right: auto !important;
@@ -8905,6 +8962,16 @@ export default function ListingPage({
           flex: 0 0 auto !important;
           margin: 0 0 0 auto !important;
           white-space: nowrap !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-card-top.seller-card-top > a.seller-profile-btn.seller-profile-btn-top:is(:hover, :focus-visible, :active) {
+          background: transparent !important;
+          background-color: transparent !important;
+          background-image: none !important;
+          border: 0 !important;
+          box-shadow: none !important;
+          transform: none !important;
         }
 
         @media (max-width: 520px) {
@@ -9018,6 +9085,50 @@ export default function ListingPage({
           stroke: #ff7a1a !important;
           opacity: 1 !important;
           visibility: visible !important;
+        }
+
+        /* Keep the two-line update/location block vertically centered in its
+           compact mobile row. */
+        @media (max-width: 640px) {
+          body main.page.listing-detail-page.listing-detail-page
+            .desktop-image-meta.desktop-image-meta {
+            align-items: flex-start !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: column !important;
+            flex-wrap: nowrap !important;
+            gap: 2px !important;
+            justify-content: center !important;
+            height: 48px !important;
+            min-height: 48px !important;
+            line-height: 1.15 !important;
+            padding-bottom: 0 !important;
+            padding-top: 0 !important;
+          }
+
+          /* Part listings need enough room for long values such as OEM/part
+             numbers. Keep labels and values in separate columns without
+             allowing either one to paint over the other. */
+          body main.page.listing-detail-page.listing-detail-page
+            .listing-fact-grid.listing-fact-grid:not(.listing-vehicle-facts) > span {
+            grid-template-columns: minmax(122px, 0.48fr) minmax(0, 1fr) !important;
+            column-gap: 12px !important;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page
+            .listing-fact-grid.listing-fact-grid:not(.listing-vehicle-facts) > span > strong {
+            min-width: 0 !important;
+            overflow-wrap: anywhere !important;
+            word-break: normal !important;
+          }
+        }
+
+        @media (max-width: 330px) {
+          body main.page.listing-detail-page.listing-detail-page
+            .listing-fact-grid.listing-fact-grid:not(.listing-vehicle-facts) > span {
+            grid-template-columns: 1fr !important;
+            row-gap: 3px !important;
+          }
         }
 
       `}</style>

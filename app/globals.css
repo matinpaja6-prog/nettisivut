@@ -110,3 +110,112 @@ html[data-user-background-tone] main {
 html, body, #__next {
   background-color: var(--site-bg, var(--bg, #06111d));
 }
+/* On touch-sized screens, keep the site's styled select face but let the
+   operating system open its accessible native picker. */
+.mobile-native-select {
+  display: none;
+}
+
+@media (max-width: 760px), (hover: none) and (pointer: coarse) {
+  .mobile-native-select {
+    appearance: auto;
+    color-scheme: dark !important;
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  html body .mobile-native-select option,
+  html body .mobile-native-select optgroup {
+    background: #182634 !important;
+    background-color: #182634 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  html body .mobile-native-select option:checked {
+    background: #23728f !important;
+    background-color: #23728f !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html[data-theme="light"] body .mobile-native-select {
+    color-scheme: light !important;
+  }
+
+  html[data-theme="light"] body .mobile-native-select option,
+  html[data-theme="light"] body .mobile-native-select optgroup {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #16232c !important;
+    -webkit-text-fill-color: #16232c !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="light"] body .mobile-native-select option:checked {
+    background: #91bff2 !important;
+    background-color: #91bff2 !important;
+    color: #10202c !important;
+    -webkit-text-fill-color: #10202c !important;
+  }
+
+  .mobile-native-select:disabled {
+    cursor: default;
+  }
+
+  [data-mobile-native-field] > .mobile-native-select {
+    inset: auto 0 0;
+    height: 42px;
+  }
+
+  .cd-combo-control,
+  .cd-vehicle-type-menu {
+    position: relative;
+  }
+
+  .cd-vehicle-type-menu > .mobile-native-select {
+    inset: auto 0 0;
+    height: 46px;
+  }
+
+  html[data-theme="light"] body .mobileFilterSheet .home-marketplace-mode-tabs,
+  html[data-user-background-tone="light"] body .mobileFilterSheet .home-marketplace-mode-tabs {
+    background: #f4f5f5 !important;
+    background-image: none !important;
+    border: 1px solid #aebbc2 !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    gap: 2px !important;
+    overflow: hidden !important;
+    padding: 3px !important;
+  }
+
+  html[data-theme="light"] body .mobileFilterSheet .home-marketplace-mode-tab,
+  html[data-user-background-tone="light"] body .mobileFilterSheet .home-marketplace-mode-tab {
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+    color: #16232c !important;
+    -webkit-text-fill-color: #16232c !important;
+  }
+
+  html[data-theme="light"] body .mobileFilterSheet .home-marketplace-mode-tab[aria-selected="true"],
+  html[data-user-background-tone="light"] body .mobileFilterSheet .home-marketplace-mode-tab[aria-selected="true"] {
+    background: #ff7a1a !important;
+    background-color: #ff7a1a !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+}

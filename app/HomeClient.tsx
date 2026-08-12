@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import styles from "./page.module.css";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
+import MobileNativeSelect from "@/app/components/MobileNativeSelect";
 
 import {
   Check,
@@ -3081,6 +3082,60 @@ function HomeContent({
       allEngines: "Alle motorer"
     }
   }[locale];
+  const homeFilterUiCopy = {
+    fi: {
+      year: "Vuosimalli",
+      yearMin: "Vuosimallin minimi",
+      yearMax: "Vuosimallin maksimi",
+      yearRange: "Vuosimallin rajaus",
+      partCategories: "Osakategoriointi",
+      showResults: "Näytä tulokset",
+      clearFilters: "Tyhjennä hakuehdot",
+      sellTitle: "Lisää varaosat tai ajoneuvo myyntiin helposti",
+      sellText: "Valitse ilmoitustyyppi ja lisää kuvat sekä tiedot — tavoita ostajat ympäri Suomen.",
+      sellAction: "Aloita myynti",
+      benefits: "Palvelun edut"
+    },
+    en: {
+      year: "Model year",
+      yearMin: "Minimum model year",
+      yearMax: "Maximum model year",
+      yearRange: "Model year range",
+      partCategories: "Part categories",
+      showResults: "Show results",
+      clearFilters: "Clear filters",
+      sellTitle: "List spare parts or a vehicle with ease",
+      sellText: "Choose the listing type and add photos and details to reach buyers across Finland.",
+      sellAction: "Start selling",
+      benefits: "Service benefits"
+    },
+    sv: {
+      year: "Årsmodell",
+      yearMin: "Minsta årsmodell",
+      yearMax: "Högsta årsmodell",
+      yearRange: "Årsmodellintervall",
+      partCategories: "Delkategorier",
+      showResults: "Visa resultat",
+      clearFilters: "Rensa filter",
+      sellTitle: "Lägg enkelt ut reservdelar eller ett fordon till försäljning",
+      sellText: "Välj annonstyp och lägg till bilder och uppgifter för att nå köpare i hela Finland.",
+      sellAction: "Börja sälja",
+      benefits: "Tjänstens fördelar"
+    },
+    no: {
+      year: "Årsmodell",
+      yearMin: "Laveste årsmodell",
+      yearMax: "Høyeste årsmodell",
+      yearRange: "Årsmodellintervall",
+      partCategories: "Delkategorier",
+      showResults: "Vis resultater",
+      clearFilters: "Tøm filtre",
+      sellTitle: "Legg enkelt ut reservedeler eller et kjøretøy for salg",
+      sellText: "Velg annonsetype og legg til bilder og opplysninger for å nå kjøpere i hele Finland.",
+      sellAction: "Start salget",
+      benefits: "Fordeler med tjenesten"
+    }
+  }[locale];
 
   const translateVehicleTypeLabel = useCallback((value?: string | null) => {
     const vehicleTranslations: Record<Locale, Record<string, string>> = {
@@ -3089,28 +3144,32 @@ function HomeContent({
         Moottorikelkka: "Moottorikelkka",
         Mönkijä: "Mönkijä",
         Motocross: "Motocross",
-        Mopot: "Mopot"
+        Mopot: "Mopot",
+        Mopo: "Mopo"
       },
       en: {
         Moottoripyörä: "Motorcycle",
         Moottorikelkka: "Snowmobile",
         Mönkijä: "ATV",
         Motocross: "Motocross",
-        Mopot: "Moped"
+        Mopot: "Mopeds",
+        Mopo: "Moped"
       },
       sv: {
         Moottoripyörä: "Motorcykel",
         Moottorikelkka: "Snöskoter",
         Mönkijä: "ATV",
         Motocross: "Motocross",
-        Mopot: "Moped"
+        Mopot: "Mopeder",
+        Mopo: "Moped"
       },
       no: {
         Moottoripyörä: "Motorsykkel",
         Moottorikelkka: "Snøscooter",
         Mönkijä: "ATV",
         Motocross: "Motocross",
-        Mopot: "Moped"
+        Mopot: "Mopeder",
+        Mopo: "Moped"
       },
     };
 
@@ -4686,13 +4745,15 @@ function HomeContent({
   }, [category, categorySource, railSubcategoryGroups, selectedSubcategoryParent]);
 
   function getVehiclePillLabel(vehicle: string) {
+    const translatedLabel = translateVehicleTypeLabel(vehicle).trim();
+    if (translatedLabel && translatedLabel !== vehicle) return translatedLabel;
     const taxonomyLabel = taxonomyVehicleLabels[vehicle]?.trim();
     if (taxonomyLabel) return taxonomyLabel;
     if (vehicle === "Moottorikelkka") return t.snowmobiles;
     if (vehicle === "Mönkijä") return t.atvs;
     if (vehicle === "Motocross") return t.cars;
     if (vehicle === "Mopot" || vehicle === "Mopo") return t.mopeds;
-    return vehicle;
+    return translatedLabel || vehicle;
   }
 
   function afterHeroFilterChange() {
@@ -6027,14 +6088,14 @@ function HomeContent({
                     <Package size={26} aria-hidden="true" />
                   </span>
                   <span>
-                    <strong>Lisää varaosat tai ajoneuvo myyntiin helposti</strong>
-                    <small>Valitse ilmoitustyyppi ja lisää kuvat sekä tiedot — tavoita ostajat ympäri Suomen.</small>
+                    <strong>{homeFilterUiCopy.sellTitle}</strong>
+                    <small>{homeFilterUiCopy.sellText}</small>
                   </span>
-                  <Link href="/sell">Aloita myynti</Link>
+                  <Link href="/sell">{homeFilterUiCopy.sellAction}</Link>
                 </div>
               ) : null}
               {!homeLatestExpanded ? (
-                <div data-home-benefits className={styles.heroReferenceBenefits} aria-label="Palvelun edut">
+                <div data-home-benefits className={styles.heroReferenceBenefits} aria-label={homeFilterUiCopy.benefits}>
                   <span>
                     <span className={styles.heroBenefitIcon} aria-hidden="true">
                       <img src="/icons/benefit-shield-check.svg" alt="" width={24} height={24} />
@@ -6159,6 +6220,7 @@ function HomeContent({
                           <div
                             key={`mobile-${field.key}`}
                             className={styles.mobileSheetField}
+                            data-mobile-native-field
                             data-no-auto-translate
                             translate="no"
                           >
@@ -6171,6 +6233,15 @@ function HomeContent({
                               <strong>{field.value}</strong>
                               <ChevronDown size={15} aria-hidden="true" />
                             </button>
+                            <MobileNativeSelect
+                              value={field.options.find((option) => option.label === field.value)?.value ?? ""}
+                              label={field.label}
+                              options={field.options}
+                              onChange={(nextValue) => {
+                                field.onSelect(nextValue);
+                                setActiveHeroFilter(null);
+                              }}
+                            />
                             {activeHeroFilter === field.key ? (
                               <div className={styles.mobileSheetMenu}>
                                 {field.options.length ? field.options.map((option) => (
@@ -6196,6 +6267,7 @@ function HomeContent({
                           <div
                             key={`mobile-${field.key}`}
                             className={styles.mobileSheetField}
+                            data-mobile-native-field
                             data-no-auto-translate
                             translate="no"
                           >
@@ -6208,6 +6280,15 @@ function HomeContent({
                               <strong>{field.value}</strong>
                               <ChevronDown size={15} aria-hidden="true" />
                             </button>
+                            <MobileNativeSelect
+                              value={field.options.find((option) => option.label === field.value)?.value ?? ""}
+                              label={field.label}
+                              options={field.options}
+                              onChange={(nextValue) => {
+                                field.onSelect(nextValue);
+                                setActiveHeroFilter(null);
+                              }}
+                            />
                             {activeHeroFilter === field.key ? (
                               <div className={styles.mobileSheetMenu}>
                                 {field.options.length ? field.options.map((option) => (
@@ -6259,7 +6340,7 @@ function HomeContent({
                         />
 
                         <div className={styles.mobileSheetField}>
-                          <span>Vuosimalli</span>
+                          <span>{homeFilterUiCopy.year}</span>
                           <div className={styles.mobileSheetYearBoxes}>
                             <input
                               className={styles.yearRangeTextInput}
@@ -6267,7 +6348,7 @@ function HomeContent({
                               inputMode="numeric"
                               value={yearMinQuery}
                               placeholder="Minimi"
-                              aria-label="Vuosimallin minimi"
+                              aria-label={homeFilterUiCopy.yearMin}
                               onChange={(event) => {
                                 setYearMinQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
                                 setYearQuery("");
@@ -6281,7 +6362,7 @@ function HomeContent({
                               inputMode="numeric"
                               value={yearMaxQuery}
                               placeholder="Maksimi"
-                              aria-label="Vuosimallin maksimi"
+                              aria-label={homeFilterUiCopy.yearMax}
                               onChange={(event) => {
                                 setYearMaxQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
                                 setYearQuery("");
@@ -6296,7 +6377,7 @@ function HomeContent({
                             data-range-active={yearMinQuery || yearMaxQuery ? "true" : "false"}
                             ref={yearSliderRef}
                             role="group"
-                            aria-label="Vuosimallin rajaus"
+                            aria-label={homeFilterUiCopy.yearRange}
                             style={{
                               "--year-min": `${yearMinPercent}%`,
                               "--year-max": `${yearMaxPercent}%`,
@@ -6321,7 +6402,7 @@ function HomeContent({
                               max={YEAR_FILTER_MAX}
                               step={1}
                               value={selectedYearMin}
-                              aria-label="Vuosimallin minimi"
+                              aria-label={homeFilterUiCopy.yearMin}
                               onInput={(event) => {
                                 const next = Math.min(Number(event.currentTarget.value), selectedYearMax);
                                 setYearMinQuery(next === YEAR_FILTER_MIN ? "" : String(next));
@@ -6336,7 +6417,7 @@ function HomeContent({
                               max={YEAR_FILTER_MAX}
                               step={1}
                               value={selectedYearMax}
-                              aria-label="Vuosimallin maksimi"
+                              aria-label={homeFilterUiCopy.yearMax}
                               onInput={(event) => {
                                 const next = Math.max(Number(event.currentTarget.value), selectedYearMin);
                                 setYearMaxQuery(next === YEAR_FILTER_MAX ? "" : String(next));
@@ -6355,10 +6436,11 @@ function HomeContent({
                           <div
                             key={`mobile-${field.key}`}
                             className={styles.mobileSheetField}
+                            data-mobile-native-field
                             data-no-auto-translate
                             translate="no"
                           >
-                            {field.key === "category" ? <b className={styles.mobileSheetSectionTitle}>Osakategoriointi</b> : null}
+                            {field.key === "category" ? <b className={styles.mobileSheetSectionTitle}>{homeFilterUiCopy.partCategories}</b> : null}
                             <span>{field.label}</span>
                             <button
                               type="button"
@@ -6368,6 +6450,15 @@ function HomeContent({
                               <strong>{field.value}</strong>
                               <ChevronDown size={15} aria-hidden="true" />
                             </button>
+                            <MobileNativeSelect
+                              value={field.options.find((option) => option.label === field.value)?.value ?? ""}
+                              label={field.label}
+                              options={field.options}
+                              onChange={(nextValue) => {
+                                field.onSelect(nextValue);
+                                setActiveHeroFilter(null);
+                              }}
+                            />
                             {activeHeroFilter === field.key ? (
                               <div className={styles.mobileSheetMenu}>
                                 {field.options.length ? field.options.map((option) => (
@@ -6400,7 +6491,10 @@ function HomeContent({
                             <div className={styles.mobileTrackMatFields}>
                               {trackMatDimensionFields.map((field, index) => (
                                 <Fragment key={`mobile-${field.key}`}>
-                                  <div className={`${styles.mobileSheetField} ${styles.trackMatInlineField}`}>
+                                  <div
+                                    className={`${styles.mobileSheetField} ${styles.trackMatInlineField}`}
+                                    data-mobile-native-field
+                                  >
                                     <span>{field.label}</span>
                                     {field.value === CUSTOM_TRACK_MAT_DIMENSION_VALUE ? (
                                       <div className={`${styles.mobileSheetSelect} ${styles.trackMatCustomSelect}`}>
@@ -6432,18 +6526,30 @@ function HomeContent({
                                         </button>
                                       </div>
                                     ) : (
-                                      <button
-                                        type="button"
-                                        className={styles.mobileSheetSelect}
-                                        data-track-mat-trigger={field.key}
-                                        onClick={(event) => toggleMobileHeroFilter(
-                                          field.key,
-                                          event.currentTarget.parentElement ?? event.currentTarget
-                                        )}
-                                      >
-                                        <strong>{field.displayValue || field.placeholder}</strong>
-                                        <ChevronDown size={15} aria-hidden="true" />
-                                      </button>
+                                      <>
+                                        <button
+                                          type="button"
+                                          className={styles.mobileSheetSelect}
+                                          data-track-mat-trigger={field.key}
+                                          onClick={(event) => toggleMobileHeroFilter(
+                                            field.key,
+                                            event.currentTarget.parentElement ?? event.currentTarget
+                                          )}
+                                        >
+                                          <strong>{field.displayValue || field.placeholder}</strong>
+                                          <ChevronDown size={15} aria-hidden="true" />
+                                        </button>
+                                        <MobileNativeSelect
+                                          value={field.value}
+                                          label={field.label}
+                                          options={[
+                                            { value: "", label: field.placeholder },
+                                            ...field.options,
+                                            { value: CUSTOM_TRACK_MAT_DIMENSION_VALUE, label: "Muu" }
+                                          ]}
+                                          onChange={field.onSelect}
+                                        />
+                                      </>
                                     )}
                                     {activeHeroFilter === field.key ? (
                                       <div
@@ -6495,9 +6601,9 @@ function HomeContent({
                               setMobileFilterExpanded(false);
                             }}
                           >
-                            Näytä tulokset ({draftListingResultCount.toLocaleString("fi-FI")})
+                            {homeFilterUiCopy.showResults} ({draftListingResultCount.toLocaleString(locale)})
                           </button>
-                          <button type="button" onClick={clearListingFilters}>Tyhjennä hakuehdot</button>
+                          <button type="button" onClick={clearListingFilters}>{homeFilterUiCopy.clearFilters}</button>
                         </div>
                       </div>
                     </>
@@ -6639,7 +6745,7 @@ function HomeContent({
                         clearLabel={locationFilterCopy.clearSelections}
                       />
                       <div className={styles.heroYearRangeField}>
-                        <span className={styles.heroYearRangeLabel}>Vuosimalli</span>
+                        <span className={styles.heroYearRangeLabel}>{homeFilterUiCopy.year}</span>
                         <div className={styles.heroYearBoxes}>
                           <input
                             className={styles.yearRangeTextInput}
@@ -6647,7 +6753,7 @@ function HomeContent({
                             inputMode="numeric"
                             value={yearMinQuery}
                             placeholder="Minimi"
-                            aria-label="Vuosimallin minimi"
+                            aria-label={homeFilterUiCopy.yearMin}
                             onChange={(event) => {
                               setYearMinQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
                               setYearQuery("");
@@ -6661,7 +6767,7 @@ function HomeContent({
                             inputMode="numeric"
                             value={yearMaxQuery}
                             placeholder="Maksimi"
-                            aria-label="Vuosimallin maksimi"
+                            aria-label={homeFilterUiCopy.yearMax}
                             onChange={(event) => {
                               setYearMaxQuery(event.target.value.replace(/\D/g, "").slice(0, 4));
                               setYearQuery("");
@@ -6675,7 +6781,7 @@ function HomeContent({
                           data-range-active={yearMinQuery || yearMaxQuery ? "true" : "false"}
                           ref={yearSliderRef}
                           role="group"
-                          aria-label="Vuosimallin rajaus"
+                          aria-label={homeFilterUiCopy.yearRange}
                           style={{
                             "--year-min": `${yearMinPercent}%`,
                             "--year-max": `${yearMaxPercent}%`,
@@ -6701,7 +6807,7 @@ function HomeContent({
                             max={YEAR_FILTER_MAX}
                             step={1}
                             value={selectedYearMin}
-                            aria-label="Vuosimallin minimi"
+                            aria-label={homeFilterUiCopy.yearMin}
                             onInput={(event) => {
                               const next = Math.min(Number(event.currentTarget.value), selectedYearMax);
                               setYearMinQuery(next === YEAR_FILTER_MIN ? "" : String(next));
@@ -6716,7 +6822,7 @@ function HomeContent({
                             max={YEAR_FILTER_MAX}
                             step={1}
                             value={selectedYearMax}
-                            aria-label="Vuosimallin maksimi"
+                            aria-label={homeFilterUiCopy.yearMax}
                             onInput={(event) => {
                               const next = Math.max(Number(event.currentTarget.value), selectedYearMin);
                               setYearMaxQuery(next === YEAR_FILTER_MAX ? "" : String(next));
@@ -6770,8 +6876,8 @@ function HomeContent({
                     {renderVehicleUsageFilters("desktop")}
 
                     {heroRailPartCategoryFields.length > 0 || trackMatDimensionFieldVisible ? (
-                    <div className={styles.heroPartCategoryStack} aria-label="Osakategoriointi">
-                      <span className={styles.heroPartCategoryTitle}>Osakategoriointi</span>
+                    <div className={styles.heroPartCategoryStack} aria-label={homeFilterUiCopy.partCategories}>
+                      <span className={styles.heroPartCategoryTitle}>{homeFilterUiCopy.partCategories}</span>
                       {heroRailPartCategoryFields.map((field) => (
                         <div key={field.key} className={styles.heroFilterFieldWrap} data-no-auto-translate translate="no">
                           <span className={styles.heroFilterLabel}>{field.label}</span>
@@ -6918,10 +7024,10 @@ function HomeContent({
                           }
                         }}
                       >
-                        Näytä tulokset ({draftListingResultCount.toLocaleString("fi-FI")})
+                        {homeFilterUiCopy.showResults} ({draftListingResultCount.toLocaleString(locale)})
                       </button>
                       <button type="button" className={styles.heroRailClear} onClick={clearListingFilters}>
-                        Tyhjennä hakuehdot
+                        {homeFilterUiCopy.clearFilters}
                       </button>
                     </div>
                   </div>

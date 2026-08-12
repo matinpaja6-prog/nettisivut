@@ -2,6 +2,8 @@ import { getNettimotoMopedSubtypeModels } from "@/lib/nettimoto-moped-subtype-mo
 
 export type VehicleBrandModels = Record<string, string[]>;
 
+const SNOWMOBILE_BRANDS = ["Lynx", "Ski-Doo", "Polaris", "Arctic Cat", "Yamaha"] as const;
+
 function normalize(value: string) {
   return value
     .normalize("NFD")
@@ -62,8 +64,14 @@ function subtypeModelPredicate(vehicle: string, subtype: string) {
 
   if (vehicleKey === "moottorikelkka") {
     const groups: Record<string, string[]> = {
-      crossover: ["backcountry", "crossfire", "riot", "renegade", "switchback", "xf", "xterrain", "xtrim"],
-      "deep snow": ["boondocker", "freeride", "m series", "m 8000", "pro rmk", "rmk", "shredder", "sks", "summit"],
+      crossover: [
+        "backcountry", "crossfire", "fx nytro", "riot", "renegade", "rx warrior",
+        "sidewinder", "sr viper", "switchback", "xf", "xterrain", "xtrim"
+      ],
+      "deep snow": [
+        "boondocker", "freeride", "m series", "m sarja", "m 8000", "mountain cat",
+        "mountain max", "powder special", "pro rmk", "rmk", "shredder", "sks", "summit"
+      ],
       sport: ["600r", "f series", "indy", "iqr", "mach z", "mxz", "rave", "rush", "thundercat", "xcr", "zr"],
       touring: ["adventure", "apex", "grand touring", "pantera", "rs vector", "venture"],
       tyo: ["49 ranger", "69 ranger", "bearcat", "commander", "expedition", "norseman", "ranger", "skandic", "titan", "tundra", "viking", "voyageur", "widetrak", "yeti"],
@@ -121,6 +129,17 @@ export function filterVehicleBrandModelsBySubtype(
 
   const predicate = subtypeModelPredicate(vehicle, subtype);
   if (!predicate) return null;
+
+  // Every snowmobile make must remain selectable for every snowmobile type.
+  // A model name alone is not reliable enough to decide whether an individual
+  // machine is crossover, deep snow, work, watercross, etc.
+  if (normalize(vehicle) === "moottorikelkka") {
+    return Object.fromEntries(
+      SNOWMOBILE_BRANDS
+        .map((brand): [string, string[]] => [brand, [...(source[brand] ?? [])]])
+        .filter(([, models]) => models.length > 0)
+    );
+  }
 
   return Object.fromEntries(
     Object.entries(source)

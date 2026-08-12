@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -41,6 +41,7 @@ type VehicleClass = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopo" | "Moo
 const vehicleClasses: VehicleClass[] = ["Moottorikelkka", "Mönkijä", "Motocross", "Mopo", "Moottoripyörä"];
 const otherMakeValue = "__other_make__";
 const otherModelValue = "__other_model__";
+const otherYearValue = "__other_year__";
 const currentVehicleYear = new Date().getFullYear() + 1;
 const garageYearOptions = Array.from(
   { length: currentVehicleYear - 1970 + 1 },
@@ -164,25 +165,84 @@ applyNettimotoVehicleModels(garageBrandModels[vehicleClasses[1]], "atv");
 applyNettimotoVehicleModels(garageBrandModels.Motocross, "motocross");
 applyNettimotoVehicleModels(garageBrandModels.Mopo, "moped");
 
-const classIcons: Record<string, string> = {
-  Moottoripyörä: "🏍️",
-  Moottorikelkka: "🏔️",
-  [vehicleClasses[1]]: "🏕️",
-  Motocross: "🏍️",
-  Mopo: "🛵"
-};
-
-const VEHICLE_PHOTOS: Record<VehicleClass, string> = {
-  Moottoripyörä: "/vehicles/motocross.png",
-  Moottorikelkka: "/vehicles/moottorikelkka.png",
-  "Mönkijä": "/vehicles/monkija.png",
-  Motocross: "/vehicles/motocross.png",
-  Mopo: "/vehicles/mopot.png",
-};
-
 function normalizeVehicleClass(value?: string | null): VehicleClass | "" {
   if (value === "Auto") return "Motocross";
   return vehicleClasses.includes(value as VehicleClass) ? (value as VehicleClass) : "";
+}
+
+type GarageDropdownOption = { value: string; label: string };
+
+function GarageDropdown({
+  value,
+  label,
+  placeholder,
+  options,
+  disabled = false,
+  onChange
+}: {
+  value: string;
+  label: string;
+  placeholder: string;
+  options: GarageDropdownOption[];
+  disabled?: boolean;
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const selected = options.find((option) => option.value === value);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  return (
+    <div ref={rootRef} className={`garage-dropdown${open ? " is-open" : ""}`}>
+      <button
+        type="button"
+        className="garage-dropdown-trigger"
+        aria-label={label}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        disabled={disabled}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <span>{selected?.label || placeholder}</span>
+        <ChevronDown size={17} aria-hidden="true" />
+      </button>
+      {open && !disabled ? (
+        <div className="garage-dropdown-menu" role="listbox" aria-label={label}>
+          {options.map((option) => (
+            <button
+              key={option.value || "empty"}
+              type="button"
+              role="option"
+              aria-selected={option.value === value}
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 export default function GaragePage() {
@@ -220,7 +280,9 @@ export default function GaragePage() {
     Moottorikelkka: t.garageSnowmobile,
     [vehicleClasses[1]]: t.garageAtv,
     Motocross: t.garageCar,
-    Mopo: t.garageMoped
+    Mopo: t.garageMoped,
+    [vehicleClasses[4]]:
+      locale === "en" ? "Motorcycle" : locale === "sv" ? "Motorcykel" : locale === "no" ? "Motorsykkel" : "Moottoripyörä"
   };
 
   useEffect(() => {
@@ -249,6 +311,12 @@ export default function GaragePage() {
     form.vehicle_class && form.make
       ? garageBrandModels[selectedVehicleClass]?.[form.make] ?? []
       : [];
+  const garageDropdownCopy = {
+    fi: { empty: "—", selectModel: "Valitse malli", selectMakeFirst: "Valitse ensin merkki", other: "Muu", typeYear: "Kirjoita vuosimalli" },
+    en: { empty: "—", selectModel: "Select model", selectMakeFirst: "Select make first", other: "Other", typeYear: "Enter model year" },
+    sv: { empty: "—", selectModel: "Välj modell", selectMakeFirst: "Välj märke först", other: "Annat", typeYear: "Ange årsmodell" },
+    no: { empty: "—", selectModel: "Velg modell", selectMakeFirst: "Velg merke først", other: "Annet", typeYear: "Skriv inn årsmodell" }
+  }[locale];
 
   useEffect(() => {
     if (!user) return;
@@ -456,15 +524,8 @@ export default function GaragePage() {
                               setFormStep("details");
                             }}
                           >
-                            <span className="garage-class-icon">
-                              <img
-                                src={VEHICLE_PHOTOS[cls]}
-                                alt={classIcons[cls]}
-                                style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "15px", display: "block" }}
-                                onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                              />
-                            </span>
-                            <span>{classLabels[cls]}</span>
+                            <span className="garage-class-label">{classLabels[cls]}</span>
+                            <ChevronRight className="garage-class-chevron" size={20} aria-hidden="true" />
                           </button>
                         );
                       })}
@@ -480,7 +541,6 @@ export default function GaragePage() {
                       ← {t.garageSelectClass}
                     </button>
                     <div className="garage-selected-class">
-                      <span>{classIcons[form.vehicle_class as VehicleClass]}</span>
                       <strong>{classLabels[form.vehicle_class as VehicleClass]}</strong>
                     </div>
                     <div className="garage-form-grid">
@@ -494,10 +554,16 @@ export default function GaragePage() {
                             autoFocus
                           />
                         ) : (
-                        <select
+                        <GarageDropdown
                           value={form.make}
-                          onChange={(e) => {
-                            const value = e.target.value;
+                          label={t.garageMake}
+                          placeholder={garageDropdownCopy.empty}
+                          options={[
+                            { value: "", label: garageDropdownCopy.empty },
+                            ...brandOptions.map((brand) => ({ value: brand, label: brand })),
+                            { value: otherMakeValue, label: t.garageMakeOther }
+                          ]}
+                          onChange={(value) => {
                             if (value === otherMakeValue) {
                               setCustomVehicleFields((prev) => ({ ...prev, make: true, model: true }));
                               setForm({ ...form, make: "", model: "" });
@@ -505,18 +571,12 @@ export default function GaragePage() {
                             }
                             setForm({ ...form, make: value, model: "" });
                           }}
-                        >
-                          <option value="">—</option>
-                          {brandOptions.map((b) => (
-                            <option key={b} value={b}>{b}</option>
-                          ))}
-                          <option value={otherMakeValue}>{t.garageMakeOther}</option>
-                        </select>
+                        />
                         )}
                       </div>
                       <div className="garage-field">
                         <label>{t.garageModel} *</label>
-                        {customVehicleFields.model || !modelOptions.length ? (
+                        {customVehicleFields.model ? (
                         <input
                           value={form.model}
                           onChange={(e) => setForm({ ...form, model: e.target.value })}
@@ -524,10 +584,17 @@ export default function GaragePage() {
                           autoFocus={customVehicleFields.model}
                         />
                         ) : (
-                          <select
+                          <GarageDropdown
                             value={form.model}
-                            onChange={(e) => {
-                              const value = e.target.value;
+                            disabled={!form.make}
+                            label={t.garageModel}
+                            placeholder={form.make ? garageDropdownCopy.selectModel : garageDropdownCopy.selectMakeFirst}
+                            options={[
+                              { value: "", label: form.make ? garageDropdownCopy.selectModel : garageDropdownCopy.selectMakeFirst },
+                              ...modelOptions.map((model) => ({ value: model, label: model })),
+                              { value: otherModelValue, label: garageDropdownCopy.other }
+                            ]}
+                            onChange={(value) => {
                               if (value === otherModelValue) {
                                 setCustomVehicleFields((prev) => ({ ...prev, model: true }));
                                 setForm({ ...form, model: "" });
@@ -535,13 +602,7 @@ export default function GaragePage() {
                               }
                               setForm({ ...form, model: value });
                             }}
-                          >
-                            <option value="">-</option>
-                            {modelOptions.map((model) => (
-                              <option key={model} value={model}>{model}</option>
-                            ))}
-                            <option value={otherModelValue}>Muu</option>
-                          </select>
+                          />
                         )}
                       </div>
                       <div className="garage-field">
@@ -551,25 +612,30 @@ export default function GaragePage() {
                           type="number"
                           value={form.year}
                           onChange={(e) => setForm({ ...form, year: e.target.value })}
-                          placeholder="Kirjoita vuosimalli"
+                          placeholder={garageDropdownCopy.typeYear}
                           min={1900}
                           max={new Date().getFullYear() + 1}
                           autoFocus
                         />
                         ) : (
-                          <details className="garage-year-select">
-                            <summary aria-label={t.garageYear}>
-                              <span>{form.year || "-"}</span>
-                              <ChevronDown size={17} aria-hidden="true" />
-                            </summary>
-                            <div className="garage-year-menu" role="listbox" aria-label={t.garageYear}>
-                              <button type="button" role="option" aria-selected={!form.year} onClick={(event) => { setForm({ ...form, year: "" }); event.currentTarget.closest("details")?.removeAttribute("open"); }}>-</button>
-                              {garageYearOptions.map((year) => (
-                                <button key={year} type="button" role="option" aria-selected={form.year === year} onClick={(event) => { setForm({ ...form, year }); event.currentTarget.closest("details")?.removeAttribute("open"); }}>{year}</button>
-                              ))}
-                              <button type="button" role="option" aria-selected={false} onClick={(event) => { setCustomVehicleFields((prev) => ({ ...prev, year: true })); setForm({ ...form, year: "" }); event.currentTarget.closest("details")?.removeAttribute("open"); }}>Muu</button>
-                            </div>
-                          </details>
+                          <GarageDropdown
+                            value={form.year}
+                            label={t.garageYear}
+                            placeholder={garageDropdownCopy.empty}
+                            options={[
+                              { value: "", label: garageDropdownCopy.empty },
+                              ...garageYearOptions.map((year) => ({ value: year, label: year })),
+                              { value: otherYearValue, label: garageDropdownCopy.other }
+                            ]}
+                            onChange={(value) => {
+                              if (value === otherYearValue) {
+                                setCustomVehicleFields((prev) => ({ ...prev, year: true }));
+                                setForm({ ...form, year: "" });
+                                return;
+                              }
+                              setForm({ ...form, year: value });
+                            }}
+                          />
                         )}
                       </div>
                       <div className="garage-field">
@@ -613,20 +679,6 @@ export default function GaragePage() {
                         tabIndex={0}
                         onKeyDown={(e) => e.key === "Enter" && handleSelectVehicle(vehicle)}
                       >
-                        <div className="garage-vehicle-icon">
-                          {vehicleClass ? (
-                            <img
-                              className="garage-vehicle-primary-image"
-                              src={VEHICLE_PHOTOS[vehicleClass]}
-                              alt={classIcons[vehicleClass]}
-                              onError={e => { (e.currentTarget as HTMLImageElement).replaceWith(
-                                Object.assign(document.createElement("span"), { textContent: classIcons[vehicleClass], style: "font-size:28px;line-height:1" })
-                              ); }}
-                            />
-                          ) : (
-                            <Car size={22} />
-                          )}
-                        </div>
                         <div className="garage-vehicle-details">
                           <span className="garage-vehicle-type">
                             <span className="garage-vehicle-type-mark" aria-hidden="true" />
@@ -1108,6 +1160,91 @@ export default function GaragePage() {
         .garage-field select option {
           background: #061726;
           color: #f8fbff;
+        }
+
+        .garage-dropdown {
+          position: relative;
+          width: 100%;
+          z-index: 1;
+        }
+
+        .garage-dropdown.is-open { z-index: 70; }
+
+        .garage-dropdown-trigger {
+          width: 100%;
+          height: 44px;
+          padding: 0 13px;
+          border: 1px solid rgba(126, 197, 240, 0.34);
+          border-radius: 13px;
+          background: #061726;
+          color: #f8fbff;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          font: inherit;
+          font-size: 14px;
+          text-align: left;
+          cursor: pointer;
+          outline: none;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .garage-dropdown-trigger:disabled {
+          cursor: not-allowed;
+          opacity: 0.58;
+        }
+
+        .garage-dropdown-trigger:focus-visible,
+        .garage-dropdown.is-open .garage-dropdown-trigger {
+          border-color: #ff7a1a;
+          box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.12);
+        }
+
+        .garage-dropdown-trigger svg {
+          flex: 0 0 auto;
+          transition: transform 0.2s;
+        }
+
+        .garage-dropdown.is-open .garage-dropdown-trigger svg { transform: rotate(180deg); }
+
+        .garage-dropdown-menu {
+          position: absolute;
+          z-index: 80;
+          top: calc(100% + 6px);
+          left: 0;
+          right: 0;
+          max-height: min(280px, 42dvh);
+          padding: 6px;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+          border: 1px solid rgba(126, 197, 240, 0.34);
+          border-radius: 13px;
+          background: #061726;
+          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255, 122, 26, 0.78) transparent;
+        }
+
+        .garage-dropdown-menu button {
+          width: 100%;
+          min-height: 38px;
+          padding: 8px 11px;
+          border: 0;
+          border-radius: 8px;
+          background: transparent;
+          color: #f8fbff;
+          font: inherit;
+          text-align: left;
+          cursor: pointer;
+        }
+
+        .garage-dropdown-menu button:hover,
+        .garage-dropdown-menu button:focus-visible,
+        .garage-dropdown-menu button[aria-selected="true"] {
+          background: rgba(255, 122, 26, 0.16);
+          color: #ff9a3d;
+          outline: none;
         }
 
         .garage-year-select {
@@ -2313,6 +2450,387 @@ export default function GaragePage() {
             min-height: 42px;
             border-radius: 8px;
             font-size: 12px;
+          }
+        }
+
+        /* Final garage controls and cards. */
+        .garage-class-grid {
+          gap: 14px;
+        }
+
+        .garage-class-btn {
+          min-height: 78px;
+          padding: 13px 16px;
+          border-color: rgba(126, 197, 240, 0.3);
+          border-radius: 14px;
+          background: linear-gradient(135deg, rgba(10, 38, 63, 0.98), rgba(5, 23, 41, 0.98));
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 12px 26px rgba(0, 7, 18, 0.18);
+        }
+
+        .garage-class-btn:hover,
+        .garage-class-btn:focus-visible {
+          border-color: rgba(255, 122, 26, 0.78);
+          background: linear-gradient(135deg, rgba(255, 122, 26, 0.18), rgba(7, 31, 53, 0.98));
+          box-shadow: 0 14px 30px rgba(0, 7, 18, 0.28), inset 0 0 0 1px rgba(255, 122, 26, 0.12);
+          outline: none;
+        }
+
+        .garage-class-icon {
+          width: 50px;
+          height: 50px;
+          border-radius: 12px;
+          background: #25282c;
+          border: 2px solid #ff861d;
+          box-shadow: none;
+          font-size: 25px;
+        }
+
+        .garage-class-label {
+          flex: 1;
+          text-align: left;
+        }
+
+        .garage-class-chevron {
+          flex: 0 0 auto;
+          color: #ff9a3d;
+          transition: transform 0.18s ease;
+        }
+
+        .garage-class-btn:hover .garage-class-chevron {
+          transform: translateX(3px);
+        }
+
+        .garage-field select:disabled {
+          cursor: not-allowed;
+          opacity: 0.62;
+        }
+
+        :global(html:not([data-theme="light"])) .garage-year-menu,
+        :global(html:not([data-theme="light"])) .garage-year-menu button {
+          background-color: #061726 !important;
+          background-image: none !important;
+          color: #f8fbff !important;
+          -webkit-text-fill-color: #f8fbff !important;
+        }
+
+        :global(html:not([data-theme="light"])) .garage-year-menu button:hover,
+        :global(html:not([data-theme="light"])) .garage-year-menu button:focus-visible,
+        :global(html:not([data-theme="light"])) .garage-year-menu button[aria-selected="true"] {
+          background-color: rgba(255, 122, 26, 0.18) !important;
+          color: #ff9a3d !important;
+          -webkit-text-fill-color: #ff9a3d !important;
+        }
+
+        .garage-vehicle-card {
+          min-height: 132px;
+          padding: 18px 20px;
+          border-radius: 18px;
+          background: linear-gradient(135deg, rgba(8, 33, 57, 0.98), rgba(4, 20, 37, 0.99));
+          box-shadow: 0 18px 46px rgba(0, 7, 18, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .garage-vehicle-info {
+          display: grid;
+          grid-template-columns: 96px minmax(0, 1fr) 48px;
+          gap: 20px;
+          width: 100%;
+        }
+
+        .garage-vehicle-icon {
+          width: 96px;
+          height: 96px;
+          border-radius: 14px;
+          background: #25282c;
+          border: 2px solid #ff861d;
+          box-shadow: none;
+        }
+
+        .garage-vehicle-icon > span {
+          font-size: 38px;
+        }
+
+        .garage-vehicle-details {
+          gap: 7px;
+        }
+
+        .garage-vehicle-name {
+          font-size: clamp(25px, 3vw, 32px);
+        }
+
+        .garage-vehicle-meta {
+          flex-direction: row;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .garage-vehicle-year {
+          font-size: 16px;
+        }
+
+        .garage-vehicle-class-tag {
+          padding: 7px 12px;
+          font-size: 13px;
+          border-color: rgba(255, 157, 60, 0.5);
+          background: rgba(255, 122, 26, 0.1);
+        }
+
+        .garage-vehicle-arrow {
+          width: 46px;
+          height: 46px;
+          margin: 0;
+          border-color: rgba(255, 142, 45, 0.62);
+          background: rgba(255, 122, 26, 0.1);
+          color: #ffffff;
+        }
+
+        .garage-vehicle-delete {
+          width: 40px;
+          height: 40px;
+          right: 18px;
+          bottom: 18px;
+          top: auto;
+          margin: 0;
+        }
+
+        .garage-vehicle-menu {
+          top: 18px;
+          right: 18px;
+        }
+
+        @media (max-width: 640px) {
+          .garage-class-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+          }
+
+          .garage-class-btn {
+            min-height: 66px;
+            padding: 9px 12px;
+          }
+
+          .garage-class-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 22px;
+          }
+
+          .garage-vehicle-card {
+            min-height: 0;
+            padding: 14px;
+            border-radius: 12px;
+          }
+
+          .garage-vehicle-info {
+            grid-template-columns: 72px minmax(0, 1fr);
+            gap: 12px;
+          }
+
+          .garage-vehicle-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 10px;
+          }
+
+          .garage-vehicle-icon > span {
+            font-size: 30px;
+          }
+
+          .garage-vehicle-name {
+            padding-right: 34px;
+            font-size: 20px;
+          }
+
+          .garage-vehicle-meta {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 7px;
+          }
+
+          .garage-vehicle-year {
+            font-size: 14px;
+          }
+
+          .garage-vehicle-class-tag {
+            padding: 5px 9px;
+            font-size: 11px;
+          }
+
+          .garage-vehicle-arrow {
+            display: none;
+          }
+
+          .garage-vehicle-delete {
+            top: 48px;
+            right: 12px;
+            bottom: auto;
+            width: 34px;
+            height: 34px;
+          }
+
+          .garage-vehicle-menu {
+            top: 12px;
+            right: 14px;
+          }
+        }
+
+        /* Compact, text-first garage controls. */
+        .garage-class-grid {
+          gap: 10px 12px;
+        }
+
+        .garage-class-btn {
+          min-height: 56px;
+          padding: 0 18px;
+          border-radius: 12px;
+          background: linear-gradient(180deg, rgba(11, 40, 65, 0.98), rgba(6, 25, 43, 0.98));
+        }
+
+        .garage-class-label {
+          font-size: 14px;
+          font-weight: 950;
+        }
+
+        .garage-class-chevron {
+          width: 18px;
+          height: 18px;
+        }
+
+        .garage-back-step,
+        .garage-selected-class {
+          min-height: 42px;
+          margin-bottom: 12px;
+          padding: 0 14px;
+          border-radius: 10px;
+          background: linear-gradient(180deg, rgba(11, 40, 65, 0.98), rgba(6, 25, 43, 0.98));
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .garage-selected-class {
+          border-color: rgba(255, 122, 26, 0.62);
+        }
+
+        .garage-field select {
+          appearance: auto;
+          border-radius: 10px;
+          color-scheme: dark;
+        }
+
+        :global(html[data-theme="dark"]) .garage-field select,
+        :global(html:not([data-theme])) .garage-field select,
+        :global(html[data-theme="dark"]) .garage-field select option,
+        :global(html:not([data-theme])) .garage-field select option {
+          background: #061726 !important;
+          background-color: #061726 !important;
+          color: #f8fbff !important;
+          -webkit-text-fill-color: #f8fbff !important;
+          color-scheme: dark;
+        }
+
+        :global(html[data-theme="light"]) .garage-class-btn,
+        :global(html[data-theme="light"]) .garage-back-step,
+        :global(html[data-theme="light"]) .garage-selected-class {
+          background: linear-gradient(180deg, #ffffff, #f3f6f7);
+          border-color: #afbec7;
+          color: #16232c;
+          box-shadow: 0 5px 14px rgba(22, 35, 44, 0.07);
+        }
+
+        :global(html[data-theme="light"]) .garage-selected-class {
+          border-color: rgba(255, 122, 26, 0.72);
+        }
+
+        :global(html[data-theme="light"]) .garage-field select,
+        :global(html[data-theme="light"]) .garage-field select option {
+          background: #ffffff !important;
+          background-color: #ffffff !important;
+          color: #16232c !important;
+          -webkit-text-fill-color: #16232c !important;
+          color-scheme: light;
+        }
+
+        .garage-vehicle-card {
+          min-height: 108px;
+          padding: 14px 76px 14px 20px;
+          border-radius: 14px;
+        }
+
+        .garage-vehicle-info {
+          grid-template-columns: minmax(0, 1fr) 42px;
+          gap: 14px;
+        }
+
+        .garage-vehicle-details {
+          gap: 5px;
+        }
+
+        .garage-vehicle-type {
+          font-size: 12px;
+        }
+
+        .garage-vehicle-name {
+          font-size: clamp(22px, 2.4vw, 28px);
+        }
+
+        .garage-vehicle-meta {
+          flex-direction: row;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .garage-vehicle-year {
+          font-size: 14px;
+        }
+
+        .garage-vehicle-class-tag {
+          padding: 5px 10px;
+          font-size: 12px;
+        }
+
+        .garage-vehicle-arrow {
+          width: 40px;
+          height: 40px;
+          margin: 0;
+        }
+
+        .garage-vehicle-delete {
+          right: 16px;
+          bottom: 14px;
+          width: 36px;
+          height: 36px;
+        }
+
+        .garage-vehicle-menu {
+          top: 12px;
+          right: 20px;
+        }
+
+        @media (max-width: 640px) {
+          .garage-class-btn {
+            min-height: 52px;
+            padding: 0 14px;
+          }
+
+          .garage-vehicle-card {
+            padding: 13px 52px 13px 16px;
+          }
+
+          .garage-vehicle-info {
+            display: block;
+          }
+
+          .garage-vehicle-meta {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .garage-vehicle-delete {
+            top: 46px;
+            right: 10px;
+          }
+
+          .garage-vehicle-menu {
+            top: 9px;
+            right: 14px;
           }
         }
       `}</style>
