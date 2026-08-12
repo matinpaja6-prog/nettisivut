@@ -11,6 +11,7 @@ import {
   type InputHTMLAttributes,
   type RefObject
 } from "react";
+import { flushSync } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
 import MobileNativeSelect from "@/app/components/MobileNativeSelect";
@@ -1137,6 +1138,23 @@ const emptyVehicleType = {
   title: "Valitse ajoneuvoluokka",
   brands: [] as string[]
 };
+
+function openMobileNativePicker(id: string) {
+  if (!window.matchMedia("(max-width: 760px), (hover: none) and (pointer: coarse)").matches) return false;
+
+  const select = document.getElementById(id) as HTMLSelectElement | null;
+  if (!select || select.disabled) return false;
+
+  select.focus({ preventScroll: true });
+  try {
+    select.showPicker();
+    return true;
+  } catch {
+    // Safari versions without showPicker still open the native picker when the
+    // transparent select receives the user's next tap.
+    return false;
+  }
+}
 
 const wholeVehicleLabels: Record<string, string> = {
   Moottoripyörä: "Kokomoottoripyörä",
@@ -4127,9 +4145,16 @@ function SellPageContent() {
       setActiveMultiListingIndex(0);
     }
 
-    setCurrentStep((step) =>
-      Math.min(step + 1, steps.length)
-    );
+    const nextStep = Math.min(currentStep + 1, steps.length);
+    const shouldOpenFirstCategory = mode === "single" && currentStep === 2 && nextStep === 3 && !selectedCategory;
+
+    if (shouldOpenFirstCategory) {
+      flushSync(() => setCurrentStep(nextStep));
+      openMobileNativePicker("sell-category-native-category");
+      return;
+    }
+
+    setCurrentStep(nextStep);
   }
 
   function goToPreviousStep() {
@@ -5794,6 +5819,8 @@ function SellPageContent() {
             <h2>{st("Kategorisoi tuotteesi")}</h2>
             <div className={styles.categorySelectGrid}>
               <CategorySelect
+                nativeSelectId="sell-category-native-category"
+                nextNativeSelectId="sell-category-native-group"
                 label={st("Pääkategoria")}
                 icon={Layers3}
                 value={selectedCategory}
@@ -5811,6 +5838,8 @@ function SellPageContent() {
                 autoOpenNonce={categoryAutoOpenTarget?.field === "category" ? categoryAutoOpenTarget.nonce : 0}
               />
               <CategorySelect
+                nativeSelectId="sell-category-native-group"
+                nextNativeSelectId="sell-category-native-detail"
                 label={st("Alakategoria")}
                 icon={FolderTree}
                 value={selectedCategoryGroup}
@@ -5827,6 +5856,7 @@ function SellPageContent() {
                 translateText={translateCategoryText}
               />
               <CategorySelect
+                nativeSelectId="sell-category-native-detail"
                 label={st("Tarkempi kategoria")}
                 icon={Tags}
                 value={selectedDetailCategory}
@@ -7147,6 +7177,8 @@ function ConditionSelect({
 }
 
 function CategorySelect({
+  nativeSelectId,
+  nextNativeSelectId,
   label,
   icon: Icon,
   value,
@@ -7156,6 +7188,8 @@ function CategorySelect({
   onChange,
   translateText = (text: string) => text
 }: {
+  nativeSelectId: string;
+  nextNativeSelectId?: string;
   label: string;
   icon: LucideIcon;
   value: string;
@@ -7253,7 +7287,8 @@ function CategorySelect({
 
   function chooseOption(nextValue: string) {
     setSelectOpen(false);
-    onChange(nextValue);
+    flushSync(() => onChange(nextValue));
+    if (nextNativeSelectId) openMobileNativePicker(nextNativeSelectId);
   }
 
   return (
@@ -7268,6 +7303,7 @@ function CategorySelect({
         data-sell-category-select="true"
       >
         <MobileNativeSelect
+          id={nativeSelectId}
           value={value}
           label={label}
           options={[
