@@ -1139,8 +1139,12 @@ const emptyVehicleType = {
   brands: [] as string[]
 };
 
+function isMobileNativePickerMode() {
+  return window.matchMedia("(max-width: 760px), (hover: none) and (pointer: coarse)").matches;
+}
+
 function openMobileNativePicker(id: string) {
-  if (!window.matchMedia("(max-width: 760px), (hover: none) and (pointer: coarse)").matches) return false;
+  if (!isMobileNativePickerMode()) return false;
 
   const select = document.getElementById(id) as HTMLSelectElement | null;
   if (!select || select.disabled) return false;
@@ -3694,6 +3698,9 @@ function SellPageContent() {
       ...vehicleAutoAdvancedFieldsRef.current,
       [currentKey]: true
     };
+    // The native picker chain already moved to the next select during the
+    // original touch event. Delayed input focus would immediately close it.
+    if (isMobileNativePickerMode()) return;
     focusVehicleField(nextKey);
   }
 
@@ -3704,6 +3711,9 @@ function SellPageContent() {
 
   function advanceCategoryField(nextField: "group" | "detail") {
     setCategoryAutoOpenTarget(null);
+    // CategorySelect opens the next native picker synchronously on mobile.
+    // Do not schedule the desktop focus effect, which would close that picker.
+    if (isMobileNativePickerMode()) return;
     setPendingCategoryAdvance(nextField);
   }
 
@@ -4159,6 +4169,7 @@ function SellPageContent() {
     const shouldOpenFirstCategory = mode === "single" && currentStep === 2 && nextStep === 3 && !selectedCategory;
 
     if (shouldOpenFirstCategory) {
+      categoryEntryAutoOpenRef.current = true;
       flushSync(() => setCurrentStep(nextStep));
       openMobileNativePicker("sell-category-native-category");
       return;
@@ -7330,6 +7341,7 @@ function CategorySelect({
         ref={shellRef}
         className={`${styles.categorySelectShell} ${open ? styles.categorySelectOpen : ""}`}
         data-sell-category-select="true"
+        data-disabled={!hasOptions ? "true" : "false"}
       >
         <MobileNativeSelect
           id={nativeSelectId}

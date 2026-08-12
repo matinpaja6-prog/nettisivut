@@ -882,7 +882,21 @@
   outline: none; box-shadow: none;
 }
 .categorySelectButton:disabled {
-  cursor: default; color: #7f8fa3;
+  cursor: default; color: #b7c7d8; opacity: 1;
+  -webkit-text-fill-color: #b7c7d8;
+}
+.categorySelectShell[data-disabled="true"] {
+  background: #071827;
+  background-color: #071827;
+  background-image: none;
+  border-color: #29445a;
+  box-shadow: none;
+  opacity: 1;
+}
+.categorySelectShell[data-disabled="true"] .categorySelectIcon,
+.categorySelectShell[data-disabled="true"] > svg {
+  color: #ff8a1a;
+  opacity: 1;
 }
 .categorySelectOpen {
   border-color: rgba(255, 122, 26, 0.22); box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.1);
@@ -3063,6 +3077,27 @@
   background: #ffffff !important;
   color: #16232c !important;
   -webkit-text-fill-color: #16232c !important;
+}
+
+:global(html[data-theme="light"]) .categorySelectShell[data-disabled="true"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #9fb0b9 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+:global(html[data-theme="light"]) .categorySelectShell[data-disabled="true"] .categorySelectButton {
+  color: #60727d !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #60727d !important;
+}
+
+:global(html[data-theme="light"]) .categorySelectShell[data-disabled="true"] :is(.categorySelectIcon, svg) {
+  color: #e96508 !important;
+  opacity: 1 !important;
+  stroke: currentColor !important;
 }
 
 :global(html[data-theme="light"]) :is(
