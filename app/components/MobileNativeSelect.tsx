@@ -6,12 +6,14 @@ type MobileNativeSelectOption = {
 };
 
 export default function MobileNativeSelect({
+  id,
   value,
   options,
   onChange,
   label,
   disabled = false
 }: {
+  id?: string;
   value: string;
   options: readonly MobileNativeSelectOption[];
   onChange: (value: string) => void;
@@ -20,6 +22,7 @@ export default function MobileNativeSelect({
 }) {
   return (
     <select
+      id={id}
       className="mobile-native-select"
       value={value}
       onChange={(event) => onChange(event.target.value)}
