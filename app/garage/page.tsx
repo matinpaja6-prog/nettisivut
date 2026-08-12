@@ -317,6 +317,12 @@ export default function GaragePage() {
     sv: { empty: "—", selectModel: "Välj modell", selectMakeFirst: "Välj märke först", other: "Annat", typeYear: "Ange årsmodell" },
     no: { empty: "—", selectModel: "Velg modell", selectMakeFirst: "Velg merke først", other: "Annet", typeYear: "Skriv inn årsmodell" }
   }[locale];
+  const garageDeleteCopy = {
+    fi: { close: "Sulje", body: "poistetaan omasta tallista. Ilmoitukset eivät poistu.", delete: "Poista" },
+    en: { close: "Close", body: "will be removed from your garage. Your listings will not be deleted.", delete: "Delete" },
+    sv: { close: "Stäng", body: "tas bort från ditt garage. Dina annonser tas inte bort.", delete: "Ta bort" },
+    no: { close: "Lukk", body: "fjernes fra garasjen din. Annonsene dine slettes ikke.", delete: "Slett" }
+  }[locale];
 
   useEffect(() => {
     if (!user) return;
@@ -803,17 +809,16 @@ export default function GaragePage() {
                     type="button"
                     className="garage-delete-close"
                     onClick={() => setDeleteTarget(null)}
-                    aria-label="Sulje"
+                    aria-label={garageDeleteCopy.close}
                   >
                     <X size={18} />
                   </button>
                   <div className="garage-delete-icon">
                     <Trash2 size={24} aria-hidden="true" />
                   </div>
-                  <h3 id="garage-delete-title">Poistetaanko ajoneuvo tallista?</h3>
+                  <h3 id="garage-delete-title">{t.garageConfirmDelete}</h3>
                   <p>
-                    {deleteTarget.make} {deleteTarget.model} poistetaan omasta tallista.
-                    Ilmoitukset eivät poistu.
+                    {deleteTarget.make} {deleteTarget.model} {garageDeleteCopy.body}
                   </p>
                   <div className="garage-delete-actions">
                     <button
@@ -821,14 +826,14 @@ export default function GaragePage() {
                       className="garage-delete-cancel"
                       onClick={() => setDeleteTarget(null)}
                     >
-                      Peruuta
+                      {t.garageCancel}
                     </button>
                     <button
                       type="button"
                       className="garage-delete-confirm"
                       onClick={() => handleDelete(deleteTarget.id)}
                     >
-                      Poista
+                      {garageDeleteCopy.delete}
                     </button>
                   </div>
                 </div>
