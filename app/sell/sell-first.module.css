@@ -2552,7 +2552,18 @@
 .accessoryPickerOptionSelected .accessoryPickerCheck {
   background: #ff7a1a;
   border-color: #ff7a1a;
-  color: #071827;
+  color: #ffffff;
+}
+
+.accessoryPickerOptionSelected .accessoryPickerCheck svg,
+.accessoryPickerOptionSelected .accessoryPickerCheck svg path {
+  color: #ffffff !important;
+  display: block !important;
+  fill: none !important;
+  opacity: 1 !important;
+  stroke: #ffffff !important;
+  stroke-width: 3 !important;
+  visibility: visible !important;
 }
 
 .colorPickerGrid label {
@@ -2729,6 +2740,13 @@
 
 .vehicleSaleMetrics .detailInputShell input {
   min-height: 48px;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
 }
 
 .vehicleSaleMetrics .deliveryMethodSelectShell {

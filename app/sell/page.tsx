@@ -13,6 +13,7 @@ import {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
+import MobileNativeSelect from "@/app/components/MobileNativeSelect";
 import {
   ArrowLeft,
   ArrowRight,
@@ -1064,7 +1065,7 @@ const vehicleSaleSteps: SellStep[] = [
   { number: 2, title: "Ajoneuvon tiedot", description: "Täytä ajoneuvon tiedot", icon: FileText },
   { number: 3, title: "Hinta & sijainti", description: "Aseta hinta ja paikka", icon: MapPin },
   { number: 4, title: "Kuvat", description: "Lisää ajoneuvon kuvat", icon: Camera },
-  { number: 5, title: "Otsikko ja kuvaus", description: "Kerro ajoneuvosta", icon: ClipboardList },
+  { number: 5, title: "Lisätiedot ajoneuvosta", description: "Kerro ajoneuvosta", icon: ClipboardList },
   { number: 6, title: "Julkaise", description: "Tarkista ja julkaise", icon: Send }
 ];
 
@@ -4209,8 +4210,7 @@ function SellPageContent() {
     if (isVehicleSale) {
       return [
         vehicleDetails.brand.trim(),
-        vehicleDetails.model.trim(),
-        vehicleDetails.year.trim()
+        vehicleDetails.model.trim()
       ].filter(Boolean).join(" ").trim() || vehicleType.key || "Ajoneuvo";
     }
 
@@ -4233,8 +4233,7 @@ function SellPageContent() {
     if (isVehicleSale) {
       return [
         vehicleDetails.brand.trim(),
-        vehicleDetails.model.trim(),
-        vehicleDetails.year.trim()
+        vehicleDetails.model.trim()
       ].filter(Boolean).join(" ").trim() || st(vehicleType.key || "Ajoneuvo");
     }
 
@@ -4337,9 +4336,11 @@ function SellPageContent() {
     publicationGroupId = ""
   ): ListingInput {
     const price = getPublishPrice(part?.price ?? listingPrice);
-    const title = part
-      ? part.title.trim() || getAutomaticListingTitle(part)
-      : listingTitle.trim() || getAutomaticListingTitle();
+    const title = isVehicleSale
+      ? getAutomaticListingTitle()
+      : part
+        ? part.title.trim() || getAutomaticListingTitle(part)
+        : listingTitle.trim() || getAutomaticListingTitle();
     const baseDescription =
       isVehicleSale
         ? listingDescription.trim()
@@ -5389,7 +5390,7 @@ function SellPageContent() {
                   label={st("Ajokilometrit (km)")}
                   icon={Gauge}
                   inputMode="numeric"
-                  placeholder={st("Esim. 12 500")}
+                  placeholder=""
                   value={vehicleMileage}
                   onChange={(value) => setVehicleMileage(value.replace(/[^\d]/g, ""))}
                 />
@@ -5397,14 +5398,14 @@ function SellPageContent() {
                   label={st("Käyttötunnit (h)")}
                   icon={Clock3}
                   inputMode="numeric"
-                  placeholder={st("Esim. 320")}
+                  placeholder=""
                   value={vehicleHours}
                   onChange={(value) => setVehicleHours(value.replace(/[^\d]/g, ""))}
                 />
                 <DetailInput
                   label={st("Rekisteritunnus (vapaaehtoinen)")}
                   icon={Tags}
-                  placeholder={st("Esim. 123-ABC")}
+                  placeholder=""
                   value={vehicleRegistration}
                   onChange={(value) => setVehicleRegistration(value.toLocaleUpperCase("fi-FI"))}
                 />
@@ -6191,24 +6192,27 @@ function SellPageContent() {
 
     if (mode === "single" && currentStep === (isVehicleSale ? 5 : 6)) {
       return (
-        <section className={styles.detailsPanel} aria-label={st("Otsikko ja kuvaus")}>
+        <section className={styles.detailsPanel} aria-label={isVehicleSale ? "Lisätiedot ajoneuvosta" : st("Otsikko ja kuvaus")}>
           <label className={styles.detailsField}>
             <span>
               <strong>{st("Otsikko")}</strong>
-              <em>{listingTitle.length} / 80</em>
+              {!isVehicleSale && <em>{listingTitle.length} / 80</em>}
             </span>
             <input
               maxLength={80}
-              value={listingTitle}
-              onChange={(event) => setListingTitle(event.target.value)}
+              value={isVehicleSale ? getTranslatedAutomaticListingTitle() : listingTitle}
+              readOnly={isVehicleSale}
+              onChange={isVehicleSale ? undefined : (event) => setListingTitle(event.target.value)}
               placeholder={
                 isVehicleSale
-                  ? "Esim. Lynx Rave RE 600R 2023"
+                  ? "Merkki ja malli"
                   : st("Esim. Ski-Doo variaattori 850 E-TEC")
               }
             />
             <small className={styles.automaticTitleHint}>
-              {st("T\u00e4m\u00e4 on otsikko jos et itse otsikoi:")} {getTranslatedAutomaticListingTitle()}
+              {isVehicleSale
+                ? "Otsikko muodostetaan automaattisesti merkistä ja mallista."
+                : `${st("T\u00e4m\u00e4 on otsikko jos et itse otsikoi:")} ${getTranslatedAutomaticListingTitle()}`}
             </small>
           </label>
 
@@ -6231,20 +6235,22 @@ function SellPageContent() {
             />
           </label>
 
-          <section className={styles.descriptionTips} aria-label={st("Vinkit hyv\u00e4\u00e4n kuvaukseen")}>
-            <h2>
-              {st("Vinkit hyv\u00e4\u00e4n kuvaukseen")}
-            </h2>
-            <div>
-              <span><Check size={18} aria-hidden="true" /> {isVehicleSale ? "Kerro ajomäärä tai käyttötunnit" : st("Kerro t\u00e4rkeimm\u00e4t ominaisuudet")}</span>
-              <span><Check size={18} aria-hidden="true" /> {st("Mainitse kunto")}</span>
-              {selectedSinglePartNeedsTrackMatDimensions ? (
-                <span><Check size={18} aria-hidden="true" /> Kirjoita telamaton mitat</span>
-              ) : null}
-              <span><Check size={18} aria-hidden="true" /> {isVehicleSale ? "Mainitse huollot ja varusteet" : st("Lis\u00e4\u00e4 sopivuustiedot")}</span>
-              <span><Check size={18} aria-hidden="true" /> {st("Ole rehellinen ja tarkka")}</span>
-            </div>
-          </section>
+          {!isVehicleSale && (
+            <section className={styles.descriptionTips} aria-label={st("Vinkit hyv\u00e4\u00e4n kuvaukseen")}>
+              <h2>
+                {st("Vinkit hyv\u00e4\u00e4n kuvaukseen")}
+              </h2>
+              <div>
+                <span><Check size={18} aria-hidden="true" /> {st("Kerro t\u00e4rkeimm\u00e4t ominaisuudet")}</span>
+                <span><Check size={18} aria-hidden="true" /> {st("Mainitse kunto")}</span>
+                {selectedSinglePartNeedsTrackMatDimensions ? (
+                  <span><Check size={18} aria-hidden="true" /> Kirjoita telamaton mitat</span>
+                ) : null}
+                <span><Check size={18} aria-hidden="true" /> {st("Lis\u00e4\u00e4 sopivuustiedot")}</span>
+                <span><Check size={18} aria-hidden="true" /> {st("Ole rehellinen ja tarkka")}</span>
+              </div>
+            </section>
+          )}
         </section>
       );
     }
@@ -6380,7 +6386,7 @@ function SellPageContent() {
           <div className={styles.publishTitleBlock}>
             <div>
               <span>{st("Otsikko")}</span>
-              <strong>{listingTitle.trim() || getTranslatedAutomaticListingTitle()}</strong>
+              <strong>{isVehicleSale ? getTranslatedAutomaticListingTitle() : listingTitle.trim() || getTranslatedAutomaticListingTitle()}</strong>
             </div>
             <div className={styles.publishDescriptionPreview}>
               <span>{st("Kuvaus")}</span>
@@ -6861,6 +6867,22 @@ function PresetField({
       <span
         className={`${styles.presetSelectShell} ${open ? styles.presetSelectOpen : ""} ${effectiveCustomMode ? styles.presetSelectCustom : ""}`}
       >
+        {!effectiveCustomMode ? (
+          <MobileNativeSelect
+            value={isKnownValue ? value : ""}
+            label={label}
+            options={[
+              { value: "", label: translateText("Ei valintaa") },
+              ...presetOptions.map((option) => ({ value: option, label: translateText(option) })),
+              { value: otherLabel, label: translateText(otherLabel) }
+            ]}
+            onChange={(nextValue) => {
+              if (nextValue === otherLabel) selectOther();
+              else if (nextValue) selectOption(nextValue);
+              else clearSelection();
+            }}
+          />
+        ) : null}
         <input
           ref={(element) => {
             innerInputRef.current = element;
@@ -7029,6 +7051,18 @@ function ConditionSelect({
           window.setTimeout(() => setOpen(false), 80);
         }}
       >
+        <MobileNativeSelect
+          value={value}
+          label={label}
+          options={[
+            { value: "", label: translateText("Kuntoluokitus") },
+            ...conditionOptions.map((option) => ({
+              value: option.value,
+              label: translateText(option.label)
+            }))
+          ]}
+          onChange={chooseOption}
+        />
         <span className={styles.categorySelectIcon}>
           <span className={`${styles.conditionSelectDot} ${getConditionDotClass(value)}`} />
         </span>
@@ -7211,6 +7245,19 @@ function CategorySelect({
         className={`${styles.categorySelectShell} ${open ? styles.categorySelectOpen : ""}`}
         data-sell-category-select="true"
       >
+        <MobileNativeSelect
+          value={value}
+          label={label}
+          options={[
+            { value: "", label: placeholder },
+            ...options.map((option) => ({
+              value: option.value,
+              label: translateText(option.label)
+            }))
+          ]}
+          onChange={chooseOption}
+          disabled={!hasOptions}
+        />
         <span className={styles.categorySelectIcon}>
           {value ? getMultiCategoryIcon(value) : <Icon size={22} aria-hidden="true" />}
         </span>

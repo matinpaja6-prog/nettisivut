@@ -5989,3 +5989,90 @@ html[data-theme="light"] body main.sell-page-responsive.sell-page-responsive
   [class*="multiPartPhotoAdd"] input[class*="multiPartPhotoInput"] {
   display: none !important;
 }
+
+/* Keep the Help CTA readable on the light header: it uses a dark pill instead
+   of the transparent treatment of the other navigation links. */
+@media (min-width: 861px) {
+  html[data-theme="light"] body header.universal-app-topbar
+    .universal-home-primary-nav > a.universal-contact-cta {
+    background: #0b2238 !important;
+    border: 1px solid #173a57 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html[data-theme="light"] body header.universal-app-topbar
+    .universal-home-primary-nav > a.universal-contact-cta:is(:hover, :focus-visible, .is-active) {
+    background: #12314d !important;
+    border-color: #ff7a1a !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  html[data-theme="light"] body header.universal-app-topbar
+    .universal-home-primary-nav > a.universal-contact-cta {
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    padding-inline: 15px !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* Legal-page summary copy must blend into the light page instead of showing
+   browser/translation generated white strips behind individual text nodes. */
+html[data-theme="light"] body :is(
+  main.terms-clean-page,
+  main.privacy-clean-page,
+  main.safety-clean-page
+) :is(
+  .terms-summary,
+  .privacy-summary,
+  .safety-summary,
+  .terms-summary-item,
+  .privacy-summary-item,
+  .safety-summary-item
+),
+html[data-theme="light"] body :is(
+  main.terms-clean-page,
+  main.privacy-clean-page,
+  main.safety-clean-page
+) :is(
+  .terms-summary,
+  .privacy-summary,
+  .safety-summary,
+  .terms-summary-item,
+  .privacy-summary-item,
+  .safety-summary-item
+) :is(p, span, strong, li) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Garage dropdowns use the same custom menu in every field, with a true light
+   surface when the light theme is active. */
+html[data-theme="light"] body main.garage-page.garage-page
+  :is(.garage-dropdown-trigger, .garage-dropdown-menu) {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #aebdc7 !important;
+  color: #152530 !important;
+  -webkit-text-fill-color: #152530 !important;
+}
+
+html[data-theme="light"] body main.garage-page.garage-page .garage-dropdown-menu button {
+  background: transparent !important;
+  color: #152530 !important;
+  -webkit-text-fill-color: #152530 !important;
+}
+
+html[data-theme="light"] body main.garage-page.garage-page
+  .garage-dropdown-menu button:is(:hover, :focus-visible, [aria-selected="true"]) {
+  background: #fff0e5 !important;
+  color: #9c4300 !important;
+  -webkit-text-fill-color: #9c4300 !important;
+}

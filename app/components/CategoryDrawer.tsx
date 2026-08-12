@@ -7,6 +7,7 @@ import {
   subcategoryGroups
 } from "@/lib/listings";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
+import MobileNativeSelect from "@/app/components/MobileNativeSelect";
 import {
   filterVehicleBrandModelsBySubtype,
   mergeVehicleBrandModels
@@ -1550,6 +1551,21 @@ function VehicleComboField({
         }}
       >
         <div className="cd-combo-control">
+          {!customSelected ? (
+            <MobileNativeSelect
+              value={options.includes(value) ? value : ""}
+              label={label}
+              disabled={disabled}
+              options={[
+                { value: "", label: placeholder },
+                ...options.map((option) => ({ value: option, label: option })),
+                ...(allowCustom ? [{ value: CUSTOM_OPTION_LABEL, label: comboText.customOption }] : [])
+              ]}
+              onChange={(nextValue) => {
+                if (nextValue) selectOption(nextValue, nextValue === CUSTOM_OPTION_LABEL);
+              }}
+            />
+          ) : null}
           {icon ? <span className="cd-combo-icon" aria-hidden="true">{icon}</span> : null}
           <input
             ref={inputRef}
@@ -2416,6 +2432,12 @@ export default function CategoryDrawer({
     return (
       <div className={`cd-vehicle-type-menu${vehicleTypeMenuOpen ? " is-open" : ""}`}>
         <span>{drawerText.vehicle}</span>
+        <MobileNativeSelect
+          value={selectedKind}
+          label={drawerText.vehicle}
+          options={startTiles.map((tile) => ({ value: tile.kind, label: tile.label }))}
+          onChange={(nextValue) => selectVehicleType(nextValue as CategoryStartKind)}
+        />
         <button
           type="button"
           className="cd-vehicle-type-trigger"
@@ -2490,6 +2512,30 @@ export default function CategoryDrawer({
     return (
       <div className={`cd-vehicle-type-menu cd-vehicle-subtype-menu${disabled ? " is-disabled" : ""}`}>
         <span>{typeLabel}</span>
+        <MobileNativeSelect
+          value={vehicleSubtype}
+          label={typeLabel}
+          disabled={disabled}
+          options={[
+            { value: "", label: allTypesLabel },
+            ...subtypeOptions.map((option) => ({
+              value: option,
+              label: translateCategory(locale, option)
+            }))
+          ]}
+          onChange={(option) => {
+            setVehicleSubtype(option);
+            setBrand("");
+            setModel("");
+            setModelOpen(false);
+            setEngineModel("");
+            setEngineModelOther("");
+            setCat("");
+            setSubGroup("");
+            setSub("");
+            setVehicleSubtypeMenuOpen(false);
+          }}
+        />
         <button
           type="button"
           className="cd-vehicle-type-trigger"
