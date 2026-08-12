@@ -35,6 +35,7 @@ import { useLanguage, translateCategory } from "@/lib/i18n";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
 import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
+import MobileNativeSelect from "@/app/components/MobileNativeSelect";
 
 type VehicleClass = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopo" | "Moottoripyörä";
 
@@ -211,6 +212,16 @@ function GarageDropdown({
 
   return (
     <div ref={rootRef} className={`garage-dropdown${open ? " is-open" : ""}`}>
+      <MobileNativeSelect
+        value={value}
+        label={label}
+        options={options}
+        disabled={disabled}
+        onChange={(nextValue) => {
+          onChange(nextValue);
+          setOpen(false);
+        }}
+      />
       <button
         type="button"
         className="garage-dropdown-trigger"
