@@ -259,8 +259,14 @@
   .mobileStepActive {
     border-color: #ff7a1a; background: radial-gradient(circle at 20% 0%, rgba(255, 157, 46, 0.22), transparent 58%), rgba(7, 24, 42, 0.96); color: #fff;
   }
+  .mobileStepCompleted {
+    border-color: #ff7a1a; background: rgba(5, 20, 35, 0.72); color: #ff8a1a; box-shadow: 0 0 0 1px rgba(255, 122, 26, 0.14), 0 0 12px rgba(255, 122, 26, 0.18);
+  }
   .mobileStepActive > span {
     color: #fff;
+  }
+  .mobileStepCompleted > span {
+    color: #ff8a1a;
   }
   .content {
     padding: 28px 22px 22px;
@@ -2924,6 +2930,15 @@
   border-color: #d85d00 !important;
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
+}
+
+:global(html[data-theme="light"]) .mobileStepCompleted {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: #ff7a1a !important;
+  color: #d85d00 !important;
+  -webkit-text-fill-color: #d85d00 !important;
+  box-shadow: 0 0 0 1px rgba(255, 122, 26, 0.12) !important;
 }
 
 :global(html[data-theme="light"]) .stepCompleted .stepConnector {
