@@ -55,6 +55,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         return {
           url: absoluteSiteUrl(listingPath(canonicalId)),
           ...(Number.isNaN(createdAt.getTime()) ? {} : { lastModified: createdAt }),
+          ...(listing.image_url
+            ? { images: [absoluteSiteUrl(listing.image_url)] }
+            : {}),
           changeFrequency: "daily" as const,
           priority: 0.8
         };

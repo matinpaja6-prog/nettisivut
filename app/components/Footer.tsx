@@ -12,6 +12,7 @@ const footerText = {
     email: "Sähköposti",
     service: "Palvelu",
     home: "Etusivu",
+    listings: "Kaikki ilmoitukset",
     sell: "Myy osa",
     garage: "Talli",
     company: "Yritys",
@@ -33,6 +34,7 @@ const footerText = {
     email: "Email",
     service: "Service",
     home: "Home",
+    listings: "All listings",
     sell: "Sell part",
     garage: "Garage",
     company: "Company",
@@ -54,6 +56,7 @@ const footerText = {
     email: "E-post",
     service: "Tjänst",
     home: "Hem",
+    listings: "Alla annonser",
     sell: "Sälj del",
     garage: "Garage",
     company: "Företag",
@@ -75,6 +78,7 @@ const footerText = {
     email: "E-post",
     service: "Tjeneste",
     home: "Hjem",
+    listings: "Alle annonser",
     sell: "Selg del",
     garage: "Garasje",
     rewards: "Belønninger",
@@ -299,6 +303,7 @@ export default function Footer() {
             <h4>{text.service}</h4>
             <ul>
               <li><Link href="/">{text.home}</Link></li>
+              <li><Link href="/ilmoitukset">{text.listings}</Link></li>
               <li><Link href={pagePath("sell", locale)}>{text.sell}</Link></li>
               <li><Link href={pagePath("garage", locale)}>{text.garage}</Link></li>
             </ul>
