@@ -65,6 +65,23 @@ type MessageFilter =
   | "buyers"
   | "sellers";
 
+type SellerListingGroup = {
+  listingId: string;
+  conversations: ConversationSummary[];
+  latestConversation: ConversationSummary;
+  unreadCount: number;
+};
+
+type SidebarEntry =
+  | {
+      kind: "listing";
+      group: SellerListingGroup;
+    }
+  | {
+      kind: "conversation";
+      conversation: ConversationSummary;
+    };
+
 type MessagesUi = {
   unknownError: string;
   yesterday: string;
@@ -234,6 +251,20 @@ const dateLocales: Record<Locale, string> = {
 
 function getMessagesUi(locale: Locale) {
   return messagesUi[locale === "no" ? "no" : "fi"];
+}
+
+function conversationCountLabel(count: number, locale: Locale) {
+  if (locale === "sv") return `${count} ${count === 1 ? "konversation" : "konversationer"}`;
+  if (locale === "en") return `${count} ${count === 1 ? "conversation" : "conversations"}`;
+  if (locale === "no") return `${count} ${count === 1 ? "samtale" : "samtaler"}`;
+  return `${count} ${count === 1 ? "keskustelu" : "keskustelua"}`;
+}
+
+function backToListingsLabel(locale: Locale) {
+  if (locale === "sv") return "Tillbaka till annonserna";
+  if (locale === "en") return "Back to listings";
+  if (locale === "no") return "Tilbake til annonsene";
+  return "Takaisin ilmoituksiin";
 }
 
 function formatDate(value: string | undefined, locale: Locale) {
@@ -668,6 +699,9 @@ function MessagesPageContent() {
     useState<ConversationSummary[]>([]);
 
   const [selectedConversationId, setSelectedConversationId] =
+    useState("");
+
+  const [selectedSellerListingId, setSelectedSellerListingId] =
     useState("");
 
   const [activeFilter, setActiveFilter] =
@@ -1118,6 +1152,65 @@ function MessagesPageContent() {
       ]
     );
 
+  const sellerListingGroups = useMemo(() => {
+    const groups = new Map<string, SellerListingGroup>();
+
+    for (const conversation of visibleConversations) {
+      if (conversation.seller_id !== userId) continue;
+
+      const listingId = conversation.listing_id;
+      const existing = groups.get(listingId);
+      const unreadCount = getUnreadCount(
+        conversation,
+        userId,
+        lastReadSnapshot
+      );
+
+      if (existing) {
+        existing.conversations.push(conversation);
+        existing.unreadCount += unreadCount;
+        continue;
+      }
+
+      groups.set(listingId, {
+        listingId,
+        conversations: [conversation],
+        latestConversation: conversation,
+        unreadCount
+      });
+    }
+
+    return Array.from(groups.values());
+  }, [lastReadSnapshot, userId, visibleConversations]);
+
+  const sidebarEntries = useMemo(() => {
+    const entries: SidebarEntry[] = [];
+    const addedListingIds = new Set<string>();
+
+    for (const conversation of visibleConversations) {
+      if (conversation.seller_id === userId) {
+        if (addedListingIds.has(conversation.listing_id)) continue;
+        const group = sellerListingGroups.find(
+          (item) => item.listingId === conversation.listing_id
+        );
+        if (group) {
+          entries.push({ kind: "listing", group });
+          addedListingIds.add(conversation.listing_id);
+        }
+        continue;
+      }
+
+      entries.push({ kind: "conversation", conversation });
+    }
+
+    return entries;
+  }, [sellerListingGroups, userId, visibleConversations]);
+
+  const selectedSellerListingGroup =
+    sellerListingGroups.find(
+      (group) => group.listingId === selectedSellerListingId
+    ) ?? null;
+
   const activeConversationExpiryTime =
     conversationExpiryTime(activeConversation?.expires_at);
   const activeConversationClosed =
@@ -1243,7 +1336,16 @@ function MessagesPageContent() {
       );
     }
 
+    const requestedConversation = conversations.find(
+      (conversation) => conversation.id === requestedConversationId
+    );
+
     setActiveFilter("all");
+    setSelectedSellerListingId(
+      requestedConversation?.seller_id === userId
+        ? requestedConversation.listing_id
+        : ""
+    );
     setSelectedConversationId(requestedConversationId);
     setMobileConversationOpen(true);
   }, [
@@ -1711,6 +1813,181 @@ function MessagesPageContent() {
     return null;
   }
 
+  function selectMessageFilter(filter: MessageFilter) {
+    setActiveFilter(filter);
+    setSelectedSellerListingId("");
+    setSelectedConversationId("");
+    setMessages([]);
+    setMobileConversationOpen(false);
+  }
+
+  function openConversation(conversation: ConversationSummary) {
+    setSelectedConversationId(conversation.id);
+    setMobileConversationOpen(true);
+
+    if (!userId) return;
+
+    const lastMessageAt = conversation.last_message?.created_at
+      ? new Date(conversation.last_message.created_at).getTime() + 1
+      : Date.now();
+    const readAt = Math.max(Date.now(), lastMessageAt);
+
+    void markConversationRead(conversation.id, userId, readAt);
+    markConversationReadInState(
+      conversation.id,
+      new Date(readAt).toISOString()
+    );
+  }
+
+  function openSellerListing(group: SellerListingGroup) {
+    setSelectedSellerListingId(group.listingId);
+    setSelectedConversationId("");
+    setMessages([]);
+    setMobileConversationOpen(false);
+
+    if (requestedConversationId) {
+      router.replace("/messages");
+    }
+  }
+
+  function closeSellerListing() {
+    setSelectedSellerListingId("");
+    setSelectedConversationId("");
+    setMessages([]);
+    setMobileConversationOpen(false);
+
+    if (requestedConversationId) {
+      router.replace("/messages");
+    }
+  }
+
+  function renderConversationRow(conversation: ConversationSummary) {
+    const name = formatName(conversation, userId, locale);
+    const lastMessage = conversation.last_message;
+    const unreadCount = getUnreadCount(
+      conversation,
+      userId,
+      lastReadSnapshot
+    );
+    const isActive = conversation.id === activeConversation?.id;
+    const otherOnline = isProfileActuallyOnline(conversation.other_profile);
+    const lastText = lastMessage
+      ? `${lastMessage.sender_id === userId ? ui.youPrefix : ""}${lastMessage.content || ui.image}`
+      : conversation.listing?.title || ui.conversationStarted;
+
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        className={`sidebar-conversation${isActive ? " active" : ""}${unreadCount > 0 ? " has-notification" : ""}`}
+        onClick={() => openConversation(conversation)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openConversation(conversation);
+          }
+        }}
+        key={conversation.id}
+      >
+        <div className="sidebar-avatar">
+          {conversation.other_profile?.avatar_url ? (
+            <img
+              src={conversation.other_profile.avatar_url}
+              alt=""
+              referrerPolicy="no-referrer"
+            />
+          ) : getInitials(name)}
+          {otherOnline && <span aria-hidden="true" />}
+        </div>
+
+        <div className="sidebar-copy">
+          <div>
+            <strong>{name}</strong>
+            <time>
+              {formatSidebarTime(
+                lastMessage?.created_at ||
+                  conversation.updated_at ||
+                  conversation.created_at,
+                locale
+              )}
+            </time>
+          </div>
+          <p>{lastText}</p>
+        </div>
+
+        {unreadCount > 0 && (
+          <span className="sidebar-unread">{unreadCount}</span>
+        )}
+
+        <div className="sidebar-actions" aria-label={ui.conversationActions}>
+          <button
+            type="button"
+            className="sidebar-delete-conversation"
+            aria-label={ui.deleteConversation}
+            title={ui.deleteConversation}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              deleteConversationForMe(conversation.id);
+            }}
+          >
+            <X size={13} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  function renderSellerListingRow(group: SellerListingGroup) {
+    const conversation = group.latestConversation;
+    const listingTitle = conversation.listing?.title || ui.listing;
+
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        className={`sidebar-conversation sidebar-listing-group${group.unreadCount > 0 ? " has-notification" : ""}`}
+        onClick={() => openSellerListing(group)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openSellerListing(group);
+          }
+        }}
+        key={`listing-${group.listingId}`}
+      >
+        <div className="sidebar-avatar sidebar-listing-avatar">
+          {conversation.listing?.image_url ? (
+            <img src={conversation.listing.image_url} alt="" />
+          ) : (
+            <MessageCircle size={20} aria-hidden="true" />
+          )}
+        </div>
+
+        <div className="sidebar-copy">
+          <div>
+            <strong>{listingTitle}</strong>
+            <time>
+              {formatSidebarTime(
+                conversation.last_message?.created_at ||
+                  conversation.updated_at ||
+                  conversation.created_at,
+                locale
+              )}
+            </time>
+          </div>
+          <p className="listing-conversation-count">
+            {conversationCountLabel(group.conversations.length, locale)}
+          </p>
+        </div>
+
+        {group.unreadCount > 0 && (
+          <span className="sidebar-unread">{group.unreadCount}</span>
+        )}
+      </div>
+    );
+  }
+
   return (
 
     <main
@@ -1725,29 +2002,66 @@ function MessagesPageContent() {
             <h1>{ui.messages}</h1>
           </div>
 
-          <div className="message-tabs" aria-label={ui.messageFilters}>
-            <button className={activeFilter === "all" ? "active" : ""} type="button" onClick={() => setActiveFilter("all")}>
-              {ui.all} <span>{loading ? "..." : totalVisibleCount}</span>
-            </button>
-            <button className={activeFilter === "buyers" ? "active" : ""} type="button" onClick={() => setActiveFilter("buyers")}>
-              {ui.buyers}
-            </button>
-            <button className={activeFilter === "sellers" ? "active" : ""} type="button" onClick={() => setActiveFilter("sellers")}>
-              {ui.sellers}
-            </button>
-          </div>
+          {selectedSellerListingGroup ? (
+            <div className="seller-listing-drilldown-header">
+              <button
+                type="button"
+                className="seller-listing-back"
+                onClick={closeSellerListing}
+                aria-label={backToListingsLabel(locale)}
+                title={backToListingsLabel(locale)}
+              >
+                <ArrowLeft size={17} aria-hidden="true" />
+              </button>
+              <div className="sidebar-listing-avatar">
+                {selectedSellerListingGroup.latestConversation.listing?.image_url ? (
+                  <img
+                    src={selectedSellerListingGroup.latestConversation.listing.image_url}
+                    alt=""
+                  />
+                ) : (
+                  <MessageCircle size={19} aria-hidden="true" />
+                )}
+              </div>
+              <div>
+                <strong>
+                  {selectedSellerListingGroup.latestConversation.listing?.title || ui.listing}
+                </strong>
+                <span>
+                  {conversationCountLabel(
+                    selectedSellerListingGroup.conversations.length,
+                    locale
+                  )}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="message-tabs" aria-label={ui.messageFilters}>
+                <button className={activeFilter === "all" ? "active" : ""} type="button" onClick={() => selectMessageFilter("all")}>
+                  {ui.all} <span>{loading ? "..." : totalVisibleCount}</span>
+                </button>
+                <button className={activeFilter === "buyers" ? "active" : ""} type="button" onClick={() => selectMessageFilter("buyers")}>
+                  {ui.buyers}
+                </button>
+                <button className={activeFilter === "sellers" ? "active" : ""} type="button" onClick={() => selectMessageFilter("sellers")}>
+                  {ui.sellers}
+                </button>
+              </div>
 
-          <div className="message-search">
-            <Search size={15} />
-            <input
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder={ui.searchPlaceholder}
-            />
-            <button type="button" aria-label={ui.filters}>
-              <SlidersHorizontal size={15} />
-            </button>
-          </div>
+              <div className="message-search">
+                <Search size={15} />
+                <input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder={ui.searchPlaceholder}
+                />
+                <button type="button" aria-label={ui.filters}>
+                  <SlidersHorizontal size={15} />
+                </button>
+              </div>
+            </>
+          )}
 
           <div className="sidebar-list">
             {loading && [0, 1, 2, 3].map((item) => (
@@ -1760,112 +2074,15 @@ function MessagesPageContent() {
               </div>
             ))}
 
-            {!loading && visibleConversations.map((conversation) => {
-              const name = formatName(conversation, userId, locale);
-              const lastMessage = conversation.last_message;
-              const unreadCount = getUnreadCount(
-                conversation,
-                userId,
-                lastReadSnapshot
-              );
-              const isActive = conversation.id === activeConversation?.id;
-              const otherOnline =
-                isProfileActuallyOnline(conversation.other_profile);
-              const lastText = lastMessage
-                ? `${lastMessage.sender_id === userId ? ui.youPrefix : ""}${lastMessage.content || ui.image}`
-                : conversation.listing?.title || ui.conversationStarted;
-              const openConversation = () => {
-                setSelectedConversationId(
-                  conversation.id
-                );
-                setMobileConversationOpen(true);
-                if (userId) {
-                  const lastMessageAt =
-                    conversation.last_message?.created_at
-                      ? new Date(conversation.last_message.created_at).getTime() + 1
-                      : Date.now();
-                  const readAt =
-                    Math.max(Date.now(), lastMessageAt);
-
-                  void markConversationRead(
-                    conversation.id,
-                    userId,
-                    readAt
-                  );
-                  markConversationReadInState(
-                    conversation.id,
-                    new Date(readAt).toISOString()
-                  );
-                }
-              };
-
-              return (
-                <div
-                  role="button"
-                  tabIndex={0}
-                  className={`sidebar-conversation${isActive ? " active" : ""}${unreadCount > 0 ? " has-notification" : ""}`}
-                  onClick={openConversation}
-                  onKeyDown={(event) => {
-                    if (
-                      event.key === "Enter" ||
-                      event.key === " "
-                    ) {
-                      event.preventDefault();
-                      openConversation();
-                    }
-                  }}
-                  key={conversation.id}
-                >
-                  <div className="sidebar-avatar">
-                    {conversation.other_profile?.avatar_url
-                      ? (
-                        <img
-                          src={conversation.other_profile.avatar_url}
-                          alt=""
-                          referrerPolicy="no-referrer"
-                        />
-                      )
-                      : getInitials(name)}
-                    {otherOnline && <span aria-hidden="true" />}
-                  </div>
-
-                  <div className="sidebar-copy">
-                    <div>
-                      <strong>{name}</strong>
-                      <time>
-                        {formatSidebarTime(
-                          lastMessage?.created_at ||
-                          conversation.updated_at ||
-                          conversation.created_at,
-                          locale
-                        )}
-                      </time>
-                    </div>
-                    <p>{lastText}</p>
-                  </div>
-
-                  {unreadCount > 0 && (
-                    <span className="sidebar-unread">{unreadCount}</span>
-                  )}
-
-                  <div className="sidebar-actions" aria-label={ui.conversationActions}>
-                    <button
-                      type="button"
-                      className="sidebar-delete-conversation"
-                      aria-label={ui.deleteConversation}
-                      title={ui.deleteConversation}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        deleteConversationForMe(conversation.id);
-                      }}
-                    >
-                      <X size={13} aria-hidden="true" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {!loading && (
+              selectedSellerListingGroup
+                ? selectedSellerListingGroup.conversations.map(renderConversationRow)
+                : sidebarEntries.map((entry) =>
+                    entry.kind === "listing"
+                      ? renderSellerListingRow(entry.group)
+                      : renderConversationRow(entry.conversation)
+                  )
+            )}
 
             {!loading && userId && visibleConversations.length === 0 && (
               <div className="sidebar-empty">
@@ -8192,6 +8409,96 @@ function MessagesPageContent() {
             background 0.14s ease,
             border-color 0.14s ease,
             box-shadow 0.14s ease;
+        }
+
+        .messages-inbox-page .sidebar-listing-group {
+          grid-template-columns: 50px minmax(0, 1fr) auto;
+          padding-right: 42px;
+        }
+
+        .messages-inbox-page .sidebar-avatar.sidebar-listing-avatar,
+        .messages-inbox-page .seller-listing-drilldown-header .sidebar-listing-avatar {
+          width: 48px;
+          height: 44px;
+          display: grid;
+          flex: 0 0 auto;
+          place-items: center;
+          overflow: hidden;
+          border: 1px solid #36536b;
+          border-radius: 6px;
+          background: #10283b;
+          color: #ff8b2b;
+          box-shadow: none;
+        }
+
+        .messages-inbox-page .sidebar-listing-avatar img {
+          width: 100%;
+          height: 100%;
+          display: block;
+          border-radius: 5px;
+          object-fit: cover;
+        }
+
+        .messages-inbox-page .listing-conversation-count {
+          color: #ffad67;
+          font-weight: 850;
+        }
+
+        .messages-inbox-page .seller-listing-drilldown-header {
+          min-height: 64px;
+          display: grid;
+          grid-template-columns: 32px 48px minmax(0, 1fr);
+          align-items: center;
+          gap: 10px;
+          margin: 0 0 12px;
+          padding: 8px 6px 12px;
+          border-bottom: 1px solid #294760;
+        }
+
+        .messages-inbox-page .seller-listing-back {
+          width: 30px;
+          height: 30px;
+          display: inline-grid;
+          place-items: center;
+          padding: 0;
+          border: 1px solid rgba(255, 122, 18, 0.45);
+          border-radius: 999px;
+          background: rgba(255, 122, 18, 0.12);
+          color: #ff9a42;
+          box-shadow: none;
+        }
+
+        .messages-inbox-page .seller-listing-back:hover,
+        .messages-inbox-page .seller-listing-back:focus-visible {
+          border-color: #ff7a12;
+          background: #ff7a12;
+          color: #ffffff;
+          outline: 0;
+        }
+
+        .messages-inbox-page .seller-listing-drilldown-header > div:last-child {
+          min-width: 0;
+          display: grid;
+          gap: 5px;
+        }
+
+        .messages-inbox-page .seller-listing-drilldown-header strong,
+        .messages-inbox-page .seller-listing-drilldown-header span {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .messages-inbox-page .seller-listing-drilldown-header strong {
+          color: #f7fbff;
+          font-size: 13px;
+          font-weight: 950;
+        }
+
+        .messages-inbox-page .seller-listing-drilldown-header span {
+          color: #ffad67;
+          font-size: 11px;
+          font-weight: 850;
         }
 
         .messages-inbox-page .sidebar-conversation.has-notification {
