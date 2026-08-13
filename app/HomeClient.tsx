@@ -276,7 +276,7 @@ const translations = {
     login: "Kirjaudu",
     signOut: "Kirjaudu ulos",
     heroTitle: "Maskines",
-    heroSubtitle: "Pohjoismainen markkinapaikka käytetyille varaosille ja ajoneuvoille.",
+    heroSubtitle: "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.",
     heroLeadStart: "Nopea haku",
     heroLeadHighlight: "osta ja myy",
     heroLeadEnd: "varaosat ja ajoneuvot",
@@ -378,7 +378,7 @@ const translations = {
     login: "Log in",
     signOut: "Log out",
     heroTitle: "Vehicle parts that move you forward.",
-    heroSubtitle: "Fast search. Wide selection. Trusted sellers.",
+    heroSubtitle: "A Nordic marketplace for small vehicles and spare parts.",
     heroLeadStart: "Fast search",
     heroLeadHighlight: "sell used",
     heroLeadEnd: "spare parts easily",
@@ -480,7 +480,7 @@ const translations = {
     login: "Logga in",
     signOut: "Logga ut",
     heroTitle: "Fordonsdelar som tar dig framåt.",
-    heroSubtitle: "Snabb sökning. Brett utbud. Pålitliga säljare.",
+    heroSubtitle: "En nordisk marknadsplats för småfordon och reservdelar.",
     heroLeadStart: "Snabb sökning",
     heroLeadHighlight: "sälj begagnade",
     heroLeadEnd: "reservdelar enkelt",
@@ -582,7 +582,7 @@ const translations = {
     login: "Logg inn",
     signOut: "Logg ut",
     heroTitle: "Kjøretøydeler som tar deg videre.",
-    heroSubtitle: "Raskt søk. Stort utvalg. Pålitelige selgere.",
+    heroSubtitle: "En nordisk markedsplass for små kjøretøy og reservedeler.",
     heroLeadStart: "Raskt søk",
     heroLeadHighlight: "selg brukte",
     heroLeadEnd: "reservedeler enkelt",
@@ -1771,16 +1771,19 @@ function BodyPortal({ enabled, children }: { enabled: boolean; children: ReactNo
 
 export default function Home({
   initialListings = [],
-  initialSearchQuery = ""
+  initialSearchQuery = "",
+  initialMarketplaceMode
 }: {
   initialListings?: Listing[];
   initialSearchQuery?: string;
+  initialMarketplaceMode?: MarketplaceMode;
 }) {
   return (
     <Suspense fallback={<PageLoadingFallback />}>
       <HomeContent
         initialListings={initialListings}
         initialSearchQuery={initialSearchQuery}
+        initialMarketplaceMode={initialMarketplaceMode}
       />
     </Suspense>
   );
@@ -1788,17 +1791,21 @@ export default function Home({
 
 function HomeContent({
   initialListings,
-  initialSearchQuery
+  initialSearchQuery,
+  initialMarketplaceMode
 }: {
   initialListings: Listing[];
   initialSearchQuery: string;
+  initialMarketplaceMode?: MarketplaceMode;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [marketplaceMode, setMarketplaceMode] = useState<MarketplaceMode>(() =>
-    searchParams.get("market") === "vehicles" ? "vehicles" : "parts"
+    initialMarketplaceMode ?? (searchParams.get("market") === "vehicles" ? "vehicles" : "parts")
   );
-  const [appliedMarketplaceMode, setAppliedMarketplaceMode] = useState<MarketplaceResultMode>("all");
+  const [appliedMarketplaceMode, setAppliedMarketplaceMode] = useState<MarketplaceResultMode>(
+    initialMarketplaceMode ?? "all"
+  );
   const isVehicleMarketplace = marketplaceMode === "vehicles";
 
   const taxonomy = useTaxonomy();

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import HomeClient from "./HomeClient";
+import SeoCollectionLinks from "./components/SeoCollectionLinks";
 import { getListings } from "@/lib/supabase";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
@@ -10,10 +11,10 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
   title: {
-    absolute: "Maskines: Osta ja myy ajoneuvojen varaosat"
+    absolute: "Maskines: Osta ja myy pienkoneiden ajoneuvot ja varaosat"
   },
   description:
-    "Osta ja myy käytettyjä moottorikelkan, mönkijän, motocross-pyörän ja mopon varaosia. Hae osia merkin, mallin, vuosimallin ja kategorian mukaan.",
+    "Pohjoismainen markkinapaikka pienkoneiden ajoneuvoille ja varaosille. Osta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat.",
   alternates: {
     canonical: absoluteSiteUrl("/")
   },
@@ -21,24 +22,24 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fi_FI",
     siteName: "Maskines",
-    title: "Maskines: Osta ja myy ajoneuvojen varaosat",
+    title: "Maskines: Pienkoneiden ajoneuvot ja varaosat",
     description:
-      "Ajoneuvojen käytettyjen varaosien markkinapaikka. Löydä moottorikelkan, mönkijän, motocross-pyörän ja mopon osat.",
+      "Osta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat pohjoismaisella markkinapaikalla.",
     url: absoluteSiteUrl("/"),
     images: [
       {
         url: absoluteSiteUrl("/maskines-share-logo.png"),
         width: 1200,
         height: 1200,
-        alt: "Maskines – käytettyjen ajoneuvojen varaosat"
+        alt: "Maskines – pienkoneiden ajoneuvot ja varaosat"
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
-    title: "Maskines: Osta ja myy ajoneuvojen varaosat",
+    title: "Maskines: Pienkoneiden ajoneuvot ja varaosat",
     description:
-      "Osta ja myy käytettyjä moottorikelkan, mönkijän, motocross-pyörän ja mopon varaosia.",
+      "Osta ja myy pienkoneiden ajoneuvot ja varaosat moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin.",
     images: [absoluteSiteUrl("/maskines-share-logo.png")]
   }
 };
@@ -88,7 +89,7 @@ export default async function HomePage() {
       },
       {
         "@type": "ItemList",
-        name: "Uusimmat ajoneuvojen varaosailmoitukset",
+        name: "Uusimmat pienkoneiden ajoneuvo- ja varaosailmoitukset",
         numberOfItems: publicListings.length,
         itemListElement: publicListings.slice(0, 24).map((listing, index) => ({
           "@type": "ListItem",
@@ -107,6 +108,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
       />
       <HomeClient initialListings={publicListings} />
+      <SeoCollectionLinks listings={publicListings} />
     </>
   );
 }

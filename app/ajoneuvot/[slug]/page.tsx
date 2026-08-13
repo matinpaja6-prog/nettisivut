@@ -7,8 +7,8 @@ import { listingPath, listingUrlId } from "@/lib/routes";
 import {
   formatSeoSearchLabel,
   listingMatchesSeoCollection,
-  seoSearchPath,
-  seoSearchQueryFromSlug
+  seoSearchQueryFromSlug,
+  seoVehicleSearchPath
 } from "@/lib/seo-search";
 import { absoluteSiteUrl } from "@/lib/site-url";
 import { getListings } from "@/lib/supabase";
@@ -19,15 +19,15 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-const getSearchPageData = cache(async (slug: string) => {
+const getVehicleCollectionData = cache(async (slug: string) => {
   const query = seoSearchQueryFromSlug(slug);
   const { data } = await getListings({
     includeOptionalFields: true,
     enrichSellerProfiles: false
   });
   const listings = data.filter((listing) => !listing.is_hidden && !listing.is_sold);
-  const matches = listings.filter(
-    (listing) => listingMatchesSeoCollection(listing, query, "parts")
+  const matches = listings.filter((listing) =>
+    listingMatchesSeoCollection(listing, query, "vehicles")
   );
 
   return { query, listings, matches };
@@ -35,14 +35,14 @@ const getSearchPageData = cache(async (slug: string) => {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { query, matches } = await getSearchPageData(slug);
+  const { query, matches } = await getVehicleCollectionData(slug);
   const label = formatSeoSearchLabel(query);
-  const canonical = absoluteSiteUrl(seoSearchPath(query));
+  const canonical = absoluteSiteUrl(seoVehicleSearchPath(query));
   const isCollection = matches.length > 1;
-  const title = `${label} varaosat myynnissä | Maskines`;
+  const title = `${label} ajoneuvot myynnissä | Maskines`;
   const description = isCollection
-    ? `Katso kaikki Maskinesin ${label} -ilmoitukset. ${matches.length} myynnissä olevaa varaosailmoitusta samassa haussa.`
-    : `Katso ${label} -varaosailmoitus Maskines-palvelussa.`;
+    ? `Katso kaikki ${label} -ajoneuvoilmoitukset. Vertaa ${matches.length} myynnissä olevaa ajoneuvoa, kuvia, hintoja ja myyjien tietoja.`
+    : `Katso ${label} -ajoneuvoilmoitus Maskines-palvelussa.`;
 
   return {
     title: { absolute: title },
@@ -68,9 +68,9 @@ function serializeStructuredData(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-export default async function SeoSearchPage({ params }: PageProps) {
+export default async function VehicleCollectionPage({ params }: PageProps) {
   const { slug } = await params;
-  const { query, listings, matches } = await getSearchPageData(slug);
+  const { query, listings, matches } = await getVehicleCollectionData(slug);
 
   if (matches.length < 2) {
     permanentRedirect(
@@ -79,13 +79,13 @@ export default async function SeoSearchPage({ params }: PageProps) {
   }
 
   const label = formatSeoSearchLabel(query);
-  const canonical = absoluteSiteUrl(seoSearchPath(query));
+  const canonical = absoluteSiteUrl(seoVehicleSearchPath(query));
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "CollectionPage",
-        name: `${label} varaosat myynnissä`,
+        name: `${label} ajoneuvot myynnissä`,
         url: canonical,
         inLanguage: "fi-FI",
         mainEntity: {
@@ -111,7 +111,7 @@ export default async function SeoSearchPage({ params }: PageProps) {
           {
             "@type": "ListItem",
             position: 2,
-            name: "Varaosat",
+            name: "Ajoneuvot",
             item: absoluteSiteUrl("/ilmoitukset")
           },
           {
@@ -132,22 +132,25 @@ export default async function SeoSearchPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
       />
       <section
-        aria-labelledby="seo-collection-title"
-        style={{
-          maxWidth: 1180,
-          margin: "0 auto",
-          padding: "24px 20px 0"
-        }}
+        aria-labelledby="vehicle-collection-title"
+        style={{ maxWidth: 1180, margin: "0 auto", padding: "24px 20px 0" }}
       >
-        <h1 id="seo-collection-title" style={{ margin: 0, fontSize: "clamp(1.6rem, 4vw, 2.5rem)" }}>
-          {label} varaosat ja ilmoitukset
+        <h1
+          id="vehicle-collection-title"
+          style={{ margin: 0, fontSize: "clamp(1.6rem, 4vw, 2.5rem)" }}
+        >
+          {label} ajoneuvot myynnissä
         </h1>
         <p style={{ margin: "8px 0 0", color: "var(--text-muted, #667085)" }}>
-          Katso {matches.length} myynnissä olevaa {label} -ilmoitusta. Avaa ilmoitus nähdäksesi kuvat,
-          hinnan, kunnon ja myyjän yhteystiedot.
+          Vertaa {matches.length} myynnissä olevaa {label} -ajoneuvoa. Avaa ilmoitus nähdäksesi
+          kuvat, hinnan, tekniset tiedot ja myyjän yhteystiedot.
         </p>
       </section>
-      <HomeClient initialListings={listings} initialSearchQuery={query} initialMarketplaceMode="parts" />
+      <HomeClient
+        initialListings={listings}
+        initialSearchQuery={query}
+        initialMarketplaceMode="vehicles"
+      />
     </>
   );
 }

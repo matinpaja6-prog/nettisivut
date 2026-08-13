@@ -1,7 +1,12 @@
 import type { MetadataRoute } from "next";
 
 import { listingNumberUrlId, listingPath, listingUrlId, pagePath } from "@/lib/routes";
-import { seoListingSearchQuery, seoSearchPath } from "@/lib/seo-search";
+import {
+  seoCollectionPath,
+  seoPartSearchQueries,
+  seoVehicleSearchQueries,
+  type SeoCollectionKind
+} from "@/lib/seo-search";
 import { absoluteSiteUrl } from "@/lib/site-url";
 import { getListingDisplayNumber, getListings } from "@/lib/supabase";
 
@@ -61,22 +66,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { count: number; lastModified?: Date }
   >();
 
-  for (const listing of listings.filter((item) => !item.is_hidden && !item.is_sold)) {
-    const query = seoListingSearchQuery(listing);
-    if (!query) continue;
-
-    const path = seoSearchPath(query);
-    const createdAt = new Date(listing.created_at);
-    const date = Number.isNaN(createdAt.getTime()) ? undefined : createdAt;
+  function addCollectionQuery(
+    kind: SeoCollectionKind,
+    query: string,
+    lastModified?: Date
+  ) {
+    const path = seoCollectionPath(kind, query);
     const group = groupedSearchPages.get(path);
 
     groupedSearchPages.set(path, {
       count: (group?.count ?? 0) + 1,
       lastModified:
-        !group?.lastModified || (date && date > group.lastModified)
-          ? date
+        !group?.lastModified || (lastModified && lastModified > group.lastModified)
+          ? lastModified
           : group.lastModified
     });
+  }
+
+  for (const listing of listings.filter((item) => !item.is_hidden && !item.is_sold)) {
+    const createdAt = new Date(listing.created_at);
+    const date = Number.isNaN(createdAt.getTime()) ? undefined : createdAt;
+
+    for (const query of seoPartSearchQueries(listing)) {
+      addCollectionQuery("parts", query, date);
+    }
+
+    for (const query of seoVehicleSearchQueries(listing)) {
+      addCollectionQuery("vehicles", query, date);
+    }
   }
 
   const searchEntries: MetadataRoute.Sitemap = [...groupedSearchPages.entries()]

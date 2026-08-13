@@ -404,7 +404,7 @@ Object.assign(staticUiTranslations.en, {
   Missiomme: "Our mission",
   "Moottoritilavuus (cm³)": "Engine displacement (cm³)",
   "Kaikki moottorit": "All engines",
-  "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.": "A Nordic marketplace for small-vehicle spare parts.\nBuy and sell parts for snowmobiles, ATVs, motocross bikes and mopeds easily in one place."
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.\nOsta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat helposti samassa paikassa.": "A Nordic marketplace for small vehicles and spare parts.\nBuy and sell snowmobiles, ATVs, motocross bikes, mopeds and their spare parts in one place."
 });
 Object.assign(staticUiTranslations.sv, {
   "Etusivu": "Startsida",
@@ -425,7 +425,7 @@ Object.assign(staticUiTranslations.sv, {
   Missiomme: "Vårt uppdrag",
   "Moottoritilavuus (cm³)": "Motorvolym (cm³)",
   "Kaikki moottorit": "Alla motorer",
-  "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.": "En nordisk marknadsplats för reservdelar till småfordon.\nKöp och sälj reservdelar till snöskotrar, fyrhjulingar, motocrosscyklar och mopeder enkelt på ett och samma ställe."
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.\nOsta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat helposti samassa paikassa.": "En nordisk marknadsplats för småfordon och reservdelar.\nKöp och sälj snöskotrar, fyrhjulingar, motocrosscyklar, mopeder och deras reservdelar på samma ställe."
 });
 Object.assign(staticUiTranslations.no, {
   Etusivu: "Hjem",
@@ -515,7 +515,7 @@ Object.assign(staticUiTranslations.en, {
   "Nopea haku": "Fast search",
   "osta ja myy": "buy and sell",
   "varaosat ja ajoneuvot": "parts and vehicles",
-  "Pohjoismainen markkinapaikka käytetyille varaosille ja ajoneuvoille.": "A Nordic marketplace for used parts and vehicles.",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.": "A Nordic marketplace for small vehicles and spare parts.",
   Ilmainen: "Free",
   "Pohjoismainen myyntialusta": "Nordic marketplace",
   "Osta ja myy ilmaiseksi": "Buy and sell for free",
@@ -552,7 +552,7 @@ Object.assign(staticUiTranslations.sv, {
   "Nopea haku": "Snabb sökning",
   "osta ja myy": "köp och sälj",
   "varaosat ja ajoneuvot": "reservdelar och fordon",
-  "Pohjoismainen markkinapaikka käytetyille varaosille ja ajoneuvoille.": "En nordisk marknadsplats för begagnade reservdelar och fordon.",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.": "En nordisk marknadsplats för småfordon och reservdelar.",
   Ilmainen: "Gratis",
   "Pohjoismainen myyntialusta": "Nordisk marknadsplats",
   "Osta ja myy ilmaiseksi": "Köp och sälj gratis",
@@ -589,7 +589,7 @@ Object.assign(staticUiTranslations.no, {
   "Nopea haku": "Raskt søk",
   "osta ja myy": "kjøp og selg",
   "varaosat ja ajoneuvot": "reservedeler og kjøretøy",
-  "Pohjoismainen markkinapaikka käytetyille varaosille ja ajoneuvoille.": "En nordisk markedsplass for brukte reservedeler og kjøretøy.",
+  "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.": "En nordisk markedsplass for små kjøretøy og reservedeler.",
   Ilmainen: "Gratis",
   "Pohjoismainen myyntialusta": "Nordisk markedsplass",
   "Osta ja myy ilmaiseksi": "Kjøp og selg gratis",

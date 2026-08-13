@@ -7,7 +7,7 @@ import { canonicalPathFromLocalized, pagePath } from "@/lib/routes";
 
 const footerText = {
   fi: {
-    tagline: "Pohjoismainen markkinapaikka pienkoneiden varaosille.\nOsta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin helposti yhdessä paikassa.",
+    tagline: "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.\nOsta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat helposti samassa paikassa.",
     follow: "Seuraa meitä",
     email: "Sähköposti",
     service: "Palvelu",
@@ -28,7 +28,7 @@ const footerText = {
     rights: "Kaikki oikeudet pidätetään."
   },
   en: {
-    tagline: "The northern marketplace for snowmobile, ATV, motocross and moped parts.",
+    tagline: "A Nordic marketplace for small vehicles and spare parts.\nBuy and sell snowmobiles, ATVs, motocross bikes, mopeds and their spare parts in one place.",
     follow: "Follow us",
     email: "Email",
     service: "Service",
@@ -49,7 +49,7 @@ const footerText = {
     rights: "All rights reserved."
   },
   sv: {
-    tagline: "Nordens marknadsplats för delar till snöskotrar, fyrhjulingar, motocross och mopeder.",
+    tagline: "En nordisk marknadsplats för småfordon och reservdelar.\nKöp och sälj snöskotrar, fyrhjulingar, motocrosscyklar, mopeder och deras reservdelar på samma ställe.",
     follow: "Följ oss",
     email: "E-post",
     service: "Tjänst",
@@ -70,7 +70,7 @@ const footerText = {
     rights: "Alla rättigheter förbehållna."
   },
   no: {
-    tagline: "Den nordlige markedsplassen for deler til snøscootere, ATV-er, motocross og mopeder.",
+    tagline: "En nordisk markedsplass for små kjøretøy og reservedeler.\nKjøp og selg snøscootere, ATV-er, motocrossykler, mopeder og reservedeler på samme sted.",
     follow: "Følg oss",
     email: "E-post",
     service: "Tjeneste",

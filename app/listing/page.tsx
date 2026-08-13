@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import ListingsIndexClient from "./ListingsIndexClient";
+import SeoCollectionLinks from "@/app/components/SeoCollectionLinks";
 import { getListings } from "@/lib/supabase";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
 
@@ -8,9 +9,9 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
-  title: "Käytetyt ajoneuvojen varaosat",
+  title: "Pienkoneiden ajoneuvot ja varaosat",
   description:
-    "Selaa käytettyjä moottorikelkan, mönkijän, motocross-pyörän ja mopon varaosia. Vertaa ilmoituksia ja löydä sopiva osa ajoneuvoosi.",
+    "Selaa moottorikelkkojen, mönkijöiden, motocross-pyörien ja mopojen ajoneuvo- ja varaosailmoituksia. Vertaa hintoja, kuvia ja myyjiä.",
   alternates: {
     canonical: absoluteSiteUrl("/ilmoitukset")
   },
@@ -27,11 +28,14 @@ export default async function ListingsIndexPage() {
     limit: 240
   });
 
+  const publicListings = listings.filter(
+    (listing) => !listing.is_hidden && !listing.is_sold
+  );
+
   return (
-    <ListingsIndexClient
-      initialListings={listings.filter(
-        (listing) => !listing.is_hidden && !listing.is_sold
-      )}
-    />
+    <>
+      <ListingsIndexClient initialListings={publicListings} />
+      <SeoCollectionLinks listings={publicListings} />
+    </>
   );
 }

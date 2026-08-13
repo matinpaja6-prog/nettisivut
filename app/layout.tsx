@@ -31,11 +31,11 @@ export const metadata: Metadata = {
     follow: true
   },
   title: {
-    default: "Maskines | Moottorikelkkojen, mönkijöiden, motocrossien ja mopojen varaosat",
+    default: "Maskines | Pienkoneiden ajoneuvot ja varaosat",
     template: "%s | Maskines"
   },
   description:
-    "Osta ja myy käytettyjä varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin. Rajaa osat ajoneuvon, merkin, mallin, vuosimallin ja kategorian mukaan.",
+    "Pohjoismainen markkinapaikka pienkoneiden ajoneuvoille ja varaosille. Osta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat.",
   keywords: [
     "Maskines",
     "moottorikelkan varaosat",
@@ -43,7 +43,10 @@ export const metadata: Metadata = {
     "motocross varaosat",
     "mopon varaosat",
     "käytetyt varaosat",
-    "varaosatori"
+    "varaosatori",
+    "käytetyt ajoneuvot",
+    "moottorikelkat myynnissä",
+    "mönkijät myynnissä"
   ],
   icons: {
     icon: [
@@ -62,9 +65,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fi_FI",
     siteName: "Maskines",
-    title: "Maskines | Käytetyt ajoneuvojen varaosat",
+    title: "Maskines | Pienkoneiden ajoneuvot ja varaosat",
     description:
-      "Käytettyjen varaosien kauppapaikka moottorikelkoille, mönkijöille, motocross-pyörille ja mopoille.",
+      "Pohjoismainen markkinapaikka moottorikelkoille, mönkijöille, motocross-pyörille, mopoille ja niiden varaosille.",
     url: "/",
     images: [
       {
@@ -77,9 +80,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Maskines | Käytetyt ajoneuvojen varaosat",
+    title: "Maskines | Pienkoneiden ajoneuvot ja varaosat",
     description:
-      "Osta ja myy varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin.",
+      "Osta ja myy pienkoneiden ajoneuvoja ja varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin.",
     images: ["/maskines-share-logo.png"]
   }
 };
