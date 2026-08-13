@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { query, matches } = await getSearchPageData(slug);
   const label = formatSeoSearchLabel(query);
   const canonical = absoluteSiteUrl(seoSearchPath(query));
-  const isCollection = matches.length > 1;
+  const isCollection = matches.length > 0;
   const title = `${label} varaosat myynnissä | Maskines`;
   const description = isCollection
     ? `Katso kaikki Maskinesin ${label} -ilmoitukset. ${matches.length} myynnissä olevaa varaosailmoitusta samassa haussa.`
@@ -72,10 +72,8 @@ export default async function SeoSearchPage({ params }: PageProps) {
   const { slug } = await params;
   const { query, listings, matches } = await getSearchPageData(slug);
 
-  if (matches.length < 2) {
-    permanentRedirect(
-      matches[0] ? listingPath(listingUrlId(matches[0])) : "/ilmoitukset"
-    );
+  if (matches.length === 0) {
+    permanentRedirect("/varaosat");
   }
 
   const label = formatSeoSearchLabel(query);
@@ -112,7 +110,7 @@ export default async function SeoSearchPage({ params }: PageProps) {
             "@type": "ListItem",
             position: 2,
             name: "Varaosat",
-            item: absoluteSiteUrl("/ilmoitukset")
+            item: absoluteSiteUrl("/varaosat")
           },
           {
             "@type": "ListItem",

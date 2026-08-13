@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
 
-import { formatPrice } from "@/lib/listings";
+import { formatPrice, isVehicleListing } from "@/lib/listings";
 import { getLocalizedListingText, type ListingLocale } from "@/lib/listing-translations";
 import { listingNumberUrlId, listingPath } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
@@ -75,10 +75,14 @@ function buildDescription(listing: Awaited<ReturnType<typeof getListingById>>["d
     .map((item) => cleanMetaText(item))
     .filter(Boolean)
     .join(" ");
+  const partType = !isVehicleListing(listing)
+    ? cleanMetaText(listing.subcategory?.split("/").at(-1) || listing.category)
+    : "";
 
   const parts = [
     formatPrice(Number(listing.price) || 0),
     vehicle,
+    partType,
     cleanMetaText(listing.location),
     cleanMetaText(listing.description).slice(0, 150)
   ].filter(Boolean);
@@ -89,7 +93,10 @@ function buildDescription(listing: Awaited<ReturnType<typeof getListingById>>["d
 function buildTitle(listing: NonNullable<Awaited<ReturnType<typeof getListingById>>["data"]>) {
   const listingTitle = cleanMetaText(listing.title, "Ilmoitus");
   const normalizedTitle = listingTitle.toLocaleLowerCase("fi");
-  const missingVehicleDetails = [listing.brand, listing.model, listing.year]
+  const partType = !isVehicleListing(listing)
+    ? cleanMetaText(listing.subcategory?.split("/").at(-1) || listing.category)
+    : "";
+  const missingVehicleDetails = [listing.brand, listing.model, listing.year, partType]
     .map((item) => cleanMetaText(item))
     .filter((item) => item && !normalizedTitle.includes(item.toLocaleLowerCase("fi")));
   const searchableTitle = [...missingVehicleDetails, listingTitle].join(" ");

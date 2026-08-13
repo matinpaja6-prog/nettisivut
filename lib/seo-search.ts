@@ -53,12 +53,14 @@ export function seoListingSearchQueries(
   // Buyers commonly group variants such as Lynx Rave RS and Ski-Doo MXZ RS
   // under the shorter "Lynx RS" / "Ski-Doo RS" search. Use one canonical
   // collection query instead of publishing several pages with identical items.
-  const collectionModel =
-    modelWords.length > 1 && wellKnownVariantCodes.has(finalModelWord)
-      ? finalModelWord
-      : model;
+  const baseQueries = new Set([`${brand} ${model}`]);
 
-  return [`${brand} ${collectionModel}`];
+  if (modelWords.length > 1 && wellKnownVariantCodes.has(finalModelWord)) {
+    baseQueries.add(`${brand} ${modelWords.slice(0, -1).join(" ")}`);
+    baseQueries.add(`${brand} ${finalModelWord}`);
+  }
+
+  return [...baseQueries];
 }
 
 function seoPartTerms(listing: Pick<Listing, "category" | "subcategory">) {
@@ -103,6 +105,13 @@ function seoPartTerms(listing: Pick<Listing, "category" | "subcategory">) {
     }
   }
 
+  if ([category, subcategory].some((value) => value.includes("iskunvaiment"))) {
+    terms.add("iskarit");
+  }
+  if ([category, subcategory].some((value) => value.includes("iskarit"))) {
+    terms.add("iskunvaimentimet");
+  }
+
   return [...terms];
 }
 
@@ -112,7 +121,10 @@ export function seoPartSearchQueries(listing: Listing) {
   const vehicleQueries = seoListingSearchQueries(listing);
   const queries = new Set(vehicleQueries);
 
-  for (const vehicleQuery of vehicleQueries) {
+  // Keep model and model+part landing pages useful and distinct. The year is
+  // carried by each individual listing's title and metadata, so we avoid
+  // publishing hundreds of near-duplicate year-filtered collection pages.
+  for (const vehicleQuery of vehicleQueries.slice(0, 2)) {
     for (const partTerm of seoPartTerms(listing)) {
       queries.add(`${vehicleQuery} ${partTerm}`);
     }
@@ -139,7 +151,7 @@ export function listingMatchesSeoCollection(
 
 export function buildSeoCollectionLinks(
   listings: Listing[],
-  minimumListings = 2
+  minimumListings = 1
 ): SeoCollectionLink[] {
   const groups = new Map<string, SeoCollectionLink>();
 
@@ -182,7 +194,8 @@ export function listingMatchesSeoQuery(listing: Listing, query: string) {
     listing.part_number,
     listing.category,
     listing.subcategory,
-    listing.engine_model
+    listing.engine_model,
+    ...seoPartTerms(listing)
   ].join(" "));
   const haystackWords = new Set(haystack.split(" ").filter(Boolean));
 

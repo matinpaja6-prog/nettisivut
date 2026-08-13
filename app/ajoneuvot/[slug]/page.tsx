@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { query, matches } = await getVehicleCollectionData(slug);
   const label = formatSeoSearchLabel(query);
   const canonical = absoluteSiteUrl(seoVehicleSearchPath(query));
-  const isCollection = matches.length > 1;
+  const isCollection = matches.length > 0;
   const title = `${label} ajoneuvot myynnissä | Maskines`;
   const description = isCollection
     ? `Katso kaikki ${label} -ajoneuvoilmoitukset. Vertaa ${matches.length} myynnissä olevaa ajoneuvoa, kuvia, hintoja ja myyjien tietoja.`
@@ -72,10 +72,8 @@ export default async function VehicleCollectionPage({ params }: PageProps) {
   const { slug } = await params;
   const { query, listings, matches } = await getVehicleCollectionData(slug);
 
-  if (matches.length < 2) {
-    permanentRedirect(
-      matches[0] ? listingPath(listingUrlId(matches[0])) : "/ilmoitukset"
-    );
+  if (matches.length === 0) {
+    permanentRedirect("/ajoneuvot");
   }
 
   const label = formatSeoSearchLabel(query);
@@ -112,7 +110,7 @@ export default async function VehicleCollectionPage({ params }: PageProps) {
             "@type": "ListItem",
             position: 2,
             name: "Ajoneuvot",
-            item: absoluteSiteUrl("/ilmoitukset")
+            item: absoluteSiteUrl("/ajoneuvot")
           },
           {
             "@type": "ListItem",

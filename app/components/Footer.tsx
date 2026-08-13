@@ -14,6 +14,7 @@ const footerText = {
     home: "Etusivu",
     listings: "Kaikki ilmoitukset",
     vehicles: "Ajoneuvot",
+    parts: "Varaosat",
     sell: "Myy osa",
     garage: "Talli",
     company: "Yritys",
@@ -37,6 +38,7 @@ const footerText = {
     home: "Home",
     listings: "All listings",
     vehicles: "Vehicles",
+    parts: "Spare parts",
     sell: "Sell part",
     garage: "Garage",
     company: "Company",
@@ -60,6 +62,7 @@ const footerText = {
     home: "Hem",
     listings: "Alla annonser",
     vehicles: "Fordon",
+    parts: "Reservdelar",
     sell: "Sälj del",
     garage: "Garage",
     company: "Företag",
@@ -83,6 +86,7 @@ const footerText = {
     home: "Hjem",
     listings: "Alle annonser",
     vehicles: "Kjøretøy",
+    parts: "Reservedeler",
     sell: "Selg del",
     garage: "Garasje",
     rewards: "Belønninger",
@@ -309,6 +313,7 @@ export default function Footer() {
               <li><Link href="/">{text.home}</Link></li>
               <li><Link href="/ilmoitukset">{text.listings}</Link></li>
               <li><Link href="/ajoneuvot">{text.vehicles}</Link></li>
+              <li><Link href="/varaosat">{text.parts}</Link></li>
               <li><Link href={pagePath("sell", locale)}>{text.sell}</Link></li>
               <li><Link href={pagePath("garage", locale)}>{text.garage}</Link></li>
             </ul>

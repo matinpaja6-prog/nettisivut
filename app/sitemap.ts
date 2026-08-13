@@ -20,6 +20,7 @@ const PUBLIC_STATIC_PATHS = [
   "/",
   "/ilmoitukset",
   "/ajoneuvot",
+  "/varaosat",
   pagePath("about", "fi"),
   pagePath("contact", "fi"),
   pagePath("faq", "fi"),
@@ -33,11 +34,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = PUBLIC_STATIC_PATHS.map((path) => ({
     url: absoluteSiteUrl(path),
     changeFrequency:
-      path === "/" || path === "/ilmoitukset" || path === "/ajoneuvot"
+      path === "/" || path === "/ilmoitukset" || path === "/ajoneuvot" || path === "/varaosat"
         ? "hourly"
         : "monthly",
     priority:
-      path === "/" ? 1 : path === "/ilmoitukset" || path === "/ajoneuvot" ? 0.9 : 0.5
+      path === "/"
+        ? 1
+        : path === "/ilmoitukset" || path === "/ajoneuvot" || path === "/varaosat"
+          ? 0.9
+          : 0.5
   }));
 
   const { data: listings } = await getListings({
@@ -105,7 +110,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const searchEntries: MetadataRoute.Sitemap = [...groupedSearchPages.entries()]
-    .filter(([, group]) => group.count > 1)
+    .filter(([, group]) => group.count > 0)
     .map(([path, group]) => ({
       url: absoluteSiteUrl(path),
       ...(group.lastModified ? { lastModified: group.lastModified } : {}),
