@@ -65,6 +65,16 @@ const SENSITIVE_PATH_PATTERN =
   /(?:^|\/)(?:\.(?!well-known\/)|\.env|\.git|\.svn|\.hg|node_modules|supabase|package-lock\.json|pnpm-lock\.yaml|yarn\.lock|tsconfig(?:\..*)?\.json|next\.config\.(?:js|mjs|ts)|middleware\.ts|Dockerfile|docker-compose\.ya?ml)(?:$|\/)/i;
 const SENSITIVE_FILE_PATTERN =
   /\.(?:env|local|log|bak|backup|old|orig|sql|sqlite|sqlite3|db|pem|key|crt|p12|pfx|map)$/i;
+const PUBLIC_LISTING_SEGMENTS = new Set([
+  "listing",
+  "listings",
+  "ilmoitus",
+  "ilmoitukset",
+  "ad",
+  "annons",
+  "annonse",
+  "annonser"
+]);
 
 function applySecurityHeaders(response: NextResponse) {
   response.headers.set("X-Content-Type-Options", "nosniff");
@@ -212,6 +222,66 @@ function isSensitivePath(pathname: string) {
   );
 }
 
+function listingRouteIdentifier(pathname: string) {
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length !== 2 || !PUBLIC_LISTING_SEGMENTS.has(segments[0])) {
+    return null;
+  }
+
+  try {
+    return decodeURIComponent(segments[1]).trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+async function publicListingExists(identifier: string) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const publicKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  if (!supabaseUrl || !publicKey) return null;
+
+  const numeric = identifier.match(/^id(\d+)$/i)?.[1] ??
+    (/^\d+$/.test(identifier) ? identifier : "");
+  const isUuid =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(identifier);
+  if (!numeric && !isUuid) return null;
+
+  const filter = numeric
+    ? `listing_number=eq.${encodeURIComponent(numeric)}`
+    : `id=eq.${encodeURIComponent(identifier)}`;
+
+  try {
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/listings?select=id&${filter}&limit=1`,
+      {
+        headers: {
+          apikey: publicKey,
+          authorization: `Bearer ${publicKey}`
+        },
+        cache: "no-store",
+        signal: AbortSignal.timeout(1_500)
+      }
+    );
+
+    if (!response.ok) return null;
+    const rows = await response.json() as Array<{ id: string }>;
+    return rows.length > 0;
+  } catch {
+    // A temporary database failure must not turn live listings into 410 pages.
+    return null;
+  }
+}
+
+function removedListingResponse() {
+  const response = new NextResponse("Ilmoitus on poistettu.", {
+    status: 410,
+    headers: { "Content-Type": "text/plain; charset=utf-8" }
+  });
+  response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  response.headers.set("Cache-Control", "public, max-age=300, s-maxage=300");
+  return applySecurityHeaders(response);
+}
+
 function getClientIp(request: NextRequest) {
   const forwardedChain = request.headers
     .get("x-forwarded-for")
@@ -323,6 +393,14 @@ export async function middleware(request: NextRequest) {
         headers: { "Content-Type": "text/plain; charset=utf-8" }
       })
     );
+  }
+
+  const listingIdentifier = listingRouteIdentifier(pathname);
+  if (listingIdentifier) {
+    const exists = await publicListingExists(listingIdentifier);
+    if (exists === false) {
+      return removedListingResponse();
+    }
   }
 
   if (
