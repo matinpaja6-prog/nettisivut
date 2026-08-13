@@ -1,6 +1,7 @@
 import { isVehicleListing, type Listing } from "@/lib/listings";
 
 export type SeoCollectionKind = "parts" | "vehicles";
+export type SeoSearchLocale = "fi" | "en" | "sv" | "no";
 
 export type SeoCollectionLink = {
   kind: SeoCollectionKind;
@@ -11,6 +12,9 @@ export type SeoCollectionLink = {
 
 export function normalizeSeoSearchText(value: unknown) {
   return String(value ?? "")
+    .replace(/æ/gi, "ae")
+    .replace(/[øö]/gi, "o")
+    .replace(/[åä]/gi, "a")
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("fi")
@@ -33,6 +37,73 @@ export function seoVehicleSearchPath(query: string) {
 
 export function seoCollectionPath(kind: SeoCollectionKind, query: string) {
   return kind === "vehicles" ? seoVehicleSearchPath(query) : seoSearchPath(query);
+}
+
+const localizedCollectionSegments: Record<
+  SeoSearchLocale,
+  Record<SeoCollectionKind, string>
+> = {
+  fi: { vehicles: "ajoneuvot", parts: "varaosat" },
+  en: { vehicles: "en/vehicles", parts: "en/parts" },
+  sv: { vehicles: "sv/fordon", parts: "sv/reservdelar" },
+  no: { vehicles: "no/kjoretoy", parts: "no/reservedeler" }
+};
+
+const localizedSeoTerms: Record<string, Record<Exclude<SeoSearchLocale, "fi">, string>> = {
+  anturit: { en: "sensors", sv: "sensorer", no: "sensorer" },
+  iskarit: { en: "shocks", sv: "stötdämpare", no: "støtdempere" },
+  iskunvaimentimet: { en: "shock absorbers", sv: "stötdämpare", no: "støtdempere" },
+  etuiskunvaimentimet: { en: "front shocks", sv: "främre stötdämpare", no: "fremre støtdempere" },
+  takaiskunvaimentimet: { en: "rear shocks", sv: "bakre stötdämpare", no: "bakre støtdempere" },
+  jarrut: { en: "brakes", sv: "bromsar", no: "bremser" },
+  katteet: { en: "fairings", sv: "kåpor", no: "kåper" },
+  ketjukotelot: { en: "chaincases", sv: "kedjehus", no: "kjedehus" },
+  letkut: { en: "hoses", sv: "slangar", no: "slanger" },
+  moottori: { en: "engine", sv: "motor", no: "motor" },
+  pakoputkisto: { en: "exhaust", sv: "avgassystem", no: "eksosanlegg" },
+  penkit: { en: "seats", sv: "säten", no: "seter" },
+  puskurit: { en: "bumpers", sv: "stötfångare", no: "støtfangere" },
+  runko: { en: "chassis", sv: "chassi", no: "ramme" },
+  staattorit: { en: "stators", sv: "statorer", no: "statorer" },
+  sukset: { en: "skis", sv: "skidor", no: "ski" },
+  tangot: { en: "rods", sv: "stag", no: "stag" },
+  telamatot: { en: "tracks", sv: "drivmattor", no: "belter" },
+  telasto: { en: "suspension", sv: "boggi", no: "understell" },
+  valot: { en: "lights", sv: "lampor", no: "lys" },
+  variaattori: { en: "variator", sv: "variator", no: "variator" },
+  vetoakselit: { en: "drive shafts", sv: "drivaxlar", no: "drivaksler" }
+};
+
+export function localizeSeoSearchQuery(query: string, locale: SeoSearchLocale) {
+  const normalized = normalizeSeoSearchText(query);
+  if (locale === "fi") return normalized;
+
+  const terms = Object.keys(localizedSeoTerms).sort((a, b) => b.length - a.length);
+  let localized = ` ${normalized} `;
+  for (const term of terms) {
+    localized = localized.replace(new RegExp(`\\b${term}\\b`, "g"), localizedSeoTerms[term][locale]);
+  }
+  return localized.trim().replace(/\s+/g, " ");
+}
+
+export function seoLocalizedCollectionPath(
+  kind: SeoCollectionKind,
+  query: string,
+  locale: SeoSearchLocale
+) {
+  return `/${localizedCollectionSegments[locale][kind]}/${seoSearchSlug(
+    localizeSeoSearchQuery(query, locale)
+  )}`;
+}
+
+export function seoCollectionLanguagePaths(kind: SeoCollectionKind, query: string) {
+  return {
+    "fi-FI": seoLocalizedCollectionPath(kind, query, "fi"),
+    en: seoLocalizedCollectionPath(kind, query, "en"),
+    sv: seoLocalizedCollectionPath(kind, query, "sv"),
+    nb: seoLocalizedCollectionPath(kind, query, "no"),
+    "x-default": seoLocalizedCollectionPath(kind, query, "fi")
+  };
 }
 
 export function seoSearchQueryFromSlug(slug: string) {

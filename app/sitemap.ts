@@ -1,7 +1,14 @@
 import type { MetadataRoute } from "next";
 
-import { listingNumberUrlId, listingPath, listingUrlId, pagePath } from "@/lib/routes";
 import {
+  listingNumberUrlId,
+  listingPath,
+  listingSharePath,
+  listingUrlId,
+  pagePath
+} from "@/lib/routes";
+import {
+  seoCollectionLanguagePaths,
   seoCollectionPath,
   seoPartSearchQueries,
   seoVehicleSearchQueries,
@@ -50,7 +57,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     enrichSellerProfiles: false
   });
 
-  const listingEntries: MetadataRoute.Sitemap = await Promise.all(
+  const listingEntryGroups = await Promise.all(
     listings
       .filter((listing) => !listing.is_hidden && !listing.is_sold)
       .map(async (listing) => {
@@ -62,21 +69,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const canonicalId =
           listingNumberUrlId(displayNumber) || listingUrlId(listing);
 
-        return {
-          url: absoluteSiteUrl(listingPath(canonicalId)),
+        const languagePaths = {
+          "fi-FI": listingPath(canonicalId),
+          en: listingSharePath(canonicalId, "en"),
+          sv: listingSharePath(canonicalId, "sv"),
+          nb: listingSharePath(canonicalId, "no")
+        };
+        const languages = Object.fromEntries(
+          Object.entries(languagePaths).map(([language, path]) => [language, absoluteSiteUrl(path)])
+        );
+        const shared = {
           ...(Number.isNaN(createdAt.getTime()) ? {} : { lastModified: createdAt }),
-          ...(listing.image_url
-            ? { images: [absoluteSiteUrl(listing.image_url)] }
-            : {}),
+          ...(listing.image_url ? { images: [absoluteSiteUrl(listing.image_url)] } : {}),
+          alternates: { languages },
           changeFrequency: "daily" as const,
           priority: 0.8
         };
+
+        return Object.values(languagePaths).map((path) => ({
+          url: absoluteSiteUrl(path),
+          ...shared
+        }));
       })
   );
+  const listingEntries: MetadataRoute.Sitemap = listingEntryGroups.flat();
 
   const groupedSearchPages = new Map<
     string,
-    { count: number; lastModified?: Date }
+    { kind: SeoCollectionKind; query: string; count: number; lastModified?: Date }
   >();
 
   function addCollectionQuery(
@@ -88,6 +108,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const group = groupedSearchPages.get(path);
 
     groupedSearchPages.set(path, {
+      kind,
+      query,
       count: (group?.count ?? 0) + 1,
       lastModified:
         !group?.lastModified || (lastModified && lastModified > group.lastModified)
@@ -111,12 +133,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const searchEntries: MetadataRoute.Sitemap = [...groupedSearchPages.entries()]
     .filter(([, group]) => group.count > 0)
-    .map(([path, group]) => ({
-      url: absoluteSiteUrl(path),
-      ...(group.lastModified ? { lastModified: group.lastModified } : {}),
-      changeFrequency: "daily",
-      priority: 0.85
-    }));
+    .flatMap(([, group]) => {
+      const languagePaths = seoCollectionLanguagePaths(group.kind, group.query);
+      const languages = Object.fromEntries(
+        Object.entries(languagePaths)
+          .filter(([language]) => language !== "x-default")
+          .map(([language, path]) => [language, absoluteSiteUrl(path)])
+      );
+
+      return [...new Set(Object.values(languagePaths))].map((path) => ({
+        url: absoluteSiteUrl(path),
+        ...(group.lastModified ? { lastModified: group.lastModified } : {}),
+        alternates: { languages },
+        changeFrequency: "daily" as const,
+        priority: 0.85
+      }));
+    });
 
   return [...staticEntries, ...searchEntries, ...listingEntries];
 }

@@ -7,6 +7,7 @@ import { listingPath, listingUrlId } from "@/lib/routes";
 import {
   formatSeoSearchLabel,
   listingMatchesSeoCollection,
+  seoCollectionLanguagePaths,
   seoSearchQueryFromSlug,
   seoVehicleSearchPath
 } from "@/lib/seo-search";
@@ -43,12 +44,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const description = isCollection
     ? `Katso kaikki ${label} -ajoneuvoilmoitukset. Vertaa ${matches.length} myynnissä olevaa ajoneuvoa, kuvia, hintoja ja myyjien tietoja.`
     : `Katso ${label} -ajoneuvoilmoitus Maskines-palvelussa.`;
+  const languages = Object.fromEntries(
+    Object.entries(seoCollectionLanguagePaths("vehicles", query)).map(([language, path]) => [
+      language,
+      absoluteSiteUrl(path)
+    ])
+  );
 
   return {
     title: { absolute: title },
     description,
     alternates: {
-      canonical: isCollection ? canonical : absoluteSiteUrl("/ilmoitukset")
+      canonical: isCollection ? canonical : absoluteSiteUrl("/ilmoitukset"),
+      ...(isCollection ? { languages } : {})
     },
     robots: isCollection
       ? { index: true, follow: true }

@@ -3,7 +3,7 @@ import { unstable_cache } from "next/cache";
 
 import { formatPrice, isVehicleListing } from "@/lib/listings";
 import { getLocalizedListingText, type ListingLocale } from "@/lib/listing-translations";
-import { listingNumberUrlId, listingPath } from "@/lib/routes";
+import { listingNumberUrlId, listingPath, listingSharePath } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
 import { getListingById, getListingDisplayNumber } from "@/lib/supabase";
 
@@ -66,7 +66,10 @@ function cleanMetaText(value?: string | null, fallback = "") {
     .trim();
 }
 
-function buildDescription(listing: Awaited<ReturnType<typeof getListingById>>["data"]) {
+function buildDescription(
+  listing: Awaited<ReturnType<typeof getListingById>>["data"],
+  localizedPartType = ""
+) {
   if (!listing) {
     return "Katso ajoneuvojen varaosailmoitus Maskines-palvelussa.";
   }
@@ -76,7 +79,7 @@ function buildDescription(listing: Awaited<ReturnType<typeof getListingById>>["d
     .filter(Boolean)
     .join(" ");
   const partType = !isVehicleListing(listing)
-    ? cleanMetaText(listing.subcategory?.split("/").at(-1) || listing.category)
+    ? cleanMetaText(localizedPartType || listing.subcategory?.split("/").at(-1) || listing.category)
     : "";
 
   const parts = [
@@ -90,11 +93,14 @@ function buildDescription(listing: Awaited<ReturnType<typeof getListingById>>["d
   return parts.join(" - ");
 }
 
-function buildTitle(listing: NonNullable<Awaited<ReturnType<typeof getListingById>>["data"]>) {
+function buildTitle(
+  listing: NonNullable<Awaited<ReturnType<typeof getListingById>>["data"]>,
+  localizedPartType = ""
+) {
   const listingTitle = cleanMetaText(listing.title, "Ilmoitus");
   const normalizedTitle = listingTitle.toLocaleLowerCase("fi");
   const partType = !isVehicleListing(listing)
-    ? cleanMetaText(listing.subcategory?.split("/").at(-1) || listing.category)
+    ? cleanMetaText(localizedPartType || listing.subcategory?.split("/").at(-1) || listing.category)
     : "";
   const missingVehicleDetails = [listing.brand, listing.model, listing.year, partType]
     .map((item) => cleanMetaText(item))
@@ -164,12 +170,26 @@ export async function generateListingMetadataForLocale(
   const metadataListing = localizedText
     ? { ...listing, title: localizedText.title, description: localizedText.description }
     : listing;
-  const title = buildTitle(metadataListing);
-  const description = buildDescription(metadataListing);
+  const effectiveLocale = locale ?? "fi";
+  const rawPartType = !isVehicleListing(listing)
+    ? cleanMetaText(listing.subcategory?.split("/").at(-1) || listing.category)
+    : "";
+  const localizedPartType = rawPartType
+    ? await translateMetadataText(rawPartType, effectiveLocale)
+    : "";
+  const title = buildTitle(metadataListing, localizedPartType);
+  const description = buildDescription(metadataListing, localizedPartType);
   const displayNumber = await getListingDisplayNumber(listing.created_at, listing.listing_number);
   const urlId = listingNumberUrlId(displayNumber) || listing.id;
   const url = absoluteSiteUrl(sharePath || listingPath(urlId));
   const imageUrl = absoluteSiteUrl(`/og/listing/${encodeURIComponent(urlId)}/preview.jpg`);
+  const languages = {
+    "fi-FI": absoluteSiteUrl(listingPath(urlId)),
+    en: absoluteSiteUrl(listingSharePath(urlId, "en")),
+    sv: absoluteSiteUrl(listingSharePath(urlId, "sv")),
+    nb: absoluteSiteUrl(listingSharePath(urlId, "no")),
+    "x-default": absoluteSiteUrl(listingPath(urlId))
+  };
 
   return {
     metadataBase: new URL(PUBLIC_SITE_URL),
@@ -180,7 +200,8 @@ export async function generateListingMetadataForLocale(
       follow: true
     },
     alternates: {
-      canonical: url
+      canonical: url,
+      languages
     },
     openGraph: {
       type: "website",
