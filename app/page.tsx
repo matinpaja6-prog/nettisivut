@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import HomeClient from "./HomeClient";
-import SeoCollectionLinks from "./components/SeoCollectionLinks";
 import { getListings } from "@/lib/supabase";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
@@ -108,7 +107,6 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
       />
       <HomeClient initialListings={publicListings} />
-      <SeoCollectionLinks listings={publicListings} />
     </>
   );
 }

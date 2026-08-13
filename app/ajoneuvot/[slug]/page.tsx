@@ -131,21 +131,6 @@ export default async function VehicleCollectionPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
       />
-      <section
-        aria-labelledby="vehicle-collection-title"
-        style={{ maxWidth: 1180, margin: "0 auto", padding: "24px 20px 0" }}
-      >
-        <h1
-          id="vehicle-collection-title"
-          style={{ margin: 0, fontSize: "clamp(1.6rem, 4vw, 2.5rem)" }}
-        >
-          {label} ajoneuvot myynnissä
-        </h1>
-        <p style={{ margin: "8px 0 0", color: "var(--text-muted, #667085)" }}>
-          Vertaa {matches.length} myynnissä olevaa {label} -ajoneuvoa. Avaa ilmoitus nähdäksesi
-          kuvat, hinnan, tekniset tiedot ja myyjän yhteystiedot.
-        </p>
-      </section>
       <HomeClient
         initialListings={listings}
         initialSearchQuery={query}

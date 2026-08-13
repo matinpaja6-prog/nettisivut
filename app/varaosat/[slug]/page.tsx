@@ -131,22 +131,6 @@ export default async function SeoSearchPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
       />
-      <section
-        aria-labelledby="seo-collection-title"
-        style={{
-          maxWidth: 1180,
-          margin: "0 auto",
-          padding: "24px 20px 0"
-        }}
-      >
-        <h1 id="seo-collection-title" style={{ margin: 0, fontSize: "clamp(1.6rem, 4vw, 2.5rem)" }}>
-          {label} varaosat ja ilmoitukset
-        </h1>
-        <p style={{ margin: "8px 0 0", color: "var(--text-muted, #667085)" }}>
-          Katso {matches.length} myynnissä olevaa {label} -ilmoitusta. Avaa ilmoitus nähdäksesi kuvat,
-          hinnan, kunnon ja myyjän yhteystiedot.
-        </p>
-      </section>
       <HomeClient initialListings={listings} initialSearchQuery={query} initialMarketplaceMode="parts" />
     </>
   );
