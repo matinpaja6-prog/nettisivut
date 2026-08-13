@@ -31,11 +31,11 @@ export const metadata: Metadata = {
     follow: true
   },
   title: {
-    default: "Maskines | Pienkoneiden ajoneuvot ja varaosat",
+    default: "Maskines | Varaosat ja ajoneuvot",
     template: "%s | Maskines"
   },
   description:
-    "Pohjoismainen markkinapaikka pienkoneiden ajoneuvoille ja varaosille. Osta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat.",
+    "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille. Osta ja myy varaosia ja ajoneuvoja: moottorikelkkoja, mönkijöitä, motocross-pyöriä ja mopoja.",
   keywords: [
     "Maskines",
     "moottorikelkan varaosat",

@@ -10,10 +10,10 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
   title: {
-    absolute: "Maskines: Osta ja myy pienkoneiden ajoneuvot ja varaosat"
+    absolute: "Maskines: Osta ja myy varaosat ja ajoneuvot"
   },
   description:
-    "Pohjoismainen markkinapaikka pienkoneiden ajoneuvoille ja varaosille. Osta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat.",
+    "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille. Osta ja myy varaosia ja ajoneuvoja: moottorikelkkoja, mönkijöitä, motocross-pyöriä ja mopoja.",
   alternates: {
     canonical: absoluteSiteUrl("/")
   },
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fi_FI",
     siteName: "Maskines",
-    title: "Maskines: Pienkoneiden ajoneuvot ja varaosat",
+    title: "Maskines: Osta ja myy varaosat ja ajoneuvot",
     description:
-      "Osta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat pohjoismaisella markkinapaikalla.",
+      "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille. Osta ja myy varaosia ja ajoneuvoja: moottorikelkkoja, mönkijöitä, motocross-pyöriä ja mopoja.",
     url: absoluteSiteUrl("/"),
     images: [
       {
@@ -36,9 +36,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Maskines: Pienkoneiden ajoneuvot ja varaosat",
+    title: "Maskines: Osta ja myy varaosat ja ajoneuvot",
     description:
-      "Osta ja myy pienkoneiden ajoneuvot ja varaosat moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin.",
+      "Osta ja myy varaosia ja ajoneuvoja: moottorikelkkoja, mönkijöitä, motocross-pyöriä ja mopoja.",
     images: [absoluteSiteUrl("/maskines-share-logo.png")]
   }
 };

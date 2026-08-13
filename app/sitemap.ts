@@ -19,6 +19,7 @@ export const revalidate = 0;
 const PUBLIC_STATIC_PATHS = [
   "/",
   "/ilmoitukset",
+  "/ajoneuvot",
   pagePath("about", "fi"),
   pagePath("contact", "fi"),
   pagePath("faq", "fi"),
@@ -31,8 +32,12 @@ const PUBLIC_STATIC_PATHS = [
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = PUBLIC_STATIC_PATHS.map((path) => ({
     url: absoluteSiteUrl(path),
-    changeFrequency: path === "/" || path === "/ilmoitukset" ? "hourly" : "monthly",
-    priority: path === "/" ? 1 : path === "/ilmoitukset" ? 0.9 : 0.5
+    changeFrequency:
+      path === "/" || path === "/ilmoitukset" || path === "/ajoneuvot"
+        ? "hourly"
+        : "monthly",
+    priority:
+      path === "/" ? 1 : path === "/ilmoitukset" || path === "/ajoneuvot" ? 0.9 : 0.5
   }));
 
   const { data: listings } = await getListings({
