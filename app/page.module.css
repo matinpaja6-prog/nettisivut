@@ -7556,7 +7556,7 @@
 @media (max-width: 900px) {
   :global(html[data-theme="light"] body) > .heroRightRail.mobileFilterSheet,
   :global(html[data-theme="light"] body) > .heroRightRailOpen.mobileFilterSheet {
-    background: #f7f9fb !important;
+    background: #fcfcfb !important;
     border-color: #cbd3d7 !important;
     color: #16232c !important;
   }
@@ -7588,7 +7588,7 @@
     .vehicleUsageFilters,
     .heroPartCategoryStack
   ) {
-    background: #f7f9fb !important;
+    background: #fcfcfb !important;
     border-color: #cbd3d7 !important;
     box-shadow: none !important;
   }

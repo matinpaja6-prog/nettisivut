@@ -780,13 +780,13 @@ html[data-theme="light"] body main[data-home-page] :is(
 }
 
 html[data-theme="light"] body main[data-home-page] [data-home-filter-rail] {
-  background: var(--theme-page) !important;
+  background: var(--theme-surface) !important;
   border-color: var(--theme-line-strong) !important;
   box-shadow: var(--theme-shadow) !important;
 }
 
 html[data-theme="light"] body main[data-home-page] [data-home-filter-rail] > [class*="heroSearchPanel"] {
-  background: var(--theme-page) !important;
+  background: var(--theme-surface) !important;
   border-color: transparent !important;
   box-shadow: none !important;
 }
@@ -796,7 +796,7 @@ html[data-theme="light"] body main[data-home-page] [data-home-filter-rail] [clas
 }
 
 html[data-theme="light"] body main[data-home-page][data-home-page] aside[data-home-filter-rail="true"][data-home-filter-sheet="false"] div[class*="heroRailActions"] {
-  background: var(--theme-page) !important;
+  background: var(--theme-surface) !important;
   border-top: 1px solid var(--theme-line) !important;
   box-shadow: 0 -8px 18px rgba(25, 38, 48, 0.06) !important;
 }
