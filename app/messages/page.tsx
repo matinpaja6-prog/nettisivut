@@ -47,6 +47,7 @@ import { playNotificationSound } from "@/lib/notification-sound";
 import { userNotificationsEnabled } from "@/lib/user-settings";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
 import { listingPath, listingUrlId, pagePath, profilePath } from "@/lib/routes";
+import { MESSAGES_MOBILE_BACK_EVENT } from "@/lib/messages-navigation";
 import ChatWindow from "@/app/components/chat/ChatWindow";
 import MessageInput from "@/app/components/chat/MessageInput";
 
@@ -1849,6 +1850,28 @@ function MessagesPageContent() {
       router.replace("/messages");
     }
   }
+
+  useEffect(() => {
+    const handleMobileHeaderBack = () => {
+      setMobileConversationOpen(false);
+
+      if (requestedConversationId) {
+        router.replace("/messages");
+      }
+    };
+
+    window.addEventListener(
+      MESSAGES_MOBILE_BACK_EVENT,
+      handleMobileHeaderBack
+    );
+
+    return () => {
+      window.removeEventListener(
+        MESSAGES_MOBILE_BACK_EVENT,
+        handleMobileHeaderBack
+      );
+    };
+  }, [requestedConversationId, router]);
 
   function closeSellerListing() {
     setSelectedSellerListingId("");

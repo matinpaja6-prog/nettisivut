@@ -4,6 +4,7 @@ import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { canonicalPathFromLocalized } from "@/lib/routes";
+import { MESSAGES_MOBILE_BACK_EVENT } from "@/lib/messages-navigation";
 
 export default function MobileCornerNav() {
   const pathname = usePathname();
@@ -12,6 +13,20 @@ export default function MobileCornerNav() {
   const isHomePage = canonicalPathname === "/";
 
   function goBack() {
+    const openMobileConversation =
+      canonicalPathname === "/messages" &&
+      typeof document !== "undefined" &&
+      document.querySelector(
+        ".messages-inbox-page.mobile-conversation-open"
+      );
+
+    if (openMobileConversation) {
+      window.dispatchEvent(
+        new Event(MESSAGES_MOBILE_BACK_EVENT)
+      );
+      return;
+    }
+
     if (typeof window !== "undefined" && window.history.length > 1) {
       router.back();
       return;
