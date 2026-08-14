@@ -13,14 +13,15 @@ export default function MobileCornerNav() {
   const isHomePage = canonicalPathname === "/";
 
   function goBack() {
-    const openMobileConversation =
+    const openMessagesSubview =
       canonicalPathname === "/messages" &&
       typeof document !== "undefined" &&
       document.querySelector(
-        ".messages-inbox-page.mobile-conversation-open"
+        ".messages-inbox-page.mobile-conversation-open, " +
+        ".messages-inbox-page.seller-listing-open"
       );
 
-    if (openMobileConversation) {
+    if (openMessagesSubview) {
       window.dispatchEvent(
         new Event(MESSAGES_MOBILE_BACK_EVENT)
       );

@@ -1853,11 +1853,18 @@ function MessagesPageContent() {
 
   useEffect(() => {
     const handleMobileHeaderBack = () => {
-      setMobileConversationOpen(false);
+      if (mobileConversationOpen) {
+        setMobileConversationOpen(false);
 
-      if (requestedConversationId) {
-        router.replace("/messages");
+        if (requestedConversationId) {
+          router.replace("/messages");
+        }
+        return;
       }
+
+      setSelectedSellerListingId("");
+      setSelectedConversationId("");
+      setMessages([]);
     };
 
     window.addEventListener(
@@ -1871,7 +1878,7 @@ function MessagesPageContent() {
         handleMobileHeaderBack
       );
     };
-  }, [requestedConversationId, router]);
+  }, [mobileConversationOpen, requestedConversationId, router]);
 
   function closeSellerListing() {
     setSelectedSellerListingId("");
@@ -2014,7 +2021,7 @@ function MessagesPageContent() {
   return (
 
     <main
-      className={`messages-page messages-inbox-page${mobileConversationOpen ? " mobile-conversation-open" : ""}`}
+      className={`messages-page messages-inbox-page${mobileConversationOpen ? " mobile-conversation-open" : ""}${selectedSellerListingGroup ? " seller-listing-open" : ""}`}
       data-no-auto-translate={locale === "no" ? "true" : undefined}
     >
       <section className="messages-desktop-shell">
