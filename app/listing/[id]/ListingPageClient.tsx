@@ -19,7 +19,6 @@ import {
   MessageCircle,
   MessageSquareText,
   MapPin,
-  Globe2,
   Package,
   ShieldCheck,
   Phone,
@@ -693,9 +692,6 @@ export default function ListingPage({
   const [sellerPhone, setSellerPhone] =
     useState("");
 
-  const [sellerWebsite, setSellerWebsite] =
-    useState<string | null>(null);
-
   const [sellerBusinessId, setSellerBusinessId] =
     useState<string | null>(null);
 
@@ -964,7 +960,6 @@ export default function ListingPage({
 
   useEffect(() => {
     if (!supabase || !sellerIdForPublicStats) {
-      setSellerWebsite(null);
       setSellerBusinessId(null);
       setSellerCompanyVerifiedAt(null);
       setSellerProfileAvatarUrl(null);
@@ -978,7 +973,7 @@ export default function ListingPage({
 
     let mounted = true;
 
-    async function loadSellerWebsite() {
+    async function loadSellerPublicStats() {
       try {
         const [
           profileResult,
@@ -988,10 +983,9 @@ export default function ListingPage({
         ] = await Promise.all([
           supabase!
             .from("profiles")
-            .select("company_website,business_id,company_verified_at,account_type,created_at,avatar_url")
+            .select("business_id,company_verified_at,account_type,created_at,avatar_url")
             .eq("id", sellerIdForPublicStats)
             .maybeSingle<{
-              company_website?: string | null;
               business_id?: string | null;
               company_verified_at?: string | null;
               account_type?: "company" | "private" | null;
@@ -1031,7 +1025,6 @@ export default function ListingPage({
             ? legacySoldListingsResult.count
             : null;
 
-        setSellerWebsite(data?.company_website?.trim() || null);
         setSellerBusinessId(data?.business_id?.trim() || null);
         setSellerCompanyVerifiedAt(data?.company_verified_at ?? null);
         setSellerProfileAvatarUrl(data?.avatar_url?.trim() || null);
@@ -1052,7 +1045,6 @@ export default function ListingPage({
         );
       } catch {
         if (mounted) {
-          setSellerWebsite(null);
           setSellerBusinessId(null);
           setSellerCompanyVerifiedAt(null);
           setSellerProfileAvatarUrl(null);
@@ -1065,7 +1057,7 @@ export default function ListingPage({
       }
     }
 
-    void loadSellerWebsite();
+    void loadSellerPublicStats();
 
     return () => {
       mounted = false;
@@ -1458,20 +1450,6 @@ export default function ListingPage({
       : "";
   const sellerInitial =
     (sellerDisplayName || "M").trim().slice(0, 1).toUpperCase();
-  const sellerWebsiteUrl = (() => {
-    const trimmed = sellerWebsite?.trim();
-    if (!trimmed) return null;
-    const href = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-    try {
-      const url = new URL(href);
-      return {
-        href: url.toString(),
-        label: url.hostname.replace(/^www\./i, "")
-      };
-    } catch {
-      return null;
-    }
-  })();
   const vehicleTypeMap: Record<Locale, Record<string, string>> = {
     fi: {},
     en: { Moottorikelkka: "Snowmobile", "M\u00f6nkij\u00e4": "ATV", Motocross: "Motocross", Mopot: "Moped" },
@@ -2065,20 +2043,6 @@ export default function ListingPage({
                   </div>
                 </div>
 
-                <div className="seller-card-actions">
-                  {sellerWebsiteUrl && (
-                    <a
-                      className="seller-action-link seller-website"
-                      href={sellerWebsiteUrl.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      title={sellerWebsiteUrl.label}
-                    >
-                      <Globe2 size={16} />
-                      {ui.website}
-                    </a>
-                  )}
-                </div>
                 <div className="seller-meta-rows">
                   <div className="seller-meta-row">
                     <UserRound size={14} />
@@ -3828,22 +3792,6 @@ export default function ListingPage({
           font-weight: 850;
         }
 
-        .listing-detail-page .seller-website {
-          align-items: center;
-          color: #7dd3fc;
-          display: inline-flex;
-          font-size: 13px;
-          font-weight: 900;
-          gap: 6px;
-          margin-top: 6px;
-          max-width: 100%;
-        }
-
-        .listing-detail-page .seller-website svg {
-          color: #ffb45f;
-          flex: 0 0 auto;
-        }
-
         .listing-detail-page .seller-card-arrow {
           color: #ffb45f;
         }
@@ -4322,7 +4270,6 @@ export default function ListingPage({
         .listing-detail-page .seller-name-row,
         .listing-detail-page .seller-employee-name,
         .listing-detail-page .seller-location,
-        .listing-detail-page .seller-website,
         .listing-detail-page .verified-chip,
         .listing-detail-page .seller-profile-btn,
         .listing-detail-page .contact-card h3,
@@ -4700,8 +4647,7 @@ export default function ListingPage({
         .listing-detail-page .seller-info,
         .listing-detail-page .seller-name-row,
         .listing-detail-page .seller-employee-name,
-        .listing-detail-page .seller-address,
-        .listing-detail-page .seller-card-actions {
+        .listing-detail-page .seller-address {
           background: transparent;
           background-image: none;
           border: 0;
@@ -4724,8 +4670,7 @@ export default function ListingPage({
         .listing-detail-page .seller-info,
         .listing-detail-page .seller-name-row,
         .listing-detail-page .seller-employee-name,
-        .listing-detail-page .seller-address,
-        .listing-detail-page .seller-card-actions {
+        .listing-detail-page .seller-address {
           background: #06203a;
           background-image: none;
           border-color: transparent;
