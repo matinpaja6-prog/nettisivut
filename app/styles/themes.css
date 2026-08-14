@@ -6295,3 +6295,87 @@ html[data-theme="light"] body .garage-delete-cancel {
   color: #16232c !important;
   -webkit-text-fill-color: #16232c !important;
 }
+
+/* Listing contact controls must follow the selected light theme after a
+   seller's phone number has been revealed. */
+html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+  .seller-card.seller-card .seller-contact-merged.seller-contact-merged
+  :is(.phone-btn.phone-btn, .phone-number.phone-number) {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #9eafb9 !important;
+  box-shadow: none !important;
+  color: #16232c !important;
+  -webkit-text-fill-color: #16232c !important;
+}
+
+html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+  .seller-card.seller-card .seller-contact-merged.seller-contact-merged
+  :is(.phone-btn.phone-btn, .phone-number.phone-number) svg {
+  color: #ff7418 !important;
+  stroke: #ff7418 !important;
+}
+
+html[data-theme="light"] body .listing-detail-page
+  .seller-contact-merged .phone-action-overlay {
+  background: rgba(45, 57, 66, 0.5) !important;
+}
+
+html[data-theme="light"] body .listing-detail-page
+  .seller-contact-merged .phone-action-dialog {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: radial-gradient(320px 160px at 100% 0%, rgba(255, 122, 26, 0.1), transparent 70%) !important;
+  border-color: #aebdc7 !important;
+  box-shadow: 0 28px 72px rgba(28, 39, 48, 0.24) !important;
+  color: #16232c !important;
+}
+
+html[data-theme="light"] body .listing-detail-page
+  .seller-contact-merged .phone-action-title {
+  color: #16232c !important;
+  -webkit-text-fill-color: #16232c !important;
+}
+
+html[data-theme="light"] body .listing-detail-page
+  .seller-contact-merged .phone-action-value {
+  color: #5c707c !important;
+  -webkit-text-fill-color: #5c707c !important;
+}
+
+html[data-theme="light"] body .listing-detail-page
+  .seller-contact-merged .phone-action-menu > a {
+  background: #f4f6f7 !important;
+  background-color: #f4f6f7 !important;
+  border-color: #bdc9cf !important;
+  color: #16232c !important;
+  -webkit-text-fill-color: #16232c !important;
+}
+
+html[data-theme="light"] body .listing-detail-page
+  .seller-contact-merged .phone-action-menu > a:is(:hover, :focus-visible) {
+  background: #ffffff !important;
+  border-color: #ff7418 !important;
+  color: #16232c !important;
+}
+
+html[data-theme="light"] body .listing-detail-page
+  .seller-contact-merged .phone-action-menu > a svg {
+  color: #ff7418 !important;
+  stroke: #ff7418 !important;
+}
+
+html[data-theme="light"] body .listing-detail-page
+  .seller-contact-merged .phone-action-close {
+  background: #ff7418 !important;
+  border-color: #ffb579 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="light"] body .listing-detail-page
+  .seller-contact-merged .phone-action-close svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
