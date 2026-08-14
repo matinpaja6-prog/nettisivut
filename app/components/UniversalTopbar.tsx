@@ -40,6 +40,8 @@ import { useTaxonomy } from "./TaxonomyProvider";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
+const RETAINED_MESSAGE_NOTIFICATIONS_STORAGE_KEY = "maskinesRetainedMessageNotifications";
+const MESSAGE_NOTIFICATION_RETENTION_MS = 12 * 60 * 60 * 1000;
 const NOTIFICATION_REFRESH_DEBOUNCE_MS = 120;
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
 const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
@@ -387,6 +389,95 @@ function uniqueById<T extends { id: string }>(items: T[]) {
   });
 }
 
+type RetainedMessageNotification = {
+  conversation: ConversationSummary;
+  messageId: string;
+  viewedAt: number | null;
+};
+
+function conversationMessageId(conversation: ConversationSummary) {
+  return String(
+    conversation.last_message?.id ||
+    conversation.last_message?.created_at ||
+    conversation.updated_at ||
+    conversation.created_at
+  );
+}
+
+function conversationNotificationKey(conversation: ConversationSummary) {
+  return `conversation:${conversation.id}:${conversationMessageId(conversation)}`;
+}
+
+function retainedMessagesStorageKey(userId: string) {
+  return `${RETAINED_MESSAGE_NOTIFICATIONS_STORAGE_KEY}:${userId}`;
+}
+
+function readRetainedMessageNotifications(userId: string) {
+  try {
+    const raw = localStorage.getItem(retainedMessagesStorageKey(userId));
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is RetainedMessageNotification =>
+          Boolean(
+            item &&
+            typeof item === "object" &&
+            item.conversation?.id &&
+            typeof item.messageId === "string" &&
+            (item.viewedAt === null || typeof item.viewedAt === "number")
+          )
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeRetainedMessageNotifications(
+  userId: string,
+  items: RetainedMessageNotification[]
+) {
+  try {
+    localStorage.setItem(
+      retainedMessagesStorageKey(userId),
+      JSON.stringify(items)
+    );
+  } catch {
+    /* Local storage can be unavailable in restricted browser modes. */
+  }
+}
+
+function mergeRetainedMessageNotifications(
+  userId: string,
+  incoming: ConversationSummary[]
+) {
+  const now = Date.now();
+  const retained = readRetainedMessageNotifications(userId).filter(
+    (item) =>
+      item.viewedAt === null ||
+      now - item.viewedAt < MESSAGE_NOTIFICATION_RETENTION_MS
+  );
+  const byConversationId = new Map(
+    retained.map((item) => [item.conversation.id, item])
+  );
+
+  for (const conversation of incoming) {
+    const messageId = conversationMessageId(conversation);
+    const previous = byConversationId.get(conversation.id);
+    byConversationId.set(conversation.id, {
+      conversation,
+      messageId,
+      viewedAt:
+        previous?.messageId === messageId
+          ? previous.viewedAt
+          : null
+    });
+  }
+
+  const next = Array.from(byConversationId.values());
+  writeRetainedMessageNotifications(userId, next);
+  return next.map((item) => item.conversation);
+}
+
 export default function UniversalTopbar() {
   const router = useRouter();
   const pathname = usePathname() || "/";
@@ -678,7 +769,9 @@ export default function UniversalTopbar() {
 
         setReviewRequests(uniqueById(reviews ?? []));
         setAlertNotifications(uniqueById(alerts ?? []));
-        setUnreadConversations(unread);
+        setUnreadConversations(
+          mergeRetainedMessageNotifications(activeUserId, unread)
+        );
       } catch {
         // Keep the last visible state if a realtime refresh races with a temporary network error.
       }
@@ -741,6 +834,24 @@ export default function UniversalTopbar() {
       client.removeChannel(messagesChannel);
     };
   }, [notificationRefreshNonce, userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const activeUserId = userId;
+    const pruneExpiredMessageNotifications = () => {
+      setUnreadConversations(
+        mergeRetainedMessageNotifications(activeUserId, [])
+      );
+    };
+
+    const intervalId = window.setInterval(
+      pruneExpiredMessageNotifications,
+      60_000
+    );
+
+    return () => window.clearInterval(intervalId);
+  }, [userId]);
 
   useEffect(() => {
     if (!notificationOpen) return;
@@ -864,7 +975,10 @@ export default function UniversalTopbar() {
   const visibleUnreadConversations = unreadConversations;
   const unreadReviewRequests = visibleReviewRequests.filter((request) => !request.seen_at && !seenNotificationKeys.has(`review:${request.id}`));
   const unreadAlertNotifications = visibleAlertNotifications.filter((notification) => !notification.seen && !seenNotificationKeys.has(`alert:${notification.id}`));
-  const unreadConversationsForBadge = visibleUnreadConversations.filter((conversation) => !seenNotificationKeys.has(`conversation:${conversation.id}`));
+  const unreadConversationsForBadge = visibleUnreadConversations.filter(
+    (conversation) =>
+      !seenNotificationKeys.has(conversationNotificationKey(conversation))
+  );
   const notificationItemCount =
     unreadReviewRequests.length +
     unreadAlertNotifications.length +
@@ -964,6 +1078,36 @@ export default function UniversalTopbar() {
     });
   }, [userId]);
 
+  const rememberViewedMessageNotifications = useCallback((
+    conversations: ConversationSummary[]
+  ) => {
+    if (!userId || conversations.length === 0) return;
+
+    const now = Date.now();
+    const records = readRetainedMessageNotifications(userId);
+    const byConversationId = new Map(
+      records.map((item) => [item.conversation.id, item])
+    );
+
+    for (const conversation of conversations) {
+      const messageId = conversationMessageId(conversation);
+      const previous = byConversationId.get(conversation.id);
+      byConversationId.set(conversation.id, {
+        conversation,
+        messageId,
+        viewedAt:
+          previous?.messageId === messageId && previous.viewedAt !== null
+            ? previous.viewedAt
+            : now
+      });
+    }
+
+    writeRetainedMessageNotifications(
+      userId,
+      Array.from(byConversationId.values())
+    );
+  }, [userId]);
+
   const acknowledgeVisibleNotificationItems = useCallback(() => {
     const activeUserId = userId;
     if (!activeUserId || notificationItemCount === 0) return;
@@ -975,6 +1119,8 @@ export default function UniversalTopbar() {
       const readAt = Math.max(Date.now(), lastMessageAt);
       void markConversationRead(conversation.id, activeUserId, readAt);
     });
+
+    rememberViewedMessageNotifications(visibleUnreadConversations);
 
     if (unreadAlertNotifications.length > 0) {
       void markNotificationsSeen(activeUserId).then(() => {
@@ -1008,11 +1154,12 @@ export default function UniversalTopbar() {
     rememberSeenNotificationKeys([
       ...unreadReviewRequests.map((request) => `review:${request.id}`),
       ...unreadAlertNotifications.map((notification) => `alert:${notification.id}`),
-      ...visibleUnreadConversations.map((conversation) => `conversation:${conversation.id}`),
+      ...visibleUnreadConversations.map(conversationNotificationKey),
     ]);
   }, [
     notificationItemCount,
     rememberSeenNotificationKeys,
+    rememberViewedMessageNotifications,
     unreadAlertNotifications,
     unreadReviewRequests,
     userId,
@@ -1292,6 +1439,15 @@ export default function UniversalTopbar() {
 
     setUnreadConversations((prev) => prev.filter((item) => item.id !== conversation.id));
     if (userId) {
+      writeRetainedMessageNotifications(
+        userId,
+        readRetainedMessageNotifications(userId).filter(
+          (item) => item.conversation.id !== conversation.id
+        )
+      );
+      rememberDismissedNotificationKey(
+        conversationNotificationKey(conversation)
+      );
       void markConversationRead(conversation.id, userId, readAt);
     }
   }
@@ -1604,11 +1760,6 @@ export default function UniversalTopbar() {
                             const readAt =
                               Math.max(Date.now(), lastMessageAt);
 
-                            setUnreadConversations((prev) =>
-                              prev.filter((item) =>
-                                item.id !== conversation.id
-                              )
-                            );
                             if (userId) {
                               void markConversationRead(
                                 conversation.id,
