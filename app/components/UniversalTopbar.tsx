@@ -33,6 +33,7 @@ import {
 } from "@/lib/supabase";
 import { calculateSellerLevel } from "@/lib/seller-level";
 import { goBackOrFallback } from "@/lib/go-back";
+import { MESSAGES_MOBILE_BACK_EVENT } from "@/lib/messages-navigation";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profilePath, profileRootPath } from "@/lib/routes";
 import { useTaxonomy } from "./TaxonomyProvider";
@@ -1186,6 +1187,19 @@ export default function UniversalTopbar() {
       : null;
 
   function handleBackNavigation() {
+    if (canonicalPathname === "/messages") {
+      const messagesBackEvent = new Event(
+        MESSAGES_MOBILE_BACK_EVENT,
+        { cancelable: true }
+      );
+
+      window.dispatchEvent(messagesBackEvent);
+
+      if (messagesBackEvent.defaultPrevented) {
+        return;
+      }
+    }
+
     goBackOrFallback(router, "/");
   }
 
