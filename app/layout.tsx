@@ -49,12 +49,9 @@ export const metadata: Metadata = {
     "mönkijät myynnissä"
   ],
   icons: {
-    icon: [
-      { url: "/maskines-icon-v2.png", sizes: "512x512", type: "image/png" },
-      { url: "/maskines-brand-share-v2.png", sizes: "1200x1200", type: "image/png" }
-    ],
-    shortcut: "/maskines-icon-v2.png",
-    apple: [{ url: "/maskines-icon-v2.png", sizes: "512x512", type: "image/png" }]
+    icon: [{ url: "/maskines-favicon-v4.png", sizes: "512x512", type: "image/png" }],
+    shortcut: "/maskines-favicon-v4.png",
+    apple: [{ url: "/maskines-favicon-v4.png", sizes: "512x512", type: "image/png" }]
   },
   manifest: "/site.webmanifest",
   openGraph: {

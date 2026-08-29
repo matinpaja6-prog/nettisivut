@@ -8,10 +8,10 @@
   "theme_color": "#040d1f",
   "icons": [
     {
-      "src": "/maskines-icon-v2.png",
+      "src": "/maskines-favicon-v4.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
