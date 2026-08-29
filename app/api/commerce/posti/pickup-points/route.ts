@@ -61,6 +61,16 @@ function normalizeBaseUrl(value: string) {
   return value.replace(/\/+$/, "");
 }
 
+function validHttpUrl(value: string, settingName: string) {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error("unsupported protocol");
+    return url.toString();
+  } catch {
+    throw new Error(`${settingName} on virheellinen.`);
+  }
+}
+
 function apiBaseUrlFromToken(body: PostiTokenResponse) {
   const targets = body.posti_fi?.targets ?? {};
   const preferredVersion = configuredValue(process.env.POSTI_API_VERSION) || "2026-04";
@@ -285,8 +295,10 @@ function distanceInMeters(origin: Coordinates, destination: Coordinates) {
 async function postiToken() {
   if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) return cachedToken;
 
-  const tokenUrl = configuredValue(process.env.POSTI_OAUTH_TOKEN_URL)
-    || "https://gateway-auth.posti.fi/api/v1/token";
+  const tokenUrl = validHttpUrl(
+    configuredValue(process.env.POSTI_OAUTH_TOKEN_URL) || "https://gateway-auth.posti.fi/api/v1/token",
+    "Postin kirjautumisosoite"
+  );
   const clientId = configuredValue(process.env.POSTI_CLIENT_ID);
   const clientSecret = configuredValue(process.env.POSTI_CLIENT_SECRET);
 
@@ -560,7 +572,10 @@ export async function GET(request: Request) {
     }
     const authentication = await postiToken();
     const configuredPickupUrl = configuredValue(process.env.POSTI_PICKUP_POINTS_URL);
-    const apiUrl = configuredPickupUrl || `${authentication.apiBaseUrl}/pickuppoints`;
+    const apiUrl = validHttpUrl(
+      configuredPickupUrl || `${authentication.apiBaseUrl}/pickuppoints`,
+      "Postin noutopistepalvelun osoite"
+    );
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
@@ -597,7 +612,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Nordic pickup point query failed", error);
     return NextResponse.json({
-      error: error instanceof Error ? error.message : "Noutopisteiden haku epäonnistui."
-    }, { status: 502 });
+      error: "Noutopisteiden haku ei juuri nyt onnistu. Yritä hetken kuluttua uudelleen."
+    }, { status: 503 });
   }
 }

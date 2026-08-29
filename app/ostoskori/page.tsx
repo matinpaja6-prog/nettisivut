@@ -537,17 +537,20 @@ export default function CartPage() {
         query.set("origin_country", customerCountry);
       }
       const response = await fetch(`/api/commerce/posti/pickup-points?${query.toString()}`);
-      const body = await response.json();
+      const body = await response.json().catch(() => null) as { error?: string; pickupPoints?: PickupPoint[] } | null;
       if (requestId !== pickupSearchRequestRef.current) return;
-      if (!response.ok) throw new Error(body.error || "Noutopisteiden haku epäonnistui.");
-      const nextPoints = body.pickupPoints ?? [];
+      if (!response.ok) {
+        setError(body?.error || "Noutopisteiden haku ei juuri nyt onnistu. Yritä hetken kuluttua uudelleen.");
+        return;
+      }
+      const nextPoints = body?.pickupPoints ?? [];
       setPoints(nextPoints);
       setPickupSearchCountry(searchCountry);
       setPickupSearchArea(`${normalizedQuery || `${customerAddress}, ${postalCode} ${customerCity}`} · ${countrySettings(searchCountry).name}`);
       if (!nextPoints.length) setError("Hakualueelta ei löytynyt noutopisteitä.");
-    } catch (reason) {
+    } catch {
       if (requestId !== pickupSearchRequestRef.current) return;
-      setError(reason instanceof Error ? reason.message : "Noutopisteiden haku epäonnistui.");
+      setError("Noutopisteiden haku ei juuri nyt onnistu. Yritä hetken kuluttua uudelleen.");
     } finally {
       if (requestId === pickupSearchRequestRef.current) setLoadingPoints(false);
     }
