@@ -7,7 +7,6 @@ import { useParams, useRouter } from "next/navigation";
 import OptimizedListingImage from "@/app/components/OptimizedListingImage";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import ListingSalePrice from "@/app/components/ListingSalePrice";
-import MarketplaceResponsibilityNotice from "@/app/components/MarketplaceResponsibilityNotice";
 import { useCurrency } from "@/app/components/CurrencyProvider";
 import homeStyles from "@/app/page.module.css";
 
@@ -2274,7 +2273,6 @@ export default function ListingPage({
                     {commerceMessage && (
                       <p className="seller-commerce-message" role="status">{commerceMessage}</p>
                     )}
-                    <MarketplaceResponsibilityNotice compact />
                   </div>
                 )}
                 {!commerceProductPending && commerceProduct && (
