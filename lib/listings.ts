@@ -22,6 +22,10 @@ export type Listing = {
 
   seller_id?: string | null;
 
+  seller_account_type?: "private" | "company" | null;
+
+  seller_company_verified_at?: string | null;
+
   user_id?: string | null;
 
   title: string;
@@ -139,6 +143,16 @@ export type ListingTranslations = Partial<
     publication_group_id?: string | null;
     listing_mode?: "single" | "multiple" | null;
     marketplace_kind?: "part" | "vehicle" | null;
+    commerce_product_id?: string | null;
+    sale_price_cents?: number | null;
+    sale_starts_at?: string | null;
+    sale_ends_at?: string | null;
+    listing_currency?: "EUR" | "SEK" | "NOK" | null;
+    listing_original_price?: number | null;
+    riding_gear_size?: string | null;
+    riding_gear_target?: string | null;
+    vat_deductible?: boolean | null;
+    tax_free?: boolean | null;
   };
 };
 
@@ -156,6 +170,36 @@ export function isVehicleListing(
 
   const category = listing.category?.trim().toLocaleLowerCase("fi-FI") ?? "";
   return ["ajoneuvo", "ajoneuvot", "kokonainen ajoneuvo"].includes(category);
+}
+
+export type ListingSalePricing = {
+  originalPrice: number;
+  currentPrice: number;
+  discountPercent: number;
+  onSale: boolean;
+};
+
+export function getListingSalePricing(
+  listing: Pick<Listing, "price" | "translations">,
+  at = new Date()
+): ListingSalePricing {
+  const originalPrice = Number(listing.price) || 0;
+  const meta = listing.translations?._meta;
+  const salePriceCents = Number(meta?.sale_price_cents);
+  const startsAt = meta?.sale_starts_at ? new Date(meta.sale_starts_at) : null;
+  const endsAt = meta?.sale_ends_at ? new Date(meta.sale_ends_at) : null;
+  const withinWindow = (!startsAt || startsAt <= at) && (!endsAt || endsAt > at);
+  const currentPrice = salePriceCents / 100;
+  const onSale = Number.isFinite(currentPrice) && currentPrice > 0 && currentPrice < originalPrice && withinWindow;
+
+  return {
+    originalPrice,
+    currentPrice: onSale ? currentPrice : originalPrice,
+    discountPercent: onSale && originalPrice > 0
+      ? Math.max(1, Math.round((1 - currentPrice / originalPrice) * 100))
+      : 0,
+    onSale
+  };
 }
 
 export function extractListingPartNumber(value?: string | null) {

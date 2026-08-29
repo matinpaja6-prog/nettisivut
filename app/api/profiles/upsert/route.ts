@@ -139,6 +139,12 @@ export async function POST(request: Request) {
           public_id: existingProfile?.public_id || `KP${Date.now()}`,
           full_name: fullName,
           name: fullName,
+          preferred_locale:
+            userData.user?.user_metadata?.locale === "en" ||
+            userData.user?.user_metadata?.locale === "sv" ||
+            userData.user?.user_metadata?.locale === "no"
+              ? userData.user.user_metadata.locale
+              : "fi",
           is_completed: true
         })
         .select()

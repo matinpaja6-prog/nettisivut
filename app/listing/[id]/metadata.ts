@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
 
-import { formatPrice, isVehicleListing } from "@/lib/listings";
+import { formatPrice, getListingSalePricing, isVehicleListing } from "@/lib/listings";
 import { getLocalizedListingText, type ListingLocale } from "@/lib/listing-translations";
 import { listingNumberUrlId, listingPath, listingSharePath } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
@@ -83,7 +83,7 @@ function buildDescription(
     : "";
 
   const parts = [
-    formatPrice(Number(listing.price) || 0),
+    formatPrice(getListingSalePricing(listing).currentPrice),
     vehicle,
     partType,
     cleanMetaText(listing.location),
@@ -107,7 +107,7 @@ function buildTitle(
     .filter((item) => item && !normalizedTitle.includes(item.toLocaleLowerCase("fi")));
   const searchableTitle = [...missingVehicleDetails, listingTitle].join(" ");
 
-  return `${searchableTitle} - ${formatPrice(Number(listing.price) || 0)}`;
+  return `${searchableTitle} - ${formatPrice(getListingSalePricing(listing).currentPrice)}`;
 }
 
 export async function generateListingMetadataForLocale(
@@ -150,7 +150,7 @@ export async function generateListingMetadataForLocale(
         url: fallbackUrl,
         images: [
           {
-            url: absoluteSiteUrl("/maskines-share-logo.png"),
+            url: absoluteSiteUrl("/maskines-brand-share-v2.png"),
             width: 1200,
             height: 1200,
             alt: "Maskines"
@@ -161,7 +161,7 @@ export async function generateListingMetadataForLocale(
         card: "summary_large_image",
         title: "Ilmoitus | Maskines",
         description: "Katso ajoneuvojen varaosailmoitus Maskines-palvelussa.",
-        images: [absoluteSiteUrl("/maskines-share-logo.png")]
+        images: [absoluteSiteUrl("/maskines-brand-share-v2.png")]
       }
     };
   }

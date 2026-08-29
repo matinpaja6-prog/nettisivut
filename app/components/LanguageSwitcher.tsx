@@ -2,8 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { isLocale, useLanguage } from "@/lib/i18n";
 import { translateLocalizedPath } from "@/lib/routes";
+import { supabase } from "@/lib/supabase";
 
 const LOCALES = [
   { code: "fi", label: "Suomi",   iso: "fi" },
@@ -51,6 +54,7 @@ function Flag({ iso }: { iso: string }) {
 }
 
 export default function LanguageSwitcher() {
+  const router = useRouter();
   const { activeLocale, setLocale, t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -66,8 +70,8 @@ export default function LanguageSwitcher() {
     if (!btnRef.current || typeof window === "undefined") return;
     const rect = btnRef.current.getBoundingClientRect();
     setDropPos({
-      top: rect.bottom + 14,
-      right: Math.max(8, window.innerWidth - rect.right)
+      top: rect.bottom + 5,
+      right: Math.max(8, document.documentElement.clientWidth - rect.right)
     });
   }
 
@@ -102,12 +106,22 @@ export default function LanguageSwitcher() {
   function pick(code: string) {
     if (!isLocale(code)) return;
     setLocale(code);
+    if (supabase) {
+      const client = supabase;
+      void client.auth.updateUser({ data: { locale: code } }).then(({ data }) => {
+        const userId = data.user?.id;
+        if (userId) {
+          void client.from("profiles").update({ preferred_locale: code }).eq("id", userId);
+        }
+      });
+    }
     setOpen(false);
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.delete("lang");
       url.pathname = translateLocalizedPath(url.pathname, code);
-      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+      router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
+      router.refresh();
     }
   }
 
@@ -127,7 +141,7 @@ export default function LanguageSwitcher() {
           position: "fixed",
           top: dropPos.top,
           right: dropPos.right,
-          zIndex: 999999,
+          zIndex: 2147483647,
           pointerEvents: "all"
         }}
       >
@@ -158,9 +172,12 @@ export default function LanguageSwitcher() {
         aria-label={t.language}
         aria-haspopup="listbox"
         aria-expanded={open}
-        style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 42, height: 34, padding: 0, cursor: "pointer" }}
+        style={{ display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
       >
         <Flag iso={current.iso} />
+        <span className="utility-language-name">{current.label}</span>
+        <span className="utility-language-code">{current.code.toUpperCase()}</span>
+        <ChevronDown className="utility-control-chevron" size={13} aria-hidden="true" />
       </button>
       {dropdown}
     </div>

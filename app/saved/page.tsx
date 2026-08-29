@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import OptimizedListingImage, { fallbackListingImage } from "@/app/components/OptimizedListingImage";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
+import ListingSalePrice from "@/app/components/ListingSalePrice";
 import marketplaceStyles from "@/app/page.module.css";
 import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
@@ -310,7 +311,7 @@ export default function SavedListingsPage() {
                   </div>
 
                   <div className={`${marketplaceStyles.cardBody} saved-card-body`}>
-                    <p className={marketplaceStyles.cardPrice}>{formatPrice(listing.price)}</p>
+                    <ListingSalePrice listing={listing} className={marketplaceStyles.cardPrice} />
                     <h3 className={marketplaceStyles.cardTitle}>{getListingTitle(listing)}</h3>
                     <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
                     <div className={`${marketplaceStyles.cardMetaRow} saved-meta`} data-listing-card-meta="true">

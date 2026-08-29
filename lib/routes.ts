@@ -1,5 +1,5 @@
 const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type RouteLocale = "fi" | "en" | "sv" | "no";
 
@@ -63,7 +63,14 @@ export function normalizeRouteLocale(locale?: string | null): RouteLocale {
   return routeLocale(locale);
 }
 
-export function slugifyProfileName(value?: string | null) {
+export function publicCompanyDisplayName(value?: string | null) {
+  return String(value ?? "")
+    .trim()
+    .replace(/\s+oyj?\.?$/i, "")
+    .trim();
+}
+
+export function legacySlugifyProfileName(value?: string | null) {
   const slug = String(value ?? "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -71,11 +78,13 @@ export function slugifyProfileName(value?: string | null) {
     .replace(/ä/g, "a")
     .replace(/ö/g, "o")
     .replace(/å/g, "a")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .replace(/-{2,}/g, "-");
+    .replace(/[^a-z0-9]+/g, "");
 
   return slug || null;
+}
+
+export function slugifyProfileName(value?: string | null) {
+  return legacySlugifyProfileName(publicCompanyDisplayName(value));
 }
 
 export function listingPath(id?: string | number | null, locale?: string | null) {
@@ -115,15 +124,11 @@ export function listingUrlId(
 }
 
 export function profilePath(id?: string | null, name?: string | null, locale?: string | null) {
-  // Display-name slugs are not account identifiers: two users can have the
-  // same name. Always route new links with the immutable profile UUID so a
-  // link can resolve to exactly one account. Keep `name` in the signature for
-  // existing call sites and for UI labels, but never use it as identity.
-  void name;
   const profileId = id ? String(id).trim() : "";
+  const profileSlug = slugifyProfileName(name);
   const segment = profileSegments[routeLocale(locale)];
 
-  return `/${segment}/${encodeURIComponent(profileId)}`;
+  return `/${segment}/${encodeURIComponent(profileSlug || profileId)}`;
 }
 
 export function legacySellerPath(id?: string | null) {

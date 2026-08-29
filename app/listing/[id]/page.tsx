@@ -1,9 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 
-import { formatPrice, getListingPartNumber, type Listing } from "@/lib/listings";
+import { formatPrice, getListingPartNumber, getListingSalePricing, type Listing } from "@/lib/listings";
 import { listingNumberUrlId, listingPath, listingUrlId } from "@/lib/routes";
 import { absoluteSiteUrl } from "@/lib/site-url";
 import { getListingById, getListingDisplayNumber } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import ListingPageClient from "./ListingPageClient";
 import { generateListingMetadata } from "./metadata";
 
@@ -35,6 +36,7 @@ function schemaCondition(condition?: string | null) {
 }
 
 function buildProductStructuredData(listing: Listing, url: string) {
+  const salePricing = getListingSalePricing(listing);
   const partNumber = getListingPartNumber(listing);
   const listingTitle = cleanStructuredText(listing.title);
   const normalizedTitle = listingTitle.toLocaleLowerCase("fi");
@@ -49,7 +51,7 @@ function buildProductStructuredData(listing: Listing, url: string) {
       "@type": "ImageObject",
       contentUrl: absoluteSiteUrl(image),
       name: `${searchableProductName} – kuva ${index + 1}`,
-      caption: `${searchableProductName}, ${formatPrice(Number(listing.price) || 0)}`
+      caption: `${searchableProductName}, ${formatPrice(salePricing.currentPrice)}`
     }));
   const additionalProperties = [
     ["Ajoneuvotyyppi", listing.vehicle_type],
@@ -95,7 +97,7 @@ function buildProductStructuredData(listing: Listing, url: string) {
     offers: {
       "@type": "Offer",
       url,
-      price: Number(listing.price) || 0,
+      price: salePricing.currentPrice,
       priceCurrency: "EUR",
       availability: "https://schema.org/InStock",
       itemCondition: schemaCondition(listing.condition),
@@ -148,17 +150,22 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
 
-  // The client already has the clicked listing in its local cache. In local
-  // development, render that immediately instead of blocking navigation on a
-  // remote server-side Supabase request that may be unavailable.
-  if (process.env.NODE_ENV === "development") {
-    return <ListingPageClient />;
-  }
-
   const { data: listing } = await getListingById(decodedId);
 
   if (!listing || listing.is_hidden) {
     notFound();
+  }
+
+  const commerceProductId = listing.translations?._meta?.commerce_product_id?.trim();
+  if (commerceProductId) {
+    const { data: availableProduct } = await getSupabaseAdmin()
+      .from("products")
+      .select("id")
+      .eq("id", commerceProductId)
+      .eq("active", true)
+      .gt("stock_quantity", 0)
+      .maybeSingle<{ id: string }>();
+    if (!availableProduct) notFound();
   }
 
   const displayNumber = listing

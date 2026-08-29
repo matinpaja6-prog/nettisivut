@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import OptimizedListingImage from "@/app/components/OptimizedListingImage";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
+import ListingSalePrice from "@/app/components/ListingSalePrice";
 import { translateCategory, useLanguage } from "@/lib/i18n";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import { sanitizePhoneInput } from "@/lib/phone-input";
@@ -14,16 +15,20 @@ import {
   Check,
   ChevronDown,
   ClipboardList,
+  CreditCard,
   Edit3,
   Eye,
   EyeOff,
+  ExternalLink,
   ImageIcon,
   ImagePlus,
   LayoutGrid,
   List as ListIcon,
   LockKeyhole,
+  MapPin,
   MessageCircle,
   Phone,
+  PackagePlus,
   Search,
   Tag,
   TrendingUp,
@@ -62,6 +67,9 @@ import {
   type Listing,
   type SoldListing
 } from "@/lib/listings";
+import type { Company, Product } from "@/lib/commerce/types";
+import { canPublishProduct, commerceStatusMessage } from "@/lib/commerce/validation";
+import { VAT_RATE_OPTIONS, ZERO_VAT_RATE } from "@/lib/commerce/vat";
 import { buildVehicleCategoriesFromTaxonomy, categoriesAsRecord } from "@/lib/taxonomy";
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 import {
@@ -71,6 +79,26 @@ import {
   getCategoryVehicleKey,
   getCommonVehicleKey
 } from "@/app/components/CategoryDrawer";
+
+const RIDING_GEAR_CATEGORIES = [
+  "Kypärät", "Ajotakit", "Ajohousut", "Ajopuvut", "Ajosaappaat", "Ajohanskat",
+  "Suojavarusteet", "Sade- ja lämpövarusteet", "Muut ajovarusteet"
+];
+const RIDING_GEAR_BRANDS = [
+  "Acerbis", "Alpinestars", "Arai", "Bell", "Fox Racing", "FXR", "Halvarssons",
+  "HJC", "Klim", "Leatt", "O'Neal", "Rukka", "Scott", "Shoei", "Thor"
+];
+const RIDING_GEAR_SIZES = [
+  "XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL",
+  "116", "128", "140", "152", "164",
+  "32", "34", "36", "38", "40", "42", "44", "46", "48",
+  "50", "52", "54", "56", "58", "60", "62", "64"
+];
+const RIDING_GEAR_TARGETS = ["Aikuisten", "Lasten", "Naisten", "Miesten", "Unisex"];
+
+function isRidingGearListing(listing: Pick<Listing, "category">) {
+  return listing.category?.trim().toLocaleLowerCase("fi-FI") === "ajovarusteet";
+}
 
 function splitLocation(value: string | null | undefined) {
   const parts = (value || "").split(",").map((part) => part.trim()).filter(Boolean);
@@ -90,6 +118,90 @@ function splitLocation(value: string | null | undefined) {
 
 function buildLocation(city: string, country: string) {
   return [city.trim(), country.trim()].filter(Boolean).join(", ");
+}
+
+type EditableCommerceSettings = {
+  enabled: boolean;
+  stockQuantity: string;
+  vatRate: string;
+  storefrontCategory: string;
+  pickupAvailable: boolean;
+  shippingAvailable: boolean;
+  shippingPriceFi: string;
+  shippingPriceSe: string;
+  shippingPriceNo: string;
+  weightGrams: string;
+  packageLengthCm: string;
+  packageWidthCm: string;
+  packageHeightCm: string;
+  maxShippingQuantity: string;
+  shippingNotes: string;
+};
+
+const defaultEditableCommerceSettings: EditableCommerceSettings = {
+  enabled: false,
+  stockQuantity: "1",
+  vatRate: String(ZERO_VAT_RATE),
+  storefrontCategory: "",
+  pickupAvailable: true,
+  shippingAvailable: false,
+  shippingPriceFi: "0",
+  shippingPriceSe: "0",
+  shippingPriceNo: "0",
+  weightGrams: "",
+  packageLengthCm: "",
+  packageWidthCm: "",
+  packageHeightCm: "",
+  maxShippingQuantity: "1",
+  shippingNotes: ""
+};
+
+function decimalInputNumber(value: string) {
+  return Number(value.trim().replace(",", "."));
+}
+
+function centsInput(value: string) {
+  const number = decimalInputNumber(value);
+  return Number.isFinite(number) ? Math.round(number * 100) : 0;
+}
+
+function optionalDecimalInput(value: string) {
+  if (!value.trim()) return null;
+  const number = decimalInputNumber(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function visibleShippingNotes(value: string | null | undefined) {
+  return (value ?? "")
+    .replace(/\[\[maskines:no_shipping_cents=\d+\]\]/g, "")
+    .trim();
+}
+
+function listingCommerceProductId(listing: Listing) {
+  const id = listing.translations?._meta?.commerce_product_id;
+  return typeof id === "string" && id.trim() ? id.trim() : null;
+}
+
+function findListingCommerceProduct(listing: Listing, products: Product[]) {
+  const linkedId = listingCommerceProductId(listing);
+  if (linkedId) {
+    const linked = products.find((product) => product.id === linkedId);
+    if (linked) return linked;
+  }
+
+  // Repair older edits where the commerce reference was accidentally cleared.
+  // Require both the exact title and a shared image so two genuinely separate
+  // listings with the same name are not merged.
+  const listingImages = new Set(getEditableListingImages(listing));
+  const candidates = products.filter((product) =>
+    product.name.trim() === listing.title.trim() &&
+    product.image_urls.some((image) => listingImages.has(image))
+  );
+  const listingTime = new Date(listing.created_at).getTime();
+  return candidates.sort((left, right) =>
+    Math.abs(new Date(left.created_at).getTime() - listingTime) -
+    Math.abs(new Date(right.created_at).getTime() - listingTime)
+  )[0] ?? null;
 }
 
 function EditablePresetInput({
@@ -367,6 +479,34 @@ function myListingsCacheKey(userId: string) {
   return `${myListingsCachePrefix}${userId}`;
 }
 
+function compatiblePartListingHref(
+  listing: Pick<Listing, "id" | "vehicle_type" | "vehicle_subtype" | "brand" | "model" | "year" | "engine_cc" | "engine_model" | "translations">
+) {
+  const params = new URLSearchParams({
+    addCompatiblePart: "1",
+    lockVehicle: "1",
+    sourceListing: listing.id
+  });
+  const publicationGroupId = getListingPublicationGroupId(listing);
+  if (publicationGroupId) params.set("publicationGroup", publicationGroupId);
+
+  const vehicleDetails = {
+    vehicleType: listing.vehicle_type,
+    vehicleSubtype: listing.vehicle_subtype,
+    make: listing.brand,
+    model: listing.model,
+    year: listing.year,
+    engineCc: listing.engine_cc,
+    engineType: listing.engine_model
+  };
+
+  for (const [key, value] of Object.entries(vehicleDetails)) {
+    if (typeof value === "string" && value.trim()) params.set(key, value.trim());
+  }
+
+  return `/sell?${params.toString()}`;
+}
+
 function removedCompletedGroupsKey(userId: string) {
   return `${removedCompletedGroupsPrefix}${userId}`;
 }
@@ -554,6 +694,18 @@ export default function MyListingsPage() {
     views: { fi: "katselua", en: "views", sv: "visningar",
       no: "visninger",
     }[locale],
+    tabs: {
+      fi: { all: "Kaikki", active: "Aktiiviset", hidden: "Piilotetut", sold: "Myydyt" },
+      en: { all: "All", active: "Active", hidden: "Hidden", sold: "Sold" },
+      sv: { all: "Alla", active: "Aktiva", hidden: "Dolda", sold: "Sålda" },
+      no: { all: "Alle", active: "Aktive", hidden: "Skjulte", sold: "Solgte" },
+    }[locale],
+    group: {
+      fi: { edit: "Muokkaa ilmoituksia", ready: "Valmis multi-ilmoitus", listed: "myynnissä", sold: "myyty", messages: "viestiä", estimate: "Arvio yhteensä", received: "Saatu jo", sellMore: "Myy lisää", open: "Avaa osat", close: "Sulje osat", allSold: "Kaikki myyty", remove: "Poista koonti" },
+      en: { edit: "Manage listings", ready: "Completed multi-listing", listed: "for sale", sold: "sold", messages: "messages", estimate: "Estimated total", received: "Received", sellMore: "Sell more", open: "Open parts", close: "Close parts", allSold: "All sold", remove: "Remove group" },
+      sv: { edit: "Hantera annonser", ready: "Färdig multiannons", listed: "till salu", sold: "sålda", messages: "meddelanden", estimate: "Uppskattat totalt", received: "Redan erhållet", sellMore: "Sälj mer", open: "Visa delar", close: "Dölj delar", allSold: "Allt sålt", remove: "Ta bort grupp" },
+      no: { edit: "Administrer annonser", ready: "Fullført flerproduktsalg", listed: "til salgs", sold: "solgt", messages: "meldinger", estimate: "Estimert totalt", received: "Mottatt", sellMore: "Selg mer", open: "Vis deler", close: "Skjul deler", allSold: "Alt solgt", remove: "Fjern gruppe" },
+    }[locale],
     saving: {
       fi: "Tallennetaan ilmoitusta...",
       en: "Saving listing...",
@@ -617,6 +769,7 @@ export default function MyListingsPage() {
       subcategory: "",
       brand: "",
       model: "",
+      riding_gear_target: "",
       year: "",
       part_model: "",
       part_number: "",
@@ -628,6 +781,19 @@ export default function MyListingsPage() {
       image_url: "",
       image_urls: [] as string[]
     });
+
+  const [commerceEditSettings, setCommerceEditSettings] =
+    useState<EditableCommerceSettings>({ ...defaultEditableCommerceSettings });
+  const [commerceEditCompany, setCommerceEditCompany] =
+    useState<Company | null>(null);
+  const [commerceEditProduct, setCommerceEditProduct] =
+    useState<Product | null>(null);
+  const [commerceEditEligible, setCommerceEditEligible] =
+    useState(false);
+  const [commerceEditPaymentReady, setCommerceEditPaymentReady] =
+    useState(false);
+  const [commerceEditLoading, setCommerceEditLoading] =
+    useState(false);
 
   const [previewImage, setPreviewImage] =
     useState<string | null>(null);
@@ -696,6 +862,10 @@ export default function MyListingsPage() {
   const listingEditRequestIdRef =
     useRef(0);
   const listingFormDirtyRef =
+    useRef(false);
+  const commerceEditDirtyRef =
+    useRef(false);
+  const savingListingRef =
     useRef(false);
 
   useEffect(() => {
@@ -783,9 +953,10 @@ export default function MyListingsPage() {
     let cancelled = false;
 
     const refreshLiveCounts = async () => {
-      const [listingResult, messageResult] = await Promise.all([
+      const [listingResult, messageResult, soldResult] = await Promise.all([
         getListingsBySeller(user.id),
-        getMyListingMessageCounts()
+        getMyListingMessageCounts(),
+        getSoldListingsBySeller(user.id)
       ]);
 
       if (cancelled) return;
@@ -803,6 +974,10 @@ export default function MyListingsPage() {
           nextMessageCounts[row.listing_id] = row;
         });
         setMessageCounts(nextMessageCounts);
+      }
+
+      if (!soldResult.error) {
+        setSoldListings(soldResult.data ?? []);
       }
     };
 
@@ -881,11 +1056,97 @@ export default function MyListingsPage() {
     setStatus("");
   }
 
+  async function loadListingCommerceSettings(listing: Listing, editRequestId: number) {
+    setCommerceEditLoading(true);
+    setCommerceEditEligible(false);
+    setCommerceEditPaymentReady(false);
+    setCommerceEditCompany(null);
+    setCommerceEditProduct(null);
+    setCommerceEditSettings({ ...defaultEditableCommerceSettings });
+
+    try {
+      if (!supabase) return;
+      const { data } = await supabase.auth.getSession();
+      const accessToken = data.session?.access_token;
+      if (!accessToken) return;
+
+      const requestInit = {
+        cache: "no-store" as const,
+        headers: { Authorization: `Bearer ${accessToken}` }
+      };
+      const [companyResponse, productsResponse] = await Promise.all([
+        fetch("/api/commerce/company", requestInit),
+        fetch("/api/commerce/products", requestInit)
+      ]);
+      const companyBody = await companyResponse.json().catch(() => ({})) as { company?: Company };
+      const productsBody = await productsResponse.json().catch(() => ({})) as { products?: Product[] };
+
+      if (listingEditRequestIdRef.current !== editRequestId) return;
+
+      const company = companyResponse.ok ? companyBody.company ?? null : null;
+      const products = productsResponse.ok && Array.isArray(productsBody.products)
+        ? productsBody.products
+        : [];
+      const eligible = company?.verification_status === "approved";
+      const paymentReady = canPublishProduct(company);
+      const product = findListingCommerceProduct(listing, products);
+
+      setCommerceEditCompany(company);
+      setCommerceEditEligible(eligible);
+      setCommerceEditPaymentReady(paymentReady);
+      setCommerceEditProduct(product);
+
+      if (!commerceEditDirtyRef.current) {
+        setCommerceEditSettings({
+          enabled: Boolean(product?.active),
+          stockQuantity: product ? String(product.stock_quantity) : "1",
+          vatRate: String(product?.vat_rate ?? company?.default_vat_rate ?? ZERO_VAT_RATE).replace(".", ","),
+          storefrontCategory: product?.storefront_category ?? "",
+          pickupAvailable: product ? product.pickup_available : true,
+          shippingAvailable: product ? product.shipping_available : false,
+          shippingPriceFi: product?.shipping_price_fi_cents == null
+            ? company?.default_shipping_price_fi_cents == null
+              ? "0"
+              : String(company.default_shipping_price_fi_cents / 100).replace(".", ",")
+            : String(product.shipping_price_fi_cents / 100).replace(".", ","),
+          shippingPriceSe: product?.shipping_price_se_cents == null
+            ? company?.default_shipping_price_se_cents == null
+              ? "0"
+              : String(company.default_shipping_price_se_cents / 100).replace(".", ",")
+            : String(product.shipping_price_se_cents / 100).replace(".", ","),
+          shippingPriceNo: product?.shipping_price_no_cents == null
+            ? company?.default_shipping_price_no_cents == null
+              ? "0"
+              : String(company.default_shipping_price_no_cents / 100).replace(".", ",")
+            : String(product.shipping_price_no_cents / 100).replace(".", ","),
+          weightGrams: product?.weight_grams == null ? "" : String(product.weight_grams),
+          packageLengthCm: product?.package_length_cm == null ? "" : String(product.package_length_cm).replace(".", ","),
+          packageWidthCm: product?.package_width_cm == null ? "" : String(product.package_width_cm).replace(".", ","),
+          packageHeightCm: product?.package_height_cm == null ? "" : String(product.package_height_cm).replace(".", ","),
+          maxShippingQuantity: String(product?.max_shipping_quantity ?? 1),
+          shippingNotes: visibleShippingNotes(product?.shipping_notes)
+        });
+      }
+    } catch {
+      if (listingEditRequestIdRef.current === editRequestId) {
+        setCommerceEditEligible(false);
+        setCommerceEditPaymentReady(false);
+        setCommerceEditCompany(null);
+        setCommerceEditProduct(null);
+      }
+    } finally {
+      if (listingEditRequestIdRef.current === editRequestId) {
+        setCommerceEditLoading(false);
+      }
+    }
+  }
+
   function startEditingListing(listing: Listing) {
 
     const editRequestId = listingEditRequestIdRef.current + 1;
     listingEditRequestIdRef.current = editRequestId;
     listingFormDirtyRef.current = false;
+    commerceEditDirtyRef.current = false;
     setEditingListingId(listing.id);
     setEditValidationErrors({});
     setStatus("");
@@ -900,6 +1161,7 @@ export default function MyListingsPage() {
       subcategory: listing.subcategory ?? "",
       brand: listing.brand ?? "",
       model: listing.model ?? "",
+      riding_gear_target: listing.translations?._meta?.riding_gear_target ?? "",
       year: listing.year ?? "",
       part_model: listing.part_model ?? "",
       part_number: listing.part_number ?? "",
@@ -911,6 +1173,8 @@ export default function MyListingsPage() {
       image_url: listingImages[0] ?? "",
       image_urls: listingImages
     });
+
+    void loadListingCommerceSettings(listing, editRequestId);
 
     void getListingById(listing.id)
       .then(({ data }) => {
@@ -936,6 +1200,7 @@ export default function MyListingsPage() {
             subcategory: data.subcategory ?? "",
             brand: data.brand ?? "",
             model: data.model ?? "",
+            riding_gear_target: data.translations?._meta?.riding_gear_target ?? "",
             year: data.year ?? "",
             part_model: data.part_model ?? "",
             part_number: data.part_number ?? "",
@@ -1054,8 +1319,14 @@ export default function MyListingsPage() {
 
     listingEditRequestIdRef.current += 1;
     listingFormDirtyRef.current = false;
+    commerceEditDirtyRef.current = false;
     setEditingListingId(null);
     setEditValidationErrors({});
+    setCommerceEditEligible(false);
+    setCommerceEditPaymentReady(false);
+    setCommerceEditCompany(null);
+    setCommerceEditProduct(null);
+    setCommerceEditSettings({ ...defaultEditableCommerceSettings });
     setStatus("");
 
   }
@@ -1079,7 +1350,12 @@ export default function MyListingsPage() {
 
   async function saveListing() {
 
-    if (!editingListingId) return;
+    if (!editingListingId || savingListingRef.current) return;
+
+    if (commerceEditLoading) {
+      setStatus("Odota hetki, myyntitapaa tarkistetaan.");
+      return;
+    }
 
     const currentListing =
       listings.find(
@@ -1090,6 +1366,7 @@ export default function MyListingsPage() {
     if (!currentListing) return;
 
     const editingVehicleListing = isVehicleListing(currentListing);
+    const editingRidingGearListing = isRidingGearListing(currentListing);
     const nextImages = Array.from(
       new Set(
         [
@@ -1112,6 +1389,18 @@ export default function MyListingsPage() {
     }
     if (editingVehicleListing && !listingForm.model.trim()) {
       validationErrors.model = "Malli puuttuu.";
+    }
+    if (editingRidingGearListing && !listingForm.subcategory.trim()) {
+      validationErrors.subcategory = "Ajovarusteen tyyppi puuttuu.";
+    }
+    if (editingRidingGearListing && !listingForm.brand.trim()) {
+      validationErrors.brand = "Merkki puuttuu.";
+    }
+    if (editingRidingGearListing && !listingForm.model.trim()) {
+      validationErrors.model = "Koko puuttuu.";
+    }
+    if (editingRidingGearListing && !listingForm.riding_gear_target.trim()) {
+      validationErrors.ridingGearTarget = "Kohderyhmä puuttuu.";
     }
     if (
       editingVehicleListing &&
@@ -1145,6 +1434,44 @@ export default function MyListingsPage() {
     if (nextImages.length === 0) {
       validationErrors.images = "Ilmoituksessa pitää olla vähintään yksi kuva.";
     }
+    if (commerceEditEligible && commerceEditSettings.enabled) {
+      if (!commerceEditPaymentReady) {
+        validationErrors.commercePayment = commerceStatusMessage(commerceEditCompany);
+      }
+      const stockQuantity = decimalInputNumber(commerceEditSettings.stockQuantity);
+      const vatRate = decimalInputNumber(commerceEditSettings.vatRate);
+      if (!Number.isInteger(stockQuantity) || stockQuantity < 1) {
+        validationErrors.commerceStock = "Maksa verkossa -ilmoitukselle tarvitaan vähintään yhden kappaleen määrä.";
+      }
+      if (!Number.isFinite(vatRate) || vatRate < ZERO_VAT_RATE || vatRate > 100) {
+        validationErrors.commerceVat = "Tarkista verokäsittely.";
+      }
+      if (!commerceEditSettings.pickupAvailable && !commerceEditSettings.shippingAvailable) {
+        validationErrors.commerceDelivery = "Valitse toimitustavaksi nouto tai kuljetus.";
+      }
+      if (
+        commerceEditSettings.shippingAvailable &&
+        (
+          decimalInputNumber(commerceEditSettings.shippingPriceFi) < 0 ||
+          decimalInputNumber(commerceEditSettings.shippingPriceSe) < 0 ||
+          decimalInputNumber(commerceEditSettings.shippingPriceNo) < 0 ||
+          !Number.isFinite(decimalInputNumber(commerceEditSettings.shippingPriceFi)) ||
+          !Number.isFinite(decimalInputNumber(commerceEditSettings.shippingPriceSe)) ||
+          !Number.isFinite(decimalInputNumber(commerceEditSettings.shippingPriceNo))
+        )
+      ) {
+        validationErrors.commerceShipping = "Lisää kuljetusta varten hinnat Suomeen, Ruotsiin ja Norjaan.";
+      }
+      if (commerceEditSettings.shippingAvailable) {
+        const maxShippingQuantity = decimalInputNumber(commerceEditSettings.maxShippingQuantity);
+        if (
+          !Number.isInteger(maxShippingQuantity) ||
+          maxShippingQuantity < 1
+        ) {
+          validationErrors.commerceParcel = "Tarkista yhdessä lähetyksessä toimitettava määrä.";
+        }
+      }
+    }
 
     setEditValidationErrors(validationErrors);
     if (Object.keys(validationErrors).length > 0) {
@@ -1166,20 +1493,112 @@ export default function MyListingsPage() {
       return;
     }
 
+    savingListingRef.current = true;
     setStatus(pageText.saving);
 
     const nextMainImage = nextImages[0];
     const nextLocation =
       buildLocation(listingForm.location_city, listingForm.location_country);
+    const nextDescription = mergeListingDescriptionMetadata(
+      currentListing.description,
+      listingForm.description
+    );
+    const requestedPrice = normalizeListingPriceForSave(listingForm.price);
+    let savedCommerceProduct = commerceEditProduct;
+    let createdCommerceProductId: string | null = null;
 
-    const { data, error } =
-      await updateListing(
+    try {
+      if (commerceEditEligible && (commerceEditProduct || commerceEditSettings.enabled)) {
+        if (!supabase) throw new Error("Kirjaudu uudelleen sisään.");
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) throw new Error("Kirjaudu uudelleen sisään.");
+
+        const shippingAvailable = commerceEditSettings.shippingAvailable;
+        const productPayload = {
+          name: listingForm.title.trim(),
+          description: nextDescription,
+          storefront_category: commerceEditSettings.storefrontCategory.trim() || null,
+          price_cents: Math.round(requestedPrice * 100),
+          seller_target_price_cents: commerceEditCompany?.fee_pricing_strategy === "include"
+            ? Math.round(requestedPrice * 100)
+            : null,
+          vat_rate: decimalInputNumber(commerceEditSettings.vatRate),
+          stock_quantity: Math.trunc(decimalInputNumber(commerceEditSettings.stockQuantity)),
+          active: commerceEditSettings.enabled,
+          image_urls: nextImages,
+          pickup_available: commerceEditSettings.pickupAvailable,
+          // Nouto-osoite ja -ohjeet hallitaan keskitetysti yrityksen asetuksissa.
+          pickup_address_override: null,
+          pickup_instructions: null,
+          shipping_available: shippingAvailable,
+          posti_enabled: shippingAvailable,
+          shipping_price_cents: shippingAvailable ? centsInput(commerceEditSettings.shippingPriceFi) : null,
+          shipping_price_fi_cents: shippingAvailable ? centsInput(commerceEditSettings.shippingPriceFi) : null,
+          shipping_price_se_cents: shippingAvailable ? centsInput(commerceEditSettings.shippingPriceSe) : null,
+          shipping_price_no_cents: shippingAvailable ? centsInput(commerceEditSettings.shippingPriceNo) : null,
+          free_shipping_threshold_cents: null,
+          weight_grams: shippingAvailable ? optionalDecimalInput(commerceEditSettings.weightGrams) : null,
+          package_length_cm: shippingAvailable ? optionalDecimalInput(commerceEditSettings.packageLengthCm) : null,
+          package_width_cm: shippingAvailable ? optionalDecimalInput(commerceEditSettings.packageWidthCm) : null,
+          package_height_cm: shippingAvailable ? optionalDecimalInput(commerceEditSettings.packageHeightCm) : null,
+          max_shipping_quantity: shippingAvailable
+            ? Math.trunc(decimalInputNumber(commerceEditSettings.maxShippingQuantity))
+            : 1,
+          shipping_notes: shippingAvailable ? commerceEditSettings.shippingNotes.trim() || null : null
+        };
+        const productResponse = await fetch(
+          commerceEditProduct
+            ? `/api/commerce/products/${commerceEditProduct.id}`
+            : "/api/commerce/products",
+          {
+            method: commerceEditProduct ? "PUT" : "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(productPayload)
+          }
+        );
+        const productBody = await productResponse.json().catch(() => ({})) as {
+          product?: Product;
+          error?: string;
+        };
+        if (!productResponse.ok || !productBody.product) {
+          throw new Error(productBody.error || "Verkko-oston tietojen tallennus epäonnistui.");
+        }
+        savedCommerceProduct = productBody.product;
+        if (!commerceEditProduct) createdCommerceProductId = productBody.product.id;
+      }
+
+      const nextTranslations = savedCommerceProduct || editingRidingGearListing
+        ? {
+            ...(currentListing.translations ?? {}),
+            _meta: {
+              ...(currentListing.translations?._meta ?? {}),
+              ...(savedCommerceProduct ? { commerce_product_id: savedCommerceProduct.id } : {}),
+              ...(editingRidingGearListing
+                ? {
+                    riding_gear_size: listingForm.model.trim(),
+                    riding_gear_target: listingForm.riding_gear_target.trim()
+                  }
+                : {})
+            }
+          }
+        : currentListing.translations ?? null;
+      const finalListingPrice = commerceEditSettings.enabled && savedCommerceProduct
+        ? savedCommerceProduct.price_cents / 100
+        : requestedPrice;
+
+      const { data, error } = await updateListing(
         editingListingId,
         {
           title: listingForm.title.trim(),
           original_language: currentListing.original_language || locale,
-          translations: null,
-          price: normalizeListingPriceForSave(listingForm.price),
+          // Keep translation metadata: it contains the one-to-one link to the
+          // commerce product. Clearing this was the source of duplicate cards.
+          translations: nextTranslations,
+          price: finalListingPrice,
           category: listingForm.category,
           subcategory: listingForm.subcategory,
           brand: listingForm.brand.trim(),
@@ -1189,36 +1608,46 @@ export default function MyListingsPage() {
           part_number: editingVehicleListing ? null : listingForm.part_number.trim() || null,
           location: nextLocation,
           condition: listingForm.condition,
-          description: mergeListingDescriptionMetadata(
-            currentListing.description,
-            listingForm.description
-          ),
+          description: nextDescription,
           image_url: nextMainImage,
           image_urls: nextImages
         }
       );
 
-    if (error) {
+      if (error) {
+        if (createdCommerceProductId && supabase) {
+          const { data: sessionData } = await supabase.auth.getSession();
+          const accessToken = sessionData.session?.access_token;
+          if (accessToken) {
+            await fetch(`/api/commerce/products/${createdCommerceProductId}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${accessToken}` }
+            }).catch(() => undefined);
+          }
+        }
+        throw error;
+      }
+
+      if (data) {
+        updateCachedListing(data);
+        setListings((prev) =>
+          prev.map((listing) =>
+            listing.id === data.id ? data : listing
+          )
+        );
+      }
+
+      listingEditRequestIdRef.current += 1;
+      listingFormDirtyRef.current = false;
+      commerceEditDirtyRef.current = false;
+      setEditingListingId(null);
+      setEditValidationErrors({});
+      setStatus(pageText.updated);
+    } catch (error) {
       setStatus(getErrorMessage(error));
-      return;
+    } finally {
+      savingListingRef.current = false;
     }
-
-    if (data) {
-      updateCachedListing(data);
-      setListings((prev) =>
-        prev.map((listing) =>
-          listing.id === data.id
-            ? data
-            : listing
-        )
-      );
-    }
-
-    listingEditRequestIdRef.current += 1;
-    listingFormDirtyRef.current = false;
-    setEditingListingId(null);
-    setEditValidationErrors({});
-    setStatus(pageText.updated);
 
   }
 
@@ -1652,8 +2081,27 @@ export default function MyListingsPage() {
     all: listings.length,
     active: visibleListings.length,
     hidden: hiddenListings.length,
-    sold: 0
+    sold: soldListings.length
   };
+
+  const sortedSoldListings = useMemo(() => {
+    const result = soldListings.slice();
+    result.sort((left, right) => {
+      switch (sortOrder) {
+        case "oldest":
+          return (left.sold_at || "").localeCompare(right.sold_at || "");
+        case "price-desc":
+          return (Number(right.sold_price) || 0) - (Number(left.sold_price) || 0);
+        case "price-asc":
+          return (Number(left.sold_price) || 0) - (Number(right.sold_price) || 0);
+        case "views":
+        case "newest":
+        default:
+          return (right.sold_at || "").localeCompare(left.sold_at || "");
+      }
+    });
+    return result;
+  }, [soldListings, sortOrder]);
 
   const filteredListings = useMemo(() => {
     let arr: Listing[] = [];
@@ -1745,6 +2193,37 @@ export default function MyListingsPage() {
       const sortedCandidates = candidates
         .slice()
         .sort((a, b) => (a.created_at || "").localeCompare(b.created_at || ""));
+      const matchingPublishedGroups = Array.from(groupMap.values()).filter(
+        (group) => group.vehicleKey === vehicleKey && group.active.length > 0
+      );
+
+      // Translation generation used to replace the whole translations object,
+      // which removed publication_group_id from a freshly appended listing.
+      // When there is exactly one existing publication for this exact vehicle,
+      // recover newer orphaned parts into that publication automatically.
+      if (matchingPublishedGroups.length === 1) {
+        const matchingGroup = matchingPublishedGroups[0];
+        const groupCreatedAt = Math.min(
+          ...matchingGroup.active.map((listing) => new Date(listing.created_at || "").getTime())
+        );
+        const remainingCandidates: Listing[] = [];
+
+        for (const listing of sortedCandidates) {
+          const listingCreatedAt = new Date(listing.created_at || "").getTime();
+          if (
+            Number.isFinite(groupCreatedAt) &&
+            Number.isFinite(listingCreatedAt) &&
+            listingCreatedAt >= groupCreatedAt
+          ) {
+            addActiveListing(matchingGroup.key, vehicleKey, listing);
+          } else {
+            remainingCandidates.push(listing);
+          }
+        }
+
+        sortedCandidates.splice(0, sortedCandidates.length, ...remainingCandidates);
+      }
+
       let batch: Listing[] = [];
 
       const flushLegacyBatch = () => {
@@ -1893,9 +2372,10 @@ export default function MyListingsPage() {
   }
 
   const tabs: Array<{ key: typeof activeTab; label: string; count: number }> = [
-    { key: "all",     label: "Kaikki",     count: tabCounts.all },
-    { key: "active",  label: "Aktiiviset", count: tabCounts.active },
-    { key: "hidden",  label: "Piilotetut", count: tabCounts.hidden },
+    { key: "all",     label: pageText.tabs.all,     count: tabCounts.all },
+    { key: "active",  label: pageText.tabs.active,  count: tabCounts.active },
+    { key: "hidden",  label: pageText.tabs.hidden,  count: tabCounts.hidden },
+    { key: "sold",    label: pageText.tabs.sold,    count: tabCounts.sold },
   ];
 
   const sortLabels: Record<typeof sortOrder, string> = {
@@ -1908,7 +2388,7 @@ export default function MyListingsPage() {
 
   return (
 
-    <main className={`${styles.page} my-listings-page`}>
+    <main className={`${styles.page} my-listings-page`} data-mode={editingListingId ? "editing" : "management"}>
 
       {!editingListingId && <header className={styles.header}>
 
@@ -2046,6 +2526,66 @@ export default function MyListingsPage() {
 
           {!listingsCacheReady && listings.length === 0 ? (
             <div className={styles.emptyState} data-app-sheet aria-busy="true" />
+          ) : activeTab === "sold" ? (
+            sortedSoldListings.length === 0 ? (
+              <div className={styles.emptyState} data-app-sheet>
+                <Tag size={28} />
+                <span>Myytyjä tuotteita ei ole vielä.</span>
+              </div>
+            ) : (
+              <div className={styles.list}>
+                {sortedSoldListings.map((sold) => (
+                  <article
+                    className={styles.row}
+                    key={sold.id}
+                    data-my-listing-row
+                  >
+                    <div className={styles.rowMedia}>
+                      <div className={styles.rowImageWrap}>
+                        <OptimizedListingImage
+                          className={styles.rowImage}
+                          src={sold.image_url}
+                          alt={sold.title || "Myyty tuote"}
+                          sizes="156px"
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.rowBody}>
+                      <div className={styles.rowBadges}>
+                        <span className={styles.listingTypePill}>
+                          {sold.listing_mode === "multiple"
+                            ? "Multi-ilmoituksen osa"
+                            : "Myyty tuote"}
+                        </span>
+                        {(sold.subcategory || sold.category) && (
+                          <span className={styles.categoryPill}>
+                            {translateCategory(locale, sold.subcategory || sold.category || "")}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className={styles.rowTitle}>{sold.title || "Myyty tuote"}</h3>
+                      <ListingVehicleMeta
+                        year={sold.year}
+                        brand={sold.brand}
+                        model={sold.model}
+                        className={styles.rowSubline}
+                      />
+                    </div>
+
+                    <div className={styles.priceCell}>
+                      <small>Toteutunut kauppahinta</small>
+                      <span className={styles.price}>{formatPrice(Number(sold.sold_price) || 0)}</span>
+                      {Number(sold.price) > 0 && Number(sold.price) !== Number(sold.sold_price) && (
+                        <span className={styles.dateText}>Pyyntihinta {formatPrice(Number(sold.price))}</span>
+                      )}
+                      <span className={`${styles.statusBadge} ${styles.statusSold}`}>Myyty</span>
+                      <span className={styles.dateText}>Myyty {formatDateFi(sold.sold_at)}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )
           ) : filteredListings.length === 0 && multiGroups.length === 0 ? (
             <div className={styles.emptyState} data-app-sheet>
               <Tag size={28} />
@@ -2093,29 +2633,39 @@ export default function MyListingsPage() {
 
                     <div className={styles.multiGroupBody}>
                       <span className={styles.multiGroupKicker}>
-                        {group.completed ? "Valmis multi-ilmoitus" : "Muokkaa ilmoituksia"}
+                        {group.completed ? pageText.group.ready : pageText.group.edit}
                       </span>
                       <h3 className={styles.multiGroupTitle}>{group.title}</h3>
                       <div className={styles.multiGroupMeta}>
-                        <span>{group.active.length} myynnissä</span>
-                        <span>{group.sold.length} myyty</span>
-                        <span>{views} katselua</span>
-                        <span>{messages} viestiä</span>
+                        <span>{group.active.length} {pageText.group.listed}</span>
+                        <span>{group.sold.length} {pageText.group.sold}</span>
+                        <span>{views} {pageText.views}</span>
+                        <span>{messages} {pageText.group.messages}</span>
                       </div>
                     </div>
 
                     <div className={styles.multiGroupMoney}>
                       <span>
-                        <small>Arvio yhteensä</small>
+                        <small>{pageText.group.estimate}</small>
                         <strong>{estimateValue.toLocaleString("fi-FI")} €</strong>
                       </span>
                       <span>
-                        <small>Saatu jo</small>
+                        <small>{pageText.group.received}</small>
                         <strong>{soldValue.toLocaleString("fi-FI")} €</strong>
                       </span>
                     </div>
 
                     <div className={styles.multiGroupActions}>
+                      {group.active.length > 0 ? (
+                        <Link
+                          className={`${styles.actionBtn} ${styles.groupAddPartButton}`}
+                          href={compatiblePartListingHref(group.active[0])}
+                          aria-label={`${pageText.group.sellMore}: ${group.title}`}
+                        >
+                          <PackagePlus size={17} aria-hidden="true" />
+                          <span>{pageText.group.sellMore}</span>
+                        </Link>
+                      ) : null}
                       {group.active.length > 0 ? (
                         <button
                           type="button"
@@ -2129,11 +2679,11 @@ export default function MyListingsPage() {
                           }
                         >
                           <ChevronDown size={15} />
-                          {isOpen ? "Sulje osat" : "Avaa osat"}
+                          {isOpen ? pageText.group.close : pageText.group.open}
                         </button>
                       ) : (
                         <span className={`${styles.statusBadge} ${styles.statusSold}`}>
-                          Kaikki myyty
+                          {pageText.group.allSold}
                         </span>
                       )}
                       {group.completed && (
@@ -2144,7 +2694,7 @@ export default function MyListingsPage() {
                           title="Poistaa multi-koonnin hallintanäkymästä. Myyntitiedot säilyvät tilastoissa."
                         >
                           <Trash2 size={14} />
-                          Poista koonti
+                          {pageText.group.remove}
                         </button>
                       )}
                     </div>
@@ -2159,6 +2709,7 @@ export default function MyListingsPage() {
                 const editing =
                   editingListingId === listing.id;
                 const editingVehicleListing = isVehicleListing(listing);
+                const editingRidingGearListing = isRidingGearListing(listing);
 
                 const listingCategories =
                   (listing.vehicle_type && categoriesByVehicle[listing.vehicle_type]) ||
@@ -2220,7 +2771,7 @@ export default function MyListingsPage() {
                     {editing ? (
 
                       <div
-                        className={`own-listing-edit${editingVehicleListing ? " is-vehicle-listing" : ""}`}
+                        className={`own-listing-edit ${styles.modernEditForm}${editingVehicleListing ? " is-vehicle-listing" : ""}${editingRidingGearListing ? " is-riding-gear-listing" : ""}`}
                         onChangeCapture={() => {
                           listingFormDirtyRef.current = true;
                           if (Object.keys(editValidationErrors).length > 0) {
@@ -2228,8 +2779,24 @@ export default function MyListingsPage() {
                           }
                         }}
                       >
+                        <header className={styles.modernEditHeader}>
+                          <div className={styles.modernEditTitle}>
+                            <span><Edit3 size={22} /></span>
+                            <div>
+                              <small>Ilmoituksen hallinta</small>
+                              <h1>Muokkaa ilmoitusta</h1>
+                              <p>Kaikki ilmoituksen tiedot ja myyntitapa yhdessä selkeässä näkymässä.</p>
+                            </div>
+                          </div>
+                          <div className={styles.modernEditHeaderActions}>
+                            <div className={styles.modernEditSaveHint}><Check size={16} /><span><strong>Muutokset ovat hallinnassasi</strong><small>Tallenna vasta, kun kaikki näyttää oikealta.</small></span></div>
+                          </div>
+                        </header>
+
+                        <div className={styles.modernEditColumns}>
+                          <div className={styles.modernEditColumn}>
                         <div className="own-listing-section">
-                              <span className="own-listing-section-title">Perustiedot</span>
+                              <span className="own-listing-section-title"><ClipboardList size={18} /> Perustiedot</span>
                               <div className="own-listing-title-fields">
                                 <label className="own-listing-field">
                                   <span>Otsikko *</span>
@@ -2250,61 +2817,106 @@ export default function MyListingsPage() {
                                 </label>
                               </div>
 
-                              <div className="own-listing-grid-3">
-                                <label className="own-listing-field">
-                                  <span>{editingVehicleListing ? "Merkki *" : "Merkki"}</span>
-                                  <EditablePresetInput
-                                    value={listingForm.brand}
-                                    options={brandOptions}
-                                    ariaLabel="Merkki"
-                                    required={editingVehicleListing}
-                                    invalid={Boolean(editValidationErrors.brand)}
-                                    onChange={(value) =>
-                                      setListingForm((current) => ({
+                              {editingRidingGearListing ? (
+                                <div className="own-listing-grid-3">
+                                  <label className="own-listing-field">
+                                    <span>Ajovarusteen tyyppi *</span>
+                                    <select
+                                      value={listingForm.subcategory}
+                                      onChange={(event) => setListingForm((current) => ({
                                         ...current,
-                                        brand: value
-                                      }))
-                                    }
-                                    placeholder="Esim. Yamaha"
-                                  />
-                                </label>
-                                <label className="own-listing-field">
-                                  <span>{editingVehicleListing ? "Malli *" : "Malli"}</span>
-                                  <EditablePresetInput
-                                    value={listingForm.model}
-                                    options={modelOptions}
-                                    ariaLabel="Malli"
-                                    required={editingVehicleListing}
-                                    invalid={Boolean(editValidationErrors.model)}
-                                    onChange={(value) =>
-                                      setListingForm((current) => ({
+                                        category: "Ajovarusteet",
+                                        subcategory: event.target.value
+                                      }))}
+                                      required
+                                      aria-invalid={Boolean(editValidationErrors.subcategory)}
+                                    >
+                                      <option value="">Valitse tyyppi</option>
+                                      {RIDING_GEAR_CATEGORIES.map((value) => <option key={value} value={value}>{value}</option>)}
+                                    </select>
+                                  </label>
+                                  <label className="own-listing-field">
+                                    <span>Merkki *</span>
+                                    <EditablePresetInput
+                                      value={listingForm.brand}
+                                      options={RIDING_GEAR_BRANDS}
+                                      ariaLabel="Ajovarusteen merkki"
+                                      required
+                                      invalid={Boolean(editValidationErrors.brand)}
+                                      onChange={(value) => setListingForm((current) => ({ ...current, brand: value }))}
+                                      placeholder="Esim. Arai"
+                                    />
+                                  </label>
+                                  <label className="own-listing-field">
+                                    <span>Koko *</span>
+                                    <EditablePresetInput
+                                      value={listingForm.model}
+                                      options={RIDING_GEAR_SIZES}
+                                      ariaLabel="Ajovarusteen koko"
+                                      required
+                                      invalid={Boolean(editValidationErrors.model)}
+                                      onChange={(value) => setListingForm((current) => ({ ...current, model: value }))}
+                                      placeholder="Esim. S tai 140"
+                                    />
+                                  </label>
+                                  <label className="own-listing-field">
+                                    <span>Kohderyhmä *</span>
+                                    <select
+                                      value={listingForm.riding_gear_target}
+                                      onChange={(event) => setListingForm((current) => ({
                                         ...current,
-                                        model: value
-                                      }))
-                                    }
-                                    placeholder="Esim. DT"
-                                  />
-                                </label>
-                                <label className="own-listing-field">
-                                  <span>{editingVehicleListing ? "Vuosimalli *" : "Vuosimalli"}</span>
-                                  <input
-                                    type="number"
-                                    inputMode="numeric"
-                                    min="1900"
-                                    max={new Date().getFullYear() + 2}
-                                    value={listingForm.year}
-                                    onChange={(event) =>
-                                      setListingForm((current) => ({
-                                        ...current,
-                                        year: event.target.value
-                                      }))
-                                    }
-                                    placeholder="Esim. 2020"
-                                    required={editingVehicleListing}
-                                    aria-invalid={Boolean(editValidationErrors.year)}
-                                  />
-                                </label>
-                              </div>
+                                        riding_gear_target: event.target.value
+                                      }))}
+                                      required
+                                      aria-invalid={Boolean(editValidationErrors.ridingGearTarget)}
+                                    >
+                                      <option value="">Valitse kohderyhmä</option>
+                                      {RIDING_GEAR_TARGETS.map((value) => <option key={value} value={value}>{value}</option>)}
+                                    </select>
+                                  </label>
+                                </div>
+                              ) : (
+                                <div className="own-listing-grid-3">
+                                  <label className="own-listing-field">
+                                    <span>{editingVehicleListing ? "Merkki *" : "Merkki"}</span>
+                                    <EditablePresetInput
+                                      value={listingForm.brand}
+                                      options={brandOptions}
+                                      ariaLabel="Merkki"
+                                      required={editingVehicleListing}
+                                      invalid={Boolean(editValidationErrors.brand)}
+                                      onChange={(value) => setListingForm((current) => ({ ...current, brand: value }))}
+                                      placeholder="Esim. Yamaha"
+                                    />
+                                  </label>
+                                  <label className="own-listing-field">
+                                    <span>{editingVehicleListing ? "Malli *" : "Malli"}</span>
+                                    <EditablePresetInput
+                                      value={listingForm.model}
+                                      options={modelOptions}
+                                      ariaLabel="Malli"
+                                      required={editingVehicleListing}
+                                      invalid={Boolean(editValidationErrors.model)}
+                                      onChange={(value) => setListingForm((current) => ({ ...current, model: value }))}
+                                      placeholder="Esim. DT"
+                                    />
+                                  </label>
+                                  <label className="own-listing-field">
+                                    <span>{editingVehicleListing ? "Vuosimalli *" : "Vuosimalli"}</span>
+                                    <input
+                                      type="number"
+                                      inputMode="numeric"
+                                      min="1900"
+                                      max={new Date().getFullYear() + 2}
+                                      value={listingForm.year}
+                                      onChange={(event) => setListingForm((current) => ({ ...current, year: event.target.value }))}
+                                      placeholder="Esim. 2020"
+                                      required={editingVehicleListing}
+                                      aria-invalid={Boolean(editValidationErrors.year)}
+                                    />
+                                  </label>
+                                </div>
+                              )}
 
                               <div className="own-listing-title-fields">
                                 <label className="own-listing-field own-listing-price-field">
@@ -2329,7 +2941,7 @@ export default function MyListingsPage() {
                                     <b>€</b>
                                   </div>
                                 </label>
-                                {!editingVehicleListing && (
+                                {!editingVehicleListing && !editingRidingGearListing && (
                                   <>
                                     <label className="own-listing-field">
                                       <span>Osan tarkka malli</span>
@@ -2364,12 +2976,200 @@ export default function MyListingsPage() {
                               </div>
                             </div>
 
+                        {commerceEditEligible ? (
+                          <div className={`own-listing-section ${styles.commerceEditSection}`}>
+                            <div className={styles.commerceEditHeading}>
+                              <div>
+                                <span className="own-listing-section-title"><MessageCircle size={18} /> Myyntitapa</span>
+                                <strong>Valitse, miten ostaja tekee kaupan</strong>
+                                <small>Valinnan voi vaihtaa myös myöhemmin. Sama ilmoitus säilyy – uutta kopiota ei luoda.</small>
+                              </div>
+                              {commerceEditProduct ? (
+                                <span className={styles.commerceLinkedBadge}>Verkkokauppatuote yhdistetty</span>
+                              ) : null}
+                            </div>
+
+                            <div className={styles.commerceMethodGrid} role="group" aria-label="Myyntitapa">
+                              <button
+                                type="button"
+                                className={!commerceEditSettings.enabled ? styles.commerceMethodSelected : undefined}
+                                aria-pressed={!commerceEditSettings.enabled}
+                                onClick={() => {
+                                  commerceEditDirtyRef.current = true;
+                                  setCommerceEditSettings((current) => ({ ...current, enabled: false }));
+                                }}
+                              >
+                                <MessageCircle size={22} aria-hidden="true" />
+                                <span><strong>Yhteydenotto</strong><small>Ostaja ottaa sinuun yhteyttä.</small></span>
+                                {!commerceEditSettings.enabled ? <Check size={17} aria-hidden="true" /> : null}
+                              </button>
+                              <button
+                                type="button"
+                                className={commerceEditSettings.enabled ? styles.commerceMethodSelected : undefined}
+                                aria-pressed={commerceEditSettings.enabled}
+                                disabled={!commerceEditPaymentReady}
+                                onClick={() => {
+                                  commerceEditDirtyRef.current = true;
+                                  setCommerceEditSettings((current) => ({ ...current, enabled: true }));
+                                }}
+                              >
+                                <CreditCard size={22} aria-hidden="true" />
+                                <span><strong>Maksa verkossa</strong><small>Ostaja maksaa turvallisesti verkossa.</small></span>
+                                {commerceEditSettings.enabled ? <Check size={17} aria-hidden="true" /> : null}
+                              </button>
+                            </div>
+
+                            {!commerceEditPaymentReady ? (
+                              <div className={styles.commerceReadinessInfo} role="status">
+                                <LockKeyhole size={16} />
+                                <span>{commerceStatusMessage(commerceEditCompany)} Suoraoston voi ottaa käyttöön, kun maksujen vastaanotto on valmis.</span>
+                              </div>
+                            ) : null}
+
+                            {!commerceEditSettings.enabled ? (
+                              <div className={styles.commerceContactInfo}>
+                                <LockKeyhole size={16} />
+                                <span>Yhteystietosi ja viestisi jaetaan ostajalle vasta, kun hän ottaa sinuun yhteyttä.</span>
+                              </div>
+                            ) : null}
+
+                            {commerceEditSettings.enabled ? (
+                              <div className={styles.commerceSettingsPanel}>
+                                <div className={styles.commerceSettingsIntro}>
+                                  <strong>Verkko-oston tiedot</strong>
+                                  <small>Täytä määrä, verokanta ja vähintään yksi toimitustapa.</small>
+                                </div>
+                                <div className={styles.commerceFieldsGrid}>
+                                  <label className="own-listing-field">
+                                    <span>Määrä (kpl) *</span>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      step="1"
+                                      value={commerceEditSettings.stockQuantity}
+                                      onChange={(event) => setCommerceEditSettings((current) => ({
+                                        ...current,
+                                        stockQuantity: event.target.value
+                                      }))}
+                                      aria-invalid={Boolean(editValidationErrors.commerceStock)}
+                                    />
+                                  </label>
+                                  <label className="own-listing-field">
+                                    <span>Verokäsittely *</span>
+                                    <select
+                                      value={decimalInputNumber(commerceEditSettings.vatRate)}
+                                      onChange={(event) => setCommerceEditSettings((current) => ({
+                                        ...current,
+                                        vatRate: event.target.value.replace(".", ",")
+                                      }))}
+                                      aria-invalid={Boolean(editValidationErrors.commerceVat)}
+                                    >
+                                      {VAT_RATE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                                    </select>
+                                  </label>
+                                  <label className="own-listing-field">
+                                    <span>Yrityskaupan kategoria</span>
+                                    <input
+                                      value={commerceEditSettings.storefrontCategory}
+                                      onChange={(event) => setCommerceEditSettings((current) => ({
+                                        ...current,
+                                        storefrontCategory: event.target.value
+                                      }))}
+                                      placeholder="Esim. Moottorin osat"
+                                    />
+                                  </label>
+                                </div>
+
+                                <div className={styles.commerceDeliveryBlock}>
+                                  <span>Toimitustapa *</span>
+                                  <div className={styles.commerceDeliveryChoices}>
+                                    <label>
+                                      <input
+                                        type="checkbox"
+                                        checked={commerceEditSettings.pickupAvailable}
+                                        onChange={(event) => setCommerceEditSettings((current) => ({
+                                          ...current,
+                                          pickupAvailable: event.target.checked
+                                        }))}
+                                      />
+                                      Nouto
+                                    </label>
+                                    <label>
+                                      <input
+                                        type="checkbox"
+                                        checked={commerceEditSettings.shippingAvailable}
+                                        onChange={(event) => setCommerceEditSettings((current) => ({
+                                          ...current,
+                                          shippingAvailable: event.target.checked
+                                        }))}
+                                      />
+                                      Kuljetus (Posti)
+                                    </label>
+                                  </div>
+                                </div>
+
+                                {commerceEditSettings.shippingAvailable ? (
+                                  <div className={styles.commerceShippingEditor}>
+                                    <div className={styles.commerceFieldsGrid}>
+                                      <label className="own-listing-field">
+                                        <span>Postikulut Suomeen (€) *</span>
+                                        <input
+                                          type="text"
+                                          inputMode="decimal"
+                                          value={commerceEditSettings.shippingPriceFi}
+                                          onChange={(event) => setCommerceEditSettings((current) => ({
+                                            ...current,
+                                            shippingPriceFi: event.target.value
+                                          }))}
+                                          placeholder="0 = maksuton"
+                                          aria-invalid={Boolean(editValidationErrors.commerceShipping)}
+                                        />
+                                      </label>
+                                      <label className="own-listing-field">
+                                        <span>Postikulut Ruotsiin (€) *</span>
+                                        <input
+                                          type="text"
+                                          inputMode="decimal"
+                                          value={commerceEditSettings.shippingPriceSe}
+                                          onChange={(event) => setCommerceEditSettings((current) => ({
+                                            ...current,
+                                            shippingPriceSe: event.target.value
+                                          }))}
+                                          placeholder="0 = maksuton"
+                                          aria-invalid={Boolean(editValidationErrors.commerceShipping)}
+                                        />
+                                      </label>
+                                      <label className="own-listing-field">
+                                        <span>Postikulut Norjaan (€) *</span>
+                                        <input type="text" inputMode="decimal" value={commerceEditSettings.shippingPriceNo} onChange={(event) => setCommerceEditSettings((current) => ({ ...current, shippingPriceNo: event.target.value }))} placeholder="0 = maksuton" aria-invalid={Boolean(editValidationErrors.commerceShipping)} />
+                                      </label>
+                                    </div>
+                                    <div className={styles.commerceFieldsGrid}>
+                                      <label className="own-listing-field">
+                                        <span>Tuotteita / lähetys *</span>
+                                        <input type="number" min="1" step="1" value={commerceEditSettings.maxShippingQuantity} onChange={(event) => setCommerceEditSettings((current) => ({ ...current, maxShippingQuantity: event.target.value }))} aria-invalid={Boolean(editValidationErrors.commerceParcel)} />
+                                      </label>
+                                      <label className={`own-listing-field ${styles.commerceWideField}`}>
+                                        <span>Postitusohje tai lisätieto</span>
+                                        <input value={commerceEditSettings.shippingNotes} onChange={(event) => setCommerceEditSettings((current) => ({ ...current, shippingNotes: event.target.value }))} placeholder="Esim. särkyvä tuote tai käsittelyohje" maxLength={1500} />
+                                      </label>
+                                    </div>
+                                  </div>
+                                ) : null}
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null}
+
+                          </div>
+                          <div className={styles.modernEditColumn}>
+
                         <div className="own-listing-section">
                           <span className="own-listing-section-title">
-                            {editingVehicleListing ? "Kunto" : "Luokittelu ja kunto"}
+                            <Tag size={18} /> {editingVehicleListing || editingRidingGearListing ? "Kunto" : "Luokittelu ja kunto"}
                           </span>
                           <div className="own-listing-grid-3">
-                            {!editingVehicleListing && <label className="own-listing-field">
+                            {!editingVehicleListing && !editingRidingGearListing && <label className="own-listing-field">
                               <span>Kategoria *</span>
                               <select
                                 value={listingForm.category}
@@ -2395,7 +3195,7 @@ export default function MyListingsPage() {
                               </select>
                             </label>}
 
-                            {!editingVehicleListing && <label className="own-listing-field">
+                            {!editingVehicleListing && !editingRidingGearListing && <label className="own-listing-field">
                               <span>Alakategoria</span>
                               <select
                                 value={listingForm.subcategory}
@@ -2451,7 +3251,7 @@ export default function MyListingsPage() {
                         </div>
 
                         <div className="own-listing-section">
-                          <span className="own-listing-section-title">Sijainti</span>
+                          <span className="own-listing-section-title"><MapPin size={18} /> Sijainti</span>
                           <div className="own-listing-location-pair">
                             <label className="own-listing-field">
                               <span>Maa *</span>
@@ -2497,7 +3297,7 @@ export default function MyListingsPage() {
                           data-invalid={editValidationErrors.images ? "true" : undefined}
                         >
                           <div className={styles.editPhotoHeader}>
-                            <span className="own-listing-section-title">Kuvat *</span>
+                            <span className="own-listing-section-title"><ImagePlus size={18} /> Kuvat *</span>
                             <span className={styles.editPhotoCount}>
                               {editImages.length} kuvaa
                             </span>
@@ -2552,7 +3352,7 @@ export default function MyListingsPage() {
                         </div>
 
                         <label className="own-listing-field own-listing-description-field">
-                          <span>Kuvaus *</span>
+                          <span><Edit3 size={18} /> Kuvaus *</span>
                           <textarea
                             value={listingForm.description}
                             onChange={(event) =>
@@ -2571,6 +3371,9 @@ export default function MyListingsPage() {
                             aria-invalid={Boolean(editValidationErrors.description)}
                           />
                         </label>
+
+                          </div>
+                        </div>
 
                         {Object.keys(editValidationErrors).length > 0 ? (
                           <div className="own-listing-validation-summary" role="alert" aria-live="assertive">
@@ -2624,25 +3427,6 @@ export default function MyListingsPage() {
                             )}
                           </div>
 
-                          <div className={styles.rowMeta}>
-                            <span>
-                              <Eye size={14} />
-                              {listing.view_count ?? 0} {pageText.views}
-                            </span>
-                            <span>
-                              <MessageCircle size={14} />
-                              {messageCounts[listing.id]?.message_count ?? 0} viestiä
-                              {messageCounts[listing.id]?.unread_count
-                                ? ` (${messageCounts[listing.id].unread_count} uutta)`
-                                : ""}
-                            </span>
-                            {listing.is_hidden && (
-                              <span style={{ color: "#fbbf24" }}>
-                                <EyeOff size={14} />
-                                Piilotettu
-                              </span>
-                            )}
-                          </div>
                         </div>
 
                         <div className={styles.rowBody}>
@@ -2672,12 +3456,30 @@ export default function MyListingsPage() {
                             className={styles.rowSubline}
                           />
 
+                          <div className={styles.rowMeta}>
+                            <span>
+                              <Eye size={14} />
+                              {listing.view_count ?? 0} {pageText.views}
+                            </span>
+                            <span>
+                              <MessageCircle size={14} />
+                              {messageCounts[listing.id]?.message_count ?? 0} viestiä
+                              {messageCounts[listing.id]?.unread_count
+                                ? ` (${messageCounts[listing.id].unread_count} uutta)`
+                                : ""}
+                            </span>
+                            {listing.is_hidden && (
+                              <span style={{ color: "#d88a16" }}>
+                                <EyeOff size={14} />
+                                Piilotettu
+                              </span>
+                            )}
+                          </div>
+
                         </div>
 
                         <div className={styles.priceCell}>
-                          <span className={styles.price}>
-                            {formatPrice(listing.price)}
-                          </span>
+                          <ListingSalePrice listing={listing} className={styles.price} />
                           <span className={`${styles.statusBadge} ${statusCls}`}>
                             {statusLabel}
                           </span>
@@ -2691,6 +3493,7 @@ export default function MyListingsPage() {
                                 className={styles.actionBtn}
                                 href={listingPath(listingUrlId(listing), locale)}
                               >
+                                <ExternalLink size={14} />
                                 {t.openListing}
                               </Link>
                               <button

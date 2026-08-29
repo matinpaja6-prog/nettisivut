@@ -1,7 +1,18 @@
-import SellerProfileClient from "./seller-profile-client";
+import { permanentRedirect } from "next/navigation";
+
+import { storefrontMetadata } from "@/lib/commerce/storefront-metadata";
+import { resolvePublicProfile } from "@/lib/public-profile-route";
+import { profilePath } from "@/lib/routes";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return storefrontMetadata(id);
+}
 
 export default async function SellerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const profile = await resolvePublicProfile(id);
+  if (profile) permanentRedirect(profilePath(profile.id, profile.name, "fi"));
 
-  return <SellerProfileClient sellerId={id} />;
+  permanentRedirect("/liikkeet");
 }

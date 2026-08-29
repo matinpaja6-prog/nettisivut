@@ -5,7 +5,8 @@ import {
   listingPath,
   listingSharePath,
   listingUrlId,
-  pagePath
+  pagePath,
+  profilePath
 } from "@/lib/routes";
 import {
   seoCollectionLanguagePaths,
@@ -15,6 +16,7 @@ import {
   type SeoCollectionKind
 } from "@/lib/seo-search";
 import { absoluteSiteUrl } from "@/lib/site-url";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getListingDisplayNumber, getListings } from "@/lib/supabase";
 
 // The sitemap must reflect newly published listings as soon as Google fetches
@@ -28,6 +30,7 @@ const PUBLIC_STATIC_PATHS = [
   "/ilmoitukset",
   "/ajoneuvot",
   "/varaosat",
+  "/liikkeet",
   pagePath("about", "fi"),
   pagePath("contact", "fi"),
   pagePath("faq", "fi"),
@@ -56,6 +59,64 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     includeOptionalFields: false,
     enrichSellerProfiles: false
   });
+
+  // A verified company profile is a public storefront. Adding only approved
+  // companies here keeps unfinished, rejected and private company accounts
+  // out of search results while making each real business discoverable.
+  const { data: companyRows } = await getSupabaseAdmin()
+    .from("companies")
+    .select("owner_user_id,name,verified_at,updated_at,social_share_image_url,banner_image_url")
+    .eq("verification_status", "approved");
+
+  const companyEntries: MetadataRoute.Sitemap = (companyRows ?? [])
+    .filter((company) => Boolean(company.owner_user_id))
+    .map((company) => {
+      const updatedAt = new Date(company.updated_at || company.verified_at || "");
+      const socialImage = company.social_share_image_url || company.banner_image_url;
+
+      const languagePaths = {
+        "fi-FI": profilePath(company.owner_user_id, company.name, "fi"),
+        en: profilePath(company.owner_user_id, company.name, "en"),
+        sv: profilePath(company.owner_user_id, company.name, "sv"),
+        nb: profilePath(company.owner_user_id, company.name, "no")
+      };
+
+      return {
+        url: absoluteSiteUrl(languagePaths["fi-FI"]),
+        ...(Number.isNaN(updatedAt.getTime()) ? {} : { lastModified: updatedAt }),
+        ...(socialImage ? { images: [absoluteSiteUrl(socialImage)] } : {}),
+        alternates: {
+          languages: Object.fromEntries(
+            Object.entries(languagePaths).map(([language, path]) => [language, absoluteSiteUrl(path)])
+          )
+        },
+        changeFrequency: "weekly" as const,
+        priority: 0.7
+      };
+    });
+
+  // Sellers with live inventory are useful search results even when they are
+  // private sellers. Their human-readable profile pages are therefore added
+  // automatically whenever they have at least one active listing.
+  const approvedCompanyOwners = new Set(
+    (companyRows ?? []).map((company) => company.owner_user_id).filter(Boolean)
+  );
+  const activeSellerEntries = new Map<string, MetadataRoute.Sitemap[number]>();
+  for (const listing of listings.filter((item) => !item.is_hidden && !item.is_sold)) {
+    const sellerId = listing.seller_id?.trim();
+    const sellerName = (listing.company_name || listing.seller_name)?.trim();
+    if (!sellerId || !sellerName || approvedCompanyOwners.has(sellerId)) continue;
+    const createdAt = new Date(listing.created_at);
+    const path = profilePath(sellerId, sellerName, "fi");
+    activeSellerEntries.set(sellerId, {
+      url: absoluteSiteUrl(path),
+      ...(Number.isNaN(createdAt.getTime()) ? {} : { lastModified: createdAt }),
+      ...(listing.seller_avatar_url ? { images: [absoluteSiteUrl(listing.seller_avatar_url)] } : {}),
+      changeFrequency: "weekly",
+      priority: 0.65
+    });
+  }
+  const sellerEntries: MetadataRoute.Sitemap = [...activeSellerEntries.values()];
 
   const listingEntryGroups = await Promise.all(
     listings
@@ -150,5 +211,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
     });
 
-  return [...staticEntries, ...searchEntries, ...listingEntries];
+  // Different Finnish terms can translate to the same Swedish or Norwegian
+  // slug. A sitemap must list each URL only once, even when its hreflang data
+  // was produced from more than one source query.
+  const allEntries = [
+    ...staticEntries,
+    ...companyEntries,
+    ...sellerEntries,
+    ...searchEntries,
+    ...listingEntries
+  ];
+  return [...new Map(allEntries.map((entry) => [entry.url, entry])).values()];
 }

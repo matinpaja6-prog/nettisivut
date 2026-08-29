@@ -9,10 +9,12 @@ import { pagePath, profilePath } from "@/lib/routes";
 
 import {
   ArrowRight,
+  BadgeCheck,
   Building2,
   Camera,
   Check,
   ChevronDown,
+  CreditCard,
   ExternalLink,
   Eye,
   EyeOff,
@@ -23,6 +25,7 @@ import {
   Info,
   Lock,
   LockKeyhole,
+  LoaderCircle,
   Mail,
   Map,
   MapPin,
@@ -31,14 +34,21 @@ import {
   QrCode,
   KeyRound,
   ShieldCheck,
+  Sparkles,
   Trash2,
   UserCircle,
   Users,
+  WalletCards,
   X
 } from "lucide-react";
 
 import type { User } from "@supabase/supabase-js";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
+import type { Company } from "@/lib/commerce/types";
+import {
+  missingCompanyVerificationFields,
+  type CompanyVerificationRequiredField
+} from "@/lib/company-verification-requirements";
 
 import {
   createCompanySeller,
@@ -58,107 +68,54 @@ import {
   type UserProfile
 } from "@/lib/supabase";
 
-type GooglePlace = {
-  address_components?: Array<{
-    long_name: string;
-    short_name: string;
-    types: string[];
-  }>;
-  formatted_address?: string;
-};
-
 type MfaSetupStep = "choose" | "totp" | null;
 type PasswordChangeStep = "code" | "password" | null;
+
+type EmbeddedCheckoutInstance = {
+  mount: (selector: string | HTMLElement) => void;
+  destroy: () => void;
+};
+
+type StripeBrowserClient = {
+  initEmbeddedCheckout: (options: { fetchClientSecret: () => Promise<string> }) => Promise<EmbeddedCheckoutInstance>;
+};
+
+declare global {
+  interface Window {
+    Stripe?: (publishableKey: string, options?: { stripeAccount?: string }) => StripeBrowserClient;
+  }
+}
+
+let stripeJsPromise: Promise<void> | null = null;
+
+function loadStripeJs(errorMessage: string) {
+  if (typeof window === "undefined" || window.Stripe) return Promise.resolve();
+  if (stripeJsPromise) return stripeJsPromise;
+
+  stripeJsPromise = new Promise<void>((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>('script[src="https://js.stripe.com/clover/stripe.js"]');
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error(errorMessage)), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://js.stripe.com/clover/stripe.js";
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error(errorMessage));
+    document.head.appendChild(script);
+  });
+
+  return stripeJsPromise;
+}
 
 type TotpEnrollment = {
   factorId: string;
   qrCode: string;
   secret: string;
 };
-
-type GoogleAutocomplete = {
-  addListener: (eventName: "place_changed", handler: () => void) => void;
-  getPlace: () => GooglePlace;
-};
-
-type GoogleMapsWindow = Window & {
-  google?: {
-    maps?: {
-      places?: {
-        Autocomplete: new (
-          input: HTMLInputElement,
-          options: Record<string, unknown>
-        ) => GoogleAutocomplete;
-      };
-    };
-  };
-};
-
-const addressCountryOptions = [
-  { code: "FI", value: "Suomi" },
-  { code: "SE", value: "Ruotsi" },
-  { code: "DK", value: "Tanska" },
-  { code: "DE", value: "Saksa" }
-];
-
-const addressCountryLabels: Record<Locale, Record<string, string>> = {
-  fi: { Suomi: "Suomi", Ruotsi: "Ruotsi", Tanska: "Tanska", Saksa: "Saksa" },
-  en: { Suomi: "Finland", Ruotsi: "Sweden", Tanska: "Denmark", Saksa: "Germany" },
-  sv: { Suomi: "Finland", Ruotsi: "Sverige", Tanska: "Danmark", Saksa: "Tyskland" },
-  no: { Suomi: "Finland", Ruotsi: "Sverige", Norja: "Norge", Tanska: "Danmark", Viro: "Estland", Saksa: "Tyskland" },
-};
-
-const addressCountryAliases: Record<string, string> = {
-  da: "Tanska",
-  de: "Saksa",
-  denmark: "Tanska",
-  dk: "Tanska",
-  fi: "Suomi",
-  finland: "Suomi",
-  germany: "Saksa",
-  ruotsi: "Ruotsi",
-  saksa: "Saksa",
-  se: "Ruotsi",
-  soome: "Suomi",
-  suomi: "Suomi",
-  sverige: "Ruotsi",
-  sweden: "Ruotsi",
-  tanska: "Tanska",
-};
-
-function getGoogleAddressPart(place: GooglePlace, type: string, short = false) {
-  const part = place.address_components?.find((component) =>
-    component.types.includes(type)
-  );
-  return short ? part?.short_name ?? "" : part?.long_name ?? "";
-}
-
-function getStreetAddressFromGooglePlace(place: GooglePlace) {
-  const route = getGoogleAddressPart(place, "route");
-  const streetNumber = getGoogleAddressPart(place, "street_number");
-  const streetAddress = [route, streetNumber].filter(Boolean).join(" ");
-  return streetAddress || place.formatted_address || "";
-}
-
-function normalizeAddressCountry(value: string | null | undefined) {
-  const trimmed = value?.trim() ?? "";
-  if (!trimmed) return "Suomi";
-  return addressCountryAliases[trimmed.toLocaleLowerCase("fi-FI")] ?? trimmed;
-}
-
-function getCountryCodeForAddress(value: string | null | undefined) {
-  const normalized = normalizeAddressCountry(value);
-  return addressCountryOptions.find((country) => country.value === normalized)?.code.toLowerCase();
-}
-
-function getCountryValueFromGooglePlace(place: GooglePlace) {
-  const countryCode = getGoogleAddressPart(place, "country", true).toUpperCase();
-  return addressCountryOptions.find((country) => country.code === countryCode)?.value ?? "";
-}
-
-function getAddressCountryLabel(locale: Locale, value: string) {
-  return addressCountryLabels[locale]?.[value] ?? addressCountryLabels.fi[value] ?? value;
-}
 
 function getErrorMessage(error: unknown) {
 
@@ -176,6 +133,22 @@ function getErrorMessage(error: unknown) {
 
   return "Toiminto epäonnistui.";
 
+}
+
+function preserveEditableProfileDraft(server: UserProfile, draft: UserProfile): UserProfile {
+  return {
+    ...server,
+    address: draft.address,
+    postal_code: draft.postal_code,
+    city: draft.city,
+    country: draft.country,
+    company_name: draft.company_name,
+    business_id: draft.business_id,
+    company_website: draft.company_website,
+    public_address: draft.public_address,
+    billing_email: draft.billing_email,
+    bio: draft.bio
+  };
 }
 
 function getPhoneDatabaseErrorMessage(error: unknown) {
@@ -260,9 +233,119 @@ function normalizePhoneNumber(value: string) {
   return `+358${compact}`;
 }
 
+const companyVerificationText = {
+  fi: {
+    close: "Sulje", price: "19,99 €", verificationSection: "Yrityksen vahvistus", awaitingReview: "Odottaa käsittelyä", verifyCompanyAction: "Vahvista yritys", secureCheckout: "Maskines turvallinen kassa", finishTitle: "Viimeistele yritysvahvistus",
+    finishDescription: "Valitse sinulle sopiva maksutapa ja maksa turvallisesti poistumatta Maskinesista.",
+    orderSummary: "Tilauksen yhteenveto", companyToVerify: "Vahvistettava yritys", companyFallback: "Yritys",
+    businessIdMissing: "Y-tunnus puuttuu", verificationProduct: "Maskines yritysvahvistus",
+    manualReview: "Yritystietojen manuaalinen tarkistus", amountDue: "Maksettavaa",
+    protectedStripe: "Suojattu Stripe-maksu", oneTimeNoMonthly: "Kertamaksu, ei kuukausimaksua",
+    paidToMaskines: "Maksu suoritetaan Maskinesille", paymentMethods: "Maksutavat", paymentMethod: "Maksutapa",
+    chooseMethod: "Valitse käytettävissä olevista vaihtoehdoista", secure: "Suojattu", title: "Vahvista yrityksesi",
+    description: "Tee yrityksestäsi luotettavampi ostajille ja ota kaikki Maskinesin yritysominaisuudet käyttöön yhdellä vahvistuksella.",
+    paymentReceived: "Maksu vastaanotettu", pendingReview: "Yrityksesi tiedot odottavat Maskinesin tarkistusta.",
+    verifiedCompany: "Vahvistettu yritys", verifiedCompanyDescription: "Manuaalinen yritystietojen tarkistus ja vahvistusmerkki",
+    paymentsAccess: "Maksupalveluiden käyttö", paymentsAccessDescription: "Ota Maskinesin turvalliset maksutavat yrityksesi käyttöön",
+    premiumProfile: "Premium-yritysprofiili", premiumProfileDescription: "Arvokkaampi profiili ja parempi luottamus ostajien silmissä",
+    companyManagement: "Yrityksen hallinta", companyManagementDescription: "Hallinnoi yritystä, myyjiä ja kaupankäyntiä yhdessä paikassa",
+    verificationTitle: "Yritysvahvistus", allFeatures: "Kaikki vahvistetun yrityksen ominaisuudet", oneTimePayment: "Kertamaksu",
+    disclaimer: "Ei kuukausimaksua. Maksu kattaa yritystietojen tarkistuksen eikä takaa hyväksyntää. Maksu suoritetaan Maskinesille turvallisesti Stripen kautta.",
+    preparingPayment: "Valmistellaan maksua", keepOpen: "Pidä tämä ikkuna avoinna. Tässä kestää yleensä vain hetki.",
+    retryPayment: "Yritä maksua uudelleen · 19,99 €", continuePayment: "Jatka maksuun · 19,99 €", paymentFailed: "Maksu epäonnistui",
+    paymentCancelled: "Maksu keskeytettiin. Yritysvahvistusta ei veloitettu.",
+    returnIncomplete: "Maksun paluutiedot olivat puutteelliset. Maksua ei merkitty käsitellyksi.",
+    checkingPayment: "Tarkistetaan maksun tila...", loginExpired: "Kirjautuminen ei ole voimassa.",
+    confirmFailed: "Maksun vahvistaminen epäonnistui.", confirmationTakingLong: "Maksu on vastaanotettu, mutta vahvistuksen päivittyminen kestää tavallista pidempään. Voit sulkea ikkunan ja jatkaa sivun käyttöä.", paymentReceivedStatus: "Maksu vastaanotettu. Yrityksesi tiedot ovat nyt tarkistettavana.",
+    openingPayment: "Avataan turvallista maksua...", openPaymentFailed: "Maksusivua ei voitu avata.", paymentServiceLoadFailed: "Maksupalvelun lataaminen epäonnistui."
+  },
+  en: {
+    close: "Close", price: "€19.99", verificationSection: "Company verification", awaitingReview: "Awaiting review", verifyCompanyAction: "Verify company", secureCheckout: "Maskines secure checkout", finishTitle: "Complete company verification",
+    finishDescription: "Choose a suitable payment method and pay securely without leaving Maskines.",
+    orderSummary: "Order summary", companyToVerify: "Company to verify", companyFallback: "Company",
+    businessIdMissing: "Business ID missing", verificationProduct: "Maskines company verification",
+    manualReview: "Manual review of company details", amountDue: "Amount due",
+    protectedStripe: "Protected Stripe payment", oneTimeNoMonthly: "One-time payment, no monthly fee",
+    paidToMaskines: "Payment is made to Maskines", paymentMethods: "Payment methods", paymentMethod: "Payment method",
+    chooseMethod: "Choose from the available options", secure: "Secure", title: "Verify your company",
+    description: "Build buyer trust and unlock all Maskines company features with one verification.",
+    paymentReceived: "Payment received", pendingReview: "Your company details are awaiting review by Maskines.",
+    verifiedCompany: "Verified company", verifiedCompanyDescription: "Manual company-detail review and a verification badge",
+    paymentsAccess: "Access to payment services", paymentsAccessDescription: "Enable Maskines secure payment methods for your company",
+    premiumProfile: "Premium company profile", premiumProfileDescription: "A more professional profile and stronger buyer trust",
+    companyManagement: "Company management", companyManagementDescription: "Manage your company, sellers and commerce in one place",
+    verificationTitle: "Company verification", allFeatures: "All verified-company features", oneTimePayment: "One-time payment",
+    disclaimer: "No monthly fee. The payment covers review of the company details and does not guarantee approval. Payment is made securely to Maskines through Stripe.",
+    preparingPayment: "Preparing payment", keepOpen: "Keep this window open. This usually takes only a moment.",
+    retryPayment: "Try payment again · €19.99", continuePayment: "Continue to payment · €19.99", paymentFailed: "Payment failed",
+    paymentCancelled: "Payment was cancelled. You were not charged for company verification.",
+    returnIncomplete: "The payment return details were incomplete. The payment was not marked as processed.",
+    checkingPayment: "Checking payment status...", loginExpired: "Your sign-in session is no longer valid.",
+    confirmFailed: "Payment confirmation failed.", confirmationTakingLong: "Your payment was received, but the verification update is taking longer than usual. You can close this window and continue using the site.", paymentReceivedStatus: "Payment received. Your company details are now being reviewed.",
+    openingPayment: "Opening secure payment...", openPaymentFailed: "The payment page could not be opened.", paymentServiceLoadFailed: "The payment service could not be loaded."
+  },
+  sv: {
+    close: "Stäng", price: "19,99 €", verificationSection: "Företagsverifiering", awaitingReview: "Väntar på granskning", verifyCompanyAction: "Verifiera företag", secureCheckout: "Maskines säkra kassa", finishTitle: "Slutför företagsverifieringen",
+    finishDescription: "Välj ett lämpligt betalningssätt och betala säkert utan att lämna Maskines.",
+    orderSummary: "Ordersammanfattning", companyToVerify: "Företag som ska verifieras", companyFallback: "Företag",
+    businessIdMissing: "Organisationsnummer saknas", verificationProduct: "Maskines företagsverifiering",
+    manualReview: "Manuell granskning av företagsuppgifter", amountDue: "Att betala",
+    protectedStripe: "Skyddad Stripe-betalning", oneTimeNoMonthly: "Engångsbetalning, ingen månadsavgift",
+    paidToMaskines: "Betalningen görs till Maskines", paymentMethods: "Betalningssätt", paymentMethod: "Betalningssätt",
+    chooseMethod: "Välj bland tillgängliga alternativ", secure: "Säker", title: "Verifiera ditt företag",
+    description: "Öka köparnas förtroende och lås upp alla företagsfunktioner i Maskines med en verifiering.",
+    paymentReceived: "Betalning mottagen", pendingReview: "Dina företagsuppgifter väntar på granskning av Maskines.",
+    verifiedCompany: "Verifierat företag", verifiedCompanyDescription: "Manuell granskning av företagsuppgifter och verifieringsmärke",
+    paymentsAccess: "Tillgång till betaltjänster", paymentsAccessDescription: "Aktivera Maskines säkra betalningssätt för ditt företag",
+    premiumProfile: "Premium-företagsprofil", premiumProfileDescription: "En mer professionell profil och större förtroende hos köpare",
+    companyManagement: "Företagshantering", companyManagementDescription: "Hantera företag, säljare och handel på ett ställe",
+    verificationTitle: "Företagsverifiering", allFeatures: "Alla funktioner för verifierade företag", oneTimePayment: "Engångsbetalning",
+    disclaimer: "Ingen månadsavgift. Betalningen täcker granskningen av företagsuppgifterna och garanterar inte godkännande. Betalningen görs säkert till Maskines via Stripe.",
+    preparingPayment: "Förbereder betalningen", keepOpen: "Håll fönstret öppet. Det tar vanligtvis bara ett ögonblick.",
+    retryPayment: "Försök betala igen · 19,99 €", continuePayment: "Fortsätt till betalning · 19,99 €", paymentFailed: "Betalningen misslyckades",
+    paymentCancelled: "Betalningen avbröts. Du debiterades inte för företagsverifieringen.",
+    returnIncomplete: "Betalningens returuppgifter var ofullständiga. Betalningen markerades inte som behandlad.",
+    checkingPayment: "Kontrollerar betalningsstatus...", loginExpired: "Din inloggningssession är inte längre giltig.",
+    confirmFailed: "Betalningen kunde inte bekräftas.", confirmationTakingLong: "Betalningen har mottagits, men verifieringsuppdateringen tar längre tid än vanligt. Du kan stänga fönstret och fortsätta använda sidan.", paymentReceivedStatus: "Betalningen har mottagits. Dina företagsuppgifter granskas nu.",
+    openingPayment: "Öppnar säker betalning...", openPaymentFailed: "Betalningssidan kunde inte öppnas.", paymentServiceLoadFailed: "Betaltjänsten kunde inte laddas."
+  },
+  no: {
+    close: "Lukk", price: "19,99 €", verificationSection: "Bedriftsverifisering", awaitingReview: "Venter på kontroll", verifyCompanyAction: "Verifiser bedrift", secureCheckout: "Maskines sikre betaling", finishTitle: "Fullfør bedriftsverifiseringen",
+    finishDescription: "Velg en passende betalingsmåte og betal sikkert uten å forlate Maskines.",
+    orderSummary: "Ordresammendrag", companyToVerify: "Bedrift som skal verifiseres", companyFallback: "Bedrift",
+    businessIdMissing: "Organisasjonsnummer mangler", verificationProduct: "Maskines bedriftsverifisering",
+    manualReview: "Manuell kontroll av bedriftsopplysninger", amountDue: "Til betaling",
+    protectedStripe: "Beskyttet Stripe-betaling", oneTimeNoMonthly: "Engangsbetaling, ingen månedsavgift",
+    paidToMaskines: "Betalingen gjøres til Maskines", paymentMethods: "Betalingsmåter", paymentMethod: "Betalingsmåte",
+    chooseMethod: "Velg blant tilgjengelige alternativer", secure: "Sikker", title: "Verifiser bedriften din",
+    description: "Bygg tillit hos kjøpere og lås opp alle bedriftsfunksjonene i Maskines med én verifisering.",
+    paymentReceived: "Betaling mottatt", pendingReview: "Bedriftsopplysningene dine venter på kontroll hos Maskines.",
+    verifiedCompany: "Verifisert bedrift", verifiedCompanyDescription: "Manuell kontroll av bedriftsopplysninger og verifiseringsmerke",
+    paymentsAccess: "Tilgang til betalingstjenester", paymentsAccessDescription: "Aktiver Maskines sine sikre betalingsmåter for bedriften",
+    premiumProfile: "Premium-bedriftsprofil", premiumProfileDescription: "En mer profesjonell profil og større tillit hos kjøpere",
+    companyManagement: "Bedriftsadministrasjon", companyManagementDescription: "Administrer bedrift, selgere og handel på ett sted",
+    verificationTitle: "Bedriftsverifisering", allFeatures: "Alle funksjoner for verifiserte bedrifter", oneTimePayment: "Engangsbetaling",
+    disclaimer: "Ingen månedsavgift. Betalingen dekker kontroll av bedriftsopplysningene og garanterer ikke godkjenning. Betalingen gjøres sikkert til Maskines via Stripe.",
+    preparingPayment: "Forbereder betaling", keepOpen: "Hold vinduet åpent. Dette tar vanligvis bare et øyeblikk.",
+    retryPayment: "Prøv betalingen på nytt · 19,99 €", continuePayment: "Fortsett til betaling · 19,99 €", paymentFailed: "Betalingen mislyktes",
+    paymentCancelled: "Betalingen ble avbrutt. Du ble ikke belastet for bedriftsverifiseringen.",
+    returnIncomplete: "Returdataene fra betalingen var ufullstendige. Betalingen ble ikke markert som behandlet.",
+    checkingPayment: "Kontrollerer betalingsstatus...", loginExpired: "Innloggingen din er ikke lenger gyldig.",
+    confirmFailed: "Betalingen kunne ikke bekreftes.", confirmationTakingLong: "Betalingen er mottatt, men verifiseringsoppdateringen tar lengre tid enn vanlig. Du kan lukke vinduet og fortsette å bruke siden.", paymentReceivedStatus: "Betalingen er mottatt. Bedriftsopplysningene dine blir nå kontrollert.",
+    openingPayment: "Åpner sikker betaling...", openPaymentFailed: "Betalingssiden kunne ikke åpnes.", paymentServiceLoadFailed: "Betalingstjenesten kunne ikke lastes inn."
+  }
+} as const;
+
 export default function ProfilePage() {
   const router = useRouter();
   const { locale, t } = useLanguage();
+  const companyVerifyText = companyVerificationText[locale];
+  const companyVerificationRequirementsText = {
+    fi: { title: "Täydennä yritystiedot", prefix: "Täytä seuraavat tiedot ennen vahvistusta", save: "Tallenna yritystietojen muutokset ennen vahvistusta." },
+    en: { title: "Complete company details", prefix: "Complete these details before verification", save: "Save the company-detail changes before verification." },
+    sv: { title: "Fyll i företagsuppgifterna", prefix: "Fyll i följande uppgifter före verifieringen", save: "Spara ändringarna i företagsuppgifterna före verifieringen." },
+    no: { title: "Fullfør bedriftsopplysningene", prefix: "Fyll inn disse opplysningene før verifisering", save: "Lagre endringene i bedriftsopplysningene før verifisering." }
+  }[locale];
   const authPagePath = pagePath("auth", locale);
   const profileText = {
     privateDetails: {
@@ -683,6 +766,7 @@ export default function ProfilePage() {
 
   const [profile, setProfile] =
     useState<UserProfile | null>(null);
+  const [commerceCompany, setCommerceCompany] = useState<Company | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [status, setStatus] = useState("");
   const [listingProfileNotice, setListingProfileNotice] = useState("");
@@ -703,7 +787,12 @@ export default function ProfilePage() {
   const [mfaSaving, setMfaSaving] = useState(false);
   const [companyVerifyModalOpen, setCompanyVerifyModalOpen] = useState(false);
   const [companyVerifySaving, setCompanyVerifySaving] = useState(false);
+  const [companyVerifyConfirming, setCompanyVerifyConfirming] = useState(false);
   const [companyVerifyStatus, setCompanyVerifyStatus] = useState("");
+  const [companyVerifyClientSecret, setCompanyVerifyClientSecret] = useState("");
+  const [companyVerifyPublishableKey, setCompanyVerifyPublishableKey] = useState("");
+  const companyVerifyPaymentMountRef = useRef<HTMLDivElement | null>(null);
+  const companyVerifyCheckoutRef = useRef<EmbeddedCheckoutInstance | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarCropFile, setAvatarCropFile] = useState<File | null>(null);
@@ -713,6 +802,8 @@ export default function ProfilePage() {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const avatarDragRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
   const profileLoadGenerationRef = useRef(0);
+  const profileDraftEditedRef = useRef(false);
+  const companyVerificationReturnHandledRef = useRef(false);
   const [phoneEditing, setPhoneEditing] = useState(false);
   const [phoneDraft, setPhoneDraft] = useState("");
   const [phoneStatus, setPhoneStatus] = useState("");
@@ -738,10 +829,6 @@ export default function ProfilePage() {
     useState({ name: "", phone: "" });
   const phoneInputRef =
     useRef<HTMLInputElement | null>(null);
-  const addressInputRef =
-    useRef<HTMLInputElement | null>(null);
-  const privateAddressInputRef =
-    useRef<HTMLInputElement | null>(null);
   const [deleteStatus, setDeleteStatus] =
     useState("");
   const [deleteLoading, setDeleteLoading] =
@@ -750,6 +837,11 @@ export default function ProfilePage() {
     useState(false);
   const [deleteFinalConfirm, setDeleteFinalConfirm] =
     useState(false);
+
+  function updateProfileDraft(values: Partial<UserProfile>) {
+    profileDraftEditedRef.current = true;
+    setProfile((current) => current ? { ...current, ...values } : current);
+  }
   const phoneUnlockDate =
     getPhoneChangeUnlockDate(profile?.phone_last_changed_at);
   const phoneChangeLocked = false;
@@ -801,6 +893,216 @@ export default function ProfilePage() {
   }, [authPagePath, user, profileLoaded, profile, router]);
 
   useEffect(() => {
+    if (
+      !profile ||
+      profile.account_type !== "company" ||
+      profile.company_verified_at ||
+      typeof window === "undefined"
+    ) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("verifyCompany") !== "1") return;
+
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById("tilin-turvallisuus")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+      if (!profile.company_verification_requested_at) {
+        setCompanyVerifyStatus("");
+        setCompanyVerifyModalOpen(true);
+      }
+
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}#tilin-turvallisuus`
+      );
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [profile]);
+
+  const companyVerificationProfileId = profile?.id ?? "";
+  const companyVerificationAccountType = profile?.account_type ?? null;
+  const companyVerificationUserId = user?.id ?? "";
+  const companyVerificationForcedOpen = Boolean(
+    profile?.account_type === "company" &&
+    !profile.company_verified_at &&
+    !profile.company_verification_requested_at &&
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("verifyCompany") === "1"
+  );
+
+  useEffect(() => {
+    if (
+      companyVerificationReturnHandledRef.current ||
+      !supabase ||
+      !companyVerificationUserId ||
+      !companyVerificationProfileId ||
+      companyVerificationAccountType !== "company" ||
+      typeof window === "undefined"
+    ) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const paymentResult = params.get("companyVerification");
+    if (!paymentResult) return;
+
+    companyVerificationReturnHandledRef.current = true;
+    setCompanyVerifyModalOpen(true);
+
+    if (paymentResult === "cancelled") {
+      setCompanyVerifyStatus(companyVerifyText.paymentCancelled);
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}#tilin-turvallisuus`
+      );
+      return;
+    }
+
+    const sessionId = params.get("session_id") ?? "";
+    if (paymentResult !== "success" || !sessionId) {
+      setCompanyVerifyStatus(companyVerifyText.returnIncomplete);
+      return;
+    }
+
+    let cancelled = false;
+    let confirmTimeout: ReturnType<typeof setTimeout> | null = null;
+    setCompanyVerifySaving(true);
+    setCompanyVerifyConfirming(true);
+    setCompanyVerifyStatus(companyVerifyText.checkingPayment);
+
+    void supabase.auth.getSession()
+      .then(async ({ data, error }) => {
+        if (error || !data.session?.access_token) {
+          throw error ?? new Error(companyVerifyText.loginExpired);
+        }
+
+        const controller = new AbortController();
+        confirmTimeout = setTimeout(() => controller.abort(), 15000);
+        let response: Response;
+        try {
+          response = await fetch("/api/company-verification/confirm", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${data.session.access_token}`
+            },
+            body: JSON.stringify({ sessionId, locale }),
+            signal: controller.signal
+          });
+        } catch (requestError) {
+          if (!controller.signal.aborted) throw requestError;
+
+          const { data: timedOutProfile, error: timedOutProfileError } = await getProfile(companyVerificationUserId);
+          if (timedOutProfileError) throw timedOutProfileError;
+          if (!timedOutProfile?.company_verification_requested_at) {
+            throw new Error(companyVerifyText.confirmationTakingLong);
+          }
+
+          if (!cancelled) {
+            setProfile(timedOutProfile);
+            writeCachedResource(`profile:${companyVerificationUserId}`, timedOutProfile);
+            setCompanyVerifyStatus(companyVerifyText.paymentReceivedStatus);
+            window.history.replaceState(
+              window.history.state,
+              "",
+              `${window.location.pathname}#tilin-turvallisuus`
+            );
+          }
+          return;
+        } finally {
+          if (confirmTimeout) {
+            clearTimeout(confirmTimeout);
+            confirmTimeout = null;
+          }
+        }
+        const body = await response.json().catch(() => ({})) as { error?: string };
+        if (!response.ok) throw new Error(body.error || companyVerifyText.confirmFailed);
+
+        const { data: refreshedProfile, error: profileError } = await getProfile(companyVerificationUserId);
+        if (profileError) throw profileError;
+        if (cancelled) return;
+
+        if (refreshedProfile) {
+          setProfile(refreshedProfile);
+          writeCachedResource(`profile:${companyVerificationUserId}`, refreshedProfile);
+        }
+        setCompanyVerifyStatus(companyVerifyText.paymentReceivedStatus);
+        window.history.replaceState(
+          window.history.state,
+          "",
+          `${window.location.pathname}#tilin-turvallisuus`
+        );
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setCompanyVerifyStatus(getErrorMessage(error));
+          window.history.replaceState(
+            window.history.state,
+            "",
+            `${window.location.pathname}#tilin-turvallisuus`
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setCompanyVerifySaving(false);
+          setCompanyVerifyConfirming(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      if (confirmTimeout) clearTimeout(confirmTimeout);
+    };
+  }, [companyVerificationAccountType, companyVerificationProfileId, companyVerificationUserId, companyVerifyText]);
+
+  useEffect(() => {
+    if (
+      !companyVerifyModalOpen ||
+      !companyVerifyClientSecret ||
+      !companyVerifyPublishableKey ||
+      !companyVerifyPaymentMountRef.current
+    ) return;
+
+    let cancelled = false;
+
+    void loadStripeJs(companyVerifyText.paymentServiceLoadFailed)
+      .then(async () => {
+        if (cancelled || !window.Stripe || !companyVerifyPaymentMountRef.current) return;
+
+        companyVerifyCheckoutRef.current?.destroy();
+        const stripe = window.Stripe(companyVerifyPublishableKey);
+        const checkout = await stripe.initEmbeddedCheckout({
+          fetchClientSecret: async () => companyVerifyClientSecret
+        });
+
+        if (cancelled || !companyVerifyPaymentMountRef.current) {
+          checkout.destroy();
+          return;
+        }
+
+        companyVerifyCheckoutRef.current = checkout;
+        checkout.mount(companyVerifyPaymentMountRef.current);
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setCompanyVerifyStatus(getErrorMessage(error));
+          setCompanyVerifySaving(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      companyVerifyCheckoutRef.current?.destroy();
+      companyVerifyCheckoutRef.current = null;
+    };
+  }, [companyVerifyClientSecret, companyVerifyModalOpen, companyVerifyPublishableKey, companyVerifyText.paymentServiceLoadFailed]);
+
+  useEffect(() => {
 
     if (!user) return;
 
@@ -819,8 +1121,13 @@ export default function ProfilePage() {
       .then(({ data }) => {
         if (loadGeneration !== profileLoadGenerationRef.current) return;
         if (data) {
-          setProfile(data);
-          writeCachedResource(cacheKey, data);
+          setProfile((current) => {
+            const nextProfile = profileDraftEditedRef.current && current
+              ? preserveEditableProfileDraft(data, current)
+              : data;
+            writeCachedResource(cacheKey, nextProfile);
+            return nextProfile;
+          });
           setAvatarUrl(data.avatar_url ?? null);
           if (data.account_type === "company") {
             getCompanySellers(data.id)
@@ -840,6 +1147,29 @@ export default function ProfilePage() {
       });
 
   }, [user]);
+
+  useEffect(() => {
+    if (!user || profile?.account_type !== "company" || !supabase) {
+      setCommerceCompany(null);
+      return;
+    }
+
+    let active = true;
+    void supabase.auth.getSession().then(async ({ data }) => {
+      const accessToken = data.session?.access_token;
+      if (!accessToken) return;
+      const response = await fetch("/api/commerce/company", {
+        cache: "no-store",
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const body = await response.json().catch(() => ({}));
+      if (active && response.ok) setCommerceCompany(body.company ?? null);
+    }).catch(() => {
+      if (active) setCommerceCompany(null);
+    });
+
+    return () => { active = false; };
+  }, [profile?.account_type, user]);
 
   useEffect(() => {
     if (!user || !supabase) return;
@@ -864,86 +1194,6 @@ export default function ProfilePage() {
     };
   }, [user]);
 
-  useEffect(() => {
-    if (!profile) return;
-    if (typeof window === "undefined") return;
-
-    let cancelled = false;
-
-    const setupAutocomplete = () => {
-      const addressInput = addressInputRef.current;
-      const Autocomplete =
-        (window as GoogleMapsWindow).google?.maps?.places?.Autocomplete;
-
-      if (!addressInput || !Autocomplete || cancelled) return;
-
-      const selectedCountryCode =
-        getCountryCodeForAddress(profile.country);
-
-      const autocomplete = new Autocomplete(addressInput, {
-        componentRestrictions: {
-          country: selectedCountryCode
-            ? [selectedCountryCode]
-            : addressCountryOptions.map((country) => country.code.toLowerCase())
-        },
-        fields: ["address_components", "formatted_address"],
-        types: ["address"]
-      });
-
-      autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        const address = getStreetAddressFromGooglePlace(place);
-        const postalCode = getGoogleAddressPart(place, "postal_code");
-        const city =
-          getGoogleAddressPart(place, "postal_town") ||
-          getGoogleAddressPart(place, "locality") ||
-          getGoogleAddressPart(place, "administrative_area_level_3");
-        const country = getCountryValueFromGooglePlace(place);
-
-        setProfile((current) => current
-          ? {
-              ...current,
-              address: address || current.address,
-              city: city || current.city,
-              country: country || current.country,
-              postal_code: postalCode || current.postal_code
-            }
-          : current
-        );
-      });
-    };
-
-    if ((window as GoogleMapsWindow).google?.maps?.places?.Autocomplete) {
-      setupAutocomplete();
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    const scriptId = "google-places-autocomplete";
-    const existingScript = document.getElementById(scriptId) as HTMLScriptElement | null;
-
-    if (existingScript) {
-      existingScript.addEventListener("load", setupAutocomplete, { once: true });
-      return () => {
-        cancelled = true;
-        existingScript.removeEventListener("load", setupAutocomplete);
-      };
-    }
-
-    const script = document.createElement("script");
-    script.id = scriptId;
-    script.async = true;
-    script.src = `/api/google-maps-script?language=${encodeURIComponent(locale)}`;
-    script.addEventListener("load", setupAutocomplete, { once: true });
-    document.head.appendChild(script);
-
-    return () => {
-      cancelled = true;
-      script.removeEventListener("load", setupAutocomplete);
-    };
-  }, [locale, profile?.id]);
-
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!user || !profile) return;
@@ -962,6 +1212,32 @@ export default function ProfilePage() {
       bio: profile.bio
     });
     if (error) { setStatus(getErrorMessage(error)); return; }
+    if (profile.account_type === "company" && commerceCompany && supabase) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) { setStatus("Kirjautuminen vanheni. Kirjaudu uudelleen ja yritä uudelleen."); return; }
+      const companyResponse = await fetch("/api/commerce/company", {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...commerceCompany,
+          name: profile.company_name || commerceCompany.name,
+          business_id: profile.business_id || commerceCompany.business_id,
+          website: profile.company_website,
+          description: profile.bio ?? "",
+          phone: profile.phone,
+          address_line: profile.address,
+          postal_code: profile.postal_code,
+          city: profile.city,
+          country: profile.country,
+          email: profile.email || commerceCompany.email
+        })
+      });
+      const companyBody = await companyResponse.json().catch(() => ({}));
+      if (!companyResponse.ok) { setStatus(companyBody.error || "Yritystietojen tallentaminen epäonnistui."); return; }
+      setCommerceCompany(companyBody.company ?? commerceCompany);
+    }
+    profileDraftEditedRef.current = false;
     setProfile(data);
     if (data) {
       writeCachedResource(`profile:${user.id}`, data);
@@ -1233,34 +1509,95 @@ export default function ProfilePage() {
 
   async function requestCompanyVerification() {
     if (!supabase || !user || !profile || profile.account_type !== "company") return;
-    if (profile.company_verified_at || companyVerifySaving) return;
+    if (
+      profile.company_verified_at ||
+      profile.company_verification_requested_at ||
+      companyVerifySaving
+    ) return;
 
-    setCompanyVerifySaving(true);
-    setCompanyVerifyStatus("Lähetetään pyyntöä...");
-
-    const requestedAt = new Date().toISOString();
-    const { error } = await supabase
-      .from("profiles")
-      .update({ company_verification_requested_at: requestedAt })
-      .eq("id", user.id);
-
-    if (error) {
-      setCompanyVerifyStatus(getErrorMessage(error));
-      setCompanyVerifySaving(false);
+    const requirementsError = getCompanyVerificationRequirementsError();
+    if (requirementsError) {
+      setCompanyVerifyStatus(requirementsError);
       return;
     }
 
-    const { data } = await getProfile(user.id);
-    if (data) {
-      setProfile(data);
-      writeCachedResource(`profile:${user.id}`, data);
-    }
-    setCompanyVerifyStatus("Vahvistuspyyntö lähetetty. Käsittelyaika on yleensä 0-2 päivää.");
-    setCompanyVerifySaving(false);
-    window.setTimeout(() => {
-      setCompanyVerifyModalOpen(false);
+    setCompanyVerifySaving(true);
+    setCompanyVerifyStatus(companyVerifyText.openingPayment);
+
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !data.session?.access_token) {
+        throw error ?? new Error(companyVerifyText.loginExpired);
+      }
+
+      const response = await fetch("/api/company-verification/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${data.session.access_token}`
+        },
+        body: JSON.stringify({ attemptId: crypto.randomUUID(), locale })
+      });
+      const body = await response.json().catch(() => ({})) as {
+        clientSecret?: string;
+        publishableKey?: string;
+        error?: string;
+      };
+      if (!response.ok || !body.clientSecret || !body.publishableKey) {
+        throw new Error(body.error || companyVerifyText.openPaymentFailed);
+      }
+
+      setCompanyVerifyClientSecret(body.clientSecret);
+      setCompanyVerifyPublishableKey(body.publishableKey);
       setCompanyVerifyStatus("");
-    }, 1800);
+      setCompanyVerifySaving(false);
+    } catch (error) {
+      setCompanyVerifyStatus(getErrorMessage(error));
+      setCompanyVerifySaving(false);
+    }
+  }
+
+  function getCompanyVerificationRequirementsError() {
+    if (!profile || profile.account_type !== "company") return "";
+
+    const fieldLabels: Record<CompanyVerificationRequiredField, string> = {
+      company_name: profileText.companyName,
+      business_id: profileText.businessId,
+      email: profileText.email,
+      phone: profileText.companyPhone,
+      public_address: profileText.publicAddress,
+      bio: profileText.publicBio,
+      address: profileText.address,
+      postal_code: profileText.postalCode,
+      city: profileText.city,
+      country: profileText.country
+    };
+    const missingFields = missingCompanyVerificationFields(profile);
+
+    if (missingFields.length > 0) {
+      return `${companyVerificationRequirementsText.prefix}: ${missingFields.map((field) => fieldLabels[field]).join(", ")}.`;
+    }
+    if (profileDraftEditedRef.current) {
+      return companyVerificationRequirementsText.save;
+    }
+    return "";
+  }
+
+  function closeCompanyVerificationModal() {
+    if (companyVerifySaving && !companyVerifyConfirming) return;
+    companyVerifyCheckoutRef.current?.destroy();
+    companyVerifyCheckoutRef.current = null;
+    setCompanyVerifyClientSecret("");
+    setCompanyVerifyPublishableKey("");
+    setCompanyVerifyModalOpen(false);
+    setCompanyVerifyStatus("");
+    if (typeof window !== "undefined") {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}#tilin-turvallisuus`
+      );
+    }
   }
 
   async function handleAddCompanySeller() {
@@ -2069,12 +2406,11 @@ export default function ProfilePage() {
                     <span className="pf-info-label">{profileText.address}</span>
                     <div className="pf-info-value pf-private-address-value">
                       <input
-                        ref={privateAddressInputRef}
                         className="pf-private-address-input"
                         autoComplete="off"
                         name="profile-private-address"
-                        value={profile.address ?? ""}
-                        onChange={e => setProfile({ ...profile, address: e.target.value })}
+                        defaultValue={profile.address ?? ""}
+                        onChange={e => updateProfileDraft({ address: e.target.value })}
                         placeholder="Aloita kirjoittamalla osoite"
                       />
                     </div>
@@ -2086,8 +2422,8 @@ export default function ProfilePage() {
                       <input
                         autoComplete="postal-code"
                         name="postal-code"
-                        value={profile.postal_code ?? ""}
-                        onChange={e => setProfile({ ...profile, postal_code: e.target.value })}
+                        defaultValue={profile.postal_code ?? ""}
+                        onChange={e => updateProfileDraft({ postal_code: e.target.value })}
                       />
                     </div>
                   </div>
@@ -2098,8 +2434,8 @@ export default function ProfilePage() {
                       <input
                         autoComplete="address-level2"
                         name="address-level2"
-                        value={profile.city ?? ""}
-                        onChange={e => setProfile({ ...profile, city: e.target.value })}
+                        defaultValue={profile.city ?? ""}
+                        onChange={e => updateProfileDraft({ city: e.target.value })}
                       />
                     </div>
                   </div>
@@ -2110,8 +2446,8 @@ export default function ProfilePage() {
                       <input
                         autoComplete="country-name"
                         name="country-name"
-                        value={profile.country ?? ""}
-                        onChange={(event) => setProfile({ ...profile, country: event.target.value })}
+                        defaultValue={profile.country ?? ""}
+                        onChange={(event) => updateProfileDraft({ country: event.target.value })}
                         placeholder={profileText.country}
                       />
                     </div>
@@ -2143,7 +2479,7 @@ export default function ProfilePage() {
                       <input
                         disabled={Boolean(profile.company_name)}
                         value={profile.company_name ?? ""}
-                        onChange={e => setProfile({ ...profile, company_name: e.target.value })}
+                        onChange={e => updateProfileDraft({ company_name: e.target.value })}
                       />
                       </div>
                     </div>
@@ -2158,7 +2494,7 @@ export default function ProfilePage() {
                         inputMode="numeric"
                         pattern="[0-9]*"
                         value={profile.business_id ?? ""}
-                        onChange={e => setProfile({ ...profile, business_id: e.target.value.replace(/\D/g, "") })}
+                        onChange={e => updateProfileDraft({ business_id: e.target.value.replace(/\D/g, "") })}
                       />
                       </div>
                     </div>
@@ -2218,7 +2554,7 @@ export default function ProfilePage() {
                       <div className="pf-info-value pf-info-website-value">
                         <input
                           value={profile.company_website ?? ""}
-                          onChange={e => setProfile({ ...profile, company_website: e.target.value })}
+                          onChange={e => updateProfileDraft({ company_website: e.target.value })}
                           placeholder="https://yritys.fi"
                         />
                         {companyWebsiteHref && (
@@ -2230,7 +2566,7 @@ export default function ProfilePage() {
                             target="_blank"
                             title={companyWebsiteHref}
                           >
-                            <ExternalLink size={13} aria-hidden="true" />
+                            <ExternalLink size={18} aria-hidden="true" />
                           </a>
                         )}
                       </div>
@@ -2406,7 +2742,7 @@ export default function ProfilePage() {
                       <label>{profileText.publicAddress}</label>
                       <input
                         value={profile.public_address ?? ""}
-                        onChange={e => setProfile({ ...profile, public_address: e.target.value })}
+                        onChange={e => updateProfileDraft({ public_address: e.target.value })}
                         placeholder={profileText.publicAddressPlaceholder}
                       />
                     </div>
@@ -2425,7 +2761,7 @@ export default function ProfilePage() {
                         textarea.style.height = "auto";
                         textarea.style.height = `${textarea.scrollHeight}px`;
                       }}
-                      onChange={e => setProfile({ ...profile, bio: e.target.value })}
+                      onChange={e => updateProfileDraft({ bio: e.target.value })}
                       placeholder={profileText.publicBioPlaceholder}
                     />
                     <span className="pf-phone-help">
@@ -2461,11 +2797,11 @@ export default function ProfilePage() {
                     <span className="pf-info-label">{profileText.address}</span>
                     <div className="pf-info-value">
                       <input
-                        ref={addressInputRef}
-                        autoComplete="street-address"
-                        name="street-address"
-                        value={profile.address ?? ""}
-                        onChange={e => setProfile({ ...profile, address: e.target.value })}
+                        key="company-address-plain-input-v2"
+                        autoComplete="off"
+                        name="profile-company-address"
+                        defaultValue={profile.address ?? ""}
+                        onChange={e => updateProfileDraft({ address: e.target.value })}
                         placeholder="Aloita kirjoittamalla osoite"
                       />
                     </div>
@@ -2477,10 +2813,10 @@ export default function ProfilePage() {
                     <span className="pf-info-label">{profileText.postalCode}</span>
                     <div className="pf-info-value">
                       <input
-                        autoComplete="postal-code"
-                        name="postal-code"
-                        value={profile.postal_code ?? ""}
-                        onChange={e => setProfile({ ...profile, postal_code: e.target.value })}
+                        autoComplete="off"
+                        name="profile-company-postal-code"
+                        defaultValue={profile.postal_code ?? ""}
+                        onChange={e => updateProfileDraft({ postal_code: e.target.value })}
                       />
                     </div>
                   </div>
@@ -2491,10 +2827,10 @@ export default function ProfilePage() {
                     <span className="pf-info-label">{profileText.city}</span>
                     <div className="pf-info-value">
                       <input
-                        autoComplete="address-level2"
-                        name="address-level2"
-                        value={profile.city ?? ""}
-                        onChange={e => setProfile({ ...profile, city: e.target.value })}
+                        autoComplete="off"
+                        name="profile-company-city"
+                        defaultValue={profile.city ?? ""}
+                        onChange={e => updateProfileDraft({ city: e.target.value })}
                       />
                     </div>
                   </div>
@@ -2506,10 +2842,10 @@ export default function ProfilePage() {
                     <div className="pf-info-value">
                       <input
                         className="pf-country-input"
-                        autoComplete="country-name"
-                        name="country-name"
-                        value={profile.country ?? ""}
-                        onChange={(event) => setProfile({ ...profile, country: event.target.value })}
+                        autoComplete="off"
+                        name="profile-company-country"
+                        defaultValue={profile.country ?? ""}
+                        onChange={(event) => updateProfileDraft({ country: event.target.value })}
                         placeholder={profileText.country}
                       />
                     </div>
@@ -2580,22 +2916,22 @@ export default function ProfilePage() {
                       <span className="pf-info-row-icon">
                         <ShieldCheck size={16} />
                       </span>
-                      <span className="pf-info-label">Yrityksen vahvistus</span>
+                      <span className="pf-info-label">{companyVerifyText.verificationSection}</span>
                       <div className="pf-info-value pf-security-action-value">
                         {profile.company_verified_at ? (
-                          <span className="pf-company-verify-ok">Vahvistettu yritys</span>
+                          <span className="pf-company-verify-ok">{companyVerifyText.verifiedCompany}</span>
                         ) : profile.company_verification_requested_at ? (
-                          <span className="pf-company-verify-pending">Odottaa käsittelyä</span>
+                          <span className="pf-company-verify-pending">{companyVerifyText.awaitingReview}</span>
                         ) : (
                           <button
                             type="button"
                             className="pf-inline-btn verify pf-company-verify-btn"
                             onClick={() => {
-                              setCompanyVerifyStatus("");
+                              setCompanyVerifyStatus(getCompanyVerificationRequirementsError());
                               setCompanyVerifyModalOpen(true);
                             }}
                           >
-                            Vahvista yritys
+                            {companyVerifyText.verifyCompanyAction}
                           </button>
                         )}
                       </div>
@@ -2624,19 +2960,18 @@ export default function ProfilePage() {
 
       </div>
 
-      {companyVerifyModalOpen && profile?.account_type === "company" && (
+      {(companyVerifyModalOpen || companyVerificationForcedOpen) && profile?.account_type === "company" && (
         <div
           className="pf-modal-backdrop"
           role="presentation"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget && !companyVerifySaving) {
-              setCompanyVerifyModalOpen(false);
-              setCompanyVerifyStatus("");
+            if (event.target === event.currentTarget && (!companyVerifySaving || companyVerifyConfirming)) {
+              closeCompanyVerificationModal();
             }
           }}
         >
           <div
-            className="pf-phone-modal pf-company-verify-modal"
+            className={`pf-phone-modal pf-company-verify-modal${companyVerifyClientSecret ? " is-payment" : ""}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="company-verify-title"
@@ -2644,50 +2979,160 @@ export default function ProfilePage() {
             <button
               type="button"
               className="pf-modal-close"
-              disabled={companyVerifySaving}
-              onClick={() => {
-                setCompanyVerifyModalOpen(false);
-                setCompanyVerifyStatus("");
-              }}
+              disabled={companyVerifySaving && !companyVerifyConfirming}
+              onClick={closeCompanyVerificationModal}
+              aria-label={companyVerifyText.close}
             >
-              ×
+              <X size={18} strokeWidth={2.2} aria-hidden="true" />
             </button>
-            <div className="pf-modal-icon">
-              <ShieldCheck size={23} />
-            </div>
-            <h2 id="company-verify-title">Vahvista yritystili</h2>
-            <p>
-              Lähetä yrityksesi tiedot tarkistettavaksi. Käsittelyaika on yleensä
-              0-2 päivää. Kun admin hyväksyy pyynnön, profiilissasi näkyy vihreä
-              Vahvistettu yritys -merkintä.
-            </p>
-            <div className="pf-company-verify-summary">
-              <span>{profile.company_name || "Yritys"}</span>
-              <strong>{profile.business_id || "Y-tunnus puuttuu"}</strong>
-            </div>
-            <div className="pf-phone-actions pf-company-verify-actions">
-              <button
-                type="button"
-                className="pf-inline-btn secondary"
-                disabled={companyVerifySaving}
-                onClick={() => {
-                  setCompanyVerifyModalOpen(false);
-                  setCompanyVerifyStatus("");
-                }}
-              >
-                Peruuta
-              </button>
-              <button
-                type="button"
-                className="pf-inline-btn verify"
-                disabled={companyVerifySaving || !profile.business_id}
-                onClick={requestCompanyVerification}
-              >
-                {companyVerifySaving ? "Lähetetään..." : "Lähetä pyyntö"}
-              </button>
-            </div>
-            {companyVerifyStatus && (
-              <span className="pf-modal-note">{companyVerifyStatus}</span>
+            {companyVerifyClientSecret ? (
+              <div className="pf-company-verify-payment-view">
+                <header className="pf-company-verify-payment-head">
+                  <span className="pf-company-verify-payment-mark">M</span>
+                  <div>
+                    <span className="pf-company-verify-kicker"><ShieldCheck size={14} /> {companyVerifyText.secureCheckout}</span>
+                    <h2 id="company-verify-title">{companyVerifyText.finishTitle}</h2>
+                    <p>{companyVerifyText.finishDescription}</p>
+                  </div>
+                </header>
+                <div className="pf-company-verify-payment-layout">
+                  <aside className="pf-company-verify-payment-summary">
+                    <span className="pf-company-verify-payment-label">{companyVerifyText.orderSummary}</span>
+                    <div className="pf-company-verify-payment-company">
+                      <Building2 size={19} />
+                      <span>
+                        <small>{companyVerifyText.companyToVerify}</small>
+                        <strong>{profile.company_name || companyVerifyText.companyFallback}</strong>
+                        <em>{profile.business_id || companyVerifyText.businessIdMissing}</em>
+                      </span>
+                    </div>
+                    <div className="pf-company-verify-payment-item">
+                      <span>
+                        <strong>{companyVerifyText.verificationProduct}</strong>
+                        <small>{companyVerifyText.manualReview}</small>
+                      </span>
+                      <strong>{companyVerifyText.price}</strong>
+                    </div>
+                    <div className="pf-company-verify-payment-total">
+                      <span>{companyVerifyText.amountDue}</span>
+                      <strong>{companyVerifyText.price}</strong>
+                    </div>
+                    <div className="pf-company-verify-payment-trust">
+                      <span><LockKeyhole size={14} /> {companyVerifyText.protectedStripe}</span>
+                      <span><Check size={14} /> {companyVerifyText.oneTimeNoMonthly}</span>
+                      <span><ShieldCheck size={14} /> {companyVerifyText.paidToMaskines}</span>
+                    </div>
+                  </aside>
+                  <section className="pf-company-verify-payment-shell" aria-label={companyVerifyText.paymentMethods}>
+                    <div className="pf-company-verify-payment-shell-head">
+                      <div><CreditCard size={18} /><span><strong>{companyVerifyText.paymentMethod}</strong><small>{companyVerifyText.chooseMethod}</small></span></div>
+                      <span><ShieldCheck size={14} /> {companyVerifyText.secure}</span>
+                    </div>
+                    <div className="pf-company-verify-embedded-wrap">
+                      <div ref={companyVerifyPaymentMountRef} className="pf-company-verify-embedded" />
+                    </div>
+                  </section>
+                </div>
+                {companyVerifyStatus && <span className="pf-modal-note">{companyVerifyStatus}</span>}
+              </div>
+            ) : (
+              <>
+                <div className="pf-company-verify-heading">
+                  <div className="pf-company-verify-brand-row">
+                    <div className="pf-modal-icon">
+                      <ShieldCheck size={24} />
+                    </div>
+                    <span className="pf-company-verify-kicker"><BadgeCheck size={14} /> Maskines Verified</span>
+                  </div>
+                  <h2 id="company-verify-title">{companyVerifyText.title}</h2>
+                  <p>{companyVerifyText.description}</p>
+                </div>
+                <div className="pf-company-verify-summary">
+                  <span>{companyVerifyText.companyToVerify}</span>
+                  <strong>{profile.company_name || companyVerifyText.companyFallback}</strong>
+                  <small>{profile.business_id || companyVerifyText.businessIdMissing}</small>
+                </div>
+                {profile.company_verification_requested_at ? (
+                  <div className="pf-company-verify-paid">
+                    <BadgeCheck size={24} />
+                    <div>
+                      <strong>{companyVerifyText.paymentReceived}</strong>
+                      <span>{companyVerifyText.pendingReview}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="pf-company-verify-benefits">
+                      <div>
+                        <span><BadgeCheck size={17} /></span>
+                        <div><strong>{companyVerifyText.verifiedCompany}</strong><small>{companyVerifyText.verifiedCompanyDescription}</small></div>
+                      </div>
+                      <div>
+                        <span><WalletCards size={17} /></span>
+                        <div><strong>{companyVerifyText.paymentsAccess}</strong><small>{companyVerifyText.paymentsAccessDescription}</small></div>
+                      </div>
+                      <div>
+                        <span><Sparkles size={17} /></span>
+                        <div><strong>{companyVerifyText.premiumProfile}</strong><small>{companyVerifyText.premiumProfileDescription}</small></div>
+                      </div>
+                      <div>
+                        <span><Building2 size={17} /></span>
+                        <div><strong>{companyVerifyText.companyManagement}</strong><small>{companyVerifyText.companyManagementDescription}</small></div>
+                      </div>
+                    </div>
+                    <div className="pf-company-verify-price">
+                      <div className="pf-company-verify-price-copy">
+                        <span>Maskines Verified</span>
+                        <strong>{companyVerifyText.verificationTitle}</strong>
+                        <small>{companyVerifyText.allFeatures}</small>
+                      </div>
+                      <div className="pf-company-verify-price-amount">
+                        <strong>{companyVerifyText.price}</strong>
+                        <span>{companyVerifyText.oneTimePayment}</span>
+                      </div>
+                    </div>
+                    <p className="pf-company-verify-disclaimer">{companyVerifyText.disclaimer}</p>
+                    {companyVerifySaving ? (
+                      <div className="pf-company-verify-progress" role="status" aria-live="polite">
+                        <LoaderCircle size={20} />
+                        <div>
+                          <strong>{companyVerifyStatus || companyVerifyText.preparingPayment}</strong>
+                          <span>{companyVerifyText.keepOpen}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="pf-phone-actions pf-company-verify-actions">
+                        <button
+                          type="button"
+                          className="pf-inline-btn verify pf-company-verify-pay-btn"
+                          disabled={Boolean(getCompanyVerificationRequirementsError())}
+                          onClick={requestCompanyVerification}
+                        >
+                          <CreditCard size={17} />
+                          {getCompanyVerificationRequirementsError()
+                            ? companyVerificationRequirementsText.title
+                            : companyVerifyStatus
+                              ? companyVerifyText.retryPayment
+                              : companyVerifyText.continuePayment}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+                {companyVerifyStatus && !companyVerifySaving && !profile.company_verification_requested_at && (
+                  <div className="pf-company-verify-error" role="alert">
+                    <X size={18} />
+                    <div>
+                      <strong>
+                        {getCompanyVerificationRequirementsError()
+                          ? companyVerificationRequirementsText.title
+                          : companyVerifyText.paymentFailed}
+                      </strong>
+                      <span>{companyVerifyStatus}</span>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -6318,35 +6763,906 @@ export default function ProfilePage() {
         }
 
         html body .pf-page .pf-company-verify-modal {
-          max-width: min(430px, calc(100vw - 28px));
+          background:
+            radial-gradient(420px 220px at 0% 0%, rgba(255, 122, 26, 0.13), transparent 70%),
+            linear-gradient(180deg, #101b25 0%, #0a141d 100%);
+          border: 1px solid rgba(170, 190, 205, 0.2);
+          border-radius: 22px;
+          box-shadow: 0 34px 90px rgba(0, 5, 12, 0.52);
+          max-width: min(520px, calc(100vw - 28px));
+          overflow: hidden;
+          padding: 34px;
+        }
+
+        html body .pf-page .pf-company-verify-modal.is-payment {
+          max-width: min(1060px, calc(100vw - 36px));
+          padding: 0;
+          width: min(1060px, calc(100vw - 36px));
+        }
+
+        html body .pf-modal-backdrop:has(.pf-company-verify-modal) {
+          align-items: flex-start;
+          overflow-y: auto;
+          padding-bottom: 30px;
+          padding-top: max(58px, calc(var(--topbar-h, 58px) + 42px));
+        }
+
+        html body .pf-modal-backdrop:has(.pf-company-verify-modal.is-payment) {
+          align-items: flex-start;
+          overflow-y: auto;
+          padding-bottom: 34px;
+          padding-top: max(66px, calc(var(--topbar-h, 58px) + 50px));
+        }
+
+        html body .pf-page .pf-company-verify-payment-view {
+          padding: 32px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-head {
+          align-items: center;
+          display: flex;
+          gap: 15px;
+          margin: 0 48px 25px 0;
+        }
+
+        html body .pf-page .pf-company-verify-payment-mark {
+          align-items: center;
+          background: linear-gradient(145deg, #ff8d35, #ef6000);
+          border: 1px solid rgba(255, 190, 139, 0.65);
+          border-radius: 14px;
+          box-shadow: 0 12px 28px rgba(255, 103, 9, 0.24);
+          color: #ffffff;
+          display: inline-flex;
+          flex: 0 0 52px;
+          font-size: 22px;
+          font-weight: 950;
+          height: 52px;
+          justify-content: center;
+        }
+
+        html body .pf-page .pf-company-verify-payment-head > div {
+          min-width: 0;
+        }
+
+        html body .pf-page .pf-company-verify-payment-head h2 {
+          color: #f7fafc;
+          font-size: 27px;
+          letter-spacing: -0.03em;
+          line-height: 1.12;
+          margin: 0 0 5px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-head p {
+          color: #aebbc6;
+          font-size: 13px;
+          font-weight: 600;
+          line-height: 1.45;
+          margin: 0;
+        }
+
+        html body .pf-page .pf-company-verify-payment-layout {
+          align-items: start;
+          display: grid;
+          gap: 22px;
+          grid-template-columns: minmax(260px, 0.78fr) minmax(440px, 1.42fr);
+        }
+
+        html body .pf-page .pf-company-verify-payment-summary,
+        html body .pf-page .pf-company-verify-payment-shell {
+          background: rgba(255, 255, 255, 0.035);
+          border: 1px solid rgba(166, 187, 202, 0.17);
+          border-radius: 16px;
+          overflow: hidden;
+        }
+
+        html body .pf-page .pf-company-verify-payment-summary {
+          padding: 20px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-label {
+          color: #8798a5;
+          display: block;
+          font-size: 10px;
+          font-weight: 850;
+          letter-spacing: 0.09em;
+          margin-bottom: 14px;
+          text-transform: uppercase;
+        }
+
+        html body .pf-page .pf-company-verify-payment-company {
+          align-items: center;
+          background: rgba(255, 122, 26, 0.08);
+          border: 1px solid rgba(255, 145, 65, 0.18);
+          border-radius: 12px;
+          color: #ff9a4e;
+          display: flex;
+          gap: 11px;
+          padding: 13px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-company > span {
+          display: grid;
+          gap: 2px;
+          min-width: 0;
+        }
+
+        html body .pf-page .pf-company-verify-payment-company small,
+        html body .pf-page .pf-company-verify-payment-company em {
+          color: #95a5b0;
+          font-size: 11px;
+          font-style: normal;
+          font-weight: 650;
+        }
+
+        html body .pf-page .pf-company-verify-payment-company strong {
+          color: #f4f7f9;
+          font-size: 14px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-item {
+          align-items: flex-start;
+          border-bottom: 1px solid rgba(166, 187, 202, 0.13);
+          display: flex;
+          gap: 12px;
+          justify-content: space-between;
+          padding: 18px 2px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-item > span {
+          display: grid;
+          gap: 3px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-item strong {
+          color: #eef4f7;
+          font-size: 13px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-item small {
+          color: #8798a5;
+          font-size: 11px;
+          line-height: 1.4;
+        }
+
+        html body .pf-page .pf-company-verify-payment-total {
+          align-items: end;
+          display: flex;
+          justify-content: space-between;
+          padding: 17px 2px 20px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-total span {
+          color: #c6d0d7;
+          font-size: 13px;
+          font-weight: 750;
+        }
+
+        html body .pf-page .pf-company-verify-payment-total strong {
+          color: #ffffff;
+          font-size: 25px;
+          letter-spacing: -0.03em;
+        }
+
+        html body .pf-page .pf-company-verify-payment-trust {
+          border-top: 1px solid rgba(166, 187, 202, 0.13);
+          display: grid;
+          gap: 9px;
+          padding-top: 17px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-trust span {
+          align-items: center;
+          color: #98a8b3;
+          display: flex;
+          font-size: 11px;
+          font-weight: 650;
+          gap: 7px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-trust svg {
+          color: #6ee7a1;
+        }
+
+        html body .pf-page .pf-company-verify-payment-shell {
+          background: #ffffff;
+          color-scheme: light;
+        }
+
+        html body .pf-page .pf-company-verify-payment-shell-head {
+          align-items: center;
+          background: #f6f8f9;
+          border-bottom: 1px solid #e1e6e9;
+          color: #263843;
+          display: flex;
+          justify-content: space-between;
+          padding: 14px 17px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-shell-head > div {
+          align-items: center;
+          display: flex;
+          gap: 9px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-shell-head > div > span {
+          display: grid;
+          gap: 1px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-shell-head strong {
+          color: #1f303a;
+          font-size: 13px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-shell-head small {
+          color: #71818b;
+          font-size: 10px;
+        }
+
+        html body .pf-page .pf-company-verify-payment-shell-head > span {
+          align-items: center;
+          color: #3c6d54;
+          display: flex;
+          font-size: 10px;
+          font-weight: 750;
+          gap: 5px;
+        }
+
+        html body .pf-page .pf-company-verify-embedded-wrap {
+          background: #ffffff;
+          min-height: 440px;
+          padding: 4px;
+        }
+
+        html body .pf-page .pf-company-verify-embedded {
+          min-height: 430px;
+          width: 100%;
+        }
+
+        html body .pf-page .pf-company-verify-modal::before {
+          background: linear-gradient(90deg, #ff7a1a, #ffb067 52%, transparent);
+          content: "";
+          height: 2px;
+          inset: 0 0 auto;
+          position: absolute;
+        }
+
+        html body .pf-page .pf-company-verify-modal .pf-modal-close {
+          background: rgba(255, 255, 255, 0.055);
+          border-color: rgba(181, 199, 213, 0.2);
+          color: #dbe5ec;
+          height: 36px;
+          right: 20px;
+          top: 20px;
+          width: 36px;
+        }
+
+        html body .pf-page .pf-company-verify-modal:not(.is-payment) .pf-modal-close {
+          align-items: center;
+          display: inline-flex;
+          justify-content: center;
+          left: auto;
+          line-height: 0;
+          padding: 0;
+          right: 20px;
+          top: 20px;
+          transform: none;
+        }
+
+        html body .pf-page .pf-company-verify-heading {
+          display: flex;
+          flex-direction: column;
+        }
+
+        html body .pf-page .pf-company-verify-brand-row {
+          align-items: center;
+          display: flex;
+          gap: 13px;
+          margin: 0 48px 18px 0;
+        }
+
+        html body .pf-page .pf-company-verify-heading .pf-modal-icon {
+          background: linear-gradient(145deg, #eafff1, #bff2d0);
+          border: 1px solid rgba(255, 255, 255, 0.72);
+          border-radius: 14px;
+          box-shadow: 0 14px 34px rgba(34, 197, 94, 0.18);
+          color: #159447;
+          flex: 0 0 52px;
+          height: 52px;
+          margin: 0;
+          width: 52px;
+        }
+
+        html body .pf-page .pf-company-verify-kicker {
+          align-items: center;
+          color: #62d994;
+          display: inline-flex;
+          font-size: 11px;
+          font-weight: 850;
+          gap: 6px;
+          letter-spacing: 0.09em;
+          margin: 0;
+          text-transform: uppercase;
+        }
+
+        html body .pf-page .pf-company-verify-heading h2 {
+          color: #f7fafc;
+          font-size: 30px;
+          letter-spacing: -0.03em;
+          line-height: 1.12;
+          margin: 0 44px 10px 0;
+        }
+
+        html body .pf-page .pf-company-verify-heading > p {
+          color: #aebbc6;
+          font-size: 14px;
+          font-weight: 600;
+          line-height: 1.58;
+          margin: 0 0 20px;
         }
 
         html body .pf-page .pf-company-verify-summary {
-          background: rgba(5, 24, 42, 0.64);
-          border: 1px solid rgba(77, 184, 238, 0.24);
+          background: rgba(255, 255, 255, 0.035);
+          border: 1px solid rgba(166, 187, 202, 0.16);
           border-radius: 12px;
           display: grid;
-          gap: 5px;
-          margin: 12px 0 4px;
-          padding: 12px 14px;
+          gap: 3px;
+          margin: 0 0 16px;
+          padding: 14px 16px;
           text-align: left;
         }
 
         html body .pf-page .pf-company-verify-summary span {
-          color: #f7fbff;
-          font-weight: 950;
+          color: #8495a3;
+          font-size: 11px;
+          font-weight: 750;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
         }
 
         html body .pf-page .pf-company-verify-summary strong {
-          color: #7dd3fc;
-          font-size: 0.86rem;
+          color: #f3f7fa;
+          font-size: 15px;
+          font-weight: 800;
+        }
+
+        html body .pf-page .pf-company-verify-summary small {
+          color: #9cabb6;
+          font-size: 12px;
+          font-weight: 650;
+        }
+
+        html body .pf-page .pf-company-verify-benefits {
+          display: grid;
+          gap: 9px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          margin: 0 0 18px;
+        }
+
+        html body .pf-page .pf-company-verify-benefits > div {
+          align-items: flex-start;
+          background: rgba(255, 255, 255, 0.028);
+          border: 1px solid rgba(166, 187, 202, 0.13);
+          border-radius: 12px;
+          display: flex;
+          gap: 10px;
+          min-height: 78px;
+          padding: 12px;
+        }
+
+        html body .pf-page .pf-company-verify-benefits > div > span {
+          align-items: center;
+          background: rgba(34, 197, 94, 0.11);
+          border: 1px solid rgba(74, 222, 128, 0.2);
+          border-radius: 9px;
+          color: #62d994;
+          display: inline-flex;
+          flex: 0 0 34px;
+          height: 34px;
+          justify-content: center;
+        }
+
+        html body .pf-page .pf-company-verify-benefits > div > div {
+          display: grid;
+          gap: 3px;
+          min-width: 0;
+        }
+
+        html body .pf-page .pf-company-verify-benefits strong {
+          color: #e9f0f4;
+          font-size: 12px;
+          font-weight: 800;
+          line-height: 1.25;
+        }
+
+        html body .pf-page .pf-company-verify-benefits small {
+          color: #81929e;
+          font-size: 10px;
+          font-weight: 600;
+          line-height: 1.4;
+        }
+
+        html body .pf-page .pf-company-verify-price {
+          align-items: stretch;
+          background:
+            radial-gradient(170px 110px at 100% 0%, rgba(74, 222, 128, 0.14), transparent 75%),
+            linear-gradient(115deg, rgba(34, 197, 94, 0.1), rgba(255, 255, 255, 0.035));
+          border: 1px solid rgba(74, 222, 128, 0.3);
+          border-radius: 14px;
+          display: flex;
+          gap: 16px;
+          justify-content: space-between;
+          margin-top: 2px;
+          overflow: hidden;
+          padding: 16px 17px;
+          position: relative;
+        }
+
+        html body .pf-page .pf-company-verify-price::before {
+          background: linear-gradient(#6ee7a1, #159447);
+          content: "";
+          inset: 0 auto 0 0;
+          position: absolute;
+          width: 3px;
+        }
+
+        html body .pf-page .pf-company-verify-price-copy,
+        html body .pf-page .pf-company-verify-price-amount {
+          display: flex;
+          flex-direction: column;
+        }
+
+        html body .pf-page .pf-company-verify-price-copy {
+          gap: 2px;
+        }
+
+        html body .pf-page .pf-company-verify-price-copy > span {
+          color: #62d994;
+          font-size: 9px;
+          font-weight: 850;
+          letter-spacing: 0.09em;
+          text-transform: uppercase;
+        }
+
+        html body .pf-page .pf-company-verify-price-copy > strong {
+          color: #f4f7f9;
+          font-size: 14px;
+          font-weight: 850;
+        }
+
+        html body .pf-page .pf-company-verify-price-copy > small {
+          color: #8798a4;
+          font-size: 10px;
+          font-weight: 650;
+        }
+
+        html body .pf-page .pf-company-verify-price-amount {
+          align-items: flex-end;
+          flex: 0 0 auto;
+          justify-content: center;
+        }
+
+        html body .pf-page .pf-company-verify-price-amount > strong {
+          color: #ffffff;
+          font-size: 27px;
+          font-weight: 900;
+          letter-spacing: -0.035em;
+          line-height: 1;
+        }
+
+        html body .pf-page .pf-company-verify-price-amount > span {
+          color: #a7b4bd;
+          font-size: 10px;
+          font-weight: 700;
+          margin-top: 5px;
+        }
+
+        html body .pf-page .pf-company-verify-disclaimer {
+          color: #7f909d;
+          font-size: 11px;
+          font-weight: 600;
+          line-height: 1.5;
+          margin: 10px 2px 0;
         }
 
         html body .pf-page .pf-company-verify-actions {
-          display: flex;
+          display: grid;
           gap: 10px;
+          grid-template-columns: 1fr;
+          margin-top: 18px;
+        }
+
+        html body .pf-page .pf-company-verify-actions > button {
+          border-radius: 10px;
+          height: 48px;
           justify-content: center;
-          margin-top: 14px;
+          margin: 0;
+          width: 100%;
+        }
+
+        html body .pf-page .pf-company-verify-actions .secondary {
+          background: transparent;
+          border-color: rgba(166, 187, 202, 0.25);
+          color: #b8c4cd;
+        }
+
+        html body .pf-page .pf-company-verify-pay-btn {
+          align-items: center;
+          background: #ff7414;
+          border-color: #ff964f;
+          box-shadow: 0 12px 26px rgba(255, 103, 9, 0.22);
+          display: inline-flex;
+          font-size: 14px;
+          gap: 8px;
+        }
+
+        html body .pf-page .pf-company-verify-progress {
+          align-items: center;
+          background: linear-gradient(110deg, rgba(34, 197, 94, 0.1), rgba(255, 255, 255, 0.035));
+          border: 1px solid rgba(74, 222, 128, 0.28);
+          border-radius: 12px;
+          color: #62d994;
+          display: flex;
+          gap: 12px;
+          margin-top: 18px;
+          min-height: 56px;
+          padding: 11px 14px;
+        }
+
+        html body .pf-page .pf-company-verify-progress > svg {
+          animation: pf-company-verify-spin 0.9s linear infinite;
+          flex: 0 0 auto;
+        }
+
+        html body .pf-page .pf-company-verify-progress > div {
+          display: grid;
+          gap: 2px;
+        }
+
+        html body .pf-page .pf-company-verify-progress strong {
+          color: #f2f6f8;
+          font-size: 12px;
+          font-weight: 800;
+        }
+
+        html body .pf-page .pf-company-verify-progress span {
+          color: #8fa0ab;
+          font-size: 10px;
+          font-weight: 600;
+        }
+
+        @keyframes pf-company-verify-spin {
+          to { transform: rotate(360deg); }
+        }
+
+        html body .pf-page .pf-company-verify-error {
+          align-items: center;
+          background: rgba(239, 68, 68, 0.09);
+          border: 1px solid rgba(248, 113, 113, 0.28);
+          border-radius: 12px;
+          color: #f87171;
+          display: flex;
+          gap: 11px;
+          margin-top: 12px;
+          padding: 11px 13px;
+        }
+
+        html body .pf-page .pf-company-verify-error > svg {
+          flex: 0 0 auto;
+        }
+
+        html body .pf-page .pf-company-verify-error > div {
+          display: grid;
+          gap: 2px;
+        }
+
+        html body .pf-page .pf-company-verify-error strong {
+          color: #fecaca;
+          font-size: 12px;
+          font-weight: 850;
+        }
+
+        html body .pf-page .pf-company-verify-error span {
+          color: #d9a4a4;
+          font-size: 10px;
+          font-weight: 650;
+        }
+
+        html body .pf-page .pf-company-verify-paid {
+          align-items: center;
+          background: rgba(34, 197, 94, 0.09);
+          border: 1px solid rgba(74, 222, 128, 0.24);
+          border-radius: 14px;
+          color: #6ee7a1;
+          display: flex;
+          gap: 12px;
+          padding: 15px 16px;
+        }
+
+        html body .pf-page .pf-company-verify-paid > div {
+          display: grid;
+          gap: 2px;
+        }
+
+        html body .pf-page .pf-company-verify-paid strong {
+          color: #eafaf0;
+          font-size: 14px;
+        }
+
+        html body .pf-page .pf-company-verify-paid span {
+          color: #9fc8ae;
+          font-size: 12px;
+        }
+
+        html body .pf-page .pf-company-verify-modal > .pf-modal-note {
+          background: rgba(255, 122, 26, 0.09);
+          border-color: rgba(255, 145, 65, 0.25);
+          color: #ffc18d;
+          margin: 14px 0 0;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-modal {
+          background:
+            radial-gradient(420px 220px at 0% 0%, rgba(255, 122, 26, 0.08), transparent 70%),
+            #ffffff;
+          border-color: #d9e1e7;
+          box-shadow: 0 34px 90px rgba(25, 42, 54, 0.18);
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-modal .pf-modal-close {
+          background: #f6f8f9;
+          border-color: #d8e0e5;
+          color: #263843;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-kicker {
+          color: #167c3d;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-heading h2 {
+          color: #16232c;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-heading > p {
+          color: #61727d;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-summary {
+          background: #f6f8f9;
+          border-color: #dce3e8;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-summary span,
+        html[data-theme="light"] body .pf-page .pf-company-verify-summary small {
+          color: #697b86;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-summary strong {
+          color: #16232c;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-benefits > div {
+          background: #f7f9fa;
+          border-color: #dce3e8;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-benefits > div > span {
+          background: #eaf8ef;
+          border-color: #bfe6cc;
+          color: #167c3d;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-benefits strong {
+          color: #263843;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-benefits small {
+          color: #697b86;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-price {
+          background: #effaf3;
+          border-color: #bde4ca;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-price-copy > strong {
+          color: #164b2c;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-price-copy > small,
+        html[data-theme="light"] body .pf-page .pf-company-verify-price-amount > span {
+          color: #52705d;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-price-amount > strong {
+          color: #137a3a;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-disclaimer {
+          color: #6b7c87;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-actions .secondary {
+          background: #ffffff;
+          border-color: #c8d2d9;
+          color: #334956;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-progress {
+          background: #effaf3;
+          border-color: #bde4ca;
+          color: #167c3d;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-progress strong {
+          color: #164b2c;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-progress span {
+          color: #52705d;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-error {
+          background: #fff1f1;
+          border-color: #f4c2c2;
+          color: #c92a2a;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-error strong {
+          color: #8e2020;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-error span {
+          color: #8b5151;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-paid {
+          background: #edf9f1;
+          border-color: #bee5ca;
+          color: #16803b;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-paid strong {
+          color: #154b28;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-paid span {
+          color: #52705d;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-head h2,
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-company strong,
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-item strong,
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-total strong {
+          color: #16232c;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-head p,
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-company small,
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-company em,
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-item small,
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-trust span {
+          color: #657782;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-summary {
+          background: #f7f9fa;
+          border-color: #dce3e8;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-company {
+          background: #fff7f0;
+          border-color: #ffd9bd;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-item,
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-trust {
+          border-color: #dce3e8;
+        }
+
+        html[data-theme="light"] body .pf-page .pf-company-verify-payment-total span {
+          color: #40535f;
+        }
+
+        @media (max-width: 860px) {
+          html body .pf-page .pf-company-verify-modal.is-payment {
+            max-width: min(620px, calc(100vw - 24px));
+            width: min(620px, calc(100vw - 24px));
+          }
+
+          html body .pf-page .pf-company-verify-payment-layout {
+            grid-template-columns: 1fr;
+          }
+
+          html body .pf-page .pf-company-verify-payment-summary {
+            order: 1;
+          }
+
+          html body .pf-page .pf-company-verify-payment-shell {
+            order: 2;
+          }
+        }
+
+        @media (max-width: 520px) {
+          html body .pf-page .pf-company-verify-modal {
+            border-radius: 18px;
+            padding: 26px 20px 22px;
+          }
+
+          html body .pf-page .pf-company-verify-modal.is-payment {
+            border-radius: 16px;
+            max-width: calc(100vw - 16px);
+            padding: 0;
+            width: calc(100vw - 16px);
+          }
+
+          html body .pf-page .pf-company-verify-payment-view {
+            padding: 22px 12px 14px;
+          }
+
+          html body .pf-page .pf-company-verify-payment-head {
+            align-items: flex-start;
+            margin-bottom: 19px;
+            padding-right: 25px;
+          }
+
+          html body .pf-page .pf-company-verify-payment-mark {
+            flex-basis: 44px;
+            height: 44px;
+          }
+
+          html body .pf-page .pf-company-verify-payment-head h2 {
+            font-size: 22px;
+          }
+
+          html body .pf-page .pf-company-verify-payment-head p {
+            font-size: 12px;
+          }
+
+          html body .pf-page .pf-company-verify-payment-summary {
+            padding: 15px;
+          }
+
+          html body .pf-page .pf-company-verify-payment-shell-head {
+            align-items: flex-start;
+            padding: 12px;
+          }
+
+          html body .pf-page .pf-company-verify-payment-shell-head > span {
+            display: none;
+          }
+
+          html body .pf-page .pf-company-verify-heading h2 {
+            font-size: 26px;
+          }
+
+          html body .pf-page .pf-company-verify-brand-row {
+            margin-right: 42px;
+          }
+
+          html body .pf-page .pf-company-verify-benefits {
+            grid-template-columns: 1fr;
+          }
+
+          html body .pf-page .pf-company-verify-benefits > div {
+            min-height: 0;
+          }
+
+          html body .pf-page .pf-company-verify-price {
+            align-items: flex-start;
+          }
+
+          html body .pf-page .pf-company-verify-price-copy > small {
+            max-width: 180px;
+          }
+
+          html body .pf-page .pf-company-verify-price-amount > strong {
+            font-size: 24px;
+          }
+
+          html body .pf-page .pf-company-verify-actions {
+            grid-template-columns: 1fr;
+          }
         }
 
         @media (min-width: 761px) {
@@ -11543,6 +12859,22 @@ export default function ProfilePage() {
             padding: 4px 6px !important;
             font-size: 10px !important;
           }
+        }
+
+        /* Keep the compact change actions crisp and make the website shortcut
+           easier to recognise without altering the surrounding row layout. */
+        html body main.pf-page .pf-phone-change-btn,
+        html body main.pf-page .pf-phone-change-btn:hover:not(:disabled),
+        html body main.pf-page .pf-phone-change-btn:focus-visible {
+          box-shadow: none !important;
+          filter: none !important;
+          text-shadow: none !important;
+        }
+
+        html body main.pf-page .pf-info-website-value .pf-website-link svg {
+          width: 18px !important;
+          height: 18px !important;
+          stroke-width: 2.25 !important;
         }
       `}</style>
 

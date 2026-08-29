@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createSign } from "node:crypto";
+import { prepareMaskinesEmailBrand, withMaskinesEmailTheme } from "@/lib/email-brand";
 
 type GmailCredentials = {
   client_email: string;
@@ -13,6 +14,14 @@ type GmailMessage = {
   html: string;
   text: string;
   replyTo?: string;
+  headers?: Record<string, string>;
+  attachments?: Array<{
+    filename: string;
+    content: Buffer | string;
+    contentType?: string;
+    contentId?: string;
+  }>;
+  branding?: "maskines" | "neutral";
 };
 
 type CachedAccessToken = {
@@ -74,7 +83,7 @@ async function gmailAccessToken() {
   }
 
   const credentials = credentialsFromEnvironment();
-  const sender = process.env.GMAIL_SENDER_EMAIL?.trim() || "info@maskines.com";
+  const sender = "info@maskines.com";
   const now = Math.floor(Date.now() / 1000);
   const header = base64Url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
   const claims = base64Url(
@@ -129,36 +138,89 @@ async function gmailAccessToken() {
 }
 
 function buildMimeMessage(input: GmailMessage) {
-  const boundary = `maskines_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-  const sender = process.env.GMAIL_SENDER_EMAIL?.trim() || "info@maskines.com";
+  const mixedBoundary = `maskines_mixed_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  const relatedBoundary = `maskines_related_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  const alternativeBoundary = `maskines_alt_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  const sender = "info@maskines.com";
   const headers = [
     `From: Maskines <${cleanHeader(sender)}>`,
     `To: ${cleanHeader(input.to)}`,
     `Subject: ${encodedHeader(input.subject)}`,
     ...(input.replyTo ? [`Reply-To: ${cleanHeader(input.replyTo)}`] : []),
+    ...Object.entries(input.headers ?? {}).map(([key, value]) => `${cleanHeader(key)}: ${cleanHeader(value)}`),
     "MIME-Version: 1.0",
-    `Content-Type: multipart/alternative; boundary="${boundary}"`
+    `Content-Type: multipart/mixed; boundary="${mixedBoundary}"`
   ];
+  const inlineAttachments = (input.attachments ?? []).filter(
+    (attachment) => attachment.contentId
+  );
+  const regularAttachments = (input.attachments ?? []).filter(
+    (attachment) => !attachment.contentId
+  );
   const parts = [
-    `--${boundary}`,
+    `--${mixedBoundary}`,
+    `Content-Type: multipart/related; boundary="${relatedBoundary}"`,
+    "",
+    `--${relatedBoundary}`,
+    `Content-Type: multipart/alternative; boundary="${alternativeBoundary}"`,
+    "",
+    `--${alternativeBoundary}`,
     'Content-Type: text/plain; charset="UTF-8"',
     "Content-Transfer-Encoding: base64",
     "",
     Buffer.from(input.text, "utf8").toString("base64"),
-    `--${boundary}`,
+    `--${alternativeBoundary}`,
     'Content-Type: text/html; charset="UTF-8"',
     "Content-Transfer-Encoding: base64",
     "",
     Buffer.from(input.html, "utf8").toString("base64"),
-    `--${boundary}--`,
-    ""
+    `--${alternativeBoundary}--`,
+    "",
+    ...inlineAttachments.flatMap((attachment) => [
+      `--${relatedBoundary}`,
+      `Content-Type: ${attachment.contentType || "application/octet-stream"}; name="${cleanHeader(attachment.filename)}"`,
+      `Content-Disposition: inline; filename="${cleanHeader(attachment.filename)}"`,
+      `Content-ID: <${cleanHeader(attachment.contentId ?? "")}>`,
+      "Content-Transfer-Encoding: base64",
+      "",
+      Buffer.isBuffer(attachment.content)
+        ? attachment.content.toString("base64")
+        : Buffer.from(attachment.content, "utf8").toString("base64"),
+    ]),
+    `--${relatedBoundary}--`,
+    "",
+    ...regularAttachments.flatMap((attachment) => [
+      `--${mixedBoundary}`,
+      `Content-Type: ${attachment.contentType || "application/octet-stream"}; name="${cleanHeader(attachment.filename)}"`,
+      `Content-Disposition: attachment; filename="${cleanHeader(attachment.filename)}"`,
+      "Content-Transfer-Encoding: base64",
+      "",
+      Buffer.isBuffer(attachment.content)
+        ? attachment.content.toString("base64")
+        : Buffer.from(attachment.content, "utf8").toString("base64"),
+    ]),
+    `--${mixedBoundary}--`,
+    "",
   ];
 
   return [...headers, "", ...parts].join("\r\n");
 }
 
 export async function sendGmailMessage(input: GmailMessage) {
-  const sender = process.env.GMAIL_SENDER_EMAIL?.trim() || "info@maskines.com";
+  const sender = "info@maskines.com";
+  const brandedEmail = input.branding === "neutral"
+    ? { html: withMaskinesEmailTheme(input.html), attachments: [] }
+    : await prepareMaskinesEmailBrand(input.html);
+  const preparedInput = {
+    ...input,
+    html: brandedEmail.html,
+    attachments: [
+      ...(input.attachments ?? []).filter(
+        (attachment) => !brandedEmail.attachments.some((brand) => attachment.contentId === brand.contentId)
+      ),
+      ...brandedEmail.attachments
+    ]
+  };
   const accessToken = await gmailAccessToken();
   const response = await fetch(
     `https://gmail.googleapis.com/gmail/v1/users/${encodeURIComponent(sender)}/messages/send`,
@@ -169,7 +231,7 @@ export async function sendGmailMessage(input: GmailMessage) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        raw: base64Url(buildMimeMessage(input))
+        raw: base64Url(buildMimeMessage(preparedInput))
       }),
       cache: "no-store"
     }

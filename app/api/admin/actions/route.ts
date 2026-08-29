@@ -3,6 +3,12 @@ import { createClient } from "@supabase/supabase-js";
 import { createHash, randomBytes } from "node:crypto";
 import { isIP } from "node:net";
 
+import { sendAuthEmail } from "@/lib/auth-email-sender";
+import { companyVerificationDecisionEmail } from "@/lib/company-verification-decision-email";
+import { normalizeEmailLocale } from "@/lib/email-template";
+import { profileRootPath } from "@/lib/routes";
+import { absoluteSiteUrl } from "@/lib/site-url";
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
@@ -19,6 +25,7 @@ type AdminActionBody =
   | { action: "unban-ip"; ip?: string }
   | { action: "delete-listing"; listingId?: string; reason?: string | null; approvalToken?: string }
   | { action: "delete-user"; userId?: string; approvalToken?: string }
+  | { action: "company-verification-decision"; userId?: string; decision?: "approved" | "rejected"; reason?: string | null }
   | { action: "list-profiles"; query?: string; limit?: number; offset?: number }
   | { action: "activity-feed"; cursor?: string | null; limit?: number }
   | { action: "presence-summary" }
@@ -461,6 +468,10 @@ function normalizeProfile(row: Record<string, unknown>) {
     business_id: row.business_id ? String(row.business_id) : null,
     company_verified_at: row.company_verified_at ? String(row.company_verified_at) : null,
     company_verification_requested_at: row.company_verification_requested_at ? String(row.company_verification_requested_at) : null,
+    company_verification_status: row.company_verification_status ? String(row.company_verification_status) : null,
+    company_verification_rejection_reason: row.company_verification_rejection_reason ? String(row.company_verification_rejection_reason) : null,
+    company_verification_decided_at: row.company_verification_decided_at ? String(row.company_verification_decided_at) : null,
+    preferred_locale: row.preferred_locale ? String(row.preferred_locale) : null,
     address: row.address ? String(row.address) : null,
     postal_code: row.postal_code ? String(row.postal_code) : null,
     city: row.city ? String(row.city) : null,
@@ -1068,6 +1079,128 @@ export async function POST(request: Request) {
         });
 
       return NextResponse.json({ data: rows });
+    }
+
+    if (body.action === "company-verification-decision") {
+      if (!body.userId || (body.decision !== "approved" && body.decision !== "rejected")) {
+        return NextResponse.json({ error: "Yritys tai päätös puuttuu." }, { status: 400 });
+      }
+
+      const reason = normalizeAdminText(body.reason, 600);
+      if (body.decision === "rejected" && reason.length > 600) {
+        return NextResponse.json({ error: "Hylkäyksen perustelu on liian pitkä." }, { status: 400 });
+      }
+
+      const { data: profile, error: profileError } = await admin
+        .from("profiles")
+        .select("id,email,account_type,company_name,business_id,country,preferred_locale,company_verified_at,company_verification_requested_at")
+        .eq("id", body.userId)
+        .maybeSingle<{
+          id: string;
+          email: string | null;
+          account_type: string | null;
+          company_name: string | null;
+          business_id: string | null;
+          country: string | null;
+          preferred_locale: string | null;
+          company_verified_at: string | null;
+          company_verification_requested_at: string | null;
+        }>();
+
+      if (profileError) throw profileError;
+      if (!profile || profile.account_type !== "company") {
+        return NextResponse.json({ error: "Yritystiliä ei löytynyt." }, { status: 404 });
+      }
+      if (!profile.company_verification_requested_at) {
+        return NextResponse.json({ error: "Yrityksellä ei ole käsiteltävää vahvistuspyyntöä." }, { status: 409 });
+      }
+
+      const decidedAt = new Date().toISOString();
+      const verifiedAt = body.decision === "approved" ? decidedAt : null;
+      const decisionUpdate = {
+        company_verified_at: verifiedAt,
+        company_verification_requested_at: null,
+        company_verification_status: body.decision,
+        company_verification_rejection_reason: body.decision === "rejected" ? reason || null : null,
+        company_verification_decided_at: decidedAt,
+        company_verification_decided_by: userId
+      };
+      let updateResult = await admin
+        .from("profiles")
+        .update(decisionUpdate)
+        .eq("id", profile.id)
+        .eq("company_verification_requested_at", profile.company_verification_requested_at)
+        .select("company_verified_at")
+        .maybeSingle<{ company_verified_at: string | null }>();
+
+      if (
+        updateResult.error &&
+        (
+          updateResult.error.code === "42703" ||
+          updateResult.error.code === "PGRST204" ||
+          updateResult.error.message.includes("company_verification_status")
+        )
+      ) {
+        updateResult = await admin
+          .from("profiles")
+          .update({
+            company_verified_at: verifiedAt,
+            company_verification_requested_at: null
+          })
+          .eq("id", profile.id)
+          .eq("company_verification_requested_at", profile.company_verification_requested_at)
+          .select("company_verified_at")
+          .maybeSingle<{ company_verified_at: string | null }>();
+      }
+      if (updateResult.error) throw updateResult.error;
+      if (!updateResult.data) {
+        return NextResponse.json({ error: "Vahvistuspyyntö oli jo käsitelty toisessa istunnossa." }, { status: 409 });
+      }
+
+      const { data: authUser } = await admin.auth.admin.getUserById(profile.id);
+      const recipient = profile.email?.trim() || authUser.user?.email?.trim() || "";
+      const metadataLocale = authUser.user?.user_metadata?.locale;
+      const countryLocale = profile.country?.toUpperCase() === "SE"
+        ? "sv"
+        : profile.country?.toUpperCase() === "NO"
+          ? "no"
+          : profile.country?.toUpperCase() === "FI"
+            ? "fi"
+            : "en";
+      const locale = normalizeEmailLocale(profile.preferred_locale ?? metadataLocale ?? countryLocale);
+      let emailSent = false;
+      let emailError: string | null = null;
+
+      if (recipient) {
+        try {
+          await sendAuthEmail({
+            to: recipient,
+            ...companyVerificationDecisionEmail({
+              locale,
+              decision: body.decision,
+              companyName: profile.company_name?.trim() || profile.business_id?.trim() || "Maskines company",
+              profileUrl: absoluteSiteUrl(`${profileRootPath(locale)}#tilin-turvallisuus`),
+              reason
+            }),
+            idempotencyKey: `company-verification-decision/${profile.id}/${body.decision}/${decidedAt}`
+          });
+          emailSent = true;
+        } catch (error) {
+          emailError = error instanceof Error ? error.message : "Sähköpostin lähetys epäonnistui.";
+          console.error("Company verification decision email failed", error);
+        }
+      } else {
+        emailError = "Yritystilillä ei ole sähköpostiosoitetta.";
+      }
+
+      return NextResponse.json({
+        ok: true,
+        decision: body.decision,
+        companyVerifiedAt: verifiedAt,
+        decidedAt,
+        emailSent,
+        emailError
+      });
     }
 
     if (body.action === "delete-user") {

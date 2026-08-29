@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { NAVIGATION_START_EVENT } from "@/lib/go-back";
@@ -35,11 +36,11 @@ export default function GlobalNavigationSpinner() {
 
       showTimer.current = window.setTimeout(() => {
         setVisible(true);
-      }, 100);
+      }, 0);
 
       hideTimer.current = window.setTimeout(() => {
         setVisible(false);
-      }, 8000);
+      }, 4500);
     };
 
     const handleClick = (event: MouseEvent) => {
@@ -60,11 +61,9 @@ export default function GlobalNavigationSpinner() {
       }
 
       if (nextUrl.origin !== window.location.origin) return;
-      if (
-        nextUrl.pathname === window.location.pathname &&
-        nextUrl.search === window.location.search &&
-        nextUrl.hash
-      ) {
+      // Staying on the same route does not change `pathname`, so showing the
+      // overlay here would leave it visible until the safety timer expires.
+      if (nextUrl.pathname === window.location.pathname) {
         return;
       }
 
@@ -94,7 +93,10 @@ export default function GlobalNavigationSpinner() {
 
   return (
     <div className="global-navigation-spinner" role="status" aria-live="polite" aria-label="Siirrytään">
-      <span aria-hidden="true" />
+      <span className="global-navigation-brand" aria-hidden="true">
+        <Image className="maskines-loading-logo maskines-loading-logo-light" src="/maskines-brand-mark-clean-v4.png" alt="" width={180} height={141} priority unoptimized />
+        <Image className="maskines-loading-logo maskines-loading-logo-dark" src="/maskines-brand-mark-dark-clean-v4.png" alt="" width={180} height={141} priority unoptimized />
+      </span>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import "server-only";
 
+import { MASKINES_EMAIL_LOGOS, MASKINES_EMAIL_THEME_HEAD } from "@/lib/email-brand";
+
 export type NotificationEmailLocale = "fi" | "en" | "sv" | "no";
 
 type EmailResult = {
@@ -122,6 +124,7 @@ function emailFrame(input: {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>${escapeHtml(input.title)}</title>
+    ${MASKINES_EMAIL_THEME_HEAD}
     <style>
       @media only screen and (max-width: 680px) {
         .email-shell { padding: 12px 8px; }
@@ -136,36 +139,34 @@ function emailFrame(input: {
       }
     </style>
   </head>
-  <body style="margin:0;padding:0;background:#f3f6f8;color:#f7fafc;">
+  <body class="email-bg" style="margin:0;padding:0;background:#f3f6f8;color:#10243e;">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(input.preheader)}</div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background:#f3f6f8;">
+    <table class="email-bg" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;background:#f3f6f8;">
       <tr>
         <td class="email-shell" align="center" style="padding:28px 16px 34px;">
-          <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;max-width:640px;overflow:hidden;border:1px solid #24384b;border-radius:18px;background:#0d1b29;box-shadow:0 12px 32px rgba(7,17,29,.16);">
+          <table class="email-card" role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;max-width:640px;overflow:hidden;border:1px solid #d8e2eb;border-radius:18px;background:#ffffff;box-shadow:0 12px 32px rgba(7,17,29,.10);">
             ${input.brandedHeader ? `<tr>
-              <td class="email-header" align="center" style="padding:27px 24px 24px;border-bottom:5px solid #ff7a1a;background:#071c31;">
-                <img src="https://maskines.com/maskines-email-logo.png" width="82" height="82" alt="Maskines" style="display:block;width:82px;height:82px;margin:0 auto 10px;border:0;border-radius:50%;">
-                <div style="font:900 italic 27px/32px Arial,Helvetica,sans-serif;letter-spacing:.7px;color:#ffffff;">MASKINES</div>
-                <div style="margin-top:3px;font:800 10px/14px Arial,Helvetica,sans-serif;letter-spacing:4px;color:#ff7a1a;">MARKETPLACE</div>
+              <td class="email-header email-brand-header" align="center" bgcolor="#202124" style="padding:27px 24px 24px;border-bottom:5px solid #ff7a1a;background:#202124;">
+                ${MASKINES_EMAIL_LOGOS}
               </td>
             </tr>` : `<tr>
               <td style="height:6px;background:#ff7a1a;font-size:0;line-height:0;">&nbsp;</td>
             </tr>
             <tr>
-              <td class="email-header" style="padding:23px 30px;border-bottom:1px solid #213548;">
+              <td class="email-header" style="padding:23px 30px;border-bottom:1px solid #d8e2eb;background:#ffffff;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                   <tr>
-                    <td style="font:900 23px/1 Arial,Helvetica,sans-serif;letter-spacing:.4px;color:#ffffff;">MASKINES</td>
+                    <td class="email-heading" style="font:900 23px/1 Arial,Helvetica,sans-serif;letter-spacing:.4px;color:#10243e;">MASKINES</td>
                     <td align="right" style="font:800 11px/1 Arial,Helvetica,sans-serif;letter-spacing:1.6px;color:#ff9a4d;">${escapeHtml(input.eyebrow)}</td>
                   </tr>
                 </table>
               </td>
             </tr>`}
             <tr>
-              <td class="email-content" style="padding:30px 30px 28px;">
+              <td class="email-content" style="padding:30px 30px 28px;background:#ffffff;">
                 ${input.brandedHeader ? `<p style="margin:0 0 12px;font:800 11px/1 Arial,Helvetica,sans-serif;letter-spacing:1.6px;color:#ff9a4d;">${escapeHtml(input.eyebrow)}</p>` : ""}
-                <h1 class="email-title" style="margin:0 0 11px;font:900 30px/1.15 Arial,Helvetica,sans-serif;color:#ffffff;">${escapeHtml(input.title)}</h1>
-                <p style="margin:0 0 23px;font:500 16px/1.55 Arial,Helvetica,sans-serif;color:#c2ceda;">${escapeHtml(input.lead)}</p>
+                <h1 class="email-title" style="margin:0 0 11px;font:900 30px/1.15 Arial,Helvetica,sans-serif;color:#10243e;">${escapeHtml(input.title)}</h1>
+                <p class="email-copy" style="margin:0 0 23px;font:500 16px/1.55 Arial,Helvetica,sans-serif;color:#60738a;">${escapeHtml(input.lead)}</p>
                 ${input.card}
                 <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:23px;">
                   <tr>
@@ -174,14 +175,14 @@ function emailFrame(input: {
                     </td>
                   </tr>
                 </table>
-                ${input.note ? `<p style="margin:20px 0 0;font:500 13px/1.55 Arial,Helvetica,sans-serif;color:#91a3b4;">${escapeHtml(input.note)}</p>` : ""}
+                ${input.note ? `<p class="email-muted" style="margin:20px 0 0;font:500 13px/1.55 Arial,Helvetica,sans-serif;color:#718399;">${escapeHtml(input.note)}</p>` : ""}
               </td>
             </tr>
             <tr>
-              <td class="email-footer" style="padding:18px 30px;border-top:1px solid #213548;background:#0a1723;">
+              <td class="email-footer" style="padding:18px 30px;border-top:1px solid #e1e8ef;background:#f8fafc;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                   <tr>
-                    <td class="email-footer-copy" style="padding-right:18px;font:500 12px/1.55 Arial,Helvetica,sans-serif;color:#8295a7;">
+                    <td class="email-footer-copy email-muted" style="padding-right:18px;font:500 12px/1.55 Arial,Helvetica,sans-serif;color:#718399;">
                       ${escapeHtml(input.settingsText)}
                     </td>
                     <td class="email-footer-action" align="right" style="white-space:nowrap;">
@@ -214,9 +215,9 @@ export function searchAlertEmail(input: {
     maximumFractionDigits: 0
   }).format(input.price);
   const card = `
-    <div style="padding:21px;border:1px solid #294158;border-radius:13px;background:#102335;">
+    <div class="email-panel" style="padding:21px;border:1px solid #d8e2eb;border-radius:13px;background:#f7f9fb;">
       <p style="margin:0 0 7px;font:800 11px/1 Arial,Helvetica,sans-serif;letter-spacing:1.2px;color:#ff9a4d;">${escapeHtml(String(text.alertLabel).toUpperCase())}: ${escapeHtml(input.alertLabel)}</p>
-      <p style="margin:0 0 10px;font:800 18px/1.35 Arial,Helvetica,sans-serif;color:#ffffff;">${escapeHtml(input.listingTitle)}</p>
+      <p class="email-strong" style="margin:0 0 10px;font:800 18px/1.35 Arial,Helvetica,sans-serif;color:#10243e;">${escapeHtml(input.listingTitle)}</p>
       <p style="margin:0;font:900 25px/1 Arial,Helvetica,sans-serif;color:#ff8a2a;">${escapeHtml(price)}</p>
     </div>`;
   const html = emailFrame({
@@ -230,7 +231,8 @@ export function searchAlertEmail(input: {
     actionUrl: input.listingUrl,
     settingsText: String(text.settings),
     settingsLabel: String(text.settingsLink),
-    settingsUrl: input.settingsUrl
+    settingsUrl: input.settingsUrl,
+    brandedHeader: true
   });
 
   return {
@@ -260,9 +262,9 @@ export function newMessageEmail(input: {
   const text = copy[input.locale];
   const lead = (text.messageLead as (sender: string) => string)(input.senderName);
   const card = `
-    <div style="padding:21px;border:1px solid #294158;border-radius:13px;background:#102335;">
+    <div class="email-panel" style="padding:21px;border:1px solid #d8e2eb;border-radius:13px;background:#f7f9fb;">
       <p style="margin:0 0 7px;font:800 11px/1 Arial,Helvetica,sans-serif;letter-spacing:1.2px;color:#ff9a4d;">${escapeHtml(String(text.listingLabel).toUpperCase())}</p>
-      <p style="margin:0;font:800 18px/1.35 Arial,Helvetica,sans-serif;color:#ffffff;">${escapeHtml(input.listingTitle)}</p>
+      <p class="email-strong" style="margin:0;font:800 18px/1.35 Arial,Helvetica,sans-serif;color:#10243e;">${escapeHtml(input.listingTitle)}</p>
     </div>`;
   const html = emailFrame({
     locale: input.locale,

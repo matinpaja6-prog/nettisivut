@@ -4,7 +4,7 @@ export type UserSettings = {
   theme: UserTheme;
 };
 
-export type UserTheme = "dark" | "light";
+export type UserTheme = "dark" | "light" | "system";
 
 export const USER_SETTINGS_STORAGE_KEY = "maskines-user-settings-v1";
 export const USER_SETTINGS_EVENT = "maskines-user-settings-changed";
@@ -23,7 +23,7 @@ function normalizeSettings(value: unknown): UserSettings {
   return {
     notificationsEnabled: raw.notificationsEnabled ?? defaultUserSettings.notificationsEnabled,
     notificationSoundEnabled: raw.notificationSoundEnabled ?? defaultUserSettings.notificationSoundEnabled,
-    theme: raw.theme === "light" || raw.theme === "dark" ? raw.theme : legacyTheme
+    theme: raw.theme === "light" || raw.theme === "dark" || raw.theme === "system" ? raw.theme : legacyTheme
   };
 }
 
@@ -48,7 +48,12 @@ export function applyUserTheme(theme: UserTheme) {
   if (typeof document === "undefined") return;
 
   const root = document.documentElement;
-  const isLight = theme === "light";
+  const resolvedTheme = theme === "system"
+    ? typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: light)").matches
+      ? "light"
+      : "dark"
+    : theme;
+  const isLight = resolvedTheme === "light";
   const palette = isLight
     ? {
         background: "#f0f2f3",
@@ -81,9 +86,10 @@ export function applyUserTheme(theme: UserTheme) {
         divider: "rgba(151, 178, 205, 0.12)"
       };
 
-  root.dataset.theme = theme;
-  root.dataset.userBackgroundTone = theme;
-  root.style.colorScheme = theme;
+  root.dataset.theme = resolvedTheme;
+  root.dataset.userBackgroundTone = resolvedTheme;
+  root.dataset.themePreference = theme;
+  root.style.colorScheme = resolvedTheme;
   root.style.setProperty("--maskines-page-background", palette.background);
   root.style.setProperty("--maskines-page-text", palette.text);
   root.style.setProperty("--maskines-page-muted", palette.muted);

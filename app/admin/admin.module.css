@@ -1262,6 +1262,9 @@
 .sidebarBrandIcon svg {
   fill: currentColor; stroke-width: 0;
 }
+.sidebarBrandIcon img {
+  display: block; height: auto; object-fit: contain; width: 48px;
+}
 .sidebarNav {
   gap: 8px;
 }
@@ -1988,4 +1991,313 @@
 }
 .profileDetailRow strong {
   color: #f7fbff; font-size: 0.88rem; line-height: 1.3; overflow-wrap: anywhere;
+}
+
+/* Company verification workflow */
+.companyVerificationPanel {
+  display: grid;
+  gap: 20px;
+}
+.companyVerificationSummary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(130px, 1fr)) auto;
+  gap: 10px;
+  align-items: stretch;
+}
+.companyVerificationSummary > div {
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(77, 184, 238, 0.2);
+  border-radius: 14px;
+  background: rgba(8, 31, 51, 0.72);
+}
+.companyVerificationSummary span,
+.companyVerificationDetails span {
+  display: block;
+  color: #8fb3cb;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+.companyVerificationSummary strong {
+  display: block;
+  margin-top: 5px;
+  color: #f7fbff;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+.companyVerificationSummary button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+.companyVerificationGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.companyVerificationCard {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  padding: 19px;
+  border: 1px solid rgba(77, 184, 238, 0.26);
+  border-radius: 18px;
+  background: linear-gradient(155deg, rgba(11, 34, 55, 0.96), rgba(6, 23, 40, 0.98));
+  box-shadow: 0 16px 36px rgba(1, 11, 23, 0.16);
+}
+.companyVerificationCardHead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+.companyVerificationIcon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(255, 116, 23, 0.34);
+  border-radius: 12px;
+  background: rgba(255, 116, 23, 0.12);
+  color: #ff8a3d;
+}
+.companyVerificationCardHead span:first-child {
+  display: block;
+  color: #fbbf24;
+  font-size: 0.65rem;
+  font-weight: 950;
+  letter-spacing: 0.07em;
+}
+.companyVerificationCardHead h3 {
+  margin: 5px 0 2px;
+  color: #ffffff;
+  font-size: 1.12rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.companyVerificationCardHead p {
+  margin: 0;
+  color: #9eb3c6;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+.companyVerificationAge {
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(250, 204, 21, 0.1);
+  color: #fde68a !important;
+  font-size: 0.7rem !important;
+  white-space: nowrap;
+}
+.companyVerificationDetails {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.companyVerificationDetails > div {
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid rgba(125, 211, 252, 0.13);
+  border-radius: 10px;
+  background: rgba(4, 20, 35, 0.54);
+}
+.companyVerificationDetails strong {
+  display: block;
+  margin-top: 4px;
+  color: #e9f4fb;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.companyVerificationWide {
+  grid-column: 1 / -1;
+}
+.companyVerificationActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.companyVerificationActions button,
+.companyApproveBtn,
+.companyRejectBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 11px;
+  padding: 10px 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.companyApproveBtn {
+  background: linear-gradient(135deg, #159447, #22b95b);
+  color: #ffffff;
+  box-shadow: 0 9px 20px rgba(21, 148, 71, 0.2);
+}
+.companyRejectBtn {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.34) !important;
+  color: #fca5a5;
+}
+.companyApproveBtn:hover,
+.companyRejectBtn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+.companyApproveBtn:disabled,
+.companyRejectBtn:disabled,
+.companyVerificationActions button:disabled {
+  cursor: wait;
+  opacity: 0.58;
+  transform: none;
+}
+.companyRejectionBox {
+  display: grid;
+  gap: 7px;
+  padding: 13px;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 12px;
+  background: rgba(127, 29, 29, 0.11);
+}
+.companyRejectionBox label {
+  color: #fecaca;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+.companyRejectionBox textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 10px;
+  outline: none;
+  background: rgba(3, 15, 27, 0.78);
+  color: #ffffff;
+  padding: 11px 12px;
+  font: inherit;
+  line-height: 1.45;
+}
+.companyRejectionBox textarea:focus {
+  border-color: #f87171;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.12);
+}
+.companyRejectionBox small,
+.companyVerificationMailNote {
+  color: #91a8bb;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+.companyVerificationMailNote {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.companyVerificationEmpty {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  padding: 42px 20px;
+  border: 1px dashed rgba(74, 222, 128, 0.34);
+  border-radius: 18px;
+  background: rgba(20, 83, 45, 0.08);
+  color: #86efac;
+  text-align: center;
+}
+.companyVerificationEmpty strong {
+  color: #f0fdf4;
+  font-size: 1rem;
+}
+.companyVerificationEmpty span {
+  max-width: 440px;
+  color: #9eb3c6;
+  font-size: 0.82rem;
+}
+.companyDecisionHistory {
+  display: grid;
+  gap: 7px;
+  padding-top: 5px;
+}
+.companyDecisionHistoryTitle {
+  padding: 4px 2px 7px;
+}
+.companyDecisionHistoryTitle span,
+.companyDecisionHistoryTitle strong {
+  display: block;
+}
+.companyDecisionHistoryTitle span {
+  color: #7dd3fc;
+  font-size: 0.68rem;
+  font-weight: 950;
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+.companyDecisionHistoryTitle strong {
+  margin-top: 3px;
+  color: #f7fbff;
+}
+.companyDecisionHistory > button {
+  display: grid;
+  grid-template-columns: 105px minmax(0, 1fr) minmax(110px, 0.55fr) auto;
+  gap: 11px;
+  align-items: center;
+  width: 100%;
+  border: 1px solid rgba(77, 184, 238, 0.16);
+  border-radius: 11px;
+  background: rgba(5, 24, 42, 0.58);
+  color: #e9f4fb;
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.companyDecisionHistory > button:hover {
+  border-color: rgba(77, 184, 238, 0.4);
+  background: rgba(9, 39, 65, 0.74);
+}
+.companyDecisionHistory > button strong,
+.companyDecisionHistory > button small,
+.companyDecisionHistory > button time {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.companyDecisionHistory > button small,
+.companyDecisionHistory > button time {
+  color: #91a8bb;
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+.companyDecisionApproved,
+.companyDecisionRejected {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 5px 8px;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+.companyDecisionApproved { background: rgba(34, 197, 94, 0.12); color: #86efac; }
+.companyDecisionRejected { background: rgba(239, 68, 68, 0.12); color: #fca5a5; }
+@media (max-width: 980px) {
+  .companyVerificationGrid { grid-template-columns: 1fr; }
+  .companyVerificationSummary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .companyVerificationSummary button { grid-column: 1 / -1; }
+}
+@media (max-width: 620px) {
+  .companyVerificationSummary { grid-template-columns: 1fr; }
+  .companyVerificationSummary button { grid-column: auto; }
+  .companyVerificationCardHead { grid-template-columns: auto minmax(0, 1fr); }
+  .companyVerificationAge { grid-column: 2; justify-self: start; }
+  .companyVerificationDetails { grid-template-columns: 1fr; }
+  .companyVerificationWide { grid-column: auto; }
+  .companyVerificationActions { align-items: stretch; flex-direction: column; }
+  .companyVerificationActions button { width: 100%; }
+  .companyVerificationMailNote { justify-content: flex-start; }
+  .companyDecisionHistory > button { grid-template-columns: 1fr; }
 }

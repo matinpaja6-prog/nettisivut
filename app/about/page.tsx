@@ -1,156 +1,169 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  ChevronRight,
-  Globe2,
-  HandHeart,
-  Heart,
-  Headphones,
-  Search,
-  ShieldCheck,
-  Tag,
-  ThumbsUp,
-  UsersRound
-} from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { useLanguage } from "@/lib/i18n";
-import { pagePath } from "@/lib/routes";
-
-const featureIcons = [Search, Tag, ShieldCheck, Headphones];
 
 const aboutCopy = {
   fi: {
-    kicker: "Tietoa meistä",
-    titleTop: "Varaosamaailma.",
-    titleBottom: "Rakennettu",
-    titleHighlight: "harrastajille.",
-    intro: "Maskines kokoaa moottorikelkkojen, mönkijöiden, motocross-pyörien ja mopojen varaosat yhteen selkeään paikkaan. Tavoitteenamme on tehdä oikean osan löytämisestä nopeaa ja myymisestä vaivatonta.",
-    createListing: "Luo ilmoitus",
-    viewHelp: "Katso ohjeet",
-    aboutMaskines: "Tietoa Maskinesista",
-    why: "Miksi Maskines?",
-    featuresTitle: "Tehty harrastajille, harrastajien kanssa.",
-    featuresLead: "Ymmärrämme tarpeesi, koska jaamme saman intohimon.",
-    features: [
-      ["Oikea osa nopeasti", "Tehokas haku ja selkeät ilmoitukset auttavat löytämään juuri sen oikean osan."],
-      ["Myy helpommin, myy enemmän", "Yksi ilmoitus, monta osaa. Parempi näkyvyys tuo enemmän ostajia ja parempia kauppoja."],
-      ["Turvallinen kauppapaikka", "Luotettava ympäristö ja selkeät pelisäännöt suojaavat sekä ostajaa että myyjää."],
-      ["Apua aina tarvittaessa", "Asiakastuki ja ohjeet ovat aina saatavilla, kun tarvitset apua eteenpäin."]
+    kicker: "Meistä",
+    titleTop: "Harrastuksesta syntynyt.",
+    titleHighlight: "Yhteisölle rakennettu.",
+    intro: "Maskines yhdistää varaosat, ajoneuvot, ajovarusteet ja ihmiset yhdessä selkeässä pohjoismaisessa markkinapaikassa.",
+    marketplaceKicker: "Markkinapaikka",
+    marketplaceTitle: "Kaikki harrastukseen. Yhdestä paikasta.",
+    searchPlaceholder: "Hae varaosia tai ajoneuvoja",
+    searchCta: "Hae",
+    categories: ["Varaosat", "Ajoneuvot", "Ajovarusteet"],
+    marketplaceActions: "Osta · Myy · Löydä",
+    storyTitle: "Meidän tarinamme",
+    story: [
+      "Maskines perustettiin toukokuussa 2026 harrastajien tarpeesta tehdä varaosien, ajoneuvojen ja ajovarusteiden kaupasta helpompaa.",
+      "Rakennamme palvelua yhdessä käyttäjien, myyjien ja alan yritysten kanssa. Tavoitteena on markkinapaikka, jossa oikea tuote löytyy nopeasti ja kaupankäynti tuntuu selkeältä alusta loppuun."
     ],
-    numbersKicker: "Maskines lukuina",
-    numbersTitle: "Vahva yhteisö, joka kasvaa joka päivä.",
-    missionTitle: "Missiomme",
-    missionText: "Haluamme olla Pohjoismaiden johtava varaosamarkkinapaikka, jossa jokainen osa löytää uuden elämän ja jokainen kauppa vie harrastusta eteenpäin.",
-    communityAria: "Yhteisön lupaus",
-    communityTitle: "Harrastajalta harrastajalle.",
-    communityText: "Maskines tekee varaosien ostamisesta ja myymisestä selkeämpää, jotta aikaa jää sille mikä oikeasti kiinnostaa: ajamiselle, rakentamiselle ja seuraavalle projektille.",
+    whyTitle: "Miksi Maskines?",
+    features: [
+      ["Oikea osa nopeammin", "Älykäs haku ja tarkat suodattimet auttavat löytämään oikean tuotteen ilman turhaa selaamista."],
+      ["Turvallinen kauppapaikka", "Selkeät ilmoitukset, myyjäprofiilit ja yhteiset pelisäännöt tukevat luotettavaa kaupankäyntiä."],
+      ["Pohjoismainen yhteisö", "Maskines kokoaa harrastajat, yksityiset myyjät ja alan yritykset samaan palveluun."],
+      ["Harrastajalta harrastajalle", "Palvelua kehitetään käytännön tarpeisiin, jotta aikaa jää ajamiseen, rakentamiseen ja seuraavaan projektiin."]
+    ],
+    numbersTitle: "Maskines juuri nyt",
+    quote: "Rakennamme Maskinesia joka päivä käyttäjiemme kanssa — selkeämmäksi, turvallisemmaksi ja hyödyllisemmäksi koko harrastajayhteisölle.",
+    quoteBy: "Maskinesin lupaus",
+    faqTitle: "Usein kysyttyä",
+    faqs: [
+      ["Mitä Maskinesissa voi tehdä?", "Maskinesissa voit ostaa ja myydä varaosia, ajoneuvoja ja ajovarusteita sekä löytää harrastajia ja alan yrityksiä eri puolilta Pohjoismaita."],
+      ["Mitä Maskinesissa voi myydä?", "Voit myydä varaosia, kokonaisia ajoneuvoja ja ajovarusteita."]
+    ],
+    ctaTitle: "Löydä seuraava osa jo tänään.",
+    ctaButton: "Tutustu ilmoituksiin",
     stats: {
-      vehicleClass: ["ajoneuvoluokka ilmoituksissa", "ajoneuvoluokkaa ilmoituksissa"],
-      activeListing: ["aktiivinen ilmoitus", "aktiivista ilmoitusta"],
-      activeSeller: ["aktiivinen myyjä", "aktiivista myyjää"],
       registeredUser: ["rekisteröitynyt käyttäjä", "rekisteröitynyttä käyttäjää"],
-      country: ["maa ilmoituksissa", "maata ilmoituksissa"]
+      activeListing: ["aktiivinen ilmoitus", "aktiivista ilmoitusta"],
+      country: ["maa ilmoituksissa", "maata ilmoituksissa"],
+      activeSeller: ["aktiivinen myyjä", "aktiivista myyjää"]
     }
   },
   en: {
     kicker: "About us",
-    titleTop: "The world of spare parts.",
-    titleBottom: "Built for",
-    titleHighlight: "enthusiasts.",
-    intro: "Maskines brings snowmobile, ATV, motocross and moped parts together in one clear marketplace. Our goal is to make finding the right part fast and selling effortless.",
-    createListing: "Create listing",
-    viewHelp: "View instructions",
-    aboutMaskines: "About Maskines",
-    why: "Why Maskines?",
-    featuresTitle: "Built for enthusiasts, together with enthusiasts.",
-    featuresLead: "We understand your needs because we share the same passion.",
-    features: [
-      ["Find the right part fast", "Powerful search and clear listings help you find exactly the right part."],
-      ["Sell more easily", "One listing, multiple parts. Better visibility brings more buyers and better deals."],
-      ["A safe marketplace", "A trusted environment and clear rules protect both buyers and sellers."],
-      ["Help when you need it", "Customer support and instructions are available whenever you need assistance."]
+    titleTop: "Born from the hobby.",
+    titleHighlight: "Built for the community.",
+    intro: "Maskines connects spare parts, vehicles, riding gear and people in one clear Nordic marketplace.",
+    marketplaceKicker: "Marketplace",
+    marketplaceTitle: "Everything for the hobby. In one place.",
+    searchPlaceholder: "Search parts or vehicles",
+    searchCta: "Search",
+    categories: ["Spare parts", "Vehicles", "Riding gear"],
+    marketplaceActions: "Buy · Sell · Find",
+    storyTitle: "Our story",
+    story: [
+      "Maskines was founded in May 2026 from enthusiasts' need to make trading spare parts, vehicles and riding gear easier.",
+      "We build the service together with users, sellers and businesses in the industry. Our goal is a marketplace where the right product is found quickly and trading feels clear from start to finish."
     ],
-    numbersKicker: "Maskines in numbers",
-    numbersTitle: "A strong community growing every day.",
-    missionTitle: "Our mission",
-    missionText: "We want to be the leading Nordic spare-parts marketplace, where every part finds a new life and every deal moves the hobby forward.",
-    communityAria: "Community promise",
-    communityTitle: "From enthusiast to enthusiast.",
-    communityText: "Maskines makes buying and selling spare parts clearer, leaving more time for what really matters: riding, building and the next project.",
+    whyTitle: "Why Maskines?",
+    features: [
+      ["Find the right part faster", "Smart search and precise filters help you find the right product without unnecessary browsing."],
+      ["A safer marketplace", "Clear listings, seller profiles and shared rules support trusted trading."],
+      ["A Nordic community", "Maskines brings enthusiasts, private sellers and industry businesses into one service."],
+      ["From enthusiast to enthusiast", "The service is built around practical needs, leaving more time for riding, building and the next project."]
+    ],
+    numbersTitle: "Maskines right now",
+    quote: "We build Maskines every day together with our users — clearer, safer and more useful for the whole enthusiast community.",
+    quoteBy: "The Maskines promise",
+    faqTitle: "Frequently asked questions",
+    faqs: [
+      ["What can I do on Maskines?", "You can buy and sell spare parts, vehicles and riding gear, and find enthusiasts and businesses around the Nordics."],
+      ["What can I sell on Maskines?", "You can sell spare parts, complete vehicles and riding gear."]
+    ],
+    ctaTitle: "Find your next part today.",
+    ctaButton: "Browse listings",
     stats: {
-      vehicleClass: ["vehicle class in listings", "vehicle classes in listings"],
-      activeListing: ["active listing", "active listings"],
-      activeSeller: ["active seller", "active sellers"],
       registeredUser: ["registered user", "registered users"],
-      country: ["country in listings", "countries in listings"]
+      activeListing: ["active listing", "active listings"],
+      country: ["country in listings", "countries in listings"],
+      activeSeller: ["active seller", "active sellers"]
     }
   },
   sv: {
     kicker: "Om oss",
-    titleTop: "Reservdelsvärlden.",
-    titleBottom: "Byggd för",
-    titleHighlight: "entusiaster.",
-    intro: "Maskines samlar reservdelar till snöskotrar, fyrhjulingar, motocrosscyklar och mopeder på en tydlig marknadsplats. Vårt mål är att göra det snabbt att hitta rätt del och enkelt att sälja.",
-    createListing: "Skapa annons",
-    viewHelp: "Läs instruktionerna",
-    aboutMaskines: "Om Maskines",
-    why: "Varför Maskines?",
-    featuresTitle: "Skapad för entusiaster, tillsammans med entusiaster.",
-    featuresLead: "Vi förstår dina behov eftersom vi delar samma passion.",
-    features: [
-      ["Hitta rätt del snabbt", "Effektiv sökning och tydliga annonser hjälper dig att hitta exakt rätt del."],
-      ["Sälj enklare", "En annons, flera delar. Bättre synlighet ger fler köpare och bättre affärer."],
-      ["En trygg marknadsplats", "En pålitlig miljö och tydliga regler skyddar både köpare och säljare."],
-      ["Hjälp när du behöver den", "Kundsupport och instruktioner finns tillgängliga när du behöver hjälp."]
+    titleTop: "Född ur hobbyn.",
+    titleHighlight: "Byggd för gemenskapen.",
+    intro: "Maskines förenar reservdelar, fordon, körutrustning och människor på en tydlig nordisk marknadsplats.",
+    marketplaceKicker: "Marknadsplats",
+    marketplaceTitle: "Allt för hobbyn. På ett ställe.",
+    searchPlaceholder: "Sök reservdelar eller fordon",
+    searchCta: "Sök",
+    categories: ["Reservdelar", "Fordon", "Körutrustning"],
+    marketplaceActions: "Köp · Sälj · Hitta",
+    storyTitle: "Vår berättelse",
+    story: [
+      "Maskines grundades i maj 2026 ur entusiasters behov av enklare handel med reservdelar, fordon och körutrustning.",
+      "Vi bygger tjänsten tillsammans med användare, säljare och företag i branschen. Målet är en marknadsplats där rätt produkt hittas snabbt och handeln känns tydlig från början till slut."
     ],
-    numbersKicker: "Maskines i siffror",
-    numbersTitle: "En stark gemenskap som växer varje dag.",
-    missionTitle: "Vårt uppdrag",
-    missionText: "Vi vill vara Nordens ledande marknadsplats för reservdelar, där varje del får ett nytt liv och varje affär för hobbyn framåt.",
-    communityAria: "Gemenskapens löfte",
-    communityTitle: "Från entusiast till entusiast.",
-    communityText: "Maskines gör det tydligare att köpa och sälja reservdelar, så att mer tid blir över för det som verkligen betyder något: körning, byggande och nästa projekt.",
+    whyTitle: "Varför Maskines?",
+    features: [
+      ["Hitta rätt del snabbare", "Smart sökning och exakta filter hjälper dig att hitta rätt produkt utan onödig bläddring."],
+      ["En tryggare marknadsplats", "Tydliga annonser, säljarprofiler och gemensamma regler stöder pålitlig handel."],
+      ["En nordisk gemenskap", "Maskines samlar entusiaster, privata säljare och branschföretag i samma tjänst."],
+      ["Från entusiast till entusiast", "Tjänsten utvecklas för verkliga behov, så att mer tid blir över för körning, byggande och nästa projekt."]
+    ],
+    numbersTitle: "Maskines just nu",
+    quote: "Vi bygger Maskines varje dag tillsammans med våra användare — tydligare, tryggare och nyttigare för hela gemenskapen.",
+    quoteBy: "Maskines löfte",
+    faqTitle: "Vanliga frågor",
+    faqs: [
+      ["Vad kan jag göra på Maskines?", "Du kan köpa och sälja reservdelar, fordon och körutrustning samt hitta entusiaster och företag i Norden."],
+      ["Vad kan jag sälja på Maskines?", "Du kan sälja reservdelar, kompletta fordon och körutrustning."]
+    ],
+    ctaTitle: "Hitta din nästa del redan i dag.",
+    ctaButton: "Se annonser",
     stats: {
-      vehicleClass: ["fordonsklass i annonser", "fordonsklasser i annonser"],
-      activeListing: ["aktiv annons", "aktiva annonser"],
-      activeSeller: ["aktiv säljare", "aktiva säljare"],
       registeredUser: ["registrerad användare", "registrerade användare"],
-      country: ["land i annonser", "länder i annonser"]
+      activeListing: ["aktiv annons", "aktiva annonser"],
+      country: ["land i annonser", "länder i annonser"],
+      activeSeller: ["aktiv säljare", "aktiva säljare"]
     }
   },
   no: {
     kicker: "Om oss",
-    titleTop: "Reservedelsverdenen.",
-    titleBottom: "Bygget for",
-    titleHighlight: "entusiaster.",
-    intro: "Maskines samler deler til snøscootere, ATV-er, motocrossykler og mopeder på én oversiktlig markedsplass. Målet vårt er å gjøre det raskt å finne riktig del og enkelt å selge.",
-    createListing: "Opprett annonse",
-    viewHelp: "Se veiledningen",
-    aboutMaskines: "Om Maskines",
-    why: "Hvorfor Maskines?",
-    featuresTitle: "Laget for entusiaster, sammen med entusiaster.",
-    featuresLead: "Vi forstår behovene dine fordi vi deler den samme lidenskapen.",
-    features: [
-      ["Finn riktig del raskt", "Effektivt søk og tydelige annonser hjelper deg med å finne akkurat den delen du trenger."],
-      ["Selg enklere", "Én annonse, flere deler. Bedre synlighet gir flere kjøpere og bedre handler."],
-      ["En trygg markedsplass", "Et pålitelig miljø og tydelige regler beskytter både kjøpere og selgere."],
-      ["Hjelp når du trenger det", "Kundestøtte og veiledninger er tilgjengelige når du trenger hjelp."]
+    titleTop: "Født av hobbyen.",
+    titleHighlight: "Bygget for fellesskapet.",
+    intro: "Maskines samler reservedeler, kjøretøy, kjøreutstyr og mennesker på én tydelig nordisk markedsplass.",
+    marketplaceKicker: "Markedsplass",
+    marketplaceTitle: "Alt for hobbyen. På ett sted.",
+    searchPlaceholder: "Søk etter deler eller kjøretøy",
+    searchCta: "Søk",
+    categories: ["Reservedeler", "Kjøretøy", "Kjøreutstyr"],
+    marketplaceActions: "Kjøp · Selg · Finn",
+    storyTitle: "Historien vår",
+    story: [
+      "Maskines ble grunnlagt i mai 2026 ut fra entusiasters behov for enklere handel med reservedeler, kjøretøy og kjøreutstyr.",
+      "Vi bygger tjenesten sammen med brukere, selgere og bedrifter i bransjen. Målet er en markedsplass der riktig produkt finnes raskt og handelen føles tydelig fra start til slutt."
     ],
-    numbersKicker: "Maskines i tall",
-    numbersTitle: "Et sterkt fellesskap som vokser hver dag.",
-    missionTitle: "Vårt mål",
-    missionText: "Vi ønsker å være Nordens ledende markedsplass for reservedeler, der hver del får et nytt liv og hver handel fører hobbyen videre.",
-    communityAria: "Fellesskapets løfte",
-    communityTitle: "Fra entusiast til entusiast.",
-    communityText: "Maskines gjør kjøp og salg av reservedeler enklere, slik at du får mer tid til det som virkelig betyr noe: kjøring, bygging og det neste prosjektet.",
+    whyTitle: "Hvorfor Maskines?",
+    features: [
+      ["Finn riktig del raskere", "Smart søk og presise filtre hjelper deg med å finne riktig produkt uten unødvendig leting."],
+      ["En tryggere markedsplass", "Tydelige annonser, selgerprofiler og felles regler støtter pålitelig handel."],
+      ["Et nordisk fellesskap", "Maskines samler entusiaster, private selgere og bransjebedrifter i én tjeneste."],
+      ["Fra entusiast til entusiast", "Tjenesten utvikles for praktiske behov, slik at mer tid går til kjøring, bygging og neste prosjekt."]
+    ],
+    numbersTitle: "Maskines akkurat nå",
+    quote: "Vi bygger Maskines hver dag sammen med brukerne våre — tydeligere, tryggere og mer nyttig for hele fellesskapet.",
+    quoteBy: "Maskines-løftet",
+    faqTitle: "Ofte stilte spørsmål",
+    faqs: [
+      ["Hva kan jeg gjøre på Maskines?", "Du kan kjøpe og selge reservedeler, kjøretøy og kjøreutstyr, og finne entusiaster og bedrifter i Norden."],
+      ["Hva kan jeg selge på Maskines?", "Du kan selge reservedeler, komplette kjøretøy og kjøreutstyr."]
+    ],
+    ctaTitle: "Finn din neste del allerede i dag.",
+    ctaButton: "Se annonser",
     stats: {
-      vehicleClass: ["kjøretøyklasse i annonser", "kjøretøyklasser i annonser"],
-      activeListing: ["aktiv annonse", "aktive annonser"],
-      activeSeller: ["aktiv selger", "aktive selgere"],
       registeredUser: ["registrert bruker", "registrerte brukere"],
-      country: ["land i annonser", "land i annonser"]
+      activeListing: ["aktiv annonse", "aktive annonser"],
+      country: ["land i annonser", "land i annonser"],
+      activeSeller: ["aktiv selger", "aktive selgere"]
     }
   }
 };
@@ -165,7 +178,7 @@ type AboutStats = {
 };
 
 function formatStatValue(value: number | null | undefined, locale: keyof typeof aboutCopy) {
-  if (value === null || value === undefined) return "...";
+  if (value === null || value === undefined) return "…";
   return value.toLocaleString(
     locale === "fi" ? "fi-FI" : locale === "sv" ? "sv-SE" : locale === "no" ? "nb-NO" : "en-US"
   );
@@ -206,142 +219,116 @@ export default function AboutPage() {
     };
   }, []);
 
-  const heroStats = [
-    {
-      icon: UsersRound,
-      value: formatStatValue(stats?.vehicleClasses, locale),
-      label: statLabel(stats?.vehicleClasses, copy.stats.vehicleClass[0], copy.stats.vehicleClass[1])
-    },
-    {
-      icon: Tag,
-      value: formatStatValue(stats?.activeListings, locale),
-      label: statLabel(stats?.activeListings, copy.stats.activeListing[0], copy.stats.activeListing[1])
-    },
-    {
-      icon: HandHeart,
-      value: formatStatValue(stats?.activeSellers, locale),
-      label: statLabel(stats?.activeSellers, copy.stats.activeSeller[0], copy.stats.activeSeller[1])
-    }
-  ];
-
   const numberStats = [
     {
-      icon: UsersRound,
       value: formatStatValue(stats?.registeredUsers, locale),
       label: statLabel(stats?.registeredUsers, copy.stats.registeredUser[0], copy.stats.registeredUser[1])
     },
     {
-      icon: Tag,
       value: formatStatValue(stats?.activeListings, locale),
       label: statLabel(stats?.activeListings, copy.stats.activeListing[0], copy.stats.activeListing[1])
     },
     {
-      icon: Globe2,
       value: formatStatValue(stats?.listingCountries, locale),
       label: statLabel(stats?.listingCountries, copy.stats.country[0], copy.stats.country[1])
     },
     {
-      icon: ThumbsUp,
       value: formatStatValue(stats?.activeSellers, locale),
       label: statLabel(stats?.activeSellers, copy.stats.activeSeller[0], copy.stats.activeSeller[1])
     }
   ];
 
+  const categoryLinks = ["/varaosat", "/ajoneuvot", "/?category=Ajovarusteet"];
+
   return (
     <main className="about-showcase-page" data-no-auto-translate>
-        <section className="about-showcase-hero">
-          <div className="about-showcase-copy">
-            <span className="about-showcase-kicker">{copy.kicker}</span>
-            <h1>
-              {copy.titleTop}
-              <br />
-              {copy.titleBottom} <span>{copy.titleHighlight}</span>
-            </h1>
-            <p>{copy.intro}</p>
-            <div className="about-showcase-actions">
-              <Link className="about-showcase-primary" href={pagePath("sell", locale)}>
-                {copy.createListing}
-              </Link>
-              <Link className="about-showcase-secondary" href={pagePath("faq", locale)}>
-                {copy.viewHelp}
-                <ChevronRight size={15} aria-hidden="true" />
-              </Link>
+      <section className="about-showcase-hero" aria-labelledby="about-page-title">
+        <div className="about-showcase-copy">
+          <span className="about-showcase-kicker">{copy.kicker}</span>
+          <h1 id="about-page-title">
+            {copy.titleTop}
+            <br />
+            <span>{copy.titleHighlight}</span>
+          </h1>
+          <p>{copy.intro}</p>
+        </div>
+
+        <aside className="about-marketplace-panel" aria-label={copy.marketplaceTitle}>
+          <span className="about-marketplace-kicker">{copy.marketplaceKicker}</span>
+          <h2>{copy.marketplaceTitle}</h2>
+          <form className="about-marketplace-search" action="/" method="get" role="search">
+            <input name="q" type="search" placeholder={copy.searchPlaceholder} aria-label={copy.searchPlaceholder} />
+            <button type="submit">{copy.searchCta}</button>
+          </form>
+          <nav className="about-marketplace-categories" aria-label={copy.marketplaceKicker}>
+            {copy.categories.map((category, index) => (
+              <Link key={category} href={categoryLinks[index]}>{category}</Link>
+            ))}
+          </nav>
+          <strong className="about-marketplace-actions">{copy.marketplaceActions}</strong>
+        </aside>
+      </section>
+
+      <section className="about-story" aria-labelledby="about-story-title">
+        <span className="about-showcase-section-kicker">{copy.kicker}</span>
+        <h2 id="about-story-title">{copy.storyTitle}</h2>
+        <div className="about-story-copy">
+          {copy.story.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+        </div>
+      </section>
+
+      <section className="about-showcase-features" aria-labelledby="about-features-title">
+        <h2 id="about-features-title">{copy.whyTitle}</h2>
+        <div className="about-showcase-card-grid">
+          {copy.features.map(([title, text], index) => (
+            <article className="about-showcase-card" key={title}>
+              <span className="about-showcase-card-number">{String(index + 1).padStart(2, "0")}</span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="about-showcase-numbers" aria-labelledby="about-numbers-title">
+        <h2 id="about-numbers-title">{copy.numbersTitle}</h2>
+        <div className="about-showcase-number-grid">
+          {numberStats.map((stat) => (
+            <div className="about-showcase-number" key={stat.label}>
+              <strong>{stat.value}</strong>
+              <span>{stat.label}</span>
             </div>
-          </div>
+          ))}
+        </div>
+      </section>
 
-          <aside className="about-showcase-stats" aria-label={copy.aboutMaskines}>
-            <span>{copy.aboutMaskines}</span>
-            {heroStats.map((stat) => {
-              const Icon = stat.icon;
-              return (
-                <div className="about-showcase-stat" key={stat.label}>
-                  <span className="about-showcase-stat-icon">
-                    <Icon size={22} aria-hidden="true" />
-                  </span>
-                  <strong>{stat.value}</strong>
-                  <small>{stat.label}</small>
-                </div>
-              );
-            })}
-          </aside>
-        </section>
+      <blockquote className="about-quote">
+        <span aria-hidden="true">“</span>
+        <div>
+          <p>{copy.quote}</p>
+          <cite>{copy.quoteBy}</cite>
+        </div>
+      </blockquote>
 
-        <section className="about-showcase-features" aria-labelledby="about-features-title">
-          <span className="about-showcase-section-kicker">{copy.why}</span>
-          <h2 id="about-features-title">{copy.featuresTitle}</h2>
-          <p>{copy.featuresLead}</p>
+      <section className="about-faq" aria-labelledby="about-faq-title">
+        <h2 id="about-faq-title">{copy.faqTitle}</h2>
+        <div className="about-faq-list">
+          {copy.faqs.map(([question, answer], index) => (
+            <article className="about-faq-item" key={question}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <h3>{question}</h3>
+                <p>{answer}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
-          <div className="about-showcase-card-grid">
-            {copy.features.map(([title, text], index) => {
-              const Icon = featureIcons[index];
-              return (
-                <article className="about-showcase-card" key={title}>
-                  <span className="about-showcase-card-icon">
-                    <Icon size={24} aria-hidden="true" />
-                  </span>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="about-showcase-numbers" aria-labelledby="about-numbers-title">
-          <span className="about-showcase-section-kicker">{copy.numbersKicker}</span>
-          <h2 id="about-numbers-title">{copy.numbersTitle}</h2>
-
-          <div className="about-showcase-number-grid">
-            {numberStats.map((stat) => {
-              const Icon = stat.icon;
-              return (
-                <div className="about-showcase-number" key={stat.label}>
-                  <Icon size={28} aria-hidden="true" />
-                  <strong>{stat.value}</strong>
-                  <span>{stat.label}</span>
-                </div>
-              );
-            })}
-          </div>
-
-          <article className="about-showcase-mission">
-            <span className="about-showcase-mission-icon">
-              <Heart size={28} aria-hidden="true" />
-            </span>
-            <div>
-              <h3>{copy.missionTitle}</h3>
-              <p>{copy.missionText}</p>
-            </div>
-          </article>
-        </section>
-
-        <section className="about-showcase-community" aria-label={copy.communityAria}>
-          <HandHeart size={28} aria-hidden="true" />
-          <div>
-            <h2>{copy.communityTitle}</h2>
-            <p>{copy.communityText}</p>
-          </div>
-        </section>
+      <section className="about-cta" aria-label={copy.ctaTitle}>
+        <h2>{copy.ctaTitle}</h2>
+        <Link href="/ilmoitukset">{copy.ctaButton}</Link>
+      </section>
     </main>
   );
 }

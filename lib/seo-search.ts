@@ -60,6 +60,8 @@ const localizedSeoTerms: Record<string, Record<Exclude<SeoSearchLocale, "fi">, s
   ketjukotelot: { en: "chaincases", sv: "kedjehus", no: "kjedehus" },
   letkut: { en: "hoses", sv: "slangar", no: "slanger" },
   moottori: { en: "engine", sv: "motor", no: "motor" },
+  putki: { en: "exhaust pipe", sv: "avgasror", no: "eksosror" },
+  pakoputki: { en: "exhaust pipe", sv: "avgasror", no: "eksosror" },
   pakoputkisto: { en: "exhaust", sv: "avgassystem", no: "eksosanlegg" },
   penkit: { en: "seats", sv: "säten", no: "seter" },
   puskurit: { en: "bumpers", sv: "stötfångare", no: "støtfangere" },
@@ -182,6 +184,16 @@ function seoPartTerms(listing: Pick<Listing, "category" | "subcategory">) {
   if ([category, subcategory].some((value) => value.includes("iskarit"))) {
     terms.add("iskunvaimentimet");
   }
+  // Finnish buyers often search for an exhaust with the shorter everyday
+  // terms "putki" or "pakoputki". Publish those useful model-specific
+  // collection URLs alongside the taxonomy term "pakoputkisto", for example
+  // /varaosat/yamaha-dt-putki.
+  if ([category, subcategory].some((value) =>
+    value.includes("pakoputk") || value.includes("tehoputk")
+  )) {
+    terms.add("putki");
+    terms.add("pakoputki");
+  }
 
   return [...terms];
 }
@@ -189,8 +201,31 @@ function seoPartTerms(listing: Pick<Listing, "category" | "subcategory">) {
 export function seoPartSearchQueries(listing: Listing) {
   if (isVehicleListing(listing)) return [];
 
+  const vehicleType = normalizeSeoSearchText(listing.vehicle_type);
+  const brand = normalizeSeoSearchText(listing.brand);
+  const model = normalizeSeoSearchText(listing.model);
   const vehicleQueries = seoListingSearchQueries(listing);
   const queries = new Set(vehicleQueries);
+  const partTerms = seoPartTerms(listing);
+
+  // Publish only combinations backed by a live listing. These cover the ways
+  // buyers actually narrow a catalogue: part type, brand, model and vehicle
+  // type, from broad category pages down to an exact fitment search.
+  for (const partTerm of partTerms) {
+    queries.add(partTerm);
+    if (brand) queries.add(`${brand} ${partTerm}`);
+    if (brand && model) queries.add(`${brand} ${model} ${partTerm}`);
+    if (vehicleType) queries.add(`${vehicleType} ${partTerm}`);
+    if (vehicleType && brand) queries.add(`${vehicleType} ${brand} ${partTerm}`);
+    if (vehicleType && brand && model) {
+      queries.add(`${vehicleType} ${brand} ${model} ${partTerm}`);
+    }
+  }
+
+  if (brand) queries.add(brand);
+  if (vehicleType) queries.add(vehicleType);
+  if (vehicleType && brand) queries.add(`${vehicleType} ${brand}`);
+  if (vehicleType && brand && model) queries.add(`${vehicleType} ${brand} ${model}`);
 
   // Keep model and model+part landing pages useful and distinct. The year is
   // carried by each individual listing's title and metadata, so we avoid
@@ -205,7 +240,19 @@ export function seoPartSearchQueries(listing: Listing) {
 }
 
 export function seoVehicleSearchQueries(listing: Listing) {
-  return isVehicleListing(listing) ? seoListingSearchQueries(listing) : [];
+  if (!isVehicleListing(listing)) return [];
+
+  const vehicleType = normalizeSeoSearchText(listing.vehicle_type);
+  const brand = normalizeSeoSearchText(listing.brand);
+  const model = normalizeSeoSearchText(listing.model);
+  const queries = new Set(seoListingSearchQueries(listing));
+
+  if (vehicleType) queries.add(vehicleType);
+  if (brand) queries.add(brand);
+  if (vehicleType && brand) queries.add(`${vehicleType} ${brand}`);
+  if (vehicleType && brand && model) queries.add(`${vehicleType} ${brand} ${model}`);
+
+  return [...queries];
 }
 
 export function listingMatchesSeoCollection(
@@ -278,6 +325,7 @@ export function listingMatchesSeoQuery(listing: Listing, query: string) {
 export function formatSeoSearchLabel(query: string) {
   const acronyms = new Set([
     "atv",
+    "dt",
     "ecu",
     "exc",
     "mxz",

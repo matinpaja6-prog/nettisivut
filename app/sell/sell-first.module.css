@@ -149,11 +149,1198 @@
   max-width: 680px; margin-top: 18px; margin-bottom: 0; color: #c3ccd8; font-size: clamp(15px, 1.55vw, 17px); line-height: 1.55;
   font-weight: 600;
 }
+
+/* Vehicle tax information: same compact, sturdy card language as the other sale fields. */
+.vehicleTaxCard {
+  display: grid;
+  grid-template-columns: minmax(190px, .62fr) minmax(0, 1.38fr);
+  gap: 18px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #2a465a;
+  border-radius: 12px;
+  background: #091d2b;
+}
+
+.vehicleTaxCard > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.vehicleTaxCard > div:first-child > strong {
+  color: #f4f8fb;
+  font-size: 15px;
+}
+
+.vehicleTaxCard small {
+  color: #9fb0bd;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.vehicleTaxOptions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.vehicleTaxOptions label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #3a5669;
+  border-radius: 9px;
+  background: #061724;
+  color: #edf4f8;
+  cursor: pointer;
+}
+
+.vehicleTaxOptions input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vehicleTaxOptions label > span {
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  border: 1px solid #6f8797;
+  border-radius: 5px;
+  color: transparent;
+}
+
+.vehicleTaxOptions label:has(input:checked) {
+  border-color: #ff7417;
+  background: rgb(255 116 23 / 9%);
+}
+
+.vehicleTaxOptions label:has(input:checked) > span {
+  border-color: #ff7417;
+  background: #ff7417;
+  color: #fff;
+}
+
+:global(html[data-theme="light"]) .vehicleTaxCard {
+  border-color: #cbd5dc;
+  background: #fff;
+}
+
+:global(html[data-theme="light"]) .vehicleTaxCard > div:first-child > strong,
+:global(html[data-theme="light"]) .vehicleTaxOptions label {
+  color: #102334;
+}
+
+:global(html[data-theme="light"]) .vehicleTaxCard small {
+  color: #667786;
+}
+
+:global(html[data-theme="light"]) .vehicleTaxOptions label {
+  border-color: #becbd4;
+  background: #f7f9fa;
+}
+
+:global(html[data-theme="light"]) .vehicleTaxOptions label:has(input:checked) {
+  border-color: #ff7417;
+  background: #fff4ec;
+}
+
+@media (max-width: 820px) {
+  .vehicleTaxCard,
+  .vehicleTaxOptions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vehicleTaxCard {
+    padding: 15px;
+  }
+}
+
+/* Final reference layout: centered, consistent and shared by every listing type. */
+.page,
+:global(html[data-theme="light"]) .page {
+  padding: 24px 16px 40px !important;
+}
+
+.shell,
+:global(html[data-theme="light"]) .shell {
+  width: min(1380px, 100%) !important;
+  max-width: 1380px !important;
+  margin: 0 auto !important;
+}
+
+.wizardTop,
+:global(html[data-theme="light"]) .wizardTop {
+  width: 100% !important;
+  margin: 0 0 22px !important;
+  padding: 22px 28px 20px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 16px !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: 0 8px 26px rgba(22, 44, 62, 0.07) !important;
+}
+
+.wizardTitleRow > div:first-child > strong {
+  font-size: clamp(24px, 2vw, 32px) !important;
+}
+
+.wizardDesktopSteps {
+  min-height: 82px !important;
+}
+
+.wizardDesktopSteps > button {
+  min-width: 0 !important;
+  min-height: 76px !important;
+  padding: 2px 8px 0 !important;
+}
+
+.wizardDesktopSteps > button strong {
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  font-size: 12px !important;
+}
+
+.wizardWorkspace {
+  width: 100% !important;
+  max-width: none !important;
+  grid-template-columns: minmax(0, 1fr) 340px !important;
+  align-items: start !important;
+  gap: 24px !important;
+}
+
+.wizardMain,
+.content,
+.vehicleContent {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+.content,
+:global(html[data-theme="light"]) .content {
+  padding: 28px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 16px !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: 0 8px 26px rgba(22, 44, 62, 0.07) !important;
+}
+
+.vehicleContent,
+:global(html[data-theme="light"]) .vehicleContent {
+  display: grid !important;
+  gap: 18px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.header,
+.vehicleHeader {
+  margin: 0 !important;
+  padding: 4px 2px 0 !important;
+}
+
+.header h1,
+.vehicleHeader h1 {
+  font-size: clamp(30px, 3vw, 42px) !important;
+  letter-spacing: -0.035em !important;
+}
+
+.header p,
+.vehicleHeader p {
+  margin-top: 7px !important;
+  font-size: 16px !important;
+}
+
+.verifiedCompanySellNotice {
+  grid-template-columns: 190px minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 18px !important;
+  margin: 22px 0 24px !important;
+}
+
+.verifiedCompanySellNotice .companySaleMethod {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.verifiedCompanySellNotice .companySaleMethod > button {
+  min-height: 70px !important;
+  border-radius: 12px !important;
+}
+
+.modeGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.modeCard,
+:global(html[data-theme="light"]) .modeCard {
+  grid-template-columns: 64px minmax(0, 1fr) 28px !important;
+  grid-template-rows: auto auto !important;
+  align-items: center !important;
+  justify-items: stretch !important;
+  align-content: center !important;
+  gap: 4px 16px !important;
+  min-height: 108px !important;
+  padding: 16px 18px !important;
+  border-radius: 13px !important;
+  text-align: left !important;
+}
+
+.modeCard .modeIcon {
+  grid-row: 1 / 3 !important;
+  width: 58px !important;
+  height: 58px !important;
+}
+
+.modeCard .modeIcon svg {
+  width: 38px !important;
+  height: 38px !important;
+}
+
+.modeCard > strong {
+  grid-column: 2 !important;
+  align-self: end !important;
+  font-size: 16px !important;
+  line-height: 1.25 !important;
+}
+
+.modeCard .modeCopy {
+  grid-column: 2 !important;
+  align-self: start !important;
+  gap: 1px !important;
+  max-width: none !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+
+.modeCard > i,
+.modeCard .listingSaleMode {
+  display: none !important;
+}
+
+.modeCard .modeCheck {
+  position: static !important;
+  grid-column: 3 !important;
+  grid-row: 1 / 3 !important;
+  align-self: center !important;
+  justify-self: end !important;
+}
+
+.wizardSummary {
+  position: sticky !important;
+  top: calc(var(--topbar-h, 72px) + 18px) !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 24px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 16px !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: 0 8px 26px rgba(22, 44, 62, 0.07) !important;
+}
+
+.wizardSummary[data-current-step="1"] .wizardSummaryHeading span,
+.wizardSummary[data-current-step="1"] .wizardSummaryHeading em,
+.wizardSummary[data-current-step="1"] .wizardSummaryProgress {
+  display: none !important;
+}
+
+.wizardSummaryList > div {
+  grid-template-columns: 48px minmax(0, 1fr) !important;
+  gap: 14px !important;
+  padding: 16px 0 !important;
+}
+
+.wizardSummaryItemIcon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 999px !important;
+}
+
+.wizardSummaryList dt { font-size: 12px !important; }
+.wizardSummaryList dd { font-size: 15px !important; }
+
+.vehicleForm,
+.categoryPanel,
+.productDetailsPanel,
+.conditionPanel,
+.conditionTip,
+.detailsPanel,
+.photosStep,
+.publishPanel,
+.commerceDeliveryPanel,
+:global(html[data-theme="light"]) .vehicleForm,
+:global(html[data-theme="light"]) .categoryPanel,
+:global(html[data-theme="light"]) .productDetailsPanel,
+:global(html[data-theme="light"]) .conditionPanel,
+:global(html[data-theme="light"]) .detailsPanel,
+:global(html[data-theme="light"]) .photosStep,
+:global(html[data-theme="light"]) .publishPanel {
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 16px !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: 0 8px 26px rgba(22, 44, 62, 0.07) !important;
+}
+
+.vehicleForm {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 18px 24px !important;
+  padding: 26px !important;
+}
+
+.lockedVehicleNotice {
+  align-items: center;
+  background: rgba(143, 194, 243, 0.1);
+  border: 1px solid rgba(143, 194, 243, 0.34);
+  border-radius: 14px;
+  color: #8fc2f3;
+  display: flex;
+  gap: 12px;
+  grid-column: 1 / -1;
+  padding: 13px 15px;
+}
+
+.lockedVehicleNotice > span {
+  display: grid;
+  gap: 3px;
+}
+
+.lockedVehicleNotice strong {
+  color: inherit;
+  font-size: 13px;
+}
+
+.lockedVehicleNotice small {
+  color: #a9bdce;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.vehicleTypeTrigger:disabled,
+.presetField[data-locked="true"] .presetSelectShell input,
+.presetField[data-locked="true"] .presetSelectToggle {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.vehicleFormSectionHeading,
+.vehicleSaleMetrics,
+.vehicleSaleDetails,
+.vehicleSaleSpecifications {
+  grid-column: 1 / -1 !important;
+}
+
+.vehicleTypePicker { grid-column: auto !important; }
+
+.presetSelectShell,
+.vehicleTypeTrigger,
+.detailInput > div,
+.categorySelect > button,
+.conditionSelect > button,
+.plainIconInput > div {
+  min-height: 52px !important;
+  border-radius: 9px !important;
+}
+
+.categoryStep { gap: 14px !important; }
+.categoryPanel,
+.productDetailsPanel { padding: 22px 24px !important; }
+.categorySelectGrid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 18px !important; }
+.productDetailsGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 18px !important; }
+.priceInventoryPanel .productDetailsGrid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+
+.conditionStep { gap: 16px !important; }
+.conditionPanel { padding: 24px !important; }
+.conditionGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 18px !important; }
+.conditionTip { padding: 16px 20px !important; }
+
+.photosStep {
+  gap: 16px !important;
+  padding: 24px !important;
+}
+
+.photoDropzone { min-height: 280px !important; }
+.photoTips { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+
+.detailsPanel { padding: 26px !important; }
+.detailsField input { min-height: 56px !important; }
+.detailsField textarea { min-height: 185px !important; }
+
+.wizardListingPreview {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--wizard-border);
+}
+
+.wizardListingPreview > strong { font-size: 14px; }
+
+.wizardListingPreviewImage {
+  display: grid;
+  min-height: 178px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--wizard-border);
+  border-radius: 12px;
+  background: var(--wizard-surface-soft);
+  color: var(--wizard-muted);
+}
+
+.wizardListingPreviewImage img {
+  width: 100%;
+  height: 178px;
+  object-fit: cover;
+}
+
+.wizardListingPreview small { color: var(--wizard-muted); }
+.wizardListingPreview h2 { margin: 0; font-size: 20px; }
+.wizardListingPreview b { font-size: 24px; }
+
+.publishPanel { padding: 26px !important; }
+
+.publishListingPreview {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr) 180px;
+  align-items: center;
+  gap: 24px;
+  padding: 18px;
+  border: 1px solid var(--wizard-border);
+  border-radius: 14px;
+  background: var(--wizard-surface-soft);
+}
+
+.publishListingPreviewImage {
+  display: grid;
+  height: 180px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--wizard-control);
+  color: var(--wizard-muted);
+}
+
+.publishListingPreviewImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.publishListingPreview h2 { margin: 6px 0; font-size: 24px; }
+.publishListingPreview span,
+.publishListingPreview small { color: var(--wizard-muted); }
+.publishListingPreview > div:last-child { display: grid; gap: 8px; padding-left: 22px; border-left: 1px solid var(--wizard-border); }
+.publishListingPreview > div:last-child strong { font-size: 26px; }
+
+.wizardFooter {
+  position: sticky !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  grid-template-columns: 210px minmax(320px, 480px) !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  margin: 22px 0 0 !important;
+  padding: 14px 18px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 14px !important;
+}
+
+@media (max-width: 1120px) {
+  .wizardWorkspace { grid-template-columns: minmax(0, 1fr) 300px !important; }
+  .wizardSummary { padding: 18px !important; }
+  .publishListingPreview { grid-template-columns: 200px minmax(0, 1fr) !important; }
+  .publishListingPreview > div:last-child { grid-column: 2; padding: 0; border: 0; }
+}
+
+@media (max-width: 900px) {
+  .page,
+  :global(html[data-theme="light"]) .page { padding: 12px 10px 24px !important; }
+  .wizardTop { padding: 16px !important; }
+  .wizardDesktopSteps { display: none !important; }
+  .mobileSteps { display: grid !important; margin-bottom: 14px !important; }
+  .wizardWorkspace { grid-template-columns: minmax(0, 1fr) !important; }
+  .wizardSummary { position: static !important; order: -1 !important; }
+  .wizardSummaryList { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .vehicleForm { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .wizardFooter { margin-top: 14px !important; }
+}
+
+@media (max-width: 680px) {
+  .wizardTitleRow > div:first-child > strong { font-size: 22px !important; }
+  .wizardResetButton span { display: none !important; }
+  .content { padding: 18px !important; }
+  .header h1,
+  .vehicleHeader h1 { font-size: 28px !important; }
+  .verifiedCompanySellNotice { grid-template-columns: minmax(0, 1fr) !important; }
+  .verifiedCompanySellNotice .companySaleMethod,
+  .modeGrid,
+  .vehicleForm,
+  .categorySelectGrid,
+  .productDetailsGrid,
+  .priceInventoryPanel .productDetailsGrid,
+  .conditionGrid,
+  .photoTips,
+  .wizardSummaryList {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .modeCard,
+  :global(html[data-theme="light"]) .modeCard {
+    grid-template-columns: 52px minmax(0, 1fr) 26px !important;
+    min-height: 94px !important;
+    padding: 14px !important;
+  }
+  .modeCard .modeIcon { width: 48px !important; height: 48px !important; }
+  .modeCard .modeIcon svg { width: 30px !important; height: 30px !important; }
+  .vehicleForm,
+  .categoryPanel,
+  .productDetailsPanel,
+  .conditionPanel,
+  .detailsPanel,
+  .photosStep,
+  .publishPanel { padding: 16px !important; }
+  .publishListingPreview { grid-template-columns: minmax(0, 1fr) !important; gap: 14px; }
+  .publishListingPreviewImage { height: 190px; }
+  .publishListingPreview > div:last-child { grid-column: auto; }
+  .wizardFooter {
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr) !important;
+    padding: 9px !important;
+  }
+}
+
+/* Responsive safety layer for every sales-wizard step and multi-listing editor. */
+.page {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: clip !important;
+}
+
+.page *,
+.page *::before,
+.page *::after {
+  box-sizing: border-box;
+}
+
+/* Final marketplace-wide professional polish for the listing wizard. */
+.page,
+:global(html[data-theme="light"]) .page {
+  background-color: var(--maskines-page-background, var(--site-bg, #0b1118)) !important;
+  background-image: none !important;
+  color: var(--maskines-page-text, #f4f8fc) !important;
+}
+
+.shell {
+  max-width: 1180px !important;
+  width: min(1180px, 100%) !important;
+}
+
+.wizardTop,
+.content,
+.wizardSummary,
+.mobileSteps,
+.wizardFooter,
+.categoryPanel,
+.productDetailsPanel,
+.conditionPanel,
+.detailsPanel,
+.photosStep,
+.publishPanel,
+.multiListingMetaPanel,
+.multiCategoryPanel {
+  background-color: var(--site-card, #061a2c) !important;
+  background-image: none !important;
+  border-color: rgba(126, 158, 188, 0.24) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+}
+
+.wizardTop,
+.content,
+.wizardSummary,
+.mobileSteps,
+.wizardFooter {
+  border-radius: 12px !important;
+}
+
+.categoryPanel,
+.productDetailsPanel,
+.conditionPanel,
+.detailsPanel,
+.photosStep,
+.publishPanel,
+.multiListingMetaPanel,
+.multiCategoryPanel {
+  border-radius: 10px !important;
+}
+
+.wizardDesktopSteps > button {
+  background: #071827 !important;
+  border-color: rgba(126, 158, 188, 0.24) !important;
+  min-height: 68px !important;
+}
+
+.wizardDesktopSteps > button:hover {
+  border-color: rgba(255, 122, 26, 0.62) !important;
+}
+
+.wizardDesktopStepActive {
+  background: color-mix(in srgb, #071827 86%, #ff7a1a 14%) !important;
+  border-color: #ff7a1a !important;
+}
+
+.modeGrid {
+  align-items: stretch !important;
+}
+
+.modeCard,
+:global(html[data-theme="light"]) .modeCard {
+  background: #071827 !important;
+  border: 1px solid rgba(126, 158, 188, 0.28) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  height: 112px !important;
+  min-height: 112px !important;
+  max-height: 112px !important;
+}
+
+.modeCard:hover,
+.modeCardSelected,
+:global(html[data-theme="light"]) .modeCard:hover,
+:global(html[data-theme="light"]) .modeCardSelected {
+  border-color: #ff7a1a !important;
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.08) !important;
+  transform: none !important;
+}
+
+.page :global([data-sell-control-shell="true"]),
+.categorySelectShell,
+.presetSelectShell,
+.deliveryMethodSelectShell,
+.detailInputShell,
+.plainIconShell {
+  background: #071827 !important;
+  border: 1px solid rgba(126, 158, 188, 0.3) !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+  min-height: 46px !important;
+}
+
+.page :global([data-sell-control-shell="true"]):is(:hover, :focus-within),
+.categorySelectShell:is(:hover, :focus-within),
+.presetSelectShell:is(:hover, :focus-within),
+.deliveryMethodSelectShell:is(:hover, :focus-within),
+.detailInputShell:is(:hover, :focus-within) {
+  border-color: rgba(255, 122, 26, 0.8) !important;
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.09) !important;
+}
+
+.vehicleTypeCard,
+.multiWholeVehicleCard,
+.priceSuggestionCard,
+.photoTips > * {
+  background-color: #071827 !important;
+  border-color: rgba(126, 158, 188, 0.25) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+}
+
+.wizardFooter button,
+.publishPanel button[type="submit"] {
+  border-radius: 7px !important;
+  min-height: 44px !important;
+}
+
+@media (max-width: 680px) {
+  .shell {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .modeCard,
+  :global(html[data-theme="light"]) .modeCard {
+    height: 98px !important;
+    min-height: 98px !important;
+    max-height: 98px !important;
+  }
+}
+
+.shell,
+.wizardTop,
+.wizardWorkspace,
+.wizardMain,
+.content,
+.vehicleContent,
+.listingStack,
+.multiListingWizard,
+.multiListingCategory,
+.multiListingCategoryBody,
+.multiListingGroup,
+.multiListingTable,
+.multiListingRow,
+.multiListingSummary,
+.multiListingDetails,
+.wizardSummary,
+.wizardFooter {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.multiActiveCurrency {
+  display: none !important;
+}
+
+.multiListingSummary {
+  grid-template-columns: 24px 28px minmax(180px, 1fr) minmax(150px, 180px) minmax(180px, 210px) 34px !important;
+}
+
+.multiListingSummary .conditionSelectCompact,
+.multiListingSummary .conditionSelectCompact .conditionSelectShell {
+  min-width: 180px !important;
+}
+
+.conditionSelectCompact .categorySelectButton {
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.conditionSelectCompact .conditionSelectShell:has(.categorySelectPlaceholder) {
+  grid-template-columns: minmax(0, 1fr) 18px !important;
+}
+
+.conditionSelectCompact .conditionSelectShell:has(.categorySelectPlaceholder) .categorySelectButton {
+  padding-left: 8px !important;
+}
+
+.multiListingRow input,
+.multiListingRow select,
+.multiListingRow textarea,
+.categorySelectButton,
+.detailInputShell input,
+.plainIconShell input {
+  max-width: 100% !important;
+}
+
+@media (max-width: 1180px) {
+  .wizardWorkspace {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .wizardSummary {
+    position: static !important;
+    top: auto !important;
+  }
+
+  .multiListingWizard {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .multiListingSummary {
+    grid-template-columns: 24px 28px minmax(0, 1fr) 34px !important;
+    grid-template-rows: auto auto !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .multiListingSummary .multiRowArrow {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  .multiListingSummary .multiListingIndex {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+
+  .multiListingSummary .multiPartIdentity {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+  }
+
+  .multiListingSummary .multiListingActions {
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+  }
+
+  .multiListingSummary .multiPriceCell {
+    grid-column: 1 / 3 !important;
+    grid-row: 2 !important;
+  }
+
+  .multiListingSummary .conditionSelectCompact {
+    grid-column: 3 / 5 !important;
+    grid-row: 2 !important;
+    min-width: 0 !important;
+  }
+
+  .multiListingSummary .conditionSelectCompact .conditionSelectShell {
+    min-width: 0 !important;
+  }
+
+  .multiListingDetails {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .page,
+  :global(html[data-theme="light"]) .page {
+    padding-right: 8px !important;
+    padding-left: 8px !important;
+  }
+
+  .wizardTop,
+  .content,
+  .categoryPanel,
+  .productDetailsPanel,
+  .conditionPanel,
+  .detailsPanel,
+  .photosStep,
+  .publishPanel {
+    border-radius: 12px !important;
+  }
+
+  .multiListingCategoryHeader,
+  .multiListingGroupHeader {
+    align-items: flex-start !important;
+  }
+
+  .multiListingHeaderTitle,
+  .multiListingGroupTitle {
+    flex-wrap: wrap !important;
+  }
+
+  .multiListingSummary {
+    grid-template-columns: 24px 26px minmax(0, 1fr) 32px !important;
+  }
+
+  .multiListingSummary .multiPriceCell {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+  }
+
+  .multiListingSummary .conditionSelectCompact {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+  }
+
+  .multiListingSummary .conditionSelectCompact,
+  .multiListingSummary .conditionSelectCompact .conditionSelectShell {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .multiListingDetails {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 12px !important;
+  }
+
+  .multiListingDetails > *,
+  .multiListingWideField,
+  .multiPartPhotos {
+    grid-column: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .wizardFooter {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) !important;
+    gap: 8px !important;
+  }
+
+  .wizardFooter > button {
+    min-width: 0 !important;
+    padding-right: 10px !important;
+    padding-left: 10px !important;
+  }
+}
+
+/* Targeted fixes for the photo tray and multi-listing editor. */
+.photoEmptyTray {
+  padding: 20px 22px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 14px !important;
+  background: var(--wizard-surface) !important;
+}
+
+.photoEmptyTrayHeading strong { color: var(--wizard-text) !important; }
+.photoEmptyTrayHeading span { color: var(--wizard-muted) !important; }
+
+.photoEmptySlots {
+  grid-template-columns: repeat(8, minmax(76px, 1fr)) !important;
+  gap: 14px !important;
+  overflow: visible !important;
+}
+
+.photoEmptySlot {
+  display: grid !important;
+  min-height: 98px !important;
+  place-items: center !important;
+  color: #9daebe !important;
+  border: 1px dashed var(--wizard-border-strong) !important;
+  border-radius: 11px !important;
+  background: var(--wizard-surface-soft) !important;
+}
+
+.wizardDesktopSteps > button > span {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+}
+
+.multiListingTable,
+.multiListingRow,
+.multiListingRowOpen {
+  overflow: visible !important;
+}
+
+.multiListingRow {
+  position: relative !important;
+  z-index: 1 !important;
+  border-color: var(--wizard-border) !important;
+  background: var(--wizard-surface) !important;
+}
+
+.multiListingRow:focus-within,
+.multiListingRowOpen {
+  z-index: 40 !important;
+}
+
+.multiListingSummary {
+  grid-template-columns: 24px 28px minmax(210px, 1fr) minmax(150px, 180px) minmax(160px, 190px) 34px !important;
+  gap: 12px !important;
+  min-height: 66px !important;
+  padding: 10px 12px !important;
+}
+
+.multiPriceCell {
+  display: grid !important;
+  min-width: 0 !important;
+  gap: 4px !important;
+}
+
+.multiPriceCell input {
+  min-width: 0 !important;
+  min-height: 44px !important;
+  padding: 0 12px !important;
+}
+
+.multiActiveCurrency {
+  display: block !important;
+  width: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--wizard-muted) !important;
+  background: transparent !important;
+  font-size: 10px !important;
+  line-height: 1.3 !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.multiListingSummary .conditionSelectCompact {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.conditionSelectCompact .conditionSelectShell {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  grid-template-columns: 18px minmax(0, 1fr) 18px !important;
+}
+
+.conditionSelectCompact .categorySelectButton {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.conditionSelectCompact .categorySelectMenu {
+  z-index: 500 !important;
+  right: auto !important;
+  left: 0 !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+}
+
+:global(html[data-theme="light"]) .multiListingRow,
+:global(html[data-theme="light"]) .multiListingRowOpen {
+  border-color: #cbd7df !important;
+  background: #ffffff !important;
+}
+
+:global(html[data-theme="light"]) .multiListingRow input,
+:global(html[data-theme="light"]) .multiListingRow select,
+:global(html[data-theme="light"]) .multiListingRow textarea,
+:global(html[data-theme="light"]) .conditionSelectCompact .conditionSelectShell {
+  border-color: #b9c8d2 !important;
+  background: #ffffff !important;
+  color: #10243a !important;
+  -webkit-text-fill-color: #10243a !important;
+  color-scheme: light !important;
+}
+
+:global(html[data-theme="light"]) .conditionSelectCompact .categorySelectMenu {
+  border-color: #c3d0d9 !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #10243a !important;
+  box-shadow: 0 14px 32px rgba(16, 36, 58, 0.16) !important;
+  color-scheme: light !important;
+}
+
+:global(html[data-theme="light"]) .conditionSelectCompact .categorySelectMenu > button {
+  border: 0 !important;
+  background: #f5f7f8 !important;
+  color: #10243a !important;
+  -webkit-text-fill-color: #10243a !important;
+}
+
+:global(html[data-theme="light"]) .conditionSelectCompact .categorySelectMenu > button:hover,
+:global(html[data-theme="light"]) .conditionSelectCompact .categorySelectMenu > button[data-active="true"] {
+  background: #fff2e8 !important;
+  color: #10243a !important;
+}
+
+@media (max-width: 980px) {
+  .multiListingSummary {
+    grid-template-columns: 24px minmax(0, 1fr) 32px !important;
+  }
+  .multiListingSummary .multiPriceCell,
+  .multiListingSummary .conditionSelectCompact {
+    grid-column: 1 / -1 !important;
+  }
+  .photoEmptySlots {
+    grid-template-columns: repeat(4, minmax(68px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .photoEmptySlots {
+    grid-template-columns: repeat(3, minmax(64px, 1fr)) !important;
+  }
+  .photoEmptySlot { min-height: 76px !important; }
+}
+.verifiedCompanySellNotice {
+  display: grid; grid-template-columns: minmax(155px, .52fr) minmax(0, 2fr); gap: 18px; align-items: stretch; margin: -8px 0 18px; padding: 0;
+  border: 0; border-radius: 0; background: transparent;
+}
+.saleMethodLabel {
+  display: flex; flex-direction: column; justify-content: center; gap: 6px; min-width: 0; padding: 14px 4px;
+}
+.saleMethodLabel > span { display: flex; align-items: center; gap: 8px; }
+.saleMethodLabel svg { color: #8fa2b5; }
+.saleMethodLabel strong { color: #f5f9ff; font-size: 18px; font-weight: 950; }
+.saleMethodLabel small { color: #94a7ba; font-size: 11px; line-height: 1.4; font-weight: 700; }
+.verifiedCompanySellNotice .companySaleMethod {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+}
+.companySaleMethod button {
+  position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; min-height: 86px; padding: 14px 18px;
+  border: 1px solid rgba(143, 194, 243, 0.3); border-radius: 14px; background: rgba(5, 21, 36, 0.72); color: #dbe6ee;
+  cursor: pointer; text-align: left; transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+.companySaleMethod button:hover { transform: translateY(-1px); border-color: rgba(255, 122, 26, 0.68); }
+.companySaleMethod button:disabled,
+.companySaleMethod button[data-disabled="true"] {
+  cursor: not-allowed;
+  opacity: .58;
+  transform: none;
+  border-color: rgba(143, 194, 243, 0.2);
+  box-shadow: none;
+}
+.companySaleMethod button[data-active="true"] {
+  background: linear-gradient(135deg, rgba(255, 122, 26, 0.16), rgba(255, 122, 26, 0.07)); border-color: #ff7a1a; color: #fff;
+  box-shadow: 0 10px 26px rgba(255, 105, 8, 0.13), inset 0 0 0 1px rgba(255, 122, 26, 0.08);
+}
+.saleMethodIcon {
+  display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid rgba(143, 194, 243, 0.25); border-radius: 999px;
+  background: rgba(143, 194, 243, 0.08); color: #c9d7e5;
+}
+.companySaleMethod button[data-active="true"] .saleMethodIcon { border-color: #ff7a1a; background: rgba(255, 122, 26, 0.1); color: #ff7a1a; }
+.saleMethodCopy { display: grid; gap: 4px; min-width: 0; }
+.saleMethodCopy strong { color: #f5f9ff; font-size: 16px; line-height: 1.2; font-weight: 950; }
+.saleMethodCopy small { color: #9fb0c2; font-size: 12px; line-height: 1.35; font-weight: 700; }
+.saleMethodCheck {
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 999px; background: linear-gradient(135deg, #ff9d2e, #ff6908); color: #fff;
+  box-shadow: 0 8px 18px rgba(255, 105, 8, 0.25);
+}
+.saleMethodCheck svg,
+.saleMethodCheck svg path {
+  color: #ffffff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  stroke: #ffffff !important;
+  stroke-width: 3 !important;
+  visibility: visible !important;
+}
+.directPaymentSetupNotice {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: -6px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 122, 26, 0.28);
+  border-radius: 9px;
+  background: rgba(255, 122, 26, 0.07);
+  color: #cbd8e5;
+  font-size: 12px;
+  font-weight: 750;
+}
+.directPaymentSetupNotice button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #ff9824;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+:global(html[data-theme="light"]) .directPaymentSetupNotice {
+  border-color: #f1b681;
+  background: #fff7f0;
+  color: #4f6472;
+}
+:global(html[data-theme="light"]) .directPaymentSetupNotice button {
+  color: #d85d00;
+}
+.modeGridHeading {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--wizard-text, #f5f9ff);
+  font-size: 14px;
+  font-weight: 950;
+}
+@media (max-width: 760px) {
+  .directPaymentSetupNotice {
+    grid-column: 1;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
 .modeGrid {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px;
 }
 .modeCard {
-  position: relative; display: grid; justify-items: center; align-content: start; min-height: 300px; padding: 24px 26px 22px;
+  position: relative; display: grid; justify-items: center; align-content: start; min-height: 270px; padding: 21px 23px 20px;
   border: 1px solid rgba(159, 181, 209, 0.42); border-radius: 18px; background: radial-gradient(circle at 50% 0%, rgba(28, 73, 115, 0.16), transparent 40%), rgba(4, 18, 35, 0.72); color: #fff; text-align: center; transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 .modeCard:hover {
@@ -167,14 +1354,14 @@
   height: 38px; border-radius: 999px; background: linear-gradient(135deg, #ff9d2e, #ff6908); color: #fff; box-shadow: 0 12px 24px rgba(255, 122, 26, 0.32);
 }
 .modeIcon {
-  display: grid; place-items: center; width: 86px; height: 86px; margin-bottom: 18px; border: 1px solid rgba(159, 181, 209, 0.28);
+  display: grid; place-items: center; width: 76px; height: 76px; margin-bottom: 15px; border: 1px solid rgba(159, 181, 209, 0.28);
   border-radius: 999px; color: #b7c5d8; background: rgba(8, 24, 42, 0.62);
 }
 .modeCardSelected .modeIcon, .modeCardSelected .modeIcon svg {
   color: #ff7a1a;
 }
 .modeCard strong {
-  color: #fff; font-size: clamp(23px, 2.7vw, 31px); line-height: 1.14; font-weight: 950;
+  color: #fff; font-size: clamp(20px, 2.2vw, 26px); line-height: 1.14; font-weight: 950;
 }
 .modeCard i {
   display: block; width: 40px; height: 2px; margin: 15px 0 16px; background: #ff7a1a;
@@ -183,8 +1370,17 @@
   background: rgba(159, 181, 209, 0.55);
 }
 .modeCopy {
-  display: grid; gap: 9px; width: 100%; max-width: 330px; color: #c3ccd8; font-size: clamp(14px, 1.45vw, 16px);
+  display: grid; gap: 7px; width: 100%; max-width: 330px; color: #c3ccd8; font-size: clamp(13px, 1.2vw, 15px);
   line-height: 1.45; text-align: left;
+}
+.listingSaleMode {
+  align-items: center; align-self: end; background: rgba(143, 194, 243, 0.07);
+  border: 1px solid rgba(143, 194, 243, 0.28); border-radius: 999px; color: #b8c8d6;
+  display: inline-flex; font-size: 11px; font-weight: 900; gap: 6px; justify-content: center;
+  margin-top: 16px; min-height: 28px; padding: 4px 11px;
+}
+.listingSaleMode[data-direct="true"] {
+  background: rgba(255, 122, 26, 0.12); border-color: rgba(255, 122, 26, 0.48); color: #ffad68;
 }
 .continueButton {
   display: inline-flex; align-items: center; justify-content: center; gap: 14px; justify-self: end; width: 170px;
@@ -198,6 +1394,9 @@
   .page {
     padding: 14px;
   }
+  .verifiedCompanySellNotice { grid-template-columns: 1fr; gap: 10px; }
+  .saleMethodLabel { padding: 4px 2px; }
+  .verifiedCompanySellNotice .companySaleMethod { width: 100%; }
   .shell {
     display: block; min-height: auto; overflow: visible;
   }
@@ -285,6 +1484,7 @@
   .content {
     padding: 20px 14px 16px;
   }
+  .verifiedCompanySellNotice .companySaleMethod { grid-template-columns: 1fr; }
   .header {
     margin-bottom: 18px;
   }
@@ -827,6 +2027,9 @@
 .categorySelectGrid {
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr) minmax(0, 1fr); align-items: start; gap: 20px;
 }
+.ridingGearSelectGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 .categorySelectField, .detailInputField {
   display: grid; align-self: start; gap: 12px; min-width: 0; color: #d9e2ee;
 }
@@ -840,6 +2043,14 @@
 .categorySelectIcon, .categorySelectShell svg:first-child, .detailInputShell svg {
   color: #ff7a1a;
 }
+.detailInputPrefix {
+  color: #ff7a1a;
+  display: grid;
+  font-size: 16px;
+  font-weight: 950;
+  place-items: center;
+  white-space: nowrap;
+}
 .categorySelectIcon, .categorySelectOptionIcon {
   display: grid; place-items: center; color: #ff7a1a;
 }
@@ -848,6 +2059,22 @@
 }
 .conditionSelectShell .categorySelectIcon {
   min-width: 16px;
+}
+.conditionSelectShell .categorySelectButton {
+  grid-column: 2;
+}
+.conditionSelectShell .categorySelectChevronButton {
+  grid-column: 3;
+}
+.conditionSelectShell[data-has-value="false"] {
+  grid-template-columns: minmax(0, 1fr) 18px !important;
+}
+.conditionSelectShell[data-has-value="false"] .categorySelectButton {
+  grid-column: 1;
+  color: #dce8f7;
+}
+.conditionSelectShell[data-has-value="false"] .categorySelectChevronButton {
+  grid-column: 2;
 }
 .conditionSelectCompact {
   min-width: 0;
@@ -867,13 +2094,35 @@
 .categorySelectShell svg:last-child {
   color: #fff; pointer-events: none;
 }
-.categorySelectButton, .detailInputShell input {
+.categorySelectButton, .detailInputShell input, .detailInputShell select {
   width: 100%; min-width: 0; border: 0; background: transparent; color: #f7f9fc; outline: none;
   font: inherit; font-size: 15px; line-height: 1.2; font-weight: 850; color-scheme: dark;
+}
+.detailInputShell select option,
+.detailInputShell select optgroup {
+  background: #061726;
+  background-color: #061726;
+  color: #dce8f7;
+  -webkit-text-fill-color: #dce8f7;
 }
 .categorySelectButton {
   display: block; min-height: 42px; padding: 0; background: transparent; text-align: left; cursor: pointer;
   white-space: normal; overflow-wrap: anywhere;
+}
+.categorySelectChevronButton {
+  display: grid;
+  width: 28px;
+  height: 42px;
+  margin: 0 -5px 0 0;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.categorySelectChevronButton > svg {
+  pointer-events: none;
 }
 .categorySelectPlaceholder {
   color: #7f8fa3;
@@ -913,7 +2162,7 @@
   max-height: none;
 }
 .categorySelectOption, .categorySelectOptionActive {
-  display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: center; gap: 9px; min-height: 40px; padding: 7px 10px;
+  display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 10px; min-height: 44px; padding: 6px 9px;
   border: 0; border-radius: 7px; background: #061726; background-color: #061726; color: #dce8f7; font: inherit;
   font-size: 13px; line-height: 1.25; font-weight: 850; text-align: left; cursor: pointer;
 }
@@ -1521,6 +2770,39 @@
 .multiPriceCell {
   display: grid; min-width: 0;
 }
+.categorySelectOptionIcon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255, 122, 26, 0.24);
+  border-radius: 9px;
+  background: rgba(255, 122, 26, 0.08);
+  color: #ff8a1a;
+}
+.categorySelectOptionIcon svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 2.2;
+}
+
+.detailInputShell select {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.multiActiveCurrency {
+  color: #ff9a4a;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.25;
+  margin-top: 3px;
+}
 .multiPriceSuggestion, .multiPriceSuggestionMuted {
   display: inline-flex; align-items: center; justify-self: start; min-height: 22px; padding: 0 8px; border-radius: 6px;
   font-size: 10px; line-height: 1; font-weight: 900;
@@ -1780,8 +3062,92 @@
   min-height: 48px; display: grid; align-items: center; padding: 12px 14px; border: 1px solid rgba(255, 122, 26, 0.4); border-radius: 10px;
   background: rgba(255, 122, 26, 0.1); color: #ffd0a0; font-size: 13px; line-height: 1.35; font-weight: 850;
 }
+.commercePanel {
+  display: grid; gap: 16px; padding: 18px; border: 1px solid rgba(255, 122, 26, .34); border-radius: 14px;
+  background: radial-gradient(circle at 0 0, rgba(255, 122, 26, .13), transparent 40%), rgba(4, 16, 29, .72);
+}
+.commercePanelHeader {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 13px; align-items: center;
+}
+.commercePanelHeader > span {
+  display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px;
+  background: linear-gradient(135deg, #ff9d2e, #ff6908); color: #fff; box-shadow: 0 10px 24px rgba(255, 105, 8, .24);
+}
+.commercePanelHeader strong { display: block; color: #fff; font-size: 17px; font-weight: 950; }
+.commercePanelHeader p { margin: 5px 0 0; color: #aebdd0; font-size: 13px; line-height: 1.4; font-weight: 700; }
+.commerceBlocked {
+  padding: 13px 14px; border: 1px solid rgba(255, 184, 92, .28); border-radius: 10px;
+  background: rgba(255, 153, 31, .1); color: #ffd0a0; font-size: 13px; font-weight: 800;
+}
+.commerceBlocked a { color: #fff; font-weight: 950; }
+.commerceToggle {
+  display: flex; gap: 12px; align-items: flex-start; padding: 14px; border: 1px solid rgba(143, 194, 243, .22); border-radius: 12px;
+  background: rgba(7, 27, 45, .84); cursor: pointer;
+}
+.commerceToggle input, .commerceDeliveryChoices input { width: 19px; height: 19px; accent-color: #ff7a1a; }
+.commerceToggle span { display: grid; gap: 4px; }
+.commerceToggle strong { color: #fff; font-size: 15px; }
+.commerceToggle small { color: #9fb0c5; font-size: 12px; line-height: 1.4; }
+.commercePurchaseChoices {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;
+}
+.commercePurchaseChoices button {
+  display: grid; gap: 6px; min-height: 92px; padding: 15px; text-align: left; cursor: pointer;
+  border: 1px solid rgba(143, 194, 243, .22); border-radius: 12px;
+  background: rgba(7, 27, 45, .84); color: #fff;
+}
+.commercePurchaseChoices button[data-active="true"] {
+  border-color: #ff8a24; background: linear-gradient(145deg, rgba(255, 122, 26, .2), rgba(7, 27, 45, .96));
+  box-shadow: 0 0 0 2px rgba(255, 122, 26, .13);
+}
+.commercePurchaseChoices strong { font-size: 15px; font-weight: 950; }
+.commercePurchaseChoices small { color: #aebdd0; font-size: 12px; line-height: 1.45; }
+.commerceFields {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+}
+.commerceSectionTitle {
+  grid-column: 1 / -1; display: grid; gap: 4px; margin-top: 5px; padding-top: 5px; color: #fff;
+}
+.commerceSectionTitle strong { font-size: 14px; font-weight: 950; }
+.commerceSectionTitle span { color: #9fb0c5; font-size: 12px; line-height: 1.4; }
+.commercePricePreview {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 152, 36, .28);
+  border-radius: 10px;
+  background: rgba(255, 122, 26, .09);
+  color: #d7e2ee;
+  font-size: 12px;
+}
+.commercePricePreview span,
+.commercePricePreview strong { padding: 5px 8px; border-radius: 7px; background: rgba(3, 16, 29, .54); }
+.commercePricePreview strong { color: #ffbd73; }
+.commerceFields > label { display: grid; gap: 6px; min-width: 0; color: #fff; font-size: 13px; font-weight: 850; }
+.commerceFields input, .commerceFields textarea {
+  width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid rgba(150, 176, 205, .3); border-radius: 9px;
+  background: #061321; color: #f7f9fc; outline: none; font: inherit; color-scheme: dark;
+}
+.commerceFields textarea { min-height: 82px; resize: vertical; }
+.commerceFields input:focus, .commerceFields textarea:focus { border-color: #ff7a1a; box-shadow: 0 0 0 3px rgba(255, 122, 26, .14); }
+.commerceFieldWide { grid-column: 1 / -1; }
+.commerceDeliveryChoices {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 12px 14px;
+  border: 1px solid rgba(143, 194, 243, .18); border-radius: 10px; background: rgba(3, 14, 26, .55); color: #fff;
+}
+.commerceDeliveryChoices label { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 850; }
 .publishStats {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px;
+}
+
+@media (max-width: 700px) {
+  .commercePurchaseChoices { grid-template-columns: 1fr; }
+  .commerceFields { grid-template-columns: 1fr; }
+  .commerceFieldWide, .commerceDeliveryChoices, .commerceSectionTitle, .commercePricePreview { grid-column: auto; }
+  .commerceDeliveryChoices { align-items: flex-start; flex-direction: column; }
 }
 .publishStats div, .publishRows div {
   min-width: 0; border: 1px solid rgba(143, 194, 243, 0.18); border-radius: 12px; background: rgba(4, 16, 29, 0.66); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
@@ -2841,6 +4207,30 @@
   --vehicle-control-hover: #edf1f2;
 }
 
+/* Keep the selected vehicle vertically centred at every browser zoom level.
+   The transparent native mobile select remains the interaction layer. */
+.vehicleTypeTrigger {
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.vehicleTypeTrigger strong {
+  display: block;
+  line-height: 1.35;
+  min-width: 0;
+  overflow: visible;
+  padding-block: 1px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .vehicleTypeTrigger {
+    min-height: 50px;
+    padding-block: 10px;
+  }
+}
+
 :global(html[data-theme="light"]) .vehicleSaleMetrics .detailInputShell input::placeholder,
 :global(html[data-theme="light"]) .presetSelectShell input::placeholder,
 :global(html[data-theme="light"]) .vehicleAccessoriesButtonValue {
@@ -2970,6 +4360,33 @@
 :global(html[data-theme="light"]) :is(.modeCardSelected, .vehicleTypeActive) {
   background: #fff6ef !important;
   border-color: #ff7a1a !important;
+}
+
+:global(html[data-theme="light"]) .verifiedCompanySellNotice {
+  background: transparent !important; border-color: transparent !important;
+}
+:global(html[data-theme="light"]) .saleMethodLabel strong { color: #101f2c !important; }
+:global(html[data-theme="light"]) .saleMethodLabel small { color: #647783 !important; }
+:global(html[data-theme="light"]) .companySaleMethod button { background: #ffffff; border-color: #c7d1d6; color: #253943; box-shadow: 0 5px 16px rgba(22, 35, 44, 0.06); }
+:global(html[data-theme="light"]) .companySaleMethod button[data-active="true"] { background: #fff7f0; border-color: #ff7a1a; color: #16232c; box-shadow: 0 8px 22px rgba(255, 122, 26, 0.12); }
+:global(html[data-theme="light"]) .saleMethodCopy strong { color: #101f2c !important; }
+:global(html[data-theme="light"]) .saleMethodCopy small { color: #61727d !important; }
+:global(html[data-theme="light"]) .saleMethodIcon { background: #f2f5f6; border-color: #cbd5da; color: #203747; }
+:global(html[data-theme="light"]) .companySaleMethod button[data-active="true"] .saleMethodIcon { background: #fff3e8; border-color: #ff7a1a; color: #ff6f0f; }
+:global(html[data-theme="light"]) .listingSaleMode { background: #f4f7f8; border-color: #bac7cd; color: #52656f; }
+:global(html[data-theme="light"]) .listingSaleMode[data-direct="true"] { background: #fff3e8; border-color: #ffad70; color: #bf5000; }
+
+:global(html[data-theme="light"]) :is(.commercePanel, .commercePurchaseChoices button, .commerceDeliveryChoices, .commercePricePreview) {
+  background: #f5f7f7 !important; background-image: none !important; border-color: #c1ccd1 !important; color: #16232c !important;
+}
+:global(html[data-theme="light"]) .commercePurchaseChoices button[data-active="true"] {
+  background: #fff4eb !important; border-color: #ff7a1a !important; box-shadow: 0 0 0 2px rgba(255, 122, 26, 0.1) !important;
+}
+:global(html[data-theme="light"]) :is(.commercePanelHeader strong, .commercePurchaseChoices strong, .commerceSectionTitle strong, .commerceFields > label, .commerceDeliveryChoices) {
+  color: #16232c !important;
+}
+:global(html[data-theme="light"]) :is(.commercePanelHeader p, .commercePurchaseChoices small, .commerceSectionTitle span) {
+  color: #50646f !important;
 }
 
 :global(html[data-theme="light"]) .modeIcon {
@@ -3856,5 +5273,3047 @@
 
   .multiListingDetails > :last-child {
     margin-bottom: 0;
+  }
+}
+
+/* 2026 listing wizard: shared structure for every listing type. */
+.page {
+  /* Follow the application-wide theme directly. The old fixed navy value
+     kept the page background dark even when the shared theme was light. */
+  --wizard-page: var(--maskines-page-background, var(--site-bg, #07131f));
+  --wizard-surface: #0d2030;
+  --wizard-surface-soft: #11283a;
+  --wizard-surface-raised: #162d40;
+  --wizard-border: rgba(151, 177, 199, 0.24);
+  --wizard-border-strong: rgba(151, 177, 199, 0.42);
+  --wizard-text: #f7fafc;
+  --wizard-muted: #9db0c0;
+  --wizard-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  --wizard-orange: #ff7417;
+  --wizard-orange-soft: rgba(255, 116, 23, 0.12);
+  --wizard-green: #20b866;
+  --wizard-green-soft: rgba(32, 184, 102, 0.13);
+  padding: 24px !important;
+  background: var(--wizard-page) !important;
+  background-image:
+    radial-gradient(circle at 8% 0%, rgba(255, 116, 23, 0.08), transparent 26%),
+    radial-gradient(circle at 96% 18%, rgba(47, 128, 184, 0.1), transparent 30%) !important;
+}
+
+:global(html[data-theme="light"]) .page {
+  --wizard-page: #f1f4f5;
+  --wizard-surface: #ffffff;
+  --wizard-surface-soft: #f6f8f9;
+  --wizard-surface-raised: #ffffff;
+  --wizard-border: #d7e0e5;
+  --wizard-border-strong: #b9c8d1;
+  --wizard-text: #0b1f33;
+  --wizard-muted: #64798a;
+  --wizard-shadow: 0 16px 42px rgba(24, 48, 66, 0.1);
+  --wizard-orange-soft: #fff2e9;
+  --wizard-green-soft: #eaf9f0;
+  background: var(--wizard-page) !important;
+  background-image:
+    radial-gradient(circle at 8% 0%, rgba(255, 116, 23, 0.07), transparent 28%),
+    radial-gradient(circle at 100% 12%, rgba(97, 146, 181, 0.08), transparent 30%) !important;
+}
+
+.shell,
+:global(html[data-theme="light"]) .shell {
+  display: block !important;
+  width: min(1480px, 100%) !important;
+  min-height: 0 !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.wizardTop {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid var(--wizard-border);
+  border-radius: 18px;
+  background: var(--wizard-surface);
+  color: var(--wizard-text);
+  box-shadow: var(--wizard-shadow);
+}
+
+.wizardTitleRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.wizardTitleIcon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ff922f, #ff6508);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(255, 101, 8, 0.22);
+}
+
+.wizardTitleRow > div:nth-child(2) {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.wizardTitleRow > div:nth-child(2) > span {
+  color: var(--wizard-orange) !important;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.16em;
+}
+
+.wizardTitleRow > div:nth-child(2) > strong {
+  color: var(--wizard-text) !important;
+  font-size: clamp(20px, 2vw, 27px);
+  line-height: 1.12;
+  font-weight: 950;
+}
+
+.wizardTitleRow > div:nth-child(2) > small {
+  color: var(--wizard-muted) !important;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.wizardResetButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--wizard-border-strong);
+  border-radius: 10px;
+  background: var(--wizard-surface-soft);
+  color: var(--wizard-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.wizardResetButton svg { color: var(--wizard-orange); }
+
+.wizardDesktopSteps {
+  display: grid;
+  grid-template-columns: repeat(var(--wizard-step-count, 7), minmax(0, 1fr));
+  gap: 8px;
+}
+
+.wizardDesktopSteps:has(> :nth-child(6):last-child) {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.wizardDesktopSteps:has(> :nth-child(7):last-child) {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.wizardDesktopSteps > button {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  min-height: 62px;
+  padding: 9px 10px;
+  border: 1px solid var(--wizard-border);
+  border-radius: 12px;
+  background: var(--wizard-surface-soft);
+  color: var(--wizard-text);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+
+.wizardDesktopSteps > button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 116, 23, 0.55);
+}
+
+.wizardDesktopSteps > button > span {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border-radius: 9px;
+  background: var(--wizard-surface-raised);
+  color: var(--wizard-muted) !important;
+}
+
+.wizardDesktopSteps > button > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wizardDesktopSteps > button strong,
+.wizardDesktopSteps > button small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wizardDesktopSteps > button strong {
+  color: var(--wizard-text) !important;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 950;
+}
+
+.wizardDesktopSteps > button small {
+  color: var(--wizard-muted) !important;
+  font-size: 9px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.wizardDesktopSteps > button > em {
+  color: var(--wizard-muted) !important;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.wizardDesktopSteps > .wizardDesktopStepActive {
+  border-color: var(--wizard-orange);
+  background: var(--wizard-orange-soft);
+  box-shadow: inset 0 -3px 0 var(--wizard-orange);
+}
+
+.wizardDesktopSteps > .wizardDesktopStepActive > span {
+  background: linear-gradient(135deg, #ff922f, #ff6508);
+  color: #fff !important;
+}
+
+.wizardDesktopSteps > .wizardDesktopStepCompleted {
+  border-color: rgba(32, 184, 102, 0.45);
+  background: var(--wizard-green-soft);
+}
+
+.wizardDesktopSteps > .wizardDesktopStepCompleted > span {
+  background: var(--wizard-green);
+  color: #fff !important;
+}
+
+.wizardDesktopSteps > .wizardDesktopStepCompleted > em {
+  color: var(--wizard-green) !important;
+}
+
+.wizardWorkspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: start;
+  gap: 20px;
+}
+
+.wizardMain { min-width: 0; }
+
+.content,
+.vehicleContent,
+:global(html[data-theme="light"]) .content,
+:global(html[data-theme="light"]) .vehicleContent {
+  display: grid !important;
+  align-content: start !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 26px !important;
+  overflow: visible !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 18px !important;
+  background: var(--wizard-surface) !important;
+  background-image: none !important;
+  color: var(--wizard-text) !important;
+  box-shadow: var(--wizard-shadow) !important;
+}
+
+.header,
+.vehicleHeader {
+  position: relative;
+  margin: 0 0 22px !important;
+  padding: 0 0 20px !important;
+  border-bottom: 1px solid var(--wizard-border) !important;
+}
+
+.header::before,
+.vehicleHeader::before {
+  display: none;
+  content: none;
+}
+
+.header h1,
+.header h2,
+.vehicleHeader h1 {
+  color: var(--wizard-text) !important;
+  text-shadow: none !important;
+}
+
+.header h1 {
+  font-size: clamp(28px, 3vw, 40px) !important;
+}
+
+.header h2 {
+  margin-top: 7px !important;
+  color: var(--wizard-text) !important;
+  font-size: clamp(18px, 2vw, 23px) !important;
+}
+
+.header p,
+.vehicleHeader p {
+  margin-top: 8px !important;
+  color: var(--wizard-muted) !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+}
+
+.vehicleHeader h1 {
+  font-size: clamp(27px, 3vw, 38px) !important;
+}
+
+.vehicleHeader h1 > span { color: var(--wizard-orange) !important; }
+
+.modeGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.modeCard,
+:global(html[data-theme="light"]) .modeCard {
+  min-height: 245px !important;
+  padding: 18px !important;
+  border-color: var(--wizard-border-strong) !important;
+  border-radius: 15px !important;
+  background: var(--wizard-surface-soft) !important;
+  background-image: none !important;
+  color: var(--wizard-text) !important;
+  box-shadow: none !important;
+}
+
+.modeCardSelected,
+:global(html[data-theme="light"]) .modeCardSelected {
+  border-color: var(--wizard-orange) !important;
+  background: var(--wizard-orange-soft) !important;
+  box-shadow: inset 0 0 0 1px var(--wizard-orange), 0 12px 28px rgba(255, 116, 23, 0.1) !important;
+}
+
+.modeIcon,
+:global(html[data-theme="light"]) .modeIcon {
+  background: var(--wizard-surface-raised) !important;
+  border-color: var(--wizard-border) !important;
+  color: var(--wizard-muted) !important;
+}
+
+.modeCard strong { color: var(--wizard-text) !important; }
+.modeCopy { color: var(--wizard-muted) !important; }
+
+.wizardSummary {
+  position: sticky;
+  top: calc(var(--topbar-h, 72px) + 18px);
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--wizard-border);
+  border-radius: 18px;
+  background: var(--wizard-surface);
+  color: var(--wizard-text);
+  box-shadow: var(--wizard-shadow);
+}
+
+.wizardSummaryHeading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+}
+
+.wizardSummaryHeading > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.wizardSummaryHeading span {
+  color: var(--wizard-orange) !important;
+  font-size: 9px;
+  font-weight: 950;
+  letter-spacing: 0.13em;
+}
+
+.wizardSummaryHeading strong {
+  color: var(--wizard-text) !important;
+  font-size: 17px;
+  line-height: 1.25;
+  font-weight: 950;
+}
+
+.wizardSummaryHeading em {
+  display: grid;
+  place-items: center;
+  min-width: 42px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--wizard-orange-soft);
+  color: var(--wizard-orange) !important;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.wizardSummaryProgress {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--wizard-surface-soft);
+}
+
+.wizardSummaryProgress i {
+  display: block;
+  width: var(--summary-progress);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff9a35, #ff6508);
+  transition: width 220ms ease;
+}
+
+.wizardSummaryList {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.wizardSummaryList > div {
+  display: grid;
+  gap: 5px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--wizard-border);
+}
+
+.wizardSummaryList > div:last-child { border-bottom: 0; }
+
+.wizardSummaryList dt {
+  color: var(--wizard-muted) !important;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.wizardSummaryList dd {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  color: var(--wizard-text) !important;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.wizardSummaryList dd svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--wizard-orange);
+}
+
+.wizardMultiSummary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.wizardMultiSummary > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--wizard-border);
+  border-radius: 11px;
+  background: var(--wizard-surface-soft);
+}
+
+.wizardMultiSummary svg { flex: 0 0 auto; color: var(--wizard-orange); }
+.wizardMultiSummary span { display: grid; gap: 1px; min-width: 0; }
+.wizardMultiSummary strong { color: var(--wizard-text) !important; font-size: 14px; }
+.wizardMultiSummary small { color: var(--wizard-muted) !important; font-size: 9px; line-height: 1.2; }
+
+.wizardSummaryHint {
+  margin: 0 !important;
+  padding: 11px 12px;
+  border-radius: 10px;
+  background: var(--wizard-surface-soft);
+  color: var(--wizard-muted) !important;
+  font-size: 10px !important;
+  line-height: 1.4 !important;
+}
+
+.wizardReadyNotice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(32, 184, 102, 0.4);
+  border-radius: 11px;
+  background: var(--wizard-green-soft);
+  color: var(--wizard-green);
+}
+
+.wizardReadyNotice > span { display: grid; gap: 2px; }
+.wizardReadyNotice strong { color: var(--wizard-text) !important; font-size: 12px; }
+.wizardReadyNotice small { color: var(--wizard-muted) !important; font-size: 10px; }
+
+.continueButton {
+  width: 190px !important;
+  min-height: 50px !important;
+  border-radius: 11px !important;
+}
+
+.vehicleActions,
+:global(html[data-theme="light"]) .vehicleActions {
+  position: sticky;
+  bottom: 12px;
+  z-index: 12;
+  display: grid !important;
+  grid-template-columns: 170px 190px !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin: 24px -10px -10px !important;
+  padding: 12px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 14px !important;
+  background: color-mix(in srgb, var(--wizard-surface) 92%, transparent) !important;
+  box-shadow: 0 10px 26px rgba(6, 24, 38, 0.13) !important;
+  backdrop-filter: blur(14px);
+}
+
+.vehicleActions > button {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 48px !important;
+  border-radius: 10px !important;
+}
+
+@media (max-width: 1160px) {
+  .wizardDesktopSteps {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  .wizardWorkspace { grid-template-columns: minmax(0, 1fr) 285px; }
+  .modeGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
+@media (max-width: 980px) {
+  .page { padding: 14px !important; }
+  .wizardTop { margin-bottom: 12px; padding: 14px; }
+  .wizardDesktopSteps { display: none; }
+  .mobileSteps,
+  :global(html[data-theme="light"]) .mobileSteps {
+    position: sticky;
+    top: var(--topbar-h, 0px);
+    z-index: 30;
+    display: grid;
+    gap: 9px;
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--wizard-border) !important;
+    border-radius: 14px !important;
+    background: color-mix(in srgb, var(--wizard-surface) 94%, transparent) !important;
+    color: var(--wizard-text) !important;
+    box-shadow: var(--wizard-shadow) !important;
+    backdrop-filter: blur(14px);
+  }
+  .mobileStepSummary strong { color: var(--wizard-text) !important; }
+  .mobileStepSummary small { color: var(--wizard-muted) !important; }
+  .mobileStepJumpList button {
+    background: var(--wizard-surface-soft) !important;
+    border-color: var(--wizard-border-strong) !important;
+    color: var(--wizard-muted) !important;
+  }
+  .mobileStepJumpList .mobileStepActive {
+    background: linear-gradient(135deg, #ff922f, #ff6508) !important;
+    border-color: var(--wizard-orange) !important;
+    color: #fff !important;
+  }
+  .mobileStepJumpList .mobileStepCompleted {
+    background: var(--wizard-green-soft) !important;
+    border-color: rgba(32, 184, 102, 0.45) !important;
+    color: var(--wizard-green) !important;
+  }
+  .wizardWorkspace { grid-template-columns: 1fr; gap: 12px; }
+  .wizardSummary {
+    position: static;
+    order: -1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 14px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+  .wizardSummaryProgress { grid-column: 1 / -1; }
+  .wizardSummaryList,
+  .wizardMultiSummary,
+  .wizardSummaryHint,
+  .wizardReadyNotice { display: none; }
+  .wizardSummaryHeading { grid-column: 1 / -1; }
+  .content,
+  .vehicleContent,
+  :global(html[data-theme="light"]) .content,
+  :global(html[data-theme="light"]) .vehicleContent {
+    padding: 20px !important;
+    border-radius: 14px !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .page { padding: 8px !important; }
+  .wizardTop { border-radius: 13px; }
+  .wizardTitleRow { grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; }
+  .wizardTitleIcon { width: 40px; height: 40px; border-radius: 11px; }
+  .wizardTitleRow > div:nth-child(2) > strong { font-size: 18px; }
+  .wizardTitleRow > div:nth-child(2) > small { display: none; }
+  .wizardResetButton { width: 38px; min-height: 38px; padding: 0; }
+  .wizardResetButton span { display: none; }
+  .mobileStepJumpList { gap: 5px; }
+  .mobileStepJumpList > button:not(.resetDraftButton) { flex-basis: 31px; width: 31px; }
+  .wizardSummary { padding: 12px; }
+  .content,
+  .vehicleContent,
+  :global(html[data-theme="light"]) .content,
+  :global(html[data-theme="light"]) .vehicleContent {
+    padding: 16px !important;
+    border-radius: 13px !important;
+  }
+  .header,
+  .vehicleHeader { margin-bottom: 16px !important; padding-bottom: 15px !important; }
+  .header h1 { font-size: 29px !important; }
+  .header h2 { font-size: 19px !important; }
+  .vehicleHeader h1 { font-size: 27px !important; }
+  .modeGrid { grid-template-columns: 1fr !important; }
+  .modeCard,
+  :global(html[data-theme="light"]) .modeCard {
+    min-height: 0 !important;
+    padding: 15px !important;
+  }
+  .continueButton { width: 100% !important; }
+  .vehicleActions,
+  :global(html[data-theme="light"]) .vehicleActions {
+    bottom: 6px;
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr) !important;
+    margin: 20px -8px -8px !important;
+    padding: 8px !important;
+  }
+  .vehicleActions > button { min-height: 46px !important; }
+}
+
+/* Unified form rhythm: every listing type uses the same field and panel geometry. */
+.vehicleContent,
+.content {
+  --sell-control-height: 52px;
+  --sell-control-radius: 10px;
+  --sell-field-gap: 9px;
+  --sell-grid-gap-x: 18px;
+  --sell-grid-gap-y: 20px;
+  --sell-panel-radius: 14px;
+  --sell-panel-padding: 24px;
+}
+
+.categoryStep,
+.conditionStep,
+.listingStack {
+  gap: 16px !important;
+}
+
+:is(
+  .vehicleForm,
+  .categoryPanel,
+  .productDetailsPanel,
+  .conditionPanel,
+  .detailsPanel,
+  .multiCategoryPanel,
+  .multiTreePanel,
+  .multiPricePanel,
+  .multiListingMetaPanel,
+  .companySellerPanel,
+  .publishPanel
+) {
+  border-radius: var(--sell-panel-radius) !important;
+}
+
+:is(.categoryPanel, .productDetailsPanel, .conditionPanel, .detailsPanel) {
+  gap: 18px !important;
+  padding: var(--sell-panel-padding) !important;
+}
+
+.categoryPanel h2,
+.productDetailsPanel h2,
+.conditionPanel h2,
+.detailsPanel h2 {
+  min-height: 24px;
+  margin: 0 !important;
+  font-size: 18px !important;
+  line-height: 1.3 !important;
+}
+
+.categorySelectGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: start !important;
+  gap: var(--sell-grid-gap-y) var(--sell-grid-gap-x) !important;
+}
+
+.ridingGearSelectGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.productDetailsGrid,
+.conditionGrid,
+.commerceFields,
+.formGridTwo {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: start !important;
+  gap: var(--sell-grid-gap-y) var(--sell-grid-gap-x) !important;
+}
+
+:is(
+  .field,
+  .presetField,
+  .categorySelectField,
+  .detailInputField,
+  .plainIconField,
+  .deliveryMethodField,
+  .trackMatDimensionField,
+  .companySellerSelect,
+  .commerceFields > label
+) {
+  align-self: start !important;
+  display: grid !important;
+  gap: var(--sell-field-gap) !important;
+  min-width: 0 !important;
+}
+
+:is(
+  .field,
+  .presetField,
+  .categorySelectField,
+  .detailInputField,
+  .plainIconField,
+  .deliveryMethodField,
+  .trackMatDimensionField,
+  .companySellerSelect,
+  .commerceFields > label
+) > :first-child:not(input):not(select):not(textarea):not(.categorySelectShell):not(.detailInputShell):not(.plainIconShell):not(.deliveryMethodSelectShell):not(.trackMatDimensionSelectShell) {
+  display: flex !important;
+  align-items: flex-end !important;
+  min-height: 36px !important;
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.28 !important;
+  font-weight: 900 !important;
+}
+
+.categorySelectShell,
+.detailInputShell,
+.plainIconShell,
+.deliveryMethodSelectShell,
+.trackMatDimensionSelectShell {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: var(--sell-control-height) !important;
+  min-height: var(--sell-control-height) !important;
+  max-height: var(--sell-control-height) !important;
+  box-sizing: border-box !important;
+  border: 1px solid var(--wizard-border-strong) !important;
+  border-radius: var(--sell-control-radius) !important;
+  background: var(--wizard-surface-raised) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.categorySelectShell {
+  grid-template-columns: 26px minmax(0, 1fr) 18px !important;
+  gap: 8px !important;
+  padding: 0 13px !important;
+}
+
+.detailInputShell,
+.plainIconShell {
+  grid-template-columns: 26px minmax(0, 1fr) !important;
+  gap: 8px !important;
+  padding: 0 13px !important;
+}
+
+.categorySelectButton,
+.detailInputShell input,
+.plainIconShell input,
+.deliveryMethodSelectShell select {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: calc(var(--sell-control-height) - 2px) !important;
+  min-height: calc(var(--sell-control-height) - 2px) !important;
+  max-height: calc(var(--sell-control-height) - 2px) !important;
+  box-sizing: border-box !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+}
+
+.presetSelectShell input,
+.field input,
+.field select,
+.companySellerSelect select,
+.commerceFields input {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: var(--sell-control-height) !important;
+  min-height: var(--sell-control-height) !important;
+  max-height: var(--sell-control-height) !important;
+  box-sizing: border-box !important;
+  border-radius: var(--sell-control-radius) !important;
+  font-size: 14px !important;
+}
+
+.categorySelectShell:focus-within,
+.detailInputShell:focus-within,
+.plainIconShell:focus-within,
+.deliveryMethodSelectShell:focus-within,
+.presetSelectShell input:focus,
+.field input:focus,
+.field select:focus,
+.commerceFields input:focus {
+  border-color: var(--wizard-orange) !important;
+  box-shadow: 0 0 0 3px rgba(255, 116, 23, 0.13) !important;
+}
+
+.categorySelectIcon,
+.detailInputShell > svg,
+.plainIconShell > svg,
+.detailInputPrefix {
+  display: grid !important;
+  place-items: center !important;
+  width: 24px !important;
+  min-width: 24px !important;
+  color: var(--wizard-orange) !important;
+}
+
+.categorySelectIcon svg,
+.detailInputShell > svg,
+.plainIconShell > svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.productDetailsGrid > *,
+.categorySelectGrid > *,
+.conditionGrid > *,
+.formGridTwo > * {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+.priceSuggestionCard {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 980px) {
+  .ridingGearSelectGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .vehicleContent,
+  .content {
+    --sell-control-height: 50px;
+    --sell-panel-padding: 16px;
+    --sell-grid-gap-x: 12px;
+    --sell-grid-gap-y: 15px;
+  }
+
+  .categorySelectGrid,
+  .ridingGearSelectGrid,
+  .productDetailsGrid,
+  .conditionGrid,
+  .commerceFields,
+  .formGridTwo {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  :is(
+    .field,
+    .presetField,
+    .categorySelectField,
+    .detailInputField,
+    .plainIconField,
+    .deliveryMethodField,
+    .trackMatDimensionField,
+    .companySellerSelect,
+    .commerceFields > label
+  ) > :first-child:not(input):not(select):not(textarea) {
+    min-height: 0 !important;
+  }
+
+  .categoryPanel h2,
+  .productDetailsPanel h2,
+  .conditionPanel h2,
+  .detailsPanel h2 {
+    font-size: 17px !important;
+  }
+}
+
+/* Reference layout: clean seven-step marketplace listing flow. */
+.page {
+  padding: 0 24px 28px !important;
+  background: var(--wizard-page) !important;
+}
+
+.wizardTop {
+  gap: 16px !important;
+  margin: 0 -24px 24px !important;
+  padding: 18px max(24px, calc((100vw - 1480px) / 2 + 24px)) 20px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--wizard-border) !important;
+  border-radius: 0 !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: none !important;
+}
+
+.wizardTitleRow {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 16px !important;
+}
+
+.wizardTitleRow > div:first-child {
+  display: block !important;
+}
+
+.wizardTitleRow > div:first-child > strong {
+  color: var(--wizard-text) !important;
+  font-size: 23px !important;
+  line-height: 1.2 !important;
+  font-weight: 950 !important;
+}
+
+.wizardResetButton {
+  min-height: 34px !important;
+  padding: 0 11px !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  color: var(--wizard-muted) !important;
+  box-shadow: none !important;
+}
+
+.wizardDesktopSteps {
+  display: grid !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  grid-auto-flow: row !important;
+  gap: 0 !important;
+  overflow: visible !important;
+}
+
+.wizardDesktopSteps[data-step-count="6"] {
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+}
+
+.wizardDesktopSteps[data-step-count="7"] {
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+}
+
+.wizardDesktopSteps > button {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  justify-items: center !important;
+  align-content: start !important;
+  gap: 8px !important;
+  min-height: 66px !important;
+  padding: 0 8px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-align: center !important;
+  transform: none !important;
+}
+
+.wizardDesktopSteps > button::after {
+  position: absolute;
+  z-index: 0;
+  top: 16px;
+  left: calc(50% + 20px);
+  width: calc(100% - 40px);
+  height: 2px;
+  background: var(--wizard-border);
+  content: "";
+}
+
+.wizardDesktopSteps > button:last-child::after { display: none; }
+
+.wizardDesktopSteps > button > span {
+  position: relative !important;
+  z-index: 1 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 34px !important;
+  height: 34px !important;
+  border: 1px solid var(--wizard-border-strong) !important;
+  border-radius: 999px !important;
+  background: var(--wizard-surface) !important;
+  color: var(--wizard-muted) !important;
+  box-shadow: 0 0 0 5px var(--wizard-surface) !important;
+}
+
+.wizardDesktopSteps > button > div {
+  display: block !important;
+  min-width: 0 !important;
+}
+
+.wizardDesktopSteps > button strong {
+  color: var(--wizard-muted) !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+}
+
+.wizardDesktopSteps > button small,
+.wizardDesktopSteps > button > em {
+  display: none !important;
+}
+
+.wizardDesktopSteps > .wizardDesktopStepActive > span {
+  border-color: var(--wizard-orange) !important;
+  background: linear-gradient(135deg, #ff8e25, #ff5e00) !important;
+  color: #fff !important;
+}
+
+.wizardDesktopSteps > .wizardDesktopStepActive strong {
+  color: var(--wizard-orange) !important;
+}
+
+.wizardDesktopSteps > .wizardDesktopStepCompleted > span {
+  border-color: #21ad5b !important;
+  background: #2fc46b !important;
+  color: #fff !important;
+}
+
+.wizardDesktopSteps > .wizardDesktopStepCompleted strong {
+  color: #15944a !important;
+}
+
+.wizardDesktopSteps > .wizardDesktopStepCompleted::after {
+  background: #35bd6d !important;
+}
+
+.wizardWorkspace {
+  grid-template-columns: minmax(0, 1fr) 360px !important;
+  gap: 24px !important;
+}
+
+.content,
+.vehicleContent,
+:global(html[data-theme="light"]) .content,
+:global(html[data-theme="light"]) .vehicleContent {
+  padding: 28px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 14px !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: 0 8px 28px rgba(22, 44, 62, 0.08) !important;
+}
+
+.header,
+.vehicleHeader {
+  margin: 0 0 20px !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+.header::before,
+.vehicleHeader::before {
+  display: none !important;
+}
+
+.header h1,
+.vehicleHeader h1 {
+  color: var(--wizard-text) !important;
+  font-size: clamp(28px, 3vw, 38px) !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.header p,
+.vehicleHeader p {
+  margin-top: 8px !important;
+  color: var(--wizard-muted) !important;
+  font-size: 15px !important;
+}
+
+.verifiedCompanySellNotice {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 10px !important;
+  margin: 0 0 20px !important;
+}
+
+.saleMethodLabel {
+  padding: 0 !important;
+}
+
+.saleMethodLabel > span strong {
+  color: var(--wizard-text) !important;
+  font-size: 14px !important;
+}
+
+.saleMethodLabel small { display: none !important; }
+
+.verifiedCompanySellNotice .companySaleMethod {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.companySaleMethod button {
+  min-height: 66px !important;
+  padding: 12px 16px !important;
+  border-radius: 10px !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: none !important;
+}
+
+.companySaleMethod button[data-active="true"] {
+  border-color: var(--wizard-orange) !important;
+  background: var(--wizard-orange-soft) !important;
+  box-shadow: inset 0 0 0 1px var(--wizard-orange) !important;
+}
+
+.saleMethodIcon {
+  width: 36px !important;
+  height: 36px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.saleMethodCopy small { display: none !important; }
+.saleMethodCopy strong { font-size: 14px !important; }
+.saleMethodCheck { width: 27px !important; height: 27px !important; }
+
+.modeGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.modeGrid::before { content: none; }
+
+.modeCard,
+:global(html[data-theme="light"]) .modeCard {
+  display: grid !important;
+  grid-template-columns: 58px minmax(0, 1fr) 32px !important;
+  grid-template-rows: auto auto !important;
+  align-items: center !important;
+  justify-items: start !important;
+  gap: 5px 14px !important;
+  min-height: 102px !important;
+  padding: 16px 18px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 10px !important;
+  background: var(--wizard-surface) !important;
+  color: var(--wizard-text) !important;
+  text-align: left !important;
+  transform: none !important;
+}
+
+.modeCardSelected,
+:global(html[data-theme="light"]) .modeCardSelected {
+  border-color: var(--wizard-orange) !important;
+  background: var(--wizard-orange-soft) !important;
+  box-shadow: inset 0 0 0 1px var(--wizard-orange) !important;
+}
+
+.modeIcon,
+:global(html[data-theme="light"]) .modeIcon {
+  grid-column: 1 !important;
+  grid-row: 1 / 3 !important;
+  width: 52px !important;
+  height: 52px !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--wizard-orange) !important;
+}
+
+.modeIcon svg { width: 38px !important; height: 38px !important; }
+
+.modeCard > strong {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  align-self: end !important;
+  padding: 0 !important;
+  color: var(--wizard-text) !important;
+  font-size: 15px !important;
+  line-height: 1.25 !important;
+}
+
+.modeCard > i,
+.listingSaleMode { display: none !important; }
+
+.modeCopy {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  align-self: start !important;
+  display: block !important;
+  color: var(--wizard-muted) !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+
+.modeCopy > span { display: none !important; }
+.modeCopy > span:first-child { display: block !important; }
+
+.modeCheck {
+  position: static !important;
+  grid-column: 3 !important;
+  grid-row: 1 / 3 !important;
+  width: 27px !important;
+  height: 27px !important;
+  align-self: center !important;
+  justify-self: end !important;
+  box-shadow: none !important;
+}
+
+.wizardSummary {
+  top: calc(var(--topbar-h, 72px) + 16px) !important;
+  gap: 0 !important;
+  padding: 24px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 14px !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: 0 8px 28px rgba(22, 44, 62, 0.08) !important;
+}
+
+.wizardSummaryHeading {
+  align-items: center !important;
+  padding: 0 0 16px !important;
+  border-bottom: 1px solid var(--wizard-border) !important;
+}
+
+.wizardSummaryHeading > div {
+  gap: 4px !important;
+}
+
+.wizardSummaryHeading strong {
+  color: var(--wizard-text) !important;
+  font-size: 18px !important;
+}
+
+.wizardSummaryHeading span {
+  color: var(--wizard-muted) !important;
+  font-size: 11px !important;
+  letter-spacing: 0 !important;
+}
+
+.wizardSummaryHeading > em {
+  display: none !important;
+}
+
+.wizardSummaryProgress {
+  height: 6px !important;
+  margin: 14px 0 8px !important;
+}
+
+.wizardSummaryList > div {
+  display: grid !important;
+  grid-template-columns: 48px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 14px 0 !important;
+}
+
+.wizardSummaryList > div > div {
+  display: grid !important;
+  gap: 3px !important;
+}
+
+.wizardSummaryItemIcon {
+  display: grid !important;
+  place-items: center !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 999px !important;
+  background: var(--wizard-orange-soft) !important;
+  color: var(--wizard-orange) !important;
+}
+
+.wizardSummaryList dt {
+  color: var(--wizard-muted) !important;
+  font-size: 11px !important;
+}
+
+.wizardSummaryList dd {
+  display: block !important;
+  color: var(--wizard-text) !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+}
+
+.wizardSummaryHint {
+  margin-top: 14px !important;
+}
+
+.wizardMultiSummary { margin-top: 14px !important; }
+.wizardReadyNotice { margin-top: 16px !important; }
+
+.wizardFooter {
+  position: sticky;
+  bottom: 0;
+  z-index: 25;
+  display: grid;
+  grid-template-columns: 210px minmax(280px, 430px);
+  justify-content: space-between;
+  gap: 18px;
+  margin: 24px -24px -28px;
+  padding: 16px max(24px, calc((100vw - 1480px) / 2 + 24px));
+  border-top: 1px solid var(--wizard-border);
+  background: color-mix(in srgb, var(--wizard-surface) 95%, transparent);
+  box-shadow: 0 -8px 24px rgba(22, 44, 62, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.wizardFooter > button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 54px !important;
+  padding: 0 20px !important;
+  border-radius: 10px !important;
+  font: inherit !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+}
+
+.wizardFooter .backButton {
+  border: 1px solid var(--wizard-border-strong) !important;
+  background: var(--wizard-surface) !important;
+  color: var(--wizard-text) !important;
+}
+
+.wizardFooter .nextButton {
+  border: 0 !important;
+  background: linear-gradient(135deg, #ff8d22, #ff5d00) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 24px rgba(255, 95, 0, 0.2) !important;
+}
+
+.categoryPanel,
+.productDetailsPanel,
+.conditionPanel,
+.detailsPanel,
+.multiListingMetaPanel,
+:global(html[data-theme="light"]) :is(.categoryPanel, .productDetailsPanel, .conditionPanel, .detailsPanel, .multiListingMetaPanel) {
+  border: 1px solid var(--wizard-border) !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: none !important;
+}
+
+.categoryPanel h2,
+.productDetailsPanel h2,
+.conditionPanel h2 {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 18px !important;
+}
+
+.categoryPanel h2::before,
+.productDetailsPanel h2::before,
+.conditionPanel h2::before {
+  display: block;
+  width: 9px;
+  height: 22px;
+  border: 2px solid var(--wizard-orange);
+  border-radius: 4px;
+  content: "";
+}
+
+.priceInventoryPanel .productDetailsGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.photoDropzone {
+  min-height: 280px !important;
+  border: 2px dashed var(--wizard-border) !important;
+  border-radius: 12px !important;
+  background: var(--wizard-surface) !important;
+}
+
+.photoEmptyTray {
+  display: grid;
+  gap: 16px;
+  padding: 20px 22px;
+  border: 1px solid var(--sell-border-soft);
+  border-radius: 16px;
+  background: var(--sell-panel);
+}
+
+.photoEmptyTrayHeading {
+  display: grid;
+  gap: 3px;
+}
+
+.photoEmptyTrayHeading strong {
+  color: var(--sell-text);
+  font-size: 15px;
+}
+
+.photoEmptyTrayHeading span {
+  color: var(--sell-muted);
+  font-size: 13px;
+}
+
+.photoEmptySlots {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(72px, 1fr));
+  gap: 14px;
+  overflow: hidden;
+}
+
+.photoEmptySlot {
+  display: grid;
+  min-height: 98px;
+  place-items: center;
+  color: #9daebe;
+  border: 1px dashed var(--sell-border);
+  border-radius: 12px;
+  background: var(--sell-control);
+}
+
+.photoUploadIcon {
+  width: 72px !important;
+  height: 72px !important;
+  border-radius: 999px !important;
+  background: var(--wizard-orange-soft) !important;
+  color: var(--wizard-orange) !important;
+}
+
+.photoChooseButton {
+  min-width: 150px !important;
+  min-height: 42px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #ff8d22, #ff5d00) !important;
+}
+
+.photoTips {
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 12px !important;
+  background: var(--wizard-surface) !important;
+}
+
+.detailsPanel {
+  padding: 26px !important;
+}
+
+.detailsField + .detailsField {
+  padding-top: 22px !important;
+  border-top: 1px solid var(--wizard-border) !important;
+}
+
+.detailsField input,
+.detailsField textarea {
+  border-color: var(--wizard-border-strong) !important;
+  background: var(--wizard-surface) !important;
+}
+
+.descriptionTips {
+  border-color: var(--wizard-border) !important;
+  background: var(--wizard-surface-soft) !important;
+}
+
+.publishPanel {
+  gap: 16px !important;
+  padding: 24px !important;
+  border: 1px solid var(--wizard-border) !important;
+  background: var(--wizard-surface) !important;
+}
+
+.publishHero {
+  border-color: rgba(32, 184, 102, 0.34) !important;
+  background: transparent !important;
+}
+
+@media (max-width: 1160px) {
+  .wizardDesktopSteps {
+    grid-template-columns: repeat(7, minmax(108px, 1fr)) !important;
+    overflow-x: auto !important;
+  }
+  .wizardDesktopSteps[data-step-count="6"] {
+    grid-template-columns: repeat(6, minmax(108px, 1fr)) !important;
+  }
+  .wizardWorkspace { grid-template-columns: minmax(0, 1fr) 300px !important; }
+}
+
+@media (max-width: 980px) {
+  .page { padding: 0 12px 20px !important; }
+  .wizardTop {
+    margin: 0 -12px 12px !important;
+    padding: 12px !important;
+  }
+  .wizardTitleRow > div:first-child > strong { font-size: 20px !important; }
+  .wizardWorkspace { grid-template-columns: minmax(0, 1fr) !important; }
+  .wizardSummary {
+    position: static !important;
+    display: grid !important;
+    order: -1 !important;
+    padding: 14px !important;
+  }
+  .wizardSummaryList {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0 14px !important;
+  }
+  .wizardSummaryList > div { padding: 10px 0 !important; }
+  .wizardSummaryHint { display: none !important; }
+  .wizardFooter {
+    margin: 12px -12px -20px !important;
+    padding: 10px 12px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .wizardResetButton span { display: none !important; }
+  .content,
+  .vehicleContent,
+  :global(html[data-theme="light"]) .content,
+  :global(html[data-theme="light"]) .vehicleContent {
+    padding: 16px !important;
+  }
+  .verifiedCompanySellNotice .companySaleMethod,
+  .modeGrid,
+  .priceInventoryPanel .productDetailsGrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .modeCard,
+  :global(html[data-theme="light"]) .modeCard {
+    grid-template-columns: 48px minmax(0, 1fr) 28px !important;
+    min-height: 88px !important;
+    padding: 13px !important;
+  }
+  .modeIcon,
+  :global(html[data-theme="light"]) .modeIcon {
+    width: 44px !important;
+    height: 44px !important;
+  }
+  .modeIcon svg { width: 30px !important; height: 30px !important; }
+  .wizardSummaryList { grid-template-columns: minmax(0, 1fr) !important; }
+  .wizardSummaryList > div:nth-child(n+4) { display: none !important; }
+  .wizardFooter {
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr) !important;
+    gap: 8px !important;
+  }
+  .wizardFooter > button {
+    min-height: 48px !important;
+    padding: 0 12px !important;
+    font-size: 13px !important;
+  }
+  .wizardFooter .nextButton span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .photoEmptySlots {
+    grid-template-columns: repeat(4, minmax(62px, 1fr));
+  }
+  .photoEmptySlot {
+    min-height: 74px;
+  }
+}
+
+/* Enforced final geometry. Keep this last so legacy wizard rules cannot override it. */
+.photoEmptyTray {
+  padding: 20px 22px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 14px !important;
+  background: var(--wizard-surface) !important;
+}
+.photoEmptyTrayHeading strong { color: var(--wizard-text) !important; }
+.photoEmptyTrayHeading span { color: var(--wizard-muted) !important; }
+.photoEmptySlots {
+  grid-template-columns: repeat(8, minmax(76px, 1fr)) !important;
+  gap: 14px !important;
+  overflow: visible !important;
+}
+.photoEmptySlot {
+  display: grid !important;
+  min-height: 98px !important;
+  place-items: center !important;
+  color: #9daebe !important;
+  border: 1px dashed var(--wizard-border-strong) !important;
+  border-radius: 11px !important;
+  background: var(--wizard-surface-soft) !important;
+}
+.wizardDesktopSteps > button > span {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+}
+.multiListingTable,
+.multiListingRow,
+.multiListingRowOpen { overflow: visible !important; }
+.multiListingRow {
+  position: relative !important;
+  z-index: 1 !important;
+  border-color: var(--wizard-border) !important;
+  background: var(--wizard-surface) !important;
+}
+.multiListingRow:focus-within,
+.multiListingRowOpen { z-index: 40 !important; }
+.multiListingSummary {
+  grid-template-columns: 24px 28px minmax(210px, 1fr) minmax(150px, 180px) minmax(160px, 190px) 34px !important;
+  gap: 12px !important;
+  min-height: 66px !important;
+  padding: 10px 12px !important;
+}
+.multiPriceCell {
+  display: grid !important;
+  min-width: 0 !important;
+  gap: 4px !important;
+}
+.multiPriceCell input {
+  min-width: 0 !important;
+  min-height: 44px !important;
+  padding: 0 12px !important;
+}
+.multiActiveCurrency {
+  display: block !important;
+  width: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--wizard-muted) !important;
+  background: transparent !important;
+  font-size: 10px !important;
+  line-height: 1.3 !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+.multiListingSummary .conditionSelectCompact {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.conditionSelectCompact .conditionSelectShell {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  grid-template-columns: 18px minmax(0, 1fr) 18px !important;
+}
+.conditionSelectCompact .categorySelectButton {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.conditionSelectCompact .categorySelectMenu {
+  z-index: 500 !important;
+  right: auto !important;
+  left: 0 !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+}
+:global(html[data-theme="light"]) .multiListingRow,
+:global(html[data-theme="light"]) .multiListingRowOpen {
+  border-color: #cbd7df !important;
+  background: #ffffff !important;
+}
+:global(html[data-theme="light"]) .multiListingRow input,
+:global(html[data-theme="light"]) .multiListingRow select,
+:global(html[data-theme="light"]) .multiListingRow textarea,
+:global(html[data-theme="light"]) .conditionSelectCompact .conditionSelectShell {
+  border-color: #b9c8d2 !important;
+  background: #ffffff !important;
+  color: #10243a !important;
+  -webkit-text-fill-color: #10243a !important;
+  color-scheme: light !important;
+}
+:global(html[data-theme="light"]) .conditionSelectCompact .categorySelectMenu {
+  border-color: #c3d0d9 !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #10243a !important;
+  box-shadow: 0 14px 32px rgba(16, 36, 58, 0.16) !important;
+  color-scheme: light !important;
+}
+:global(html[data-theme="light"]) .conditionSelectCompact .categorySelectMenu > button {
+  border: 0 !important;
+  background: #f5f7f8 !important;
+  color: #10243a !important;
+  -webkit-text-fill-color: #10243a !important;
+}
+:global(html[data-theme="light"]) .conditionSelectCompact .categorySelectMenu > button:hover,
+:global(html[data-theme="light"]) .conditionSelectCompact .categorySelectMenu > button[data-active="true"] {
+  background: #fff2e8 !important;
+  color: #10243a !important;
+}
+@media (max-width: 980px) {
+  .multiListingSummary { grid-template-columns: 24px minmax(0, 1fr) 32px !important; }
+  .multiListingSummary .multiPriceCell,
+  .multiListingSummary .conditionSelectCompact { grid-column: 1 / -1 !important; }
+  .photoEmptySlots { grid-template-columns: repeat(4, minmax(68px, 1fr)) !important; }
+}
+@media (max-width: 560px) {
+  .photoEmptySlots { grid-template-columns: repeat(3, minmax(64px, 1fr)) !important; }
+  .photoEmptySlot { min-height: 76px !important; }
+}
+
+.page,
+:global(html[data-theme="light"]) .page {
+  padding: 24px 16px 40px !important;
+}
+
+.shell,
+:global(html[data-theme="light"]) .shell {
+  display: block !important;
+  width: min(1380px, 100%) !important;
+  max-width: 1380px !important;
+  margin: 0 auto !important;
+}
+
+.wizardTop,
+:global(html[data-theme="light"]) .wizardTop {
+  width: 100% !important;
+  margin: 0 0 22px !important;
+  padding: 22px 28px 20px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 16px !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: 0 8px 26px rgba(22, 44, 62, 0.07) !important;
+}
+
+.wizardDesktopSteps {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 82px !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  grid-auto-flow: row !important;
+  overflow: visible !important;
+}
+
+.wizardDesktopSteps[data-step-count="6"] {
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+}
+
+.wizardDesktopSteps > button {
+  min-width: 0 !important;
+  min-height: 76px !important;
+  padding: 2px 8px 0 !important;
+}
+
+.wizardDesktopSteps > button strong {
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  font-size: 12px !important;
+}
+
+.wizardWorkspace {
+  width: 100% !important;
+  max-width: none !important;
+  grid-template-columns: minmax(0, 1fr) 340px !important;
+  align-items: start !important;
+  gap: 24px !important;
+}
+
+.wizardMain,
+.content,
+.vehicleContent {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+.content,
+:global(html[data-theme="light"]) .content {
+  padding: 28px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 16px !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: 0 8px 26px rgba(22, 44, 62, 0.07) !important;
+}
+
+.vehicleContent,
+:global(html[data-theme="light"]) .vehicleContent {
+  display: grid !important;
+  gap: 18px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.header,
+.vehicleHeader {
+  margin: 0 !important;
+  padding: 4px 2px 0 !important;
+}
+
+.header h1,
+.vehicleHeader h1 {
+  font-size: clamp(30px, 3vw, 42px) !important;
+  letter-spacing: -0.035em !important;
+}
+
+.header p,
+.vehicleHeader p {
+  margin-top: 7px !important;
+  font-size: 16px !important;
+}
+
+.verifiedCompanySellNotice {
+  grid-template-columns: 190px minmax(0, 1fr) !important;
+  gap: 18px !important;
+  margin: 22px 0 24px !important;
+}
+
+.verifiedCompanySellNotice .companySaleMethod {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.modeGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+}
+
+.modeCard,
+:global(html[data-theme="light"]) .modeCard {
+  grid-template-columns: 64px minmax(0, 1fr) 28px !important;
+  grid-template-rows: auto auto !important;
+  align-items: center !important;
+  justify-items: stretch !important;
+  align-content: center !important;
+  gap: 4px 16px !important;
+  min-height: 108px !important;
+  padding: 16px 18px !important;
+  text-align: left !important;
+}
+
+.modeCard .modeIcon {
+  grid-row: 1 / 3 !important;
+  width: 58px !important;
+  height: 58px !important;
+}
+
+.modeCard > strong {
+  grid-column: 2 !important;
+  align-self: end !important;
+  font-size: 16px !important;
+}
+
+.modeCard .modeCopy {
+  grid-column: 2 !important;
+  align-self: start !important;
+  max-width: none !important;
+  font-size: 12px !important;
+}
+
+.modeCard > i,
+.modeCard .listingSaleMode { display: none !important; }
+
+.modeCard .modeCheck {
+  position: static !important;
+  grid-column: 3 !important;
+  grid-row: 1 / 3 !important;
+  align-self: center !important;
+  justify-self: end !important;
+}
+
+.wizardSummary {
+  position: sticky !important;
+  top: calc(var(--topbar-h, 72px) + 18px) !important;
+  width: 100% !important;
+  padding: 24px !important;
+}
+
+.wizardSummaryList > div {
+  grid-template-columns: 48px minmax(0, 1fr) !important;
+  gap: 14px !important;
+  padding: 16px 0 !important;
+}
+
+.vehicleForm {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 18px 24px !important;
+  padding: 26px !important;
+}
+
+.vehicleFormSectionHeading,
+.vehicleSaleMetrics,
+.vehicleSaleDetails,
+.vehicleSaleSpecifications { grid-column: 1 / -1 !important; }
+.vehicleTypePicker { grid-column: auto !important; }
+
+.categoryStep { gap: 14px !important; }
+.categoryPanel,
+.productDetailsPanel,
+.conditionPanel,
+.detailsPanel,
+.photosStep,
+.publishPanel { padding: 24px !important; }
+.categorySelectGrid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 18px !important; }
+.productDetailsGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 18px !important; }
+.priceInventoryPanel .productDetailsGrid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.conditionGrid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 18px !important; }
+.photoTips { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+
+.wizardFooter {
+  width: 100% !important;
+  grid-template-columns: 210px minmax(320px, 480px) !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  margin: 22px 0 0 !important;
+  padding: 14px 18px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 14px !important;
+}
+
+@media (max-width: 1120px) {
+  .wizardWorkspace { grid-template-columns: minmax(0, 1fr) 300px !important; }
+}
+
+@media (max-width: 900px) {
+  .page,
+  :global(html[data-theme="light"]) .page { padding: 12px 10px 24px !important; }
+  .wizardTop { padding: 16px !important; }
+  .wizardDesktopSteps { display: none !important; }
+  .mobileSteps { display: grid !important; margin-bottom: 14px !important; }
+  .wizardWorkspace { grid-template-columns: minmax(0, 1fr) !important; }
+  .wizardSummary { position: static !important; order: -1 !important; }
+  .wizardSummaryList { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
+@media (max-width: 680px) {
+  .content { padding: 18px !important; }
+  .verifiedCompanySellNotice,
+  .verifiedCompanySellNotice .companySaleMethod,
+  .modeGrid,
+  .vehicleForm,
+  .categorySelectGrid,
+  .productDetailsGrid,
+  .priceInventoryPanel .productDetailsGrid,
+  .conditionGrid,
+  .photoTips,
+  .wizardSummaryList {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .modeCard,
+  :global(html[data-theme="light"]) .modeCard {
+    grid-template-columns: 52px minmax(0, 1fr) 26px !important;
+    min-height: 94px !important;
+    padding: 14px !important;
+  }
+  .vehicleForm,
+  .categoryPanel,
+  .productDetailsPanel,
+  .conditionPanel,
+  .detailsPanel,
+  .photosStep,
+  .publishPanel { padding: 16px !important; }
+  .wizardFooter {
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr) !important;
+    padding: 9px !important;
+  }
+}
+
+/* Final responsive safety layer. This must remain last in the stylesheet. */
+.page {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: clip !important;
+}
+
+.page *,
+.page *::before,
+.page *::after {
+  box-sizing: border-box;
+}
+
+.shell,
+.wizardTop,
+.wizardWorkspace,
+.wizardMain,
+.content,
+.vehicleContent,
+.listingStack,
+.multiListingWizard,
+.multiListingCategory,
+.multiListingCategoryBody,
+.multiListingGroup,
+.multiListingTable,
+.multiListingRow,
+.multiListingSummary,
+.multiListingDetails,
+.wizardSummary,
+.wizardFooter {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.multiActiveCurrency {
+  display: none !important;
+}
+
+.multiListingSummary {
+  grid-template-columns: 24px 28px minmax(180px, 1fr) minmax(150px, 180px) minmax(180px, 210px) 34px !important;
+}
+
+.multiListingSummary .conditionSelectCompact,
+.multiListingSummary .conditionSelectCompact .conditionSelectShell {
+  min-width: 180px !important;
+}
+
+.conditionSelectCompact .categorySelectButton {
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.multiListingRow input,
+.multiListingRow select,
+.multiListingRow textarea,
+.categorySelectButton,
+.detailInputShell input,
+.plainIconShell input {
+  max-width: 100% !important;
+}
+
+@media (max-width: 1180px) {
+  .wizardWorkspace {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .wizardSummary {
+    position: static !important;
+    top: auto !important;
+  }
+
+  .multiListingWizard {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .multiListingSummary {
+    grid-template-columns: 24px 28px minmax(0, 1fr) 34px !important;
+    grid-template-rows: auto auto !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .multiListingSummary .multiRowArrow {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  .multiListingSummary .multiListingIndex {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+
+  .multiListingSummary .multiPartIdentity {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+  }
+
+  .multiListingSummary .multiListingActions {
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+  }
+
+  .multiListingSummary .multiPriceCell {
+    grid-column: 1 / 3 !important;
+    grid-row: 2 !important;
+  }
+
+  .multiListingSummary .conditionSelectCompact {
+    grid-column: 3 / 5 !important;
+    grid-row: 2 !important;
+    min-width: 0 !important;
+  }
+
+  .multiListingSummary .conditionSelectCompact .conditionSelectShell {
+    min-width: 0 !important;
+  }
+
+  .multiListingDetails {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .page,
+  :global(html[data-theme="light"]) .page {
+    padding-right: 8px !important;
+    padding-left: 8px !important;
+  }
+
+  .wizardTop,
+  .content,
+  .categoryPanel,
+  .productDetailsPanel,
+  .conditionPanel,
+  .detailsPanel,
+  .photosStep,
+  .publishPanel {
+    border-radius: 12px !important;
+  }
+
+  .multiListingCategoryHeader,
+  .multiListingGroupHeader {
+    align-items: flex-start !important;
+  }
+
+  .multiListingHeaderTitle,
+  .multiListingGroupTitle {
+    flex-wrap: wrap !important;
+  }
+
+  .multiListingSummary {
+    grid-template-columns: 24px 26px minmax(0, 1fr) 32px !important;
+  }
+
+  .multiListingSummary .multiPriceCell {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+  }
+
+  .multiListingSummary .conditionSelectCompact {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+  }
+
+  .multiListingSummary .conditionSelectCompact,
+  .multiListingSummary .conditionSelectCompact .conditionSelectShell {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .multiListingDetails {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 12px !important;
+  }
+
+  .multiListingDetails > *,
+  .multiListingWideField,
+  .multiPartPhotos {
+    grid-column: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .wizardFooter {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) !important;
+    gap: 8px !important;
+  }
+
+  .wizardFooter > button {
+    min-width: 0 !important;
+    padding-right: 10px !important;
+    padding-left: 10px !important;
+  }
+}
+
+/* One breakpoint owns the step navigation: never render desktop and phone UIs together. */
+@media (min-width: 821px) {
+  .mobileSteps,
+  :global(html[data-theme="light"]) .mobileSteps {
+    display: none !important;
+  }
+
+  .wizardDesktopSteps {
+    display: grid !important;
+  }
+}
+
+@media (min-width: 821px) and (max-width: 1180px) {
+  .wizardSummary {
+    order: initial !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .wizardDesktopSteps {
+    display: none !important;
+  }
+
+  .mobileSteps,
+  :global(html[data-theme="light"]) .mobileSteps {
+    display: grid !important;
+  }
+}
+
+/* Final visual defect fixes shared by every listing-creation flow. */
+.vehicleFormSectionHeading {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  gap: 12px !important;
+  overflow: hidden !important;
+  background: transparent !important;
+}
+
+.vehicleFormSectionHeading > strong {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  gap: 12px !important;
+  background: transparent !important;
+  white-space: nowrap !important;
+}
+
+.vehicleFormSectionHeading > strong::after {
+  display: block !important;
+  flex: 1 1 auto !important;
+  min-width: 24px !important;
+  height: 1px !important;
+  border: 0 !important;
+  background: var(--wizard-border) !important;
+  box-shadow: none !important;
+  content: "" !important;
+}
+
+.vehicleFormSectionHeading > span {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+:global(html[data-theme="light"]) .vehicleFormSectionHeading > strong::after {
+  background: #cbd7df !important;
+}
+
+.wizardTop,
+.wizardSummary,
+.wizardFooter,
+.content,
+.vehicleForm,
+.categoryPanel,
+.productDetailsPanel,
+.conditionPanel,
+.detailsPanel,
+.photosStep,
+.publishPanel,
+.multiListingCategory,
+.multiListingGroup,
+.multiListingRow {
+  background-clip: padding-box !important;
+  isolation: isolate;
+}
+
+.wizardTop,
+.wizardSummary,
+.wizardFooter {
+  overflow: hidden !important;
+}
+
+.wizardMain {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.vehicleWorkspace,
+.vehicleForm,
+.categoryStep,
+.conditionStep,
+.listingStack {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+.vehicleForm,
+.categoryPanel,
+.productDetailsPanel,
+.conditionPanel,
+.detailsPanel,
+.photosStep,
+.publishPanel {
+  border-color: var(--wizard-border) !important;
+}
+
+@media (max-width: 560px) {
+  .vehicleFormSectionHeading {
+    gap: 9px !important;
+  }
+
+  .vehicleFormSectionHeading > strong {
+    gap: 9px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* Definitive heading, field and summary corrections. */
+.vehicleFormSectionHeading {
+  display: block !important;
+  width: auto !important;
+  overflow: visible !important;
+}
+
+.vehicleFormSectionHeading > strong {
+  display: inline-block !important;
+  width: auto !important;
+  background: transparent !important;
+}
+
+.vehicleFormSectionHeading > strong::after,
+.vehicleFormSectionHeading > span {
+  display: none !important;
+  content: none !important;
+}
+
+.vehicleForm {
+  overflow: visible !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.vehicleTypePicker {
+  align-self: start !important;
+  gap: 8px !important;
+}
+
+.vehicleTypeTrigger {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 20px !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-height: 52px !important;
+  height: 52px !important;
+  padding: 0 14px !important;
+  border: 1px solid var(--wizard-border-strong) !important;
+  border-radius: 10px !important;
+  background: var(--wizard-control) !important;
+  background-image: none !important;
+  color: var(--wizard-text) !important;
+  box-shadow: none !important;
+}
+
+.vehicleTypeTrigger strong {
+  min-width: 0 !important;
+  color: var(--wizard-text) !important;
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.vehicleTypeTrigger > svg {
+  width: 18px !important;
+  height: 18px !important;
+  color: var(--wizard-orange) !important;
+}
+
+.vehicleTypeTrigger:hover,
+.vehicleTypePickerOpen .vehicleTypeTrigger {
+  border-color: var(--wizard-orange) !important;
+  background: var(--wizard-orange-soft) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--wizard-orange) 16%, transparent) !important;
+}
+
+:global(html[data-theme="light"]) .vehicleTypeTrigger {
+  border-color: #b9c8d2 !important;
+  background: #ffffff !important;
+  color: #10243a !important;
+}
+
+:global(html[data-theme="light"]) .vehicleTypeTrigger:hover,
+:global(html[data-theme="light"]) .vehicleTypePickerOpen .vehicleTypeTrigger {
+  border-color: #ff6a00 !important;
+  background: #fff7f0 !important;
+}
+
+@media (min-width: 821px) {
+  .wizardSummary {
+    position: sticky !important;
+    top: calc(var(--topbar-h, 72px) + 18px) !important;
+    align-self: start !important;
+  }
+}
+
+/* Structural replacements: no separator strip, aligned controls, truly fixed summary. */
+.vehicleFormSectionTitle {
+  grid-column: 1 / -1 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 2px 0 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: var(--wizard-text) !important;
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  font-weight: 950 !important;
+  box-shadow: none !important;
+}
+
+.vehicleFormSectionTitle::before,
+.vehicleFormSectionTitle::after {
+  display: none !important;
+  content: none !important;
+}
+
+.wizardTop,
+:global(html[data-theme="light"]) .wizardTop {
+  overflow: clip !important;
+  box-shadow: none !important;
+  clip-path: inset(0 round 16px);
+}
+
+@media (min-width: 821px) and (max-width: 1180px) {
+  .wizardSummary {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .wizardSummary {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+  }
+}
+
+/* Final vehicle-form geometry and a normal, non-following summary card.
+   Keep this block last: it replaces earlier experimental sticky positioning. */
+.vehicleForm {
+  align-items: start !important;
+  align-content: start !important;
+  grid-auto-flow: row !important;
+  column-gap: 24px !important;
+  row-gap: 20px !important;
+  overflow: visible !important;
+}
+
+.vehicleTypePicker,
+.presetField {
+  display: grid !important;
+  grid-template-rows: minmax(20px, auto) 52px !important;
+  align-self: start !important;
+  align-items: stretch !important;
+  align-content: start !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+  min-height: 79px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.vehicleTypeLabel,
+.presetField > span:first-child {
+  position: static !important;
+  display: block !important;
+  align-self: end !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 20px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--wizard-text) !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  font-weight: 900 !important;
+  transform: none !important;
+}
+
+.presetSelectShell,
+.vehicleTypeTrigger {
+  position: relative !important;
+  align-self: start !important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  margin: 0 !important;
+}
+
+.vehicleTypeTrigger {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 20px !important;
+  align-items: center !important;
+}
+
+.presetSelectShell input {
+  position: static !important;
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+.wizardWorkspace {
+  position: relative !important;
+  align-items: start !important;
+  overflow: visible !important;
+}
+
+@media (min-width: 981px) {
+  .wizardWorkspace {
+    grid-template-columns: minmax(0, 1fr) 340px !important;
+    gap: 24px !important;
+  }
+
+  .wizardSummary {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    left: auto !important;
+    z-index: 4 !important;
+    align-self: start !important;
+    order: initial !important;
+    width: 100% !important;
+    max-width: 340px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overscroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .wizardWorkspace {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .wizardSummary {
+    position: static !important;
+    inset: auto !important;
+    order: -1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 820px) {
+  .wizardSummary {
+    display: none !important;
+  }
+}
+
+.wizardTop,
+:global(html[data-theme="light"]) .wizardTop {
+  contain: paint !important;
+  overflow: hidden !important;
+  clip-path: none !important;
+  background-clip: padding-box !important;
+}
+
+.wizardTop::before,
+.wizardTop::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Compact, explicitly paired vehicle fields. */
+.vehicleForm {
+  column-gap: 18px !important;
+  row-gap: 10px !important;
+}
+
+.vehicleForm > .vehicleTypePicker,
+.vehicleForm > .presetField {
+  grid-template-rows: 20px 50px !important;
+  gap: 4px !important;
+  min-height: 74px !important;
+  inset: auto !important;
+  transform: none !important;
+}
+
+.vehicleForm > .vehicleTypePicker {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+}
+
+.vehicleForm > .presetField[data-preset-key="vehicleSubtype"] {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+}
+
+.vehicleForm > .presetField[data-preset-key="brand"] {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+}
+
+.vehicleForm > .presetField[data-preset-key="model"] {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+}
+
+.vehicleForm > .presetField[data-preset-key="year"] {
+  grid-column: 1 !important;
+  grid-row: 3 !important;
+}
+
+.vehicleForm > .presetField[data-preset-key="engineCc"] {
+  grid-column: 2 !important;
+  grid-row: 3 !important;
+}
+
+.vehicleForm > .presetField[data-preset-key="engineType"] {
+  grid-column: 1 !important;
+  grid-row: 4 !important;
+}
+
+.vehicleForm > .vehicleTypePicker .vehicleTypeTrigger,
+.vehicleForm > .presetField .presetSelectShell,
+.vehicleForm > .presetField .presetSelectShell input {
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+}
+
+@media (max-width: 720px) {
+  .vehicleForm > .vehicleTypePicker,
+  .vehicleForm > .presetField {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+
+  .vehicleForm {
+    row-gap: 8px !important;
+  }
+}
+
+/* Every open create-listing menu must stay above the following cards and footer. */
+.wizardWorkspace:has([role="listbox"]) {
+  position: relative !important;
+  z-index: 200 !important;
+  overflow: visible !important;
+}
+
+.wizardWorkspace:has([role="listbox"]) + .wizardFooter {
+  z-index: 10 !important;
+}
+
+.wizardMain:has([role="listbox"]),
+.vehicleContent:has([role="listbox"]),
+.vehicleWorkspace:has([role="listbox"]),
+.categoryStep:has([role="listbox"]),
+.conditionStep:has([role="listbox"]),
+.listingStack:has([role="listbox"]),
+.multiListingWizard:has([role="listbox"]) {
+  position: relative !important;
+  z-index: 210 !important;
+  overflow: visible !important;
+}
+
+.vehicleForm:has([role="listbox"]),
+.categoryPanel:has([role="listbox"]),
+.productDetailsPanel:has([role="listbox"]),
+.conditionPanel:has([role="listbox"]),
+.multiListingCategory:has([role="listbox"]),
+.multiListingGroup:has([role="listbox"]),
+.multiListingRow:has([role="listbox"]) {
+  position: relative !important;
+  z-index: 220 !important;
+  overflow: visible !important;
+  isolation: auto !important;
+}
+
+.presetField:has(.presetSelectOpen),
+.categorySelectField:has(.categorySelectOpen),
+.vehicleTypePickerOpen {
+  position: relative !important;
+  z-index: 230 !important;
+}
+
+.presetOptionList[role="listbox"],
+.categorySelectMenu[role="listbox"],
+.vehicleTypeMenu[role="listbox"],
+.trackMatDimensionPartMenu[role="listbox"] {
+  z-index: 9999 !important;
+}
+
+/* Final responsive cleanup for the create-listing flow. */
+.commerceDeliveryPanel {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.commerceDeliveryPanel h2 {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.commerceDeliveryPanel h2::before {
+  display: none !important;
+  content: none !important;
+}
+
+.commerceDeliveryPanel h2 > svg {
+  flex: 0 0 auto;
+  color: var(--wizard-orange) !important;
+}
+
+.commerceDeliveryGrid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px 18px !important;
+  width: 100% !important;
+}
+
+.commerceDeliveryGrid > * {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 820px) {
+  .wizardTop {
+    display: none !important;
+  }
+
+  .vehicleForm {
+    grid-template-columns: minmax(0, 1fr) !important;
+    column-gap: 0 !important;
+    row-gap: 8px !important;
+  }
+
+  .vehicleForm > .vehicleTypePicker,
+  .vehicleForm > .presetField {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .vehicleSaleMetrics {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .vehicleSaleMetrics > *,
+  .vehicleOptionButtons,
+  .vehicleOptionButtons > * {
+    grid-column: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .vehicleOptionButtons {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .vehicleOptionButtons .vehicleAccessoriesButton {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-height: 52px !important;
+  }
+
+  .vehicleAccessoriesButton > span,
+  .vehicleAccessoriesButtonValue {
+    min-width: 0 !important;
+  }
+
+  .vehicleAccessoriesButton strong,
+  .vehicleAccessoriesButtonValue {
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+  }
+
+  .commerceDeliveryPanel {
+    padding: 18px 16px !important;
+  }
+
+  .commerceDeliveryPanel .vehicleSaleStepCopy {
+    margin-bottom: 14px !important;
+  }
+
+  .commerceDeliveryGrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+}
+
+/* Phone layout: native picker overlays must follow a true one-column form. */
+@media (max-width: 820px) {
+  .vehicleForm {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 16px !important;
+  }
+
+  .vehicleForm > *,
+  .vehicleForm > .vehicleTypePicker,
+  .vehicleForm > .presetField,
+  .vehicleForm > .presetField[data-preset-key] {
+    flex: 0 0 auto !important;
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
+  .vehicleForm > .vehicleTypePicker,
+  .vehicleForm > .presetField {
+    grid-template-rows: minmax(20px, auto) 50px !important;
+    min-height: 74px !important;
+  }
+
+  .vehicleSaleMetrics {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .categoryPanel h2::before,
+  .productDetailsPanel h2::before,
+  .conditionPanel h2::before {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    border: 0 !important;
+    content: none !important;
+  }
+
+  .categoryPanel h2,
+  .productDetailsPanel h2,
+  .conditionPanel h2 {
+    gap: 0 !important;
+  }
+
+  .vehicleHeader {
+    margin-bottom: 14px !important;
+    padding-bottom: 0 !important;
+  }
+
+  .vehicleHeader h1 {
+    max-width: 100% !important;
+    margin: 0 0 7px !important;
+    font-size: clamp(26px, 7.4vw, 30px) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -0.025em !important;
+  }
+
+  .vehicleHeader p {
+    margin: 0 !important;
+    font-size: 15px !important;
+    line-height: 1.45 !important;
+  }
+}
+
+/* Flat, consistent form language for every create-listing flow. */
+.categoryPanel,
+.productDetailsPanel,
+.conditionPanel,
+.detailsPanel,
+.multiListingMetaPanel {
+  min-height: 0 !important;
+  padding: 22px 24px !important;
+  border: 1px solid var(--wizard-border) !important;
+  border-radius: 12px !important;
+  background: var(--wizard-surface) !important;
+  box-shadow: none !important;
+}
+
+.categoryPanel h2,
+.productDetailsPanel h2,
+.conditionPanel h2,
+.detailsPanel h2 {
+  gap: 0 !important;
+  padding-bottom: 14px !important;
+  border-bottom: 1px solid var(--wizard-border) !important;
+  font-size: 18px !important;
+}
+
+.categoryPanel h2::before,
+.productDetailsPanel h2::before,
+.conditionPanel h2::before,
+.detailsPanel h2::before {
+  display: none !important;
+  content: none !important;
+}
+
+.categorySelectGrid,
+.productDetailsGrid,
+.conditionGrid,
+.commerceFields,
+.formGridTwo {
+  gap: 16px 18px !important;
+}
+
+.priceInventoryPanel .productDetailsGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.categorySelectShell,
+.detailInputShell,
+.plainIconShell,
+.deliveryMethodSelectShell,
+.trackMatDimensionSelectShell {
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+  border: 1px solid var(--wizard-border-strong) !important;
+  border-radius: 8px !important;
+  background: var(--wizard-surface-raised) !important;
+  box-shadow: none !important;
+}
+
+.categorySelectShell {
+  grid-template-columns: minmax(0, 1fr) 18px !important;
+  gap: 10px !important;
+  padding: 0 14px !important;
+}
+
+/* The condition icon is hidden in the flat form variant, so keep the value
+   in the flexible column instead of the old (icon-based) 18px column. */
+.conditionSelectShell .categorySelectButton,
+.conditionSelectShell[data-has-value="false"] .categorySelectButton {
+  grid-column: 1 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+}
+
+.conditionSelectShell .categorySelectChevronButton,
+.conditionSelectShell[data-has-value="false"] .categorySelectChevronButton {
+  grid-column: 2 !important;
+}
+
+.detailInputShell,
+.plainIconShell {
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 0 !important;
+  padding: 0 14px !important;
+}
+
+.detailInputShell:has(.detailInputPrefix) {
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  gap: 10px !important;
+}
+
+.categorySelectIcon,
+.categorySelectOptionIcon,
+.detailInputShell > svg,
+.plainIconShell > svg {
+  display: none !important;
+}
+
+.categorySelectButton,
+.detailInputShell input,
+.detailInputShell select,
+.plainIconShell input,
+.deliveryMethodSelectShell select {
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.categorySelectMenu[data-sell-category-menu="true"] {
+  gap: 0 !important;
+  padding: 6px !important;
+  border: 1px solid var(--wizard-border-strong) !important;
+  border-radius: 9px !important;
+  background: var(--wizard-surface-raised) !important;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .36) !important;
+}
+
+.categorySelectMenu[data-sell-category-menu="true"] > [data-sell-category-option="true"] {
+  display: block !important;
+  width: 100% !important;
+  min-height: 42px !important;
+  padding: 10px 12px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--wizard-text) !important;
+  text-align: left !important;
+}
+
+.categorySelectMenu[data-sell-category-menu="true"] > [data-sell-category-option="true"]:is(:hover, [data-active="true"]) {
+  background: rgba(255, 116, 23, .12) !important;
+  color: var(--wizard-text) !important;
+}
+
+@media (max-width: 680px) {
+  .categoryPanel,
+  .productDetailsPanel,
+  .conditionPanel,
+  .detailsPanel,
+  .multiListingMetaPanel {
+    padding: 16px !important;
+  }
+
+  .priceInventoryPanel .productDetailsGrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* Final mobile vehicle selector alignment. */
+.vehicleTypeTrigger strong {
+  align-self: center !important;
+  display: block !important;
+  line-height: 1.35 !important;
+  padding: 1px 0 !important;
+}
+
+@media (max-width: 760px) {
+  .vehicleTypeTrigger {
+    overflow: visible !important;
   }
 }

@@ -25,10 +25,10 @@ export const branding = {
   tagline: "Käytettyjen moottorinosien tori",
 
   /** Logokuvan polku (public/-kansiosta). Jätä tyhjäksi jos käytät tekstilogoa */
-  logoSrc: "/arctic-parts-logo.jpg",
+  logoSrc: "/maskines-brand-mark-clean-v4.png",
 
   /** Näytetäänkö logokuva vai pelkkä teksti? */
-  useLogoImage: false,
+  useLogoImage: true,
 
   /**
    * Brändivärit
@@ -38,9 +38,9 @@ export const branding = {
    * - dark: tumma taustaväri (admin / hallintapaneelit)
    */
   colors: {
-    primary: "#0ea5e9",
-    primaryDark: "#0369a1",
-    accent: "#22d3ee",
+    primary: "#ff7417",
+    primaryDark: "#d95500",
+    accent: "#ff941f",
     dark: "#0b1a2f",
     darkSurface: "#102640",
     darkSurfaceStrong: "#0c1e36"

@@ -35,7 +35,7 @@ function firstListingImage(listing: {
 }
 
 function logoFallback() {
-  return Response.redirect(absoluteSiteUrl("/maskines-share-logo.png"), 307);
+  return Response.redirect(absoluteSiteUrl("/maskines-brand-share-v2.png"), 307);
 }
 
 export async function GET(

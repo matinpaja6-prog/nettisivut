@@ -43,16 +43,6 @@ export function purgeInvalidLocaleStorage() {
 
     for (let index = localStorage.length - 1; index >= 0; index -= 1) {
       const key = localStorage.key(index);
-      if (!key?.startsWith("visitor-language:")) continue;
-
-      const value = localStorage.getItem(key);
-      if (!isLocale(value)) {
-        localStorage.removeItem(key);
-      }
-    }
-
-    for (let index = localStorage.length - 1; index >= 0; index -= 1) {
-      const key = localStorage.key(index);
       if (!key?.startsWith("auto-ui-translations:")) continue;
 
       const locale = key.split(":").pop();
@@ -91,12 +81,6 @@ export function applyLocale(nextLocale: SupportedLocale) {
   }
   localStorage.setItem("locale", nextLocale);
   document.cookie = `locale=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
-  for (let index = 0; index < localStorage.length; index += 1) {
-    const key = localStorage.key(index);
-    if (key?.startsWith("visitor-language:")) {
-      localStorage.setItem(key, nextLocale);
-    }
-  }
   document.documentElement.lang = nextLocale;
   removeLocaleSearchParam();
   window.dispatchEvent(new CustomEvent("localechange", { detail: nextLocale }));
@@ -2638,6 +2622,10 @@ export function translateCategory(locale: SupportedLocale, value: string) {
 }
 
 export function useLanguage() {
+  // The first client render must match the server render. Reading the
+  // document or localStorage here made a remembered language (for example
+  // Swedish) render before hydration while the server markup was Finnish.
+  // The layout effect below applies the saved locale immediately afterwards.
   const [locale, setLocaleState] = useState<SupportedLocale>("fi");
 
   useLayoutEffect(() => {

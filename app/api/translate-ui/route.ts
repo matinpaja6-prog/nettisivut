@@ -45,7 +45,10 @@ function cacheTranslation(key: string, value: string) {
 async function translateWithGoogle(text: string, targetLocale: UiLocale) {
   const query = new URLSearchParams({
     client: "gtx",
-    sl: "auto",
+    // Application copy is authored in Finnish. An explicit source language
+    // prevents brand names and already-localized fragments from being
+    // reinterpreted as another language by automatic detection.
+    sl: "fi",
     tl: targetLocale,
     dt: "t",
     q: text
@@ -60,13 +63,52 @@ async function translateWithGoogle(text: string, targetLocale: UiLocale) {
   return payload?.[0]?.map((part: unknown[]) => part?.[0] ?? "").join("").trim() || null;
 }
 
+async function translateBatchWithOpenAi(texts: string[], targetLocale: UiLocale) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey || texts.length === 0) return {} as Record<string, string>;
+  const language = targetLocale === "sv" ? "Swedish" : targetLocale === "no" ? "Norwegian Bokmål" : "English";
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: process.env.OPENAI_TRANSLATION_MODEL || "gpt-4.1-mini",
+      input: [
+        `Translate each Finnish marketplace UI string into ${language}.`,
+        "Preserve placeholders, numbers, currencies, brand names, punctuation and capitalization. Do not omit, combine or explain any item.",
+        "Return only JSON with a translations array in exactly the same order and length as the input array.",
+        `Input: ${JSON.stringify(texts)}`
+      ].join("\n"),
+      text: { format: { type: "json_object" } }
+    }),
+    cache: "no-store",
+    signal: AbortSignal.timeout(25_000)
+  });
+  if (!response.ok) return {} as Record<string, string>;
+  const data = await response.json();
+  const output = data.output_text
+    ?? data.output?.flatMap((item: { content?: Array<{ text?: string }> }) => item.content ?? []).map((item: { text?: string }) => item.text ?? "").join("");
+  try {
+    const parsed = JSON.parse(output || "{}") as { translations?: unknown };
+    const translatedItems = parsed.translations;
+    if (!Array.isArray(translatedItems) || translatedItems.length !== texts.length) return {} as Record<string, string>;
+    return Object.fromEntries(texts.flatMap((source, index) => {
+      const value = translatedItems[index];
+      const translated = typeof value === "string" ? value.trim() : "";
+      return translated && translated !== source ? [[source, translated]] : [];
+    }));
+  } catch {
+    return {} as Record<string, string>;
+  }
+}
+
 async function translateMissingWithFallback(texts: string[], targetLocale: UiLocale) {
-  const output: Record<string, string> = {};
+  const output = await translateBatchWithOpenAi(texts, targetLocale);
+  const missingTexts = texts.filter((text) => !output[text]);
   let cursor = 0;
 
   async function worker() {
-    while (cursor < texts.length) {
-      const text = texts[cursor++];
+    while (cursor < missingTexts.length) {
+      const text = missingTexts[cursor++];
       try {
         const translated = await translateWithGoogle(text, targetLocale);
         if (translated && translated !== text) output[text] = translated;
@@ -76,7 +118,7 @@ async function translateMissingWithFallback(texts: string[], targetLocale: UiLoc
     }
   }
 
-  await Promise.all(Array.from({ length: Math.min(6, texts.length) }, worker));
+  await Promise.all(Array.from({ length: Math.min(4, missingTexts.length) }, worker));
   return output;
 }
 

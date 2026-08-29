@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     url: absoluteSiteUrl("/"),
     images: [
       {
-        url: absoluteSiteUrl("/maskines-share-logo.png"),
+        url: absoluteSiteUrl("/maskines-brand-share-v2.png"),
         width: 1200,
         height: 1200,
         alt: "Maskines – pienkoneiden ajoneuvot ja varaosat"
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "Maskines: Osta ja myy varaosat ja ajoneuvot",
     description:
       "Osta ja myy varaosia ja ajoneuvoja: moottorikelkkoja, mönkijöitä, motocross-pyöriä ja mopoja.",
-    images: [absoluteSiteUrl("/maskines-share-logo.png")]
+    images: [absoluteSiteUrl("/maskines-brand-share-v2.png")]
   }
 };
 
@@ -47,7 +47,14 @@ function serializeStructuredData(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams
+}: {
+  searchParams: Promise<{ q?: string | string[] }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const rawSearchQuery = resolvedSearchParams.q;
+  const initialSearchQuery = (Array.isArray(rawSearchQuery) ? rawSearchQuery[0] : rawSearchQuery)?.trim() ?? "";
   // In development the browser client already restores cached listings and
   // refreshes them after the first paint. Waiting for the remote Supabase
   // request here made every localhost reload block for several seconds.
@@ -55,8 +62,8 @@ export default async function HomePage() {
   const listings = process.env.NODE_ENV === "development"
     ? []
     : (await getListings({
-        includeOptionalFields: false,
-        enrichSellerProfiles: false,
+        includeOptionalFields: true,
+        enrichSellerProfiles: true,
         limit: 48
       })).data;
 
@@ -73,7 +80,7 @@ export default async function HomePage() {
         url: PUBLIC_SITE_URL,
         logo: {
           "@type": "ImageObject",
-          url: absoluteSiteUrl("/maskines-share-logo.png")
+          url: absoluteSiteUrl("/maskines-brand-share-v2.png")
         }
       },
       {
@@ -106,7 +113,10 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
       />
-      <HomeClient initialListings={publicListings} />
+      <HomeClient
+        initialListings={publicListings}
+        initialSearchQuery={initialSearchQuery}
+      />
     </>
   );
 }

@@ -1,20 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import homeStyles from "../../page.module.css";
-import { Bell, Building2, CalendarDays, Check, ChevronDown, ChevronRight, CircleX, Clock3, Cog, Crosshair, ExternalLink, Globe2, Heart, MapPin, MessageCircle, Palette, RotateCcw, Search, Shield, ShoppingBag, SlidersHorizontal, Star, Tag, TrendingDown, TrendingUp, UserCheck, UserPlus, Users, X } from "lucide-react";
+import { ArrowDownWideNarrow, ArrowRight, Bell, Bookmark, Building2, CalendarDays, Check, ChevronDown, ChevronRight, ChevronUp, CircleX, Clock3, Cog, CreditCard, Crosshair, ExternalLink, Globe2, Heart, LayoutGrid, List, MapPin, MessageCircle, PackageCheck, Palette, Phone, RotateCcw, Search, Shield, ShoppingBag, ShoppingCart, SlidersHorizontal, Star, Store, Tag, TrendingDown, TrendingUp, Truck, UserCheck, UserPlus, Users, X } from "lucide-react";
 import { formatPrice, isVehicleListing, normalizeVehicleType, type Listing } from "@/lib/listings";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import { generatedUiTranslations } from "@/lib/generated-ui-translations";
+import { commerceUiTranslations } from "@/lib/commerce-ui-translations";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 import { calculateSellerLevel } from "@/lib/seller-level";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
-import { readCachedListings } from "@/lib/client-listings-cache";
-import { listingPath, listingUrlId, pagePath, profilePath } from "@/lib/routes";
+import { listingPath, listingUrlId, pagePath, profilePath, publicCompanyDisplayName } from "@/lib/routes";
 import {
   buildVehicleCategoriesFromTaxonomy,
   categoriesAsRecord,
@@ -23,6 +23,14 @@ import {
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
 import OptimizedListingImage from "@/app/components/OptimizedListingImage";
+import ListingSalePrice from "@/app/components/ListingSalePrice";
+import { useCurrency } from "@/app/components/CurrencyProvider";
+import PageLoadingFallback from "@/app/components/PageLoadingFallback";
+import commerceStyles from "@/app/commerce.module.css";
+import premiumStyles from "./premium-company-profile.module.css";
+import { addCartProduct } from "@/lib/commerce/cart";
+import { activeSaleDiscountPercent, activeSalePrice } from "@/lib/commerce/discounts";
+import type { PublicProduct, PublicStorefront } from "@/lib/commerce/types";
 import {
   MARKETPLACE_YEAR_FILTER_MIN,
   buildMarketplaceCategorySource,
@@ -39,6 +47,7 @@ import {
   getPublicProfile,
   getPublicSellerLevelStats,
   getReviewsBySeller,
+  createSellerReview,
   ensureListingTranslations,
   followProfile,
   saveListing,
@@ -73,6 +82,195 @@ type PublicProfile = Pick<
   | "created_at"
   | "phone_verified_at"
 >;
+
+type StorefrontItemView = {
+  kind: "product" | "listing";
+  key: string;
+  product: PublicProduct | null;
+  listing: Listing | null;
+  mode: "parts" | "vehicles" | "gear";
+  category: string;
+  subcategory: string;
+  vehicleType: string;
+  vehicleSubtype: string;
+  brand: string;
+  model: string;
+  year: string;
+  engineCc: string;
+  engineModel: string;
+  title: string;
+  description: string;
+  priceCents: number;
+  createdAt: string;
+  pickupAvailable: boolean;
+  shippingAvailable: boolean;
+};
+
+type ProfileDesktopFilterChoice = {
+  id: string;
+  title: string;
+  description: string;
+  active: boolean;
+  count: number;
+  onSelect: () => void;
+};
+
+type ProfileDesktopFilterTab = {
+  id: string;
+  label: string;
+};
+
+function ProfileDesktopFilterPanel({
+  dialogTitleId,
+  scrollScope,
+  subtitle,
+  resultCount,
+  saved,
+  choices,
+  tabs,
+  activeTab,
+  onSave,
+  onClear,
+  onApply,
+  onClose,
+  onTabSelect,
+  children
+}: {
+  dialogTitleId: string;
+  scrollScope: string;
+  subtitle: string;
+  resultCount: number;
+  saved: boolean;
+  choices: ProfileDesktopFilterChoice[];
+  tabs: ProfileDesktopFilterTab[];
+  activeTab: string;
+  onSave: () => void;
+  onClear: () => void;
+  onApply: () => void;
+  onClose: () => void;
+  onTabSelect: (tabId: string) => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className={homeStyles.desktopFullFilterPanel} role="dialog" aria-modal="true" aria-labelledby={dialogTitleId}>
+      <header className={homeStyles.desktopFullFilterTopbar}>
+        <div className={homeStyles.desktopFullHeading}>
+          <strong id={dialogTitleId}>Kaikki hakuehdot</strong>
+          <small>{subtitle}</small>
+        </div>
+        <button type="button" className={homeStyles.desktopSaveSearch} onClick={onSave}>
+          <Bookmark size={17} aria-hidden="true" />
+          {saved ? "Haku tallennettu" : "Tallenna haku"}
+        </button>
+        <button type="button" className={homeStyles.desktopFullSearchButton} onClick={onApply}>
+          Hae ({resultCount.toLocaleString("fi-FI")})
+        </button>
+        <button type="button" className={homeStyles.desktopFullClose} aria-label="Sulje kaikki hakuehdot" onClick={onClose}>
+          <X size={25} aria-hidden="true" />
+        </button>
+      </header>
+
+      <div className={homeStyles.desktopFullUtilityRow}>
+        <div><span className={premiumStyles.profileFilterScopeText}>Vain tämän profiilin myynnissä olevat tuotteet</span></div>
+        <button type="button" onClick={onClear}>Tyhjennä</button>
+      </div>
+
+      <section className={homeStyles.desktopMarketplaceChooser} aria-label="Valitse ilmoitustyyppi">
+        <span>Mitä etsit?</span>
+        <div style={{ gridTemplateColumns: `repeat(${Math.max(1, choices.length)}, minmax(0, 1fr))` }}>
+          {choices.map((choice) => (
+            <button
+              key={choice.id}
+              type="button"
+              className={choice.active ? homeStyles.desktopMarketplaceChoiceActive : ""}
+              onClick={choice.onSelect}
+            >
+              <strong>{choice.title}</strong>
+              <small>{choice.description} · {choice.count}</small>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <nav className={homeStyles.desktopFullTabs} aria-label="Hakuehtojen osiot">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            className={activeTab === tab.id ? homeStyles.desktopFullTabActive : ""}
+            onClick={() => onTabSelect(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
+      <div className={homeStyles.desktopFullFilterScroll} data-profile-desktop-filter-scroll={scrollScope}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function ProfileDesktopSelect({
+  label,
+  value,
+  allLabel,
+  options,
+  onChange
+}: {
+  label: string;
+  value: string;
+  allLabel: string;
+  options: string[];
+  onChange: (value: string) => void;
+}) {
+  if (options.length === 0) return null;
+
+  return (
+    <label className={homeStyles.desktopFullField}>
+      <span>{label}</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)}>
+        <option value="">{allLabel}</option>
+        {options.map((option) => <option key={option} value={option}>{option}</option>)}
+      </select>
+    </label>
+  );
+}
+
+function ProfileDesktopCategoryStep({
+  number,
+  title,
+  description,
+  value,
+  options,
+  enabled,
+  disabledLabel,
+  onChange
+}: {
+  number: number;
+  title: string;
+  description: string;
+  value: string;
+  options: Array<{ value: string; label: string }>;
+  enabled: boolean;
+  disabledLabel: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className={homeStyles.desktopCategoryStep} data-enabled={enabled ? "true" : "false"}>
+      <header>
+        <span>{number}</span>
+        <div><strong>{title}</strong><small>{description}</small></div>
+      </header>
+      <select aria-label={title} disabled={!enabled} value={enabled ? value : ""} onChange={(event) => onChange(event.target.value)}>
+        {!enabled
+          ? <option value="">{disabledLabel}</option>
+          : <><option value="">Kaikki</option>{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</>}
+      </select>
+    </div>
+  );
+}
 
 function FractionalRatingStar({ percentage }: { percentage: number }) {
   const gradientId = `seller-rating-${useId().replace(/:/g, "")}`;
@@ -391,9 +589,10 @@ function getSellerInitials(name: string, locale: Locale) {
 }
 
 type TabKey = "listings" | "reviews" | "about";
-type ListingSort = "relevance" | "newest" | "oldest" | "priceAsc" | "priceDesc" | "nearest";
+type ListingSort = "relevance" | "newest" | "oldest" | "priceAsc" | "priceDesc";
+type StorefrontSort = ListingSort;
 type ReviewSort = "newest" | "oldest" | "highest" | "lowest";
-type SellerListingMode = "parts" | "vehicles";
+type SellerListingMode = "parts" | "vehicles" | "gear";
 type SellerListingResultMode = SellerListingMode | "all";
 
 const SELLER_VEHICLE_ENGINE_KIND_OPTIONS = ["2-tahti", "4-tahti", "Diesel", "Sähkö"] as const;
@@ -417,6 +616,117 @@ const SELLER_VEHICLE_PRICE_FILTER_MAX = 100000;
 function sellerVehicleDescriptionValue(description: string | null | undefined, label: string) {
   const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return (description ?? "").match(new RegExp(`${escapedLabel}:\\s*([^\\r\\n]+)`, "i"))?.[1]?.trim() ?? "";
+}
+
+function storefrontItemMode(listing: Listing | null, ...labels: Array<string | null | undefined>): StorefrontItemView["mode"] {
+  if (listing && isVehicleListing(listing)) return "vehicles";
+  const text = normalizeSellerFilterText(labels.join(" "));
+  const gearTerms = ["ajovarust", "ajoasu", "ajokenka", "ajosaapas", "kypara", "kypärä", "hanska", "suojavarust"];
+  return gearTerms.some((term) => text.includes(normalizeSellerFilterText(term))) ? "gear" : "parts";
+}
+
+function sellerListingModeForListing(listing: Listing): SellerListingMode {
+  return storefrontItemMode(
+    listing,
+    listing.category,
+    listing.subcategory,
+    listing.vehicle_type,
+    listing.title,
+    listing.description
+  );
+}
+
+const STOREFRONT_SEARCH_LOCALES: Locale[] = ["fi", "en", "sv", "no"];
+
+function storefrontItemSearchText(view: StorefrontItemView) {
+  const listing = view.listing;
+  const translatedListingText = listing
+    ? STOREFRONT_SEARCH_LOCALES.flatMap((language) => [
+        listing.translations?.[language]?.title,
+        listing.translations?.[language]?.description
+      ])
+    : [];
+  const translatedTaxonomy = STOREFRONT_SEARCH_LOCALES.flatMap((language) => [
+    translateCategory(language, view.category),
+    ...view.subcategory.split("/").map((part) => translateCategory(language, part.trim())),
+    translateCategory(language, view.vehicleType)
+  ]);
+  const listingNumber = listing?.listing_number ? String(listing.listing_number) : "";
+
+  return [
+    view.title,
+    view.description,
+    view.category,
+    view.subcategory,
+    view.vehicleType,
+    view.vehicleSubtype,
+    view.brand,
+    view.model,
+    view.year,
+    view.engineCc,
+    view.engineModel,
+    listing?.title,
+    listing?.description,
+    listing?.part_number,
+    listing?.part_model,
+    listing?.condition,
+    listing?.location,
+    listing?.id,
+    listingNumber,
+    listingNumber ? `id${listingNumber}` : "",
+    ...translatedListingText,
+    ...translatedTaxonomy
+  ].filter(Boolean).join(" ");
+}
+
+function storefrontSearchMatches(haystack: string, query: string) {
+  const needle = normalizeSellerFilterText(query);
+  if (!needle) return true;
+
+  const searchable = normalizeSellerFilterText(haystack);
+  if (searchable.includes(needle)) return true;
+
+  const searchableWords = searchable.split(" ").filter(Boolean);
+  return needle.split(" ").filter(Boolean).every((word) =>
+    searchableWords.some((candidate) =>
+      candidate === word ||
+      candidate.startsWith(word) ||
+      (word.length >= 4 && candidate.includes(word))
+    )
+  );
+}
+
+function storefrontSearchScore(view: StorefrontItemView, query: string) {
+  const needle = normalizeSellerFilterText(query);
+  const title = normalizeSellerFilterText(view.title);
+  const listingTitles = view.listing
+    ? STOREFRONT_SEARCH_LOCALES.map((language) => normalizeSellerFilterText(view.listing?.translations?.[language]?.title))
+    : [];
+  const titles = [title, ...listingTitles].filter(Boolean);
+  let score = 0;
+
+  if (titles.some((candidate) => candidate === needle)) score += 120;
+  else if (titles.some((candidate) => candidate.startsWith(needle))) score += 90;
+  else if (titles.some((candidate) => candidate.includes(needle))) score += 70;
+  if (normalizeSellerFilterText(`${view.brand} ${view.model}`).includes(needle)) score += 55;
+  if (normalizeSellerFilterText(`${view.listing?.part_number ?? ""} ${view.listing?.part_model ?? ""}`).includes(needle)) score += 65;
+
+  return score;
+}
+
+function storefrontItemHref(view: StorefrontItemView) {
+  if (view.product) return `/tuotteet/${view.product.id}`;
+  if (view.listing) return listingPath(listingUrlId(view.listing));
+  return "#yrityksen-yhteystiedot";
+}
+
+function storefrontItemImageSrc(view: StorefrontItemView, index = 0) {
+  return view.product?.image_urls?.find(Boolean) ||
+    (view.listing ? listingImageSrc(view.listing, index) : "/maskines-brand-mark-clean-v4.png");
+}
+
+function storefrontItemDisplayTitle(view: StorefrontItemView, locale: Locale) {
+  return view.listing ? getLocalizedListingText(view.listing, locale).title : view.title;
 }
 
 function sellerVehicleDescriptionNumber(description: string | null | undefined, label: string) {
@@ -633,10 +943,11 @@ const vehicleTypeTranslations: Record<Locale, Record<string, string>> = {
 export default function SellerProfileClient({ sellerId }: { sellerId: string }) {
   const router = useRouter();
   const { t, locale } = useLanguage();
+  const { formatFromEur } = useCurrency();
   const sft = useCallback((text: string) => {
     if (locale === "fi") return text;
     const translations = generatedUiTranslations as Partial<Record<Exclude<Locale, "fi">, Record<string, string>>>;
-    return translations[locale]?.[text] ?? text;
+    return commerceUiTranslations[locale]?.[text] ?? translations[locale]?.[text] ?? text;
   }, [locale]);
   const taxonomy = useTaxonomy();
   const partsCategories = useMemo(() => categoriesAsRecord(taxonomy), [taxonomy]);
@@ -658,10 +969,39 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     return merged;
   }, [partsCategories, vehicleCategories]);
   const [profile, setProfile] = useState<PublicProfile | null>(null);
-  const [listings, setListings] = useState<Listing[]>(() =>
-    readCachedListings().filter((listing) => listing.seller_id === sellerId)
-  );
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [listings, setListings] = useState<Listing[]>([]);
   const [reviews, setReviews] = useState<SellerReview[]>([]);
+  const [commerceProducts, setCommerceProducts] = useState<PublicProduct[]>([]);
+  const [commerceProductsLoading, setCommerceProductsLoading] = useState(true);
+  const [storefront, setStorefront] = useState<PublicStorefront | null>(null);
+  const [storefrontLoading, setStorefrontLoading] = useState(true);
+  const [storefrontMode, setStorefrontMode] = useState<"all" | "parts" | "vehicles" | "gear">("all");
+  const [storefrontCategory, setStorefrontCategory] = useState("");
+  const [storefrontSubcategoryParent, setStorefrontSubcategoryParent] = useState("");
+  const [storefrontSubcategory, setStorefrontSubcategory] = useState("");
+  const [storefrontVehicleType, setStorefrontVehicleType] = useState("");
+  const [storefrontVehicleSubtype, setStorefrontVehicleSubtype] = useState("");
+  const [storefrontBrand, setStorefrontBrand] = useState("");
+  const [storefrontModel, setStorefrontModel] = useState("");
+  const [storefrontYearMin, setStorefrontYearMin] = useState("");
+  const [storefrontYearMax, setStorefrontYearMax] = useState("");
+  const [storefrontEngineCc, setStorefrontEngineCc] = useState("");
+  const [storefrontEngineModel, setStorefrontEngineModel] = useState("");
+  const [storefrontPriceMin, setStorefrontPriceMin] = useState("");
+  const [storefrontPriceMax, setStorefrontPriceMax] = useState("");
+  const [storefrontSearch, setStorefrontSearch] = useState("");
+  const [storefrontSearchOpen, setStorefrontSearchOpen] = useState(false);
+  const [storefrontDelivery, setStorefrontDelivery] = useState<"all" | "pickup" | "posti">("all");
+  const [storefrontSort, setStorefrontSort] = useState<StorefrontSort>("newest");
+  const [storefrontSortOpen, setStorefrontSortOpen] = useState(false);
+  const [storefrontCollection, setStorefrontCollection] = useState<"popular" | "newest" | "sale">("popular");
+  const [companyStoreView, setCompanyStoreView] = useState<"catalog" | "details" | "reviews" | "delivery">("catalog");
+  const [storefrontFilterOpen, setStorefrontFilterOpen] = useState(false);
+  const [storefrontDesktopFilterTab, setStorefrontDesktopFilterTab] = useState("basic");
+  const [storefrontDesktopSearchSaved, setStorefrontDesktopSearchSaved] = useState(false);
+  const [commerceMessage, setCommerceMessage] = useState("");
+  const [savedCommerceProductIds, setSavedCommerceProductIds] = useState<string[]>([]);
   const [levelStats, setLevelStats] = useState<SellerLevelStats>(emptySellerLevelStats);
   const [activeTab, setActiveTab] = useState<TabKey>("listings");
   const [listingsLoaded, setListingsLoaded] = useState(false);
@@ -678,8 +1018,15 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const [appliedSellerListingMode, setAppliedSellerListingMode] = useState<SellerListingResultMode>("all");
   const [sortOpen, setSortOpen] = useState(false);
   const [sellerFilterPanelOpen, setSellerFilterPanelOpen] = useState(false);
+  const [sellerDesktopFilterTab, setSellerDesktopFilterTab] = useState("basic");
+  const [sellerDesktopSearchSaved, setSellerDesktopSearchSaved] = useState(false);
   const [showAllListings, setShowAllListings] = useState(false);
   const [reviewsOpen, setReviewsOpen] = useState(false);
+  const [reviewComposerOpen, setReviewComposerOpen] = useState(false);
+  const [reviewDraftRating, setReviewDraftRating] = useState(5);
+  const [reviewDraftComment, setReviewDraftComment] = useState("");
+  const [reviewSubmitPending, setReviewSubmitPending] = useState(false);
+  const [reviewFeedback, setReviewFeedback] = useState("");
   const [reviewRatingFilter, setReviewRatingFilter] = useState(0);
   const [reviewSort, setReviewSort] = useState<ReviewSort>("newest");
   const [vehicleTypeFilter, setVehicleTypeFilter] = useState("");
@@ -737,11 +1084,14 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   const listingsSellerId = resolvedSellerId;
 
   useEffect(() => {
-    if (!reviewsOpen) return;
+    if (!reviewsOpen && !reviewComposerOpen) return;
 
     const previousOverflow = document.body.style.overflow;
     const closeOnEscape = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") setReviewsOpen(false);
+      if (event.key === "Escape") {
+        setReviewsOpen(false);
+        setReviewComposerOpen(false);
+      }
     };
 
     document.body.style.overflow = "hidden";
@@ -750,7 +1100,23 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", closeOnEscape);
     };
-  }, [reviewsOpen]);
+  }, [reviewComposerOpen, reviewsOpen]);
+
+  useEffect(() => {
+    if (!storefrontFilterOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") setStorefrontFilterOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [storefrontFilterOpen]);
 
   useEffect(() => {
     if (!sellerFilterPanelOpen) return;
@@ -800,9 +1166,17 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
 
   useEffect(() => {
     const openSellerProfileFilters = () => {
+      const verifiedCompanyProfile = profile?.account_type === "company" && Boolean(profile.company_verified_at);
+      if (verifiedCompanyProfile && (commerceProducts.length > 0 || listings.length > 0)) {
+        setStorefrontDesktopFilterTab("basic");
+        setStorefrontFilterOpen(true);
+        return;
+      }
+
       if (listings.length === 0) return;
 
       setSearchQuery(appliedSellerFilters.searchQuery);
+      setSellerListingMode(defaultSellerListingMode());
       setListingSort(appliedSellerFilters.listingSort);
       setVehicleTypeFilter(appliedSellerFilters.vehicleTypeFilter);
       setVehicleSubtypeFilter(appliedSellerFilters.vehicleSubtypeFilter);
@@ -838,7 +1212,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
 
     window.addEventListener("seller-profile-open-filters", openSellerProfileFilters);
     return () => window.removeEventListener("seller-profile-open-filters", openSellerProfileFilters);
-  }, [appliedSellerFilters, listings.length]);
+  }, [appliedSellerFilters, appliedSellerListingMode, commerceProducts.length, listings, profile?.account_type, profile?.company_verified_at]);
 
   // Public seller pages use a short public id in the URL. The first review
   // request may therefore finish before that id has been resolved to the
@@ -903,9 +1277,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       .filter((listing) =>
         appliedSellerListingMode === "all"
           ? true
-          : appliedSellerListingMode === "vehicles"
-            ? isVehicleListing(listing)
-            : !isVehicleListing(listing)
+          : sellerListingModeForListing(listing) === appliedSellerListingMode
       )
       .filter((listing) =>
         sellerListingMatchesFilters(listing, appliedSellerFilters, locale, selectedSubcategoryParentChildren)
@@ -920,19 +1292,54 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }, [appliedSellerFilters, appliedSellerListingMode, listings, locale, selectedSubcategoryParentChildren]);
 
   const sellerFilterOptions = useMemo(() => {
-    return buildMarketplaceFilterOptions({
-      taxonomyVehicles: taxonomy.vehicles,
-      vehicleBrands,
-      vehicleCategories,
-      allVehicleCategories,
-      vehicleType: vehicleTypeFilter,
-      vehicleSubtype: vehicleSubtypeFilter,
-      brand: brandFilter,
-      model: modelFilter,
-      category: categoryFilter,
-      subcategoryParent: subcategoryParentFilter
-    });
-  }, [allVehicleCategories, brandFilter, categoryFilter, modelFilter, subcategoryParentFilter, taxonomy.vehicles, vehicleBrands, vehicleCategories, vehicleSubtypeFilter, vehicleTypeFilter]);
+    const unique = (values: Array<string | null | undefined>, numeric = false) =>
+      Array.from(new Set(values.map((value) => value?.trim() ?? "").filter(Boolean)))
+        .sort((left, right) => numeric
+          ? Number(right) - Number(left)
+          : left.localeCompare(right, "fi", { sensitivity: "base" }));
+    const modeListings = listings.filter((listing) => sellerListingModeForListing(listing) === sellerListingMode);
+    const typeScoped = modeListings.filter((listing) =>
+      !vehicleTypeFilter || normalizeVehicleType(listing.vehicle_type ?? "") === normalizeVehicleType(vehicleTypeFilter)
+    );
+    const subtypeScoped = typeScoped.filter((listing) =>
+      !vehicleSubtypeFilter || sellerTextMatches(listing.vehicle_subtype ?? "", vehicleSubtypeFilter)
+    );
+    const brandScoped = subtypeScoped.filter((listing) =>
+      !brandFilter || normalizeSellerFilterText(listing.brand) === normalizeSellerFilterText(brandFilter)
+    );
+    const categoryScoped = modeListings.filter((listing) =>
+      !categoryFilter || normalizeCategoryFilter(listing.category) === normalizeCategoryFilter(categoryFilter)
+    );
+    const parentScoped = categoryScoped.filter((listing) =>
+      !subcategoryParentFilter || sellerSubcategoryMatches(listing.subcategory, subcategoryParentFilter)
+    );
+
+    return {
+      vehicleTypes: unique(modeListings.map((listing) => listing.vehicle_type)),
+      vehicleSubtypes: unique(typeScoped.map((listing) => listing.vehicle_subtype)),
+      brands: unique(subtypeScoped.map((listing) => listing.brand)),
+      models: unique(brandScoped.map((listing) => listing.model)),
+      years: unique(brandScoped.map((listing) => listing.year), true),
+      engineCcs: unique(brandScoped.map((listing) => listing.engine_cc), true),
+      engineModels: unique(brandScoped.map((listing) => listing.engine_model)),
+      engineKinds: unique(modeListings.map((listing) => sellerVehicleDescriptionValue(listing.description, "Moottorin tyyppi"))),
+      driveTypes: unique(modeListings.map((listing) => sellerVehicleDescriptionValue(listing.description, "Vetotapa"))),
+      roadLegalValues: unique(modeListings.map((listing) => sellerVehicleDescriptionValue(listing.description, "Tieliikennekelpoisuus"))),
+      accessories: unique(modeListings.flatMap((listing) => readVehicleAccessories(listing.description))),
+      colors: unique(modeListings.flatMap((listing) => readVehicleColors(listing.description))),
+      categories: unique(modeListings.map((listing) => listing.category)),
+      subcategoryParents: unique(categoryScoped.map((listing) =>
+        listing.subcategory?.split("/").map((part) => part.trim()).filter(Boolean)[0]
+      )),
+      subcategories: unique(parentScoped.map((listing) => listing.subcategory))
+    };
+  }, [brandFilter, categoryFilter, listings, sellerListingMode, subcategoryParentFilter, vehicleSubtypeFilter, vehicleTypeFilter]);
+  const sellerAvailableListingModes = useMemo(
+    () => (["parts", "vehicles", "gear"] as const).filter((mode) =>
+      listings.some((listing) => sellerListingModeForListing(listing) === mode)
+    ),
+    [listings]
+  );
   const draftSellerFilters = useMemo<SellerAppliedFilters>(() => ({
     searchQuery,
     listingSort,
@@ -996,9 +1403,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   ]);
   const draftFilteredListingCount = useMemo(
     () => listings
-      .filter((listing) =>
-        sellerListingMode === "vehicles" ? isVehicleListing(listing) : !isVehicleListing(listing)
-      )
+      .filter((listing) => sellerListingModeForListing(listing) === sellerListingMode)
       .filter((listing) => sellerListingMatchesFilters(
         listing,
         draftSellerFilters,
@@ -1245,6 +1650,15 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     if (nextMode === sellerListingMode) return;
 
     setSellerListingMode(nextMode);
+    setVehicleTypeFilter("");
+    setVehicleSubtypeFilter("");
+    setBrandFilter("");
+    setModelFilter("");
+    setYearFilter("");
+    setYearMinFilter("");
+    setYearMaxFilter("");
+    setEngineCcFilter("");
+    setEngineModelFilter("");
     setCategoryFilter("");
     setSubcategoryParentFilter("");
     setSubcategoryFilter("");
@@ -1263,6 +1677,16 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     setVehiclePriceMaxFilter("");
     setVehicleAccessoriesFilter([]);
     setVehicleColorsFilter([]);
+    setSellerDesktopFilterTab("basic");
+    setSellerDesktopSearchSaved(false);
+  }
+
+  function defaultSellerListingMode(): SellerListingMode {
+    if (appliedSellerListingMode !== "all") return appliedSellerListingMode;
+    if (sellerAvailableListingModes.includes("parts")) return "parts";
+    if (sellerAvailableListingModes.includes("vehicles")) return "vehicles";
+    if (sellerAvailableListingModes.includes("gear")) return "gear";
+    return "parts";
   }
 
   function toggleSellerFilters() {
@@ -1272,7 +1696,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     }
 
     setSearchQuery(appliedSellerFilters.searchQuery);
-    setSellerListingMode(appliedSellerListingMode === "all" ? "parts" : appliedSellerListingMode);
+    setSellerListingMode(defaultSellerListingMode());
     setListingSort(appliedSellerFilters.listingSort);
     setVehicleTypeFilter(appliedSellerFilters.vehicleTypeFilter);
     setVehicleSubtypeFilter(appliedSellerFilters.vehicleSubtypeFilter);
@@ -1317,7 +1741,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       yearMinFilter,
       yearMaxFilter,
       engineCcFilter,
-      engineModelFilter: sellerListingMode === "vehicles" ? "" : engineModelFilter,
+      engineModelFilter: sellerListingMode === "parts" ? engineModelFilter : "",
       categoryFilter,
       subcategoryParentFilter,
       subcategoryFilter,
@@ -1438,39 +1862,342 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }, [listings, locale]);
 
   useEffect(() => {
-    const cacheKey = `seller-profile:${sellerId}`;
-    const cached = readCachedResource<SellerProfileCache>(cacheKey);
-
-    setListings(readCachedListings().filter((listing) => listing.seller_id === sellerId));
+    setProfileLoading(true);
+    setProfile(null);
+    setListings([]);
     setReviews([]);
     setListingsLoaded(false);
     setReviewsLoaded(false);
     setListingsLoading(false);
     setReviewsLoading(false);
     setSellerListingPage(1);
+    setCompanyStoreView("catalog");
+    setStorefrontSearch("");
+    setStorefrontSearchOpen(false);
 
-    if (cached) {
-      setProfile(cached.profile);
-      setListings(cached.listings);
-      setListingsLoaded(cached.listings.length > 0);
-      if (cached.levelStats) setLevelStats(cached.levelStats);
-    } else {
-      setProfile(null);
-      setLevelStats(emptySellerLevelStats);
-    }
+    setLevelStats(emptySellerLevelStats);
 
     let cancelled = false;
 
     getPublicProfile(sellerId).then(({ data }) => {
-      if (!cancelled && data) {
-        setProfile(data);
-        writeSellerProfileCachePatch(sellerId, { profile: data });
-      }
+      if (cancelled) return;
+      setProfile(data ?? null);
+      if (data) writeSellerProfileCachePatch(sellerId, { profile: data });
+    }).catch(() => {
+      if (!cancelled) setProfile(null);
+    }).finally(() => {
+      if (!cancelled) setProfileLoading(false);
     });
     return () => {
       cancelled = true;
     };
   }, [sellerId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setCommerceProducts([]);
+    setCommerceProductsLoading(true);
+    fetch(`/api/commerce/catalog?seller_id=${encodeURIComponent(resolvedSellerId)}&limit=100`, {
+      cache: "no-store"
+    })
+      .then(async (response) => {
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error || "Tuotteiden lataaminen epäonnistui.");
+        if (!cancelled) setCommerceProducts(body.products ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setCommerceProducts([]);
+      })
+      .finally(() => {
+        if (!cancelled) setCommerceProductsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [resolvedSellerId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setStorefront(null);
+    setStorefrontLoading(true);
+    fetch(`/api/commerce/storefront?seller_id=${encodeURIComponent(resolvedSellerId)}`, { cache: "no-store" })
+      .then((response) => response.json())
+      .then((body) => { if (!cancelled) setStorefront(body.storefront ?? null); })
+      .catch(() => { if (!cancelled) setStorefront(null); })
+      .finally(() => { if (!cancelled) setStorefrontLoading(false); });
+    return () => { cancelled = true; };
+  }, [resolvedSellerId]);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("savedCommerceProducts") || "[]");
+      setSavedCommerceProductIds(Array.isArray(saved) ? saved.filter((id) => typeof id === "string") : []);
+    } catch {
+      setSavedCommerceProductIds([]);
+    }
+  }, []);
+
+  const commerceProductViews = useMemo<StorefrontItemView[]>(() => commerceProducts.map((product) => {
+    const directlyLinkedListing = listings.find((listing) => listing.translations?._meta?.commerce_product_id === product.id) ?? null;
+    const productImages = new Set(product.image_urls.filter(Boolean));
+    const matchingListings = listings.filter((listing) => (
+      normalizeSellerFilterText(listing.title) === normalizeSellerFilterText(product.name) &&
+      (
+        Math.round(Number(listing.price) * 100) === product.price_cents ||
+        [listing.image_url, ...(listing.image_urls ?? [])]
+          .filter(Boolean)
+          .some((image) => productImages.has(image))
+      )
+    ));
+    const productCreatedAt = new Date(product.created_at).getTime();
+    const listing = directlyLinkedListing ?? matchingListings.sort((left, right) => (
+      Math.abs(new Date(left.created_at).getTime() - productCreatedAt) -
+      Math.abs(new Date(right.created_at).getTime() - productCreatedAt)
+    ))[0] ?? null;
+    const mode = storefrontItemMode(listing, product.storefront_category, listing?.category, listing?.subcategory, product.name);
+    const rawCategory = product.storefront_category?.trim() || listing?.category?.trim();
+    const category = mode === "gear" && (!rawCategory || normalizeSellerFilterText(rawCategory) === "muut tuotteet")
+      ? "Ajovarusteet"
+      : rawCategory || "Muut tuotteet";
+
+    return {
+      kind: "product",
+      key: `product:${product.id}`,
+      product,
+      listing,
+      mode,
+      category,
+      subcategory: listing?.subcategory?.trim() || "",
+      vehicleType: listing?.vehicle_type?.trim() || "",
+      vehicleSubtype: listing?.vehicle_subtype?.trim() || "",
+      brand: listing?.brand?.trim() || "",
+      model: listing?.model?.trim() || "",
+      year: listing?.year?.trim() || "",
+      engineCc: listing?.engine_cc?.trim() || "",
+      engineModel: listing?.engine_model?.trim() || "",
+      title: product.name,
+      description: product.description,
+      priceCents: activeSalePrice(product),
+      createdAt: product.published_at ?? product.created_at,
+      pickupAvailable: product.pickup_available,
+      shippingAvailable: product.shipping_available && product.posti_enabled
+    };
+  }), [commerceProducts, listings]);
+  const storefrontListingViews = useMemo<StorefrontItemView[]>(() => {
+    const commerceListingIds = new Set(commerceProductViews.flatMap((view) => view.listing ? [view.listing.id] : []));
+
+    return listings
+      .filter((listing) => (
+        !commerceListingIds.has(listing.id) &&
+        !listing.translations?._meta?.commerce_product_id &&
+        !listing.is_sold &&
+        !listing.is_hidden
+      ))
+      .map((listing) => {
+        const deliveryText = normalizeSellerFilterText(`${listing.description} ${listing.condition}`);
+        return {
+          kind: "listing",
+          key: `listing:${listing.id}`,
+          product: null,
+          listing,
+          mode: storefrontItemMode(listing, listing.category, listing.subcategory, listing.vehicle_type, listing.title),
+          category: listing.category?.trim() || "Muut tuotteet",
+          subcategory: listing.subcategory?.trim() || "",
+          vehicleType: listing.vehicle_type?.trim() || "",
+          vehicleSubtype: listing.vehicle_subtype?.trim() || "",
+          brand: listing.brand?.trim() || "",
+          model: listing.model?.trim() || "",
+          year: listing.year?.trim() || "",
+          engineCc: listing.engine_cc?.trim() || "",
+          engineModel: listing.engine_model?.trim() || "",
+          title: listing.title,
+          description: listing.description,
+          priceCents: Math.round(Number(listing.price || 0) * 100),
+          createdAt: listing.created_at,
+          pickupAvailable: deliveryText.includes("nouto"),
+          shippingAvailable: ["toimitus", "lahetys", "posti"].some((term) => deliveryText.includes(term))
+        };
+      });
+  }, [commerceProductViews, listings]);
+  const storefrontItemViews = useMemo(
+    () => [...commerceProductViews, ...storefrontListingViews],
+    [commerceProductViews, storefrontListingViews]
+  );
+  const storefrontModes = useMemo(() => Array.from(new Set(
+    storefrontItemViews.map((view) => view.mode)
+  )), [storefrontItemViews]);
+
+  useEffect(() => {
+    if (!storefrontFilterOpen || storefrontMode !== "all" || !storefrontModes[0]) return;
+    selectStorefrontFilterMode(storefrontModes.includes("parts") ? "parts" : storefrontModes[0]);
+  }, [storefrontFilterOpen, storefrontMode, storefrontModes]);
+  const storefrontCategories = useMemo(() => Array.from(new Set(
+    storefrontItemViews
+      .filter((view) => storefrontMode === "all" || view.mode === storefrontMode)
+      .map((view) => view.category)
+      .filter(Boolean)
+  )).sort((left, right) => left.localeCompare(right, "fi")), [storefrontItemViews, storefrontMode]);
+  const storefrontSubcategoryParents = useMemo(() => Array.from(new Set(
+    storefrontItemViews
+      .filter((view) => (storefrontMode === "all" || view.mode === storefrontMode) && (!storefrontCategory || view.category === storefrontCategory))
+      .map((view) => view.subcategory.split("/").map((part) => part.trim()).filter(Boolean)[0] ?? "")
+      .filter(Boolean)
+  )).sort((left, right) => left.localeCompare(right, "fi")), [storefrontCategory, storefrontItemViews, storefrontMode]);
+  const storefrontSubcategories = useMemo(() => Array.from(new Set(
+    storefrontItemViews
+      .filter((view) => (
+        (storefrontMode === "all" || view.mode === storefrontMode) &&
+        (!storefrontCategory || view.category === storefrontCategory) &&
+        (!storefrontSubcategoryParent || sellerSubcategoryMatches(view.subcategory, storefrontSubcategoryParent))
+      ))
+      .map((view) => view.subcategory)
+      .filter(Boolean)
+  )).sort((left, right) => left.localeCompare(right, "fi")), [storefrontCategory, storefrontItemViews, storefrontMode, storefrontSubcategoryParent]);
+  const storefrontVehicleTypes = useMemo(() => Array.from(new Set(
+    storefrontItemViews
+      .filter((view) => (
+        (storefrontMode === "all" || view.mode === storefrontMode) &&
+        (!storefrontCategory || view.category === storefrontCategory) &&
+        (!storefrontSubcategoryParent || sellerSubcategoryMatches(view.subcategory, storefrontSubcategoryParent)) &&
+        (!storefrontSubcategory || view.subcategory === storefrontSubcategory)
+      ))
+      .map((view) => view.vehicleType)
+      .filter(Boolean)
+  )).sort((left, right) => left.localeCompare(right, "fi")), [storefrontCategory, storefrontItemViews, storefrontMode, storefrontSubcategory, storefrontSubcategoryParent]);
+  const storefrontVehicleSubtypes = useMemo(() => Array.from(new Set(
+    storefrontItemViews
+      .filter((view) => (
+        (storefrontMode === "all" || view.mode === storefrontMode) &&
+        (!storefrontCategory || view.category === storefrontCategory) &&
+        (!storefrontSubcategoryParent || sellerSubcategoryMatches(view.subcategory, storefrontSubcategoryParent)) &&
+        (!storefrontSubcategory || view.subcategory === storefrontSubcategory) &&
+        (!storefrontVehicleType || view.vehicleType === storefrontVehicleType)
+      ))
+      .map((view) => view.vehicleSubtype)
+      .filter(Boolean)
+  )).sort((left, right) => left.localeCompare(right, "fi")), [storefrontCategory, storefrontItemViews, storefrontMode, storefrontSubcategory, storefrontSubcategoryParent, storefrontVehicleType]);
+  const storefrontBrands = useMemo(() => Array.from(new Set(
+    storefrontItemViews
+      .filter((view) => (
+        (storefrontMode === "all" || view.mode === storefrontMode) &&
+        (!storefrontCategory || view.category === storefrontCategory) &&
+        (!storefrontSubcategoryParent || sellerSubcategoryMatches(view.subcategory, storefrontSubcategoryParent)) &&
+        (!storefrontSubcategory || view.subcategory === storefrontSubcategory) &&
+        (!storefrontVehicleType || view.vehicleType === storefrontVehicleType) &&
+        (!storefrontVehicleSubtype || view.vehicleSubtype === storefrontVehicleSubtype)
+      ))
+      .map((view) => view.brand)
+      .filter(Boolean)
+  )).sort((left, right) => left.localeCompare(right, "fi")), [storefrontCategory, storefrontItemViews, storefrontMode, storefrontSubcategory, storefrontSubcategoryParent, storefrontVehicleSubtype, storefrontVehicleType]);
+  const storefrontModels = useMemo(() => Array.from(new Set(
+    storefrontItemViews
+      .filter((view) => (
+        (storefrontMode === "all" || view.mode === storefrontMode) &&
+        (!storefrontCategory || view.category === storefrontCategory) &&
+        (!storefrontSubcategoryParent || sellerSubcategoryMatches(view.subcategory, storefrontSubcategoryParent)) &&
+        (!storefrontSubcategory || view.subcategory === storefrontSubcategory) &&
+        (!storefrontVehicleType || view.vehicleType === storefrontVehicleType) &&
+        (!storefrontVehicleSubtype || view.vehicleSubtype === storefrontVehicleSubtype) &&
+        (!storefrontBrand || view.brand === storefrontBrand)
+      ))
+      .map((view) => view.model)
+      .filter(Boolean)
+  )).sort((left, right) => left.localeCompare(right, "fi")), [storefrontBrand, storefrontCategory, storefrontItemViews, storefrontMode, storefrontSubcategory, storefrontSubcategoryParent, storefrontVehicleSubtype, storefrontVehicleType]);
+  const storefrontTechnicalOptions = useMemo(() => {
+    const scoped = storefrontItemViews.filter((view) => (
+      (storefrontMode === "all" || view.mode === storefrontMode) &&
+      (!storefrontCategory || view.category === storefrontCategory) &&
+      (!storefrontSubcategoryParent || sellerSubcategoryMatches(view.subcategory, storefrontSubcategoryParent)) &&
+      (!storefrontSubcategory || view.subcategory === storefrontSubcategory) &&
+      (!storefrontVehicleType || view.vehicleType === storefrontVehicleType) &&
+      (!storefrontVehicleSubtype || view.vehicleSubtype === storefrontVehicleSubtype) &&
+      (!storefrontBrand || view.brand === storefrontBrand) &&
+      (!storefrontModel || view.model === storefrontModel)
+    ));
+    const unique = (values: string[], numeric = false) => Array.from(new Set(values.filter(Boolean))).sort((left, right) => numeric
+      ? Number(right) - Number(left)
+      : left.localeCompare(right, "fi"));
+    return {
+      years: unique(scoped.map((view) => view.year), true),
+      engineCcs: unique(scoped.map((view) => view.engineCc), true),
+      engineModels: unique(scoped.map((view) => view.engineModel))
+    };
+  }, [storefrontBrand, storefrontCategory, storefrontItemViews, storefrontMode, storefrontModel, storefrontSubcategory, storefrontSubcategoryParent, storefrontVehicleSubtype, storefrontVehicleType]);
+  const storefrontDeliveryOptions = useMemo(() => ({
+    pickup: storefrontItemViews.filter((view) => view.pickupAvailable).length,
+    posti: storefrontItemViews.filter((view) => view.shippingAvailable).length
+  }), [storefrontItemViews]);
+  const storefrontSearchResults = useMemo(() => {
+    const query = storefrontSearch.trim();
+    if (normalizeSellerFilterText(query).length < 2) {
+      return { items: [] as StorefrontItemView[], totalCount: 0 };
+    }
+
+    const results = storefrontItemViews
+      .filter((view) => storefrontSearchMatches(storefrontItemSearchText(view), query))
+      .map((view) => ({ view, score: storefrontSearchScore(view, query) }))
+      .sort((left, right) =>
+        right.score - left.score ||
+        new Date(right.view.createdAt).getTime() - new Date(left.view.createdAt).getTime()
+      )
+      .map(({ view }) => view);
+
+    return { items: results.slice(0, 8), totalCount: results.length };
+  }, [storefrontItemViews, storefrontSearch]);
+  const visibleStorefrontItems = useMemo(() => {
+    const search = normalizeSellerFilterText(storefrontSearch);
+    const filtered = storefrontItemViews.filter((view) => {
+      if (storefrontMode !== "all" && view.mode !== storefrontMode) return false;
+      if (storefrontCategory && view.category !== storefrontCategory) return false;
+      if (storefrontSubcategoryParent && !sellerSubcategoryMatches(view.subcategory, storefrontSubcategoryParent)) return false;
+      if (storefrontSubcategory && view.subcategory !== storefrontSubcategory) return false;
+      if (storefrontVehicleType && view.vehicleType !== storefrontVehicleType) return false;
+      if (storefrontVehicleSubtype && view.vehicleSubtype !== storefrontVehicleSubtype) return false;
+      if (storefrontBrand && view.brand !== storefrontBrand) return false;
+      if (storefrontModel && view.model !== storefrontModel) return false;
+      const itemYear = Number.parseInt(view.year, 10);
+      if (storefrontYearMin && (!Number.isFinite(itemYear) || itemYear < Number.parseInt(storefrontYearMin, 10))) return false;
+      if (storefrontYearMax && (!Number.isFinite(itemYear) || itemYear > Number.parseInt(storefrontYearMax, 10))) return false;
+      if (storefrontEngineCc && view.engineCc !== storefrontEngineCc) return false;
+      if (storefrontEngineModel && view.engineModel !== storefrontEngineModel) return false;
+      if (storefrontPriceMin && view.priceCents < Number(storefrontPriceMin) * 100) return false;
+      if (storefrontPriceMax && view.priceCents > Number(storefrontPriceMax) * 100) return false;
+      if (storefrontDelivery === "pickup" && !view.pickupAvailable) return false;
+      if (storefrontDelivery === "posti" && !view.shippingAvailable) return false;
+      if (storefrontCollection === "sale" && (!view.product || activeSalePrice(view.product) >= view.product.price_cents)) return false;
+      if (!search) return true;
+      return storefrontSearchMatches(storefrontItemSearchText(view), search);
+    });
+    return filtered.sort((left, right) => storefrontSort === "priceAsc"
+      ? left.priceCents - right.priceCents
+      : storefrontSort === "priceDesc"
+        ? right.priceCents - left.priceCents
+        : storefrontSort === "oldest"
+          ? new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+          : storefrontSort === "relevance"
+            ? 0
+            : new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
+  }, [storefrontBrand, storefrontCategory, storefrontCollection, storefrontDelivery, storefrontEngineCc, storefrontEngineModel, storefrontItemViews, storefrontMode, storefrontModel, storefrontPriceMax, storefrontPriceMin, storefrontSearch, storefrontSort, storefrontSubcategory, storefrontSubcategoryParent, storefrontVehicleSubtype, storefrontVehicleType, storefrontYearMax, storefrontYearMin]);
+  const storefrontItemCount = storefrontItemViews.length;
+  const immediatePurchaseCount = commerceProductViews.length;
+  const inquiryListingCount = storefrontListingViews.length;
+  const storefrontActiveFilterCount = [
+    storefrontMode !== "all",
+    Boolean(storefrontCategory),
+    Boolean(storefrontSubcategoryParent),
+    Boolean(storefrontSubcategory),
+    Boolean(storefrontVehicleType),
+    Boolean(storefrontVehicleSubtype),
+    Boolean(storefrontBrand),
+    Boolean(storefrontModel),
+    Boolean(storefrontYearMin || storefrontYearMax),
+    Boolean(storefrontEngineCc),
+    Boolean(storefrontEngineModel),
+    Boolean(storefrontPriceMin),
+    Boolean(storefrontPriceMax),
+    storefrontDelivery !== "all"
+  ].filter(Boolean).length;
 
   useEffect(() => {
     let cancelled = false;
@@ -1512,13 +2239,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   useEffect(() => {
     if (activeTab !== "listings") return;
 
-    const cacheKey = `seller-profile:${sellerId}`;
-    const cached = readCachedResource<SellerProfileCache>(cacheKey);
-    if (cached?.listings.length) {
-      setListings(cached.listings);
-      setListingsLoaded(true);
-    }
-
     let cancelled = false;
     setListingsLoading(true);
 
@@ -1542,13 +2262,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
 
   useEffect(() => {
     if (reviewsLoaded) return;
-
-    const cacheKey = `seller-profile:${sellerId}`;
-    const cached = readCachedResource<SellerProfileCache>(cacheKey);
-    if (cached?.reviews.length) {
-      setReviews(cached.reviews);
-      setReviewsLoaded(true);
-    }
 
     let cancelled = false;
     setReviewsLoading(true);
@@ -1703,6 +2416,66 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     setFollowSaving(false);
   }
 
+  function openPublicReviewForm() {
+    setReviewsOpen(false);
+    setReviewFeedback("");
+
+    if (!currentUserId) {
+      router.push(`${pagePath("auth", locale)}?mode=login&returnTo=${encodeURIComponent(profilePath(sellerId, sellerName, locale))}`);
+      return;
+    }
+
+    if (currentUserId === resolvedSellerId) {
+      setReviewFeedback("Et voi arvostella omaa profiiliasi.");
+      return;
+    }
+
+    setReviewDraftRating(5);
+    setReviewDraftComment("");
+    setReviewComposerOpen(true);
+  }
+
+  async function submitPublicReview(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!supabase || !currentUserId || currentUserId === resolvedSellerId || reviewSubmitPending) return;
+
+    const comment = reviewDraftComment.trim();
+    if (comment.length < 2) {
+      setReviewFeedback("Kirjoita vähintään kaksi merkkiä pitkä arvostelu.");
+      return;
+    }
+
+    setReviewSubmitPending(true);
+    setReviewFeedback("");
+    const { data: authData } = await supabase.auth.getUser();
+    const metadata = authData.user?.user_metadata ?? {};
+    const reviewerName = String(
+      metadata.full_name ||
+      [metadata.first_name, metadata.last_name].filter(Boolean).join(" ") ||
+      authData.user?.email?.split("@")[0] ||
+      "Maskines-käyttäjä"
+    ).trim();
+    const result = await createSellerReview({
+      seller_id: resolvedSellerId,
+      reviewer_id: currentUserId,
+      reviewer_name: reviewerName,
+      rating: reviewDraftRating,
+      comment
+    });
+    setReviewSubmitPending(false);
+
+    if (result.error || !result.data) {
+      setReviewFeedback(result.error instanceof Error ? result.error.message : "Arvostelun tallennus epäonnistui.");
+      return;
+    }
+
+    setReviews((current) => [result.data, ...current]);
+    setReviewsLoaded(true);
+    setReviewComposerOpen(false);
+    setReviewDraftComment("");
+    setReviewFeedback("Kiitos! Arvostelusi julkaistiin.");
+  }
+
   function toggleFavorite(event: React.MouseEvent, listingId: string) {
     event.preventDefault();
     event.stopPropagation();
@@ -1754,7 +2527,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     });
   }, [reviewRatingFilter, reviewSort, reviews]);
 
-  const sellerName =
+  const rawSellerName =
     profile?.account_type === "company"
       ? profile.company_name || profile.full_name || listings[0]?.seller_name || t.authCompanyLabel
       :
@@ -1762,11 +2535,13 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim() ||
     listings[0]?.seller_name ||
     t.sellerProfile;
+  const sellerName = profile?.account_type === "company" ? publicCompanyDisplayName(rawSellerName) : rawSellerName;
   const sellerAvatarUrl = profile?.avatar_url?.trim() || "";
   const showSellerAvatar = Boolean(sellerAvatarUrl && !avatarFailed);
   const sellerInitial = getSellerInitials(sellerName, locale);
   const isCompany =
     profile?.account_type === "company";
+  const isVerifiedCompany = isCompany && Boolean(profile?.company_verified_at);
   const locationFallback = {
     fi: "Sijaintia ei ole asetettu",
     en: "Location not set",
@@ -1775,16 +2550,72 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   }[locale];
   const publicAddress =
     profile?.public_address?.trim();
-  const baseLocation =
-    [profile?.city, profile?.country].filter(Boolean).join(", ");
   const sellerLocation =
-    isCompany && publicAddress
-      ? [baseLocation, publicAddress].filter(Boolean).join(" - ")
-      : baseLocation ||
-    listings[0]?.location ||
-    locationFallback;
+    isCompany
+      ? publicAddress || ""
+      : [profile?.city, profile?.country].filter(Boolean).join(", ") || listings[0]?.location || locationFallback;
   const companyWebsite =
-    isCompany ? formatWebsiteUrl(profile?.company_website) : null;
+    isCompany ? formatWebsiteUrl(storefront?.website || profile?.company_website) : null;
+  const companyPublicPhone = storefront?.phone?.trim() || profile?.phone?.trim() || commerceProducts[0]?.company.phone?.trim() || "";
+  const companyPublicEmail = storefront?.email?.trim() || commerceProducts[0]?.company.email?.trim() || "";
+  const companyPublicAddress = [storefront?.address_line, storefront?.postal_code, storefront?.city, storefront?.country]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(", ") || publicAddress || "";
+  const companyVerifiedDate = storefront?.verified_at
+    ? new Intl.DateTimeFormat("fi-FI", { day: "numeric", month: "long", year: "numeric" }).format(new Date(storefront.verified_at))
+    : profile?.company_verified_at
+      ? new Intl.DateTimeFormat("fi-FI", { day: "numeric", month: "long", year: "numeric" }).format(new Date(profile.company_verified_at))
+      : "";
+  const companyInventoryCount = commerceProducts.reduce((sum, product) => sum + product.stock_quantity, 0) + inquiryListingCount;
+  const companyCoverImage = storefront?.banner_image_url?.trim() || "";
+  const hasSaleProducts = commerceProducts.some((product) => activeSalePrice(product) < product.price_cents);
+  const addCommerceProduct = (product: PublicProduct) => {
+    const result = addCartProduct(product.id, product.company_id);
+    setCommerceMessage(result.ok
+      ? `${product.name} lisättiin ostoskoriin.`
+      : result.error);
+  };
+  const toggleSavedCommerceProduct = (productId: string) => {
+    setSavedCommerceProductIds((current) => {
+      const next = current.includes(productId)
+        ? current.filter((id) => id !== productId)
+        : [...current, productId];
+      localStorage.setItem("savedCommerceProducts", JSON.stringify(next));
+      return next;
+    });
+  };
+  const resetStorefrontFilters = () => {
+    setStorefrontMode("all");
+    setStorefrontCategory("");
+    setStorefrontSubcategoryParent("");
+    setStorefrontSubcategory("");
+    setStorefrontVehicleType("");
+    setStorefrontVehicleSubtype("");
+    setStorefrontBrand("");
+    setStorefrontModel("");
+    setStorefrontYearMin("");
+    setStorefrontYearMax("");
+    setStorefrontEngineCc("");
+    setStorefrontEngineModel("");
+    setStorefrontPriceMin("");
+    setStorefrontPriceMax("");
+    setStorefrontDelivery("all");
+  };
+  const selectStorefrontFilterMode = (mode: "all" | "parts" | "vehicles" | "gear") => {
+    setStorefrontMode(mode);
+    setStorefrontCategory("");
+    setStorefrontSubcategoryParent("");
+    setStorefrontSubcategory("");
+    setStorefrontVehicleType("");
+    setStorefrontVehicleSubtype("");
+    setStorefrontBrand("");
+    setStorefrontModel("");
+    setStorefrontYearMin("");
+    setStorefrontYearMax("");
+    setStorefrontEngineCc("");
+    setStorefrontEngineModel("");
+  };
   const effectiveLevelStats = useMemo<SellerLevelStats>(() => ({
     listings_created: Math.max(levelStats.listings_created, listings.length),
     single_listings_created:
@@ -1807,6 +2638,24 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
   );
 
   const memberSince = formatAccountAge(profile?.created_at, locale);
+  const companyFoundedYear = (() => {
+    const value = storefront?.created_at || profile?.created_at;
+    if (!value) return null;
+    const year = new Date(value).getFullYear();
+    return Number.isFinite(year) ? year : null;
+  })();
+  const companyFreeShippingThreshold = storefront?.free_shipping_threshold_cents != null && storefront.free_shipping_threshold_cents > 0
+    ? formatFromEur(storefront.free_shipping_threshold_cents / 100)
+    : "200 €";
+  const companyPromoTitle = storefront?.storefront_promo_title?.trim() ?? "";
+  const companyPromoSubtitle = storefront?.storefront_promo_subtitle?.trim() ?? "";
+  const companyPromoColor = /^#[0-9a-f]{6}$/i.test(storefront?.storefront_promo_background_color ?? "")
+    ? storefront!.storefront_promo_background_color
+    : "#ff6500";
+  const companyPromoImage = storefront?.storefront_promo_image_url?.trim() || "";
+  const companyPromoEnabled = storefront?.storefront_promo_enabled === true
+    && Boolean(companyPromoTitle || companyPromoSubtitle || companyPromoImage);
+  const isMatinOsatStore = sellerName.toLocaleLowerCase("fi-FI").includes("matin osat");
   const refLabels = {
     about: {
       fi: "Tietoja",
@@ -1851,7 +2700,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       no: "Følgere",
     }[locale],
     follow: {
-      fi: "Seuraa profiilia",
+      fi: "Seuraa",
       en: "Follow profile",
       sv: "Följ profil",
       no: "Følg profil",
@@ -2066,12 +2915,6 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       sv: "Hogsta pris",
       no: "Høyeste pris",
     }[locale],
-    nearestFirst: {
-      fi: "Lähimpänä sinua",
-      en: "Nearest to you",
-      sv: "Narmast dig",
-      no: "Nærmest deg",
-    }[locale],
     noFilterResults: {
       fi: "Hakuehdoilla ei löytynyt ilmoituksia.",
       en: "No listings matched your filters.",
@@ -2132,16 +2975,16 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
       no: "Basert på",
     }[locale],
     verifiedTitle: {
-      fi: "Vain vahvistetut kaupat",
-      en: "Verified deals only",
-      sv: "Endast verifierade affärer",
-      no: "Kun verifiserte handler",
+      fi: "Avoin Maskines-käyttäjille",
+      en: "Open to Maskines users",
+      sv: "Öppet för Maskines-användare",
+      no: "Åpent for Maskines-brukere",
     }[locale],
     verifiedBody: {
-      fi: "Arvostelut tulevat vain vahvistetuilta käyttäjiltä onnistuneiden kauppojen jälkeen.",
-      en: "Reviews come only from verified users after successful deals.",
-      sv: "Recensioner kommer bara från verifierade användare efter lyckade affärer.",
-      no: "Anmeldelser kommer bare fra verifiserte brukere etter vellykkede handler.",
+      fi: "Jokainen kirjautunut käyttäjä voi jakaa kokemuksensa ilman aiempaa ostosta.",
+      en: "Every signed-in user can share their experience without a previous purchase.",
+      sv: "Alla inloggade användare kan dela sin upplevelse utan ett tidigare köp.",
+      no: "Alle innloggede brukere kan dele erfaringen sin uten et tidligere kjøp.",
     }[locale],
     starFilter: {
       fi: "Suodata tähtien mukaan",
@@ -2218,15 +3061,374 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
     { value: "newest", label: refLabels.newestFirst, icon: Clock3 },
     { value: "oldest", label: refLabels.oldestFirst, icon: CalendarDays },
     { value: "priceAsc", label: refLabels.lowestPrice, icon: TrendingDown },
-    { value: "priceDesc", label: refLabels.highestPrice, icon: TrendingUp },
-    { value: "nearest", label: refLabels.nearestFirst, icon: MapPin }
+    { value: "priceDesc", label: refLabels.highestPrice, icon: TrendingUp }
   ];
   const activeSort = sortOptions.find((option) => option.value === appliedSellerFilters.listingSort) ?? sortOptions[0];
+  const storefrontSortOptions: Array<{ value: StorefrontSort; label: string; icon: typeof Search }> = [
+    { value: "relevance", label: refLabels.relevanceFirst, icon: Crosshair },
+    { value: "newest", label: refLabels.newestFirst, icon: Clock3 },
+    { value: "oldest", label: refLabels.oldestFirst, icon: CalendarDays },
+    { value: "priceAsc", label: refLabels.lowestPrice, icon: TrendingDown },
+    { value: "priceDesc", label: refLabels.highestPrice, icon: TrendingUp }
+  ];
+  const activeStorefrontSort = storefrontSortOptions.find((option) => option.value === storefrontSort) ?? storefrontSortOptions[0];
+
+  const scrollProfileDesktopFilterTo = (
+    scope: "seller" | "storefront",
+    tabId: string,
+    setActiveTab: (value: string) => void
+  ) => {
+    setActiveTab(tabId);
+    window.requestAnimationFrame(() => {
+      const container = document.querySelector<HTMLElement>(`[data-profile-desktop-filter-scroll="${scope}"]`);
+      const section = document.getElementById(`${scope}-desktop-filter-${tabId}`);
+      if (!container || !section) return;
+      const nextTop = container.scrollTop + section.getBoundingClientRect().top - container.getBoundingClientRect().top;
+      container.scrollTo({ top: Math.max(0, nextTop), behavior: "smooth" });
+    });
+  };
+
+  const renderSellerDesktopFilter = () => {
+    const selectedModeLabel = sellerListingMode === "vehicles"
+      ? "Ajoneuvot"
+      : sellerListingMode === "gear"
+        ? "Ajovarusteet"
+        : "Varaosat";
+    const hasGroupSection = sellerListingMode === "vehicles"
+      ? sellerFilterOptions.accessories.length > 0
+      : sellerFilterOptions.categories.length > 0;
+    const tabs: ProfileDesktopFilterTab[] = [
+      { id: "basic", label: sellerListingMode === "vehicles" ? "Perustiedot" : "Sopivuus" },
+      ...(hasGroupSection ? [{ id: "equipment", label: sellerListingMode === "vehicles" ? "Varusteet" : "Varaosaryhmät" }] : []),
+      { id: "technical", label: "Mitat ja tekniikka" },
+      ...(sellerListingMode !== "parts" && sellerFilterOptions.colors.length > 0 ? [{ id: "colors", label: "Värit" }] : []),
+      { id: "other", label: "Hinta ja järjestys" }
+    ];
+    const modeCopy: Record<SellerListingMode, { title: string; description: string }> = {
+      parts: { title: "Varaosat", description: "Ajoneuvokohtaiset osat" },
+      vehicles: { title: "Ajoneuvot", description: "Kokonaiset ajoneuvot" },
+      gear: { title: "Ajovarusteet", description: "Kypärät, puvut ja suojat" }
+    };
+    const choices = sellerAvailableListingModes.map((mode) => ({
+      id: mode,
+      ...modeCopy[mode],
+      active: sellerListingMode === mode,
+      count: listings.filter((listing) => sellerListingModeForListing(listing) === mode).length,
+      onSelect: () => {
+        selectSellerListingMode(mode);
+        setSellerDesktopFilterTab("basic");
+      }
+    }));
+    const categoryOptions = sellerFilterOptions.categories.map((option) => ({ value: option, label: translateCategory(locale, option) }));
+    const parentOptions = sellerFilterOptions.subcategoryParents.map((option) => ({ value: option, label: translateCategory(locale, categoryLeaf(option)) }));
+    const detailOptions = sellerFilterOptions.subcategories.map((option) => ({ value: option, label: translateCategory(locale, categoryLeaf(option)) }));
+
+    return (
+      <ProfileDesktopFilterPanel
+        dialogTitleId="seller-profile-desktop-filter-title"
+        scrollScope="seller"
+        subtitle={`${selectedModeLabel} · rajaa vain myyjän ${sellerName} ilmoituksia`}
+        resultCount={draftFilteredListingCount}
+        saved={sellerDesktopSearchSaved}
+        choices={choices}
+        tabs={tabs}
+        activeTab={sellerDesktopFilterTab}
+        onSave={() => {
+          localStorage.setItem(`maskines:seller-filter:${resolvedSellerId}`, JSON.stringify({ mode: sellerListingMode, filters: draftSellerFilters }));
+          setSellerDesktopSearchSaved(true);
+        }}
+        onClear={() => {
+          resetListingFilters();
+          setSellerDesktopSearchSaved(false);
+        }}
+        onApply={applySellerFilters}
+        onClose={() => setSellerFilterPanelOpen(false)}
+        onTabSelect={(tabId) => scrollProfileDesktopFilterTo("seller", tabId, setSellerDesktopFilterTab)}
+      >
+        <section id="seller-desktop-filter-basic" className={homeStyles.desktopFullSection}>
+          <header><h2>{sellerListingMode === "vehicles" ? "Ajoneuvon perustiedot" : "Varaosan sopivuus"}</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          {sellerFilterOptions.vehicleTypes.length > 0 && <div className={homeStyles.desktopFullBox}>
+            <h3>{sellerListingMode === "vehicles" ? "Ajoneuvolaji" : "Sopivuus ajoneuvoon"}</h3>
+            <div className={homeStyles.desktopFullFieldGrid}>
+              <ProfileDesktopSelect label="Ajoneuvolaji" value={vehicleTypeFilter} allLabel="Kaikki ajoneuvot" options={sellerFilterOptions.vehicleTypes} onChange={(value) => {
+                setVehicleTypeFilter(value);
+                setVehicleSubtypeFilter("");
+                setBrandFilter("");
+                setModelFilter("");
+              }} />
+            </div>
+          </div>}
+          {sellerFilterOptions.vehicleSubtypes.length > 0 && <div className={homeStyles.desktopFullBox}>
+            <h3>Ajoneuvotyypin tarkennus</h3>
+            <div className={homeStyles.desktopFullFieldGrid}>
+              <ProfileDesktopSelect label="Tyyppi" value={vehicleSubtypeFilter} allLabel="Kaikki tyypit" options={sellerFilterOptions.vehicleSubtypes} onChange={setVehicleSubtypeFilter} />
+            </div>
+          </div>}
+        </section>
+
+        {hasGroupSection && <section id="seller-desktop-filter-equipment" className={homeStyles.desktopFullSection}>
+          <header><h2>{sellerListingMode === "vehicles" ? "Ajoneuvon varusteet" : "Varaosaryhmät"}</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <div className={homeStyles.desktopFullBox}>
+            {sellerListingMode === "vehicles" ? <div className={homeStyles.desktopCheckboxGrid}>
+              {sellerFilterOptions.accessories.map((accessory) => {
+                const selected = vehicleAccessoriesFilter.includes(accessory);
+                return <label key={accessory}><input type="checkbox" checked={selected} onChange={() => setVehicleAccessoriesFilter((current) => selected ? current.filter((item) => item !== accessory) : [...current, accessory])} /><span aria-hidden="true">{selected ? <Check size={15} /> : null}</span>{translateVehicleAccessory(locale, accessory)}</label>;
+              })}
+            </div> : <div className={homeStyles.desktopCategoryFlow}>
+              <ProfileDesktopCategoryStep number={1} title="Pääkategoria" description="Valitse varaosan pääryhmä" value={categoryFilter} options={categoryOptions} enabled={categoryOptions.length > 0} disabledLabel="Ei kategorioita" onChange={(value) => {
+                setCategoryFilter(value);
+                setSubcategoryParentFilter("");
+                setSubcategoryFilter("");
+              }} />
+              <ChevronRight className={homeStyles.desktopCategoryArrow} size={22} aria-hidden="true" />
+              <ProfileDesktopCategoryStep number={2} title="Alakategoria" description="Tarkenna valittua pääryhmää" value={subcategoryParentFilter} options={parentOptions} enabled={Boolean(categoryFilter && parentOptions.length)} disabledLabel="Valitse ensin pääkategoria" onChange={(value) => {
+                setSubcategoryParentFilter(value);
+                setSubcategoryFilter("");
+              }} />
+              <ChevronRight className={homeStyles.desktopCategoryArrow} size={22} aria-hidden="true" />
+              <ProfileDesktopCategoryStep number={3} title="Tarkempi osa" description="Valitse tarkin sopiva osaryhmä" value={subcategoryFilter} options={detailOptions} enabled={Boolean(categoryFilter && subcategoryParentFilter && detailOptions.length)} disabledLabel="Valitse ensin alakategoria" onChange={setSubcategoryFilter} />
+            </div>}
+          </div>
+        </section>}
+
+        <section id="seller-desktop-filter-technical" className={homeStyles.desktopFullSection}>
+          <header><h2>Mitat ja tekniset tiedot</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <div className={homeStyles.desktopFullBox}>
+            <div className={homeStyles.desktopFullFieldGrid}>
+              <ProfileDesktopSelect label="Merkki" value={brandFilter} allLabel="Kaikki merkit" options={sellerFilterOptions.brands} onChange={(value) => { setBrandFilter(value); setModelFilter(""); }} />
+              <ProfileDesktopSelect label="Malli" value={modelFilter} allLabel="Kaikki mallit" options={sellerFilterOptions.models} onChange={setModelFilter} />
+              <ProfileDesktopSelect label="Moottoritilavuus (cm³)" value={engineCcFilter} allLabel="Kaikki koot" options={sellerFilterOptions.engineCcs} onChange={setEngineCcFilter} />
+              {sellerListingMode === "parts" && <ProfileDesktopSelect label="Moottori" value={engineModelFilter} allLabel="Kaikki moottorit" options={sellerFilterOptions.engineModels} onChange={setEngineModelFilter} />}
+              {sellerFilterOptions.years.length > 0 && <label className={homeStyles.desktopFullField}>
+                <span>Vuosimalli</span>
+                <div className={premiumStyles.profileDesktopRangePair}>
+                  <select value={yearMinFilter} aria-label="Vuosimallin minimi" onChange={(event) => setYearMinFilter(event.target.value)}><option value="">Minimi</option>{sellerFilterOptions.years.map((year) => <option key={`desktop-min-${year}`} value={year}>{year}</option>)}</select>
+                  <i aria-hidden="true">–</i>
+                  <select value={yearMaxFilter} aria-label="Vuosimallin maksimi" onChange={(event) => setYearMaxFilter(event.target.value)}><option value="">Maksimi</option>{sellerFilterOptions.years.map((year) => <option key={`desktop-max-${year}`} value={year}>{year}</option>)}</select>
+                </div>
+              </label>}
+              {sellerListingMode === "vehicles" && <>
+                <ProfileDesktopSelect label="Moottorin tyyppi" value={vehicleEngineKindFilter} allLabel="Ei väliä" options={sellerFilterOptions.engineKinds} onChange={setVehicleEngineKindFilter} />
+                <ProfileDesktopSelect label="Vetotapa" value={vehicleDriveTypeFilter} allLabel="Ei väliä" options={sellerFilterOptions.driveTypes} onChange={setVehicleDriveTypeFilter} />
+                <ProfileDesktopSelect label="Tieliikennekelpoisuus" value={vehicleRoadLegalFilter} allLabel="Ei väliä" options={sellerFilterOptions.roadLegalValues} onChange={setVehicleRoadLegalFilter} />
+              </>}
+            </div>
+          </div>
+        </section>
+
+        {sellerListingMode !== "parts" && sellerFilterOptions.colors.length > 0 && <section id="seller-desktop-filter-colors" className={homeStyles.desktopFullSection}>
+          <header><h2>Värisävy</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <div className={`${homeStyles.desktopFullBox} ${homeStyles.desktopColorOptions}`}>
+            {sellerFilterOptions.colors.map((color) => {
+              const selected = vehicleColorsFilter.includes(color);
+              const swatch = VEHICLE_COLOR_OPTIONS.find((option) => option.label === color)?.swatch ?? "#7c8a96";
+              return <label key={color}><input type="checkbox" checked={selected} onChange={() => setVehicleColorsFilter((current) => selected ? current.filter((item) => item !== color) : [...current, color])} /><span style={{ background: swatch }} aria-hidden="true" />{translateVehicleColor(locale, color)}</label>;
+            })}
+          </div>
+        </section>}
+
+        <section id="seller-desktop-filter-other" className={homeStyles.desktopFullSection}>
+          <header><h2>Hinta ja järjestys</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <div className={homeStyles.desktopFullBox}>
+            <div className={homeStyles.desktopFullFieldGrid}>
+              <label className={homeStyles.desktopFullField}>
+                <span>Hintaväli (€)</span>
+                <div className={premiumStyles.profileDesktopRangePair}>
+                  <input inputMode="numeric" value={vehiclePriceMinFilter} placeholder="Minimi" aria-label="Hinnan minimi" onChange={(event) => setVehiclePriceMinFilter(event.target.value.replace(/\D/g, ""))} />
+                  <i aria-hidden="true">–</i>
+                  <input inputMode="numeric" value={vehiclePriceMaxFilter} placeholder="Maksimi" aria-label="Hinnan maksimi" onChange={(event) => setVehiclePriceMaxFilter(event.target.value.replace(/\D/g, ""))} />
+                </div>
+              </label>
+              <label className={homeStyles.desktopFullField}>
+                <span>Järjestä</span>
+                <select value={listingSort} onChange={(event) => setListingSort(event.target.value as ListingSort)}>
+                  <option value="relevance">Osuvimmat ensin</option>
+                  <option value="newest">Uusimmat ensin</option>
+                  <option value="oldest">Vanhimmat ensin</option>
+                  <option value="priceAsc">Edullisin ensin</option>
+                  <option value="priceDesc">Kallein ensin</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </section>
+      </ProfileDesktopFilterPanel>
+    );
+  };
+
+  const renderStorefrontDesktopFilter = () => {
+    const effectiveMode = storefrontMode === "all"
+      ? (storefrontModes.includes("parts") ? "parts" : storefrontModes[0] ?? "parts")
+      : storefrontMode;
+    const selectedModeLabel = effectiveMode === "vehicles" ? "Ajoneuvot" : effectiveMode === "gear" ? "Ajovarusteet" : "Varaosat";
+    const hasGroups = storefrontCategories.length > 0;
+    const tabs: ProfileDesktopFilterTab[] = [
+      { id: "basic", label: effectiveMode === "vehicles" ? "Perustiedot" : "Sopivuus" },
+      ...(hasGroups ? [{ id: "equipment", label: effectiveMode === "vehicles" ? "Ryhmät" : "Varaosaryhmät" }] : []),
+      { id: "technical", label: "Mitat ja tekniikka" },
+      { id: "other", label: "Hinta ja toimitus" }
+    ];
+    const modeCopy: Record<StorefrontItemView["mode"], { title: string; description: string }> = {
+      parts: { title: "Varaosat", description: "Ajoneuvokohtaiset osat" },
+      vehicles: { title: "Ajoneuvot", description: "Kokonaiset ajoneuvot" },
+      gear: { title: "Ajovarusteet", description: "Kypärät, puvut ja suojat" }
+    };
+    const choices = storefrontModes.map((mode) => ({
+      id: mode,
+      ...modeCopy[mode],
+      active: effectiveMode === mode,
+      count: storefrontItemViews.filter((view) => view.mode === mode).length,
+      onSelect: () => {
+        selectStorefrontFilterMode(mode);
+        setStorefrontDesktopFilterTab("basic");
+      }
+    }));
+    const categoryOptions = storefrontCategories.map((option) => ({ value: option, label: translateCategory(locale, option) }));
+    const parentOptions = storefrontSubcategoryParents.map((option) => ({ value: option, label: translateCategory(locale, categoryLeaf(option)) }));
+    const detailOptions = storefrontSubcategories.map((option) => ({ value: option, label: translateCategory(locale, categoryLeaf(option)) }));
+
+    return (
+      <ProfileDesktopFilterPanel
+        dialogTitleId="company-profile-desktop-filter-title"
+        scrollScope="storefront"
+        subtitle={`${selectedModeLabel} · rajaa vain yrityksen ${sellerName} valikoimaa`}
+        resultCount={visibleStorefrontItems.length}
+        saved={storefrontDesktopSearchSaved}
+        choices={choices}
+        tabs={tabs}
+        activeTab={storefrontDesktopFilterTab}
+        onSave={() => {
+          localStorage.setItem(`maskines:storefront-filter:${resolvedSellerId}`, JSON.stringify({
+            mode: effectiveMode,
+            category: storefrontCategory,
+            subcategoryParent: storefrontSubcategoryParent,
+            subcategory: storefrontSubcategory,
+            vehicleType: storefrontVehicleType,
+            vehicleSubtype: storefrontVehicleSubtype,
+            brand: storefrontBrand,
+            model: storefrontModel,
+            yearMin: storefrontYearMin,
+            yearMax: storefrontYearMax,
+            engineCc: storefrontEngineCc,
+            engineModel: storefrontEngineModel,
+            priceMin: storefrontPriceMin,
+            priceMax: storefrontPriceMax,
+            delivery: storefrontDelivery
+          }));
+          setStorefrontDesktopSearchSaved(true);
+        }}
+        onClear={() => {
+          resetStorefrontFilters();
+          setStorefrontSort("newest");
+          setStorefrontDesktopSearchSaved(false);
+        }}
+        onApply={() => setStorefrontFilterOpen(false)}
+        onClose={() => setStorefrontFilterOpen(false)}
+        onTabSelect={(tabId) => scrollProfileDesktopFilterTo("storefront", tabId, setStorefrontDesktopFilterTab)}
+      >
+        <section id="storefront-desktop-filter-basic" className={homeStyles.desktopFullSection}>
+          <header><h2>{effectiveMode === "vehicles" ? "Ajoneuvon perustiedot" : "Varaosan sopivuus"}</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          {storefrontVehicleTypes.length > 0 && <div className={homeStyles.desktopFullBox}>
+            <h3>{effectiveMode === "vehicles" ? "Ajoneuvolaji" : "Sopivuus ajoneuvoon"}</h3>
+            <div className={homeStyles.desktopFullFieldGrid}>
+              <ProfileDesktopSelect label="Ajoneuvolaji" value={storefrontVehicleType} allLabel="Kaikki ajoneuvot" options={storefrontVehicleTypes} onChange={(value) => {
+                setStorefrontVehicleType(value);
+                setStorefrontVehicleSubtype("");
+                setStorefrontBrand("");
+                setStorefrontModel("");
+              }} />
+            </div>
+          </div>}
+          {storefrontVehicleSubtypes.length > 0 && <div className={homeStyles.desktopFullBox}>
+            <h3>Ajoneuvotyypin tarkennus</h3>
+            <div className={homeStyles.desktopFullFieldGrid}>
+              <ProfileDesktopSelect label="Tyyppi" value={storefrontVehicleSubtype} allLabel="Kaikki tyypit" options={storefrontVehicleSubtypes} onChange={(value) => { setStorefrontVehicleSubtype(value); setStorefrontBrand(""); setStorefrontModel(""); }} />
+            </div>
+          </div>}
+        </section>
+
+        {hasGroups && <section id="storefront-desktop-filter-equipment" className={homeStyles.desktopFullSection}>
+          <header><h2>{effectiveMode === "vehicles" ? "Tuoteryhmät" : "Varaosaryhmät"}</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <div className={homeStyles.desktopFullBox}>
+            <div className={homeStyles.desktopCategoryFlow}>
+              <ProfileDesktopCategoryStep number={1} title="Pääkategoria" description="Valitse varaosan pääryhmä" value={storefrontCategory} options={categoryOptions} enabled={categoryOptions.length > 0} disabledLabel="Ei kategorioita" onChange={(value) => {
+                setStorefrontCategory(value);
+                setStorefrontSubcategoryParent("");
+                setStorefrontSubcategory("");
+                setStorefrontVehicleType("");
+                setStorefrontVehicleSubtype("");
+                setStorefrontBrand("");
+                setStorefrontModel("");
+              }} />
+              <ChevronRight className={homeStyles.desktopCategoryArrow} size={22} aria-hidden="true" />
+              <ProfileDesktopCategoryStep number={2} title="Alakategoria" description="Tarkenna valittua pääryhmää" value={storefrontSubcategoryParent} options={parentOptions} enabled={Boolean(storefrontCategory && parentOptions.length)} disabledLabel="Valitse ensin pääkategoria" onChange={(value) => {
+                setStorefrontSubcategoryParent(value);
+                setStorefrontSubcategory("");
+                setStorefrontBrand("");
+                setStorefrontModel("");
+              }} />
+              <ChevronRight className={homeStyles.desktopCategoryArrow} size={22} aria-hidden="true" />
+              <ProfileDesktopCategoryStep number={3} title="Tarkempi osa" description="Valitse tarkin sopiva osaryhmä" value={storefrontSubcategory} options={detailOptions} enabled={Boolean(storefrontCategory && storefrontSubcategoryParent && detailOptions.length)} disabledLabel="Valitse ensin alakategoria" onChange={(value) => { setStorefrontSubcategory(value); setStorefrontBrand(""); setStorefrontModel(""); }} />
+            </div>
+          </div>
+        </section>}
+
+        <section id="storefront-desktop-filter-technical" className={homeStyles.desktopFullSection}>
+          <header><h2>Mitat ja tekniset tiedot</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <div className={homeStyles.desktopFullBox}>
+            <div className={homeStyles.desktopFullFieldGrid}>
+              <ProfileDesktopSelect label="Merkki" value={storefrontBrand} allLabel="Kaikki merkit" options={storefrontBrands} onChange={(value) => { setStorefrontBrand(value); setStorefrontModel(""); }} />
+              <ProfileDesktopSelect label="Malli" value={storefrontModel} allLabel="Kaikki mallit" options={storefrontModels} onChange={setStorefrontModel} />
+              {storefrontTechnicalOptions.years.length > 0 && <label className={homeStyles.desktopFullField}>
+                <span>Vuosimalli</span>
+                <div className={premiumStyles.profileDesktopRangePair}>
+                  <select value={storefrontYearMin} aria-label="Vuosimallin minimi" onChange={(event) => setStorefrontYearMin(event.target.value)}><option value="">Minimi</option>{storefrontTechnicalOptions.years.map((year) => <option key={`storefront-desktop-min-${year}`} value={year}>{year}</option>)}</select>
+                  <i aria-hidden="true">–</i>
+                  <select value={storefrontYearMax} aria-label="Vuosimallin maksimi" onChange={(event) => setStorefrontYearMax(event.target.value)}><option value="">Maksimi</option>{storefrontTechnicalOptions.years.map((year) => <option key={`storefront-desktop-max-${year}`} value={year}>{year}</option>)}</select>
+                </div>
+              </label>}
+              <ProfileDesktopSelect label="Moottoritilavuus (cm³)" value={storefrontEngineCc} allLabel="Kaikki koot" options={storefrontTechnicalOptions.engineCcs} onChange={setStorefrontEngineCc} />
+              <ProfileDesktopSelect label="Moottori" value={storefrontEngineModel} allLabel="Kaikki moottorit" options={storefrontTechnicalOptions.engineModels} onChange={setStorefrontEngineModel} />
+            </div>
+          </div>
+        </section>
+
+        <section id="storefront-desktop-filter-other" className={homeStyles.desktopFullSection}>
+          <header><h2>Hinta, toimitus ja järjestys</h2><ChevronUp size={20} aria-hidden="true" /></header>
+          <div className={homeStyles.desktopFullBox}>
+            <div className={homeStyles.desktopFullFieldGrid}>
+              <label className={homeStyles.desktopFullField}>
+                <span>Hintaväli (€)</span>
+                <div className={premiumStyles.profileDesktopRangePair}>
+                  <input inputMode="numeric" value={storefrontPriceMin} placeholder="Minimi" aria-label="Hinnan minimi" onChange={(event) => setStorefrontPriceMin(event.target.value.replace(/\D/g, ""))} />
+                  <i aria-hidden="true">–</i>
+                  <input inputMode="numeric" value={storefrontPriceMax} placeholder="Maksimi" aria-label="Hinnan maksimi" onChange={(event) => setStorefrontPriceMax(event.target.value.replace(/\D/g, ""))} />
+                </div>
+              </label>
+              {(storefrontDeliveryOptions.pickup > 0 || storefrontDeliveryOptions.posti > 0) && <label className={homeStyles.desktopFullField}>
+                <span>Toimitustapa</span>
+                <select value={storefrontDelivery} onChange={(event) => setStorefrontDelivery(event.target.value as typeof storefrontDelivery)}><option value="all">Kaikki toimitustavat</option>{storefrontDeliveryOptions.pickup > 0 && <option value="pickup">Nouto</option>}{storefrontDeliveryOptions.posti > 0 && <option value="posti">Posti</option>}</select>
+              </label>}
+              <label className={homeStyles.desktopFullField}>
+                <span>Järjestä</span>
+                <select value={storefrontSort} onChange={(event) => setStorefrontSort(event.target.value as StorefrontSort)}>{storefrontSortOptions.map((option) => <option key={`storefront-desktop-sort-${option.value}`} value={option.value}>{option.label}</option>)}</select>
+              </label>
+            </div>
+          </div>
+        </section>
+      </ProfileDesktopFilterPanel>
+    );
+  };
+
+  if (profileLoading || (profile?.account_type === "company" && storefrontLoading)) {
+    return <PageLoadingFallback />;
+  }
 
   return (
-    <main className={`auth-page seller-page ${isCompany ? "seller-company-page" : "seller-private-page"}`}>
+    <main className={`auth-page seller-page ${isVerifiedCompany ? "seller-company-page seller-verified-company-page" : `seller-private-page${isCompany ? " seller-unverified-company-page" : ""}`}`}>
       <section className="sp-wrap">
-          <div className="seller-ref-hero">
+        {!isVerifiedCompany && (
+          <div className={`seller-ref-hero${storefront?.banner_image_url ? " has-storefront-banner" : ""}`} style={storefront?.banner_image_url ? { backgroundImage: `linear-gradient(90deg, rgba(3, 12, 24, .92), rgba(3, 12, 24, .54)), url(${JSON.stringify(storefront.banner_image_url)})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>
             <div className="seller-ref-identity">
             <div className={`seller-ref-avatar${showSellerAvatar ? " has-photo" : ""}`}>
               {showSellerAvatar && (
@@ -2329,6 +3531,15 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
             </article>
           )}
 
+          {currentUserId === resolvedSellerId && isCompany && (
+            <div className="seller-ref-follow-row">
+              <Link className="seller-ref-follow-button" href="/yritys">
+                <Cog size={15} />
+                Muokkaa yrityssivua
+              </Link>
+            </div>
+          )}
+
           {currentUserId !== resolvedSellerId && (
             <div className="seller-ref-follow-row">
               {currentUserId ? (
@@ -2354,8 +3565,8 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
           <div className="seller-ref-stats">
             <div className="seller-ref-stat">
               <Tag size={22} />
-              <strong>{listings.length}</strong>
-              <span>{refLabels.activeListings}</span>
+              <strong>{isVerifiedCompany && commerceProducts.length > 0 ? commerceProducts.length : listings.length}</strong>
+              <span>{isVerifiedCompany && commerceProducts.length > 0 ? "Tuotteet" : refLabels.activeListings}</span>
             </div>
             <div className="seller-ref-stat">
               <ShoppingBag size={22} />
@@ -2410,8 +3621,531 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
               <strong>{languageInfo.value}</strong>
             </div>
           </div>
-        </div>
+          </div>
+        )}
 
+        {isVerifiedCompany && (() => {
+          const commerceStyles = premiumStyles;
+          return (
+          <section className={commerceStyles.companyStorefront} aria-label={`${sellerName} ${sft("Verkkokauppa")}`}>
+            <div
+              className={commerceStyles.companyProfileHero}
+              style={companyCoverImage ? {
+                backgroundImage: `linear-gradient(rgba(7, 16, 25, .88), rgba(7, 16, 25, .88)), url(${JSON.stringify(companyCoverImage)})`
+              } : undefined}
+            >
+              <div className={commerceStyles.companyProfileBreadcrumb}>
+                <Link href="/">{sft("Etusivu")}</Link><ChevronRight size={13} /><span>{sft("Yritykset")}</span><ChevronRight size={13} /><strong>{sellerName}</strong>{companyStoreView === "reviews" && <><ChevronRight size={13} /><strong>{sft("Arvostelut")}</strong></>}
+              </div>
+              <div className={commerceStyles.companyProfileIdentity}>
+                <div className={commerceStyles.companyProfileLogo}>
+                  {showSellerAvatar ? <img
+                    src={sellerAvatarUrl}
+                    alt={`${sellerName} logo`}
+                    onError={() => setAvatarFailed(true)}
+                  /> : companyCoverImage ? <img
+                    src={companyCoverImage}
+                    alt={`${sellerName} logo`}
+                    className={commerceStyles.companyProfileLogoFromBanner}
+                    style={isMatinOsatStore ? { objectPosition: "22% center" } : undefined}
+                  /> : <strong>{sellerInitial}</strong>}
+                </div>
+                <div className={commerceStyles.companyProfileCopy}>
+                  <div className={commerceStyles.companyProfileTitleRow}>
+                    <h1>{sellerName}</h1>
+                    <span className={commerceStyles.companyProfileVerified}><Shield size={15} /> {sft("Vahvistettu yritys")}</span>
+                  </div>
+                  <p>{storefront?.storefront_headline || storefront?.description?.trim() || profile?.bio?.trim() || "Laadukkaita ja tarkastettuja tuotteita sekä asiantuntevaa palvelua."}</p>
+                  <div className={commerceStyles.companyProfileMeta}>
+                    <button type="button" onClick={() => setCompanyStoreView("reviews")}><Star size={17} fill="currentColor" /> {reviews.length ? `${averageRating.toFixed(1)}/5` : sft("Ei arvioita")} <span>({visibleReviewCount})</span></button>
+                    <span>{storefrontItemCount.toLocaleString(locale === "fi" ? "fi-FI" : locale)} {sft("tuotetta")}</span>
+                  </div>
+                </div>
+              </div>
+              <div className={commerceStyles.companyProfileSide}>
+                <div className={commerceStyles.companyProfileActions}>
+                  {currentUserId === resolvedSellerId ? (
+                    <Link className={commerceStyles.companyProfileSecondaryAction} href="/yritys?tab=appearance" aria-label={sft("Muokkaa profiilia")}><Cog size={17} /><span>{sft("Muokkaa profiilia")}</span></Link>
+                  ) : currentUserId ? (
+                    <button
+                      type="button"
+                      className={commerceStyles.companyProfileFollowAction}
+                      disabled={followSaving}
+                      aria-pressed={followStats.is_following}
+                      onClick={handleProfileFollowToggle}
+                    >
+                      {followStats.is_following ? <UserCheck size={17} /> : <UserPlus size={17} />}
+                      {followStats.is_following ? refLabels.following : refLabels.follow}
+                    </button>
+                  ) : (
+                    <Link
+                      className={commerceStyles.companyProfileFollowAction}
+                      href={`${pagePath("auth", locale)}?returnTo=${encodeURIComponent(profilePath(sellerId, sellerName, locale))}`}
+                    >
+                      <UserPlus size={17} /> {refLabels.follow}
+                    </Link>
+                  )}
+                </div>
+                {followError && currentUserId !== resolvedSellerId && <small className={commerceStyles.companyProfileFollowError}>{followError}</small>}
+              </div>
+            </div>
+
+            <div className={commerceStyles.companyStoreNav} aria-label={sft("Yrityskaupan navigointi")}>
+              <nav>
+                <button type="button" className={companyStoreView === "catalog" ? commerceStyles.companyStoreNavActive : ""} aria-pressed={companyStoreView === "catalog"} onClick={() => setCompanyStoreView("catalog")}><ShoppingBag size={15} /> {sft("Kauppa")}</button>
+                <button type="button" className={companyStoreView === "details" ? commerceStyles.companyStoreNavActive : ""} aria-pressed={companyStoreView === "details"} onClick={() => setCompanyStoreView("details")}><Building2 size={15} /> {sft("Yrityksen tiedot")}</button>
+                <button type="button" className={companyStoreView === "reviews" ? commerceStyles.companyStoreNavActive : ""} aria-pressed={companyStoreView === "reviews"} onClick={() => setCompanyStoreView("reviews")}><Star size={15} /> {sft("Arvostelut")}</button>
+              </nav>
+            </div>
+
+            <div className={commerceStyles.companyStoreBody}>
+            <div className={commerceStyles.companyStoreMain}>
+            {companyStoreView === "catalog" && <div className={commerceStyles.companyCatalog} id="yrityksen-tuotteet">
+              <header className={commerceStyles.companyCatalogHeader}>
+                <div>
+                  <h2>{sellerName} · {sft("Verkkokauppa")}</h2>
+                  <p>{storefront?.description?.trim() || profile?.bio?.trim() || sft("Yritys ei ole vielä lisännyt esittelytekstiä.")}</p>
+                </div>
+              </header>
+              <section className={`${commerceStyles.companyTrustStrip} ${commerceStyles.companyTrustStripTop}`} aria-label={sft("Kaupankäynnin edut")}>
+                <div><Truck size={22} /><span><strong>{sft("Joustava toimitus")}</strong><small>{sft("Nouto tai toimitus tuotteen mukaan")}</small></span></div>
+                <div><CreditCard size={22} /><span><strong>{sft("Turvallinen maksaminen")}</strong><small>{sft("Maksu suojatun kassapalvelun kautta")}</small></span></div>
+                <div><PackageCheck size={22} /><span><strong>{sft("Ajantasainen varasto")}</strong><small>{companyInventoryCount} {sft("kappaletta saatavilla")}</small></span></div>
+              </section>
+              {companyPromoEnabled && <div
+                className={`${commerceStyles.companyFreeShippingBanner}${companyPromoImage ? ` ${commerceStyles.companyFreeShippingBannerWithImage}` : ""}`}
+                style={{
+                  backgroundColor: companyPromoColor,
+                  backgroundImage: companyPromoImage ? `linear-gradient(90deg, rgba(5,17,30,.68), rgba(5,17,30,.25)), url(${JSON.stringify(companyPromoImage)})` : "none"
+                }}
+              >
+                <span>
+                  {companyPromoTitle && <strong>{companyPromoTitle}</strong>}
+                  {companyPromoSubtitle && <small>{companyPromoSubtitle}</small>}
+                </span>
+              </div>}
+              {isMatinOsatStore && (
+                <div className={commerceStyles.companyCatalogPromoBanner}>
+                  <img src="/black-friday-banner.png" alt="Black Friday -alennus" />
+                </div>
+              )}
+              <h2 className={commerceStyles.companyCatalogSectionTitle}>{sft("Tuotteet ja varaosat")}</h2>
+              <div className={commerceStyles.companyMarketTabs} data-count={storefrontModes.length + 1} role="tablist" aria-label={sft("Kaupan ilmoitustyyppi")}>
+                {(["all", ...storefrontModes] as const).map((mode) => {
+                  const label = mode === "all" ? "Kaikki" : mode === "vehicles" ? "Ajoneuvot" : mode === "parts" ? "Varaosat" : "Ajovarusteet";
+                  return (
+                  <button
+                    type="button"
+                    role="tab"
+                    key={mode}
+                    aria-selected={storefrontMode === mode}
+                    className={storefrontMode === mode ? commerceStyles.companyMarketTabActive : ""}
+                    onClick={() => selectStorefrontFilterMode(mode)}
+                  >
+                    <span>{sft(label)}</span>
+                    <small>{mode === "all" ? storefrontItemCount : storefrontItemViews.filter((item) => item.mode === mode).length}</small>
+                  </button>
+                  );
+                })}
+              </div>
+              <div className={commerceStyles.companyCatalogTools}>
+                <form
+                  className={commerceStyles.companyStoreSearch}
+                  role="search"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    setStorefrontSearchOpen(false);
+                  }}
+                  onBlur={() => window.setTimeout(() => setStorefrontSearchOpen(false), 140)}
+                >
+                  <Search size={19} aria-hidden="true" />
+                  <input
+                    value={storefrontSearch}
+                    onChange={(event) => {
+                      setStorefrontSearch(event.target.value);
+                      setStorefrontSearchOpen(true);
+                    }}
+                    onFocus={() => setStorefrontSearchOpen(true)}
+                    placeholder={sft(profile?.account_type === "company" ? "Hae tämän yrityksen tuotteista" : "Hae tämän myyjän tuotteista")}
+                    aria-label={sft(profile?.account_type === "company" ? "Hae yrityksen tuotteista" : "Hae myyjän tuotteista")}
+                    aria-controls="seller-storefront-search-suggestions"
+                    aria-expanded={storefrontSearchOpen && normalizeSellerFilterText(storefrontSearch).length >= 2}
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                  {storefrontSearch && <button className={commerceStyles.companyStoreSearchClear} type="button" aria-label={sft("Tyhjennä haku")} onClick={() => { setStorefrontSearch(""); setStorefrontSearchOpen(false); }}><X size={17} /></button>}
+                  {storefrontSearchOpen && normalizeSellerFilterText(storefrontSearch).length >= 2 && (
+                    <section
+                      id="seller-storefront-search-suggestions"
+                      className={commerceStyles.companyStoreSearchSuggestions}
+                      aria-label={sft("Hakuehdotukset")}
+                      onMouseDown={(event) => event.preventDefault()}
+                    >
+                      <button
+                        type="submit"
+                        className={commerceStyles.companyStoreSearchAll}
+                        onClick={() => setStorefrontSearchOpen(false)}
+                      >
+                        <Search size={17} aria-hidden="true" />
+                        <span>
+                          <strong>{storefrontSearch.trim()}</strong>
+                          <small>{sft("Hae kaikki tämän myyjän tuotteet")} · {storefrontSearchResults.totalCount} {sft(storefrontSearchResults.totalCount === 1 ? "osuma" : "osumaa")}</small>
+                        </span>
+                      </button>
+                      <div className={commerceStyles.companyStoreSearchSuggestionList}>
+                        {storefrontSearchResults.items.length > 0 ? storefrontSearchResults.items.map((item, index) => {
+                          const title = storefrontItemDisplayTitle(item, locale);
+                          const detail = [translateCategory(locale, item.category), item.brand, item.model, item.year, item.listing?.part_number].filter(Boolean).join(" · ");
+                          return (
+                            <Link
+                              key={item.key}
+                              href={storefrontItemHref(item)}
+                              className={commerceStyles.companyStoreSearchSuggestion}
+                              onClick={() => setStorefrontSearchOpen(false)}
+                            >
+                              <img src={storefrontItemImageSrc(item, index)} alt="" loading="lazy" />
+                              <span><strong>{title}</strong>{detail && <small>{detail}</small>}</span>
+                              <b>{formatFromEur(item.priceCents / 100)}</b>
+                            </Link>
+                          );
+                        }) : <p>{sft("Ei suoria tuote-ehdotuksia")}</p>}
+                      </div>
+                    </section>
+                  )}
+                </form>
+                <div
+                  className={`${commerceStyles.companyStoreSortWrap}${storefrontSortOpen ? ` ${commerceStyles.companyStoreSortWrapOpen}` : ""}`}
+                  onBlur={(event) => {
+                    const nextTarget = event.relatedTarget;
+                    if (!(nextTarget instanceof HTMLElement) || !event.currentTarget.contains(nextTarget)) setStorefrontSortOpen(false);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") setStorefrontSortOpen(false);
+                  }}
+                >
+                  <button type="button" className={commerceStyles.companyStoreSortButton} aria-label={`${sft("Järjestä tuotteet")}: ${activeStorefrontSort.label}`} aria-haspopup="menu" aria-expanded={storefrontSortOpen} onClick={() => setStorefrontSortOpen((open) => !open)}>
+                    <ArrowDownWideNarrow size={19} aria-hidden="true" />
+                    <span>{activeStorefrontSort.label}</span>
+                    <ChevronDown size={15} aria-hidden="true" />
+                  </button>
+                  {storefrontSortOpen && <div className={commerceStyles.companyStoreSortMenu} role="menu">
+                    {storefrontSortOptions.map((option) => {
+                      const Icon = option.icon;
+                      const selected = option.value === storefrontSort;
+                      return <button type="button" role="menuitemradio" aria-checked={selected} className={selected ? commerceStyles.companyStoreSortOptionSelected : commerceStyles.companyStoreSortOption} key={option.value} onClick={() => { setStorefrontSort(option.value); setStorefrontSortOpen(false); }}><Icon size={16} aria-hidden="true" /><span>{option.label}</span>{selected && <Check size={16} aria-hidden="true" />}</button>;
+                    })}
+                  </div>}
+                </div>
+                <div className={commerceStyles.companyStoreFilterWrap}>
+                  <button type="button" className={storefrontFilterOpen || storefrontActiveFilterCount ? commerceStyles.companyStoreFilterActive : commerceStyles.companyStoreFilterButton} aria-expanded={storefrontFilterOpen} onClick={() => {
+                    setStorefrontSortOpen(false);
+                    if (!storefrontFilterOpen && storefrontMode === "all" && storefrontModes[0]) {
+                      selectStorefrontFilterMode(storefrontModes.includes("parts") ? "parts" : storefrontModes[0]);
+                    }
+                    setStorefrontDesktopFilterTab("basic");
+                    setStorefrontFilterOpen((open) => !open);
+                  }}><SlidersHorizontal size={18} /> {sft("Suodata")}{storefrontActiveFilterCount > 0 && <span>{storefrontActiveFilterCount}</span>}<ChevronDown size={16} /></button>
+                </div>
+              </div>
+              <div className={commerceStyles.companyCollectionBar}>
+                <div className={commerceStyles.companyCollectionTabs} role="tablist" aria-label={sft("Tuotevalikoima")}>
+                  <button type="button" role="tab" aria-selected={storefrontCollection === "popular"} className={storefrontCollection === "popular" ? commerceStyles.companyCollectionTabActive : ""} onClick={() => { setStorefrontCollection("popular"); setStorefrontSort("newest"); }}>{sft("Suosituimmat")}</button>
+                  <button type="button" role="tab" aria-selected={storefrontCollection === "newest"} className={storefrontCollection === "newest" ? commerceStyles.companyCollectionTabActive : ""} onClick={() => { setStorefrontCollection("newest"); setStorefrontSort("newest"); }}>{sft("Uusimmat")}</button>
+                  <button type="button" role="tab" aria-selected={storefrontCollection === "sale"} className={storefrontCollection === "sale" ? commerceStyles.companyCollectionTabActive : ""} disabled={!hasSaleProducts} onClick={() => { setStorefrontCollection("sale"); setStorefrontSort("newest"); }}>{sft("Tarjouksessa")}</button>
+                </div>
+                <div className={commerceStyles.companyCatalogCount}>
+                  <span>1–{Math.min(24, visibleStorefrontItems.length)} / {visibleStorefrontItems.length} {sft("tuotetta")}</span>
+                  <div><button type="button" aria-label={sft("Ruudukkonäkymä")} aria-pressed="true"><LayoutGrid size={17} /></button><button type="button" aria-label={sft("Listanäkymä")} aria-pressed="false"><List size={17} /></button></div>
+                </div>
+              </div>
+              <div className={commerceStyles.companyCatalogFilterPortal}>
+                <div className={commerceStyles.companyStoreFilterWrap}>
+                  {storefrontFilterOpen && createPortal(<>
+                    <button type="button" className={`${homeStyles.desktopFilterBackdrop} ${premiumStyles.profileDesktopFilterOnly}`} aria-label={sft("Sulje suodattimet")} onClick={() => setStorefrontFilterOpen(false)} />
+                    <aside className={`${homeStyles.desktopFilterModal} ${homeStyles.resultsFilterModal} ${premiumStyles.profileDesktopFilterOnly}`}>
+                      {renderStorefrontDesktopFilter()}
+                    </aside>
+                    <div className={`seller-page ${premiumStyles.profileMobileFilterOnly}`}>
+                    <button type="button" className="seller-home-filter-backdrop" aria-label={sft("Sulje suodattimet")} onClick={() => setStorefrontFilterOpen(false)} />
+                    <form className={`seller-home-filter-bar is-open is-expanded ${commerceStyles.companyMobileFilterSheet}`} role="search" aria-label={sft("Suodata hakua")} onSubmit={(event) => event.preventDefault()}>
+                      <div className="seller-mobile-filter-drag-handle" aria-hidden="true"><span /></div>
+                      <header className="seller-home-filter-head">
+                        <strong><span className="seller-filter-title-mobile">{sft("Suodata hakua")}</span></strong>
+                        <div>
+                          <button type="button" className="seller-filter-head-reset" onClick={() => { resetStorefrontFilters(); setStorefrontSort("newest"); }}>{sft("Nollaa suodatukset")}</button>
+                          <button type="button" className={`seller-filter-head-close ${commerceStyles.companyMobileFilterClose}`} aria-label={sft("Sulje suodattimet")} onClick={() => setStorefrontFilterOpen(false)}><X size={23} strokeWidth={2.6} /></button>
+                        </div>
+                      </header>
+                      {storefrontModes.length > 1 && <section className={homeStyles.marketplaceRailSwitch} aria-label={sft("Valitse suodatettava ilmoitustyyppi")}>
+                        <div className={homeStyles.marketplaceModeTabs} role="tablist" aria-label={sft("Ilmoitustyyppi")} style={{ gridTemplateColumns: `repeat(${storefrontModes.length}, minmax(0, 1fr))` }}>
+                          {storefrontModes.map((mode) => <button type="button" role="tab" key={mode} aria-selected={storefrontMode === mode} className={storefrontMode === mode ? homeStyles.marketplaceModeTabActive : ""} onClick={() => selectStorefrontFilterMode(mode)}>{sft(mode === "parts" ? "Varaosat" : mode === "vehicles" ? "Ajoneuvot" : "Ajovarusteet")}</button>)}
+                        </div>
+                      </section>}
+                      <div className="seller-mobile-filter-content">
+                        {(storefrontDeliveryOptions.pickup > 0 || storefrontDeliveryOptions.posti > 0) && <label className={`${homeStyles.heroFilterFieldWrap} ${commerceStyles.companyMobileDeliveryField}`}><span className={homeStyles.heroFilterLabel}>{sft("Toimitustapa")}</span><select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={storefrontDelivery} onChange={(event) => setStorefrontDelivery(event.target.value as typeof storefrontDelivery)}><option value="all">{sft("Kaikki toimitustavat")}</option>{storefrontDeliveryOptions.pickup > 0 && <option value="pickup">{sft("Nouto")}</option>}{storefrontDeliveryOptions.posti > 0 && <option value="posti">{sft("Posti")}</option>}</select></label>}
+                        {storefrontVehicleTypes.length > 0 && <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-vehicle`}><span className={homeStyles.heroFilterLabel}>{sft("Ajoneuvolaji")}</span><select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={storefrontVehicleType} onChange={(event) => { setStorefrontVehicleType(event.target.value); setStorefrontVehicleSubtype(""); setStorefrontBrand(""); setStorefrontModel(""); }}><option value="">{sft("Kaikki ajoneuvot")}</option>{storefrontVehicleTypes.map((vehicleType) => <option key={vehicleType} value={vehicleType}>{translateCategory(locale, vehicleType)}</option>)}</select></label>}
+                        {storefrontVehicleSubtypes.length > 0 && <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-type`}><span className={homeStyles.heroFilterLabel}>{sft("Tyyppi")}</span><select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={storefrontVehicleSubtype} onChange={(event) => { setStorefrontVehicleSubtype(event.target.value); setStorefrontBrand(""); setStorefrontModel(""); }}><option value="">{sft("Kaikki tyypit")}</option>{storefrontVehicleSubtypes.map((vehicleSubtype) => <option key={vehicleSubtype} value={vehicleSubtype}>{vehicleSubtype}</option>)}</select></label>}
+                        {storefrontBrands.length > 0 && <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-brand`}><span className={homeStyles.heroFilterLabel}>{sft("Merkki")}</span><select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={storefrontBrand} onChange={(event) => { setStorefrontBrand(event.target.value); setStorefrontModel(""); }}><option value="">{sft("Kaikki merkit")}</option>{storefrontBrands.map((brand) => <option key={brand} value={brand}>{brand}</option>)}</select></label>}
+                        {storefrontModels.length > 0 && <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-model`}><span className={homeStyles.heroFilterLabel}>{sft("Malli")}</span><select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={storefrontModel} onChange={(event) => setStorefrontModel(event.target.value)}><option value="">{sft("Kaikki mallit")}</option>{storefrontModels.map((model) => <option key={model} value={model}>{model}</option>)}</select></label>}
+                        {storefrontTechnicalOptions.years.length > 0 && <div className="seller-home-filter-years"><span>{sft("Vuosimalli")}</span><select value={storefrontYearMin} aria-label={sft("Vuosimallin minimi")} onChange={(event) => setStorefrontYearMin(event.target.value)}><option value="">{sft("Minimi")}</option>{storefrontTechnicalOptions.years.map((year) => <option key={`storefront-mobile-min-${year}`} value={year}>{year}</option>)}</select><select value={storefrontYearMax} aria-label={sft("Vuosimallin maksimi")} onChange={(event) => setStorefrontYearMax(event.target.value)}><option value="">{sft("Maksimi")}</option>{storefrontTechnicalOptions.years.map((year) => <option key={`storefront-mobile-max-${year}`} value={year}>{year}</option>)}</select><div className="seller-home-year-slider" aria-hidden="true"><span className="seller-home-year-slider-rail" /><span className="seller-home-year-slider-active" style={{ left: 0, right: 0 }} /><span className="seller-home-year-slider-thumb" style={{ left: 0 }} /><span className="seller-home-year-slider-thumb" style={{ left: "100%" }} /></div></div>}
+                        {storefrontCategories.length > 0 && <><div className="seller-filter-section-title">{sft("Osakategoriointi")}</div><label className={`${homeStyles.heroFilterFieldWrap} seller-filter-category`}><span className={homeStyles.heroFilterLabel}>{sft("Pääkategoria")}</span><select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={storefrontCategory} onChange={(event) => { setStorefrontCategory(event.target.value); setStorefrontSubcategoryParent(""); setStorefrontSubcategory(""); setStorefrontVehicleType(""); setStorefrontVehicleSubtype(""); setStorefrontBrand(""); setStorefrontModel(""); }}><option value="">{sft("Kaikki kategoriat")}</option>{storefrontCategories.map((category) => <option key={category} value={category}>{translateCategory(locale, category)}</option>)}</select></label></>}
+                        {storefrontSubcategoryParents.length > 0 && <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-subcategory`}><span className={homeStyles.heroFilterLabel}>{sft("Alakategoria")}</span><select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={storefrontSubcategoryParent} onChange={(event) => { setStorefrontSubcategoryParent(event.target.value); setStorefrontSubcategory(""); setStorefrontBrand(""); setStorefrontModel(""); }}><option value="">{sft("Kaikki alakategoriat")}</option>{storefrontSubcategoryParents.map((subcategory) => <option key={subcategory} value={subcategory}>{translateCategory(locale, categoryLeaf(subcategory))}</option>)}</select></label>}
+                        {storefrontSubcategories.length > 0 && <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-part`}><span className={homeStyles.heroFilterLabel}>{sft("Tarkempi osa")}</span><select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={storefrontSubcategory} onChange={(event) => { setStorefrontSubcategory(event.target.value); setStorefrontBrand(""); setStorefrontModel(""); }}><option value="">{sft("Kaikki tarkemmat osat")}</option>{storefrontSubcategories.map((subcategory) => <option key={subcategory} value={subcategory}>{translateCategory(locale, categoryLeaf(subcategory))}</option>)}</select></label>}
+                        {storefrontTechnicalOptions.engineCcs.length > 0 && <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-engine-cc`}><span className={homeStyles.heroFilterLabel}>{sft("Moottoritilavuus (cm³)")}</span><select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={storefrontEngineCc} onChange={(event) => setStorefrontEngineCc(event.target.value)}><option value="">{sft("Kaikki koot")}</option>{storefrontTechnicalOptions.engineCcs.map((engineCc) => <option key={engineCc} value={engineCc}>{engineCc}</option>)}</select></label>}
+                        <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-sort`}><span className={homeStyles.heroFilterLabel}>{sft("Järjestys")}</span><select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={storefrontSort} onChange={(event) => setStorefrontSort(event.target.value as StorefrontSort)}>{storefrontSortOptions.map((option) => <option key={`storefront-mobile-sort-${option.value}`} value={option.value}>{option.label}</option>)}</select></label>
+                      </div>
+                      <div className={`seller-home-filter-actions ${commerceStyles.companyMobileFilterActions}`}><button type="button" onClick={() => setStorefrontFilterOpen(false)}>{sft("Näytä")} {visibleStorefrontItems.length} {sft("tuotetta")}</button><button type="button" onClick={() => { resetStorefrontFilters(); setStorefrontSort("newest"); }}>{sft("Tyhjennä suodattimet")}</button></div>
+                    </form>
+                    </div>
+                  </>, document.body)}
+                </div>
+              </div>
+              {commerceMessage && <p className={commerceMessage.includes("lisättiin") ? commerceStyles.success : commerceStyles.warning}>{commerceMessage}</p>}
+              {(commerceProductsLoading || (listingsLoading && !listingsLoaded)) ? <div className={commerceStyles.companyProductLoading} role="status" aria-label={sft("Tuotteita ladataan")}><span /><span /><span /></div> : visibleStorefrontItems.length === 0 ? <div className={commerceStyles.companyStoreNoResults}><Search size={30} /><strong>{sft("Tuotteita ei löytynyt")}</strong><p>{sft("Kokeile toista hakusanaa tai poista suodattimia.")}</p><button type="button" onClick={() => { setStorefrontSearch(""); resetStorefrontFilters(); }}>{sft("Näytä kaikki tuotteet")}</button></div> : <div className={commerceStyles.companyProductGrid}>
+                {visibleStorefrontItems.map((item, index) => {
+                  const listing = item.listing;
+                  const product = item.product;
+                  const itemHref = product
+                    ? `/tuotteet/${product.id}`
+                    : listing
+                      ? listingPath(listingUrlId(listing))
+                      : "#yrityksen-yhteystiedot";
+
+                  if (item.kind === "product" && product) {
+                    const isSaved = savedCommerceProductIds.includes(product.id);
+
+                    return (
+                      <article className={commerceStyles.companyProductCard} key={item.key}>
+                        <div className={commerceStyles.companyProductImageWrap}>
+                          <Link className={commerceStyles.companyProductImage} href={itemHref}>
+                            {product.image_urls?.[0] ? <img src={product.image_urls[0]} alt={product.name} loading="lazy" /> : listing ? <img src={listingImageSrc(listing, index)} alt={product.name} loading="lazy" /> : <span><ShoppingBag size={44} /></span>}
+                          </Link>
+                          {activeSaleDiscountPercent(product) > 0 && <span className={commerceStyles.companyProductSaleBadge}>ALE −{activeSaleDiscountPercent(product)} %</span>}
+                          <button type="button" className={isSaved ? commerceStyles.companyProductFavoriteActive : commerceStyles.companyProductFavorite} aria-label={isSaved ? "Poista suosikeista" : "Lisää suosikkeihin"} aria-pressed={isSaved} onClick={() => toggleSavedCommerceProduct(product.id)}><Heart size={19} fill={isSaved ? "currentColor" : "none"} /></button>
+                        </div>
+                        <div className={commerceStyles.companyProductBody}>
+                          <div className={commerceStyles.companyProductEyebrow}>
+                            <span>{item.category}</span>
+                            {product.stock_quantity > 3 && <span>Varastossa</span>}
+                          </div>
+                          <Link href={itemHref}><h3>{product.name}</h3></Link>
+                          {(item.brand || item.model || item.year) && <p className={commerceStyles.companyProductFitment}>{[item.brand, item.model, item.year].filter(Boolean).join(" · ")}</p>}
+                          <div className={commerceStyles.companyProductPrice}>{activeSalePrice(product) < product.price_cents && <del>{formatFromEur(product.price_cents / 100)}</del>}<strong>{formatFromEur(activeSalePrice(product) / 100)}</strong>{Number(product.vat_rate) > 0 && <small>Sis. ALV {product.vat_rate}%</small>}</div>
+                          <div className={commerceStyles.companyProductActions}>
+                            <button type="button" onClick={() => addCommerceProduct(product)}><strong>Lisää ostoskoriin</strong><span><ShoppingCart size={18} /></span></button>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  }
+
+                  if (!listing) return null;
+                  const isSaved = favorites.includes(listing.id);
+
+                  return (
+                    <article className={`${commerceStyles.companyProductCard} ${commerceStyles.companyListingCard}`} key={item.key}>
+                      <div className={commerceStyles.companyProductImageWrap}>
+                        <Link className={commerceStyles.companyProductImage} href={itemHref}>
+                          <span className={commerceStyles.companyListingImageBlur} aria-hidden="true"><OptimizedListingImage src={listingImageSrc(listing, index)} alt="" decorative /></span>
+                          <OptimizedListingImage src={listingImageSrc(listing, index)} alt={listing.title} sizes="(max-width: 480px) 100vw, (max-width: 780px) 50vw, (max-width: 1120px) 33vw, 25vw" />
+                        </Link>
+                        <button type="button" className={isSaved ? commerceStyles.companyProductFavoriteActive : commerceStyles.companyProductFavorite} aria-label={isSaved ? "Poista suosikeista" : "Lisää suosikkeihin"} aria-pressed={isSaved} onClick={(event) => toggleFavorite(event, listing.id)}><Heart size={19} fill={isSaved ? "currentColor" : "none"} /></button>
+                      </div>
+                      <div className={commerceStyles.companyProductBody}>
+                        <Link href={itemHref}><h3>{listing.title}</h3></Link>
+                        {(item.brand || item.model || item.year) && <p className={commerceStyles.companyProductFitment}>{[item.brand, item.model, item.year].filter(Boolean).join(" · ")}</p>}
+                        <div className={commerceStyles.companyProductPrice}><ListingSalePrice listing={listing} /></div>
+                        <div className={commerceStyles.companyListingActions}>
+                          <Link href={itemHref}>{sft("Katso ilmoitusta")} <ArrowRight size={18} /></Link>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>}
+            </div>}
+
+            {companyStoreView === "details" && <div className={commerceStyles.companyDetailsView} id="yrityksen-esittely">
+              <div className={commerceStyles.companyDetailsLayout}>
+              <div className={commerceStyles.companyDetailsPrimary}>
+              <header className={commerceStyles.companyDetailsHeader}>
+                <div><h2>Yrityksen tiedot</h2><p>Kaikki tärkeät tiedot yrityksestämme.</p></div>
+                {currentUserId === resolvedSellerId && <Link className={commerceStyles.companyDetailsEditAction} href="/yritys?tab=appearance#yrityssivun-tekstit"><Cog size={16} /> Muokkaa tietoja</Link>}
+              </header>
+              <section className={commerceStyles.companyDetailsGrid}>
+                <article className={commerceStyles.companyDetailsAboutCard}>
+                  <h3>Tietoa yrityksestä</h3>
+                  <p>{storefront?.description?.trim() || profile?.bio?.trim() || `${sellerName} on tuotteisiin ja varaosiin erikoistunut suomalainen yritys. Tarjoamme laajan valikoiman laadukkaita tuotteita sekä asiantuntevaa palvelua yksityisille ja yritysasiakkaille.`}</p>
+                  <div className={commerceStyles.companyDetailsFacts}>
+                    {companyFoundedYear && <span><CalendarDays size={18} /><small>Perustettu</small><strong>{companyFoundedYear}</strong></span>}
+                    {(storefront?.business_id || profile?.business_id?.trim()) && <span><Tag size={18} /><small>Y-tunnus</small><strong>{storefront?.business_id || profile?.business_id?.trim()}</strong></span>}
+                  </div>
+                </article>
+
+                <article className={commerceStyles.companyDetailsContactCard} id="yrityksen-yhteystiedot">
+                  <h3>Yhteystiedot</h3>
+                  <div>
+                    <dl>
+                      {companyPublicAddress && <div><dt><MapPin size={16} /> Osoite</dt><dd>{companyPublicAddress}</dd></div>}
+                      {companyPublicPhone && <div><dt><MessageCircle size={16} /> Puhelin</dt><dd><a href={`tel:${companyPublicPhone.replace(/[^\d+]/g, "")}`}>{companyPublicPhone}</a></dd></div>}
+                      {companyPublicEmail && <div><dt><MessageCircle size={16} /> Sähköposti</dt><dd><a href={`mailto:${companyPublicEmail}`}>{companyPublicEmail}</a></dd></div>}
+                    </dl>
+                    <dl>
+                      <div><dt><Clock3 size={16} /> Asiakaspalvelu</dt><dd>Sopimuksen mukaan</dd></div>
+                      {companyWebsite && <div><dt><Globe2 size={16} /> Verkkosivusto</dt><dd><a href={companyWebsite.href} target="_blank" rel="noreferrer">{companyWebsite.label}</a></dd></div>}
+                      <div><dt><MessageCircle size={16} /> Vastausaika</dt><dd>Ota yhteyttä yritykseen</dd></div>
+                    </dl>
+                  </div>
+                </article>
+
+                <article className={commerceStyles.companyDetailsCommerceCard}>
+                  <h3>Toimitus ja maksaminen</h3>
+                  <div>
+                    <section>
+                      <strong>Toimitustavat</strong>
+                      {storefrontDeliveryOptions.posti > 0 && <span><Check size={15} /> Posti</span>}
+                      {storefrontDeliveryOptions.pickup > 0 && <span><Check size={15} /> Nouto paikan päältä</span>}
+                      {storefrontDeliveryOptions.posti === 0 && storefrontDeliveryOptions.pickup === 0 && <span>Toimitustapa sovitaan tuotekohtaisesti</span>}
+                    </section>
+                    <section>
+                      <strong>Maksutavat</strong>
+                      {commerceProductViews.length > 0 && <span><Check size={15} /> Korttimaksu Maskinesin kautta</span>}
+                      {inquiryListingCount > 0 && <span><Check size={15} /> Maksutapa sovitaan myyjän kanssa</span>}
+                      {commerceProductViews.length === 0 && inquiryListingCount === 0 && <span>Ei maksutapoja ilmoitettu</span>}
+                    </section>
+                  </div>
+                </article>
+              </section>
+              </div>
+
+              <aside className={commerceStyles.companyDetailsSidebar} aria-label="Yrityksen yhteenveto">
+                <article className={commerceStyles.companyDetailsIdentityCard}>
+                  <header>
+                    <div className={commerceStyles.companyDetailsSidebarLogo}>
+                      {showSellerAvatar ? <img src={sellerAvatarUrl} alt={`${sellerName} logo`} onError={() => setAvatarFailed(true)} /> : <strong>{sellerInitial}</strong>}
+                    </div>
+                    <div><h3>{sellerName}</h3><span><Shield size={14} /> Vahvistettu yritys</span></div>
+                  </header>
+                  <dl>
+                    {(storefront?.city || sellerLocation) && <div><dt><MapPin size={17} /> Sijainti</dt><dd>{storefront?.city || sellerLocation}, {storefront?.country || "FI"}</dd></div>}
+                    {companyFoundedYear && <div><dt><CalendarDays size={17} /> Liittynyt Maskinesiin</dt><dd>{companyFoundedYear}</dd></div>}
+                    {(storefront?.business_id || profile?.business_id?.trim()) && <div><dt><Tag size={17} /> Y-tunnus</dt><dd>{storefront?.business_id || profile?.business_id?.trim()}</dd></div>}
+                    {companyPublicEmail && <div><dt><MessageCircle size={17} /> Sähköposti</dt><dd><a href={`mailto:${companyPublicEmail}`}>{companyPublicEmail}</a></dd></div>}
+                    {companyPublicPhone && <div><dt><Clock3 size={17} /> Puhelin</dt><dd><a href={`tel:${companyPublicPhone.replace(/[^\d+]/g, "")}`}>{companyPublicPhone}</a></dd></div>}
+                  </dl>
+                </article>
+
+                <article className={commerceStyles.companyDetailsTrustCard}>
+                  <h3>Maskinesin luottamuslupaus</h3>
+                  <span><Shield size={22} /><span><strong>Turvallinen kauppa</strong><small>Kauppasi on suojattu Maskinesin palvelussa.</small></span></span>
+                  <span><MessageCircle size={22} /><span><strong>Suomalainen tuki</strong><small>Asiakaspalvelu palvelee sinua suomeksi.</small></span></span>
+                  <span><PackageCheck size={22} /><span><strong>14 päivän palautusoikeus</strong><small>Palauta tuote helposti 14 päivän sisällä.</small></span></span>
+                </article>
+              </aside>
+              </div>
+            </div>}
+
+            {companyStoreView === "reviews" && <div className={commerceStyles.companyReviewsView} id="yrityksen-arvostelut">
+              <div className={commerceStyles.companyReviewLayout}>
+                <main className={commerceStyles.companyReviewMain}>
+                  <section className={commerceStyles.companyReviewDashboard} aria-label="Arvostelujen yhteenveto">
+                    <div className={commerceStyles.companyReviewOverviewScore}>
+                      <span>Arvostelut yhteensä</span>
+                      <strong>{reviews.length ? averageRating.toFixed(1) : "–"}<small>/ 5</small></strong>
+                      <div>{renderAverageRatingStars(averageRating, 25)}</div>
+                      <p>{visibleReviewCount} arvostelua</p>
+                    </div>
+                    <div className={commerceStyles.companyReviewBars} aria-label="Arvosanojen jakauma">
+                      {[5, 4, 3, 2, 1].map((rating) => {
+                        const count = reviews.filter((review) => Math.round(review.rating) === rating).length;
+                        const percent = reviews.length ? Math.round((count / reviews.length) * 100) : 0;
+                        return <div key={rating}><span>{rating} <Star size={13} fill="currentColor" /></span><i><b style={{ width: `${percent}%` }} /></i><strong>{count}</strong></div>;
+                      })}
+                    </div>
+                  </section>
+                  <div className={commerceStyles.companyReviewFilters}>
+                    <label><select aria-label="Järjestä arvostelut" defaultValue="newest"><option value="newest">Uusimmat ensin</option><option value="oldest">Vanhimmat ensin</option><option value="best">Parhaat ensin</option></select><ChevronDown size={14} /></label>
+                  </div>
+                  <div className={commerceStyles.companyReviewList}>
+                    {reviews.length ? reviews.map((review) => <article key={review.id}>
+                      <div className={commerceStyles.companyReviewPerson}><span className={commerceStyles.companyReviewAvatar}>{getReviewInitials(review.reviewer_name)}</span><span><strong>{review.reviewer_name}</strong><small><Check size={12} /> Maskines-käyttäjä</small></span></div>
+                      <div className={commerceStyles.companyReviewContent}>
+                        <header><span className={commerceStyles.companyReviewStars}>{renderReviewStars(review.rating, 16)}</span><strong>{review.rating >= 5 ? "Kaikki toimi loistavasti" : review.rating >= 4 ? "Hyvä kokemus" : review.rating >= 3 ? "Asiallinen kokemus" : "Kokemus kaupasta"}</strong></header>
+                        <p>{review.comment}</p>
+                      </div>
+                      <time>{formatListingDate(review.created_at, locale)}</time>
+                    </article>) : <div className={commerceStyles.companyReviewEmptyLarge}><Star size={30} /><strong>Ei vielä arvosteluja</strong><p>Ole ensimmäinen, joka kertoo kokemuksensa tästä myyjästä.</p></div>}
+                  </div>
+                </main>
+                <aside className={commerceStyles.companyReviewSidebar} aria-label="Yrityksen arvostelutiedot">
+                  <article className={commerceStyles.companyReviewCompanyCard}>
+                    <header><div className={commerceStyles.companyReviewCompanyLogo}>{showSellerAvatar ? <img src={sellerAvatarUrl} alt={`${sellerName} logo`} /> : <strong>{sellerInitial}</strong>}</div><div><h3>{sellerName}</h3><span><Shield size={13} /> Vahvistettu yritys</span></div></header>
+                    <dl>
+                      {(storefront?.city || sellerLocation) && <div><dt><MapPin size={17} /></dt><dd>{storefront?.city || sellerLocation}, {storefront?.country || "FI"}</dd></div>}
+                      {(storefront?.business_id || profile?.business_id?.trim()) && <div><dt><CalendarDays size={17} /></dt><dd>Y-tunnus: {storefront?.business_id || profile?.business_id?.trim()}</dd></div>}
+                      {companyPublicEmail && <div><dt><MessageCircle size={17} /></dt><dd>{companyPublicEmail}</dd></div>}
+                      {companyPublicPhone && <div><dt><Phone size={17} /></dt><dd>{companyPublicPhone}</dd></div>}
+                    </dl>
+                    <button type="button" onClick={() => setCompanyStoreView("details")}>Näytä kaikki yrityksen tiedot <ChevronRight size={16} /></button>
+                  </article>
+                  <article className={commerceStyles.companyReviewTrustCard}>
+                    <h3>Arvostelujen luotettavuus</h3>
+                    <span><Shield size={23} /><span><strong>Kaikki kirjautuneet käyttäjät voivat arvostella</strong><small>Arvostelun voi jättää ilman aiempaa ostosta.</small></span></span>
+                    <span><PackageCheck size={23} /><span><strong>Selkeät yhteiset pelisäännöt</strong><small>Epäasialliset tai harhaanjohtavat arvostelut voidaan poistaa.</small></span></span>
+                    <span><UserCheck size={23} /><span><strong>Arvostelut eivät ole nimettömiä</strong><small>Arvostelu näytetään Maskines-käyttäjän nimellä.</small></span></span>
+                  </article>
+                  <article className={commerceStyles.companyReviewWriteCard}>
+                    <h3>Jaa kokemuksesi</h3><p>Autat muita tekemään parempia päätöksiä. Ostoa ei vaadita.</p><button type="button" onClick={openPublicReviewForm}><Star size={19} /> Kirjoita arvostelu</button>{reviewFeedback && <small className={commerceStyles.companyReviewFeedback}>{reviewFeedback}</small>}
+                  </article>
+                </aside>
+              </div>
+            </div>}
+
+            {companyStoreView === "delivery" && <div className={commerceStyles.companyDeliveryView} id="yrityksen-toimitus">
+              <header className={commerceStyles.companyDetailsHeader}>
+                <h2>Toimitus ja nouto</h2>
+              </header>
+              {companyPromoEnabled && <div className={commerceStyles.companyDeliveryBenefit}>
+                <Truck size={24} />
+                <span>
+                  {companyPromoTitle && <strong>{companyPromoTitle}</strong>}
+                  {companyPromoSubtitle && <small>{companyPromoSubtitle}</small>}
+                </span>
+              </div>}
+              <section className={commerceStyles.companyDeliveryCards}>
+                <article><span><MapPin size={29} /></span><div><h3>Posti – noutopiste</h3><strong>{storefront?.default_shipping_price_fi_cents == null ? "4,90 €" : formatFromEur(storefront.default_shipping_price_fi_cents / 100)}</strong><dl><div><dt><Clock3 size={13} /> Arvioitu toimitusaika:</dt><dd>2–4 arkipäivää</dd></div><div><dt><Check size={13} /> Seuranta:</dt><dd>Sisältyy</dd></div></dl><p><b>Toimitusehdot:</b> Toimitus yli {companyFreeShippingThreshold} tilauksiin ilmainen.</p></div></article>
+                <article><span><Building2 size={29} /></span><div><h3>Posti – kotiinkuljetus</h3><strong>9,90 €</strong><dl><div><dt><Clock3 size={13} /> Arvioitu toimitusaika:</dt><dd>2–4 arkipäivää</dd></div><div><dt><Check size={13} /> Seuranta:</dt><dd>Sisältyy</dd></div></dl><p><b>Toimitusehdot:</b> Toimitus yli {companyFreeShippingThreshold} tilauksiin ilmainen.</p></div></article>
+                <article><span><Store size={29} /></span><div><h3>Nouto myymälästä</h3><strong>0,00 €</strong><dl><div><dt><Clock3 size={13} /> Arvioitu noutoaika:</dt><dd>1–2 arkipäivää</dd></div><div><dt><Check size={13} /> Seuranta:</dt><dd>Saat ilmoituksen</dd></div></dl><p><b>Toimitusehdot:</b> Tilauksen nouto mahdollinen, kun saat ilmoituksen.</p></div></article>
+              </section>
+              <section className={commerceStyles.companyDeliveryProcess} aria-label="Toimitusprosessi">
+                <h3>Toimitusprosessi</h3>
+                <div>
+                  <span><b>1</b><PackageCheck size={24} /><strong>Tilaus vastaanotettu</strong><small>Vahvistamme tilauksen ja aloitamme käsittelyn.</small></span>
+                  <span><b>2</b><ShoppingBag size={24} /><strong>Pakkaus</strong><small>Tuotteet kerätään ja pakataan huolellisesti.</small></span>
+                  <span><b>3</b><Truck size={24} /><strong>Kuljetuksessa</strong><small>Lähetys siirtyy kuljetukseen ja on matkalla perille.</small></span>
+                  <span><b>4</b><Building2 size={24} /><strong>Perillä</strong><small>Tilauksesi on saapunut perille.</small></span>
+                </div>
+              </section>
+              <section className={commerceStyles.companyDeliveryInfoGrid}>
+                <article><h3><Globe2 size={17} /> Toimitusalueet</h3><span><small>🇫🇮 Suomi</small><small>🇸🇪 Ruotsi</small></span><p>Toimitamme tällä hetkellä Suomeen ja Ruotsiin.</p></article>
+                <article><h3><Store size={17} /> Nouto myymälästä</h3><strong>{sellerName}</strong><p>{companyPublicAddress || storefront?.city || sellerLocation}</p><dl><div><dt>Ma–Pe</dt><dd>9.00–16.00</dd></div><div><dt>La</dt><dd>Suljettu</dd></div></dl></article>
+                <article><h3><RotateCcw size={17} /> Palautukset</h3><strong>14 päivän palautusoikeus</strong><p>Sinulla on 14 päivän palautusoikeus tuotteen vastaanottamisesta. Tuotteen tulee olla käyttämätön ja alkuperäispakkauksessa.</p><button type="button">Näytä palautusohjeet <ChevronRight size={14} /></button></article>
+              </section>
+              <section className={commerceStyles.companyDeliveryFaq}>
+                <h3>Usein kysytyt kysymykset</h3>
+                <button type="button"><span>Kuinka kauan toimitus kestää?</span><ChevronRight size={16} /></button>
+                <button type="button"><span>Mistä näen seurannan?</span><ChevronRight size={16} /></button>
+                <button type="button"><span>Voinko muuttaa toimitusosoitetta?</span><ChevronRight size={16} /></button>
+              </section>
+            </div>}
+            </div>
+
+            </div>
+          </section>
+          );
+        })()}
+
+        {!isVerifiedCompany && <>
         <div className="sp-tabs">
           <div className="sp-tabs-left">
             <button
@@ -2707,7 +4441,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                         aria-expanded={sortOpen}
                         onClick={() => setSortOpen((open) => !open)}
                       >
-                        <SlidersHorizontal size={15} aria-hidden="true" />
+                        <ArrowDownWideNarrow size={17} aria-hidden="true" />
                         <span>{activeSort.label}</span>
                         <ChevronDown size={15} className="sp-sort-chevron" aria-hidden="true" />
                       </button>
@@ -2759,16 +4493,22 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                 {sellerFilterPanelOpen && (
                   <button
                     type="button"
-                    className="seller-home-filter-backdrop"
+                    className={`seller-home-filter-backdrop ${premiumStyles.profileMobileFilterOnly}`}
                     data-mobile-filter-backdrop="true"
                     aria-label={sft("Sulje kategoriointi")}
                     onClick={() => setSellerFilterPanelOpen(false)}
                   />
                 )}
+                {sellerFilterPanelOpen && createPortal(<>
+                  <button type="button" className={`${homeStyles.desktopFilterBackdrop} ${premiumStyles.profileDesktopFilterOnly}`} aria-label={sft("Sulje kategoriointi")} onClick={() => setSellerFilterPanelOpen(false)} />
+                  <aside className={`${homeStyles.desktopFilterModal} ${homeStyles.resultsFilterModal} ${premiumStyles.profileDesktopFilterOnly}`}>
+                    {renderSellerDesktopFilter()}
+                  </aside>
+                </>, document.body)}
                 <form
                   id="seller-home-filter-bar"
                   ref={sellerFilterSheetRef}
-                  className={`seller-home-filter-bar${sellerFilterPanelOpen ? " is-open" : ""}${sellerFilterSheetExpanded ? " is-expanded" : ""}${sellerFilterSheetDragging ? " is-dragging" : ""}`}
+                  className={`seller-home-filter-bar ${premiumStyles.profileMobileFilterOnly}${sellerFilterPanelOpen ? " is-open" : ""}${sellerFilterSheetExpanded ? " is-expanded" : ""}${sellerFilterSheetDragging ? " is-dragging" : ""}`}
                   style={{
                     "--seller-filter-sheet-height": sellerFilterSheetDragHeight === null
                       ? "auto"
@@ -2805,30 +4545,30 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     className={homeStyles.marketplaceRailSwitch}
                     aria-label={sft("Valitse suodatettava ilmoitustyyppi")}
                   >
-                    <div className={homeStyles.marketplaceModeTabs} role="tablist" aria-label={sft("Ilmoitustyyppi")}>
-                      <button
-                        type="button"
-                        role="tab"
-                        aria-selected={sellerListingMode === "parts"}
-                        className={sellerListingMode === "parts" ? homeStyles.marketplaceModeTabActive : ""}
-                        onClick={() => selectSellerListingMode("parts")}
-                      >
-                        {sft("Varaosat")}
-                      </button>
-                      <button
-                        type="button"
-                        role="tab"
-                        aria-selected={sellerListingMode === "vehicles"}
-                        className={sellerListingMode === "vehicles" ? homeStyles.marketplaceModeTabActive : ""}
-                        onClick={() => selectSellerListingMode("vehicles")}
-                      >
-                        {sft("Ajoneuvot")}
-                      </button>
+                    <div
+                      className={homeStyles.marketplaceModeTabs}
+                      role="tablist"
+                      aria-label={sft("Ilmoitustyyppi")}
+                      style={{ gridTemplateColumns: `repeat(${Math.max(1, sellerAvailableListingModes.length)}, minmax(0, 1fr))` }}
+                    >
+                      {sellerAvailableListingModes.map((mode) => (
+                        <button
+                          type="button"
+                          role="tab"
+                          aria-selected={sellerListingMode === mode}
+                          className={sellerListingMode === mode ? homeStyles.marketplaceModeTabActive : ""}
+                          onClick={() => selectSellerListingMode(mode)}
+                          key={mode}
+                        >
+                          {sft(mode === "parts" ? "Varaosat" : mode === "vehicles" ? "Ajoneuvot" : "Ajovarusteet")}
+                        </button>
+                      ))}
                     </div>
                   </section>
 
                   <div className="seller-mobile-filter-content">
 
+                  {sellerFilterOptions.vehicleTypes.length > 0 && (
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-vehicle`}>
                     <span className={homeStyles.heroFilterLabel}>{sft("Ajoneuvolaji")}</span>
                     <select
@@ -2845,7 +4585,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       {sellerFilterOptions.vehicleTypes.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
                   </label>
+                  )}
 
+                  {sellerFilterOptions.vehicleSubtypes.length > 0 && (
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-type`}>
                     <span className={homeStyles.heroFilterLabel}>{sft("Tyyppi")}</span>
                     <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={vehicleSubtypeFilter} onChange={(event) => setVehicleSubtypeFilter(event.target.value)}>
@@ -2853,7 +4595,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       {sellerFilterOptions.vehicleSubtypes.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
                   </label>
+                  )}
 
+                  {sellerFilterOptions.brands.length > 0 && (
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-brand`}>
                     <span className={homeStyles.heroFilterLabel}>{sft("Merkki")}</span>
                     <select
@@ -2865,7 +4609,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       {sellerFilterOptions.brands.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
                   </label>
+                  )}
 
+                  {sellerFilterOptions.models.length > 0 && (
                   <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-model`}>
                     <span className={homeStyles.heroFilterLabel}>{sft("Malli")}</span>
                     <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={modelFilter} onChange={(event) => setModelFilter(event.target.value)}>
@@ -2873,8 +4619,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       {sellerFilterOptions.models.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
                   </label>
+                  )}
 
-                  {sellerListingMode === "parts" && (
+                  {sellerListingMode !== "vehicles" && sellerFilterOptions.categories.length > 0 && (
                   <>
                   <div className="seller-filter-section-title">{sft("Osakategoriointi")}</div>
 
@@ -2897,7 +4644,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     </select>
                   </label>
 
-                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-subcategory`}>
+                  {sellerFilterOptions.subcategoryParents.length > 0 && <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-subcategory`}>
                     <span className={homeStyles.heroFilterLabel}>{sft("Alakategoria")}</span>
                     <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={subcategoryParentFilter} onChange={(event) => {
                       setSubcategoryParentFilter(event.target.value);
@@ -2909,9 +4656,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       <option value="">{sft("Kaikki alakategoriat")}</option>
                       {sellerFilterOptions.subcategoryParents.map((option) => <option key={option} value={option}>{translateCategory(locale, categoryLeaf(option))}</option>)}
                     </select>
-                  </label>
+                  </label>}
 
-                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-part`}>
+                  {sellerFilterOptions.subcategories.length > 0 && <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-part`}>
                     <span className={homeStyles.heroFilterLabel}>{sft("Tarkempi osa")}</span>
                     <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={subcategoryFilter} onChange={(event) => {
                       const nextValue = event.target.value;
@@ -2925,9 +4672,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       <option value="">{sft("Kaikki tarkemmat osat")}</option>
                       {sellerFilterOptions.subcategories.map((option) => <option key={option} value={option}>{translateCategory(locale, categoryLeaf(option))}</option>)}
                     </select>
-                  </label>
+                  </label>}
 
-                  {trackMatDimensionsVisible && (
+                  {sellerListingMode === "parts" && trackMatDimensionsVisible && (
                     <fieldset ref={sellerTrackMatDimensionsRef} className="seller-track-mat-dimensions">
                       <legend>Telamaton mitat</legend>
                       <div className="seller-track-mat-dimension-fields">
@@ -2969,15 +4716,15 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                   </>
                   )}
 
-                  <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-engine-cc`}>
+                  {sellerFilterOptions.engineCcs.length > 0 && <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-engine-cc`}>
                     <span className={homeStyles.heroFilterLabel}>{sft("Moottoritilavuus (cm³)")}</span>
                     <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={engineCcFilter} onChange={(event) => setEngineCcFilter(event.target.value)}>
                       <option value="">{sft("Kaikki koot")}</option>
                       {sellerFilterOptions.engineCcs.map((option) => <option key={option} value={option}>{option}</option>)}
                     </select>
-                  </label>
+                  </label>}
 
-                  <div className="seller-home-filter-years">
+                  {sellerFilterOptions.years.length > 0 && <div className="seller-home-filter-years">
                     <span>{sft("Vuosimalli")}</span>
                     <select value={yearMinFilter} onChange={(event) => setYearMinFilter(event.target.value)}>
                       <option value="">{sft("Minimi")}</option>
@@ -3025,9 +4772,9 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                         onKeyDown={(event) => handleSellerYearRangeKeyDown(event, "max")}
                       />
                     </div>
-                  </div>
+                  </div>}
 
-                  {sellerListingMode !== "vehicles" ? (
+                  {sellerListingMode === "parts" && sellerFilterOptions.engineModels.length > 0 ? (
                     <label className={`${homeStyles.heroFilterFieldWrap} seller-filter-engine-model`}>
                       <span className={homeStyles.heroFilterLabel}>{sft("Moottori")}</span>
                       <select className={`${homeStyles.heroFilterSelect} seller-home-filter-select`} value={engineModelFilter} onChange={(event) => setEngineModelFilter(event.target.value)}>
@@ -3250,7 +4997,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       </button>}
                     </div>
                     <div className={homeStyles.cardBody}>
-                      <p className={homeStyles.cardPrice}>{formatPrice(listing.price)}</p>
+                      <ListingSalePrice listing={listing} className={homeStyles.cardPrice} />
                       <h3 className={homeStyles.cardTitle}>{title}</h3>
                       <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
                       <div className={homeStyles.cardMetaRow} data-listing-card-meta="true">
@@ -3340,6 +5087,41 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
           )
         )}
 
+        </>}
+
+        {reviewComposerOpen && createPortal(
+          <div className={premiumStyles.reviewComposerBackdrop} role="presentation" onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !reviewSubmitPending) setReviewComposerOpen(false);
+          }}>
+            <form className={premiumStyles.reviewComposer} onSubmit={submitPublicReview}>
+              <header>
+                <div>
+                  <span>Arvostele myyjä</span>
+                  <h2>{sellerName}</h2>
+                </div>
+                <button type="button" aria-label="Sulje arvostelulomake" disabled={reviewSubmitPending} onClick={() => setReviewComposerOpen(false)}><X size={22} /></button>
+              </header>
+              <fieldset>
+                <legend>Arvosana</legend>
+                <div className={premiumStyles.reviewComposerStars}>
+                  {[1, 2, 3, 4, 5].map((rating) => <button type="button" key={rating} aria-label={`${rating} tähteä`} aria-pressed={reviewDraftRating === rating} onClick={() => setReviewDraftRating(rating)}><Star size={28} fill={rating <= reviewDraftRating ? "currentColor" : "none"} /></button>)}
+                </div>
+              </fieldset>
+              <label>
+                <span>Kerro kokemuksesi</span>
+                <textarea value={reviewDraftComment} minLength={2} maxLength={800} required placeholder="Millainen kokemus sinulla oli tästä myyjästä?" onChange={(event) => setReviewDraftComment(event.target.value)} />
+                <small>{reviewDraftComment.length}/800</small>
+              </label>
+              {reviewFeedback && <p className={premiumStyles.reviewComposerError}>{reviewFeedback}</p>}
+              <footer>
+                <button type="button" disabled={reviewSubmitPending} onClick={() => setReviewComposerOpen(false)}>Peruuta</button>
+                <button type="submit" disabled={reviewSubmitPending || reviewDraftComment.trim().length < 2}>{reviewSubmitPending ? "Tallennetaan…" : "Julkaise arvostelu"}</button>
+              </footer>
+            </form>
+          </div>,
+          document.body
+        )}
+
         {reviewsOpen && (
           <div
             className="seller-review-modal-backdrop"
@@ -3367,6 +5149,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                   {renderAverageRatingStars(averageRating, 19)}
                   <span>{visibleReviewCount} {reviewCountLabel}</span>
                 </div>
+                <button type="button" className="seller-review-modal-write" onClick={openPublicReviewForm}><Star size={16} /> Kirjoita arvostelu</button>
               </div>
 
               <div className="seller-review-modal-list">

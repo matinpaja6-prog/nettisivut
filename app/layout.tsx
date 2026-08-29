@@ -13,7 +13,6 @@ import ProfileCompletionGate from "./components/ProfileCompletionGate";
 import SiteVisitTracker from "./components/SiteVisitTracker";
 import UniversalTopbar from "./components/UniversalTopbar";
 import TaxonomyProvider from "./components/TaxonomyProvider";
-import VisitorLanguageGate from "./components/VisitorLanguageGate";
 import InstantNavigation from "./components/InstantNavigation";
 import NavigationHistory from "./components/NavigationHistory";
 import AuthRouteGuard from "./components/AuthRouteGuard";
@@ -21,6 +20,7 @@ import AutoTranslate from "./components/AutoTranslate";
 import SourceFog from "./components/SourceFog";
 import GlobalNavigationSpinner from "./components/GlobalNavigationSpinner";
 import CookieConsentGate from "./components/CookieConsentGate";
+import CurrencyProvider from "./components/CurrencyProvider";
 import { PUBLIC_SITE_URL } from "@/lib/site-url";
 
 export const metadata: Metadata = {
@@ -50,15 +50,11 @@ export const metadata: Metadata = {
   ],
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
-      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
-      { url: "/maskines-share-logo.png", sizes: "1200x1200", type: "image/png" }
+      { url: "/maskines-icon-v2.png", sizes: "512x512", type: "image/png" },
+      { url: "/maskines-brand-share-v2.png", sizes: "1200x1200", type: "image/png" }
     ],
-    shortcut: "/favicon.ico",
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }]
+    shortcut: "/maskines-icon-v2.png",
+    apple: [{ url: "/maskines-icon-v2.png", sizes: "512x512", type: "image/png" }]
   },
   manifest: "/site.webmanifest",
   openGraph: {
@@ -71,7 +67,7 @@ export const metadata: Metadata = {
     url: "/",
     images: [
       {
-        url: "/maskines-share-logo.png",
+        url: "/maskines-brand-share-v2.png",
         width: 1200,
         height: 1200,
         alt: "Maskines-logo"
@@ -83,7 +79,7 @@ export const metadata: Metadata = {
     title: "Maskines | Pienkoneiden ajoneuvot ja varaosat",
     description:
       "Osta ja myy pienkoneiden ajoneuvoja ja varaosia moottorikelkkoihin, mönkijöihin, motocross-pyöriin ja mopoihin.",
-    images: ["/maskines-share-logo.png"]
+    images: ["/maskines-brand-share-v2.png"]
   }
 };
 
@@ -101,6 +97,37 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const earlyChunkRecovery = `
+    (function () {
+      var retryKey = 'maskines-chunk-retry-v1';
+      var stableUrl = new URL(location.href);
+      stableUrl.searchParams.delete('_refresh');
+      var currentPage = stableUrl.pathname + stableUrl.search;
+
+      function errorText(value) {
+        if (!value) return '';
+        if (typeof value === 'string') return value;
+        return String(value.message || value.reason || value);
+      }
+
+      function recover(value) {
+        var message = errorText(value);
+        if (!/ChunkLoadError|Loading chunk .* failed|Failed to fetch dynamically imported module/i.test(message)) return;
+        if (sessionStorage.getItem(retryKey) === currentPage) return;
+        sessionStorage.setItem(retryKey, currentPage);
+        var url = new URL(location.href);
+        url.searchParams.set('_refresh', Date.now().toString());
+        location.replace(url.toString());
+      }
+
+      addEventListener('error', function (event) { recover(event.error || event.message); });
+      addEventListener('unhandledrejection', function (event) { recover(event.reason); });
+      setTimeout(function () {
+        if (sessionStorage.getItem(retryKey) === currentPage) sessionStorage.removeItem(retryKey);
+      }, 12000);
+    })();
+  `;
+
   // Synchronous appearance restore: runs before first paint to avoid the
   // 1–2s flash of the default hero/colors after a hard refresh.
   const earlyAppearance = `
@@ -165,7 +192,7 @@ export default function RootLayout({
         var rawUserSettings = localStorage.getItem('maskines-user-settings-v1');
         if (rawUserSettings) {
           var userSettings = JSON.parse(rawUserSettings);
-          if (userSettings && (userSettings.theme === 'dark' || userSettings.theme === 'light')) {
+          if (userSettings && (userSettings.theme === 'dark' || userSettings.theme === 'light' || userSettings.theme === 'system')) {
             userTheme = userSettings.theme;
           } else if (userSettings && userSettings.backgroundColor) {
             var legacyColor = String(userSettings.backgroundColor).replace('#', '');
@@ -177,7 +204,10 @@ export default function RootLayout({
             }
           }
         }
-        var lightTheme = userTheme === 'light';
+        var resolvedUserTheme = userTheme === 'system'
+          ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+          : userTheme;
+        var lightTheme = resolvedUserTheme === 'light';
         var userBackground = lightTheme ? '#f0f2f3' : '#0b1118';
         var userSurface = lightTheme ? '#fcfcfb' : '#061a2c';
         var userRaised = lightTheme ? '#f5f6f6' : '#061a2c';
@@ -185,9 +215,10 @@ export default function RootLayout({
         var userText = lightTheme ? '#16232c' : '#f4f8fc';
         var userMuted = lightTheme ? '#5f707c' : '#9aaabe';
         var userLine = lightTheme ? '#cbd3d7' : 'rgba(151, 178, 205, 0.22)';
-        document.documentElement.dataset.theme = userTheme;
-        document.documentElement.dataset.userBackgroundTone = userTheme;
-        document.documentElement.style.colorScheme = userTheme;
+        document.documentElement.dataset.theme = resolvedUserTheme;
+        document.documentElement.dataset.userBackgroundTone = resolvedUserTheme;
+        document.documentElement.dataset.themePreference = userTheme;
+        document.documentElement.style.colorScheme = resolvedUserTheme;
         r.setProperty('--maskines-page-background', userBackground);
         r.setProperty('--maskines-page-text', userText);
         r.setProperty('--maskines-page-muted', userMuted);
@@ -222,19 +253,6 @@ export default function RootLayout({
           return value === "fi" || value === "en" || value === "sv" || value === "no";
         }
 
-        function removeInvalidVisitorLanguageKeys() {
-          var keys = Object.keys(localStorage);
-          for (var i = 0; i < keys.length; i += 1) {
-            var key = keys[i];
-            if (typeof key === "string" && key.indexOf("visitor-language:") === 0) {
-              var value = localStorage.getItem(key);
-              if (!isValidLocale(value)) {
-                localStorage.removeItem(key);
-              }
-            }
-          }
-        }
-
         function getStoredLocale() {
           try {
             var value = localStorage.getItem("locale");
@@ -248,8 +266,6 @@ export default function RootLayout({
           var match = document.cookie.match(/(?:^|;\\s*)locale=([^;]+)/);
           return match ? decodeURIComponent(match[1] || "") : "";
         }
-
-        removeInvalidVisitorLanguageKeys();
 
         var cookieLocale = getCookieLocale();
         if (!isValidLocale(cookieLocale)) {
@@ -267,7 +283,7 @@ export default function RootLayout({
           ? queryLocale
           : isValidLocale(storedLocale)
             ? storedLocale
-            : (cookieLocale || "fi");
+            : (cookieLocale || "en");
         document.documentElement.lang = locale;
         document.documentElement.setAttribute('data-i18n-target', locale);
       } catch (e) {}
@@ -284,16 +300,8 @@ export default function RootLayout({
         localStorage.removeItem('maskines-cookie-consent-v2');
         localStorage.removeItem('maskines-user-settings-v1');
 
-        var keys = Object.keys(localStorage);
-        for (var i = 0; i < keys.length; i += 1) {
-          if (keys[i].indexOf('visitor-language:') === 0) {
-            localStorage.removeItem(keys[i]);
-          }
-        }
-
         document.cookie = 'locale=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0; SameSite=Lax';
         document.cookie = 'maskines_cookie_consent_v2=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; max-age=0; SameSite=Lax; Secure';
-        document.documentElement.removeAttribute('data-visitor-language-ready');
 
         url.searchParams.delete('newVisitor');
         window.history.replaceState(null, '', url.pathname + url.search + url.hash);
@@ -302,14 +310,17 @@ export default function RootLayout({
   `;
 
   return (
-    <html lang="fi" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <style dangerouslySetInnerHTML={{ __html: "html,body{background-color:#0b1118}" }} />
+        <script dangerouslySetInnerHTML={{ __html: earlyChunkRecovery }} />
         <script dangerouslySetInnerHTML={{ __html: earlyFirstVisitReset }} />
         <script dangerouslySetInnerHTML={{ __html: earlyLocale }} />
         <script dangerouslySetInnerHTML={{ __html: earlyAppearance }} />
         <SourceFog />
       </head>
       <body suppressHydrationWarning>
+        <CurrencyProvider>
         <CookieConsentGate>
           <TaxonomyProvider>
             <InstantNavigation />
@@ -318,7 +329,6 @@ export default function RootLayout({
             <Suspense fallback={null}>
               <NavigationHistory />
             </Suspense>
-            <VisitorLanguageGate />
             <AutoTranslate />
             <SiteAppearance />
             <OnlinePresence />
@@ -332,6 +342,7 @@ export default function RootLayout({
             <Footer />
           </TaxonomyProvider>
         </CookieConsentGate>
+        </CurrencyProvider>
       </body>
     </html>
   );

@@ -84,17 +84,17 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://maps.googleapis.com https://challenges.cloudflare.com`,
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://maps.googleapis.com https://challenges.cloudflare.com https://js.stripe.com https://checkout.stripe.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' data: https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.googleapis.com",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.googleapis.com https://api.stripe.com https://checkout.stripe.com https://*.stripe.com",
       "media-src 'self' blob: https:",
       "worker-src 'self' blob:",
       "manifest-src 'self'",
       "base-uri 'self'",
       "object-src 'none'",
-      "frame-src https://challenges.cloudflare.com",
+      "frame-src https://challenges.cloudflare.com https://js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.com",
       "frame-ancestors 'none'",
       "form-action 'self'",
       ...(process.env.NODE_ENV === "production" ? ["upgrade-insecure-requests"] : [])
@@ -102,7 +102,7 @@ const securityHeaders = [
   },
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+    value: "camera=(), microphone=(), geolocation=(), payment=(self \"https://js.stripe.com\" \"https://checkout.stripe.com\"), usb=(), interest-cohort=()"
   },
   ...(process.env.NODE_ENV === "production"
     ? [{
@@ -119,6 +119,13 @@ const nextConfig: NextConfig = {
   distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
   devIndicators: false,
   outputFileTracingRoot: process.cwd(),
+  outputFileTracingIncludes: {
+    "/*": ["./public/maskines-email-brand-light-v3.png"]
+  },
+  // PDFKit loads its built-in AFM font files from its own package directory.
+  // Keep it external to the Next server bundle so those runtime assets remain
+  // available for receipt generation in API routes and webhooks.
+  serverExternalPackages: ["pdfkit"],
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   compiler: {
@@ -165,7 +172,7 @@ const nextConfig: NextConfig = {
         ]
       },
       {
-        source: "/maskines-email-logo.png",
+        source: "/maskines-email-brand-v2.png",
         headers: [
           {
             key: "Cross-Origin-Resource-Policy",
@@ -174,7 +181,7 @@ const nextConfig: NextConfig = {
         ]
       },
       {
-        source: "/maskines-icon.png",
+        source: "/maskines-icon-v2.png",
         headers: [
           {
             key: "Cross-Origin-Resource-Policy",
@@ -183,7 +190,7 @@ const nextConfig: NextConfig = {
         ]
       },
       {
-        source: "/maskines-share-logo.png",
+        source: "/maskines-brand-share-v2.png",
         headers: [
           {
             key: "Cross-Origin-Resource-Policy",

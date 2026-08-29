@@ -15,7 +15,9 @@ import { flushSync } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
 import MobileNativeSelect from "@/app/components/MobileNativeSelect";
+import { useCurrency } from "@/app/components/CurrencyProvider";
 import {
+  Activity,
   ArrowLeft,
   ArrowRight,
   Barcode,
@@ -27,6 +29,7 @@ import {
   ClipboardList,
   Cog,
   CircleDot,
+  CreditCard,
   Droplets,
   Euro,
   FileText,
@@ -34,17 +37,23 @@ import {
   FolderTree,
   Gauge,
   Layers3,
+  LockKeyhole,
   MapPin,
+  MessageCircle,
+  Navigation,
   PackagePlus,
   Palette,
+  Percent,
+  Info,
   Ruler,
   Send,
   Search,
   ShieldCheck,
-  Star,
+  ShoppingCart,
   Tags,
   Trash2,
   Truck,
+  Users,
   Wrench,
   X,
   Zap,
@@ -54,22 +63,32 @@ import {
 import { useTaxonomy } from "@/app/components/TaxonomyProvider";
 import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
 import { generatedUiTranslations } from "@/lib/generated-ui-translations";
+import { commerceUiTranslations } from "@/lib/commerce-ui-translations";
 import {
   subcategoryGroups,
   VEHICLE_LISTING_CATEGORY,
   type ListingInput
 } from "@/lib/listings";
 import { listingPath, listingUrlId } from "@/lib/routes";
+import type { Company } from "@/lib/commerce/types";
+import type { ReturnPolicy } from "@/lib/commerce/return-types";
+import { VAT_RATE_OPTIONS, ZERO_VAT_RATE } from "@/lib/commerce/vat";
+import { canPublishProduct, isStripeReady } from "@/lib/commerce/validation";
+import { isSupportedCurrency, type SupportedCurrency } from "@/lib/currency";
 import {
-  filterVehicleBrandModelsBySubtype,
-  mergeVehicleBrandModels
-} from "@/lib/vehicle-subtype-models";
+  buildMarketplaceFilterOptions,
+  mergeMarketplaceCategorySources
+} from "@/lib/marketplace-filter-options";
 import { applyNettimotoVehicleModels } from "@/lib/nettimoto-vehicle-models";
 import type {
   CompanySeller,
   UserProfile
 } from "@/lib/supabase";
-import { buildVehicleCategoriesFromTaxonomy } from "@/lib/taxonomy";
+import {
+  buildVehicleCategoriesFromTaxonomy,
+  categoriesAsRecord,
+  vehicleBrandsRecord
+} from "@/lib/taxonomy";
 import {
   VEHICLE_ACCESSORIES_DESCRIPTION_LABEL,
   VEHICLE_ACCESSORY_OPTIONS,
@@ -81,9 +100,31 @@ import {
   translateVehicleColor
 } from "@/lib/vehicle-colors";
 import styles from "./sell-first.module.css";
+import MarketplaceResponsibilityNotice from "@/app/components/MarketplaceResponsibilityNotice";
 
 type ListingMode = "multiple" | "single";
+type SpecialListingKind = "gear" | "other-parts" | null;
 type DeliveryMethod = "both" | "shipping" | "pickup";
+
+type CommerceListingSettings = {
+  enabled: boolean;
+  storefrontCategory: string;
+  stockQuantity: number;
+  vatRate: number;
+  shippingPriceFi: string;
+  shippingPriceSe: string;
+  shippingPriceNo: string;
+};
+
+const defaultCommerceListingSettings: CommerceListingSettings = {
+  enabled: false,
+  storefrontCategory: "",
+  stockQuantity: 1,
+  vatRate: ZERO_VAT_RATE,
+  shippingPriceFi: "",
+  shippingPriceSe: "",
+  shippingPriceNo: ""
+};
 
 type SellStep = {
   number: number;
@@ -659,6 +700,8 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
 };
 
 Object.assign(extraSellTranslations.en, {
+  "Ajoneuvotiedot on lukittu": "Vehicle details are locked",
+  "Uusi osa lisätään samalle ajoneuvolle. Merkkiä, mallia ja muita yhteensopivuustietoja ei voi vaihtaa.": "The new part is added for the same vehicle. The brand, model and other compatibility details cannot be changed.",
   "Monikategoriointi": "Multi-categorization",
   "Valitse koko ajoneuvo tai poimi myytävät osat pääkategorian ja alakategorian kautta.": "Select the whole vehicle or pick the parts for sale through main and subcategories.",
   "valittu": "selected",
@@ -706,6 +749,8 @@ Object.assign(extraSellTranslations.en, {
 });
 
 Object.assign(extraSellTranslations.sv, {
+  "Ajoneuvotiedot on lukittu": "Fordonsuppgifterna är låsta",
+  "Uusi osa lisätään samalle ajoneuvolle. Merkkiä, mallia ja muita yhteensopivuustietoja ei voi vaihtaa.": "Den nya delen läggs till för samma fordon. Märke, modell och andra kompatibilitetsuppgifter kan inte ändras.",
   "Monikategoriointi": "Multikategorisering",
   "Valitse koko ajoneuvo tai poimi myytävät osat pääkategorian ja alakategorian kautta.": "Välj hela fordonet eller plocka delarna som säljs via huvudkategori och underkategori.",
   "valittu": "valt",
@@ -748,6 +793,8 @@ Object.assign(extraSellTranslations.sv, {
 });
 
 Object.assign(extraSellTranslations.no, {
+  "Ajoneuvotiedot on lukittu": "Kjøretøyopplysningene er låst",
+  "Uusi osa lisätään samalle ajoneuvolle. Merkkiä, mallia ja muita yhteensopivuustietoja ei voi vaihtaa.": "Den nye delen legges til for samme kjøretøy. Merke, modell og andre kompatibilitetsopplysninger kan ikke endres.",
   "Monikategoriointi": "Multikategorisering",
   "Valitse koko ajoneuvo tai poimi myyt\u00e4v\u00e4t osat p\u00e4\u00e4kategorian ja alakategorian kautta.": "Velg hele kj\u00f8ret\u00f8yet eller delene som skal selges via hoved- og underkategoriene.",
   "valittu": "valgt",
@@ -837,6 +884,7 @@ function translateSell(locale: Locale, text: string) {
     const generatedTranslations = generatedUiTranslations as Partial<Record<Exclude<Locale, "fi">, Record<string, string>>>;
     const translation = sellTranslations[locale][candidate]
       ?? extraSellTranslations[locale][candidate]
+      ?? commerceUiTranslations[locale]?.[candidate]
       ?? generatedTranslations[locale]?.[candidate];
     if (translation) return decodeMojibake(translation);
   }
@@ -902,10 +950,15 @@ type MultiPartSelection = {
   trackMatDetails: string;
   partNumber: string;
   description: string;
+  stockQuantity: number;
+  vatRate: number;
+  shippingPriceFi: string;
+  shippingPriceSe: string;
+  shippingPriceNo: string;
   images: UploadedImage[];
 };
 
-type MultiPartOption = Omit<MultiPartSelection, "title" | "price" | "condition" | "partModel" | "trackMatDetails" | "partNumber" | "description" | "images">;
+type MultiPartOption = Omit<MultiPartSelection, "title" | "price" | "condition" | "partModel" | "trackMatDetails" | "partNumber" | "description" | "stockQuantity" | "vatRate" | "shippingPriceFi" | "shippingPriceSe" | "shippingPriceNo" | "images">;
 
 type MultiPartGroup = {
   name: string;
@@ -938,9 +991,15 @@ type SellDraftState = {
   condition: string;
   uploadedImages: SellDraftImage[];
   partModel: string;
+  ridingGearBrand?: string;
+  ridingGearCustomBrand?: string;
+  ridingGearSize?: string;
+  ridingGearCustomSize?: string;
+  ridingGearTarget?: string;
   trackMatDetails?: string;
   partNumber: string;
   listingPrice: string;
+  listingCurrency?: SupportedCurrency;
   vehicleMileage?: string;
   vehicleHours?: string;
   vehicleRegistration?: string;
@@ -949,6 +1008,8 @@ type SellDraftState = {
   vehicleRoadLegal?: string;
   vehicleAccessories?: string[];
   vehicleColors?: string[];
+  vehicleVatDeductible?: boolean;
+  vehicleTaxFree?: boolean;
   multiParts: Record<string, SellDraftPart>;
   activeMultiListingIndex: number;
   expandedMultiCategories: Record<string, boolean>;
@@ -964,6 +1025,7 @@ type SellDraftState = {
   listingTitle: string;
   listingDescription: string;
   selectedCompanySellerId: string;
+  commerceSettings?: CommerceListingSettings;
   savedAt: number;
 };
 
@@ -1070,6 +1132,33 @@ const vehicleSaleSteps: SellStep[] = [
   { number: 6, title: "Julkaise", description: "Tarkista ja julkaise", icon: Send }
 ];
 
+const specialListingSteps: SellStep[] = [
+  { number: 1, title: "Ilmoituksen tyyppi", description: "Valitse myyntityyppi", icon: Tags },
+  { number: 2, title: "Tuotteen tyyppi", description: "Valitse tuotetyyppi", icon: Layers3 },
+  { number: 3, title: "Tuotetiedot ja hinta", description: "Lisää myyntitiedot", icon: FileText },
+  { number: 4, title: "Kunto & sijainti", description: "Valitse kunto ja paikka", icon: MapPin },
+  { number: 5, title: "Kuvat", description: "Lisää tuotteen kuvat", icon: Camera },
+  { number: 6, title: "Otsikko ja kuvaus", description: "Lisää otsikko ja kuvaus", icon: ClipboardList },
+  { number: 7, title: "Julkaise", description: "Tarkista ja julkaise", icon: Send }
+];
+
+const ridingGearCategories = [
+  "Kypärät", "Ajotakit", "Ajohousut", "Ajopuvut", "Ajosaappaat", "Ajohanskat",
+  "Suojavarusteet", "Sade- ja lämpövarusteet", "Muut ajovarusteet"
+];
+const customRidingGearOption = "__other__";
+const ridingGearBrandOptions = [
+  "Acerbis", "Alpinestars", "Arai", "Bell", "Fox Racing", "FXR", "Halvarssons",
+  "HJC", "Klim", "Leatt", "O'Neal", "Rukka", "Scott", "Shoei", "Thor"
+];
+const ridingGearSizeOptions = [
+  "XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL",
+  "116", "128", "140", "152", "164",
+  "32", "34", "36", "38", "40", "42", "44", "46", "48",
+  "50", "52", "54", "56", "58", "60", "62", "64"
+];
+const ridingGearTargetOptions = ["Aikuisten", "Lasten", "Naisten", "Miesten", "Unisex"];
+
 const multipleSteps: SellStep[] = [
   { number: 1, title: "Ilmoituksen tyyppi", description: "Valitse myyntityyppi", icon: Tags },
   { number: 2, title: "Ajoneuvon tiedot", description: "Täytä ajoneuvon tiedot", icon: FileText },
@@ -1102,34 +1191,6 @@ const modeCards: Array<{
       "Sopii yksittäisille osille tai harvinaisille tuotteille."
     ],
     icon: Tags
-  }
-];
-
-const vehicleCards = [
-  {
-    key: "Moottoripyörä",
-    title: "Moottoripyörä",
-    brands: ["Honda", "Yamaha", "Kawasaki", "Suzuki", "KTM", "BMW", "Ducati", "Harley-Davidson"]
-  },
-  {
-    key: "Moottorikelkka",
-    title: "Moottorikelkka",
-    brands: ["Lynx", "Ski-Doo", "Polaris", "Arctic Cat"]
-  },
-  {
-    key: "Mönkijä",
-    title: "Mönkijä",
-    brands: ["Can-Am", "Polaris", "Yamaha", "Honda"]
-  },
-  {
-    key: "Motocross",
-    title: "Motocross",
-    brands: ["KTM", "Yamaha", "Honda", "Husqvarna"]
-  },
-  {
-    key: "Mopo",
-    title: "Mopo",
-    brands: ["Yamaha", "Derbi", "Rieju", "Aprilia"]
   }
 ];
 
@@ -1168,10 +1229,6 @@ const wholeVehicleLabels: Record<string, string> = {
   Motocross: "Kokocrossi",
   Mopo: "Kokomopo"
 };
-
-const vehicleYearOptions = Array.from({ length: 27 }, (_, index) =>
-  String(2026 - index)
-);
 
 function normalizeSellVehicleType(value?: string | null) {
   const normalized = (value ?? "")
@@ -2282,44 +2339,6 @@ function splitCategoryPath(value: string) {
     .filter(Boolean);
 }
 
-function buildFirstLevelOptions(subcategories: string[]): SelectOption[] {
-  const seen = new Set<string>();
-  const options: SelectOption[] = [];
-
-  for (const subcategory of subcategories) {
-    const first = splitCategoryPath(subcategory)[0] ?? subcategory.trim();
-    if (!first || seen.has(first)) continue;
-    seen.add(first);
-    options.push({ value: first, label: first });
-  }
-
-  return options;
-}
-
-function buildDetailOptions(
-  subcategories: string[],
-  selectedGroup: string
-): SelectOption[] {
-  const seen = new Set<string>();
-  const options: SelectOption[] = [];
-
-  for (const subcategory of subcategories) {
-    const parts = splitCategoryPath(subcategory);
-    if ((parts[0] ?? subcategory) !== selectedGroup) continue;
-
-    const label = parts.length > 1 ? parts.slice(1).join(" / ") : selectedGroup;
-    if (!subcategory || seen.has(subcategory)) continue;
-    seen.add(subcategory);
-    options.push({ value: subcategory, label });
-  }
-
-  if (options.length === 0 && selectedGroup) {
-    options.push({ value: selectedGroup, label: selectedGroup });
-  }
-
-  return options;
-}
-
 function makeMultiPartId(category: string, subcategory: string) {
   return `${category}::${subcategory}`;
 }
@@ -2463,6 +2482,30 @@ function buildMultiPartSections(
   return sections;
 }
 
+function buildSharedPartCategoryGroups(
+  categoryName: string,
+  subcategories: string[]
+): MultiPartGroup[] {
+  if (!categoryName) return [];
+
+  const parts = subcategories.map((subcategory) =>
+    buildMultiPartOption(categoryName, subcategory)
+  );
+  const sections = buildMultiPartSections(categoryName, parts);
+
+  // Use the exact same hierarchy as the multi-listing picker. This keeps
+  // groups such as Runko -> Eturunko / Keskirunko / Takarunko identical in
+  // both listing flows instead of rebuilding a second hierarchy from paths.
+  if (sections.length > 0) {
+    return sections.map((section) => ({
+      name: section.name,
+      parts: section.parts
+    }));
+  }
+
+  return buildMultiPartGroups(parts);
+}
+
 function hasNestedMultiPartItems(groups: MultiPartGroup[]) {
   return (
     groups.length > 1 ||
@@ -2473,18 +2516,21 @@ function hasNestedMultiPartItems(groups: MultiPartGroup[]) {
 function getMultiCategoryIcon(name: string) {
   const normalized = name.toLowerCase();
 
-  if (normalized.includes("moottor")) return <Cog size={18} aria-hidden="true" />;
   if (normalized.includes("kytkim") || normalized.includes("variaattor") || normalized.includes("voimansiir")) {
     return <Wrench size={18} aria-hidden="true" />;
   }
+  if (normalized.includes("moottor")) return <Cog size={18} aria-hidden="true" />;
   if (normalized.includes("renka") || normalized.includes("vante")) return <CircleDot size={18} aria-hidden="true" />;
   if (normalized.includes("jäähdy") || normalized.includes("polttoaine")) return <Droplets size={18} aria-hidden="true" />;
   if (normalized.includes("akku")) return <BatteryCharging size={18} aria-hidden="true" />;
   if (normalized.includes("runko")) return <ShieldCheck size={18} aria-hidden="true" />;
   if (normalized.includes("sähkö")) return <Zap size={18} aria-hidden="true" />;
   if (normalized.includes("pakoput")) return <Flame size={18} aria-hidden="true" />;
-  if (normalized.includes("ohjaus")) return <Tags size={18} aria-hidden="true" />;
-  if (normalized.includes("alusta")) return <Star size={18} aria-hidden="true" />;
+  if (normalized.includes("ohjaus") || normalized.includes("hallint")) return <Navigation size={18} aria-hidden="true" />;
+  if (normalized.includes("alusta") || normalized.includes("telasto") || normalized.includes("jousitus")) {
+    return <Activity size={18} aria-hidden="true" />;
+  }
+  if (normalized.includes("jarr")) return <CircleDot size={18} aria-hidden="true" />;
   return <Layers3 size={18} aria-hidden="true" />;
 }
 
@@ -2492,11 +2538,23 @@ function SellPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const vehicleSaleRequested = searchParams.get("market") === "vehicles";
+  const requestedSpecialKind: SpecialListingKind = searchParams.get("market") === "gear"
+    ? "gear"
+    : searchParams.get("market") === "other-parts"
+      ? "other-parts"
+      : null;
+  const vehicleDetailsLocked = searchParams.get("lockVehicle") === "1";
+  const appendedPublicationGroupId = searchParams.get("publicationGroup")?.trim() ?? "";
   const [isVehicleSale, setIsVehicleSale] = useState(vehicleSaleRequested);
   const [sellIntentResolved, setSellIntentResolved] = useState(vehicleSaleRequested);
   const taxonomy = useTaxonomy();
   const { locale } = useLanguage();
+  const { currency: displayCurrency, formatAmount, fromEur, toEur } = useCurrency();
   const st = useCallback((text: string) => translateSell(locale, text), [locale]);
+  const translatedVatRateOptions = useMemo(
+    () => VAT_RATE_OPTIONS.map((option) => ({ ...option, label: st(option.label) })),
+    [st]
+  );
   const formatSelectedCount = useCallback(
     (count: number) => `${count} ${st(count === 1 ? "valittu" : "valittua")}`,
     [st]
@@ -2523,6 +2581,7 @@ function SellPageContent() {
   const categoryEntryAutoOpenRef = useRef(false);
   const categoryInteractionStartedRef = useRef(false);
   const [mode, setMode] = useState<ListingMode>("single");
+  const [specialListingKind, setSpecialListingKind] = useState<SpecialListingKind>(requestedSpecialKind);
   const [currentStep, setCurrentStep] = useState(1);
   const [vehicleType, setVehicleType] = useState(emptyVehicleType);
   const [vehicleTypeMenuOpen, setVehicleTypeMenuOpen] = useState(false);
@@ -2539,6 +2598,8 @@ function SellPageContent() {
   const [vehicleAccessoriesOpen, setVehicleAccessoriesOpen] = useState(false);
   const [vehicleColors, setVehicleColors] = useState<string[]>([]);
   const [vehicleColorsOpen, setVehicleColorsOpen] = useState(false);
+  const [vehicleVatDeductible, setVehicleVatDeductible] = useState(false);
+  const [vehicleTaxFree, setVehicleTaxFree] = useState(false);
   const [customVehicleFields, setCustomVehicleFields] = useState<
     Partial<Record<VehicleDetailKey, boolean>>
   >({});
@@ -2550,9 +2611,15 @@ function SellPageContent() {
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [previewImage, setPreviewImage] = useState<UploadedImage | null>(null);
   const [partModel, setPartModel] = useState("");
+  const [ridingGearBrand, setRidingGearBrand] = useState("");
+  const [ridingGearCustomBrand, setRidingGearCustomBrand] = useState("");
+  const [ridingGearSize, setRidingGearSize] = useState("");
+  const [ridingGearCustomSize, setRidingGearCustomSize] = useState("");
+  const [ridingGearTarget, setRidingGearTarget] = useState("");
   const [trackMatDetails, setTrackMatDetails] = useState("");
   const [partNumber, setPartNumber] = useState("");
   const [listingPrice, setListingPrice] = useState("");
+  const [listingCurrency, setListingCurrency] = useState<SupportedCurrency>(displayCurrency);
   const [singlePriceSuggestion, setSinglePriceSuggestion] = useState<PriceSuggestion | null>(null);
   const [singlePriceSuggestionLoading, setSinglePriceSuggestionLoading] = useState(false);
   const [multiParts, setMultiParts] = useState<Record<string, MultiPartSelection>>({});
@@ -2579,6 +2646,9 @@ function SellPageContent() {
   } | null>(null);
   const [pendingCategoryAdvance, setPendingCategoryAdvance] = useState<"group" | "detail" | null>(null);
   const [accountProfile, setAccountProfile] = useState<UserProfile | null>(null);
+  const [commerceCompany, setCommerceCompany] = useState<Company | null>(null);
+  const [commerceReturnPolicy, setCommerceReturnPolicy] = useState<ReturnPolicy | null>(null);
+  const [commerceSettings, setCommerceSettings] = useState<CommerceListingSettings>(defaultCommerceListingSettings);
   const [listingAccessChecked, setListingAccessChecked] = useState(false);
   const [companySellers, setCompanySellers] = useState<CompanySeller[]>([]);
   const [selectedCompanySellerId, setSelectedCompanySellerId] = useState("");
@@ -2586,6 +2656,8 @@ function SellPageContent() {
   const multiPartsRef = useRef<Record<string, MultiPartSelection>>({});
   const draftHydratedRef = useRef(false);
   const draftClearedOrPublishedRef = useRef(false);
+  const listingCurrencyRef = useRef<SupportedCurrency>(displayCurrency);
+  const lastDisplayCurrencyRef = useRef<SupportedCurrency>(displayCurrency);
   const vehicleFieldRefs = useRef<Partial<Record<VehicleDetailKey, HTMLInputElement | null>>>({});
   const listingLocationInputRef = useRef<HTMLInputElement | null>(null);
   const listingLocationTouchedRef = useRef(false);
@@ -2594,12 +2666,52 @@ function SellPageContent() {
       () =>
         isVehicleSale
           ? vehicleSaleSteps
+          : specialListingKind
+          ? specialListingSteps
           : mode === "single"
           ? singleSteps
           : multipleSteps,
-      [isVehicleSale, mode]
+      [isVehicleSale, mode, specialListingKind]
     );
   const currentDraftKey = isVehicleSale ? sellVehicleDraftKey : sellPartsDraftKey;
+
+  const applyListingCurrencyChange = useCallback((nextCurrency: SupportedCurrency) => {
+    const sourceCurrency = listingCurrencyRef.current;
+    if (nextCurrency === sourceCurrency) return;
+    const convertPrice = (rawPrice: string, decimals = 0) => {
+      const amount = Number(rawPrice.replace(",", "."));
+      if (!rawPrice.trim() || !Number.isFinite(amount)) return rawPrice;
+      const converted = fromEur(toEur(amount, sourceCurrency), nextCurrency);
+      return decimals > 0
+        ? String(Math.round(converted * 100) / 100)
+        : String(Math.round(converted));
+    };
+
+    listingCurrencyRef.current = nextCurrency;
+    setListingPrice((current) => convertPrice(current));
+    setMultiParts((current) => Object.fromEntries(
+      Object.entries(current).map(([id, part]) => [id, {
+        ...part,
+        price: convertPrice(part.price),
+        shippingPriceFi: convertPrice(part.shippingPriceFi, 2),
+        shippingPriceSe: convertPrice(part.shippingPriceSe, 2),
+        shippingPriceNo: convertPrice(part.shippingPriceNo, 2)
+      }])
+    ));
+    setCommerceSettings((current) => ({
+      ...current,
+      shippingPriceFi: convertPrice(current.shippingPriceFi, 2),
+      shippingPriceSe: convertPrice(current.shippingPriceSe, 2),
+      shippingPriceNo: convertPrice(current.shippingPriceNo, 2)
+    }));
+    setListingCurrency(nextCurrency);
+  }, [fromEur, toEur]);
+
+  useEffect(() => {
+    if (lastDisplayCurrencyRef.current === displayCurrency) return;
+    lastDisplayCurrencyRef.current = displayCurrency;
+    applyListingCurrencyChange(displayCurrency);
+  }, [applyListingCurrencyChange, displayCurrency]);
 
   useEffect(() => {
     let pendingVehicleSale = false;
@@ -2617,6 +2729,14 @@ function SellPageContent() {
   }, [vehicleSaleRequested]);
 
   useEffect(() => {
+    setSpecialListingKind(requestedSpecialKind);
+    if (requestedSpecialKind) {
+      setIsVehicleSale(false);
+      setMode("single");
+    }
+  }, [requestedSpecialKind]);
+
+  useEffect(() => {
     if (!isVehicleSale) return;
     setMode("single");
     setDeliveryMethod("pickup");
@@ -2626,67 +2746,70 @@ function SellPageContent() {
     setPartModel("");
     setPartNumber("");
   }, [isVehicleSale]);
+  const sellVehicleCards = useMemo(
+    () => taxonomy.vehicles.map((vehicle) => ({
+      key: vehicle.key,
+      title: vehicle.label || vehicle.key,
+      brands: vehicle.brands.filter((brandName) => brandName !== "Kaikki")
+    })),
+    [taxonomy.vehicles]
+  );
+  const marketplaceVehicleBrands = useMemo(
+    () => vehicleBrandsRecord(taxonomy),
+    [taxonomy]
+  );
+  const marketplaceVehicleCategories = useMemo(() => {
+    const sources: Record<string, Record<string, readonly string[]>> = {};
+    for (const vehicle of taxonomy.vehicles) {
+      sources[vehicle.key] = buildVehicleCategoriesFromTaxonomy(taxonomy, vehicle.key);
+    }
+    return sources;
+  }, [taxonomy]);
+  const marketplacePartsCategories = useMemo(
+    () => categoriesAsRecord(taxonomy),
+    [taxonomy]
+  );
+  const marketplaceAllVehicleCategories = useMemo(
+    () => mergeMarketplaceCategorySources(marketplacePartsCategories, marketplaceVehicleCategories),
+    [marketplacePartsCategories, marketplaceVehicleCategories]
+  );
+  const sharedVehicleOptions = useMemo(
+    () => buildMarketplaceFilterOptions({
+      taxonomyVehicles: taxonomy.vehicles,
+      vehicleBrands: marketplaceVehicleBrands,
+      vehicleCategories: marketplaceVehicleCategories,
+      allVehicleCategories: marketplaceAllVehicleCategories,
+      vehicleType: vehicleType.key,
+      vehicleSubtype: vehicleDetails.vehicleSubtype,
+      brand: vehicleDetails.brand,
+      model: vehicleDetails.model,
+      category: "",
+      subcategoryParent: ""
+    }),
+    [
+      marketplaceAllVehicleCategories,
+      marketplaceVehicleBrands,
+      marketplaceVehicleCategories,
+      taxonomy.vehicles,
+      vehicleDetails.brand,
+      vehicleDetails.model,
+      vehicleDetails.vehicleSubtype,
+      vehicleType.key
+    ]
+  );
   const vehicleCategories = useMemo(
     () => buildVehicleCategoriesFromTaxonomy(taxonomy, vehicleType.key, vehicleDetails.vehicleSubtype),
     [taxonomy, vehicleDetails.vehicleSubtype, vehicleType.key]
   );
-  const subtypeBrandModels = useMemo(
-    () =>
-      filterVehicleBrandModelsBySubtype(
-        vehicleType.key,
-        vehicleDetails.vehicleSubtype,
-        mergeVehicleBrandModels(
-          getVehicleMap(vehicleBrandModels, vehicleType.key),
-          commonBrandModelsByVehicle[getCommonVehicleKey(vehicleType.key)]
-        )
-      ),
-    [vehicleDetails.vehicleSubtype, vehicleType.key]
-  );
-  const taxonomyBrandOptions = useMemo(
-    () => {
-      if (subtypeBrandModels) return uniqueOptions(Object.keys(subtypeBrandModels));
-
-      const taxonomyBrands =
-        taxonomy.vehicles.find((vehicle) => vehicle.key === vehicleType.key)?.brands ?? [];
-      const commonBrands =
-        Object.keys(commonBrandModelsByVehicle[getCommonVehicleKey(vehicleType.key)] ?? {});
-
-      return uniqueOptions([
-        ...taxonomyBrands,
-        ...vehicleType.brands,
-        ...commonBrands
-      ]);
-    },
-    [subtypeBrandModels, taxonomy, vehicleType]
-  );
-  const vehiclePreset = getVehiclePreset(vehicleType.key);
+  const taxonomyBrandOptions = sharedVehicleOptions.brands;
   const modelOptions = useMemo(
-    () => {
-      if (subtypeBrandModels) {
-        return uniqueOptions(
-          vehicleDetails.brand
-            ? (subtypeBrandModels[vehicleDetails.brand] ?? [])
-            : Object.values(subtypeBrandModels).flat()
-        );
-      }
-      return getBrandModelOptions(
-        vehicleType.key,
-        vehicleDetails.brand,
-        vehiclePreset.models
-      );
-    },
-    [subtypeBrandModels, vehicleDetails.brand, vehiclePreset.models, vehicleType.key]
+    () => sharedVehicleOptions.models.filter((option) => {
+      const normalized = option.trim().toLocaleLowerCase("fi-FI");
+      return !/^(?:1|-)(?:\s+(?:malli|model))?$/.test(normalized);
+    }),
+    [sharedVehicleOptions.models]
   );
-  const engineTypeOptions = useMemo(
-    () =>
-      getModelEngineOptions(
-        vehicleType.key,
-        vehicleDetails.brand,
-        vehicleDetails.model,
-        vehiclePreset.engineTypes
-      ),
-    [vehicleDetails.brand, vehicleDetails.model, vehiclePreset.engineTypes, vehicleType.key]
-  );
+  const engineTypeOptions = sharedVehicleOptions.engineModels;
   const categoryOptions = useMemo(
     () => Object.keys(vehicleCategories),
     [vehicleCategories]
@@ -2702,17 +2825,34 @@ function SellPageContent() {
         : [],
     [selectedCategory, vehicleCategories]
   );
+  const sharedSingleCategoryGroups = useMemo(
+    () => buildSharedPartCategoryGroups(selectedCategory, selectedSubcategories),
+    [selectedCategory, selectedSubcategories]
+  );
   const categoryGroupOptions = useMemo(
-    () => buildFirstLevelOptions(selectedSubcategories),
-    [selectedSubcategories]
+    () => sharedSingleCategoryGroups.map((group) => ({
+      value: group.name,
+      label: group.name
+    })),
+    [sharedSingleCategoryGroups]
   );
   const selectedCategoryGroup =
     categoryGroupOptions.some((option) => option.value === categoryGroup)
       ? categoryGroup
       : "";
   const detailCategoryOptions = useMemo(
-    () => buildDetailOptions(selectedSubcategories, selectedCategoryGroup),
-    [selectedSubcategories, selectedCategoryGroup]
+    () => {
+      const selectedGroup = sharedSingleCategoryGroups.find(
+        (group) => group.name === selectedCategoryGroup
+      );
+      if (!selectedGroup) return [];
+
+      return selectedGroup.parts.map((part) => ({
+        value: part.detail,
+        label: part.detail
+      }));
+    },
+    [selectedCategoryGroup, sharedSingleCategoryGroups]
   );
   const selectedDetailCategory =
     detailCategoryOptions.some((option) => option.value === subcategory)
@@ -2730,9 +2870,55 @@ function SellPageContent() {
     selectedCategoryGroup,
     selectedDetailCategory
   );
+  const formatListingSuggestion = useCallback(
+    (valueEur: number) => formatAmount(fromEur(valueEur, listingCurrency), listingCurrency),
+    [formatAmount, fromEur, listingCurrency]
+  );
   const isCompanyAccount = accountProfile?.account_type === "company";
-  const selectedCompanySeller =
-    companySellers.find((seller) => seller.id === selectedCompanySellerId) ?? null;
+  const isVerifiedCommerceCompany = Boolean(
+    commerceCompany?.verification_status === "approved" && commerceCompany.verified_at
+  );
+  const commerceEligible = Boolean(
+    isCompanyAccount && isVerifiedCommerceCompany && isStripeReady(commerceCompany)
+  );
+  const commerceReturnPolicyReady = Boolean(
+    commerceReturnPolicy?.updated_at &&
+    commerceReturnPolicy.enabled &&
+    commerceReturnPolicy.recipient_name?.trim() &&
+    commerceReturnPolicy.address_line?.trim() &&
+    commerceReturnPolicy.postal_code?.trim() &&
+    commerceReturnPolicy.city?.trim() &&
+    commerceReturnPolicy.email?.trim() &&
+    Object.values(commerceReturnPolicy.translations ?? {}).some((translation) =>
+      Boolean(translation?.instructions?.trim())
+    )
+  );
+  const commercePickupReady = Boolean(
+    commerceReturnPolicyReady &&
+    ["fi", "en", "sv", "no"].every((language) =>
+      Boolean(commerceReturnPolicy?.translations?.[language]?.pickup_instructions?.trim())
+    )
+  );
+  const commerceShippingReady = Boolean(
+    commerceReturnPolicyReady &&
+    commerceCompany?.posti_enabled &&
+    commerceCompany.shipping_countries?.length &&
+    commerceCompany.shipping_countries.every((country) => {
+      const price = country === "SE"
+        ? commerceCompany.default_shipping_price_se_cents
+        : country === "NO"
+          ? commerceCompany.default_shipping_price_no_cents
+          : commerceCompany.default_shipping_price_fi_cents;
+      return price !== null && price !== undefined;
+    })
+  );
+  const directPaymentReady = commerceEligible && commerceReturnPolicyReady && (commercePickupReady || commerceShippingReady);
+  const resolvedRidingGearBrand = ridingGearBrand === customRidingGearOption
+    ? ridingGearCustomBrand.trim()
+    : ridingGearBrand.trim();
+  const resolvedRidingGearSize = ridingGearSize === customRidingGearOption
+    ? ridingGearCustomSize.trim()
+    : ridingGearSize.trim();
   const profileCity = accountProfile?.city?.trim() ?? "";
   const profileCountry = accountProfile?.country?.trim() ?? "";
   const multiPartTree = useMemo(
@@ -2933,7 +3119,7 @@ function SellPageContent() {
 
   const hasDraftContent = useCallback(() => {
     if (currentStep > 1 || mode !== "single") return true;
-    if (vehicleType.key !== vehicleCards[1].key) return true;
+    if (vehicleType.key !== "Moottorikelkka") return true;
     if (Object.values(vehicleDetails).some((value) => value.trim())) return true;
     if (
       vehicleMileage ||
@@ -2944,9 +3130,14 @@ function SellPageContent() {
       vehicleRoadLegal ||
       vehicleAccessories.length > 0 ||
       vehicleColors.length > 0
+      || vehicleVatDeductible
+      || vehicleTaxFree
     ) return true;
     if (category || categoryGroup || subcategory || condition) return true;
-    if (partModel || trackMatDetails || partNumber || listingPrice || listingLocation || listingTitle || listingDescription) return true;
+    if (
+      partModel || ridingGearBrand || ridingGearCustomBrand || ridingGearSize || ridingGearCustomSize || ridingGearTarget ||
+      trackMatDetails || partNumber || listingPrice || listingLocation || listingTitle || listingDescription
+    ) return true;
     if (deliveryMethod !== "both" || selectedCompanySellerId) return true;
     if (uploadedImages.length > 0 || Object.keys(multiParts).length > 0) return true;
     return false;
@@ -2959,10 +3150,16 @@ function SellPageContent() {
     listingDescription,
     listingLocation,
     listingPrice,
+    listingCurrency,
     listingTitle,
     mode,
     multiParts,
     partModel,
+    ridingGearBrand,
+    ridingGearCustomBrand,
+    ridingGearSize,
+    ridingGearCustomSize,
+    ridingGearTarget,
     trackMatDetails,
     partNumber,
     selectedCompanySellerId,
@@ -2970,6 +3167,8 @@ function SellPageContent() {
     uploadedImages.length,
     vehicleAccessories.length,
     vehicleColors.length,
+    vehicleTaxFree,
+    vehicleVatDeductible,
     vehicleDetails,
     vehicleDriveType,
     vehicleEngineKind,
@@ -2994,9 +3193,15 @@ function SellPageContent() {
     condition,
     uploadedImages: uploadedImages.map(toDraftImage),
     partModel,
+    ridingGearBrand,
+    ridingGearCustomBrand,
+    ridingGearSize,
+    ridingGearCustomSize,
+    ridingGearTarget,
     trackMatDetails,
     partNumber,
     listingPrice,
+    listingCurrency,
     vehicleMileage,
     vehicleHours,
     vehicleRegistration,
@@ -3005,6 +3210,8 @@ function SellPageContent() {
     vehicleRoadLegal,
     vehicleAccessories,
     vehicleColors,
+    vehicleVatDeductible,
+    vehicleTaxFree,
     multiParts: Object.fromEntries(
       Object.entries(multiParts).map(([id, part]) => [
         id,
@@ -3028,12 +3235,14 @@ function SellPageContent() {
     listingTitle,
     listingDescription,
     selectedCompanySellerId,
+    commerceSettings,
     savedAt: Date.now()
   }), [
     activeMultiListingIndex,
     category,
     categoryGroup,
     condition,
+    commerceSettings,
     currentStep,
     customVehicleFields,
     deliveryMethod,
@@ -3045,12 +3254,18 @@ function SellPageContent() {
     listingDescription,
     listingLocation,
     listingPrice,
+    listingCurrency,
     listingTitle,
     mode,
     multiPartSearch,
     multiParts,
     openMultiListingPartId,
     partModel,
+    ridingGearBrand,
+    ridingGearCustomBrand,
+    ridingGearSize,
+    ridingGearCustomSize,
+    ridingGearTarget,
     trackMatDetails,
     partNumber,
     selectedCompanySellerId,
@@ -3059,6 +3274,8 @@ function SellPageContent() {
     uploadedImages,
     vehicleAccessories,
     vehicleColors,
+    vehicleTaxFree,
+    vehicleVatDeductible,
     vehicleDetails,
     vehicleDriveType,
     vehicleEngineKind,
@@ -3137,7 +3354,7 @@ function SellPageContent() {
             ? singleSteps.length
             : multipleSteps.length;
         setCurrentStep(Math.max(1, Math.min(draft.currentStep, draftStepCount)));
-        setVehicleType(vehicleCards.find((vehicle) => vehicle.key === draft.vehicleTypeKey) ?? emptyVehicleType);
+        setVehicleType(sellVehicleCards.find((vehicle) => vehicle.key === draft.vehicleTypeKey) ?? emptyVehicleType);
         setVehicleDetails(draft.vehicleDetails);
         setVehicleMileage(draft.vehicleMileage ?? "");
         setVehicleHours(draft.vehicleHours ?? "");
@@ -3147,6 +3364,8 @@ function SellPageContent() {
         setVehicleRoadLegal(draft.vehicleRoadLegal ?? "");
         setVehicleAccessories(draft.vehicleAccessories ?? []);
         setVehicleColors(draft.vehicleColors ?? []);
+        setVehicleVatDeductible(draft.vehicleVatDeductible ?? false);
+        setVehicleTaxFree(draft.vehicleTaxFree ?? false);
         setCustomVehicleFields(draft.customVehicleFields);
         vehicleAutoAdvancedFieldsRef.current = draft.customVehicleFields;
         setCategory(draft.category);
@@ -3155,16 +3374,38 @@ function SellPageContent() {
         setCondition(draft.condition);
         setUploadedImages(draft.uploadedImages.map(createImageFromDraft));
         setPartModel(draft.partModel ?? "");
+        setRidingGearBrand(draft.ridingGearBrand ?? "");
+        setRidingGearCustomBrand(draft.ridingGearCustomBrand ?? "");
+        setRidingGearSize(draft.ridingGearSize ?? "");
+        setRidingGearCustomSize(draft.ridingGearCustomSize ?? "");
+        setRidingGearTarget(draft.ridingGearTarget ?? "");
         setTrackMatDetails(draft.trackMatDetails ?? "");
         setPartNumber(draft.partNumber);
-        setListingPrice(draft.listingPrice);
+        const draftCurrency = isSupportedCurrency(draft.listingCurrency) ? draft.listingCurrency : displayCurrency;
+        const convertDraftPrice = (rawPrice: string, decimals = 0) => {
+          const amount = Number(rawPrice.replace(",", "."));
+          if (!rawPrice.trim() || !Number.isFinite(amount) || draftCurrency === displayCurrency) return rawPrice;
+          const converted = fromEur(toEur(amount, draftCurrency), displayCurrency);
+          return decimals > 0
+            ? String(Math.round(converted * 100) / 100)
+            : String(Math.round(converted));
+        };
+        setListingPrice(convertDraftPrice(draft.listingPrice));
+        listingCurrencyRef.current = displayCurrency;
+        setListingCurrency(displayCurrency);
         setMultiParts(
           Object.fromEntries(
             Object.entries(draft.multiParts).map(([id, part]) => [
               id,
               {
                 ...part,
+                price: convertDraftPrice(part.price),
                 trackMatDetails: part.trackMatDetails ?? "",
+                stockQuantity: Number.isInteger(part.stockQuantity) && part.stockQuantity > 0 ? part.stockQuantity : 1,
+                vatRate: Number.isFinite(part.vatRate) ? Math.max(ZERO_VAT_RATE, Math.min(100, part.vatRate)) : ZERO_VAT_RATE,
+                shippingPriceFi: convertDraftPrice(part.shippingPriceFi ?? draft.commerceSettings?.shippingPriceFi ?? "", 2),
+                shippingPriceSe: convertDraftPrice(part.shippingPriceSe ?? draft.commerceSettings?.shippingPriceSe ?? "", 2),
+                shippingPriceNo: convertDraftPrice(part.shippingPriceNo ?? draft.commerceSettings?.shippingPriceNo ?? "", 2),
                 images: part.images.map(createImageFromDraft)
               }
             ])
@@ -3183,6 +3424,13 @@ function SellPageContent() {
         setListingTitle(draft.listingTitle);
         setListingDescription(draft.listingDescription);
         setSelectedCompanySellerId(draft.selectedCompanySellerId);
+        setCommerceSettings({
+          ...defaultCommerceListingSettings,
+          ...(draft.commerceSettings ?? {}),
+          shippingPriceFi: convertDraftPrice(draft.commerceSettings?.shippingPriceFi ?? "", 2),
+          shippingPriceSe: convertDraftPrice(draft.commerceSettings?.shippingPriceSe ?? "", 2),
+          shippingPriceNo: convertDraftPrice(draft.commerceSettings?.shippingPriceNo ?? "", 2)
+        });
       } catch {
         /* Draft restore is best-effort. */
       } finally {
@@ -3225,31 +3473,49 @@ function SellPageContent() {
     const model = searchParams.get("model")?.trim() ?? "";
     const year = searchParams.get("year")?.trim() ?? "";
     const vehicleTypeParam = searchParams.get("vehicleType")?.trim() ?? "";
+    const vehicleSubtype = searchParams.get("vehicleSubtype")?.trim() ?? "";
+    const engineCc = searchParams.get("engineCc")?.trim() ?? "";
+    const engineType = searchParams.get("engineType")?.trim() ?? "";
+    const compatiblePartRequested = searchParams.get("addCompatiblePart") === "1";
 
     if (!make && !model && !year && !vehicleTypeParam) return;
 
     garagePrefillAppliedRef.current = true;
     const normalizedVehicleType = normalizeSellVehicleType(vehicleTypeParam);
-    const nextVehicle = vehicleCards.find((vehicle) => vehicle.key === normalizedVehicleType) ?? vehicleCards[0];
+    const nextVehicle = sellVehicleCards.find((vehicle) => vehicle.key === normalizedVehicleType) ?? sellVehicleCards[0];
 
     setMode("single");
     setVehicleType(nextVehicle);
     vehicleAutoAdvancedFieldsRef.current = {};
     setVehicleDetails({
-      vehicleSubtype: "",
+      vehicleSubtype,
       brand: make,
       model,
       year,
-      engineCc: "",
-      engineType: ""
+      engineCc,
+      engineType
     });
     setCustomVehicleFields({});
     setCategory("");
     setCategoryGroup("");
     setSubcategory("");
+    if (compatiblePartRequested) {
+      revokeCurrentImageUrls();
+      setSpecialListingKind(null);
+      setCondition("");
+      setUploadedImages([]);
+      setPartModel("");
+      setTrackMatDetails("");
+      setPartNumber("");
+      setListingPrice("");
+      setListingTitle("");
+      setListingDescription("");
+      setMultiParts({});
+      setPublishError("");
+    }
     setCurrentStep(3);
     setCategoryAutoOpenTarget({ field: "category", nonce: Date.now() });
-  }, [searchParams]);
+  }, [revokeCurrentImageUrls, searchParams, sellVehicleCards]);
 
   useEffect(() => {
     const engineModel = isVehicleSale ? "" : vehicleDetails.engineType.trim();
@@ -3420,6 +3686,7 @@ function SellPageContent() {
     async function checkListingAccess() {
       const {
         getCompanySellers,
+        getSafeAuthSession,
         getSafeAuthUser,
         getProfile,
         hasRequiredListingProfileDetails,
@@ -3456,7 +3723,10 @@ function SellPageContent() {
       setAccountProfile(profile);
 
       if (profile.account_type === "company") {
-        const { data: sellers } = await getCompanySellers(profile.id);
+        const [{ data: sellers }, session] = await Promise.all([
+          getCompanySellers(profile.id),
+          getSafeAuthSession()
+        ]);
         if (cancelled) return;
 
         const nextSellers = sellers ?? [];
@@ -3464,9 +3734,48 @@ function SellPageContent() {
         setSelectedCompanySellerId((current) =>
           nextSellers.some((seller) => seller.id === current) ? current : ""
         );
+        if (session?.access_token) {
+          try {
+            const requestInit = {
+              cache: "no-store" as const,
+              headers: { Authorization: `Bearer ${session.access_token}` }
+            };
+            const [response, returnPolicyResponse] = await Promise.all([
+              fetch("/api/commerce/company", requestInit),
+              fetch("/api/commerce/return-policy", requestInit)
+            ]);
+            const [body, returnPolicyBody] = await Promise.all([
+              response.json(),
+              returnPolicyResponse.json()
+            ]);
+            if (!cancelled) {
+              const nextCompany = response.ok ? body.company ?? null : null;
+              setCommerceCompany(nextCompany);
+              setCommerceReturnPolicy(returnPolicyResponse.ok ? returnPolicyBody.policy ?? null : null);
+              if (nextCompany) setCommerceSettings((current) => ({
+                ...current,
+                vatRate: draftHydratedRef.current ? current.vatRate : nextCompany.default_vat_rate,
+                shippingPriceFi: current.shippingPriceFi || (nextCompany.default_shipping_price_fi_cents == null ? "" : String(nextCompany.default_shipping_price_fi_cents / 100)),
+                shippingPriceSe: current.shippingPriceSe || (nextCompany.default_shipping_price_se_cents == null ? "" : String(nextCompany.default_shipping_price_se_cents / 100)),
+                shippingPriceNo: current.shippingPriceNo || (nextCompany.default_shipping_price_no_cents == null ? "" : String(nextCompany.default_shipping_price_no_cents / 100))
+              }));
+            }
+          } catch {
+            if (!cancelled) {
+              setCommerceCompany(null);
+              setCommerceReturnPolicy(null);
+            }
+          }
+        } else {
+          setCommerceCompany(null);
+          setCommerceReturnPolicy(null);
+        }
       } else {
         setCompanySellers([]);
         setSelectedCompanySellerId("");
+        setCommerceCompany(null);
+        setCommerceReturnPolicy(null);
+        setCommerceSettings(defaultCommerceListingSettings);
       }
 
       setListingAccessChecked(true);
@@ -3478,6 +3787,12 @@ function SellPageContent() {
       cancelled = true;
     };
   }, [router]);
+
+  useEffect(() => {
+    if (listingAccessChecked && commerceSettings.enabled && !directPaymentReady) {
+      setCommerceSettings((current) => ({ ...current, enabled: false }));
+    }
+  }, [commerceSettings.enabled, directPaymentReady, listingAccessChecked]);
 
   useEffect(() => {
     return () => {
@@ -3492,6 +3807,11 @@ function SellPageContent() {
   }, [profileCity]);
 
   useEffect(() => {
+    if (specialListingKind) {
+      categoryEntryAutoOpenRef.current = false;
+      setPendingCategoryAdvance(null);
+      return;
+    }
     if (currentStep !== 3 || mode !== "single") {
       categoryEntryAutoOpenRef.current = false;
       setPendingCategoryAdvance(null);
@@ -3502,7 +3822,7 @@ function SellPageContent() {
 
     categoryEntryAutoOpenRef.current = true;
     setCategoryAutoOpenTarget({ field: "category", nonce: Date.now() });
-  }, [categoryOptions.length, currentStep, mode, selectedCategory]);
+  }, [categoryOptions.length, currentStep, mode, selectedCategory, specialListingKind]);
 
   useEffect(() => {
     if (pendingCategoryAdvance === "group") {
@@ -3733,6 +4053,11 @@ function SellPageContent() {
           trackMatDetails: "",
           partNumber: "",
           description: "",
+          stockQuantity: 1,
+          vatRate: commerceSettings.vatRate,
+          shippingPriceFi: commerceSettings.shippingPriceFi,
+          shippingPriceSe: commerceSettings.shippingPriceSe,
+          shippingPriceNo: commerceSettings.shippingPriceNo,
           images: []
         };
       }
@@ -3761,6 +4086,11 @@ function SellPageContent() {
             trackMatDetails: "",
             partNumber: "",
             description: "",
+            stockQuantity: 1,
+            vatRate: commerceSettings.vatRate,
+            shippingPriceFi: commerceSettings.shippingPriceFi,
+            shippingPriceSe: commerceSettings.shippingPriceSe,
+            shippingPriceNo: commerceSettings.shippingPriceNo,
             images: []
           };
         }
@@ -3916,6 +4246,11 @@ function SellPageContent() {
           trackMatDetails: "",
           partNumber: "",
           description: "",
+          stockQuantity: 1,
+          vatRate: commerceSettings.vatRate,
+          shippingPriceFi: commerceSettings.shippingPriceFi,
+          shippingPriceSe: commerceSettings.shippingPriceSe,
+          shippingPriceNo: commerceSettings.shippingPriceNo,
           images: []
         };
       }
@@ -3942,8 +4277,27 @@ function SellPageContent() {
 
   function updateMultiPartField(
     id: string,
-    field: "title" | "condition" | "partModel" | "trackMatDetails" | "partNumber" | "description",
+    field: "title" | "condition" | "partModel" | "trackMatDetails" | "partNumber" | "description" | "shippingPriceFi" | "shippingPriceSe" | "shippingPriceNo",
     value: string
+  ) {
+    setMultiParts((current) => {
+      const part = current[id];
+      if (!part) return current;
+
+      return {
+        ...current,
+        [id]: {
+          ...part,
+          [field]: value
+        }
+      };
+    });
+  }
+
+  function updateMultiPartCommerceField(
+    id: string,
+    field: "stockQuantity" | "vatRate",
+    value: number
   ) {
     setMultiParts((current) => {
       const part = current[id];
@@ -4040,29 +4394,31 @@ function SellPageContent() {
       /* optional */
     }
     flushSync(() => {
-      setVehicleTypeMenuOpen(!vehicleType.key);
+      setVehicleTypeMenuOpen(!specialListingKind && !vehicleType.key);
       setCurrentStep(2);
     });
-    openMobileNativePicker(vehicleType.key ? "sell-preset-native-vehicleSubtype" : "sell-vehicle-type-native");
+    if (specialListingKind === "gear") {
+      openMobileNativePicker("sell-special-gear-type");
+    } else if (!specialListingKind) {
+      openMobileNativePicker(vehicleType.key ? "sell-preset-native-vehicleSubtype" : "sell-vehicle-type-native");
+    }
   }
 
   function chooseListingMode(nextMode: ListingMode) {
     setIsVehicleSale(false);
+    setSpecialListingKind(null);
     setMode(nextMode);
     try {
       sessionStorage.setItem("sell-listing-mode", nextMode);
     } catch {
       /* optional */
     }
-    flushSync(() => {
-      setVehicleTypeMenuOpen(!vehicleType.key);
-      setCurrentStep(2);
-    });
-    openMobileNativePicker(vehicleType.key ? "sell-preset-native-vehicleSubtype" : "sell-vehicle-type-native");
+    setPublishError("");
   }
 
   function chooseVehicleSaleMode() {
     setIsVehicleSale(true);
+    setSpecialListingKind(null);
     setMode("single");
     setDeliveryMethod("pickup");
     setCategory("");
@@ -4071,11 +4427,7 @@ function SellPageContent() {
     setPartModel("");
     setPartNumber("");
     setCondition("");
-    flushSync(() => {
-      setVehicleTypeMenuOpen(!vehicleType.key);
-      setCurrentStep(2);
-    });
-    openMobileNativePicker(vehicleType.key ? "sell-preset-native-vehicleSubtype" : "sell-vehicle-type-native");
+    setPublishError("");
 
     try {
       sessionStorage.setItem("sell-listing-mode", "single");
@@ -4086,11 +4438,35 @@ function SellPageContent() {
     router.replace("/sell?market=vehicles", { scroll: false });
   }
 
+  function chooseSpecialListingMode(kind: Exclude<SpecialListingKind, null>) {
+    setIsVehicleSale(false);
+    setSpecialListingKind(kind);
+    setMode("single");
+    setVehicleType(emptyVehicleType);
+    setVehicleDetails(buildEmptyVehicleDetails());
+    const fixedCategory = kind === "gear" ? "Ajovarusteet" : "Muut ajoneuvon osat";
+    const fixedSubcategory = kind === "gear" ? ridingGearCategories[0] : "Muut ajoneuvon osat";
+    setCategory(fixedCategory);
+    setCategoryGroup(fixedSubcategory);
+    setSubcategory(fixedSubcategory);
+    setCondition("");
+    setPartModel("");
+    setRidingGearBrand("");
+    setRidingGearCustomBrand("");
+    setRidingGearSize("");
+    setRidingGearCustomSize("");
+    setRidingGearTarget("");
+    setPartNumber("");
+    setPublishError("");
+    router.replace(`/sell?market=${kind}`, { scroll: false });
+  }
+
   function resetSellDraft() {
     draftClearedOrPublishedRef.current = true;
     setShowResetConfirm(false);
     revokeCurrentImageUrls();
     setMode("single");
+    setSpecialListingKind(null);
     setCurrentStep(1);
     setVehicleType(emptyVehicleType);
     setVehicleDetails(buildEmptyVehicleDetails());
@@ -4104,6 +4480,8 @@ function SellPageContent() {
     setVehicleAccessoriesOpen(false);
     setVehicleColors([]);
     setVehicleColorsOpen(false);
+    setVehicleVatDeductible(false);
+    setVehicleTaxFree(false);
     setCustomVehicleFields({});
     vehicleAutoAdvancedFieldsRef.current = {};
     categoryEntryAutoOpenRef.current = false;
@@ -4114,9 +4492,16 @@ function SellPageContent() {
     setCondition("");
     setUploadedImages([]);
     setPartModel("");
+    setRidingGearBrand("");
+    setRidingGearCustomBrand("");
+    setRidingGearSize("");
+    setRidingGearCustomSize("");
+    setRidingGearTarget("");
     setTrackMatDetails("");
     setPartNumber("");
     setListingPrice("");
+    listingCurrencyRef.current = displayCurrency;
+    setListingCurrency(displayCurrency);
     setSinglePriceSuggestion(null);
     setSinglePriceSuggestionLoading(false);
     setMultiParts({});
@@ -4139,6 +4524,13 @@ function SellPageContent() {
     setIsPublishing(false);
     setCategoryAutoOpenTarget(null);
     setSelectedCompanySellerId("");
+    setCommerceSettings({
+      ...defaultCommerceListingSettings,
+      vatRate: commerceCompany?.default_vat_rate ?? ZERO_VAT_RATE,
+      shippingPriceFi: commerceCompany?.default_shipping_price_fi_cents == null ? "" : String(commerceCompany.default_shipping_price_fi_cents / 100),
+      shippingPriceSe: commerceCompany?.default_shipping_price_se_cents == null ? "" : String(commerceCompany.default_shipping_price_se_cents / 100),
+      shippingPriceNo: commerceCompany?.default_shipping_price_no_cents == null ? "" : String(commerceCompany.default_shipping_price_no_cents / 100)
+    });
     garagePrefillAppliedRef.current = true;
 
     void deleteSellDraft(currentDraftKey)
@@ -4150,6 +4542,20 @@ function SellPageContent() {
 
   function goToNextStep() {
     setPublishError("");
+
+    if (currentStep === 2 && specialListingKind === "gear") {
+      const missingFields = [
+        !subcategory ? "ajovarusteen tyyppi" : "",
+        !resolvedRidingGearBrand ? "merkki" : "",
+        !resolvedRidingGearSize ? "koko" : "",
+        !ridingGearTarget ? "kohderyhmä" : ""
+      ].filter(Boolean);
+
+      if (missingFields.length > 0) {
+        setPublishError(`Valitse ennen jatkamista: ${missingFields.join(", ")}.`);
+        return;
+      }
+    }
 
     if (
       mode === "multiple" &&
@@ -4166,7 +4572,7 @@ function SellPageContent() {
     }
 
     const nextStep = Math.min(currentStep + 1, steps.length);
-    const shouldOpenFirstCategory = mode === "single" && currentStep === 2 && nextStep === 3 && !selectedCategory;
+    const shouldOpenFirstCategory = mode === "single" && !specialListingKind && currentStep === 2 && nextStep === 3 && !selectedCategory;
 
     if (shouldOpenFirstCategory) {
       categoryEntryAutoOpenRef.current = true;
@@ -4262,7 +4668,9 @@ function SellPageContent() {
 
     const partTitle = part
       ? part.detail || part.group || part.category
-      : selectedDetailCategory || selectedCategoryGroup || selectedCategory;
+      : specialListingKind
+        ? subcategory || (specialListingKind === "gear" ? "Ajovaruste" : "Ajoneuvon osa")
+        : selectedDetailCategory || selectedCategoryGroup || selectedCategory;
     const vehicleTitle = [
       vehicleDetails.brand.trim(),
       vehicleDetails.model.trim()
@@ -4285,7 +4693,9 @@ function SellPageContent() {
 
     const partTitle = part
       ? part.detail || part.group || part.category
-      : selectedDetailCategory || selectedCategoryGroup || selectedCategory;
+      : specialListingKind
+        ? subcategory || (specialListingKind === "gear" ? "Ajovaruste" : "Ajoneuvon osa")
+        : selectedDetailCategory || selectedCategoryGroup || selectedCategory;
     const translatedPartTitle = partTitle ? translateCategoryText(partTitle.trim()) : "";
     const vehicleTitle = [
       vehicleDetails.brand.trim(),
@@ -4349,6 +4759,12 @@ function SellPageContent() {
       isVehicleSale && vehicleColors.length > 0
         ? `${VEHICLE_COLORS_DESCRIPTION_LABEL}: ${vehicleColors.join(", ")}`
         : "",
+      isVehicleSale && (vehicleVatDeductible || vehicleTaxFree)
+        ? `Verotus: ${[
+            vehicleVatDeductible ? "ALV-vähennyskelpoinen" : "",
+            vehicleTaxFree ? "Tax free" : ""
+          ].filter(Boolean).join(" · ")}`
+        : "",
       isVehicleSale ? "" : `Toimitustapa: ${getDeliveryMethodLabel()}`
     ].filter(Boolean).join("\n\n");
   }
@@ -4376,12 +4792,143 @@ function SellPageContent() {
     );
   }
 
+  function renderCommerceDeliveryDetails() {
+    if (!commerceSettings.enabled || !commerceEligible) return null;
+    if (mode === "multiple") return null;
+    const shippingAvailable = deliveryMethod === "both" || deliveryMethod === "shipping";
+    if (!shippingAvailable) return null;
+
+    return (
+      <section className={`${styles.productDetailsPanel} ${styles.commerceDeliveryPanel}`} aria-label={st("Kuljetushinnat")}>
+        <h2><Truck size={21} aria-hidden="true" /><span>{st("Kuljetushinnat")}</span></h2>
+        <p className={styles.vehicleSaleStepCopy}>{st("Hinnat tulevat yrityksen toimitusasetuksista. Vain yrityksen hallinnassa valitut toimitusmaat näytetään.")}</p>
+        <div className={`${styles.productDetailsGrid} ${styles.commerceDeliveryGrid}`}>
+          {(commerceCompany?.shipping_countries?.length ? commerceCompany.shipping_countries : ["FI"]).map((country) => {
+            const field = country === "SE" ? "shippingPriceSe" : country === "NO" ? "shippingPriceNo" : "shippingPriceFi";
+            const countryName = st(country === "SE" ? "Ruotsiin" : country === "NO" ? "Norjaan" : "Suomeen");
+            return <DetailInput key={country} label={`${st("Kuljetushinta")} ${countryName} (${listingCurrency})`} icon={Truck} inputMode="decimal" value={commerceSettings[field]} onChange={(value) => setCommerceSettings((current) => ({ ...current, [field]: value }))} />;
+          })}
+        </div>
+      </section>
+    );
+  }
+
+  function validateCommerceSettings(parts: Array<MultiPartSelection | undefined> = [undefined]) {
+    if (!commerceSettings.enabled) return "";
+    const pickupAvailable = deliveryMethod === "both" || deliveryMethod === "pickup";
+    const shippingAvailable = deliveryMethod === "both" || deliveryMethod === "shipping";
+    if (!canPublishProduct(commerceCompany)) {
+      return "Verkkokauppaosto vaatii hyväksytyn yrityksen ja maksuvalmiin Stripe Connect -tilin.";
+    }
+    if (!commerceReturnPolicyReady) {
+      return "Täytä ja julkaise palautusohjeet ennen suoramaksutuotteen julkaisemista.";
+    }
+    if (pickupAvailable && !commercePickupReady) {
+      return "Täytä ja tallenna nouto-ohje automaattisine käännöksineen ennen noutotuotteen julkaisemista.";
+    }
+    if (shippingAvailable && !commerceShippingReady) {
+      return "Täytä ja tallenna Postin toimitusmaat sekä hinnat ennen postitettavan suoramaksutuotteen julkaisemista.";
+    }
+    for (const part of parts) {
+      const stockQuantity = part?.stockQuantity ?? commerceSettings.stockQuantity;
+      const vatRate = part?.vatRate ?? commerceSettings.vatRate;
+      if (!Number.isInteger(stockQuantity) || stockQuantity < 1) {
+        return "Lisää jokaiselle verkkokauppatuotteelle vähintään yhden kappaleen määrä.";
+      }
+      if (!Number.isFinite(vatRate) || vatRate < ZERO_VAT_RATE || vatRate > 100) {
+        return "Tarkista jokaisen verkkokauppatuotteen ALV-kanta.";
+      }
+    }
+    if (!pickupAvailable && !shippingAvailable) {
+      return "Valitse verkkokauppatuotteelle nouto tai kuljetus.";
+    }
+    if (shippingAvailable) {
+      const countries = commerceCompany?.shipping_countries?.length ? commerceCompany.shipping_countries : ["FI"];
+      for (const part of parts) {
+        const prices = {
+          FI: part?.shippingPriceFi ?? commerceSettings.shippingPriceFi,
+          SE: part?.shippingPriceSe ?? commerceSettings.shippingPriceSe,
+          NO: part?.shippingPriceNo ?? commerceSettings.shippingPriceNo
+        };
+        for (const country of countries) {
+          const rawPrice = prices[country as keyof typeof prices] ?? "";
+          const price = Number(rawPrice.replace(",", "."));
+          if (!Number.isFinite(price) || price < 0) {
+            return `Täytä jokaiselle multi-tuotteelle postikulu maahan ${country}.`;
+          }
+        }
+      }
+    }
+    return "";
+  }
+
+  async function createCommerceProduct(
+    payload: ListingInput,
+    imageUrls: string[],
+    accessToken: string,
+    part?: MultiPartSelection
+  ) {
+    const decimal = (value: string) => Number(value.replace(",", ".")) || 0;
+    const pickupAvailable = deliveryMethod === "both" || deliveryMethod === "pickup";
+    const shippingAvailable = deliveryMethod === "both" || deliveryMethod === "shipping";
+    const response = await fetch("/api/commerce/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({
+        name: payload.title,
+        description: payload.description,
+        storefront_category: payload.category === "Ajovarusteet"
+          ? "Ajovarusteet"
+          : commerceSettings.storefrontCategory || payload.category || null,
+        price_cents: Math.round(payload.price * 100),
+        seller_target_price_cents: commerceCompany?.fee_pricing_strategy === "include"
+          ? Math.round(payload.price * 100)
+          : null,
+        vat_rate: part?.vatRate ?? commerceSettings.vatRate,
+        stock_quantity: part?.stockQuantity ?? commerceSettings.stockQuantity,
+        active: true,
+        image_urls: imageUrls,
+        pickup_available: pickupAvailable,
+        pickup_address_override: null,
+        pickup_instructions: null,
+        shipping_available: shippingAvailable,
+        posti_enabled: shippingAvailable,
+        shipping_price_cents: shippingAvailable
+          ? Math.round(toEur(decimal(part?.shippingPriceFi ?? commerceSettings.shippingPriceFi), listingCurrency) * 100)
+          : null,
+        shipping_price_fi_cents: shippingAvailable
+          ? Math.round(toEur(decimal(part?.shippingPriceFi ?? commerceSettings.shippingPriceFi), listingCurrency) * 100)
+          : null,
+        shipping_price_se_cents: shippingAvailable
+          ? Math.round(toEur(decimal(part?.shippingPriceSe ?? commerceSettings.shippingPriceSe), listingCurrency) * 100)
+          : null,
+        shipping_price_no_cents: shippingAvailable
+          ? Math.round(toEur(decimal(part?.shippingPriceNo ?? commerceSettings.shippingPriceNo), listingCurrency) * 100)
+          : null,
+        free_shipping_threshold_cents: null,
+        weight_grams: null,
+        package_length_cm: null,
+        package_width_cm: null,
+        package_height_cm: null,
+        max_shipping_quantity: 1,
+        shipping_notes: null
+      })
+    });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || "Verkkokauppatuotteen julkaisu epäonnistui.");
+    return body.product;
+  }
+
   function buildListingPayload(
     part?: MultiPartSelection,
     imageUrls?: string[],
     publicationGroupId = ""
   ): ListingInput {
-    const price = getPublishPrice(part?.price ?? listingPrice);
+    const originalPrice = getPublishPrice(part?.price ?? listingPrice);
+    const price = Math.round(toEur(originalPrice, listingCurrency) * 100) / 100;
     const title = isVehicleSale
       ? getAutomaticListingTitle()
       : part
@@ -4396,6 +4943,13 @@ function SellPageContent() {
     const description = appendDeliveryMethod(baseDescription);
     const resolvedImageUrls =
       imageUrls && imageUrls.length > 0 ? imageUrls : [fallbackListingImage];
+    const ridingGearPartModel = specialListingKind === "gear"
+      ? [
+          partModel.trim(),
+          resolvedRidingGearSize ? `Koko: ${resolvedRidingGearSize}` : "",
+          ridingGearTarget ? `Kohderyhmä: ${ridingGearTarget}` : ""
+        ].filter(Boolean).join(" · ")
+      : partModel;
 
     return {
       title,
@@ -4404,31 +4958,52 @@ function SellPageContent() {
         ? {
             _meta: {
               listing_mode: "single",
-              marketplace_kind: "vehicle"
+              marketplace_kind: "vehicle",
+              listing_currency: listingCurrency,
+              listing_original_price: originalPrice,
+              vat_deductible: vehicleVatDeductible,
+              tax_free: vehicleTaxFree
             }
           }
         : publicationGroupId
           ? {
             _meta: {
               publication_group_id: publicationGroupId,
-              listing_mode: "multiple"
+              listing_mode: "multiple",
+              listing_currency: listingCurrency,
+              listing_original_price: originalPrice
             }
           }
-          : null,
-      listing_mode: mode,
+          : {
+            _meta: {
+              listing_currency: listingCurrency,
+              listing_original_price: originalPrice,
+              ...(specialListingKind === "gear"
+                ? {
+                    riding_gear_size: resolvedRidingGearSize,
+                    riding_gear_target: ridingGearTarget
+                  }
+                : {})
+            }
+          },
+      listing_mode: publicationGroupId ? "multiple" : mode,
       price,
       vehicle_type: vehicleType.title,
-      brand: vehicleDetails.brand.trim(),
-      model: vehicleDetails.model.trim(),
+      brand: specialListingKind === "gear" ? resolvedRidingGearBrand : vehicleDetails.brand.trim(),
+      model: specialListingKind === "gear" ? resolvedRidingGearSize : vehicleDetails.model.trim(),
       year: vehicleDetails.year.trim(),
       engine_cc: vehicleDetails.engineCc.trim(),
       engine_model: isVehicleSale ? null : vehicleDetails.engineType.trim(),
-      category: isVehicleSale ? VEHICLE_LISTING_CATEGORY : part?.category ?? selectedCategory,
-      subcategory: isVehicleSale ? vehicleType.title : part?.detail ?? selectedDetailCategory,
+      category: isVehicleSale
+        ? VEHICLE_LISTING_CATEGORY
+        : part?.category ?? (specialListingKind === "gear" ? "Ajovarusteet" : specialListingKind === "other-parts" ? "Muut ajoneuvon osat" : selectedCategory),
+      subcategory: isVehicleSale
+        ? vehicleType.title
+        : part?.detail ?? (specialListingKind ? subcategory || categoryGroup : selectedDetailCategory),
       part_model: isVehicleSale
         ? null
         : mode === "single"
-          ? buildPartModelDetails(partModel, trackMatDetails, selectedSinglePartNeedsTrackMatDimensions)
+          ? buildPartModelDetails(ridingGearPartModel, trackMatDetails, selectedSinglePartNeedsTrackMatDimensions)
           : buildPartModelDetails(
               part?.partModel ?? "",
               part?.trackMatDetails ?? "",
@@ -4444,8 +5019,8 @@ function SellPageContent() {
       description,
       image_url: resolvedImageUrls[0],
       image_urls: resolvedImageUrls,
-      seller_name: isCompanyAccount ? selectedCompanySeller?.name.trim() ?? "" : "",
-      seller_phone: isCompanyAccount ? selectedCompanySeller?.phone.trim() || null : null,
+      seller_name: "",
+      seller_phone: null,
       company_name: isCompanyAccount ? accountProfile?.company_name ?? null : null,
       seller_avatar_url: null,
       user_id: null,
@@ -4463,9 +5038,13 @@ function SellPageContent() {
     if (isVehicleSale && !vehicleType.key) return "Valitse ajoneuvoluokka ennen julkaisua.";
     if (isVehicleSale && !vehicleDetails.brand.trim()) return "Lisää ajoneuvon merkki ennen julkaisua.";
     if (isVehicleSale && !vehicleDetails.model.trim()) return "Lisää ajoneuvon malli ennen julkaisua.";
+    if (specialListingKind === "gear" && !subcategory) return "Valitse ajovarusteen tyyppi ennen julkaisua.";
+    if (specialListingKind === "gear" && !resolvedRidingGearBrand) return "Valitse ajovarusteen merkki ennen julkaisua.";
+    if (specialListingKind === "gear" && !resolvedRidingGearSize) return "Valitse ajovarusteen koko ennen julkaisua.";
+    if (specialListingKind === "gear" && !ridingGearTarget) return "Valitse ajovarusteen kohderyhmä ennen julkaisua.";
     if (!String(payload.category ?? "").trim()) return "Valitse kategoria ennen julkaisua.";
     if (!isVehicleSale && !String(payload.condition ?? "").trim()) return "Valitse kuntoluokitus ennen julkaisua.";
-    if (payload.price <= 0) return "Lisää ilmoitukselle hinta. Hinnan täytyy olla vähintään 1 euro.";
+    if (payload.price <= 0) return "Lisää ilmoitukselle hinta. Hinnan täytyy olla vähintään 1 valitussa valuutassa.";
     if (imageCount <= 0) return "Lisää vähintään yksi kuva jokaiseen julkaistavaan ilmoitukseen.";
     if (listingNeedsTrackMatDimensions(payload)) {
       void descriptionHasTrackMatDimensions(payload.description);
@@ -4507,6 +5086,7 @@ function SellPageContent() {
 
     try {
       const {
+        getSafeAuthSession,
         getSafeAuthUser,
         getProfile,
         hasRequiredListingProfileDetails
@@ -4531,7 +5111,7 @@ function SellPageContent() {
       const publicationGroupId =
         mode === "multiple"
           ? globalThis.crypto?.randomUUID?.() ?? `multi-${Date.now()}-${Math.random().toString(36).slice(2)}`
-          : "";
+          : appendedPublicationGroupId;
       const listingParts =
         mode === "multiple"
           ? selectedMultiPartList.filter((part) =>
@@ -4549,6 +5129,20 @@ function SellPageContent() {
             ? "Yhtään julkaisukelpoista ilmoitusta ei löytynyt. Lisää julkaistaville osille hinta, kunto ja vähintään yksi kuva."
             : "Valitse vähintään yksi myytävä osa ennen julkaisua."
         );
+        return;
+      }
+
+      const commerceValidationError = validateCommerceSettings(listingParts);
+      if (commerceValidationError) {
+        setPublishError(commerceValidationError);
+        return;
+      }
+
+      const commerceAccessToken = commerceSettings.enabled
+        ? (await getSafeAuthSession())?.access_token ?? ""
+        : "";
+      if (commerceSettings.enabled && !commerceAccessToken) {
+        setPublishError("Kirjaudu uudelleen ennen verkkokauppatuotteen julkaisua.");
         return;
       }
 
@@ -4573,7 +5167,7 @@ function SellPageContent() {
 
       let firstListingId = "";
       let firstListingUrlId: string | number = "";
-      const { createListing } = await import("@/lib/supabase");
+      const { createListing, supabase: listingsClient } = await import("@/lib/supabase");
 
       for (const part of listingParts) {
         const imageUrls = await uploadListingImages(
@@ -4584,6 +5178,34 @@ function SellPageContent() {
         if (error || !data) {
           setPublishError(getErrorMessage(error));
           return;
+        }
+
+        if (commerceSettings.enabled) {
+          try {
+            const product = await createCommerceProduct(payload, imageUrls, commerceAccessToken, part) as { id?: string; price_cents?: number };
+            if (product.id && listingsClient) {
+              const currentTranslations = data.translations ?? payload.translations ?? {};
+              const { error: linkError } = await listingsClient
+                .from("listings")
+                .update({
+                  ...(typeof product.price_cents === "number" ? { price: product.price_cents / 100 } : {}),
+                  translations: {
+                    ...currentTranslations,
+                    _meta: {
+                      ...(currentTranslations._meta ?? {}),
+                      commerce_product_id: product.id
+                    }
+                  }
+                })
+                .eq("id", data.id);
+              if (linkError) {
+                console.warn("Commerce product link could not be saved", linkError);
+              }
+            }
+          } catch (commerceError) {
+            setPublishError(`Ilmoitus julkaistiin, mutta ostoskoriosto ei aktivoitunut: ${getErrorMessage(commerceError)} Voit viimeistellä tuotteen yritysmyynnin hallinnassa.`);
+            return;
+          }
         }
 
         firstListingId ||= data.id;
@@ -4625,7 +5247,50 @@ function SellPageContent() {
     return st("Seuraava");
   }
 
+  function getWizardStepTitle() {
+    if (currentStep === 1) return st("Mitä olet myymässä?");
+    if (currentStep === 2 && specialListingKind === "gear") return st("Millainen ajovaruste on kyseessä?");
+    if (currentStep === 2 && specialListingKind === "other-parts") return st("Kerro tuotteen tyyppi");
+    if (currentStep === 2) return isVehicleSale
+      ? st("Ajoneuvon perustiedot")
+      : st("Mihin ajoneuvoon osa sopii?");
+    if (currentStep === 3 && isVehicleSale) return st("Hinta ja sijainti");
+    if (currentStep === 3 && mode === "multiple") return st("Valitse myytävät osat");
+    if (currentStep === 3) return st("Kategoria ja myyntitiedot");
+    if (mode === "multiple" && currentStep === 4) return st("Täydennä osien ilmoitukset");
+    if (mode === "multiple" && currentStep === 5) return st("Sijainti ja toimitus");
+    if (!isVehicleSale && mode === "single" && currentStep === 4) return st("Kunto, sijainti ja toimitus");
+    if (mode === "single" && currentStep === (isVehicleSale ? 4 : 5)) return st("Lisää hyvät tuotekuvat");
+    if (mode === "single" && currentStep === (isVehicleSale ? 5 : 6)) return st("Viimeistele ilmoituksen teksti");
+    if (isLastStep) return mode === "multiple" ? st("Valmiina julkaisemaan") : st("Valmis julkaistavaksi");
+    return st(currentStepInfo.title);
+  }
+
+  function getWizardStepLead() {
+    if (currentStep === 1) return st("Valitse ilmoitustyyppi – voit muuttaa valintaa myöhemmin.");
+    if (currentStep === 2 && !specialListingKind && !isVehicleSale) return st("Valitse ajoneuvon tiedot, jotta ostaja löytää ilmoituksesi.");
+    if (currentStep === 2 && isVehicleSale) return st("Täytä ajoneuvon tärkeimmät perustiedot.");
+    if (currentStep === 3 && !isVehicleSale && mode === "single") return st("Kerro mikä tuote on ja määritä hinta.");
+    if (!isVehicleSale && mode === "single" && currentStep === 4) return st("Kerro tuotteen kunto ja miten ostaja saa sen.");
+    if (mode === "single" && currentStep === (isVehicleSale ? 4 : 5)) return st("Selkeät kuvat nopeuttavat myyntiä.");
+    if (mode === "single" && currentStep === (isVehicleSale ? 5 : 6)) return st("Hyvä otsikko ja kuvaus auttavat ostajaa päättämään.");
+    if (isLastStep) return st("Tarkista tärkeimmät tiedot ennen julkaisua.");
+    return getStepLead();
+  }
+
+  function getWizardPrimaryActionLabel() {
+    if (isPublishing) return st("Julkaistaan...");
+    if (isLastStep) return mode === "multiple" ? st("Julkaise ilmoitukset") : st("Julkaise ilmoitus");
+    if (mode === "multiple" && currentStep === 4 && activeMultiListingIndex < selectedMultiPartList.length - 1) {
+      return st("Seuraava osa");
+    }
+    const nextStep = steps.find((step) => step.number === currentStep + 1);
+    return nextStep ? `${st("Jatka")}: ${st(nextStep.title)}` : st("Jatka");
+  }
+
   function getStepLead() {
+    if (currentStep === 2 && specialListingKind === "gear") return "Valitse ilmoitukselle sopiva ajovarusteryhmä.";
+    if (currentStep === 2 && specialListingKind === "other-parts") return "Tälle ilmoitukselle ei tarvitse valita tarkkaa osakategoriaa.";
     if (currentStep === 2) return st("Valitse ajoneuvoluokka");
     if (currentStep === 3 && isVehicleSale) return "Aseta ajoneuvolle myyntihinta ja sijainti.";
     if (currentStep === 3) return mode === "single"
@@ -4665,34 +5330,31 @@ function SellPageContent() {
                           <summary>
                             <span className={styles.multiDragDots} aria-hidden="true">::</span>
                             <strong>{index + 1}</strong>
-                            <input value={part.detail} readOnly aria-label="Tuote" />
+                            <input value={part.detail} readOnly aria-label={st("Tuote")} />
                             <input
                               inputMode="numeric"
-                              placeholder="Hinta"
+                              placeholder={`Hinta (${listingCurrency})`}
                               value={part.price}
                               onChange={(event) => updateMultiPartPrice(part.id, event.target.value)}
-                              aria-label="Hinta"
+                              aria-label={`Hinta (${listingCurrency})`}
                             />
                             <select
                               value={part.condition}
                               onChange={(event) => updateMultiPartField(part.id, "condition", event.target.value)}
-                              aria-label="Kunto"
+                              aria-label={st("Kunto")}
                             >
-                              <option value="">Kuntoluokitus</option>
-                              <option>Uusi</option>
-                              <option>Hyvä</option>
-                              <option>Käytetty</option>
-                              <option>Korjattava</option>
+                              <option value="">{st("Kuntoluokitus")}</option>
+                              {conditionOptions.map((option) => <option key={option.value} value={option.value}>{st(option.label)}</option>)}
                             </select>
                           </summary>
 
                           <div className={styles.multiListingDetails}>
                             <label>
-                              <span>Osanumero / OEM</span>
+                              <span>{st("Osanumero / OEM")}</span>
                               <input
                                 value={part.partNumber}
                                 onChange={(event) => updateMultiPartField(part.id, "partNumber", event.target.value)}
-                                placeholder="Kirjoita osanumero"
+                                placeholder={st("Kirjoita osanumero")}
                               />
                             </label>
 
@@ -4754,8 +5416,8 @@ function SellPageContent() {
             })
           ) : (
             <div className={styles.multiListingEmpty}>
-              <strong>Ei valittuja osia</strong>
-              <span>Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.</span>
+              <strong>{st("Ei valittuja osia")}</strong>
+              <span>{st("Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.")}</span>
             </div>
           )}
         </div>
@@ -4777,7 +5439,7 @@ function SellPageContent() {
           <span />
           <span />
           <span>{st("Nimi")}</span>
-          <span>{st("Hinta (€)")}</span>
+          <span>{st("Hinta")} ({listingCurrency})</span>
           <span>{st("Kunto")}</span>
           <span />
         </div>
@@ -4815,11 +5477,11 @@ function SellPageContent() {
               <span className={styles.multiPriceCell}>
                 <input
                   inputMode="numeric"
-                  placeholder={st("Hinta")}
+                  placeholder={`${st("Hinta")} (${listingCurrency})`}
                   value={part.price}
                   onClick={(event) => event.stopPropagation()}
                   onChange={(event) => updateMultiPartPrice(part.id, event.target.value)}
-                  aria-label={st("Hinta")}
+                  aria-label={`${st("Hinta")} (${listingCurrency})`}
                 />
                 {multiPriceSuggestions[part.id] ? (
                   <button
@@ -4827,10 +5489,10 @@ function SellPageContent() {
                     className={styles.multiPriceSuggestion}
                     onClick={(event) => {
                       event.stopPropagation();
-                      updateMultiPartPrice(part.id, String(multiPriceSuggestions[part.id].avg));
+                      updateMultiPartPrice(part.id, String(Math.round(fromEur(multiPriceSuggestions[part.id].avg, listingCurrency))));
                     }}
                   >
-                    {st("Ehdotus")} {formatSuggestionPrice(multiPriceSuggestions[part.id].avg)}
+                    {st("Ehdotus")} {formatListingSuggestion(multiPriceSuggestions[part.id].avg)}
                   </button>
                 ) : multiPriceSuggestionsLoading ? (
                   <small className={styles.multiPriceSuggestionMuted}>{st("Haetaan...")}</small>
@@ -4987,6 +5649,7 @@ function SellPageContent() {
             />
           </div>
 
+
           <div className={styles.multiListingCategoryBody}>
             <section className={styles.multiListingGroup}>
               <div className={`${styles.multiListingGroupHeader} ${styles.multiListingStaticHeader}`}>
@@ -5009,18 +5672,18 @@ function SellPageContent() {
                   <span className={styles.multiPriceCell}>
                     <input
                       inputMode="numeric"
-                      placeholder={st("Hinta")}
+                      placeholder={`${st("Hinta")} (${listingCurrency})`}
                       value={part.price}
                       onChange={(event) => updateMultiPartPrice(part.id, event.target.value)}
-                      aria-label={st("Hinta")}
+                      aria-label={`${st("Hinta")} (${listingCurrency})`}
                     />
                     {multiPriceSuggestions[part.id] ? (
                       <button
                         type="button"
                         className={styles.multiPriceSuggestion}
-                        onClick={() => updateMultiPartPrice(part.id, String(multiPriceSuggestions[part.id].avg))}
+                        onClick={() => updateMultiPartPrice(part.id, String(Math.round(fromEur(multiPriceSuggestions[part.id].avg, listingCurrency))))}
                       >
-                        {st("Ehdotus")} {formatSuggestionPrice(multiPriceSuggestions[part.id].avg)}
+                        {st("Ehdotus")} {formatListingSuggestion(multiPriceSuggestions[part.id].avg)}
                       </button>
                     ) : multiPriceSuggestionsLoading ? (
                       <small className={styles.multiPriceSuggestionMuted}>{st("Haetaan...")}</small>
@@ -5072,7 +5735,8 @@ function SellPageContent() {
                       label={`${st("Telamaton mitat")} (Pituus x Leveys x Jako)`}
                       value={part.trackMatDetails}
                       onChange={(value) => updateMultiPartField(part.id, "trackMatDetails", value)}
-                      placeholder="Kirjoita muu mitta esim. 360 cm x 38 cm x 7,3 cm"
+                      placeholder={st("Kirjoita muu mitta esim. 360 cm x 38 cm x 7,3 cm")}
+                      translateText={st}
                     />
                   ) : null}
                   <label>
@@ -5083,6 +5747,45 @@ function SellPageContent() {
                       placeholder={st("Kirjoita osanumero")}
                     />
                   </label>
+                  {commerceSettings.enabled && commerceEligible ? (
+                    <>
+                      <label>
+                        <span>{st("Määrä (kpl)")}</span>
+                        <input
+                          type="number"
+                          min={1}
+                          step={1}
+                          value={part.stockQuantity}
+                          onChange={(event) => updateMultiPartCommerceField(
+                            part.id,
+                            "stockQuantity",
+                            Math.max(1, Math.trunc(Number(event.target.value) || 1))
+                          )}
+                        />
+                      </label>
+                      <label>
+                        <span>{st("Verokäsittely")}</span>
+                        <select
+                          value={part.vatRate}
+                          onChange={(event) => updateMultiPartCommerceField(
+                            part.id,
+                            "vatRate",
+                            Number(event.target.value)
+                          )}
+                        >
+                          {translatedVatRateOptions.map((option) => (
+                            <option key={option.value} value={option.value}>{option.label}</option>
+                          ))}
+                        </select>
+                        <small>{st("Alkuarvo tulee yrityksen ALV-oletuksesta.")}</small>
+                      </label>
+                      {(deliveryMethod === "both" || deliveryMethod === "shipping") && (commerceCompany?.shipping_countries?.length ? commerceCompany.shipping_countries : ["FI"]).map((country) => {
+                        const field = country === "SE" ? "shippingPriceSe" : country === "NO" ? "shippingPriceNo" : "shippingPriceFi";
+                        const countryName = st(country === "SE" ? "Ruotsiin" : country === "NO" ? "Norjaan" : "Suomeen");
+                        return <label key={country}><span>{st("Postikulu")} {countryName} ({listingCurrency})</span><input inputMode="decimal" value={part[field]} onChange={(event) => updateMultiPartField(part.id, field, event.target.value.replace(/[^\d,.]/g, ""))} placeholder="0,00" /></label>;
+                      })}
+                    </>
+                  ) : null}
                   <label className={styles.multiListingWideField}>
                     <span>{st("Lisätiedot")}</span>
                     <textarea
@@ -5222,8 +5925,8 @@ function SellPageContent() {
           })
         ) : (
           <div className={styles.multiListingEmpty}>
-            <strong>Ei valittuja osia</strong>
-            <span>Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.</span>
+            <strong>{st("Ei valittuja osia")}</strong>
+            <span>{st("Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.")}</span>
           </div>
         )}
       </div>
@@ -5232,28 +5935,177 @@ function SellPageContent() {
 
   function renderMultiDeliveryStep() {
     return (
-      <section className={styles.multiListingMetaPanel} aria-label={st("Sijainti ja toimitus")}>
-        <PlainIconInput
-          label={st("Sijainti")}
-          icon={MapPin}
-          placeholder={st("Kaupunki tai paikkakunta")}
-          value={listingLocation}
-          onChange={updateListingLocation}
+      <div className={styles.listingStack}>
+        <section className={styles.multiListingMetaPanel} aria-label={st("Sijainti ja toimitus")}>
+          <PlainIconInput
+            label={st("Sijainti")}
+            icon={MapPin}
+            placeholder={st("Kaupunki tai paikkakunta")}
+            value={listingLocation}
+            onChange={updateListingLocation}
+          />
+          {renderDeliveryMethodSelector()}
+        </section>
+        {renderCommerceDeliveryDetails()}
+      </div>
+    );
+  }
+
+  function renderCommerceInventoryInputs() {
+    if (!commerceSettings.enabled || !commerceEligible) return null;
+
+    return (
+      <>
+        <DetailInput
+          label={st("Määrä (kpl)")}
+          icon={PackagePlus}
+          inputMode="numeric"
+          value={String(commerceSettings.stockQuantity)}
+          onChange={(value) => setCommerceSettings((current) => ({
+            ...current,
+            stockQuantity: Math.max(1, Math.trunc(Number(value.replace(/\D/g, "")) || 1))
+          }))}
         />
-        {renderDeliveryMethodSelector()}
-      </section>
+        <DetailSelect
+          label={st("Verokäsittely")}
+          icon={Percent}
+          value={commerceSettings.vatRate}
+          options={translatedVatRateOptions}
+          onChange={(value) => setCommerceSettings((current) => ({
+            ...current,
+            vatRate: value
+          }))}
+        />
+      </>
+    );
+  }
+
+  function renderListingSaleMode() {
+    if (!commerceEligible) return null;
+    const Icon = commerceSettings.enabled ? ShoppingCart : FileText;
+
+    return (
+      <span className={styles.listingSaleMode} data-direct={commerceSettings.enabled}>
+        <Icon size={14} aria-hidden="true" />
+        {commerceSettings.enabled ? st("Suora maksu") : st("Yhteydenotto")}
+      </span>
     );
   }
 
   function renderCurrentStep() {
     if (currentStep === 2) {
+      if (specialListingKind) {
+        return (
+          <div className={styles.categoryStep}>
+            <section className={styles.categoryPanel} aria-label={st("Tuotteen tyyppi")}>
+              <h2>{specialListingKind === "gear" ? "Valitse ajovarusteen tyyppi" : "Muut ajoneuvon osat"}</h2>
+              {specialListingKind === "gear" ? (
+                <div className={`${styles.categorySelectGrid} ${styles.ridingGearSelectGrid}`}>
+                  <CategorySelect
+                    nativeSelectId="sell-special-gear-type"
+                    label={st("Ajovarusteen tyyppi")}
+                    icon={ShieldCheck}
+                    value={subcategory}
+                    onChange={(value) => {
+                      setCategory("Ajovarusteet");
+                      setCategoryGroup(value);
+                      setSubcategory(value);
+                      setPublishError("");
+                    }}
+                    options={ridingGearCategories.map((value) => ({ value, label: value }))}
+                    placeholder={st("Valitse ajovarusteen tyyppi")}
+                  />
+                  <CategorySelect
+                    nativeSelectId="sell-special-gear-brand"
+                    label={st("Merkki *")}
+                    icon={Tags}
+                    value={ridingGearBrand}
+                    onChange={(value) => {
+                      setRidingGearBrand(value);
+                      if (value !== customRidingGearOption) setRidingGearCustomBrand("");
+                      setPublishError("");
+                    }}
+                    options={[
+                      ...ridingGearBrandOptions.map((value) => ({ value, label: value })),
+                      { value: customRidingGearOption, label: "Muu merkki" }
+                    ]}
+                    placeholder={st("Valitse merkki")}
+                  />
+                  <CategorySelect
+                    nativeSelectId="sell-special-gear-size"
+                    label={st("Koko *")}
+                    icon={Ruler}
+                    value={ridingGearSize}
+                    onChange={(value) => {
+                      setRidingGearSize(value);
+                      if (value !== customRidingGearOption) setRidingGearCustomSize("");
+                      setPublishError("");
+                    }}
+                    options={[
+                      ...ridingGearSizeOptions.map((value) => ({ value, label: value })),
+                      { value: customRidingGearOption, label: "Muu koko" }
+                    ]}
+                    placeholder={st("Valitse koko")}
+                  />
+                  <CategorySelect
+                    nativeSelectId="sell-special-gear-target"
+                    label={st("Kohderyhmä *")}
+                    icon={Users}
+                    value={ridingGearTarget}
+                    onChange={(value) => {
+                      setRidingGearTarget(value);
+                      setPublishError("");
+                    }}
+                    options={ridingGearTargetOptions.map((value) => ({ value, label: value }))}
+                    placeholder={st("Valitse kohderyhmä")}
+                  />
+                  {ridingGearBrand === customRidingGearOption ? (
+                    <DetailInput
+                      label={st("Kirjoita muu merkki *")}
+                      icon={Tags}
+                      placeholder={st("Esim. Sinisalo")}
+                      value={ridingGearCustomBrand}
+                      onChange={(value) => {
+                        setRidingGearCustomBrand(value);
+                        setPublishError("");
+                      }}
+                    />
+                  ) : null}
+                  {ridingGearSize === customRidingGearOption ? (
+                    <DetailInput
+                      label={st("Kirjoita muu koko *")}
+                      icon={Ruler}
+                      placeholder={st("Esim. 43–44 tai lasten 120 cm")}
+                      value={ridingGearCustomSize}
+                      onChange={(value) => {
+                        setRidingGearCustomSize(value);
+                        setPublishError("");
+                      }}
+                    />
+                  ) : null}
+                </div>
+              ) : (
+                <div className={styles.vehicleSaleStepCopy}>
+                  <strong>{st("Ei pakollista tarkkaa kategoriaa")}</strong>
+                  <p>{st("Voit ilmoittaa tässä sellaisen ajoneuvon osan tai tarvikkeen, jolle ei löydy sopivaa tarkkaa luokkaa.")}</p>
+                </div>
+              )}
+            </section>
+          </div>
+        );
+      }
       return (
         <div className={styles.vehicleWorkspace}>
-          <form className={styles.vehicleForm}>
-            <div className={styles.vehicleFormSectionHeading} aria-hidden="true">
-              <strong>{st("Perustiedot")}</strong>
-              <span />
+          {vehicleDetailsLocked ? (
+            <div className={styles.lockedVehicleNotice} role="status">
+              <LockKeyhole size={19} aria-hidden="true" />
+              <span>
+                <strong>{st("Ajoneuvotiedot on lukittu")}</strong>
+                <small>{st("Uusi osa lisätään samalle ajoneuvolle. Merkkiä, mallia ja muita yhteensopivuustietoja ei voi vaihtaa.")}</small>
+              </span>
             </div>
+          ) : null}
+          <form className={styles.vehicleForm}>
             <div
               ref={vehicleTypeMenuRef}
               className={`${styles.vehicleTypePicker} ${vehicleTypeMenuOpen ? styles.vehicleTypePickerOpen : ""}`}
@@ -5264,12 +6116,13 @@ function SellPageContent() {
                 id="sell-vehicle-type-native"
                 value={vehicleType.key}
                 label={st("Valitse ajoneuvoluokka")}
-                options={vehicleCards.map((vehicle) => ({
+                disabled={vehicleDetailsLocked}
+                options={sellVehicleCards.map((vehicle) => ({
                   value: vehicle.key,
                   label: st(vehicle.title)
                 }))}
                 onChange={(nextKey) => {
-                  const nextVehicle = vehicleCards.find((vehicle) => vehicle.key === nextKey);
+                  const nextVehicle = sellVehicleCards.find((vehicle) => vehicle.key === nextKey);
                   if (!nextVehicle) return;
                   flushSync(() => {
                     setVehicleType(nextVehicle);
@@ -5287,6 +6140,7 @@ function SellPageContent() {
               <button
                 type="button"
                 className={styles.vehicleTypeTrigger}
+                disabled={vehicleDetailsLocked}
                 onClick={() => {
                   setOpenVehiclePresetField(null);
                   setVehicleTypeMenuOpen((open) => !open);
@@ -5308,7 +6162,7 @@ function SellPageContent() {
                   aria-label={st("Valitse ajoneuvoluokka")}
                 >
                   <div className={styles.vehicleTypeGrid}>
-                    {vehicleCards.map((vehicle) => {
+                    {sellVehicleCards.map((vehicle) => {
                       const active = vehicle.key === vehicleType.key;
 
                       return (
@@ -5346,7 +6200,7 @@ function SellPageContent() {
               nextNativeFieldKey="brand"
               label={st("Tyyppi")}
               value={vehicleDetails.vehicleSubtype}
-              options={vehiclePreset.typeOptions}
+              options={sharedVehicleOptions.vehicleSubtypes}
               open={openVehiclePresetField === "vehicleSubtype"}
               onOpenChange={(open) => setVehiclePresetFieldOpen("vehicleSubtype", open)}
               onChange={(value) => updateVehicleDetail("vehicleSubtype", value)}
@@ -5359,6 +6213,7 @@ function SellPageContent() {
               placeholder={st("Valitse tyyppi")}
               customPlaceholder={st("Kirjoita tyyppi")}
               translateText={st}
+              disabled={vehicleDetailsLocked}
             />
             <PresetField
               fieldKey="brand"
@@ -5378,6 +6233,7 @@ function SellPageContent() {
               placeholder={st("Valitse merkki")}
               customPlaceholder={st("Kirjoita merkki")}
               translateText={st}
+              disabled={vehicleDetailsLocked}
             />
             <PresetField
               fieldKey="model"
@@ -5397,13 +6253,14 @@ function SellPageContent() {
               placeholder={st("Valitse malli")}
               customPlaceholder={st("Kirjoita malli")}
               translateText={st}
+              disabled={vehicleDetailsLocked}
             />
             <PresetField
               fieldKey="year"
               nextNativeFieldKey="engineCc"
               label={st("Vuosimalli")}
               value={vehicleDetails.year}
-              options={vehicleYearOptions}
+              options={sharedVehicleOptions.years}
               open={openVehiclePresetField === "year"}
               onOpenChange={(open) => setVehiclePresetFieldOpen("year", open)}
               onChange={(value) => updateVehicleDetail("year", value)}
@@ -5416,13 +6273,14 @@ function SellPageContent() {
               placeholder={st("Valitse vuosimalli")}
               customPlaceholder={st("Kirjoita vuosimalli")}
               translateText={st}
+              disabled={vehicleDetailsLocked}
             />
             <PresetField
               fieldKey="engineCc"
               nextNativeFieldKey={isVehicleSale ? undefined : "engineType"}
               label={st("Moottorin koko (cc)")}
               value={vehicleDetails.engineCc}
-              options={vehiclePreset.engineCcs}
+              options={sharedVehicleOptions.engineCcs}
               open={openVehiclePresetField === "engineCc"}
               onOpenChange={(open) => setVehiclePresetFieldOpen("engineCc", open)}
               onChange={(value) => updateVehicleDetail("engineCc", value)}
@@ -5435,6 +6293,7 @@ function SellPageContent() {
               placeholder={st("Valitse cc")}
               customPlaceholder={st("Kirjoita cc")}
               translateText={st}
+              disabled={vehicleDetailsLocked}
             />
             {!isVehicleSale ? (
               <PresetField
@@ -5454,14 +6313,11 @@ function SellPageContent() {
                 placeholder={st("Valitse moottorityyppi")}
                 customPlaceholder={st("Kirjoita moottori")}
                 translateText={st}
+                disabled={vehicleDetailsLocked}
               />
             ) : null}
             {isVehicleSale ? (
               <section className={styles.vehicleSaleMetrics} aria-label={st("Ajoneuvon ajomäärä ja rekisteritiedot")}>
-                <div className={styles.vehicleFormSectionHeading} aria-hidden="true">
-                  <strong>{st("Tiedot")}</strong>
-                  <span />
-                </div>
                 <DetailInput
                   label={st("Ajokilometrit (km)")}
                   icon={Gauge}
@@ -5590,12 +6446,14 @@ function SellPageContent() {
               </p>
               <div className={styles.productDetailsGrid}>
                 <DetailInput
-                  label={st("Hinta (€)")}
+                  label={`${st("Hinta")} (${listingCurrency})`}
                   icon={Euro}
+                  prefix={listingCurrency === "EUR" ? "€" : "kr"}
                   inputMode="numeric"
                   value={listingPrice}
                   onChange={(value) => setListingPrice(value.replace(/\D/g, ""))}
                 />
+                {renderCommerceInventoryInputs()}
                 <PlainIconInput
                   label={st("Sijainti")}
                   icon={MapPin}
@@ -5604,6 +6462,32 @@ function SellPageContent() {
                   onChange={updateListingLocation}
                   inputRef={listingLocationInputRef}
                 />
+              </div>
+              <div className={styles.vehicleTaxCard} aria-label={st("Ajoneuvon verotiedot")}>
+                <div>
+                  <strong>{st("Verotiedot")}</strong>
+                  <small>{st("Valinnat näkyvät ostajalle ilmoituksessa.")}</small>
+                </div>
+                <div className={styles.vehicleTaxOptions}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={vehicleVatDeductible}
+                      onChange={(event) => setVehicleVatDeductible(event.target.checked)}
+                    />
+                    <span aria-hidden="true"><Check size={15} /></span>
+                    <strong>{st("ALV-vähennyskelpoinen")}</strong>
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={vehicleTaxFree}
+                      onChange={(event) => setVehicleTaxFree(event.target.checked)}
+                    />
+                    <span aria-hidden="true"><Check size={15} /></span>
+                    <strong>{st("Verovapaa")}</strong>
+                  </label>
+                </div>
               </div>
             </section>
           </div>
@@ -5644,7 +6528,7 @@ function SellPageContent() {
                 </div>
 
                 <div className={styles.multiTreeTools}>
-                  <label className={styles.multiTreeSearch}>
+                  <label className={styles.multiTreeSearch} data-sell-control-shell="true">
                     <Search size={16} aria-hidden="true" />
                     <input
                       type="search"
@@ -5842,6 +6726,52 @@ function SellPageContent() {
         );
       }
 
+      if (specialListingKind) {
+        return (
+          <div className={styles.categoryStep}>
+            <section className={styles.categoryPanel} aria-label={st("Valittu tuoteryhmä")}>
+              <h2>{st("Valittu tuoteryhmä")}</h2>
+              <p className={styles.vehicleSaleStepCopy}>
+                <strong>{specialListingKind === "gear" ? `Ajovarusteet / ${subcategory}` : "Muut ajoneuvon osat"}</strong>
+              </p>
+            </section>
+            <section className={styles.productDetailsPanel} aria-label={st("Lisää tuotetiedot")}>
+              <h2>{st("Lisää tuotetiedot")}</h2>
+              <div className={styles.productDetailsGrid}>
+                <DetailInput
+                  label={st(specialListingKind === "gear" ? "Malli tai tuotenimi (vapaaehtoinen)" : "Osan nimi tai kuvaus")}
+                  icon={Tags}
+                  placeholder={st(specialListingKind === "gear" ? "Esim. Tech 7 Enduro" : "Esim. yleismallinen kiinnike")}
+                  value={partModel}
+                  onChange={setPartModel}
+                />
+                <DetailInput
+                  label={st("Varaosanumero / tuotenumero (vapaaehtoinen)")}
+                  icon={Barcode}
+                  placeholder={st("Lisää jos tiedossa")}
+                  value={partNumber}
+                  onChange={setPartNumber}
+                />
+              </div>
+            </section>
+            <section className={`${styles.productDetailsPanel} ${styles.priceInventoryPanel}`} aria-label={st("Hinta ja varasto")}>
+              <h2>{st("Hinta ja varasto")}</h2>
+              <div className={styles.productDetailsGrid}>
+                <DetailInput
+                  label={`Hinta (${listingCurrency})`}
+                  icon={Euro}
+                  prefix={listingCurrency === "EUR" ? "€" : "kr"}
+                  inputMode="numeric"
+                  value={listingPrice}
+                  onChange={(value) => setListingPrice(value.replace(/\D/g, ""))}
+                />
+                {renderCommerceInventoryInputs()}
+              </div>
+            </section>
+          </div>
+        );
+      }
+
       return (
         <div className={styles.categoryStep}>
           <section className={styles.categoryPanel} aria-label={st("Kategorisoi tuote")}>
@@ -5923,7 +6853,8 @@ function SellPageContent() {
                   icon={Ruler}
                   value={trackMatDetails}
                   onChange={setTrackMatDetails}
-                  placeholder="Kirjoita muu mitta esim. 360 cm x 38 cm x 7,3 cm"
+                  placeholder={st("Kirjoita muu mitta esim. 360 cm x 38 cm x 7,3 cm")}
+                  translateText={st}
                 />
               ) : null}
               <DetailInput
@@ -5933,21 +6864,31 @@ function SellPageContent() {
                 value={partNumber}
                 onChange={setPartNumber}
               />
+            </div>
+          </section>
+
+          <section className={`${styles.productDetailsPanel} ${styles.priceInventoryPanel}`} aria-label={st("Hinta ja varasto")}>
+            <h2>{st("Hinta ja varasto")}</h2>
+            <div className={styles.productDetailsGrid}>
               <DetailInput
-                label={st("Hinta (€)")}
+                label={`${st("Hinta")} (${listingCurrency})`}
                 icon={Euro}
+                prefix={listingCurrency === "EUR" ? "€" : "kr"}
                 inputMode="numeric"
                 value={listingPrice}
                 onChange={(value) => setListingPrice(value.replace(/\D/g, ""))}
               />
+              {renderCommerceInventoryInputs()}
               {singlePriceSuggestion ? (
                 <PriceSuggestionCard
                   suggestion={singlePriceSuggestion}
-                  onApply={() => setListingPrice(String(singlePriceSuggestion.avg))}
+                  currency={listingCurrency}
+                  translateText={st}
+                  onApply={() => setListingPrice(String(Math.round(fromEur(singlePriceSuggestion.avg, listingCurrency))))}
                 />
               ) : singlePriceSuggestionLoading ? (
                 <div className={styles.priceSuggestionCard}>
-                  <span>Haetaan hintaehdotusta...</span>
+                  <span>{st("Haetaan hintaehdotusta...")}</span>
                 </div>
               ) : null}
             </div>
@@ -5958,7 +6899,11 @@ function SellPageContent() {
     }
 
     if (mode === "multiple" && currentStep === 4) {
-      return renderActiveMultiListingPart();
+      return (
+        <div className={styles.listingStack}>
+          {renderActiveMultiListingPart()}
+        </div>
+      );
 
       return (
         <div className={styles.listingStack}>
@@ -6002,27 +6947,24 @@ function SellPageContent() {
                               </span>
                               <input
                                 inputMode="numeric"
-                                placeholder="Hinta"
+                                placeholder={`Hinta (${listingCurrency})`}
                                 value={part.price}
                                 onChange={(event) => updateMultiPartPrice(part.id, event.target.value)}
-                                aria-label="Hinta"
+                                aria-label={`Hinta (${listingCurrency})`}
                               />
                               <select
                                 value={part.condition}
                                 onChange={(event) => updateMultiPartField(part.id, "condition", event.target.value)}
-                                aria-label="Kunto"
+                                aria-label={st("Kunto")}
                                 >
-                                  <option value="">Kuntoluokitus</option>
-                                  <option>Uusi</option>
-                                  <option>Hyvä</option>
-                                <option>Käytetty</option>
-                                <option>Korjattava</option>
+                                  <option value="">{st("Kuntoluokitus")}</option>
+                                  {conditionOptions.map((option) => <option key={option.value} value={option.value}>{st(option.label)}</option>)}
                               </select>
                             </summary>
 
                             <div className={styles.multiListingDetails}>
                               <label>
-                                <span>Otsikko</span>
+                                <span>{st("Otsikko")}</span>
                                 <input
                                   value={part.title}
                                   onChange={(event) => updateMultiPartField(part.id, "title", event.target.value)}
@@ -6033,19 +6975,19 @@ function SellPageContent() {
                                 </small>
                               </label>
                               <label>
-                                <span>Osanumero / OEM</span>
+                                <span>{st("Osanumero / OEM")}</span>
                                 <input
                                   value={part.partNumber}
                                   onChange={(event) => updateMultiPartField(part.id, "partNumber", event.target.value)}
-                                  placeholder="Kirjoita osanumero"
+                                  placeholder={st("Kirjoita osanumero")}
                                 />
                               </label>
                               <label className={styles.multiListingWideField}>
-                                <span>Lisätiedot</span>
+                                <span>{st("Lisätiedot")}</span>
                                 <textarea
                                   value={part.description}
                                   onChange={(event) => updateMultiPartField(part.id, "description", event.target.value)}
-                                  placeholder="Kirjoita lisätiedot, viat, sopivuus tai muut huomiot"
+                                  placeholder={st("Kirjoita lisätiedot, viat, sopivuus tai muut huomiot")}
                                 />
                               </label>
 
@@ -6108,8 +7050,8 @@ function SellPageContent() {
             })
           ) : (
             <div className={styles.multiListingEmpty}>
-              <strong>Ei valittuja osia</strong>
-              <span>Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.</span>
+              <strong>{st("Ei valittuja osia")}</strong>
+              <span>{st("Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.")}</span>
             </div>
           )}
         </div>
@@ -6121,26 +7063,23 @@ function SellPageContent() {
             selectedMultiPartList.map((part, index) => (
               <div className={styles.multiListingRow} key={part.id}>
                 <strong>Ilmoitus {index + 1}</strong>
-                <input defaultValue={part.detail} placeholder="Otsikko" />
+                <input defaultValue={part.detail} placeholder={st("Otsikko")} />
                 <input
                   inputMode="numeric"
-                  placeholder="Hinta (€)"
+                  placeholder={`Hinta (${listingCurrency})`}
                   value={part.price}
                   onChange={(event) => updateMultiPartPrice(part.id, event.target.value)}
                 />
                 <select defaultValue="">
-                  <option value="">Kuntoluokitus</option>
-                  <option>Uusi</option>
-                  <option>Hyvä</option>
-                  <option>Käytetty</option>
-                  <option>Korjattava</option>
+                  <option value="">{st("Kuntoluokitus")}</option>
+                  {conditionOptions.map((option) => <option key={option.value} value={option.value}>{st(option.label)}</option>)}
                 </select>
               </div>
             ))
           ) : (
             <div className={styles.multiListingEmpty}>
-              <strong>Ei valittuja osia</strong>
-              <span>Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.</span>
+              <strong>{st("Ei valittuja osia")}</strong>
+              <span>{st("Palaa kategoriaan ja valitse myytävät osat tai koko ajoneuvo.")}</span>
             </div>
           )}
         </div>
@@ -6153,37 +7092,40 @@ function SellPageContent() {
 
     if (!isVehicleSale && mode === "single" && currentStep === 4) {
       return (
-        <div className={styles.conditionStep}>
-          <section className={styles.conditionPanel} aria-label={st("Kunto ja sijainti")}>
-            <h2>{st("Kunto")}</h2>
-            <div className={styles.conditionGrid}>
-              <ConditionSelect
-                label={st("Kunto")}
-                value={condition}
-                onChange={(value) => {
-                  setCondition(value);
-                  window.setTimeout(() => listingLocationInputRef.current?.focus(), 60);
-                }}
-                translateText={st}
-              />
-              <PlainIconInput
-                label="Sijainti"
-                icon={MapPin}
-                placeholder={profileCity || "Kaupunki tai paikkakunta"}
-                value={listingLocation}
-                onChange={updateListingLocation}
-                inputRef={listingLocationInputRef}
-              />
-              {renderDeliveryMethodSelector()}
-            </div>
-          </section>
+        <div className={styles.listingStack}>
+          <div className={styles.conditionStep}>
+            <section className={styles.conditionPanel} aria-label={st("Kunto ja sijainti")}>
+              <h2>{st("Kunto")}</h2>
+              <div className={styles.conditionGrid}>
+                <ConditionSelect
+                  label={st("Kunto")}
+                  value={condition}
+                  onChange={(value) => {
+                    setCondition(value);
+                    window.setTimeout(() => listingLocationInputRef.current?.focus(), 60);
+                  }}
+                  translateText={st}
+                />
+                <PlainIconInput
+                  label={st("Sijainti")}
+                  icon={MapPin}
+                  placeholder={profileCity || "Kaupunki tai paikkakunta"}
+                  value={listingLocation}
+                  onChange={updateListingLocation}
+                  inputRef={listingLocationInputRef}
+                />
+                {renderDeliveryMethodSelector()}
+              </div>
+            </section>
 
-          <aside className={styles.conditionTip}>
-            <div>
-              <strong>{st("Ole rehellinen ja tarkka")}</strong>
-              <p>{st("Tarkat tiedot rakentavat luottamusta ja auttavat myymään nopeammin.")}</p>
-            </div>
-          </aside>
+            <aside className={styles.conditionTip}>
+              <div>
+                <strong>{st("Ole rehellinen ja tarkka")}</strong>
+                <p>{st("Tarkat tiedot rakentavat luottamusta ja auttavat myymään nopeammin.")}</p>
+              </div>
+            </aside>
+          </div>
+          {renderCommerceDeliveryDetails()}
         </div>
       );
     }
@@ -6218,7 +7160,7 @@ function SellPageContent() {
           </label>
 
           {uploadedImages.length > 0 ? (
-            <div className={styles.photoPreviewGrid} aria-label="Lisätyt kuvat">
+            <div className={styles.photoPreviewGrid} aria-label={st("Lisätyt kuvat")}>
               {uploadedImages.map((image) => (
                 <button
                   key={image.id}
@@ -6325,7 +7267,7 @@ function SellPageContent() {
                 <span><Check size={18} aria-hidden="true" /> {st("Kerro t\u00e4rkeimm\u00e4t ominaisuudet")}</span>
                 <span><Check size={18} aria-hidden="true" /> {st("Mainitse kunto")}</span>
                 {selectedSinglePartNeedsTrackMatDimensions ? (
-                  <span><Check size={18} aria-hidden="true" /> Kirjoita telamaton mitat</span>
+                  <span><Check size={18} aria-hidden="true" /> {st("Kirjoita telamaton mitat")}</span>
                 ) : null}
                 <span><Check size={18} aria-hidden="true" /> {st("Lis\u00e4\u00e4 sopivuustiedot")}</span>
                 <span><Check size={18} aria-hidden="true" /> {st("Ole rehellinen ja tarkka")}</span>
@@ -6349,6 +7291,10 @@ function SellPageContent() {
     ]).join(" / ");
     const categorySummary = isVehicleSale
       ? [VEHICLE_LISTING_CATEGORY, vehicleType.title].filter(Boolean).join(" / ")
+      : specialListingKind === "gear"
+        ? ["Ajovarusteet", subcategory].filter(Boolean).join(" / ")
+        : specialListingKind === "other-parts"
+          ? "Muut ajoneuvon osat"
       : uniqueOptions([
           selectedCategory,
           selectedCategoryGroup,
@@ -6363,19 +7309,26 @@ function SellPageContent() {
             ? st("Yksitt\u00e4inen ilmoitus")
             : st("Useampi ilmoitus")
       },
-      { label: st("Hinta"), value: listingPrice.trim() ? `${listingPrice.trim()} ${st("euroa")}` : st("Ei lisatty") },
+      { label: st("Hinta"), value: listingPrice.trim() ? `${listingPrice.trim()} ${listingCurrency}` : st("Ei lisatty") },
       ...(!isVehicleSale
         ? [{ label: st("Kunto"), value: condition ? st(condition) : st("Ei lisatty") }]
         : []),
       { label: st("Kuvat"), value: `${uploadedImages.length} ${st("kpl")}` },
       ...(isCompanyAccount
-        ? [{ label: st("Myyj\u00e4"), value: selectedCompanySeller?.name ?? st("Valitsematta") }]
+        ? [{ label: "Myyntitapa", value: commerceSettings.enabled ? "Suora maksu" : "Yhteydenotto" }]
         : [])
     ];
     const publishRows = [
       { label: st("Ajoneuvo"), value: vehicleSummary || st("Ei lisatty") },
       { label: st("Tekniikka"), value: technicalSummary || st("Ei lisatty") },
       { label: st("Kategoria"), value: categorySummary || st("Ei lisatty") },
+      ...(specialListingKind === "gear"
+        ? [
+            { label: "Merkki", value: resolvedRidingGearBrand || st("Ei lisatty") },
+            { label: "Koko", value: resolvedRidingGearSize || st("Ei lisatty") },
+            { label: "Kohderyhmä", value: ridingGearTarget || st("Ei lisatty") }
+          ]
+        : []),
       ...(isVehicleSale
         ? [
             { label: st("Ajokilometrit"), value: vehicleMileage.trim() ? `${vehicleMileage.trim()} km` : st("Ei lisatty") },
@@ -6384,6 +7337,13 @@ function SellPageContent() {
             { label: st("Moottorin tyyppi"), value: vehicleEngineKind ? st(vehicleEngineKind) : st("Ei lisatty") },
             { label: st("Vetotapa"), value: vehicleDriveType ? st(vehicleDriveType) : st("Ei lisatty") },
             { label: st("Tieliikennekelpoisuus"), value: vehicleRoadLegal ? st(vehicleRoadLegal) : st("Ei lisatty") },
+            {
+              label: st("Verotus"),
+              value: [
+                vehicleVatDeductible ? st("ALV-vähennyskelpoinen") : "",
+                vehicleTaxFree ? "Tax free" : ""
+              ].filter(Boolean).join(" · ") || st("Normaali")
+            },
             {
               label: st("Lisävarusteet"),
               value: vehicleAccessories.length > 0
@@ -6412,6 +7372,14 @@ function SellPageContent() {
           ]
         : [])
     ];
+    const publishPreviewImage = mode === "multiple"
+      ? selectedMultiPartList.find((part) => part.images.length > 0)?.images[0]
+      : uploadedImages[0];
+    const publishPreviewTitle = mode === "multiple"
+      ? `${selectedMultiPartList.length} ${st(selectedMultiPartList.length === 1 ? "ilmoitus" : "ilmoitusta")}`
+      : isVehicleSale
+        ? getTranslatedAutomaticListingTitle()
+        : listingTitle.trim() || getTranslatedAutomaticListingTitle();
 
     return (
       <div className={styles.publishPanel}>
@@ -6425,34 +7393,27 @@ function SellPageContent() {
           </div>
         </div>
 
-        {isCompanyAccount ? (
-          <section className={styles.companySellerPanel} aria-label={st("Ilmoituksen myyjä")}>
-            <div>
-              <strong>{st("Ilmoituksen myyjä")}</strong>
-              <p>{st("Voit valita erillisen myyjän. Jos et valitse, ilmoitus julkaistaan yrityksen tiedoilla.")}</p>
-            </div>
-            {companySellers.length > 0 ? (
-              <label className={styles.companySellerSelect}>
-                <span>{st("Myyjä")}</span>
-                <select
-                  value={selectedCompanySellerId}
-                  onChange={(event) => setSelectedCompanySellerId(event.target.value)}
-                >
-                  <option value="">{st("Yrityksen tiedot")}</option>
-                  {companySellers.map((seller) => (
-                    <option key={seller.id} value={seller.id}>
-                      {seller.name} - {seller.phone}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : (
-              <div className={styles.companySellerMissing}>
-                {st("Erillisiä myyjiä ei ole lisätty. Ilmoitus julkaistaan yrityksen tiedoilla.")}
-              </div>
-            )}
-          </section>
-        ) : null}
+        <section className={styles.publishListingPreview} aria-label={st("Julkaistavan ilmoituksen esikatselu")}>
+          <div className={styles.publishListingPreviewImage}>
+            {publishPreviewImage ? <img src={publishPreviewImage.url} alt="" /> : <Camera size={44} aria-hidden="true" />}
+          </div>
+          <div>
+            <span>{st("Ilmoitus")}</span>
+            <h2>{publishPreviewTitle || st("Nimetön ilmoitus")}</h2>
+            <p>{vehicleSummary || categorySummary || st("Tiedot tarkistetaan ennen julkaisua")}</p>
+          </div>
+          <div>
+            <span>{st("Hinta")}</span>
+            <strong>
+              {mode === "multiple"
+                ? `${selectedMultiPartList.filter((part) => part.price.trim()).length}/${selectedMultiPartList.length} ${st("hinnoiteltu")}`
+                : listingPrice.trim()
+                  ? `${listingPrice.trim()} ${listingCurrency}`
+                  : st("Ei asetettu")}
+            </strong>
+            <small>{uploadedImages.length} {st("kuvaa")}</small>
+          </div>
+        </section>
 
         <div className={styles.publishStats} aria-label={st("Ilmoituksen pikatiedot")}>
           {publishStats.map((item) => (
@@ -6490,65 +7451,190 @@ function SellPageContent() {
     );
   }
 
+  function getWizardListingTypeLabel() {
+    if (isVehicleSale) return st("Kokonainen ajoneuvo");
+    if (specialListingKind === "gear") return st("Ajovaruste");
+    if (specialListingKind === "other-parts") return st("Muu ajoneuvon osa");
+    if (mode === "multiple") return st("Useampi osa samasta ajoneuvosta");
+    return st("Yksittäinen varaosa");
+  }
+
+  function renderWizardSummary() {
+    const vehicleSummary = [vehicleDetails.brand, vehicleDetails.model, vehicleDetails.year]
+      .filter(Boolean)
+      .join(" ") || vehicleType.title || st("Ei valittu");
+    const categorySummary = mode === "multiple"
+      ? selectedMultiPartList.length > 0
+        ? `${selectedMultiPartList.length} ${st(selectedMultiPartList.length === 1 ? "osa" : "osaa")}`
+        : st("Ei valittuja osia")
+      : [category, categoryGroup, subcategory]
+          .filter(Boolean)
+          .map(translateCategoryText)
+          .join(" / ") || st("Ei valittu");
+    const multiImageCount = selectedMultiPartList.reduce((total, part) => total + part.images.length, 0);
+    const imageCount = mode === "multiple" ? multiImageCount : uploadedImages.length;
+    const pricedMultiParts = selectedMultiPartList.filter((part) => part.price.trim()).length;
+    const priceSummary = mode === "multiple"
+      ? `${pricedMultiParts}/${selectedMultiPartList.length} ${st("hinnoiteltu")}`
+      : listingPrice.trim()
+        ? `${listingPrice.trim()} ${listingCurrency}`
+        : st("Ei asetettu");
+    const progress = Math.round((currentStep / steps.length) * 100);
+    const detailsPreviewStep = mode === "single" && currentStep === (isVehicleSale ? 5 : 6);
+    const previewTitle = isVehicleSale
+      ? getTranslatedAutomaticListingTitle()
+      : listingTitle.trim() || getTranslatedAutomaticListingTitle() || st("Otsikkosi näkyy tässä");
+    const summaryItems: Array<{ label: string; value: string; icon: LucideIcon }> = currentStep === 1
+      ? [
+          { label: st("Myyntitapa"), value: commerceSettings.enabled ? st("Maksa verkossa") : st("Yhteydenotto"), icon: CreditCard },
+          { label: st("Tyyppi"), value: getWizardListingTypeLabel(), icon: Tags }
+        ]
+      : [
+          { label: st("Tyyppi"), value: getWizardListingTypeLabel(), icon: Tags },
+          ...(!specialListingKind
+            ? [
+                { label: st("Ajoneuvo"), value: vehicleSummary, icon: Gauge },
+                ...(vehicleDetails.year ? [{ label: st("Vuosimalli"), value: vehicleDetails.year, icon: Clock3 }] : [])
+              ]
+            : []),
+          ...(currentStep >= 3
+            ? [
+                { label: mode === "multiple" ? st("Myytävät osat") : st("Tuotteen kategoria"), value: categorySummary, icon: Tags },
+                { label: st("Hinta"), value: priceSummary, icon: Euro },
+                ...(commerceSettings.enabled
+                  ? [{ label: st("Määrä"), value: `${commerceSettings.stockQuantity} ${st("kpl")}`, icon: PackagePlus }]
+                  : [])
+              ]
+            : []),
+          ...(currentStep >= 4 && mode === "single"
+            ? [
+                ...(!isVehicleSale ? [{ label: st("Kunto"), value: condition ? st(condition) : st("Ei asetettu"), icon: ShieldCheck }] : []),
+                { label: st("Sijainti"), value: listingLocation.trim() || profileCity || st("Ei asetettu"), icon: MapPin },
+                ...(!isVehicleSale ? [{ label: st("Toimitus"), value: st(getDeliveryMethodLabel()), icon: Truck }] : [])
+              ]
+            : []),
+          ...(currentStep >= (isVehicleSale ? 4 : 5) && mode === "single"
+            ? [{ label: st("Kuvat"), value: `${imageCount} ${st(imageCount === 1 ? "kuva" : "kuvaa")}`, icon: Camera }]
+            : [])
+        ];
+
+    return (
+      <aside
+        className={styles.wizardSummary}
+        data-current-step={currentStep}
+        aria-label={st("Ilmoituksen yhteenveto")}
+      >
+        <div className={styles.wizardSummaryHeading}>
+          <div>
+            <strong>{isLastStep ? st("Julkaisun yhteenveto") : st("Ilmoituksen yhteenveto")}</strong>
+            <span>{st("Vaihe")} {currentStep} / {steps.length}</span>
+          </div>
+          <em>{currentStep}/{steps.length}</em>
+        </div>
+
+        <div className={styles.wizardSummaryProgress} aria-label={`${progress} %`}>
+          <i style={{ ["--summary-progress" as string]: `${progress}%` }} />
+        </div>
+
+        {detailsPreviewStep ? (
+          <section className={styles.wizardListingPreview} aria-label={st("Esikatselu")}>
+            <strong>{st("Esikatselu")}</strong>
+            <div className={styles.wizardListingPreviewImage}>
+              {uploadedImages[0] ? <img src={uploadedImages[0].url} alt="" /> : <Camera size={42} aria-hidden="true" />}
+            </div>
+            <small>{vehicleType.title || st("Ilmoitus")}</small>
+            <h2>{previewTitle}</h2>
+            <b>{listingPrice.trim() ? `${listingPrice.trim()} ${listingCurrency}` : st("Hinta ei asetettu")}</b>
+          </section>
+        ) : null}
+
+        <dl className={styles.wizardSummaryList}>
+          {summaryItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={`${item.label}-${item.value}`}>
+                <span className={styles.wizardSummaryItemIcon} aria-hidden="true"><Icon size={20} /></span>
+                <div>
+                  <dt>{item.label}</dt>
+                  <dd>{item.value}</dd>
+                </div>
+              </div>
+            );
+          })}
+        </dl>
+
+        {mode === "multiple" ? (
+          <section className={styles.wizardMultiSummary} aria-label={st("Moniosailmoituksen tila")}>
+            <div>
+              <Layers3 size={20} aria-hidden="true" />
+              <span><strong>{selectedMultiPartGroups.length}</strong><small>{st("osaryhmää")}</small></span>
+            </div>
+            <div>
+              <Check size={20} aria-hidden="true" />
+              <span><strong>{pricedMultiParts}/{selectedMultiPartList.length}</strong><small>{st("hinnat valmiina")}</small></span>
+            </div>
+          </section>
+        ) : null}
+
+        {isLastStep ? (
+          <div className={styles.wizardReadyNotice}>
+            <ShieldCheck size={20} aria-hidden="true" />
+            <span><strong>{st("Valmis tarkistettavaksi")}</strong><small>{st("Varmista tiedot ennen julkaisua.")}</small></span>
+          </div>
+        ) : (
+          <p className={styles.wizardSummaryHint}>{st("Yhteenveto päivittyy automaattisesti täyttäessäsi tietoja.")}</p>
+        )}
+      </aside>
+    );
+  }
+
   if (!listingAccessChecked) {
     return <PageLoadingFallback />;
   }
 
   return (
-    <main className={`${styles.page} sell-page-responsive`} aria-label={st("Luo myynti-ilmoitus")}>
+    <main id="sell-page" className={`${styles.page} sell-page-responsive`} aria-label={st("Luo myynti-ilmoitus")}>
       <section className={styles.shell} ref={shellRef}>
-        <aside className={`${styles.stepper} ${styles.stepperCompact}`} aria-label="Ilmoituksen vaiheet">
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            const active = step.number === currentStep;
-            const completed = step.number < currentStep;
-            const canNavigate = true;
+        <header className={styles.wizardTop}>
+          <div className={styles.wizardTitleRow}>
+            <div>
+              <strong>{st("Uusi ilmoitus")}</strong>
+            </div>
+            <button type="button" className={styles.wizardResetButton} onClick={() => setShowResetConfirm(true)}>
+              <X size={16} aria-hidden="true" />
+              <span>{st("Nollaa luonnos")}</span>
+            </button>
+          </div>
 
-            return (
-              <div
-                key={step.number}
-                className={`${styles.step} ${active ? styles.stepActive : ""} ${completed ? styles.stepCompleted : ""}`}
-              >
-                <button
-                  type="button"
-                  className={styles.stepNumber}
-                  onClick={() => {
-                    if (canNavigate) setCurrentStep(step.number);
-                  }}
-                  disabled={!canNavigate}
-                  aria-label={`Siirry vaiheeseen ${step.number}: ${step.title}`}
-                >
-                  {step.number}
-                </button>
-                {index < steps.length - 1 ? <span className={styles.stepConnector} aria-hidden="true" /> : null}
-                <button
-                  type="button"
-                  className={styles.stepBody}
-                  onClick={() => {
-                    if (canNavigate) setCurrentStep(step.number);
-                  }}
-                  disabled={!canNavigate}
-                >
-                  <Icon size={22} aria-hidden="true" />
-                  <strong>{st(step.title)}</strong>
-                  <small>{st(step.description)}</small>
-                </button>
-              </div>
-            );
-          })}
-          <button
-            type="button"
-            className={styles.resetDraftButton}
-            onClick={() => setShowResetConfirm(true)}
+          <nav
+            className={styles.wizardDesktopSteps}
+            data-step-count={steps.length}
+            aria-label={st("Ilmoituksen vaiheet")}
           >
-            <X size={15} aria-hidden="true" />
-            <span>{st("Nollaa")}</span>
-          </button>
-        </aside>
+            {steps.map((step) => {
+              const active = step.number === currentStep;
+              const completed = step.number < currentStep;
+              return (
+                <button
+                  key={step.number}
+                  type="button"
+                  className={`${active ? styles.wizardDesktopStepActive : ""} ${completed ? styles.wizardDesktopStepCompleted : ""}`}
+                  onClick={() => setCurrentStep(step.number)}
+                  aria-current={active ? "step" : undefined}
+                  aria-label={`${st("Siirry vaiheeseen")} ${step.number}: ${st(step.title)}`}
+                >
+                  <span>{completed ? <Check size={17} aria-hidden="true" /> : step.number}</span>
+                  <div><strong>{st(step.title)}</strong><small>{st(step.description)}</small></div>
+                  <em>{completed ? st("Valmis") : `${step.number}`}</em>
+                </button>
+              );
+            })}
+          </nav>
+        </header>
 
         <nav
           className={styles.mobileSteps}
-          aria-label="Ilmoituksen vaiheet"
+          aria-label={st("Ilmoituksen vaiheet")}
         >
           <div className={styles.mobileStepSummary}>
             <span>{currentStepInfo.number}</span>
@@ -6593,18 +7679,87 @@ function SellPageContent() {
           </div>
         </nav>
 
+        <div className={styles.wizardWorkspace}>
+          <div className={styles.wizardMain}>
         {currentStep === 1 ? (
           <section className={styles.content}>
             <header className={styles.header}>
-              <h1>{st("Luo myynti-ilmoitus")}</h1>
-              <h2>{st("Valitse ilmoitustyyppi")}</h2>
-              <p>{st("Valitse, haluatko listata useita osia samasta ajoneuvosta, yksittäisen osan vai kokonaisen ajoneuvon.")}</p>
+              <h1>{getWizardStepTitle()}</h1>
+              <p>{getWizardStepLead()}</p>
             </header>
 
+            {commerceEligible ? (
+              <div className={styles.verifiedCompanySellNotice}>
+                <div className={styles.saleMethodLabel}>
+                  <span>
+                    <strong>{st("Myyntitapa")}</strong>
+                    <Info size={16} aria-hidden="true" />
+                  </span>
+                  <small>{st("Valinta koskee kaikkia tämän julkaisun ilmoituksia.")}</small>
+                </div>
+                <div className={styles.companySaleMethod} role="group" aria-label={st("Yrityksen myyntitapa")}>
+                  <button
+                    type="button"
+                    data-active={!commerceSettings.enabled}
+                    aria-pressed={!commerceSettings.enabled}
+                    onClick={() => setCommerceSettings((current) => ({ ...current, enabled: false }))}
+                  >
+                    <span className={styles.saleMethodIcon} aria-hidden="true"><MessageCircle size={24} /></span>
+                    <span className={styles.saleMethodCopy}>
+                      <strong>{st("Yhteydenotto")}</strong>
+                      <small>{st("Ostaja ottaa sinuun yhteyttä")}</small>
+                    </span>
+                    {!commerceSettings.enabled ? <span className={styles.saleMethodCheck} aria-hidden="true"><Check size={18} /></span> : null}
+                  </button>
+                  <button
+                    type="button"
+                    data-active={commerceSettings.enabled}
+                    data-disabled={!directPaymentReady}
+                    aria-pressed={commerceSettings.enabled}
+                    aria-disabled={!directPaymentReady}
+                    disabled={!directPaymentReady}
+                    title={!directPaymentReady ? st("Suoramaksu avautuu, kun yrityksen palautus- ja toimitustiedot on täytetty.") : undefined}
+                    onClick={() => {
+                      if (!directPaymentReady) return;
+                      if (commercePickupReady && !commerceShippingReady) setDeliveryMethod("pickup");
+                      if (!commercePickupReady && commerceShippingReady) setDeliveryMethod("shipping");
+                      setCommerceSettings((current) => ({
+                        ...current,
+                        enabled: true,
+                        shippingPriceFi: current.shippingPriceFi || (commerceCompany?.default_shipping_price_fi_cents == null ? "" : String(commerceCompany.default_shipping_price_fi_cents / 100)),
+                        shippingPriceSe: current.shippingPriceSe || (commerceCompany?.default_shipping_price_se_cents == null ? "" : String(commerceCompany.default_shipping_price_se_cents / 100)),
+                        shippingPriceNo: current.shippingPriceNo || (commerceCompany?.default_shipping_price_no_cents == null ? "" : String(commerceCompany.default_shipping_price_no_cents / 100))
+                      }));
+                    }}
+                  >
+                    <span className={styles.saleMethodIcon} aria-hidden="true"><CreditCard size={24} /></span>
+                    <span className={styles.saleMethodCopy}>
+                      <strong>{st("Maksa verkossa")}</strong>
+                      <small>{directPaymentReady ? st("Ostaja maksaa turvallisesti verkossa") : st("Täydennä suoramaksun tiedot")}</small>
+                    </span>
+                    {commerceSettings.enabled ? <span className={styles.saleMethodCheck} aria-hidden="true"><Check size={18} /></span> : null}
+                  </button>
+                </div>
+                {!directPaymentReady ? (
+                  <div className={styles.directPaymentSetupNotice}>
+                    <span>{st("Suoramaksu avautuu, kun yrityksen palautus- ja toimitustiedot on täytetty.")}</span>
+                    <button type="button" onClick={() => router.push("/yritys?tab=returns")}>
+                      {st("Täydennä suoramaksun tiedot")}
+                      <ArrowRight size={15} aria-hidden="true" />
+                    </button>
+                  </div>
+                ) : null}
+                {commerceSettings.enabled ? (
+                  <MarketplaceResponsibilityNotice audience="seller" compact />
+                ) : null}
+              </div>
+            ) : null}
+
             <div className={styles.modeGrid} role="radiogroup" aria-label={st("Ilmoitustyyppi")}>
+              <h2 className={styles.modeGridHeading}>{st("Valitse ilmoitustyyppi")}</h2>
               {modeCards.map((card) => {
                 const Icon = card.icon;
-                const active = !isVehicleSale && mode === card.value;
+                const active = !isVehicleSale && !specialListingKind && mode === card.value;
 
                 return (
                   <button
@@ -6630,6 +7785,7 @@ function SellPageContent() {
                         <span key={line}>{st(line)}</span>
                       ))}
                     </span>
+                    {renderListingSaleMode()}
                   </button>
                 );
               })}
@@ -6648,26 +7804,56 @@ function SellPageContent() {
                 <span className={styles.modeIcon} aria-hidden="true">
                   <Gauge size={50} strokeWidth={1.9} />
                 </span>
-                <strong>Myyn kokonaisen ajoneuvon</strong>
+                <strong>{st("Myyn kokonaisen ajoneuvon")}</strong>
                 <i aria-hidden="true" />
                 <span className={styles.modeCopy}>
-                  <span>Yksi ajoneuvo julkaistaan yhtenä ilmoituksena.</span>
-                  <span>Ei varaosakategorioita eikä multi-ilmoitusta.</span>
+                  <span>{st("Yksi ajoneuvo julkaistaan yhtenä ilmoituksena.")}</span>
+                  <span>{st("Ei varaosakategorioita eikä multi-ilmoitusta.")}</span>
                 </span>
+                {renderListingSaleMode()}
+              </button>
+              <button
+                type="button"
+                className={`${styles.modeCard} ${specialListingKind === "gear" ? styles.modeCardSelected : ""}`}
+                role="radio"
+                aria-checked={specialListingKind === "gear"}
+                onClick={() => chooseSpecialListingMode("gear")}
+              >
+                {specialListingKind === "gear" ? <span className={styles.modeCheck} aria-hidden="true"><Check size={24} /></span> : null}
+                <span className={styles.modeIcon} aria-hidden="true"><ShieldCheck size={50} strokeWidth={1.9} /></span>
+                <strong>{st("Myyn ajovarusteita")}</strong>
+                <i aria-hidden="true" />
+                <span className={styles.modeCopy}>
+                  <span>{st("Kypärät, ajopuvut, saappaat, hanskat ja suojat.")}</span>
+                  <span>{st("Ajovarusteille omat tyypit ja tuotetiedot.")}</span>
+                </span>
+                {renderListingSaleMode()}
+              </button>
+              <button
+                type="button"
+                className={`${styles.modeCard} ${specialListingKind === "other-parts" ? styles.modeCardSelected : ""}`}
+                role="radio"
+                aria-checked={specialListingKind === "other-parts"}
+                onClick={() => chooseSpecialListingMode("other-parts")}
+              >
+                {specialListingKind === "other-parts" ? <span className={styles.modeCheck} aria-hidden="true"><Check size={24} /></span> : null}
+                <span className={styles.modeIcon} aria-hidden="true"><PackagePlus size={50} strokeWidth={1.9} /></span>
+                <strong>{st("Muut ajoneuvon osat")}</strong>
+                <i aria-hidden="true" />
+                <span className={styles.modeCopy}>
+                  <span>{st("Osat ja tarvikkeet ilman sopivaa tarkkaa luokkaa.")}</span>
+                  <span>{st("Kirjoita tuotteen nimi ja tiedot vapaasti.")}</span>
+                </span>
+                {renderListingSaleMode()}
               </button>
             </div>
-
-            <button type="button" className={styles.continueButton} onClick={continueToNextStep}>
-              <span>{st("Jatka")}</span>
-              <ArrowRight size={30} aria-hidden="true" />
-            </button>
 
           </section>
         ) : (
           <section className={styles.vehicleContent} ref={vehicleContentRef}>
             <header className={styles.vehicleHeader}>
-              <h1><span>{currentStepInfo.number}.</span> {st(currentStepInfo.title)}</h1>
-              <p>{getStepLead()}</p>
+              <h1>{getWizardStepTitle()}</h1>
+              <p>{getWizardStepLead()}</p>
             </header>
 
             {renderCurrentStep()}
@@ -6678,23 +7864,30 @@ function SellPageContent() {
               </div>
             ) : null}
 
-            <div className={styles.vehicleActions}>
-              <button type="button" className={styles.backButton} onClick={goToPreviousStep}>
-                <ArrowLeft size={22} aria-hidden="true" />
-                <span>{st("Edellinen")}</span>
-              </button>
-              <button
-                type="button"
-                className={`${styles.nextButton} ${isLastStep ? styles.publishButton : ""}`}
-                onClick={handlePrimaryAction}
-                disabled={isPublishing}
-              >
-                <span>{getPrimaryActionLabel()}</span>
-                <ArrowRight size={22} aria-hidden="true" />
-              </button>
-            </div>
           </section>
         )}
+          </div>
+          {renderWizardSummary()}
+        </div>
+        <footer className={styles.wizardFooter}>
+          <button
+            type="button"
+            className={styles.backButton}
+            onClick={currentStep === 1 ? () => router.back() : goToPreviousStep}
+          >
+            <ArrowLeft size={22} aria-hidden="true" />
+            <span>{st("Edellinen")}</span>
+          </button>
+          <button
+            type="button"
+            className={`${styles.nextButton} ${isLastStep ? styles.publishButton : ""}`}
+            onClick={currentStep === 1 ? continueToNextStep : handlePrimaryAction}
+            disabled={isPublishing}
+          >
+            <span>{getWizardPrimaryActionLabel()}</span>
+            <ArrowRight size={22} aria-hidden="true" />
+          </button>
+        </footer>
       </section>
       {previewImage ? (
         <div className={styles.photoLightbox} role="dialog" aria-modal="true" aria-label={previewImage.name}>
@@ -6702,7 +7895,7 @@ function SellPageContent() {
             type="button"
             className={styles.photoLightboxClose}
             onClick={() => setPreviewImage(null)}
-            aria-label="Sulje kuva"
+            aria-label={st("Sulje kuva")}
           >
             <X size={24} aria-hidden="true" />
           </button>
@@ -6710,7 +7903,7 @@ function SellPageContent() {
             type="button"
             className={styles.photoLightboxBackdrop}
             onClick={() => setPreviewImage(null)}
-            aria-label="Sulje esikatselu"
+            aria-label={st("Sulje esikatselu")}
           />
           <img src={previewImage.url} alt={previewImage.name} />
         </div>
@@ -6722,7 +7915,7 @@ function SellPageContent() {
               type="button"
               className={styles.resetConfirmClose}
               onClick={() => setShowResetConfirm(false)}
-              aria-label="Sulje"
+              aria-label={st("Sulje")}
             >
               <X size={18} aria-hidden="true" />
             </button>
@@ -6730,8 +7923,8 @@ function SellPageContent() {
               <X size={20} />
             </div>
             <div>
-              <h2 id="reset-draft-title">Nollataanko luonnos?</h2>
-              <p>Kaikki tämän myynti-ilmoituksen tiedot ja kuvat poistetaan, eikä niitä palauteta automaattisesti.</p>
+              <h2 id="reset-draft-title">{st("Nollataanko luonnos?")}</h2>
+              <p>{st("Kaikki tämän myynti-ilmoituksen tiedot ja kuvat poistetaan, eikä niitä palauteta automaattisesti.")}</p>
             </div>
             <div className={styles.resetConfirmActions}>
               <button type="button" onClick={() => setShowResetConfirm(false)}>
@@ -6868,6 +8061,7 @@ function PresetField({
   inputRef,
   open,
   onOpenChange,
+  disabled = false,
   translateText = (text: string) => text
 }: {
   fieldKey: VehicleDetailKey;
@@ -6884,6 +8078,7 @@ function PresetField({
   inputRef: (element: HTMLInputElement | null) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  disabled?: boolean;
   translateText?: (text: string) => string;
 }) {
   const cleanOptions = uniqueOptions(options);
@@ -6945,6 +8140,7 @@ function PresetField({
   }
 
   function toggleOptions() {
+    if (disabled) return;
     onOpenChange(!open);
   }
 
@@ -6953,34 +8149,20 @@ function PresetField({
     className={styles.presetField}
     data-preset-key={fieldKey}
     data-preset-label={label}
+    data-locked={disabled ? "true" : "false"}
   >
       <span>{label}</span>
       <span
         className={`${styles.presetSelectShell} ${open ? styles.presetSelectOpen : ""} ${effectiveCustomMode ? styles.presetSelectCustom : ""}`}
+        data-sell-control-shell="true"
       >
-        {!effectiveCustomMode ? (
-          <MobileNativeSelect
-            id={`sell-preset-native-${fieldKey}`}
-            value={isKnownValue ? value : ""}
-            label={label}
-            options={[
-              { value: "", label: translateText("Ei valintaa") },
-              ...presetOptions.map((option) => ({ value: option, label: translateText(option) })),
-              { value: otherLabel, label: translateText(otherLabel) }
-            ]}
-            onChange={(nextValue) => {
-              if (nextValue === otherLabel) selectOther();
-              else if (nextValue) selectOption(nextValue);
-              else clearSelection();
-            }}
-          />
-        ) : null}
         <input
           ref={(element) => {
             innerInputRef.current = element;
             inputRef(element);
           }}
           value={displayValue}
+          disabled={disabled}
           onClick={() => {
             if (!effectiveCustomMode) toggleOptions();
           }}
@@ -7012,6 +8194,7 @@ function PresetField({
         <button
           type="button"
           className={styles.presetSelectToggle}
+          disabled={disabled}
           onMouseDown={(event) => event.preventDefault()}
           onClick={toggleOptions}
           aria-label={`Avaa ${label.toLowerCase()} valikko`}
@@ -7138,7 +8321,9 @@ function ConditionSelect({
       {!compact ? <span>{label}</span> : null}
       <span
         className={`${styles.categorySelectShell} ${styles.conditionSelectShell} ${open ? styles.categorySelectOpen : ""}`}
+        data-sell-control-shell="true"
         data-sell-condition-select="true"
+        data-has-value={value ? "true" : "false"}
         onBlur={() => {
           window.setTimeout(() => setOpen(false), 80);
         }}
@@ -7155,9 +8340,9 @@ function ConditionSelect({
           ]}
           onChange={chooseOption}
         />
-        <span className={styles.categorySelectIcon}>
+        {value ? <span className={styles.categorySelectIcon}>
           <span className={`${styles.conditionSelectDot} ${getConditionDotClass(value)}`} />
-        </span>
+        </span> : null}
         <button
           type="button"
           className={`${styles.categorySelectButton} ${value ? "" : styles.categorySelectPlaceholder}`}
@@ -7168,7 +8353,17 @@ function ConditionSelect({
         >
           {displayValue}
         </button>
-        <ChevronDown size={20} aria-hidden="true" />
+        <button
+          type="button"
+          className={styles.categorySelectChevronButton}
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => setOpen((current) => !current)}
+          aria-label={`${displayValue}: avaa valikko`}
+          aria-haspopup="listbox"
+          aria-expanded={open}
+        >
+          <ChevronDown size={20} aria-hidden="true" />
+        </button>
         {open ? (
           <div
             className={styles.categorySelectMenu}
@@ -7340,6 +8535,7 @@ function CategorySelect({
       <span
         ref={shellRef}
         className={`${styles.categorySelectShell} ${open ? styles.categorySelectOpen : ""}`}
+        data-sell-control-shell="true"
         data-sell-category-select="true"
         data-disabled={!hasOptions ? "true" : "false"}
       >
@@ -7435,29 +8631,29 @@ function CategorySelect({
   );
 }
 
-function formatSuggestionPrice(value: number) {
-  return `${new Intl.NumberFormat("fi-FI", {
-    maximumFractionDigits: 0
-  }).format(value)} €`;
-}
-
 function PriceSuggestionCard({
   suggestion,
-  onApply
+  currency,
+  onApply,
+  translateText
 }: {
   suggestion: PriceSuggestion;
+  currency: SupportedCurrency;
   onApply: () => void;
+  translateText: (text: string) => string;
 }) {
+  const { formatAmount, fromEur } = useCurrency();
+  const formatSuggestion = (value: number) => formatAmount(fromEur(value, currency), currency);
   return (
     <div className={styles.priceSuggestionCard}>
-      <span>Hintaehdotus</span>
-      <strong>{formatSuggestionPrice(suggestion.avg)}</strong>
+      <span>{translateText("Hintaehdotus")}</span>
+      <strong>{formatSuggestion(suggestion.avg)}</strong>
       <small>
-        Tyypillinen väli {formatSuggestionPrice(suggestion.q1)}-{formatSuggestionPrice(suggestion.q3)} · {suggestion.count} hintaa
+        {translateText("Tyypillinen väli")} {formatSuggestion(suggestion.q1)}-{formatSuggestion(suggestion.q3)} · {suggestion.count} {translateText("hintaa")}
       </small>
       <em>{suggestion.label}</em>
       <button type="button" onClick={onApply}>
-        Käytä ehdotusta
+        {translateText("Käytä ehdotusta")}
       </button>
     </div>
   );
@@ -7468,13 +8664,15 @@ function TrackMatDimensionField({
   icon: Icon,
   value,
   onChange,
-  placeholder
+  placeholder,
+  translateText
 }: {
   label: string;
   icon?: LucideIcon;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
+  translateText: (text: string) => string;
 }) {
   const parts = parseTrackMatDimensionParts(value);
   const [openPart, setOpenPart] = useState<TrackMatDimensionPart | null>(null);
@@ -7489,9 +8687,9 @@ function TrackMatDimensionField({
     label: string;
     placeholder: string;
   }> = [
-    { key: "length", label: "Pituus", placeholder: "esim. 360 cm" },
-    { key: "width", label: "Leveys", placeholder: "esim. 38 cm" },
-    { key: "pitch", label: "Jako", placeholder: "esim. 7,3 cm" }
+    { key: "length", label: translateText("Pituus"), placeholder: translateText("esim. 360 cm") },
+    { key: "width", label: translateText("Leveys"), placeholder: translateText("esim. 38 cm") },
+    { key: "pitch", label: translateText("Jako"), placeholder: translateText("esim. 7,3 cm") }
   ];
 
   function updatePart(key: TrackMatDimensionPart, nextValue: string) {
@@ -7576,14 +8774,14 @@ useEffect(() => {
                       value={partValue}
                       onChange={(event) => updatePart(field.key, event.target.value)}
                       placeholder={field.placeholder}
-                      aria-label={`Muu ${field.label.toLowerCase()}`}
+                      aria-label={`${translateText("Muu")} ${field.label.toLowerCase()}`}
                     />
                     {partValue && !/cm/i.test(partValue) ? (
                       <span data-track-mat-unit>cm</span>
                     ) : null}
                     <button
                       type="button"
-                      aria-label={`Avaa ${field.label.toLowerCase()}valinnat`}
+                      aria-label={`${translateText("Avaa valinnat")}: ${field.label.toLowerCase()}`}
                       aria-haspopup="listbox"
                       aria-expanded={openPart === field.key}
                       onClick={() =>
@@ -7641,7 +8839,7 @@ useEffect(() => {
                 {option.label}
               </button>
             ))}
-            <button type="button" onClick={() => choosePartValue(openField.key, customTrackMatDimensionValue)}>Muu</button>
+            <button type="button" onClick={() => choosePartValue(openField.key, customTrackMatDimensionValue)}>{translateText("Muu")}</button>
           </span>
         ) : null}
       </span>
@@ -7652,6 +8850,7 @@ useEffect(() => {
 function DetailInput({
   label,
   icon: Icon,
+  prefix,
   placeholder,
   inputMode,
   value,
@@ -7659,6 +8858,7 @@ function DetailInput({
 }: {
   label: string;
   icon: LucideIcon;
+  prefix?: string;
   placeholder?: string;
   inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"];
   value: string;
@@ -7668,7 +8868,7 @@ function DetailInput({
     <label className={styles.detailInputField}>
       <span>{label}</span>
       <span className={styles.detailInputShell} data-sell-control-shell="true">
-        <Icon size={24} aria-hidden="true" />
+        {prefix ? <span className={styles.detailInputPrefix} aria-hidden="true">{prefix}</span> : <Icon size={24} aria-hidden="true" />}
         <input
           data-sell-control="input"
           inputMode={inputMode}
@@ -7676,6 +8876,32 @@ function DetailInput({
           value={value}
           onChange={(event) => onChange(event.target.value)}
         />
+      </span>
+    </label>
+  );
+}
+
+function DetailSelect({
+  label,
+  icon: Icon,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  icon: LucideIcon;
+  value: number;
+  options: ReadonlyArray<{ value: number; label: string }>;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <label className={styles.detailInputField}>
+      <span>{label}</span>
+      <span className={styles.detailInputShell} data-sell-control-shell="true">
+        <Icon size={24} aria-hidden="true" />
+        <select data-sell-control="select" value={value} onChange={(event) => onChange(Number(event.target.value))}>
+          {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+        </select>
       </span>
     </label>
   );

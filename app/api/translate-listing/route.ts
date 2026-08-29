@@ -80,6 +80,14 @@ function normalizeTranslations(
   return translations;
 }
 
+function preserveTranslationMetadata(
+  translations: ListingTranslations,
+  existingTranslations: ListingTranslations | null
+): ListingTranslations {
+  const metadata = existingTranslations?._meta;
+  return metadata ? { ...translations, _meta: metadata } : translations;
+}
+
 async function saveListingTranslations(input: {
   listingId?: string;
   sellerId: string;
@@ -137,12 +145,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Käännettävä teksti on liian pitkä." }, { status: 413 });
   }
 
+  let existingTranslations: ListingTranslations | null = null;
+
   if (listingId) {
     const { data: listing, error: listingError } = await admin
       .from("listings")
-      .select("seller_id")
+      .select("seller_id,translations")
       .eq("id", listingId)
-      .maybeSingle<{ seller_id: string }>();
+      .maybeSingle<{ seller_id: string; translations: ListingTranslations | null }>();
 
     if (listingError || !listing) {
       return NextResponse.json({ error: "Ilmoitusta ei löytynyt." }, { status: 404 });
@@ -151,10 +161,12 @@ export async function POST(request: Request) {
     if (listing.seller_id !== callerAuth.user.id) {
       return NextResponse.json({ error: "Ei oikeutta muokata tätä ilmoitusta." }, { status: 403 });
     }
+
+    existingTranslations = listing.translations;
   }
 
   if (!input.title && !input.description) {
-    const translations = emptyTranslations(input);
+    const translations = preserveTranslationMetadata(emptyTranslations(input), existingTranslations);
     const saved = await saveListingTranslations({
       listingId,
       sellerId: callerAuth.user.id,
@@ -167,7 +179,7 @@ export async function POST(request: Request) {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    const translations = emptyTranslations(input);
+    const translations = preserveTranslationMetadata(emptyTranslations(input), existingTranslations);
     const saved = await saveListingTranslations({
       listingId,
       sellerId: callerAuth.user.id,
@@ -204,7 +216,7 @@ export async function POST(request: Request) {
   });
 
   if (!response.ok) {
-    const translations = emptyTranslations(input);
+    const translations = preserveTranslationMetadata(emptyTranslations(input), existingTranslations);
     const saved = await saveListingTranslations({
       listingId,
       sellerId: callerAuth.user.id,
@@ -233,7 +245,10 @@ export async function POST(request: Request) {
     parsed = null;
   }
 
-  const translations = normalizeTranslations(input, parsed);
+  const translations = preserveTranslationMetadata(
+    normalizeTranslations(input, parsed),
+    existingTranslations
+  );
   const saved = await saveListingTranslations({
     listingId,
     sellerId: callerAuth.user.id,

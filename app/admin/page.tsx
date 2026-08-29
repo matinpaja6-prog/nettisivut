@@ -11,6 +11,7 @@ import {
   Ban,
   BarChart3,
   Bell,
+  Building2,
   CalendarDays,
   Car,
   ChevronDown,
@@ -20,6 +21,7 @@ import {
   ExternalLink,
   Home,
   LogOut,
+  Mail,
   MessageCircle,
   Radio,
   RefreshCw,
@@ -45,6 +47,7 @@ import {
   adminBanUser,
   adminDeleteListing,
   adminDeleteUser,
+  adminDecideCompanyVerification,
   adminForceVerifyPhone,
   adminListBannedIps,
   adminListProfiles,
@@ -74,6 +77,7 @@ type TabKey =
   | "overview"
   | "activity"
   | "users"
+  | "company-verifications"
   | "listings"
   | "bans"
   | "appearance"
@@ -232,6 +236,7 @@ export default function AdminPage() {
   const [userQuery, setUserQuery] = useState("");
   const [userQueryDebounced, setUserQueryDebounced] = useState("");
   const [userTypeFilter, setUserTypeFilter] = useState<UserTypeFilter>("all");
+  const [companyDecisionBusy, setCompanyDecisionBusy] = useState<string | null>(null);
 
   const [listings, setListings] = useState<AdminListing[]>([]);
   const [listingsLoading, setListingsLoading] = useState(false);
@@ -537,7 +542,7 @@ export default function AdminPage() {
   }, [isAdmin, userQueryDebounced, showError]);
 
   useEffect(() => {
-    if (isAdmin && mfaUnlocked && activeTab === "users") void loadUsers();
+    if (isAdmin && mfaUnlocked && (activeTab === "users" || activeTab === "company-verifications")) void loadUsers();
   }, [isAdmin, mfaUnlocked, activeTab, loadUsers]);
 
   /* Load listings */
@@ -686,6 +691,14 @@ export default function AdminPage() {
   };
 
   const handleToggleCompanyVerified = async (user: AdminProfileRow) => {
+    if (!user.company_verified_at) {
+      if (user.company_verification_requested_at) {
+        setActiveTab("company-verifications");
+      } else {
+        showError("Yrityksellä ei ole käsiteltävää vahvistuspyyntöä.");
+      }
+      return;
+    }
     const nextVerified = !user.company_verified_at;
     const { data, error } = await adminSetCompanyVerified(user.id, nextVerified);
     if (error) {
@@ -702,6 +715,39 @@ export default function AdminPage() {
           }
         : u
     )));
+  };
+
+  const handleCompanyDecision = async (
+    user: AdminProfileRow,
+    decision: "approved" | "rejected",
+    reason = ""
+  ) => {
+    setCompanyDecisionBusy(user.id);
+    const { data, error } = await adminDecideCompanyVerification(user.id, decision, reason);
+    setCompanyDecisionBusy(null);
+    if (error || !data) {
+      showError(getErrorMessage(error, "Yritysvahvistuksen käsittely epäonnistui."));
+      return false;
+    }
+
+    setUsers((previous) => previous.map((item) => item.id === user.id ? {
+      ...item,
+      company_verified_at: data.companyVerifiedAt,
+      company_verification_requested_at: null,
+      company_verification_status: decision,
+      company_verification_rejection_reason: decision === "rejected" ? reason || null : null,
+      company_verification_decided_at: data.decidedAt
+    } : item));
+    void loadStats();
+
+    if (data.emailSent) {
+      showOk(decision === "approved"
+        ? "Yritys hyväksyttiin ja vahvistusviesti lähetettiin."
+        : "Yritys hylättiin ja päätösviesti lähetettiin.");
+    } else {
+      showError(`Päätös tallennettiin, mutta sähköposti ei lähtenyt: ${data.emailError || "tuntematon virhe"}`);
+    }
+    return true;
   };
 
   const handleBanIp = async (ip: string, reason?: string) => {
@@ -726,6 +772,7 @@ export default function AdminPage() {
     { key: "overview", label: "Yleiskatsaus", icon: Home },
     { key: "activity", label: "Tapahtumat", icon: Activity },
     { key: "users", label: "Käyttäjät", icon: Truck },
+    { key: "company-verifications", label: "Yritysvahvistukset", icon: Building2 },
     { key: "listings", label: "Ilmoitukset", icon: ClipboardList },
     { key: "bans", label: "Bannit", icon: Users },
     { key: "categories", label: "Kategoriat", icon: Car },
@@ -775,7 +822,7 @@ export default function AdminPage() {
       <aside className={styles.sidebar}>
         <div className={styles.sidebarBrand}>
           <div className={styles.sidebarBrandIcon} aria-label="Maskines">
-            <ShieldCheck size={24} />
+            <Image src="/maskines-brand-mark-dark-clean-v4.png" alt="Maskines" width={48} height={38} priority unoptimized />
           </div>
         </div>
 
@@ -1065,6 +1112,17 @@ export default function AdminPage() {
                     contextUserName: user.full_name || user.email || user.id.slice(0, 8)
                   });
                 }}
+              />
+            )}
+
+            {activeTab === "company-verifications" && (
+              <CompanyVerificationsPanel
+                users={users}
+                loading={usersLoading}
+                busyUserId={companyDecisionBusy}
+                onRefresh={loadUsers}
+                onDecision={handleCompanyDecision}
+                onView={(user) => setConfirm({ kind: "view-profile", user })}
               />
             )}
 
@@ -2035,6 +2093,165 @@ function DashboardOverviewPanel({ stats }: {
 }
 
 /* =================================================================
+   COMPANY VERIFICATIONS PANEL
+================================================================= */
+
+function CompanyVerificationsPanel({
+  users,
+  loading,
+  busyUserId,
+  onRefresh,
+  onDecision,
+  onView
+}: {
+  users: AdminProfileRow[];
+  loading: boolean;
+  busyUserId: string | null;
+  onRefresh: () => void;
+  onDecision: (user: AdminProfileRow, decision: "approved" | "rejected", reason?: string) => Promise<boolean>;
+  onView: (user: AdminProfileRow) => void;
+}) {
+  const [rejectingUserId, setRejectingUserId] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const companies = users.filter((user) => user.account_type === "company");
+  const pending = companies.filter((user) => user.company_verification_requested_at && !user.company_verified_at);
+  const approvedCount = companies.filter((user) => user.company_verified_at).length;
+  const rejectedCount = companies.filter((user) => user.company_verification_status === "rejected").length;
+  const recentDecisions = companies
+    .filter((user) => user.company_verified_at || user.company_verification_status === "rejected")
+    .sort((left, right) => Date.parse(right.company_verification_decided_at || right.company_verified_at || "") - Date.parse(left.company_verification_decided_at || left.company_verified_at || ""))
+    .slice(0, 8);
+
+  async function reject(user: AdminProfileRow) {
+    const succeeded = await onDecision(user, "rejected", rejectionReason.trim());
+    if (succeeded) {
+      setRejectingUserId(null);
+      setRejectionReason("");
+    }
+  }
+
+  return (
+    <section className={`${styles.panel} ${styles.companyVerificationPanel}`}>
+      <div className={styles.panelHeader}>
+        <div>
+          <span>Luottamus ja turvallisuus</span>
+          <h2>Yritysvahvistukset</h2>
+        </div>
+        <p>Tarkista maksetut vahvistuspyynnöt. Päätösviesti lähtee automaattisesti käyttäjän omalla kielellä.</p>
+      </div>
+
+      <div className={styles.companyVerificationSummary}>
+        <div><span>Odottaa käsittelyä</span><strong>{pending.length}</strong></div>
+        <div><span>Hyväksytty</span><strong>{approvedCount}</strong></div>
+        <div><span>Hylätty</span><strong>{rejectedCount}</strong></div>
+        <button type="button" className={styles.ghostBtn} onClick={onRefresh} disabled={loading}>
+          <RefreshCw size={15} /> {loading ? "Päivitetään…" : "Päivitä jono"}
+        </button>
+      </div>
+
+      {pending.length === 0 && !loading ? (
+        <div className={styles.companyVerificationEmpty}>
+          <BadgeCheck size={30} />
+          <strong>Kaikki pyynnöt on käsitelty</strong>
+          <span>Uudet maksetut vahvistuspyynnöt ilmestyvät automaattisesti tähän jonoon.</span>
+        </div>
+      ) : (
+        <div className={styles.companyVerificationGrid}>
+          {pending.map((user) => {
+            const isBusy = busyUserId === user.id;
+            const isRejecting = rejectingUserId === user.id;
+            const companyName = user.company_name || user.full_name || "Nimetön yritys";
+            return (
+              <article className={styles.companyVerificationCard} key={user.id}>
+                <div className={styles.companyVerificationCardHead}>
+                  <div className={styles.companyVerificationIcon}><Building2 size={22} /></div>
+                  <div>
+                    <span>MAKSETTU · ODOTTAA TARKISTUSTA</span>
+                    <h3>{companyName}</h3>
+                    <p>{user.business_id || "Y-tunnus puuttuu"}</p>
+                  </div>
+                  <span className={styles.companyVerificationAge}>{formatDate(user.company_verification_requested_at)}</span>
+                </div>
+
+                <div className={styles.companyVerificationDetails}>
+                  <div><span>Sähköposti</span><strong>{user.email || "—"}</strong></div>
+                  <div><span>Kieli</span><strong>{(user.preferred_locale || "automaattinen").toUpperCase()}</strong></div>
+                  <div><span>Maa</span><strong>{user.country || "—"}</strong></div>
+                  <div><span>Puhelin</span><strong>{user.phone || "—"}</strong></div>
+                  {user.company_website && <div className={styles.companyVerificationWide}><span>Verkkosivu</span><strong>{user.company_website}</strong></div>}
+                  {(user.address || user.city) && <div className={styles.companyVerificationWide}><span>Osoite</span><strong>{[user.address, user.postal_code, user.city].filter(Boolean).join(", ")}</strong></div>}
+                </div>
+
+                {isRejecting && (
+                  <div className={styles.companyRejectionBox}>
+                    <label htmlFor={`rejection-${user.id}`}>Hylkäyksen perustelu sähköpostiin</label>
+                    <textarea
+                      id={`rejection-${user.id}`}
+                      value={rejectionReason}
+                      onChange={(event) => setRejectionReason(event.target.value.slice(0, 600))}
+                      placeholder="Esimerkiksi: Y-tunnus ei vastaa ilmoitettua yrityksen nimeä."
+                      rows={3}
+                      autoFocus
+                    />
+                    <small>{rejectionReason.length}/600 merkkiä · perustelu on vapaaehtoinen</small>
+                  </div>
+                )}
+
+                <div className={styles.companyVerificationActions}>
+                  <button type="button" className={styles.ghostBtn} onClick={() => onView(user)} disabled={isBusy}>
+                    <Eye size={15} /> Tarkat tiedot
+                  </button>
+                  {isRejecting ? (
+                    <>
+                      <button type="button" className={styles.ghostBtn} onClick={() => { setRejectingUserId(null); setRejectionReason(""); }} disabled={isBusy}>Peruuta</button>
+                      <button type="button" className={styles.companyRejectBtn} onClick={() => void reject(user)} disabled={isBusy}>
+                        <X size={16} /> {isBusy ? "Käsitellään…" : "Vahvista hylkäys"}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" className={styles.companyRejectBtn} onClick={() => { setRejectingUserId(user.id); setRejectionReason(""); }} disabled={isBusy}>
+                        <X size={16} /> Hylkää
+                      </button>
+                      <button type="button" className={styles.companyApproveBtn} onClick={() => void onDecision(user, "approved")} disabled={isBusy}>
+                        <BadgeCheck size={17} /> {isBusy ? "Käsitellään…" : "Hyväksy yritys"}
+                      </button>
+                    </>
+                  )}
+                </div>
+                <div className={styles.companyVerificationMailNote}><Mail size={14} /> Päätöksen jälkeen sähköposti lähetetään automaattisesti.</div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      {recentDecisions.length > 0 && (
+        <div className={styles.companyDecisionHistory}>
+          <div className={styles.companyDecisionHistoryTitle}>
+            <div><span>Viimeisimmät päätökset</span><strong>Hyväksynnät ja hylkäykset</strong></div>
+          </div>
+          {recentDecisions.map((user) => {
+            const rejected = user.company_verification_status === "rejected";
+            return (
+              <button type="button" key={user.id} onClick={() => onView(user)}>
+                <span className={rejected ? styles.companyDecisionRejected : styles.companyDecisionApproved}>
+                  {rejected ? <X size={14} /> : <BadgeCheck size={14} />}
+                  {rejected ? "Hylätty" : "Hyväksytty"}
+                </span>
+                <strong>{user.company_name || user.full_name || user.email}</strong>
+                <small>{user.business_id || "Ei Y-tunnusta"}</small>
+                <time>{formatDate(user.company_verification_decided_at || user.company_verified_at)}</time>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* =================================================================
    USERS PANEL
 ================================================================= */
 
@@ -2331,8 +2548,13 @@ function UserTableRow({
                 type="button"
                 className={styles.actionMenuItem}
                 onClick={() => { setMenuOpen(false); onToggleCompanyVerified(u); }}
+                disabled={!u.company_verified_at && !u.company_verification_requested_at}
               >
-                <ShieldCheck size={14} /> {u.company_verified_at ? "Poista yritysvahvistus" : "Vahvista yritys"}
+                <ShieldCheck size={14} /> {u.company_verified_at
+                  ? "Poista yritysvahvistus"
+                  : u.company_verification_requested_at
+                    ? "Käsittele vahvistus"
+                    : "Ei vahvistuspyyntöä"}
               </button>
             )}
             </div>
@@ -2826,6 +3048,9 @@ function ConfirmDialogs({
           ["Yrityksen sivu", state.user.company_website],
           ["Vahvistuspyyntö", state.user.company_verification_requested_at ? formatDate(state.user.company_verification_requested_at) : null],
           ["Yritys vahvistettu", state.user.company_verified_at ? formatDate(state.user.company_verified_at) : null],
+          ["Vahvistuspäätös", state.user.company_verification_status],
+          ["Päätöspäivä", state.user.company_verification_decided_at ? formatDate(state.user.company_verification_decided_at) : null],
+          ["Hylkäyksen syy", state.user.company_verification_rejection_reason],
           ["Laskutussähköposti", state.user.billing_email],
           ["Osoite", state.user.address],
           ["Postinumero", state.user.postal_code],

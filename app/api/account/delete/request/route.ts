@@ -5,6 +5,7 @@ import {
   claimAuthEmailCooldown,
   releaseAuthEmailCooldown
 } from "@/lib/auth-email-rate-limit";
+import { sendAuthEmail } from "@/lib/auth-email-sender";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey =
@@ -64,28 +65,12 @@ async function sendDeletionEmail(input: {
   to: string;
   code: string;
 }) {
-  const resendApiKey = process.env.RESEND_API_KEY;
-  if (!resendApiKey) {
-    return { sent: false, error: "RESEND_API_KEY puuttuu" };
-  }
-
-  const from =
-    process.env.ACCOUNT_EMAIL_FROM ??
-    process.env.ALERT_FROM_EMAIL ??
-    "Maskines <onboarding@resend.dev>";
-
   const code = escapeHtml(input.code);
-
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      from,
-      to: [input.to],
+  try {
+    await sendAuthEmail({
+      to: input.to,
       subject: "Vahvista tilin poistaminen",
+      text: `Vahvista tilin poistaminen\n\nVahvistuskoodi: ${input.code}\n\nKoodi on voimassa 15 minuuttia. Jos et pyytänyt tilin poistoa, voit jättää tämän viestin huomiotta.`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:28px;background:#f8fafc;">
           <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
@@ -105,15 +90,13 @@ async function sendDeletionEmail(input: {
             </div>
           </div>
         </div>
-      `
-    })
-  });
-
-  if (!response.ok) {
-    return { sent: false, error: await response.text() };
+      `,
+      idempotencyKey: `account-deletion/${input.to}/${input.code}`
+    });
+    return { sent: true };
+  } catch (error) {
+    return { sent: false, error: error instanceof Error ? error.message : String(error) };
   }
-
-  return { sent: true };
 }
 
 export async function POST(request: Request) {

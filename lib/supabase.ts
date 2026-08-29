@@ -41,6 +41,9 @@ export type UserProfile = {
   company_verified_at?: string | null;
 
   company_verification_requested_at?: string | null;
+  company_verification_status?: "pending" | "approved" | "rejected" | null;
+  company_verification_rejection_reason?: string | null;
+  company_verification_decided_at?: string | null;
 
   public_address?: string | null;
 
@@ -630,12 +633,12 @@ const BASE_LISTING_CARD_COLUMN_LIST = [
   "description",
   "image_url",
   "seller_name",
+  "translations",
   "created_at"
 ];
 
 const OPTIONAL_LISTING_CARD_COLUMN_LIST = [
   "original_language",
-  "translations",
   "part_number",
   "image_urls",
   "company_name",
@@ -661,6 +664,39 @@ const BASE_LISTING_CARD_SELECT =
 
 const escapeIlikeTerm = (value: string) =>
   value.trim().replace(/[%_]/g, "");
+
+async function filterAvailableCommerceListings(listings: Listing[]) {
+  if (!supabase || listings.length === 0) return listings;
+
+  const linkedProductIds = Array.from(new Set(
+    listings
+      .map((listing) => listing.translations?._meta?.commerce_product_id?.trim())
+      .filter((id): id is string => Boolean(id))
+  ));
+  if (linkedProductIds.length === 0) return listings;
+
+  const { data, error } = await supabase
+    .from("products")
+    .select("id,active,stock_quantity")
+    .in("id", linkedProductIds)
+    .returns<Array<{ id: string; active: boolean; stock_quantity: number }>>();
+
+  // A temporary inventory lookup failure must not hide unrelated listings.
+  if (error) return listings;
+
+  const visibleProducts = new Map((data ?? []).map((product) => [product.id, product]));
+  return listings.filter((listing) => {
+    const productId = listing.translations?._meta?.commerce_product_id?.trim();
+    if (!productId) return true;
+
+    const product = visibleProducts.get(productId);
+    // Anonymous visitors may not have RLS permission to read the linked company
+    // product even though the marketplace listing itself is public. A missing
+    // product row must therefore not make a public listing owner-only. When the
+    // row is readable, still respect its actual availability.
+    return !product || (product.active && product.stock_quantity > 0);
+  });
+}
 
 export type VehicleListingCounts = Record<
   "Moottoripyörä" | "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopot",
@@ -786,6 +822,65 @@ export async function getListings(options: GetListingsOptions = {}) {
         ? LISTING_CARD_COLUMN_LIST
         : BASE_LISTING_CARD_COLUMN_LIST;
 
+    const enrichListingsWithSellerProfiles = async (listings: Listing[]) => {
+      if (!options.enrichSellerProfiles || listings.length === 0) return listings;
+
+      const sellerIds = [
+        ...new Set(
+          listings
+            .map((listing) => listing.seller_id)
+            .filter((sellerId): sellerId is string => Boolean(sellerId))
+        )
+      ];
+
+      if (sellerIds.length === 0) return listings;
+
+      let { data: profiles, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, avatar_url, company_name, account_type, company_verified_at")
+        .in("id", sellerIds);
+
+      if (
+        profileError &&
+        String((profileError as { message?: string }).message ?? profileError).includes("company_verified_at")
+      ) {
+        const fallback = await supabase
+          .from("profiles")
+          .select("id, avatar_url, company_name, account_type")
+          .in("id", sellerIds);
+        profiles = fallback.data as typeof profiles;
+        profileError = fallback.error;
+      }
+
+      if (profileError || !profiles || profiles.length === 0) return listings;
+
+      type SellerProfile = {
+        id: string;
+        avatar_url?: string | null;
+        company_name?: string | null;
+        account_type?: string | null;
+        company_verified_at?: string | null;
+      };
+      const profileMap = Object.fromEntries(
+        (profiles as SellerProfile[]).map((profile) => [profile.id, profile])
+      );
+
+      for (const listing of listings) {
+        const profile = listing.seller_id ? profileMap[listing.seller_id] : null;
+        if (!profile) continue;
+        if (!listing.seller_avatar_url && profile.avatar_url) {
+          listing.seller_avatar_url = profile.avatar_url;
+        }
+        if (!listing.company_name && profile.account_type === "company" && profile.company_name) {
+          listing.company_name = profile.company_name;
+        }
+        listing.seller_account_type = profile.account_type === "company" ? "company" : "private";
+        listing.seller_company_verified_at = profile.company_verified_at ?? null;
+      }
+
+      return listings;
+    };
+
     if (typeof options.limit === "number") {
       const offset = Math.max(0, options.offset ?? 0);
       const limit = Math.max(1, options.limit);
@@ -805,8 +900,11 @@ export async function getListings(options: GetListingsOptions = {}) {
         ));
       }
 
+      const publicListings = await filterAvailableCommerceListings(
+        (data ?? []).filter((listing) => !listing.is_sold && !listing.is_hidden)
+      );
       return {
-        data: (data ?? []).filter((listing) => !listing.is_sold && !listing.is_hidden),
+        data: await enrichListingsWithSellerProfiles(publicListings),
         error,
         count: count ?? null
       };
@@ -827,41 +925,11 @@ export async function getListings(options: GetListingsOptions = {}) {
       };
     }
 
-    data = data.filter((listing) => !listing.is_sold && !listing.is_hidden);
+    data = await filterAvailableCommerceListings(
+      data.filter((listing) => !listing.is_sold && !listing.is_hidden)
+    );
 
-    if (!options.enrichSellerProfiles) {
-      return { data, error: null };
-    }
-
-    // Batch-fetch profile data for sellers missing avatar/company info
-    const missingIds = [
-      ...new Set(
-        data
-          .filter((l) => l.seller_id && (!l.seller_avatar_url || !l.company_name))
-          .map((l) => l.seller_id as string)
-      )
-    ];
-
-    if (missingIds.length > 0) {
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, avatar_url, company_name, account_type")
-        .in("id", missingIds);
-
-      if (profiles && profiles.length > 0) {
-        const profileMap = Object.fromEntries(
-          profiles.map((p: { id: string; avatar_url?: string | null; company_name?: string | null; account_type?: string | null }) => [p.id, p])
-        );
-        for (const listing of data) {
-          const p = listing.seller_id ? profileMap[listing.seller_id] : null;
-          if (!p) continue;
-          if (!listing.seller_avatar_url && p.avatar_url) listing.seller_avatar_url = p.avatar_url;
-          if (!listing.company_name && p.account_type === "company" && p.company_name) listing.company_name = p.company_name;
-        }
-      }
-    }
-
-    return { data, error: null };
+    return { data: await enrichListingsWithSellerProfiles(data), error: null };
 
   } catch (error) {
 
@@ -916,8 +984,9 @@ export async function getListingsByIds(listingIds: string[]) {
     const orderById =
       new Map(ids.map((id, index) => [id, index]));
 
+    const publicListings = await filterAvailableCommerceListings(data ?? []);
     return {
-      data: (data ?? []).sort(
+      data: publicListings.sort(
         (a, b) =>
           (orderById.get(a.id) ?? Number.MAX_SAFE_INTEGER) -
           (orderById.get(b.id) ?? Number.MAX_SAFE_INTEGER)
@@ -1508,18 +1577,17 @@ export async function deleteListing(
           };
         }
 
-        const canFallbackToClientDelete =
-          response.status === 404 ||
-          response.status >= 500;
-
-        if (!canFallbackToClientDelete) {
-          return {
-            data: null,
-            error: new Error(payload?.error ?? "Ilmoituksen poisto epäonnistui.")
-          };
-        }
+        return {
+          data: null,
+          error: new Error(payload?.error ?? "Ilmoituksen poisto epäonnistui.")
+        };
       } catch {
-        // Fall back to direct Supabase delete below when the local API is not reachable.
+        // Do not bypass the server-side commerce cleanup. A direct listing
+        // delete would leave its linked checkout product visible.
+        return {
+          data: null,
+          error: new Error("Ilmoituksen poistopalveluun ei saatu yhteyttä. Yritä uudelleen.")
+        };
       }
     }
 
@@ -3040,6 +3108,10 @@ export type AdminProfileRow = {
   business_id?: string | null;
   company_verified_at?: string | null;
   company_verification_requested_at?: string | null;
+  company_verification_status?: "pending" | "approved" | "rejected" | null;
+  company_verification_rejection_reason?: string | null;
+  company_verification_decided_at?: string | null;
+  preferred_locale?: string | null;
   address?: string | null;
   postal_code?: string | null;
   city?: string | null;
@@ -3417,6 +3489,27 @@ export async function adminSetCompanyVerified(targetUserId: string, verified: bo
     }>();
 
   return { data: fallback.data?.company_verified_at ?? nextValue, error: fallback.error };
+}
+
+export type CompanyVerificationDecisionResult = {
+  ok: boolean;
+  decision: "approved" | "rejected";
+  companyVerifiedAt: string | null;
+  decidedAt: string;
+  emailSent: boolean;
+  emailError: string | null;
+};
+
+export async function adminDecideCompanyVerification(
+  targetUserId: string,
+  decision: "approved" | "rejected",
+  reason: string
+) {
+  return adminActionRequest<CompanyVerificationDecisionResult>("company-verification-decision", {
+    userId: targetUserId,
+    decision,
+    reason
+  });
 }
 
 export async function trackSiteVisit(params: {

@@ -35,6 +35,7 @@ import { useLanguage, translateCategory } from "@/lib/i18n";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
 import { listingPath, listingUrlId, pagePath } from "@/lib/routes";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
+import ListingSalePrice from "@/app/components/ListingSalePrice";
 import MobileNativeSelect from "@/app/components/MobileNativeSelect";
 
 type VehicleClass = "Moottorikelkka" | "Mönkijä" | "Motocross" | "Mopo" | "Moottoripyörä";
@@ -790,9 +791,7 @@ export default function GaragePage() {
                                       <MapPin size={13} />
                                       <span>{listing.location}</span>
                                     </div>
-                                    <strong className="garage-part-price">
-                                      {formatPrice(listing.price)}
-                                    </strong>
+                                    <ListingSalePrice listing={listing} className="garage-part-price" />
                                   </div>
                                 </Link>
                               );

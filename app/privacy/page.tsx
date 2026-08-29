@@ -14,7 +14,7 @@ type LegalCopy = {
 
 const fiCopy: LegalCopy = {
   title: "Tietosuojaseloste",
-  updated: "Päivitetty 14.5.2026 · EU GDPR -yhteensopiva seloste",
+  updated: "Päivitetty 29.8.2026 · EU GDPR -yhteensopiva seloste",
   terms: "Käyttöehdot",
   summaryLabel: "Tietosuojan tiivistelmä",
   summary: [
@@ -33,7 +33,8 @@ const fiCopy: LegalCopy = {
     { title: "7. Vastaanottajat ja siirrot", body: ["Emme myy henkilötietoja. Tietoja voidaan käsitellä teknisten palveluntarjoajien, kuten tietokanta-, kirjautumis-, maksu-, sähköposti- tai ylläpitopalveluiden kautta. Jos tietoja siirretään EU/ETA-alueen ulkopuolelle, käytämme GDPR:n mukaisia suojakeinoja."] },
     { title: "8. Rekisteröidyn oikeudet", body: ["Sinulla on oikeus saada pääsy tietoihin, korjata virheellisiä tietoja, pyytää poistamista, rajoittaa käsittelyä, vastustaa käsittelyä ja saada tietyt tiedot koneellisesti luettavassa muodossa. Lähetä pyyntö osoitteeseen info@maskines.com."] },
     { title: "9. Valitusoikeus ja lisätieto", body: ["Jos katsot, että henkilötietojasi käsitellään lainvastaisesti, voit olla yhteydessä Maskinesiin tai tehdä valituksen tietosuojavaltuutetun toimistolle."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "Euroopan komissio" }, { href: "https://tietosuoja.fi/", label: "Tietosuojavaltuutetun toimisto" }] },
-    { title: "10. Evästeet ja muutokset", body: ["Palvelu käyttää välttämättömiä evästeitä ja paikallista tallennusta kirjautumiseen, istuntoon, kielivalintaan ja turvallisuuteen. Päivitämme selostetta, kun palvelu tai käsittely muuttuu."] }
+    { title: "10. Evästeet ja muutokset", body: ["Palvelu käyttää välttämättömiä evästeitä ja paikallista tallennusta kirjautumiseen, istuntoon, kielivalintaan ja turvallisuuteen. Päivitämme selostetta, kun palvelu tai käsittely muuttuu."] },
+    { title: "11. Maskinesin rooli kaupoissa", body: ["Maskines käsittelee tilaus-, maksu-, viesti- ja reklamaatiotietoja markkinapaikan teknisen toteuttamisen, turvallisuuden, asiakastuen ja lakisääteisten velvoitteiden vuoksi. Tietojen käsittely ei tee Maskinesista tuotteen myyjää tai ostajan ja myyjän välisen kaupan osapuolta.", "Ilmoituksessa nimetty myyjä vastaa tuotteesta, sen tiedoista ja kunnosta sekä toimituksista, palautuksista, reklamaatioista, hyvityksistä ja muista kauppaan liittyvistä myyjän velvoitteista. Maskines vastaa omasta alustapalvelustaan sovellettavan pakottavan lain mukaisesti. Tämä vastuunjako ei rajoita rekisteröidyn tietosuojaoikeuksia tai muita pakottavaan lainsäädäntöön perustuvia oikeuksia."] }
   ]
 };
 
@@ -42,7 +43,7 @@ const privacyCopy: Record<Locale, LegalCopy> = {
   en: {
     ...fiCopy,
     title: "Privacy Notice",
-    updated: "Updated 14 May 2026 · EU GDPR compliant notice",
+    updated: "Updated 29 August 2026 · EU GDPR compliant notice",
     terms: "Terms of Use",
     summaryLabel: "Privacy summary",
     summary: [
@@ -61,7 +62,8 @@ const privacyCopy: Record<Locale, LegalCopy> = {
       { title: "7. Recipients and transfers", body: ["We do not sell personal data. Data may be processed by technical providers such as database, login, payment, email or hosting services. Transfers outside the EU/EEA use GDPR safeguards."] },
       { title: "8. Your rights", body: ["You have the right to access, rectify, erase, restrict, object and receive certain data in machine-readable form. Send requests to info@maskines.com."] },
       { title: "9. Complaint and more information", body: ["If you believe your data is processed unlawfully, contact Maskines or lodge a complaint with a supervisory authority."], links: [{ href: "https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en", label: "European Commission" }, { href: "https://tietosuoja.fi/", label: "Finnish Data Protection Ombudsman" }] },
-      { title: "10. Cookies and changes", body: ["The service uses necessary cookies and local storage for login, sessions, language choice and security. We update this notice when the service or processing changes."] }
+      { title: "10. Cookies and changes", body: ["The service uses necessary cookies and local storage for login, sessions, language choice and security. We update this notice when the service or processing changes."] },
+      { title: "11. Maskines' role in transactions", body: ["Maskines processes order, payment, message and complaint data to operate the marketplace, maintain security, provide support and meet legal obligations. Processing this data does not make Maskines the product seller or a party to the contract between buyer and seller.", "The seller identified in the listing is responsible for the product, its information and condition, delivery, returns, complaints, refunds and other seller obligations related to the sale. Maskines is responsible for its own platform service as required by mandatory applicable law. This allocation does not limit data protection rights or other mandatory statutory rights."] }
     ]
   },
   sv: fiCopy,

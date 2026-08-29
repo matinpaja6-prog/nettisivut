@@ -1,11 +1,11 @@
 "use client";
 
-import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, Home, LockKeyhole, Mail, Menu, MessageCircle, Search, Settings, Star, UserRound, Users, X } from "lucide-react";
+import { Award, Bell, Car, ChevronDown, ChevronRight, ClipboardList, DoorOpen, Heart, LockKeyhole, Mail, Menu, MessageCircle, PackageCheck, Search, Settings, Star, Store, UserRound, Users, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent as ReactFormEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { createPortal } from "react-dom";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -14,7 +14,9 @@ import {
   deleteAlertNotification,
   dismissPurchaseReviewRequest,
   getAlertNotifications,
+  getListings,
   getCurrentUserIsAdmin,
+  getSafeAuthSession,
   getSafeAuthUser,
   getUnreadConversationSummaries,
   getPublicSellerLevelStats,
@@ -31,18 +33,26 @@ import {
   type PurchaseReviewRequest,
   type SellerLevelStats,
 } from "@/lib/supabase";
+import { formatPrice, type Listing } from "@/lib/listings";
 import { calculateSellerLevel } from "@/lib/seller-level";
+import { readCart } from "@/lib/commerce/cart";
+import type { Order } from "@/lib/commerce/types";
 import { goBackOrFallback } from "@/lib/go-back";
 import { MESSAGES_MOBILE_BACK_EVENT } from "@/lib/messages-navigation";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, listingPath, listingUrlId, pagePath, profilePath, profileRootPath } from "@/lib/routes";
 import { useTaxonomy } from "./TaxonomyProvider";
 import LanguageSwitcher from "./LanguageSwitcher";
+import CurrencySwitcher from "./CurrencySwitcher";
+import CartHoverPreview from "./CartHoverPreview";
+import ThemeSwitcher from "./ThemeSwitcher";
+import MaskinesWordmark from "./MaskinesWordmark";
 
 const SEEN_TOPBAR_NOTIFICATIONS_STORAGE_KEY = "universalTopbarSeenNotifications";
 const RETAINED_MESSAGE_NOTIFICATIONS_STORAGE_KEY = "maskinesRetainedMessageNotifications";
 const MESSAGE_NOTIFICATION_RETENTION_MS = 12 * 60 * 60 * 1000;
 const NOTIFICATION_REFRESH_DEBOUNCE_MS = 120;
+const NOTIFICATION_POLL_INTERVAL_MS = 5_000;
 const OPEN_CATEGORY_DRAWER_STORAGE_KEY = "maskinesOpenCategoryDrawer";
 const OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY = "maskinesOpenCategoryDrawerStep";
 const HOME_RESET_SESSION_STORAGE_KEYS = [
@@ -53,6 +63,39 @@ const HOME_RESET_SESSION_STORAGE_KEYS = [
   OPEN_CATEGORY_DRAWER_STEP_STORAGE_KEY
 ];
 type TopbarDropdownKey = "parts" | "brands" | "models" | null;
+type SellerOrderNotification = Pick<
+  Order,
+  "id" | "order_number" | "customer_name" | "total_cents" | "payment_status" | "fulfillment_status" | "paid_at" | "created_at"
+>;
+
+async function getSellerOrderNotifications() {
+  const session = await getSafeAuthSession();
+  if (!session?.access_token) return { orders: [] as SellerOrderNotification[], companyId: null as string | null };
+  const query = new URLSearchParams({
+    summary: "notifications",
+    poll: String(Date.now())
+  });
+  const response = await fetch(`/api/commerce/orders?${query.toString()}`, {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+    cache: "no-store",
+    credentials: "same-origin"
+  });
+  if (!response.ok) throw new Error(`Seller order notification request failed (${response.status}).`);
+  const body = await response.json().catch(() => ({})) as { orders?: SellerOrderNotification[]; companyId?: string };
+  return {
+    orders: Array.isArray(body.orders) ? body.orders : [],
+    companyId: typeof body.companyId === "string" ? body.companyId : null
+  };
+}
+
+function normalizeMarketplaceSearch(value: unknown) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("fi-FI")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
 
 const TOPBAR_MODEL_GROUPS = [
   {
@@ -126,6 +169,8 @@ type TopbarProfile = {
   full_name: string | null;
   name: string | null;
   company_name: string | null;
+  account_type: string | null;
+  company_verified_at: string | null;
 };
 
 async function getTopbarProfile(userId: string): Promise<TopbarProfile | null> {
@@ -134,7 +179,7 @@ async function getTopbarProfile(userId: string): Promise<TopbarProfile | null> {
   try {
     const { data, error } = await supabase
       .from("profiles")
-      .select("avatar_url,first_name,last_name,full_name,name,company_name")
+      .select("avatar_url,first_name,last_name,full_name,name,company_name,account_type,company_verified_at")
       .eq("id", userId)
       .maybeSingle<TopbarProfile>();
 
@@ -151,12 +196,12 @@ function getTopbarProfileDisplayName(
 ) {
   const firstAndLastName =
     `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim();
+  const profileNames = profile?.account_type === "company"
+    ? [profile.company_name, firstAndLastName, profile.full_name, profile.name]
+    : [firstAndLastName, profile?.full_name, profile?.name];
 
   return [
-    profile?.company_name,
-    firstAndLastName,
-    profile?.full_name,
-    profile?.name,
+    ...profileNames,
     fallbackName
   ]
     .map((value) => String(value ?? "").trim())
@@ -181,6 +226,8 @@ const topbarText: Record<Locale, {
   searchAlerts: string;
   about: string;
   help: string;
+  signInRegister: string;
+  accountDetails: string;
   resetHome: string;
   back: string;
   brandHome: string;
@@ -203,6 +250,21 @@ const topbarText: Record<Locale, {
   settings: string;
   showAllMessages: string;
   manageAccount: string;
+  menuAccount: string;
+  menuCommerce: string;
+  menuCommunity: string;
+  companySales: string;
+  orders: string;
+  orderNotifications: string;
+  newPaidOrder: string;
+  marketplaceSearch: string;
+  filter: string;
+  stores: string;
+  parts: string;
+  vehicles: string;
+  ridingGear: string;
+  marketplaceSections: string;
+  displaySettings: string;
   followed: string;
   searchAlert: string;
   minutesAgo: (minutes: number) => string;
@@ -215,6 +277,8 @@ const topbarText: Record<Locale, {
     searchAlerts: "Hakuvahti",
     about: "Tietoa meistä",
     help: "Ohjeet",
+    signInRegister: "Kirjaudu / Rekisteröidy",
+    accountDetails: "Tiedot",
     resetHome: "Maskines – nollaa etusivu",
     back: "Takaisin edelliselle sivulle",
     brandHome: "Maskines – etusivulle",
@@ -237,6 +301,21 @@ const topbarText: Record<Locale, {
     settings: "Asetukset",
     showAllMessages: "Näytä kaikki viestit",
     manageAccount: "Hallinnoi tiliäsi",
+    menuAccount: "Tili",
+    menuCommerce: "Kaupankäynti",
+    menuCommunity: "Yhteisö",
+    companySales: "Yrityksen hallinta",
+    orders: "Omat ostokset",
+    orderNotifications: "Uudet tilaukset",
+    newPaidOrder: "Uusi maksettu tilaus",
+    marketplaceSearch: "Hae tuotteita, varaosia, OEM-numerolla, ID:llä tai yritystä",
+    filter: "Suodata",
+    stores: "Yritykset",
+    parts: "Varaosat",
+    vehicles: "Ajoneuvot",
+    ridingGear: "Ajovarusteet",
+    marketplaceSections: "Markkinapaikan osastot",
+    displaySettings: "Sivuston näyttöasetukset",
     followed: "Seuratut",
     searchAlert: "Hakuvahti",
     minutesAgo: (minutes) => `${minutes} min sitten`,
@@ -249,6 +328,8 @@ const topbarText: Record<Locale, {
     searchAlerts: "Search alerts",
     about: "About us",
     help: "Help",
+    signInRegister: "Sign in / Register",
+    accountDetails: "Account",
     resetHome: "Maskines – reset homepage",
     back: "Back to the previous page",
     brandHome: "Maskines – go to homepage",
@@ -271,6 +352,21 @@ const topbarText: Record<Locale, {
     settings: "Page settings",
     showAllMessages: "Show all messages",
     manageAccount: "Manage your account",
+    menuAccount: "Account",
+    menuCommerce: "Commerce",
+    menuCommunity: "Community",
+    companySales: "Company management",
+    orders: "My purchases",
+    orderNotifications: "New orders",
+    newPaidOrder: "New paid order",
+    marketplaceSearch: "Search products, parts or vehicles",
+    filter: "Filter",
+    stores: "Stores",
+    parts: "Parts",
+    vehicles: "Vehicles",
+    ridingGear: "Riding gear",
+    marketplaceSections: "Marketplace sections",
+    displaySettings: "Site display settings",
     followed: "Following",
     searchAlert: "Search alert",
     minutesAgo: (minutes) => `${minutes} min ago`,
@@ -283,6 +379,8 @@ const topbarText: Record<Locale, {
     searchAlerts: "Sökbevakningar",
     about: "Om oss",
     help: "Hjälp",
+    signInRegister: "Logga in / Registrera",
+    accountDetails: "Konto",
     resetHome: "Maskines – återställ startsidan",
     back: "Tillbaka till föregående sida",
     brandHome: "Maskines – gå till startsidan",
@@ -305,6 +403,21 @@ const topbarText: Record<Locale, {
     settings: "Sidinställningar",
     showAllMessages: "Visa alla meddelanden",
     manageAccount: "Hantera ditt konto",
+    menuAccount: "Konto",
+    menuCommerce: "Handel",
+    menuCommunity: "Gemenskap",
+    companySales: "Företagshantering",
+    orders: "Mina köp",
+    orderNotifications: "Nya beställningar",
+    newPaidOrder: "Ny betald beställning",
+    marketplaceSearch: "Sök produkter, reservdelar eller fordon",
+    filter: "Filtrera",
+    stores: "Butiker",
+    parts: "Reservdelar",
+    vehicles: "Fordon",
+    ridingGear: "Körutrustning",
+    marketplaceSections: "Marknadsplatsens avdelningar",
+    displaySettings: "Webbplatsens visningsinställningar",
     followed: "Följer",
     searchAlert: "Sökbevakning",
     minutesAgo: (minutes) => `${minutes} min sedan`,
@@ -317,6 +430,8 @@ const topbarText: Record<Locale, {
     searchAlerts: "Søkevarsler",
     about: "Om oss",
     help: "Hjelp",
+    signInRegister: "Logg inn / Registrer",
+    accountDetails: "Konto",
     resetHome: "Maskines – tilbakestill startsiden",
     back: "Tilbake til forrige side",
     brandHome: "Maskines – gå til startsiden",
@@ -339,6 +454,21 @@ const topbarText: Record<Locale, {
     settings: "Sideinnstillinger",
     showAllMessages: "Vis alle meldinger",
     manageAccount: "Administrer kontoen din",
+    menuAccount: "Konto",
+    menuCommerce: "Handel",
+    menuCommunity: "Fellesskap",
+    companySales: "Bedriftsadministrasjon",
+    orders: "Mine kjøp",
+    orderNotifications: "Nye bestillinger",
+    newPaidOrder: "Ny betalt bestilling",
+    marketplaceSearch: "Søk produkter, deler eller kjøretøy",
+    filter: "Filtrer",
+    stores: "Butikker",
+    parts: "Reservedeler",
+    vehicles: "Kjøretøy",
+    ridingGear: "Kjøreutstyr",
+    marketplaceSections: "Markedsplassens avdelinger",
+    displaySettings: "Nettstedets visningsinnstillinger",
     followed: "Følger",
     searchAlert: "Søkevarsel",
     minutesAgo: (minutes) => `${minutes} min siden`,
@@ -349,15 +479,29 @@ const topbarText: Record<Locale, {
 
 function TopbarMaskinesLogo() {
   return (
-    <Image
-      className="universal-home-brand-logo"
-      src="/maskines-share-logo.png"
-      alt="Maskines"
-      width={96}
-      height={96}
-      sizes="96px"
-      priority
-    />
+    <span className="universal-home-brand-art" aria-hidden="true">
+      <Image
+        className="maskines-brand-mark-img"
+        src="/maskines-brand-mark-clean-v4.png"
+        alt=""
+        width={512}
+        height={401}
+        sizes="42px"
+        priority
+        unoptimized
+      />
+      <Image
+        className="maskines-brand-mark-img-dark"
+        src="/maskines-brand-mark-dark-clean-v4.png"
+        alt=""
+        width={512}
+        height={401}
+        sizes="42px"
+        priority
+        unoptimized
+      />
+      <MaskinesWordmark className="maskines-brand-title" />
+    </span>
   );
 }
 
@@ -497,9 +641,14 @@ export default function UniversalTopbar() {
   const avatarChangeVersionRef = useRef(0);
   const [profileInitial, setProfileInitial] = useState("?");
   const [profileDisplayName, setProfileDisplayName] = useState(ui.fallbackProfile);
+  const [isCompanyAccount, setIsCompanyAccount] = useState(false);
+  const [isCompanyVerified, setIsCompanyVerified] = useState(false);
+  const [cartQuantity, setCartQuantity] = useState(0);
   const [reviewRequests, setReviewRequests] = useState<PurchaseReviewRequest[]>([]);
   const [alertNotifications, setAlertNotifications] = useState<AlertNotification[]>([]);
   const [unreadConversations, setUnreadConversations] = useState<ConversationSummary[]>([]);
+  const [sellerOrderNotifications, setSellerOrderNotifications] = useState<SellerOrderNotification[]>([]);
+  const [sellerOrderCompanyId, setSellerOrderCompanyId] = useState<string | null>(null);
   const [seenNotificationKeys, setSeenNotificationKeys] = useState<Set<string>>(new Set());
   const [notificationRefreshNonce, setNotificationRefreshNonce] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -508,12 +657,131 @@ export default function UniversalTopbar() {
   const [topbarDropdownOpen, setTopbarDropdownOpen] = useState<TopbarDropdownKey>(null);
   const [topbarDropdownRect, setTopbarDropdownRect] = useState<DOMRect | null>(null);
   const [profileMenuPosition, setProfileMenuPosition] = useState({ left: 14, top: 72 });
+  const [notificationMenuPosition, setNotificationMenuPosition] = useState({ left: 12, top: 72, width: 390 });
   const [authSurfaceActive, setAuthSurfaceActive] = useState(isAuthRoute);
+  const [marketplaceQuery, setMarketplaceQuery] = useState("");
+  const [marketplaceSearchOpen, setMarketplaceSearchOpen] = useState(false);
+  const [marketplaceCatalog, setMarketplaceCatalog] = useState<Listing[]>([]);
+  const [marketplaceCatalogLoading, setMarketplaceCatalogLoading] = useState(false);
+  const marketplaceCatalogRequestedRef = useRef(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const profileMenuOverlayRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
   const topbarDropdownRef = useRef<HTMLDivElement>(null);
   const topbarDropdownPortalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (canonicalPathname !== "/") return;
+    const urlQuery = new URLSearchParams(window.location.search).get("q")?.trim() ?? "";
+    setMarketplaceQuery(urlQuery);
+  }, [canonicalPathname]);
+
+  useEffect(() => {
+    if (marketplaceQuery.trim().length < 2 || marketplaceCatalogRequestedRef.current) return;
+    marketplaceCatalogRequestedRef.current = true;
+    setMarketplaceCatalogLoading(true);
+    void getListings({ includeOptionalFields: true, enrichSellerProfiles: true })
+      .then(({ data, error }) => {
+        if (error) {
+          marketplaceCatalogRequestedRef.current = false;
+          return;
+        }
+        setMarketplaceCatalog((data ?? []).filter((listing) => !listing.is_sold && !listing.is_hidden));
+      })
+      .catch(() => {
+        marketplaceCatalogRequestedRef.current = false;
+      })
+      .finally(() => setMarketplaceCatalogLoading(false));
+  }, [marketplaceQuery]);
+
+  const marketplaceSuggestions = useMemo(() => {
+    const needle = normalizeMarketplaceSearch(marketplaceQuery);
+    if (needle.length < 2) return {
+      products: [] as Listing[],
+      categories: [] as Array<{ label: string; count: number }>,
+      sellers: [] as Array<{ label: string; count: number }>,
+      totalCount: 0
+    };
+    const needleWords = needle.split(" ").filter(Boolean);
+    const results = marketplaceCatalog
+      .map((listing) => {
+        const seller = listing.company_name?.trim() || listing.seller_name?.trim() || "";
+        const listingNumber = String(listing.listing_number ?? "");
+        const searchable = normalizeMarketplaceSearch([
+          listing.id,
+          listingNumber,
+          listingNumber ? `id${listingNumber}` : "",
+          listingNumber ? `ilmoitus ${listingNumber}` : "",
+          listing.title,
+          listing.description,
+          listing.vehicle_type,
+          listing.vehicle_subtype,
+          listing.brand,
+          listing.model,
+          listing.year,
+          listing.engine_cc,
+          listing.engine_model,
+          listing.category,
+          listing.subcategory,
+          listing.part_number,
+          listing.part_model,
+          listing.condition,
+          listing.location,
+          seller
+        ].filter(Boolean).join(" "));
+        const searchableWords = searchable.split(" ").filter(Boolean);
+        const matches = searchable.includes(needle) || needleWords.every((word) =>
+          searchableWords.some((candidate) => candidate === word || candidate.startsWith(word) || (word.length >= 4 && candidate.includes(word)))
+        );
+        if (!matches) return null;
+
+        const title = normalizeMarketplaceSearch(listing.title);
+        const sellerText = normalizeMarketplaceSearch(seller);
+        const identifier = normalizeMarketplaceSearch(`${listingNumber} id${listingNumber} ${listing.id}`);
+        let score = 0;
+        if (title === needle) score += 120;
+        else if (title.startsWith(needle)) score += 90;
+        else if (title.includes(needle)) score += 70;
+        if (sellerText === needle) score += 115;
+        else if (sellerText.startsWith(needle)) score += 85;
+        else if (sellerText.includes(needle)) score += 65;
+        if (identifier.includes(needle)) score += 105;
+        if (normalizeMarketplaceSearch(`${listing.brand ?? ""} ${listing.model ?? ""}`).includes(needle)) score += 55;
+        return { listing, score };
+      })
+      .filter((result): result is { listing: Listing; score: number } => Boolean(result))
+      .sort((a, b) => b.score - a.score || new Date(b.listing.created_at).getTime() - new Date(a.listing.created_at).getTime())
+      .map((result) => result.listing);
+
+    const categoryLabels = Array.from(new Set(results.flatMap((listing) => [listing.category, listing.subcategory]).filter((value): value is string => Boolean(value?.trim()))));
+    const sellerLabels = Array.from(new Set(results.map((listing) => listing.company_name?.trim() || listing.seller_name?.trim() || "").filter(Boolean)));
+
+    return {
+      products: results.slice(0, 8),
+      categories: categoryLabels.map((label) => ({
+        label,
+        count: results.filter((listing) => listing.category === label || listing.subcategory === label).length
+      })).sort((a, b) => b.count - a.count).slice(0, 6),
+      sellers: sellerLabels.map((label) => ({
+        label,
+        count: results.filter((listing) => (listing.company_name?.trim() || listing.seller_name?.trim() || "") === label).length
+      })).sort((a, b) => b.count - a.count).slice(0, 6),
+      totalCount: results.length
+    };
+  }, [marketplaceCatalog, marketplaceQuery]);
+
+  useEffect(() => {
+    const syncCart = () => {
+      setCartQuantity(readCart().reduce((sum, item) => sum + item.quantity, 0));
+    };
+    syncCart();
+    window.addEventListener("maskines-cart-changed", syncCart);
+    window.addEventListener("storage", syncCart);
+    return () => {
+      window.removeEventListener("maskines-cart-changed", syncCart);
+      window.removeEventListener("storage", syncCart);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isAuthRoute) {
@@ -577,6 +845,8 @@ export default function UniversalTopbar() {
         setAvatarUrl(null);
         setProfileInitial("?");
         setProfileDisplayName(ui.fallbackProfile);
+        setIsCompanyAccount(false);
+        setIsCompanyVerified(false);
         setIsAdmin(false);
         setSellerLevelStats(emptySellerLevelStats);
         setProfileOpen(false);
@@ -601,6 +871,8 @@ export default function UniversalTopbar() {
       );
       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "?");
       setProfileDisplayName(displayName.trim() || ui.fallbackProfile);
+      setIsCompanyAccount(profile?.account_type === "company");
+      setIsCompanyVerified(Boolean(profile?.company_verified_at));
       getCurrentUserIsAdmin().then(setIsAdmin).catch(() => setIsAdmin(false));
       getPublicSellerLevelStats(nextUserId)
         .then(({ data }) => {
@@ -670,6 +942,8 @@ export default function UniversalTopbar() {
         setProfileInitial(displayName.charAt(0).toUpperCase());
         setProfileDisplayName(displayName);
       }
+      setIsCompanyAccount(profile.account_type === "company");
+      setIsCompanyVerified(Boolean(profile.company_verified_at));
     }
 
     function refreshOnVisible() {
@@ -740,6 +1014,8 @@ export default function UniversalTopbar() {
       setReviewRequests([]);
       setAlertNotifications([]);
       setUnreadConversations([]);
+      setSellerOrderNotifications([]);
+      setSellerOrderCompanyId(null);
       return;
     }
 
@@ -750,10 +1026,11 @@ export default function UniversalTopbar() {
 
     async function refreshNotifications() {
       try {
-        const [{ data: reviews }, { data: alerts }, { data: conversations }] = await Promise.all([
+        const [{ data: reviews }, { data: alerts }, { data: conversations }, sellerOrderResult] = await Promise.all([
           getPendingPurchaseReviewRequests(activeUserId),
           getAlertNotifications(activeUserId),
           getUnreadConversationSummaries(activeUserId),
+          getSellerOrderNotifications(),
         ]);
 
         if (cancelled) return;
@@ -769,6 +1046,8 @@ export default function UniversalTopbar() {
 
         setReviewRequests(uniqueById(reviews ?? []));
         setAlertNotifications(uniqueById(alerts ?? []));
+        setSellerOrderNotifications(uniqueById(sellerOrderResult.orders));
+        setSellerOrderCompanyId(sellerOrderResult.companyId);
         setUnreadConversations(
           mergeRetainedMessageNotifications(activeUserId, unread)
         );
@@ -788,7 +1067,7 @@ export default function UniversalTopbar() {
     }
 
     void refreshNotifications();
-    const messagesChannel = client
+    let messagesChannel = client
       .channel(`universal-topbar-notifications-${activeUserId}`)
       .on(
         "postgres_changes",
@@ -809,8 +1088,24 @@ export default function UniversalTopbar() {
         "postgres_changes",
         { event: "*", schema: "public", table: "purchase_review_requests", filter: `buyer_id=eq.${activeUserId}` },
         scheduleRefreshNotifications
-      )
-      .subscribe();
+      );
+    if (sellerOrderCompanyId) {
+      messagesChannel = messagesChannel.on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders", filter: `company_id=eq.${sellerOrderCompanyId}` },
+        scheduleRefreshNotifications
+      );
+    }
+    messagesChannel.subscribe();
+
+    const refreshInterval = window.setInterval(
+      scheduleRefreshNotifications,
+      NOTIFICATION_POLL_INTERVAL_MS
+    );
+
+    function refreshWhenVisible() {
+      if (document.visibilityState === "visible") scheduleRefreshNotifications();
+    }
 
     function onReviewDismissed() {
       refreshNotifications();
@@ -823,17 +1118,22 @@ export default function UniversalTopbar() {
     window.addEventListener("review-request-dismissed", onReviewDismissed);
     window.addEventListener(CHAT_NOTIFICATIONS_CHANGED_EVENT, onChatNotificationsChanged);
     window.addEventListener("storage", onChatNotificationsChanged);
+    window.addEventListener("focus", scheduleRefreshNotifications);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
     return () => {
       cancelled = true;
+      window.clearInterval(refreshInterval);
       if (refreshTimer !== null) {
         window.clearTimeout(refreshTimer);
       }
       window.removeEventListener("review-request-dismissed", onReviewDismissed);
       window.removeEventListener(CHAT_NOTIFICATIONS_CHANGED_EVENT, onChatNotificationsChanged);
       window.removeEventListener("storage", onChatNotificationsChanged);
+      window.removeEventListener("focus", scheduleRefreshNotifications);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
       client.removeChannel(messagesChannel);
     };
-  }, [notificationRefreshNonce, userId]);
+  }, [notificationRefreshNonce, sellerOrderCompanyId, userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -856,6 +1156,27 @@ export default function UniversalTopbar() {
   useEffect(() => {
     if (!notificationOpen) return;
 
+    function updateNotificationMenuPosition() {
+      const anchor = notificationMenuRef.current?.querySelector<HTMLButtonElement>(
+        ".universal-notification-button"
+      )?.getBoundingClientRect();
+      if (!anchor) return;
+
+      const viewportWidth = document.documentElement.clientWidth;
+      const edgeGap = viewportWidth <= 720 ? 8 : 12;
+      const width = Math.min(390, viewportWidth - edgeGap * 2);
+      const left = Math.max(
+        edgeGap,
+        Math.min(anchor.right - width, viewportWidth - width - edgeGap)
+      );
+
+      setNotificationMenuPosition({
+        left,
+        top: anchor.bottom + 6,
+        width
+      });
+    }
+
     function closeOnOutsideClick(event: MouseEvent) {
       if (!notificationMenuRef.current?.contains(event.target as Node)) {
         setNotificationOpen(false);
@@ -866,11 +1187,16 @@ export default function UniversalTopbar() {
       if (event.key === "Escape") setNotificationOpen(false);
     }
 
+    updateNotificationMenuPosition();
     document.addEventListener("mousedown", closeOnOutsideClick);
     document.addEventListener("keydown", closeOnEscape);
+    window.addEventListener("resize", updateNotificationMenuPosition);
+    window.addEventListener("scroll", updateNotificationMenuPosition, true);
     return () => {
       document.removeEventListener("mousedown", closeOnOutsideClick);
       document.removeEventListener("keydown", closeOnEscape);
+      window.removeEventListener("resize", updateNotificationMenuPosition);
+      window.removeEventListener("scroll", updateNotificationMenuPosition, true);
     };
   }, [notificationOpen]);
 
@@ -897,8 +1223,9 @@ export default function UniversalTopbar() {
       if (!anchor) return;
 
       const edgeGap = 14;
-      const menuWidth = Math.min(320, window.innerWidth - edgeGap * 2);
-      const left = Math.max(edgeGap, Math.min(anchor.left, window.innerWidth - menuWidth - edgeGap));
+      const menuWidth = Math.min(360, window.innerWidth - edgeGap * 2);
+      const preferredLeft = anchor.right - menuWidth;
+      const left = Math.max(edgeGap, Math.min(preferredLeft, window.innerWidth - menuWidth - edgeGap));
       setProfileMenuPosition({ left, top: anchor.bottom + 8 });
     }
 
@@ -973,8 +1300,12 @@ export default function UniversalTopbar() {
   const visibleReviewRequests = reviewRequests;
   const visibleAlertNotifications = alertNotifications;
   const visibleUnreadConversations = unreadConversations;
+  const visibleSellerOrderNotifications = sellerOrderNotifications;
   const unreadReviewRequests = visibleReviewRequests.filter((request) => !request.seen_at && !seenNotificationKeys.has(`review:${request.id}`));
   const unreadAlertNotifications = visibleAlertNotifications.filter((notification) => !notification.seen && !seenNotificationKeys.has(`alert:${notification.id}`));
+  const unreadSellerOrderNotifications = visibleSellerOrderNotifications.filter(
+    (order) => !seenNotificationKeys.has(`order:${order.id}`)
+  );
   const unreadConversationsForBadge = visibleUnreadConversations.filter(
     (conversation) =>
       !seenNotificationKeys.has(conversationNotificationKey(conversation))
@@ -982,10 +1313,11 @@ export default function UniversalTopbar() {
   const notificationItemCount =
     unreadReviewRequests.length +
     unreadAlertNotifications.length +
+    unreadSellerOrderNotifications.length +
     unreadConversationsForBadge.length;
   const hasNotifications = notificationItemCount > 0;
   const hasNotificationItems =
-    visibleReviewRequests.length + visibleAlertNotifications.length + visibleUnreadConversations.length > 0;
+    visibleReviewRequests.length + visibleAlertNotifications.length + visibleUnreadConversations.length + visibleSellerOrderNotifications.length > 0;
   const isHomePage = canonicalPathname === "/";
   // Keep the focused login/register surface headerless, but restore the full
   // topbar as soon as authentication succeeds. This also covers the short
@@ -1005,6 +1337,9 @@ export default function UniversalTopbar() {
   const authHref = pagePath("auth", locale);
   const messagesHref = pagePath("messages", locale);
   const profileHref = profileRootPath(locale);
+  const companyManagementHref = isCompanyVerified
+    ? "/yritys"
+    : `${profileHref}?verifyCompany=1#tilin-turvallisuus`;
   const myListingsHref = pagePath("my-listings", locale);
   const garagePageHref = pagePath("garage", locale);
   const savedHref = pagePath("saved", locale);
@@ -1060,6 +1395,11 @@ export default function UniversalTopbar() {
     if (hours < 24) return ui.hoursAgo(hours);
     const days = Math.round(hours / 24);
     return ui.daysAgo(days);
+  }
+
+  function formatOrderNotificationAmount(cents: number) {
+    const localeTag = locale === "fi" ? "fi-FI" : locale === "sv" ? "sv-SE" : locale === "no" ? "nb-NO" : "en-US";
+    return new Intl.NumberFormat(localeTag, { style: "currency", currency: "EUR" }).format(cents / 100);
   }
 
   const rememberSeenNotificationKeys = useCallback((keys: string[]) => {
@@ -1152,6 +1492,7 @@ export default function UniversalTopbar() {
     }
 
     rememberSeenNotificationKeys([
+      ...unreadSellerOrderNotifications.map((order) => `order:${order.id}`),
       ...unreadReviewRequests.map((request) => `review:${request.id}`),
       ...unreadAlertNotifications.map((notification) => `alert:${notification.id}`),
       ...visibleUnreadConversations.map(conversationNotificationKey),
@@ -1162,6 +1503,7 @@ export default function UniversalTopbar() {
     rememberViewedMessageNotifications,
     unreadAlertNotifications,
     unreadReviewRequests,
+    unreadSellerOrderNotifications,
     userId,
     visibleUnreadConversations,
   ]);
@@ -1350,6 +1692,46 @@ export default function UniversalTopbar() {
     goBackOrFallback(router, "/");
   }
 
+  function openMarketplaceFilters() {
+    setProfileOpen(false);
+    setNotificationOpen(false);
+    setTopbarDropdownOpen(null);
+
+    if (canonicalPathname.startsWith("/seller/") || canonicalPathname.startsWith("/profile/")) {
+      window.dispatchEvent(new CustomEvent("seller-profile-open-filters"));
+      return;
+    }
+
+    if (document.querySelector("main[data-home-page]")) {
+      window.dispatchEvent(new CustomEvent("maskines-open-home-filters"));
+      return;
+    }
+
+    try {
+      sessionStorage.setItem("maskinesOpenHomeFilters", "1");
+    } catch {
+      /* Session storage may be unavailable in restricted browser contexts. */
+    }
+    router.push("/");
+  }
+
+  function runMarketplaceSearch(value: string) {
+    const query = value.trim();
+    setMarketplaceQuery(query);
+    setMarketplaceSearchOpen(false);
+    if (document.querySelector("main[data-home-page]")) {
+      window.dispatchEvent(new CustomEvent("maskines-home-search", { detail: query }));
+      return;
+    }
+
+    router.push(query ? `/?q=${encodeURIComponent(query)}` : "/");
+  }
+
+  function handleMarketplaceHeaderSearch(event: ReactFormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    runMarketplaceSearch(marketplaceQuery);
+  }
+
   function handleHomeReset(event: ReactMouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
 
@@ -1373,10 +1755,6 @@ export default function UniversalTopbar() {
       {isHomePage ? (
         <Link href="/" className="universal-home-brand" aria-label={ui.resetHome} onClick={handleHomeReset}>
           <TopbarMaskinesLogo />
-          <span className="universal-home-brand-copy" aria-hidden="true">
-            <strong>MASKINES</strong>
-            <small>MARKETPLACE</small>
-          </span>
         </Link>
       ) : (
         <div className="universal-home-brand universal-page-back-brand" aria-hidden="false">
@@ -1394,39 +1772,31 @@ export default function UniversalTopbar() {
             aria-label={ui.brandHome}
             onClick={handleHomeReset}
           >
-            <span className="universal-home-brand-copy" aria-hidden="true">
-              <strong>MASKINES</strong>
-              <small>MARKETPLACE</small>
+            <span className="universal-page-brand-mobile-mark" aria-hidden="true">
+              <Image
+                className="maskines-brand-mark-img"
+                src="/maskines-brand-mark-clean-v4.png"
+                alt=""
+                width={512}
+                height={401}
+                sizes="38px"
+                priority
+                unoptimized
+              />
+              <Image
+                className="maskines-brand-mark-img-dark"
+                src="/maskines-brand-mark-dark-clean-v4.png"
+                alt=""
+                width={512}
+                height={401}
+                sizes="38px"
+                priority
+                unoptimized
+              />
             </span>
+            <MaskinesWordmark className="maskines-brand-title" />
           </Link>
         </div>
-      )}
-      {!isAuthPage && (
-      <nav className="universal-home-primary-nav" aria-label={ui.primaryNavigation} ref={topbarDropdownRef}>
-        {isHomePage ? (
-          <>
-            <Link href="/" className="is-active">
-              <Home size={18} aria-hidden="true" />
-              {ui.home}
-            </Link>
-            <Link href={garageHref}>{ui.garage}</Link>
-            <Link href={searchAlertsHref}>{ui.searchAlerts}</Link>
-            <Link href={aboutHref}>{ui.about}</Link>
-            <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>{ui.help}</Link>
-          </>
-        ) : (
-          <>
-            <Link href="/" className={isActiveRoute("/") ? "is-active" : ""}>
-              <Home size={18} aria-hidden="true" />
-              {ui.home}
-            </Link>
-            <Link href={garageHref} className={isActiveRoute("/garage") ? "is-active" : ""}>{ui.garage}</Link>
-            <Link href={searchAlertsHref} className={isActiveRoute("/search-alerts") ? "is-active" : ""}>{ui.searchAlerts}</Link>
-            <Link href={aboutHref} className={isActiveRoute("/about") ? "is-active" : ""}>{ui.about}</Link>
-            <Link href={faqHref} className={`universal-contact-cta${isActiveRoute("/faq") ? " is-active" : ""}`}>{ui.help}</Link>
-          </>
-        )}
-      </nav>
       )}
     </div>
   );
@@ -1561,7 +1931,6 @@ export default function UniversalTopbar() {
                 </span>
                 <span className="universal-profile-menu-title">
                   <strong data-person-name data-no-auto-translate translate="no">{profileDisplayName}</strong>
-                  <small>{ui.manageAccount}</small>
                 </span>
               </div>
               <div className="universal-profile-level-card" aria-label={sellerLevelTooltip}>
@@ -1580,41 +1949,56 @@ export default function UniversalTopbar() {
                   </span>
                 </span>
               </div>
-              <Link href="/" className={`universal-profile-menu-link${isActiveRoute("/") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                <Home size={16} /> {t.home}
-              </Link>
-              <Link href={profileHref} className={`universal-profile-menu-link${isActiveRoute("/profile") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                <UserRound size={16} /> {ownProfileLabel}
-              </Link>
-              <Link href={myListingsHref} className={`universal-profile-menu-link${isActiveRoute("/my-listings") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                <ClipboardList size={16} /> {t.myListings}
-              </Link>
-              <Link href={garageHref} className={`universal-profile-menu-link${isActiveRoute("/garage") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                <Car size={16} /> {t.garageTitle}
-              </Link>
-              <Link href={messagesHref} className={`universal-profile-menu-link${isActiveRoute("/messages") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                <Mail size={16} /> {t.messages}
-              </Link>
-              <Link href={savedHref} className={`universal-profile-menu-link${isActiveRoute("/saved") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                <Heart size={16} /> {t.savedListings}
-              </Link>
-              <Link href={followedHref} className={`universal-profile-menu-link${isActiveRoute("/followed") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                <Users size={16} /> {ui.followed}
-              </Link>
-              <Link href={searchAlertsHref} className={`universal-profile-menu-link${isActiveRoute("/search-alerts") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                <Bell size={16} /> {ui.searchAlert}
-              </Link>
-              <Link href={settingsHref} className={`universal-profile-menu-link${isActiveRoute("/settings") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                <Settings size={16} /> {ui.settings}
-              </Link>
-              {isAdmin && (
-                <Link href="/admin" className={`universal-profile-menu-link admin${isActiveRoute("/admin") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
-                  <Menu size={16} /> Admin
+              <div className="universal-profile-menu-group">
+                <span className="universal-profile-menu-group-label">{ui.menuAccount}</span>
+                <Link href={profileHref} className={`universal-profile-menu-link${isActiveRoute("/profile") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <UserRound size={18} /><span>{ownProfileLabel}</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
                 </Link>
+                <Link href={settingsHref} className={`universal-profile-menu-link${isActiveRoute("/settings") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Settings size={18} /><span>{ui.settings}</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
+                </Link>
+              </div>
+              <div className="universal-profile-menu-group">
+                <span className="universal-profile-menu-group-label">{ui.menuCommerce}</span>
+                <Link href={myListingsHref} className={`universal-profile-menu-link${isActiveRoute("/my-listings") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <ClipboardList size={18} /><span>{t.myListings}</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
+                </Link>
+                <Link href="/tilaukset" className={`universal-profile-menu-link${isActiveRoute("/tilaukset") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <PackageCheck size={18} /><span>{ui.orders}</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
+                </Link>
+                {isCompanyAccount && (
+                  <Link href={companyManagementHref} className={`universal-profile-menu-link${isActiveRoute("/yritys") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <Store size={18} /><span>{ui.companySales}</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
+                  </Link>
+                )}
+                <Link href={garageHref} className={`universal-profile-menu-link${isActiveRoute("/garage") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Car size={18} /><span>{t.garageTitle}</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
+                </Link>
+              </div>
+              <div className="universal-profile-menu-group">
+                <span className="universal-profile-menu-group-label">{ui.menuCommunity}</span>
+                <Link href={messagesHref} className={`universal-profile-menu-link${isActiveRoute("/messages") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Mail size={18} /><span>{t.messages}</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
+                </Link>
+                <Link href={savedHref} className={`universal-profile-menu-link${isActiveRoute("/saved") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Heart size={18} /><span>{t.savedListings}</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
+                </Link>
+                <Link href={followedHref} className={`universal-profile-menu-link${isActiveRoute("/followed") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Users size={18} /><span>{ui.followed}</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
+                </Link>
+                <Link href={searchAlertsHref} className={`universal-profile-menu-link${isActiveRoute("/search-alerts") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                  <Bell size={18} /><span>{ui.searchAlert}</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
+                </Link>
+              </div>
+              {isAdmin && (
+                <div className="universal-profile-menu-group universal-profile-menu-admin-group">
+                  <Link href="/admin" className={`universal-profile-menu-link admin${isActiveRoute("/admin") ? " is-active" : ""}`} role="menuitem" onClick={() => setProfileOpen(false)}>
+                    <Menu size={18} /><span>Admin</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
+                  </Link>
+                </div>
               )}
-              <div className="universal-profile-menu-divider" />
               <button type="button" className="universal-profile-menu-link danger" role="menuitem" onClick={handleSignOut}>
-                <DoorOpen size={16} /> {t.signOut}
+                <DoorOpen size={18} /><span>{t.signOut}</span><ChevronRight className="universal-profile-menu-chevron" size={17} />
               </button>
             </>
           ) : (
@@ -1636,33 +2020,172 @@ export default function UniversalTopbar() {
     <>
     {profileMenuPortal}
     {topbarDropdownPortal}
+    {!isAuthPage ? (
+      <aside className="universal-utility-bar" aria-label={ui.displaySettings} data-no-auto-translate translate="no">
+        <div className="universal-utility-inner">
+          <div className="universal-utility-controls">
+            <div className="universal-utility-theme">
+              <span className="universal-utility-prefix">{locale === "fi" ? "Teema" : locale === "sv" || locale === "no" ? "Tema" : "Theme"}</span>
+              <ThemeSwitcher />
+            </div>
+            <div className="universal-utility-language">
+              <span className="universal-utility-prefix">{locale === "fi" ? "Kieli" : locale === "sv" ? "Språk" : locale === "no" ? "Språk" : "Language"}</span>
+              <LanguageSwitcher />
+            </div>
+            <div className="universal-utility-currency">
+              <span className="universal-utility-prefix">{locale === "fi" ? "Valuutta" : locale === "sv" ? "Valuta" : locale === "no" ? "Valuta" : "Currency"}</span>
+              <CurrencySwitcher />
+            </div>
+          </div>
+          <nav className="universal-utility-links" aria-label={ui.quickActions}>
+            <Link href={aboutHref} className={isActiveRoute("/about") ? "is-active" : ""}>
+              <span>{ui.about}</span>
+            </Link>
+            {userId ? (
+              <div className="universal-profile-menu-wrap universal-utility-account-wrap" ref={profileMenuRef}>
+                <button
+                  type="button"
+                  className={`universal-utility-account-button${profileOpen ? " is-open" : ""}`}
+                  aria-label={profileOpen ? ui.closeProfileMenu : ui.openProfileMenu}
+                  aria-haspopup="menu"
+                  aria-expanded={profileOpen}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    toggleProfileMenu();
+                  }}
+                >
+                  <UserRound size={14} aria-hidden="true" />
+                  <span title={profileDisplayName}>{profileDisplayName || ui.accountDetails}</span>
+                  <ChevronDown size={12} aria-hidden="true" />
+                </button>
+              </div>
+            ) : (
+              <Link href={`${authHref}?mode=login`} className="universal-utility-account-link">
+                <UserRound size={14} aria-hidden="true" />
+                <span>{ui.signInRegister}</span>
+              </Link>
+            )}
+          </nav>
+        </div>
+      </aside>
+    ) : null}
     <header
       className={`universal-app-topbar${isHomePage ? " universal-home-topbar" : ""}${isAuthPage ? " universal-auth-topbar" : ""}`}
       data-no-auto-translate
       translate="no"
     >
       {primaryNavigation}
+      {!isAuthPage ? (
+        <form className="marketplace-header-search" role="search" onSubmit={handleMarketplaceHeaderSearch}>
+          <Search size={18} aria-hidden="true" />
+          <input
+            type="search"
+            name="q"
+            placeholder={ui.marketplaceSearch}
+            aria-label={ui.marketplaceSearch}
+            aria-controls="marketplace-header-suggestions"
+            aria-expanded={marketplaceSearchOpen && marketplaceQuery.trim().length >= 2}
+            value={marketplaceQuery}
+            onChange={(event) => {
+              setMarketplaceQuery(event.target.value);
+              setMarketplaceSearchOpen(true);
+            }}
+            onFocus={() => setMarketplaceSearchOpen(true)}
+            onBlur={() => window.setTimeout(() => setMarketplaceSearchOpen(false), 140)}
+            autoComplete="off"
+            spellCheck={false}
+          />
+          <button type="submit">
+            <Search size={17} aria-hidden="true" />
+            <span>{locale === "fi" ? "Hae" : t.searchLabel}</span>
+          </button>
+          {marketplaceSearchOpen && marketplaceQuery.trim().length >= 2 ? (
+            <section
+              id="marketplace-header-suggestions"
+              className="marketplace-header-suggestions"
+              aria-label={locale === "fi" ? "Hakuehdotukset" : "Search suggestions"}
+              onMouseDown={(event) => event.preventDefault()}
+            >
+              <div className="marketplace-header-suggestion-groups">
+                <button
+                  type="button"
+                  className="marketplace-header-search-all"
+                  onClick={() => runMarketplaceSearch(marketplaceQuery)}
+                >
+                  <Search size={16} aria-hidden="true" />
+                  <span>
+                    <strong>{marketplaceQuery.trim()}</strong>
+                    <small> – {locale === "fi" ? "Kaikki ilmoitukset" : "All listings"} ({marketplaceSuggestions.totalCount} {locale === "fi" ? (marketplaceSuggestions.totalCount === 1 ? "osuma" : "osumaa") : (marketplaceSuggestions.totalCount === 1 ? "match" : "matches")})</small>
+                  </span>
+                </button>
+                {marketplaceSuggestions.categories.length > 0 ? (
+                  <div className="marketplace-header-suggestion-group">
+                    <strong>{locale === "fi" ? "Tuoteryhmistä" : "Categories"}</strong>
+                    {marketplaceSuggestions.categories.map((category) => (
+                      <button key={category.label} type="button" onClick={() => runMarketplaceSearch(`${marketplaceQuery.trim()} ${category.label}`)}>
+                        <Search size={15} aria-hidden="true" />
+                        <span><b>{marketplaceQuery.trim()}</b><small> – {category.label} ({category.count} {locale === "fi" ? (category.count === 1 ? "osuma" : "osumaa") : (category.count === 1 ? "match" : "matches")})</small></span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+                {marketplaceSuggestions.sellers.length > 0 ? (
+                  <div className="marketplace-header-suggestion-group">
+                    <strong>{locale === "fi" ? "Yrityksistä ja myyjistä" : "Companies and sellers"}</strong>
+                    {marketplaceSuggestions.sellers.map((seller) => (
+                      <button key={seller.label} type="button" onClick={() => runMarketplaceSearch(seller.label)}>
+                        <Store size={15} aria-hidden="true" />
+                        <span><b>{marketplaceQuery.trim()}</b><small> – {seller.label} ({seller.count} {locale === "fi" ? (seller.count === 1 ? "osuma" : "osumaa") : (seller.count === 1 ? "match" : "matches")})</small></span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+              <div className="marketplace-header-suggestion-products">
+                {marketplaceCatalogLoading ? (
+                  <p>{locale === "fi" ? "Haetaan tuotteita…" : "Searching products…"}</p>
+                ) : marketplaceSuggestions.products.length > 0 ? marketplaceSuggestions.products.map((listing) => {
+                  const seller = listing.company_name?.trim() || listing.seller_name?.trim();
+                  const detail = [seller, listing.brand, listing.model, listing.part_number].filter(Boolean).join(" · ");
+                  const imageUrl = listing.image_url || listing.image_urls?.find(Boolean) || "/maskines-brand-mark-clean-v4.png";
+                  return (
+                    <Link
+                      key={listing.id}
+                      href={listingPath(listingUrlId(listing))}
+                      className="marketplace-header-product-suggestion"
+                      onClick={() => setMarketplaceSearchOpen(false)}
+                    >
+                      <Image src={imageUrl} alt="" width={58} height={58} unoptimized />
+                      <span>
+                        <strong>{listing.title}</strong>
+                        {detail ? <small>{detail}</small> : null}
+                      </span>
+                      <b>{formatPrice(listing.price)}</b>
+                    </Link>
+                  );
+                }) : (
+                  <p>{locale === "fi" ? "Ei suoria ehdotuksia. Hae nähdäksesi kaikki osumat." : "No direct suggestions. Search to see all matches."}</p>
+                )}
+              </div>
+            </section>
+          ) : null}
+        </form>
+      ) : null}
       <nav className={`universal-topbar-actions${!userId ? " universal-topbar-actions-guest" : ""}`} aria-label={ui.quickActions}>
-        {!isAuthPage ? (
-          <div className="universal-language-wrap">
-            <LanguageSwitcher />
-          </div>
-        ) : null}
         {!isAuthPage && (!userId ? (
-          <Link href={authHref} className="rebuilt-login-button rebuilt-login-button-guest">
-            <LockKeyhole size={17} aria-hidden="true" />
-            <strong>{t.login}</strong>
-          </Link>
+          <>
+            <CartHoverPreview quantity={cartQuantity} />
+            <Link
+              href={`${authHref}?mode=login`}
+              className="universal-mobile-login-button"
+              aria-label={t.login}
+            >
+              <LockKeyhole size={19} strokeWidth={2.3} aria-hidden="true" />
+            </Link>
+          </>
         ) : (
           <>
-            <Link href="/sell" className="universal-create-button">
-              <span className="universal-create-plus" aria-hidden="true">
-                <svg viewBox="0 0 16 16" focusable="false">
-                  <path d="M8 3v10M3 8h10" />
-                </svg>
-              </span>
-              <strong>{t.createListing}</strong>
-            </Link>
             {false && userId ? (
               <Link
                 href={profilePath(userId, profileDisplayName, locale)}
@@ -1691,6 +2214,7 @@ export default function UniversalTopbar() {
                 </small>
               </Link>
             ) : null}
+            <CartHoverPreview quantity={cartQuantity} />
             <div className="universal-notification-wrap" ref={notificationMenuRef}>
               <button
                 type="button"
@@ -1714,7 +2238,17 @@ export default function UniversalTopbar() {
               </button>
 
           {notificationOpen && (
-            <div id="universal-notification-menu" className="universal-notification-menu" role="menu">
+            <div
+              id="universal-notification-menu"
+              className="universal-notification-menu"
+              role="menu"
+              style={{
+                left: notificationMenuPosition.left,
+                right: "auto",
+                top: notificationMenuPosition.top,
+                width: notificationMenuPosition.width
+              }}
+            >
               <div className="universal-notification-head">
                 <span className="universal-notification-head-icon" aria-hidden="true">
                   <Bell size={24} />
@@ -1739,6 +2273,34 @@ export default function UniversalTopbar() {
               ) : null}
 
               <div className="universal-notification-body">
+              {visibleSellerOrderNotifications.length > 0 ? (
+                <div className="universal-notification-group">
+                  <span>{ui.orderNotifications}</span>
+                  {visibleSellerOrderNotifications.map((order) => {
+                    const isUnread = !seenNotificationKeys.has(`order:${order.id}`);
+                    return (
+                      <div key={order.id} className="universal-notification-item-wrap">
+                        {isUnread ? <span className="universal-notification-dot is-unread" aria-hidden="true" /> : <span />}
+                        <Link
+                          href="/yritys?tab=orders"
+                          className="universal-notification-item"
+                          role="menuitem"
+                          onClick={() => setNotificationOpen(false)}
+                        >
+                          <span className="universal-notification-item-icon"><PackageCheck size={15} /></span>
+                          <span>
+                            <strong>{ui.newPaidOrder} {order.order_number}</strong>
+                            <small>{order.customer_name} · {formatOrderNotificationAmount(order.total_cents)}</small>
+                          </span>
+                          <time>{formatNotificationTime(order.paid_at || order.created_at)}</time>
+                          <ChevronRight size={22} aria-hidden="true" />
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+
               {visibleUnreadConversations.length > 0 ? (
                 <div className="universal-notification-group">
                   <span>{t.messages}</span>
@@ -1888,6 +2450,14 @@ export default function UniversalTopbar() {
             </div>
           )}
         </div>
+        <Link id="maskines-create-listing-button" href="/sell" className="universal-create-button universal-create-button-desktop-only">
+          <span className="universal-create-plus" aria-hidden="true">
+            <svg viewBox="0 0 16 16" focusable="false">
+              <path d="M8 3v10M3 8h10" />
+            </svg>
+          </span>
+          <strong>{t.createListing}</strong>
+        </Link>
         <button
           type="button"
           className="universal-mobile-search-button"
@@ -1897,59 +2467,30 @@ export default function UniversalTopbar() {
           <Search size={16} aria-hidden="true" />
           <span>{locale === "fi" ? "Hae" : t.searchLabel}</span>
         </button>
-        <div
-          className="universal-profile-menu-wrap"
-          ref={profileMenuRef}
-        >
-          <button
-            type="button"
-            className={`rebuilt-profile-button${profileOpen ? " is-open" : ""}`}
-            aria-label={profileOpen ? ui.closeProfileMenu : ui.openProfileMenu}
-            aria-haspopup="menu"
-            aria-expanded={profileOpen}
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              toggleProfileMenu();
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                toggleProfileMenu();
-              }
-            }}
-          >
-            <span
-              className={`universal-profile-avatar ${avatarUrl ? "has-photo" : "no-photo"}`}
-              aria-hidden="true"
-            >
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  onError={() => setAvatarUrl(null)}
-                />
-              ) : (
-                <span className="profile-avatar-initial">{profileInitial}</span>
-              )}
-            </span>
-            <span className="rebuilt-profile-button-copy">
-              <strong>{t.profile}</strong>
-              <span className="rebuilt-profile-xp-row" aria-hidden="true">
-                <small>{sellerLevel.level}</small>
-                <span className="rebuilt-profile-xp-track">
-                  <span style={{ width: `${sellerLevel.progressPercent}%` }} />
-                </span>
-              </span>
-            </span>
-            <ChevronDown size={14} aria-hidden="true" />
-          </button>
-        </div>
           </>
         ))}
       </nav>
     </header>
+    {!isAuthPage ? (
+      <nav className="marketplace-section-nav" aria-label={ui.marketplaceSections} data-no-auto-translate translate="no">
+        <div className="marketplace-section-nav-inner">
+          <Link
+            href="/"
+            className={`marketplace-section-home${isActiveRoute("/") ? " is-active" : ""}`}
+            onClick={handleHomeReset}
+          >
+            {ui.home}
+          </Link>
+          <button type="button" className="marketplace-section-filter" onClick={openMarketplaceFilters}>
+            {ui.filter}
+          </button>
+          <Link href="/liikkeet" className={isActiveRoute("/liikkeet") ? "is-active" : ""}>{ui.stores}</Link>
+          <Link href="/varaosat" className={isActiveRoute("/varaosat") ? "is-active" : ""}>{ui.parts}</Link>
+          <Link href="/ajoneuvot" className={isActiveRoute("/ajoneuvot") ? "is-active" : ""}>{ui.vehicles}</Link>
+          <Link href="/?category=Ajovarusteet">{ui.ridingGear}</Link>
+        </div>
+      </nav>
+    ) : null}
     </>
   );
 }

@@ -1,0 +1,49 @@
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.price strong {
+  color: inherit;
+  font: inherit;
+  font-weight: 950;
+}
+
+.price del {
+  color: #8493a2;
+  display: inline-block;
+  font-size: .62em;
+  font-weight: 750;
+  margin-inline-start: .18em;
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 21px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: #e54813;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .035em;
+  line-height: 1;
+  box-shadow: 0 4px 10px rgba(202, 55, 11, .24);
+}
+
+.detail {
+  gap: 10px;
+  margin: 0;
+}
+
+.detail .badge {
+  min-height: 27px;
+  padding-inline: 9px;
+  font-size: 12px;
+}
+
+.detail del { font-size: 15px; }

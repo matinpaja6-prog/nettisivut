@@ -97,6 +97,12 @@ export default function SiteAppearance() {
     applyUserTheme(readUserSettings().theme);
     window.addEventListener(USER_SETTINGS_EVENT, onUserSettingsChange);
 
+    const systemThemeQuery = window.matchMedia("(prefers-color-scheme: light)");
+    const onSystemThemeChange = () => {
+      if (readUserSettings().theme === "system") applyUserTheme("system");
+    };
+    systemThemeQuery.addEventListener("change", onSystemThemeChange);
+
     // Live updates from other admin tabs via Supabase realtime.
     const channel = supabase
       ?.channel("site-settings-live")
@@ -111,6 +117,7 @@ export default function SiteAppearance() {
       cancelled = true;
       window.removeEventListener(APPEARANCE_EVENT, onChange);
       window.removeEventListener(USER_SETTINGS_EVENT, onUserSettingsChange);
+      systemThemeQuery.removeEventListener("change", onSystemThemeChange);
       if (channel && supabase) void supabase.removeChannel(channel);
     };
   }, []);

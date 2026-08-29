@@ -13,6 +13,11 @@ type ListingImageFields = {
   seller_id?: string | null;
   image_url?: string | null;
   image_urls?: string[] | null;
+  translations?: {
+    _meta?: {
+      commerce_product_id?: string | null;
+    } | null;
+  } | null;
 };
 
 function getBearerToken(request: Request) {
@@ -133,7 +138,7 @@ export async function DELETE(
     const admin = getClient(serviceRoleKey);
     const { data: listing, error: listingError } = await admin
       .from("listings")
-      .select("id,seller_id,image_url,image_urls")
+      .select("id,seller_id,image_url,image_urls,translations")
       .eq("id", id)
       .maybeSingle<ListingImageFields & { id: string; seller_id: string }>();
 
@@ -144,6 +149,30 @@ export async function DELETE(
 
     if (listing.seller_id !== userId) {
       return NextResponse.json({ error: "Ei oikeutta poistaa tätä ilmoitusta." }, { status: 403 });
+    }
+
+    const commerceProductId = listing.translations?._meta?.commerce_product_id?.trim() ?? "";
+    let ownedCompanyId = "";
+    if (commerceProductId) {
+      const { data: company, error: companyError } = await admin
+        .from("companies")
+        .select("id")
+        .eq("owner_user_id", userId)
+        .maybeSingle<{ id: string }>();
+      if (companyError) throw companyError;
+      ownedCompanyId = company?.id ?? "";
+
+      if (ownedCompanyId) {
+        // Hide the linked checkout product before removing the source listing.
+        // This prevents an orphan product from briefly or permanently returning
+        // to the company storefront if a later cleanup step fails.
+        const { error: hideProductError } = await admin
+          .from("products")
+          .update({ active: false, stock_quantity: 0 })
+          .eq("id", commerceProductId)
+          .eq("company_id", ownedCompanyId);
+        if (hideProductError) throw hideProductError;
+      }
     }
 
     const { data: deletedListing, error: deleteError } = await admin
@@ -162,9 +191,30 @@ export async function DELETE(
       );
     }
 
+    if (commerceProductId && ownedCompanyId) {
+      const { count: orderItemCount, error: orderItemError } = await admin
+        .from("order_items")
+        .select("id", { count: "exact", head: true })
+        .eq("product_id", commerceProductId);
+      if (orderItemError) throw orderItemError;
+
+      // Order rows retain immutable product snapshots. Products without order
+      // history can be removed completely; purchased ones remain archived but
+      // inactive and at zero stock.
+      if ((orderItemCount ?? 0) === 0) {
+        const { error: productDeleteError } = await admin
+          .from("products")
+          .delete()
+          .eq("id", commerceProductId)
+          .eq("company_id", ownedCompanyId);
+        if (productDeleteError) throw productDeleteError;
+      }
+    }
+
     const imageCleanupErrors = await deleteListingImages(admin, listing);
     return NextResponse.json({
       ok: true,
+      commerceProductRemoved: Boolean(commerceProductId),
       imageCleanupErrors
     });
   } catch (error) {

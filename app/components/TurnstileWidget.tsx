@@ -1,7 +1,10 @@
 "use client";
 
 import Script from "next/script";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+
+const TURNSTILE_NORMAL_WIDTH = 300;
+const TURNSTILE_NORMAL_HEIGHT = 65;
 
 type TurnstileApi = {
   render: (container: HTMLElement, options: Record<string, unknown>) => string;
@@ -27,6 +30,7 @@ export default function TurnstileWidget({
   resetKey = 0,
   className
 }: TurnstileWidgetProps) {
+  const frameRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | null>(null);
   const onTokenRef = useRef(onToken);
@@ -64,11 +68,11 @@ export default function TurnstileWidget({
   }, [onToken]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const frame = frameRef.current;
+    if (!frame) return;
 
     const updateWidth = () => {
-      const nextWidth = container.getBoundingClientRect().width;
+      const nextWidth = frame.getBoundingClientRect().width;
       if (nextWidth > 0) {
         setContainerWidth((currentWidth) =>
           currentWidth !== null && Math.abs(currentWidth - nextWidth) < 1
@@ -80,7 +84,7 @@ export default function TurnstileWidget({
 
     updateWidth();
     const resizeObserver = new ResizeObserver(updateWidth);
-    resizeObserver.observe(container);
+    resizeObserver.observe(frame);
 
     return () => resizeObserver.disconnect();
   }, []);
@@ -103,7 +107,7 @@ export default function TurnstileWidget({
 
     removeWidget();
     setWidgetError("");
-    const widgetSize = containerWidth < 300 ? "compact" : "flexible";
+    const widgetSize = containerWidth < TURNSTILE_NORMAL_WIDTH ? "normal" : "flexible";
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: siteKey,
       action,
@@ -138,6 +142,15 @@ export default function TurnstileWidget({
     return <p role="alert">Bottitarkistuksen sivustoavain puuttuu.</p>;
   }
 
+  const widgetScale = containerWidth === null
+    ? 1
+    : Math.min(1, containerWidth / TURNSTILE_NORMAL_WIDTH);
+  const isScaled = widgetScale < 1;
+  const frameStyle = {
+    "--turnstile-scale": widgetScale,
+    height: `${TURNSTILE_NORMAL_HEIGHT * widgetScale}px`
+  } as CSSProperties;
+
   return (
     <div className={["turnstile-widget", className].filter(Boolean).join(" ")}>
       <Script
@@ -147,7 +160,18 @@ export default function TurnstileWidget({
         onLoad={() => setScriptReady(true)}
         onReady={() => setScriptReady(true)}
       />
-      <div ref={containerRef} aria-label="Bottitarkistus" />
+      <div
+        ref={frameRef}
+        className="turnstile-frame"
+        data-scaled={isScaled || undefined}
+        style={frameStyle}
+      >
+        <div
+          ref={containerRef}
+          className="turnstile-container"
+          aria-label="Bottitarkistus"
+        />
+      </div>
       {!scriptReady && !widgetError ? (
         <p className="turnstile-loading" role="status">Ladataan bottitarkistusta...</p>
       ) : null}

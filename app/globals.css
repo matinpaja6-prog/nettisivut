@@ -2,6 +2,23 @@
 html, body {
   background: #0b1118; background-image: var(--app-page-bg); overflow-x: clip;
 }
+
+/* Shared responsive safety net. Component classes can still opt into a
+   deliberate horizontal scroller, while ordinary grids and flex children are
+   allowed to shrink instead of cutting content off-screen. */
+:where(main, section, article, aside, header, footer, nav, form, fieldset, div) {
+  min-width: 0;
+}
+:where(h1, h2, h3, h4, p, strong, small, span, dd, dt, label) {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+:where(input, select, textarea, button) {
+  max-width: 100%;
+}
+:where(img, video, canvas, iframe) {
+  max-width: 100%;
+}
 html[data-user-background-tone] body {
   background: var(--maskines-page-background, #0b1118); background-color: var(--maskines-page-background, #0b1118); background-image: none;
 }
@@ -14,58 +31,49 @@ html[data-user-background-tone] main {
   }
 }
 .global-navigation-spinner {
-  align-items: center; display: grid; justify-items: center; pointer-events: none; position: fixed; z-index: 2147483000;
+  align-items: center; display: grid; inset: 0; justify-items: center; pointer-events: all; position: fixed; z-index: 2147483000;
+  background: var(--maskines-page-background, var(--site-bg, #0b1118));
 }
-.global-navigation-spinner {
-  background: transparent; inset: 0 0 auto; min-height: 3px;
+/* Route-level Suspense can mount while the navigation indicator is still
+   visible. In that case the route loader is the single source of truth. */
+body:has(.route-loading-shell) .global-navigation-spinner {
+  display: none;
 }
-.global-navigation-spinner span {
-  animation: global-loading-bar 0.72s ease-in-out infinite; background: linear-gradient(90deg, transparent, rgba(255, 122, 26, 0.96), transparent); border-radius: 999px; box-shadow: 0 0 18px rgba(255, 122, 26, 0.45); display: block; height: 3px;
-  width: min(52vw, 520px);
-}
+.global-navigation-brand,
+.route-loading-brand { align-items: center; animation: maskines-loading-pulse 1.15s ease-in-out infinite alternate; display: inline-flex; justify-content: center; }
+.maskines-loading-logo-light { display: none !important; }
+.maskines-loading-logo-dark { display: block !important; }
+html[data-theme="light"] .maskines-loading-logo-light { display: block !important; }
+html[data-theme="light"] .maskines-loading-logo-dark { display: none !important; }
+.global-navigation-brand img,
+.route-loading-brand img { display: block; height: auto; object-fit: contain; width: clamp(92px, 12vw, 132px); }
 .route-loading-shell {
-  background: radial-gradient(circle at 50% 0%, rgba(255, 122, 26, 0.08), transparent 42%), var(--site-bg, #0b1118); box-sizing: border-box; display: grid; min-height: clamp(420px, 64vh, 720px); padding: clamp(32px, 6vw, 76px) clamp(18px, 8vw, 150px); place-items: start center;
-  width: 100%;
+  box-sizing: border-box; display: grid; inset: 0; min-height: 100dvh; padding: 24px; place-items: center; position: fixed; width: 100%; z-index: 2147482999;
+  background: var(--maskines-page-background, var(--site-bg, #0b1118));
 }
-.route-loading-card {
-  display: grid; gap: 15px; max-width: 1120px; width: 100%;
-}
-.route-loading-card > span, .route-loading-grid > span {
-  animation: route-loading-pulse 1.05s ease-in-out infinite alternate; background: linear-gradient(100deg, #111f2d 15%, #1b2d3e 48%, #111f2d 82%); border: 1px solid rgba(115, 145, 171, 0.12); border-radius: 8px; display: block;
-}
-.route-loading-kicker {
-  height: 14px; width: 110px;
-}
-.route-loading-title {
-  height: clamp(34px, 5vw, 56px); max-width: 540px; width: 72%;
-}
-.route-loading-copy {
-  height: 13px; max-width: 680px; width: 88%;
-}
-.route-loading-copy-short {
-  width: 56%;
-}
-.route-loading-grid {
-  display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 18px;
-}
-.route-loading-grid > span {
-  min-height: 150px;
+@keyframes maskines-loading-pulse {
+  to { opacity: .62; transform: scale(.94); }
 }
 @media (max-width: 720px) {
-  .route-loading-shell {
-    min-height: 72dvh; padding: 28px 16px 104px;
-  }
-  .route-loading-grid {
-    grid-template-columns: 1fr;
-  }
-  .route-loading-grid > span {
-    min-height: 92px;
-  }
+  .global-navigation-brand img,
+  .route-loading-brand img { width: 96px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .route-loading-card > span, .route-loading-grid > span {
-    animation: none;
-  }
+  .global-navigation-brand, .route-loading-brand { animation: none; }
+}
+
+/* Global wordmark on desktop, compact brand mark on phones. */
+html body header.universal-app-topbar .universal-home-brand-logo-wrap {
+  align-items: center; display: inline-flex; flex: 0 0 auto; height: 44px; width: 194px;
+}
+html body header.universal-app-topbar .universal-home-brand-logo.universal-home-brand-wordmark {
+  border-radius: 0; clip-path: none; display: block; height: 40px; max-height: 40px; object-fit: contain; width: 194px;
+}
+html body header.universal-app-topbar .universal-home-brand-mobile-icon { display: none; }
+@media (max-width: 700px) {
+  html body header.universal-app-topbar .universal-home-brand-logo-wrap { height: 42px; justify-content: center; width: 42px; }
+  html body header.universal-app-topbar .universal-home-brand-logo.universal-home-brand-wordmark { display: none; }
+  html body header.universal-app-topbar .universal-home-brand-mobile-icon { display: block; height: 42px; object-fit: contain; width: 42px; }
 }
 .mobile-corner-nav {
   display: none;
@@ -86,25 +94,6 @@ html[data-user-background-tone] main {
   }
   .mobile-corner-back svg {
     color: #ff7a1a; stroke-width: 2.9;
-  }
-}
-@keyframes global-loading-bar {
-  0% {
-    opacity: 0.35; transform: translateX(-45vw) scaleX(0.45);
-  }
-  50% {
-    opacity: 1; transform: translateX(0) scaleX(1);
-  }
-  100% {
-    opacity: 0.35; transform: translateX(45vw) scaleX(0.45);
-  }
-}
-@keyframes route-loading-pulse {
-  from {
-    opacity: 0.55;
-  }
-  to {
-    opacity: 1;
   }
 }
 html, body, #__next {
@@ -139,7 +128,6 @@ html, body, #__next {
   [data-mobile-native-menu],
   [data-sell-category-menu],
   [data-sell-condition-menu],
-  [data-sell-preset-options],
   [data-sell-vehicle-menu],
   .cd-combo-menu,
   .cd-vehicle-type-options,
@@ -212,23 +200,29 @@ html, body, #__next {
     background: #f4f5f5 !important;
     background-image: none !important;
     border: 1px solid #aebbc2 !important;
-    border-radius: 999px !important;
+    border-radius: 17px !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
-    gap: 2px !important;
+    gap: 0 !important;
     overflow: hidden !important;
-    padding: 3px !important;
+    padding: 0 !important;
   }
 
-  html[data-theme="light"] body .mobileFilterSheet .home-marketplace-mode-tab,
-  html[data-user-background-tone="light"] body .mobileFilterSheet .home-marketplace-mode-tab {
+  html[data-theme="light"] body .mobileFilterSheet .home-marketplace-mode-tab:not([aria-selected="true"]),
+  html[data-user-background-tone="light"] body .mobileFilterSheet .home-marketplace-mode-tab:not([aria-selected="true"]) {
     background: transparent !important;
     background-image: none !important;
     border: 0 !important;
-    border-radius: 999px !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
     color: #16232c !important;
+    height: 48px !important;
     -webkit-text-fill-color: #16232c !important;
+  }
+
+  html[data-theme="light"] body .mobileFilterSheet .home-marketplace-mode-tab + .home-marketplace-mode-tab,
+  html[data-user-background-tone="light"] body .mobileFilterSheet .home-marketplace-mode-tab + .home-marketplace-mode-tab {
+    border-left: 1px solid #c5cfd5 !important;
   }
 
   html[data-theme="light"] body .mobileFilterSheet .home-marketplace-mode-tab[aria-selected="true"],

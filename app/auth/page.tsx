@@ -4,9 +4,11 @@ import { FormEvent, MouseEvent as ReactMouseEvent, Suspense, useEffect, useRef, 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageLoadingFallback from "@/app/components/PageLoadingFallback";
+import MaskinesWordmark from "@/app/components/MaskinesWordmark";
 import TurnstileWidget from "@/app/components/TurnstileWidget";
-import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Globe2, LockKeyhole, Mail, ShieldCheck, UsersRound, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CircleAlert, Eye, EyeOff, Globe2, LockKeyhole, Mail, ShieldCheck, UsersRound, X } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
+import { writeCachedResource } from "@/lib/client-resource-cache";
 import { useLanguage, type Locale } from "@/lib/i18n";
 import { canonicalPathFromLocalized, pagePath, profileRootPath } from "@/lib/routes";
 import {
@@ -121,7 +123,9 @@ function clearGoogleAuthIntent() {
 
 function replaceAuthModeUrl(authPagePath: string, mode: AuthMode) {
   if (typeof window === "undefined") return;
-  window.history.replaceState(null, "", `${authPagePath}?mode=${mode}`);
+  const params = new URLSearchParams(window.location.search);
+  params.set("mode", mode);
+  window.history.replaceState(null, "", `${authPagePath}?${params.toString()}`);
 }
 
 function getAuthModeFromSearchParams(searchParams: URLSearchParams | ReadonlyURLSearchParamsLike): AuthMode {
@@ -200,10 +204,10 @@ const registrationPinText: Record<Locale, {
   resend: string;
   edit: string;
 }> = {
-  fi: { eyebrow: "Vahvista sähköposti", title: "Syötä vahvistuskoodi", sent: "Lähetimme 6-numeroisen koodin osoitteeseen", instruction: "Syötä koodi alle viimeistelläksesi rekisteröitymisen.", label: "Vahvistuskoodi", submitting: "Vahvistetaan...", confirm: "Vahvista ja luo tili", resend: "Lähetä uusi koodi", edit: "Muokkaa tietoja" },
-  en: { eyebrow: "Verify your email", title: "Enter verification code", sent: "We sent a 6-digit code to", instruction: "Enter the code below to finish your registration.", label: "Verification code", submitting: "Verifying...", confirm: "Verify and create account", resend: "Send a new code", edit: "Edit details" },
-  sv: { eyebrow: "Bekräfta din e-post", title: "Ange bekräftelsekoden", sent: "Vi skickade en sexsiffrig kod till", instruction: "Ange koden nedan för att slutföra registreringen.", label: "Bekräftelsekod", submitting: "Bekräftar...", confirm: "Bekräfta och skapa konto", resend: "Skicka en ny kod", edit: "Redigera uppgifter" },
-  no: { eyebrow: "Bekreft e-posten din", title: "Skriv inn bekreftelseskoden", sent: "Vi sendte en sekssifret kode til", instruction: "Skriv inn koden nedenfor for å fullføre registreringen.", label: "Bekreftelseskode", submitting: "Bekrefter...", confirm: "Bekreft og opprett konto", resend: "Send en ny kode", edit: "Rediger opplysninger" },
+  fi: { eyebrow: "Sähköpostin vahvistus", title: "Vahvista sähköpostiosoitteesi", sent: "Vahvistuskoodi lähetettiin osoitteeseen", instruction: "Syötä sähköpostiisi lähetetty kuusinumeroinen koodi.", label: "Kuusinumeroinen koodi", submitting: "Vahvistetaan...", confirm: "Vahvista sähköposti", resend: "Lähetä koodi uudelleen", edit: "Muokkaa tietoja" },
+  en: { eyebrow: "Email verification", title: "Verify your email address", sent: "The verification code was sent to", instruction: "Enter the six-digit code sent to your email.", label: "Six-digit code", submitting: "Verifying...", confirm: "Verify email", resend: "Resend code", edit: "Edit details" },
+  sv: { eyebrow: "E-postverifiering", title: "Verifiera din e-postadress", sent: "Verifieringskoden skickades till", instruction: "Ange den sexsiffriga koden som skickades till din e-post.", label: "Sexsiffrig kod", submitting: "Verifierar...", confirm: "Verifiera e-post", resend: "Skicka koden igen", edit: "Redigera uppgifter" },
+  no: { eyebrow: "E-postbekreftelse", title: "Bekreft e-postadressen din", sent: "Bekreftelseskoden ble sendt til", instruction: "Skriv inn den sekssifrede koden som ble sendt til e-posten din.", label: "Sekssifret kode", submitting: "Bekrefter...", confirm: "Bekreft e-post", resend: "Send koden på nytt", edit: "Rediger opplysninger" },
 };
 
 function getCountryName(locale: Locale, country: string) {
@@ -418,7 +422,8 @@ function AuthPageContent() {
     return typeof window !== "undefined" && window.location.hash.includes("type=recovery");
   });
   const [form, setForm] = useState(() => ({
-    ...emptyAuthForm
+    ...emptyAuthForm,
+    account_type: searchParams.get("account") === "company" ? "company" as const : emptyAuthForm.account_type
   }));
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -429,6 +434,7 @@ function AuthPageContent() {
   const [authCaptchaResetKey, setAuthCaptchaResetKey] = useState(0);
   const authSubmitInFlightRef = useRef(false);
   const automaticProfileSaveInFlightRef = useRef(false);
+  const profileSaveInFlightRef = useRef<Promise<void> | null>(null);
   const authRedirectStartedRef = useRef(false);
   const mfaCheckPendingRef = useRef(false);
   const [user, setUser] = useState<User | null>(null);
@@ -693,7 +699,6 @@ function AuthPageContent() {
       if (typeof draft.privacyAccepted === "boolean") {
         setPrivacyAccepted(draft.privacyAccepted);
       }
-
       if (typeof draft.scrollY === "number" && Number.isFinite(draft.scrollY)) {
         window.setTimeout(() => {
           window.scrollTo({ top: draft.scrollY, behavior: "instant" });
@@ -940,10 +945,15 @@ function AuthPageContent() {
       .finally(() => setProfileLookupDone(true));
   }, [recoveryMode, user]);
 
-  async function saveProfile(targetUser: User) {
+  async function persistProfile(targetUser: User) {
     try {
     const email = targetUser.email ?? form.email;
     const selectedCountry = countryNameByLocale.fi[form.country] ?? form.country;
+    const destination = authRedirectPath !== "/"
+      ? authRedirectPath
+      : form.account_type === "company" ? `${profilePagePath}#yritys` : "/";
+
+    router.prefetch(destination);
 
     if (!privacyAccepted) {
       setStatus(t.authPrivacyRequired);
@@ -998,16 +1008,34 @@ function AuthPageContent() {
     }
 
     setProfile(data);
+    if (data) {
+      writeCachedResource(`profile:${targetUser.id}`, data);
+    }
     try {
       sessionStorage.removeItem(PROFILE_COMPLETION_DRAFT_STORAGE_KEY);
     } catch {}
     setStatus(t.authProfileSavedMsg);
     setAuthSubmitting(false);
-    router.push(form.account_type === "company" ? `${profilePagePath}#yritys` : "/");
+    router.push(destination);
     } catch (error) {
       setAuthSubmitting(false);
       setStatus(getErrorMessage(error));
     }
+  }
+
+  function saveProfile(targetUser: User) {
+    if (profileSaveInFlightRef.current) {
+      return profileSaveInFlightRef.current;
+    }
+
+    const savePromise = persistProfile(targetUser).finally(() => {
+      if (profileSaveInFlightRef.current === savePromise) {
+        profileSaveInFlightRef.current = null;
+      }
+    });
+
+    profileSaveInFlightRef.current = savePromise;
+    return savePromise;
   }
 
   useEffect(() => {
@@ -1222,7 +1250,7 @@ function AuthPageContent() {
     setStatus("Lähetetään PIN-koodi sähköpostiin...");
     const redirectTo =
       typeof window !== "undefined"
-        ? `${window.location.origin}${authPagePath}`
+        ? window.location.href.split("#")[0]
         : undefined;
     const pinResult =
       await withTimeout(
@@ -1709,15 +1737,13 @@ function AuthPageContent() {
             <div className="profile-completion-head">
               <span className="eyebrow">{pinText.eyebrow}</span>
               <h1>{pinText.title}</h1>
+              <p>{pinText.instruction}</p>
             </div>
-            <div className="profile-alert">
-              <Mail size={20} />
-              <span>
-                {pinText.sent} <strong>{registrationPinEmail}</strong>.
-                <small>{pinText.instruction}</small>
-              </span>
+            <div className="registration-pin-recipient">
+              <span>{pinText.sent}</span>
+              <strong>{registrationPinEmail}</strong>
             </div>
-            <label>
+            <label className="registration-pin-label">
               {pinText.label}
               <input
                 required
@@ -1733,7 +1759,6 @@ function AuthPageContent() {
               />
             </label>
             <button type="submit" disabled={authSubmitting || registrationPin.length !== 6}>
-              <Check size={18} />
               {authSubmitting ? pinText.submitting : pinText.confirm}
             </button>
             <div className="registration-pin-actions">
@@ -1743,7 +1768,6 @@ function AuthPageContent() {
                 disabled={authSubmitting}
                 onClick={() => void resendRegistrationPin()}
               >
-                <Mail size={16} />
                 {pinText.resend}
               </button>
               <button
@@ -1756,7 +1780,6 @@ function AuthPageContent() {
                   setStatus("");
                 }}
               >
-                <ArrowLeft size={16} />
                 {pinText.edit}
               </button>
             </div>
@@ -1789,10 +1812,10 @@ function AuthPageContent() {
         ) : (!user || showProfileRegistrationForm) ? (
           <form className={`auth-card simple-card${authMode === "register" ? " registration-inline-card profile-finalize-card" : ""}`} onSubmit={handleSubmit}>
             <div className="auth-maskines-brand" aria-label="Maskines Marketplace">
-              <img src="/maskines-share-logo.png" alt="" aria-hidden="true" />
+              <img className="auth-maskines-mark-light" src="/maskines-brand-mark-clean-v4.png" alt="" aria-hidden="true" />
+              <img className="auth-maskines-mark-dark" src="/maskines-brand-mark-dark-clean-v4.png" alt="" aria-hidden="true" />
               <div>
-                <strong>MASKINES</strong>
-                <span>MARKETPLACE</span>
+                <MaskinesWordmark className="auth-maskines-wordmark" />
               </div>
             </div>
             <div className="auth-form-head">
@@ -1874,6 +1897,35 @@ function AuthPageContent() {
               </div>
             )}
 
+            {authMode === "login" && status ? (
+              <div
+                className="auth-login-notice"
+                data-tone={
+                  status === t.authLoginSuccess
+                    ? "success"
+                    : status === "Tarkistetaan tiliä..."
+                      ? "progress"
+                      : "error"
+                }
+                role={status === "Tarkistetaan tiliä..." ? "status" : "alert"}
+                aria-live="polite"
+              >
+                <span className="auth-login-notice-icon" aria-hidden="true">
+                  {status === t.authLoginSuccess ? <Check size={18} /> : status === "Tarkistetaan tiliä..." ? <ShieldCheck size={18} /> : <CircleAlert size={18} />}
+                </span>
+                <span className="auth-login-notice-copy">
+                  <strong>
+                    {status === t.authLoginSuccess
+                      ? "Kirjautuminen onnistui"
+                      : status === "Tarkistetaan tiliä..."
+                        ? "Tarkistetaan tunnuksia"
+                        : "Kirjautuminen epäonnistui"}
+                  </strong>
+                  <span>{status}</span>
+                </span>
+              </div>
+            ) : null}
+
             {authMode === "register" && (
               <div className="registration-fields register-details-grid register-essential-fields">
                 {form.account_type === "private" && (
@@ -1898,11 +1950,18 @@ function AuthPageContent() {
                       {t.authBusinessId}
                       <input
                         required
-                        inputMode="numeric"
-                        pattern="[0-9]*"
+                        inputMode="text"
+                        pattern="(?:[0-9]{7}-[0-9]|[0-9]{8}|-)"
+                        maxLength={9}
                         value={form.business_id}
-                        onChange={(event) => setForm({ ...form, business_id: event.target.value.replace(/\D/g, "") })}
-                        placeholder="12345678"
+                        onChange={(event) =>
+                          setForm({
+                            ...form,
+                            business_id: event.target.value.replace(/[^0-9-]/g, ""),
+                          })
+                        }
+                        placeholder="1234567-8 tai -"
+                        title="Anna Y-tunnus muodossa 1234567-8 tai käytä merkkiä -."
                       />
                     </label>
                   </>
@@ -1993,7 +2052,7 @@ function AuthPageContent() {
               <div><Globe2 aria-hidden="true" /><span><strong>Laaja valikoima</strong><small>Osta ja myy helposti</small></span></div>
               <div><UsersRound aria-hidden="true" /><span><strong>Kasvava yhteisö</strong><small>Liity käyttäjiimme</small></span></div>
             </div>
-            {status ? <span className="form-note">{status}</span> : null}
+            {authMode !== "login" && status ? <span className="form-note">{status}</span> : null}
           </form>
         ) : (
           <div className="auth-loading" role="status" aria-live="polite" aria-label="Ladataan sivua">

@@ -35,3 +35,28 @@ export function absoluteSiteUrl(path = "/") {
 
   return `${PUBLIC_SITE_URL}${normalizedPath}`;
 }
+
+export function absoluteStripeConnectUrl(path = "/") {
+  const configuredBase = process.env.STRIPE_CONNECT_RETURN_BASE_URL?.trim().replace(/\/+$/, "")
+    || PUBLIC_SITE_URL;
+  let base: URL;
+
+  try {
+    base = new URL(configuredBase);
+  } catch {
+    throw new Error("Stripe Connectin paluuosoite ei ole kelvollinen URL-osoite.");
+  }
+
+  const liveMode = process.env.STRIPE_SECRET_KEY?.trim().startsWith("sk_live_") === true;
+  if (liveMode && base.protocol !== "https:") {
+    throw new Error(
+      "Stripe live -tila vaatii HTTPS-paluuosoitteen. Aseta STRIPE_CONNECT_RETURN_BASE_URL esimerkiksi arvoon https://maskines.com."
+    );
+  }
+  if (!new Set(["http:", "https:"]).has(base.protocol)) {
+    throw new Error("Stripe Connectin paluuosoitteen pitää alkaa http:// tai https://.");
+  }
+
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${base.origin}${normalizedPath}`;
+}

@@ -12,7 +12,8 @@ const protectedExactPaths = new Set([
   "/saved",
   "/followed",
   "/search-alerts",
-  "/profile"
+  "/profile",
+  "/tilaukset"
 ]);
 
 const protectedPrefixes = [

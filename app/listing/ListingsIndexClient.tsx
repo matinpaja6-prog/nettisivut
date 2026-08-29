@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Clock3, Heart, UserRound } from "lucide-react";
 import OptimizedListingImage, { fallbackListingImage } from "@/app/components/OptimizedListingImage";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
+import ListingSalePrice from "@/app/components/ListingSalePrice";
 import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
@@ -259,7 +260,7 @@ export default function ListingsIndexPage({
                       <span className={homeStyles.badge}>{translateCategory(locale, listing.subcategory)}</span>
                     ) : null}
                   </div>
-                  <p className={homeStyles.cardPrice}>{formatPrice(listing.price)}</p>
+                  <ListingSalePrice listing={listing} className={homeStyles.cardPrice} />
                   <h3 className={homeStyles.cardTitle}>{getListingTitle(listing)}</h3>
                   <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
                   <div className={homeStyles.cardMetaRow} data-listing-card-meta="true">

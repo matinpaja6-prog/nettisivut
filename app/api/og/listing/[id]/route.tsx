@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-import { formatPrice } from "@/lib/listings";
+import { formatPrice, getListingSalePricing } from "@/lib/listings";
 import { listingNumberUrlId, listingPath } from "@/lib/routes";
 import { absoluteSiteUrl } from "@/lib/site-url";
 import { getListingById, getListingDisplayNumber } from "@/lib/supabase";
@@ -20,7 +20,7 @@ function firstListingImage(listing: {
   image_url?: string | null;
   image_urls?: string[] | null;
 }) {
-  const fallback = absoluteSiteUrl("/maskines-share-logo.png");
+  const fallback = absoluteSiteUrl("/maskines-brand-share-v2.png");
   const candidate =
     listing.image_urls?.find((url) => cleanText(url)) ||
     cleanText(listing.image_url) ||
@@ -78,7 +78,8 @@ export async function GET(
   const displayNumber = await getListingDisplayNumber(listing.created_at, listing.listing_number);
   const urlId = listingNumberUrlId(displayNumber) || listing.id;
   const title = cleanText(listing.title, "Ilmoitus");
-  const price = formatPrice(Number(listing.price) || 0);
+  const salePricing = getListingSalePricing(listing);
+  const price = formatPrice(salePricing.currentPrice);
   const vehicle = [listing.brand, listing.model, listing.year]
     .map((item) => cleanText(item))
     .filter(Boolean)

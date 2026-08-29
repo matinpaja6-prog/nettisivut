@@ -252,6 +252,25 @@
 .badgeRow {
   display: flex;
 }
+.vehicleTaxBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 7px 0 2px;
+}
+.vehicleTaxBadges span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 7px;
+  border: 1px solid rgb(255 116 23 / 55%);
+  border-radius: 5px;
+  background: rgb(255 116 23 / 10%);
+  color: #ff7a20;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+}
 .badge {
   font-size: 10px; font-weight: 850; color: rgba(11, 26, 58, 0.88); background: rgba(15, 23, 42, 0.04); border: 1px solid rgba(15, 23, 42, 0.08); padding: 4px 8px;
   border-radius: 999px;
@@ -2513,9 +2532,43 @@
   background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: #ffffff; font-size: 9px; font-weight: 950; line-height: 1; letter-spacing: 0.02em;
   text-transform: uppercase; box-shadow: 0 3px 9px rgba(22, 163, 74, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.25); border: 1px solid rgba(255, 255, 255, 0.32); pointer-events: none; white-space: nowrap;
 }
+.listingSaleBadge {
+  align-items: center;
+  background: linear-gradient(135deg, #ef4c20, #d9380f);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 7px;
+  box-shadow: 0 5px 14px rgba(199, 47, 10, 0.34);
+  color: #fff;
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 950;
+  left: 9px;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  min-height: 25px;
+  padding: 5px 8px;
+  pointer-events: none;
+  position: absolute;
+  text-transform: uppercase;
+  top: 9px;
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.heroLatestImage {
+  position: relative;
+}
+
 @media (max-width: 720px) {
   .cardsGrid {
     gap: 8px;
+  }
+  .listingSaleBadge {
+    font-size: 8px;
+    left: 6px;
+    min-height: 20px;
+    padding: 4px 6px;
+    top: 6px;
   }
   .newBadge {
     top: 6px; left: 6px; max-width: fit-content; padding: 2px 7px; font-size: 8px; line-height: 1;
@@ -2568,6 +2621,14 @@
 }
 .pagination .pageBtnActive, .pagination .pageBtnActive:hover:not(:disabled), .pagination .pageBtn[aria-current="page"], .pagination .paginationButtonActive, .pagination .paginationButtonActive:hover {
   background: linear-gradient(180deg, #ff9824 0%, #ff6b12 100%); border-color: rgba(255, 150, 62, 0.9); box-shadow: 0 0 0 1px rgba(255, 118, 20, 0.36), 0 0 18px rgba(255, 102, 18, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.32); color: #ffffff;
+}
+
+.pagination .pageBtnActive,
+.pagination .pageBtnActive:hover:not(:disabled),
+.pagination .pageBtn[aria-current="page"],
+.pagination .paginationButtonActive,
+.pagination .paginationButtonActive:hover {
+  box-shadow: none !important;
 }
 .pagination .pageJumpControl {
   align-items: center; background: transparent; border: 0; box-shadow: none; display: inline-flex; flex: 0 0 auto;
@@ -3607,7 +3668,7 @@
   display: grid;
   flex: 0 0 300px;
   gap: 4px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   padding: 4px;
 }
 
@@ -3619,17 +3680,23 @@
 }
 
 .marketplaceRailSwitch .marketplaceModeTabs {
-  border-radius: 999px;
+  border-radius: 17px;
   box-sizing: border-box;
   flex-basis: auto;
-  gap: 2px;
-  padding: 3px;
+  gap: 0;
+  overflow: hidden;
+  padding: 0;
   width: 100%;
 }
 
 .marketplaceRailSwitch .marketplaceModeTabs > button {
-  border-radius: 999px;
-  height: 36px;
+  border-radius: 0;
+  height: 48px;
+  padding-inline: 8px;
+}
+
+.marketplaceRailSwitch .marketplaceModeTabs > button + button {
+  border-left: 1px solid rgba(86, 123, 157, 0.38);
 }
 
 .sellerMarketplaceSwitch {
@@ -3661,7 +3728,7 @@
 
 .marketplaceModeTabs > .marketplaceModeTabActive {
   background: linear-gradient(180deg, #ff8a25, #ff6e0f);
-  box-shadow: 0 7px 18px rgba(255, 112, 20, 0.24);
+  box-shadow: none;
   color: #ffffff;
 }
 
@@ -3996,6 +4063,1142 @@
 }
 .cardTitle, .cardsGrid .card .cardTitle, .listingsPlainPanel .card .cardTitle, .cardPrice, .cardsGrid .card .cardPrice, .listingsPlainPanel .card .cardPrice {
   color: #ffffff;
+}
+
+:global(html[data-theme="light"] body) .shell .card,
+:global(html[data-theme="light"] body) .shell .cardsGrid .card,
+:global(html[data-theme="light"] body) .shell .listingsPlainPanel .card {
+  background: #ffffff;
+  border-color: #d9e1e8;
+  box-shadow: 0 12px 30px rgba(24, 42, 61, .11);
+  color: #172433;
+}
+
+:global(html[data-theme="light"] body) .shell .cardBody,
+:global(html[data-theme="light"] body) .shell .cardsGrid .card .cardBody,
+:global(html[data-theme="light"] body) .shell .listingsPlainPanel .card .cardBody {
+  background: #ffffff;
+  color: #172433;
+}
+
+:global(html[data-theme="light"] body) .shell :is(.cardTitle, .cardsGrid .card .cardTitle, .listingsPlainPanel .card .cardTitle) {
+  color: #172433;
+  -webkit-text-fill-color: #172433;
+}
+
+:global(html[data-theme="light"] body) .shell :is(.cardPrice, .cardsGrid .card .cardPrice, .listingsPlainPanel .card .cardPrice) {
+  color: #172433;
+  -webkit-text-fill-color: #172433;
+}
+
+:global(html[data-theme="light"] body) .shell :is(.cardLocationMeta, .cardDateMeta) {
+  color: #66768a;
+  -webkit-text-fill-color: #66768a;
+}
+
+:global(html[data-theme="light"] body) .shell :is(.cardMetaRow, .cardsGrid .card .cardMetaRow, .listingsPlainPanel .card .cardMetaRow) {
+  border-top-color: #e2e8ee;
+}
+
+:global(html[data-theme="light"] body) .shell .resultsCount {
+  color: #172433;
+  -webkit-text-fill-color: #172433;
+}
+
+@media (max-width: 900px) {
+  .listingsPlainPanel .cardsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+.editResultsFiltersButton {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #aebbc5;
+  border-radius: 8px;
+  color: #172433;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  gap: 8px;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  white-space: nowrap;
+}
+
+.editResultsFiltersButton:hover {
+  background: #fff1e7;
+  border-color: #ff7417;
+  color: #c94c00;
+}
+
+.resetResultsFiltersButton {
+  align-items: center;
+  background: #071725;
+  border: 1px solid #ff7a1a;
+  border-radius: 8px;
+  color: #f3f7fa;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  gap: 7px;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.resetResultsFiltersButton > svg {
+  color: #ff7a1a;
+}
+
+.resetResultsFiltersButton:hover {
+  background: #10283a;
+}
+
+:global(html[data-theme="light"] body) .resetResultsFiltersButton {
+  background: #ffffff;
+  border-color: #aebbc5;
+  color: #172433;
+}
+
+:global(html[data-theme="light"] body) .resetResultsFiltersButton:hover {
+  background: #fff1e7;
+  border-color: #ff7417;
+  color: #c94c00;
+}
+
+.listingToolbar {
+  gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .editResultsFiltersButton,
+  .resetResultsFiltersButton {
+    min-height: 40px;
+    width: 100%;
+  }
+}
+
+.desktopAllFiltersButton {
+  align-items: center;
+  background: #061522;
+  border: 1px solid #ff7818;
+  border-radius: 6px;
+  color: #ff8a2b;
+  cursor: pointer;
+  display: flex;
+  font-size: 12px;
+  font-weight: 900;
+  gap: 8px;
+  justify-content: center;
+  min-height: 38px;
+  width: 100%;
+}
+
+.desktopFilterBackdrop {
+  background: rgba(1, 8, 15, 0.72);
+  border: 0;
+  inset: 0;
+  overscroll-behavior: none;
+  position: fixed;
+  touch-action: none;
+  z-index: 2147483000;
+}
+
+.desktopFilterModalHeader {
+  align-items: center;
+  border-bottom: 1px solid rgba(86, 123, 157, 0.38);
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 20px;
+}
+
+.desktopFilterModalHeader > div {
+  display: grid;
+  gap: 3px;
+}
+
+.desktopFilterModalHeader strong { font-size: 20px; }
+.desktopFilterModalHeader span { color: #93a4b3; font-size: 12px; }
+.desktopFilterModalHeader button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+}
+
+@media (min-width: 901px) {
+  :global(html body) > .desktopFilterModal {
+    background: #071622 !important;
+    border: 1px solid #30495d !important;
+    border-radius: 14px !important;
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.58) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: min(820px, calc(100dvh - 56px)) !important;
+    inset: 50% auto auto 50% !important;
+    max-height: calc(100dvh - 56px) !important;
+    max-width: 1060px !important;
+    overflow: clip !important;
+    position: fixed !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(1060px, calc(100vw - 72px)) !important;
+    z-index: 2147483001 !important;
+  }
+
+  :global(html body) > .desktopFilterModal > .desktopFullFilterPanel {
+    inset: 0 !important;
+    overflow: clip !important;
+    position: absolute !important;
+  }
+
+  :global(html body) > .desktopFilterModal > :not(.desktopFullFilterPanel) {
+    display: none !important;
+  }
+
+  :global(html body) > .desktopFilterModal > .marketplaceRailSwitch {
+    padding: 10px 20px;
+  }
+
+  :global(html body) > .desktopFilterModal > .marketplaceRailSwitch .marketplaceModeTabs {
+    max-width: 620px;
+  }
+
+  :global(html body) > .desktopFilterModal > .heroRailHeader { display: none; }
+
+  :global(html body) > .desktopFilterModal > .heroSearchPanel {
+    align-items: start !important;
+    align-self: stretch !important;
+    display: grid !important;
+    gap: 16px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    height: 100% !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    overflow: auto !important;
+    padding: 18px 20px 24px !important;
+  }
+
+  :global(html body) > .desktopFilterModal > .heroSearchPanel > :is(.heroFilterStack, .vehicleUsageFilters, .heroPartCategoryStack) {
+    align-self: start !important;
+    height: auto !important;
+  }
+
+  :global(html body) > .desktopFilterModal .marketplaceModeTabs > .marketplaceModeTabActive {
+    background: linear-gradient(180deg, #ff8a25, #ff6e0f) !important;
+    border-color: #ff7a1a !important;
+    box-shadow: 0 7px 18px rgba(255, 112, 20, 0.24) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+
+  :global(html body) > .desktopFilterModal > .heroSearchPanel > .heroSearchRow,
+  :global(html body) > .desktopFilterModal > .heroSearchPanel > .heroRailActions {
+    grid-column: 1 / -1;
+  }
+
+  :global(html body) > .desktopFilterModal > .heroSearchPanel > .heroRailActions {
+    background: #071622 !important;
+    bottom: -24px;
+    grid-template-columns: minmax(220px, 1fr) minmax(140px, .45fr);
+    margin: 0 -2px -24px;
+    padding: 16px 2px 24px;
+    position: sticky;
+    z-index: 20;
+  }
+
+  :global(html body) > .desktopFilterModal > .heroLatestPanel { display: none !important; }
+}
+
+.desktopFullFilterPanel {
+  background: #071622;
+  color: #f5f8fb;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.resultsFilterModal {
+  background: #071622;
+  border: 1px solid #30495d;
+  border-radius: 14px;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, .58);
+  display: flex;
+  flex-direction: column;
+  height: min(820px, calc(100dvh - 32px));
+  inset: 50% auto auto 50%;
+  max-height: calc(100dvh - 32px);
+  max-width: 1060px;
+  overflow: hidden;
+  position: fixed;
+  transform: translate(-50%, -50%);
+  width: min(1060px, calc(100vw - 32px));
+  z-index: 2147483001;
+}
+
+.resultsFilterModal > .desktopFullFilterPanel {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+@media (max-width: 900px) {
+  .resultsFilterModal {
+    border-radius: 12px;
+    height: calc(100dvh - 20px);
+    max-height: calc(100dvh - 20px);
+    width: calc(100vw - 20px);
+  }
+
+  .resultsFilterModal .desktopFullFilterTopbar {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    padding: 10px;
+  }
+
+  .resultsFilterModal .desktopFullHeading small,
+  .resultsFilterModal .desktopSaveSearch {
+    display: none;
+  }
+
+  .resultsFilterModal .desktopFullSearchButton {
+    min-width: 96px;
+    padding-inline: 10px;
+  }
+
+  .resultsFilterModal .desktopMarketplaceChooser > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .resultsFilterModal .desktopFullTabs {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .resultsFilterModal .desktopFullTabs button {
+    flex: 0 0 auto;
+    min-width: 132px;
+    white-space: nowrap;
+  }
+
+  .resultsFilterModal .desktopFullFilterScroll {
+    overflow-x: hidden;
+  }
+
+  .resultsFilterModal .desktopFullFieldGrid,
+  .resultsFilterModal .desktopCategoryFlow {
+    grid-template-columns: 1fr;
+  }
+
+  .resultsFilterModal .desktopCategoryArrow {
+    display: none;
+  }
+}
+
+.desktopFullFilterTopbar {
+  align-items: stretch;
+  background: #091a28;
+  border-bottom: 1px solid #30485b;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 10px;
+  min-height: 66px;
+  padding: 0 18px;
+}
+
+.desktopFullHeading {
+  align-content: center;
+  display: grid;
+  flex: 1 1 auto;
+  gap: 3px;
+  min-width: 180px;
+}
+
+.desktopFullHeading strong {
+  font-size: 18px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+}
+
+.desktopFullHeading small {
+  color: #91a4b3;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.desktopSaveSearch,
+.desktopFullSearchButton {
+  align-items: center;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 900;
+  gap: 7px;
+  justify-content: center;
+  margin: 10px 0;
+  min-width: 138px;
+  padding: 0 18px;
+}
+
+.desktopSaveSearch {
+  background: transparent;
+  border: 1px solid #476175;
+  color: #dce7ef;
+}
+
+.desktopFullSearchButton {
+  background: linear-gradient(180deg, #ff8a25, #ff6e0f);
+  border: 1px solid #ff7a1a;
+  color: #ffffff;
+}
+
+.desktopFullClose {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  margin-left: auto;
+  width: 48px;
+}
+
+.desktopFullUtilityRow {
+  align-items: center;
+  border-bottom: 1px solid #30485b;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 0 18px;
+}
+
+.desktopFullUtilityRow > div { display: flex; gap: 18px; }
+.desktopFullUtilityRow button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #ff8a25;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 5px;
+  padding: 8px 0;
+}
+
+.desktopSavedSearchesPanel {
+  background: #0a1b28;
+  border-bottom: 1px solid #30485b;
+  display: grid;
+  flex: 0 0 auto;
+  gap: 10px;
+  max-height: 250px;
+  overflow: hidden;
+  padding: 13px 18px 14px;
+}
+
+.desktopSavedSearchesPanel > header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.desktopSavedSearchesPanel > header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.desktopSavedSearchesPanel > header strong {
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.desktopSavedSearchesPanel > header small,
+.desktopSavedSearchItem small {
+  color: #93a5b3;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.desktopSavedSearchesPanel > header > button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  padding: 6px;
+}
+
+.desktopSavedSearchList {
+  display: grid;
+  gap: 7px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.desktopSavedSearchItem {
+  align-items: center;
+  background: #071522;
+  border: 1px solid #31495c;
+  border-radius: 6px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  padding: 9px 10px;
+}
+
+.desktopSavedSearchItem > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.desktopSavedSearchItem > div strong {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.desktopSavedSearchItem > button {
+  background: transparent;
+  border: 1px solid #536b7d;
+  border-radius: 5px;
+  color: #e8f0f5;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 850;
+  min-height: 34px;
+  padding: 0 11px;
+}
+
+.desktopSavedSearchItem > button:first-of-type {
+  background: #ff7617;
+  border-color: #ff7617;
+  color: #ffffff;
+}
+
+.desktopSavedSearchItem > button:last-of-type {
+  color: #ff9a59;
+}
+
+.desktopSavedSearchEmpty {
+  border: 1px dashed #40596c;
+  border-radius: 6px;
+  color: #9badba;
+  font-size: 12px;
+  margin: 0;
+  padding: 14px;
+  text-align: center;
+}
+
+:global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopSavedSearchesPanel {
+  background: #f7f9fa;
+  border-color: #d0d7dc;
+  color: #17232d;
+}
+
+:global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopSavedSearchItem {
+  background: #ffffff;
+  border-color: #cbd4da;
+}
+
+:global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopSavedSearchItem > button {
+  border-color: #9ba9b2;
+  color: #263843;
+}
+
+:global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopSavedSearchItem > button:first-of-type {
+  border-color: #ff7617;
+  color: #ffffff;
+}
+
+:global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopSavedSearchItem > button:last-of-type {
+  color: #c84e00;
+}
+
+:global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopSavedSearchEmpty {
+  border-color: #bcc8cf;
+  color: #5f707c;
+}
+
+@media (min-width: 901px) {
+  .desktopFullSection:has(> .desktopFullBox + .desktopFullBox) > .desktopFullBox {
+    min-height: 128px;
+  }
+
+  .desktopFullSection:has(> .desktopFullBox + .desktopFullBox)
+    > .desktopFullBox .desktopFullFieldGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.desktopMarketplaceChooser {
+  background: #091a28;
+  border-bottom: 1px solid #30485b;
+  display: grid;
+  flex: 0 0 auto;
+  gap: 8px;
+  padding: 12px 18px 14px;
+}
+
+.desktopMarketplaceChooser > span {
+  color: #99aab8;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.desktopMarketplaceChooser > div {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.desktopMarketplaceChooser button {
+  background: #071522;
+  border: 1px solid #40596c;
+  border-radius: 7px;
+  color: #e6edf3;
+  cursor: pointer;
+  display: grid;
+  gap: 2px;
+  min-height: 56px;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.desktopMarketplaceChooser button strong {
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.desktopMarketplaceChooser button small {
+  color: #93a5b3;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.desktopMarketplaceChooser .desktopMarketplaceChoiceActive {
+  background: linear-gradient(135deg, #ff8a25, #ff6908);
+  border-color: #ff9a4d;
+  box-shadow: 0 8px 20px rgba(255, 106, 8, 0.22);
+  color: #ffffff;
+}
+
+.desktopMarketplaceChooser .desktopMarketplaceChoiceActive small { color: rgba(255, 255, 255, 0.88); }
+
+.desktopFullTabs {
+  align-items: flex-end;
+  border-bottom: 1px solid #466074;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  min-height: 49px;
+  overflow-x: auto;
+  padding: 0 14px;
+}
+
+.desktopFullTabs button {
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: #b9c7d2;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 950;
+  height: 49px;
+  padding: 0 15px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.desktopFullTabs .desktopFullTabActive {
+  border-bottom-color: #ff7a1a;
+  color: #ff8a25;
+}
+
+.desktopFullFilterScroll {
+  background: #08131d;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: #607385 transparent;
+  scroll-padding-top: 12px;
+}
+
+.desktopFullLocationBand {
+  background: #0a1b28;
+  border-bottom: 1px solid #30485b;
+  padding: 14px 32px 16px;
+  position: relative;
+  z-index: 35;
+}
+
+.desktopFullLocationBand > [class*="heroFilterFieldWrap"] {
+  width: 100%;
+}
+
+.desktopFullLocationBand [class*="heroFilterSelect"] {
+  min-height: 42px;
+}
+
+.desktopFeaturedFilters {
+  background: #0d2536;
+  border-bottom: 1px solid #30485b;
+  display: grid;
+  gap: 14px;
+  padding: 17px 32px;
+}
+
+.desktopFeaturedFilters > strong { font-size: 14px; }
+.desktopFeaturedFilters > div { display: flex; flex-wrap: wrap; gap: 16px 32px; }
+
+.desktopFeaturedFilters label,
+.desktopCheckboxGrid label {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.desktopFeaturedFilters input,
+.desktopCheckboxGrid input,
+.desktopColorOptions input {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.desktopFeaturedFilters label > span,
+.desktopCheckboxGrid label > span {
+  align-items: center;
+  background: #06131e;
+  border: 1px solid #587083;
+  border-radius: 3px;
+  color: #ffffff;
+  display: inline-flex;
+  flex: 0 0 22px;
+  height: 22px;
+  justify-content: center;
+  width: 22px;
+}
+
+.desktopFeaturedFilters label:has(input:checked) > span,
+.desktopCheckboxGrid label:has(input:checked) > span {
+  background: #ff7a1a;
+  border-color: #ff7a1a;
+}
+
+.desktopFullSection {
+  scroll-margin-top: 10px;
+}
+
+.desktopFullSection > header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 24px 32px 12px;
+}
+
+.desktopFullSection > header h2 {
+  font-size: 18px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.desktopFullSection > header svg { color: #ff7a1a; }
+
+.desktopFullBox {
+  background: #0a1b28;
+  border: 1px solid #31495c;
+  border-radius: 6px;
+  display: grid;
+  gap: 15px;
+  margin: 0 18px 14px;
+  padding: 16px;
+}
+
+.desktopFullBox h3 {
+  font-size: 14px;
+  margin: 0;
+}
+
+.desktopCategoryFlow {
+  align-items: stretch;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr);
+}
+
+.desktopCategoryStep {
+  background: #071622;
+  border: 1px solid #3b5569;
+  border-radius: 7px;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 14px;
+}
+
+.desktopCategoryStep > header {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 30px minmax(0, 1fr);
+}
+
+.desktopCategoryStep > header > span {
+  align-items: center;
+  background: #ff7a1a;
+  border-radius: 50%;
+  color: #ffffff;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 950;
+  height: 30px;
+  justify-content: center;
+  width: 30px;
+}
+
+.desktopCategoryStep > header > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.desktopCategoryStep > header strong {
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.desktopCategoryStep > header small {
+  color: #91a4b3;
+  font-size: 9px;
+  line-height: 1.3;
+}
+
+.desktopCategoryStep > select {
+  appearance: none;
+  background: #061522;
+  border: 1px solid #3c566a;
+  border-radius: 5px;
+  color: #f5f8fb;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  height: 42px;
+  min-width: 0;
+  padding: 0 11px;
+  width: 100%;
+}
+
+.desktopCategoryStep[data-enabled="false"] {
+  opacity: 0.6;
+}
+
+.desktopCategoryArrow {
+  align-self: center;
+  color: #ff7a1a;
+  justify-self: center;
+}
+
+.desktopOtherPartsCopy {
+  color: #9fb0bd;
+  font-size: 12px;
+  line-height: 1.55;
+  margin: -5px 0 2px;
+}
+
+.desktopCheckboxGrid {
+  display: grid;
+  gap: 8px 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.desktopCheckboxGrid .desktopAnyOption {
+  font-style: italic;
+  grid-column: 1 / -1;
+}
+
+.desktopFullFieldGrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.desktopFullField {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.desktopFullRangeField {
+  align-content: start;
+  padding-bottom: 2px;
+}
+
+.desktopFullRangeWide {
+  grid-column: 1 / -1;
+}
+
+.desktopFullRangeField > .vehicleUsageRange > input {
+  font-size: 13px;
+  height: 42px;
+}
+
+.desktopFullRangeField > .vehicleNumericSlider {
+  margin-top: 3px;
+}
+
+.desktopFullField > span,
+.desktopFullBox > [class*="heroFilterFieldWrap"] > span {
+  color: #b7c4cf;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.desktopFullField :is(input, select) {
+  background: #061522;
+  border: 1px solid #3c566a;
+  border-radius: 5px;
+  color: #f5f8fb;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  height: 42px;
+  min-width: 0;
+  outline: none;
+  padding: 0 12px;
+  width: 100%;
+}
+
+.desktopFullField :is(input, select):focus {
+  border-color: #ff7a1a;
+  box-shadow: 0 0 0 1px #ff7a1a;
+}
+
+.desktopColorOptions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.desktopColorOptions label {
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 12px;
+  gap: 7px;
+  min-width: 110px;
+}
+
+.desktopColorOptions label > span {
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #536b7d;
+  height: 20px;
+  width: 20px;
+}
+
+.desktopColorOptions label:has(input:checked) {
+  color: #ff8a25;
+  font-weight: 900;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFullFilterPanel,
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFullFilterTopbar {
+  background: #ffffff;
+  color: #17232d;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFullLocationBand {
+  background: #f7f9fa;
+  border-color: #d0d7dc;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopCategoryStep {
+  background: #f8fafb;
+  border-color: #c8d2d8;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopCategoryStep > header small {
+  color: #647681;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopCategoryStep > select {
+  background: #ffffff;
+  border-color: #aeb9c0;
+  color: #17232d;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFullHeading small { color: #657681; }
+
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopMarketplaceChooser {
+  background: #ffffff;
+  border-color: #d0d7dc;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopMarketplaceChooser > span { color: #5f707c; }
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopMarketplaceChooser button { background: #f8fafb; border-color: #bdc8ce; color: #17232d; }
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopMarketplaceChooser button small { color: #627480; }
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopMarketplaceChooser .desktopMarketplaceChoiceActive { background: linear-gradient(135deg, #ff8a25, #ff6908); border-color: #ff8a25; color: #ffffff; }
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopMarketplaceChooser .desktopMarketplaceChoiceActive small { color: rgba(255, 255, 255, 0.9); }
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopOtherPartsCopy { color: #5f707c; }
+
+:global(html[data-theme="light"] body) > .desktopFilterModal :is(.desktopFullFilterTopbar, .desktopFullUtilityRow, .desktopFullTabs) {
+  border-color: #d0d7dc;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopSaveSearch {
+  border-color: #26343d;
+  color: #17232d;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFullFilterScroll { background: #ffffff; }
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFeaturedFilters { background: #eef8fd; border-color: #d7e6ed; }
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFullBox { background: #ffffff; border-color: #d4dade; }
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFullTabs button { color: #315063; }
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFullTabs .desktopFullTabActive { color: #e96200; }
+:global(html[data-theme="light"] body) > .desktopFilterModal :is(.desktopFeaturedFilters label > span, .desktopCheckboxGrid label > span) { background: #ffffff; border-color: #6c777d; color: #ffffff; }
+:global(html[data-theme="light"] body) > .desktopFilterModal :is(.desktopFeaturedFilters label:has(input:checked) > span, .desktopCheckboxGrid label:has(input:checked) > span) { background: #ff7a1a; border-color: #ff7a1a; }
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFullField > span { color: #24343f; }
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFullField :is(input, select) { background: #ffffff; border-color: #aeb8bf; color: #17232d; }
+
+@media (max-width: 1100px) and (min-width: 901px) {
+  .desktopCheckboxGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .desktopCategoryFlow { gap: 7px; grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr) 18px minmax(0, 1fr); }
+  .desktopCategoryStep { padding: 10px; }
+  .desktopCategoryStep > header small { display: none; }
+  .desktopFullHeading small { display: none; }
+  .desktopSaveSearch, .desktopFullSearchButton { min-width: 124px; padding-inline: 12px; }
+}
+
+/* The expanded desktop dialog has its own complete layout. Keep the compact
+   rail mounted for state continuity, but never let it paint over this panel. */
+@media (min-width: 901px) {
+  :global(html body) > aside.desktopFilterModal > :is(
+    .desktopFilterModalHeader,
+    .marketplaceRailSwitch,
+    .heroRailHeader,
+    .heroSearchPanel,
+    .heroRailActions,
+    .heroLatestPanel
+  ) {
+    display: none !important;
+  }
+
+  :global(html body) > aside.desktopFilterModal > .desktopFullFilterPanel {
+    display: flex !important;
+  }
+
+  :global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopFullField :is(input, select),
+  :global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopFullBox :is(.heroFilterSelect, .vehicleRegistrationInput, .vehicleUsageSelectShell),
+  :global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopFullBox .vehicleUsageRange > input {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-color: #aeb9c0 !important;
+    color: #17232d !important;
+    -webkit-text-fill-color: #17232d !important;
+  }
+
+  :global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopFullField input::placeholder,
+  :global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopFullBox input::placeholder {
+    color: #6c7c86 !important;
+    opacity: 1 !important;
+    -webkit-text-fill-color: #6c7c86 !important;
+  }
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal {
+  background: #ffffff !important;
+  border-color: #cbd4da !important;
+  color: #17232d !important;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal .desktopFilterModalHeader,
+:global(html[data-theme="light"] body) > .desktopFilterModal > .marketplaceRailSwitch {
+  border-color: #d7dee3;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal > .heroSearchPanel > .heroRailActions {
+  background: #ffffff !important;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal :is(.heroFilterStack, .vehicleUsageFilters, .heroPartCategoryStack) {
+  background: transparent !important;
+  border-color: #d7dee3 !important;
+  color: #17232d !important;
+}
+
+:global(html[data-theme="light"] body) > .desktopFilterModal :is(.heroFilterLabel, .heroYearRangeLabel, .vehicleUsageSectionLabel, .vehicleUsageField > span) {
+  color: #17232d !important;
+  -webkit-text-fill-color: #17232d !important;
+}
+
+:global(html[data-theme="light"]) :global(.listing-index-page) .card {
+  border-color: #d9e1e8;
+  background: #ffffff;
+  color: #172433;
+  box-shadow: 0 12px 30px rgba(24, 42, 61, .11);
+}
+
+:global(html[data-theme="light"]) :global(.listing-index-page) .cardBody {
+  background: #ffffff;
+  color: #172433;
+}
+
+:global(html[data-theme="light"]) :global(.listing-index-page) .cardPrice {
+  color: #d95308;
+  -webkit-text-fill-color: #d95308;
+}
+
+:global(html[data-theme="light"]) :global(.listing-index-page) .cardTitle {
+  color: #172433;
+  -webkit-text-fill-color: #172433;
+}
+
+:global(html[data-theme="light"]) :global(.listing-index-page) .badge {
+  border-color: #f2c7a6;
+  background: #fff1e6;
+  color: #a94709;
+  -webkit-text-fill-color: #a94709;
+}
+
+:global(html[data-theme="light"]) :global(.listing-index-page) .cardMetaRow {
+  border-top-color: #e2e8ee;
+}
+
+:global(html[data-theme="light"]) :global(.listing-index-page) :is(.cardLocationMeta, .cardDateMeta) {
+  color: #66768a;
+  -webkit-text-fill-color: #66768a;
 }
 .cardsGrid .card .cardMetaRow, .listingsPlainPanel .card .cardMetaRow {
   border-top-color: color-mix(in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 72%, #ffffff 22%);
@@ -5570,7 +6773,7 @@
     align-items: center; background: #101720; border: 1px solid rgba(82, 105, 133, 0.62); border-radius: 999px; color: #ff7a1a; display: inline-flex;
     grid-column: 3; height: 38px; justify-content: center; justify-self: end; padding: 0; width: 38px;
   }
-  :global(html body) .mobileFilterSheet > .heroRailHeader, :global(html body) .mobileFilterSheet > .heroRailEdgeToggle, :global(html body) .mobileFilterSheet > .heroSearchPanel, :global(html body) .mobileFilterSheet > .heroLatestPanel, .mobileFilterSheet > .heroRailHeader, .mobileFilterSheet > .heroRailEdgeToggle, .mobileFilterSheet > .heroSearchPanel, .mobileFilterSheet > .heroLatestPanel {
+  :global(html body) .mobileFilterSheet > .heroRailHeader, :global(html body) .mobileFilterSheet > .heroRailEdgeToggle, :global(html body) .mobileFilterSheet > .heroSearchPanel, :global(html body) .mobileFilterSheet > .heroRailActions, :global(html body) .mobileFilterSheet > .heroLatestPanel, .mobileFilterSheet > .heroRailHeader, .mobileFilterSheet > .heroRailEdgeToggle, .mobileFilterSheet > .heroSearchPanel, .mobileFilterSheet > .heroRailActions, .mobileFilterSheet > .heroLatestPanel {
     display: none;
   }
   :global(html body) .mobileFilterSheet .mobileSheetForm, .mobileFilterSheet .mobileSheetForm {
@@ -5969,7 +7172,7 @@
   background: var(--listing-card-bg, var(--site-card, #061a2c)); display: grid; gap: 8px; min-height: 0; padding: 12px;
 }
 .heroDesktopLatestCard .heroDesktopLatestPrice {
-  color: #f8fbff; font-size: 34px; padding: 0;
+  align-items: baseline; color: #f8fbff; column-gap: 7px; display: flex; flex-wrap: wrap; font-size: 34px; padding: 0; row-gap: 3px;
 }
 .heroDesktopLatestCard .heroDesktopLatestTop {
   color: #f8fbff; font-size: 15px; font-weight: 950; margin: 0; min-height: calc(1.18em * 2);
@@ -6012,6 +7215,7 @@
 .heroDesktopLatestCard {
   border-color: color-mix( in srgb, var(--listing-card-bg, var(--site-card, #0e1721)) 68%, #ffffff 32% );
 }
+
 @media (min-width: 901px) {
   :global(html body) .heroRightRail .heroPartCategoryStack {
     display: grid; gap: 8px; margin-top: 4px;
@@ -6850,11 +8054,521 @@
 }
 @media (min-width: 1600px) {
   :global(html body main[data-home-page]) .heroLeadPanelFiltered:global(#home-filtered-results-column) {
-    grid-column: 2;
+    grid-column: 1;
   }
   :global(html body main[data-home-page]) .heroRightRail:global(#home-filtered-filter-rail) {
-    grid-column: 4;
+    grid-column: 2;
   }
+}
+
+/* Desktop all-filters view: a full-height Maskines filter sheet. */
+@media (min-width: 901px) {
+  :global(html body) > aside.desktopFilterModal {
+    border-bottom: 0 !important;
+    border-radius: 0 !important;
+    border-top: 0 !important;
+    height: 100dvh !important;
+    inset: 0 auto 0 50% !important;
+    max-height: 100dvh !important;
+    max-width: 1040px !important;
+    transform: translateX(-50%) !important;
+    width: min(1040px, calc(100vw - 48px)) !important;
+  }
+
+  :global(html body) > aside.desktopFilterModal > .desktopFullFilterPanel {
+    height: 100dvh !important;
+  }
+
+  .desktopFullFilterTopbar {
+    min-height: 70px;
+    padding-inline: 20px;
+  }
+
+  .desktopFullUtilityRow {
+    min-height: 44px;
+    padding-inline: 20px;
+  }
+
+  .desktopMarketplaceChooser {
+    padding: 11px 20px 13px;
+  }
+
+  .desktopFullTabs {
+    padding-inline: 18px;
+  }
+
+  .desktopFullFilterScroll {
+    scrollbar-gutter: stable;
+  }
+
+  .desktopFullLocationBand {
+    padding: 13px 28px 15px;
+  }
+
+  .desktopFullSection:has(> .desktopFullBox + .desktopFullBox) {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0 18px 14px;
+  }
+
+  .desktopFullSection:has(> .desktopFullBox + .desktopFullBox) > header {
+    grid-column: 1 / -1;
+    margin-inline: -18px;
+    padding-bottom: 0;
+  }
+
+  .desktopFullSection:has(> .desktopFullBox + .desktopFullBox) > .desktopFullBox {
+    align-content: start;
+    margin: 0;
+    min-width: 0;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1080px) {
+  :global(html body) > aside.desktopFilterModal {
+    width: calc(100vw - 24px) !important;
+  }
+}
+
+/* Uniform controls inside the desktop sheet and a complete location popover. */
+@media (min-width: 901px) {
+  :global(html body) > aside.desktopFilterModal #desktop-full-filter-other
+    :is(
+      .desktopFullLocationField [class*="heroFilterSelect"],
+      .desktopFullField > select,
+      .desktopFullRangeField .vehicleUsageRange > input
+    ) {
+    box-sizing: border-box !important;
+    height: 42px !important;
+    max-height: 42px !important;
+    min-height: 42px !important;
+  }
+
+  :global(html body) > aside.desktopFilterModal #desktop-full-filter-other
+    .desktopFullLocationField [class*="heroFilterSelect"] {
+    font-size: 13px !important;
+    padding: 0 12px !important;
+  }
+
+  :global(html body) > aside.desktopFilterModal #desktop-full-filter-other
+    .desktopFullRangeField > .vehicleUsageRange {
+    gap: 14px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    position: relative;
+  }
+
+  :global(html body) > aside.desktopFilterModal #desktop-full-filter-other
+    .desktopFullRangeField > .vehicleUsageRange > i {
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+  }
+
+  :global(html body) > aside.desktopFilterModal #desktop-full-filter-other
+    .desktopFullLocationField [class*="locationMultiMenu"] {
+    border-radius: 8px !important;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.44) !important;
+    height: auto !important;
+    left: 0 !important;
+    margin-top: 6px !important;
+    max-height: min(460px, calc(100dvh - 260px)) !important;
+    min-height: 0 !important;
+    right: auto !important;
+    top: 100% !important;
+    width: 100% !important;
+    z-index: 200 !important;
+  }
+
+  :global(html body) > aside.desktopFilterModal #desktop-full-filter-other
+    .desktopFullLocationField [class*="locationCountriesMenu"] {
+    height: auto !important;
+    max-height: min(460px, calc(100dvh - 260px)) !important;
+    min-height: 0 !important;
+  }
+
+  :global(html body) > aside.desktopFilterModal #desktop-full-filter-other
+    .desktopFullLocationField [class*="locationOptionList"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+    max-height: 268px !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+  }
+
+  :global(html body) > aside.desktopFilterModal #desktop-full-filter-other
+    .desktopFullLocationField [class*="locationCountryGrid"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  :global(html body) > aside.desktopFilterModal #desktop-full-filter-other
+    .desktopFullLocationField [class*="locationOptionGroup"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) > aside.desktopFilterModal #desktop-full-filter-other
+    .desktopFullLocationField [class*="locationSearchField"] {
+    min-height: 40px !important;
+  }
+}
+
+.desktopTrackMatCard {
+  background: linear-gradient(145deg, rgba(255, 122, 26, 0.1), rgba(8, 27, 40, 0.9));
+  border: 1px solid rgba(255, 130, 35, 0.58);
+  border-radius: 8px;
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.desktopTrackMatCard > header {
+  display: grid;
+  gap: 3px;
+}
+
+.desktopTrackMatCard > header strong {
+  color: #ff8a25;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.desktopTrackMatCard > header small {
+  color: #aebdca;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.desktopTrackMatFullFields {
+  align-items: start;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.desktopTrackMatFullFields .desktopFullField {
+  align-content: start;
+}
+
+.desktopTrackMatFullFields .desktopFullField > input {
+  margin-top: 2px;
+}
+
+.desktopFullLocationField {
+  align-content: start;
+  min-width: 0;
+  position: relative;
+  width: 100%;
+  z-index: 45;
+}
+
+.desktopFullLocationField > [class*="heroFilterFieldWrap"] {
+  width: 100%;
+}
+
+.desktopFullLocationField [class*="heroFilterSelect"] {
+  min-height: 42px;
+}
+
+.desktopLocationBox {
+  gap: 14px;
+  overflow: visible;
+}
+
+.desktopLocationIntro {
+  align-items: center;
+  background: linear-gradient(135deg, rgba(255, 122, 26, 0.1), rgba(7, 22, 34, 0.72));
+  border: 1px solid rgba(255, 122, 26, 0.36);
+  border-radius: 7px;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.desktopLocationIntro > div {
+  display: grid;
+  gap: 3px;
+}
+
+.desktopLocationIntro strong {
+  color: #f7fafc;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.desktopLocationIntro small {
+  color: #9fb0bd;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.desktopLocationIntro > span {
+  background: #ff7a1a;
+  border-radius: 999px;
+  color: #ffffff;
+  flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 950;
+  padding: 6px 10px;
+}
+
+.desktopLocationSecondaryGrid {
+  align-items: start;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.desktopLocationSecondaryGrid > * {
+  align-self: start;
+}
+
+.desktopLocationSecondaryGrid > .desktopFullLocationField > [class*="heroFilterFieldWrap"],
+.desktopLocationSecondaryGrid > .desktopFullField {
+  display: grid;
+  gap: 6px;
+  grid-template-rows: 14px 42px;
+}
+
+.desktopLocationSecondaryGrid > .desktopFullLocationField [class*="heroFilterLabel"],
+.desktopLocationSecondaryGrid > .desktopFullField > span {
+  align-items: flex-start;
+  display: flex;
+  height: 14px;
+  line-height: 14px;
+  margin: 0;
+}
+
+.desktopLocationSecondaryGrid > .desktopFullLocationField [class*="heroFilterSelect"],
+.desktopLocationSecondaryGrid > .desktopFullField > select {
+  box-sizing: border-box;
+  height: 42px !important;
+  margin: 0;
+  max-height: 42px !important;
+  min-height: 42px !important;
+}
+
+.desktopLocationSecondaryGrid > .desktopFullRangeField {
+  grid-column: 1 / -1;
+  grid-template-rows: none;
+}
+
+.desktopLocationBoxOpen .desktopFullLocationField {
+  z-index: 60;
+}
+
+:global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopLocationIntro {
+  background: linear-gradient(135deg, #fff4eb, #ffffff);
+  border-color: #ef9a5d;
+}
+
+:global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopLocationIntro strong {
+  color: #182b3a;
+}
+
+:global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopLocationIntro small {
+  color: #60717f;
+}
+
+:global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopTrackMatCard {
+  background: linear-gradient(145deg, #fff5ed, #ffffff);
+  border-color: #f08a3e;
+}
+
+:global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopTrackMatCard > header small {
+  color: #5d6e79;
+}
+
+@media (min-width: 901px) and (max-width: 1080px) {
+  .desktopTrackMatFullFields {
+    gap: 8px;
+  }
+}
+
+/* Keep the full filter sheet above every site utility and make opened
+   multi-selects float instead of stretching the surrounding form row. */
+@media (min-width: 901px) {
+  .desktopFilterBackdrop {
+    z-index: 2147483645 !important;
+  }
+
+  :global(html body) > aside.desktopFilterModal {
+    height: calc(100dvh + 6px) !important;
+    inset: -3px auto -3px 50% !important;
+    max-height: none !important;
+    z-index: 2147483646 !important;
+  }
+
+  :global(html body) > aside.desktopFilterModal > .desktopFullFilterPanel {
+    height: calc(100dvh + 6px) !important;
+    isolation: isolate;
+  }
+
+  .desktopFullFilterTopbar {
+    position: relative;
+    z-index: 90;
+  }
+
+  .desktopFullUtilityRow {
+    position: relative;
+    z-index: 80;
+  }
+
+  .desktopMarketplaceChooser {
+    position: relative;
+    z-index: 70;
+  }
+
+  .desktopFullTabs {
+    background: #071622;
+    position: relative;
+    z-index: 60;
+  }
+
+  .desktopFullFilterScroll {
+    display: flex;
+    flex-direction: column;
+    isolation: isolate;
+    position: relative;
+    z-index: 1;
+  }
+
+  .desktopFullFilterScroll::after {
+    content: "";
+    display: block;
+    flex: 0 0 min(420px, 44dvh);
+    order: 99;
+    pointer-events: none;
+  }
+
+  .desktopFullFilterScroll > .desktopFullSection {
+    flex: 0 0 auto;
+  }
+
+  .desktopFullSection,
+  .desktopFullBox,
+  .desktopFullFieldGrid {
+    min-width: 0;
+  }
+
+  .desktopFullBox {
+    align-content: start;
+  }
+
+  .desktopFullFieldGrid {
+    align-items: start;
+  }
+
+  .desktopFullFieldGrid > *,
+  .desktopFullFieldGrid .vehicleUsageField {
+    align-content: start;
+    align-self: start;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .desktopFullFieldGrid .gearTypeMultiField {
+    isolation: auto;
+  }
+
+  .desktopFullFieldGrid .gearTypeMultiField:has(> .gearTypeMultiButton[aria-expanded="true"]) {
+    z-index: 100;
+  }
+
+  .desktopFullFieldGrid .gearTypeMultiMenu {
+    left: 0;
+    margin-top: 4px;
+    max-height: min(290px, calc(100dvh - 270px));
+    overscroll-behavior: contain;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    width: 100%;
+    z-index: 110;
+  }
+
+  :global(html[data-theme="light"] body) > aside.desktopFilterModal .desktopFullTabs {
+    background: #ffffff;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1080px) {
+  :global(html body) > aside.desktopFilterModal {
+    width: calc(100vw - 16px) !important;
+  }
+
+  .desktopFullFilterTopbar {
+    padding-inline: 14px;
+  }
+
+  .desktopFullHeading small {
+    display: none;
+  }
+
+  .desktopFullFieldGrid .gearTypeMultiMenu {
+    max-height: 240px;
+  }
+}
+
+.desktopMoreFiltersButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(126, 197, 240, 0.18);
+  color: #dbe8f2;
+  cursor: pointer;
+  display: grid;
+  font-size: 12px;
+  font-weight: 850;
+  gap: 8px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  margin-top: 8px;
+  min-height: 42px;
+  padding: 12px 2px 0;
+  text-align: left;
+  width: 100%;
+}
+
+.desktopCompactFilterHeader {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.desktopCompactFilterHeader > strong {
+  min-width: 0;
+}
+
+.desktopCompactFilterHeader > button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 5px;
+}
+
+.desktopMoreFiltersButton > svg:first-child {
+  color: #ff7a1a;
+}
+
+.desktopMoreFiltersButton > svg:last-child {
+  transition: transform 160ms ease;
+}
+
+.desktopMoreFiltersButtonOpen > svg:last-child {
+  transform: rotate(180deg);
+}
+
+:global(html[data-theme="light"]) .desktopMoreFiltersButton {
+  border-top-color: rgba(22, 35, 44, 0.16);
+  color: #24343f;
 }
 @media (min-width: 721px) and (max-width: 900px) {
   :global(html body) > .heroRightRail.mobileFilterSheet, :global(html body) > .heroRightRailOpen.mobileFilterSheet, :global(html body) > .heroRightRail.mobileFilterSheetExpanded, :global(html body) > .heroRightRailOpen.mobileFilterSheetExpanded {
@@ -6946,6 +8660,31 @@
   width: 100%;
 }
 
+.heroLocationSection {
+  border-bottom: 1px solid #24394a;
+  border-top: 0;
+  box-sizing: border-box;
+  display: grid;
+  margin: 4px 0;
+  min-width: 0;
+  overflow: visible;
+  padding: 12px 0;
+  position: relative;
+  width: 100%;
+  z-index: 2;
+}
+
+@media (min-width: 901px) {
+  :global(html body) .heroRightRail .heroLocationSection {
+    padding-top: 5px;
+    padding-bottom: 19px;
+  }
+}
+
+:global(html[data-theme="light"] body) .heroLocationSection {
+  border-bottom-color: #cbd3d7;
+}
+
 .vehicleUsageTitle {
   color: #f4f7fa;
   font-size: 12px;
@@ -6999,6 +8738,149 @@
   font-size: 10px;
   font-weight: 800;
   line-height: 1.2;
+}
+
+.gearTypeMultiButton {
+  align-items: center;
+  appearance: none;
+  background: #061522;
+  border: 1px solid #2a4052;
+  border-radius: 4px;
+  color: #f6f8fa;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  height: 38px;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 0 10px;
+  text-align: left;
+  width: 100%;
+}
+
+.gearTypeMultiButton strong {
+  font-size: 12px;
+  font-weight: 750;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gearTypeMultiButton[aria-expanded="true"] {
+  border-color: #ff7600;
+  box-shadow: 0 0 0 1px #ff7600;
+}
+
+.gearTypeMultiButton[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.gearTypeMultiMenu {
+  background: #071a29;
+  border: 1px solid #345066;
+  border-radius: 6px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.26);
+  display: grid;
+  max-height: 285px;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.gearTypeMultiMenu > button {
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: #edf4f8;
+  cursor: pointer;
+  display: grid;
+  font-size: 12px;
+  gap: 9px;
+  grid-template-columns: 18px minmax(0, 1fr);
+  min-height: 34px;
+  padding: 5px 7px;
+  text-align: left;
+  width: 100%;
+}
+
+.gearTypeMultiMenu > button:hover {
+  background: rgba(255, 122, 26, 0.1);
+}
+
+.gearTypeMultiMenu > button > span {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #778b99;
+  border-radius: 3px;
+  color: #ffffff;
+  display: inline-flex;
+  height: 18px;
+  justify-content: center;
+  width: 18px;
+}
+
+.gearTypeMultiMenu > button[aria-checked="true"] > span {
+  background: #ff7a1a;
+  border-color: #ff7a1a;
+}
+
+.gearTypeMultiCustom {
+  border-top: 1px solid #2d4456;
+  display: grid;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 10px 7px 5px;
+}
+
+.gearTypeMultiCustom > span {
+  color: #aeb9c5;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.gearTypeMultiCustom > input {
+  appearance: none;
+  background: #061522;
+  border: 1px solid #3b5669;
+  border-radius: 4px;
+  color: #f6f8fa;
+  font: inherit;
+  font-size: 12px;
+  height: 36px;
+  outline: none;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.gearTypeMultiCustom > input:focus {
+  border-color: #ff7a1a;
+  box-shadow: 0 0 0 1px #ff7a1a;
+}
+
+:global(html[data-theme="light"]) .gearTypeMultiButton,
+:global(html[data-theme="light"]) .gearTypeMultiMenu {
+  background: #ffffff;
+  border-color: #aeb9c0;
+  color: #17232d;
+}
+
+:global(html[data-theme="light"]) .gearTypeMultiMenu > button {
+  color: #17232d;
+}
+
+:global(html[data-theme="light"]) .gearTypeMultiCustom {
+  border-top-color: #d6dde2;
+}
+
+:global(html[data-theme="light"]) .gearTypeMultiCustom > span {
+  color: #24343f;
+}
+
+:global(html[data-theme="light"]) .gearTypeMultiCustom > input {
+  background: #ffffff;
+  border-color: #aeb9c0;
+  color: #17232d;
 }
 
 .vehicleUsageRange {
@@ -7651,7 +9533,7 @@
     border-color: #aebbc2 !important;
   }
 
-  :global(html[data-theme="light"] body) .mobileFilterSheet .marketplaceModeTabs > button {
+  :global(html[data-theme="light"] body) .mobileFilterSheet .marketplaceModeTabs > button:not(.marketplaceModeTabActive) {
     background: #f5f6f6 !important;
     color: #16232c !important;
     -webkit-text-fill-color: #16232c !important;
@@ -7752,11 +9634,13 @@
 
   :global(html body) main[data-home-page] .heroInner > .heroRightRail,
   :global(html body) main[data-home-page] .heroInner > .heroRightRail.heroRightRailOpen {
-    background: linear-gradient(180deg, rgba(6, 20, 33, 0.99), rgba(4, 15, 26, 0.99));
+    background: linear-gradient(180deg, #061421, #040f1a);
     border: 1px solid rgba(64, 96, 122, 0.58);
     border-radius: 14px;
     box-shadow: 0 18px 42px rgba(0, 0, 0, 0.2);
+    isolation: isolate;
     scrollbar-color: rgba(112, 143, 167, 0.5) transparent;
+    z-index: 2;
   }
 
   :global(html body) main[data-home-page] .heroInner > .heroRightRail::-webkit-scrollbar {
@@ -7786,11 +9670,13 @@
   }
 
   :global(html body) main[data-home-page] .heroRightRail .heroRailActions {
-    background: linear-gradient(180deg, rgba(4, 15, 26, 0), rgba(4, 15, 26, 0.98) 26%);
-    bottom: -16px;
-    margin: 4px -2px -16px;
-    padding: 18px 2px 16px;
-    position: sticky !important;
+    background: transparent;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 14px 0 0;
+    position: relative !important;
+    width: 100%;
     z-index: 8;
   }
 }
@@ -8711,4 +10597,407 @@
   color: #16232c !important;
   text-shadow: none !important;
   -webkit-text-fill-color: #16232c !important;
+}
+
+:global(html[data-theme="light"] body) :is(main[data-home-page], aside.desktopFilterModal) .gearTypeMultiCustom > input {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #aeb9c0 !important;
+  color: #17232d !important;
+  -webkit-text-fill-color: #17232d !important;
+}
+
+/* Keep the mobile marketplace tabs readable and correctly highlighted on
+   every phone width and in both color themes. */
+@media (max-width: 900px) {
+  :global(html body) [data-marketplace-switch-layout="mobile"] .marketplaceModeTabs {
+    box-sizing: border-box !important;
+    display: grid !important;
+    gap: 0 !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  :global(html body) [data-marketplace-switch-layout="mobile"] .marketplaceModeTabs > button {
+    box-sizing: border-box !important;
+    font-size: clamp(10px, 3.15vw, 13px) !important;
+    line-height: 1 !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    padding: 0 4px !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    width: 100% !important;
+  }
+
+  :global(html[data-theme="light"] body) [data-home-filter-sheet="true"] [data-marketplace-switch-layout="mobile"] .marketplaceModeTabs > button.marketplaceModeTabActive[aria-selected="true"],
+  :global(html[data-user-background-tone="light"] body) [data-home-filter-sheet="true"] [data-marketplace-switch-layout="mobile"] .marketplaceModeTabs > button.marketplaceModeTabActive[aria-selected="true"],
+  :global(html:not([data-theme="light"]) body) [data-marketplace-switch-layout="mobile"] .marketplaceModeTabs > button.marketplaceModeTabActive[aria-selected="true"] {
+    background: #ff7417 !important;
+    background-color: #ff7417 !important;
+    background-image: none !important;
+    border-color: #ff7417 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+}
+
+/* Desktop full-filter location picker: keep the country -> region -> city
+   flow compact and readable instead of spreading choices across columns. */
+@media (min-width: 901px) {
+  .desktopFullLocationField .locationMultiMenu,
+  .desktopFullLocationField .locationCountriesMenu {
+    height: auto !important;
+    max-height: min(460px, calc(100dvh - 260px)) !important;
+    min-height: 0 !important;
+  }
+
+  .desktopFullLocationField .locationOptionList,
+  .desktopFullLocationField .locationCountryGrid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    min-height: 0 !important;
+  }
+
+  .desktopFullLocationField .locationOptionList {
+    max-height: 268px !important;
+    overflow-y: auto !important;
+  }
+
+  .desktopFullLocationField .locationOptionGroup {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+:global(html body) main[data-home-page] .heroSearchRow { position: relative; overflow: visible; }
+.marketplaceSearchSuggestions {
+  position: absolute;
+  z-index: 120;
+  top: calc(100% + 7px);
+  right: 0;
+  display: grid;
+  grid-template-columns: minmax(250px, .82fr) minmax(390px, 1.18fr);
+  width: min(880px, calc(100vw - 40px));
+  max-height: min(610px, 72vh);
+  overflow: hidden;
+  border: 1px solid #cbd5df;
+  border-radius: 10px;
+  background: #fff;
+  color: #172234;
+  box-shadow: 0 18px 48px rgba(8, 22, 38, .24);
+  text-align: left;
+}
+.marketplaceSuggestionGroups { padding: 15px 17px; overflow-y: auto; border-right: 1px solid #dce3ea; background: #f8fafc; }
+.marketplaceSearchAll { display: block; width: 100%; margin: 0 0 13px; padding: 8px 0 13px; border: 0; border-bottom: 1px solid #dde4eb; background: transparent; color: #273548; font: inherit; font-size: .69rem; text-align: left; cursor: pointer; }
+.marketplaceSearchAll strong { color: #ff5d00; }
+.marketplaceSuggestionGroups section { display: grid; gap: 2px; margin-top: 13px; }
+.marketplaceSuggestionGroups h3 { margin: 0 0 6px; color: #202c3c; font-size: .86rem; }
+.marketplaceSuggestionGroups section button { width: 100%; padding: 5px 7px; border: 0; border-radius: 5px; background: transparent; color: #445267; font: inherit; font-size: .66rem; text-align: left; cursor: pointer; }
+.marketplaceSuggestionGroups section button:hover { background: #eaf0f5; color: #f05a00; }
+.marketplaceSuggestionProducts { min-width: 0; overflow-y: auto; background: #fff; }
+.marketplaceSuggestionProducts > a { display: grid; grid-template-columns: 58px minmax(0,1fr) auto; gap: 11px; align-items: center; min-height: 69px; padding: 8px 12px; border-bottom: 1px solid #e2e7ec; color: #202b3b; text-decoration: none; }
+.marketplaceSuggestionProducts > a:hover { background: #f7f9fb; }
+.marketplaceSuggestionProducts img { width: 58px; height: 52px; object-fit: cover; border-radius: 5px; background: #edf1f4; }
+.marketplaceSuggestionProducts a > span { display: grid; gap: 4px; min-width: 0; }
+.marketplaceSuggestionProducts a > span strong { overflow: hidden; color: #202b3b; font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
+.marketplaceSuggestionProducts a > span small { overflow: hidden; color: #7a8798; font-size: .55rem; text-overflow: ellipsis; white-space: nowrap; }
+.marketplaceSuggestionProducts a > b { color: #1e2938; font-size: .7rem; white-space: nowrap; }
+.marketplaceSuggestionEmpty { display: grid; place-items: center; gap: 8px; min-height: 170px; padding: 20px; color: #7a8798; font-size: .65rem; text-align: center; }
+
+@media (max-width: 760px) {
+  .marketplaceSearchSuggestions {
+    left: 0;
+    right: auto;
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-height: min(540px, 66vh);
+  }
+  .marketplaceSuggestionGroups { max-height: 210px; border-right: 0; border-bottom: 1px solid #dce3ea; }
+  .marketplaceSuggestionProducts { max-height: 300px; }
+  .marketplaceSuggestionProducts > a { grid-template-columns: 50px minmax(0,1fr) auto; padding-inline: 9px; }
+  .marketplaceSuggestionProducts img { width: 50px; height: 46px; }
+}
+
+/* Preserve the two-column marketplace at very narrow phone widths while
+ * allowing every control and card to shrink with the viewport. */
+@media (max-width: 360px) {
+  .shell:global([data-home-page]) [data-home-background-container] {
+    max-width: 100% !important;
+    padding-inline: 8px !important;
+  }
+
+  .shell:global([data-home-page]) .heroDesktopLatestHead {
+    gap: 6px;
+    grid-template-columns: minmax(0, 1fr) clamp(112px, 43vw, 124px);
+    padding-inline: 0;
+  }
+
+  .shell:global([data-home-page]) .heroDesktopLatestHead > strong {
+    font-size: clamp(15px, 5.4vw, 18px);
+    max-width: none;
+    overflow-wrap: anywhere;
+  }
+
+  .shell:global([data-home-page]) .heroDesktopLatestActions,
+  .shell:global([data-home-page]) .heroDesktopLatestSort,
+  .shell:global([data-home-page]) .heroDesktopLatestSort .sortButtonFace {
+    max-width: 100%;
+    min-width: 0;
+    transform: none;
+    width: 100%;
+  }
+
+  .shell:global([data-home-page]) .heroDesktopLatestSort .sortButtonFace {
+    gap: 4px;
+    grid-template-columns: 14px minmax(0, 1fr) 12px;
+    padding-inline: 6px;
+  }
+
+  .shell:global([data-home-page]) .heroDesktopLatestSort .sortButtonFace > span {
+    font-size: clamp(10px, 3.4vw, 12px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .heroDesktopLatestGrid,
+  .heroDesktopLatestGridExpanded {
+    gap: 6px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .heroDesktopLatestCard .heroDesktopLatestBody {
+    gap: 5px;
+    padding: 8px 7px;
+  }
+
+  .heroDesktopLatestCard .heroDesktopLatestPrice,
+  .heroDesktopLatestBody .heroDesktopLatestPrice {
+    column-gap: 4px;
+    font-size: clamp(18px, 7vw, 22px);
+    overflow-wrap: anywhere;
+  }
+
+  .heroDesktopLatestCard .heroDesktopLatestTop,
+  .heroDesktopLatestBody .heroDesktopLatestTop {
+    min-width: 0;
+  }
+
+  .heroDesktopLatestCard .heroDesktopLatestTop strong,
+  .heroDesktopLatestBody .heroDesktopLatestTop strong {
+    font-size: clamp(10px, 3.5vw, 12px);
+    overflow-wrap: anywhere;
+  }
+
+  .heroDesktopLatestBody .heroDesktopLatestMeta {
+    font-size: clamp(8px, 2.8vw, 9px);
+    gap: 3px;
+    min-width: 0;
+  }
+}
+
+:global(html[data-theme="dark"] body) main[data-home-page] .heroRightRail .desktopAllFiltersButton {
+  background: #061522 !important;
+  background-image: none !important;
+}
+
+/* The desktop filter rail follows its content instead of the viewport height.
+ * A tall screen must not turn the rail into a full-height empty column. When
+ * the filters need more room, the existing inner form scroller handles it. */
+@media (min-width: 901px) {
+  :global(html body) main[data-home-page] .heroInner > .heroRightRail:global(#home-filter-rail),
+  :global(html body) main[data-home-page] .heroInner > .heroRightRail.heroRightRailOpen:global(#home-filter-rail),
+  :global(html body) main[data-home-page] .heroInner > .heroRightRail:global(#home-filtered-filter-rail),
+  :global(html body) main[data-home-page] .heroInner > .heroRightRail.heroRightRailOpen:global(#home-filtered-filter-rail) {
+    align-self: start !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: min(860px, calc(100dvh - var(--rs-topbar-height, 76px) - 28px)) !important;
+  }
+}
+
+/* Phone listing feed: preserve readable card proportions and never shorten
+ * the sort label just to keep a desktop-style two-column row. */
+@media (max-width: 520px) {
+  .shell:global([data-home-page]) .heroDesktopLatestHead {
+    align-items: stretch;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shell:global([data-home-page]) .heroDesktopLatestActions,
+  .shell:global([data-home-page]) .heroDesktopLatestSort,
+  .shell:global([data-home-page]) .heroDesktopLatestSort .sortButtonFace {
+    max-width: none;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .shell:global([data-home-page]) .heroDesktopLatestSort .sortButtonFace > span {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .heroDesktopLatestGrid,
+  .heroDesktopLatestGridExpanded {
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heroDesktopLatestBody {
+    min-height: 142px;
+  }
+
+  .heroDesktopLatestBody .heroDesktopLatestTop strong {
+    font-size: 14px;
+  }
+}
+
+/* Keep all desktop filter actions together at the bottom of the scrolling
+ * filter form: more filters, result count and reset stay visible as one unit. */
+@media (min-width: 721px) {
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"].heroRightRail.heroRightRail .heroRailActions.heroRailActions {
+    background: transparent !important;
+    border-top: 0 !important;
+    bottom: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    flex: 0 0 auto !important;
+    margin: 14px 0 0 !important;
+    padding: 12px 0 0 !important;
+    position: sticky !important;
+    width: 100% !important;
+    z-index: 20 !important;
+  }
+
+  :global(html[data-theme="light"] body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"].heroRightRail.heroRightRail .heroRailActions.heroRailActions {
+    background: transparent !important;
+    border-top: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Parts categorization menus use the active appearance colors. This is
+ * intentionally scoped to Osakategoriointi and its track-mat selectors. */
+:global(html[data-theme="light"] body) .heroPartCategoryStack :is(.heroFilterMenu, .mobileSheetMenu) {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #aebbc2 !important;
+  box-shadow: 0 14px 30px rgba(22, 35, 44, 0.16) !important;
+  color: #16232c !important;
+  scrollbar-color: #8998a3 #eef1f3 !important;
+  -webkit-text-fill-color: #16232c !important;
+}
+
+:global(html[data-theme="light"] body) .heroPartCategoryStack :is(
+  .heroFilterMenuOption,
+  .heroFilterMenuEmpty,
+  .mobileSheetMenu > button,
+  .mobileSheetMenu > span
+) {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #16232c !important;
+  -webkit-text-fill-color: #16232c !important;
+}
+
+.vehicleFilterTaxCard {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  padding: 15px;
+  border: 1px solid #2c485b;
+  border-radius: 9px;
+  background: #091d2b;
+}
+
+.vehicleFilterTaxCard > strong {
+  color: #eff5f8;
+  font-size: 13px;
+}
+
+.vehicleFilterTaxCard > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.vehicleFilterTaxCard label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #3a5669;
+  border-radius: 7px;
+  color: #e9f0f4;
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.vehicleFilterTaxCard input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vehicleFilterTaxCard label > span {
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  border: 1px solid #6f8797;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.vehicleFilterTaxCard label:has(input:checked) {
+  border-color: #ff7417;
+  background: rgb(255 116 23 / 9%);
+}
+
+.vehicleFilterTaxCard label:has(input:checked) > span {
+  border-color: #ff7417;
+  background: #ff7417;
+}
+
+:global(html[data-theme="light"]) .vehicleFilterTaxCard {
+  border-color: #c4d0d7;
+  background: #fff;
+}
+
+:global(html[data-theme="light"]) .vehicleFilterTaxCard > strong,
+:global(html[data-theme="light"]) .vehicleFilterTaxCard label {
+  color: #102334;
+}
+
+:global(html[data-theme="light"]) .vehicleFilterTaxCard label {
+  border-color: #bac8d1;
+  background: #f7f9fa;
+}
+
+@media (max-width: 720px) {
+  .vehicleFilterTaxCard > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+:global(html[data-theme="light"] body) .heroPartCategoryStack :is(
+  .heroFilterMenuOption,
+  .mobileSheetMenu > button
+):is(:hover, :focus-visible, :active) {
+  background: #fff0e5 !important;
+  color: #a84200 !important;
+  outline: none !important;
+  -webkit-text-fill-color: #a84200 !important;
 }

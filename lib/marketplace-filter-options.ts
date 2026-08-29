@@ -324,6 +324,28 @@ export function buildMarketplaceCategorySource({
   );
 }
 
+export function mergeMarketplaceCategorySources(
+  baseCategories: Record<string, readonly string[]>,
+  vehicleCategorySources: Record<string, Record<string, readonly string[]>>
+) {
+  const merged = new Map<string, string[]>();
+
+  const addCategorySource = (source: Record<string, readonly string[]>) => {
+    for (const [categoryName, subcategories] of Object.entries(source)) {
+      const next = [...(merged.get(categoryName) ?? [])];
+      for (const subcategory of subcategories) {
+        if (!next.includes(subcategory)) next.push(subcategory);
+      }
+      merged.set(categoryName, next);
+    }
+  };
+
+  addCategorySource(baseCategories);
+  for (const source of Object.values(vehicleCategorySources)) addCategorySource(source);
+
+  return Object.fromEntries(merged.entries()) as Record<string, readonly string[]>;
+}
+
 export function buildMarketplaceSubcategoryGroups({
   category,
   categorySource

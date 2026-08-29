@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { generatedUiTranslations } from "@/lib/generated-ui-translations";
+import { commerceUiTranslations } from "@/lib/commerce-ui-translations";
 import {
   isLocale,
   normalizeLocale,
@@ -21,7 +22,7 @@ type AttrEntry = {
 };
 
 const ATTRS: AttrName[] = ["placeholder", "title", "aria-label"];
-const TRANSLATION_CACHE_VERSION = "v17";
+const TRANSLATION_CACHE_VERSION = "v21";
 
 const WINDOWS_1252_BYTES: Record<string, number> = {
   "\u20ac": 0x80,
@@ -381,11 +382,16 @@ for (const locale of translatedLocales) {
   staticUiTranslations[locale] = {
     ...((generatedUiTranslations as Partial<Record<"en" | "sv" | "no", Record<string, string>>>)[locale] ?? {}),
     ...sharedDictionary,
+    ...commerceUiTranslations[locale],
     ...staticUiTranslations[locale]
   };
 }
 
 Object.assign(staticUiTranslations.en, {
+  "Kauppa": "Store", "Yleiskatsaus": "Overview", "Ilmoitukset": "Listings", "Lisää ilmoitus": "Add listing",
+  "Tilaukset": "Orders", "Palautukset ja palautusohjeet": "Returns and return policy", "Tarjoukset ja kampanjat": "Offers and campaigns",
+  "Talous ja kasvu": "Finance and growth", "Maksut ja tilitykset": "Payments and payouts", "Toimitukset": "Delivery", "Markkinointi": "Marketing",
+  "Käytössä": "Enabled", "Pois käytöstä": "Disabled", "Ladataan yrityksen hallintapaneelia…": "Loading the business dashboard…",
   "Etusivu": "Home",
   "Oma talli": "My garage",
   "Hakuvahti": "Search alerts",
@@ -407,6 +413,10 @@ Object.assign(staticUiTranslations.en, {
   "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.\nOsta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat helposti samassa paikassa.": "A Nordic marketplace for small vehicles and spare parts.\nBuy and sell snowmobiles, ATVs, motocross bikes, mopeds and their spare parts in one place."
 });
 Object.assign(staticUiTranslations.sv, {
+  "Kauppa": "Butik", "Yleiskatsaus": "Översikt", "Ilmoitukset": "Annonser", "Lisää ilmoitus": "Lägg till annons",
+  "Tilaukset": "Beställningar", "Palautukset ja palautusohjeet": "Returer och returvillkor", "Tarjoukset ja kampanjat": "Erbjudanden och kampanjer",
+  "Talous ja kasvu": "Ekonomi och tillväxt", "Maksut ja tilitykset": "Betalningar och utbetalningar", "Toimitukset": "Leveranser", "Markkinointi": "Marknadsföring",
+  "Käytössä": "Aktiverad", "Pois käytöstä": "Inaktiverad", "Ladataan yrityksen hallintapaneelia…": "Företagspanelen laddas…",
   "Etusivu": "Startsida",
   "Oma talli": "Mitt garage",
   "Hakuvahti": "Sökbevakningar",
@@ -428,6 +438,10 @@ Object.assign(staticUiTranslations.sv, {
   "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille.\nOsta ja myy moottorikelkat, mönkijät, motocross-pyörät, mopot ja niiden varaosat helposti samassa paikassa.": "En nordisk marknadsplats för småfordon och reservdelar.\nKöp och sälj snöskotrar, fyrhjulingar, motocrosscyklar, mopeder och deras reservdelar på samma ställe."
 });
 Object.assign(staticUiTranslations.no, {
+  "Kauppa": "Butikk", "Yleiskatsaus": "Oversikt", "Lisää ilmoitus": "Legg til annonse",
+  "Tilaukset": "Bestillinger", "Palautukset ja palautusohjeet": "Returer og returvilkår", "Tarjoukset ja kampanjat": "Tilbud og kampanjer",
+  "Talous ja kasvu": "Økonomi og vekst", "Maksut ja tilitykset": "Betalinger og utbetalinger", "Toimitukset": "Leveranser", "Markkinointi": "Markedsføring",
+  "Käytössä": "Aktivert", "Pois käytöstä": "Deaktivert", "Ladataan yrityksen hallintapaneelia…": "Bedriftspanelet lastes inn…",
   Etusivu: "Hjem",
   Pääsivu: "Hjem",
   "Oma talli": "Min garasje",
@@ -727,6 +741,8 @@ export default function AutoTranslate() {
   const revealTimer = useRef<number | null>(null);
   const translating = useRef(false);
   const rerunRequested = useRef(false);
+  const localeGeneration = useRef(0);
+  const latestTranslatePage = useRef<() => Promise<void>>(async () => undefined);
 
   useEffect(() => {
     purgeInvalidLocaleStorage();
@@ -889,6 +905,7 @@ export default function AutoTranslate() {
       return;
     }
     translating.current = true;
+    const runGeneration = localeGeneration.current;
 
     try {
       if (loadedCacheLocale.current !== locale) {
@@ -922,10 +939,6 @@ export default function AutoTranslate() {
 
       applyTranslations(textNodes, attrs);
       appliedLocale.current = locale;
-      document.documentElement.setAttribute("data-i18n-ready", locale);
-      if (document.documentElement.getAttribute("data-i18n-target") === locale) {
-        document.documentElement.removeAttribute("data-i18n-pending");
-      }
 
       const missingTexts = locale === "fi"
         ? []
@@ -949,8 +962,10 @@ export default function AutoTranslate() {
             body: JSON.stringify({ targetLocale: locale, texts: requestTexts })
           });
 
+          if (runGeneration !== localeGeneration.current) return;
           if (!response.ok) continue;
           const payload = await response.json() as { translations?: Record<string, unknown> };
+          if (runGeneration !== localeGeneration.current) return;
 
           for (const source of batch) {
             const translated = payload.translations?.[repairMojibake(source)];
@@ -963,6 +978,7 @@ export default function AutoTranslate() {
         }
       }
 
+      if (runGeneration !== localeGeneration.current) return;
       applyTranslations(textNodes, attrs);
       appliedLocale.current = locale;
       saveCache();
@@ -972,7 +988,9 @@ export default function AutoTranslate() {
 
       if (rerunRequested.current) {
         rerunRequested.current = false;
-        void translatePage();
+        window.setTimeout(() => {
+          void latestTranslatePage.current();
+        }, 0);
         return;
       }
 
@@ -983,7 +1001,10 @@ export default function AutoTranslate() {
     }
   }, [applyTranslations, collect, locale, saveCache, storageKey]);
 
+  latestTranslatePage.current = translatePage;
+
   useLayoutEffect(() => {
+    localeGeneration.current += 1;
     document.documentElement.setAttribute("data-i18n-target", locale);
 
     if (locale === "fi") {
@@ -1028,19 +1049,12 @@ export default function AutoTranslate() {
       startTimer = window.setTimeout(startTranslation, 0);
     }
 
-    function handleVisitorLanguageReady() {
-      if (translationActivated.current) void translatePage();
-    }
-
-    window.addEventListener("visitorlanguageready", handleVisitorLanguageReady);
-
     // Passive effects run only after React has committed hydration. Starting
     // here avoids changing React-owned text during hydration without waiting
     // for every image and other load-event resource to finish.
     queueStart();
 
     return () => {
-      window.removeEventListener("visitorlanguageready", handleVisitorLanguageReady);
       observer?.disconnect();
       if (startTimer) window.clearTimeout(startTimer);
       if (pendingRequest.current) {

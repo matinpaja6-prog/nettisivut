@@ -6,6 +6,9 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import OptimizedListingImage from "@/app/components/OptimizedListingImage";
 import ListingVehicleMeta from "@/app/components/ListingVehicleMeta";
+import ListingSalePrice from "@/app/components/ListingSalePrice";
+import MarketplaceResponsibilityNotice from "@/app/components/MarketplaceResponsibilityNotice";
+import { useCurrency } from "@/app/components/CurrencyProvider";
 import homeStyles from "@/app/page.module.css";
 
 import {
@@ -22,9 +25,11 @@ import {
   Package,
   ShieldCheck,
   Phone,
+  PhoneCall,
   Heart,
   LockKeyhole,
   Share2,
+  ShoppingCart,
   Star,
   UserRound,
   X,
@@ -32,14 +37,12 @@ import {
 } from "lucide-react";
 
 import {
-  fallbackListings,
-  formatPrice,
   getListingPartNumber,
   isVehicleListing,
   type Listing
 } from "@/lib/listings";
+import { isSupportedCurrency } from "@/lib/currency";
 import { getLocalizedListingText } from "@/lib/listing-translations";
-import { readCachedListing, readCachedListings, writeCachedListings } from "@/lib/client-listings-cache";
 import { useLanguage, translateCategory, type Locale } from "@/lib/i18n";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 import {
@@ -53,6 +56,9 @@ import {
 import { absoluteSiteUrl } from "@/lib/site-url";
 import { readVehicleAccessories } from "@/lib/vehicle-accessories";
 import { readVehicleColors, VEHICLE_COLORS_DESCRIPTION_LABEL } from "@/lib/vehicle-colors";
+import { addCartProduct } from "@/lib/commerce/cart";
+import { activeSaleDiscountPercent, activeSalePrice } from "@/lib/commerce/discounts";
+import type { PublicProduct } from "@/lib/commerce/types";
 
 import { trackListingView, setRecoUserId } from "@/lib/recommendations";
 
@@ -88,6 +94,9 @@ const listingUiText = {
     additionalInfo: "Lisätiedot",
     noDescription: "Ei kuvausta.",
     vehicle: "Ajoneuvo",
+    gearType: "Ajovarusteen tyyppi",
+    size: "Koko",
+    targetGroup: "Kohderyhmä",
     partModel: "Osan malli",
     trackMatDetails: "Telamaton tiedot",
     trackMatDimensions: "Telamaton mitat",
@@ -138,6 +147,9 @@ const listingUiText = {
     additionalInfo: "Additional details",
     noDescription: "No description.",
     vehicle: "Vehicle",
+    gearType: "Riding gear type",
+    size: "Size",
+    targetGroup: "Target group",
     partModel: "Part model",
     trackMatDetails: "Track mat details",
     trackMatDimensions: "Track mat dimensions",
@@ -188,6 +200,9 @@ const listingUiText = {
     additionalInfo: "Tilläggsinformation",
     noDescription: "Ingen beskrivning.",
     vehicle: "Fordon",
+    gearType: "Typ av körutrustning",
+    size: "Storlek",
+    targetGroup: "Målgrupp",
     partModel: "Delmodell",
     trackMatDetails: "Mattans uppgifter",
     trackMatDimensions: "Mattans mått",
@@ -238,6 +253,9 @@ const listingUiText = {
     additionalInfo: "Tilleggsinformasjon",
     noDescription: "Ingen beskrivelse.",
     vehicle: "Kjøretøy",
+    gearType: "Type kjøreutstyr",
+    size: "Størrelse",
+    targetGroup: "Målgruppe",
     partModel: "Delmodell",
     trackMatDetails: "Beltemattedetaljer",
     trackMatDimensions: "Beltemattemål",
@@ -644,19 +662,14 @@ export default function ListingPage({
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { locale, activeLocale } = useLanguage();
+  const { currency, formatAmount, formatFromEur } = useCurrency();
   const ui = listingUiText[locale];
   const extraUi = listingExtraText[locale];
   const fallbackCountry = locale === "fi" ? "Suomi" : "Finland";
 
   const initialListingRef = useRef<Listing | null | undefined>(undefined);
   if (initialListingRef.current === undefined) {
-    initialListingRef.current =
-      initialListing ??
-      fallbackListings.find((item) =>
-        String(item.id) === String(params.id) ||
-        String(item.listing_number ?? "") === String(params.id)
-      ) ??
-      null;
+    initialListingRef.current = initialListing ?? null;
   }
 
   const [listing, setListing] =
@@ -664,6 +677,18 @@ export default function ListingPage({
 
   const [loading, setLoading] =
     useState(() => !initialListingRef.current);
+
+  const [commerceProduct, setCommerceProduct] =
+    useState<PublicProduct | null>(null);
+
+  const [commerceProductLoading, setCommerceProductLoading] =
+    useState(true);
+
+  const [commerceProductListingId, setCommerceProductListingId] =
+    useState<string | null>(null);
+
+  const [commerceMessage, setCommerceMessage] =
+    useState("");
 
   const [activeImage, setActiveImage] =
     useState<string | null>(null);
@@ -689,8 +714,18 @@ export default function ListingPage({
   const [phoneActionsOpen, setPhoneActionsOpen] =
     useState(false);
 
+  const [companyContactOpen, setCompanyContactOpen] =
+    useState(false);
+
+  const [companyPhoneVisible, setCompanyPhoneVisible] =
+    useState(false);
+
   const [sellerPhone, setSellerPhone] =
     useState("");
+
+  useEffect(() => {
+    setCompanyPhoneVisible(false);
+  }, [commerceProduct?.id]);
 
   const [sellerBusinessId, setSellerBusinessId] =
     useState<string | null>(null);
@@ -882,13 +917,7 @@ export default function ListingPage({
     setShowPhone(false);
     setSellerPhone("");
 
-    const cached =
-      readCachedListing(params.id);
-    const fallback =
-      fallbackListings.find(
-        (i) => i.id === params.id
-      ) ?? null;
-    const resolvedInitialListing = cached ?? initialListing ?? fallback;
+    const resolvedInitialListing = initialListing ?? null;
 
     if (resolvedInitialListing) {
       setListing(resolvedInitialListing);
@@ -901,7 +930,7 @@ export default function ListingPage({
     getListingById(resolvedInitialListing?.id || params.id)
       .then(({ data }) => {
         if (mounted) {
-          const resolved = data ?? fallback;
+          const resolved = data ?? null;
           setListing(resolved);
           trackListingView(resolved);
           if (resolved) {
@@ -916,7 +945,7 @@ export default function ListingPage({
       })
       .catch(() => {
         if (mounted) {
-          setListing(fallback);
+          setListing(resolvedInitialListing);
         }
       })
       .finally(() => {
@@ -951,6 +980,58 @@ export default function ListingPage({
       mounted = false;
     };
   }, [listing]);
+
+  useEffect(() => {
+    if (!listing?.id) {
+      setCommerceProduct(null);
+      setCommerceProductLoading(false);
+      setCommerceProductListingId(null);
+      setCommerceMessage("");
+      return;
+    }
+
+    let cancelled = false;
+    const currentListingId = listing.id;
+    const linkedProductId = listing.translations?._meta?.commerce_product_id?.trim() ?? "";
+    setCommerceProduct(null);
+    setCommerceProductLoading(true);
+    setCommerceProductListingId(null);
+    setCompanyContactOpen(false);
+
+    async function fetchProduct(url: string) {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) return null;
+      const body = await response.json() as { product?: PublicProduct | null };
+      return body.product ?? null;
+    }
+
+    async function loadCommerceProduct() {
+      try {
+        let product = linkedProductId
+          ? await fetchProduct(`/api/commerce/catalog/${encodeURIComponent(linkedProductId)}`)
+          : null;
+
+        // Compatibility path for listings published before the product id was
+        // stored in the listing metadata.
+        product ??= await fetchProduct(`/api/commerce/catalog?listing_id=${encodeURIComponent(currentListingId)}`);
+
+        if (!cancelled) {
+          setCommerceProduct(product);
+          setCommerceMessage("");
+        }
+      } catch {
+        if (!cancelled) setCommerceProduct(null);
+      } finally {
+        if (!cancelled) {
+          setCommerceProductListingId(currentListingId);
+          setCommerceProductLoading(false);
+        }
+      }
+    }
+
+    void loadCommerceProduct();
+    return () => { cancelled = true; };
+  }, [listing?.id, listing?.translations?._meta?.commerce_product_id]);
 
   useEffect(() => {
     if (!loading && !listing) {
@@ -1074,18 +1155,11 @@ export default function ListingPage({
     let mounted = true;
 
     async function loadSimilarListings() {
-      const cachedListings = readCachedListings();
-      const { data } = cachedListings.length > 0
-        ? { data: cachedListings }
-        : await getListings({
-            includeOptionalFields: false,
-            limit: 240
-          });
-      const source = data.length > 0 ? data : fallbackListings;
-
-      if (data.length > 0) {
-        writeCachedListings(data);
-      }
+      const { data } = await getListings({
+        includeOptionalFields: false,
+        limit: 240
+      });
+      const source = data;
 
       const ranked = source
         .filter((candidate) =>
@@ -1424,6 +1498,21 @@ export default function ListingPage({
     }
   }
 
+  function addCommerceItem(goToCart = false) {
+    if (!commerceProduct) return;
+    const result = addCartProduct(
+      commerceProduct.id,
+      commerceProduct.company_id,
+      1
+    );
+    if (!result.ok) {
+      setCommerceMessage(result.error);
+      return;
+    }
+    setCommerceMessage("Tuote lisättiin ostoskoriin.");
+    if (goToCart) router.push("/ostoskori");
+  }
+
   if (loading) {
     return null;
   }
@@ -1431,6 +1520,22 @@ export default function ListingPage({
   if (!listing) {
     return null;
   }
+
+  const commerceProductPending =
+    commerceProductLoading || commerceProductListingId !== listing.id;
+  const resolvedCommerceProduct = commerceProductPending ? null : commerceProduct;
+  const commerceSalePrice = resolvedCommerceProduct ? activeSalePrice(resolvedCommerceProduct) : null;
+  const commerceDiscountPercent = resolvedCommerceProduct ? activeSaleDiscountPercent(resolvedCommerceProduct) : 0;
+  const listingSourceCurrency = isSupportedCurrency(listing.translations?._meta?.listing_currency)
+    ? listing.translations?._meta?.listing_currency
+    : "EUR";
+  const listingOriginalPrice = Number(listing.translations?._meta?.listing_original_price);
+  const formattedListingPrice = listingSourceCurrency === currency && Number.isFinite(listingOriginalPrice) && listingOriginalPrice > 0
+    ? formatAmount(listingOriginalPrice, currency)
+    : formatFromEur(listing.price);
+  const formattedCurrentPrice = commerceSalePrice !== null
+    ? formatFromEur(commerceSalePrice / 100)
+    : formattedListingPrice;
 
   const sellerProfileId =
     listing.seller_id || listing.user_id;
@@ -1459,6 +1564,11 @@ export default function ListingPage({
   const baseListingText = getLocalizedListingText(listing, locale);
   const vehicleFacts = vehicleFactText[locale];
   const listingIsVehicle = isVehicleListing(listing);
+  const listingTaxLabels = [
+    listing.translations?._meta?.vat_deductible ? "ALV-vähennyskelpoinen" : "",
+    listing.translations?._meta?.tax_free ? "Tax free" : ""
+  ].filter(Boolean);
+  const listingIsRidingGear = normalizeComparable(listing.category) === "ajovarusteet";
   const listingPartNumber = getListingPartNumber(listing);
   const listingIsTrackMat = [
     listing.category,
@@ -1467,12 +1577,14 @@ export default function ListingPage({
   ].some((value) => (value ?? "").trim().toLowerCase().includes("telamat"));
   const parsedPartModelDetails = (() => {
     const raw = listing.part_model?.trim() ?? "";
-    if (!raw) return { partModel: "", trackMatDimensions: "" };
+    if (!raw) return { partModel: "", trackMatDimensions: "", ridingGearSize: "", ridingGearTarget: "" };
 
     let partModel = "";
     let trackMatDimensions = "";
+    let ridingGearSize = "";
+    let ridingGearTarget = "";
 
-    for (const line of raw.split(/\r?\n/)) {
+    for (const line of raw.split(/\r?\n|\s*·\s*/)) {
       const cleanLine = line.trim();
       const separatorIndex = cleanLine.indexOf(":");
       const label = separatorIndex >= 0 ? cleanLine.slice(0, separatorIndex).trim().toLowerCase() : "";
@@ -1482,6 +1594,10 @@ export default function ListingPage({
         partModel = value;
       } else if (label === "telamaton mitat" || label === "telamaton tiedot") {
         trackMatDimensions = value;
+      } else if (label === "koko") {
+        ridingGearSize = value;
+      } else if (label === "kohderyhmä") {
+        ridingGearTarget = value;
       } else if (!partModel && !listingIsTrackMat) {
         partModel = cleanLine;
       } else if (!trackMatDimensions && listingIsTrackMat) {
@@ -1489,12 +1605,27 @@ export default function ListingPage({
       }
     }
 
-    return { partModel, trackMatDimensions };
+    return { partModel, trackMatDimensions, ridingGearSize, ridingGearTarget };
   })();
   const translateConditionLabel = (value: string | null | undefined) =>
     value ? conditionLabels[locale][value] ?? value : ui.notSpecified;
   const translateVehicleTypeLabel = (value: string | null | undefined) =>
     value ? vehicleTypeMap[locale]?.[value] ?? value : ui.notSpecified;
+  const ridingGearTargetMap: Record<Locale, Record<string, string>> = {
+    fi: {},
+    en: { Aikuisten: "Adults", Lasten: "Children", Naisten: "Women", Miesten: "Men", Unisex: "Unisex" },
+    sv: { Aikuisten: "Vuxna", Lasten: "Barn", Naisten: "Dam", Miesten: "Herr", Unisex: "Unisex" },
+    no: { Aikuisten: "Voksne", Lasten: "Barn", Naisten: "Dame", Miesten: "Herre", Unisex: "Unisex" }
+  };
+  const listingRidingGearSize =
+    parsedPartModelDetails.ridingGearSize ||
+    listing.translations?._meta?.riding_gear_size?.trim() ||
+    listing.model?.trim() ||
+    "";
+  const listingRidingGearTarget =
+    parsedPartModelDetails.ridingGearTarget ||
+    listing.translations?._meta?.riding_gear_target?.trim() ||
+    "";
   const listingBrandModel =
     [listing.brand, listing.model]
       .map((value) => value?.trim())
@@ -1532,7 +1663,7 @@ export default function ListingPage({
     listing.model,
     listing.year,
     listingText.title,
-    formatPrice(listing.price)
+    formattedListingPrice
   ]
     .map((value) => String(value ?? "").trim())
     .filter(Boolean)
@@ -1618,7 +1749,7 @@ export default function ListingPage({
               </div>
 
               <div className="mobile-title-actions">
-                <span className="mobile-title-price">{formatPrice(listing.price)}</span>
+                <span className="mobile-title-price">{formattedCurrentPrice}{commerceDiscountPercent > 0 ? ` · −${commerceDiscountPercent} %` : ""}</span>
                 <button
                   onClick={shareListing}
                   className="icon-btn"
@@ -1815,11 +1946,14 @@ export default function ListingPage({
 
               <div className="image-actions">
 
-                <span className="price-stack">
+                <span className={`price-stack${commerceDiscountPercent > 0 ? " listing-sale-price-stack" : ""}`}>
+                  {commerceDiscountPercent > 0 && <span className="listing-sale-badge">ALE −{commerceDiscountPercent} %</span>}
                   <span className="price-display">
-                    {formatPrice(listing.price)}
+                    {formattedCurrentPrice}
                   </span>
+                  {commerceDiscountPercent > 0 && <del className="listing-original-price">{formattedListingPrice}</del>}
                   <span className="price-subline">
+                    {listingTaxLabels.join(" · ")}
                   </span>
                 </span>
 
@@ -1911,7 +2045,21 @@ export default function ListingPage({
                     { label: vehicleFacts.engineModel, value: listing.engine_model || "" },
                     { label: vehicleFacts.driveType, value: listingVehicleDriveType },
                     { label: vehicleFacts.roadLegal, value: listingVehicleRoadLegal },
-                    { label: vehicleFacts.color, value: listingVehicleColors.join(", ") }
+                    { label: vehicleFacts.color, value: listingVehicleColors.join(", ") },
+                    { label: "Verotus", value: listingTaxLabels.join(" · ") }
+                  ]
+                    .filter((item) => item.value.trim().length > 0)
+                    .map((item) => (
+                      <span key={item.label}><strong>{item.label}</strong>{item.value}</span>
+                    ))
+                ) : listingIsRidingGear ? (
+                  [
+                    { label: ui.gearType, value: listing.subcategory ? translateCategory(locale, listing.subcategory) : "" },
+                    { label: ui.brand, value: listing.brand?.trim() || "" },
+                    { label: ui.size, value: listingRidingGearSize },
+                    { label: ui.targetGroup, value: listingRidingGearTarget ? ridingGearTargetMap[locale][listingRidingGearTarget] ?? listingRidingGearTarget : "" },
+                    { label: ui.condition, value: translateConditionLabel(listing.condition) },
+                    { label: extraUi.delivery, value: listingDeliveryMethod ? translateDeliveryMethod(locale, listingDeliveryMethod) : ui.notSpecified }
                   ]
                     .filter((item) => item.value.trim().length > 0)
                     .map((item) => (
@@ -2111,7 +2259,47 @@ export default function ListingPage({
                   </div>
                 )}
                 <div className="seller-divider" />
-                <div className="seller-contact-merged">
+                {!commerceProductPending && commerceProduct && (
+                  <div className="seller-commerce-actions" aria-label="Tuotteen ostaminen">
+                    <span className="seller-commerce-label">
+                      <ShoppingCart size={17} aria-hidden="true" /> Osta turvallisesti Stripe-maksulla
+                    </span>
+                    <button
+                      type="button"
+                      className="seller-add-cart-button"
+                      onClick={() => addCommerceItem(false)}
+                    >
+                      <ShoppingCart size={18} aria-hidden="true" /> Lisää ostoskoriin
+                    </button>
+                    {commerceMessage && (
+                      <p className="seller-commerce-message" role="status">{commerceMessage}</p>
+                    )}
+                    <MarketplaceResponsibilityNotice compact />
+                  </div>
+                )}
+                {!commerceProductPending && commerceProduct && (
+                  <button
+                    type="button"
+                    className="seller-company-contact-toggle"
+                    aria-expanded={companyContactOpen}
+                    aria-controls="seller-company-contact-options"
+                    onClick={() => setCompanyContactOpen((open) => !open)}
+                  >
+                    <span><MessageSquareText size={19} aria-hidden="true" /> Ota yhteyttä</span>
+                    <small>Viesti, puhelin tai sähköposti</small>
+                    {companyContactOpen ? <ChevronUp size={19} aria-hidden="true" /> : <ChevronDown size={19} aria-hidden="true" />}
+                  </button>
+                )}
+                {!commerceProductPending && (!commerceProduct || companyContactOpen) && <div
+                  id={commerceProduct ? "seller-company-contact-options" : undefined}
+                  className={`seller-contact-merged${commerceProduct ? " seller-company-contact seller-company-contact-open" : ""}`}
+                >
+                  {commerceProduct && (
+                    <div className="seller-company-contact-heading">
+                      <strong>Ota yhteyttä yritykseen</strong>
+                      <span>Kysy tuotteesta viestillä, puhelimella tai sähköpostilla.</span>
+                    </div>
+                  )}
                   {isLoggedIn ? (
                     <button
                       type="button"
@@ -2136,7 +2324,27 @@ export default function ListingPage({
                       </div>
                     </div>
                   )}
-                  {!showPhone ? (
+                  {commerceProduct?.company.phone?.trim() ? companyPhoneVisible ? (
+                    <a
+                      className="seller-company-contact-method seller-company-phone-visible"
+                      href={`tel:${phoneLinkValue(commerceProduct.company.phone)}`}
+                      aria-label={`${ui.callPhone} ${commerceProduct.company.phone}`}
+                    >
+                      <span className="seller-company-contact-icon"><PhoneCall size={19} aria-hidden="true" /></span>
+                      <span><small>{ui.callPhone}</small><strong>{commerceProduct.company.phone}</strong></span>
+                      <b>{ui.callPhone}</b>
+                    </a>
+                  ) : (
+                    <button
+                      type="button"
+                      className="seller-company-contact-method seller-company-phone-reveal"
+                      onClick={() => setCompanyPhoneVisible(true)}
+                    >
+                      <span className="seller-company-contact-icon"><Phone size={19} aria-hidden="true" /></span>
+                      <span><small>Puhelin</small><strong>{ui.showPhone}</strong></span>
+                      <ChevronRight size={18} aria-hidden="true" />
+                    </button>
+                  ) : !showPhone ? (
                     <button
                       type="button"
                       className="phone-btn"
@@ -2209,7 +2417,13 @@ export default function ListingPage({
                   ) : (
                     <span className="phone-number">{ui.missingPhone}</span>
                   )}
-                </div>
+                  {commerceProduct?.company.email?.trim() && (
+                    <a className="seller-company-contact-method" href={`mailto:${commerceProduct.company.email}`}>
+                      <Mail size={19} aria-hidden="true" />
+                      <span><small>Sähköposti</small><strong>{commerceProduct.company.email}</strong></span>
+                    </a>
+                  )}
+                </div>}
               </div>
 
             </div>
@@ -2343,7 +2557,7 @@ export default function ListingPage({
                       </button>}
                     </div>
                     <div className={homeStyles.cardBody}>
-                      <p className={homeStyles.cardPrice}>{formatPrice(item.price)}</p>
+                      <ListingSalePrice listing={item} className={homeStyles.cardPrice} />
                       <h3 className={homeStyles.cardTitle}>{itemText.title}</h3>
                       <ListingVehicleMeta year={item.year} brand={item.brand} model={item.model} />
                       <div className={homeStyles.cardMetaRow} data-listing-card-meta="true">
@@ -2688,6 +2902,91 @@ export default function ListingPage({
           justify-content: flex-end;
           gap: 12px;
           margin-top: 16px;
+        }
+
+        .commerce-buy-panel {
+          display: grid;
+          gap: 18px;
+          margin-top: 18px;
+          padding: 22px;
+          border: 1px solid rgba(234, 88, 12, 0.28);
+          border-radius: 22px;
+          background: linear-gradient(145deg, #fff8ee 0%, #ffffff 62%);
+          box-shadow: 0 18px 45px rgba(124, 45, 18, 0.09);
+          color: #172033;
+        }
+
+        .commerce-buy-head {
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          gap: 14px;
+          align-items: center;
+        }
+
+        .commerce-buy-icon {
+          display: grid;
+          place-items: center;
+          width: 48px;
+          height: 48px;
+          border-radius: 15px;
+          background: linear-gradient(135deg, #ff9d2e, #f25d0b);
+          color: white;
+        }
+
+        .commerce-buy-eyebrow {
+          color: #c2410c;
+          font-size: 11px;
+          font-weight: 950;
+          letter-spacing: .08em;
+          text-transform: uppercase;
+        }
+
+        .commerce-buy-head h2 { margin: 3px 0 4px; color: #111827; font-size: 20px; }
+        .commerce-buy-head p { margin: 0; color: #64748b; font-size: 13px; line-height: 1.45; }
+        .commerce-buy-price { color: #c2410c; font-size: 25px; white-space: nowrap; }
+
+        .commerce-buy-facts {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 9px;
+        }
+
+        .commerce-buy-facts span {
+          display: grid;
+          gap: 4px;
+          padding: 11px 12px;
+          border: 1px solid rgba(148, 163, 184, .22);
+          border-radius: 12px;
+          background: #fff;
+          color: #334155;
+          font-size: 13px;
+        }
+
+        .commerce-buy-facts strong { color: #0f172a; font-size: 11px; text-transform: uppercase; }
+        .commerce-delivery-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .commerce-delivery-details > div { padding: 14px; border-radius: 13px; background: #f8fafc; border: 1px solid #e2e8f0; }
+        .commerce-delivery-details strong { color: #0f172a; font-size: 13px; }
+        .commerce-delivery-details p { margin: 5px 0 0; color: #475569; font-size: 13px; line-height: 1.45; }
+        .commerce-delivery-details small { display: block; margin-top: 5px; color: #64748b; line-height: 1.45; }
+        .commerce-delivery-details .commerce-pickup-only { border-color: rgba(234, 88, 12, .22); background: #fff7ed; }
+
+        .commerce-buy-actions { display: grid; grid-template-columns: 96px minmax(150px, 1fr) minmax(130px, .8fr) auto; gap: 9px; align-items: end; }
+        .commerce-buy-actions label { display: grid; gap: 5px; color: #475569; font-size: 11px; font-weight: 900; }
+        .commerce-buy-actions input { width: 100%; height: 45px; padding: 0 11px; border: 1px solid #cbd5e1; border-radius: 11px; background: #fff; color: #0f172a; font: inherit; }
+        .commerce-buy-actions button, .commerce-open-cart { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 45px; padding: 0 14px; border-radius: 11px; font-size: 13px; font-weight: 950; cursor: pointer; text-decoration: none; }
+        .commerce-cart-button { border: 0; background: linear-gradient(135deg, #ff8a24, #ee5e0b); color: white; }
+        .commerce-buy-now-button { border: 1px solid #0f172a; background: #0f172a; color: white; }
+        .commerce-open-cart { border: 1px solid #cbd5e1; background: #fff; color: #0f172a; }
+        .commerce-buy-message { margin: -6px 0 0; padding: 10px 12px; border-radius: 10px; background: #ecfdf5; color: #047857; font-size: 13px; font-weight: 850; }
+
+        @media (max-width: 720px) {
+          .commerce-buy-panel { padding: 18px; border-radius: 18px; }
+          .commerce-buy-head { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+          .commerce-buy-price { grid-column: 2; font-size: 23px; }
+          .commerce-buy-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .commerce-delivery-details { grid-template-columns: 1fr; }
+          .commerce-buy-actions { grid-template-columns: 88px minmax(0, 1fr); }
+          .commerce-buy-now-button, .commerce-open-cart { grid-column: 1 / -1; }
         }
 
         .image-actions {
@@ -9074,6 +9373,352 @@ export default function ListingPage({
             grid-template-columns: 1fr !important;
             row-gap: 3px !important;
           }
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-commerce-actions {
+          display: grid !important;
+          gap: 10px !important;
+          width: 100% !important;
+          margin-top: 14px !important;
+          padding-top: 16px !important;
+          border-top: 1px solid rgba(255, 255, 255, 0.14) !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-commerce-label {
+          display: flex !important;
+          align-items: center !important;
+          gap: 7px !important;
+          color: #f8c27c !important;
+          font-size: 12px !important;
+          font-weight: 900 !important;
+          letter-spacing: 0.02em !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card :is(.seller-buy-now-button, .seller-add-cart-button) {
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          gap: 8px !important;
+          width: 100% !important;
+          min-height: 54px !important;
+          padding: 0 16px !important;
+          border-radius: 14px !important;
+          cursor: pointer !important;
+          font-size: 16px !important;
+          font-weight: 950 !important;
+          transition: transform 0.16s ease, filter 0.16s ease !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-buy-now-button {
+          border: 1px solid #ffad52 !important;
+          background: linear-gradient(90deg, #ff9b1d 0%, #ff5f00 100%) !important;
+          color: #ffffff !important;
+          box-shadow: 0 12px 28px rgba(255, 95, 0, 0.24) !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-add-cart-button {
+          border: 1px solid #ff9b1d !important;
+          background: linear-gradient(100deg, #ff9b1d 0%, #ff6900 58%, #ff5200 100%) !important;
+          color: #ffffff !important;
+          box-shadow: 0 12px 26px rgba(255, 105, 0, 0.28) !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card :is(.seller-buy-now-button, .seller-add-cart-button):hover {
+          filter: brightness(1.08) !important;
+          transform: translateY(-1px) !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-commerce-message {
+          margin: 0 !important;
+          padding: 9px 11px !important;
+          border: 1px solid rgba(74, 222, 128, 0.32) !important;
+          border-radius: 10px !important;
+          background: rgba(22, 101, 52, 0.24) !important;
+          color: #bbf7d0 !important;
+          font-size: 12px !important;
+          font-weight: 850 !important;
+          line-height: 1.4 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-toggle {
+          display: grid !important;
+          grid-template-columns: minmax(0, 1fr) auto !important;
+          grid-template-rows: auto auto !important;
+          gap: 2px 10px !important;
+          align-items: center !important;
+          width: 100% !important;
+          min-height: 58px !important;
+          margin-top: 10px !important;
+          padding: 10px 14px !important;
+          border: 1px solid rgba(151, 180, 211, 0.3) !important;
+          border-radius: 14px !important;
+          background: linear-gradient(145deg, rgba(15, 45, 68, 0.92), rgba(5, 20, 35, 0.94)) !important;
+          color: #ffffff !important;
+          font: inherit !important;
+          text-align: left !important;
+          cursor: pointer !important;
+          transition: border-color 0.16s ease, transform 0.16s ease, background 0.16s ease !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-toggle:hover {
+          border-color: rgba(255, 156, 38, 0.78) !important;
+          transform: translateY(-1px) !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-toggle > span {
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+          color: #ffffff !important;
+          font-size: 14px !important;
+          font-weight: 950 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-toggle > span svg {
+          color: #ff9b38 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-toggle > small {
+          grid-column: 1 !important;
+          color: #9fb0c0 !important;
+          font-size: 10px !important;
+          font-weight: 700 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-toggle > svg {
+          grid-column: 2 !important;
+          grid-row: 1 / 3 !important;
+          color: #ff9b38 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact {
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+          gap: 9px !important;
+          width: 100% !important;
+          margin-top: 8px !important;
+          padding: 16px !important;
+          border: 1px solid rgba(151, 180, 211, 0.2) !important;
+          border-radius: 16px !important;
+          background: linear-gradient(160deg, rgba(10, 35, 55, 0.72), rgba(3, 18, 35, 0.5)) !important;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact .message-btn {
+          min-height: 52px !important;
+          border: 1px solid #ff9b1d !important;
+          border-radius: 13px !important;
+          background: linear-gradient(100deg, #ff9b1d, #ff6500) !important;
+          color: #ffffff !important;
+          box-shadow: 0 10px 22px rgba(255, 105, 0, 0.2) !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-heading {
+          display: grid !important;
+          gap: 3px !important;
+          margin-bottom: 3px !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-heading strong {
+          color: #ffffff !important;
+          font-size: 14px !important;
+          font-weight: 950 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-heading span {
+          color: #aebdca !important;
+          font-size: 11px !important;
+          line-height: 1.4 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method {
+          display: flex !important;
+          align-items: center !important;
+          gap: 11px !important;
+          width: 100% !important;
+          min-width: 0 !important;
+          min-height: 54px !important;
+          padding: 9px 13px !important;
+          border: 1px solid rgba(151, 180, 211, 0.24) !important;
+          border-radius: 13px !important;
+          background: rgba(3, 18, 35, 0.48) !important;
+          color: #ffffff !important;
+          text-decoration: none !important;
+          font: inherit !important;
+          text-align: left !important;
+          cursor: pointer !important;
+          transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method:is(:hover, :focus-visible) {
+          border-color: rgba(255, 155, 29, 0.72) !important;
+          background: rgba(20, 48, 70, 0.72) !important;
+          transform: translateY(-1px) !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method > svg {
+          flex: 0 0 auto !important;
+          color: #ff9b38 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method > .seller-company-contact-icon {
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          flex: 0 0 38px !important;
+          width: 38px !important;
+          height: 38px !important;
+          border-radius: 11px !important;
+          background: rgba(255, 139, 20, 0.14) !important;
+          color: #ff9b38 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method > span:not(.seller-company-contact-icon) {
+          display: grid !important;
+          gap: 1px !important;
+          min-width: 0 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method small {
+          color: #91a4b9 !important;
+          font-size: 10px !important;
+          font-weight: 850 !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.06em !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method strong {
+          overflow: hidden !important;
+          color: #ffffff !important;
+          font-size: 12px !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-phone-reveal > svg {
+          margin-left: auto !important;
+          color: #ff9b38 !important;
+        }
+
+        body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-phone-visible > b {
+          margin-left: auto !important;
+          padding: 7px 10px !important;
+          border-radius: 999px !important;
+          background: #ff7a00 !important;
+          color: #ffffff !important;
+          font-size: 11px !important;
+          font-weight: 950 !important;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-toggle {
+          border-color: #d7e0e8 !important;
+          background: linear-gradient(145deg, #ffffff, #f4f7fa) !important;
+          color: #17212b !important;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-toggle > span {
+          color: #17212b !important;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-toggle > small {
+          color: #64748b !important;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact {
+          border-color: #e2e8f0 !important;
+          background: linear-gradient(160deg, #ffffff, #f7f9fb) !important;
+          box-shadow: 0 12px 28px rgba(15, 35, 55, 0.07) !important;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-heading strong,
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method strong {
+          color: #17212b !important;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-heading span,
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method small {
+          color: #64748b !important;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method {
+          border-color: #d8e1ea !important;
+          background: #f8fafc !important;
+          color: #17212b !important;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method:is(:hover, :focus-visible) {
+          border-color: #ffb25c !important;
+          background: #fff8f0 !important;
+        }
+
+        html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+          .seller-card.seller-card .seller-company-contact-method > .seller-company-contact-icon {
+          background: #fff0df !important;
+        }
+
+        body main.page.listing-detail-page .listing-sale-price-stack {
+          display: flex !important;
+          align-items: baseline !important;
+          gap: 10px !important;
+          flex-wrap: wrap !important;
+        }
+
+        body main.page.listing-detail-page .listing-sale-badge {
+          display: inline-flex !important;
+          align-items: center !important;
+          min-height: 28px !important;
+          padding: 5px 9px !important;
+          border-radius: 6px !important;
+          background: #e54813 !important;
+          color: #fff !important;
+          font-size: 12px !important;
+          font-weight: 950 !important;
+          letter-spacing: .035em !important;
+          line-height: 1 !important;
+          box-shadow: 0 6px 14px rgba(201,55,12,.24) !important;
+        }
+
+        body main.page.listing-detail-page .listing-original-price {
+          color: #91a4b9 !important;
+          font-size: 16px !important;
+          font-weight: 800 !important;
         }
 
       `}</style>

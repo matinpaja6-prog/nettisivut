@@ -15,7 +15,7 @@ export default function robots(): MetadataRoute.Robots {
         ]
       }
     ],
-    sitemap: absoluteSiteUrl("/sitemap.xml"),
+    sitemap: absoluteSiteUrl("/sitemap_index.xml"),
     host: absoluteSiteUrl("/")
   };
 }

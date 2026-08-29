@@ -1,22 +1,17 @@
 {
   "name": "Maskines",
   "short_name": "Maskines",
-  "description": "Käytettyjen varaosien kauppapaikka moottorikelkoille, mönkijöille, motocross-pyörille ja mopoille.",
+  "description": "Pohjoismainen pienkoneiden ajoneuvo- ja varaosamarkkinapaikka.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1118",
+  "theme_color": "#040d1f",
   "icons": [
     {
-      "src": "/maskines-share-logo.png",
-      "sizes": "1200x1200",
+      "src": "/maskines-icon-v2.png",
+      "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/maskines-share-logo.png",
-      "sizes": "1200x1200",
-      "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
-  ],
-  "theme_color": "#040d1f",
-  "background_color": "#040d1f",
-  "display": "standalone"
+  ]
 }

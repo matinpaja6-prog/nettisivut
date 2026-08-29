@@ -8,9 +8,11 @@ import {
 const PUBLIC_FILE =
   /\.(?:avif|bmp|css|csv|eot|gif|ico|jpe?g|js|json|map|mp3|mp4|ogg|otf|pdf|png|svg|txt|webmanifest|webm|webp|woff2?|xml)$/i;
 const CROSS_ORIGIN_BRAND_ASSETS = new Set([
-  "/maskines-email-logo.png",
-  "/maskines-icon.png",
-  "/maskines-share-logo.png"
+  "/maskines-email-brand-v2.png",
+  "/maskines-brand-mark-v3.png",
+  "/maskines-brand-mark-dark-v3.png",
+  "/maskines-icon-v2.png",
+  "/maskines-brand-share-v2.png"
 ]);
 const CANONICAL_HOST = "maskines.com";
 const LEGACY_HOSTS = new Set(["maskinet.com", "www.maskinet.com"]);
@@ -21,6 +23,7 @@ const TRUSTED_MUTATION_ORIGINS = new Set([
 const API_RATE_LIMIT_WINDOW_MS = 60_000;
 const API_MAX_BODY_BYTES = 128_000;
 const MESSAGE_IMAGE_MAX_BODY_BYTES = 750_000;
+const PRODUCT_IMAGE_MAX_BODY_BYTES = 32_000_000;
 const apiRateLimitCache = new Map<string, { count: number; resetAt: number }>();
 const PRIVATE_NOINDEX_PREFIXES = [
   "/admin",
@@ -33,7 +36,11 @@ const PRIVATE_NOINDEX_PREFIXES = [
   "/saved",
   "/followed",
   "/sell",
-  "/search-alerts"
+  "/search-alerts",
+  "/yritys",
+  "/ostoskori",
+  "/tilaus",
+  "/tilaukset"
 ];
 const ALLOWED_HTTP_METHODS = new Set([
   "GET",
@@ -46,17 +53,17 @@ const ALLOWED_HTTP_METHODS = new Set([
 ]);
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://maps.googleapis.com https://challenges.cloudflare.com`,
+  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://maps.googleapis.com https://challenges.cloudflare.com https://js.stripe.com https://checkout.stripe.com`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.googleapis.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.googleapis.com https://api.stripe.com https://checkout.stripe.com https://*.stripe.com",
   "media-src 'self' blob: https:",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
-  "frame-src https://challenges.cloudflare.com",
+  "frame-src https://challenges.cloudflare.com https://js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://*.stripe.com",
   "frame-ancestors 'none'",
   "form-action 'self'",
   ...(process.env.NODE_ENV === "production" ? ["upgrade-insecure-requests"] : [])
@@ -90,7 +97,7 @@ function applySecurityHeaders(response: NextResponse) {
   );
   response.headers.set(
     "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+    "camera=(), microphone=(), geolocation=(), payment=(self \"https://js.stripe.com\" \"https://checkout.stripe.com\"), usb=(), interest-cohort=()"
   );
   if (process.env.NODE_ENV === "production") {
     response.headers.set(
@@ -174,6 +181,7 @@ function isCrossSiteMutation(request: NextRequest) {
 }
 
 function getApiRateLimit(pathname: string, method: string) {
+  if (pathname.startsWith("/api/commerce/stripe/webhook")) return 600;
   if (pathname.startsWith("/api/google-maps-script")) return 30;
   if (!isUnsafeMethod(method)) return 180;
   if (pathname.startsWith("/api/account/delete")) return 3;
@@ -420,7 +428,9 @@ export async function middleware(request: NextRequest) {
     const contentLength = Number(request.headers.get("content-length") || "0");
     const maxBodyBytes = pathname === "/api/messages/send"
       ? MESSAGE_IMAGE_MAX_BODY_BYTES
-      : API_MAX_BODY_BYTES;
+      : pathname === "/api/commerce/products/images"
+        ? PRODUCT_IMAGE_MAX_BODY_BYTES
+        : API_MAX_BODY_BYTES;
     if (Number.isFinite(contentLength) && contentLength > maxBodyBytes) {
       return applySecurityHeaders(
         NextResponse.json({ error: "Pyyntö on liian suuri." }, { status: 413 })
