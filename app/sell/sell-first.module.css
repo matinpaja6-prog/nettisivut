@@ -7225,9 +7225,33 @@
   }
   .modeCard,
   :global(html[data-theme="light"]) .modeCard {
-    grid-template-columns: 52px minmax(0, 1fr) 26px !important;
-    min-height: 94px !important;
-    padding: 14px !important;
+    grid-template-columns: 48px minmax(0, 1fr) 25px !important;
+    gap: 3px 13px !important;
+    min-height: 88px !important;
+    padding: 11px 14px !important;
+  }
+  .modeGrid {
+    gap: 14px !important;
+  }
+  .modeCard .modeIcon {
+    width: 48px !important;
+    height: 48px !important;
+  }
+  .modeCard .modeIcon svg {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .modeCard > strong {
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+  }
+  .modeCard .modeCopy {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+  .modeCard .modeCheck {
+    width: 25px !important;
+    height: 25px !important;
   }
   .vehicleForm,
   .categoryPanel,

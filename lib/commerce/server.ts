@@ -7,7 +7,16 @@ import { getSupabaseAdmin, requireUserFromRequest } from "@/lib/supabase-admin";
 import { companyRecord } from "@/lib/commerce/company-record";
 
 export function errorResponse(error: unknown, fallback: string, status = 500) {
-  const message = error instanceof Error ? error.message : fallback;
+  const record = error as { code?: unknown; message?: unknown } | null;
+  const message = error instanceof Error
+    ? error.message
+    : typeof record?.message === "string" && record.message.trim()
+      ? record.message
+      : fallback;
+  console.error(fallback, {
+    code: typeof record?.code === "string" ? record.code : undefined,
+    message
+  });
   const authError = /kirjautuminen/i.test(message);
   const accessError = /vain yritystileille|vahvista yritys|vain Maskines-admin/i.test(message);
   return NextResponse.json(

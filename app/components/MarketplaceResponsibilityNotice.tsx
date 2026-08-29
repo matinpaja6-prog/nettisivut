@@ -79,38 +79,110 @@ export default function MarketplaceResponsibilityNotice({
 
   return (
     <aside className={`marketplace-responsibility-notice${compact ? " is-compact" : ""}`} aria-label={copy.title}>
-      <Icon size={compact ? 18 : 22} aria-hidden="true" />
-      <div>
+      <span className="marketplace-responsibility-icon" aria-hidden="true">
+        <Icon size={compact ? 18 : 22} />
+      </span>
+      <div className="marketplace-responsibility-copy">
         <strong>{copy.title}</strong>
         <p>{copy.body}</p>
-        <small>{copy.legal} <Link href="/terms">{copy.terms}</Link>.</small>
+        <small>
+          <span>{copy.legal}</span>
+          <span><Link href="/terms">{copy.terms}</Link>.</span>
+        </small>
       </div>
       <style jsx>{`
         .marketplace-responsibility-notice {
           align-items: flex-start;
-          background: rgba(255, 247, 237, 0.97);
-          border: 1px solid rgba(234, 88, 12, 0.32);
-          border-radius: 14px;
+          background: linear-gradient(135deg, rgba(255, 250, 245, 0.99), rgba(255, 244, 232, 0.97));
+          border: 1px solid rgba(234, 88, 12, 0.28);
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(49, 22, 8, 0.08);
           color: #7c2d12;
           display: grid;
-          gap: 12px;
-          grid-template-columns: auto minmax(0, 1fr);
+          gap: 13px;
+          grid-column: 1 / -1;
+          grid-template-columns: 38px minmax(0, 1fr);
           line-height: 1.5;
-          padding: 16px;
+          overflow: hidden;
+          padding: 16px 18px;
+          position: relative;
           width: 100%;
         }
-        .marketplace-responsibility-notice > :global(svg) { margin-top: 2px; }
-        .marketplace-responsibility-notice strong { color: #431407; display: block; font-size: 14px; }
-        .marketplace-responsibility-notice p { color: #7c2d12; font-size: 13px; margin: 4px 0 7px; }
-        .marketplace-responsibility-notice small { color: #9a3412; display: block; font-size: 11px; }
-        .marketplace-responsibility-notice a { color: #9a3412; font-weight: 900; text-decoration: underline; text-underline-offset: 2px; }
-        .marketplace-responsibility-notice.is-compact { gap: 9px; padding: 12px; }
-        .marketplace-responsibility-notice.is-compact p { font-size: 12px; }
+        .marketplace-responsibility-notice::before {
+          background: #f97316;
+          bottom: 0;
+          content: "";
+          left: 0;
+          position: absolute;
+          top: 0;
+          width: 3px;
+        }
+        .marketplace-responsibility-icon {
+          align-items: center;
+          background: rgba(249, 115, 22, 0.1);
+          border: 1px solid rgba(234, 88, 12, 0.18);
+          border-radius: 10px;
+          color: #ea580c;
+          display: flex;
+          height: 38px;
+          justify-content: center;
+          width: 38px;
+        }
+        .marketplace-responsibility-copy { min-width: 0; }
+        .marketplace-responsibility-notice strong {
+          color: #431407;
+          display: block;
+          font-size: 14px;
+          font-weight: 900;
+          line-height: 1.35;
+        }
+        .marketplace-responsibility-notice p {
+          color: #7c2d12;
+          font-size: 13px;
+          line-height: 1.55;
+          margin: 4px 0 10px;
+          max-width: 90ch;
+        }
+        .marketplace-responsibility-notice small {
+          align-items: baseline;
+          border-top: 1px solid rgba(234, 88, 12, 0.14);
+          color: #9a3412;
+          display: flex;
+          flex-wrap: wrap;
+          font-size: 11px;
+          gap: 3px 8px;
+          line-height: 1.45;
+          padding-top: 8px;
+        }
+        .marketplace-responsibility-notice a {
+          color: #9a3412;
+          font-weight: 900;
+          text-decoration: underline;
+          text-underline-offset: 2px;
+          white-space: nowrap;
+        }
+        .marketplace-responsibility-notice.is-compact { gap: 12px; padding: 14px 16px; }
+        .marketplace-responsibility-notice.is-compact p { font-size: 12px; margin-bottom: 8px; }
+        @media (max-width: 520px) {
+          .marketplace-responsibility-notice,
+          .marketplace-responsibility-notice.is-compact {
+            gap: 10px;
+            grid-template-columns: 34px minmax(0, 1fr);
+            padding: 13px 13px 13px 15px;
+          }
+          .marketplace-responsibility-icon { border-radius: 9px; height: 34px; width: 34px; }
+          .marketplace-responsibility-notice p { line-height: 1.5; }
+        }
         @media (prefers-color-scheme: dark) {
           .marketplace-responsibility-notice {
-            background: rgba(67, 20, 7, 0.88);
+            background: linear-gradient(135deg, rgba(67, 20, 7, 0.9), rgba(49, 17, 5, 0.94));
             border-color: rgba(251, 146, 60, 0.38);
             color: #fed7aa;
+          }
+          .marketplace-responsibility-icon {
+            background: rgba(251, 146, 60, 0.12);
+            border-color: rgba(251, 146, 60, 0.28);
+            color: #fb923c;
           }
           .marketplace-responsibility-notice strong { color: #fff7ed; }
           .marketplace-responsibility-notice p,

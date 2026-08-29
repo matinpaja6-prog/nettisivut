@@ -30,9 +30,11 @@ export function convertToEur(amount: number, currency: SupportedCurrency, rates:
 
 export function formatCurrencyAmount(amount: number, currency: SupportedCurrency, locale = "fi") {
   const language = locale === "sv" ? "sv-SE" : locale === "no" ? "nb-NO" : "fi-FI";
+  const euroFractionDigits = currency === "EUR" && !Number.isInteger(amount) ? 2 : 0;
   return new Intl.NumberFormat(language, {
     style: "currency",
     currency,
-    maximumFractionDigits: currency === "EUR" ? 2 : 0
+    minimumFractionDigits: euroFractionDigits,
+    maximumFractionDigits: euroFractionDigits
   }).format(amount);
 }

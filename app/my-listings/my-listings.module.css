@@ -318,6 +318,13 @@
   background: transparent !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
 }
 
+/* Saving feedback sits below the white editor action bar in the light theme. */
+:global(html[data-theme="light"]) .page .statusMsg {
+  color: #16232c !important;
+  -webkit-text-fill-color: #16232c !important;
+  opacity: 1 !important;
+}
+
 /* Light theme: keep the dashboard and editor readable on the light page. */
 :global(html[data-theme="light"]) .page {
   color: #16232c;

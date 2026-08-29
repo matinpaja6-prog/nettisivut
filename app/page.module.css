@@ -9701,6 +9701,8 @@
   }
 
   :global(html body) main[data-home-page] .heroRightRail > .heroSearchPanel {
+    align-self: stretch;
+    box-sizing: border-box;
     flex: 1 1 auto;
     margin-right: -10px;
     min-height: 0;
@@ -9711,6 +9713,7 @@
     scrollbar-color: rgba(112, 126, 136, 0.5) transparent;
     scrollbar-gutter: stable;
     scrollbar-width: thin;
+    width: auto;
   }
 
   :global(html body) main[data-home-page] .heroRightRail > .heroSearchPanel::-webkit-scrollbar {
@@ -10881,6 +10884,158 @@
     background: transparent !important;
     border-top: 0 !important;
     box-shadow: none !important;
+  }
+}
+
+/* Preserve the same breathing room between listings and the desktop filter
+ * rail in development and in Railway's optimized CSS build. */
+@media (min-width: 901px) {
+  :global(html body) main[data-home-page] .heroInner.heroInner {
+    column-gap: 22px !important;
+    gap: 22px !important;
+  }
+}
+
+@media (min-width: 1600px) {
+  :global(html body) main[data-home-page] .heroInner.heroInner {
+    grid-template-columns: minmax(0, 1fr) 400px !important;
+  }
+}
+
+/* Authoritative desktop rail parity with the current localhost layout. The
+ * compact header already names the panel, so the legacy title, duplicated
+ * seller section label and legacy "all criteria" action stay out of view. */
+@media (min-width: 901px) {
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"] > .heroRailHeader,
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"] .vehicleUsageFilters > .vehicleUsageSectionLabel,
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"] .desktopAllFiltersButton {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+  }
+}
+
+/* Pixel-match the optimized desktop rail to localhost. These values are the
+ * measured development geometry: 16px form inset and 36px controls. */
+@media (min-width: 901px) {
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"].heroRightRail.heroRightRail > .heroSearchPanel.heroSearchPanel {
+    align-self: start !important;
+    max-width: 100% !important;
+    padding: 0 16px !important;
+    width: 100% !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"] .heroSearchPanel > .heroFilterStack {
+    margin: 8px 0 0 !important;
+    padding: 10px 0 0 !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"] .heroFilterFieldWrap {
+    gap: 3px !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"] :is(
+    .heroFilterLabel,
+    .vehicleUsageField > span
+  ) {
+    font-size: 12px !important;
+    font-weight: 850 !important;
+    line-height: 15px !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"] .heroFilterSelect {
+    gap: 2px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 9px !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"] .heroFilterSelect > strong {
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    line-height: 15px !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"] .vehicleUsageSelectShell {
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-filter-rail][data-home-filter-sheet="false"] .vehicleUsageFilters .vehicleUsageField .vehicleUsageSelectShell.vehicleUsageSelectShell > select {
+    height: 34px !important;
+    max-height: 34px !important;
+    min-height: 34px !important;
+  }
+}
+
+/* Keep desktop listing cards self-contained at every production viewport.
+ * The generic card grid used fixed row sizing while the home-card image kept
+ * its aspect ratio, which could push the location/date row below the card. */
+@media (min-width: 901px) {
+  :global(html body main[data-home-page]) [data-home-listing-grid] > .heroDesktopLatestCard.heroDesktopLatestCard {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 336px !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-listing-grid] > .heroDesktopLatestCard.heroDesktopLatestCard > .heroDesktopLatestImage {
+    aspect-ratio: auto !important;
+    flex: 0 0 180px !important;
+    height: 180px !important;
+    min-height: 180px !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-listing-grid] > .heroDesktopLatestCard.heroDesktopLatestCard > .heroDesktopLatestBody {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 154px !important;
+    overflow: hidden !important;
+    padding: 11px 14px 12px !important;
+  }
+
+  :global(html body main[data-home-page]) [data-home-listing-grid] .heroDesktopLatestMeta {
+    margin-top: auto !important;
+  }
+}
+
+/* Use the localhost listing-card geometry on every desktop listing surface
+ * (home, profiles, saved listings, listing index and recommendations). */
+@media (min-width: 721px) {
+  :global(html body) [data-listing-card="true"].card.card {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-rows: none !important;
+    height: auto !important;
+    min-height: 336px !important;
+  }
+
+  :global(html body) [data-listing-card="true"].card.card > .listingCardImage.listingCardImage {
+    aspect-ratio: auto !important;
+    flex: 0 0 180px !important;
+    height: 180px !important;
+    max-height: 180px !important;
+    min-height: 180px !important;
+  }
+
+  :global(html body) [data-listing-card="true"].card.card > .cardBody.cardBody {
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: 154px !important;
+    overflow: hidden !important;
+    padding: 11px 14px 12px !important;
+  }
+
+  :global(html body) [data-listing-card="true"] > .cardBody .cardMetaRow {
+    margin-top: auto !important;
   }
 }
 

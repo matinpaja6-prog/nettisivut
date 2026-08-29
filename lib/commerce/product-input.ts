@@ -10,7 +10,7 @@ import {
 } from "@/lib/commerce/server";
 import { grossUpCommercePrice } from "@/lib/commerce/fees";
 import type { Company } from "@/lib/commerce/types";
-import { MARGIN_SCHEME_VAT_RATE, ZERO_VAT_RATE } from "@/lib/commerce/vat";
+import { VAT_RATE_OPTIONS, ZERO_VAT_RATE } from "@/lib/commerce/vat";
 
 const NORWAY_SHIPPING_MARKER = /\[\[maskines:no_shipping_cents=\d+\]\]/g;
 
@@ -38,6 +38,10 @@ export function cleanProductBody(
   body: Record<string, unknown>,
   company?: Pick<Company, "fee_pricing_strategy" | "fee_estimate_method" | "default_shipping_price_fi_cents" | "default_shipping_price_se_cents" | "default_shipping_price_no_cents">
 ) {
+  const submittedVatRate = nullableNumber(body.vat_rate, ZERO_VAT_RATE, 100);
+  const vatRate = submittedVatRate != null && VAT_RATE_OPTIONS.some((option) => option.value === submittedVatRate)
+    ? submittedVatRate
+    : ZERO_VAT_RATE;
   const pickupAvailable = body.pickup_available === true;
   const shippingAvailable = body.shipping_available === true;
   const submittedPrice = integer(body.price_cents, 0, 100_000_000);
@@ -64,7 +68,7 @@ export function cleanProductBody(
     storefront_category: optionalText(body.storefront_category, 80),
     price_cents: publicPrice,
     seller_target_price_cents: sellerTarget,
-    vat_rate: nullableNumber(body.vat_rate, ZERO_VAT_RATE, 100) ?? ZERO_VAT_RATE,
+    vat_rate: vatRate,
     stock_quantity: integer(body.stock_quantity, 0, 1_000_000),
     active: body.active === true,
     image_urls: imageUrls(body.image_urls),

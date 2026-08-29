@@ -6402,6 +6402,7 @@ function HomeContent({
           <span className={styles.vehicleUsageSelectShell}>
             <select
               id={fieldId}
+              data-home-seller-select={layout}
               value={sellerType}
               onChange={(event) => setSellerType(event.target.value as SellerTypeFilter)}
             >
