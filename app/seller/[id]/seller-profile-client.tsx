@@ -44,10 +44,12 @@ import {
   getSavedListingIds,
   getProfileFollowStats,
   getSellerReviewLikeSummary,
+  getProfile,
   getPublicProfile,
   getPublicSellerLevelStats,
   getReviewsBySeller,
   createSellerReview,
+  getMaskinesProfileDisplayName,
   ensureListingTranslations,
   followProfile,
   saveListing,
@@ -2447,14 +2449,8 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
 
     setReviewSubmitPending(true);
     setReviewFeedback("");
-    const { data: authData } = await supabase.auth.getUser();
-    const metadata = authData.user?.user_metadata ?? {};
-    const reviewerName = String(
-      metadata.full_name ||
-      [metadata.first_name, metadata.last_name].filter(Boolean).join(" ") ||
-      authData.user?.email?.split("@")[0] ||
-      "Maskines-käyttäjä"
-    ).trim();
+    const { data: reviewerProfile } = await getProfile(currentUserId);
+    const reviewerName = getMaskinesProfileDisplayName(reviewerProfile);
     const result = await createSellerReview({
       seller_id: resolvedSellerId,
       reviewer_id: currentUserId,

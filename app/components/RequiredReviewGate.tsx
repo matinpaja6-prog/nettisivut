@@ -8,6 +8,7 @@ import {
   getSafeAuthUser,
   getPendingPurchaseReviewRequests,
   getProfile,
+  getMaskinesProfileDisplayName,
   supabase,
   type PurchaseReviewRequest
 } from "@/lib/supabase";
@@ -182,8 +183,8 @@ export default function RequiredReviewGate() {
       if (!mounted) return;
 
       setRequests(pending ?? []);
-      if (profile?.full_name) {
-        setReviewerName(profile.full_name);
+      if (profile) {
+        setReviewerName(getMaskinesProfileDisplayName(profile, text.defaultUser));
       }
     }
 

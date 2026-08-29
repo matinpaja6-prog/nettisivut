@@ -129,6 +129,24 @@ export type UserProfileInput = Omit<
   | "public_id"
 >;
 
+export function getMaskinesProfileDisplayName(
+  profile: Partial<UserProfile> | null | undefined,
+  fallback = "Maskines-käyttäjä"
+) {
+  const clean = (value: unknown) =>
+    String(value ?? "")
+      .replace(/\s+/g, " ")
+      .trim();
+  const personalName = clean(
+    [profile?.first_name, profile?.last_name].filter(Boolean).join(" ")
+  );
+  const candidates = profile?.account_type === "company"
+    ? [profile.company_name, profile.full_name, profile.name, personalName, profile.username]
+    : [profile?.full_name, profile?.name, personalName, profile?.username];
+
+  return candidates.map(clean).find(Boolean) || fallback;
+}
+
 export type SellerReview = {
   id: string;
 
@@ -4162,7 +4180,7 @@ export async function getReviewsBySeller(
 
   try {
 
-    return await supabase
+    const reviewsResult = await supabase
       .from("seller_reviews")
       .select("*")
       .eq("seller_id", userId)
@@ -4173,6 +4191,43 @@ export async function getReviewsBySeller(
         }
       )
       .returns<SellerReview[]>();
+
+    const reviews = reviewsResult.data ?? [];
+    const reviewerIds = Array.from(new Set(
+      reviews.map((review) => review.reviewer_id).filter((id): id is string => Boolean(id))
+    ));
+
+    if (reviewsResult.error || reviewerIds.length === 0) {
+      return reviewsResult;
+    }
+
+    const { data: reviewerProfiles } = await supabase
+      .from("profiles")
+      .select("id,account_type,first_name,last_name,full_name,name,username,company_name")
+      .in("id", reviewerIds)
+      .returns<Partial<UserProfile>[]>();
+    const profilesById = new Map(
+      (reviewerProfiles ?? []).map((profile) => [profile.id, profile])
+    );
+
+    return {
+      ...reviewsResult,
+      data: reviews.map((review) => {
+        const reviewerProfile = review.reviewer_id
+          ? profilesById.get(review.reviewer_id)
+          : null;
+
+        return reviewerProfile
+          ? {
+              ...review,
+              reviewer_name: getMaskinesProfileDisplayName(
+                reviewerProfile,
+                review.reviewer_name
+              )
+            }
+          : review;
+      })
+    };
 
   } catch (error) {
 
@@ -4399,6 +4454,23 @@ export async function createSellerReview(
 
   try {
 
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user || user.id !== review.reviewer_id) {
+      return {
+        data: null,
+        error: new Error("Kirjaudu sisään jättääksesi arvostelun.")
+      };
+    }
+
+    const { data: reviewerProfile } = await getProfile(user.id);
+    const reviewWithProfileName: SellerReviewInput = {
+      ...review,
+      reviewer_name: getMaskinesProfileDisplayName(reviewerProfile)
+    };
+
     const { data: recentReview } =
       await supabase
         .from("seller_reviews")
@@ -4420,7 +4492,7 @@ export async function createSellerReview(
 
     return await supabase
       .from("seller_reviews")
-      .insert(review)
+      .insert(reviewWithProfileName)
       .select()
       .single<SellerReview>();
 
