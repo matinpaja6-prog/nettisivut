@@ -11,13 +11,13 @@
     "empty:storage": "node scripts/empty-supabase-storage.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.110.8",
+    "@supabase/supabase-js": "^2.112.4",
     "lucide-react": "^0.468.0",
     "next": "15.5.21",
-    "pdfkit": "^0.19.1",
+    "pdfkit": "^0.20.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "sharp": "0.35.3",
+    "sharp": "0.35.4",
     "stripe": "^22.5.0"
   },
   "devDependencies": {
@@ -40,6 +40,6 @@
     "js-yaml": "4.3.1",
     "nanoid": "3.3.18",
     "postcss": "8.5.23",
-    "sharp": "0.35.3"
+    "sharp": "0.35.4"
   }
 }
