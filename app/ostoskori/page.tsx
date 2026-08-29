@@ -560,7 +560,7 @@ export default function CartPage() {
     setError("");
     setSubmitting(true);
     try {
-      const session = signedIn ? await getSafeAuthSession() : null;
+      const session = await getSafeAuthSession();
       const response = await fetch("/api/commerce/checkout", {
         method: "POST",
         headers: {

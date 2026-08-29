@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({})) as CheckoutRequest;
     const locale = normalizeEmailLocale(body.locale);
     const customerName = normalizeText(body.customerName, 160);
-    const customerEmail = normalizeText(body.customerEmail, 180).toLowerCase();
+    let customerEmail = normalizeText(body.customerEmail, 180).toLowerCase();
     const customerPhone = normalizeText(body.customerPhone, 40) || null;
     const customerAddress = normalizeText(body.customerAddress, 180);
     const customerPostalCode = normalizeText(body.customerPostalCode, 20);
@@ -96,6 +96,10 @@ export async function POST(request: Request) {
         }>();
       if (buyerProfileError) throw buyerProfileError;
       buyerType = buyerProfile?.account_type === "company" ? "company" : "private";
+      if (buyerType === "private") {
+        const accountEmail = normalizeText(buyerProfile?.email || authenticatedUser.user.email, 180).toLowerCase();
+        if (isEmail(accountEmail)) customerEmail = accountEmail;
+      }
       if (requestedBuyerType === "company" && buyerType !== "company") {
         return NextResponse.json({ error: "Yritysoston voi tehdä vain yritystilillä." }, { status: 403 });
       }
@@ -133,6 +137,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Yrityksenä ostaminen vaatii kirjautumisen yritystilille." }, { status: 401 });
     }
     if (!customerName || !isEmail(customerEmail)) return NextResponse.json({ error: "Anna ostajan nimi ja kelvollinen sähköpostiosoite." }, { status: 400 });
+    if (customerEmail.endsWith("@maskines.com")) {
+      return NextResponse.json({ error: "Käytä omaa sähköpostiosoitettasi. @maskines.com-osoite ei ole asiakasosoite." }, { status: 400 });
+    }
     const postalValid = customerCountry === "NO" ? /^\d{4}$/.test(customerPostalCode) : /^\d{5}$/.test(customerPostalCode);
     if (!customerAddress || !postalValid || !customerCity || !["FI", "SE", "NO"].includes(customerCountry)) {
       return NextResponse.json({ error: "Täytä kelvollinen toimitusosoite tuettuun toimitusmaahan." }, { status: 400 });

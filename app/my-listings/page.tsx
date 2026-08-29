@@ -2540,16 +2540,18 @@ export default function MyListingsPage() {
                     key={sold.id}
                     data-my-listing-row
                   >
-                    <div className={styles.rowMedia}>
-                      <div className={styles.rowImageWrap}>
-                        <OptimizedListingImage
-                          className={styles.rowImage}
-                          src={sold.image_url}
-                          alt={sold.title || "Myyty tuote"}
-                          sizes="156px"
-                        />
+                    {sold.image_url ? (
+                      <div className={styles.rowMedia}>
+                        <div className={styles.rowImageWrap}>
+                          <OptimizedListingImage
+                            className={styles.rowImage}
+                            src={sold.image_url}
+                            alt={sold.title || "Myyty tuote"}
+                            sizes="156px"
+                          />
+                        </div>
                       </div>
-                    </div>
+                    ) : null}
 
                     <div className={styles.rowBody}>
                       <div className={styles.rowBadges}>

@@ -156,7 +156,7 @@ async function archiveAndRemoveListing(
     part_model: listing.part_model ?? null,
     condition: listing.condition ?? null,
     location: listing.location ?? null,
-    image_url: listing.image_url ?? null,
+    image_url: null,
     listing_mode: listingMode,
     sold_at: paidAt
   };
