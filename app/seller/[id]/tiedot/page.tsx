@@ -93,8 +93,7 @@ function websiteUrl(value?: string | null) {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const metadata = await storefrontMetadata(id);
-  return { ...metadata, title: metadata.title ? `Yrityksen tiedot | ${String(metadata.title).split("|")[0].trim()}` : "Yrityksen tiedot | Maskines" };
+  return storefrontMetadata(id);
 }
 
 export default async function CompanyInfoPage({ params }: { params: Promise<{ id: string }> }) {

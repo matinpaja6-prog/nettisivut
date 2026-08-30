@@ -12,9 +12,7 @@ export async function storefrontMetadata(
 ): Promise<Metadata> {
   const profile = await resolvePublicProfile(identifier);
   if (!profile) return { robots: { index: false, follow: true } };
-  const title = profile.accountType === "company"
-    ? `${profile.name} varaosakauppa | Maskines`
-    : `${profile.name} myyjäprofiili | Maskines`;
+  const title = profile.name;
   const description = profile.description || (profile.accountType === "company"
     ? `Tutustu yrityksen ${profile.name} varaosiin ja myynti-ilmoituksiin Maskinesissa.`
     : `Katso myyjän ${profile.name} myynti-ilmoitukset Maskinesissa.`);
