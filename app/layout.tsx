@@ -50,11 +50,11 @@ export const metadata: Metadata = {
   ],
   icons: {
     icon: [
-      { url: "/maskines-favicon-v5.png", sizes: "512x512", type: "image/png" },
+      { url: "/maskines-favicon-v6.png", sizes: "192x192", type: "image/png" },
       { url: "/favicon.ico", sizes: "48x48 256x256", type: "image/x-icon" }
     ],
-    shortcut: "/maskines-favicon-v5.png",
-    apple: [{ url: "/maskines-favicon-v5.png", sizes: "512x512", type: "image/png" }]
+    shortcut: "/maskines-favicon-v6.png",
+    apple: [{ url: "/maskines-favicon-v6.png", sizes: "192x192", type: "image/png" }]
   },
   manifest: "/site.webmanifest",
   openGraph: {

@@ -56,6 +56,7 @@ async function squareFavicon(mark) {
     .toBuffer();
 
   await writeFile("public/maskines-favicon-v5.png", favicon512);
+  await sharp(favicon512).resize(192, 192).png().toFile("public/maskines-favicon-v6.png");
 
   const favicon48 = await sharp(favicon512).resize(48, 48).png().toBuffer();
   const favicon256 = await sharp(favicon512).resize(256, 256).png().toBuffer();
