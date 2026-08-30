@@ -2523,7 +2523,7 @@ export default function ListingPage({
                       }
                     }}
                   >
-                    <div className={`${homeStyles.cardImage} ${homeStyles.listingCardImage}`} data-similar-listing-image="true">
+                    <div className={`${homeStyles.cardImage} ${homeStyles.listingCardImage}`} data-listing-card-image="true" data-similar-listing-image="true">
                       <span className={homeStyles.cardImageBlur} aria-hidden="true">
                         <OptimizedListingImage src={itemImageSrc} alt="" decorative />
                       </span>
@@ -2555,7 +2555,7 @@ export default function ListingPage({
                         />
                       </button>}
                     </div>
-                    <div className={homeStyles.cardBody}>
+                    <div className={homeStyles.cardBody} data-listing-card-body="true" data-similar-listing-body="true">
                       <ListingSalePrice listing={item} className={homeStyles.cardPrice} />
                       <h3 className={homeStyles.cardTitle}>{itemText.title}</h3>
                       <ListingVehicleMeta year={item.year} brand={item.brand} model={item.model} />

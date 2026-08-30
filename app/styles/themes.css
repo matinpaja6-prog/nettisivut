@@ -12253,6 +12253,58 @@ html[data-user-background-tone="light"] body main[data-home-page] [data-home-lat
  * must stay as image-over-content cards. Stable data attributes prevent the
  * generic listing grid rules from turning each narrow card into two columns. */
 @media (max-width: 760px) {
+  html body main [data-listing-card="true"] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 160px minmax(146px, 1fr) !important;
+    height: 306px !important;
+    max-height: 306px !important;
+    min-height: 306px !important;
+    overflow: hidden !important;
+  }
+
+  html body main [data-listing-card="true"] > [data-listing-card-image="true"] {
+    display: block !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    height: 160px !important;
+    max-height: 160px !important;
+    min-height: 160px !important;
+    overflow: hidden !important;
+    position: relative !important;
+    width: 100% !important;
+  }
+
+  html body main [data-listing-card-image="true"] > a,
+  html body main [data-listing-card-image="true"] > span:first-child,
+  html body main [data-listing-card-image="true"] > :is(a, span:first-child) > picture {
+    display: block !important;
+    height: 100% !important;
+    inset: 0 !important;
+    position: absolute !important;
+    width: 100% !important;
+  }
+
+  html body main [data-listing-card-image="true"] img {
+    display: block !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    width: 100% !important;
+  }
+
+  html body main [data-listing-card="true"] > [data-listing-card-body="true"] {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    height: 146px !important;
+    max-height: 146px !important;
+    min-height: 146px !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
   html body main.listing-detail-page [data-similar-listings-grid="true"] {
     align-items: stretch !important;
     gap: 10px !important;
@@ -12265,8 +12317,8 @@ html[data-user-background-tone="light"] body main[data-home-page] [data-home-lat
     display: grid !important;
     grid-template-columns: minmax(0, 1fr) !important;
     grid-template-rows: 160px minmax(146px, auto) !important;
-    height: auto !important;
-    max-height: none !important;
+    height: 306px !important;
+    max-height: 306px !important;
     min-height: 306px !important;
     min-width: 0 !important;
     overflow: hidden !important;
@@ -12282,10 +12334,11 @@ html[data-user-background-tone="light"] body main[data-home-page] [data-home-lat
     width: 100% !important;
   }
 
-  html body main.listing-detail-page [data-similar-listing-card="true"] [class*="cardBody"] {
+  html body main.listing-detail-page [data-similar-listing-body="true"] {
     grid-column: 1 !important;
     grid-row: 2 !important;
-    height: auto !important;
+    height: 146px !important;
+    max-height: 146px !important;
     min-height: 146px !important;
     overflow: hidden !important;
     width: 100% !important;

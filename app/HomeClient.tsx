@@ -7226,7 +7226,7 @@ function HomeContent({
                           }
                         }}
                       >
-                        <div className={`${styles.cardImage} ${styles.listingCardImage} ${styles.heroDesktopLatestImage}`}>
+                        <div className={`${styles.cardImage} ${styles.listingCardImage} ${styles.heroDesktopLatestImage}`} data-listing-card-image="true">
                           <span className={styles.cardImageBlur} aria-hidden="true">
                             <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
                           </span>
@@ -7278,7 +7278,7 @@ function HomeContent({
                             />
                           </button>}
                         </div>
-                        <div className={`${styles.cardBody} ${styles.heroDesktopLatestBody}`}>
+                        <div className={`${styles.cardBody} ${styles.heroDesktopLatestBody}`} data-listing-card-body="true">
                           <ListingSalePrice listing={listing} className={`${styles.cardPrice} ${styles.heroDesktopLatestPrice}`} hideBadge />
                           <VehicleTaxBadges listing={listing} />
                           <h3 className={`${styles.cardTitle} ${styles.heroDesktopLatestTop}`}>{listingText.title}</h3>
@@ -8434,7 +8434,7 @@ function HomeContent({
                           }
                         }}
                       >
-                        <div className={`${styles.cardImage} ${styles.listingCardImage}`}>
+                        <div className={`${styles.cardImage} ${styles.listingCardImage}`} data-listing-card-image="true">
                           <span className={styles.cardImageBlur} aria-hidden="true">
                             <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
                           </span>
@@ -8465,7 +8465,7 @@ function HomeContent({
                             <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
                           </button>}
                         </div>
-                        <div className={styles.cardBody}>
+                        <div className={styles.cardBody} data-listing-card-body="true">
                           <ListingSalePrice listing={listing} className={styles.cardPrice} hideBadge />
                           <VehicleTaxBadges listing={listing} />
                           {listing.vehicle_subtype ? (
@@ -8604,7 +8604,7 @@ function HomeContent({
                     }}
                   >
 
-                    <div className={`${styles.cardImage} ${styles.listingCardImage}`}>
+                    <div className={`${styles.cardImage} ${styles.listingCardImage}`} data-listing-card-image="true">
                       <span className={styles.cardImageBlur} aria-hidden="true">
                         <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
                       </span>
@@ -8646,7 +8646,7 @@ function HomeContent({
                       </button>}
                     </div>
 
-                    <div className={styles.cardBody}>
+                    <div className={styles.cardBody} data-listing-card-body="true">
                       <ListingSalePrice listing={listing} className={styles.cardPrice} hideBadge />
                       <VehicleTaxBadges listing={listing} />
                       {listing.vehicle_subtype ? (

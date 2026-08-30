@@ -229,7 +229,7 @@ export default function ListingsIndexPage({
                 className={homeStyles.card}
               >
 
-                <div className={`${homeStyles.cardImage} ${homeStyles.listingCardImage}`}>
+                <div className={`${homeStyles.cardImage} ${homeStyles.listingCardImage}`} data-listing-card-image="true">
                   <OptimizedListingImage
                     src={listingImageSrc(listing)}
                     alt={getListingTitle(listing)}
@@ -251,7 +251,7 @@ export default function ListingsIndexPage({
                   </button>}
                 </div>
 
-                <div className={homeStyles.cardBody}>
+                <div className={homeStyles.cardBody} data-listing-card-body="true">
                   <div className={homeStyles.badgeRow}>
                     {listing.category ? (
                       <span className={homeStyles.badge}>{translateCategory(locale, listing.category ?? "")}</span>

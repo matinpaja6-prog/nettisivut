@@ -276,7 +276,7 @@ export default function SavedListingsPage() {
                   }}
                 >
 
-                  <div className={`${marketplaceStyles.cardImage} ${marketplaceStyles.listingCardImage} saved-card-image`}>
+                  <div className={`${marketplaceStyles.cardImage} ${marketplaceStyles.listingCardImage} saved-card-image`} data-listing-card-image="true">
                     <span className={marketplaceStyles.cardImageBlur} aria-hidden="true">
                       <OptimizedListingImage
                         src={listingImageSrc(listing)}
@@ -310,7 +310,7 @@ export default function SavedListingsPage() {
                     </button>}
                   </div>
 
-                  <div className={`${marketplaceStyles.cardBody} saved-card-body`}>
+                  <div className={`${marketplaceStyles.cardBody} saved-card-body`} data-listing-card-body="true">
                     <ListingSalePrice listing={listing} className={marketplaceStyles.cardPrice} />
                     <h3 className={marketplaceStyles.cardTitle}>{getListingTitle(listing)}</h3>
                     <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />

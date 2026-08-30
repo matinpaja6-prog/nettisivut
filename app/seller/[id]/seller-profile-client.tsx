@@ -4968,7 +4968,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                       }
                     }}
                   >
-                    <div className={`${homeStyles.cardImage} ${homeStyles.listingCardImage}`}>
+                    <div className={`${homeStyles.cardImage} ${homeStyles.listingCardImage}`} data-listing-card-image="true">
                       <span className={homeStyles.cardImageBlur} aria-hidden="true">
                         <OptimizedListingImage src={imageSrc || fallbackImage} alt="" decorative />
                       </span>
@@ -4992,7 +4992,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                         <Heart size={14} fill={isFavorite ? "currentColor" : "none"} />
                       </button>}
                     </div>
-                    <div className={homeStyles.cardBody}>
+                    <div className={homeStyles.cardBody} data-listing-card-body="true">
                       <ListingSalePrice listing={listing} className={homeStyles.cardPrice} />
                       <h3 className={homeStyles.cardTitle}>{title}</h3>
                       <ListingVehicleMeta year={listing.year} brand={listing.brand} model={listing.model} />
