@@ -836,12 +836,32 @@ export default function ListingPage({
   useEffect(() => {
     if (!previewImage) return;
 
-    const scrollY = window.scrollY;
     const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousHtmlOverscrollBehavior =
+      document.documentElement.style.overscrollBehavior;
+    const previousPreviewHeaderHeight =
+      document.documentElement.style.getPropertyValue(
+        "--listing-preview-header-height",
+      );
+    const previousPreviewUtilityHeight =
+      document.documentElement.style.getPropertyValue(
+        "--listing-preview-utility-height",
+      );
     const previousOverflow = document.body.style.overflow;
-    const previousPosition = document.body.style.position;
-    const previousTop = document.body.style.top;
-    const previousWidth = document.body.style.width;
+    const previousBodyOverscrollBehavior =
+      document.body.style.overscrollBehavior;
+    const appHeader = document.querySelector<HTMLElement>(
+      ".universal-app-topbar",
+    );
+    const appHeaderHeight = Math.ceil(
+      appHeader?.getBoundingClientRect().height ?? 0,
+    );
+    const utilityBar = document.querySelector<HTMLElement>(
+      ".universal-utility-bar",
+    );
+    const utilityBarHeight = Math.ceil(
+      utilityBar?.getBoundingClientRect().height ?? 0,
+    );
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -850,19 +870,49 @@ export default function ListingPage({
     }
 
     document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.overscrollBehavior = "none";
+    if (appHeaderHeight > 0) {
+      document.documentElement.style.setProperty(
+        "--listing-preview-header-height",
+        `${appHeaderHeight}px`,
+      );
+    }
+    if (utilityBarHeight > 0) {
+      document.documentElement.style.setProperty(
+        "--listing-preview-utility-height",
+        `${utilityBarHeight}px`,
+      );
+    }
     document.body.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = "100%";
+    document.body.style.overscrollBehavior = "none";
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.documentElement.style.overflow = previousHtmlOverflow;
+      document.documentElement.style.overscrollBehavior =
+        previousHtmlOverscrollBehavior;
+      if (previousPreviewHeaderHeight) {
+        document.documentElement.style.setProperty(
+          "--listing-preview-header-height",
+          previousPreviewHeaderHeight,
+        );
+      } else {
+        document.documentElement.style.removeProperty(
+          "--listing-preview-header-height",
+        );
+      }
+      if (previousPreviewUtilityHeight) {
+        document.documentElement.style.setProperty(
+          "--listing-preview-utility-height",
+          previousPreviewUtilityHeight,
+        );
+      } else {
+        document.documentElement.style.removeProperty(
+          "--listing-preview-utility-height",
+        );
+      }
       document.body.style.overflow = previousOverflow;
-      document.body.style.position = previousPosition;
-      document.body.style.top = previousTop;
-      document.body.style.width = previousWidth;
-      window.scrollTo(0, scrollY);
+      document.body.style.overscrollBehavior = previousBodyOverscrollBehavior;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [previewImage]);
