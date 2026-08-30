@@ -2,6 +2,83 @@
   color-scheme: dark;
 }
 
+/* Listing gallery: respect the selected light theme on phones, including the
+   fullscreen image preview. Keep the product image untouched. */
+@media (max-width: 720px) {
+  html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+    :is(.image-wrapper.image-wrapper, .main-img-button.main-img-button) {
+    background: #f1f4f5 !important;
+    background-color: #f1f4f5 !important;
+    border-color: #b8c5cc !important;
+  }
+
+  html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+    :is(.main-img.main-img,
+      .listing-image-preview-panel.listing-image-preview-panel > img) {
+    background: #f1f4f5 !important;
+    background-color: #f1f4f5 !important;
+  }
+
+  html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+    .listing-image-soft-bg.listing-image-soft-bg {
+    display: none !important;
+  }
+
+  html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+    .mobile-image-thumbs.mobile-image-thumbs {
+    background: #e7ecef !important;
+    background-color: #e7ecef !important;
+    border-color: #b8c5cc !important;
+  }
+
+  html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+    .mobile-image-thumbs.mobile-image-thumbs button {
+    background: #ffffff !important;
+    border-color: #91a3ad !important;
+    box-shadow: none !important;
+  }
+
+  html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+    .mobile-image-thumbs.mobile-image-thumbs button.active {
+    border-color: #ff7418 !important;
+    box-shadow: inset 0 0 0 1px #ff7418 !important;
+  }
+
+  html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+    :is(.gallery-arrow.gallery-arrow, .image-zoom-button.image-zoom-button,
+      .listing-image-preview-arrow.listing-image-preview-arrow,
+      .listing-image-preview-close.listing-image-preview-close) {
+    background: rgba(255, 255, 255, 0.94) !important;
+    background-color: rgba(255, 255, 255, 0.94) !important;
+    border-color: #81949f !important;
+    color: #172b38 !important;
+    box-shadow: 0 8px 22px rgba(28, 46, 58, 0.18) !important;
+  }
+
+  html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+    :is(.gallery-arrow, .image-zoom-button, .listing-image-preview-arrow,
+      .listing-image-preview-close) svg {
+    color: #172b38 !important;
+    stroke: #172b38 !important;
+  }
+
+  html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+    .image-badge.image-badge {
+    background: rgba(255, 255, 255, 0.94) !important;
+    background-color: rgba(255, 255, 255, 0.94) !important;
+    border-color: #81949f !important;
+    color: #172b38 !important;
+  }
+
+  html[data-theme="light"] body main.page.listing-detail-page.listing-detail-page
+    :is(.listing-image-preview.listing-image-preview,
+      .listing-image-preview-backdrop.listing-image-preview-backdrop,
+      .listing-image-preview-panel.listing-image-preview-panel) {
+    background: #f1f4f5 !important;
+    background-color: #f1f4f5 !important;
+  }
+}
+
 .utility-language-name {
   display: none;
 }
