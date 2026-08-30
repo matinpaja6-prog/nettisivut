@@ -25,6 +25,7 @@ export async function GET(request: Request) {
     if (checkoutGroupError) throw checkoutGroupError;
     if (checkoutGroup) {
       let syncPending = false;
+      let paymentSession: { status: string | null; paymentStatus: string; clientSecret: string | null } | null = null;
       try {
         const { data: missingSellerNotices, error: missingSellerNoticeError } = await admin
           .from("orders")
@@ -34,9 +35,31 @@ export async function GET(request: Request) {
           .limit(1);
         if (missingSellerNoticeError) throw missingSellerNoticeError;
         const notificationsPending = !checkoutGroup.receipt_sent_at || Boolean(missingSellerNotices?.length);
-        const session = await getStripe().checkout.sessions.retrieve(sessionId);
+        const { data: paymentOrders, error: paymentOrdersError } = await admin
+          .from("orders")
+          .select("id,company_id,stripe_transfer_status")
+          .eq("checkout_group_id", checkoutGroup.id)
+          .limit(2)
+          .returns<Array<{ id: string; company_id: string; stripe_transfer_status: string | null }>>();
+        if (paymentOrdersError) throw paymentOrdersError;
+        const directOrder = paymentOrders?.length === 1 && paymentOrders[0].stripe_transfer_status === "direct_charge"
+          ? paymentOrders[0]
+          : null;
+        const { data: directCompany, error: directCompanyError } = directOrder
+          ? await admin.from("companies").select("stripe_account_id").eq("id", directOrder.company_id).maybeSingle<{ stripe_account_id: string | null }>()
+          : { data: null, error: null };
+        if (directCompanyError) throw directCompanyError;
+        const connectedAccountId = directCompany?.stripe_account_id ?? null;
+        const session = connectedAccountId
+          ? await getStripe().checkout.sessions.retrieve(sessionId, {}, { stripeAccount: connectedAccountId })
+          : await getStripe().checkout.sessions.retrieve(sessionId);
+        paymentSession = {
+          status: session.status,
+          paymentStatus: session.payment_status,
+          clientSecret: session.status === "open" && session.payment_status === "unpaid" ? session.client_secret : null,
+        };
         if (session.payment_status === "paid" && (checkoutGroup.payment_status !== "paid" || notificationsPending)) {
-          await completePaidCheckoutSession({ session, eventId: `checkout-group-sync:${session.id}`, eventType: "checkout.session.completed.sync", connectedAccountId: null });
+          await completePaidCheckoutSession({ session, eventId: `checkout-group-sync:${session.id}`, eventType: "checkout.session.completed.sync", connectedAccountId });
         } else if (session.status === "expired" && checkoutGroup.payment_status === "pending") {
           await admin.from("checkout_groups").update({ payment_status: "cancelled" }).eq("id", checkoutGroup.id);
           await admin.from("orders").update({ payment_status: "cancelled" }).eq("checkout_group_id", checkoutGroup.id);
@@ -50,7 +73,14 @@ export async function GET(request: Request) {
         .eq("checkout_group_id", checkoutGroup.id).order("created_at").returns<Order[]>();
       if (groupOrdersError) throw groupOrdersError;
       const notificationsPending = !refreshedGroup?.receipt_sent_at || (groupOrders ?? []).some((order) => !order.seller_notified_at);
-      return NextResponse.json({ checkout: refreshedGroup, orders: groupOrders ?? [], order: groupOrders?.[0] ?? null, syncPending: syncPending || notificationsPending });
+      return NextResponse.json({
+        checkout: refreshedGroup,
+        orders: groupOrders ?? [],
+        order: groupOrders?.[0] ?? null,
+        paymentSession,
+        publishableKey: paymentSession?.clientSecret ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY : null,
+        syncPending: syncPending || notificationsPending,
+      });
     }
     const { data: initialOrder, error } = await admin
       .from("orders")
@@ -75,12 +105,18 @@ export async function GET(request: Request) {
     if (!company?.stripe_account_id) return NextResponse.json({ order: initialOrder });
 
     let syncPending = false;
+    let paymentSession: { status: string | null; paymentStatus: string; clientSecret: string | null } | null = null;
     try {
       const session = await getStripe().checkout.sessions.retrieve(
         sessionId,
         {},
         { stripeAccount: company.stripe_account_id },
       );
+      paymentSession = {
+        status: session.status,
+        paymentStatus: session.payment_status,
+        clientSecret: session.status === "open" && session.payment_status === "unpaid" ? session.client_secret : null,
+      };
       if (session.payment_status === "paid") {
         await completePaidCheckoutSession({
           session,
@@ -102,7 +138,12 @@ export async function GET(request: Request) {
       .eq("id", initialOrder.id)
       .single<Order>();
     if (refreshError) throw refreshError;
-    return NextResponse.json({ order: refreshedOrder, syncPending });
+    return NextResponse.json({
+      order: refreshedOrder,
+      paymentSession,
+      publishableKey: paymentSession?.clientSecret ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY : null,
+      syncPending,
+    });
   } catch (error) {
     console.error("Order status failed", error);
     return NextResponse.json({ error: "Tilauksen tilan lataaminen epäonnistui." }, { status: 500 });

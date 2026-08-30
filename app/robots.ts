@@ -15,7 +15,10 @@ export default function robots(): MetadataRoute.Robots {
         ]
       }
     ],
-    sitemap: absoluteSiteUrl("/sitemap_index.xml"),
+    sitemap: [
+      absoluteSiteUrl("/sitemap_index.xml"),
+      absoluteSiteUrl("/feed.xml")
+    ],
     host: absoluteSiteUrl("/")
   };
 }

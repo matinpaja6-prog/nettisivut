@@ -9,6 +9,7 @@ Aja Supabase SQL Editorissa migraatiot tässä järjestyksessä:
 3. `supabase/commerce-seller-fee-settings.sql`
 4. `supabase/commerce-auto-close-sold-products.sql`
 5. `supabase/commerce-multi-seller-discounts.sql`
+6. `database/migrations/20260830_direct_seller_charges.sql`
 
 Migraatio luo yritykset, tuotteet, tilaukset, tilausrivit, kuitit, webhook-lokin, tuotekuvien bucketin, RLS-säännöt sekä tietokantatason julkaisulukon.
 
@@ -18,7 +19,7 @@ Kopioi `.env.local.example`-tiedoston Stripe- ja Posti-muuttujat Netlifyyn ja pa
 
 Tuotantoon tarvitaan vähintään:
 
-- `NEXT_PUBLIC_SITE_URL=https://maskines.fi`
+- `NEXT_PUBLIC_SITE_URL=https://maskines.com`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_CONNECT_WEBHOOK_SECRET`
 - `STRIPE_WEBHOOK_SECRET`
@@ -27,11 +28,13 @@ Tuotantoon tarvitaan vähintään:
 
 Upotettu maksunäkymä tarvitsee lisäksi `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`-avaimen. Salainen avain ja webhook-avaimet pysyvät aina vain palvelimella.
 
+Maskines määrittää checkoutin maksutavat keskitetysti. Korttimaksu sisältää pankki- ja luottokortit sekä tuetuilla laitteilla Apple Payn ja Google Payn. Klarna, MobilePay, Revolut Pay ja Pay by Bank -pankkimaksu pyydetään yrityksen Stripe Connect -tilille onboardingissa. Stripe näyttää kustakin vaihtoehdosta vain ne, jotka ovat ostajalle, valuutalle, maalle ja yhdistetylle tilille käytettävissä.
+
 ## 3. Stripe Connect
 
 Ota Stripe Dashboardissa Connect käyttöön ja määritä platform profile. Lisää alustatilin webhook:
 
-`https://maskines.fi/api/commerce/stripe/webhook`
+`https://maskines.com/api/commerce/stripe/webhook`
 
 Valitse alustatilin tapahtumat:
 
@@ -46,6 +49,11 @@ Tallenna endpointin signing secret muuttujaan `STRIPE_WEBHOOK_SECRET`.
 Lisää samaan osoitteeseen myös Connected accounts -webhook ja valitse:
 
 - `account.updated`
+- `checkout.session.completed`
+- `checkout.session.async_payment_succeeded`
+- `checkout.session.async_payment_failed`
+- `charge.refunded`
+- `charge.dispute.created`
 
 Tallenna endpointin signing secret palvelimelle muuttujaan `STRIPE_CONNECT_WEBHOOK_SECRET`.
 
@@ -60,10 +68,11 @@ Käytä ensin Stripen test mode -avaimia ja testaa koko ketju:
 1. Luo yritystili ja täytä `/yritys`.
 2. Lähetä yritys tarkistettavaksi.
 3. Hyväksy yritys `/admin/commerce`-näkymässä.
-4. Tee Stripe Standard -onboarding.
+4. Tee uusi Stripe-onboarding. Yritys saa täyden Stripe Dashboardin ja Stripe kerää yritykseltä maksunkäsittelykulut sekä vastaa yhdistetyn tilin tappioriskistä.
 5. Lisää yksi vain noudettava ja yksi Posti-tuote.
 6. Tee maksu Stripe testikortilla.
-7. Lisää saman maksun alle tuotteita kahdelta yritykseltä ja valitse kummallekin toimitus.
-8. Tarkista yksi ostajan maksu, yrityskohtaiset alitilaukset, 1 % Maskines-osuus, myyjäkohtaiset siirrot, varaston vähennys, yhdistetty kuitti, myyjien omat ilmoitukset ja webhook-loki.
+7. Varmista, että kahden eri yrityksen tuotteita ei voi maksaa samassa maksutapahtumassa.
+8. Tarkista direct charge yrityksen Stripe-tilillä, 1 % Maskinesin application fee, yrityksen maksama Stripe-kulu, varaston vähennys, kuitti, ilmoitukset ja webhook-loki.
+9. Peruuta maksu yrityspaneelista ja varmista, että palautus veloitetaan yrityksen Stripe-saldosta eikä Maskinesin 1 %:n palvelumaksua palauteta.
 
 Siirry live-avaimiin vasta onnistuneen testikierroksen jälkeen.

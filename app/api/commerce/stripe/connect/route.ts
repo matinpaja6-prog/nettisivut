@@ -57,10 +57,39 @@ export async function POST(request: Request) {
       try {
         const account = await stripe.accounts.retrieve(accountId);
         usesAccountsV2 = account.metadata?.maskines_connect_api === "v2";
-        await updateCompanyStripeState(account);
+        const usesSellerLiabilityModel =
+          account.metadata?.maskines_charge_model === "direct_charge_v1"
+          && account.metadata?.maskines_fees_collector === "stripe"
+          && account.metadata?.maskines_losses_collector === "stripe";
+        if (usesSellerLiabilityModel) {
+          if (usesAccountsV2) {
+            await stripe.v2.core.accounts.update(account.id, {
+              configuration: {
+                merchant: {
+                  capabilities: {
+                    card_payments: { requested: true },
+                    klarna_payments: { requested: true },
+                    mobilepay_payments: { requested: true },
+                    revolut_pay_payments: { requested: true },
+                    pay_by_bank_payments: { requested: true },
+                  },
+                },
+              },
+              include: ["configuration.merchant", "requirements"],
+            });
+          }
+          await updateCompanyStripeState(account);
+        } else {
+          // Responsibilities are fixed when the merchant configuration is
+          // created. An old platform-liability account must therefore be
+          // replaced instead of silently reused for direct charges.
+          accountId = null;
+        }
       } catch (error) {
         if (!isUnavailableStripeAccount(error)) throw error;
         accountId = null;
+      }
+      if (!accountId) {
         const { error: clearError } = await admin.from("companies").update({
           stripe_account_id: null,
           stripe_details_submitted: false,
@@ -75,7 +104,7 @@ export async function POST(request: Request) {
       const account = await stripe.v2.core.accounts.create({
         contact_email: company.email,
         display_name: company.name,
-        dashboard: "express",
+        dashboard: "full",
         defaults: {
           currency: "eur",
           locales: [country === "FI" ? "fi-FI" : country === "SE" ? "sv-SE" : country === "NO" ? "nb-NO" : "en"],
@@ -85,8 +114,8 @@ export async function POST(request: Request) {
             ...(company.website ? { business_url: company.website } : {})
           },
           responsibilities: {
-            fees_collector: "application",
-            losses_collector: "application"
+            fees_collector: "stripe",
+            losses_collector: "stripe"
           }
         },
         identity: {
@@ -99,22 +128,22 @@ export async function POST(request: Request) {
         configuration: {
           merchant: {
             capabilities: {
-              card_payments: { requested: true }
-            }
-          },
-          recipient: {
-            capabilities: {
-              stripe_balance: {
-                stripe_transfers: { requested: true }
-              }
+              card_payments: { requested: true },
+              klarna_payments: { requested: true },
+              mobilepay_payments: { requested: true },
+              revolut_pay_payments: { requested: true },
+              pay_by_bank_payments: { requested: true },
             }
           }
         },
-        include: ["configuration.merchant", "configuration.recipient", "identity", "requirements"],
+        include: ["configuration.merchant", "identity", "requirements"],
         metadata: {
           maskines_company_id: company.id,
           maskines_owner_user_id: company.owner_user_id,
-          maskines_connect_api: "v2"
+          maskines_connect_api: "v2",
+          maskines_charge_model: "direct_charge_v1",
+          maskines_fees_collector: "stripe",
+          maskines_losses_collector: "stripe"
         }
       });
       accountId = account.id;
@@ -135,7 +164,7 @@ export async function POST(request: Request) {
           use_case: {
             type: "account_onboarding",
             account_onboarding: {
-              configurations: ["merchant", "recipient"],
+              configurations: ["merchant"],
               refresh_url: refreshUrl,
               return_url: returnUrl,
               collection_options: {

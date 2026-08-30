@@ -1,4 +1,5 @@
 import sharp from "sharp";
+import { writeFile } from "node:fs/promises";
 
 const ORANGE = "#ff7417";
 const NAVY = "#172433";
@@ -36,6 +37,54 @@ const darkMark = await vectorMark(
   "#ffffff",
   "public/maskines-brand-mark-dark-clean-v4.png",
 );
+
+async function squareFavicon(mark) {
+  const centeredMark = await sharp(mark)
+    .resize({ width: 448, height: 350, fit: "contain" })
+    .png()
+    .toBuffer();
+  const favicon512 = await sharp({
+    create: {
+      width: 512,
+      height: 512,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 }
+    }
+  })
+    .composite([{ input: centeredMark, left: 32, top: 81 }])
+    .png()
+    .toBuffer();
+
+  await writeFile("public/maskines-favicon-v5.png", favicon512);
+
+  const favicon48 = await sharp(favicon512).resize(48, 48).png().toBuffer();
+  const favicon256 = await sharp(favicon512).resize(256, 256).png().toBuffer();
+  const images = [favicon48, favicon256];
+  const headerSize = 6 + images.length * 16;
+  const header = Buffer.alloc(headerSize);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2);
+  header.writeUInt16LE(images.length, 4);
+
+  let offset = headerSize;
+  images.forEach((image, index) => {
+    const size = index === 0 ? 48 : 256;
+    const entry = 6 + index * 16;
+    header.writeUInt8(size === 256 ? 0 : size, entry);
+    header.writeUInt8(size === 256 ? 0 : size, entry + 1);
+    header.writeUInt8(0, entry + 2);
+    header.writeUInt8(0, entry + 3);
+    header.writeUInt16LE(1, entry + 4);
+    header.writeUInt16LE(32, entry + 6);
+    header.writeUInt32LE(image.length, entry + 8);
+    header.writeUInt32LE(offset, entry + 12);
+    offset += image.length;
+  });
+
+  await writeFile("public/favicon.ico", Buffer.concat([header, ...images]));
+}
+
+await squareFavicon(lightMark);
 
 async function fullLogo(mark, foreground, background, output) {
   const resizedMark = await sharp(mark).resize({ width: 204, height: 160, fit: "contain" }).png().toBuffer();

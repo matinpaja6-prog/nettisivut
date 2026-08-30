@@ -58,8 +58,13 @@ function buildProductStructuredData(listing: Listing, url: string) {
     ["Merkki", listing.brand],
     ["Malli", listing.model],
     ["Vuosimalli", listing.year],
+    ["Moottorimalli", listing.engine_model],
     ["Kategoria", listing.category],
-    ["Alakategoria", listing.subcategory]
+    ["Alakategoria", listing.subcategory],
+    ["Osan malli tai tuotesarja", listing.part_model],
+    ["OEM- tai osanumero", partNumber],
+    ["Kunto", listing.condition],
+    ["Sijainti", listing.location]
   ]
     .map(([name, value]) => ({ name, value: cleanStructuredText(value) }))
     .filter((property) => property.value)

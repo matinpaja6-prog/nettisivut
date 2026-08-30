@@ -12062,20 +12062,6 @@ html body :is(#home-filter-rail, aside[data-home-filter-sheet="modal"], [class*=
   outline: 0 !important;
 }
 
-/* Production CSS-module class names are intentionally opaque. Anchor the
-   desktop seller select to stable DOM attributes so its native minimum size
-   cannot grow beyond the localhost control height after CSS minification. */
-@media (min-width: 901px) {
-  html body select#desktop-seller-type#desktop-seller-type#desktop-seller-type[data-home-seller-select="desktop"] {
-    box-sizing: border-box !important;
-    block-size: 34px !important;
-    height: 34px !important;
-    max-height: 34px !important;
-    min-block-size: 34px !important;
-    min-height: 34px !important;
-  }
-}
-
 /* Sell controls with a shell are a single visual field. The shell owns the
    surface and focus ring; nested native controls must stay visually neutral. */
 html body #sell-page [data-sell-control-shell="true"] :is(
@@ -12342,18 +12328,5 @@ html[data-user-background-tone="light"] body main[data-home-page] [data-home-lat
     min-height: 146px !important;
     overflow: hidden !important;
     width: 100% !important;
-  }
-}
-
-/* Final production lock: this stable attribute survives CSS-module name
- * minification and must come after every legacy theme rule. */
-@media (min-width: 901px) {
-  html body select#desktop-seller-type#desktop-seller-type#desktop-seller-type[data-home-seller-select="desktop"] {
-    box-sizing: border-box !important;
-    block-size: 34px !important;
-    height: 34px !important;
-    max-height: 34px !important;
-    min-block-size: 34px !important;
-    min-height: 34px !important;
   }
 }

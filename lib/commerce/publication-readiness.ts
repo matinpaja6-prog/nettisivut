@@ -32,7 +32,11 @@ export async function commerceSetupErrors(
     if (!contactReady || !returnTextsReady) {
       errors.push("Kirjoita ja tallenna 14 päivän palautusoikeus ennen suoramaksutuotteen julkaisemista.");
     }
-    if (product.pickup_available && !RETURN_LANGUAGES.every((language) => policy.translations[language]?.pickup_instructions?.trim())) {
+    const hasSavedPickupMessage = Boolean(company.pickup_email_message?.trim());
+    const hasAllPickupTranslations = RETURN_LANGUAGES.every((language) =>
+      policy.translations[language]?.pickup_instructions?.trim()
+    );
+    if (product.pickup_available && !hasSavedPickupMessage && !hasAllPickupTranslations) {
       errors.push("Täytä ja tallenna nouto-ohje automaattisine käännöksineen ennen noutotuotteen julkaisemista.");
     }
   }

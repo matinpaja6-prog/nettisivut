@@ -7,24 +7,19 @@ import { errorResponse, normalizeMultiline, normalizeText, requireAdminUser } fr
 export async function GET(request: Request) {
   try {
     const { admin } = await requireAdminUser(request);
-    const [companies, products, orders, events, paymentFeeAdjustments] = await Promise.all([
+    const [companies, products, orders, events] = await Promise.all([
       admin.from("companies").select("*").order("created_at", { ascending: false }).limit(500),
       admin.from("products").select("id,company_id,name,price_cents,stock_quantity,active,pickup_available,shipping_available,posti_enabled,created_at").order("created_at", { ascending: false }).limit(300),
       admin.from("orders").select("id,company_id,order_number,payment_status,fulfillment_status,total_cents,shipping_method,payment_error,created_at").order("created_at", { ascending: false }).limit(300),
-      admin.from("stripe_webhook_events").select("*").in("processing_status", ["failed", "processing"]).order("created_at", { ascending: false }).limit(200),
-      admin.from("company_payment_fee_adjustments")
-        .select("id,company_id,order_id,stripe_charge_id,stripe_refund_id,amount_cents,reason,created_at,order:orders(order_number,total_cents)")
-        .order("created_at", { ascending: false })
-        .limit(500)
+      admin.from("stripe_webhook_events").select("*").in("processing_status", ["failed", "processing"]).order("created_at", { ascending: false }).limit(200)
     ]);
-    const error = companies.error || products.error || orders.error || events.error || paymentFeeAdjustments.error;
+    const error = companies.error || products.error || orders.error || events.error;
     if (error) throw error;
     return NextResponse.json({
       companies: companies.data ?? [],
       products: products.data ?? [],
       orders: orders.data ?? [],
-      webhookEvents: events.data ?? [],
-      paymentFeeAdjustments: paymentFeeAdjustments.data ?? []
+      webhookEvents: events.data ?? []
     });
   } catch (error) {
     return errorResponse(error, "Yritysmyynnin admin-tietojen lataaminen epäonnistui.");

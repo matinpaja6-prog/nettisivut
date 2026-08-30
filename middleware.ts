@@ -260,7 +260,7 @@ async function publicListingExists(identifier: string) {
 
   try {
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/listings?select=id&${filter}&limit=1`,
+      `${supabaseUrl}/rest/v1/listings?select=id,is_hidden,is_sold&${filter}&limit=1`,
       {
         headers: {
           apikey: publicKey,
@@ -272,8 +272,13 @@ async function publicListingExists(identifier: string) {
     );
 
     if (!response.ok) return null;
-    const rows = await response.json() as Array<{ id: string }>;
-    return rows.length > 0;
+    const rows = await response.json() as Array<{
+      id: string;
+      is_hidden?: boolean | null;
+      is_sold?: boolean | null;
+    }>;
+    const listing = rows[0];
+    return Boolean(listing && !listing.is_hidden && !listing.is_sold);
   } catch {
     // A temporary database failure must not turn live listings into 410 pages.
     return null;

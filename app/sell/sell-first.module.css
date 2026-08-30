@@ -1651,6 +1651,48 @@
 .presetSelectShell {
   position: relative; display: block;
 }
+
+/* A single real select is both the visible control and the interaction layer.
+   This avoids duplicate text on hybrid Windows devices and keeps every
+   vehicle fitment field identical. */
+.vehicleNativeSelect {
+  display: block !important;
+  position: static !important;
+  appearance: none !important;
+  width: 100% !important;
+  height: 50px !important;
+  min-height: 50px !important;
+  margin: 0 !important;
+  padding: 0 42px 0 15px !important;
+  border: 1px solid var(--vehicle-control-border, var(--wizard-border-strong, #aebbc2)) !important;
+  border-radius: 9px !important;
+  background-color: var(--vehicle-control-bg, var(--wizard-surface-raised, #ffffff)) !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--wizard-orange, #ff7417) 50%),
+    linear-gradient(135deg, var(--wizard-orange, #ff7417) 50%, transparent 50%) !important;
+  background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50% !important;
+  background-repeat: no-repeat !important;
+  background-size: 5px 5px, 5px 5px !important;
+  color: var(--vehicle-control-text, var(--wizard-text, #16232c)) !important;
+  -webkit-text-fill-color: var(--vehicle-control-text, var(--wizard-text, #16232c)) !important;
+  opacity: 1 !important;
+  font: inherit !important;
+  font-size: 15px !important;
+  font-weight: 750 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.vehicleNativeSelect option {
+  background: var(--vehicle-control-bg, var(--wizard-surface-raised, #ffffff)) !important;
+  color: var(--vehicle-control-text, var(--wizard-text, #16232c)) !important;
+}
+
+.vehicleTypePicker:has(> .vehicleNativeSelect) > .vehicleTypeTrigger,
+.presetSelectShell:has(> .vehicleNativeSelect) > input,
+.presetSelectShell:has(> .vehicleNativeSelect) > .presetSelectToggle {
+  display: none !important;
+}
 .presetSelectShell input {
   width: 100%; min-height: 50px; border: 1px solid rgba(156, 184, 216, 0.25); border-radius: 10px; background: linear-gradient(180deg, rgba(11, 29, 48, 0.98), rgba(5, 17, 31, 0.98)); color: #e8eef7;
   outline: none; padding: 0 42px 0 15px; font: inherit; font-size: 15px; font-weight: 750; color-scheme: dark;
@@ -2073,6 +2115,7 @@
   grid-column: 1;
   color: #dce8f7;
 }
+
 .conditionSelectShell[data-has-value="false"] .categorySelectChevronButton {
   grid-column: 2;
 }
@@ -8340,4 +8383,72 @@
   .vehicleTypeTrigger {
     overflow: visible !important;
   }
+}
+
+/* Final select behavior: category and condition controls use one real native
+   select as their visible and clickable control. This prevents the arrow-only
+   shells from becoming inert in desktop Chrome and hybrid touch devices. */
+.categorySelectShell:has(> .vehicleNativeSelect) {
+  display: block !important;
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+.categorySelectShell:has(> .vehicleNativeSelect) > :not(.vehicleNativeSelect) {
+  display: none !important;
+}
+
+/* Fallback for the original vehicle button: if an older cached stylesheet
+   still displays it, it remains visually identical to the other selects. */
+.vehicleForm > .vehicleTypePicker .vehicleTypeTrigger {
+  min-height: 50px !important;
+  height: 50px !important;
+  padding: 0 42px 0 15px !important;
+  border: 1px solid var(--vehicle-control-border) !important;
+  border-radius: 9px !important;
+  background: var(--vehicle-control-bg) !important;
+  background-color: var(--vehicle-control-bg) !important;
+  box-shadow: none !important;
+}
+
+.vehicleForm > .vehicleTypePicker .vehicleTypeTrigger strong {
+  color: var(--vehicle-control-text) !important;
+  font-size: 15px !important;
+  font-weight: 750 !important;
+  -webkit-text-fill-color: var(--vehicle-control-text) !important;
+}
+
+.vehicleForm > .vehicleTypePicker .vehicleTypeTrigger[data-has-value="false"] strong {
+  color: var(--vehicle-control-muted) !important;
+  -webkit-text-fill-color: var(--vehicle-control-muted) !important;
+}
+
+.vehicleForm > .vehicleTypePicker .vehicleTypeTrigger > svg {
+  position: absolute !important;
+  right: 12px !important;
+  width: 17px !important;
+  height: 17px !important;
+}
+
+/* Photo tips belong to the light surface in the light theme. */
+:global(html[data-theme="light"]) .photoTips,
+:global(html[data-theme="light"]) .photoTips > div {
+  background: #ffffff !important;
+  background-image: none !important;
+  border-color: #d2dde3 !important;
+}
+
+:global(html[data-theme="light"]) .photoTips strong {
+  color: #10243a !important;
+  -webkit-text-fill-color: #10243a !important;
+}
+
+:global(html[data-theme="light"]) .photoTips p {
+  color: #5f7484 !important;
+  -webkit-text-fill-color: #5f7484 !important;
 }

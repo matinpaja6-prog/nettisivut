@@ -76,6 +76,26 @@ const localizedSeoTerms: Record<string, Record<Exclude<SeoSearchLocale, "fi">, s
   vetoakselit: { en: "drive shafts", sv: "drivaxlar", no: "drivaksler" }
 };
 
+// Product manufacturers and performance-part brands are often the strongest
+// buying-intent words in a listing title. Keep this list deliberately focused:
+// it gives searches such as "Yamaha DT Voca" a stable landing page without
+// turning every arbitrary word in a seller's description into an indexable URL.
+const knownPartProductTerms = [
+  "airsal",
+  "bidalot",
+  "brp",
+  "kashima",
+  "kyb",
+  "malossi",
+  "nos",
+  "polini",
+  "powdermax",
+  "stage 6",
+  "stage6",
+  "tpr",
+  "voca"
+];
+
 export function localizeSeoSearchQuery(query: string, locale: SeoSearchLocale) {
   const normalized = normalizeSeoSearchText(query);
   if (locale === "fi") return normalized;
@@ -198,6 +218,34 @@ function seoPartTerms(listing: Pick<Listing, "category" | "subcategory">) {
   return [...terms];
 }
 
+function seoPartProductTerms(
+  listing: Pick<Listing, "title" | "description" | "part_model">
+) {
+  const productText = normalizeSeoSearchText([
+    listing.part_model,
+    listing.title,
+    listing.description
+  ].filter(Boolean).join(" "));
+  const paddedText = ` ${productText} `;
+  const terms = new Set<string>();
+
+  for (const term of knownPartProductTerms) {
+    const normalizedTerm = normalizeSeoSearchText(term);
+    if (paddedText.includes(` ${normalizedTerm} `)) terms.add(normalizedTerm);
+  }
+
+  // A dedicated part-model field is controlled catalogue data and can safely
+  // become a search term even when the manufacturer is not yet in the list.
+  const partModel = normalizeSeoSearchText(listing.part_model);
+  if (partModel && partModel.length <= 48) {
+    terms.add(partModel);
+    const firstWord = partModel.split(" ")[0];
+    if (firstWord && firstWord.length >= 3) terms.add(firstWord);
+  }
+
+  return [...terms];
+}
+
 export function seoPartSearchQueries(listing: Listing) {
   if (isVehicleListing(listing)) return [];
 
@@ -206,37 +254,60 @@ export function seoPartSearchQueries(listing: Listing) {
   const model = normalizeSeoSearchText(listing.model);
   const vehicleQueries = seoListingSearchQueries(listing);
   const queries = new Set(vehicleQueries);
-  const partTerms = seoPartTerms(listing);
+  const partTerms = seoPartTerms(listing).filter((term) => {
+    const wordCount = term.split(" ").filter(Boolean).length;
+    return term.length <= 36 && wordCount <= 3;
+  });
+  const productTerms = seoPartProductTerms(listing);
 
-  // Publish only combinations backed by a live listing. These cover the ways
-  // buyers actually narrow a catalogue: part type, brand, model and vehicle
-  // type, from broad category pages down to an exact fitment search.
+  // Publish only concise combinations backed by a live listing. Brand, model
+  // and part type mirror real purchase searches without producing a separate
+  // index page for every possible vehicle-type/category permutation.
   for (const partTerm of partTerms) {
     queries.add(partTerm);
     if (brand) queries.add(`${brand} ${partTerm}`);
     if (brand && model) queries.add(`${brand} ${model} ${partTerm}`);
-    if (vehicleType) queries.add(`${vehicleType} ${partTerm}`);
-    if (vehicleType && brand) queries.add(`${vehicleType} ${brand} ${partTerm}`);
-    if (vehicleType && brand && model) {
-      queries.add(`${vehicleType} ${brand} ${model} ${partTerm}`);
-    }
   }
 
   if (brand) queries.add(brand);
   if (vehicleType) queries.add(vehicleType);
   if (vehicleType && brand) queries.add(`${vehicleType} ${brand}`);
-  if (vehicleType && brand && model) queries.add(`${vehicleType} ${brand} ${model}`);
 
   // Keep model and model+part landing pages useful and distinct. The year is
   // carried by each individual listing's title and metadata, so we avoid
   // publishing hundreds of near-duplicate year-filtered collection pages.
   for (const vehicleQuery of vehicleQueries.slice(0, 2)) {
-    for (const partTerm of seoPartTerms(listing)) {
+    for (const partTerm of partTerms) {
       queries.add(`${vehicleQuery} ${partTerm}`);
+    }
+
+    for (const productTerm of productTerms) {
+      queries.add(`${vehicleQuery} ${productTerm}`);
     }
   }
 
   return [...queries];
+}
+
+export function findGeneratedSeoCollectionQuery(
+  listings: Listing[],
+  requestedQuery: string,
+  kind: SeoCollectionKind
+) {
+  const requestedSlug = seoSearchSlug(requestedQuery);
+  const generatedQueries = new Set<string>();
+
+  for (const listing of listings) {
+    const listingKind: SeoCollectionKind = isVehicleListing(listing) ? "vehicles" : "parts";
+    if (listingKind !== kind) continue;
+
+    const queries = kind === "vehicles"
+      ? seoVehicleSearchQueries(listing)
+      : seoPartSearchQueries(listing);
+    for (const query of queries) generatedQueries.add(query);
+  }
+
+  return [...generatedQueries].find((query) => seoSearchSlug(query) === requestedSlug);
 }
 
 export function seoVehicleSearchQueries(listing: Listing) {

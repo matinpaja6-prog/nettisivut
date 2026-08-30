@@ -469,6 +469,10 @@ export default function CartPage() {
 
   function continueTo(nextStep: CheckoutStep) {
     setError("");
+    if (step === 1 && sellerGroups.length !== 1) {
+      setError("Eri yritysten tuotteet maksetaan erikseen. Jätä ostoskoriin yhden yrityksen tuotteet ja maksa muiden yritysten tuotteet omana tilauksenaan.");
+      return;
+    }
     if (step === 2 && !buyerType) {
       setError("Valitse, ostatko yksityishenkilönä vai yrityksenä.");
       return;
@@ -644,6 +648,7 @@ export default function CartPage() {
           <div className={styles.cartMain}>
             {step === 1 && <section className={`${styles.panel} ${styles.checkoutStage}`}>
               <div className={styles.checkoutStageHeader}><span><ShoppingBag size={22} /></span><div><div className={styles.eyebrow}>Vaihe 1 / 4</div><h2>Tarkista tilauksesi</h2><p>Varmista tuotteet, määrät ja hinnat ennen jatkamista.</p></div></div>
+              {sellerGroups.length > 1 && <p className={styles.warning}>Maksut tehdään yrityskohtaisesti, jotta kauppasumma, Stripe-kulut ja palautusvastuu kuuluvat suoraan oikealle myyjälle. Jätä tähän tilaukseen yhden yrityksen tuotteet.</p>}
               <div className={styles.cartSellerGroups}>{sellerGroups.map((group) => <section className={styles.cartSellerGroup} key={group.companyId}>
                 <header><div><Store size={18} /><span><small>Myyjä</small><strong>{group.company.name}</strong></span></div><span>{group.lines.length} tuoteriviä</span></header>
                 <div className={styles.cartLines}>{group.lines.map(({ product, quantity }) => { const unitPrice = activeSalePrice(product); return <article className={styles.cartLine} key={product.id}>

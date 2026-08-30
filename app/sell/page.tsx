@@ -2895,8 +2895,11 @@ function SellPageContent() {
   );
   const commercePickupReady = Boolean(
     commerceReturnPolicyReady &&
-    ["fi", "en", "sv", "no"].every((language) =>
-      Boolean(commerceReturnPolicy?.translations?.[language]?.pickup_instructions?.trim())
+    (
+      commerceCompany?.pickup_email_message?.trim() ||
+      ["fi", "en", "sv", "no"].every((language) =>
+        Boolean(commerceReturnPolicy?.translations?.[language]?.pickup_instructions?.trim())
+      )
     )
   );
   const commerceShippingReady = Boolean(
@@ -6114,13 +6117,17 @@ function SellPageContent() {
               <span className={styles.vehicleTypeLabel}>{st("Ajoneuvo")}</span>
               <MobileNativeSelect
                 id="sell-vehicle-type-native"
+                className={styles.vehicleNativeSelect}
                 value={vehicleType.key}
                 label={st("Valitse ajoneuvoluokka")}
                 disabled={vehicleDetailsLocked}
-                options={sellVehicleCards.map((vehicle) => ({
-                  value: vehicle.key,
-                  label: st(vehicle.title)
-                }))}
+                options={[
+                  { value: "", label: st("Valitse ajoneuvoluokka") },
+                  ...sellVehicleCards.map((vehicle) => ({
+                    value: vehicle.key,
+                    label: st(vehicle.title)
+                  }))
+                ]}
                 onChange={(nextKey) => {
                   const nextVehicle = sellVehicleCards.find((vehicle) => vehicle.key === nextKey);
                   if (!nextVehicle) return;
@@ -6148,6 +6155,7 @@ function SellPageContent() {
                 aria-expanded={vehicleTypeMenuOpen}
                 aria-haspopup="listbox"
                 aria-controls="sell-vehicle-type-menu"
+                data-has-value={vehicleType.key ? "true" : "false"}
               >
                 <strong>{st(vehicleType.title)}</strong>
                 <ChevronDown size={18} aria-hidden="true" />
@@ -8156,6 +8164,31 @@ function PresetField({
         className={`${styles.presetSelectShell} ${open ? styles.presetSelectOpen : ""} ${effectiveCustomMode ? styles.presetSelectCustom : ""}`}
         data-sell-control-shell="true"
       >
+        {!effectiveCustomMode ? (
+          <MobileNativeSelect
+            id={`sell-preset-native-${fieldKey}`}
+            className={styles.vehicleNativeSelect}
+            value={isKnownValue ? value : ""}
+            label={label}
+            disabled={disabled}
+            options={[
+              { value: "", label: translateText("Ei valintaa") },
+              ...presetOptions.map((option) => ({ value: option, label: translateText(option) })),
+              { value: "__maskines_other__", label: translateText(otherLabel) }
+            ]}
+            onChange={(nextValue) => {
+              if (nextValue === "__maskines_other__") {
+                selectOther();
+                return;
+              }
+              if (!nextValue) {
+                clearSelection();
+                return;
+              }
+              selectOption(nextValue);
+            }}
+          />
+        ) : null}
         <input
           ref={(element) => {
             innerInputRef.current = element;
@@ -8329,6 +8362,7 @@ function ConditionSelect({
         }}
       >
         <MobileNativeSelect
+          className={styles.vehicleNativeSelect}
           value={value}
           label={label}
           options={[
@@ -8541,6 +8575,7 @@ function CategorySelect({
       >
         <MobileNativeSelect
           id={nativeSelectId}
+          className={styles.vehicleNativeSelect}
           value={value}
           label={label}
           options={[

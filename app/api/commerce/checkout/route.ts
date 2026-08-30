@@ -17,6 +17,15 @@ function companyShippingPrice(company: Company, country: string) {
   return country === "SE" ? company.default_shipping_price_se_cents : company.default_shipping_price_fi_cents;
 }
 
+function maskinesPaymentMethodTypes(account: Stripe.Account) {
+  const methods: Stripe.Checkout.SessionCreateParams.PaymentMethodType[] = ["card"];
+  if (account.capabilities?.klarna_payments === "active") methods.push("klarna");
+  if (account.capabilities?.mobilepay_payments === "active") methods.push("mobilepay");
+  if (account.capabilities?.revolut_pay_payments === "active") methods.push("revolut_pay");
+  if (account.capabilities?.pay_by_bank_payments === "active") methods.push("pay_by_bank");
+  return methods;
+}
+
 function shippingForCompany(lines: Array<{ product: Product; quantity: number }>, company: Company, country: string) {
   if (country === "FI" || country === "SE") return calculateCartShippingPrice(lines, company.shipping_price_strategy, country);
   const price = companyShippingPrice(company, country);
@@ -164,7 +173,13 @@ export async function POST(request: Request) {
     }
 
     const companyIds = [...new Set(lines.map(({ product }) => product.company_id))];
+    if (companyIds.length !== 1) {
+      return NextResponse.json({
+        error: "Eri yritysten tuotteet maksetaan erikseen. Tämä varmistaa, että maksu, Stripe-kulut ja mahdolliset palautukset kuuluvat aina oikealle myyjäyritykselle.",
+      }, { status: 409 });
+    }
     const stripe = getStripe();
+    let sellerStripeAccount: Stripe.Account | null = null;
     for (const companyId of companyIds) {
       const company = lines.find(({ product }) => product.company_id === companyId)!.product.company;
       try {
@@ -173,6 +188,14 @@ export async function POST(request: Request) {
         if (account.deleted || !account.details_submitted || !account.charges_enabled || !account.payouts_enabled) {
           throw new Error("Stripe-tili ei ole valmis vastaanottamaan tilityksiä.");
         }
+        if (
+          account.metadata?.maskines_charge_model !== "direct_charge_v1"
+          || account.metadata?.maskines_fees_collector !== "stripe"
+          || account.metadata?.maskines_losses_collector !== "stripe"
+        ) {
+          throw new Error("Stripe-yhteys pitää päivittää yrityksen omalla vastuulla toimivaan maksumalliin.");
+        }
+        sellerStripeAccount = account;
       } catch (stripeAccountError) {
         console.error(`Company ${company.id} Stripe account validation failed`, stripeAccountError);
         return NextResponse.json({
@@ -257,6 +280,7 @@ export async function POST(request: Request) {
     if (groupError) throw groupError;
     checkoutGroupId = checkoutGroup.id;
 
+    let createdOrderId = "";
     for (const group of sellerGroups) {
       const maskinesFee = Math.round(group.total * MASKINES_FEE_RATE);
       const { data: returnPolicy, error: returnPolicyError } = await admin
@@ -286,6 +310,7 @@ export async function POST(request: Request) {
         discount_cents: group.productDiscount + group.couponDiscount,
         subtotal_cents: group.total - group.vat, vat_cents: group.vat, total_cents: group.total,
         maskines_fee_cents: maskinesFee, seller_transfer_cents: Math.max(0, group.total - maskinesFee),
+        stripe_transfer_status: "direct_charge",
         shipping_method: group.selection.shippingMethod, shipping_price_cents: group.shipping,
         pickup_point_id: group.selection.shippingMethod !== "pickup" ? normalizeText(group.selection.pickupPoint?.id, 120) : null,
         pickup_point_name: group.selection.shippingMethod !== "pickup" ? normalizeText(group.selection.pickupPoint?.name, 180) : null,
@@ -303,6 +328,7 @@ export async function POST(request: Request) {
       }
       const { data: order, error: orderError } = orderResult;
       if (orderError) throw orderError;
+      createdOrderId = order.id;
       let allocatedCoupon = 0;
       const rows = group.lines.map(({ product, quantity }, index) => {
         const unit = activeSalePrice(product);
@@ -334,18 +360,32 @@ export async function POST(request: Request) {
       lineItems.push({ quantity: 1, price_data: { currency: "eur", unit_amount: group.productTotal - group.couponDiscount, product_data: { name: `${group.company.name} – tuotteet`, description: group.discount ? `Alennuskoodi ${group.discount.code} huomioitu` : `${group.lines.length} tuoteriviä` } } });
       if (group.shipping > 0) lineItems.push({ quantity: 1, price_data: { currency: "eur", unit_amount: group.shipping, product_data: { name: `${group.company.name} – toimitus`, description: group.selection.pickupPoint?.name } } });
     }
+    if (!createdOrderId) throw new Error("Tilausta ei voitu muodostaa.");
+    if (!sellerStripeAccount) throw new Error("Myyjän Stripe-tilin maksutapoja ei voitu tarkistaa.");
+    const seller = sellerGroups[0];
     const metadata = {
-      checkout_group_id: checkoutGroup.id,
+      order_id: createdOrderId,
       checkout_number: checkoutGroup.checkout_number,
+      charge_model: "direct_charge_v1",
       buyer_type: buyerType,
       locale,
       ...(buyerType === "company" ? { buyer_company: customerCompany, buyer_business_id: customerBusinessId } : {})
     };
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment", ui_mode: "embedded_page", customer_email: customerEmail, line_items: lineItems,
-      payment_intent_data: { receipt_email: customerEmail, transfer_group: checkoutGroup.id, metadata }, metadata,
-      return_url: absoluteSiteUrl("/tilaus/onnistui?session_id={CHECKOUT_SESSION_ID}"), locale: locale === "no" ? "nb" : locale
-    });
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment", ui_mode: "embedded_page", customer_email: customerEmail, line_items: lineItems,
+        payment_method_types: maskinesPaymentMethodTypes(sellerStripeAccount),
+        payment_intent_data: {
+          receipt_email: customerEmail,
+          application_fee_amount: Math.round(total * MASKINES_FEE_RATE),
+          metadata,
+        },
+        metadata,
+        return_url: absoluteSiteUrl("/tilaus/onnistui?session_id={CHECKOUT_SESSION_ID}"),
+        locale: locale === "no" ? "nb" : locale,
+      },
+      { stripeAccount: seller.company.stripe_account_id! },
+    );
     const { error: sessionError } = await admin.from("checkout_groups").update({ stripe_checkout_session_id: session.id }).eq("id", checkoutGroup.id);
     if (sessionError) throw sessionError;
     await admin.from("orders").update({ stripe_checkout_session_id: session.id }).eq("checkout_group_id", checkoutGroup.id);

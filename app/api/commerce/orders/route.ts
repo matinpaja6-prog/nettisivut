@@ -153,19 +153,29 @@ export async function PATCH(request: Request) {
           { status: 409 }
         );
       }
+      if (current.stripe_transfer_status !== "direct_charge" || !company.stripe_account_id) {
+        return NextResponse.json(
+          { error: "Tämä tilaus on maksettu vanhalla maksutavalla eikä sitä voi palauttaa automaattisesti yrityksen saldosta. Ota yhteyttä Maskinesin ylläpitoon." },
+          { status: 409 },
+        );
+      }
 
       await getStripe().refunds.create(
         {
           payment_intent: current.stripe_payment_intent_id,
           amount: current.total_cents,
+          refund_application_fee: false,
           metadata: {
             order_id: current.id,
             company_id: company.id,
-            maskines_fee_responsibility: "company",
+            maskines_fee_retained: "true",
             cancellation_source: "company_dashboard",
           },
         },
-        { idempotencyKey: `company-cancel-order-${current.id}` },
+        {
+          idempotencyKey: `company-cancel-order-direct-${current.id}`,
+          stripeAccount: company.stripe_account_id,
+        },
       );
     }
     const trackingUrl = explicitTrackingUrl || (trackingCode

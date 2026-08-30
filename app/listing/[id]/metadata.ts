@@ -81,11 +81,16 @@ function buildDescription(
   const partType = !isVehicleListing(listing)
     ? cleanMetaText(localizedPartType || listing.subcategory?.split("/").at(-1) || listing.category)
     : "";
+  const partModel = !isVehicleListing(listing) ? cleanMetaText(listing.part_model) : "";
+  const partNumber = !isVehicleListing(listing) ? cleanMetaText(listing.part_number) : "";
 
   const parts = [
     formatPrice(getListingSalePricing(listing).currentPrice),
     vehicle,
     partType,
+    partModel,
+    partNumber ? `OEM / osanumero ${partNumber}` : "",
+    cleanMetaText(listing.engine_model),
     cleanMetaText(listing.location),
     cleanMetaText(listing.description).slice(0, 150)
   ].filter(Boolean);
@@ -102,7 +107,14 @@ function buildTitle(
   const partType = !isVehicleListing(listing)
     ? cleanMetaText(localizedPartType || listing.subcategory?.split("/").at(-1) || listing.category)
     : "";
-  const missingVehicleDetails = [listing.brand, listing.model, listing.year, partType]
+  const missingVehicleDetails = [
+    listing.brand,
+    listing.model,
+    listing.year,
+    partType,
+    !isVehicleListing(listing) ? listing.part_model : "",
+    !isVehicleListing(listing) ? listing.part_number : ""
+  ]
     .map((item) => cleanMetaText(item))
     .filter((item) => item && !normalizedTitle.includes(item.toLocaleLowerCase("fi")));
   const searchableTitle = [...missingVehicleDetails, listingTitle].join(" ");

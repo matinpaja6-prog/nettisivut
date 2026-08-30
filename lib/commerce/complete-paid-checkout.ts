@@ -6,10 +6,6 @@ import { sendAuthEmail } from "@/lib/auth-email-sender";
 import { closePaidOrderProducts } from "@/lib/commerce/close-paid-products";
 import { sendCombinedCheckoutEmail, sendPaidOrderEmails } from "@/lib/commerce/emails";
 import { allocateActualStripeFee } from "@/lib/commerce/fees";
-import {
-  releaseCompanyPaymentFeeDebtReservation,
-  reserveCompanyPaymentFeeDebt,
-} from "@/lib/commerce/payment-fee-debt";
 import type { Company, Order, OrderItem } from "@/lib/commerce/types";
 import { getStripe } from "@/lib/stripe";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
@@ -240,6 +236,21 @@ export async function completePaidCheckoutSession(input: {
     }).eq("id", orderId);
   }
 
+  if (order.checkout_group_id) {
+    const { data: refreshedOrder, error: refreshedOrderError } = await admin
+      .from("orders")
+      .select("receipt_sent_at")
+      .eq("id", order.id)
+      .single<{ receipt_sent_at: string | null }>();
+    if (refreshedOrderError) throw refreshedOrderError;
+    const { error: groupUpdateError } = await admin.from("checkout_groups").update({
+      payment_status: "paid",
+      receipt_sent_at: refreshedOrder.receipt_sent_at,
+      payment_error: null,
+    }).eq("id", order.checkout_group_id);
+    if (groupUpdateError) throw groupUpdateError;
+  }
+
   return { status: result?.status ?? "paid" };
 }
 
@@ -425,44 +436,21 @@ async function completePaidCheckoutGroup(input: {
     // connected account being valid in the current Stripe environment.
     if (
       !order.stripe_transfer_id
-      && order.stripe_transfer_status !== "offset_by_fee_debt"
       && company.stripe_account_id
       && (order.seller_transfer_cents ?? 0) > 0
     ) {
-      const withholding = await reserveCompanyPaymentFeeDebt(
-        company.id,
-        order.id,
-        order.seller_transfer_cents!,
-      );
-      const transferAmount = Math.max(0, order.seller_transfer_cents! - withholding);
-      order.seller_fee_debt_withheld_cents = withholding;
-
-      if (transferAmount === 0) {
-        processingWarning = withoutWarnings(processingWarning, ["Myyjän tilitys epäonnistui:"]);
-        await admin.from("orders").update({
-          seller_fee_debt_withheld_cents: withholding,
-          stripe_transfer_status: "offset_by_fee_debt",
-          payment_error: processingWarning || null,
-        }).eq("id", order.id);
-        continue;
-      }
-
       let transfer: Stripe.Transfer;
       try {
         transfer = await stripe.transfers.create({
-          amount: transferAmount, currency: "eur", destination: company.stripe_account_id,
+          amount: order.seller_transfer_cents!, currency: "eur", destination: company.stripe_account_id,
           transfer_group: input.checkoutGroupId,
           ...(sourceChargeId ? { source_transaction: sourceChargeId } : {}),
           metadata: {
             order_id: order.id,
             checkout_group_id: input.checkoutGroupId,
-            payment_fee_debt_withheld_cents: String(withholding),
           }
         }, { idempotencyKey: `checkout-${input.checkoutGroupId}-order-${order.id}` });
       } catch (transferError) {
-        await releaseCompanyPaymentFeeDebtReservation(company.id, order.id).catch((releaseError) => {
-          console.error(`Order ${order.id} fee debt reservation release failed`, releaseError);
-        });
         console.error(`Order ${order.id} transfer failed`, transferError);
         const invalidDestination = /no such destination|account.*does not exist|invalid.*account/i.test(String(transferError));
         const payoutMessage = invalidDestination
@@ -480,7 +468,6 @@ async function completePaidCheckoutGroup(input: {
       const { error: transferUpdateError } = await admin.from("orders").update({
         stripe_transfer_id: transfer.id,
         stripe_transfer_status: "paid",
-        seller_fee_debt_withheld_cents: withholding,
         payment_error: processingWarning || null,
       }).eq("id", order.id);
       if (transferUpdateError) throw transferUpdateError;

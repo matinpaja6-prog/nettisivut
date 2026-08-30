@@ -6393,12 +6393,51 @@ function HomeContent({
 
   function renderSellerTypeFilter(layout: "mobile" | "desktop") {
     const fieldId = `${layout}-seller-type`;
+    const options: Array<{ value: SellerTypeFilter; label: string }> = [
+      { value: "", label: "Kaikki myyjät" },
+      { value: "company", label: "Yritys" },
+      { value: "private", label: "Yksityinen myyjä" },
+      { value: "verified-company", label: "Vahvistettu yritys" },
+    ];
+
+    if (layout === "desktop") {
+      const menuKey = "desktopSellerType";
+      const selectedLabel = options.find((option) => option.value === sellerType)?.label ?? "Kaikki myyjät";
+      return (
+        <section className={styles.vehicleUsageFilters} aria-label="Myyjän suodatin">
+          <span className={styles.vehicleUsageSectionLabel}>Myyjä</span>
+          <div className={styles.heroFilterFieldWrap} data-no-auto-translate translate="no">
+            <span className={styles.heroFilterLabel}>Myyjä</span>
+            <button
+              type="button"
+              className={styles.heroFilterSelect}
+              aria-expanded={activeHeroFilter === menuKey}
+              onClick={() => setActiveHeroFilter((current) => current === menuKey ? null : menuKey)}
+            >
+              <strong>{selectedLabel}</strong>
+              <ChevronDown size={15} aria-hidden="true" />
+            </button>
+            {activeHeroFilter === menuKey ? <div className={styles.heroFilterMenu}>
+              {options.map((option) => <button
+                key={option.value || "all"}
+                type="button"
+                className={styles.heroFilterMenuOption}
+                onClick={() => {
+                  setSellerType(option.value);
+                  setActiveHeroFilter(null);
+                }}
+              >{option.label}</button>)}
+            </div> : null}
+          </div>
+        </section>
+      );
+    }
 
     return (
       <section className={styles.vehicleUsageFilters} aria-label="Myyjän suodatin">
         <span className={styles.vehicleUsageSectionLabel}>Myyjä</span>
         <label className={styles.vehicleUsageField} htmlFor={fieldId}>
-          <span>{layout === "desktop" ? "Myyjä" : "Myyjätyyppi"}</span>
+          <span>Myyjätyyppi</span>
           <span className={styles.vehicleUsageSelectShell}>
             <select
               id={fieldId}
@@ -6406,10 +6445,7 @@ function HomeContent({
               value={sellerType}
               onChange={(event) => setSellerType(event.target.value as SellerTypeFilter)}
             >
-              <option value="">Kaikki myyjät</option>
-              <option value="company">Yritys</option>
-              <option value="private">Yksityinen myyjä</option>
-              <option value="verified-company">Vahvistettu yritys</option>
+              {options.map((option) => <option key={option.value || "all"} value={option.value}>{option.label}</option>)}
             </select>
             <ChevronDown size={14} aria-hidden="true" />
           </span>

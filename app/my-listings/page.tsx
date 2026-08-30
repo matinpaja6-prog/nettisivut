@@ -794,6 +794,9 @@ export default function MyListingsPage() {
     useState(false);
   const [commerceEditLoading, setCommerceEditLoading] =
     useState(false);
+  const commerceEditShippingCountries = commerceEditCompany?.shipping_countries?.length
+    ? commerceEditCompany.shipping_countries
+    : ["FI"];
 
   const [previewImage, setPreviewImage] =
     useState<string | null>(null);
@@ -1451,25 +1454,17 @@ export default function MyListingsPage() {
       }
       if (
         commerceEditSettings.shippingAvailable &&
-        (
-          decimalInputNumber(commerceEditSettings.shippingPriceFi) < 0 ||
-          decimalInputNumber(commerceEditSettings.shippingPriceSe) < 0 ||
-          decimalInputNumber(commerceEditSettings.shippingPriceNo) < 0 ||
-          !Number.isFinite(decimalInputNumber(commerceEditSettings.shippingPriceFi)) ||
-          !Number.isFinite(decimalInputNumber(commerceEditSettings.shippingPriceSe)) ||
-          !Number.isFinite(decimalInputNumber(commerceEditSettings.shippingPriceNo))
-        )
+        commerceEditShippingCountries.some((country) => {
+          const rawPrice = country === "SE"
+            ? commerceEditSettings.shippingPriceSe
+            : country === "NO"
+              ? commerceEditSettings.shippingPriceNo
+              : commerceEditSettings.shippingPriceFi;
+          const price = decimalInputNumber(rawPrice);
+          return !Number.isFinite(price) || price < 0;
+        })
       ) {
-        validationErrors.commerceShipping = "Lisää kuljetusta varten hinnat Suomeen, Ruotsiin ja Norjaan.";
-      }
-      if (commerceEditSettings.shippingAvailable) {
-        const maxShippingQuantity = decimalInputNumber(commerceEditSettings.maxShippingQuantity);
-        if (
-          !Number.isInteger(maxShippingQuantity) ||
-          maxShippingQuantity < 1
-        ) {
-          validationErrors.commerceParcel = "Tarkista yhdessä lähetyksessä toimitettava määrä.";
-        }
+        validationErrors.commerceShipping = "Lisää kuljetushinta jokaiselle yrityksen hallinnassa valitulle toimitusmaalle.";
       }
     }
 
@@ -1518,7 +1513,7 @@ export default function MyListingsPage() {
         const productPayload = {
           name: listingForm.title.trim(),
           description: nextDescription,
-          storefront_category: commerceEditSettings.storefrontCategory.trim() || null,
+          storefront_category: commerceEditProduct?.storefront_category ?? null,
           price_cents: Math.round(requestedPrice * 100),
           seller_target_price_cents: commerceEditCompany?.fee_pricing_strategy === "include"
             ? Math.round(requestedPrice * 100)
@@ -1533,19 +1528,17 @@ export default function MyListingsPage() {
           pickup_instructions: null,
           shipping_available: shippingAvailable,
           posti_enabled: shippingAvailable,
-          shipping_price_cents: shippingAvailable ? centsInput(commerceEditSettings.shippingPriceFi) : null,
-          shipping_price_fi_cents: shippingAvailable ? centsInput(commerceEditSettings.shippingPriceFi) : null,
-          shipping_price_se_cents: shippingAvailable ? centsInput(commerceEditSettings.shippingPriceSe) : null,
-          shipping_price_no_cents: shippingAvailable ? centsInput(commerceEditSettings.shippingPriceNo) : null,
+          shipping_price_cents: shippingAvailable && commerceEditShippingCountries.includes("FI") ? centsInput(commerceEditSettings.shippingPriceFi) : null,
+          shipping_price_fi_cents: shippingAvailable && commerceEditShippingCountries.includes("FI") ? centsInput(commerceEditSettings.shippingPriceFi) : null,
+          shipping_price_se_cents: shippingAvailable && commerceEditShippingCountries.includes("SE") ? centsInput(commerceEditSettings.shippingPriceSe) : null,
+          shipping_price_no_cents: shippingAvailable && commerceEditShippingCountries.includes("NO") ? centsInput(commerceEditSettings.shippingPriceNo) : null,
           free_shipping_threshold_cents: null,
           weight_grams: shippingAvailable ? optionalDecimalInput(commerceEditSettings.weightGrams) : null,
           package_length_cm: shippingAvailable ? optionalDecimalInput(commerceEditSettings.packageLengthCm) : null,
           package_width_cm: shippingAvailable ? optionalDecimalInput(commerceEditSettings.packageWidthCm) : null,
           package_height_cm: shippingAvailable ? optionalDecimalInput(commerceEditSettings.packageHeightCm) : null,
-          max_shipping_quantity: shippingAvailable
-            ? Math.trunc(decimalInputNumber(commerceEditSettings.maxShippingQuantity))
-            : 1,
-          shipping_notes: shippingAvailable ? commerceEditSettings.shippingNotes.trim() || null : null
+          max_shipping_quantity: shippingAvailable ? commerceEditProduct?.max_shipping_quantity ?? 1 : 1,
+          shipping_notes: shippingAvailable ? commerceEditProduct?.shipping_notes ?? null : null
         };
         const productResponse = await fetch(
           commerceEditProduct
@@ -3069,17 +3062,6 @@ export default function MyListingsPage() {
                                       {VAT_RATE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                                     </select>
                                   </label>
-                                  <label className="own-listing-field">
-                                    <span>Yrityskaupan kategoria</span>
-                                    <input
-                                      value={commerceEditSettings.storefrontCategory}
-                                      onChange={(event) => setCommerceEditSettings((current) => ({
-                                        ...current,
-                                        storefrontCategory: event.target.value
-                                      }))}
-                                      placeholder="Esim. Moottorin osat"
-                                    />
-                                  </label>
                                 </div>
 
                                 <div className={styles.commerceDeliveryBlock}>
@@ -3113,48 +3095,26 @@ export default function MyListingsPage() {
                                 {commerceEditSettings.shippingAvailable ? (
                                   <div className={styles.commerceShippingEditor}>
                                     <div className={styles.commerceFieldsGrid}>
-                                      <label className="own-listing-field">
-                                        <span>Postikulut Suomeen (€) *</span>
-                                        <input
-                                          type="text"
-                                          inputMode="decimal"
-                                          value={commerceEditSettings.shippingPriceFi}
-                                          onChange={(event) => setCommerceEditSettings((current) => ({
-                                            ...current,
-                                            shippingPriceFi: event.target.value
-                                          }))}
-                                          placeholder="0 = maksuton"
-                                          aria-invalid={Boolean(editValidationErrors.commerceShipping)}
-                                        />
-                                      </label>
-                                      <label className="own-listing-field">
-                                        <span>Postikulut Ruotsiin (€) *</span>
-                                        <input
-                                          type="text"
-                                          inputMode="decimal"
-                                          value={commerceEditSettings.shippingPriceSe}
-                                          onChange={(event) => setCommerceEditSettings((current) => ({
-                                            ...current,
-                                            shippingPriceSe: event.target.value
-                                          }))}
-                                          placeholder="0 = maksuton"
-                                          aria-invalid={Boolean(editValidationErrors.commerceShipping)}
-                                        />
-                                      </label>
-                                      <label className="own-listing-field">
-                                        <span>Postikulut Norjaan (€) *</span>
-                                        <input type="text" inputMode="decimal" value={commerceEditSettings.shippingPriceNo} onChange={(event) => setCommerceEditSettings((current) => ({ ...current, shippingPriceNo: event.target.value }))} placeholder="0 = maksuton" aria-invalid={Boolean(editValidationErrors.commerceShipping)} />
-                                      </label>
-                                    </div>
-                                    <div className={styles.commerceFieldsGrid}>
-                                      <label className="own-listing-field">
-                                        <span>Tuotteita / lähetys *</span>
-                                        <input type="number" min="1" step="1" value={commerceEditSettings.maxShippingQuantity} onChange={(event) => setCommerceEditSettings((current) => ({ ...current, maxShippingQuantity: event.target.value }))} aria-invalid={Boolean(editValidationErrors.commerceParcel)} />
-                                      </label>
-                                      <label className={`own-listing-field ${styles.commerceWideField}`}>
-                                        <span>Postitusohje tai lisätieto</span>
-                                        <input value={commerceEditSettings.shippingNotes} onChange={(event) => setCommerceEditSettings((current) => ({ ...current, shippingNotes: event.target.value }))} placeholder="Esim. särkyvä tuote tai käsittelyohje" maxLength={1500} />
-                                      </label>
+                                      {commerceEditShippingCountries.map((country) => {
+                                        const field = country === "SE" ? "shippingPriceSe" : country === "NO" ? "shippingPriceNo" : "shippingPriceFi";
+                                        const countryName = country === "SE" ? "Ruotsiin" : country === "NO" ? "Norjaan" : "Suomeen";
+                                        return (
+                                          <label className="own-listing-field" key={country}>
+                                            <span>Postikulut {countryName} (€) *</span>
+                                            <input
+                                              type="text"
+                                              inputMode="decimal"
+                                              value={commerceEditSettings[field]}
+                                              onChange={(event) => setCommerceEditSettings((current) => ({
+                                                ...current,
+                                                [field]: event.target.value
+                                              }))}
+                                              placeholder="0 = maksuton"
+                                              aria-invalid={Boolean(editValidationErrors.commerceShipping)}
+                                            />
+                                          </label>
+                                        );
+                                      })}
                                     </div>
                                   </div>
                                 ) : null}

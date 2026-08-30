@@ -194,7 +194,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const searchEntries: MetadataRoute.Sitemap = [...groupedSearchPages.entries()]
     .filter(([, group]) => group.count > 0)
-    .flatMap(([, group]) => {
+    .map(([, group]) => {
       const languagePaths = seoCollectionLanguagePaths(group.kind, group.query);
       const languages = Object.fromEntries(
         Object.entries(languagePaths)
@@ -202,13 +202,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .map(([language, path]) => [language, absoluteSiteUrl(path)])
       );
 
-      return [...new Set(Object.values(languagePaths))].map((path) => ({
-        url: absoluteSiteUrl(path),
+      // Publish one canonical Finnish collection URL per real search intent.
+      // The other language variants remain discoverable through hreflang, but
+      // do not multiply the sitemap into thousands of near-identical entries.
+      return {
+        url: absoluteSiteUrl(seoCollectionPath(group.kind, group.query)),
         ...(group.lastModified ? { lastModified: group.lastModified } : {}),
         alternates: { languages },
         changeFrequency: "daily" as const,
         priority: 0.85
-      }));
+      };
     });
 
   // Different Finnish terms can translate to the same Swedish or Norwegian

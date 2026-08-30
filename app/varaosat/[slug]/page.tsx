@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { permanentRedirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import HomeClient from "@/app/HomeClient";
+import SeoCollectionIntro from "@/app/SeoCollectionIntro";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import {
   formatSeoSearchLabel,
+  findGeneratedSeoCollectionQuery,
   listingMatchesSeoCollection,
   seoCollectionLanguagePaths,
   seoSearchPath,
@@ -21,25 +23,26 @@ type PageProps = {
 };
 
 const getSearchPageData = cache(async (slug: string) => {
-  const query = seoSearchQueryFromSlug(slug);
+  const requestedQuery = seoSearchQueryFromSlug(slug);
   const { data } = await getListings({
     includeOptionalFields: true,
     enrichSellerProfiles: false
   });
   const listings = data.filter((listing) => !listing.is_hidden && !listing.is_sold);
-  const matches = listings.filter(
-    (listing) => listingMatchesSeoCollection(listing, query, "parts")
-  );
+  const query = findGeneratedSeoCollectionQuery(listings, requestedQuery, "parts");
+  const matches = query
+    ? listings.filter((listing) => listingMatchesSeoCollection(listing, query, "parts"))
+    : [];
 
-  return { query, listings, matches };
+  return { query: query ?? requestedQuery, isGenerated: Boolean(query), listings, matches };
 });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const { query, matches } = await getSearchPageData(slug);
+  const { query, isGenerated, matches } = await getSearchPageData(slug);
   const label = formatSeoSearchLabel(query);
   const canonical = absoluteSiteUrl(seoSearchPath(query));
-  const isCollection = matches.length > 0;
+  const isCollection = isGenerated && matches.length > 0;
   const title = `${label} varaosat myynnissä | Maskines`;
   const description = isCollection
     ? `Katso kaikki Maskinesin ${label} -ilmoitukset. ${matches.length} myynnissä olevaa varaosailmoitusta samassa haussa.`
@@ -78,10 +81,10 @@ function serializeStructuredData(value: unknown) {
 
 export default async function SeoSearchPage({ params }: PageProps) {
   const { slug } = await params;
-  const { query, listings, matches } = await getSearchPageData(slug);
+  const { query, isGenerated, listings, matches } = await getSearchPageData(slug);
 
-  if (matches.length === 0) {
-    permanentRedirect("/varaosat");
+  if (!isGenerated || matches.length === 0) {
+    notFound();
   }
 
   const label = formatSeoSearchLabel(query);
@@ -136,6 +139,12 @@ export default async function SeoSearchPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
+      />
+      <SeoCollectionIntro
+        listings={listings}
+        matches={matches}
+        query={query}
+        kind="parts"
       />
       <HomeClient initialListings={listings} initialSearchQuery={query} initialMarketplaceMode="parts" />
     </>

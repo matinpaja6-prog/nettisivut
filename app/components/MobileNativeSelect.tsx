@@ -7,6 +7,7 @@ type MobileNativeSelectOption = {
 
 export default function MobileNativeSelect({
   id,
+  className,
   value,
   options,
   onChange,
@@ -14,6 +15,7 @@ export default function MobileNativeSelect({
   disabled = false
 }: {
   id?: string;
+  className?: string;
   value: string;
   options: readonly MobileNativeSelectOption[];
   onChange: (value: string) => void;
@@ -23,7 +25,7 @@ export default function MobileNativeSelect({
   return (
     <select
       id={id}
-      className="mobile-native-select"
+      className={["mobile-native-select", className].filter(Boolean).join(" ")}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       aria-label={label}
