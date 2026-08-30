@@ -2595,20 +2595,20 @@ export default function ListingPage({
           role="dialog"
           aria-modal="true"
           aria-label="Kuvan esikatselu"
+          onClick={() => setPreviewImage(null)}
         >
+          <div className="listing-image-preview-backdrop" aria-hidden="true" />
           <button
             type="button"
-            className="listing-image-preview-backdrop"
+            className="listing-image-preview-close"
             onClick={() => setPreviewImage(null)}
             aria-label="Sulje kuvan esikatselu"
-          />
+          >
+            <X size={26} strokeWidth={2.5} />
+          </button>
           <div
             className="listing-image-preview-panel"
-            onClick={(event) => {
-              if (event.target === event.currentTarget) {
-                setPreviewImage(null);
-              }
-            }}
+            onClick={(event) => event.stopPropagation()}
           >
             <OptimizedListingImage
               src={previewImage}
@@ -2638,14 +2638,6 @@ export default function ListingPage({
                 </button>
               </>
             )}
-            <button
-              type="button"
-              className="listing-image-preview-close"
-              onClick={() => setPreviewImage(null)}
-              aria-label="Sulje"
-            >
-              <X size={20} />
-            </button>
           </div>
         </div>
       )}
@@ -3041,23 +3033,30 @@ export default function ListingPage({
 
         .listing-image-preview-close {
           align-items: center;
-          background: transparent;
-          border: 0;
-          border-radius: 0;
-          box-shadow: none;
+          background: rgba(4, 18, 34, 0.92);
+          border: 1px solid rgba(255, 255, 255, 0.42);
+          border-radius: 999px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
           color: #ffffff;
           cursor: pointer;
           display: inline-flex;
-          height: 26px;
+          height: 48px;
           justify-content: center;
           position: absolute;
-          right: 10px;
-          top: 8px;
-          width: 26px;
+          right: max(16px, env(safe-area-inset-right));
+          top: max(16px, env(safe-area-inset-top));
+          width: 48px;
+          z-index: 3;
         }
 
         .listing-image-preview-close:hover {
+          background: rgba(12, 35, 58, 0.98);
           color: #ffb45f;
+        }
+
+        .listing-image-preview-close:focus-visible {
+          outline: 3px solid #ff8a1c;
+          outline-offset: 3px;
         }
 
         .thumbs {
