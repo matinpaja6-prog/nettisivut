@@ -18739,8 +18739,8 @@ html body [class*="heroFilterMenuOption"]:hover, html body [class*="heroFilterMe
 }
 @media (max-width: 720px) {
   html body main.page.listing-detail-page.listing-detail-page .listing-image-preview.listing-image-preview {
-    --listing-preview-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); --listing-preview-top: calc(var(--listing-preview-utility-height, 32px) + var(--listing-preview-header-height, 112px) + 6px); align-items: center; background: #010812; height: calc(100dvh - var(--listing-preview-top)); inset: var(--listing-preview-top) 0 0;
-    justify-content: center; overscroll-behavior: contain; padding: 14px 12px calc(var(--listing-preview-bottom) + 14px); touch-action: none; -webkit-transform: translateZ(0); width: 100vw;
+    --listing-preview-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); --listing-preview-top: calc(var(--listing-preview-utility-height, 32px) + var(--listing-preview-header-height, 112px)); align-items: flex-start; background: #010812; height: calc(100dvh - var(--listing-preview-top)); inset: var(--listing-preview-top) 0 0;
+    justify-content: center; overscroll-behavior: contain; padding: 0 12px calc(var(--listing-preview-bottom) + 14px); touch-action: none; -webkit-transform: translateZ(0); width: 100vw;
   }
   html body main.page.listing-detail-page.listing-detail-page .listing-image-preview-backdrop.listing-image-preview-backdrop {
     background: #010812; inset: 0;
