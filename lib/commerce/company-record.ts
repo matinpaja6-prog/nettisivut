@@ -72,7 +72,10 @@ export function companyRecord(value: Record<string, unknown>) {
     posti_enabled: value.posti_enabled !== false,
     pickup_email_message: typeof value.pickup_email_message === "string"
       ? value.pickup_email_message
-      : ""
+      : "",
+    payment_fee_debt_cents: Number.isInteger(value.payment_fee_debt_cents)
+      ? Math.max(0, Number(value.payment_fee_debt_cents))
+      : 0
   } as Company;
 }
 

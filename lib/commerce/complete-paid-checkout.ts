@@ -6,6 +6,10 @@ import { sendAuthEmail } from "@/lib/auth-email-sender";
 import { closePaidOrderProducts } from "@/lib/commerce/close-paid-products";
 import { sendCombinedCheckoutEmail, sendPaidOrderEmails } from "@/lib/commerce/emails";
 import { allocateActualStripeFee } from "@/lib/commerce/fees";
+import {
+  releaseCompanyPaymentFeeDebtReservation,
+  reserveCompanyPaymentFeeDebt,
+} from "@/lib/commerce/payment-fee-debt";
 import type { Company, Order, OrderItem } from "@/lib/commerce/types";
 import { getStripe } from "@/lib/stripe";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
@@ -419,21 +423,46 @@ async function completePaidCheckoutGroup(input: {
     }
     // Payout is intentionally last: confirmation emails must not depend on a
     // connected account being valid in the current Stripe environment.
-    if (!order.stripe_transfer_id && company.stripe_account_id && (order.seller_transfer_cents ?? 0) > 0) {
-      try {
-        const transfer = await stripe.transfers.create({
-          amount: order.seller_transfer_cents!, currency: "eur", destination: company.stripe_account_id,
-          transfer_group: input.checkoutGroupId,
-          ...(sourceChargeId ? { source_transaction: sourceChargeId } : {}),
-          metadata: { order_id: order.id, checkout_group_id: input.checkoutGroupId }
-        }, { idempotencyKey: `checkout-${input.checkoutGroupId}-order-${order.id}` });
+    if (
+      !order.stripe_transfer_id
+      && order.stripe_transfer_status !== "offset_by_fee_debt"
+      && company.stripe_account_id
+      && (order.seller_transfer_cents ?? 0) > 0
+    ) {
+      const withholding = await reserveCompanyPaymentFeeDebt(
+        company.id,
+        order.id,
+        order.seller_transfer_cents!,
+      );
+      const transferAmount = Math.max(0, order.seller_transfer_cents! - withholding);
+      order.seller_fee_debt_withheld_cents = withholding;
+
+      if (transferAmount === 0) {
         processingWarning = withoutWarnings(processingWarning, ["Myyjän tilitys epäonnistui:"]);
         await admin.from("orders").update({
-          stripe_transfer_id: transfer.id,
-          stripe_transfer_status: "paid",
+          seller_fee_debt_withheld_cents: withholding,
+          stripe_transfer_status: "offset_by_fee_debt",
           payment_error: processingWarning || null,
         }).eq("id", order.id);
+        continue;
+      }
+
+      let transfer: Stripe.Transfer;
+      try {
+        transfer = await stripe.transfers.create({
+          amount: transferAmount, currency: "eur", destination: company.stripe_account_id,
+          transfer_group: input.checkoutGroupId,
+          ...(sourceChargeId ? { source_transaction: sourceChargeId } : {}),
+          metadata: {
+            order_id: order.id,
+            checkout_group_id: input.checkoutGroupId,
+            payment_fee_debt_withheld_cents: String(withholding),
+          }
+        }, { idempotencyKey: `checkout-${input.checkoutGroupId}-order-${order.id}` });
       } catch (transferError) {
+        await releaseCompanyPaymentFeeDebtReservation(company.id, order.id).catch((releaseError) => {
+          console.error(`Order ${order.id} fee debt reservation release failed`, releaseError);
+        });
         console.error(`Order ${order.id} transfer failed`, transferError);
         const invalidDestination = /no such destination|account.*does not exist|invalid.*account/i.test(String(transferError));
         const payoutMessage = invalidDestination
@@ -444,7 +473,17 @@ async function completePaidCheckoutGroup(input: {
         if (invalidDestination) {
           await admin.from("companies").update({ stripe_account_id: null, stripe_details_submitted: false, stripe_charges_enabled: false, stripe_payouts_enabled: false, stripe_requirements_due: ["Yhdistä Stripe Connect uudelleen"] }).eq("id", company.id);
         }
+        continue;
       }
+
+      processingWarning = withoutWarnings(processingWarning, ["Myyjän tilitys epäonnistui:"]);
+      const { error: transferUpdateError } = await admin.from("orders").update({
+        stripe_transfer_id: transfer.id,
+        stripe_transfer_status: "paid",
+        seller_fee_debt_withheld_cents: withholding,
+        payment_error: processingWarning || null,
+      }).eq("id", order.id);
+      if (transferUpdateError) throw transferUpdateError;
     }
   }
   return { status: result?.status ?? "paid" };

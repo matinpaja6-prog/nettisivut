@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { Company, Order, OrderItem } from "@/lib/commerce/types";
 import { sendFulfillmentUpdateEmail } from "@/lib/commerce/emails";
 import { errorResponse, getOwnedCompany, normalizeText, requireCommerceUser } from "@/lib/commerce/server";
+import { getStripe } from "@/lib/stripe";
 
 const FULFILLMENT_STATUSES = new Set([
   "unfulfilled", "processing", "awaiting_tracking", "ready_for_pickup", "shipped", "completed", "cancelled", "attention"
@@ -138,6 +139,34 @@ export async function PATCH(request: Request) {
     if (!current) return NextResponse.json({ error: "Tilausta ei löytynyt." }, { status: 404 });
     if (!['paid', 'partially_refunded'].includes(current.payment_status)) {
       return NextResponse.json({ error: "Vain maksetun tilauksen toimitustilaa voi muuttaa." }, { status: 409 });
+    }
+    if (fulfillmentStatus === "cancelled") {
+      if (current.fulfillment_status === "shipped" || current.fulfillment_status === "completed") {
+        return NextResponse.json(
+          { error: "Lähetettyä tai valmista tilausta ei voi peruuttaa tästä. Käsittele se palautuksena." },
+          { status: 409 }
+        );
+      }
+      if (current.payment_status !== "paid" || !current.stripe_payment_intent_id) {
+        return NextResponse.json(
+          { error: "Automaattinen peruutus onnistuu vain kokonaan maksetulle tilaukselle." },
+          { status: 409 }
+        );
+      }
+
+      await getStripe().refunds.create(
+        {
+          payment_intent: current.stripe_payment_intent_id,
+          amount: current.total_cents,
+          metadata: {
+            order_id: current.id,
+            company_id: company.id,
+            maskines_fee_responsibility: "company",
+            cancellation_source: "company_dashboard",
+          },
+        },
+        { idempotencyKey: `company-cancel-order-${current.id}` },
+      );
     }
     const trackingUrl = explicitTrackingUrl || (trackingCode
       ? `https://www.posti.fi/fi/seuranta#/lahetys/${encodeURIComponent(trackingCode)}`

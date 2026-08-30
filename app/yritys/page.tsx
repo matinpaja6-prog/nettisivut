@@ -336,7 +336,7 @@ export default function CompanyDashboardPage() {
     [products]
   );
   const lowStockCount = useMemo(() => saleableProducts.filter((product) => product.stock_quantity <= 2).length, [saleableProducts]);
-  const payoutCents = useMemo(() => paidOrders.reduce((sum, order) => sum + Math.max(0, order.total_cents - order.maskines_fee_cents - (order.stripe_processing_fee_cents ?? 0)), 0), [paidOrders]);
+  const payoutCents = useMemo(() => paidOrders.reduce((sum, order) => sum + Math.max(0, order.total_cents - order.maskines_fee_cents - (order.stripe_processing_fee_cents ?? 0) - (order.seller_fee_debt_withheld_cents ?? 0)), 0), [paidOrders]);
   const salesChart = useMemo(() => {
     const days = Array.from({ length: 7 }, (_, index) => {
       const date = new Date();
@@ -571,7 +571,7 @@ export default function CompanyDashboardPage() {
     finally { setSaving(false); }
   }
   async function updateOrder(order: Order, status: string, sendNotification = false) {
-    if (status === "cancelled" && !window.confirm(`Perutaanko tilaus ${order.order_number}? Tätä toimintoa ei voi perua tästä näkymästä.`)) return;
+    if (status === "cancelled" && !window.confirm(`Perutaanko tilaus ${order.order_number} ja palautetaanko ${money(order.total_cents)} ostajalle? Stripe ei palauta alkuperäistä maksunkäsittelykulua. Kulu kirjataan yrityksesi maksukulusaldolle ja vähennetään tulevista tilityksistä.`)) return;
     setError(""); setMessage("");
     try { const body = await api("/api/commerce/orders", { method: "PATCH", body: JSON.stringify({ id: order.id, fulfillment_status: status, posti_tracking_code: order.posti_tracking_code, posti_tracking_url: order.posti_tracking_url, shipping_label_url: order.shipping_label_url, send_notification: sendNotification }) }); setOrders((current) => current.map((item) => item.id === order.id ? body.order : item)); setMessage(body.warning || (body.maskinesMessageSent ? "Seurantakoodi lähetettiin ostajalle Maskines-viestinä ja sähköpostina." : body.notificationSent ? "Ostajalle lähetettiin automaattinen sähköposti." : "Tilauksen toimitustiedot tallennettiin.")); }
     catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
@@ -995,6 +995,30 @@ export default function CompanyDashboardPage() {
         {company.stripe_requirements_due?.length > 0 && <p className={styles.warning}>Stripe tarvitsee lisätietoja: {company.stripe_requirements_due.join(", ")}</p>}
         <div className={styles.wrap} style={{ marginTop: 16 }}><button className={styles.button} disabled={saving || !new Set(["pending","approved"]).has(company.verification_status)} onClick={connectStripe}>{company.stripe_account_id ? "Jatka Stripe-onboardingia" : "Yhdistä Stripe-maksut"}</button>{company.stripe_account_id && <button className={styles.buttonSecondary} disabled={saving} onClick={refreshStripe}>Päivitä Stripe-tila</button>}</div>
       </section>
+      <section className={`${styles.panel} ${styles.paymentFeePolicyPanel}`}>
+        <div className={styles.paymentFeePolicyHeading}>
+          <span><ShieldCheck size={24} /></span>
+          <div>
+            <div className={styles.eyebrow}>Peruutukset ja palautukset</div>
+            <h2>Maksunkäsittelykulun vastuu</h2>
+            <p>Kun yritys peruuttaa maksetun tilauksen, ostajalle palautetaan koko tilauksen summa. Stripe ei palauta alkuperäistä käsittelykulua, joten se jää tilauksen peruuttaneen yrityksen maksettavaksi.</p>
+          </div>
+          <div className={company.payment_fee_debt_cents > 0 ? styles.paymentFeeDebtOpen : styles.paymentFeeDebtClear}>
+            <small>Avoin maksukulusaldosi</small>
+            <strong>{money(company.payment_fee_debt_cents)}</strong>
+            <span>{company.payment_fee_debt_cents > 0 ? "Vähennetään seuraavista tilityksistä" : "Ei avoimia vähennyksiä"}</span>
+          </div>
+        </div>
+        <div className={styles.paymentFeePolicySteps}>
+          <span><b>1</b><strong>Yritys peruuttaa</strong><small>“Peruttu”-toiminto käynnistää ostajan täyden Stripe-palautuksen.</small></span>
+          <span><b>2</b><strong>Stripe-kulu kirjataan</strong><small>Toteutunut, palautumaton käsittelykulu lisätään yrityksen maksukulusaldolle.</small></span>
+          <span><b>3</b><strong>Kulu vähennetään</strong><small>Avoin saldo vähennetään automaattisesti yrityksen seuraavista tilityksistä.</small></span>
+        </div>
+        <div className={styles.paymentFeePolicyExample}>
+          <AlertTriangle size={19} />
+          <p><strong>Esimerkki 10 000 € korttimaksusta:</strong> tavallisen ETA-kortin Stripe-kulu on arviolta {money(estimateCommerceFees(1_000_000, "card_standard").stripeFeeCents)}. Lopullinen vähennys perustuu aina maksulta toteutuneeseen Stripe-kuluun.</p>
+        </div>
+      </section>
       <section className={`${styles.panel} ${styles.pricingPanel}`}>
         <div className={styles.sectionHeading}>
           <div>
@@ -1290,7 +1314,7 @@ export default function CompanyDashboardPage() {
           </div>
 
           {order.shipping_method === "pickup" && order.pickup_ready_email_sent_at && <p className={styles.success}>Noutoilmoitus lähetettiin {new Date(order.pickup_ready_email_sent_at).toLocaleString("fi-FI")}.</p>}
-          {order.payment_status === "paid" && <details className={styles.orderFeeDetails}><summary>Näytä maksun ja kulujen erittely</summary><div className={styles.orderFeeBreakdown}><span>Maksutapa <strong>{stripePaymentMethodLabel(order.stripe_payment_method_type)}</strong></span><span>Maskines <strong>− {money(order.maskines_fee_cents)}</strong></span><span>Stripe {order.stripe_processing_fee_cents === null ? "(kulu päivittyy)" : ""} <strong>{order.stripe_processing_fee_cents === null ? "—" : `− ${money(order.stripe_processing_fee_cents)}`}</strong></span><span>Sinulle Stripe-saldoon <strong>{order.stripe_processing_fee_cents === null ? "Päivittyy" : money(Math.max(0, order.total_cents - order.maskines_fee_cents - order.stripe_processing_fee_cents))}</strong></span></div></details>}
+          {order.payment_status === "paid" && <details className={styles.orderFeeDetails}><summary>Näytä maksun ja kulujen erittely</summary><div className={styles.orderFeeBreakdown}><span>Maksutapa <strong>{stripePaymentMethodLabel(order.stripe_payment_method_type)}</strong></span><span>Maskines <strong>− {money(order.maskines_fee_cents)}</strong></span><span>Stripe {order.stripe_processing_fee_cents === null ? "(kulu päivittyy)" : ""} <strong>{order.stripe_processing_fee_cents === null ? "—" : `− ${money(order.stripe_processing_fee_cents)}`}</strong></span>{(order.seller_fee_debt_withheld_cents ?? 0) > 0 && <span>Aiempi peruutuskulu <strong>− {money(order.seller_fee_debt_withheld_cents ?? 0)}</strong></span>}<span>Sinulle Stripe-saldoon <strong>{order.stripe_processing_fee_cents === null ? "Päivittyy" : money(Math.max(0, order.total_cents - order.maskines_fee_cents - order.stripe_processing_fee_cents - (order.seller_fee_debt_withheld_cents ?? 0)))}</strong></span></div></details>}
           </div>}
         </article>;
       })}</div>}

@@ -43,6 +43,7 @@ export type Company = {
   shipping_countries: string[];
   posti_enabled: boolean;
   pickup_email_message: string;
+  payment_fee_debt_cents: number;
   fee_pricing_strategy: FeePricingStrategy;
   fee_estimate_method: FeeEstimateMethod;
   default_vat_rate: number;
@@ -294,6 +295,8 @@ export type Order = {
   stripe_transfer_id?: string | null;
   stripe_transfer_status?: string;
   seller_transfer_cents?: number;
+  seller_fee_debt_withheld_cents?: number;
+  stripe_payment_intent_id?: string | null;
   created_at: string;
   order_items?: OrderItem[];
 };

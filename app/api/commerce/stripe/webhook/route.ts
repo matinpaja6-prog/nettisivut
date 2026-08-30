@@ -7,6 +7,7 @@ import {
 } from "@/lib/company-verification-payment";
 import { sendCompanyVerificationReceipt } from "@/lib/company-verification-email";
 import { completePaidCheckoutSession } from "@/lib/commerce/complete-paid-checkout";
+import { recordSellerCancelledRefundFeeDebt } from "@/lib/commerce/payment-fee-debt";
 import { updateCompanyStripeState } from "@/lib/commerce/stripe-connect";
 import { recoverSellerTransfers } from "@/lib/commerce/stripe-transfer-recovery";
 import { getStripe } from "@/lib/stripe";
@@ -170,6 +171,25 @@ export async function POST(request: Request) {
       const charge = event.data.object as Stripe.Charge;
       const paymentIntentId = relationId(charge.payment_intent);
       if (paymentIntentId) {
+        const feeDebt = await recordSellerCancelledRefundFeeDebt(charge);
+        if (feeDebt.orderIds.length > 0) {
+          for (const recovery of feeDebt.recoveries) {
+            await recoverSellerTransfers({
+              paymentIntentId,
+              chargeAmountCents: recovery.orderTotalCents,
+              recoveryAmountCents: recovery.refundAmountCents,
+              reason: "refund",
+              orderId: recovery.orderId,
+            });
+          }
+          const { error: cancelledOrdersError } = await getSupabaseAdmin()
+            .from("orders")
+            .update({ payment_status: "refunded", fulfillment_status: "cancelled" })
+            .in("id", feeDebt.orderIds);
+          if (cancelledOrdersError) throw cancelledOrdersError;
+          await finishEvent(event.id, "completed");
+          return NextResponse.json({ received: true });
+        }
         await recoverSellerTransfers({
           paymentIntentId,
           chargeAmountCents: charge.amount,
