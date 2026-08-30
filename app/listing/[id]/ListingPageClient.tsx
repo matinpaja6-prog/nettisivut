@@ -2497,7 +2497,7 @@ export default function ListingPage({
               <span>{ui.forSale}</span>
               <h2>Samanlaisia tuotteita</h2>
             </div>
-            <div className={`${homeStyles.cardsGrid} similar-home-grid`}>
+            <div className={`${homeStyles.cardsGrid} similar-home-grid`} data-similar-listings-grid="true">
               {similarListings.map((item) => {
                 const itemText = getLocalizedListingText(item, locale);
                 const itemImageSrc = listingImageSrc(item);
@@ -2507,6 +2507,7 @@ export default function ListingPage({
                   <article
                     key={item.id}
                     data-listing-card="true"
+                    data-similar-listing-card="true"
                     className={`${homeStyles.card} similar-home-card`}
                     role="link"
                     tabIndex={0}
@@ -2522,7 +2523,7 @@ export default function ListingPage({
                       }
                     }}
                   >
-                    <div className={`${homeStyles.cardImage} ${homeStyles.listingCardImage}`}>
+                    <div className={`${homeStyles.cardImage} ${homeStyles.listingCardImage}`} data-similar-listing-image="true">
                       <span className={homeStyles.cardImageBlur} aria-hidden="true">
                         <OptimizedListingImage src={itemImageSrc} alt="" decorative />
                       </span>

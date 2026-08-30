@@ -12180,6 +12180,118 @@ html[data-user-background-tone="light"] body main[data-home-page] [data-home-lat
   -webkit-text-fill-color: #16232c !important;
 }
 
+/* Final phone layout lock. The compact header has two real rows: brand/actions
+ * and search. Its box must reserve both rows so the marketplace navigation can
+ * never slide underneath the search field. */
+@media (max-width: 900px) {
+  html body header.universal-app-topbar.universal-app-topbar {
+    align-items: center !important;
+    box-sizing: border-box !important;
+    display: grid !important;
+    gap: 8px 10px !important;
+    grid-template-columns: minmax(0, 1fr) max-content !important;
+    grid-template-rows: 44px 42px !important;
+    height: 111px !important;
+    max-height: none !important;
+    min-height: 111px !important;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+    padding: 8px 10px 9px !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-home-navigation.universal-home-navigation {
+    align-self: center !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    height: 44px !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  html body header.universal-app-topbar .universal-topbar-actions.universal-topbar-actions {
+    align-self: center !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    height: 44px !important;
+    justify-self: end !important;
+    margin: 0 !important;
+    max-width: max-content !important;
+    min-width: 0 !important;
+    position: relative !important;
+    transform: none !important;
+  }
+
+  html body header.universal-app-topbar .marketplace-header-search.marketplace-header-search {
+    align-self: stretch !important;
+    box-sizing: border-box !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    height: 42px !important;
+    inset: auto !important;
+    margin: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    position: relative !important;
+    transform: none !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 520px) {
+  html body header.universal-app-topbar :is(.universal-home-brand, .universal-page-back-brand) {
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+}
+
+/* Similar listings reuse the marketplace card markup, but on a phone they
+ * must stay as image-over-content cards. Stable data attributes prevent the
+ * generic listing grid rules from turning each narrow card into two columns. */
+@media (max-width: 760px) {
+  html body main.listing-detail-page [data-similar-listings-grid="true"] {
+    align-items: stretch !important;
+    gap: 10px !important;
+    grid-auto-rows: auto !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100% !important;
+  }
+
+  html body main.listing-detail-page [data-similar-listing-card="true"] {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 160px minmax(146px, auto) !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 306px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+
+  html body main.listing-detail-page [data-similar-listing-image="true"] {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    height: 160px !important;
+    max-height: 160px !important;
+    min-height: 160px !important;
+    width: 100% !important;
+  }
+
+  html body main.listing-detail-page [data-similar-listing-card="true"] [class*="cardBody"] {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    height: auto !important;
+    min-height: 146px !important;
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+}
+
 /* Final production lock: this stable attribute survives CSS-module name
  * minification and must come after every legacy theme rule. */
 @media (min-width: 901px) {
