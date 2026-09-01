@@ -515,6 +515,20 @@ html[data-theme="light"] body .site-footer :is(.footer-tagline, .footer-col a, .
   color: var(--theme-muted) !important;
 }
 
+html[data-theme="light"] body .site-footer .footer-responsibility {
+  border-top-color: var(--theme-line) !important;
+}
+
+html[data-theme="light"] body .site-footer .footer-responsibility p {
+  color: var(--theme-muted) !important;
+  -webkit-text-fill-color: var(--theme-muted) !important;
+}
+
+html[data-theme="light"] body .site-footer .footer-responsibility a {
+  color: var(--theme-text) !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+}
+
 html[data-theme="light"] body .site-footer .footer-col h4 {
   color: var(--theme-text) !important;
 }
@@ -1272,6 +1286,64 @@ html[data-theme="light"] body :is(
   border-color: var(--theme-line) !important;
   box-shadow: var(--theme-shadow) !important;
   color: var(--theme-text) !important;
+}
+
+/* Help centre accordions have a dark default surface. Cover both the details
+ * wrapper and its expanded content so the light theme never exposes that
+ * fallback colour. */
+html[data-theme="light"] body main.help-page :is(
+  .help-guide-entry,
+  .help-faq-item
+) {
+  background: var(--theme-surface) !important;
+  background-color: var(--theme-surface) !important;
+  background-image: none !important;
+  border-color: var(--theme-line) !important;
+  box-shadow: var(--theme-shadow) !important;
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] body main.help-page :is(
+  .help-guide-entry[open],
+  .help-faq-item[open]
+) {
+  background: var(--theme-surface) !important;
+  border-color: var(--theme-line-strong) !important;
+}
+
+html[data-theme="light"] body main.help-page :is(
+  .help-guide-item,
+  .help-faq-item > summary
+) {
+  background: transparent !important;
+  color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] body main.help-page :is(
+  .help-guide-answer,
+  .help-faq-item > p
+) {
+  background: var(--theme-surface-soft) !important;
+  border-top: 1px solid var(--theme-line) !important;
+  color: var(--theme-muted) !important;
+}
+
+html[data-theme="light"] body main.help-page :is(
+  .help-guide-item strong,
+  .help-faq-item summary span,
+  .help-guide-answer strong
+) {
+  color: var(--theme-text) !important;
+  -webkit-text-fill-color: var(--theme-text) !important;
+}
+
+html[data-theme="light"] body main.help-page :is(
+  .help-guide-item small,
+  .help-guide-answer li,
+  .help-faq-item > p
+) {
+  color: var(--theme-muted) !important;
+  -webkit-text-fill-color: var(--theme-muted) !important;
 }
 
 /* Messages use the same light sheets while retaining orange own-message bubbles. */

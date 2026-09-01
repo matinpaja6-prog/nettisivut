@@ -1,6 +1,10 @@
 "use client";
 
-import { filterVehiclePartCategoriesBySubtype, subcategoryGroups } from "@/lib/listings";
+import {
+  filterVehiclePartCategoriesBySubtype,
+  getNormalizedPartCategoryName,
+  subcategoryGroups
+} from "@/lib/listings";
 import {
   BRAND_MODELS,
   CC_OPTIONS,
@@ -43,54 +47,7 @@ const UNIFIED_ALL_CATEGORY_ORDER = [
 ] as const;
 
 function legacyCombinedCategoryTarget(category: string, subcategory: string): string {
-  if (category === "Moottori & voimansiirto") {
-    const drivetrainPart =
-      subcategory === "Kokonainen voimansiirto" ||
-      subcategory === "Variaattorin hihnat" ||
-      subcategory === "Ketjukotelot" ||
-      subcategory === "Ketjut & hihnat" ||
-      subcategory.startsWith("Kytkimet / ") ||
-      subcategory.startsWith("Variaattorit / ");
-    return drivetrainPart ? "Voimansiirto" : "Moottori";
-  }
-
-  if (category === "Alusta & telasto") {
-    if (subcategory.startsWith("Renkaat & vanteet / ")) return "Renkaat & vanteet";
-    if (
-      subcategory === "Kokonainen telasto" ||
-      subcategory === "Telamatot" ||
-      subcategory.startsWith("Telasto / ")
-    ) {
-      return "Telasarjat";
-    }
-    return "Jousitus & ohjaus";
-  }
-
-  if (category === "Ohjaus & hallintalaitteet") {
-    return subcategory.startsWith("Jarrut / ") ? "Jarrut" : "Jousitus & ohjaus";
-  }
-
-  if (category === "Sähköjärjestelmät") return "Sähköjärjestelmä";
-  if (category === "Moottori") {
-    if (subcategory.startsWith("Vaihteisto / ") || subcategory.startsWith("Kytkin / ")) {
-      return "Voimansiirto";
-    }
-    if (subcategory.startsWith("Imu- & polttoaineosat / ")) return "Polttoainejärjestelmä";
-    if (subcategory.startsWith("Jäähdytysjärjestelmä / ")) return "Jäähdytysjärjestelmä";
-    if (subcategory.startsWith("Pakoputkisto / ")) return "Pakoputkisto";
-    return "Moottori";
-  }
-  if (category === "Jäähdytys & polttoaine") {
-    const coolingPart =
-      subcategory === "Kokonainen jäähdytysjärjestelmä" ||
-      subcategory === "Jäähdyttimet" ||
-      subcategory === "Vesipumput" ||
-      subcategory === "Letkut";
-    return coolingPart ? "Jäähdytysjärjestelmä" : "Polttoainejärjestelmä";
-  }
-  if (category === "Pakoputkisto") return "Pakoputkisto";
-  if (category === "Runko & katteet") return "Runko & koriosat";
-  return category;
+  return getNormalizedPartCategoryName(category, subcategory);
 }
 
 /**
@@ -344,7 +301,45 @@ export function mergeMarketplaceCategorySources(
   addCategorySource(baseCategories);
   for (const source of Object.values(vehicleCategorySources)) addCategorySource(source);
 
-  return Object.fromEntries(merged.entries()) as Record<string, readonly string[]>;
+  // The no-vehicle-selected view combines several vehicle taxonomies. Normalize
+  // their legacy category names before rendering so drivetrain, fuel, cooling
+  // and exhaust groups do not appear as unrelated engine subcategories.
+  return buildUnifiedAllVehicleCategories(Object.fromEntries(merged.entries()));
+}
+
+const PREFERRED_PART_GROUP_ORDER: Record<string, string[]> = {
+  Moottori: [
+    "Kokonainen moottori",
+    "Sylinteri & sylinterin tarvikkeet",
+    "Kampiakseli & lohkot",
+    "Moottoriosat",
+    "Moottorit"
+  ],
+  Voimansiirto: [
+    "Ketjut & rattaat",
+    "Variaattori",
+    "Kytkin",
+    "Perävälitys",
+    "Kytkimet",
+    "Variaattorit",
+    "Vaihteisto",
+    "Kardaani & vetolinja",
+    "Kokonainen voimansiirto",
+    "Variaattorin hihnat",
+    "Ketjukotelot",
+    "Ketjut & hihnat"
+  ]
+};
+
+function sortMarketplacePartGroups<T extends [string, unknown]>(category: string, entries: T[]) {
+  const order = PREFERRED_PART_GROUP_ORDER[category];
+  if (!order) return entries;
+  return entries.sort(([left], [right]) => {
+    const leftIndex = order.indexOf(left);
+    const rightIndex = order.indexOf(right);
+    return (leftIndex === -1 ? order.length : leftIndex) -
+      (rightIndex === -1 ? order.length : rightIndex);
+  });
 }
 
 export function buildMarketplaceSubcategoryGroups({
@@ -360,7 +355,10 @@ export function buildMarketplaceSubcategoryGroups({
   const sharedSections = buildMarketplacePartSections(category, categorySubs);
   if (sharedSections.length > 0) {
     return Object.fromEntries(
-      sharedSections.map((section) => [section.name, section.subcategories])
+      sortMarketplacePartGroups(
+        category,
+        sharedSections.map((section) => [section.name, section.subcategories] as [string, string[]])
+      )
     );
   }
 
@@ -412,7 +410,9 @@ export function buildMarketplaceSubcategoryGroups({
     }
   }
 
-  return Object.keys(result).length > 0 ? result : null;
+  if (Object.keys(result).length === 0) return null;
+
+  return Object.fromEntries(sortMarketplacePartGroups(category, Object.entries(result)));
 }
 
 export type MarketplacePartSection = {
@@ -425,7 +425,7 @@ function marketplacePartGroupName(category: string, subcategory: string) {
   const normalized = subcategory.toLocaleLowerCase("fi-FI");
 
   if (normalized.includes("kokonainen moottori")) return "Moottorit";
-  if (normalized.includes("kokonainen voimansiirto")) return "Voimansiirto";
+  if (normalized.includes("kokonainen voimansiirto")) return "Kokonainen voimansiirto";
   if (normalized.includes("kokonainen kytkin")) return "Kytkimet";
   if (normalized.includes("kokonainen variaattori")) return "Variaattorit";
   if (normalized.includes("kokonainen telasto")) return "Telasto";

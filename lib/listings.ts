@@ -243,15 +243,18 @@ export type Brand =
 export const categories = {
   Kaikki: [],
 
-  "Moottori & voimansiirto": [
+  "Moottori": [
     "Kokonainen moottori",
-    "Kokonainen voimansiirto",
     "Moottorit / Sylinterit",
     "Moottorit / Sylinterin kannet",
     "Moottorit / Männät",
     "Moottorit / Kampiakselit",
     "Moottorit / Moottorin lohkot",
-    "Moottorit / Laakerit & tiivisteet",
+    "Moottorit / Laakerit & tiivisteet"
+  ],
+
+  "Voimansiirto": [
+    "Kokonainen voimansiirto",
     "Kytkimet / Kokonainen kytkin",
     "Kytkimet / Kytkin kitit",
     "Kytkimet / Jouset",
@@ -773,7 +776,6 @@ export const atvPartCategories: Record<string, string[]> = Object.fromEntries(
 const scooterOnlyPartGroups = new Set([
   "Moottori::Moottoriosat",
   "Voimansiirto::Variaattori",
-  "Voimansiirto::Kytkin",
   "Voimansiirto::Perävälitys",
   "Jarrut::Jarruosat",
   "Runko & koriosat::Koriosat"
@@ -781,8 +783,22 @@ const scooterOnlyPartGroups = new Set([
 
 const gearedBikeOnlyPartGroups = new Set([
   "Moottori::Vaihteisto",
-  "Moottori::Kytkin",
+  "Voimansiirto::Vaihteisto",
   "Voimansiirto::Ketjut & rattaat"
+]);
+
+const scooterOnlyPartSubcategories = new Set([
+  "Kytkin / Täydelliset keskipakokytkimet",
+  "Kytkin / Kytkinkellot",
+  "Kytkin / Vastapainejouset (VP-jouset)"
+]);
+
+const gearedBikeOnlyPartSubcategories = new Set([
+  "Kytkin / Täydellinen kytkin",
+  "Kytkin / Kytkinlevyt",
+  "Kytkin / Kytkinkorit",
+  "Kytkin / Kytkinkopat",
+  "Kytkin / Kytkimen painelaakerit & tarvikkeet"
 ]);
 
 export function isScooterVehicleSubtype(
@@ -828,8 +844,10 @@ export function filterVehiclePartCategoriesBySubtype(
           const groupName = subcategory.split(" / ", 1)[0]?.trim() ?? "";
           const qualifiedGroupName = `${category}::${groupName}`;
           return scooterSubtype
-            ? !gearedBikeOnlyPartGroups.has(qualifiedGroupName)
-            : !scooterOnlyPartGroups.has(qualifiedGroupName);
+            ? !gearedBikeOnlyPartGroups.has(qualifiedGroupName) &&
+                !gearedBikeOnlyPartSubcategories.has(subcategory)
+            : !scooterOnlyPartGroups.has(qualifiedGroupName) &&
+                !scooterOnlyPartSubcategories.has(subcategory);
         })
       ] as const)
       .filter(([, subcategories]) => subcategories.length > 0)
@@ -953,6 +971,69 @@ export function isVehiclePartAllowed(
     subcategory === "Kuomut & konepellit";
 
   return !atvOrSnowmobileOnly;
+}
+
+export function isSnowmobileDrivetrainSubcategory(subcategory: string) {
+  return (
+    subcategory === "Kokonainen voimansiirto" ||
+    subcategory === "Variaattorin hihnat" ||
+    subcategory === "Ketjukotelot" ||
+    subcategory === "Ketjut & hihnat" ||
+    subcategory.startsWith("Kytkimet / ") ||
+    subcategory.startsWith("Variaattorit / ")
+  );
+}
+
+export function getNormalizedPartCategoryName(category: string, subcategory = "") {
+  if (category === "Moottori & voimansiirto") {
+    return isSnowmobileDrivetrainSubcategory(subcategory) ? "Voimansiirto" : "Moottori";
+  }
+  if (category === "Alusta & telasto") {
+    if (subcategory.startsWith("Renkaat & vanteet / ")) return "Renkaat & vanteet";
+    if (
+      subcategory === "Kokonainen telasto" ||
+      subcategory === "Telamatot" ||
+      subcategory.startsWith("Telasto / ")
+    ) return "Telasarjat";
+    return "Jousitus & ohjaus";
+  }
+  if (category === "Ohjaus & hallintalaitteet") {
+    return subcategory.startsWith("Jarrut / ") ? "Jarrut" : "Jousitus & ohjaus";
+  }
+  if (category === "Sähköjärjestelmät") return "Sähköjärjestelmä";
+  if (category === "Moottori") {
+    if (subcategory.startsWith("Vaihteisto / ") || subcategory.startsWith("Kytkin / ")) {
+      return "Voimansiirto";
+    }
+    if (subcategory.startsWith("Imu- & polttoaineosat / ")) return "Polttoainejärjestelmä";
+    if (subcategory.startsWith("Jäähdytysjärjestelmä / ")) return "Jäähdytysjärjestelmä";
+    if (subcategory.startsWith("Pakoputkisto / ")) return "Pakoputkisto";
+  }
+  if (category === "Jäähdytys & polttoaine") {
+    const coolingPart =
+      subcategory === "Kokonainen jäähdytysjärjestelmä" ||
+      subcategory === "Jäähdyttimet" ||
+      subcategory === "Vesipumput" ||
+      subcategory === "Letkut";
+    return coolingPart ? "Jäähdytysjärjestelmä" : "Polttoainejärjestelmä";
+  }
+  if (category === "Runko & katteet") return "Runko & koriosat";
+  return category;
+}
+
+export function normalizePartCategorySource(
+  source: Record<string, readonly string[]>
+): Record<string, string[]> {
+  const normalized = new Map<string, string[]>();
+  for (const [category, subcategories] of Object.entries(source)) {
+    for (const subcategory of subcategories) {
+      const target = getNormalizedPartCategoryName(category, subcategory);
+      const values = normalized.get(target) ?? [];
+      if (!values.includes(subcategory)) values.push(subcategory);
+      normalized.set(target, values);
+    }
+  }
+  return Object.fromEntries(normalized);
 }
 
 export function displayCategoryForVehicle(
@@ -1084,7 +1165,9 @@ export const categoryIcons: Record<
 > = {
   Kaikki: Tag,
 
-  "Moottori & voimansiirto": Cog,
+  "Moottori": Cog,
+
+  "Voimansiirto": Cog,
 
   "Alusta & telasto": Snowflake,
 

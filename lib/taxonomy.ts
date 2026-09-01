@@ -4,6 +4,8 @@ import {
   categories as defaultCategories,
   filterVehiclePartCategoriesBySubtype,
   isVehiclePartAllowed,
+  isSnowmobileDrivetrainSubcategory,
+  normalizePartCategorySource,
   normalizeVehicleType,
   twoWheelerPartCategories,
   subcategoryGroups as defaultSubcategoryGroups
@@ -157,6 +159,53 @@ function mergeWithDefaults(data: Partial<SiteTaxonomy> | null | undefined): Site
     if (!merged.vehicles.some((vehicle) => vehicle.key === defaultVehicle.key)) {
       merged.vehicles.push(defaultVehicle);
     }
+  }
+
+  // Older taxonomy rows store snowmobile engine and drivetrain parts under one
+  // combined category. Split them in memory so existing installations get the
+  // new hierarchy without requiring a destructive database migration.
+  const combinedCategoryIndex = merged.categories.findIndex(
+    (category) => category.key === "Moottori & voimansiirto"
+  );
+  if (combinedCategoryIndex !== -1) {
+    const combinedCategory = merged.categories[combinedCategoryIndex];
+    const engineSubcategories = combinedCategory.subcategories.filter(
+      (subcategory) => !isSnowmobileDrivetrainSubcategory(subcategory)
+    );
+    const drivetrainSubcategories = combinedCategory.subcategories.filter(
+      isSnowmobileDrivetrainSubcategory
+    );
+    const splitCategory = (key: "Moottori" | "Voimansiirto", subcategories: string[]) => ({
+      ...combinedCategory,
+      key,
+      subcategories,
+      subcategoryVehicleKeys: combinedCategory.subcategoryVehicleKeys
+        ? Object.fromEntries(
+            Object.entries(combinedCategory.subcategoryVehicleKeys).filter(([subcategory]) =>
+              subcategories.includes(subcategory)
+            )
+          )
+        : undefined
+    });
+
+    const withoutCombined = merged.categories.filter(
+      (category) => category.key !== "Moottori & voimansiirto"
+    );
+    const mergeSplitCategory = (nextCategory: CategoryEntry) => {
+      const existing = withoutCombined.find((category) => category.key === nextCategory.key);
+      if (!existing) return nextCategory;
+      existing.subcategories = Array.from(new Set([
+        ...existing.subcategories,
+        ...nextCategory.subcategories
+      ]));
+      return null;
+    };
+    const splitCategories = [
+      mergeSplitCategory(splitCategory("Moottori", engineSubcategories)),
+      mergeSplitCategory(splitCategory("Voimansiirto", drivetrainSubcategories))
+    ].filter((category): category is CategoryEntry => Boolean(category?.subcategories.length));
+    withoutCombined.splice(combinedCategoryIndex, 0, ...splitCategories);
+    merged.categories = withoutCombined;
   }
 
   const frameCategory = merged.categories.find((cat) => cat.key === "Runko & katteet");
@@ -372,12 +421,12 @@ export function buildVehicleCategoriesFromTaxonomy(
 ): Record<string, string[]> {
   const normalizedVehicle = normalizeVehicleType(vehicleKey);
   if (normalizedVehicle === "Mönkijä") {
-    return Object.fromEntries(
+    return normalizePartCategorySource(Object.fromEntries(
       Object.entries(atvPartCategories).map(([category, subcategories]) => [
         category,
         [...subcategories]
       ])
-    );
+    ));
   }
 
   if (
@@ -386,19 +435,19 @@ export function buildVehicleCategoriesFromTaxonomy(
     normalizedVehicle === "Motocross"
   ) {
     if (vehicleSubtype === undefined) {
-      return Object.fromEntries(
+      return normalizePartCategorySource(Object.fromEntries(
         Object.entries(twoWheelerPartCategories).map(([category, subcategories]) => [
           category,
           [...subcategories]
         ])
-      );
+      ));
     }
 
-    return filterVehiclePartCategoriesBySubtype(
+    return normalizePartCategorySource(filterVehiclePartCategoriesBySubtype(
       twoWheelerPartCategories,
       vehicleKey,
       vehicleSubtype
-    );
+    ));
   }
 
   const out: Record<string, string[]> = {};

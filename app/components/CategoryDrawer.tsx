@@ -698,6 +698,8 @@ function partPictureClass(...values: Array<string | undefined>) {
 
 const mainCategoryPhotoSlugs: Record<string, string> = {
   "Moottori & voimansiirto": "moottori-voimansiirto",
+  Moottori: "moottori-voimansiirto",
+  Voimansiirto: "moottori-voimansiirto",
   "Alusta & telasto": "alusta-telasto",
   "Ohjaus & hallintalaitteet": "ohjaus-hallintalaitteet",
   "Sähköjärjestelmät": "sahkojarjestelmat",

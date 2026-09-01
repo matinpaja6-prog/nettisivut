@@ -2841,37 +2841,55 @@ export default function ListingPage({
         }
 
         @media (min-width: 761px) {
+          .title-left {
+            flex: 1 1 100%;
+            padding-right: 0;
+            width: 100%;
+          }
+
           .desktop-listing-title-facts {
-            display: grid;
-            grid-template-columns: minmax(180px, 1.35fr) minmax(110px, 0.65fr) minmax(180px, 1fr);
-            gap: 10px;
-            margin: 16px 0 0;
+            align-items: center;
+            border-bottom: 1px solid var(--line, rgba(100, 116, 139, 0.24));
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+            margin: 14px 0 0;
+            padding: 0 0 14px;
+            width: 100%;
           }
 
           .desktop-listing-title-facts > div {
-            background: #f8fafc;
-            border: 1px solid #dbe4ee;
-            border-radius: 11px;
-            display: grid;
-            gap: 3px;
+            align-items: center;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            display: inline-flex;
             min-width: 0;
-            padding: 10px 12px;
+            padding: 0;
+          }
+
+          .desktop-listing-title-facts > div + div::before {
+            color: var(--muted, #64748b);
+            content: "•";
+            font-size: 12px;
+            margin: 0 12px;
           }
 
           .desktop-listing-title-facts dt {
-            color: #64748b;
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: 0.045em;
-            line-height: 1.2;
-            text-transform: uppercase;
+            clip: rect(0 0 0 0);
+            clip-path: inset(50%);
+            height: 1px;
+            overflow: hidden;
+            position: absolute;
+            white-space: nowrap;
+            width: 1px;
           }
 
           .desktop-listing-title-facts dd {
-            color: #0f172a;
-            font-size: 13px;
+            color: var(--text, #0f172a);
+            font-size: 14px;
             font-weight: 850;
-            line-height: 1.35;
+            line-height: 1.4;
             margin: 0;
             overflow: hidden;
             text-overflow: ellipsis;

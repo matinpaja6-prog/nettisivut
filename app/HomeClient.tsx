@@ -1426,10 +1426,17 @@ const modelPlaceholders: Record<string, string> = {
   Mopo: "e.g. Yamaha DT"
 };
 
-function normalizeCategoryMatch(value?: string | null) {
-  const normalized = (value ?? "").trim().toLowerCase();
+function normalizeCategoryMatch(value?: string | null, subcategory = "") {
+  const rawValue = (value ?? "").trim();
+  const normalized = rawValue.toLowerCase();
 
-  if (normalized === "moottori") return "moottori & voimansiirto";
+  if (
+    normalized === "moottori" ||
+    normalized === "voimansiirto" ||
+    normalized === "moottori & voimansiirto"
+  ) {
+    return getUnifiedAllCategoryName(rawValue, subcategory).toLowerCase();
+  }
   if (normalized === "sähkö") return "sähköjärjestelmät";
   if (normalized === "pakoputki") return "pakoputkisto";
   if (normalized === "alusta" || normalized === "jousitus") return "alusta & telasto";
@@ -4144,7 +4151,8 @@ function HomeContent({
           (!appliedVehicleType
             ? getUnifiedAllCategoryName(listing.category ?? "", listing.subcategory ?? "") ===
               getUnifiedAllCategoryName(appliedCategory, appliedSubcategory)
-            : normalizeCategoryMatch(listing.category) === normalizeCategoryMatch(appliedCategory));
+            : normalizeCategoryMatch(listing.category, listing.subcategory ?? "") ===
+              normalizeCategoryMatch(appliedCategory, appliedSubcategory));
 
         const matchesSubcategory =
           listingMatchesSubcategoryFilter(

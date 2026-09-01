@@ -448,6 +448,8 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Työ - moottorikelkka": "Utility snowmobile",
     "Watercross - moottorikelkka": "Watercross snowmobile",
     "Moottori & voimansiirto": "Engine & drivetrain",
+    "Moottori": "Engine",
+    "Voimansiirto": "Drivetrain",
     "Kokonainen moottori": "Complete engine"
   },
   sv: {
@@ -572,6 +574,8 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Työ - moottorikelkka": "Arbetssnöskoter",
     "Watercross - moottorikelkka": "Watercross-snöskoter",
     "Moottori & voimansiirto": "Motor & drivlina",
+    "Moottori": "Motor",
+    "Voimansiirto": "Drivlina",
     "Kokonainen moottori": "Komplett motor"
   },
   no: {
@@ -695,6 +699,8 @@ const extraSellTranslations: Record<Exclude<Locale, "fi">, Record<string, string
     "Työ - moottorikelkka": "Arbeidssnøscooter",
     "Watercross - moottorikelkka": "Watercross-snøscooter",
     "Moottori & voimansiirto": "Motor og drivverk",
+    "Moottori": "Motor",
+    "Voimansiirto": "Drivverk",
     "Kokonainen moottori": "Komplett motor"
   },
 };

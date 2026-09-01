@@ -101,6 +101,8 @@ export type ListingRouteValue =
       listing_number?: number | null;
       brand?: string | null;
       model?: string | null;
+      category?: string | null;
+      subcategory?: string | null;
     };
 
 export function slugifyListingSegment(value?: string | null) {
@@ -116,6 +118,27 @@ export function slugifyListingSegment(value?: string | null) {
     .slice(0, 80);
 }
 
+function listingPartSegment(
+  listing?: Exclude<ListingRouteValue, string | number | null | undefined> | null
+) {
+  if (!listing) return "";
+
+  const category = String(listing.category ?? "").trim();
+  const normalizedCategory = category.toLocaleLowerCase("fi-FI");
+  const isVehicle = ["ajoneuvo", "ajoneuvot", "kokonainen ajoneuvo"].includes(
+    normalizedCategory
+  );
+  if (isVehicle) return "";
+
+  const partName = String(listing.subcategory || category)
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .at(-1);
+
+  return slugifyListingSegment(partName);
+}
+
 export function listingPath(valueOrListing?: ListingRouteValue, locale?: string | null) {
   const listing = typeof valueOrListing === "object" && valueOrListing !== null
     ? valueOrListing
@@ -128,8 +151,12 @@ export function listingPath(valueOrListing?: ListingRouteValue, locale?: string 
   const urlId = value.match(/^id(\d+)$/i)?.[1] ?? value;
   const brand = slugifyListingSegment(listing?.brand);
   const model = slugifyListingSegment(listing?.model);
+  const part = listingPartSegment(listing);
 
   if (brand && model && urlId) {
+    if (part) {
+      return `/${encodeURIComponent(brand)}/${encodeURIComponent(model)}/${encodeURIComponent(part)}/${encodeURIComponent(urlId)}`;
+    }
     return `/${encodeURIComponent(brand)}/${encodeURIComponent(model)}/${encodeURIComponent(urlId)}`;
   }
 

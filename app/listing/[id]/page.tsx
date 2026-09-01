@@ -152,8 +152,8 @@ function serializeStructuredData(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-export default async function ListingPage({ params }: { params: Promise<{ id: string; brand?: string; model?: string }> }) {
-  const { id, brand: requestedBrand, model: requestedModel } = await params;
+export default async function ListingPage({ params }: { params: Promise<{ id: string; brand?: string; model?: string; part?: string }> }) {
+  const { id, brand: requestedBrand, model: requestedModel, part: requestedPart } = await params;
   const decodedId = decodeURIComponent(id);
   const locale = (await cookies()).get("locale")?.value;
 
@@ -183,7 +183,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
     ? listingPath({ ...listing, listing_number: displayNumber, id: canonicalId }, locale)
     : "";
   const requestedPath = requestedBrand && requestedModel
-    ? `/${encodeURIComponent(requestedBrand)}/${encodeURIComponent(requestedModel)}/${encodeURIComponent(decodedId)}`
+    ? `/${encodeURIComponent(requestedBrand)}/${encodeURIComponent(requestedModel)}${requestedPart ? `/${encodeURIComponent(requestedPart)}` : ""}/${encodeURIComponent(decodedId)}`
     : listingPath(decodedId, locale);
 
   if (canonicalPath && canonicalPath !== requestedPath) {

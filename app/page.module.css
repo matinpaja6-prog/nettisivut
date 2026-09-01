@@ -2071,6 +2071,14 @@
 .listingsPlainState span {
   color: rgba(215, 226, 238, 0.72); display: block; font-size: 14px; font-weight: 750; line-height: 1.45; max-width: 360px;
 }
+:global(html[data-theme="light"] body) main[data-home-page] .listingsPlainState strong {
+  color: #16232c !important;
+  -webkit-text-fill-color: #16232c !important;
+}
+:global(html[data-theme="light"] body) main[data-home-page] .listingsPlainState span {
+  color: #5f707c !important;
+  -webkit-text-fill-color: #5f707c !important;
+}
 .listingsPlainState .resetButton {
   justify-self: center; margin-top: 4px; background: linear-gradient(135deg, #ff9d2e, #ff6b00); border: 1px solid rgba(255, 210, 165, 0.62); color: #fff; box-shadow: 0 14px 32px rgba(255, 122, 26, 0.2);
 }
