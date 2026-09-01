@@ -10,7 +10,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   metadataBase: new URL(PUBLIC_SITE_URL),
   title: {
-    absolute: "Maskines: Osta ja myy varaosat ja ajoneuvot"
+    absolute: "Maskines – Osta ja myy varaosia ja ajoneuvoja"
   },
   description:
     "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille. Osta ja myy varaosia ja ajoneuvoja: moottorikelkkoja, mönkijöitä, motocross-pyöriä ja mopoja.",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fi_FI",
     siteName: "Maskines",
-    title: "Maskines: Osta ja myy varaosat ja ajoneuvot",
+    title: "Maskines – Osta ja myy varaosia ja ajoneuvoja",
     description:
       "Pohjoismainen markkinapaikka pienkoneiden varaosille ja ajoneuvoille. Osta ja myy varaosia ja ajoneuvoja: moottorikelkkoja, mönkijöitä, motocross-pyöriä ja mopoja.",
     url: absoluteSiteUrl("/"),
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Maskines: Osta ja myy varaosat ja ajoneuvot",
+    title: "Maskines – Osta ja myy varaosia ja ajoneuvoja",
     description:
       "Osta ja myy varaosia ja ajoneuvoja: moottorikelkkoja, mönkijöitä, motocross-pyöriä ja mopoja.",
     images: [absoluteSiteUrl("/maskines-brand-share-v2.png")]
