@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { useLanguage } from "@/lib/i18n";
+import { pagePath } from "@/lib/routes";
 
 const aboutCopy = {
   fi: {
@@ -238,7 +239,11 @@ export default function AboutPage() {
     }
   ];
 
-  const categoryLinks = ["/varaosat", "/ajoneuvot", "/?category=Ajovarusteet"];
+  const categoryLinks = [
+    pagePath("varaosat", locale),
+    pagePath("ajoneuvot", locale),
+    "/?category=Ajovarusteet"
+  ];
 
   return (
     <main className="about-showcase-page" data-no-auto-translate>

@@ -132,7 +132,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: alertsError.message }, { status: 500 });
   }
 
-  const listingUrl = absoluteSiteUrl(listingPath(listingUrlId(listing)));
+  const listingUrl = absoluteSiteUrl(listingPath(listing));
   const results: NotifyResult[] = [];
 
   for (const alert of alerts ?? []) {
@@ -218,7 +218,7 @@ export async function POST(request: Request) {
 
     const locale = notificationEmailLocale(user?.user_metadata?.locale);
     const localizedListingUrl = absoluteSiteUrl(
-      listingPath(listingUrlId(listing), locale)
+      listingPath(listing, locale)
     );
     const settingsUrl = absoluteSiteUrl(pagePath("settings", locale));
     const emailContent = searchAlertEmail({

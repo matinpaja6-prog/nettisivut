@@ -149,7 +149,17 @@ export async function generateListingMetadataForLocale(
       description: "Katso ajoneuvojen varaosailmoitus Maskines-palvelussa.",
       robots: {
         index: false,
-        follow: false
+        follow: false,
+        noarchive: true,
+        nosnippet: true,
+        noimageindex: true,
+        googleBot: {
+          index: false,
+          follow: false,
+          noarchive: true,
+          nosnippet: true,
+          noimageindex: true
+        }
       },
       alternates: {
         canonical: fallbackUrl
@@ -193,14 +203,15 @@ export async function generateListingMetadataForLocale(
   const description = buildDescription(metadataListing, localizedPartType);
   const displayNumber = await getListingDisplayNumber(listing.created_at, listing.listing_number);
   const urlId = listingNumberUrlId(displayNumber) || listing.id;
-  const url = absoluteSiteUrl(sharePath || listingPath(urlId));
+  const canonicalListingPath = listingPath({ ...listing, listing_number: displayNumber, id: urlId });
+  const url = absoluteSiteUrl(sharePath || canonicalListingPath);
   const imageUrl = absoluteSiteUrl(`/og/listing/${encodeURIComponent(urlId)}/preview.jpg`);
   const languages = {
-    "fi-FI": absoluteSiteUrl(listingPath(urlId)),
+    "fi-FI": absoluteSiteUrl(canonicalListingPath),
     en: absoluteSiteUrl(listingSharePath(urlId, "en")),
     sv: absoluteSiteUrl(listingSharePath(urlId, "sv")),
     nb: absoluteSiteUrl(listingSharePath(urlId, "no")),
-    "x-default": absoluteSiteUrl(listingPath(urlId))
+    "x-default": absoluteSiteUrl(canonicalListingPath)
   };
 
   return {
@@ -209,7 +220,14 @@ export async function generateListingMetadataForLocale(
     description,
     robots: {
       index: true,
-      follow: true
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1
+      }
     },
     alternates: {
       canonical: url,

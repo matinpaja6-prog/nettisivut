@@ -34,7 +34,7 @@ export async function GET() {
 
   const lastBuildDate = validDate(listings[0]?.created_at) ?? new Date();
   const items = listings.map((listing) => {
-    const url = absoluteSiteUrl(listingPath(listingUrlId(listing)));
+    const url = absoluteSiteUrl(listingPath(listing));
     const publishedAt = validDate(listing.created_at) ?? lastBuildDate;
     const vehicle = [listing.brand, listing.model, listing.year].filter(Boolean).join(" ");
     const description = [
@@ -69,7 +69,8 @@ export async function GET() {
   return new Response(xml, {
     headers: {
       "Content-Type": "application/rss+xml; charset=utf-8",
-      "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=3600"
+      "Cache-Control": "no-store, max-age=0, must-revalidate",
+      "X-Robots-Tag": "noindex, follow"
     }
   });
 }

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
+
+import { listingNumberUrlId } from "@/lib/routes";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey =
@@ -10,6 +13,8 @@ const serviceRoleKey =
   process.env.SUPABASE_SERVICE_KEY;
 
 type ListingImageFields = {
+  id?: string | null;
+  listing_number?: number | null;
   seller_id?: string | null;
   image_url?: string | null;
   image_urls?: string[] | null;
@@ -19,6 +24,41 @@ type ListingImageFields = {
     } | null;
   } | null;
 };
+
+const PUBLIC_LISTING_SEGMENTS = [
+  "listing",
+  "listings",
+  "ilmoitus",
+  "ilmoitukset",
+  "ad",
+  "annons",
+  "annonse",
+  "annonser"
+] as const;
+
+function revalidateRemovedListing(listing: ListingImageFields) {
+  const identifiers = new Set<string>([
+    String(listing.id ?? "").trim(),
+    String(listing.listing_number ?? "").trim(),
+    listingNumberUrlId(listing.listing_number)
+  ].filter(Boolean));
+
+  for (const identifier of identifiers) {
+    for (const segment of PUBLIC_LISTING_SEGMENTS) {
+      revalidatePath(`/${segment}/${encodeURIComponent(identifier)}`);
+    }
+    revalidatePath(`/og/listing/${encodeURIComponent(identifier)}/preview.jpg`);
+    revalidatePath(`/api/og/listing/${encodeURIComponent(identifier)}`);
+  }
+
+  revalidatePath("/sitemap.xml");
+  revalidatePath("/sitemap_index.xml");
+  revalidatePath("/feed.xml");
+  revalidatePath("/");
+  revalidatePath("/ilmoitukset");
+  revalidatePath("/ajoneuvot");
+  revalidatePath("/varaosat");
+}
 
 function getBearerToken(request: Request) {
   const header = request.headers.get("authorization") ?? "";
@@ -138,7 +178,7 @@ export async function DELETE(
     const admin = getClient(serviceRoleKey);
     const { data: listing, error: listingError } = await admin
       .from("listings")
-      .select("id,seller_id,image_url,image_urls,translations")
+      .select("id,listing_number,seller_id,image_url,image_urls,translations")
       .eq("id", id)
       .maybeSingle<ListingImageFields & { id: string; seller_id: string }>();
 
@@ -212,6 +252,17 @@ export async function DELETE(
     }
 
     const imageCleanupErrors = await deleteListingImages(admin, listing);
+
+    // Purge every public alias and discovery document after the database row
+    // is gone. The visibility middleware remains the source of truth and will
+    // answer 410 even if cache invalidation is temporarily unavailable.
+    try {
+      revalidateRemovedListing(listing);
+    } catch {
+      // Cache invalidation must never turn an already successful deletion into
+      // a misleading API failure for the seller.
+    }
+
     return NextResponse.json({
       ok: true,
       commerceProductRemoved: Boolean(commerceProductId),

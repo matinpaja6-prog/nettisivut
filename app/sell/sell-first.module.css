@@ -8452,3 +8452,61 @@
   color: #5f7484 !important;
   -webkit-text-fill-color: #5f7484 !important;
 }
+
+/* The global single-shell reset intentionally makes native category selects
+   transparent. In dark mode their shell must therefore draw the same field
+   surface as the location and delivery controls, plus the dropdown chevron. */
+:global(html[data-theme="dark"]) .categorySelectShell:has(> .vehicleNativeSelect) {
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(126, 158, 188, 0.3) !important;
+  border-radius: 8px !important;
+  background-color: #071827 !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--wizard-orange, #ff7417) 50%),
+    linear-gradient(135deg, var(--wizard-orange, #ff7417) 50%, transparent 50%) !important;
+  background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50% !important;
+  background-repeat: no-repeat !important;
+  background-size: 5px 5px, 5px 5px !important;
+}
+
+:global(html[data-theme="dark"]) .categorySelectShell:has(> .vehicleNativeSelect):is(:hover, :focus-within) {
+  border-color: var(--wizard-orange, #ff7417) !important;
+  box-shadow: 0 0 0 3px rgba(255, 116, 23, 0.1) !important;
+}
+
+/* Delivery and vehicle-option selects use the exact same dark control chrome
+   as the native category fields above. */
+:global(html[data-theme="dark"]) :is(.deliveryMethodSelectShell, .vehicleAccessoriesButton) {
+  border: 1px solid rgba(126, 158, 188, 0.3) !important;
+  border-radius: 8px !important;
+  background: #071827 !important;
+  background-color: #071827 !important;
+  box-shadow: none !important;
+}
+
+:global(html[data-theme="dark"]) .deliveryMethodSelectShell select {
+  padding: 0 42px 0 15px !important;
+  color: #f7fafc !important;
+  -webkit-text-fill-color: #f7fafc !important;
+}
+
+:global(html[data-theme="dark"]) .deliveryMethodSelectShell > svg {
+  right: 14px !important;
+  color: var(--wizard-orange, #ff7417) !important;
+}
+
+:global(html[data-theme="dark"]) :is(.deliveryMethodSelectShell, .vehicleAccessoriesButton):is(:hover, :focus-within) {
+  border-color: var(--wizard-orange, #ff7417) !important;
+  box-shadow: 0 0 0 3px rgba(255, 116, 23, 0.1) !important;
+}
+
+.detailInputShell:has(input:disabled) {
+  opacity: 0.58;
+}
+
+.wizardDesktopSteps > button:disabled,
+.mobileStepJumpList > button:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.48 !important;
+}

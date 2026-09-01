@@ -307,7 +307,7 @@ export default function ListingsIndexPage({
                 </div>
                 <Link
                   className={homeStyles.cardLink}
-                  href={listingPath(listingUrlId(listing), locale)}
+                  href={listingPath(listing, locale)}
                   aria-label={`${t.openListing} ${getListingTitle(listing)}`}
                 />
               </article>

@@ -34,7 +34,10 @@ const pageSegments = {
   terms: { fi: "ehdot", en: "terms", sv: "villkor", no: "vilkar" },
   privacy: { fi: "tietosuoja", en: "privacy", sv: "integritet", no: "personvern" },
   cookies: { fi: "evasteet", en: "cookies", sv: "cookies", no: "informasjonskapsler" },
-  alerts: { fi: "halytykset", en: "alerts", sv: "aviseringar", no: "varsler" }
+  alerts: { fi: "halytykset", en: "alerts", sv: "aviseringar", no: "varsler" },
+  yritykset: { fi: "yritykset", en: "companies", sv: "foretag", no: "bedrifter" },
+  varaosat: { fi: "varaosat", en: "parts", sv: "reservdelar", no: "reservedeler" },
+  ajoneuvot: { fi: "ajoneuvot", en: "vehicles", sv: "fordon", no: "kjoretoy" }
 } satisfies Record<string, Record<RouteLocale, string>>;
 
 const localizedRouteGroups: Record<string, Record<RouteLocale, string>> = {
@@ -87,12 +90,54 @@ export function slugifyProfileName(value?: string | null) {
   return legacySlugifyProfileName(publicCompanyDisplayName(value));
 }
 
-export function listingPath(id?: string | number | null, locale?: string | null) {
-  void locale;
-  const value = String(id ?? "");
-  const urlId = /^\d+$/.test(value) ? `id${value}` : value;
+export type ListingRouteValue =
+  | string
+  | number
+  | null
+  | undefined
+  | {
+      id?: string | number | null;
+      listing_id?: string | number | null;
+      listing_number?: number | null;
+      brand?: string | null;
+      model?: string | null;
+    };
 
-  return `/ilmoitukset/${encodeURIComponent(urlId)}`;
+export function slugifyListingSegment(value?: string | null) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("fi")
+    .replace(/ä/g, "a")
+    .replace(/ö/g, "o")
+    .replace(/å/g, "a")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+export function listingPath(valueOrListing?: ListingRouteValue, locale?: string | null) {
+  const listing = typeof valueOrListing === "object" && valueOrListing !== null
+    ? valueOrListing
+    : null;
+  const value = String(
+    listing
+      ? listingNumberUrlId(listing.listing_number) || listing.id || listing.listing_id || ""
+      : valueOrListing ?? ""
+  ).trim();
+  const urlId = value.match(/^id(\d+)$/i)?.[1] ?? value;
+  const brand = slugifyListingSegment(listing?.brand);
+  const model = slugifyListingSegment(listing?.model);
+
+  if (brand && model && urlId) {
+    return `/${encodeURIComponent(brand)}/${encodeURIComponent(model)}/${encodeURIComponent(urlId)}`;
+  }
+
+  return `/${listingSegments[routeLocale(locale)]}/${encodeURIComponent(urlId)}`;
+}
+
+export function listingIndexPath(locale?: string | null) {
+  return `/${listingSegments[routeLocale(locale)]}`;
 }
 
 export function listingSharePath(id?: string | number | null, locale?: string | null) {

@@ -1348,6 +1348,9 @@ export default function UniversalTopbar() {
   const settingsHref = pagePath("settings", locale);
   const aboutHref = pagePath("about", locale);
   const faqHref = pagePath("faq", locale);
+  const companiesHref = pagePath("yritykset", locale);
+  const partsHref = pagePath("varaosat", locale);
+  const vehiclesHref = pagePath("ajoneuvot", locale);
   const garageHref =
     authChecked && !userId
       ? `${authHref}?mode=login&next=${encodeURIComponent(garagePageHref)}`
@@ -2152,7 +2155,7 @@ export default function UniversalTopbar() {
                   return (
                     <Link
                       key={listing.id}
-                      href={listingPath(listingUrlId(listing))}
+                      href={listingPath(listing, locale)}
                       className="marketplace-header-product-suggestion"
                       onClick={() => setMarketplaceSearchOpen(false)}
                     >
@@ -2407,7 +2410,7 @@ export default function UniversalTopbar() {
                       <div key={notification.id} className="universal-notification-item-wrap">
                         {isUnread ? <span className="universal-notification-dot is-unread" aria-hidden="true" /> : <span />}
                         <Link
-                          href={listingPath(listingUrlId(notification), locale)}
+                          href={listingPath(notification, locale)}
                           className="universal-notification-item"
                           role="menuitem"
                           onClick={() => setNotificationOpen(false)}
@@ -2484,9 +2487,9 @@ export default function UniversalTopbar() {
           <button type="button" className="marketplace-section-filter" onClick={openMarketplaceFilters}>
             {ui.filter}
           </button>
-          <Link href="/liikkeet" className={isActiveRoute("/liikkeet") ? "is-active" : ""}>{ui.stores}</Link>
-          <Link href="/varaosat" className={isActiveRoute("/varaosat") ? "is-active" : ""}>{ui.parts}</Link>
-          <Link href="/ajoneuvot" className={isActiveRoute("/ajoneuvot") ? "is-active" : ""}>{ui.vehicles}</Link>
+          <Link href={companiesHref} className={isActiveRoute("/yritykset") ? "is-active" : ""}>{ui.stores}</Link>
+          <Link href={partsHref} className={isActiveRoute("/varaosat") ? "is-active" : ""}>{ui.parts}</Link>
+          <Link href={vehiclesHref} className={isActiveRoute("/ajoneuvot") ? "is-active" : ""}>{ui.vehicles}</Link>
           <Link href="/?category=Ajovarusteet">{ui.ridingGear}</Link>
         </div>
       </nav>

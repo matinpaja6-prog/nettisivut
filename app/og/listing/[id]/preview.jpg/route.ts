@@ -35,7 +35,24 @@ function firstListingImage(listing: {
 }
 
 function logoFallback() {
-  return Response.redirect(absoluteSiteUrl("/maskines-brand-share-v2.png"), 307);
+  return new Response(null, {
+    status: 307,
+    headers: {
+      "Cache-Control": "public, max-age=300, s-maxage=300, must-revalidate",
+      Location: absoluteSiteUrl("/maskines-brand-share-v2.png")
+    }
+  });
+}
+
+function removedImageResponse() {
+  return new Response("Ilmoituksen kuva on poistettu.", {
+    status: 410,
+    headers: {
+      "Cache-Control": "public, max-age=0, s-maxage=300, must-revalidate",
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-Robots-Tag": "noindex, nofollow, noarchive, noimageindex"
+    }
+  });
 }
 
 export async function GET(
@@ -45,7 +62,9 @@ export async function GET(
   const { id } = await context.params;
   const { data: listing } = await getListingById(decodeURIComponent(id));
 
-  if (!listing || listing.is_hidden || listing.is_sold) return logoFallback();
+  if (!listing || listing.is_hidden || listing.is_sold) {
+    return removedImageResponse();
+  }
 
   const sourceUrl = firstListingImage(listing);
   if (!sourceUrl) return logoFallback();
@@ -70,7 +89,7 @@ export async function GET(
 
     return new Response(new Uint8Array(image), {
       headers: {
-        "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+        "Cache-Control": "public, max-age=300, s-maxage=300, must-revalidate",
         "Content-Length": String(image.byteLength),
         "Content-Type": "image/jpeg"
       }

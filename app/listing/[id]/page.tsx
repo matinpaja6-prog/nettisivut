@@ -1,4 +1,5 @@
-import { notFound, redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import { formatPrice, getListingPartNumber, getListingSalePricing, type Listing } from "@/lib/listings";
 import { listingNumberUrlId, listingPath, listingUrlId } from "@/lib/routes";
@@ -151,13 +152,14 @@ function serializeStructuredData(value: unknown) {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
-export default async function ListingPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function ListingPage({ params }: { params: Promise<{ id: string; brand?: string; model?: string }> }) {
+  const { id, brand: requestedBrand, model: requestedModel } = await params;
   const decodedId = decodeURIComponent(id);
+  const locale = (await cookies()).get("locale")?.value;
 
   const { data: listing } = await getListingById(decodedId);
 
-  if (!listing || listing.is_hidden) {
+  if (!listing || listing.is_hidden || listing.is_sold) {
     notFound();
   }
 
@@ -177,10 +179,15 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
     ? await getListingDisplayNumber(listing.created_at, listing.listing_number)
     : null;
   const canonicalId = listingNumberUrlId(displayNumber) || listingUrlId(listing);
-  const canonicalPath = canonicalId ? listingPath(canonicalId) : "";
+  const canonicalPath = canonicalId
+    ? listingPath({ ...listing, listing_number: displayNumber, id: canonicalId }, locale)
+    : "";
+  const requestedPath = requestedBrand && requestedModel
+    ? `/${encodeURIComponent(requestedBrand)}/${encodeURIComponent(requestedModel)}/${encodeURIComponent(decodedId)}`
+    : listingPath(decodedId, locale);
 
-  if (canonicalPath && canonicalPath !== listingPath(decodedId)) {
-    redirect(canonicalPath);
+  if (canonicalPath && canonicalPath !== requestedPath) {
+    permanentRedirect(canonicalPath);
   }
 
   const productStructuredData =
@@ -188,7 +195,7 @@ export default async function ListingPage({ params }: { params: Promise<{ id: st
       ? buildProductStructuredData(listing, absoluteSiteUrl(canonicalPath))
       : null;
   const breadcrumbStructuredData =
-    listing && !listing.is_hidden && canonicalPath
+    listing && !listing.is_hidden && !listing.is_sold && canonicalPath
       ? buildBreadcrumbStructuredData(listing, absoluteSiteUrl(canonicalPath))
       : null;
 

@@ -771,7 +771,7 @@ export default function GaragePage() {
                               return (
                                 <Link
                                   key={listing.id}
-                                  href={listingPath(listingUrlId(listing), locale)}
+                                  href={listingPath(listing, locale)}
                                   className="garage-part-card"
                                 >
                                   <img

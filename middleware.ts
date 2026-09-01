@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   canonicalPathFromLocalized,
+  listingPath,
   localizedPathFromCanonical,
-  normalizeRouteLocale
+  normalizeRouteLocale,
+  pagePath
 } from "@/lib/routes";
 
 const PUBLIC_FILE =
@@ -53,11 +55,11 @@ const ALLOWED_HTTP_METHODS = new Set([
 ]);
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://maps.googleapis.com https://challenges.cloudflare.com https://js.stripe.com https://checkout.stripe.com`,
+  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com https://maps.googleapis.com https://challenges.cloudflare.com https://js.stripe.com https://checkout.stripe.com`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.googleapis.com https://api.stripe.com https://checkout.stripe.com https://*.stripe.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com https://maps.googleapis.com https://*.googleapis.com https://api.stripe.com https://checkout.stripe.com https://*.stripe.com",
   "media-src 'self' blob: https:",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
@@ -110,11 +112,13 @@ function applySecurityHeaders(response: NextResponse) {
 
 function applyDocumentHeaders(
   response: NextResponse,
-  options: { noIndex?: boolean } = {}
+  options: { noIndex?: boolean; noStore?: boolean } = {}
 ) {
   applySecurityHeaders(response);
   if (options.noIndex) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+  if (options.noIndex || options.noStore) {
     response.headers.set(
       "Cache-Control",
       "private, no-store, no-cache, max-age=0, must-revalidate"
@@ -232,18 +236,28 @@ function isSensitivePath(pathname: string) {
 
 function listingRouteIdentifier(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
-  if (segments.length !== 2 || !PUBLIC_LISTING_SEGMENTS.has(segments[0])) {
-    return null;
-  }
+  const isLegacyListingRoute = segments.length === 2 && PUBLIC_LISTING_SEGMENTS.has(segments[0]);
+  const isSeoListingRoute = segments.length === 3 && ![
+    "api",
+    "admin",
+    "en",
+    "sv",
+    "no"
+  ].includes(segments[0]);
+  if (!isLegacyListingRoute && !isSeoListingRoute) return null;
 
   try {
-    return decodeURIComponent(segments[1]).trim() || null;
+    const identifier = decodeURIComponent(segments.at(-1) ?? "").trim();
+    return /^(?:id)?\d+$/i.test(identifier) ||
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(identifier)
+      ? identifier
+      : null;
   } catch {
     return null;
   }
 }
 
-async function publicListingExists(identifier: string) {
+async function publicListingForRoute(identifier: string) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const publicKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!supabaseUrl || !publicKey) return null;
@@ -260,7 +274,7 @@ async function publicListingExists(identifier: string) {
 
   try {
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/listings?select=id,is_hidden,is_sold&${filter}&limit=1`,
+      `${supabaseUrl}/rest/v1/listings?select=id,listing_number,brand,model,is_hidden,is_sold&${filter}&limit=1`,
       {
         headers: {
           apikey: publicKey,
@@ -274,11 +288,14 @@ async function publicListingExists(identifier: string) {
     if (!response.ok) return null;
     const rows = await response.json() as Array<{
       id: string;
+      listing_number?: number | null;
+      brand?: string | null;
+      model?: string | null;
       is_hidden?: boolean | null;
       is_sold?: boolean | null;
     }>;
     const listing = rows[0];
-    return Boolean(listing && !listing.is_hidden && !listing.is_sold);
+    return listing && !listing.is_hidden && !listing.is_sold ? listing : false;
   } catch {
     // A temporary database failure must not turn live listings into 410 pages.
     return null;
@@ -290,8 +307,15 @@ function removedListingResponse() {
     status: 410,
     headers: { "Content-Type": "text/plain; charset=utf-8" }
   });
-  response.headers.set("X-Robots-Tag", "noindex, nofollow");
-  response.headers.set("Cache-Control", "public, max-age=300, s-maxage=300");
+  response.headers.set(
+    "X-Robots-Tag",
+    "noindex, nofollow, noarchive, nosnippet, noimageindex"
+  );
+  response.headers.set(
+    "Cache-Control",
+    "public, max-age=0, s-maxage=300, must-revalidate"
+  );
+  response.headers.set("CDN-Cache-Control", "public, s-maxage=300, must-revalidate");
   return applySecurityHeaders(response);
 }
 
@@ -383,6 +407,16 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  if (pathname === "/liikkeet" || pathname.startsWith("/liikkeet/")) {
+    const redirectUrl = request.nextUrl.clone();
+    const locale = normalizeRouteLocale(request.cookies.get("locale")?.value);
+    redirectUrl.pathname = pathname.replace(
+      /^\/liikkeet(?=\/|$)/,
+      pagePath("yritykset", locale)
+    );
+    return applyDocumentHeaders(NextResponse.redirect(redirectUrl, 308));
+  }
+
   // Keep the administration route reachable so an administrator can remove
   // an accidental IP ban. Every other document and API route is denied.
   const isAdminRecoveryRoute =
@@ -410,9 +444,18 @@ export async function middleware(request: NextRequest) {
 
   const listingIdentifier = listingRouteIdentifier(pathname);
   if (listingIdentifier) {
-    const exists = await publicListingExists(listingIdentifier);
-    if (exists === false) {
+    const listing = await publicListingForRoute(listingIdentifier);
+    if (listing === false) {
       return removedListingResponse();
+    }
+    if (listing) {
+      const locale = normalizeRouteLocale(request.cookies.get("locale")?.value);
+      const canonicalListingPath = listingPath(listing, locale);
+      if (pathname !== canonicalListingPath) {
+        const redirectUrl = request.nextUrl.clone();
+        redirectUrl.pathname = canonicalListingPath;
+        return applyDocumentHeaders(NextResponse.redirect(redirectUrl, 308), { noStore: true });
+      }
     }
   }
 
@@ -473,20 +516,25 @@ export async function middleware(request: NextRequest) {
   const canonicalPath = canonicalPathFromLocalized(pathname);
   const localizedPath = localizedPathFromCanonical(canonicalPath, locale);
   const noIndex = shouldNoIndex(canonicalPath);
+  // Listing visibility can change at any moment. Never let a CDN serve a
+  // previously cached 200 response after the listing has been sold, hidden or
+  // deleted; the next request must reach the visibility check above and turn
+  // into a permanent 410 response.
+  const noStore = Boolean(listingIdentifier);
 
   if (pathname === canonicalPath && localizedPath !== pathname) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = localizedPath;
-    return applyDocumentHeaders(NextResponse.redirect(redirectUrl), { noIndex });
+    return applyDocumentHeaders(NextResponse.redirect(redirectUrl), { noIndex, noStore });
   }
 
   if (canonicalPath !== pathname) {
     const rewriteUrl = request.nextUrl.clone();
     rewriteUrl.pathname = canonicalPath;
-    return applyDocumentHeaders(NextResponse.rewrite(rewriteUrl), { noIndex });
+    return applyDocumentHeaders(NextResponse.rewrite(rewriteUrl), { noIndex, noStore });
   }
 
-  return applyDocumentHeaders(NextResponse.next(), { noIndex });
+  return applyDocumentHeaders(NextResponse.next(), { noIndex, noStore });
 }
 
 export const config = {

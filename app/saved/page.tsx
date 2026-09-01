@@ -266,12 +266,12 @@ export default function SavedListingsPage() {
                   aria-label={`${t.openListing} ${getListingTitle(listing)}`}
                   onClick={(event) => {
                     if ((event.target as HTMLElement).closest('[data-listing-favorite="true"]')) return;
-                    router.push(listingPath(listingUrlId(listing), locale));
+                    router.push(listingPath(listing, locale));
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      router.push(listingPath(listingUrlId(listing), locale));
+                      router.push(listingPath(listing, locale));
                     }
                   }}
                 >

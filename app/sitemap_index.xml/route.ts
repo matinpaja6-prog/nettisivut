@@ -16,7 +16,8 @@ export function GET() {
   return new Response(xml, {
     headers: {
       "Content-Type": "application/xml; charset=utf-8",
-      "Cache-Control": "public, max-age=0, s-maxage=300, stale-while-revalidate=3600"
+      "Cache-Control": "no-store, max-age=0, must-revalidate",
+      "X-Robots-Tag": "noindex, follow"
     }
   });
 }

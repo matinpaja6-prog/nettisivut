@@ -30,7 +30,7 @@ const PUBLIC_STATIC_PATHS = [
   "/ilmoitukset",
   "/ajoneuvot",
   "/varaosat",
-  "/liikkeet",
+  "/yritykset",
   pagePath("about", "fi"),
   pagePath("contact", "fi"),
   pagePath("faq", "fi"),
@@ -131,7 +131,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           listingNumberUrlId(displayNumber) || listingUrlId(listing);
 
         const languagePaths = {
-          "fi-FI": listingPath(canonicalId),
+          "fi-FI": listingPath({ ...listing, listing_number: displayNumber, id: canonicalId }),
           en: listingSharePath(canonicalId, "en"),
           sv: listingSharePath(canonicalId, "sv"),
           nb: listingSharePath(canonicalId, "no")

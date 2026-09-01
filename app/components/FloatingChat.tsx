@@ -716,7 +716,7 @@ export default function FloatingChat() {
             <>
               {activeConv.listing && (
                 <Link
-                  href={listingPath(listingUrlId(activeConv.listing ?? { id: activeConv.listing_id }), locale)}
+                  href={listingPath(activeConv.listing ?? { id: activeConv.listing_id }, locale)}
                   className="fc-listing-bar"
                   onClick={() => setOpen(false)}
                 >

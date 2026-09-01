@@ -737,7 +737,7 @@ export default function BottomNav() {
               <>
                 <div className="bn-notif-group-label" data-no-auto-translate translate="no">{t.saTitle}</div>
                 {alertNotifs.filter((a) => !a.seen).slice(0, 6).map((n) => (
-                  <Link key={n.id} href={listingPath(listingUrlId(n), activeLocale)} className="bn-notif-item" onClick={() => setNotifOpen(false)}>
+                  <Link key={n.id} href={listingPath(n, activeLocale)} className="bn-notif-item" onClick={() => setNotifOpen(false)}>
                     <span className="bn-notif-icon"><Bell size={14} /></span>
                     <div>
                       <strong>{n.listing_title}</strong>

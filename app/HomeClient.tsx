@@ -2631,7 +2631,7 @@ function HomeContent({
   const openListing = useCallback((listing: Listing) => {
     saveHomeReturnState();
     updateCachedListing(listing);
-    router.push(listingPath(listingUrlId(listing), locale));
+    router.push(listingPath(listing, locale));
   }, [locale, router, saveHomeReturnState]);
 
   const handleSortChange = useCallback((value: string) => {
@@ -7267,7 +7267,7 @@ function HomeContent({
                             <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
                           </span>
                           <Link
-                            href={listingPath(listingUrlId(listing), locale)}
+                            href={listingPath(listing, locale)}
                             className={styles.listingImageSeoLink}
                             aria-label={`${t.openListing} ${listingImageSeoAlt(listing, listingText.title)}`}
                             onClick={(event) => event.stopPropagation()}
@@ -7933,7 +7933,7 @@ function HomeContent({
                           <div className={styles.marketplaceSuggestionProducts}>
                             {searchSuggestions.listings.length > 0 ? searchSuggestions.listings.map((listing) => {
                               const suggestionText = getListingText(listing);
-                              return <Link key={listing.id} href={listingPath(listingUrlId(listing))} onClick={() => setSearchSuggestionsOpen(false)}>
+                              return <Link key={listing.id} href={listingPath(listing, locale)} onClick={() => setSearchSuggestionsOpen(false)}>
                                 <img src={listingImageSrc(listing)} alt="" loading="lazy" />
                                 <span><strong>{suggestionText.title}</strong><small>{[listing.company_name || listing.seller_name, listing.brand, listing.model, listing.part_number].filter(Boolean).join(" · ")}</small></span>
                                 <b>{formatPrice(listing.price)}</b>
@@ -8386,7 +8386,7 @@ function HomeContent({
                         return (
                           <Link
                             key={listing.id}
-                            href={listingPath(listingUrlId(listing), locale)}
+                            href={listingPath(listing, locale)}
                             className={styles.heroLatestCard}
                           >
                             <span className={styles.heroLatestImage}>
@@ -8475,7 +8475,7 @@ function HomeContent({
                             <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
                           </span>
                           <Link
-                            href={listingPath(listingUrlId(listing), locale)}
+                            href={listingPath(listing, locale)}
                             className={styles.listingImageSeoLink}
                             aria-label={`${t.openListing} ${listingImageSeoAlt(listing, listingText.title)}`}
                             onClick={(event) => event.stopPropagation()}
@@ -8645,7 +8645,7 @@ function HomeContent({
                         <OptimizedListingImage src={listingImageSrc(listing)} alt="" decorative />
                       </span>
                       <Link
-                        href={listingPath(listingUrlId(listing), locale)}
+                        href={listingPath(listing, locale)}
                         className={styles.listingImageSeoLink}
                         aria-label={`${t.openListing} ${listingImageSeoAlt(listing, listingText.title)}`}
                         onClick={(event) => event.stopPropagation()}

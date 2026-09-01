@@ -104,7 +104,7 @@ export default async function SeoSearchPage({ params }: PageProps) {
             "@type": "ListItem",
             position: index + 1,
             name: listing.title,
-            url: absoluteSiteUrl(listingPath(listingUrlId(listing)))
+            url: absoluteSiteUrl(listingPath(listing))
           }))
         }
       },

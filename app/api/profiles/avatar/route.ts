@@ -6,6 +6,35 @@ type AvatarUpdateBody = {
   avatarUrl?: string | null;
 };
 
+const AVATAR_FILE_NAME = /^avatar(?:-[a-zA-Z0-9-]+)?\.(?:jpe?g|png|webp)$/i;
+
+function getOwnedAvatarPath(
+  avatarUrl: string,
+  supabaseUrl: string,
+  userId: string
+): string | null {
+  try {
+    const parsedUrl = new URL(avatarUrl);
+    const expectedOrigin = new URL(supabaseUrl).origin;
+    const expectedPathPrefix = `/storage/v1/object/public/avatars/${userId}/`;
+
+    if (
+      parsedUrl.origin !== expectedOrigin ||
+      !parsedUrl.pathname.startsWith(expectedPathPrefix)
+    ) {
+      return null;
+    }
+
+    const fileName = decodeURIComponent(
+      parsedUrl.pathname.slice(expectedPathPrefix.length)
+    );
+
+    return AVATAR_FILE_NAME.test(fileName) ? `${userId}/${fileName}` : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function PATCH(request: Request) {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -39,28 +68,31 @@ export async function PATCH(request: Request) {
     const body = await request.json().catch(() => ({})) as AvatarUpdateBody;
     const avatarUrl = typeof body.avatarUrl === "string" ? body.avatarUrl.trim() : null;
 
-    if (avatarUrl) {
-      let parsedUrl: URL;
-      try {
-        parsedUrl = new URL(avatarUrl);
-      } catch {
-        return NextResponse.json({ error: "Profiilikuvan osoite ei kelpaa." }, { status: 400 });
-      }
+    const newAvatarPath = avatarUrl
+      ? getOwnedAvatarPath(avatarUrl, supabaseUrl, userId)
+      : null;
 
-      const expectedOrigin = new URL(supabaseUrl).origin;
-      const expectedPathPrefix = `/storage/v1/object/public/avatars/${userId}/`;
-      const fileName = parsedUrl.pathname.slice(expectedPathPrefix.length);
-      const isAvatarFile = /^avatar(?:-[a-zA-Z0-9-]+)?\.(?:jpe?g|png|webp)$/i.test(fileName);
-      if (
-        parsedUrl.origin !== expectedOrigin ||
-        !parsedUrl.pathname.startsWith(expectedPathPrefix) ||
-        !isAvatarFile
-      ) {
-        return NextResponse.json({ error: "Profiilikuvan osoite ei kuulu käyttäjälle." }, { status: 400 });
-      }
+    if (avatarUrl && !newAvatarPath) {
+      return NextResponse.json({ error: "Profiilikuvan osoite ei kuulu käyttäjälle." }, { status: 400 });
     }
 
-    const { data, error } = await getSupabaseAdmin()
+    const admin = getSupabaseAdmin();
+    const { data: currentProfile, error: currentProfileError } = await admin
+      .from("profiles")
+      .select("avatar_url")
+      .eq("id", userId)
+      .single<{ avatar_url: string | null }>();
+
+    if (currentProfileError) {
+      console.error("Current profile avatar lookup failed", currentProfileError);
+      return NextResponse.json({ error: "Profiilikuvan tallennus epäonnistui." }, { status: 500 });
+    }
+
+    const previousAvatarPath = currentProfile.avatar_url
+      ? getOwnedAvatarPath(currentProfile.avatar_url, supabaseUrl, userId)
+      : null;
+
+    const { data, error } = await admin
       .from("profiles")
       .update({ avatar_url: avatarUrl })
       .eq("id", userId)
@@ -69,7 +101,46 @@ export async function PATCH(request: Request) {
 
     if (error) {
       console.error("Profile avatar update failed", error);
+
+      // The browser has already uploaded the new object. Remove it if the
+      // database update failed so failed changes do not leave orphaned files.
+      if (newAvatarPath && newAvatarPath !== previousAvatarPath) {
+        const { error: cleanupError } = await admin.storage
+          .from("avatars")
+          .remove([newAvatarPath]);
+        if (cleanupError) {
+          console.error("Failed avatar upload cleanup failed", cleanupError);
+        }
+      }
+
       return NextResponse.json({ error: "Profiilikuvan tallennus epäonnistui." }, { status: 500 });
+    }
+
+    // Keep at most the avatar now referenced by the profile. This removes the
+    // directly previous image as well as files orphaned by the old upload flow.
+    const avatarStorage = admin.storage.from("avatars");
+    const { data: storedFiles, error: listError } = await avatarStorage.list(userId, {
+      limit: 1000
+    });
+    let obsoletePaths: string[] = [];
+
+    if (listError) {
+      console.error("Old profile avatar listing failed", listError);
+      if (previousAvatarPath && previousAvatarPath !== newAvatarPath) {
+        obsoletePaths = [previousAvatarPath];
+      }
+    } else {
+      obsoletePaths = (storedFiles ?? [])
+        .filter(file => AVATAR_FILE_NAME.test(file.name))
+        .map(file => `${userId}/${file.name}`)
+        .filter(path => path !== newAvatarPath);
+    }
+
+    if (obsoletePaths.length > 0) {
+      const { error: removeError } = await avatarStorage.remove(obsoletePaths);
+      if (removeError) {
+        console.error("Old profile avatar removal failed", removeError);
+      }
     }
 
     return NextResponse.json({ data });

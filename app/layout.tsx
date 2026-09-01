@@ -20,6 +20,7 @@ import AutoTranslate from "./components/AutoTranslate";
 import SourceFog from "./components/SourceFog";
 import GlobalNavigationSpinner from "./components/GlobalNavigationSpinner";
 import CookieConsentGate from "./components/CookieConsentGate";
+import GoogleMeasurement from "./components/GoogleMeasurement";
 import CurrencyProvider from "./components/CurrencyProvider";
 import { PUBLIC_SITE_URL } from "@/lib/site-url";
 
@@ -56,6 +57,9 @@ export const metadata: Metadata = {
     shortcut: "/maskines-favicon-v6.png",
     apple: [{ url: "/maskines-favicon-v6.png", sizes: "192x192", type: "image/png" }]
   },
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+    : {}),
   manifest: "/site.webmanifest",
   openGraph: {
     type: "website",
@@ -322,6 +326,9 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <CurrencyProvider>
         <CookieConsentGate>
+          <Suspense fallback={null}>
+            <GoogleMeasurement />
+          </Suspense>
           <TaxonomyProvider>
             <InstantNavigation />
             <GlobalNavigationSpinner />

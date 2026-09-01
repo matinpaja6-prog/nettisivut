@@ -156,7 +156,7 @@ export async function LocalizedSeoCollectionPage({
         "@type": "ListItem",
         position: index + 1,
         name: listing.title,
-        url: absoluteSiteUrl(listingPath(listingUrlId(listing)))
+        url: absoluteSiteUrl(listingPath(listing))
       }))
     }
   };

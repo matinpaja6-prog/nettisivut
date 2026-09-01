@@ -84,11 +84,11 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://maps.googleapis.com https://challenges.cloudflare.com https://js.stripe.com https://checkout.stripe.com`,
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com https://maps.googleapis.com https://challenges.cloudflare.com https://js.stripe.com https://checkout.stripe.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' data: https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.googleapis.com https://api.stripe.com https://checkout.stripe.com https://*.stripe.com",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://region1.google-analytics.com https://maps.googleapis.com https://*.googleapis.com https://api.stripe.com https://checkout.stripe.com https://*.stripe.com",
       "media-src 'self' blob: https:",
       "worker-src 'self' blob:",
       "manifest-src 'self'",
@@ -168,6 +168,18 @@ const nextConfig: NextConfig = {
           {
             key: "Cache-Control",
             value: "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      // Social preview images are generated from live listing data. Override
+      // the generic immutable asset policy so a removed listing image cannot
+      // remain in a browser or CDN cache for a year.
+      {
+        source: "/og/listing/:id/preview.jpg",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, s-maxage=300, must-revalidate"
           }
         ]
       },

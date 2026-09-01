@@ -645,6 +645,19 @@ html[data-theme="light"] body main.auth-page.simple-auth-page :is(p, small, .aut
   color: var(--theme-muted) !important;
 }
 
+html[data-theme="light"] body main.auth-page.simple-auth-page .auth-divider,
+html[data-theme="light"] body main.auth-page.simple-auth-page .auth-divider > span {
+  color: #526474 !important;
+  -webkit-text-fill-color: #526474 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body main.auth-page.simple-auth-page .auth-divider::before,
+html[data-theme="light"] body main.auth-page.simple-auth-page .auth-divider::after {
+  background: #b7c3cd !important;
+  opacity: 1 !important;
+}
+
 html[data-theme="light"] body main.auth-page.simple-auth-page :is(input, select, textarea) {
   background: var(--theme-surface-soft) !important;
   border-color: var(--theme-line) !important;
@@ -10138,7 +10151,27 @@ html body header.universal-app-topbar .universal-page-brand-mobile-mark {
   }
 
   html[data-theme="light"] body .site-footer.site-footer .footer-socials.footer-socials a {
-    color: #6b7280 !important;
+    background: #ffffff !important;
+    border-color: #9eafb9 !important;
+    color: #263944 !important;
+  }
+
+  html[data-theme="light"] body .site-footer.site-footer .footer-socials.footer-socials a:is(:hover, :focus-visible) {
+    background: #e8eef2 !important;
+    border-color: #637985 !important;
+    color: #162832 !important;
+  }
+
+  html[data-theme="light"] body .site-footer.site-footer .footer-responsibility {
+    border-top-color: #c7d0d5 !important;
+  }
+
+  html[data-theme="light"] body .site-footer.site-footer .footer-responsibility p {
+    color: #53636e !important;
+  }
+
+  html[data-theme="light"] body .site-footer.site-footer .footer-responsibility a {
+    color: #263944 !important;
   }
 
   html[data-theme="light"] body .site-footer.site-footer .footer-bottom.footer-bottom {
@@ -11678,6 +11711,13 @@ html[data-theme="light"] body > .universal-profile-menu-portal :is(
   .universal-profile-menu-link
 ) {
   color: #102436 !important;
+}
+
+html[data-theme="light"] body > .universal-profile-menu-portal
+  .universal-profile-menu-link:not(.danger) > svg:first-child,
+html[data-theme="light"] body > .universal-profile-menu-portal
+  .universal-profile-menu-chevron {
+  color: #0b1117 !important;
 }
 
 html[data-theme="light"] body > .universal-profile-menu-portal .universal-profile-menu-link:is(:hover, :focus-visible, .is-active) {

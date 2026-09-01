@@ -1,5 +1,7 @@
 "use client";
 
+import { trackAnalyticsEvent } from "@/lib/analytics";
+
 export type StoredCartItem = { productId: string; companyId: string; quantity: number };
 
 const CART_KEY = "maskines-commerce-cart-v1";
@@ -32,6 +34,9 @@ export function addCartProduct(productId: string, companyId: string, quantity = 
   if (existing) existing.quantity += Math.max(1, Math.trunc(quantity));
   else cart.push({ productId, companyId, quantity: Math.max(1, Math.trunc(quantity)) });
   saveCart(cart);
+  trackAnalyticsEvent("add_to_cart", {
+    items: [{ item_id: productId, affiliation: companyId, quantity: Math.max(1, Math.trunc(quantity)) }]
+  });
   return { ok: true as const, items: cart, error: "" };
 }
 

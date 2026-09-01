@@ -718,7 +718,7 @@ function storefrontSearchScore(view: StorefrontItemView, query: string) {
 
 function storefrontItemHref(view: StorefrontItemView) {
   if (view.product) return `/tuotteet/${view.product.id}`;
-  if (view.listing) return listingPath(listingUrlId(view.listing));
+  if (view.listing) return listingPath(view.listing);
   return "#yrityksen-yhteystiedot";
 }
 
@@ -3904,7 +3904,7 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                   const itemHref = product
                     ? `/tuotteet/${product.id}`
                     : listing
-                      ? listingPath(listingUrlId(listing))
+                      ? listingPath(listing)
                       : "#yrityksen-yhteystiedot";
 
                   if (item.kind === "product" && product) {
@@ -4959,12 +4959,12 @@ export default function SellerProfileClient({ sellerId }: { sellerId: string }) 
                     aria-label={`${t.openListing} ${title}`}
                     onClick={(event) => {
                       if ((event.target as HTMLElement).closest('[data-listing-favorite="true"]')) return;
-                      router.push(listingPath(listingUrlId(listing), locale));
+                      router.push(listingPath(listing, locale));
                     }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
-                        router.push(listingPath(listingUrlId(listing), locale));
+                        router.push(listingPath(listing, locale));
                       }
                     }}
                   >

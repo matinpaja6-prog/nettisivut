@@ -56,6 +56,7 @@ import { absoluteSiteUrl } from "@/lib/site-url";
 import { readVehicleAccessories } from "@/lib/vehicle-accessories";
 import { readVehicleColors, VEHICLE_COLORS_DESCRIPTION_LABEL } from "@/lib/vehicle-colors";
 import { addCartProduct } from "@/lib/commerce/cart";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import { activeSaleDiscountPercent, activeSalePrice } from "@/lib/commerce/discounts";
 import type { PublicProduct } from "@/lib/commerce/types";
 
@@ -67,6 +68,7 @@ import {
   getListingDisplayNumber,
   getOrCreateConversationForListing,
   getListings,
+  getPublicSellerLevelStats,
   incrementListingView,
   saveListing,
   supabase,
@@ -673,6 +675,25 @@ export default function ListingPage({
 
   const [listing, setListing] =
     useState<Listing | null>(() => initialListingRef.current ?? null);
+  const analyticsListingIdRef = useRef("");
+
+  useEffect(() => {
+    if (!listing || analyticsListingIdRef.current === listing.id) return;
+    analyticsListingIdRef.current = listing.id;
+    trackAnalyticsEvent("view_item", {
+      currency: "EUR",
+      value: Number(listing.price) || 0,
+      items: [{
+        item_id: String(listing.listing_number ?? listing.id),
+        item_name: listing.title,
+        item_brand: listing.brand || undefined,
+        item_category: listing.vehicle_type || listing.category || undefined,
+        item_variant: listing.model || undefined,
+        price: Number(listing.price) || 0,
+        quantity: 1
+      }]
+    });
+  }, [listing]);
 
   const [loading, setLoading] =
     useState(() => !initialListingRef.current);
@@ -1101,6 +1122,7 @@ export default function ListingPage({
       return;
     }
 
+    const sellerId = sellerIdForPublicStats;
     let mounted = true;
 
     async function loadSellerPublicStats() {
@@ -1108,13 +1130,12 @@ export default function ListingPage({
         const [
           profileResult,
           reviewsResult,
-          soldListingsResult,
-          legacySoldListingsResult
+          sellerLevelStatsResult
         ] = await Promise.all([
           supabase!
             .from("profiles")
             .select("business_id,company_verified_at,account_type,created_at,avatar_url")
-            .eq("id", sellerIdForPublicStats)
+            .eq("id", sellerId)
             .maybeSingle<{
               business_id?: string | null;
               company_verified_at?: string | null;
@@ -1125,17 +1146,9 @@ export default function ListingPage({
           supabase!
             .from("seller_reviews")
             .select("rating")
-            .eq("seller_id", sellerIdForPublicStats)
+            .eq("seller_id", sellerId)
             .returns<Array<{ rating: number | null }>>(),
-          supabase!
-            .from("sold_listings")
-            .select("id", { count: "exact", head: true })
-            .eq("seller_id", sellerIdForPublicStats),
-          supabase!
-            .from("listings")
-            .select("id", { count: "exact", head: true })
-            .eq("seller_id", sellerIdForPublicStats)
-            .eq("is_sold", true)
+          getPublicSellerLevelStats(sellerId)
         ]);
 
         if (!mounted) return;
@@ -1146,15 +1159,6 @@ export default function ListingPage({
             : (reviewsResult.data ?? [])
               .map((review) => Number(review.rating))
               .filter((rating) => Number.isFinite(rating));
-        const soldListingsCount =
-          !soldListingsResult.error && typeof soldListingsResult.count === "number"
-            ? soldListingsResult.count
-            : null;
-        const legacySoldListingsCount =
-          !legacySoldListingsResult.error && typeof legacySoldListingsResult.count === "number"
-            ? legacySoldListingsResult.count
-            : null;
-
         setSellerBusinessId(data?.business_id?.trim() || null);
         setSellerCompanyVerifiedAt(data?.company_verified_at ?? null);
         setSellerProfileAvatarUrl(data?.avatar_url?.trim() || null);
@@ -1166,13 +1170,7 @@ export default function ListingPage({
             ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
             : null
         );
-        setSellerSoldCount(
-          soldListingsCount !== null
-            ? Math.max(soldListingsCount, legacySoldListingsCount ?? 0)
-            : legacySoldListingsCount && legacySoldListingsCount > 0
-              ? legacySoldListingsCount
-              : null
-        );
+        setSellerSoldCount(sellerLevelStatsResult.data.sold_count);
       } catch {
         if (mounted) {
           setSellerBusinessId(null);
@@ -1423,7 +1421,7 @@ export default function ListingPage({
   }
 
   function openSimilarListing(item: Pick<Listing, "id" | "listing_number">) {
-    router.push(listingPath(listingUrlId(item), locale));
+    router.push(listingPath(item, locale));
   }
 
   async function shareListing() {
@@ -7039,6 +7037,36 @@ export default function ListingPage({
         body main.page.listing-detail-page.listing-detail-page .listing-image-preview-panel.listing-image-preview-panel img {
           max-height: min(calc(100dvh - var(--topbar-h, 64px) - 40px), 820px);
           object-fit: contain;
+        }
+
+        @media (min-width: 761px) {
+          body main.page.listing-detail-page.listing-detail-page .listing-image-preview.listing-image-preview {
+            inset: 0;
+            padding: 32px clamp(42px, 5vw, 88px);
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .listing-image-preview-panel.listing-image-preview-panel {
+            background: #020b16;
+            height: min(90vh, 920px);
+            max-height: min(90vh, 920px);
+            max-width: min(92vw, 1500px);
+            width: min(92vw, 1500px);
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .listing-image-preview-panel.listing-image-preview-panel > img {
+            height: 100%;
+            max-height: 100%;
+            max-width: 100%;
+            width: 100%;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .listing-image-preview-arrow-left {
+            left: 24px;
+          }
+
+          body main.page.listing-detail-page.listing-detail-page .listing-image-preview-arrow-right {
+            right: 24px;
+          }
         }
 
         body main.page.listing-detail-page.listing-detail-page .seller-card.seller-card .verified-chip.verified-chip {

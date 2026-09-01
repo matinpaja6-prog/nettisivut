@@ -977,6 +977,8 @@ type SellDraftPart = Omit<MultiPartSelection, "images"> & {
   images: SellDraftImage[];
 };
 
+type VehicleUsageMetric = "mileage" | "hours" | "";
+
 type SellDraftState = {
   version: 1;
   isVehicleSale?: boolean;
@@ -1000,6 +1002,7 @@ type SellDraftState = {
   partNumber: string;
   listingPrice: string;
   listingCurrency?: SupportedCurrency;
+  vehicleUsageMetric?: VehicleUsageMetric;
   vehicleMileage?: string;
   vehicleHours?: string;
   vehicleRegistration?: string;
@@ -1032,8 +1035,12 @@ type SellDraftState = {
 const sellDraftDbName = "maskines-sell-drafts";
 const sellDraftStoreName = "drafts";
 const sellDraftKey = "current";
-const sellPartsDraftKey = "current-parts";
+const sellLegacyPartsDraftKey = "current-parts";
+const sellSinglePartsDraftKey = "current-parts-single";
+const sellMultiplePartsDraftKey = "current-parts-multiple";
 const sellVehicleDraftKey = "current-vehicles";
+const sellRidingGearDraftKey = "current-riding-gear";
+const sellOtherPartsDraftKey = "current-other-parts";
 
 function openSellDraftDb() {
   return new Promise<IDBDatabase>((resolve, reject) => {
@@ -2538,6 +2545,9 @@ function SellPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const vehicleSaleRequested = searchParams.get("market") === "vehicles";
+  const requestedListingMode: ListingMode = searchParams.get("mode") === "multiple"
+    ? "multiple"
+    : "single";
   const requestedSpecialKind: SpecialListingKind = searchParams.get("market") === "gear"
     ? "gear"
     : searchParams.get("market") === "other-parts"
@@ -2580,7 +2590,7 @@ function SellPageContent() {
   const vehicleAutoAdvancedFieldsRef = useRef<Partial<Record<VehicleDetailKey, boolean>>>({});
   const categoryEntryAutoOpenRef = useRef(false);
   const categoryInteractionStartedRef = useRef(false);
-  const [mode, setMode] = useState<ListingMode>("single");
+  const [mode, setMode] = useState<ListingMode>(requestedListingMode);
   const [specialListingKind, setSpecialListingKind] = useState<SpecialListingKind>(requestedSpecialKind);
   const [currentStep, setCurrentStep] = useState(1);
   const [vehicleType, setVehicleType] = useState(emptyVehicleType);
@@ -2588,6 +2598,7 @@ function SellPageContent() {
   const [vehicleDetails, setVehicleDetails] = useState<VehicleDetails>(
     () => buildEmptyVehicleDetails()
   );
+  const [vehicleUsageMetric, setVehicleUsageMetric] = useState<VehicleUsageMetric>("");
   const [vehicleMileage, setVehicleMileage] = useState("");
   const [vehicleHours, setVehicleHours] = useState("");
   const [vehicleRegistration, setVehicleRegistration] = useState("");
@@ -2604,9 +2615,17 @@ function SellPageContent() {
     Partial<Record<VehicleDetailKey, boolean>>
   >({});
   const [openVehiclePresetField, setOpenVehiclePresetField] = useState<VehicleDetailKey | null>(null);
-  const [category, setCategory] = useState("");
-  const [categoryGroup, setCategoryGroup] = useState("");
-  const [subcategory, setSubcategory] = useState("");
+  const initialSpecialCategory = requestedSpecialKind === "gear"
+    ? "Ajovarusteet"
+    : requestedSpecialKind === "other-parts"
+      ? "Muut ajoneuvon osat"
+      : "";
+  const initialSpecialSubcategory = requestedSpecialKind === "gear"
+    ? ridingGearCategories[0]
+    : initialSpecialCategory;
+  const [category, setCategory] = useState(initialSpecialCategory);
+  const [categoryGroup, setCategoryGroup] = useState(initialSpecialSubcategory);
+  const [subcategory, setSubcategory] = useState(initialSpecialSubcategory);
   const [condition, setCondition] = useState("");
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [previewImage, setPreviewImage] = useState<UploadedImage | null>(null);
@@ -2673,7 +2692,15 @@ function SellPageContent() {
           : multipleSteps,
       [isVehicleSale, mode, specialListingKind]
     );
-  const currentDraftKey = isVehicleSale ? sellVehicleDraftKey : sellPartsDraftKey;
+  const currentDraftKey = isVehicleSale
+    ? sellVehicleDraftKey
+    : specialListingKind === "gear"
+      ? sellRidingGearDraftKey
+      : specialListingKind === "other-parts"
+        ? sellOtherPartsDraftKey
+        : mode === "multiple"
+          ? sellMultiplePartsDraftKey
+          : sellSinglePartsDraftKey;
 
   const applyListingCurrencyChange = useCallback((nextCurrency: SupportedCurrency) => {
     const sourceCurrency = listingCurrencyRef.current;
@@ -3205,6 +3232,7 @@ function SellPageContent() {
     partNumber,
     listingPrice,
     listingCurrency,
+    vehicleUsageMetric,
     vehicleMileage,
     vehicleHours,
     vehicleRegistration,
@@ -3284,6 +3312,7 @@ function SellPageContent() {
     vehicleEngineKind,
     vehicleHours,
     vehicleMileage,
+    vehicleUsageMetric,
     vehicleRegistration,
     vehicleRoadLegal,
     vehicleType.key
@@ -3341,7 +3370,14 @@ function SellPageContent() {
     async function hydrateDraft() {
       try {
         let draft = await readSellDraft(currentDraftKey);
-        if (!draft && !isVehicleSale) {
+        if (!draft && !isVehicleSale && !specialListingKind) {
+          const legacyPartsDraft = await readSellDraft(sellLegacyPartsDraftKey);
+          if (legacyPartsDraft?.mode === mode) {
+            draft = legacyPartsDraft;
+            void deleteSellDraft(sellLegacyPartsDraftKey).catch(() => undefined);
+          }
+        }
+        if (!draft && !isVehicleSale && !specialListingKind && mode === "single") {
           draft = await readSellDraft(sellDraftKey);
           if (draft) void deleteSellDraft(sellDraftKey).catch(() => undefined);
         }
@@ -3359,6 +3395,9 @@ function SellPageContent() {
         setCurrentStep(Math.max(1, Math.min(draft.currentStep, draftStepCount)));
         setVehicleType(sellVehicleCards.find((vehicle) => vehicle.key === draft.vehicleTypeKey) ?? emptyVehicleType);
         setVehicleDetails(draft.vehicleDetails);
+        setVehicleUsageMetric(
+          draft.vehicleUsageMetric ?? (draft.vehicleHours ? "hours" : draft.vehicleMileage ? "mileage" : "")
+        );
         setVehicleMileage(draft.vehicleMileage ?? "");
         setVehicleHours(draft.vehicleHours ?? "");
         setVehicleRegistration(draft.vehicleRegistration ?? "");
@@ -3446,7 +3485,7 @@ function SellPageContent() {
     return () => {
       cancelled = true;
     };
-  }, [createImageFromDraft, currentDraftKey, isVehicleSale, sellIntentResolved]);
+  }, [createImageFromDraft, currentDraftKey, isVehicleSale, mode, sellIntentResolved, specialListingKind]);
 
   useEffect(() => {
     if (!draftHydratedRef.current || draftClearedOrPublishedRef.current) return;
@@ -4407,29 +4446,29 @@ function SellPageContent() {
     }
   }
 
+  async function switchListingDraft(href: string) {
+    if (
+      draftHydratedRef.current &&
+      !draftClearedOrPublishedRef.current &&
+      hasDraftContent()
+    ) {
+      await writeSellDraft(buildDraftState(), currentDraftKey).catch(() => undefined);
+    }
+
+    router.replace(href, { scroll: false });
+  }
+
   function chooseListingMode(nextMode: ListingMode) {
-    setIsVehicleSale(false);
-    setSpecialListingKind(null);
-    setMode(nextMode);
     try {
       sessionStorage.setItem("sell-listing-mode", nextMode);
     } catch {
       /* optional */
     }
     setPublishError("");
+    void switchListingDraft(`/sell?mode=${nextMode}`);
   }
 
   function chooseVehicleSaleMode() {
-    setIsVehicleSale(true);
-    setSpecialListingKind(null);
-    setMode("single");
-    setDeliveryMethod("pickup");
-    setCategory("");
-    setCategoryGroup("");
-    setSubcategory("");
-    setPartModel("");
-    setPartNumber("");
-    setCondition("");
     setPublishError("");
 
     try {
@@ -4438,30 +4477,12 @@ function SellPageContent() {
       /* optional */
     }
 
-    router.replace("/sell?market=vehicles", { scroll: false });
+    void switchListingDraft("/sell?market=vehicles");
   }
 
   function chooseSpecialListingMode(kind: Exclude<SpecialListingKind, null>) {
-    setIsVehicleSale(false);
-    setSpecialListingKind(kind);
-    setMode("single");
-    setVehicleType(emptyVehicleType);
-    setVehicleDetails(buildEmptyVehicleDetails());
-    const fixedCategory = kind === "gear" ? "Ajovarusteet" : "Muut ajoneuvon osat";
-    const fixedSubcategory = kind === "gear" ? ridingGearCategories[0] : "Muut ajoneuvon osat";
-    setCategory(fixedCategory);
-    setCategoryGroup(fixedSubcategory);
-    setSubcategory(fixedSubcategory);
-    setCondition("");
-    setPartModel("");
-    setRidingGearBrand("");
-    setRidingGearCustomBrand("");
-    setRidingGearSize("");
-    setRidingGearCustomSize("");
-    setRidingGearTarget("");
-    setPartNumber("");
     setPublishError("");
-    router.replace(`/sell?market=${kind}`, { scroll: false });
+    void switchListingDraft(`/sell?market=${kind}`);
   }
 
   function resetSellDraft() {
@@ -4473,6 +4494,7 @@ function SellPageContent() {
     setCurrentStep(1);
     setVehicleType(emptyVehicleType);
     setVehicleDetails(buildEmptyVehicleDetails());
+    setVehicleUsageMetric("");
     setVehicleMileage("");
     setVehicleHours("");
     setVehicleRegistration("");
@@ -4543,21 +4565,97 @@ function SellPageContent() {
       });
   }
 
-  function goToNextStep() {
-    setPublishError("");
+  function getCurrentStepValidationError() {
+    if (currentStep === 1) return "";
+
+    const missingList = (fields: string[]) => {
+      if (fields.length <= 1) return fields[0] ?? "";
+      return `${fields.slice(0, -1).join(", ")} ja ${fields.at(-1)}`;
+    };
+    const missingError = (fields: string[], prefix = "Täytä ennen jatkamista") =>
+      fields.length > 0 ? `${prefix}: ${missingList(fields)}.` : "";
 
     if (currentStep === 2 && specialListingKind === "gear") {
       const missingFields = [
         !subcategory ? "ajovarusteen tyyppi" : "",
-        !resolvedRidingGearBrand ? "merkki" : "",
         !resolvedRidingGearSize ? "koko" : "",
         !ridingGearTarget ? "kohderyhmä" : ""
-      ].filter(Boolean);
+      ].filter((field): field is string => Boolean(field));
+      return missingError(missingFields, "Valitse ennen jatkamista");
+    }
 
-      if (missingFields.length > 0) {
-        setPublishError(`Valitse ennen jatkamista: ${missingFields.join(", ")}.`);
-        return;
+    if (currentStep === 2 && !specialListingKind) {
+      const missingFields = [!vehicleType.key ? "ajoneuvoluokka" : ""];
+      if (isVehicleSale) {
+        if (!vehicleDetails.brand.trim()) missingFields.push("ajoneuvon merkki");
+        if (!vehicleDetails.model.trim()) missingFields.push("ajoneuvon malli");
+        if (!vehicleUsageMetric) missingFields.push("ajokilometrit tai käyttötunnit");
+        const usageValue = vehicleUsageMetric === "hours" ? vehicleHours : vehicleMileage;
+        if (vehicleUsageMetric && (!usageValue.trim() || Number(usageValue) < 0)) {
+          missingFields.push(vehicleUsageMetric === "hours" ? "käyttötuntien määrä" : "ajokilometrien määrä");
+        }
       }
+      return missingError(
+        missingFields.filter((field): field is string => Boolean(field)),
+        "Valitse tai täytä ennen jatkamista"
+      );
+    }
+
+    if (currentStep === 3 && isVehicleSale) {
+      return missingError([
+        getPublishPrice(listingPrice) <= 0 ? "hinta" : "",
+        !listingLocation.trim() ? "sijainti" : ""
+      ].filter((field): field is string => Boolean(field)), "Lisää ajoneuvolle ennen jatkamista");
+    }
+
+    if (currentStep === 3 && mode === "multiple") {
+      if (selectedMultiPartList.length === 0) return "Valitse vähintään yksi myytävä osa ennen jatkamista.";
+    }
+
+    if (currentStep === 3 && mode === "single" && !isVehicleSale) {
+      const missingFields: string[] = [];
+      if (!specialListingKind) {
+        if (!selectedCategory) missingFields.push("pääkategoria");
+      }
+      if (getPublishPrice(listingPrice) <= 0) missingFields.push("hinta");
+      return missingError(missingFields, "Valitse tai lisää ennen jatkamista");
+    }
+
+    if (mode === "multiple" && currentStep === 4) {
+      const part = selectedMultiPartList[activeMultiListingIndex];
+      if (!part) return "Valitse myytävä osa ennen jatkamista.";
+      return missingError([
+        getPublishPrice(part.price) <= 0 ? "hinta" : "",
+        !part.condition.trim() ? "kuntoluokitus" : "",
+        part.images.length === 0 ? "vähintään yksi kuva" : ""
+      ].filter((field): field is string => Boolean(field)), `Täydennä osalle ${part.detail} ennen jatkamista`);
+    }
+
+    if (!isVehicleSale && mode === "single" && currentStep === 4) {
+      return missingError([
+        !condition.trim() ? "kuntoluokitus" : "",
+        !listingLocation.trim() ? "sijainti" : ""
+      ].filter((field): field is string => Boolean(field)));
+    }
+
+    if (mode === "multiple" && currentStep === 5 && !listingLocation.trim()) {
+      return "Lisää ilmoitusten sijainti ennen jatkamista.";
+    }
+
+    if (mode === "single" && currentStep === (isVehicleSale ? 4 : 5) && uploadedImages.length === 0) {
+      return "Lisää vähintään yksi kuva ennen jatkamista.";
+    }
+
+    return "";
+  }
+
+  function goToNextStep() {
+    setPublishError("");
+
+    const validationError = getCurrentStepValidationError();
+    if (validationError) {
+      setPublishError(validationError);
+      return;
     }
 
     if (
@@ -5037,18 +5135,30 @@ function SellPageContent() {
   }
 
   function validateListingPayload(payload: ListingInput, imageCount: number) {
-    if (payload.title.trim().length < 3) return "Lisää vähintään 3 merkin otsikko.";
-    if (isVehicleSale && !vehicleType.key) return "Valitse ajoneuvoluokka ennen julkaisua.";
-    if (isVehicleSale && !vehicleDetails.brand.trim()) return "Lisää ajoneuvon merkki ennen julkaisua.";
-    if (isVehicleSale && !vehicleDetails.model.trim()) return "Lisää ajoneuvon malli ennen julkaisua.";
-    if (specialListingKind === "gear" && !subcategory) return "Valitse ajovarusteen tyyppi ennen julkaisua.";
-    if (specialListingKind === "gear" && !resolvedRidingGearBrand) return "Valitse ajovarusteen merkki ennen julkaisua.";
-    if (specialListingKind === "gear" && !resolvedRidingGearSize) return "Valitse ajovarusteen koko ennen julkaisua.";
-    if (specialListingKind === "gear" && !ridingGearTarget) return "Valitse ajovarusteen kohderyhmä ennen julkaisua.";
-    if (!String(payload.category ?? "").trim()) return "Valitse kategoria ennen julkaisua.";
-    if (!isVehicleSale && !String(payload.condition ?? "").trim()) return "Valitse kuntoluokitus ennen julkaisua.";
-    if (payload.price <= 0) return "Lisää ilmoitukselle hinta. Hinnan täytyy olla vähintään 1 valitussa valuutassa.";
-    if (imageCount <= 0) return "Lisää vähintään yksi kuva jokaiseen julkaistavaan ilmoitukseen.";
+    const missingFields: string[] = [];
+    if (payload.title.trim().length < 3) missingFields.push("vähintään 3 merkin otsikko");
+    if (isVehicleSale && !vehicleType.key) missingFields.push("ajoneuvoluokka");
+    if (isVehicleSale && !vehicleDetails.brand.trim()) missingFields.push("ajoneuvon merkki");
+    if (isVehicleSale && !vehicleDetails.model.trim()) missingFields.push("ajoneuvon malli");
+    if (isVehicleSale && !vehicleUsageMetric) missingFields.push("ajokilometrit tai käyttötunnit");
+    if (
+      isVehicleSale &&
+      vehicleUsageMetric &&
+      !(vehicleUsageMetric === "hours" ? vehicleHours : vehicleMileage).trim()
+    ) missingFields.push("ajomäärä");
+    if (specialListingKind === "gear" && !subcategory) missingFields.push("ajovarusteen tyyppi");
+    if (specialListingKind === "gear" && !resolvedRidingGearSize) missingFields.push("ajovarusteen koko");
+    if (specialListingKind === "gear" && !ridingGearTarget) missingFields.push("ajovarusteen kohderyhmä");
+    if (!String(payload.category ?? "").trim()) missingFields.push("kategoria");
+    if (!isVehicleSale && !String(payload.condition ?? "").trim()) missingFields.push("kuntoluokitus");
+    if (payload.price <= 0) missingFields.push("vähintään 1 valitun valuutan hintainen hinta");
+    if (imageCount <= 0) missingFields.push("vähintään yksi kuva");
+    if (missingFields.length > 0) {
+      const list = missingFields.length === 1
+        ? missingFields[0]
+        : `${missingFields.slice(0, -1).join(", ")} ja ${missingFields.at(-1)}`;
+      return `Täydennä ennen julkaisua: ${list}.`;
+    }
     if (listingNeedsTrackMatDimensions(payload)) {
       void descriptionHasTrackMatDimensions(payload.description);
     }
@@ -6020,7 +6130,7 @@ function SellPageContent() {
                   />
                   <CategorySelect
                     nativeSelectId="sell-special-gear-brand"
-                    label={st("Merkki *")}
+                    label={st("Merkki (vapaaehtoinen)")}
                     icon={Tags}
                     value={ridingGearBrand}
                     onChange={(value) => {
@@ -6064,7 +6174,7 @@ function SellPageContent() {
                   />
                   {ridingGearBrand === customRidingGearOption ? (
                     <DetailInput
-                      label={st("Kirjoita muu merkki *")}
+                      label={st("Kirjoita muu merkki")}
                       icon={Tags}
                       placeholder={st("Esim. Sinisalo")}
                       value={ridingGearCustomBrand}
@@ -6326,21 +6436,43 @@ function SellPageContent() {
             ) : null}
             {isVehicleSale ? (
               <section className={styles.vehicleSaleMetrics} aria-label={st("Ajoneuvon ajomäärä ja rekisteritiedot")}>
+                <label className={styles.deliveryMethodField}>
+                  <span>{st("Ajomäärän tyyppi *")}</span>
+                  <span className={styles.deliveryMethodSelectShell} data-sell-control-shell="true">
+                    <select
+                      data-sell-control="select"
+                      aria-label={st("Ajomäärän tyyppi")}
+                      value={vehicleUsageMetric}
+                      onChange={(event) => {
+                        const nextMetric = event.target.value as VehicleUsageMetric;
+                        setVehicleUsageMetric(nextMetric);
+                        if (nextMetric === "mileage") setVehicleHours("");
+                        if (nextMetric === "hours") setVehicleMileage("");
+                        setPublishError("");
+                      }}
+                    >
+                      <option value="">{st("Valitse kilometrit tai käyttötunnit")}</option>
+                      <option value="mileage">{st("Ajokilometrit (km)")}</option>
+                      <option value="hours">{st("Käyttötunnit (h)")}</option>
+                    </select>
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </span>
+                </label>
                 <DetailInput
-                  label={st("Ajokilometrit (km)")}
-                  icon={Gauge}
+                  label={vehicleUsageMetric === "hours"
+                    ? st("Käyttötunnit (h) *")
+                    : st("Ajokilometrit (km) *")}
+                  icon={vehicleUsageMetric === "hours" ? Clock3 : Gauge}
                   inputMode="numeric"
-                  placeholder=""
-                  value={vehicleMileage}
-                  onChange={(value) => setVehicleMileage(value.replace(/[^\d]/g, ""))}
-                />
-                <DetailInput
-                  label={st("Käyttötunnit (h)")}
-                  icon={Clock3}
-                  inputMode="numeric"
-                  placeholder=""
-                  value={vehicleHours}
-                  onChange={(value) => setVehicleHours(value.replace(/[^\d]/g, ""))}
+                  placeholder={vehicleUsageMetric ? st("Kirjoita määrä") : st("Valitse ensin ajomäärän tyyppi")}
+                  value={vehicleUsageMetric === "hours" ? vehicleHours : vehicleMileage}
+                  disabled={!vehicleUsageMetric}
+                  onChange={(value) => {
+                    const numericValue = value.replace(/[^\d]/g, "");
+                    if (vehicleUsageMetric === "hours") setVehicleHours(numericValue);
+                    if (vehicleUsageMetric === "mileage") setVehicleMileage(numericValue);
+                    setPublishError("");
+                  }}
                 />
                 <DetailInput
                   label={st("Rekisteritunnus (vapaaehtoinen)")}
@@ -7628,6 +7760,7 @@ function SellPageContent() {
                   type="button"
                   className={`${active ? styles.wizardDesktopStepActive : ""} ${completed ? styles.wizardDesktopStepCompleted : ""}`}
                   onClick={() => setCurrentStep(step.number)}
+                  disabled={step.number > currentStep}
                   aria-current={active ? "step" : undefined}
                   aria-label={`${st("Siirry vaiheeseen")} ${step.number}: ${st(step.title)}`}
                 >
@@ -7670,6 +7803,7 @@ function SellPageContent() {
                     : ""
               }
               onClick={() => setCurrentStep(step.number)}
+              disabled={step.number > currentStep}
               aria-label={`${st("Siirry vaiheeseen")} ${step.number}: ${st(step.title)}`}
             >
               <span>{step.number}</span>
@@ -8049,9 +8183,25 @@ function SellPageContent() {
 export default function SellPage() {
   return (
     <Suspense fallback={<PageLoadingFallback />}>
-      <SellPageContent />
+      <KeyedSellPageContent />
     </Suspense>
   );
+}
+
+function KeyedSellPageContent() {
+  const searchParams = useSearchParams();
+  const market = searchParams.get("market");
+  const draftScope = market === "vehicles"
+    ? "vehicles"
+    : market === "gear"
+      ? "riding-gear"
+      : market === "other-parts"
+        ? "other-parts"
+        : searchParams.get("mode") === "multiple"
+          ? "parts-multiple"
+          : "parts-single";
+
+  return <SellPageContent key={draftScope} />;
 }
 
 function PresetField({
@@ -8888,6 +9038,7 @@ function DetailInput({
   prefix,
   placeholder,
   inputMode,
+  disabled = false,
   value,
   onChange
 }: {
@@ -8896,6 +9047,7 @@ function DetailInput({
   prefix?: string;
   placeholder?: string;
   inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"];
+  disabled?: boolean;
   value: string;
   onChange: (value: string) => void;
 }) {
@@ -8907,6 +9059,7 @@ function DetailInput({
         <input
           data-sell-control="input"
           inputMode={inputMode}
+          disabled={disabled}
           placeholder={placeholder}
           value={value}
           onChange={(event) => onChange(event.target.value)}

@@ -3453,7 +3453,7 @@ export default function MyListingsPage() {
                             <>
                               <Link
                                 className={styles.actionBtn}
-                                href={listingPath(listingUrlId(listing), locale)}
+                                href={listingPath(listing, locale)}
                               >
                                 <ExternalLink size={14} />
                                 {t.openListing}

@@ -52,27 +52,15 @@ export async function GET(
   const decodedId = decodeURIComponent(id);
   const { data: listing } = await getListingById(decodedId);
 
-  if (!listing) {
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            alignItems: "center",
-            background: "#06111f",
-            color: "#f8fafc",
-            display: "flex",
-            fontSize: 58,
-            fontWeight: 900,
-            height: "100%",
-            justifyContent: "center",
-            width: "100%"
-          }}
-        >
-          Maskines
-        </div>
-      ),
-      imageSize
-    );
+  if (!listing || listing.is_hidden || listing.is_sold) {
+    return new Response("Ilmoitus on poistettu.", {
+      status: 410,
+      headers: {
+        "Cache-Control": "public, max-age=0, s-maxage=300, must-revalidate",
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Robots-Tag": "noindex, nofollow, noarchive, noimageindex"
+      }
+    });
   }
 
   const displayNumber = await getListingDisplayNumber(listing.created_at, listing.listing_number);
@@ -87,7 +75,7 @@ export async function GET(
   const location = cleanText(listing.location);
   const description = truncate(cleanText(listing.description), 140);
   const imageUrl = firstListingImage(listing);
-  const publicUrl = absoluteSiteUrl(listingPath(urlId));
+  const publicUrl = absoluteSiteUrl(listingPath({ ...listing, listing_number: displayNumber, id: urlId }));
 
   return new ImageResponse(
     (

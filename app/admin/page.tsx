@@ -2854,7 +2854,7 @@ function ListingsPanel({
               </div>
 
               <div className={styles.listingMgmtActions}>
-                <Link href={listingPath(listingUrlId(listing))} target="_blank" rel="noreferrer">
+                <Link href={listingPath(listing)} target="_blank" rel="noreferrer">
                   Avaa
                 </Link>
                 <button

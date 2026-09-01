@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLanguage, type Locale } from "@/lib/i18n";
-import { canonicalPathFromLocalized, pagePath } from "@/lib/routes";
+import { canonicalPathFromLocalized, listingIndexPath, pagePath } from "@/lib/routes";
 import MaskinesWordmark from "./MaskinesWordmark";
 
 const footerText = {
@@ -170,9 +170,9 @@ export default function Footer() {
             <h4>{text.service}</h4>
             <ul>
               <li><Link href="/">{text.home}</Link></li>
-              <li><Link href="/ilmoitukset">{text.listings}</Link></li>
-              <li><Link href="/ajoneuvot">{text.vehicles}</Link></li>
-              <li><Link href="/varaosat">{text.parts}</Link></li>
+              <li><Link href={listingIndexPath(locale)}>{text.listings}</Link></li>
+              <li><Link href={pagePath("ajoneuvot", locale)}>{text.vehicles}</Link></li>
+              <li><Link href={pagePath("varaosat", locale)}>{text.parts}</Link></li>
               <li><Link href={pagePath("sell", locale)}>{text.sell}</Link></li>
               <li><Link href={pagePath("garage", locale)}>{text.garage}</Link></li>
             </ul>

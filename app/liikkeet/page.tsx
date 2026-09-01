@@ -1,15 +1,17 @@
 import { ArrowRight, MapPin, Package, Search, ShieldCheck, Store } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cookies } from "next/headers";
 
 import styles from "./page.module.css";
 import { companyRecord } from "@/lib/commerce/company-record";
-import { profilePath } from "@/lib/routes";
+import { normalizeRouteLocale, pagePath, profilePath } from "@/lib/routes";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export const metadata: Metadata = {
   title: "Yritykset | Maskines",
   description: "Tutustu Maskinesin vahvistettuihin yrityksiin ja niiden valikoimiin.",
+  alternates: { canonical: "/yritykset" },
 };
 
 export const revalidate = 300;
@@ -34,6 +36,8 @@ function formatPlaceName(value: string) {
 
 export default async function StoresPage({ searchParams }: StoresPageProps) {
   const params = await searchParams;
+  const locale = normalizeRouteLocale((await cookies()).get("locale")?.value);
+  const directoryPath = pagePath("yritykset", locale);
   const companyQuery = firstParam(params.yritys).trim();
   const locationQuery = firstParam(params.sijainti).trim();
   const normalizedCompanyQuery = normalize(companyQuery);
@@ -139,7 +143,7 @@ export default async function StoresPage({ searchParams }: StoresPageProps) {
             </div>
           </div>
 
-          <form className={styles.searchForm} action="/liikkeet">
+          <form className={styles.searchForm} action={directoryPath}>
             <label>
               <span>Yritys</span>
               <input name="yritys" defaultValue={companyQuery} placeholder="Yrityksen nimi tai tuote" />
@@ -149,7 +153,7 @@ export default async function StoresPage({ searchParams }: StoresPageProps) {
               <input name="sijainti" defaultValue={locationQuery} placeholder="Kunta tai postinumero" />
             </label>
             <button type="submit"><Search size={17} /> Hae yrityksiä</button>
-            {hasFilters ? <Link className={styles.clearFilters} href="/liikkeet">Tyhjennä haku</Link> : null}
+            {hasFilters ? <Link className={styles.clearFilters} href={directoryPath}>Tyhjennä haku</Link> : null}
           </form>
 
           <div className={styles.searchSummary}>
@@ -179,7 +183,7 @@ export default async function StoresPage({ searchParams }: StoresPageProps) {
               </div>
               <div className={styles.locationList}>
                 {locations.map((location) => (
-                  <Link href={`/liikkeet?sijainti=${encodeURIComponent(location.city)}`} key={location.city}>
+                  <Link href={`${directoryPath}?sijainti=${encodeURIComponent(location.city)}`} key={location.city}>
                     <span className={styles.locationName}>{location.city}</span>
                     <span className={styles.companyCount}>{location.companyCount} {location.companyCount === 1 ? "yritys" : "yritystä"}</span>
                     <span className={styles.productCount}>{location.productCount} {location.productCount === 1 ? "tuote" : "tuotetta"}<ArrowRight size={16} /></span>
@@ -227,7 +231,7 @@ export default async function StoresPage({ searchParams }: StoresPageProps) {
                 <Store size={34} />
                 <h3>Yrityksiä ei löytynyt</h3>
                 <p>Kokeile toista yrityksen nimeä tai paikkakuntaa.</p>
-                {hasFilters ? <Link href="/liikkeet">Näytä kaikki yritykset</Link> : null}
+                {hasFilters ? <Link href={directoryPath}>Näytä kaikki yritykset</Link> : null}
               </div>
             )}
           </section>

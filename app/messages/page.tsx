@@ -2217,7 +2217,7 @@ function MessagesPageContent() {
                   </span>
                 ) : (
                   <Link
-                    href={listingPath(listingUrlId(activeConversation.listing ?? { id: activeConversation.listing_id }), locale)}
+                    href={listingPath(activeConversation.listing ?? { id: activeConversation.listing_id }, locale)}
                     className="listing-open"
                   >
                     {ui.showListing}
@@ -2321,7 +2321,7 @@ function MessagesPageContent() {
                 </span>
               ) : (
                 <Link
-                  href={listingPath(listingUrlId(activeConversation.listing ?? { id: activeConversation.listing_id }), locale)}
+                  href={listingPath(activeConversation.listing ?? { id: activeConversation.listing_id }, locale)}
                   className="messages-info-primary"
                 >
                   {ui.openListing}
