@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import HomeClient from "./HomeClient";
+import SeoLandingIntro from "./SeoLandingIntro";
 import { getListings } from "@/lib/supabase";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
@@ -112,6 +113,10 @@ export default async function HomePage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
+      />
+      <SeoLandingIntro
+        title="Pienkoneiden varaosat ja ajoneuvot"
+        description="Osta ja myy moottorikelkkojen, mönkijöiden, motocross-pyörien ja mopojen varaosia sekä ajoneuvoja kaikkialla Suomessa."
       />
       <HomeClient
         initialListings={publicListings}

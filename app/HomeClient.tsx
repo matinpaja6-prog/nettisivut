@@ -43,6 +43,7 @@ import {
 import {
   fallbackListings,
   formatPrice,
+  getListingImageAlt,
   getListingPartNumber,
   getListingSalePricing,
   isKnownVehicleType,
@@ -1902,18 +1903,6 @@ function listingImageSrc(listing: Listing) {
     null;
 
   return safeImageSrc(firstStoredImage);
-}
-
-function listingImageSeoAlt(listing: Listing, localizedTitle: string) {
-  const title = localizedTitle.trim();
-  const normalizedTitle = title.toLocaleLowerCase("fi");
-  const missingVehicleDetails = [listing.brand, listing.model, listing.year]
-    .map((value) => String(value ?? "").trim())
-    .filter((value) => value && !normalizedTitle.includes(value.toLocaleLowerCase("fi")));
-
-  return [...missingVehicleDetails, title, formatPrice(listing.price)]
-    .filter(Boolean)
-    .join(" – ");
 }
 
 function normalizeLocation(value: string) {
@@ -7454,12 +7443,12 @@ function HomeContent({
                           <Link
                             href={listingPath(listing, locale)}
                             className={styles.listingImageSeoLink}
-                            aria-label={`${t.openListing} ${listingImageSeoAlt(listing, listingText.title)}`}
+                            aria-label={`${t.openListing} ${getListingImageAlt(listing, listingText.title)}`}
                             onClick={(event) => event.stopPropagation()}
                           >
                             <OptimizedListingImage
                               src={listingImageSrc(listing)}
-                              alt={listingImageSeoAlt(listing, listingText.title)}
+                              alt={getListingImageAlt(listing, listingText.title)}
                             />
                           </Link>
                           <HomeListingSaleBadge listing={listing} />
@@ -8119,7 +8108,11 @@ function HomeContent({
                             {searchSuggestions.listings.length > 0 ? searchSuggestions.listings.map((listing) => {
                               const suggestionText = getListingText(listing);
                               return <Link key={listing.id} href={listingPath(listing, locale)} onClick={() => setSearchSuggestionsOpen(false)}>
-                                <img src={listingImageSrc(listing)} alt="" loading="lazy" />
+                                <img
+                                  src={listingImageSrc(listing)}
+                                  alt={getListingImageAlt(listing, suggestionText.title)}
+                                  loading="lazy"
+                                />
                                 <span><strong>{suggestionText.title}</strong><small>{[listing.company_name || listing.seller_name, listing.brand, listing.model, listing.part_number].filter(Boolean).join(" · ")}</small></span>
                                 <b>{formatPrice(listing.price)}</b>
                               </Link>;
@@ -8577,7 +8570,7 @@ function HomeContent({
                             <span className={styles.heroLatestImage}>
                               <OptimizedListingImage
                                 src={listingImageSrc(listing)}
-                                alt={listingImageSeoAlt(listing, listingText.title)}
+                                alt={getListingImageAlt(listing, listingText.title)}
                               />
                               <HomeListingSaleBadge listing={listing} />
                             </span>
@@ -8662,12 +8655,12 @@ function HomeContent({
                           <Link
                             href={listingPath(listing, locale)}
                             className={styles.listingImageSeoLink}
-                            aria-label={`${t.openListing} ${listingImageSeoAlt(listing, listingText.title)}`}
+                            aria-label={`${t.openListing} ${getListingImageAlt(listing, listingText.title)}`}
                             onClick={(event) => event.stopPropagation()}
                           >
                             <OptimizedListingImage
                               src={listingImageSrc(listing)}
-                              alt={listingImageSeoAlt(listing, listingText.title)}
+                              alt={getListingImageAlt(listing, listingText.title)}
                             />
                           </Link>
                           <HomeListingSaleBadge listing={listing} />
@@ -8832,12 +8825,12 @@ function HomeContent({
                       <Link
                         href={listingPath(listing, locale)}
                         className={styles.listingImageSeoLink}
-                        aria-label={`${t.openListing} ${listingImageSeoAlt(listing, listingText.title)}`}
+                        aria-label={`${t.openListing} ${getListingImageAlt(listing, listingText.title)}`}
                         onClick={(event) => event.stopPropagation()}
                       >
                         <OptimizedListingImage
                           src={listingImageSrc(listing)}
-                          alt={listingImageSeoAlt(listing, listingText.title)}
+                          alt={getListingImageAlt(listing, listingText.title)}
                         />
                       </Link>
                       <HomeListingSaleBadge listing={listing} />

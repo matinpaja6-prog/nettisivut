@@ -10,6 +10,12 @@ export type SeoCollectionLink = {
   count: number;
 };
 
+export type SeoCollectionDescriptor = {
+  kind: SeoCollectionKind;
+  query: string;
+  path: string;
+};
+
 export function normalizeSeoSearchText(value: unknown) {
   return String(value ?? "")
     .replace(/æ/gi, "ae")
@@ -39,6 +45,15 @@ export function seoCollectionPath(kind: SeoCollectionKind, query: string) {
   return kind === "vehicles" ? seoVehicleSearchPath(query) : seoSearchPath(query);
 }
 
+function seoPathFromSegments(kind: SeoCollectionKind, ...segments: Array<string | null | undefined>) {
+  const root = kind === "vehicles" ? "/ajoneuvot" : "/varaosat";
+  const pathSegments = segments
+    .map((segment) => seoSearchSlug(String(segment ?? "")))
+    .filter(Boolean);
+
+  return `${root}/${pathSegments.join("/")}`;
+}
+
 const localizedCollectionSegments: Record<
   SeoSearchLocale,
   Record<SeoCollectionKind, string>
@@ -49,29 +64,65 @@ const localizedCollectionSegments: Record<
   no: { vehicles: "no/kjoretoy", parts: "no/reservedeler" }
 };
 
+export function seoLocalizedCollectionRoot(
+  kind: SeoCollectionKind,
+  locale: SeoSearchLocale
+) {
+  return `/${localizedCollectionSegments[locale][kind]}`;
+}
+
 const localizedSeoTerms: Record<string, Record<Exclude<SeoSearchLocale, "fi">, string>> = {
+  "alusta telasto": { en: "chassis track system", sv: "chassi boggi", no: "ramme understell" },
   anturit: { en: "sensors", sv: "sensorer", no: "sensorer" },
+  "ecu ohjainyksikot": { en: "ecu control units", sv: "ecu styrenheter", no: "ecu styreenheter" },
   iskarit: { en: "shocks", sv: "stötdämpare", no: "støtdempere" },
   iskunvaimentimet: { en: "shock absorbers", sv: "stötdämpare", no: "støtdempere" },
   etuiskunvaimentimet: { en: "front shocks", sv: "främre stötdämpare", no: "fremre støtdempere" },
   takaiskunvaimentimet: { en: "rear shocks", sv: "bakre stötdämpare", no: "bakre støtdempere" },
+  etukatteet: { en: "front panels", sv: "framkåpor", no: "frontdeksler" },
+  etupuskurit: { en: "front bumpers", sv: "främre stötfångare", no: "frontstøtfangere" },
+  eturunko: { en: "front frame", sv: "framram", no: "frontramme" },
   jarrut: { en: "brakes", sv: "bromsar", no: "bremser" },
+  "jaahdytys polttoaine": { en: "cooling fuel", sv: "kylning bränsle", no: "kjøling drivstoff" },
+  kaasuttimet: { en: "carburetors", sv: "förgasare", no: "forgassere" },
   katteet: { en: "fairings", sv: "kåpor", no: "kåper" },
+  keskirunko: { en: "center frame", sv: "mittram", no: "midtramme" },
   ketjukotelot: { en: "chaincases", sv: "kedjehus", no: "kjedehus" },
+  "kokonainen iskunvaimennussarja": { en: "complete shock set", sv: "komplett stötdämparset", no: "komplett støtdempersett" },
+  "kokonainen jarrujarjestelma": { en: "complete brake system", sv: "komplett bromssystem", no: "komplett bremsesystem" },
+  "kokonainen moottori": { en: "complete engine", sv: "komplett motor", no: "komplett motor" },
+  "kokonainen pakoputkisto": { en: "complete exhaust system", sv: "komplett avgassystem", no: "komplett eksosanlegg" },
+  "kokonainen runko": { en: "complete frame", sv: "komplett ram", no: "komplett ramme" },
+  "kokonainen telasto": { en: "complete track suspension", sv: "komplett boggi", no: "komplett understell" },
+  "kokonainen variaattori": { en: "complete variator", sv: "komplett variator", no: "komplett variator" },
   letkut: { en: "hoses", sv: "slangar", no: "slanger" },
   moottori: { en: "engine", sv: "motor", no: "motor" },
+  "moottori voimansiirto": { en: "engine drivetrain", sv: "motor drivlina", no: "motor drivverk" },
+  "muut ohjauksen osat": { en: "other steering parts", sv: "övriga styrdelar", no: "andre styringsdeler" },
+  "ohjaus hallintalaitteet": { en: "steering controls", sv: "styrning reglage", no: "styring kontroller" },
   putki: { en: "exhaust pipe", sv: "avgasror", no: "eksosror" },
   pakoputki: { en: "exhaust pipe", sv: "avgasror", no: "eksosror" },
   pakoputkisto: { en: "exhaust", sv: "avgassystem", no: "eksosanlegg" },
+  "polttoainesailiot tankit": { en: "fuel tanks", sv: "bränsletankar", no: "drivstofftanker" },
   penkit: { en: "seats", sv: "säten", no: "seter" },
+  "istuimet penkit": { en: "seats", sv: "säten", no: "seter" },
   puskurit: { en: "bumpers", sv: "stötfångare", no: "støtfangere" },
   runko: { en: "chassis", sv: "chassi", no: "ramme" },
+  "runko katteet": { en: "frame panels", sv: "ram kåpor", no: "ramme deksler" },
+  "runko koriosat": { en: "frame body parts", sv: "ram karossdelar", no: "ramme karosserideler" },
+  ruiskutusjarjestelmat: { en: "injection systems", sv: "insprutningssystem", no: "innsprøytningssystemer" },
+  sahkojarjestelmat: { en: "electrical systems", sv: "elsystem", no: "elektriske systemer" },
   staattorit: { en: "stators", sv: "statorer", no: "statorer" },
+  "staattorit vauhtipyorat": { en: "stators flywheels", sv: "statorer svänghjul", no: "statorer svinghjul" },
+  "sylinterin kannet": { en: "cylinder heads", sv: "topplock", no: "topplokk" },
   sukset: { en: "skis", sv: "skidor", no: "ski" },
   tangot: { en: "rods", sv: "stag", no: "stag" },
   telamatot: { en: "tracks", sv: "drivmattor", no: "belter" },
   telasto: { en: "suspension", sv: "boggi", no: "understell" },
+  takapukit: { en: "rear suspension arms", sv: "bakre boggiefästen", no: "bakre boggiefester" },
+  "taydelliset moottorit": { en: "complete engines", sv: "kompletta motorer", no: "komplette motorer" },
   valot: { en: "lights", sv: "lampor", no: "lys" },
+  "vasen ala": { en: "lower left", sv: "vänster nedre", no: "venstre nedre" },
   variaattori: { en: "variator", sv: "variator", no: "variator" },
   vetoakselit: { en: "drive shafts", sv: "drivaxlar", no: "drivaksler" }
 };
@@ -118,13 +169,38 @@ export function seoLocalizedCollectionPath(
   )}`;
 }
 
-export function seoCollectionLanguagePaths(kind: SeoCollectionKind, query: string) {
+export function seoLocalizedCollectionDescriptorPath(
+  kind: SeoCollectionKind,
+  finnishPath: string,
+  locale: SeoSearchLocale
+) {
+  if (locale === "fi") return finnishPath;
+
+  const segments = finnishPath.split("/").filter(Boolean).slice(1);
+  const localizedSegments = segments.map((segment) =>
+    seoSearchSlug(localizeSeoSearchQuery(seoSearchQueryFromSlug(segment), locale))
+  );
+
+  return `${seoLocalizedCollectionRoot(kind, locale)}/${localizedSegments.join("/")}`;
+}
+
+export function seoCollectionLanguagePaths(
+  kind: SeoCollectionKind,
+  query: string,
+  canonicalFinnishPath?: string
+) {
   return {
-    "fi-FI": seoLocalizedCollectionPath(kind, query, "fi"),
-    en: seoLocalizedCollectionPath(kind, query, "en"),
-    sv: seoLocalizedCollectionPath(kind, query, "sv"),
-    nb: seoLocalizedCollectionPath(kind, query, "no"),
-    "x-default": seoLocalizedCollectionPath(kind, query, "fi")
+    "fi-FI": canonicalFinnishPath || seoLocalizedCollectionPath(kind, query, "fi"),
+    en: canonicalFinnishPath
+      ? seoLocalizedCollectionDescriptorPath(kind, canonicalFinnishPath, "en")
+      : seoLocalizedCollectionPath(kind, query, "en"),
+    sv: canonicalFinnishPath
+      ? seoLocalizedCollectionDescriptorPath(kind, canonicalFinnishPath, "sv")
+      : seoLocalizedCollectionPath(kind, query, "sv"),
+    nb: canonicalFinnishPath
+      ? seoLocalizedCollectionDescriptorPath(kind, canonicalFinnishPath, "no")
+      : seoLocalizedCollectionPath(kind, query, "no"),
+    "x-default": canonicalFinnishPath || seoLocalizedCollectionPath(kind, query, "fi")
   };
 }
 
@@ -247,46 +323,152 @@ function seoPartProductTerms(
 }
 
 export function seoPartSearchQueries(listing: Listing) {
+  return seoPartCollectionDescriptors(listing).map((descriptor) => descriptor.query);
+}
+
+export function seoPartCollectionDescriptors(listing: Listing): SeoCollectionDescriptor[] {
   if (isVehicleListing(listing)) return [];
 
   const vehicleType = normalizeSeoSearchText(listing.vehicle_type);
   const brand = normalizeSeoSearchText(listing.brand);
   const model = normalizeSeoSearchText(listing.model);
+  const year = normalizeSeoSearchText(listing.year);
   const vehicleQueries = seoListingSearchQueries(listing);
-  const queries = new Set(vehicleQueries);
+  const descriptors = new Map<string, SeoCollectionDescriptor>();
   const partTerms = seoPartTerms(listing).filter((term) => {
     const wordCount = term.split(" ").filter(Boolean).length;
     return term.length <= 36 && wordCount <= 3;
   });
   const productTerms = seoPartProductTerms(listing);
 
+  const add = (query: string, path: string) => {
+    const normalizedQuery = normalizeSeoSearchText(query);
+    if (!normalizedQuery || !path) return;
+    descriptors.set(`${normalizedQuery}:${path}`, {
+      kind: "parts",
+      query: normalizedQuery,
+      path
+    });
+  };
+
+  for (const vehicleQuery of vehicleQueries) {
+    const variantModel = vehicleQuery.startsWith(`${brand} `)
+      ? vehicleQuery.slice(brand.length + 1).trim()
+      : "";
+    if (brand && variantModel) {
+      add(vehicleQuery, seoPathFromSegments("parts", brand, variantModel));
+      if (year) {
+        add(
+          `${vehicleQuery} ${year}`,
+          seoPathFromSegments("parts", brand, variantModel, year)
+        );
+      }
+    } else {
+      add(vehicleQuery, seoSearchPath(vehicleQuery));
+    }
+  }
+
+  if (brand) add(brand, seoPathFromSegments("parts", brand));
+  if (vehicleType) add(vehicleType, seoPathFromSegments("parts", vehicleType));
+  if (vehicleType && brand) {
+    add(`${vehicleType} ${brand}`, seoPathFromSegments("parts", vehicleType, brand));
+  }
+  if (brand && model) {
+    add(`${brand} ${model}`, seoPathFromSegments("parts", brand, model));
+  }
+  if (brand && model && year) {
+    add(`${brand} ${model} ${year}`, seoPathFromSegments("parts", brand, model, year));
+  }
+
   // Publish only concise combinations backed by a live listing. Brand, model
   // and part type mirror real purchase searches without producing a separate
   // index page for every possible vehicle-type/category permutation.
   for (const partTerm of partTerms) {
-    queries.add(partTerm);
-    if (brand) queries.add(`${brand} ${partTerm}`);
-    if (brand && model) queries.add(`${brand} ${model} ${partTerm}`);
+    add(partTerm, seoPathFromSegments("parts", partTerm));
+    if (brand) {
+      add(`${brand} ${partTerm}`, seoPathFromSegments("parts", brand, partTerm));
+    }
+    if (brand && model) {
+      add(
+        `${brand} ${model} ${partTerm}`,
+        seoPathFromSegments("parts", brand, model, partTerm)
+      );
+    }
+    if (brand && model && year) {
+      add(
+        `${brand} ${model} ${year} ${partTerm}`,
+        seoPathFromSegments("parts", brand, model, year, partTerm)
+      );
+    }
   }
-
-  if (brand) queries.add(brand);
-  if (vehicleType) queries.add(vehicleType);
-  if (vehicleType && brand) queries.add(`${vehicleType} ${brand}`);
 
   // Keep model and model+part landing pages useful and distinct. The year is
   // carried by each individual listing's title and metadata, so we avoid
   // publishing hundreds of near-duplicate year-filtered collection pages.
   for (const vehicleQuery of vehicleQueries.slice(0, 2)) {
+    const variantModel = vehicleQuery.startsWith(`${brand} `)
+      ? vehicleQuery.slice(brand.length + 1).trim()
+      : "";
     for (const partTerm of partTerms) {
-      queries.add(`${vehicleQuery} ${partTerm}`);
+      add(
+        `${vehicleQuery} ${partTerm}`,
+        variantModel
+          ? seoPathFromSegments("parts", brand, variantModel, partTerm)
+          : seoSearchPath(`${vehicleQuery} ${partTerm}`)
+      );
+      if (variantModel && year) {
+        add(
+          `${vehicleQuery} ${year} ${partTerm}`,
+          seoPathFromSegments("parts", brand, variantModel, year, partTerm)
+        );
+      }
     }
 
     for (const productTerm of productTerms) {
-      queries.add(`${vehicleQuery} ${productTerm}`);
+      if (brand && variantModel) {
+        add(
+          `${vehicleQuery} ${productTerm}`,
+          seoPathFromSegments("parts", brand, variantModel, productTerm)
+        );
+      } else {
+        add(`${vehicleQuery} ${productTerm}`, seoSearchPath(`${vehicleQuery} ${productTerm}`));
+      }
     }
   }
 
-  return [...queries];
+  return [...descriptors.values()];
+}
+
+export function findGeneratedSeoCollectionDescriptor(
+  listings: Listing[],
+  requestedPath: string,
+  kind: SeoCollectionKind
+) {
+  const normalizedRequestedPath = `/${requestedPath
+    .split("/")
+    .map((segment) => seoSearchSlug(decodeURIComponent(segment)))
+    .filter(Boolean)
+    .join("/")}`;
+  const descriptors = new Map<string, SeoCollectionDescriptor>();
+
+  for (const listing of listings) {
+    const listingKind: SeoCollectionKind = isVehicleListing(listing) ? "vehicles" : "parts";
+    if (listingKind !== kind) continue;
+
+    if (kind === "parts") {
+      for (const descriptor of seoPartCollectionDescriptors(listing)) {
+        descriptors.set(descriptor.path, descriptor);
+        descriptors.set(seoCollectionPath(kind, descriptor.query), descriptor);
+      }
+    } else {
+      for (const query of seoVehicleSearchQueries(listing)) {
+        const descriptor = { kind, query, path: seoCollectionPath(kind, query) };
+        descriptors.set(descriptor.path, descriptor);
+      }
+    }
+  }
+
+  return descriptors.get(normalizedRequestedPath);
 }
 
 export function findGeneratedSeoCollectionQuery(
@@ -346,12 +528,16 @@ export function buildSeoCollectionLinks(
 
   for (const listing of listings) {
     const kind: SeoCollectionKind = isVehicleListing(listing) ? "vehicles" : "parts";
-    const queries = kind === "vehicles"
-      ? seoVehicleSearchQueries(listing)
-      : seoPartSearchQueries(listing);
+    const descriptors = kind === "vehicles"
+      ? seoVehicleSearchQueries(listing).map((query) => ({
+          kind,
+          query,
+          path: seoCollectionPath(kind, query)
+        }))
+      : seoPartCollectionDescriptors(listing);
 
-    for (const query of queries) {
-      const path = seoCollectionPath(kind, query);
+    for (const descriptor of descriptors) {
+      const { query, path } = descriptor;
       const key = `${kind}:${path}`;
       const current = groups.get(key);
       groups.set(key, {
@@ -377,8 +563,10 @@ export function listingMatchesSeoQuery(listing: Listing, query: string) {
   const haystack = normalizeSeoSearchText([
     listing.title,
     listing.description,
+    listing.vehicle_type,
     listing.brand,
     listing.model,
+    listing.year,
     listing.part_model,
     listing.part_number,
     listing.category,

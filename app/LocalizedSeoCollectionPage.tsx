@@ -3,14 +3,17 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import HomeClient from "@/app/HomeClient";
+import SeoLandingIntro from "@/app/SeoLandingIntro";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import {
   formatSeoSearchLabel,
   listingMatchesSeoCollection,
   localizeSeoSearchQuery,
   seoCollectionLanguagePaths,
-  seoLocalizedCollectionPath,
-  seoPartSearchQueries,
+  seoCollectionPath,
+  seoLocalizedCollectionDescriptorPath,
+  seoLocalizedCollectionRoot,
+  seoPartCollectionDescriptors,
   seoSearchSlug,
   seoVehicleSearchQueries,
   type SeoCollectionKind,
@@ -19,7 +22,9 @@ import {
 import { absoluteSiteUrl } from "@/lib/site-url";
 import { getListings } from "@/lib/supabase";
 
-type CollectionPageParams = { params: Promise<{ slug: string }> };
+type CollectionPageParams = {
+  params: Promise<{ slug?: string; segments?: string[] }>;
+};
 
 const localeCopy = {
   en: {
@@ -58,32 +63,49 @@ const localeCopy = {
 } as const;
 
 const getLocalizedCollectionData = cache(
-  async (slug: string, kind: SeoCollectionKind, locale: Exclude<SeoSearchLocale, "fi">) => {
+  async (
+    requestedSegments: string[],
+    kind: SeoCollectionKind,
+    locale: Exclude<SeoSearchLocale, "fi">
+  ) => {
     const { data } = await getListings({
       includeOptionalFields: true,
       enrichSellerProfiles: false
     });
     const listings = data.filter((listing) => !listing.is_hidden && !listing.is_sold);
-    const requestedSlug = seoSearchSlug(decodeURIComponent(slug));
-    const queries = new Set<string>();
+    const requestedPath = `${seoLocalizedCollectionRoot(kind, locale)}/${requestedSegments
+      .map((segment) => seoSearchSlug(decodeURIComponent(segment)))
+      .join("/")}`;
+    const descriptors = new Map<string, { query: string; path: string; finnishPath: string }>();
 
     for (const listing of listings) {
-      const generated = kind === "vehicles"
-        ? seoVehicleSearchQueries(listing)
-        : seoPartSearchQueries(listing);
-      for (const query of generated) queries.add(query);
+      if (kind === "parts") {
+        for (const descriptor of seoPartCollectionDescriptors(listing)) {
+          const path = seoLocalizedCollectionDescriptorPath(kind, descriptor.path, locale);
+          descriptors.set(path, { query: descriptor.query, path, finnishPath: descriptor.path });
+        }
+      } else {
+        for (const query of seoVehicleSearchQueries(listing)) {
+          const finnishPath = seoCollectionPath(kind, query);
+          const path = seoLocalizedCollectionDescriptorPath(kind, finnishPath, locale);
+          descriptors.set(path, { query, path, finnishPath });
+        }
+      }
     }
 
-    const query = [...queries].find(
-      (candidate) => seoSearchSlug(localizeSeoSearchQuery(candidate, locale)) === requestedSlug
-    );
-    const matches = query
-      ? listings.filter((listing) => listingMatchesSeoCollection(listing, query, kind))
+    const descriptor = descriptors.get(requestedPath);
+    const matches = descriptor
+      ? listings.filter((listing) => listingMatchesSeoCollection(listing, descriptor.query, kind))
       : [];
 
-    return { query, listings, matches };
+    return { descriptor, listings, matches };
   }
 );
+
+async function collectionSegments(params: CollectionPageParams["params"]) {
+  const { slug, segments } = await params;
+  return segments?.length ? segments : slug ? [slug] : [];
+}
 
 function localizedLabel(query: string, locale: Exclude<SeoSearchLocale, "fi">) {
   return formatSeoSearchLabel(localizeSeoSearchQuery(query, locale));
@@ -94,19 +116,19 @@ export async function generateLocalizedCollectionMetadata(
   kind: SeoCollectionKind,
   locale: Exclude<SeoSearchLocale, "fi">
 ): Promise<Metadata> {
-  const { slug } = await params;
-  const { query, matches } = await getLocalizedCollectionData(slug, kind, locale);
-  if (!query || matches.length === 0) return { robots: { index: false, follow: true } };
+  const segments = await collectionSegments(params);
+  const { descriptor, matches } = await getLocalizedCollectionData(segments, kind, locale);
+  if (!descriptor || matches.length === 0) return { robots: { index: false, follow: true } };
 
   const copy = localeCopy[locale];
-  const label = localizedLabel(query, locale);
-  const path = seoLocalizedCollectionPath(kind, query, locale);
+  const label = localizedLabel(descriptor.query, locale);
+  const path = descriptor.path;
   const title = kind === "vehicles" ? copy.vehiclesTitle(label) : copy.partsTitle(label);
   const description = kind === "vehicles"
     ? copy.vehiclesDescription(label, matches.length)
     : copy.partsDescription(label, matches.length);
   const languages = Object.fromEntries(
-    Object.entries(seoCollectionLanguagePaths(kind, query)).map(([language, languagePath]) => [
+    Object.entries(seoCollectionLanguagePaths(kind, descriptor.query, descriptor.finnishPath)).map(([language, languagePath]) => [
       language,
       absoluteSiteUrl(languagePath)
     ])
@@ -136,13 +158,13 @@ export async function LocalizedSeoCollectionPage({
   kind: SeoCollectionKind;
   locale: Exclude<SeoSearchLocale, "fi">;
 }) {
-  const { slug } = await params;
-  const { query, listings, matches } = await getLocalizedCollectionData(slug, kind, locale);
-  if (!query || matches.length === 0) notFound();
+  const segments = await collectionSegments(params);
+  const { descriptor, listings, matches } = await getLocalizedCollectionData(segments, kind, locale);
+  if (!descriptor || matches.length === 0) notFound();
 
   const copy = localeCopy[locale];
-  const label = localizedLabel(query, locale);
-  const path = seoLocalizedCollectionPath(kind, query, locale);
+  const label = localizedLabel(descriptor.query, locale);
+  const path = descriptor.path;
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -167,9 +189,13 @@ export async function LocalizedSeoCollectionPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
       />
+      <SeoLandingIntro
+        title={kind === "vehicles" ? copy.vehiclesTitle(label).replace(" | Maskines", "") : copy.partsTitle(label).replace(" | Maskines", "")}
+        description={kind === "vehicles" ? copy.vehiclesDescription(label, matches.length) : copy.partsDescription(label, matches.length)}
+      />
       <HomeClient
         initialListings={listings}
-        initialSearchQuery={query}
+        initialSearchQuery={descriptor.query}
         initialMarketplaceMode={kind}
       />
     </>

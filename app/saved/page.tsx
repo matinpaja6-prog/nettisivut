@@ -13,7 +13,7 @@ import { getLocalizedListingText } from "@/lib/listing-translations";
 import { ArrowRight, Clock3, Heart, Search, Tag } from "lucide-react";
 
 import type { Listing } from "@/lib/listings";
-import { formatPrice } from "@/lib/listings";
+import { formatPrice, getListingImageAlt } from "@/lib/listings";
 import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/country-flags";
 import {
   getListingsByIds,
@@ -286,7 +286,7 @@ export default function SavedListingsPage() {
                     </span>
                     <OptimizedListingImage
                       src={listingImageSrc(listing)}
-                      alt={getListingTitle(listing)}
+                      alt={getListingImageAlt(listing, getListingTitle(listing))}
                     />
                     {isListingNew(listing.created_at) && (
                       <span className={`${marketplaceStyles.newBadge} saved-new-badge`} aria-label="Uusi">

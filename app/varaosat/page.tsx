@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import HomeClient from "@/app/HomeClient";
+import SeoLandingIntro from "@/app/SeoLandingIntro";
 import { isVehicleListing } from "@/lib/listings";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
@@ -67,6 +68,10 @@ export default async function PartsPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
+      />
+      <SeoLandingIntro
+        title="Pienkoneiden varaosat myynnissä"
+        description="Selaa moottorikelkkojen, mönkijöiden, motocross-pyörien ja mopojen varaosia merkin, mallin, vuosimallin ja osatyypin mukaan."
       />
       <HomeClient
         initialListings={parts}

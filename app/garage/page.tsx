@@ -29,7 +29,7 @@ import {
 } from "@/lib/supabase";
 import { applyNettimotoVehicleModels } from "@/lib/nettimoto-vehicle-models";
 
-import { formatPrice, type Listing } from "@/lib/listings";
+import { formatPrice, getListingImageAlt, type Listing } from "@/lib/listings";
 import { getLocalizedListingText } from "@/lib/listing-translations";
 import { useLanguage, translateCategory } from "@/lib/i18n";
 import { readCachedResource, writeCachedResource } from "@/lib/client-resource-cache";
@@ -776,7 +776,7 @@ export default function GaragePage() {
                                 >
                                   <img
                                     src={listing.image_url}
-                                    alt={listingText.title}
+                                    alt={getListingImageAlt(listing, listingText.title)}
                                     className="garage-part-img"
                                   />
                                   <div className="garage-part-body">

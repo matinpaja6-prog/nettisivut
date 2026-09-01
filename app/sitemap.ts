@@ -11,7 +11,7 @@ import {
 import {
   seoCollectionLanguagePaths,
   seoCollectionPath,
-  seoPartSearchQueries,
+  seoPartCollectionDescriptors,
   seoVehicleSearchQueries,
   type SeoCollectionKind
 } from "@/lib/seo-search";
@@ -157,20 +157,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const groupedSearchPages = new Map<
     string,
-    { kind: SeoCollectionKind; query: string; count: number; lastModified?: Date }
+    { kind: SeoCollectionKind; query: string; path: string; count: number; lastModified?: Date }
   >();
 
   function addCollectionQuery(
     kind: SeoCollectionKind,
     query: string,
+    path: string,
     lastModified?: Date
   ) {
-    const path = seoCollectionPath(kind, query);
     const group = groupedSearchPages.get(path);
 
     groupedSearchPages.set(path, {
       kind,
       query,
+      path,
       count: (group?.count ?? 0) + 1,
       lastModified:
         !group?.lastModified || (lastModified && lastModified > group.lastModified)
@@ -183,19 +184,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const createdAt = new Date(listing.created_at);
     const date = Number.isNaN(createdAt.getTime()) ? undefined : createdAt;
 
-    for (const query of seoPartSearchQueries(listing)) {
-      addCollectionQuery("parts", query, date);
+    for (const descriptor of seoPartCollectionDescriptors(listing)) {
+      addCollectionQuery("parts", descriptor.query, descriptor.path, date);
     }
 
     for (const query of seoVehicleSearchQueries(listing)) {
-      addCollectionQuery("vehicles", query, date);
+      addCollectionQuery("vehicles", query, seoCollectionPath("vehicles", query), date);
     }
   }
 
   const searchEntries: MetadataRoute.Sitemap = [...groupedSearchPages.entries()]
     .filter(([, group]) => group.count > 0)
     .map(([, group]) => {
-      const languagePaths = seoCollectionLanguagePaths(group.kind, group.query);
+      const languagePaths = seoCollectionLanguagePaths(group.kind, group.query, group.path);
       const languages = Object.fromEntries(
         Object.entries(languagePaths)
           .filter(([language]) => language !== "x-default")
@@ -206,7 +207,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // The other language variants remain discoverable through hreflang, but
       // do not multiply the sitemap into thousands of near-identical entries.
       return {
-        url: absoluteSiteUrl(seoCollectionPath(group.kind, group.query)),
+        url: absoluteSiteUrl(group.path),
         ...(group.lastModified ? { lastModified: group.lastModified } : {}),
         alternates: { languages },
         changeFrequency: "daily" as const,

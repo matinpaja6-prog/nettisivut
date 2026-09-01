@@ -259,7 +259,9 @@ function listingRouteIdentifier(pathname: string) {
 
 async function publicListingForRoute(identifier: string) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const publicKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const publicKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!supabaseUrl || !publicKey) return null;
 
   const numeric = identifier.match(/^id(\d+)$/i)?.[1] ??
@@ -274,7 +276,7 @@ async function publicListingForRoute(identifier: string) {
 
   try {
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/listings?select=id,listing_number,brand,model,is_hidden,is_sold&${filter}&limit=1`,
+      `${supabaseUrl}/rest/v1/listings?select=id,listing_number,brand,model,category,subcategory,is_hidden,is_sold&${filter}&limit=1`,
       {
         headers: {
           apikey: publicKey,
@@ -291,6 +293,8 @@ async function publicListingForRoute(identifier: string) {
       listing_number?: number | null;
       brand?: string | null;
       model?: string | null;
+      category?: string | null;
+      subcategory?: string | null;
       is_hidden?: boolean | null;
       is_sold?: boolean | null;
     }>;

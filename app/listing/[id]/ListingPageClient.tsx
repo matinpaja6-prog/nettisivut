@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 
 import {
+  getListingImageAlt,
   getListingPartNumber,
   isVehicleListing,
   type Listing
@@ -1719,16 +1720,7 @@ export default function ListingPage({
       .map((part) => part.trim())
       .filter(Boolean)
       .at(-1) || listingText.title;
-  const listingImageDescription = [
-    listing.brand,
-    listing.model,
-    listing.year,
-    listingText.title,
-    formattedListingPrice
-  ]
-    .map((value) => String(value ?? "").trim())
-    .filter(Boolean)
-    .join(" – ");
+  const listingImageDescription = getListingImageAlt(listing, listingText.title);
   const descriptionWithoutVehicleMeta =
     (listingText.description || "")
       .replace(/^(?:Ajoneuvo:[^\n]*\n?)?(?:Merkki:[^\n]*\n?)?(?:Malli:[^\n]*\n?)?(?:Vuosimalli:[^\n]*\n?)?/i, "")
@@ -1984,8 +1976,7 @@ export default function ListingPage({
                     >
                       <OptimizedListingImage
                         src={url}
-                        alt=""
-                        decorative
+                        alt={`${listingImageDescription}, kuva ${index + 1}`}
                         sizes="72px"
                       />
                     </button>
@@ -2006,8 +1997,7 @@ export default function ListingPage({
                   >
                     <OptimizedListingImage
                       src={url}
-                      alt=""
-                      decorative
+                      alt={`${listingImageDescription}, kuva ${index + 1}`}
                       sizes="120px"
                     />
                   </button>

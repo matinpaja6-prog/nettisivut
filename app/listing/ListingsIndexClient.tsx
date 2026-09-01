@@ -17,6 +17,7 @@ import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/cou
 import {
   fallbackListings,
   formatPrice,
+  getListingImageAlt,
   type Listing
 } from "@/lib/listings";
 
@@ -232,7 +233,7 @@ export default function ListingsIndexPage({
                 <div className={`${homeStyles.cardImage} ${homeStyles.listingCardImage}`} data-listing-card-image="true">
                   <OptimizedListingImage
                     src={listingImageSrc(listing)}
-                    alt={getListingTitle(listing)}
+                    alt={getListingImageAlt(listing, getListingTitle(listing))}
                   />
                   {isLoggedIn && <button
                     onClick={(e) => toggleFavorite(e, listing.id)}

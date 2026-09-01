@@ -3,7 +3,7 @@ import {
   LocalizedSeoCollectionPage
 } from "@/app/LocalizedSeoCollectionPage";
 
-type PageProps = { params: Promise<{ slug: string }> };
+type PageProps = { params: Promise<{ segments: string[] }> };
 
 export const revalidate = 3_600;
 export const generateMetadata = (props: PageProps) =>

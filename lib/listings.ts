@@ -172,6 +172,31 @@ export function isVehicleListing(
   return ["ajoneuvo", "ajoneuvot", "kokonainen ajoneuvo"].includes(category);
 }
 
+export function getListingImageAlt(
+  listing: Pick<Listing, "brand" | "model" | "year" | "title" | "category" | "subcategory">,
+  localizedTitle?: string | null
+) {
+  const title = String(localizedTitle || listing.title || "").trim();
+  const fallbackPart = String(listing.subcategory || listing.category || "")
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .at(-1) || "Myytävä tuote";
+  const description = title || fallbackPart;
+  const normalizedDescription = description.toLocaleLowerCase("fi-FI");
+  const missingVehicleDetails = [listing.brand, listing.model, listing.year]
+    .map((value) => String(value ?? "").trim())
+    .filter(
+      (value) => value && !normalizedDescription.includes(value.toLocaleLowerCase("fi-FI"))
+    );
+
+  return [...missingVehicleDetails, description]
+    .filter(Boolean)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export type ListingSalePricing = {
   originalPrice: number;
   currentPrice: number;
