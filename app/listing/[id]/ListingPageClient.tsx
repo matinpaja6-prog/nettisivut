@@ -84,7 +84,7 @@ const listingUiText = {
     back: "Takaisin",
     forSale: "Myynnissä",
     part: "Varaosa",
-    itemForSale: "Osa mikä myynnissä",
+    category: "Kategoria",
     updated: "Päivitetty",
     imageSingular: "kuva",
     imagePlural: "kuvaa",
@@ -138,7 +138,7 @@ const listingUiText = {
     back: "Back",
     forSale: "For sale",
     part: "Part",
-    itemForSale: "Item for sale",
+    category: "Category",
     updated: "Updated",
     imageSingular: "image",
     imagePlural: "images",
@@ -192,7 +192,7 @@ const listingUiText = {
     back: "Tillbaka",
     forSale: "Till salu",
     part: "Reservdel",
-    itemForSale: "Del som säljs",
+    category: "Kategori",
     updated: "Uppdaterad",
     imageSingular: "bild",
     imagePlural: "bilder",
@@ -246,7 +246,7 @@ const listingUiText = {
     back: "Tilbake",
     forSale: "Til salgs",
     part: "Del",
-    itemForSale: "Del som selges",
+    category: "Kategori",
     updated: "Oppdatert",
     imageSingular: "bilde",
     imagePlural: "bilder",
@@ -1808,16 +1808,16 @@ export default function ListingPage({
                 <h1>{listingText.title}</h1>
                 <dl className="desktop-listing-title-facts" aria-label={ui.basicInfo}>
                   <div>
-                    <dt>{ui.itemForSale}</dt>
-                    <dd>{listingPartForSale || ui.notSpecified}</dd>
+                    <dt>{ui.brandModel}</dt>
+                    <dd>{listingBrandModel || ui.notSpecified}</dd>
                   </div>
                   <div>
                     <dt>{ui.year}</dt>
                     <dd>{listing.year || ui.notSpecified}</dd>
                   </div>
                   <div>
-                    <dt>{ui.brandModel}</dt>
-                    <dd>{listingBrandModel || ui.notSpecified}</dd>
+                    <dt>{ui.category}</dt>
+                    <dd>{listingPartForSale || ui.notSpecified}</dd>
                   </div>
                 </dl>
 
