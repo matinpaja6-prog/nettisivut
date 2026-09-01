@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import HomeClient from "@/app/HomeClient";
-import SeoCollectionIntro from "@/app/SeoCollectionIntro";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import {
   formatSeoSearchLabel,
@@ -139,12 +138,6 @@ export default async function VehicleCollectionPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
-      />
-      <SeoCollectionIntro
-        listings={listings}
-        matches={matches}
-        query={query}
-        kind="vehicles"
       />
       <HomeClient
         initialListings={listings}

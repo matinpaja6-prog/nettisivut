@@ -3,7 +3,6 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 
 import HomeClient from "@/app/HomeClient";
-import SeoCollectionIntro from "@/app/SeoCollectionIntro";
 import { listingPath } from "@/lib/routes";
 import {
   findGeneratedSeoCollectionDescriptor,
@@ -117,12 +116,6 @@ export default async function SeoSearchPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
-      />
-      <SeoCollectionIntro
-        listings={listings}
-        matches={matches}
-        query={descriptor.query}
-        kind="parts"
       />
       <HomeClient
         initialListings={listings}

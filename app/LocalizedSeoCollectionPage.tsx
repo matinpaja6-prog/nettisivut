@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import HomeClient from "@/app/HomeClient";
-import SeoLandingIntro from "@/app/SeoLandingIntro";
 import { listingPath, listingUrlId } from "@/lib/routes";
 import {
   formatSeoSearchLabel,
@@ -188,10 +187,6 @@ export async function LocalizedSeoCollectionPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
-      />
-      <SeoLandingIntro
-        title={kind === "vehicles" ? copy.vehiclesTitle(label).replace(" | Maskines", "") : copy.partsTitle(label).replace(" | Maskines", "")}
-        description={kind === "vehicles" ? copy.vehiclesDescription(label, matches.length) : copy.partsDescription(label, matches.length)}
       />
       <HomeClient
         initialListings={listings}
