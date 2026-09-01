@@ -65,7 +65,6 @@ import { translateCategory, useLanguage, type Locale } from "@/lib/i18n";
 import { generatedUiTranslations } from "@/lib/generated-ui-translations";
 import { commerceUiTranslations } from "@/lib/commerce-ui-translations";
 import {
-  subcategoryGroups,
   VEHICLE_LISTING_CATEGORY,
   type ListingInput
 } from "@/lib/listings";
@@ -77,6 +76,7 @@ import { canPublishProduct, isStripeReady } from "@/lib/commerce/validation";
 import { isSupportedCurrency, type SupportedCurrency } from "@/lib/currency";
 import {
   buildMarketplaceFilterOptions,
+  buildMarketplacePartSections,
   mergeMarketplaceCategorySources
 } from "@/lib/marketplace-filter-options";
 import { applyNettimotoVehicleModels } from "@/lib/nettimoto-vehicle-models";
@@ -2433,60 +2433,21 @@ function buildMultiPartSections(
   categoryName: string,
   parts: MultiPartOption[]
 ): MultiPartSection[] {
-  const configuredGroups = subcategoryGroups[categoryName];
-  if (!configuredGroups || Object.keys(configuredGroups).length <= 1) return [];
-
   const partsById = new Map(parts.map((part) => [part.id, part]));
-  const usedPartIds = new Set<string>();
-  const usedSectionNames = new Set<string>();
-  const sections: MultiPartSection[] = [];
-
-  for (const [sectionName, subcategoryNames] of Object.entries(configuredGroups)) {
-    const sectionPartNames = subcategoryNames.length > 0 ? subcategoryNames : [sectionName];
-    const sectionParts = sectionPartNames
+  return buildMarketplacePartSections(
+    categoryName,
+    parts.map((part) => part.id.slice(part.id.indexOf("::") + 2))
+  ).map((section) => {
+    const sectionParts = section.subcategories
       .map((subcategoryName) => partsById.get(makeMultiPartId(categoryName, subcategoryName)))
       .filter((part): part is MultiPartOption => Boolean(part));
 
-    if (sectionParts.length === 0) continue;
-
-    for (const part of sectionParts) {
-      usedPartIds.add(part.id);
-    }
-
-    if (usedSectionNames.has(sectionName.toLowerCase())) continue;
-    usedSectionNames.add(sectionName.toLowerCase());
-
-    sections.push({
-      name: sectionName,
+    return {
+      name: section.name,
       groups: buildMultiPartGroups(sectionParts),
       parts: sectionParts
-    });
-  }
-
-  const remainingParts = parts.filter((part) => !usedPartIds.has(part.id));
-  for (const group of buildMultiPartGroups(remainingParts)) {
-    if (usedSectionNames.has(group.name.toLowerCase())) {
-      const existingSection = sections.find(
-        (section) => section.name.toLowerCase() === group.name.toLowerCase()
-      );
-      if (existingSection) {
-        const existingPartIds = new Set(existingSection.parts.map((part) => part.id));
-        const nextParts = group.parts.filter((part) => !existingPartIds.has(part.id));
-        existingSection.parts.push(...nextParts);
-        existingSection.groups = buildMultiPartGroups(existingSection.parts);
-      }
-      continue;
-    }
-    usedSectionNames.add(group.name.toLowerCase());
-
-    sections.push({
-      name: group.name,
-      groups: [group],
-      parts: group.parts
-    });
-  }
-
-  return sections;
+    };
+  });
 }
 
 function buildSharedPartCategoryGroups(

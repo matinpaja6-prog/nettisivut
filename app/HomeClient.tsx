@@ -948,6 +948,174 @@ function hasAppliedFilters(filters: AppliedListingFilters) {
   );
 }
 
+const MARKETPLACE_FILTER_URL_KEYS = [
+  "q",
+  "market",
+  "seller",
+  "location",
+  "vehicleType",
+  "vehicleSubtype",
+  "brand",
+  "model",
+  "category",
+  "subcategory",
+  "identifier",
+  "year",
+  "yearMin",
+  "yearMax",
+  "engineCc",
+  "engineModel",
+  "mileageMin",
+  "mileageMax",
+  "hoursMin",
+  "hoursMax",
+  "registration",
+  "engineKind",
+  "driveType",
+  "roadLegal",
+  "accessory",
+  "color",
+  "vatDeductible",
+  "taxFree",
+  "track",
+  "minPrice",
+  "maxPrice",
+  "gearType",
+  "gearBrand",
+  "gearSize",
+  "gearBrandText",
+  "gearSizeText",
+  "gearCondition",
+  "gearTarget"
+] as const;
+
+type MarketplaceFilterSearchParams = Pick<URLSearchParams, "get" | "getAll" | "has">;
+
+function marketplaceModeFromSearchParams(params: MarketplaceFilterSearchParams): MarketplaceMode {
+  const market = params.get("market");
+  if (market === "vehicles" || market === "gear") return market;
+
+  return normalizeSearchText(params.get("category") ?? "").includes("ajovaruste")
+    ? "gear"
+    : "parts";
+}
+
+function numberFilterParam(params: MarketplaceFilterSearchParams, key: string, fallback: number) {
+  const rawValue = params.get(key)?.trim();
+  if (!rawValue) return fallback;
+
+  const value = Number(rawValue);
+  return Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+
+function listingFiltersFromSearchParams(params: MarketplaceFilterSearchParams): AppliedListingFilters {
+  const categoryParam = params.get("category")?.trim() ?? "";
+  const categoryIsRidingGear = normalizeSearchText(categoryParam).includes("ajovaruste");
+
+  return {
+    query: params.get("q")?.trim() ?? "",
+    category: categoryIsRidingGear ? "" : categoryParam,
+    subcategory: params.get("subcategory")?.trim() ?? "",
+    vehicleType: params.get("vehicleType")?.trim() ?? "",
+    vehicleSubtype: params.get("vehicleSubtype")?.trim() ?? "",
+    selectedBrand: params.get("brand")?.trim() || "Kaikki",
+    modelQuery: params.get("model")?.trim() ?? "",
+    identifierQuery: params.get("identifier")?.trim() ?? "",
+    locationQuery: params.get("location")?.trim() ?? "",
+    yearQuery: params.get("year")?.trim() ?? "",
+    yearMinQuery: params.get("yearMin")?.trim() ?? "",
+    yearMaxQuery: params.get("yearMax")?.trim() ?? "",
+    engineCcQuery: params.get("engineCc")?.trim() ?? "",
+    engineModelQuery: params.get("engineModel")?.trim() ?? "",
+    vehicleMileageMinQuery: params.get("mileageMin")?.trim() ?? "",
+    vehicleMileageMaxQuery: params.get("mileageMax")?.trim() ?? "",
+    vehicleHoursMinQuery: params.get("hoursMin")?.trim() ?? "",
+    vehicleHoursMaxQuery: params.get("hoursMax")?.trim() ?? "",
+    vehicleRegistrationQuery: params.get("registration")?.trim() ?? "",
+    vehicleEngineKindQuery: params.get("engineKind")?.trim() ?? "",
+    vehicleDriveTypeQuery: params.get("driveType")?.trim() ?? "",
+    vehicleRoadLegalQuery: params.get("roadLegal")?.trim() ?? "",
+    vehicleAccessoriesQuery: params.getAll("accessory").map((value) => value.trim()).filter(Boolean),
+    vehicleColorsQuery: params.getAll("color").map((value) => value.trim()).filter(Boolean),
+    vehicleVatDeductibleQuery: params.get("vatDeductible") === "1",
+    vehicleTaxFreeQuery: params.get("taxFree") === "1",
+    trackMatDimensionQuery: params.get("track")?.trim() ?? "",
+    minPrice: numberFilterParam(params, "minPrice", 0),
+    maxPrice: numberFilterParam(params, "maxPrice", 100000),
+    garageFilterId: "",
+    gearTypeQuery: params.getAll("gearType").map((value) => value.trim()).filter(Boolean),
+    gearBrandOptionsQuery: params.getAll("gearBrand").map((value) => value.trim()).filter(Boolean),
+    gearSizeOptionsQuery: params.getAll("gearSize").map((value) => value.trim()).filter(Boolean),
+    gearBrandQuery: params.get("gearBrandText")?.trim() ?? "",
+    gearSizeQuery: params.get("gearSizeText")?.trim() ?? "",
+    gearConditionQuery: params.get("gearCondition")?.trim() ?? "",
+    gearTargetQuery: params.get("gearTarget")?.trim() ?? "",
+    sellerType: (params.get("seller")?.trim() ?? "") as SellerTypeFilter
+  };
+}
+
+function marketplaceFilterSearchParams(
+  currentParams: MarketplaceFilterSearchParams,
+  filters: AppliedListingFilters,
+  mode: MarketplaceResultMode
+) {
+  const params = new URLSearchParams();
+
+  for (const key of ["lang", "catalog"] as const) {
+    const value = currentParams.get(key);
+    if (value) params.set(key, value);
+  }
+
+  const setText = (key: string, value?: string | null) => {
+    const normalized = value?.trim();
+    if (normalized) params.set(key, normalized);
+  };
+  const appendValues = (key: string, values: readonly string[]) => {
+    for (const value of values) setText(key, value);
+  };
+
+  setText("q", filters.query);
+  if (mode === "vehicles" || mode === "gear") params.set("market", mode);
+  setText("seller", filters.sellerType);
+  setText("location", filters.locationQuery);
+  setText("vehicleType", filters.vehicleType);
+  setText("vehicleSubtype", filters.vehicleSubtype);
+  if (filters.selectedBrand !== "Kaikki") setText("brand", filters.selectedBrand);
+  setText("model", filters.modelQuery);
+  setText("category", filters.category);
+  setText("subcategory", filters.subcategory);
+  setText("identifier", filters.identifierQuery);
+  setText("year", filters.yearQuery);
+  setText("yearMin", filters.yearMinQuery);
+  setText("yearMax", filters.yearMaxQuery);
+  setText("engineCc", filters.engineCcQuery);
+  setText("engineModel", filters.engineModelQuery);
+  setText("mileageMin", filters.vehicleMileageMinQuery);
+  setText("mileageMax", filters.vehicleMileageMaxQuery);
+  setText("hoursMin", filters.vehicleHoursMinQuery);
+  setText("hoursMax", filters.vehicleHoursMaxQuery);
+  setText("registration", filters.vehicleRegistrationQuery);
+  setText("engineKind", filters.vehicleEngineKindQuery);
+  setText("driveType", filters.vehicleDriveTypeQuery);
+  setText("roadLegal", filters.vehicleRoadLegalQuery);
+  appendValues("accessory", filters.vehicleAccessoriesQuery);
+  appendValues("color", filters.vehicleColorsQuery);
+  if (filters.vehicleVatDeductibleQuery) params.set("vatDeductible", "1");
+  if (filters.vehicleTaxFreeQuery) params.set("taxFree", "1");
+  setText("track", filters.trackMatDimensionQuery);
+  if (filters.minPrice !== 0) params.set("minPrice", String(filters.minPrice));
+  if (filters.maxPrice !== 100000) params.set("maxPrice", String(filters.maxPrice));
+  appendValues("gearType", filters.gearTypeQuery);
+  appendValues("gearBrand", filters.gearBrandOptionsQuery);
+  appendValues("gearSize", filters.gearSizeOptionsQuery);
+  setText("gearBrandText", filters.gearBrandQuery);
+  setText("gearSizeText", filters.gearSizeQuery);
+  setText("gearCondition", filters.gearConditionQuery);
+  setText("gearTarget", filters.gearTargetQuery);
+
+  return params;
+}
+
 type LocationMultiSelectOption = {
   value: string;
   label: string;
@@ -1895,6 +2063,7 @@ function HomeContent({
   const listingsPageFetchRef = useRef(false);
   const fullSearchCatalogRequestedRef = useRef(false);
   const garageUrlFilterAppliedRef = useRef(false);
+  const marketplaceFilterUrlAppliedRef = useRef(false);
 
   const [activeLocale, setActiveLocale] = useState<SupportedLocale>("fi");
   const locale: Locale = activeLocale;
@@ -2919,6 +3088,24 @@ function HomeContent({
     setMaxPrice(VEHICLE_PRICE_FILTER_MAX);
   }
 
+  function updateMarketplaceFilterUrl(
+    filters: AppliedListingFilters,
+    mode: MarketplaceResultMode,
+    history: "push" | "replace" = "push"
+  ) {
+    const params = marketplaceFilterSearchParams(searchParams, filters, mode);
+    const nextSearch = params.toString();
+    const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""}`;
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    if (nextUrl === currentUrl) return;
+
+    if (history === "replace") {
+      router.replace(nextUrl, { scroll: false });
+    } else {
+      router.push(nextUrl, { scroll: false });
+    }
+  }
+
   function clearListingFilters() {
     setQuery("");
     setVehicleType("");
@@ -3012,6 +3199,10 @@ function HomeContent({
     setCurrentPage(1);
     setListingsExpanded(false);
     setCatalogOnlyView(false);
+    updateMarketplaceFilterUrl(
+      listingFiltersFromSearchParams(new URLSearchParams()),
+      "all"
+    );
   }
 
   function resetFilteredHomeView() {
@@ -3096,7 +3287,7 @@ function HomeContent({
       return false;
     }
 
-    setAppliedListingFilters({
+    const nextFilters: AppliedListingFilters = {
       query,
       category,
       subcategory,
@@ -3135,8 +3326,10 @@ function HomeContent({
       gearConditionQuery,
       gearTargetQuery,
       sellerType
-    });
+    };
+    setAppliedListingFilters(nextFilters);
     setAppliedMarketplaceMode(marketplaceMode);
+    updateMarketplaceFilterUrl(nextFilters, marketplaceMode);
     setRecommendationsMode(false);
     setListingsExpanded(true);
     setHomeLatestExpanded(true);
@@ -4557,92 +4750,76 @@ function HomeContent({
   }, [searchParams]);
 
   useEffect(() => {
-    const categoryParam = searchParams.get("category")?.trim() ?? "";
-    const brandParam = searchParams.get("brand")?.trim() ?? "";
-    const modelParam = searchParams.get("model")?.trim() ?? "";
-    const vehicleTypeParam = searchParams.get("vehicleType")?.trim() as VehicleFilter;
-    const categoryIsRidingGear = normalizeSearchText(categoryParam).includes("ajovaruste");
+    const hasUrlFilters = MARKETPLACE_FILTER_URL_KEYS.some((key) => searchParams.has(key));
+    if (!hasUrlFilters && !marketplaceFilterUrlAppliedRef.current) return;
 
-    if (!categoryParam && !brandParam && !modelParam && !vehicleTypeParam) return;
+    marketplaceFilterUrlAppliedRef.current = hasUrlFilters;
+    const urlFilters = listingFiltersFromSearchParams(searchParams);
+    const urlMarketplaceMode = marketplaceModeFromSearchParams(searchParams);
+    const trackMatDimension = findTrackMatDimension(urlFilters.trackMatDimensionQuery);
 
     setGarageDropdownOpen(false);
     setGarageFilter(null);
-    setQuery("");
-    if (categoryIsRidingGear) setMarketplaceMode("gear");
-    setCategory(categoryIsRidingGear ? "" : categoryParam);
-    setSubcategory("");
-    setSelectedBrand(brandParam || "Kaikki");
-    setVehicleType(vehicleTypeParam || "");
-    setModelQuery(modelParam);
-    setYearQuery("");
-    setYearMinQuery("");
-    setYearMaxQuery("");
-    setEngineCcQuery("");
-    setEngineModelQuery("");
-    setVehicleMileageMinQuery("");
-    setVehicleMileageMaxQuery("");
-    setVehicleHoursMinQuery("");
-    setVehicleHoursMaxQuery("");
-    setVehicleRegistrationQuery("");
-    setVehicleEngineKindQuery("");
-    setVehicleDriveTypeQuery("");
-    setVehicleRoadLegalQuery("");
-    setVehicleAccessoriesQuery([]);
+    setMarketplaceMode(urlMarketplaceMode);
+    setQuery(urlFilters.query);
+    setCategory(urlFilters.category);
+    setSubcategory(urlFilters.subcategory);
+    setSelectedBrand(urlFilters.selectedBrand);
+    setVehicleType(urlFilters.vehicleType);
+    setVehicleSubtype(urlFilters.vehicleSubtype);
+    setModelQuery(urlFilters.modelQuery);
+    setIdentifierQuery(urlFilters.identifierQuery);
+    setLocationQuery(urlFilters.locationQuery);
+    setYearQuery(urlFilters.yearQuery);
+    setYearMinQuery(urlFilters.yearMinQuery);
+    setYearMaxQuery(urlFilters.yearMaxQuery);
+    setEngineCcQuery(urlFilters.engineCcQuery);
+    setEngineModelQuery(urlFilters.engineModelQuery);
+    setVehicleMileageMinQuery(urlFilters.vehicleMileageMinQuery);
+    setVehicleMileageMaxQuery(urlFilters.vehicleMileageMaxQuery);
+    setVehicleHoursMinQuery(urlFilters.vehicleHoursMinQuery);
+    setVehicleHoursMaxQuery(urlFilters.vehicleHoursMaxQuery);
+    setVehicleRegistrationQuery(urlFilters.vehicleRegistrationQuery);
+    setVehicleEngineKindQuery(urlFilters.vehicleEngineKindQuery);
+    setVehicleDriveTypeQuery(urlFilters.vehicleDriveTypeQuery);
+    setVehicleRoadLegalQuery(urlFilters.vehicleRoadLegalQuery);
+    setVehicleAccessoriesQuery(urlFilters.vehicleAccessoriesQuery);
     setVehicleAccessoriesOpen(false);
-    setVehicleColorsQuery([]);
+    setVehicleColorsQuery(urlFilters.vehicleColorsQuery);
     setVehicleColorsOpen(false);
-    setVehicleVatDeductibleQuery(false);
-    setVehicleTaxFreeQuery(false);
-    setSellerType("");
-    setAppliedListingFilters({
-      query: "",
-      category: categoryIsRidingGear ? "" : categoryParam,
-      subcategory: "",
-      vehicleType: vehicleTypeParam || "",
-      vehicleSubtype: "",
-      selectedBrand: brandParam || "Kaikki",
-      modelQuery: modelParam,
-      identifierQuery: "",
-      locationQuery: "",
-      yearQuery: "",
-      yearMinQuery: "",
-      yearMaxQuery: "",
-      engineCcQuery: "",
-      engineModelQuery: "",
-      vehicleMileageMinQuery: "",
-      vehicleMileageMaxQuery: "",
-      vehicleHoursMinQuery: "",
-      vehicleHoursMaxQuery: "",
-      vehicleRegistrationQuery: "",
-      vehicleEngineKindQuery: "",
-      vehicleDriveTypeQuery: "",
-      vehicleRoadLegalQuery: "",
-      vehicleAccessoriesQuery: [],
-      vehicleColorsQuery: [],
-      trackMatDimensionQuery: "",
-      minPrice: 0,
-      maxPrice: 100000,
-      garageFilterId: "",
-      gearTypeQuery: [],
-      gearBrandOptionsQuery: [],
-      gearSizeOptionsQuery: [],
-      gearBrandQuery: "",
-      gearSizeQuery: "",
-      gearConditionQuery: "",
-      gearTargetQuery: "",
-      sellerType: ""
-    });
-    if (categoryIsRidingGear) setAppliedMarketplaceMode("gear");
+    setVehicleVatDeductibleQuery(Boolean(urlFilters.vehicleVatDeductibleQuery));
+    setVehicleTaxFreeQuery(Boolean(urlFilters.vehicleTaxFreeQuery));
+    setTrackMatLengthQuery(trackMatDimension?.lengthCm ?? "");
+    setTrackMatLengthCustomQuery("");
+    setTrackMatWidthQuery(trackMatDimension?.widthCm ?? "");
+    setTrackMatWidthCustomQuery("");
+    setTrackMatPitchQuery(trackMatDimension?.pitchCm ?? "");
+    setTrackMatPitchCustomQuery("");
+    setTrackMatDimensionQuery(urlFilters.trackMatDimensionQuery);
+    setMinPrice(urlFilters.minPrice);
+    setMaxPrice(urlFilters.maxPrice);
+    setGearTypeQuery(urlFilters.gearTypeQuery);
+    setGearBrandOptionsQuery(urlFilters.gearBrandOptionsQuery);
+    setGearSizeOptionsQuery(urlFilters.gearSizeOptionsQuery);
+    setGearBrandQuery(urlFilters.gearBrandQuery);
+    setGearSizeQuery(urlFilters.gearSizeQuery);
+    setGearConditionQuery(urlFilters.gearConditionQuery);
+    setGearTargetQuery(urlFilters.gearTargetQuery);
+    setSellerType(urlFilters.sellerType);
+    setAppliedListingFilters(urlFilters);
+    setAppliedMarketplaceMode(hasUrlFilters ? urlMarketplaceMode : "all");
     setActiveHeroFilter(null);
-    setRecommendationsMode(false);
-    setListingsExpanded(true);
-    setHomeLatestExpanded(true);
-    setCatalogOnlyView(false);
+    setRecommendationsMode(!hasUrlFilters);
+    setListingsExpanded(hasUrlFilters);
+    setHomeLatestExpanded(hasUrlFilters);
+    setCatalogOnlyView(hasUrlFilters);
     setCurrentPage(1);
 
-    window.requestAnimationFrame(() => {
-      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    if (hasUrlFilters) {
+      window.requestAnimationFrame(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   }, [searchParams]);
 
   useEffect(() => {

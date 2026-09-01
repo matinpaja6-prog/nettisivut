@@ -316,12 +316,13 @@ export function buildMarketplaceCategorySource({
   vehicleCategories: Record<string, Record<string, readonly string[]>>;
   allVehicleCategories: Record<string, readonly string[]>;
 }) {
-  if (!vehicleType) return buildUnifiedAllVehicleCategories(allVehicleCategories);
+  // Keep the public filter hierarchy identical to the sell flow. Converting
+  // these to broad search buckets hid familiar publishing choices such as
+  // "Alusta & telasto" and split its Telasto/Alusta groups apart.
+  if (!vehicleType) return allVehicleCategories;
   const vehicleKey = getCategoryVehicleKey(vehicleType);
   const categorySource = vehicleCategories[vehicleType] ?? vehicleCategories[vehicleKey] ?? allVehicleCategories;
-  return buildUnifiedAllVehicleCategories(
-    filterVehiclePartCategoriesBySubtype(categorySource, vehicleKey, vehicleSubtype)
-  );
+  return filterVehiclePartCategoriesBySubtype(categorySource, vehicleKey, vehicleSubtype);
 }
 
 export function mergeMarketplaceCategorySources(
@@ -356,6 +357,13 @@ export function buildMarketplaceSubcategoryGroups({
   if (!category) return null;
 
   const categorySubs = categorySource[category] ?? [];
+  const sharedSections = buildMarketplacePartSections(category, categorySubs);
+  if (sharedSections.length > 0) {
+    return Object.fromEntries(
+      sharedSections.map((section) => [section.name, section.subcategories])
+    );
+  }
+
   const baseGroups = subcategoryGroups[category];
   const dynamicMap = new Map<string, string[]>();
   const standalone: string[] = [];
@@ -405,6 +413,83 @@ export function buildMarketplaceSubcategoryGroups({
   }
 
   return Object.keys(result).length > 0 ? result : null;
+}
+
+export type MarketplacePartSection = {
+  name: string;
+  subcategories: string[];
+};
+
+function marketplacePartGroupName(category: string, subcategory: string) {
+  const firstPart = subcategory.split(" / ")[0]?.trim() || subcategory.trim();
+  const normalized = subcategory.toLocaleLowerCase("fi-FI");
+
+  if (normalized.includes("kokonainen moottori")) return "Moottorit";
+  if (normalized.includes("kokonainen voimansiirto")) return "Voimansiirto";
+  if (normalized.includes("kokonainen kytkin")) return "Kytkimet";
+  if (normalized.includes("kokonainen variaattori")) return "Variaattorit";
+  if (normalized.includes("kokonainen telasto")) return "Telasto";
+  if (normalized.includes("kokonainen alusta")) return "Alusta";
+  if (normalized.includes("kokonainen iskunvaimennussarja")) return "Iskunvaimentimet";
+  if (normalized.includes("kokonainen ohjaus")) return "Ohjaus";
+  if (normalized.includes("kokonainen jarruj")) return "Jarrut";
+  if (normalized.includes("kokonainen sukset")) return "Sukset";
+  if (normalized.includes("kokonainen sähkö")) return "Sähkö";
+  if (normalized.includes("kokonainen jäähdytys")) return "Jäähdytys";
+  if (normalized.includes("kokonainen polttoaine")) return "Polttoainejärjestelmä";
+  if (normalized.includes("kokonainen pakoputkisto")) return "Pakoputkisto";
+  if (normalized.includes("kokonainen runko")) return "Runko";
+  if (normalized.includes("kokonainen katesarja")) return "Katteet";
+
+  return firstPart || category;
+}
+
+/**
+ * The single-listing form, multi-listing form and marketplace filters all use
+ * this hierarchy. Keeping the grouping here prevents labels such as Alusta and
+ * Telasto from drifting between publishing and searching.
+ */
+export function buildMarketplacePartSections(
+  category: string,
+  subcategories: readonly string[]
+): MarketplacePartSection[] {
+  if (!category || subcategories.length === 0) return [];
+
+  const configuredGroups = subcategoryGroups[category];
+  if (!configuredGroups || Object.keys(configuredGroups).length <= 1) return [];
+
+  const available = new Set(subcategories);
+  const used = new Set<string>();
+  const sections: MarketplacePartSection[] = [];
+
+  for (const [name, configuredSubcategories] of Object.entries(configuredGroups)) {
+    const candidates = configuredSubcategories.length > 0
+      ? configuredSubcategories
+      : [name];
+    const matching = candidates.filter((subcategory) => available.has(subcategory));
+    if (matching.length === 0) continue;
+
+    matching.forEach((subcategory) => used.add(subcategory));
+    sections.push({ name, subcategories: matching });
+  }
+
+  for (const subcategory of subcategories) {
+    if (used.has(subcategory)) continue;
+
+    const name = marketplacePartGroupName(category, subcategory);
+    const existing = sections.find(
+      (section) => section.name.toLocaleLowerCase("fi-FI") === name.toLocaleLowerCase("fi-FI")
+    );
+    if (existing) {
+      if (!existing.subcategories.includes(subcategory)) {
+        existing.subcategories.push(subcategory);
+      }
+    } else {
+      sections.push({ name, subcategories: [subcategory] });
+    }
+  }
+
+  return sections;
 }
 
 export function buildMarketplaceFilterOptions({

@@ -84,6 +84,7 @@ const listingUiText = {
     back: "Takaisin",
     forSale: "Myynnissä",
     part: "Varaosa",
+    itemForSale: "Osa mikä myynnissä",
     updated: "Päivitetty",
     imageSingular: "kuva",
     imagePlural: "kuvaa",
@@ -137,6 +138,7 @@ const listingUiText = {
     back: "Back",
     forSale: "For sale",
     part: "Part",
+    itemForSale: "Item for sale",
     updated: "Updated",
     imageSingular: "image",
     imagePlural: "images",
@@ -190,6 +192,7 @@ const listingUiText = {
     back: "Tillbaka",
     forSale: "Till salu",
     part: "Reservdel",
+    itemForSale: "Del som säljs",
     updated: "Uppdaterad",
     imageSingular: "bild",
     imagePlural: "bilder",
@@ -243,6 +246,7 @@ const listingUiText = {
     back: "Tilbake",
     forSale: "Til salgs",
     part: "Del",
+    itemForSale: "Del som selges",
     updated: "Oppdatert",
     imageSingular: "bilde",
     imagePlural: "bilder",
@@ -1705,6 +1709,16 @@ export default function ListingPage({
     const tVehicle = vehicleTypeMap[locale]?.[listing.vehicle_type ?? ""] ?? listing.vehicle_type ?? "";
     return { ...baseListingText, title: `${tLeaf} - ${tVehicle}`.trim() };
   })();
+  const localizedPartCategory = translateCategory(
+    locale,
+    listing.subcategory?.trim() || listing.category?.trim() || ""
+  );
+  const listingPartForSale =
+    localizedPartCategory
+      .split("/")
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .at(-1) || listingText.title;
   const listingImageDescription = [
     listing.brand,
     listing.model,
@@ -1792,6 +1806,20 @@ export default function ListingPage({
                   }</strong>
                 </span>
                 <h1>{listingText.title}</h1>
+                <dl className="desktop-listing-title-facts" aria-label={ui.basicInfo}>
+                  <div>
+                    <dt>{ui.itemForSale}</dt>
+                    <dd>{listingPartForSale || ui.notSpecified}</dd>
+                  </div>
+                  <div>
+                    <dt>{ui.year}</dt>
+                    <dd>{listing.year || ui.notSpecified}</dd>
+                  </div>
+                  <div>
+                    <dt>{ui.brandModel}</dt>
+                    <dd>{listingBrandModel || ui.notSpecified}</dd>
+                  </div>
+                </dl>
 
               </div>
 
@@ -2806,6 +2834,49 @@ export default function ListingPage({
           max-width: 100%;
           color: #0f172a;
           letter-spacing: -0.02em;
+        }
+
+        .desktop-listing-title-facts {
+          display: none;
+        }
+
+        @media (min-width: 761px) {
+          .desktop-listing-title-facts {
+            display: grid;
+            grid-template-columns: minmax(180px, 1.35fr) minmax(110px, 0.65fr) minmax(180px, 1fr);
+            gap: 10px;
+            margin: 16px 0 0;
+          }
+
+          .desktop-listing-title-facts > div {
+            background: #f8fafc;
+            border: 1px solid #dbe4ee;
+            border-radius: 11px;
+            display: grid;
+            gap: 3px;
+            min-width: 0;
+            padding: 10px 12px;
+          }
+
+          .desktop-listing-title-facts dt {
+            color: #64748b;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.045em;
+            line-height: 1.2;
+            text-transform: uppercase;
+          }
+
+          .desktop-listing-title-facts dd {
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 850;
+            line-height: 1.35;
+            margin: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
         }
 
         .sub-info {
