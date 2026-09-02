@@ -3,7 +3,7 @@ import { unstable_cache } from "next/cache";
 
 import { formatPrice, getListingSalePricing, isVehicleListing } from "@/lib/listings";
 import { getLocalizedListingText, type ListingLocale } from "@/lib/listing-translations";
-import { listingNumberUrlId, listingPath, listingSharePath } from "@/lib/routes";
+import { listingNumberUrlId, listingPath } from "@/lib/routes";
 import { absoluteSiteUrl, PUBLIC_SITE_URL } from "@/lib/site-url";
 import { getListingById, getListingDisplayNumber } from "@/lib/supabase";
 
@@ -124,8 +124,7 @@ function buildTitle(
 
 export async function generateListingMetadataForLocale(
   { params }: ListingPageParams,
-  locale?: ListingLocale,
-  sharePath?: string
+  locale?: ListingLocale
 ): Promise<Metadata> {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
@@ -204,15 +203,8 @@ export async function generateListingMetadataForLocale(
   const displayNumber = await getListingDisplayNumber(listing.created_at, listing.listing_number);
   const urlId = listingNumberUrlId(displayNumber) || listing.id;
   const canonicalListingPath = listingPath({ ...listing, listing_number: displayNumber, id: urlId });
-  const url = absoluteSiteUrl(sharePath || canonicalListingPath);
+  const url = absoluteSiteUrl(canonicalListingPath);
   const imageUrl = absoluteSiteUrl(`/og/listing/${encodeURIComponent(urlId)}/preview.jpg`);
-  const languages = {
-    "fi-FI": absoluteSiteUrl(canonicalListingPath),
-    en: absoluteSiteUrl(listingSharePath(urlId, "en")),
-    sv: absoluteSiteUrl(listingSharePath(urlId, "sv")),
-    nb: absoluteSiteUrl(listingSharePath(urlId, "no")),
-    "x-default": absoluteSiteUrl(canonicalListingPath)
-  };
 
   return {
     metadataBase: new URL(PUBLIC_SITE_URL),
@@ -230,8 +222,8 @@ export async function generateListingMetadataForLocale(
       }
     },
     alternates: {
-      canonical: url,
-      languages
+      // All legacy share aliases resolve to this one public listing URL.
+      canonical: url
     },
     openGraph: {
       type: "website",

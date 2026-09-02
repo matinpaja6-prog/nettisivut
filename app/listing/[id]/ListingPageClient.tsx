@@ -48,7 +48,6 @@ import { formatLocationWithCountry, getCountryFlagFromLocation } from "@/lib/cou
 import {
   listingNumberUrlId,
   listingPath,
-  listingSharePath,
   listingUrlId,
   pagePath,
   profilePath
@@ -1436,7 +1435,11 @@ export default function ListingPage({
       listingNumberUrlId(listing.listing_number) ||
       listingNumberUrlId(listingDisplayNumber) ||
       listingUrlId(listing);
-    const url = absoluteSiteUrl(listingSharePath(shareUrlId, activeLocale));
+    const url = absoluteSiteUrl(listingPath({
+      ...listing,
+      id: shareUrlId,
+      listing_number: listing.listing_number || listingDisplayNumber
+    }));
 
     if (navigator.share) {
       try {

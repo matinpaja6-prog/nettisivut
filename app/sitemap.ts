@@ -3,7 +3,6 @@ import type { MetadataRoute } from "next";
 import {
   listingNumberUrlId,
   listingPath,
-  listingSharePath,
   listingUrlId,
   pagePath,
   profilePath
@@ -118,7 +117,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
   const sellerEntries: MetadataRoute.Sitemap = [...activeSellerEntries.values()];
 
-  const listingEntryGroups = await Promise.all(
+  const listingEntries: MetadataRoute.Sitemap = await Promise.all(
     listings
       .filter((listing) => !listing.is_hidden && !listing.is_sold)
       .map(async (listing) => {
@@ -130,30 +129,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const canonicalId =
           listingNumberUrlId(displayNumber) || listingUrlId(listing);
 
-        const languagePaths = {
-          "fi-FI": listingPath({ ...listing, listing_number: displayNumber, id: canonicalId }),
-          en: listingSharePath(canonicalId, "en"),
-          sv: listingSharePath(canonicalId, "sv"),
-          nb: listingSharePath(canonicalId, "no")
-        };
-        const languages = Object.fromEntries(
-          Object.entries(languagePaths).map(([language, path]) => [language, absoluteSiteUrl(path)])
-        );
-        const shared = {
+        // Legacy share URLs redirect to this same page; they are not separate
+        // language versions and must not be advertised as URLs or hreflang.
+        return {
+          url: absoluteSiteUrl(
+            listingPath({ ...listing, listing_number: displayNumber, id: canonicalId })
+          ),
           ...(Number.isNaN(createdAt.getTime()) ? {} : { lastModified: createdAt }),
           ...(listing.image_url ? { images: [absoluteSiteUrl(listing.image_url)] } : {}),
-          alternates: { languages },
           changeFrequency: "daily" as const,
           priority: 0.8
         };
-
-        return Object.values(languagePaths).map((path) => ({
-          url: absoluteSiteUrl(path),
-          ...shared
-        }));
       })
   );
-  const listingEntries: MetadataRoute.Sitemap = listingEntryGroups.flat();
 
   const groupedSearchPages = new Map<
     string,
