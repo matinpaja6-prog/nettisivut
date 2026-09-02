@@ -2,9 +2,11 @@ import { ArrowRight, MapPin, Package, Search, ShieldCheck, Store } from "lucide-
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 
 import styles from "./page.module.css";
 import { companyRecord } from "@/lib/commerce/company-record";
+import { COMPANY_DIRECTORY_VISIBLE } from "@/lib/features";
 import { normalizeRouteLocale, pagePath, profilePath } from "@/lib/routes";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
@@ -12,6 +14,7 @@ export const metadata: Metadata = {
   title: "Yritykset | Maskines",
   description: "Tutustu Maskinesin vahvistettuihin yrityksiin ja niiden valikoimiin.",
   alternates: { canonical: "/yritykset" },
+  robots: { index: COMPANY_DIRECTORY_VISIBLE, follow: true },
 };
 
 export const revalidate = 300;
@@ -35,6 +38,8 @@ function formatPlaceName(value: string) {
 }
 
 export default async function StoresPage({ searchParams }: StoresPageProps) {
+  if (!COMPANY_DIRECTORY_VISIBLE) notFound();
+
   const params = await searchParams;
   const locale = normalizeRouteLocale((await cookies()).get("locale")?.value);
   const directoryPath = pagePath("yritykset", locale);

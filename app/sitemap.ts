@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { COMPANY_DIRECTORY_VISIBLE } from "@/lib/features";
 
 import {
   listingNumberUrlId,
@@ -29,7 +30,7 @@ const PUBLIC_STATIC_PATHS = [
   "/ilmoitukset",
   "/ajoneuvot",
   "/varaosat",
-  "/yritykset",
+  ...(COMPANY_DIRECTORY_VISIBLE ? [pagePath("yritykset", "fi")] : []),
   pagePath("about", "fi"),
   pagePath("contact", "fi"),
   pagePath("faq", "fi"),

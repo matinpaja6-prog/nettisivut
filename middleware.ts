@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { COMPANY_DIRECTORY_VISIBLE } from "@/lib/features";
 import {
   canonicalPathFromLocalized,
   listingPath,
@@ -398,6 +399,20 @@ export async function middleware(request: NextRequest) {
   }
 
   const ip = getClientIp(request);
+
+  // Hide every localized directory route (and the old /liikkeet alias) before
+  // redirects or cached page responses. A 404 is reversible; this is not a
+  // permanent deletion. Keep profiles and company administration reachable.
+  const publicSection = canonicalPathFromLocalized(pathname).split("/")[1];
+  if (!COMPANY_DIRECTORY_VISIBLE && (publicSection === "yritykset" || publicSection === "liikkeet")) {
+    return applyDocumentHeaders(
+      new NextResponse("Sivua ei löytynyt.", {
+        status: 404,
+        headers: { "Content-Type": "text/plain; charset=utf-8" }
+      }),
+      { noIndex: true, noStore: true }
+    );
+  }
 
   if (
     pathname.startsWith("/_next") ||

@@ -25,6 +25,7 @@ function loadModule(path, dependencies = {}, globals = {}) {
 }
 
 const routes = loadModule("lib/routes.ts");
+const features = loadModule("lib/features.ts");
 const site = {
   PUBLIC_SITE_URL: "https://maskines.com",
   absoluteSiteUrl: (path) => new URL(path, "https://maskines.com").href
@@ -60,7 +61,8 @@ const data = {
   getListingById: async () => ({ data: listing })
 };
 
-const { default: sitemap } = loadModule("app/sitemap.ts", {
+const sitemapDependencies = {
+  "@/lib/features": features,
   "@/lib/routes": routes,
   "@/lib/site-url": site,
   "@/lib/supabase": data,
@@ -73,7 +75,8 @@ const { default: sitemap } = loadModule("app/sitemap.ts", {
     seoPartCollectionDescriptors: () => [],
     seoVehicleSearchQueries: () => []
   }
-});
+};
+const { default: sitemap } = loadModule("app/sitemap.ts", sitemapDependencies);
 const entries = await sitemap();
 const listingEntries = entries.filter((entry) => entry.priority === 0.8);
 assert.deepEqual(listingEntries.map((entry) => entry.url), [
@@ -85,6 +88,12 @@ assert.deepEqual(listingEntries.map((entry) => entry.url), [
 assert.equal(new Set(entries.map((entry) => entry.url)).size, entries.length);
 assert.ok(!legacyPattern.test(JSON.stringify(entries)));
 assert.ok(listingEntries.every((entry) => !entry.alternates));
+assert.ok(!entries.some((entry) => entry.url === "https://maskines.com/yritykset"));
+const restoredSitemap = loadModule("app/sitemap.ts", {
+  ...sitemapDependencies,
+  "@/lib/features": { COMPANY_DIRECTORY_VISIBLE: true }
+}).default;
+assert.ok((await restoredSitemap()).some((entry) => entry.url === "https://maskines.com/yritykset"));
 assert.equal(listingEntries[0].images[0], listing.image_url);
 assert.equal(listingEntries[0].lastModified.toISOString(), listing.created_at.replace("Z", ".000Z"));
 console.log("PASS sitemap: current URLs only; hidden/sold excluded; images and dates retained");
@@ -123,6 +132,7 @@ const { NextRequest } = require("next/server");
 async function legacyResponse(rows) {
   const { middleware } = loadModule("middleware.ts", {
     "next/server": require("next/server"),
+    "@/lib/features": features,
     "@/lib/routes": routes
   }, {
     process: { env: { NEXT_PUBLIC_SUPABASE_URL: "https://example.com", NEXT_PUBLIC_SUPABASE_ANON_KEY: "test" } },
@@ -137,4 +147,27 @@ assert.equal((await legacyResponse([])).status, 410);
 assert.equal((await legacyResponse([{ ...listing, is_hidden: true }])).status, 410);
 assert.equal((await legacyResponse([{ ...listing, is_sold: true }])).status, 410);
 console.log("PASS legacy URLs: 308 to current listing; absent/hidden/sold return 410");
+
+function directoryMiddleware(visible) {
+  return loadModule("middleware.ts", {
+    "next/server": require("next/server"),
+    "@/lib/routes": routes,
+    "@/lib/features": { COMPANY_DIRECTORY_VISIBLE: visible }
+  }, { process: { env: {} } }).middleware;
+}
+const hiddenDirectory = directoryMiddleware(false);
+for (const path of ["/yritykset", "/companies", "/foretag", "/bedrifter", "/liikkeet"]) {
+  for (const suffix of ["", "/", "?yritys=test", "/test"]) {
+    const response = await hiddenDirectory(new NextRequest(`https://maskines.com${path}${suffix}`));
+    assert.equal(response.status, 404, `${path}${suffix}`);
+    assert.match(response.headers.get("x-robots-tag"), /noindex/);
+    assert.match(response.headers.get("cache-control"), /no-store/);
+    assert.equal(response.headers.get("location"), null);
+  }
+}
+for (const path of ["/", "/profiili/arcticparts", "/yritys", "/admin/commerce", "/api/commerce/company"]) {
+  assert.notEqual((await hiddenDirectory(new NextRequest(`https://maskines.com${path}`))).status, 404, path);
+}
+assert.equal((await directoryMiddleware(true)(new NextRequest("https://maskines.com/yritykset"))).status, 200);
+console.log("PASS company directory: all aliases hidden, unrelated routes intact, one flag restores access");
 console.log(`Listing SEO checks passed (${fileURLToPath(root)}).`);
